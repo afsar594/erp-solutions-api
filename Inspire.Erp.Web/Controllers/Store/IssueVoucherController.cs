@@ -1,0 +1,490 @@
+﻿using Inspire.Erp.Application.Account.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using AutoMapper;
+using Inspire.Erp.Application.Store.Interfaces;
+using Inspire.Erp.Application.Common;
+using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Web.ViewModels;
+using Inspire.Erp.Web.ViewModels.Store;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Web.Common;
+
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Inspire.Erp.Web.MODULE;
+
+
+
+
+
+namespace Inspire.Erp.Web.Controllers.Store
+{
+    [Route("api/IssueVoucher")]
+    [Produces("application/json")]
+    [ApiController]
+    public class IssueVoucherController : ControllerBase
+    {
+        private IIssueVoucherService _issueVoucherService;
+        private readonly IMapper _mapper;
+        public IssueVoucherController(IIssueVoucherService issueVoucherService, IMapper mapper)
+        {
+            _issueVoucherService = issueVoucherService;
+            _mapper = mapper;
+        }
+
+       
+        //[HttpGet]
+        //[Route("IssueVoucher_GetReportIssueVoucher")]
+        //public ApiResponse<List<ReportIssueVoucher>> IssueVoucher_GetReportIssueVoucher()
+        //{
+
+
+
+        //    ApiResponse<List<ReportIssueVoucher>> apiResponse = new ApiResponse<List<ReportIssueVoucher>>
+        //    {
+        //        Valid = true,
+        //        Result = _mapper.Map<List<ReportIssueVoucher>>(_issueVoucherService.IssueVoucher_GetReportIssueVoucher()),
+        //        Message = ""
+        //    };
+        //    return apiResponse;
+
+
+
+
+        //}
+
+
+
+        ////[HttpGet]
+        ////[Route("IssueVoucher_GetAllLocationMaster")]
+
+        ////public List<LocationMaster> IssueVoucher_GetAllLocationMaster()
+        ////{
+        ////    return _mapper.Map<List<LocationMaster>>(_issueVoucherService.IssueVoucher_GetAllLocationMaster());
+
+
+        ////}
+
+
+
+        ////[HttpGet]
+        ////[Route("IssueVoucher_GetAllSuppliersMaster")]
+
+
+        ////public List<SuppliersMaster> IssueVoucher_GetAllSuppliersMaster()
+        ////{
+        ////    return _mapper.Map<List<SuppliersMaster>>(_issueVoucherService.IssueVoucher_GetAllSuppliersMaster());
+
+
+        ////}
+
+        
+
+        ////[HttpGet]
+        ////[Route("IssueVoucher_GetAllUnitMaster")]
+
+        ////public List<UnitMaster> IssueVoucher_GetAllUnitMaster()
+        ////{
+        ////    return _mapper.Map<List<UnitMaster>>(_issueVoucherService.IssueVoucher_GetAllUnitMaster());
+
+
+        ////}
+
+
+
+        
+
+        ////[HttpGet]
+        ////[Route("IssueVoucher_GetAllItemMaster")]
+
+        ////public List<ItemMaster> IssueVoucher_GetAllItemMaster()
+        ////{
+        ////    return _mapper.Map<List<ItemMaster>>(_issueVoucherService.IssueVoucher_GetAllItemMaster());
+
+
+        ////}
+
+
+
+
+        [HttpPost]
+        [Route("InsertIssueVoucher")]
+        public ApiResponse<IssueVoucherViewModel> InsertIssueVoucher([FromBody] IssueVoucherViewModel voucherCompositeView)
+        {
+           
+
+            ApiResponse<IssueVoucherViewModel> apiResponse = new ApiResponse<IssueVoucherViewModel>();
+            if (_issueVoucherService.GetVouchersNumbers(voucherCompositeView.IssueVoucherNo) == null)
+            {
+                var param1 = _mapper.Map<IssueVoucher>(voucherCompositeView);
+                var param2 = _mapper.Map<List<IssueVoucherDetails>>(voucherCompositeView.IssueVoucherDetails);
+                var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
+                //List<StockRegister> param4 = new List<StockRegister>();
+                //var xs = _issueVoucherService.InsertIssueVoucher(param1, param3, param2
+                //    , param4
+                //    );
+
+                //==============
+
+                param3 = new List<AccountsTransactions>();
+                List<StockRegister> param4 = new List<StockRegister>();
+                clsAccountAndStock.IssueVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
+
+                var xs = _issueVoucherService.InsertIssueVoucher(param1, param3, param2
+               , param4
+               );
+                //========================
+
+
+                IssueVoucherViewModel issueVoucherViewModel = new IssueVoucherViewModel
+                {
+
+                    IssueVoucherId = xs.issueVoucher.IssueVoucherId,
+                    IssueVoucherNo = xs.issueVoucher.IssueVoucherNo,
+                    IssueVoucherDate = xs.issueVoucher.IssueVoucherDate,
+                    IssueVoucherCreditAccNo = xs.issueVoucher.IssueVoucherCreditAccNo,
+                    IssueVoucherDepartmentId = xs.issueVoucher.IssueVoucherDepartmentId,
+                    IssueVoucherBufferRemark1 = xs.issueVoucher.IssueVoucherBufferRemark1,
+                    IssueVoucherCostCenterId = xs.issueVoucher.IssueVoucherCostCenterId,
+                    IssueVoucherDebitAccNo = xs.issueVoucher.IssueVoucherDebitAccNo,
+                    IssueVoucherIvNoForRet = xs.issueVoucher.IssueVoucherIvNoForRet,
+                    IssueVoucherRefNo = xs.issueVoucher.IssueVoucherRefNo,
+                    IssueVoucherDescription = xs.issueVoucher.IssueVoucherDescription,
+                    IssueVoucherGrno = xs.issueVoucher.IssueVoucherGrno,
+                    IssueVoucherGrdate = xs.issueVoucher.IssueVoucherGrdate,
+                    IssueVoucherLpono = xs.issueVoucher.IssueVoucherLpono,
+                    IssueVoucherLpodate = xs.issueVoucher.IssueVoucherLpodate,
+                    IssueVoucherQtnNo = xs.issueVoucher.IssueVoucherQtnNo,
+                    IssueVoucherQtnDate = xs.issueVoucher.IssueVoucherQtnDate,
+                    IssueVoucherIvDateForRet = xs.issueVoucher.IssueVoucherIvDateForRet,
+                    IssueVoucherReqNo = xs.issueVoucher.IssueVoucherReqNo,
+                    IssueVoucherReqDate = xs.issueVoucher.IssueVoucherReqDate,
+                    IssueVoucherDayBookNo = xs.issueVoucher.IssueVoucherDayBookNo,
+                    IssueVoucherLocationId = xs.issueVoucher.IssueVoucherLocationId,
+                    IssueVoucherUserId = xs.issueVoucher.IssueVoucherUserId,
+                    IssueVoucherCurrencyId = xs.issueVoucher.IssueVoucherCurrencyId,
+                    IssueVoucherCompanyId = xs.issueVoucher.IssueVoucherCompanyId,
+                    IssueVoucherJobId = xs.issueVoucher.IssueVoucherJobId,
+                    IssueVoucherFsno = xs.issueVoucher.IssueVoucherFsno,
+                    IssueVoucherFcRate = xs.issueVoucher.IssueVoucherFcRate,
+                    IssueVoucherStatus = xs.issueVoucher.IssueVoucherStatus,
+                    IssueVoucherTotalGrossAmount = xs.issueVoucher.IssueVoucherTotalGrossAmount,
+                    IssueVoucherTotalItemDisAmount = xs.issueVoucher.IssueVoucherTotalItemDisAmount,
+                    IssueVoucherTotalActualAmount = xs.issueVoucher.IssueVoucherTotalActualAmount,
+                    IssueVoucherTotalDisPer = xs.issueVoucher.IssueVoucherTotalDisPer,
+                    IssueVoucherTotalDisAmount = xs.issueVoucher.IssueVoucherTotalDisAmount,
+                    IssueVoucherVatAmt = xs.issueVoucher.IssueVoucherVatAmt,
+                    IssueVoucherVatPer = xs.issueVoucher.IssueVoucherVatPer,
+                    IssueVoucherVatRoundSign = xs.issueVoucher.IssueVoucherVatRoundSign,
+                    IssueVoucherVatRountAmt = xs.issueVoucher.IssueVoucherVatRountAmt,
+                    IssueVoucherNetDisAmount = xs.issueVoucher.IssueVoucherNetDisAmount,
+                    IssueVoucherNetAmount = xs.issueVoucher.IssueVoucherNetAmount,
+                    IssueVoucherBufferRemark12 = xs.issueVoucher.IssueVoucherBufferRemark12,
+                    IssueVoucherBufferRemark13 = xs.issueVoucher.IssueVoucherBufferRemark13,
+                    IssueVoucherBufferPurNo = xs.issueVoucher.IssueVoucherBufferPurNo,
+                    IssueVoucherBufferReqNo = xs.issueVoucher.IssueVoucherBufferReqNo,
+                    IssueVoucherDelStatus = xs.issueVoucher.IssueVoucherDelStatus,
+
+
+                };
+
+                issueVoucherViewModel.IssueVoucherDetails = _mapper.Map<List<IssueVoucherDetailsViewModel>>(xs.issueVoucherDetails);
+                issueVoucherViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
+                apiResponse = new ApiResponse<IssueVoucherViewModel>
+                {
+                    Valid = true,
+                    Result = _mapper.Map<IssueVoucherViewModel>(issueVoucherViewModel),
+                    Message = IssueVoucherMessage.SaveVoucher
+                };
+            }
+            else
+            {
+                apiResponse = new ApiResponse<IssueVoucherViewModel>
+                {
+                    Valid = false,
+                    Error = true,
+                    Exception = null,
+                    Message = IssueVoucherMessage.VoucherAlreadyExist
+                };
+
+            }
+
+
+            return apiResponse;
+
+        }
+
+        [HttpPost]
+        [Route("UpdateIssueVoucher")]
+        public ApiResponse<IssueVoucherViewModel> UpdateIssueVoucher([FromBody] IssueVoucherViewModel voucherCompositeView)
+        {
+            var param1 = _mapper.Map<IssueVoucher>(voucherCompositeView);
+            var param2 = _mapper.Map<List<IssueVoucherDetails>>(voucherCompositeView.IssueVoucherDetails);
+            var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
+            //List<StockRegister> param4 = new List<StockRegister>();
+            //var xs = _issueVoucherService.UpdateIssueVoucher(param1, param3, param2
+            //    , param4
+            //    );
+
+            //==============
+            param3 = new List<AccountsTransactions>();
+            List<StockRegister> param4 = new List<StockRegister>();
+            clsAccountAndStock.IssueVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
+
+            var xs = _issueVoucherService.UpdateIssueVoucher(param1, param3, param2
+           , param4
+           );
+            //========================
+
+
+
+
+
+
+
+
+
+
+            IssueVoucherViewModel issueVoucherViewModel = new IssueVoucherViewModel
+            {
+                IssueVoucherId = xs.issueVoucher.IssueVoucherId,
+                IssueVoucherNo = xs.issueVoucher.IssueVoucherNo,
+                IssueVoucherDate = xs.issueVoucher.IssueVoucherDate,
+                IssueVoucherCreditAccNo = xs.issueVoucher.IssueVoucherCreditAccNo,
+                IssueVoucherDepartmentId = xs.issueVoucher.IssueVoucherDepartmentId,
+                IssueVoucherBufferRemark1 = xs.issueVoucher.IssueVoucherBufferRemark1,
+                IssueVoucherCostCenterId = xs.issueVoucher.IssueVoucherCostCenterId,
+                IssueVoucherDebitAccNo = xs.issueVoucher.IssueVoucherDebitAccNo,
+                IssueVoucherIvNoForRet = xs.issueVoucher.IssueVoucherIvNoForRet,
+                IssueVoucherRefNo = xs.issueVoucher.IssueVoucherRefNo,
+                IssueVoucherDescription = xs.issueVoucher.IssueVoucherDescription,
+                IssueVoucherGrno = xs.issueVoucher.IssueVoucherGrno,
+                IssueVoucherGrdate = xs.issueVoucher.IssueVoucherGrdate,
+                IssueVoucherLpono = xs.issueVoucher.IssueVoucherLpono,
+                IssueVoucherLpodate = xs.issueVoucher.IssueVoucherLpodate,
+                IssueVoucherQtnNo = xs.issueVoucher.IssueVoucherQtnNo,
+                IssueVoucherQtnDate = xs.issueVoucher.IssueVoucherQtnDate,
+                IssueVoucherIvDateForRet = xs.issueVoucher.IssueVoucherIvDateForRet,
+                IssueVoucherReqNo = xs.issueVoucher.IssueVoucherReqNo,
+                IssueVoucherReqDate = xs.issueVoucher.IssueVoucherReqDate,
+                IssueVoucherDayBookNo = xs.issueVoucher.IssueVoucherDayBookNo,
+                IssueVoucherLocationId = xs.issueVoucher.IssueVoucherLocationId,
+                IssueVoucherUserId = xs.issueVoucher.IssueVoucherUserId,
+                IssueVoucherCurrencyId = xs.issueVoucher.IssueVoucherCurrencyId,
+                IssueVoucherCompanyId = xs.issueVoucher.IssueVoucherCompanyId,
+                IssueVoucherJobId = xs.issueVoucher.IssueVoucherJobId,
+                IssueVoucherFsno = xs.issueVoucher.IssueVoucherFsno,
+                IssueVoucherFcRate = xs.issueVoucher.IssueVoucherFcRate,
+                IssueVoucherStatus = xs.issueVoucher.IssueVoucherStatus,
+                IssueVoucherTotalGrossAmount = xs.issueVoucher.IssueVoucherTotalGrossAmount,
+                IssueVoucherTotalItemDisAmount = xs.issueVoucher.IssueVoucherTotalItemDisAmount,
+                IssueVoucherTotalActualAmount = xs.issueVoucher.IssueVoucherTotalActualAmount,
+                IssueVoucherTotalDisPer = xs.issueVoucher.IssueVoucherTotalDisPer,
+                IssueVoucherTotalDisAmount = xs.issueVoucher.IssueVoucherTotalDisAmount,
+                IssueVoucherVatAmt = xs.issueVoucher.IssueVoucherVatAmt,
+                IssueVoucherVatPer = xs.issueVoucher.IssueVoucherVatPer,
+                IssueVoucherVatRoundSign = xs.issueVoucher.IssueVoucherVatRoundSign,
+                IssueVoucherVatRountAmt = xs.issueVoucher.IssueVoucherVatRountAmt,
+                IssueVoucherNetDisAmount = xs.issueVoucher.IssueVoucherNetDisAmount,
+                IssueVoucherNetAmount = xs.issueVoucher.IssueVoucherNetAmount,
+                IssueVoucherBufferRemark12 = xs.issueVoucher.IssueVoucherBufferRemark12,
+                IssueVoucherBufferRemark13 = xs.issueVoucher.IssueVoucherBufferRemark13,
+                IssueVoucherBufferPurNo = xs.issueVoucher.IssueVoucherBufferPurNo,
+                IssueVoucherBufferReqNo = xs.issueVoucher.IssueVoucherBufferReqNo,
+                IssueVoucherDelStatus = xs.issueVoucher.IssueVoucherDelStatus,
+            };
+
+            issueVoucherViewModel.IssueVoucherDetails = _mapper.Map<List<IssueVoucherDetailsViewModel>>(xs.issueVoucherDetails);
+            issueVoucherViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
+
+            ApiResponse<IssueVoucherViewModel> apiResponse = new ApiResponse<IssueVoucherViewModel>
+            {
+                Valid = true,
+                Result = _mapper.Map<IssueVoucherViewModel>(issueVoucherViewModel),
+                Message = IssueVoucherMessage.UpdateVoucher
+            };
+
+            return apiResponse;
+
+        }
+
+        [HttpPost]
+        [Route("DeleteIssueVoucher")]
+        public ApiResponse<int> DeleteIssueVoucher([FromBody] IssueVoucherViewModel voucherCompositeView)
+        {
+            var param1 = _mapper.Map<IssueVoucher>(voucherCompositeView);
+            var param2 = _mapper.Map<List<IssueVoucherDetails>>(voucherCompositeView.IssueVoucherDetails);
+            var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
+            //List<StockRegister> param4 = new List<StockRegister>();
+            //var xs = _issueVoucherService.DeleteIssueVoucher(  param1,    param3, param2
+            //    , param4
+            //    );
+
+            //==============
+            param3 = new List<AccountsTransactions>();
+            List<StockRegister> param4 = new List<StockRegister>();
+            //clsAccountAndStock.IssueVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
+
+            var xs = _issueVoucherService.DeleteIssueVoucher(param1, param3, param2
+           , param4
+           );
+            //========================
+
+
+            ApiResponse<int> apiResponse = new ApiResponse<int>
+            {
+                Valid = true,
+                Result = 0,
+                Message = IssueVoucherMessage.DeleteVoucher
+            };
+
+            return apiResponse;
+
+        }
+
+
+
+
+        [HttpGet]
+        [Route("GetAllAccountTransaction")]
+        public ApiResponse<List<AccountsTransactions>> GetAllAccountTransaction()
+        {
+
+
+
+            ApiResponse<List<AccountsTransactions>> apiResponse = new ApiResponse<List<AccountsTransactions>>
+            {
+                Valid = true,
+                Result = _mapper.Map<List<AccountsTransactions>>(_issueVoucherService.GetAllTransaction()),
+                Message = ""
+            };
+            return apiResponse;
+
+        }
+
+        [HttpGet]
+        [Route("GetIssueVoucher")]
+        public ApiResponse<List<IssueVoucher>> GetAllIssueVoucher()
+        {
+
+
+            ApiResponse<List<IssueVoucher>> apiResponse = new ApiResponse<List<IssueVoucher>>
+            {
+                Valid = true,
+                Result = _mapper.Map<List<IssueVoucher>>(_issueVoucherService.GetIssueVoucher()),
+                Message = ""
+            };
+            return apiResponse;
+
+
+        }
+
+        [HttpGet]
+        [Route("GetSavedIssueVoucherDetails/{id}")]
+        public ApiResponse<IssueVoucherViewModel> GetSavedIssueVoucherDetails(string id)
+        {
+            IssueVoucherModel issueVoucher = _issueVoucherService.GetSavedIssueVoucherDetails(id);
+
+            if (issueVoucher != null)
+            {
+                IssueVoucherViewModel issueVoucherViewModel = new IssueVoucherViewModel
+                {
+
+
+                    IssueVoucherId = issueVoucher.issueVoucher.IssueVoucherId,
+                    IssueVoucherNo = issueVoucher.issueVoucher.IssueVoucherNo,
+                    IssueVoucherDate = issueVoucher.issueVoucher.IssueVoucherDate,
+                    IssueVoucherCreditAccNo = issueVoucher.issueVoucher.IssueVoucherCreditAccNo,
+                    IssueVoucherDepartmentId = issueVoucher.issueVoucher.IssueVoucherDepartmentId,
+                    IssueVoucherBufferRemark1 = issueVoucher.issueVoucher.IssueVoucherBufferRemark1,
+                    IssueVoucherCostCenterId = issueVoucher.issueVoucher.IssueVoucherCostCenterId,
+                    IssueVoucherDebitAccNo = issueVoucher.issueVoucher.IssueVoucherDebitAccNo,
+                    IssueVoucherIvNoForRet = issueVoucher.issueVoucher.IssueVoucherIvNoForRet,
+                    IssueVoucherRefNo = issueVoucher.issueVoucher.IssueVoucherRefNo,
+                    IssueVoucherDescription = issueVoucher.issueVoucher.IssueVoucherDescription,
+                    IssueVoucherGrno = issueVoucher.issueVoucher.IssueVoucherGrno,
+                    IssueVoucherGrdate = issueVoucher.issueVoucher.IssueVoucherGrdate,
+                    IssueVoucherLpono = issueVoucher.issueVoucher.IssueVoucherLpono,
+                    IssueVoucherLpodate = issueVoucher.issueVoucher.IssueVoucherLpodate,
+                    IssueVoucherQtnNo = issueVoucher.issueVoucher.IssueVoucherQtnNo,
+                    IssueVoucherQtnDate = issueVoucher.issueVoucher.IssueVoucherQtnDate,
+                    IssueVoucherIvDateForRet = issueVoucher.issueVoucher.IssueVoucherIvDateForRet,
+                    IssueVoucherReqNo = issueVoucher.issueVoucher.IssueVoucherReqNo,
+                    IssueVoucherReqDate = issueVoucher.issueVoucher.IssueVoucherReqDate,
+                    IssueVoucherDayBookNo = issueVoucher.issueVoucher.IssueVoucherDayBookNo,
+                    IssueVoucherLocationId = issueVoucher.issueVoucher.IssueVoucherLocationId,
+                    IssueVoucherUserId = issueVoucher.issueVoucher.IssueVoucherUserId,
+                    IssueVoucherCurrencyId = issueVoucher.issueVoucher.IssueVoucherCurrencyId,
+                    IssueVoucherCompanyId = issueVoucher.issueVoucher.IssueVoucherCompanyId,
+                    IssueVoucherJobId = issueVoucher.issueVoucher.IssueVoucherJobId,
+                    IssueVoucherFsno = issueVoucher.issueVoucher.IssueVoucherFsno,
+                    IssueVoucherFcRate = issueVoucher.issueVoucher.IssueVoucherFcRate,
+                    IssueVoucherStatus = issueVoucher.issueVoucher.IssueVoucherStatus,
+                    IssueVoucherTotalGrossAmount = issueVoucher.issueVoucher.IssueVoucherTotalGrossAmount,
+                    IssueVoucherTotalItemDisAmount = issueVoucher.issueVoucher.IssueVoucherTotalItemDisAmount,
+                    IssueVoucherTotalActualAmount = issueVoucher.issueVoucher.IssueVoucherTotalActualAmount,
+                    IssueVoucherTotalDisPer = issueVoucher.issueVoucher.IssueVoucherTotalDisPer,
+                    IssueVoucherTotalDisAmount = issueVoucher.issueVoucher.IssueVoucherTotalDisAmount,
+                    IssueVoucherVatAmt = issueVoucher.issueVoucher.IssueVoucherVatAmt,
+                    IssueVoucherVatPer = issueVoucher.issueVoucher.IssueVoucherVatPer,
+                    IssueVoucherVatRoundSign = issueVoucher.issueVoucher.IssueVoucherVatRoundSign,
+                    IssueVoucherVatRountAmt = issueVoucher.issueVoucher.IssueVoucherVatRountAmt,
+                    IssueVoucherNetDisAmount = issueVoucher.issueVoucher.IssueVoucherNetDisAmount,
+                    IssueVoucherNetAmount = issueVoucher.issueVoucher.IssueVoucherNetAmount,
+                    IssueVoucherBufferRemark12 = issueVoucher.issueVoucher.IssueVoucherBufferRemark12,
+                    IssueVoucherBufferRemark13 = issueVoucher.issueVoucher.IssueVoucherBufferRemark13,
+                    IssueVoucherBufferPurNo = issueVoucher.issueVoucher.IssueVoucherBufferPurNo,
+                    IssueVoucherBufferReqNo = issueVoucher.issueVoucher.IssueVoucherBufferReqNo,
+                    IssueVoucherDelStatus = issueVoucher.issueVoucher.IssueVoucherDelStatus,
+
+
+                };
+                issueVoucherViewModel.IssueVoucherDetails = _mapper.Map<List<IssueVoucherDetailsViewModel>>(issueVoucher.issueVoucherDetails);
+                issueVoucherViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(issueVoucher.accountsTransactions);
+                ApiResponse<IssueVoucherViewModel> apiResponse = new ApiResponse<IssueVoucherViewModel>
+                {
+                    Valid = true,
+                    Result = issueVoucherViewModel,
+                    Message = ""
+                };
+                return apiResponse;
+            }
+            return null;
+
+
+
+        }
+
+
+
+        [HttpGet]
+        [Route("CheckVnoExist/{id}")]
+        public ApiResponse<bool> CheckVnoExist(string id)
+        {
+            ApiResponse<bool> apiResponse = new ApiResponse<bool>
+            {
+                Valid = true,
+                Result = true,
+                Message = IssueVoucherMessage.VoucherNumberExist
+
+
+
+            };
+            var x = _issueVoucherService.GetVouchersNumbers(id);
+            if (x == null)
+            {
+                apiResponse.Result = false;
+                apiResponse.Message = "";
+            }
+
+            return apiResponse;
+        }
+
+
+
+    }
+}

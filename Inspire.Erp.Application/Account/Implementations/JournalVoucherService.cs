@@ -1,0 +1,275 @@
+﻿using Inspire.Erp.Application.Account.Interfaces;
+using Inspire.Erp.Application.Common;
+using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using Microsoft.Extensions.Logging;
+using Inspire.Erp.Infrastructure.Database;
+
+namespace Inspire.Erp.Application.Account.Implementations
+{
+    public class JournalVoucherService : IJournalVoucherService
+    {
+        private IRepository<AccountsTransactions> _accountTransactionRepository;
+        private IRepository<JournalVoucher> _journalVoucherRepository;
+        private IRepository<JournalVoucherDetails> _journalVoucherDetailsRepository;
+        private IRepository<ProgramSettings> _programsettingsRepository;
+        private IRepository<VouchersNumbers> _voucherNumbersRepository;
+        private readonly ILogger<PaymentVoucherService> _logger;
+        private readonly IRepository<UserTracking> _UserTracking;
+        private readonly IRepository<UserFile> _UserFile;
+        private readonly InspireErpDBContext context;
+
+        public JournalVoucherService(IRepository<AccountsTransactions> accountTransactionRepository, IRepository<ProgramSettings> programsettingsRepository,
+            IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger, IRepository<UserTracking> UserTracking, IRepository<UserFile> UserFile,
+            IRepository<JournalVoucher> journalVoucherRepository, IRepository<JournalVoucherDetails> journalVoucherDetailsRepository,
+            InspireErpDBContext _context)
+        {
+            this._accountTransactionRepository = accountTransactionRepository;
+            this._journalVoucherRepository = journalVoucherRepository;
+            this._journalVoucherDetailsRepository = journalVoucherDetailsRepository;
+            _programsettingsRepository = programsettingsRepository;
+            _voucherNumbersRepository = voucherNumbers;
+            _UserTracking = UserTracking;
+            _UserFile = UserFile;
+            context = _context;
+
+        }
+        public JournalVoucher UpdateJournalVoucher(JournalVoucher journalVoucher, List<AccountsTransactions> accountsTransactions, List<JournalVoucherDetails> journalVoucherDetails)
+        {
+
+            try
+            {
+                _journalVoucherRepository.BeginTransaction();
+                _journalVoucherRepository.Update(journalVoucher);
+                accountsTransactions = accountsTransactions.Select((k) =>
+                {
+                    if (k.AccountsTransactionsTransSno == 0)
+                    {
+                        k.AccountsTransactionsVoucherType = VoucherType.JournalVoucher_TYPE;
+                        k.AccountsTransactionsStatus = AccountStatus.Approved;
+                    }
+                    return k;
+                }).ToList();
+                _accountTransactionRepository.UpdateList(accountsTransactions);
+                _journalVoucherDetailsRepository.UpdateList(journalVoucherDetails);
+
+                UserTracking trackingData = new UserTracking();
+                trackingData.UserTrackingUserUserId = 1;
+                trackingData.UserTrackingUserVpAction = "Update";
+                trackingData.UserTrackingUserVpNo = journalVoucher.JournalVoucher_VNO;
+                trackingData.UserTrackingUserChangeDt = DateTime.Now;
+                trackingData.UserTrackingUserChangeTime = DateTime.Now;
+                trackingData.UserTrackingUserVpType = "JOURNALVOUCHER";
+                _UserTracking.Insert(trackingData);
+                _journalVoucherRepository.TransactionCommit();
+            }
+            catch (Exception ex)
+            {
+                _journalVoucherRepository.TransactionRollback();
+                throw ex;
+            }
+            return this.GetSavedJournalVoucherDetails(journalVoucher.JournalVoucher_VNO);
+        }
+
+        public int DeleteJournalVoucher(JournalVoucher journalVoucher, List<AccountsTransactions> accountsTransactions, List<JournalVoucherDetails> journalVoucherDetails)
+        {
+            int i = 0;
+            try
+            {
+                _journalVoucherRepository.BeginTransaction();
+                journalVoucher.JournalVoucher_DelStatus = true;
+                journalVoucherDetails = journalVoucherDetails.Select((k) =>
+                {
+                    k.JournalVoucherDetails_DelStatus = true;
+                    return k;
+                }).ToList();
+                _journalVoucherDetailsRepository.UpdateList(journalVoucherDetails);
+                accountsTransactions = accountsTransactions.Select((k) =>
+                {
+                    k.AccountstransactionsDelStatus = true;
+                    return k;
+                }).ToList();
+                _accountTransactionRepository.UpdateList(accountsTransactions);
+                _journalVoucherRepository.Update(journalVoucher);
+                var vchrnumer = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == journalVoucher.JournalVoucher_VNO).FirstOrDefault();
+                _voucherNumbersRepository.Update(vchrnumer);
+                UserTracking trackingData = new UserTracking();
+                trackingData.UserTrackingUserUserId = 1;
+                trackingData.UserTrackingUserVpAction = "Delete";
+                trackingData.UserTrackingUserVpNo = journalVoucher.JournalVoucher_VNO;
+                trackingData.UserTrackingUserChangeDt = DateTime.Now;
+                trackingData.UserTrackingUserChangeTime = DateTime.Now;
+                trackingData.UserTrackingUserVpType = "JOURNALVOUCHER";
+                _UserTracking.Insert(trackingData);
+                _journalVoucherRepository.TransactionCommit();
+                i = 1;
+            }
+            catch (Exception ex)
+            {
+                _journalVoucherRepository.TransactionRollback();
+                i = 0;
+                throw ex;
+            }
+            return i;
+        }
+        public JournalVoucher InsertJournalVoucher(JournalVoucher journalVoucher, List<AccountsTransactions> accountsTransactions, List<JournalVoucherDetails> journalVoucherDetails)
+        {
+            try
+            {
+                _journalVoucherRepository.BeginTransaction();
+                journalVoucher.JournalVoucher_VNO = journalVoucher.JournalVoucher_VNO;
+                int maxcount = 0;
+                maxcount = Convert.ToInt32(
+                    _journalVoucherRepository.GetAsQueryable()
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.JournalVoucher_ID) + 1);
+
+                journalVoucher.JournalVoucher_ID = maxcount;
+                journalVoucherDetails = journalVoucherDetails.Select((x) =>
+                {
+                    x.JournalVoucher_ID = maxcount;
+                    x.JournalVoucherDetails_VNO = journalVoucher.JournalVoucher_VNO;
+                    return x;
+                }).ToList();
+                _journalVoucherDetailsRepository.InsertList(journalVoucherDetails);
+                accountsTransactions = accountsTransactions.Select((k) =>
+                {
+                    k.AccountsTransactionsVoucherNo = journalVoucher.JournalVoucher_VNO;
+                    k.AccountsTransactionsVoucherType = VoucherType.JournalVoucher_TYPE;
+                    k.AccountsTransactionsStatus = AccountStatus.Approved;
+                    return k;
+                }).ToList();
+                _accountTransactionRepository.InsertList(accountsTransactions);
+                _journalVoucherRepository.Insert(journalVoucher);
+
+                UserTracking trackingData = new UserTracking();
+                trackingData.UserTrackingUserUserId = 1;
+                trackingData.UserTrackingUserVpAction = "Insert";
+                trackingData.UserTrackingUserVpNo = journalVoucher.JournalVoucher_VNO;
+                trackingData.UserTrackingUserChangeDt = DateTime.Now;
+                trackingData.UserTrackingUserChangeTime = DateTime.Now;
+                trackingData.UserTrackingUserVpType = "JOURNALVOUCHER";
+                _UserTracking.Insert(trackingData);
+                _journalVoucherRepository.TransactionCommit();
+                return this.GetSavedJournalVoucherDetails(journalVoucher.JournalVoucher_VNO);
+
+            }
+            catch (Exception ex)
+            {
+                _journalVoucherRepository.TransactionRollback();
+                throw ex;
+            }
+        }
+        public IEnumerable<AccountsTransactions> GetAllTransaction()
+        {
+            return _accountTransactionRepository.GetAll();
+        }
+        public IEnumerable<JournalVoucher> GetJournalVoucher()
+        {
+            IEnumerable<JournalVoucher> journalVoucher_ALL = _journalVoucherRepository.GetAll().Where(k => k.JournalVoucher_DelStatus == false || k.JournalVoucher_DelStatus == null).ToList();
+            return journalVoucher_ALL;
+        }
+        public JournalVoucher GetSavedJournalVoucherDetails(string pvno)
+        {
+            JournalVoucher journalVoucherModel = new JournalVoucher();
+            journalVoucherModel = _journalVoucherRepository.GetAsQueryable().Where(k => k.JournalVoucher_VNO == pvno).SingleOrDefault();
+            journalVoucherModel.JournalVoucherDetails = _journalVoucherDetailsRepository.GetAsQueryable().Where(x => x.JournalVoucherDetails_VNO == pvno).ToList();
+            return journalVoucherModel;
+        }
+
+        public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
+        {
+            try
+            {
+                var prefix = this._programsettingsRepository.GetAsQueryable().Where(k => k.ProgramSettingsKeyValue == Prefix.JournalVoucher_Prefix).FirstOrDefault().ProgramSettingsTextValue;
+                int vnoMaxVal = Convert.ToInt32(_voucherNumbersRepository.GetAsQueryable()
+                                                        .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == VoucherType.JournalVoucher_TYPE)
+                                                        .DefaultIfEmpty()
+                                                        .Max(o => o == null ? 0 : o.VouchersNumbersVNoNu)) + 1;
+                Console.WriteLine("************************************* = " + prefix + vnoMaxVal);
+                var voucherNo = prefix + vnoMaxVal;
+                var voucherNumber = _voucherNumbersRepository.GetAll().FirstOrDefault(o => o.VouchersNumbersVNo == voucherNo);
+                if (voucherNo != null)
+                {
+                    vnoMaxVal = vnoMaxVal + 1;
+                    VouchersNumbers vouchersNumbers = new VouchersNumbers
+                    {
+                        VouchersNumbersVNo = prefix + vnoMaxVal,
+                        VouchersNumbersVNoNu = vnoMaxVal,
+                        VouchersNumbersVType = VoucherType.JournalVoucher_TYPE,
+                        VouchersNumbersFsno = 1,
+                        VouchersNumbersStatus = AccountStatus.Pending,
+                        VouchersNumbersVoucherDate = DateTime.Now
+
+                    };
+                    _voucherNumbersRepository.Insert(vouchersNumbers);
+                    return vouchersNumbers;
+                }
+                else
+                {
+                    VouchersNumbers vouchersNumbers = new VouchersNumbers
+                    {
+                        VouchersNumbersVNo = prefix + vnoMaxVal,
+                        VouchersNumbersVNoNu = vnoMaxVal,
+                        VouchersNumbersVType = VoucherType.JournalVoucher_TYPE,
+                        VouchersNumbersFsno = 1,
+                        VouchersNumbersStatus = AccountStatus.Pending,
+                        VouchersNumbersVoucherDate = DateTime.Now
+
+                    };
+                    _voucherNumbersRepository.Insert(vouchersNumbers);
+                    return vouchersNumbers;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public VouchersNumbers GetVouchersNumbers(string pvno)
+        {
+            try
+            {
+                VouchersNumbers vouchersNumbers = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == pvno).SingleOrDefault();
+                return vouchersNumbers;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                throw ex;
+            }
+        }
+
+        public IQueryable GetJVTRacking(string JournalVoucher_VNO)
+        {
+            try
+            {
+                var userTrackngData = (from hdr in context.UserTracking
+                                       join dtl in context.UserFile on (long)hdr.UserTrackingUserUserId equals dtl.UserId
+                                       where (hdr.UserTrackingUserVpType == "JOURNALVOUCHER" && hdr.UserTrackingUserVpNo == JournalVoucher_VNO)
+                                       select new
+                                       {
+                                           VPAction = hdr.UserTrackingUserVpAction,
+                                           UserId = dtl.UserId,
+                                           VPType = hdr.UserTrackingUserVpType,
+                                           ChangeDt = hdr.UserTrackingUserChangeDt,
+                                           ChangeTime = hdr.UserTrackingUserChangeTime,
+                                           VPNo = hdr.UserTrackingUserVpNo,
+                                       }).AsQueryable();
+                return userTrackngData;
+            }
+            catch (System.Exception ex)
+            {
+                throw ex;
+            }
+        }
+    }
+}

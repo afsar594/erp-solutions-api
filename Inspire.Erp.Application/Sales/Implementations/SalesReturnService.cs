@@ -1,0 +1,443 @@
+﻿using Inspire.Erp.Application.Account.Interfaces;
+using Inspire.Erp.Application.Sales.Interfaces;
+using Inspire.Erp.Application.Common;
+using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using Microsoft.Extensions.Logging;
+using Inspire.Erp.Application.MODULE;
+namespace Inspire.Erp.Application.Account.Implementations
+{
+    public class SalesReturnService : ISalesReturnService
+    {
+        private IRepository<StockRegister> _stockRegisterRepository;
+        private IRepository<AccountsTransactions> _accountTransactionRepository;
+        private IRepository<SalesReturn> _salesReturnRepository;
+        private IRepository<SalesReturnDetails> _salesReturnDetailsRepository;
+        private IRepository<ProgramSettings> _programsettingsRepository;
+        private IRepository<VouchersNumbers> _voucherNumbersRepository;
+        private readonly ILogger<PaymentVoucherService> _logger;
+
+        private IRepository<ItemMaster> _itemMasterRepository;
+        private IRepository<UnitMaster> _unitMasterRepository;
+        private IRepository<SuppliersMaster> _suppliersMasterRepository;
+        private IRepository<LocationMaster> _locationMasterRepository;
+
+
+
+        private IRepository<CustomerMaster> _customerMasterRepository;
+        private IRepository<CustomerMaster> _salesManMasterRepository;
+        private IRepository<DepartmentMaster> _departmentMasterRepository;
+
+
+
+        //private IRepository<ReportSalesReturn> _reportSalesReturnRepository;
+        public SalesReturnService(
+            //IRepository<ReportSalesReturn> reportSalesReturnRepository,
+            IRepository<CustomerMaster> customerMasterRepository,
+            IRepository<CustomerMaster> salesManMasterRepository,
+            IRepository<DepartmentMaster> departmentMasterRepository,
+            IRepository<ItemMaster> itemMasterRepository, IRepository<UnitMaster> unitMasterRepository,
+            IRepository<SuppliersMaster> suppliersMasterRepository, IRepository<LocationMaster> locationMasterRepository,
+
+            IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
+             IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
+
+            IRepository<SalesReturn> salesReturnRepository, IRepository<SalesReturnDetails> salesReturnDetailsRepository)
+        {
+            this._accountTransactionRepository = accountTransactionRepository;
+            this._stockRegisterRepository = stockRegisterRepository;
+            this._salesReturnRepository = salesReturnRepository;
+            this._salesReturnDetailsRepository = salesReturnDetailsRepository;
+            _programsettingsRepository = programsettingsRepository;
+            _voucherNumbersRepository = voucherNumbers;
+
+
+            _itemMasterRepository = itemMasterRepository;
+            _unitMasterRepository = unitMasterRepository;
+            _suppliersMasterRepository = suppliersMasterRepository;
+            _locationMasterRepository = locationMasterRepository;
+
+
+            _customerMasterRepository = customerMasterRepository;
+
+            _salesManMasterRepository = salesManMasterRepository;
+
+            _departmentMasterRepository = departmentMasterRepository;
+
+            //_reportSalesReturnRepository = reportSalesReturnRepository;
+        }
+
+        //public IEnumerable<ReportSalesReturn> SalesReturn_GetReportSalesReturn()
+        //{
+        //    return _reportSalesReturnRepository.GetAll();
+        //}
+
+
+
+        ////public IEnumerable<LocationMaster> SalesReturn_GetAllLocationMaster()
+        ////{
+        ////    return _locationMasterRepository.GetAll();
+        ////}
+
+
+
+        ////public IEnumerable<SuppliersMaster> SalesReturn_GetAllSuppliersMaster()
+        ////{
+        ////    return _suppliersMasterRepository.GetAll();
+        ////}
+
+
+        ////public IEnumerable<DepartmentMaster> SalesReturn_GetAllDepartmentMaster()
+        ////{
+        ////    return _departmentMasterRepository.GetAll();
+        ////}
+
+
+
+
+        ////public IEnumerable<CustomerMaster> SalesReturn_GetAllCustomerMaster()
+        ////{
+        ////    return _customerMasterRepository.GetAll();
+        ////}
+
+
+
+
+
+
+
+        ////public IEnumerable<CustomerMaster> SalesReturn_GetAllSalesManMaster()
+        ////{
+        ////    return _salesManMasterRepository.GetAll();
+        ////}
+
+
+        ////public IEnumerable<UnitMaster> SalesReturn_GetAllUnitMaster()
+        ////{
+        ////    return _unitMasterRepository.GetAll();
+        ////}
+        ////public IEnumerable<ItemMaster> SalesReturn_GetAllItemMaster()
+        ////{
+        ////    return _itemMasterRepository.GetAll();
+        ////}
+
+        public SalesReturnModel UpdateSalesReturn(SalesReturn salesReturn, List<AccountsTransactions> accountsTransactions, 
+            List<SalesReturnDetails> salesReturnDetails
+            , List<StockRegister> stockRegister
+            )
+        {
+
+            try
+            {
+                _salesReturnRepository.BeginTransaction();
+
+                //=================================
+                clsCommonFunctions.Delete_OldEntry_StockRegister(salesReturn.SalesReturnNo, VoucherType.SalesReturn_TYPE, _stockRegisterRepository);
+                clsCommonFunctions.Delete_OldEntry_AccountsTransactions(salesReturn.SalesReturnNo, VoucherType.SalesReturn_TYPE, _accountTransactionRepository);
+                //=================================
+                salesReturn.SalesReturnDetails = salesReturnDetails.Select((k) =>
+                {
+                    //if (k.SalesReturnDetailsId == 0)
+                    //{
+                    k.SalesReturnId = salesReturn.SalesReturnId;
+                    k.SalesReturnDetailsNo = salesReturn.SalesReturnNo;
+                    //k.SalesReturnDetailsId = 0;
+                    //}
+
+                    return k;
+                }).ToList();
+
+                _salesReturnRepository.Update(salesReturn);
+
+
+
+
+
+                //_salesReturnRepository.Update(salesReturn);
+                accountsTransactions = accountsTransactions.Select((k) =>
+                {
+                    if (k.AccountsTransactionsTransSno == 0)
+                    {
+                        k.AccountsTransactionsTransDate = salesReturn.SalesReturnDate;
+                        k.AccountsTransactionsVoucherNo = salesReturn.SalesReturnNo;
+                        k.AccountsTransactionsVoucherType = VoucherType.SalesReturn_TYPE;
+                        k.AccountsTransactionsStatus = AccountStatus.Approved;
+                    }
+
+                    return k;
+                }).ToList();
+                _accountTransactionRepository.UpdateList(accountsTransactions);
+
+
+                stockRegister = stockRegister.Select((k) =>
+                {
+                    if (k.StockRegisterStoreID == 0)
+                    {
+                        k.StockRegisterVoucherDate = salesReturn.SalesReturnDate;
+                        k.StockRegisterRefVoucherNo = salesReturn.SalesReturnNo;
+                        k.StockRegisterTransType = VoucherType.SalesReturn_TYPE;
+
+                        k.StockRegisterStatus = AccountStatus.Approved;
+                    }
+
+                    return k;
+                }).ToList();
+                _stockRegisterRepository.UpdateList(stockRegister);
+
+
+
+
+
+
+                _salesReturnRepository.TransactionCommit();
+
+            }
+            catch (Exception ex)
+            {
+                _salesReturnRepository.TransactionRollback();
+                throw ex;
+            }
+
+            return this.GetSavedSalesReturnDetails(salesReturn.SalesReturnNo);
+        }
+
+        public int DeleteSalesReturn(SalesReturn salesReturn, List<AccountsTransactions> accountsTransactions,
+            List<SalesReturnDetails> salesReturnDetails
+            , List<StockRegister> stockRegister
+            )
+        {
+            int i = 0;
+            try
+            {
+                _salesReturnRepository.BeginTransaction();
+
+                //=================================
+                clsCommonFunctions.Delete_OldEntry_StockRegister(salesReturn.SalesReturnNo, VoucherType.SalesReturn_TYPE, _stockRegisterRepository);
+                clsCommonFunctions.Delete_OldEntry_AccountsTransactions(salesReturn.SalesReturnNo, VoucherType.SalesReturn_TYPE, _accountTransactionRepository);
+                //=================================
+
+                salesReturn.SalesReturnDelStatus = true;
+
+                salesReturnDetails = salesReturnDetails.Select((k) =>
+                {
+                    k.SalesReturnDetailsDelStatus = true;
+                    return k;
+                }).ToList();
+
+                //_salesReturnDetailsRepository.UpdateList(salesReturnDetails);
+
+                accountsTransactions = accountsTransactions.Select((k) =>
+                {
+                    k.AccountstransactionsDelStatus = true;
+                    return k;
+                }).ToList();
+                _accountTransactionRepository.UpdateList(accountsTransactions);
+
+
+
+
+                stockRegister = stockRegister.Select((k) =>
+                {
+                    k.StockRegisterDelStatus = true;
+                    return k;
+                }).ToList();
+                _stockRegisterRepository.UpdateList(stockRegister);
+
+
+
+
+                salesReturn.SalesReturnDetails = salesReturnDetails;
+
+                _salesReturnRepository.Update(salesReturn);
+
+                var vchrnumer = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == salesReturn.SalesReturnNo).FirstOrDefault();
+
+                _voucherNumbersRepository.Update(vchrnumer);
+
+                _salesReturnRepository.TransactionCommit();
+                i = 1;
+            }
+            catch (Exception ex)
+            {
+                _salesReturnRepository.TransactionRollback();
+                i = 0;
+                throw ex;
+            }
+
+            return i;
+
+        }
+        public SalesReturnModel InsertSalesReturn(SalesReturn salesReturn, List<AccountsTransactions> accountsTransactions,
+            List<SalesReturnDetails> salesReturnDetails
+            , List<StockRegister> stockRegister
+            )
+        {
+            try
+            {
+                _salesReturnRepository.BeginTransaction();
+                string salesReturnNumber = this.GenerateVoucherNo(salesReturn.SalesReturnDate.Date).VouchersNumbersVNo;
+                salesReturn.SalesReturnNo = salesReturnNumber;
+
+
+                int maxcount = 0;
+                maxcount = Convert.ToInt32(
+                    _salesReturnRepository.GetAsQueryable()
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.SalesReturnId) + 1);
+
+                salesReturn.SalesReturnId = maxcount;
+
+
+
+
+
+
+                salesReturnDetails = salesReturnDetails.Select((x) =>
+                {
+                    x.SalesReturnId = maxcount;
+                    x.SalesReturnDetailsNo = salesReturnNumber;
+                    return x;
+                }).ToList();
+                //_salesReturnDetailsRepository.InsertList(salesReturnDetails);
+
+                accountsTransactions = accountsTransactions.Select((k) =>
+                {
+                    //k.AccountsTransactionsTransDate = salesReturn.SalesReturnDate;
+                    k.AccountsTransactionsVoucherNo = salesReturnNumber;
+                    k.AccountsTransactionsVoucherType = VoucherType.SalesReturn_TYPE;
+                    k.AccountsTransactionsStatus = AccountStatus.Approved;
+                    return k;
+                }).ToList();
+                _accountTransactionRepository.InsertList(accountsTransactions);
+
+
+
+                stockRegister = stockRegister.Select((k) =>
+                {
+                    k.StockRegisterVoucherDate = salesReturn.SalesReturnDate;
+                    k.StockRegisterRefVoucherNo = salesReturnNumber;
+                    k.StockRegisterTransType = VoucherType.SalesReturn_TYPE;
+                    k.StockRegisterStatus = AccountStatus.Approved;
+                    return k;
+                }).ToList();
+                _stockRegisterRepository.InsertList(stockRegister);
+
+
+
+
+
+                _salesReturnRepository.Insert(salesReturn);
+                _salesReturnRepository.TransactionCommit();
+                return this.GetSavedSalesReturnDetails(salesReturn.SalesReturnNo);
+
+            }
+            catch (Exception ex)
+            {
+                _salesReturnRepository.TransactionRollback();
+                throw ex;
+            }
+
+
+
+        }
+        public IEnumerable<AccountsTransactions> GetAllTransaction()
+        {
+            return _accountTransactionRepository.GetAll();
+        }
+        public IEnumerable<SalesReturn> GetSalesReturn()
+        {
+            IEnumerable<SalesReturn> salesReturn_ALL = _salesReturnRepository.GetAll().Where(k => k.SalesReturnDelStatus == false || k.SalesReturnDelStatus == null);
+            return salesReturn_ALL;
+        }
+        public SalesReturnModel GetSavedSalesReturnDetails(string pvno)
+        {
+            SalesReturnModel salesReturnModel = new SalesReturnModel();
+            //salesReturnModel.salesReturn = _salesReturnRepository.GetAsQueryable().Where(k => k.SalesReturnNo == pvno && k.SalesReturnDelStatus == false).SingleOrDefault();
+
+            salesReturnModel.salesReturn = _salesReturnRepository.GetAsQueryable().Where(k => k.SalesReturnNo == pvno).SingleOrDefault();
+
+
+
+            salesReturnModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.SalesReturn_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
+            salesReturnModel.salesReturnDetails = _salesReturnDetailsRepository.GetAsQueryable().Where(x => x.SalesReturnDetailsNo == pvno && (x.SalesReturnDetailsDelStatus == false || x.SalesReturnDetailsDelStatus == null)).ToList();
+            return salesReturnModel;
+
+
+
+
+
+        }
+
+        public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
+        {
+            try
+            {
+
+
+
+
+
+
+                var prefix = this._programsettingsRepository.GetAsQueryable().Where(k => k.ProgramSettingsKeyValue == Prefix.SalesReturn_Prefix).FirstOrDefault().ProgramSettingsTextValue;
+                int vnoMaxVal = Convert.ToInt32(_voucherNumbersRepository.GetAsQueryable()
+                                                        .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == VoucherType.SalesReturn_TYPE)
+                                                        .DefaultIfEmpty()
+                                                        .Max(o => o == null ? 0 : o.VouchersNumbersVNoNu)) + 1;
+
+
+                //var prefix = "CN";
+                //int vnoMaxVal = 1;
+
+
+                VouchersNumbers vouchersNumbers = new VouchersNumbers
+                {
+                    VouchersNumbersVNo = prefix + vnoMaxVal,
+                    VouchersNumbersVNoNu = vnoMaxVal,
+                    VouchersNumbersVType = VoucherType.SalesReturn_TYPE,
+                    VouchersNumbersFsno = 1,
+                    VouchersNumbersStatus = AccountStatus.Pending,
+                    VouchersNumbersVoucherDate = VoucherGenDate
+
+                };
+                _voucherNumbersRepository.Insert(vouchersNumbers);
+                return vouchersNumbers;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+
+
+        //using Microsoft.Extensions.Logging;
+        //private readonly ILogger<PaymentVoucherService> _logger;
+        //IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
+        public VouchersNumbers GetVouchersNumbers(string pvno)
+        {
+            try
+            {
+                VouchersNumbers vouchersNumbers = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == pvno).SingleOrDefault();
+                return vouchersNumbers;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                throw ex;
+            }
+
+        }
+
+
+
+
+    }
+}

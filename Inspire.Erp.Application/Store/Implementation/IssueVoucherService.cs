@@ -1,0 +1,363 @@
+﻿using Inspire.Erp.Application.Account.Implementations;
+using Inspire.Erp.Application.Common;
+using Inspire.Erp.Application.Store.Interfaces;
+using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using Microsoft.Extensions.Logging;
+using Inspire.Erp.Application.MODULE;
+namespace Inspire.Erp.Application.Store.Implementation
+{
+    public class IssueVoucherService : IIssueVoucherService
+    {
+        private IRepository<StockRegister> _stockRegisterRepository;
+        private IRepository<AccountsTransactions> _accountTransactionRepository;
+        private IRepository<IssueVoucher> _issueVoucherRepository;
+        private IRepository<IssueVoucherDetails> _issueVoucherDetailsRepository;
+        private IRepository<ProgramSettings> _programsettingsRepository;
+        private IRepository<VouchersNumbers> _voucherNumbersRepository;
+        private readonly ILogger<PaymentVoucherService> _logger;
+
+        private IRepository<ItemMaster> _itemMasterRepository;
+        private IRepository<UnitMaster> _unitMasterRepository;
+        private IRepository<SuppliersMaster> _suppliersMasterRepository;
+        private IRepository<LocationMaster> _locationMasterRepository;
+        private IRepository<AccountSettings> _accountsSettingssvcs;
+
+        
+              //private IRepository<ReportIssueVoucher> _reportIssueVoucherRepository;
+        public IssueVoucherService(
+            //IRepository<ReportIssueVoucher> reportIssueVoucherRepository,
+            IRepository<ItemMaster> itemMasterRepository, IRepository<UnitMaster> unitMasterRepository,
+            IRepository<SuppliersMaster> suppliersMasterRepository, IRepository<LocationMaster> locationMasterRepository,
+
+            IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
+             IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
+
+            IRepository<IssueVoucher> issueVoucherRepository, IRepository<IssueVoucherDetails> issueVoucherDetailsRepository, IRepository<AccountSettings> accountsSettingssvcsRepository)
+        {
+            this._accountTransactionRepository = accountTransactionRepository;
+            this._stockRegisterRepository = stockRegisterRepository;
+            this._issueVoucherRepository = issueVoucherRepository;
+            this._issueVoucherDetailsRepository = issueVoucherDetailsRepository;
+            _programsettingsRepository = programsettingsRepository;
+            _voucherNumbersRepository = voucherNumbers;
+
+
+            _itemMasterRepository = itemMasterRepository;
+            _unitMasterRepository = unitMasterRepository;
+            _suppliersMasterRepository = suppliersMasterRepository;
+            _locationMasterRepository = locationMasterRepository;
+            _accountsSettingssvcs = accountsSettingssvcsRepository;
+            //_reportIssueVoucherRepository = reportIssueVoucherRepository;
+        }
+
+        //public IEnumerable<ReportIssueVoucher> IssueVoucher_GetReportIssueVoucher()
+        //{
+        //    return _reportIssueVoucherRepository.GetAll();
+        //}
+
+
+        public IssueVoucherModel UpdateIssueVoucher(IssueVoucher issueVoucher, List<AccountsTransactions> accountsTransactions, 
+            List<IssueVoucherDetails> issueVoucherDetails
+            , List<StockRegister> stockRegister
+            )
+        {
+
+            try
+            {
+                _issueVoucherRepository.BeginTransaction();
+
+                //=================================
+                clsCommonFunctions.Delete_OldEntry_StockRegister(issueVoucher.IssueVoucherNo, VoucherType.IssueVoucher_TYPE, _stockRegisterRepository);
+                clsCommonFunctions.Delete_OldEntry_AccountsTransactions(issueVoucher.IssueVoucherNo, VoucherType.IssueVoucher_TYPE, _accountTransactionRepository);
+                //=================================
+                issueVoucher.IssueVoucherDetails = issueVoucherDetails.Select((k) =>
+                {
+                    //if (k.IssueVoucherDetailsId == 0)
+                    //{
+                    k.IssueVoucherId = issueVoucher.IssueVoucherId;
+                    k.IssueVoucherDetailsNo = issueVoucher.IssueVoucherNo;
+                    //k.IssueVoucherDetailsId = 0;
+                    //}
+
+                    return k;
+                }).ToList();
+
+                _issueVoucherRepository.Update(issueVoucher);
+
+
+
+
+
+                //_issueVoucherRepository.Update(issueVoucher);
+                accountsTransactions = accountsTransactions.Select((k) =>
+                {
+                    if (k.AccountsTransactionsTransSno == 0)
+                    {
+                        k.AccountsTransactionsTransDate = issueVoucher.IssueVoucherDate;
+                        k.AccountsTransactionsVoucherNo = issueVoucher.IssueVoucherNo;
+                        k.AccountsTransactionsVoucherType = VoucherType.IssueVoucher_TYPE;
+                        k.AccountsTransactionsStatus = AccountStatus.Approved;
+                    }
+
+                    return k;
+                }).ToList();
+                _accountTransactionRepository.UpdateList(accountsTransactions);
+
+
+                stockRegister = stockRegister.Select((k) =>
+                {
+                    if (k.StockRegisterStoreID == 0)
+                    {
+                        k.StockRegisterVoucherDate = issueVoucher.IssueVoucherDate;
+                        k.StockRegisterRefVoucherNo = issueVoucher.IssueVoucherNo;
+                        k.StockRegisterTransType = VoucherType.IssueVoucher_TYPE;
+
+                        k.StockRegisterStatus = AccountStatus.Approved;
+                    }
+
+                    return k;
+                }).ToList();
+                _stockRegisterRepository.UpdateList(stockRegister);
+
+
+
+
+
+
+                _issueVoucherRepository.TransactionCommit();
+
+            }
+            catch (Exception ex)
+            {
+                _issueVoucherRepository.TransactionRollback();
+                throw ex;
+            }
+
+            return this.GetSavedIssueVoucherDetails(issueVoucher.IssueVoucherNo);
+        }
+
+        public int DeleteIssueVoucher(IssueVoucher issueVoucher, List<AccountsTransactions> accountsTransactions,
+            List<IssueVoucherDetails> issueVoucherDetails
+            , List<StockRegister> stockRegister
+            )
+        {
+            int i = 0;
+            try
+            {
+                _issueVoucherRepository.BeginTransaction();
+
+                //=================================
+                clsCommonFunctions.Delete_OldEntry_StockRegister(issueVoucher.IssueVoucherNo, VoucherType.IssueVoucher_TYPE, _stockRegisterRepository);
+                clsCommonFunctions.Delete_OldEntry_AccountsTransactions(issueVoucher.IssueVoucherNo, VoucherType.IssueVoucher_TYPE, _accountTransactionRepository);
+                //=================================
+
+                issueVoucher.IssueVoucherDelStatus = true;
+
+                issueVoucherDetails = issueVoucherDetails.Select((k) =>
+                {
+                    k.IssueVoucherDetailsDelStatus = true;
+                    return k;
+                }).ToList();
+
+                //_issueVoucherDetailsRepository.UpdateList(issueVoucherDetails);
+
+                accountsTransactions = accountsTransactions.Select((k) =>
+                {
+                    k.AccountstransactionsDelStatus = true;
+                    return k;
+                }).ToList();
+                _accountTransactionRepository.UpdateList(accountsTransactions);
+
+
+
+
+                stockRegister = stockRegister.Select((k) =>
+                {
+                    k.StockRegisterDelStatus = true;
+                    return k;
+                }).ToList();
+                _stockRegisterRepository.UpdateList(stockRegister);
+
+
+
+
+                issueVoucher.IssueVoucherDetails = issueVoucherDetails;
+
+                _issueVoucherRepository.Update(issueVoucher);
+
+                var vchrnumer = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == issueVoucher.IssueVoucherNo).FirstOrDefault();
+
+                _voucherNumbersRepository.Update(vchrnumer);
+
+                _issueVoucherRepository.TransactionCommit();
+                i = 1;
+            }
+            catch (Exception ex)
+            {
+                _issueVoucherRepository.TransactionRollback();
+                i = 0;
+                throw ex;
+            }
+
+            return i;
+
+        }
+        public IssueVoucherModel InsertIssueVoucher(IssueVoucher issueVoucher, List<AccountsTransactions> accountsTransactions,
+            List<IssueVoucherDetails> issueVoucherDetails
+            , List<StockRegister> stockRegister
+            )
+        {
+            try
+            {
+                _issueVoucherRepository.BeginTransaction();
+                string issueVoucherNumber = this.GenerateVoucherNo(issueVoucher.IssueVoucherDate.Date).VouchersNumbersVNo;
+                issueVoucher.IssueVoucherNo = issueVoucherNumber;
+
+
+                int maxcount = 0;
+                maxcount = Convert.ToInt32(
+                    _issueVoucherRepository.GetAsQueryable()
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.IssueVoucherId) + 1);
+
+                issueVoucher.IssueVoucherId = maxcount;
+
+
+                issueVoucherDetails = issueVoucherDetails.Select((x) =>
+                {
+                    x.IssueVoucherId = maxcount;
+                    x.IssueVoucherDetailsNo = issueVoucherNumber;
+                    return x;
+                }).ToList();
+                //_issueVoucherDetailsRepository.InsertList(issueVoucherDetails);
+
+                
+
+
+                accountsTransactions = accountsTransactions.Select((k) =>
+                {
+                    //k.AccountsTransactionsTransDate = issueVoucher.IssueVoucherDate;
+                    k.AccountsTransactionsVoucherNo = issueVoucherNumber;
+                    k.AccountsTransactionsVoucherType = VoucherType.IssueVoucher_TYPE;
+                    k.AccountsTransactionsStatus = AccountStatus.Approved;
+                    return k;
+                }).ToList();
+                _accountTransactionRepository.InsertList(accountsTransactions);
+
+
+
+                stockRegister = stockRegister.Select((k) =>
+                {
+                    k.StockRegisterVoucherDate = issueVoucher.IssueVoucherDate;
+                    k.StockRegisterRefVoucherNo = issueVoucherNumber;
+                    k.StockRegisterTransType = VoucherType.IssueVoucher_TYPE;
+                    k.StockRegisterStatus = AccountStatus.Approved;
+                    return k;
+                }).ToList();
+                _stockRegisterRepository.InsertList(stockRegister);
+
+                _issueVoucherRepository.Insert(issueVoucher);
+                _issueVoucherRepository.TransactionCommit();
+                return this.GetSavedIssueVoucherDetails(issueVoucher.IssueVoucherNo);
+
+            }
+            catch (Exception ex)
+            {
+                _issueVoucherRepository.TransactionRollback();
+                throw ex;
+            }
+
+
+        }
+        public IEnumerable<AccountsTransactions> GetAllTransaction()
+        {
+            return _accountTransactionRepository.GetAll();
+        }
+        public IEnumerable<IssueVoucher> GetIssueVoucher()
+        {
+            IEnumerable<IssueVoucher> issueVoucher_ALL = _issueVoucherRepository.GetAll().Where(k => k.IssueVoucherDelStatus == false || k.IssueVoucherDelStatus == null);
+            return issueVoucher_ALL;
+        }
+        public IssueVoucherModel GetSavedIssueVoucherDetails(string pvno)
+        {
+            IssueVoucherModel issueVoucherModel = new IssueVoucherModel();
+            //issueVoucherModel.issueVoucher = _issueVoucherRepository.GetAsQueryable().Where(k => k.IssueVoucherNo == pvno && k.IssueVoucherDelStatus == false).SingleOrDefault();
+
+            issueVoucherModel.issueVoucher = _issueVoucherRepository.GetAsQueryable().Where(k => k.IssueVoucherNo == pvno).SingleOrDefault();
+
+
+
+            issueVoucherModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.IssueVoucher_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
+            issueVoucherModel.issueVoucherDetails = _issueVoucherDetailsRepository.GetAsQueryable().Where(x => x.IssueVoucherDetailsNo == pvno && (x.IssueVoucherDetailsDelStatus == false || x.IssueVoucherDetailsDelStatus == null)).ToList();
+            return issueVoucherModel;
+
+
+        }
+
+        public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
+        {
+            try
+            {
+
+
+                var prefix = this._programsettingsRepository.GetAsQueryable().Where(k => k.ProgramSettingsKeyValue == Prefix.IssueVoucher_Prefix).FirstOrDefault().ProgramSettingsTextValue;
+                int vnoMaxVal = Convert.ToInt32(_voucherNumbersRepository.GetAsQueryable()
+                                                        .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == VoucherType.IssueVoucher_TYPE)
+                                                        .DefaultIfEmpty()
+                                                        .Max(o => o == null ? 0 : o.VouchersNumbersVNoNu)) + 1;
+
+
+                //var prefix = "CN";
+                //int vnoMaxVal = 1;
+
+
+                VouchersNumbers vouchersNumbers = new VouchersNumbers
+                {
+                    VouchersNumbersVNo = prefix + vnoMaxVal,
+                    VouchersNumbersVNoNu = vnoMaxVal,
+                    VouchersNumbersVType = VoucherType.IssueVoucher_TYPE,
+                    VouchersNumbersFsno = 1,
+                    VouchersNumbersStatus = AccountStatus.Pending,
+                    VouchersNumbersVoucherDate = VoucherGenDate
+
+                };
+                _voucherNumbersRepository.Insert(vouchersNumbers);
+                return vouchersNumbers;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+
+
+        //using Microsoft.Extensions.Logging;
+        //private readonly ILogger<PaymentVoucherService> _logger;
+        //IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
+        public VouchersNumbers GetVouchersNumbers(string pvno)
+        {
+            try
+            {
+                VouchersNumbers vouchersNumbers = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == pvno).SingleOrDefault();
+                return vouchersNumbers;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                throw ex;
+            }
+
+        }
+
+    }
+}
