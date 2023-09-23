@@ -5302,7 +5302,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.CustomerMasterCustomerCityId).HasColumnName("Customer_Master_Customer_City_ID");
 
-                entity.Property(e => e.CustomerMasterCustomerRouteID).HasColumnName("Customer_Master_Customer_RouteID");
+                //entity.Property(e => e.CustomerMasterCustomerRouteID).HasColumnName("Customer_Master_Customer_RouteID");
 
                 entity.Property(e => e.CustomerMasterCustomerContactPerson)
                     .HasColumnName("Customer_Master_Customer_Contact_Person")

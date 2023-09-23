@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -12,6 +13,7 @@ namespace Inspire.Erp.Domain.Entities
 
         public decimal SalesVoucherId { get; set; }
         public string SalesVoucherNo { get; set; }
+        [NotMapped]
         public long? SalesVoucherShortNo { get; set; }
         public DateTime SalesVoucherDate { get; set; }
         public string SalesVoucherType { get; set; }
