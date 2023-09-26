@@ -3,6 +3,7 @@ using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,9 +20,9 @@ namespace Inspire.Erp.Application.Master
         private readonly IRepository<PurchaseVoucher> pVoucherrepo;
         private readonly IRepository<MasterAccountsTable> _masterAccountTable;
         private readonly IUtilityService _utilityService;
-        private string SupplierRelativeNo = "003001003001";
+        private string SupplierRelativeNo = "";
         public SupplierMasterService(IRepository<SuppliersMaster> _supplierrepository, IRepository<PurchaseVoucher> _pVoucherrepo,
-            IUtilityService utilityService,
+            IUtilityService utilityService, IConfiguration config,
                                      IRepository<MasterAccountsTable> masterAccountTable, IRepository<PurchaseVoucherDetails> _pVoucherDetailsrepo)
         {
             supplierrepository = _supplierrepository;
@@ -29,6 +30,7 @@ namespace Inspire.Erp.Application.Master
             pVoucherrepo = _pVoucherrepo;
             _masterAccountTable = masterAccountTable;
             _utilityService = utilityService;
+            SupplierRelativeNo = config["ApplicationSettings:SupplierRelativeNo"];
         }
         public async Task<IEnumerable<SuppliersMaster>> InsertSupplier(SuppliersMaster SuppliersMaster)
         {
@@ -47,8 +49,6 @@ namespace Inspire.Erp.Application.Master
                 SuppliersMaster.SuppliersMasterSupplierReffAcNo = accNo;
                 supplierrepository.Insert(SuppliersMaster);
                 var masterAccount = _masterAccountTable.GetAsQueryable().Where(x => x.MaAccNo == SupplierRelativeNo).FirstOrDefault();
-                var subhead = _masterAccountTable.GetAsQueryable().Where(x => x.MaAccNo == masterAccount.MaRelativeNo).FirstOrDefault();
-                var head = _masterAccountTable.GetAsQueryable().Where(x => x.MaAccNo == subhead.MaRelativeNo).FirstOrDefault();
                 MasterAccountsTable masterAccountsTable = new MasterAccountsTable()
                 {
                     MaAccName = SuppliersMaster.SuppliersMasterSupplierName,
@@ -57,9 +57,9 @@ namespace Inspire.Erp.Application.Master
                     MaImageKey = masterAccount.MaImageKey,
                     MaAssetDate = DateTime.Now,
                     MaFsno = fs.Result.FinancialPeriodsFsno,
-                    MaMainHead = head.MaMainHead,
+                    MaMainHead = masterAccount.MaMainHead,
                     MaRelativeNo = masterAccount.MaAccNo,
-                    MaSubHead = subhead.MaSubHead,
+                    MaSubHead = masterAccount.MaSubHead,
                     MaUserId = 0,
                     MaDateCreated = DateTime.Now,
                     MaStatus = "R",

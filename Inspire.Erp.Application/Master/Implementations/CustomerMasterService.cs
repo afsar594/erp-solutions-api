@@ -25,7 +25,7 @@ namespace Inspire.Erp.Application.Master
             customerrepository = _customerrepository;
             _masterAccountTable = masterAccountTable;
             _utilityService = utilityService;
-            DeptorsRelativeNo = config["ApplicationSettings:Debtors"];
+            DeptorsRelativeNo = config["ApplicationSettings:DebtorRelativeNo"];
         }
         public async Task<IEnumerable<CustomerMaster>> InsertCustomer(CustomerMaster customerMaster)
         {
@@ -44,8 +44,6 @@ namespace Inspire.Erp.Application.Master
                 customerMaster.CustomerMasterCustomerReffAcNo = accNo;
                 customerrepository.Insert(customerMaster);
                 var masterAccount = _masterAccountTable.GetAsQueryable().Where(x => x.MaAccNo == DeptorsRelativeNo).FirstOrDefault();
-                var subhead = _masterAccountTable.GetAsQueryable().Where(x => x.MaRelativeNo == masterAccount.MaAccNo).FirstOrDefault();
-                var head = _masterAccountTable.GetAsQueryable().Where(x => x.MaRelativeNo == subhead.MaAccNo).FirstOrDefault();
                 MasterAccountsTable masterAccountsTable = new MasterAccountsTable()
                 {
                     MaAccName = customerMaster.CustomerMasterCustomerName,
@@ -54,9 +52,9 @@ namespace Inspire.Erp.Application.Master
                     MaImageKey = masterAccount.MaImageKey,
                     MaAssetDate = DateTime.Now,
                     MaFsno = fs.Result.FinancialPeriodsFsno,
-                    MaMainHead = head.MaMainHead,
+                    MaMainHead = masterAccount.MaMainHead,
                     MaRelativeNo = masterAccount.MaAccNo,
-                    MaSubHead = subhead.MaSubHead,
+                    MaSubHead = masterAccount.MaSubHead,
                     MaUserId = 0,
                     MaDateCreated = DateTime.Now,
                     MaStatus = "R",
