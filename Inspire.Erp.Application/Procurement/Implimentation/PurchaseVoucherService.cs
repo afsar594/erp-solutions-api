@@ -62,6 +62,7 @@ namespace Inspire.Erp.Application.Master.Implementations
         {
             try
             {
+                DataObj.PurchaseVoucherPurID = _PurchaseVoucher.GetAsQueryable().Select(x=> x.PurchaseVoucherPurID).Max() + 1;
                 _PurchaseVoucher.Insert(DataObj);
                 return this.GetPurchaseVoucher();
             }
