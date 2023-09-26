@@ -3,6 +3,7 @@ using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,14 +17,15 @@ namespace Inspire.Erp.Application.Master
         private IRepository<CustomerMaster> customerrepository;
         private readonly IRepository<MasterAccountsTable> _masterAccountTable;
         private readonly IUtilityService _utilityService;
-        private string DeptorsRelativeNo = "001001005";
+        private string DeptorsRelativeNo = "";
 
-        public CustomerMasterService(IRepository<CustomerMaster> _customerrepository,
+        public CustomerMasterService(IRepository<CustomerMaster> _customerrepository,IConfiguration config,
             IRepository<MasterAccountsTable> masterAccountTable, IUtilityService utilityService)
         {
             customerrepository = _customerrepository;
             _masterAccountTable = masterAccountTable;
             _utilityService = utilityService;
+            DeptorsRelativeNo = config["ApplicationSettings:Debtors"];
         }
         public async Task<IEnumerable<CustomerMaster>> InsertCustomer(CustomerMaster customerMaster)
         {
