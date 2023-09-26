@@ -41,7 +41,7 @@ namespace Inspire.Erp.Application.Master
                 valid = true;
                 int mxc = 0;
                 var maxId = _masterAccountTable.GetAsQueryable().Max(x => x.MaSno);
-                string accNo = "AS" + maxId + 1;
+                string accNo = "AS" +( maxId + 1);
                 mxc = (int)supplierrepository.GetAsQueryable().Where(k => k.SuppliersMasterSupplierId != null).Select(x => x.SuppliersMasterSupplierId).Max();
                 if (mxc == null) { mxc = 1; } else { mxc = mxc + 1; }
 
