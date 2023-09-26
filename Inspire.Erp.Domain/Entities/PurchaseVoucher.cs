@@ -72,6 +72,7 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? PurchaseVoucherTotalItemDisAmount { get; set; }
         public decimal? PurchaseVoucherTotalDiscountAmt { get; set; }
         public virtual Suppliers PurchaseVoucherSp { get; set; }
+        [NotMapped]
         public virtual List<PurchaseVoucherDetails> PurchaseVoucherDetails { get; set; }
         [NotMapped]
         public virtual List<AccountsTransactions> AccountsTransactions { get; set; }
