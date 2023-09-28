@@ -156,7 +156,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 trackingData.UserTrackingUserChangeDt = DateTime.Now;
                 trackingData.UserTrackingUserChangeTime = DateTime.Now;
                 trackingData.UserTrackingUserVpType = "PAYMENTVOUCHER";
-                UserTracking.Insert(trackingData);
+                //UserTracking.Insert(trackingData);
                 _paymentVoucherRepository.TransactionCommit();
                 return this.GetSavedPaymentDetails(paymentVoucher.PaymentVoucherVoucherNo);
             }
