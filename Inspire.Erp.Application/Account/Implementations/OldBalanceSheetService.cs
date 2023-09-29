@@ -197,7 +197,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             {
                 if (olDJvNO != null)
                 {
-                    var journalVoucher = _journalVoucher.GetAsQueryable().Where(x => x.JournalVoucher_ID == olDJvNO).ToList();
+                    var journalVoucher = _journalVoucher.GetAsQueryable().Where(x => x.JournalVoucherId == olDJvNO).ToList();
                     _journalVoucher.DeleteList(journalVoucher);
                     _journalVoucher.SaveChangesAsync();
 
@@ -233,16 +233,16 @@ namespace Inspire.Erp.Application.Account.Implementations
                 int journalVoucher = rnd.Next();
                 _journalVoucher.Insert(new JournalVoucher()
                 {
-                    JournalVoucher_ID = (int)tempJvNO,
+                    JournalVoucherId = (int)tempJvNO,
                     // JournalVoucher_ID = Convert.ToInt32(tempJvNO),
-                    JournalVoucher_Date = model.FinancialPeriodsStartDate,
-                    JournalVoucher_FC_Rate = (decimal)model.TotalAmount,
-                    JournalVoucher_Narration= "Opening Balance",
+                    JournalVoucherDate= model.FinancialPeriodsStartDate,
+                    JournalVoucherAmount = (double)model.TotalAmount,
+                    JournalVoucherNarration= "Opening Balance",
                     // JournalVoucherFsno = model.OldBsMasterFsno,
-                    JournalVoucher_Ref_No = model.OldBsMasterId.ToString(),
+                    JournalVoucherRefNo = model.OldBsMasterId.ToString(),
                     // JournalVoucher_DelStatus = "PB",
-                    JournalVoucher_User_ID = null,
-                    JournalVoucher_VoucherType = Jv_Type
+                    JournalVoucherUserId = null,
+                    JournalVoucherType= Jv_Type
                 });
                 _journalVoucher.SaveChangesAsync();
                 foreach (var details in model.OldBsMasterDetails)

@@ -109,7 +109,7 @@ namespace Inspire.Erp.Application
             services.AddScoped<IPurchaseRequisitionService, PurchaseRequisitionService>();
             services.AddScoped<IIssueVoucherService, IssueVoucherService>();
             services.AddScoped<IIssueReturnService, IssueReturnService>();
-            ////services.AddScoped<IJournalVoucherService, JournalVoucherService>();
+            services.AddScoped<IJournalVoucherService, JournalVoucherService>();
             services.AddScoped<IContraVoucherService, ContraVoucherService>();
             services.AddScoped<IMainReportService, MainReportService>();
             services.AddScoped<IUpload, ImportService>();

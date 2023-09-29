@@ -10492,24 +10492,24 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnName("Journal_Voucher_VRefNo")
                     .HasMaxLength(20)
                     .IsUnicode(false);
-                entity.Property(e => e.JournalVoucher_ID).HasColumnName("JournalVoucher_ID");
-                entity.Property(e => e.JournalVoucher_VNO).HasColumnName("JournalVoucher_VNO");
-                entity.Property(e => e.JournalVoucher_Ac_No).HasColumnName("JournalVoucher_Ac_No");
-                entity.Property(e => e.JournalVoucher_Ref_No).HasColumnName("JournalVoucher_Ref_No");
-                entity.Property(e => e.JournalVoucher_Date).HasColumnName("JournalVoucher_Date");
-                entity.Property(e => e.JournalVoucher_Dr_Amount).HasColumnName("JournalVoucher_Dr_Amount");
-                entity.Property(e => e.JournalVoucher_Cr_Amount).HasColumnName("JournalVoucher_Cr_Amount");
-                entity.Property(e => e.JournalVoucher_FC_Cr_Amount).HasColumnName("JournalVoucher_FC_Cr_Amount");
-                entity.Property(e => e.JournalVoucher_FC_Rate).HasColumnName("JournalVoucher_FC_Rate");
-                entity.Property(e => e.JournalVoucher_FC_Dr_Amount).HasColumnName("JournalVoucher_FC_Dr_Amount");
-                entity.Property(e => e.JournalVoucher_Narration).HasColumnName("JournalVoucher_Narration");
-                entity.Property(e => e.JournalVoucher_AllocID).HasColumnName("JournalVoucher_AllocID");
-                entity.Property(e => e.JournalVoucher_FSNO).HasColumnName("JournalVoucher_FSNO");
-                entity.Property(e => e.JournalVoucher_VoucherType).HasColumnName("JournalVoucher_VoucherType");
-                entity.Property(e => e.JournalVoucher_LocationId).HasColumnName("JournalVoucher_LocationId");
-                entity.Property(e => e.JournalVoucher_CurrencyId).HasColumnName("JournalVoucher_CurrencyId");
-                entity.Property(e => e.JournalVoucher_DelStatus).HasColumnName("JournalVoucher_DelStatus");
-                entity.Property(e => e.JournalVoucher_User_ID).HasColumnName("JournalVoucher_User_ID");
+                //entity.Property(e => e.JournalVoucher_ID).HasColumnName("JournalVoucher_ID");
+                //entity.Property(e => e.JournalVoucher_VNO).HasColumnName("JournalVoucher_VNO");
+                ////entity.Property(e => e.JournalVoucher_Ac_No).HasColumnName("JournalVoucher_Ac_No");
+                //entity.Property(e => e.JournalVoucher_Ref_No).HasColumnName("JournalVoucher_Ref_No");
+                //entity.Property(e => e.JournalVoucher_Date).HasColumnName("Journal_Voucher_Date");
+                ////entity.Property(e => e.JournalVoucher_Dr_Amount).HasColumnName("JournalVoucher_Dr_Amount");
+                ////entity.Property(e => e.JournalVoucher_Cr_Amount).HasColumnName("JournalVoucher_Cr_Amount");
+                //entity.Property(e => e.JournalVoucher_FC_Cr_Amount).HasColumnName("JournalVoucher_FC_Cr_Amount");
+                //entity.Property(e => e.JournalVoucher_FC_Rate).HasColumnName("JournalVoucher_FC_Rate");
+                //entity.Property(e => e.JournalVoucher_FC_Dr_Amount).HasColumnName("JournalVoucher_FC_Dr_Amount");
+                //entity.Property(e => e.JournalVoucher_Narration).HasColumnName("JournalVoucher_Narration");
+                ////entity.Property(e => e.JournalVoucher_AllocID).HasColumnName("JournalVoucher_AllocID");
+                //entity.Property(e => e.JournalVoucher_FSNO).HasColumnName("JournalVoucher_FSNO");
+                //entity.Property(e => e.JournalVoucher_VoucherType).HasColumnName("JournalVoucher_VoucherType");
+                //entity.Property(e => e.JournalVoucher_LocationId).HasColumnName("JournalVoucher_LocationId");
+                ////entity.Property(e => e.JournalVoucher_CurrencyId).HasColumnName("JournalVoucher_Currency_ID");
+                //entity.Property(e => e.JournalVoucher_DelStatus).HasColumnName("Journal_Voucher_DelStatus");
+                //entity.Property(e => e.JournalVoucher_User_ID).HasColumnName("JournalVoucher_User_ID");
 
             });
 
