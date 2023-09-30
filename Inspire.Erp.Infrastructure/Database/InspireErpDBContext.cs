@@ -10430,7 +10430,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<JournalVoucher>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(x=>x.JournalVoucherSno);
 
                 entity.ToTable("Journal_Voucher");
 
