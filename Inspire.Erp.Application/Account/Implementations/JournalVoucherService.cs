@@ -88,7 +88,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 journalVoucher.JournalVoucherDelStatus = true;
                 journalVoucherDetails = journalVoucherDetails.Select((k) =>
                 {
-                    k.JournalVoucherDetails_DelStatus = true;
+                    k.JournalVoucherDetailsDelStatus = true;
                     return k;
                 }).ToList();
                 _journalVoucherDetailsRepository.UpdateList(journalVoucherDetails);
@@ -131,11 +131,11 @@ namespace Inspire.Erp.Application.Account.Implementations
                     _journalVoucherRepository.GetAsQueryable()
                     .DefaultIfEmpty().Max(o => o == null ? 0 : o.JournalVoucherId) + 1);
 
-                journalVoucher.JournalVoucherId = maxcount;
+                //journalVoucher.JournalVoucherId = maxcount;
                 journalVoucherDetails = journalVoucherDetails.Select((x) =>
                 {
-                    x.JournalVoucher_ID = maxcount;
-                    x.JournalVoucherDetails_VNO = journalVoucher.JournalVoucherRefNo;
+                    x.JournalVoucherDetailsId = maxcount;
+                    x.JournalVoucherDetailsReferenceNo = journalVoucher.JournalVoucherRefNo;
                     return x;
                 }).ToList();
                 _journalVoucherDetailsRepository.InsertList(journalVoucherDetails);
@@ -180,7 +180,7 @@ namespace Inspire.Erp.Application.Account.Implementations
         {
             JournalVoucher journalVoucherModel = new JournalVoucher();
             journalVoucherModel = _journalVoucherRepository.GetAsQueryable().Where(k => k.JournalVoucherRefNo == pvno).SingleOrDefault();
-            journalVoucherModel.JournalVoucherDetails = _journalVoucherDetailsRepository.GetAsQueryable().Where(x => x.JournalVoucherDetails_VNO == pvno).ToList();
+            journalVoucherModel.JournalVoucherDetails = _journalVoucherDetailsRepository.GetAsQueryable().Where(x => x.JournalVoucherDetailsReferenceNo  == pvno).ToList();
             return journalVoucherModel;
         }
 

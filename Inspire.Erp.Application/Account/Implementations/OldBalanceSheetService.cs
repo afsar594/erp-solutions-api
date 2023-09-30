@@ -201,7 +201,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     _journalVoucher.DeleteList(journalVoucher);
                     _journalVoucher.SaveChangesAsync();
 
-                    var journalVoucherDetail = _journalVoucherDetail.GetAsQueryable().Where(x => x.JournalVoucherDetails_ID == olDJvNO).ToList();
+                    var journalVoucherDetail = _journalVoucherDetail.GetAsQueryable().Where(x => x.JournalVoucherDetailsId== olDJvNO).ToList();
                     _journalVoucherDetail.DeleteList(journalVoucherDetail);
                     _journalVoucherDetail.SaveChangesAsync();
 
@@ -266,14 +266,14 @@ namespace Inspire.Erp.Application.Account.Implementations
 
                     _journalVoucherDetail.Insert(new JournalVoucherDetails()
                     {
-                        JournalVoucherDetails_ID = (int)tempJvNO,
-                        JournalVoucher_ID = journalVoucher,
-                        JournalVoucherDetails_Acc_No = accountNo,
+                        JournalVoucherDetailsId = (int)tempJvNO,
+                        JournalVoucherDetailsReferenceNo = journalVoucher.ToString(),
+                        JournalVoucherDetailsAccNo = accountNo,
                         // JournalVoucherDetails_Narration = details.Debit != null ? "D" : "C",
                         // JournalVoucherDetailsFcAmount = amount,
                         // JournalVoucherDetailsAmount = amount,
                         // JournalVoucherDetails_Reference_No = model.OldBsMasterFsno,
-                        JournalVoucherDetails_Narration = "Opening Balance"
+                        JournalVoucherDetailsNarration = "Opening Balance"
                     });
                     _journalVoucherDetail.SaveChangesAsync();
                 }
