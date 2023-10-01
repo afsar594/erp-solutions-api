@@ -36,6 +36,7 @@ namespace Inspire.Erp.Domain.Entities
         ///
         public int? JournalVoucherDetailsId { get; set; }
         public int? JournalVoucherDetailsAccSno { get; set; }
+        public string JournalVoucherDetailVrefNo { get; set; }
         public string JournalVoucherDetailsAccNo { get; set; }
         public string JournalVoucherDetailsDrCr { get; set; }
         public double? JournalVoucherDetailsFcRate { get; set; }
