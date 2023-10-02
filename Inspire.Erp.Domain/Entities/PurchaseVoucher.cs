@@ -9,7 +9,9 @@ namespace Inspire.Erp.Domain.Entities
     {
         public PurchaseVoucher()
         {
-          //  PurchaseVoucherDetails = new HashSet<PurchaseVoucherDetails>();
+            PurchaseVoucherDetails = new HashSet<PurchaseVoucherDetails>();
+            AccountsTransactions = new HashSet<AccountsTransactions>();
+            UserTrackingData = new HashSet<UserTrackingDisplay>();
         }
         public int PurchaseVoucherPurID { get; set; }
         public string PurchaseVoucherVoucherNo { get; set; }
@@ -22,7 +24,7 @@ namespace Inspire.Erp.Domain.Entities
         //public string? PurchaseVoucherSPACCNO { get; set; }
         //public decimal? PurchaseVoucherSPAmount { get; set; }
         //  public decimal? PurchaseVoucherFCSPAmount { get; set; }
-        public DateTime? PurchaseVoucherPurchaseDate { get; set; }
+        public DateTime PurchaseVoucherPurchaseDate { get; set; }
         public string? PurchaseVoucherLPONo { get; set; }
         public DateTime? PurchaseVoucherLPODate { get; set; }
         public string? PurchaseVoucherQuatationNo { get; set; }
@@ -73,11 +75,12 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? PurchaseVoucherTotalDiscountAmt { get; set; }
         public virtual Suppliers PurchaseVoucherSp { get; set; }
         [NotMapped]
-        public virtual List<PurchaseVoucherDetails> PurchaseVoucherDetails { get; set; }
+        public virtual ICollection<PurchaseVoucherDetails> PurchaseVoucherDetails { get; set; }
         [NotMapped]
-        public virtual List<AccountsTransactions> AccountsTransactions { get; set; }
+        public virtual ICollection<AccountsTransactions> AccountsTransactions { get; set; }
         //public IQueryable UserTrackingData { get; set; }
-        public List<UserTrackingDisplay> UserTrackingData { get; set; }
+        [NotMapped]
+        public virtual ICollection<UserTrackingDisplay> UserTrackingData { get; set; }
         public bool? PurchaseVoucherDelStatus { get; set; }
        // public int PurchaseVoucherPurId { get; set; }
         public int? PurchaseVoucherPurchaseIdNum { get; set; }

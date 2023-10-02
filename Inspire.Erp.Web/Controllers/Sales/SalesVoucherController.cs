@@ -197,7 +197,7 @@ namespace Inspire.Erp.Web.Controllers
                 SalesVoucherViewModel salesVoucherViewModel = new SalesVoucherViewModel
                 {
 
-
+                        
                     SalesVoucherId = xs.salesVoucher.SalesVoucherId,
                     SalesVoucherNo = xs.salesVoucher.SalesVoucherNo,
                     SalesVoucherDate = xs.salesVoucher.SalesVoucherDate,
