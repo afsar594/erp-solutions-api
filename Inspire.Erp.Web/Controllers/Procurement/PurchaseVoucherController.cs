@@ -162,6 +162,14 @@ namespace Inspire.Erp.Web.Controllers
                         PurchaseVoucherTotalGrossAmt = xs.purchaseVoucher.PurchaseVoucherTotalGrossAmt,
                         PurchaseVoucherTotalDiscountAmt = xs.purchaseVoucher.PurchaseVoucherTotalDiscountAmt,
 
+                        PurchaseVoucherGrNo = xs.purchaseVoucher.PurchaseVoucherGRNo,
+                        PurchaseVoucherGrDate = xs.purchaseVoucher.PurchaseVoucherGRDate,
+                        PurchaseVoucherLpoNo = xs.purchaseVoucher.PurchaseVoucherLPONo,
+                        PurchaseVoucherLpoDate = xs.purchaseVoucher.PurchaseVoucherLPODate,
+                        PurchaseVoucherQuatationNo = xs.purchaseVoucher.PurchaseVoucherQuatationNo,
+                        PurchaseVoucherQuatationDate = xs.purchaseVoucher.PurchaseVoucherQuatationDate,
+                        PurchaseVoucherPoNo = xs.purchaseVoucher.PurchaseVoucherPoNo,
+                        PurchaseVoucherBatchCode = xs.purchaseVoucher.PurchaseVoucherBatchCode,
                     };
 
                     purchaseVoucherViewModel.PurchaseVoucherDetails = _mapper.Map<List<PurchaseVoucherDetailsViewModel>>(xs.purchaseVoucherDetails);
@@ -274,6 +282,15 @@ namespace Inspire.Erp.Web.Controllers
                 PurchaseVoucherTotalGrossAmt = xs.purchaseVoucher.PurchaseVoucherTotalGrossAmt,
                 PurchaseVoucherTotalDiscountAmt = xs.purchaseVoucher.PurchaseVoucherTotalDiscountAmt,
 
+                PurchaseVoucherGrNo = xs.purchaseVoucher.PurchaseVoucherGRNo,
+                PurchaseVoucherGrDate = xs.purchaseVoucher.PurchaseVoucherGRDate,
+                PurchaseVoucherLpoNo = xs.purchaseVoucher.PurchaseVoucherLPONo,
+                PurchaseVoucherLpoDate = xs.purchaseVoucher.PurchaseVoucherLPODate,
+                PurchaseVoucherQuatationNo = xs.purchaseVoucher.PurchaseVoucherQuatationNo,
+                PurchaseVoucherQuatationDate = xs.purchaseVoucher.PurchaseVoucherQuatationDate,
+                PurchaseVoucherPoNo = xs.purchaseVoucher.PurchaseVoucherPoNo,
+                PurchaseVoucherBatchCode = xs.purchaseVoucher.PurchaseVoucherBatchCode,
+
             };
 
             purchaseVoucherViewModel.PurchaseVoucherDetails = _mapper.Map<List<PurchaseVoucherDetailsViewModel>>(xs.purchaseVoucherDetails);
@@ -378,7 +395,7 @@ namespace Inspire.Erp.Web.Controllers
                     // PurchaseVoucherTotalActualAmount = xs.purchaseVoucher.PurchaseVoucherTotalActualAmount,
                     // PurchaseVoucherTotalDisPer = xs.purchaseVoucher.PurchaseVoucherTotalDisPer,
                     // PurchaseVoucherTotalDisAmount = xs.purchaseVoucher.PurchaseVoucherTotalDisAmount,
-                    // PurchaseVoucherVatAmt = xs.purchaseVoucher.PurchaseVoucherVatAmt,
+                     //PurchaseVoucherVatAmt = purchaseVoucher.purchaseVoucher.PurchaseVoucherVatAmt,
                     // PurchaseVoucherVatPer = xs.purchaseVoucher.PurchaseVoucherVatPer,
                     PurchaseVoucherVatRoundSign = purchaseVoucher.purchaseVoucher.PurchaseVoucherVatRoundSign,
                     PurchaseVoucherVatPercentage = purchaseVoucher.purchaseVoucher.PurchaseVoucherVatPercentage,
@@ -409,6 +426,14 @@ namespace Inspire.Erp.Web.Controllers
                     PurchaseVoucherTotalGrossAmt = purchaseVoucher.purchaseVoucher.PurchaseVoucherTotalGrossAmt,
                     PurchaseVoucherTotalDiscountAmt = purchaseVoucher.purchaseVoucher.PurchaseVoucherTotalDiscountAmt,
 
+                    PurchaseVoucherGrNo = purchaseVoucher.purchaseVoucher.PurchaseVoucherGRNo,
+                    PurchaseVoucherGrDate = purchaseVoucher.purchaseVoucher.PurchaseVoucherGRDate,
+                    PurchaseVoucherLpoNo = purchaseVoucher.purchaseVoucher.PurchaseVoucherLPONo,
+                    PurchaseVoucherLpoDate = purchaseVoucher.purchaseVoucher.PurchaseVoucherLPODate,
+                    PurchaseVoucherQuatationNo = purchaseVoucher.purchaseVoucher.PurchaseVoucherQuatationNo,
+                    PurchaseVoucherQuatationDate = purchaseVoucher.purchaseVoucher.PurchaseVoucherQuatationDate,
+                    PurchaseVoucherPoNo = purchaseVoucher.purchaseVoucher.PurchaseVoucherPoNo,
+                    PurchaseVoucherBatchCode = purchaseVoucher.purchaseVoucher.PurchaseVoucherBatchCode,
 
                 };
                 purchaseVoucherViewModel.PurchaseVoucherDetails = _mapper.Map<List<PurchaseVoucherDetailsViewModel>>(purchaseVoucher.purchaseVoucherDetails);
