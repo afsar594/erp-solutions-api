@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Inspire.Erp.Web.ViewModels.Settings;
+using Inspire.Erp.Domain.Modals.Common;
 
 namespace Inspire.Erp.Web.Common
 {
@@ -376,6 +377,14 @@ namespace Inspire.Erp.Web.Common
             CreateMap<OptionsMasterViewModel,OptionsMaster>();
 
             //*******************Settings Ending ****************
+
+
+            #region MIS Rports Mappings
+            //trial balance
+            CreateMap<ReportFilter, ReportFilterViewModel>();
+            CreateMap<ReportFilterViewModel, ReportFilter>();
+
+            #endregion
 
         }
     }

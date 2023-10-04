@@ -13,6 +13,7 @@ using System.Text;
 using static Inspire.Erp.Domain.Modals.PDCResponse;
 //using Inspire.Erp.Domain.Modals.ViewModels;
 using Inspire.Erp.Domain.Modals.Settings;
+using Inspire.Erp.Domain.Models.MIS;
 
 namespace Inspire.Erp.Infrastructure.Database
 {
@@ -375,6 +376,9 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<AssetPurchaseVoucherDetail> AssetPurchaseVoucherDetail { get; set; }
 
         public virtual DbSet<GetAccountTransactionProfitLossResponse> ProfitLossTransaction { get; set; }
+        public virtual DbSet<SingleValueSPResult> TrialBalacnceTransaction { get; set; }
+ 
+
         public virtual DbSet<GetAccountTransactionBalanceSheetResponse> BalanceSheetTransaction { get; set; }
         public virtual DbSet<GetAccountTransactionDBResponse> MultiAccountTransaction { get; set; }
         //public virtual DbSet<GetAccountTransactionVatStatementResponse> VatStatementAccountTransaction { get; set; }
@@ -443,6 +447,7 @@ namespace Inspire.Erp.Infrastructure.Database
             modelBuilder.Entity<GetAccountTransactionBalanceSheetResponse>().HasNoKey();
             modelBuilder.Entity<GetAccountTransactionProfitLossResponse>().HasNoKey();
             modelBuilder.Entity<GetATFinancialClosingResponse>().HasNoKey();
+            modelBuilder.Entity<SingleValueSPResult>().HasNoKey();
 
 
 
@@ -23247,10 +23252,10 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<TrialBalance>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e=>e.TrialBalanceID);
 
                 entity.ToTable("Trial_Balance");
-
+                entity.Property(e => e.TrialBalanceID).HasColumnName("Trial_Balance_ID");
                 entity.Property(e => e.TrialBalanceAccName)
                     .HasColumnName("Trial_Balance_AccName")
                     .HasMaxLength(100)

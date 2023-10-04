@@ -172,6 +172,11 @@ namespace Inspire.Erp.Application
             services.AddScoped<ISalesVoucherService, SalesVoucherService>();
             //services.AddScoped<IStockMovementService, StockMovementService>();
 
+            #region Reports
+            //trial Balance 
+            services.AddScoped<ITrialBalanceReport, TrialBalanceReport>();
+            #endregion
+
             return services;
 
         }
