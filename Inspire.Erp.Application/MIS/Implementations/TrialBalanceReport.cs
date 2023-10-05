@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Inspire.Erp.Domain.Models.MIS;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Inspire.Erp.Application.MIS.Implementations
 {
@@ -142,14 +143,15 @@ namespace Inspire.Erp.Application.MIS.Implementations
                         trialBalanceReportModel.head = mainHead;
 
 
-
-                        foreach (var subHead in result.Where(x => x.MainHead == mainHead).Distinct().ToList())
+                        var subHeads = result.Where(x=> x.MainHead == mainHead).Select(x=>x.SubHead).Distinct().ToList();
+                        foreach (var subHead in subHeads)
                         {
                             var t = new SubHeadTrialBalance();
-                            t.subHead = subHead.SubHead;
+                            t.subHead = subHead;
 
                             t.__children = new List<AccNameTrialBalance>();
-                            foreach (var item in result.Where(x => x.SubHead == subHead.SubHead).Distinct().ToList())
+                            var childs = result.Where(x => x.SubHead  == subHead).Select(x => x).ToList();
+                            foreach (var item in childs)
                             {
                                 var acc = new AccNameTrialBalance();
                                 //acc.subHead = item.SubHead;
@@ -214,14 +216,15 @@ namespace Inspire.Erp.Application.MIS.Implementations
                         trialBalanceReportModel.head = mainHead;
 
 
-
-                        foreach (var subHead in res.Where(x => x.MainHead == mainHead).Distinct().ToList())
+                        var subHeads = res.Where(x => x.MainHead == mainHead).Select(x => x.SubHead).Distinct().ToList();
+                        foreach (var subHead in subHeads)
                         {
                             var t = new SubHeadTrialBalance();
-                            t.subHead = subHead.SubHead;
+                            t.subHead = subHead;
 
                             t.__children = new List<AccNameTrialBalance>();
-                            foreach (var item in res.Where(x => x.SubHead == subHead.SubHead).Distinct().ToList())
+                            var childs = res.Where(x => x.SubHead == subHead).Select(x => x).ToList();
+                            foreach (var item in childs)
                             {
                                 var acc = new AccNameTrialBalance();
                                 if (query.HideZeroTransactions == true)
