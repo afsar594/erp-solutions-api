@@ -15,6 +15,7 @@ namespace Inspire.Erp.Application.Master.Implementations
     public class PurchaseVoucherService : IPurchaseVoucherService
     {
         private IRepository<StockRegister> _stockRegisterRepository;
+        private IRepository<CurrencyMaster> _currencyMasterRepository;
         private IRepository<PurchaseVoucher> _PurchaseVoucher;
         private IRepository<PurchaseVoucherDetails> _PurchaseVoucherDetails;
         private IRepository<AccountsTransactions> _accountTransactionRepository;
@@ -28,7 +29,7 @@ namespace Inspire.Erp.Application.Master.Implementations
         private InspireErpDBContext _context;
         public PurchaseVoucherService(IRepository<PurchaseVoucher> PurchaseVoucher, IRepository<PurchaseVoucherDetails> PurchaseVoucherDetails,
         IRepository<JobMaster> JobMaster, IRepository<Suppliers> Suppliers, IRepository<LocationMaster> LocationMaster,
-        IRepository<ItemMaster> ItemMaster, IRepository<UnitMaster> UnitMaster, InspireErpDBContext context, IRepository<VouchersNumbers> voucherNumbersRepository, IRepository<ProgramSettings> programsettingsRepository, IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository)
+        IRepository<ItemMaster> ItemMaster, IRepository<UnitMaster> UnitMaster, InspireErpDBContext context, IRepository<VouchersNumbers> voucherNumbersRepository, IRepository<ProgramSettings> programsettingsRepository, IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<CurrencyMaster> currencyMasterRepository)
         {
             _PurchaseVoucher = PurchaseVoucher;
             _PurchaseVoucherDetails = PurchaseVoucherDetails;
@@ -42,12 +43,22 @@ namespace Inspire.Erp.Application.Master.Implementations
             _programsettingsRepository = programsettingsRepository;
             _accountTransactionRepository = accountTransactionRepository;
             _stockRegisterRepository = stockRegisterRepository;
+            _currencyMasterRepository = currencyMasterRepository;
         }
         public IEnumerable<PurchaseVoucher> GetPurchaseVoucher()
         {
             try
             {
                 IEnumerable<PurchaseVoucher> _PurchaseVoucherList = _PurchaseVoucher.GetAll().Where(c=>c.PurchaseVoucherDelStatus == false || c.PurchaseVoucherDelStatus == null).ToList();
+                IEnumerable<CurrencyMaster> _currencyMaster = _currencyMasterRepository.GetAll().ToList();
+
+               
+                foreach (var purchaseVoucher in _PurchaseVoucherList)
+                {
+                    purchaseVoucher.CurrencyMasterCurrencyName = _currencyMaster
+                                                                 .Where(c => c.CurrencyMasterCurrencyId == purchaseVoucher.PurchaseVoucherCurrencyId)
+                                                                 .FirstOrDefault().CurrencyMasterCurrencyName;
+                }
                 return _PurchaseVoucherList;
             }
             catch (System.Exception ex)

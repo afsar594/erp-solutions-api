@@ -81,6 +81,10 @@ namespace Inspire.Erp.Domain.Entities
         //public IQueryable UserTrackingData { get; set; }
         [NotMapped]
         public virtual ICollection<UserTrackingDisplay> UserTrackingData { get; set; }
+
+        [NotMapped]
+
+        public string CurrencyMasterCurrencyName { get; set; }
         public bool? PurchaseVoucherDelStatus { get; set; }
        // public int PurchaseVoucherPurId { get; set; }
         public int? PurchaseVoucherPurchaseIdNum { get; set; }

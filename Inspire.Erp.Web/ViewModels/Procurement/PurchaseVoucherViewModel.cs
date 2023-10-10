@@ -108,6 +108,7 @@ namespace Inspire.Erp.Web.ViewModels.Procurement
         public decimal? PurchaseVoucherDiscountPercentage { get; set; }
         public int? PurchaseVoucherPoNo { get; set; }
         public int? PurchaseVoucherCurrencyId { get; set; }
+        public string CurrencyMasterCurrencyName { get; set; }
         public int? PurchaseVoucherCompanyId { get; set; }
         public int? PurchaseVoucherJobId { get; set; }
         public string PurchaseVoucherBatchCode { get; set; }
