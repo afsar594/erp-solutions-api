@@ -26,7 +26,7 @@ namespace Inspire.Erp.Domain.Modals.MIS.TrialBalance
         public string totalDebit { get; set; }
         public string totalCredit { get; set; }
         public string openBalance { get; set; }
-        public string closingBalance { get; set; }
+        //public string closingBalance { get; set; }
         public List<SubHeadTrialBalance> __children { get; set; }
     }
     public class SubHeadTrialBalance

@@ -28,7 +28,7 @@ namespace Inspire.Erp.Application.MIS.Implementations
 
         private async Task<int> ExecuteSP(ReportFilter query)
         {
-            var spResult = await _spResult.GetBySPWithParameters<SingleValueSPResult>(@$"exec GetAccountTransactionTrialBalance  {query.fromDate},{query.toDate},{query.HideZeroTransactions},{query.CostCenter},{query.FinancialMindate},{query.Formate}", x => new SingleValueSPResult()
+            var spResult = await _spResult.GetBySPWithParameters<SingleValueSPResult>(@$"exec GetAccountTransactionTrialBalance  {query.fromDate},{query.toDate},{0},{query.CostCenter},{query.FinancialMindate},{query.Formate}", x => new SingleValueSPResult()
             {
                 ReturnValue = x.ReturnValue
             });
@@ -62,7 +62,10 @@ namespace Inspire.Erp.Application.MIS.Implementations
                 // Execute the query and get the result
                 var result = res.ToList();
 
-
+                if (query.HideZeroTransactions == true)
+                {
+                    result = result.Where(x => x.TotalCredit > 0 || x.TotalDebit > 0 || x.OpenBalance > 0).ToList();
+                }
                 var mainHeads = result.Select(x => x.MainHead).ToList().Distinct();
                 if (mainHeads.Count() > 0)
                 {
@@ -74,19 +77,34 @@ namespace Inspire.Erp.Application.MIS.Implementations
                         trialBalanceReportModel.__children = new List<SubHeadTrialBalance>();
                         trialBalanceReportModel.head = mainHead;
 
-
+                        decimal totalDebit = 0;
+                        decimal totalCredit = 0;
+                        decimal totalAmount= 0;
 
                         foreach (var subHead in result.Where(x => x.MainHead == mainHead).Distinct().ToList())
                         {
                             var t = new SubHeadTrialBalance();
                             t.subHead = subHead.SubHead;
-                            t.totalDebit = Math.Round((decimal)subHead.TotalDebit, 2).ToString();
-                            t.totalCredit = Math.Round((decimal)subHead.TotalCredit, 2).ToString();
-                            t.openBalance = Math.Round((decimal)(subHead.TotalCredit - subHead.TotalDebit), 2).ToString();
+                            t.totalDebit = Math.Round((decimal)subHead.TotalDebit, 2).ToString("n2");
+                            t.totalCredit = Math.Round((decimal)subHead.TotalCredit, 2).ToString("n2");
+                            t.openBalance = Math.Round((decimal)(subHead.TotalCredit - subHead.TotalDebit), 2).ToString("n2");
                             trialBalanceReportModel.__children.Add(t);
-
+                            totalCredit += Math.Round((decimal)subHead.TotalCredit, 2);
+                            totalDebit += Math.Round((decimal)subHead.TotalDebit, 2);
+                            totalAmount += Math.Round((decimal)(subHead.TotalCredit - subHead.TotalDebit), 2);
                         }
+                        
+
                         bb.Add(trialBalanceReportModel);
+                        //bb.Add(new GetTrialBalanceReportModel() { head = "" });
+                        bb.Add(new GetTrialBalanceReportModel()
+                        {
+                            head = "Total : " + trialBalanceReportModel.head,
+                        totalCredit = totalCredit.ToString("n2"),
+                        totalDebit = totalDebit.ToString("n2"),
+                        openBalance = totalAmount.ToString("n2")
+                    });
+                       bb.Add(new GetTrialBalanceReportModel() { head = "" });
                     }
                 }
 
@@ -129,7 +147,13 @@ namespace Inspire.Erp.Application.MIS.Implementations
 
                 // Execute the query and get the result
                 var result = res.ToList();
-
+                if (query.HideZeroTransactions == true)
+                {
+                    result = result.Where(x => x.TotalCredit > 0 || x.TotalDebit > 0 || x.OpenBalance > 0).ToList();
+                }
+                decimal totalDebit = 0;
+                decimal totalCredit = 0;
+                decimal totalAmount = 0;
 
                 var mainHeads = result.Select(x => x.MainHead).ToList().Distinct();
                 if (mainHeads.Count() > 0)
@@ -141,7 +165,9 @@ namespace Inspire.Erp.Application.MIS.Implementations
                         trialBalanceReportModel = new GetTrialBalanceReportModel();
                         trialBalanceReportModel.__children = new List<SubHeadTrialBalance>();
                         trialBalanceReportModel.head = mainHead;
-
+                        totalDebit = 0;
+                        totalCredit = 0;
+                        totalAmount = 0;
 
                         var subHeads = result.Where(x=> x.MainHead == mainHead).Select(x=>x.SubHead).Distinct().ToList();
                         foreach (var subHead in subHeads)
@@ -159,13 +185,25 @@ namespace Inspire.Erp.Application.MIS.Implementations
                                 acc.totalCredit = Math.Round((decimal)item.TotalCredit, 2).ToString();
                                 acc.totalDebit = Math.Round((decimal)item.TotalDebit, 2).ToString();
                                 acc.openBalance = Math.Round((decimal)(item.TotalCredit - item.TotalDebit), 2).ToString(); //Math.Round((decimal)item.OpenBalance , 2).ToString();
-
+                                 totalDebit += Math.Round((decimal)item.TotalDebit, 2);
+                                 totalCredit += Math.Round((decimal)item.TotalCredit, 2);
+                                 totalAmount += Math.Round((decimal)(item.TotalCredit - item.TotalDebit), 2);
                                 t.__children.Add(acc);
 
                             }
                             trialBalanceReportModel.__children.Add(t);
                         }
                         bb.Add(trialBalanceReportModel);
+
+                        bb.Add(new GetTrialBalanceReportModel()
+                        {
+                            head = "Total : " + trialBalanceReportModel.head,
+                            totalCredit = totalCredit.ToString("n2"),
+                            totalDebit = totalDebit.ToString("n2"),
+                            openBalance = totalAmount.ToString("n2")
+                        });
+                        bb.Add(new GetTrialBalanceReportModel() { head = "" });
+
                     }
                 }
                 aa.Data = bb;
@@ -202,11 +240,17 @@ namespace Inspire.Erp.Application.MIS.Implementations
                           orderby summary.MainHead
                           select summary).ToList();
 
-
-
+                if (query.HideZeroTransactions == true)
+                {
+                    res = res.Where(x=> x.TotalCredit > 0 || x.TotalDebit>0 || x.OpenBalance >0).ToList();
+                }
                 var mainHeads = res.Select(x => x.MainHead).ToList().Distinct();
                 if (mainHeads.Count() > 0)
                 {
+                    decimal totalDebit = 0;
+                    decimal totalCredit = 0;
+                    decimal totalAmount = 0;
+                    string _subHead = string.Empty;
                     GetTrialBalanceReportModel trialBalanceReportModel;
                     foreach (var mainHead in mainHeads)
                     {
@@ -219,41 +263,68 @@ namespace Inspire.Erp.Application.MIS.Implementations
                         var subHeads = res.Where(x => x.MainHead == mainHead).Select(x => x.SubHead).Distinct().ToList();
                         foreach (var subHead in subHeads)
                         {
+                            _subHead = subHead;
                             var t = new SubHeadTrialBalance();
                             t.subHead = subHead;
-
+                            totalDebit = 0;
+                            totalCredit = 0;
+                            totalAmount = 0;
                             t.__children = new List<AccNameTrialBalance>();
                             var childs = res.Where(x => x.SubHead == subHead).Select(x => x).ToList();
                             foreach (var item in childs)
                             {
+                                
                                 var acc = new AccNameTrialBalance();
-                                if (query.HideZeroTransactions == true)
-                                {
-                                    if ((decimal)item.TotalCredit > 0 || (decimal)item.TotalDebit > 0 || (decimal)item.OpenBalance > 0)
-                                    {
-                                        acc.accName = item.RelativeName;
-                                        acc.totalCredit = Math.Round((decimal)item.TotalCredit, 2).ToString();
-                                        acc.totalDebit = Math.Round((decimal)item.TotalDebit, 2).ToString();
-                                        acc.openBalance = Math.Round((decimal)(item.TotalCredit - item.TotalDebit), 2).ToString(); //Math.Round((decimal)item.OpenBalance, 2).ToString();
-
-                                        t.__children.Add(acc);
-                                    }
-                                }
-                                else
-                                {
+                                //if (query.HideZeroTransactions == true)
+                                //{
+                                //    if ((decimal)item.TotalCredit > 0 || (decimal)item.TotalDebit > 0 || (decimal)item.OpenBalance > 0)
+                                //    {
+                                //        acc.accName = item.RelativeName;
+                                //        acc.totalCredit = Math.Round((decimal)item.TotalCredit, 2).ToString();
+                                //        acc.totalDebit = Math.Round((decimal)item.TotalDebit, 2).ToString();
+                                //        acc.openBalance = Math.Round((decimal)(item.TotalCredit - item.TotalDebit), 2).ToString(); //Math.Round((decimal)item.OpenBalance, 2).ToString();
+                                //        totalDebit += Math.Round((decimal)item.TotalDebit, 2);
+                                //        totalCredit += Math.Round((decimal)item.TotalCredit, 2);
+                                //        totalAmount += Math.Round((decimal)(item.TotalCredit - item.TotalDebit), 2);
+                                //        t.__children.Add(acc);
+                                //    }
+                                //}
+                                //else
+                                //{
                                     acc.accName = item.RelativeName;
                                     acc.totalCredit = Math.Round((decimal)item.TotalCredit, 2).ToString();
                                     acc.totalDebit = Math.Round((decimal)item.TotalDebit, 2).ToString();
                                     acc.openBalance = Math.Round((decimal)(item.TotalCredit - item.TotalDebit), 2).ToString(); //Math.Round((decimal)item.OpenBalance, 2).ToString();
-
+                                    totalDebit += Math.Round((decimal)item.TotalDebit, 2);
+                                    totalCredit += Math.Round((decimal)item.TotalCredit, 2);
+                                    totalAmount += Math.Round((decimal)(item.TotalCredit - item.TotalDebit), 2);
                                     t.__children.Add(acc);
-                                }
+                               // }
 
 
                             }
                             trialBalanceReportModel.__children.Add(t);
+                            trialBalanceReportModel.__children.Add(new SubHeadTrialBalance()
+                            {
+                                subHead = "Total : " + subHead,
+                                totalCredit = totalCredit.ToString("n2"),
+                                totalDebit = totalDebit.ToString("n2"),
+                                openBalance = totalAmount.ToString("n2")
+                            });
+
+                            trialBalanceReportModel.__children.Add(new SubHeadTrialBalance()
+                            {subHead = "" });
+
                         }
                         bb.Add(trialBalanceReportModel);
+                        //bb.Add(new GetTrialBalanceReportModel()
+                        //{
+                        //    head = "Total : " + trialBalanceReportModel.head,
+                        //    totalCredit = totalCredit.ToString("n2"),
+                        //    totalDebit = totalDebit.ToString("n2"),
+                        //    openBalance = totalAmount.ToString("n2")
+                        //});
+                        //bb.Add(new GetTrialBalanceReportModel() { head = "" });
                     }
                 }
 
