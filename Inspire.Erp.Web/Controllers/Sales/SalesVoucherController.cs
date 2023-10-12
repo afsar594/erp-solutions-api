@@ -437,14 +437,14 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("GetSalesVoucher")]
-        public ApiResponse<List<SalesVoucher>> GetAllSalesVoucher()
+        public ApiResponse<IEnumerable<SalesVoucher>> GetAllSalesVoucher()
         {
 
 
-            ApiResponse<List<SalesVoucher>> apiResponse = new ApiResponse<List<SalesVoucher>>
+            ApiResponse<IEnumerable<SalesVoucher>> apiResponse = new ApiResponse<IEnumerable<SalesVoucher>>
             {
                 Valid = true,
-                Result = _mapper.Map<List<SalesVoucher>>(_salesVoucherService.GetSalesVoucher()),
+                Result = _mapper.Map<IEnumerable<SalesVoucher>>(_salesVoucherService.GetSalesVoucher()),
                 Message = ""
             };
             return apiResponse;

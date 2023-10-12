@@ -20,6 +20,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
     public class SalesVoucherService : ISalesVoucherService
     {
         private IRepository<StockRegister> _stockRegisterRepository;
+        private IRepository<CurrencyMaster> _currencyMasterRepository;
         private IRepository<AccountsTransactions> _accountTransactionRepository;
         private IRepository<SalesVoucher> _salesVoucherRepository;
         private IRepository<SalesVoucherDetails> _salesVoucherDetailsRepository;
@@ -52,7 +53,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
 
-            IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository)
+            IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository, IRepository<CurrencyMaster> currencyMasterRepository)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository;
@@ -73,6 +74,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             _salesManMasterRepository = salesManMasterRepository;
 
             _departmentMasterRepository = departmentMasterRepository;
+            _currencyMasterRepository = currencyMasterRepository;
 
             //_reportSalesVoucherRepository = reportSalesVoucherRepository;
         }
@@ -349,7 +351,15 @@ namespace Inspire.Erp.Application.Sales.Implementations
         }
         public IEnumerable<SalesVoucher> GetSalesVoucher()
         {
-            IEnumerable<SalesVoucher> salesVoucher_ALL = _salesVoucherRepository.GetAll().Where(k => k.SalesVoucherDelStatus == false || k.SalesVoucherDelStatus == null);
+            IEnumerable<SalesVoucher> salesVoucher_ALL = _salesVoucherRepository.GetAll().Where(k => k.SalesVoucherDelStatus == false || k.SalesVoucherDelStatus == null).ToList();
+            IEnumerable<CurrencyMaster> _currencyMaster = _currencyMasterRepository.GetAll().ToList();
+
+            foreach (var salesVoucher in salesVoucher_ALL)
+            {
+                salesVoucher.CurrencyMasterCurrencyName = _currencyMaster
+                                                             .Where(c => c.CurrencyMasterCurrencyId == salesVoucher.SalesVoucherCurrencyId)
+                                                             .FirstOrDefault().CurrencyMasterCurrencyName;
+            }
             return salesVoucher_ALL;
         }
         public SalesVoucherModel GetSavedSalesVoucherDetails(string pvno)
