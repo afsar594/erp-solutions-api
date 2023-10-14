@@ -21190,12 +21190,15 @@ namespace Inspire.Erp.Infrastructure.Database
             modelBuilder.Entity<StockRegister>(entity =>
             {
 
-                entity.ToTable("Stock_Register");
 
-                //entity.Property(e => e.StockRegisterStoreId)
-                //    .HasColumnName("Stock_Register_Store_ID")
-                //    .HasColumnType("numeric(18, 0)")
-                //    .ValueGeneratedOnAdd();
+                entity.ToTable("Stock_Register");
+               //entity.Property(e => e.StockRegisterStoreID)
+               //              .ValueGeneratedOnAdd()
+               //              .UseIdentityColumn();
+                entity.Property(e => e.StockRegisterStoreID)
+                    .HasColumnName("Stock_Register_Store_ID")
+                    .HasColumnType("numeric(18, 0)")
+                    .ValueGeneratedOnAdd().UseIdentityColumn();
 
                 entity.Property(e => e.StockRegisterAmount)
                     .HasColumnName("Stock_Register_Amount")

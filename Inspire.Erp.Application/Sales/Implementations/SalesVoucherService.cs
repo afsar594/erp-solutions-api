@@ -299,6 +299,12 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 salesVoucher.SalesVoucherId = maxcount;
 
+               // var currencyMaster = _currencyMasterRepository.GetAsQueryable().Where(c => c.CurrencyMasterCurrencyId == salesVoucher.SalesVoucherCurrencyId).FirstOrDefault();
+                //foreach (var saleVoucherDetail in salesVoucherDetails)
+                //{
+                //    saleVoucherDetail.SalesVoucherDetailsRate = saleVoucherDetail.SalesVoucherDetailsRate * Convert.ToDecimal(currencyMaster.CurrencyMasterCurrencyRate);
+                //}
+               // salesVoucher.SalesVoucherFcRate = salesVoucher.SalesVoucherFcRate * Convert.ToDecimal(currencyMaster.CurrencyMasterCurrencyRate);
                 salesVoucherDetails = salesVoucherDetails.Select((x) =>
                 {
                     x.SalesVoucherId = maxcount;
@@ -319,21 +325,22 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
 
 
-                //stockRegister = stockRegister.Select((k) =>
-                //{
-                //    k.StockRegisterVoucherDate = salesVoucher.SalesVoucherDate;
-                //    k.StockRegisterRefVoucherNo = salesVoucherNumber;
-                //    k.StockRegisterTransType = VoucherType.SalesVoucher_TYPE;
-                //    k.StockRegisterStatus = AccountStatus.Approved;
-                //    return k;
-                //}).ToList();
-                //_stockRegisterRepository.InsertList(stockRegister);
+                stockRegister = stockRegister.Select((k) =>
+                {
+                    k.StockRegisterVoucherDate = salesVoucher.SalesVoucherDate;
+                    k.StockRegisterRefVoucherNo = salesVoucherNumber;
+                    k.StockRegisterTransType = VoucherType.SalesVoucher_TYPE;
+                    k.StockRegisterStatus = AccountStatus.Approved;
+                    return k;
+                }).ToList();
+                _stockRegisterRepository.InsertList(stockRegister);
 
 
 
 
 
                 _salesVoucherRepository.Insert(salesVoucher);
+                _salesVoucherDetailsRepository.InsertList(salesVoucherDetails);
                 _salesVoucherRepository.TransactionCommit();
                 return this.GetSavedSalesVoucherDetails(salesVoucher.SalesVoucherNo);
 
