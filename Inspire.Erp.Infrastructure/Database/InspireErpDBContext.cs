@@ -14309,11 +14309,11 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.PurchaseOrderId).HasColumnType("numeric(18, 0)");
 
-                entity.HasOne(d => d.PurchaseOrderDetailsNoNavigation)
-                    .WithMany(p => p.PurchaseOrderDetails)
-                    .HasPrincipalKey(p => p.PurchaseOrderNo)
-                    .HasForeignKey(d => d.PurchaseOrderDetailsNo)
-                    .HasConstraintName("FK_PurchaseOrderDetails_PurchaseOrder");
+                //entity.HasOne(d => d.PurchaseOrderDetailsNoNavigation)
+                //    .WithMany(p => p.PurchaseOrderDetails)
+                //    .HasPrincipalKey(p => p.PurchaseOrderNo)
+                //    .HasForeignKey(d => d.PurchaseOrderDetailsNo)
+                //    .HasConstraintName("FK_PurchaseOrderDetails_PurchaseOrder");
 
 
                 //////entity.HasOne(d => d.PurchaseOrderDetailsNoNavigation)
