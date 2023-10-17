@@ -27,11 +27,12 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private readonly IRepository<PurchaseVoucherDetails> _purchasevoucherDetail;
         private readonly IRepository<LocationMaster> _location;
         private readonly IRepository<JobMaster> _jobMaster;
+        private readonly IRepository<PurchaseReturn> _purchaseReturnRepo;
         private readonly IUtilityService _utilityService;
         public PurchaseReturnService(IRepository<PurchaseReturnVoucher> purchaseReturn, IUtilityService utilityService,
             IRepository<PurchaseVoucherDetails> purchasevoucherDetail, IRepository<PurchaseVoucher> purchaseVoucher,
             IRepository<LocationMaster> location, IRepository<StockRegister> stockRegister, IRepository<JobMaster> jobMasters,
-            IRepository<PurchaseReturnVoucherDetails> purchaseReturnDetail, IRepository<SuppliersMaster> supplierMaster)
+            IRepository<PurchaseReturnVoucherDetails> purchaseReturnDetail, IRepository<SuppliersMaster> supplierMaster, IRepository<PurchaseReturn> purchaseReturnRepo)
         {
             _purchaseReturn = purchaseReturn;
             _purchaseReturnDetail = purchaseReturnDetail;
@@ -42,6 +43,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _location = location;
             _jobMaster = jobMasters;
             _stockRegister = stockRegister;
+            _purchaseReturnRepo = purchaseReturnRepo;
         }
         public async Task<Response<List<DropdownResponse>>> GetLocationMasterDropdown()
         {
@@ -670,5 +672,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             }
         }
 
+        public List<PurchaseReturn> GetPurchaseReturn()
+        {
+            var AllPurchaseReturn = _purchaseReturnRepo.GetAsQueryable().ToList();
+            return AllPurchaseReturn;
+        }
     }
 }

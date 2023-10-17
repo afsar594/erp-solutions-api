@@ -320,9 +320,6 @@ namespace Inspire.Erp.Application.Master.Implementations
 
 
 
-
-
-                //_salesVoucherRepository.Update(salesVoucher);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     if (k.AccountsTransactionsTransSno == 0)

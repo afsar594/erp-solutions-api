@@ -1,4 +1,5 @@
-﻿using Inspire.Erp.Domain.Modals;
+﻿using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Modals.Procurement;
 using System;
@@ -19,5 +20,7 @@ namespace Inspire.Erp.Application.Procurement.Interface
         Task<Response<List<DropdownResponse>>> GetJObMasterDropdown();
         Task<Response<List<DropdownResponse>>> GetSupplierMasterDropdown();
         Task<Response<List<DropdownResponse>>> GetVoucherTypeDropdown();
+
+        List<PurchaseReturn> GetPurchaseReturn();
     }
 }
