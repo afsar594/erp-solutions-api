@@ -78,6 +78,15 @@ namespace Inspire.Erp.Web.Common
             CreateMap<JobMaster, JobMasterViewModel>();
             CreateMap<JobMasterViewModel, JobMaster>();
 
+            CreateMap<JobMasterBudgetDetails, JobMasterBudgetDetailsViewModels>();
+            CreateMap<JobMasterBudgetDetailsViewModels, JobMasterBudgetDetails>();
+            
+            CreateMap<JobMasterJobDetails, JobMasterJobDetailsViewModels>();
+            CreateMap<JobMasterJobDetailsViewModels, JobMasterJobDetails>();
+            
+            CreateMap<JobMasterJobWiseBankGuarantees, JobMasterJobWiseBankGuaranteesViewModels>();
+            CreateMap<JobMasterJobWiseBankGuaranteesViewModels, JobMasterJobWiseBankGuarantees>();
+
             CreateMap<UnitMaster, UnitMasterViewModel>();
             CreateMap<UnitMasterViewModel, UnitMaster>();
 
@@ -131,6 +140,9 @@ namespace Inspire.Erp.Web.Common
 
             CreateMap<TaxMaster, TaxMasterViewModel>();
             CreateMap<TaxMasterViewModel,TaxMaster>();
+
+            
+            
 
             //**********************************Masters ending **********
             //**********************************Accounts ****************
