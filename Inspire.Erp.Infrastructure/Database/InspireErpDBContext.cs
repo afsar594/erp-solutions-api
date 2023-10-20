@@ -17918,7 +17918,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.PurchaseVoucherDetailsQtndId).HasColumnName("Purchase_Voucher_Details_QTND_ID");
                 entity.Property(e => e.PurchaseVoucherDetailsDelStatus).HasColumnName("Purchase_Voucher_Details_DelStatus");
             });
-
+            
 
             ////////////////==============================================================================
 
@@ -21192,12 +21192,12 @@ namespace Inspire.Erp.Infrastructure.Database
 
 
                 entity.ToTable("Stock_Register");
-               //entity.Property(e => e.StockRegisterStoreID)
-               //              .ValueGeneratedOnAdd()
-               //              .UseIdentityColumn();
+                //entity.Property(e => e.StockRegisterStoreID)
+                //              .ValueGeneratedOnAdd()
+                //              .UseIdentityColumn();
                 entity.Property(e => e.StockRegisterStoreID)
                     .HasColumnName("Stock_Register_Store_ID")
-                    .HasColumnType("numeric(18, 0)")
+                    .HasColumnType("bigint")
                     .ValueGeneratedOnAdd().UseIdentityColumn();
 
                 entity.Property(e => e.StockRegisterAmount)

@@ -117,7 +117,6 @@ namespace Inspire.Erp.Infrastructure.Database.Repositoy
             entities.UpdateRange(entity);
             try
             {
-
                 context.SaveChanges();
             }
             catch (Exception ex)

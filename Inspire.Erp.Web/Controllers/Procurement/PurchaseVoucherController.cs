@@ -8,6 +8,7 @@ using Inspire.Erp.Application.Master.Interfaces;
 using Inspire.Erp.Application.Procurement.Interfaces;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Inspire.Erp.Web.Common;
 using Inspire.Erp.Web.MODULE;
 using Inspire.Erp.Web.ViewModels.Procurement;
@@ -23,11 +24,12 @@ namespace Inspire.Erp.Web.Controllers
         private readonly IPurchaseVoucherService _service;
 
         private readonly IMapper _mapper;
-
-        public PurchaseVoucherController(IPurchaseVoucherService service, IMapper mapper)
+        private IRepository<UnitDetails> _UnitDetailsRepository;
+        public PurchaseVoucherController(IPurchaseVoucherService service, IMapper mapper, IRepository<UnitDetails> unitDetailsRepository)
         {
             _service = service;
             _mapper = mapper;
+            _UnitDetailsRepository = unitDetailsRepository;
         }
         [HttpGet("GetPurchaseVoucher")]
         public IActionResult GetPurchaseVoucher()
@@ -69,6 +71,7 @@ namespace Inspire.Erp.Web.Controllers
             {
                 return StatusCode(500, ex.Message.ToString());
             }
+            
         }
 
         [HttpPost("InsertPurchaseVoucher")]
@@ -84,7 +87,16 @@ namespace Inspire.Erp.Web.Controllers
 
                     param3 = new List<AccountsTransactions>();
                     List<StockRegister> param4 = new List<StockRegister>();
-                    clsAccountAndStock.PurchaseVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
+
+                var allUnits = new List<UnitDetails>();
+                var unitDetails = new UnitDetails();
+                foreach (var item in param1.PurchaseVoucherDetails)
+                {
+                    unitDetails = _UnitDetailsRepository.GetAsQueryable().Where(c => c.UnitDetailsUnitId == item.PurchaseVoucherDetailsUnitId).FirstOrDefault();
+                    allUnits.Add(unitDetails);
+                }
+
+                clsAccountAndStock.PurchaseVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3, allUnits);
 
                     var xs = _service.InsertPurchaseVoucher(param1, param3, param2
                    , param4
@@ -126,6 +138,7 @@ namespace Inspire.Erp.Web.Controllers
                         PurchaseVoucherStatus = xs.purchaseVoucher.PurchaseVoucherStatus,
                        // PurchaseVoucherTotalGrossAmount = xs.purchaseVoucher.PurchaseVoucherTotalGrossAmount,
                         PurchaseVoucherTotalItemDisAmount = xs.purchaseVoucher.PurchaseVoucherTotalItemDisAmount,
+                        PurchaseVoucherActualAmount = xs.purchaseVoucher.PurchaseVoucherActualAmount,
                        // PurchaseVoucherTotalActualAmount = xs.purchaseVoucher.PurchaseVoucherTotalActualAmount,
                        // PurchaseVoucherTotalDisPer = xs.purchaseVoucher.PurchaseVoucherTotalDisPer,
                        // PurchaseVoucherTotalDisAmount = xs.purchaseVoucher.PurchaseVoucherTotalDisAmount,
@@ -161,7 +174,7 @@ namespace Inspire.Erp.Web.Controllers
                        
                         PurchaseVoucherTotalGrossAmt = xs.purchaseVoucher.PurchaseVoucherTotalGrossAmt,
                         PurchaseVoucherTotalDiscountAmt = xs.purchaseVoucher.PurchaseVoucherTotalDiscountAmt,
-
+                        PurchaseVoucherDiscountPercentage = xs.purchaseVoucher.PurchaseVoucherDiscountPercentage,
                         PurchaseVoucherGrNo = xs.purchaseVoucher.PurchaseVoucherGRNo,
                         PurchaseVoucherGrDate = xs.purchaseVoucher.PurchaseVoucherGRDate,
                         PurchaseVoucherLpoNo = xs.purchaseVoucher.PurchaseVoucherLPONo,
@@ -206,7 +219,16 @@ namespace Inspire.Erp.Web.Controllers
 
             param3 = new List<AccountsTransactions>();
             List<StockRegister> param4 = new List<StockRegister>();
-            clsAccountAndStock.PurchaseVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
+
+            var allUnits = new List<UnitDetails>();
+            var unitDetails = new UnitDetails();
+            foreach (var item in param1.PurchaseVoucherDetails)
+            {
+                unitDetails = _UnitDetailsRepository.GetAsQueryable().Where(c => c.UnitDetailsUnitId == item.PurchaseVoucherDetailsUnitId).FirstOrDefault();
+                allUnits.Add(unitDetails);
+            }
+
+            clsAccountAndStock.PurchaseVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3, allUnits);
 
             var xs = _service.UpdatePurchaseVoucher(param1, param3, param2
            , param4
@@ -282,6 +304,7 @@ namespace Inspire.Erp.Web.Controllers
                 PurchaseVoucherTotalGrossAmt = xs.purchaseVoucher.PurchaseVoucherTotalGrossAmt,
                 PurchaseVoucherTotalDiscountAmt = xs.purchaseVoucher.PurchaseVoucherTotalDiscountAmt,
 
+                PurchaseVoucherDiscountPercentage = xs.purchaseVoucher.PurchaseVoucherDiscountPercentage,
                 PurchaseVoucherGrNo = xs.purchaseVoucher.PurchaseVoucherGRNo,
                 PurchaseVoucherGrDate = xs.purchaseVoucher.PurchaseVoucherGRDate,
                 PurchaseVoucherLpoNo = xs.purchaseVoucher.PurchaseVoucherLPONo,
@@ -291,6 +314,8 @@ namespace Inspire.Erp.Web.Controllers
                 PurchaseVoucherPoNo = xs.purchaseVoucher.PurchaseVoucherPoNo,
                 PurchaseVoucherBatchCode = xs.purchaseVoucher.PurchaseVoucherBatchCode,
 
+
+                PurchaseVoucherActualAmount = xs.purchaseVoucher.PurchaseVoucherActualAmount,
             };
 
             purchaseVoucherViewModel.PurchaseVoucherDetails = _mapper.Map<List<PurchaseVoucherDetailsViewModel>>(xs.purchaseVoucherDetails);
@@ -435,6 +460,9 @@ namespace Inspire.Erp.Web.Controllers
                     PurchaseVoucherPoNo = purchaseVoucher.purchaseVoucher.PurchaseVoucherPoNo,
                     PurchaseVoucherBatchCode = purchaseVoucher.purchaseVoucher.PurchaseVoucherBatchCode,
 
+                    PurchaseVoucherActualAmount = purchaseVoucher.purchaseVoucher.PurchaseVoucherActualAmount,
+
+                    PurchaseVoucherDiscountPercentage = purchaseVoucher.purchaseVoucher.PurchaseVoucherDiscountPercentage,
                 };
                 purchaseVoucherViewModel.PurchaseVoucherDetails = _mapper.Map<List<PurchaseVoucherDetailsViewModel>>(purchaseVoucher.purchaseVoucherDetails);
                 purchaseVoucherViewModel.AccountsTransactions = _mapper.Map<List<ViewModels.AccountTransactionViewModel>>(purchaseVoucher.accountsTransactions);

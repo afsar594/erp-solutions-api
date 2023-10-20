@@ -38,7 +38,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<CustomerMaster> _customerMasterRepository;
         private IRepository<CustomerMaster> _salesManMasterRepository;
         private IRepository<DepartmentMaster> _departmentMasterRepository;
-
+        private IRepository<UnitDetails> _UnitDetailsRepository;
 
 
         //private IRepository<ReportSalesVoucher> _reportSalesVoucherRepository;
@@ -53,7 +53,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
 
-            IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository, IRepository<CurrencyMaster> currencyMasterRepository)
+            IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository, IRepository<CurrencyMaster> currencyMasterRepository, IRepository<UnitDetails> unitDetailsRepository)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository;
@@ -75,6 +75,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
             _departmentMasterRepository = departmentMasterRepository;
             _currencyMasterRepository = currencyMasterRepository;
+            _UnitDetailsRepository = unitDetailsRepository;
 
             //_reportSalesVoucherRepository = reportSalesVoucherRepository;
         }
@@ -323,7 +324,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 }).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
-
+                
 
                 stockRegister = stockRegister.Select((k) =>
                 {
@@ -340,7 +341,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
 
                 _salesVoucherRepository.Insert(salesVoucher);
-                _salesVoucherDetailsRepository.InsertList(salesVoucherDetails);
+                //_salesVoucherDetailsRepository.InsertList(salesVoucherDetails);
                 _salesVoucherRepository.TransactionCommit();
                 return this.GetSavedSalesVoucherDetails(salesVoucher.SalesVoucherNo);
 

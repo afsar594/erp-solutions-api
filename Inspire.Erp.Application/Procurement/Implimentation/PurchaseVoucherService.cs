@@ -9,6 +9,7 @@ using Inspire.Erp.Infrastructure.Database;
 using Inspire.Erp.Application.Common;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Application.MODULE;
+//using Microsoft.Data.SqlClient;
 
 namespace Inspire.Erp.Application.Master.Implementations
 {
@@ -298,6 +299,10 @@ namespace Inspire.Erp.Application.Master.Implementations
         {
             try
             {
+                 //string connstring = "Server=103.74.54.207,1434;Database=InspireERPDBNEW;Trusted_Connection=False;MultipleActiveResultSets=true;User Id = sa; Password=B6^i6!5^Mdx0Z4V";
+
+               
+              
                 _PurchaseVoucher.BeginTransaction();
 
                 //=================================
@@ -308,17 +313,46 @@ namespace Inspire.Erp.Application.Master.Implementations
                 {
                     //if (k.SalesVoucherDetailsId == 0)
                     //{
-                    k.PurchaseVoucherDetailsPurcahseDetailsId = purchaseVoucher.PurchaseVoucherPurID;
+                    k.PurchaseVoucherDetailsPurcahseDetailsId = _PurchaseVoucherDetails.GetAsQueryable().Where(c => c.PurchaseVoucherDetailsVoucherNo == purchaseVoucher.PurchaseVoucherVoucherNo).FirstOrDefault().PurchaseVoucherDetailsPurcahseDetailsId; ;
                     k.PurchaseVoucherDetailsVoucherNo = purchaseVoucher.PurchaseVoucherVoucherNo;
                     //k.SalesVoucherDetailsId = 0;
                     //}
 
                     return k;
                 }).ToList();
+              
+                foreach (var purchaseVoucherDetail in purchaseVoucherDetails)
+                {
+                   
+              
+                    purchaseVoucherDetail.PurchaseVoucherDetailsPurcahseDetailsId = _PurchaseVoucherDetails.GetAsQueryable().Where(c => c.PurchaseVoucherDetailsVoucherNo == purchaseVoucher.PurchaseVoucherVoucherNo).FirstOrDefault().PurchaseVoucherDetailsPurcahseDetailsId;
+                   
+                    //using (SqlConnection connection = new SqlConnection(connstring))
+                    //{
+                    //    string sql = $@"Delete from [dbo].[Purchase_Voucher_Details] where [Purchase_Voucher_Details_VoucherNo] = '{purchaseVoucher.PurchaseVoucherVoucherNo}'";
+                    //    using (SqlCommand command = new SqlCommand(sql, connection))
+                    //    {
+                    //        connection.Open();
+                    //        command.ExecuteNonQuery();
+                    //        connection.Close();
+                    //    }
+                    //}
+                }
+                
+                //purchaseVoucher.PurchaseVoucherDetails = purchaseVoucherDetails;
 
+                // _PurchaseVoucherDetails.DeleteList(purchaseVoucherDetails);
+
+                purchaseVoucher.PurchaseVoucherDetails = purchaseVoucher.PurchaseVoucherDetails.Select((x) =>
+                {
+                    x.PurchaseVoucherDetailsPrId = purchaseVoucher.PurchaseVoucherPurID;
+                    x.PurchaseVoucherDetailsVoucherNo = purchaseVoucher.PurchaseVoucherVoucherNo;
+                    x.PurchaseVoucherDetailsPurcahseDetailsId = 0;
+                    return x;
+                }).ToList();
+                //purchaseVoucher.PurchaseVoucherDetails = null;
                 _PurchaseVoucher.Update(purchaseVoucher);
-
-
+                _PurchaseVoucherDetails.InsertList(purchaseVoucher.PurchaseVoucherDetails.ToList());
 
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {

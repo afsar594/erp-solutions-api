@@ -5,7 +5,7 @@ namespace Inspire.Erp.Domain.Entities
 {
     public partial class StockRegister
     {
-        public decimal StockRegisterStoreID { get; set; }
+        public long StockRegisterStoreID { get; set; }
         public string? StockRegisterPurchaseID { get; set; }
         public string? StockRegisterRefVoucherNo { get; set; }
         public DateTime? StockRegisterVoucherDate { get; set; }
