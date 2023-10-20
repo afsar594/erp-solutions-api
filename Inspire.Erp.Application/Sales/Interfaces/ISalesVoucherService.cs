@@ -2,13 +2,14 @@
 using Inspire.Erp.Domain.Entities;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Inspire.Erp.Application.Sales.Interfaces
 {
     public interface ISalesVoucherService
     {
- 
+
 
         public IEnumerable<DepartmentMaster> SalesVoucher_GetAllDepartmentMaster();
 
@@ -40,14 +41,11 @@ namespace Inspire.Erp.Application.Sales.Interfaces
             , List<StockRegister> stockRegister
             );
         public IEnumerable<AccountsTransactions> GetAllTransaction();
-  
-
-        
         public SalesVoucherModel GetSavedSalesVoucherDetails(string pvno);
         public IEnumerable<SalesVoucher> GetSalesVoucher();
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
-
         public VouchersNumbers GetVouchersNumbers(string pvno);
+        public IQueryable GetSalesVoucherDetailsByMasterNo(string SalesVoucherNo);
 
     }
 }

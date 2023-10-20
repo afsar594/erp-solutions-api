@@ -13,6 +13,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using Inspire.Erp.Application.MODULE;
+using Inspire.Erp.Infrastructure.Database;
 namespace Inspire.Erp.Application.Account.Implementations
 {
     public class SalesReturnService : ISalesReturnService
@@ -35,7 +36,7 @@ namespace Inspire.Erp.Application.Account.Implementations
         private IRepository<CustomerMaster> _customerMasterRepository;
         private IRepository<CustomerMaster> _salesManMasterRepository;
         private IRepository<DepartmentMaster> _departmentMasterRepository;
-
+        public readonly InspireErpDBContext _Context;
 
 
         //private IRepository<ReportSalesReturn> _reportSalesReturnRepository;
@@ -50,7 +51,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
 
-            IRepository<SalesReturn> salesReturnRepository, IRepository<SalesReturnDetails> salesReturnDetailsRepository)
+            IRepository<SalesReturn> salesReturnRepository, IRepository<SalesReturnDetails> salesReturnDetailsRepository, InspireErpDBContext Context)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository;
@@ -63,6 +64,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             _itemMasterRepository = itemMasterRepository;
             _unitMasterRepository = unitMasterRepository;
             _suppliersMasterRepository = suppliersMasterRepository;
+            _Context = Context;
             _locationMasterRepository = locationMasterRepository;
 
 
@@ -129,7 +131,7 @@ namespace Inspire.Erp.Application.Account.Implementations
         ////    return _itemMasterRepository.GetAll();
         ////}
 
-        public SalesReturnModel UpdateSalesReturn(SalesReturn salesReturn, List<AccountsTransactions> accountsTransactions, 
+        public SalesReturnModel UpdateSalesReturn(SalesReturn salesReturn, List<AccountsTransactions> accountsTransactions,
             List<SalesReturnDetails> salesReturnDetails
             , List<StockRegister> stockRegister
             )
@@ -142,20 +144,22 @@ namespace Inspire.Erp.Application.Account.Implementations
                 //=================================
                 clsCommonFunctions.Delete_OldEntry_StockRegister(salesReturn.SalesReturnNo, VoucherType.SalesReturn_TYPE, _stockRegisterRepository);
                 clsCommonFunctions.Delete_OldEntry_AccountsTransactions(salesReturn.SalesReturnNo, VoucherType.SalesReturn_TYPE, _accountTransactionRepository);
-                //=================================
-                salesReturn.SalesReturnDetails = salesReturnDetails.Select((k) =>
-                {
-                    //if (k.SalesReturnDetailsId == 0)
-                    //{
-                    k.SalesReturnId = salesReturn.SalesReturnId;
-                    k.SalesReturnDetailsNo = salesReturn.SalesReturnNo;
-                    //k.SalesReturnDetailsId = 0;
-                    //}
-
-                    return k;
-                }).ToList();
-
                 _salesReturnRepository.Update(salesReturn);
+                //=================================
+                salesReturnDetails = salesReturnDetails.Select((k) =>
+                 {
+                     //if (k.SalesReturnDetailsId == 0)
+                     //{
+                     k.SalesReturnId = salesReturn.SalesReturnId;
+                     k.SalesReturnDetailsNo = salesReturn.SalesReturnNo;
+                     //k.SalesReturnDetailsId = 0;
+                     //}
+
+                     return k;
+                 }).ToList();
+                _salesReturnDetailsRepository.UpdateList(salesReturnDetails);
+
+
 
 
 
@@ -254,7 +258,7 @@ namespace Inspire.Erp.Application.Account.Implementations
 
 
 
-                salesReturn.SalesReturnDetails = salesReturnDetails;
+                // salesReturn.SalesReturnDetails = salesReturnDetails;
 
                 _salesReturnRepository.Update(salesReturn);
 
@@ -276,96 +280,73 @@ namespace Inspire.Erp.Application.Account.Implementations
 
         }
         public SalesReturnModel InsertSalesReturn(SalesReturn salesReturn, List<AccountsTransactions> accountsTransactions,
-            List<SalesReturnDetails> salesReturnDetails
-            , List<StockRegister> stockRegister
-            )
+            List<SalesReturnDetails> salesReturnDetails, List<StockRegister> stockRegister)
         {
             try
             {
-                _salesReturnRepository.BeginTransaction();
-                string salesReturnNumber = this.GenerateVoucherNo(salesReturn.SalesReturnDate.Date).VouchersNumbersVNo;
-                salesReturn.SalesReturnNo = salesReturnNumber;
-
-
-                int maxcount = 0;
-                maxcount = Convert.ToInt32(
-                    _salesReturnRepository.GetAsQueryable()
-                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.SalesReturnId) + 1);
-
-                salesReturn.SalesReturnId = maxcount;
-
-
-
-
-
+                salesReturn.SalesReturnNo = salesReturn.SalesReturnNo;
+                _Context.SalesReturn.Add(salesReturn);
+                _Context.SaveChanges();
+                salesReturn.SalesReturnId = salesReturn.SalesReturnId;
+                Console.WriteLine("STEPTHREE = " + salesReturn.SalesReturnId);
 
                 salesReturnDetails = salesReturnDetails.Select((x) =>
                 {
-                    x.SalesReturnId = maxcount;
-                    x.SalesReturnDetailsNo = salesReturnNumber;
+                    x.SalesReturnId = salesReturn.SalesReturnId;
+                    x.SalesReturnDetailsNo = salesReturn.SalesReturnNo;
                     return x;
                 }).ToList();
-                //_salesReturnDetailsRepository.InsertList(salesReturnDetails);
-
-                accountsTransactions = accountsTransactions.Select((k) =>
-                {
-                    //k.AccountsTransactionsTransDate = salesReturn.SalesReturnDate;
-                    k.AccountsTransactionsVoucherNo = salesReturnNumber;
-                    k.AccountsTransactionsVoucherType = VoucherType.SalesReturn_TYPE;
-                    k.AccountsTransactionsStatus = AccountStatus.Approved;
-                    return k;
-                }).ToList();
-                _accountTransactionRepository.InsertList(accountsTransactions);
-
-
-
-                stockRegister = stockRegister.Select((k) =>
-                {
-                    k.StockRegisterVoucherDate = salesReturn.SalesReturnDate;
-                    k.StockRegisterRefVoucherNo = salesReturnNumber;
-                    k.StockRegisterTransType = VoucherType.SalesReturn_TYPE;
-                    k.StockRegisterStatus = AccountStatus.Approved;
-                    return k;
-                }).ToList();
-                _stockRegisterRepository.InsertList(stockRegister);
-
-
-
-
-
-                _salesReturnRepository.Insert(salesReturn);
-                _salesReturnRepository.TransactionCommit();
+                _Context.SalesReturnDetails.AddRange(salesReturnDetails);
+                _Context.SaveChanges();
+                Console.WriteLine("FOUR = " + salesReturn.SalesReturnId);
+                // accountsTransactions = accountsTransactions.Select((k) =>
+                // {
+                //     k.AccountsTransactionsVoucherNo = salesReturn.SalesReturnNo;
+                //     k.AccountsTransactionsVoucherType = VoucherType.SalesReturn_TYPE;
+                //     k.AccountsTransactionsStatus = AccountStatus.Approved;
+                //     return k;
+                // }).ToList();
+                // _Context.AccountsTransactions.AddRange(accountsTransactions);
+                // _Context.SaveChanges();
+                StockRegister sr = new StockRegister();
+                // sr.StockRegisterStoreID = 0;
+                sr.StockRegisterRefVoucherNo = salesReturn.SalesReturnNo;
+                sr.StockRegisterAssignedDate = DateTime.Now;
+                sr.StockRegisterTransType = VoucherType.SalesReturn_TYPE;
+                sr.StockRegisterFCAmount = salesReturn.SalesReturnTotalActualAmount;
+                sr.StockRegisterFcRate = salesReturn.SalesReturnFc_Rate;
+                sr.StockRegisterStatus = "A";
+                sr.StockRegisterJobID = salesReturn.SalesReturnJobId;
+                sr.StockRegisterLocationID = salesReturn.SalesReturnLocationID;
+                sr.StockRegisterFSNO = null;
+                sr.StockRegisterVoucherDate = salesReturn.SalesReturnDate;
+                // return sr;
+                // }).ToList();
+                _Context.StockRegister.Add(sr);
+                _Context.SaveChanges();
                 return this.GetSavedSalesReturnDetails(salesReturn.SalesReturnNo);
-
             }
             catch (Exception ex)
             {
-                _salesReturnRepository.TransactionRollback();
+                // _salesReturnRepository.TransactionRollback();
                 throw ex;
             }
-
-
-
         }
+
         public IEnumerable<AccountsTransactions> GetAllTransaction()
         {
             return _accountTransactionRepository.GetAll();
         }
-        public IEnumerable<SalesReturn> GetSalesReturn()
+        public List<SalesReturn> GetSalesReturn()
         {
-            IEnumerable<SalesReturn> salesReturn_ALL = _salesReturnRepository.GetAll().Where(k => k.SalesReturnDelStatus == false || k.SalesReturnDelStatus == null);
+            List<SalesReturn> salesReturn_ALL = _salesReturnRepository.GetAll().Where(k => k.SalesReturnDelStatus == false || k.SalesReturnDelStatus == null).ToList();
             return salesReturn_ALL;
         }
         public SalesReturnModel GetSavedSalesReturnDetails(string pvno)
         {
             SalesReturnModel salesReturnModel = new SalesReturnModel();
-            //salesReturnModel.salesReturn = _salesReturnRepository.GetAsQueryable().Where(k => k.SalesReturnNo == pvno && k.SalesReturnDelStatus == false).SingleOrDefault();
-
             salesReturnModel.salesReturn = _salesReturnRepository.GetAsQueryable().Where(k => k.SalesReturnNo == pvno).SingleOrDefault();
-
-
-
-            salesReturnModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.SalesReturn_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
+            // salesReturnModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.SalesReturn_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
             salesReturnModel.salesReturnDetails = _salesReturnDetailsRepository.GetAsQueryable().Where(x => x.SalesReturnDetailsNo == pvno && (x.SalesReturnDetailsDelStatus == false || x.SalesReturnDetailsDelStatus == null)).ToList();
             return salesReturnModel;
 

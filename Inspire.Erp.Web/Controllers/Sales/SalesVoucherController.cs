@@ -85,6 +85,21 @@ namespace Inspire.Erp.Web.Controllers
 
         }
 
+        [HttpGet]
+        [Route("GetSalesVoucherDetailsByMasterNo")]
+        public IActionResult GetSalesVoucherDetailsByMasterNo(string SalesVoucherNo)
+        {
+            try
+            {
+                var item = _salesVoucherService.GetSalesVoucherDetailsByMasterNo(SalesVoucherNo);
+                return Ok(item);
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
+        }
+
 
 
 
@@ -139,7 +154,7 @@ namespace Inspire.Erp.Web.Controllers
 
         }
 
-     
+
         [HttpGet]
         [Route("SalesVoucher_GetAllUnitMaster")]
 
@@ -152,7 +167,7 @@ namespace Inspire.Erp.Web.Controllers
 
 
 
-        
+
 
         [HttpGet]
         [Route("SalesVoucher_GetAllItemMaster")]
@@ -170,7 +185,7 @@ namespace Inspire.Erp.Web.Controllers
         [Route("InsertSalesVoucher")]
         public ApiResponse<SalesVoucherViewModel> InsertSalesVoucher([FromBody] SalesVoucherViewModel voucherCompositeView)
         {
-           
+
 
             ApiResponse<SalesVoucherViewModel> apiResponse = new ApiResponse<SalesVoucherViewModel>();
             if (_salesVoucherService.GetVouchersNumbers(voucherCompositeView.SalesVoucherNo) == null)
@@ -196,8 +211,6 @@ namespace Inspire.Erp.Web.Controllers
 
                 SalesVoucherViewModel salesVoucherViewModel = new SalesVoucherViewModel
                 {
-
-
                     SalesVoucherId = xs.salesVoucher.SalesVoucherId,
                     SalesVoucherNo = xs.salesVoucher.SalesVoucherNo,
                     SalesVoucherDate = xs.salesVoucher.SalesVoucherDate,
@@ -211,51 +224,46 @@ namespace Inspire.Erp.Web.Controllers
                     SalesVoucherDescription = xs.salesVoucher.SalesVoucherDescription,
                     SalesVoucherDlvNo = xs.salesVoucher.SalesVoucherDlvNo,
                     SalesVoucherDlvDate = xs.salesVoucher.SalesVoucherDlvDate,
-                    SalesVoucherSono = xs.salesVoucher.SalesVoucherSono,
-                    SalesVoucherSodate = xs.salesVoucher.SalesVoucherSodate,
+                    SalesVoucherSono = xs.salesVoucher.SalesVoucherSONo,
+                    SalesVoucherSodate = xs.salesVoucher.SalesVoucherSODate,
                     SalesVoucherQtnNo = xs.salesVoucher.SalesVoucherQtnNo,
                     SalesVoucherQtnDate = xs.salesVoucher.SalesVoucherQtnDate,
-                    SalesVoucherExcludeVat = xs.salesVoucher.SalesVoucherExcludeVat,
-                    SalesVoucherSalesManId = xs.salesVoucher.SalesVoucherSalesManId,
-                    SalesVoucherDptId = xs.salesVoucher.SalesVoucherDptId,
+                    SalesVoucherExcludeVat = xs.salesVoucher.SalesVoucherExcludeVAT,
+                    SalesVoucherSalesManId = xs.salesVoucher.SalesVoucherSalesManID,
+                    SalesVoucherDptId = xs.salesVoucher.SalesVoucherDptID,
                     SalesVoucherEnqNo = xs.salesVoucher.SalesVoucherEnqNo,
-                    SalesVoucherLocationId = xs.salesVoucher.SalesVoucherLocationId,
-                    SalesVoucherUserId = xs.salesVoucher.SalesVoucherUserId,
+                    SalesVoucherLocationId = xs.salesVoucher.SalesVoucherLocationID,
+                    SalesVoucherUserId = xs.salesVoucher.SalesVoucherUserID,
                     SalesVoucherCurrencyId = xs.salesVoucher.SalesVoucherCurrencyId,
                     SalesVoucherCompanyId = xs.salesVoucher.SalesVoucherCompanyId,
                     SalesVoucherJobId = xs.salesVoucher.SalesVoucherJobId,
-                    SalesVoucherFsno = xs.salesVoucher.SalesVoucherFsno,
-                    SalesVoucherFcRate = xs.salesVoucher.SalesVoucherFcRate,
+                    SalesVoucherFsno = xs.salesVoucher.SalesVoucherFSNO,
+                    SalesVoucherFcRate = xs.salesVoucher.SalesVoucherFc_Rate,
                     SalesVoucherStatus = xs.salesVoucher.SalesVoucherStatus,
                     SalesVoucherTotalGrossAmount = xs.salesVoucher.SalesVoucherTotalGrossAmount,
                     SalesVoucherTotalItemDisAmount = xs.salesVoucher.SalesVoucherTotalItemDisAmount,
                     SalesVoucherTotalActualAmount = xs.salesVoucher.SalesVoucherTotalActualAmount,
                     SalesVoucherTotalDisPer = xs.salesVoucher.SalesVoucherTotalDisPer,
                     SalesVoucherTotalDisAmount = xs.salesVoucher.SalesVoucherTotalDisAmount,
-                    SalesVoucherVatAmt = xs.salesVoucher.SalesVoucherVatAmt,
-                    SalesVoucherVatPer = xs.salesVoucher.SalesVoucherVatPer,
-                    SalesVoucherVatRoundSign = xs.salesVoucher.SalesVoucherVatRoundSign,
-                    SalesVoucherVatRountAmt = xs.salesVoucher.SalesVoucherVatRountAmt,
+                    SalesVoucherVatAmt = xs.salesVoucher.SalesVoucherVat_AMT,
+                    SalesVoucherVatPer = xs.salesVoucher.SalesVoucherVat_Per,
+                    SalesVoucherVatRoundSign = xs.salesVoucher.SalesVoucherVat_RoundSign,
+                    SalesVoucherVatRountAmt = xs.salesVoucher.SalesVoucherVat_RountAmt,
                     SalesVoucherNetDisAmount = xs.salesVoucher.SalesVoucherNetDisAmount,
                     SalesVoucherNetAmount = xs.salesVoucher.SalesVoucherNetAmount,
                     SalesVoucherEnqDate = xs.salesVoucher.SalesVoucherEnqDate,
                     SalesVoucherShippinAddress = xs.salesVoucher.SalesVoucherShippinAddress,
                     SalesVoucherTermsAndCondition = xs.salesVoucher.SalesVoucherTermsAndCondition,
-                    SalesVoucherRemarks2  = xs.salesVoucher.SalesVoucherRemarks2 ,
-
-
+                    SalesVoucherRemarks2 = xs.salesVoucher.SalesVoucherRemarks2,
                     SalesVoucherHeader = xs.salesVoucher.SalesVoucherHeader,
                     SalesVoucherDelivery = xs.salesVoucher.SalesVoucherDelivery,
-
                     SalesVoucherNotes = xs.salesVoucher.SalesVoucherNotes,
                     SalesVoucherFooter = xs.salesVoucher.SalesVoucherFooter,
                     SalesVoucherPaymentTerms = xs.salesVoucher.SalesVoucherPaymentTerms,
                     SalesVoucherSubject = xs.salesVoucher.SalesVoucherSubject,
                     SalesVoucherContent = xs.salesVoucher.SalesVoucherContent,
                     SalesVoucherRemarks1 = xs.salesVoucher.SalesVoucherRemarks1,
-
                     SalesVoucherDelStatus = xs.salesVoucher.SalesVoucherDelStatus,
-
                 };
 
                 salesVoucherViewModel.SalesVoucherDetails = _mapper.Map<List<SalesVoucherDetailsViewModel>>(xs.salesVoucherDetails);
@@ -323,46 +331,45 @@ namespace Inspire.Erp.Web.Controllers
                 SalesVoucherDescription = xs.salesVoucher.SalesVoucherDescription,
                 SalesVoucherDlvNo = xs.salesVoucher.SalesVoucherDlvNo,
                 SalesVoucherDlvDate = xs.salesVoucher.SalesVoucherDlvDate,
-                SalesVoucherSono = xs.salesVoucher.SalesVoucherSono,
-                SalesVoucherSodate = xs.salesVoucher.SalesVoucherSodate,
+                SalesVoucherSono = xs.salesVoucher.SalesVoucherSONo,
+                SalesVoucherSodate = xs.salesVoucher.SalesVoucherSODate,
                 SalesVoucherQtnNo = xs.salesVoucher.SalesVoucherQtnNo,
                 SalesVoucherQtnDate = xs.salesVoucher.SalesVoucherQtnDate,
-                SalesVoucherExcludeVat = xs.salesVoucher.SalesVoucherExcludeVat,
-                SalesVoucherSalesManId = xs.salesVoucher.SalesVoucherSalesManId,
-                SalesVoucherDptId = xs.salesVoucher.SalesVoucherDptId,
+                SalesVoucherExcludeVat = xs.salesVoucher.SalesVoucherExcludeVAT,
+                SalesVoucherSalesManId = xs.salesVoucher.SalesVoucherSalesManID,
+                SalesVoucherDptId = xs.salesVoucher.SalesVoucherDptID,
                 SalesVoucherEnqNo = xs.salesVoucher.SalesVoucherEnqNo,
-                SalesVoucherLocationId = xs.salesVoucher.SalesVoucherLocationId,
-                SalesVoucherUserId = xs.salesVoucher.SalesVoucherUserId,
+                SalesVoucherLocationId = xs.salesVoucher.SalesVoucherLocationID,
+                SalesVoucherUserId = xs.salesVoucher.SalesVoucherUserID,
                 SalesVoucherCurrencyId = xs.salesVoucher.SalesVoucherCurrencyId,
                 SalesVoucherCompanyId = xs.salesVoucher.SalesVoucherCompanyId,
                 SalesVoucherJobId = xs.salesVoucher.SalesVoucherJobId,
-                SalesVoucherFsno = xs.salesVoucher.SalesVoucherFsno,
-                SalesVoucherFcRate = xs.salesVoucher.SalesVoucherFcRate,
+                SalesVoucherFsno = xs.salesVoucher.SalesVoucherFSNO,
+                SalesVoucherFcRate = xs.salesVoucher.SalesVoucherFc_Rate,
                 SalesVoucherStatus = xs.salesVoucher.SalesVoucherStatus,
                 SalesVoucherTotalGrossAmount = xs.salesVoucher.SalesVoucherTotalGrossAmount,
                 SalesVoucherTotalItemDisAmount = xs.salesVoucher.SalesVoucherTotalItemDisAmount,
                 SalesVoucherTotalActualAmount = xs.salesVoucher.SalesVoucherTotalActualAmount,
                 SalesVoucherTotalDisPer = xs.salesVoucher.SalesVoucherTotalDisPer,
                 SalesVoucherTotalDisAmount = xs.salesVoucher.SalesVoucherTotalDisAmount,
-                SalesVoucherVatAmt = xs.salesVoucher.SalesVoucherVatAmt,
-                SalesVoucherVatPer = xs.salesVoucher.SalesVoucherVatPer,
-                SalesVoucherVatRoundSign = xs.salesVoucher.SalesVoucherVatRoundSign,
-                SalesVoucherVatRountAmt = xs.salesVoucher.SalesVoucherVatRountAmt,
+                SalesVoucherVatAmt = xs.salesVoucher.SalesVoucherVat_AMT,
+                SalesVoucherVatPer = xs.salesVoucher.SalesVoucherVat_Per,
+                SalesVoucherVatRoundSign = xs.salesVoucher.SalesVoucherVat_RoundSign,
+                SalesVoucherVatRountAmt = xs.salesVoucher.SalesVoucherVat_RountAmt,
                 SalesVoucherNetDisAmount = xs.salesVoucher.SalesVoucherNetDisAmount,
                 SalesVoucherNetAmount = xs.salesVoucher.SalesVoucherNetAmount,
                 SalesVoucherEnqDate = xs.salesVoucher.SalesVoucherEnqDate,
                 SalesVoucherShippinAddress = xs.salesVoucher.SalesVoucherShippinAddress,
                 SalesVoucherTermsAndCondition = xs.salesVoucher.SalesVoucherTermsAndCondition,
-                SalesVoucherRemarks2  = xs.salesVoucher.SalesVoucherRemarks2 ,
-
+                SalesVoucherRemarks2 = xs.salesVoucher.SalesVoucherRemarks2,
+                SalesVoucherHeader = xs.salesVoucher.SalesVoucherHeader,
+                SalesVoucherDelivery = xs.salesVoucher.SalesVoucherDelivery,
                 SalesVoucherNotes = xs.salesVoucher.SalesVoucherNotes,
                 SalesVoucherFooter = xs.salesVoucher.SalesVoucherFooter,
                 SalesVoucherPaymentTerms = xs.salesVoucher.SalesVoucherPaymentTerms,
                 SalesVoucherSubject = xs.salesVoucher.SalesVoucherSubject,
                 SalesVoucherContent = xs.salesVoucher.SalesVoucherContent,
                 SalesVoucherRemarks1 = xs.salesVoucher.SalesVoucherRemarks1,
-
-
                 SalesVoucherDelStatus = xs.salesVoucher.SalesVoucherDelStatus,
             };
 
@@ -437,17 +444,18 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("GetSalesVoucher")]
-        public ApiResponse<List<SalesVoucher>> GetAllSalesVoucher()
+        public IActionResult GetAllSalesVoucher()
         {
 
-
-            ApiResponse<List<SalesVoucher>> apiResponse = new ApiResponse<List<SalesVoucher>>
-            {
-                Valid = true,
-                Result = _mapper.Map<List<SalesVoucher>>(_salesVoucherService.GetSalesVoucher()),
-                Message = ""
-            };
-            return apiResponse;
+            var item = _salesVoucherService.GetSalesVoucher();
+            return Ok(item);
+            // ApiResponse<List<SalesVoucher>> apiResponse = new ApiResponse<List<SalesVoucher>>
+            // {
+            //     Valid = true,
+            //     Result = _mapper.Map<List<SalesVoucher>>(_salesVoucherService.GetSalesVoucher()),
+            //     Message = ""
+            // };
+            // return apiResponse;
 
 
 
@@ -459,75 +467,69 @@ namespace Inspire.Erp.Web.Controllers
         [Route("GetSavedSalesVoucherDetails/{id}")]
         public ApiResponse<SalesVoucherViewModel> GetSavedSalesVoucherDetails(string id)
         {
-            SalesVoucherModel salesVoucher = _salesVoucherService.GetSavedSalesVoucherDetails(id);
+            SalesVoucherModel xs = _salesVoucherService.GetSavedSalesVoucherDetails(id);
 
-            if (salesVoucher != null)
+            if (xs != null)
             {
                 SalesVoucherViewModel salesVoucherViewModel = new SalesVoucherViewModel
                 {
-
-
-                    SalesVoucherId = salesVoucher.salesVoucher.SalesVoucherId,
-                    SalesVoucherNo = salesVoucher.salesVoucher.SalesVoucherNo,
-                    SalesVoucherDate = salesVoucher.salesVoucher.SalesVoucherDate,
-                    SalesVoucherType = salesVoucher.salesVoucher.SalesVoucherType,
-                    SalesVoucherPartyId = salesVoucher.salesVoucher.SalesVoucherPartyId,
-                    SalesVoucherPartyName = salesVoucher.salesVoucher.SalesVoucherPartyName,
-                    SalesVoucherPartyAddress = salesVoucher.salesVoucher.SalesVoucherPartyAddress,
-                    SalesVoucherPartyVatNo = salesVoucher.salesVoucher.SalesVoucherPartyVatNo,
-                    SalesVoucherContPerson = salesVoucher.salesVoucher.SalesVoucherContPerson,
-                    SalesVoucherRefNo = salesVoucher.salesVoucher.SalesVoucherRefNo,
-                    SalesVoucherDescription = salesVoucher.salesVoucher.SalesVoucherDescription,
-                    SalesVoucherDlvNo = salesVoucher.salesVoucher.SalesVoucherDlvNo,
-                    SalesVoucherDlvDate = salesVoucher.salesVoucher.SalesVoucherDlvDate,
-                    SalesVoucherSono = salesVoucher.salesVoucher.SalesVoucherSono,
-                    SalesVoucherSodate = salesVoucher.salesVoucher.SalesVoucherSodate,
-                    SalesVoucherQtnNo = salesVoucher.salesVoucher.SalesVoucherQtnNo,
-                    SalesVoucherQtnDate = salesVoucher.salesVoucher.SalesVoucherQtnDate,
-                    SalesVoucherExcludeVat = salesVoucher.salesVoucher.SalesVoucherExcludeVat,
-                    SalesVoucherSalesManId = salesVoucher.salesVoucher.SalesVoucherSalesManId,
-                    SalesVoucherDptId = salesVoucher.salesVoucher.SalesVoucherDptId,
-                    SalesVoucherEnqNo = salesVoucher.salesVoucher.SalesVoucherEnqNo,
-                    SalesVoucherLocationId = salesVoucher.salesVoucher.SalesVoucherLocationId,
-                    SalesVoucherUserId = salesVoucher.salesVoucher.SalesVoucherUserId,
-                    SalesVoucherCurrencyId = salesVoucher.salesVoucher.SalesVoucherCurrencyId,
-                    SalesVoucherCompanyId = salesVoucher.salesVoucher.SalesVoucherCompanyId,
-                    SalesVoucherJobId = salesVoucher.salesVoucher.SalesVoucherJobId,
-                    SalesVoucherFsno = salesVoucher.salesVoucher.SalesVoucherFsno,
-                    SalesVoucherFcRate = salesVoucher.salesVoucher.SalesVoucherFcRate,
-                    SalesVoucherStatus = salesVoucher.salesVoucher.SalesVoucherStatus,
-                    SalesVoucherTotalGrossAmount = salesVoucher.salesVoucher.SalesVoucherTotalGrossAmount,
-                    SalesVoucherTotalItemDisAmount = salesVoucher.salesVoucher.SalesVoucherTotalItemDisAmount,
-                    SalesVoucherTotalActualAmount = salesVoucher.salesVoucher.SalesVoucherTotalActualAmount,
-                    SalesVoucherTotalDisPer = salesVoucher.salesVoucher.SalesVoucherTotalDisPer,
-                    SalesVoucherTotalDisAmount = salesVoucher.salesVoucher.SalesVoucherTotalDisAmount,
-                    SalesVoucherVatAmt = salesVoucher.salesVoucher.SalesVoucherVatAmt,
-                    SalesVoucherVatPer = salesVoucher.salesVoucher.SalesVoucherVatPer,
-                    SalesVoucherVatRoundSign = salesVoucher.salesVoucher.SalesVoucherVatRoundSign,
-                    SalesVoucherVatRountAmt = salesVoucher.salesVoucher.SalesVoucherVatRountAmt,
-                    SalesVoucherNetDisAmount = salesVoucher.salesVoucher.SalesVoucherNetDisAmount,
-                    SalesVoucherNetAmount = salesVoucher.salesVoucher.SalesVoucherNetAmount,
-                    SalesVoucherEnqDate = salesVoucher.salesVoucher.SalesVoucherEnqDate,
-                    SalesVoucherShippinAddress = salesVoucher.salesVoucher.SalesVoucherShippinAddress,
-                    SalesVoucherTermsAndCondition = salesVoucher.salesVoucher.SalesVoucherTermsAndCondition,
-                    SalesVoucherRemarks2  = salesVoucher.salesVoucher.SalesVoucherRemarks2 ,
-
-
-                    SalesVoucherHeader = salesVoucher.salesVoucher.SalesVoucherHeader,
-                    SalesVoucherDelivery = salesVoucher.salesVoucher.SalesVoucherDelivery,
-
-                    SalesVoucherNotes = salesVoucher.salesVoucher.SalesVoucherNotes,
-                    SalesVoucherFooter = salesVoucher.salesVoucher.SalesVoucherFooter,
-                    SalesVoucherPaymentTerms = salesVoucher.salesVoucher.SalesVoucherPaymentTerms,
-                    SalesVoucherSubject = salesVoucher.salesVoucher.SalesVoucherSubject,
-                    SalesVoucherContent = salesVoucher.salesVoucher.SalesVoucherContent,
-                    SalesVoucherRemarks1  = salesVoucher.salesVoucher.SalesVoucherRemarks1 ,
-
-                    SalesVoucherDelStatus = salesVoucher.salesVoucher.SalesVoucherDelStatus,
+                    SalesVoucherId = xs.salesVoucher.SalesVoucherId,
+                    SalesVoucherNo = xs.salesVoucher.SalesVoucherNo,
+                    SalesVoucherDate = xs.salesVoucher.SalesVoucherDate,
+                    SalesVoucherType = xs.salesVoucher.SalesVoucherType,
+                    SalesVoucherPartyId = xs.salesVoucher.SalesVoucherPartyId,
+                    SalesVoucherPartyName = xs.salesVoucher.SalesVoucherPartyName,
+                    SalesVoucherPartyAddress = xs.salesVoucher.SalesVoucherPartyAddress,
+                    SalesVoucherPartyVatNo = xs.salesVoucher.SalesVoucherPartyVatNo,
+                    SalesVoucherContPerson = xs.salesVoucher.SalesVoucherContPerson,
+                    SalesVoucherRefNo = xs.salesVoucher.SalesVoucherRefNo,
+                    SalesVoucherDescription = xs.salesVoucher.SalesVoucherDescription,
+                    SalesVoucherDlvNo = xs.salesVoucher.SalesVoucherDlvNo,
+                    SalesVoucherDlvDate = xs.salesVoucher.SalesVoucherDlvDate,
+                    SalesVoucherSono = xs.salesVoucher.SalesVoucherSONo,
+                    SalesVoucherSodate = xs.salesVoucher.SalesVoucherSODate,
+                    SalesVoucherQtnNo = xs.salesVoucher.SalesVoucherQtnNo,
+                    SalesVoucherQtnDate = xs.salesVoucher.SalesVoucherQtnDate,
+                    SalesVoucherExcludeVat = xs.salesVoucher.SalesVoucherExcludeVAT,
+                    SalesVoucherSalesManId = xs.salesVoucher.SalesVoucherSalesManID,
+                    SalesVoucherDptId = xs.salesVoucher.SalesVoucherDptID,
+                    SalesVoucherEnqNo = xs.salesVoucher.SalesVoucherEnqNo,
+                    SalesVoucherLocationId = xs.salesVoucher.SalesVoucherLocationID,
+                    SalesVoucherUserId = xs.salesVoucher.SalesVoucherUserID,
+                    SalesVoucherCurrencyId = xs.salesVoucher.SalesVoucherCurrencyId,
+                    SalesVoucherCompanyId = xs.salesVoucher.SalesVoucherCompanyId,
+                    SalesVoucherJobId = xs.salesVoucher.SalesVoucherJobId,
+                    SalesVoucherFsno = xs.salesVoucher.SalesVoucherFSNO,
+                    SalesVoucherFcRate = xs.salesVoucher.SalesVoucherFc_Rate,
+                    SalesVoucherStatus = xs.salesVoucher.SalesVoucherStatus,
+                    SalesVoucherTotalGrossAmount = xs.salesVoucher.SalesVoucherTotalGrossAmount,
+                    SalesVoucherTotalItemDisAmount = xs.salesVoucher.SalesVoucherTotalItemDisAmount,
+                    SalesVoucherTotalActualAmount = xs.salesVoucher.SalesVoucherTotalActualAmount,
+                    SalesVoucherTotalDisPer = xs.salesVoucher.SalesVoucherTotalDisPer,
+                    SalesVoucherTotalDisAmount = xs.salesVoucher.SalesVoucherTotalDisAmount,
+                    SalesVoucherVatAmt = xs.salesVoucher.SalesVoucherVat_AMT,
+                    SalesVoucherVatPer = xs.salesVoucher.SalesVoucherVat_Per,
+                    SalesVoucherVatRoundSign = xs.salesVoucher.SalesVoucherVat_RoundSign,
+                    SalesVoucherVatRountAmt = xs.salesVoucher.SalesVoucherVat_RountAmt,
+                    SalesVoucherNetDisAmount = xs.salesVoucher.SalesVoucherNetDisAmount,
+                    SalesVoucherNetAmount = xs.salesVoucher.SalesVoucherNetAmount,
+                    SalesVoucherEnqDate = xs.salesVoucher.SalesVoucherEnqDate,
+                    SalesVoucherShippinAddress = xs.salesVoucher.SalesVoucherShippinAddress,
+                    SalesVoucherTermsAndCondition = xs.salesVoucher.SalesVoucherTermsAndCondition,
+                    SalesVoucherRemarks2 = xs.salesVoucher.SalesVoucherRemarks2,
+                    SalesVoucherHeader = xs.salesVoucher.SalesVoucherHeader,
+                    SalesVoucherDelivery = xs.salesVoucher.SalesVoucherDelivery,
+                    SalesVoucherNotes = xs.salesVoucher.SalesVoucherNotes,
+                    SalesVoucherFooter = xs.salesVoucher.SalesVoucherFooter,
+                    SalesVoucherPaymentTerms = xs.salesVoucher.SalesVoucherPaymentTerms,
+                    SalesVoucherSubject = xs.salesVoucher.SalesVoucherSubject,
+                    SalesVoucherContent = xs.salesVoucher.SalesVoucherContent,
+                    SalesVoucherRemarks1 = xs.salesVoucher.SalesVoucherRemarks1,
+                    SalesVoucherDelStatus = xs.salesVoucher.SalesVoucherDelStatus,
 
                 };
-                salesVoucherViewModel.SalesVoucherDetails = _mapper.Map<List<SalesVoucherDetailsViewModel>>(salesVoucher.salesVoucherDetails);
-                salesVoucherViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(salesVoucher.accountsTransactions);
+                salesVoucherViewModel.SalesVoucherDetails = _mapper.Map<List<SalesVoucherDetailsViewModel>>(xs.salesVoucherDetails);
+                salesVoucherViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
                 ApiResponse<SalesVoucherViewModel> apiResponse = new ApiResponse<SalesVoucherViewModel>
                 {
                     Valid = true,

@@ -10,7 +10,7 @@ namespace Inspire.Erp.Web.ViewModels.sales
         //    SalesVoucherDetails = new HashSet<SalesVoucherDetailsViewModel>();
         //}
         //
-        public decimal SalesVoucherId { get; set; }
+        public decimal? SalesVoucherId { get; set; }
         public string SalesVoucherNo { get; set; }
         public DateTime? SalesVoucherDate { get; set; }
         public string SalesVoucherType { get; set; }
