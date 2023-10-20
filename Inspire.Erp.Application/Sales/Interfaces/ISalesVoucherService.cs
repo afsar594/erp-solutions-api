@@ -1,8 +1,12 @@
 ﻿using Inspire.Erp.Application.Common;
 using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Domain.Modals.Sales;
+using Inspire.Erp.Domain.Modals;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Inspire.Erp.Application.Sales.Interfaces
 {
@@ -20,7 +24,7 @@ namespace Inspire.Erp.Application.Sales.Interfaces
 
 
 
-        //public IEnumerable<ReportSalesVoucher> SalesVoucher_GetReportSalesVoucher();
+        Task<Response<GridWrapperResponse<List<GetSalesVoucherResponse>>>> GetSalesVoucher(GenericGridViewModel model);
         public IEnumerable<ItemMaster> SalesVoucher_GetAllItemMaster();
         public IEnumerable<UnitMaster> SalesVoucher_GetAllUnitMaster();
 

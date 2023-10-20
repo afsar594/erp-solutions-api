@@ -11,8 +11,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Inspire.Erp.Application.MODULE;
+using Inspire.Erp.Domain.Modals.Sales;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Domain.Modals;
 
 
 namespace Inspire.Erp.Application.Sales.Implementations
@@ -430,6 +434,29 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 throw ex;
             }
 
+        }
+
+
+        public async Task<Response<GridWrapperResponse<List<GetSalesVoucherResponse>>>> GetSalesVoucher(GenericGridViewModel model)
+        {
+            try
+            {
+                List<GetSalesVoucherResponse> response = new List<GetSalesVoucherResponse>();
+                var orders = await _salesVoucherRepository.GetAsQueryable().Where(x => x.SalesVoucherEnqNo != null).Skip(model.Skip).Take(model.Take).ToListAsync();
+                response.AddRange(orders.Select(x => new GetSalesVoucherResponse
+                {
+                    SalesVoucherId = x.SalesVoucherId,
+                    SalesVoucherNo = x.SalesVoucherNo
+                }).ToList());
+                var gridResponse = new GridWrapperResponse<List<GetSalesVoucherResponse>>();
+                gridResponse.Data = response;
+                gridResponse.Total = 0;
+                return Response<GridWrapperResponse<List<GetSalesVoucherResponse>>>.Success(gridResponse, "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<GridWrapperResponse<List<GetSalesVoucherResponse>>>.Fail(new GridWrapperResponse<List<GetSalesVoucherResponse>>(), ex.Message);
+            }
         }
 
 

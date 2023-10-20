@@ -6,6 +6,10 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using Inspire.Erp.Infrastructure.Database;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Domain.Modals.Procurement;
+using Inspire.Erp.Domain.Modals;
+using System.Threading.Tasks;
 
 namespace Inspire.Erp.Application.Master.Implementations
 {
@@ -147,6 +151,45 @@ namespace Inspire.Erp.Application.Master.Implementations
             catch (System.Exception ex)
             {
                 throw;
+            }
+        }
+
+
+        public async Task<Response<GridWrapperResponse<List<GetPurchaseVoucherResponse>>>> GetPurchaseVoucherReport(GenericGridViewModel model)
+        {
+            try
+            {
+                List<GetPurchaseVoucherResponse> response = new List<GetPurchaseVoucherResponse>();
+
+
+                var purVouchers = (from pm in _context.PurchaseVoucher
+                           join jm in _context.JobMaster on pm.PurchaseVoucherJobId equals jm.JobMasterJobId into jmpm
+                           from y in jmpm.DefaultIfEmpty()
+                           join lm in _context.LocationMaster on pm.PurchaseVoucherLocationId equals lm.LocationMasterLocationId into locs
+                           from x in locs.DefaultIfEmpty()
+                           select new GetPurchaseVoucherResponse{ PurchaseVoucherVoucherNo = pm.PurchaseVoucherVoucherNo,
+                               PurchaseVoucherPurchaseDate = pm.PurchaseVoucherPurchaseDate,
+                               PurchaseVoucherPurchaseType = pm.PurchaseVoucherPurchaseType,
+                               PurchaseVoucherCashSupplierName = pm.PurchaseVoucherCashSupplierName,
+                               PurchaseVoucherSupplyInvoiceNo = pm.PurchaseVoucherSupplyInvoiceNo,
+                               PurchaseVoucherActualAmount = pm.PurchaseVoucherActualAmount,
+                               PurchaseVoucherDisAmount = pm.PurchaseVoucherDisAmount,
+                               PurchaseVoucherVatAmount = pm.PurchaseVoucherVatAmount,
+                               PurchaseVoucherNetAmount = pm.PurchaseVoucherNetAmount
+                           }).ToList();
+
+               // response.AddRange(loj);
+
+
+         
+                var gridResponse = new GridWrapperResponse<List<GetPurchaseVoucherResponse>>();
+                gridResponse.Data = purVouchers;
+                gridResponse.Total = 0;
+                return Response<GridWrapperResponse<List<GetPurchaseVoucherResponse>>>.Success(gridResponse, "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<GridWrapperResponse<List<GetPurchaseVoucherResponse>>>.Fail(new GridWrapperResponse<List<GetPurchaseVoucherResponse>>(), ex.Message);
             }
         }
     }
