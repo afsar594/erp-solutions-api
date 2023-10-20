@@ -7,12 +7,13 @@ namespace Inspire.Erp.Web.ViewModels
 {
     public class JobMasterBudgetDetailsViewModels
     {
-        public int JobMasterBudgetDetailsDtlId { get; set; }
+        public int JobMasterBudgetDetailsDtlId { get; set; } 
         public int? JobMasterBudgetDetailsJobId { get; set; }
         public string JobMasterNo { get; set; }
-        public int? JobMasterBudgetDetailsSno { get; set; }
+       // public int? JobMasterBudgetDetailsSno { get; set; }
         public int? JobMasterBudgetDetailsBudId { get; set; }
         public decimal? JobMasterBudgetDetailsBudAmount { get; set; }
         public bool? JobMasterBudgetDetailsDelStatus { get; set; }
+
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -12,7 +13,7 @@ namespace Inspire.Erp.Domain.Entities
         public int? JobMasterBudgetDetailsBudId { get; set; }
         public decimal? JobMasterBudgetDetailsBudAmount { get; set; }
         public bool? JobMasterBudgetDetailsDelStatus { get; set; }
-
+        [JsonIgnore]
         public virtual JobMaster JobMasterBudgetDetailsJob { get; set; }
     }
 }

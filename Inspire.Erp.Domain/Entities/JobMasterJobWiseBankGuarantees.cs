@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -13,6 +14,7 @@ namespace Inspire.Erp.Domain.Entities
         public int? JobMasterJobWiseBankGuaranteesSlNo { get; set; }
         public bool? JobMasterJobWiseBankGuaranteesDelStatus { get; set; }
 
+        [JsonIgnore]
         public virtual JobMaster JobMasterJobWiseBankGuaranteesJob { get; set; }
     }
 }

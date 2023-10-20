@@ -14,5 +14,6 @@ namespace Inspire.Erp.Web.ViewModels
         public decimal? JobMasterJobWiseBankGuaranteesAmount { get; set; }
         public int? JobMasterJobWiseBankGuaranteesSlNo { get; set; }
         public bool? JobMasterJobWiseBankGuaranteesDelStatus { get; set; }
+
     }
 }

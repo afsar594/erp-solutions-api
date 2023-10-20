@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inspire.Erp.Domain.Entities
 {
     public partial class JobMaster
     {
-        public JobMaster()
-        {
-            JobMasterBudgetDetails = new HashSet<JobMasterBudgetDetails>();
-            JobMasterJobDetails = new HashSet<JobMasterJobDetails>();
-            JobMasterJobWiseBankGuarantees = new HashSet<JobMasterJobWiseBankGuarantees>();
-        }
+        //public JobMaster()
+        //{
+        //    JobMasterBudgetDetails = new HashSet<JobMasterBudgetDetails>();
+        //    JobMasterJobDetails = new HashSet<JobMasterJobDetails>();
+        //    JobMasterJobWiseBankGuarantees = new HashSet<JobMasterJobWiseBankGuarantees>();
+        //}
 
         public int JobMasterJobId { get; set; }
         public string JobMasterJobNo { get; set; }
@@ -89,8 +90,22 @@ namespace Inspire.Erp.Domain.Entities
         public int? JobMasterJobCustQtnId { get; set; }
         public bool? JobMasterJobDelStatus { get; set; }
 
-        public virtual ICollection<JobMasterBudgetDetails> JobMasterBudgetDetails { get; set; }
-        public virtual ICollection<JobMasterJobDetails> JobMasterJobDetails { get; set; }
-        public virtual ICollection<JobMasterJobWiseBankGuarantees> JobMasterJobWiseBankGuarantees { get; set; }
+        [NotMapped]
+        public List<JobMasterBudgetDetails> JobMasterBudgetDetails { get; set; }
+        [NotMapped]
+        public List<JobMasterJobDetails> JobMasterJobDetails { get; set; }
+        
+        [NotMapped]
+        public List<JobMasterJobWiseBankGuarantees> JobMasterJobWiseBankGuarantees { get; set; }
+
+        //[NotMapped]
+        //public List<PaymentVoucherDetails> PaymentVoucherDetails { get; set; }
+        [NotMapped]
+        public List<AccountsTransactions> AccountsTransactions { get; set; }
+
+        //public virtual ICollection<JobMasterBudgetDetails> JobMasterBudgetDetails { get; set; }
+        //public virtual ICollection<JobMasterJobDetails> JobMasterJobDetails { get; set; }
+        //public virtual ICollection<JobMasterJobWiseBankGuarantees> JobMasterJobWiseBankGuarantees { get; set; }
+
     }
 }
