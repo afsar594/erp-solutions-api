@@ -12,7 +12,7 @@ namespace Inspire.Erp.Web.MODULE
   {
 
     //===================================PurchaseVoucher==========================================
-    public static void PurchaseVoucher_Accounts_STOCK_Transactions(string VoucherNo, string VoucherType, PurchaseVoucher MASTER, List<PurchaseVoucherDetails> DTLS, ref List<StockRegister> STOCK, ref List<AccountsTransactions> ACC, List<UnitDetails> unitDetails)
+    public static void PurchaseVoucher_Accounts_STOCK_Transactions(string VoucherNo, string VoucherType, PurchaseVoucher MASTER, List<PurchaseVoucherDetails> DTLS, ref List<StockRegister> STOCK, ref List<AccountsTransactions> ACC)
 
     {
       for (int i = 0; i < DTLS.Count; i++)
@@ -40,7 +40,7 @@ namespace Inspire.Erp.Web.MODULE
          //     decimal ? StockRegisterQuantity,
          DTLS[i].PurchaseVoucherDetailsQuantity,
           //     decimal ? StockRegisterSin,
-          DTLS[i].PurchaseVoucherDetailsQuantity * Convert.ToDecimal(unitDetails[i].UnitDetailsConversionType),
+          DTLS[i].PurchaseVoucherDetailsQuantity,
          //     decimal ? StockRegisterSout,
         0,
           //     string StockRegisterStatus,

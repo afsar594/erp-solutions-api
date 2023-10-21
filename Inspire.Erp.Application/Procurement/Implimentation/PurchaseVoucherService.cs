@@ -9,6 +9,8 @@ using Inspire.Erp.Infrastructure.Database;
 using Inspire.Erp.Application.Common;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Application.MODULE;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 //using Microsoft.Data.SqlClient;
 
 namespace Inspire.Erp.Application.Master.Implementations
@@ -28,9 +30,10 @@ namespace Inspire.Erp.Application.Master.Implementations
         private IRepository<UnitMaster> _UnitMaster;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
         private InspireErpDBContext _context;
+        private readonly IConfiguration _configuration;
         public PurchaseVoucherService(IRepository<PurchaseVoucher> PurchaseVoucher, IRepository<PurchaseVoucherDetails> PurchaseVoucherDetails,
         IRepository<JobMaster> JobMaster, IRepository<Suppliers> Suppliers, IRepository<LocationMaster> LocationMaster,
-        IRepository<ItemMaster> ItemMaster, IRepository<UnitMaster> UnitMaster, InspireErpDBContext context, IRepository<VouchersNumbers> voucherNumbersRepository, IRepository<ProgramSettings> programsettingsRepository, IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<CurrencyMaster> currencyMasterRepository)
+        IRepository<ItemMaster> ItemMaster, IRepository<UnitMaster> UnitMaster, InspireErpDBContext context, IRepository<VouchersNumbers> voucherNumbersRepository, IRepository<ProgramSettings> programsettingsRepository, IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<CurrencyMaster> currencyMasterRepository, IConfiguration configuration)
         {
             _PurchaseVoucher = PurchaseVoucher;
             _PurchaseVoucherDetails = PurchaseVoucherDetails;
@@ -45,6 +48,7 @@ namespace Inspire.Erp.Application.Master.Implementations
             _accountTransactionRepository = accountTransactionRepository;
             _stockRegisterRepository = stockRegisterRepository;
             _currencyMasterRepository = currencyMasterRepository;
+            _configuration = configuration;
         }
         public IEnumerable<PurchaseVoucher> GetPurchaseVoucher()
         {
@@ -98,7 +102,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                     _PurchaseVoucher.GetAsQueryable()
                     .DefaultIfEmpty().Max(o => o == null ? 0 : o.PurchaseVoucherPurID) + 1);
 
-                purchaseVoucher.PurchaseVoucherPurID = maxcount;
+               // purchaseVoucher.PurchaseVoucherPurID = maxcount;
 
                 purchaseVoucherDetails = purchaseVoucherDetails.Select((x) =>
                 {
@@ -299,7 +303,8 @@ namespace Inspire.Erp.Application.Master.Implementations
         {
             try
             {
-                 //string connstring = "Server=103.74.54.207,1434;Database=InspireERPDBNEW;Trusted_Connection=False;MultipleActiveResultSets=true;User Id = sa; Password=B6^i6!5^Mdx0Z4V";
+                
+                 string connstring = _configuration["ApplicationSettings:ConnectionString"];
 
                
               
@@ -323,20 +328,25 @@ namespace Inspire.Erp.Application.Master.Implementations
               
                 foreach (var purchaseVoucherDetail in purchaseVoucherDetails)
                 {
-                   
+                    if (purchaseVoucherDetail != null && purchaseVoucher != null)
+                    {
+                        //purchaseVoucherDetail.PurchaseVoucherDetailsPurcahseDetailsId = _PurchaseVoucherDetails.GetAsQueryable().Where(c => c.PurchaseVoucherDetailsVoucherNo == purchaseVoucher.PurchaseVoucherVoucherNo).FirstOrDefault().PurchaseVoucherDetailsPurcahseDetailsId;
+
+                        using (SqlConnection connection = new SqlConnection(connstring))
+                        {
+                            string sql = $@"Delete from [dbo].[Purchase_Voucher_Details] where [Purchase_Voucher_Details_VoucherNo] = '{purchaseVoucher.PurchaseVoucherVoucherNo}'";
+                            using (SqlCommand command = new SqlCommand(sql, connection))
+                            {
+                                connection.Open();
+                                command.ExecuteNonQuery();
+                                connection.Close();
+                            }
+                        }
+                    }
               
-                    purchaseVoucherDetail.PurchaseVoucherDetailsPurcahseDetailsId = _PurchaseVoucherDetails.GetAsQueryable().Where(c => c.PurchaseVoucherDetailsVoucherNo == purchaseVoucher.PurchaseVoucherVoucherNo).FirstOrDefault().PurchaseVoucherDetailsPurcahseDetailsId;
+                     
+                    
                    
-                    //using (SqlConnection connection = new SqlConnection(connstring))
-                    //{
-                    //    string sql = $@"Delete from [dbo].[Purchase_Voucher_Details] where [Purchase_Voucher_Details_VoucherNo] = '{purchaseVoucher.PurchaseVoucherVoucherNo}'";
-                    //    using (SqlCommand command = new SqlCommand(sql, connection))
-                    //    {
-                    //        connection.Open();
-                    //        command.ExecuteNonQuery();
-                    //        connection.Close();
-                    //    }
-                    //}
                 }
                 
                 //purchaseVoucher.PurchaseVoucherDetails = purchaseVoucherDetails;

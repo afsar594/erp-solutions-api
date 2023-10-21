@@ -96,7 +96,7 @@ namespace Inspire.Erp.Web.Controllers
                     allUnits.Add(unitDetails);
                 }
 
-                clsAccountAndStock.PurchaseVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3, allUnits);
+                clsAccountAndStock.PurchaseVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
 
                     var xs = _service.InsertPurchaseVoucher(param1, param3, param2
                    , param4
@@ -228,7 +228,7 @@ namespace Inspire.Erp.Web.Controllers
                 allUnits.Add(unitDetails);
             }
 
-            clsAccountAndStock.PurchaseVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3, allUnits);
+            clsAccountAndStock.PurchaseVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
 
             var xs = _service.UpdatePurchaseVoucher(param1, param3, param2
            , param4

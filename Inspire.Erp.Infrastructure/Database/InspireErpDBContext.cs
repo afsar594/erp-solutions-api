@@ -17566,7 +17566,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.PurchaseVoucherPurID)
                     .HasColumnName("Purchase_Voucher_Pur_ID")
-                    .ValueGeneratedNever();
+                    .ValueGeneratedOnAdd();
 
                 entity.Property(e => e.PurchaseVoucherActualAmount)
                     .HasColumnName("Purchase_Voucher_Actual_Amount")
