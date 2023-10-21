@@ -299,15 +299,15 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _Context.SalesReturnDetails.AddRange(salesReturnDetails);
                 _Context.SaveChanges();
                 Console.WriteLine("FOUR = " + salesReturn.SalesReturnId);
-                // accountsTransactions = accountsTransactions.Select((k) =>
-                // {
-                //     k.AccountsTransactionsVoucherNo = salesReturn.SalesReturnNo;
-                //     k.AccountsTransactionsVoucherType = VoucherType.SalesReturn_TYPE;
-                //     k.AccountsTransactionsStatus = AccountStatus.Approved;
-                //     return k;
-                // }).ToList();
-                // _Context.AccountsTransactions.AddRange(accountsTransactions);
-                // _Context.SaveChanges();
+                accountsTransactions = accountsTransactions.Select((k) =>
+                {
+                    k.AccountsTransactionsVoucherNo = salesReturn.SalesReturnNo;
+                    k.AccountsTransactionsVoucherType = VoucherType.SalesReturn_TYPE;
+                    k.AccountsTransactionsStatus = AccountStatus.Approved;
+                    return k;
+                }).ToList();
+                _Context.AccountsTransactions.AddRange(accountsTransactions);
+                _Context.SaveChanges();
                 StockRegister sr = new StockRegister();
                 // sr.StockRegisterStoreID = 0;
                 sr.StockRegisterRefVoucherNo = salesReturn.SalesReturnNo;
@@ -346,7 +346,7 @@ namespace Inspire.Erp.Application.Account.Implementations
         {
             SalesReturnModel salesReturnModel = new SalesReturnModel();
             salesReturnModel.salesReturn = _salesReturnRepository.GetAsQueryable().Where(k => k.SalesReturnNo == pvno).SingleOrDefault();
-            // salesReturnModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.SalesReturn_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
+            salesReturnModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.SalesReturn_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
             salesReturnModel.salesReturnDetails = _salesReturnDetailsRepository.GetAsQueryable().Where(x => x.SalesReturnDetailsNo == pvno && (x.SalesReturnDetailsDelStatus == false || x.SalesReturnDetailsDelStatus == null)).ToList();
             return salesReturnModel;
 
