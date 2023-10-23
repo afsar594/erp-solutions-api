@@ -106,13 +106,13 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpPost]
         [Route("UpdateSalesReturn")]
-        public IActionResult UpdateSalesReturn([FromBody] SalesReturnViewModel voucherCompositeView)
+        public IActionResult UpdateSalesReturn([FromBody] DTOSalesReturnSave dataObj)
         {
             try
             {
-                var param1 = _mapper.Map<SalesReturn>(voucherCompositeView);
-                var param2 = _mapper.Map<List<SalesReturnDetails>>(voucherCompositeView.SalesReturnDetails);
-                var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
+                var param1 = _mapper.Map<SalesReturn>(dataObj.salesReturn);
+                var param2 = _mapper.Map<List<SalesReturnDetails>>(dataObj.salesReturnDetails);
+                var param3 = _mapper.Map<List<AccountsTransactions>>(dataObj.accountsTransactions);
                 param3 = new List<AccountsTransactions>();
                 List<StockRegister> param4 = new List<StockRegister>();
                 clsAccountAndStock.SalesReturn_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);

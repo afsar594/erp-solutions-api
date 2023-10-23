@@ -140,11 +140,17 @@ namespace Inspire.Erp.Application.Account.Implementations
             try
             {
                 _salesReturnRepository.BeginTransaction();
-
+                salesReturn.SalesReturnDate = DateTime.Now;
+                salesReturn.SalesReturnDlvDate = DateTime.Now;
+                salesReturn.SalesReturnSODate = DateTime.Now;
+                salesReturn.SalesReturnQtnDate = DateTime.Now;
+                salesReturn.SalesReturnEnqDate = DateTime.Now;
+                salesReturn.SalesReturnSVDate = DateTime.Now;
                 //=================================
                 clsCommonFunctions.Delete_OldEntry_StockRegister(salesReturn.SalesReturnNo, VoucherType.SalesReturn_TYPE, _stockRegisterRepository);
                 clsCommonFunctions.Delete_OldEntry_AccountsTransactions(salesReturn.SalesReturnNo, VoucherType.SalesReturn_TYPE, _accountTransactionRepository);
                 _salesReturnRepository.Update(salesReturn);
+                Console.WriteLine("STEP ONE");
                 //=================================
                 salesReturnDetails = salesReturnDetails.Select((k) =>
                  {
@@ -160,26 +166,26 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _salesReturnDetailsRepository.UpdateList(salesReturnDetails);
 
 
-
+                Console.WriteLine("STEP TWO");
 
 
 
 
                 //_salesReturnRepository.Update(salesReturn);
-                accountsTransactions = accountsTransactions.Select((k) =>
-                {
-                    if (k.AccountsTransactionsTransSno == 0)
-                    {
-                        k.AccountsTransactionsTransDate = salesReturn.SalesReturnDate;
-                        k.AccountsTransactionsVoucherNo = salesReturn.SalesReturnNo;
-                        k.AccountsTransactionsVoucherType = VoucherType.SalesReturn_TYPE;
-                        k.AccountsTransactionsStatus = AccountStatus.Approved;
-                    }
+                // accountsTransactions = accountsTransactions.Select((k) =>
+                // {
+                //     if (k.AccountsTransactionsTransSno == 0)
+                //     {
+                //         k.AccountsTransactionsTransDate = salesReturn.SalesReturnDate;
+                //         k.AccountsTransactionsVoucherNo = salesReturn.SalesReturnNo;
+                //         k.AccountsTransactionsVoucherType = VoucherType.SalesReturn_TYPE;
+                //         k.AccountsTransactionsStatus = AccountStatus.Approved;
+                //     }
 
-                    return k;
-                }).ToList();
-                _accountTransactionRepository.UpdateList(accountsTransactions);
-
+                //     return k;
+                // }).ToList();
+                // _accountTransactionRepository.UpdateList(accountsTransactions);
+                Console.WriteLine("STEP THREE");
 
                 stockRegister = stockRegister.Select((k) =>
                 {
@@ -197,7 +203,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _stockRegisterRepository.UpdateList(stockRegister);
 
 
-
+                Console.WriteLine("STEP FOUR");
 
 
 
