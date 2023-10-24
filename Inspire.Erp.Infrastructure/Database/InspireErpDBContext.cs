@@ -12255,7 +12255,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<OptionsMaster>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(x=>x.OptionsMasterId);
 
                 entity.ToTable("Options_Master");
 
