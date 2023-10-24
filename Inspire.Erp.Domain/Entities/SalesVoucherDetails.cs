@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -38,7 +39,7 @@ namespace Inspire.Erp.Domain.Entities
         public int? SalesVoucherDetailsQtndId { get; set; }
         public decimal? SalesVoucherDetailsCostPrice { get; set; }
         public bool? SalesVoucherDetailsDelStatus { get; set; }
-
+        [NotMapped]
         public virtual SalesVoucher SalesVoucherDetailsNoNavigation { get; set; }
     }
 }
