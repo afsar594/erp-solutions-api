@@ -182,15 +182,15 @@ namespace Inspire.Erp.Application.Account.Implementations
             var userTrackngData = (from hdr in context.UserTracking
                                    join dtl in context.UserFile on (long)hdr.UserTrackingUserUserId equals dtl.UserId
                                    where (hdr.UserTrackingUserVpType == "CONTRAVOUCHER" && hdr.UserTrackingUserVpNo == pvno)
-                                   select new
+                                   select new UserTrackingDisplay()
                                    {
-                                       VPAction = hdr.UserTrackingUserVpAction,
-                                       UserId = dtl.UserId,
-                                       VPType = hdr.UserTrackingUserVpType,
-                                       ChangeDt = hdr.UserTrackingUserChangeDt,
-                                       ChangeTime = hdr.UserTrackingUserChangeTime,
-                                       VPNo = hdr.UserTrackingUserVpNo,
-                                   }).AsQueryable();
+                                       Action = hdr.UserTrackingUserVpAction,
+                                       Id = dtl.UserId.ToString(),
+                                       VType= hdr.UserTrackingUserVpType,
+                                       Date= hdr.UserTrackingUserChangeDt.Value.ToString("dd/MM/yyyy"),
+                                       Time = hdr.UserTrackingUserChangeTime.Value.ToString("hh:mm t"),
+                                       VNo = hdr.UserTrackingUserVpNo,
+                                   }).ToList();
             contraVoucherModel = _contraVoucherRepository.GetAsQueryable().Where(k => k.ContraVoucherVno == pvno).SingleOrDefault();
             contraVoucherModel.UserTrackingData = userTrackngData;
             contraVoucherModel.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno).ToList();

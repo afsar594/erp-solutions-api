@@ -13,6 +13,7 @@ using System.Text;
 using static Inspire.Erp.Domain.Modals.PDCResponse;
 //using Inspire.Erp.Domain.Modals.ViewModels;
 using Inspire.Erp.Domain.Modals.Settings;
+using Inspire.Erp.Domain.Models.MIS;
 
 namespace Inspire.Erp.Infrastructure.Database
 {
@@ -375,6 +376,9 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<AssetPurchaseVoucherDetail> AssetPurchaseVoucherDetail { get; set; }
 
         public virtual DbSet<GetAccountTransactionProfitLossResponse> ProfitLossTransaction { get; set; }
+        public virtual DbSet<SingleValueSPResult> TrialBalacnceTransaction { get; set; }
+ 
+
         public virtual DbSet<GetAccountTransactionBalanceSheetResponse> BalanceSheetTransaction { get; set; }
         public virtual DbSet<GetAccountTransactionDBResponse> MultiAccountTransaction { get; set; }
         //public virtual DbSet<GetAccountTransactionVatStatementResponse> VatStatementAccountTransaction { get; set; }
@@ -443,6 +447,7 @@ namespace Inspire.Erp.Infrastructure.Database
             modelBuilder.Entity<GetAccountTransactionBalanceSheetResponse>().HasNoKey();
             modelBuilder.Entity<GetAccountTransactionProfitLossResponse>().HasNoKey();
             modelBuilder.Entity<GetATFinancialClosingResponse>().HasNoKey();
+            modelBuilder.Entity<SingleValueSPResult>().HasNoKey();
 
 
 
@@ -5302,7 +5307,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.CustomerMasterCustomerCityId).HasColumnName("Customer_Master_Customer_City_ID");
 
-                entity.Property(e => e.CustomerMasterCustomerRouteID).HasColumnName("Customer_Master_Customer_RouteID");
+                //entity.Property(e => e.CustomerMasterCustomerRouteID).HasColumnName("Customer_Master_Customer_RouteID");
 
                 entity.Property(e => e.CustomerMasterCustomerContactPerson)
                     .HasColumnName("Customer_Master_Customer_Contact_Person")
@@ -10430,7 +10435,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<JournalVoucher>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(x=>x.JournalVoucherId);
 
                 entity.ToTable("Journal_Voucher");
 
@@ -10473,8 +10478,8 @@ namespace Inspire.Erp.Infrastructure.Database
                     .IsUnicode(false);
 
                 entity.Property(e => e.JournalVoucherSno)
-                    .HasColumnName("Journal_Voucher_SNO")
-                    .ValueGeneratedOnAdd();
+                    .HasColumnName("Journal_Voucher_SNO");
+                    //.ValueGeneratedOnAdd();
 
                 entity.Property(e => e.JournalVoucherStatus)
                     .HasColumnName("Journal_Voucher_Status")
@@ -10492,24 +10497,24 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnName("Journal_Voucher_VRefNo")
                     .HasMaxLength(20)
                     .IsUnicode(false);
-                entity.Property(e => e.JournalVoucher_ID).HasColumnName("JournalVoucher_ID");
-                entity.Property(e => e.JournalVoucher_VNO).HasColumnName("JournalVoucher_VNO");
-                entity.Property(e => e.JournalVoucher_Ac_No).HasColumnName("JournalVoucher_Ac_No");
-                entity.Property(e => e.JournalVoucher_Ref_No).HasColumnName("JournalVoucher_Ref_No");
-                entity.Property(e => e.JournalVoucher_Date).HasColumnName("JournalVoucher_Date");
-                entity.Property(e => e.JournalVoucher_Dr_Amount).HasColumnName("JournalVoucher_Dr_Amount");
-                entity.Property(e => e.JournalVoucher_Cr_Amount).HasColumnName("JournalVoucher_Cr_Amount");
-                entity.Property(e => e.JournalVoucher_FC_Cr_Amount).HasColumnName("JournalVoucher_FC_Cr_Amount");
-                entity.Property(e => e.JournalVoucher_FC_Rate).HasColumnName("JournalVoucher_FC_Rate");
-                entity.Property(e => e.JournalVoucher_FC_Dr_Amount).HasColumnName("JournalVoucher_FC_Dr_Amount");
-                entity.Property(e => e.JournalVoucher_Narration).HasColumnName("JournalVoucher_Narration");
-                entity.Property(e => e.JournalVoucher_AllocID).HasColumnName("JournalVoucher_AllocID");
-                entity.Property(e => e.JournalVoucher_FSNO).HasColumnName("JournalVoucher_FSNO");
-                entity.Property(e => e.JournalVoucher_VoucherType).HasColumnName("JournalVoucher_VoucherType");
-                entity.Property(e => e.JournalVoucher_LocationId).HasColumnName("JournalVoucher_LocationId");
-                entity.Property(e => e.JournalVoucher_CurrencyId).HasColumnName("JournalVoucher_CurrencyId");
-                entity.Property(e => e.JournalVoucher_DelStatus).HasColumnName("JournalVoucher_DelStatus");
-                entity.Property(e => e.JournalVoucher_User_ID).HasColumnName("JournalVoucher_User_ID");
+                //entity.Property(e => e.JournalVoucher_ID).HasColumnName("JournalVoucher_ID");
+                //entity.Property(e => e.JournalVoucher_VNO).HasColumnName("JournalVoucher_VNO");
+                ////entity.Property(e => e.JournalVoucher_Ac_No).HasColumnName("JournalVoucher_Ac_No");
+                //entity.Property(e => e.JournalVoucher_Ref_No).HasColumnName("JournalVoucher_Ref_No");
+                //entity.Property(e => e.JournalVoucher_Date).HasColumnName("Journal_Voucher_Date");
+                ////entity.Property(e => e.JournalVoucher_Dr_Amount).HasColumnName("JournalVoucher_Dr_Amount");
+                ////entity.Property(e => e.JournalVoucher_Cr_Amount).HasColumnName("JournalVoucher_Cr_Amount");
+                //entity.Property(e => e.JournalVoucher_FC_Cr_Amount).HasColumnName("JournalVoucher_FC_Cr_Amount");
+                //entity.Property(e => e.JournalVoucher_FC_Rate).HasColumnName("JournalVoucher_FC_Rate");
+                //entity.Property(e => e.JournalVoucher_FC_Dr_Amount).HasColumnName("JournalVoucher_FC_Dr_Amount");
+                //entity.Property(e => e.JournalVoucher_Narration).HasColumnName("JournalVoucher_Narration");
+                ////entity.Property(e => e.JournalVoucher_AllocID).HasColumnName("JournalVoucher_AllocID");
+                //entity.Property(e => e.JournalVoucher_FSNO).HasColumnName("JournalVoucher_FSNO");
+                //entity.Property(e => e.JournalVoucher_VoucherType).HasColumnName("JournalVoucher_VoucherType");
+                //entity.Property(e => e.JournalVoucher_LocationId).HasColumnName("JournalVoucher_LocationId");
+                ////entity.Property(e => e.JournalVoucher_CurrencyId).HasColumnName("JournalVoucher_Currency_ID");
+                //entity.Property(e => e.JournalVoucher_DelStatus).HasColumnName("Journal_Voucher_DelStatus");
+                //entity.Property(e => e.JournalVoucher_User_ID).HasColumnName("JournalVoucher_User_ID");
 
             });
 
@@ -10524,6 +10529,7 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnName("Journal_Voucher_Details_AccNO")
                     .HasMaxLength(30)
                     .IsUnicode(false);
+                entity.Property(e => e.JournalVoucherDetailVrefNo).HasColumnName("Journal_Voucher_Details_VrefNo");
 
                 entity.Property(e => e.JournalVoucherDetailsAccSno).HasColumnName("Journal_Voucher_Details_AccSNO");
 
@@ -10555,11 +10561,11 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasMaxLength(200)
                     .IsUnicode(false);
 
-                entity.Property(e => e.JournalVoucherDetailsReference)
-                    .HasColumnName("Journal_Voucher_Details_Reference")
+                entity.Property(e => e.JournalVoucherDetailsReferenceNo)
+                    .HasColumnName("Journal_Voucher_Details_Reference_No")
                     .HasMaxLength(100)
                     .IsUnicode(false);
-                entity.HasKey(e => e.JournalVoucherDetails_ID);
+                entity.HasKey(e => e.JournalVoucherDetailsId);
                 entity.Property(e => e.JournalVoucherDetailsSno).HasColumnName("Journal_Voucher_Details_Sno");
 
                 entity.Property(e => e.JournalVoucher_ID).HasColumnName("JournalVoucher_ID");
@@ -14303,11 +14309,11 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.PurchaseOrderId).HasColumnType("numeric(18, 0)");
 
-                entity.HasOne(d => d.PurchaseOrderDetailsNoNavigation)
-                    .WithMany(p => p.PurchaseOrderDetails)
-                    .HasPrincipalKey(p => p.PurchaseOrderNo)
-                    .HasForeignKey(d => d.PurchaseOrderDetailsNo)
-                    .HasConstraintName("FK_PurchaseOrderDetails_PurchaseOrder");
+                //entity.HasOne(d => d.PurchaseOrderDetailsNoNavigation)
+                //    .WithMany(p => p.PurchaseOrderDetails)
+                //    .HasPrincipalKey(p => p.PurchaseOrderNo)
+                //    .HasForeignKey(d => d.PurchaseOrderDetailsNo)
+                //    .HasConstraintName("FK_PurchaseOrderDetails_PurchaseOrder");
 
 
                 //////entity.HasOne(d => d.PurchaseOrderDetailsNoNavigation)
@@ -23011,10 +23017,10 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<TrialBalance>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e=>e.TrialBalanceID);
 
                 entity.ToTable("Trial_Balance");
-
+                entity.Property(e => e.TrialBalanceID).HasColumnName("Trial_Balance_ID");
                 entity.Property(e => e.TrialBalanceAccName)
                     .HasColumnName("Trial_Balance_AccName")
                     .HasMaxLength(100)

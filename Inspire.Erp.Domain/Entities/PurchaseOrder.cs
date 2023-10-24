@@ -6,12 +6,12 @@ namespace Inspire.Erp.Domain.Entities
 {
     public partial class PurchaseOrder
     {
-        public PurchaseOrder()
-        {
-            PurchaseOrderDetails = new HashSet<PurchaseOrderDetails>();
-            ////PurchaseOrderDetailsPurchaseOrder = new HashSet<PurchaseOrderDetails>();
-            ////PurchaseOrderDetailsPurchaseOrderDetailsNoNavigation = new HashSet<PurchaseOrderDetails>();
-        }
+        //public PurchaseOrder()
+        //{
+        //    purchaseOrderDetails = new HashSet<PurchaseOrderDetails>();
+        //    ////PurchaseOrderDetailsPurchaseOrder = new HashSet<PurchaseOrderDetails>();
+        //    ////PurchaseOrderDetailsPurchaseOrderDetailsNoNavigation = new HashSet<PurchaseOrderDetails>();
+        //}
 
         public decimal PurchaseOrderId { get; set; }
         public string PurchaseOrderNo { get; set; }
@@ -87,6 +87,6 @@ namespace Inspire.Erp.Domain.Entities
 
         ////public virtual ICollection<PurchaseOrderDetails> PurchaseOrderDetailsPurchaseOrder { get; set; }
         ////public virtual ICollection<PurchaseOrderDetails> PurchaseOrderDetailsPurchaseOrderDetailsNoNavigation { get; set; }
-        public virtual ICollection<PurchaseOrderDetails> PurchaseOrderDetails { get; set; }
+        //public virtual ICollection<PurchaseOrderDetails> PurchaseOrderDetails { get; set; }
     }
 }

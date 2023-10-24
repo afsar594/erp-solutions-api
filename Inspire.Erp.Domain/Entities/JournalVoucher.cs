@@ -26,24 +26,24 @@ namespace Inspire.Erp.Domain.Entities
         ////public string JournalVoucherStatus { get; set; }
         ////public string JournalVoucherVoucherType { get; set; }
         ///
-        public long JournalVoucher_ID { get; set; }//
-        public string? JournalVoucher_VNO { get; set; }//
-        public string? JournalVoucher_Ac_No { get; set; }//
-        public string? JournalVoucher_Ref_No { get; set; }//
-        public DateTime? JournalVoucher_Date { get; set; }//
-        public decimal? JournalVoucher_Dr_Amount { get; set; }//
-        public decimal? JournalVoucher_Cr_Amount { get; set; }//
-        public decimal? JournalVoucher_FC_Cr_Amount { get; set; }//
-        public decimal? JournalVoucher_FC_Rate { get; set; }//
-        public decimal? JournalVoucher_FC_Dr_Amount { get; set; }//
-        public string? JournalVoucher_Narration { get; set; }//
-        public string? JournalVoucher_AllocID { get; set; }
-        public decimal? JournalVoucher_FSNO { get; set; }//
-        public string? JournalVoucher_VoucherType { get; set; }
-        public long? JournalVoucher_LocationId { get; set; }
-        public long? JournalVoucher_CurrencyId { get; set; }//
-        public bool? JournalVoucher_DelStatus { get; set; }
-        public long? JournalVoucher_User_ID { get; set; }
+        //public long JournalVoucher_ID { get; set; }//
+        //public string? JournalVoucher_VNO { get; set; }//
+        //public string? JournalVoucher_Ac_No { get; set; }//
+        //public string? JournalVoucher_Ref_No { get; set; }//
+        //public DateTime? JournalVoucher_Date { get; set; }//
+        //public decimal? JournalVoucher_Dr_Amount { get; set; }//
+        //public decimal? JournalVoucher_Cr_Amount { get; set; }//
+        //public decimal? JournalVoucher_FC_Cr_Amount { get; set; }//
+        //public decimal? JournalVoucher_FC_Rate { get; set; }//
+        //public decimal? JournalVoucher_FC_Dr_Amount { get; set; }//
+        //public string? JournalVoucher_Narration { get; set; }//
+        //public string? JournalVoucher_AllocID { get; set; }
+        //public decimal? JournalVoucher_FSNO { get; set; }//
+        //public string? JournalVoucher_VoucherType { get; set; }
+        //public long? JournalVoucher_LocationId { get; set; }
+        //public long? JournalVoucher_CurrencyId { get; set; }//
+        //public bool? JournalVoucher_DelStatus { get; set; }
+        //public long? JournalVoucher_User_ID { get; set; }
         [NotMapped]
         public List<JournalVoucherDetails> JournalVoucherDetails { get; set; }
         [NotMapped]

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -48,6 +49,7 @@ namespace Inspire.Erp.Web.ViewModels
         public string CustomerMasterCustomerArabicName { get; set; }
         public string CustomerMasterCustomerGroupAccNo { get; set; }
         public int? CustomerMasterCustomerCtTypeId { get; set; }
+        [NotMapped]
         public int? CustomerMasterCustomerRouteID { get; set; }
         public bool? CustomerMasterCustomerDelStatus { get; set; }
         

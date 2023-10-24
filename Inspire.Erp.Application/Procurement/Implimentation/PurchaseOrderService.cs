@@ -102,7 +102,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 _purchaseOrderRepository.BeginTransaction();
 
 
-                purchaseOrder.PurchaseOrderDetails = purchaseOrderDetails.Select((k) =>
+                purchaseOrder.purchaseOrderDetails = purchaseOrderDetails.Select((k) =>
                 ////purchaseOrder.PurchaseOrderDetailsPurchaseOrder = purchaseOrderDetails.Select((k) =>
                 {
                     //if (k.PurchaseOrderDetailsId == 0)
@@ -204,7 +204,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
 
 
-                purchaseOrder.PurchaseOrderDetails = purchaseOrderDetails;
+                purchaseOrder.purchaseOrderDetails = purchaseOrderDetails;
                 ////purchaseOrder.PurchaseOrderDetailsPurchaseOrder = purchaseOrderDetails;
 
 
@@ -297,7 +297,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         }
         public IEnumerable<PurchaseOrder> GetPurchaseOrder()
         {
-            IEnumerable<PurchaseOrder> purchaseOrder_ALL = _purchaseOrderRepository.GetAll().Where(k => k.PurchaseOrderDelStatus == false || k.PurchaseOrderDelStatus == null);
+            IEnumerable<PurchaseOrder> purchaseOrder_ALL = _purchaseOrderRepository.GetAll().Where(k => k.PurchaseOrderDelStatus == false || k.PurchaseOrderDelStatus == null).ToList();
             return purchaseOrder_ALL;
         }
         public PurchaseOrderModel GetSavedPurchaseOrderDetails(string pvno)

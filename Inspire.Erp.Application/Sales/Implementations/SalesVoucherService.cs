@@ -318,15 +318,15 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
 
 
-                stockRegister = stockRegister.Select((k) =>
-                {
-                    k.StockRegisterVoucherDate = salesVoucher.SalesVoucherDate;
-                    k.StockRegisterRefVoucherNo = salesVoucherNumber;
-                    k.StockRegisterTransType = VoucherType.SalesVoucher_TYPE;
-                    k.StockRegisterStatus = AccountStatus.Approved;
-                    return k;
-                }).ToList();
-                _stockRegisterRepository.InsertList(stockRegister);
+                //stockRegister = stockRegister.Select((k) =>
+                //{
+                //    k.StockRegisterVoucherDate = salesVoucher.SalesVoucherDate;
+                //    k.StockRegisterRefVoucherNo = salesVoucherNumber;
+                //    k.StockRegisterTransType = VoucherType.SalesVoucher_TYPE;
+                //    k.StockRegisterStatus = AccountStatus.Approved;
+                //    return k;
+                //}).ToList();
+                //_stockRegisterRepository.InsertList(stockRegister);
 
 
 

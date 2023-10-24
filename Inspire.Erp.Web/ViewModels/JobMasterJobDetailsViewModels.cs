@@ -15,12 +15,14 @@ namespace Inspire.Erp.Web.ViewModels
         public string JobMasterJobDetailsStatus { get; set; }
         public string JobMasterJobDetailsRefNo { get; set; }
         public DateTime? JobMasterJobDetailsStatusDate { get; set; }
-        public bool? JobMasterJobDetailsIsEdit { get; set; }
+       // public bool? JobMasterJobDetailsIsEdit { get; set; }
         public int? JobMasterJobDetailsUnitIdN { get; set; }
         public double? JobMasterJobDetailsQtyN { get; set; }
         public int? JobMasterJobDetailsDescriptionId { get; set; }
         public decimal? JobMasterJobDetailsJdAmt { get; set; }
         public bool? JobMasterJobDetailsDelStatus { get; set; }
+
+
 
 
     }

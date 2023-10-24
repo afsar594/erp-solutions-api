@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -46,7 +47,8 @@ namespace Inspire.Erp.Domain.Entities
         public string CustomerMasterCustomerArabicName { get; set; }
         public string CustomerMasterCustomerGroupAccNo { get; set; }
         public int? CustomerMasterCustomerCtTypeId { get; set; }
-        public int? CustomerMasterCustomerRouteID { get; set; }
+        //[NotMapped]
+        //public int? CustomerMasterCustomerRouteID { get; set; }
         public bool? CustomerMasterCustomerDelStatus { get; set; }
     }
 }
