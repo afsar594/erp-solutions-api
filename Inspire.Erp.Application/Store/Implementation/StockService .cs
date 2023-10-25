@@ -48,13 +48,11 @@ namespace Inspire.Erp.Application.Store.Implementation
 
         }
 
-        public async Task<Response<List<StockReportBaseUnitResponse>>>   GetStockReportBaseUnitList()
+        public async Task<Response<List<StockReportBaseUnitResponse>>>   GetStockReportBaseUnitList(StockFilterModel model)
         {
             try
             {
                 List<StockReportBaseUnitResponse> response = new List<StockReportBaseUnitResponse>();
-
-
 
                 var subrq = (from s in _context.UnitDetails
                              group s by new { s.UnitDetailsItemId, s.UnitDetailsId } into g
@@ -66,24 +64,26 @@ namespace Inspire.Erp.Application.Store.Implementation
                              });
 
 
-                       var results = await (from im in _context.ItemMaster
+                       var results = await (from im in _context.ItemMaster.Where(x=>x.ItemMasterItemName.ToLower().Contains(model.ItemName.ToLower()) 
+                                            && x.ItemMasterDefaultLocationName.ToLower().Contains(model.Location.ToLower()) 
+                                            && model.ItemId == null || x.ItemMasterItemId == model.ItemId)
                             join sr in _context.StockRegister on im.ItemMasterItemId equals sr.StockRegisterMaterialID.GetValueOrDefault() into gim
                             from y in gim.DefaultIfEmpty()
                                   join r in subrq on y.StockRegisterMaterialID.GetValueOrDefault() equals r.ItemId into grj
                                   from q in grj.DefaultIfEmpty()
                                   join um in _context.UnitMaster on q.UnitId equals um.UnitMasterUnitId into gum
                                   from n in gum.DefaultIfEmpty()
-                                  where im.ItemMasterItemType == "A"
+                                  where im.ItemMasterItemType == model.ItemType
                                   select new StockReportBaseUnitResponse
-                            {
-                              StockRegisterMaterialId=  y.StockRegisterMaterialID,
-                               ItemMasterItemName= im.ItemMasterItemName,
-                              Stock= (int)((y.StockRegisterSIN - y.StockRegisterSout) /(decimal)q.ConTyp),
-                                      //ite  im.ItemMasterReorderCheck,
-                                      PartNo=   q.UnitId,
-                                    ItemMasterPartNo=  n.UnitMasterUnitShortName
-
-                                  }).ToListAsync();
+                                    {
+                                      ItemId=  y.StockRegisterMaterialID,
+                                      ItemName= im.ItemMasterItemName,
+                                      Stock= (int)((y.StockRegisterSIN??0 - y.StockRegisterSout??0) /(decimal)q.ConTyp),
+                                      Unit=   q.UnitId,
+                                      PartNo =  n.UnitMasterUnitShortName,
+                                      AverageRate=y.StockRegisterRate,
+                                      Amount=y.StockRegisterAmount
+                                    }).ToListAsync();
 
 
                

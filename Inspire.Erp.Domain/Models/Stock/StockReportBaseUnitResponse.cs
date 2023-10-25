@@ -6,12 +6,15 @@ namespace Inspire.Erp.Domain.Modals.Stock
 {
    public class StockReportBaseUnitResponse
     {
-        public int? StockRegisterMaterialId { get; set; }
-        public string ItemMasterItemName { get; set; }
-        public int? PartNo { get; set; }
+        public int? ItemId { get; set; }
+
+        public string PartNo { get; set; }
+        public string ItemName { get; set; }
         public int? Stock { get; set; }
-        public string ItemMasterPartNo { get; set; }
-   
+        public int? Unit { get; set; }
+        public decimal? AverageRate { get; set; }
+        public decimal? Amount { get; set; }
+
     }
  
 }

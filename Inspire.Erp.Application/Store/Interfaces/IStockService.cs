@@ -15,7 +15,7 @@ namespace Inspire.Erp.Application.Store.Interfaces
     public interface IStockService
     {
 
-        Task<Response<List<StockReportBaseUnitResponse>>> GetStockReportBaseUnitList();
+        Task<Response<List<StockReportBaseUnitResponse>>> GetStockReportBaseUnitList(StockFilterModel model);
 
     }
 }

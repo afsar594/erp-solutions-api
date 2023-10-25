@@ -56,7 +56,7 @@ namespace Inspire.Erp.Web.Controllers.Store
         public async Task<IActionResult> GetStockReportBaseUnitList(StockFilterModel model)
         {
 
-            var results = await _openingStockService.GetStockReportBaseUnitList();
+            var results = await _openingStockService.GetStockReportBaseUnitList(model);
             return Ok(results);
             //ApiResponse<List<StockReportBaseUnitResponse>> apiResponse = new ApiResponse<List<StockReportBaseUnitResponse>>
             //{
