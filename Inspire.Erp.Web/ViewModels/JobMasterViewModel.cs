@@ -40,8 +40,14 @@ namespace Inspire.Erp.Web.ViewModels
         public string JobMasterJobAdvAccNo { get; set; }
 
         public int? JobMasterJobStatus { get; set; }
-        //public decimal? JobMasterJobOpenInv { get; set; }
-        //public decimal? JobMasterJobPerInv { get; set; }
+        public decimal? jobMasterJobOpenInv { get; set; }
+
+        public double? JobMasterJobRetentionPercentage { get; set; }
+        public decimal? JobMasterJobPerInv { get; set; }
+
+        public decimal? JobMasterJobAdvPerc { get; set; }
+
+        public decimal? JobMasterJobAdvAmount { get; set; }   
 
         //public bool? JobMasterJobStatusVal { get; set; }
         //public string JobMasterJobType { get; set; }
@@ -50,7 +56,7 @@ namespace Inspire.Erp.Web.ViewModels
         //public int? JobMasterJobSupplierId { get; set; }
 
         //public bool? JobMasterJobIsSubJob { get; set; }
-        //public double? JobMasterJobRetentionPercentage { get; set; }
+
         //public int? JobMasterJobSalesMan { get; set; }
         //public decimal? JobMasterJobBudgetMaterialCost { get; set; }
         //public decimal? JobMasterJobMaterialCost { get; set; }
@@ -75,7 +81,7 @@ namespace Inspire.Erp.Web.ViewModels
         //public decimal? JobMasterJobNoCostCenter { get; set; }
         //public decimal? JobMasterJobPendingPo { get; set; }
         //public int? JobMasterJobHrjobId { get; set; }
-        //public decimal? JobMasterJobAdvPerc { get; set; }
+
 
         //public decimal? JobMasterJobAdvAmountTotal { get; set; }   
 
