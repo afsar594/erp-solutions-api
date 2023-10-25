@@ -66,9 +66,10 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                        var results = await (from im in _context.ItemMaster.Where(x=>x.ItemMasterItemName.ToLower().Contains(model.ItemName.ToLower())
                                             // && x.ItemMasterDefaultLocationName.ToLower().Contains(model.Location.ToLower()) 
-                                            && model.LocationId == null || x.ItemMasterLocationId == model.LocationId
-                                            && model.ItemId == null || x.ItemMasterItemId == model.ItemId
-                                            && model.ItemGroupId==null || x.ItemMasterRef1==model.ItemGroupId)
+                                            && (model.LocationId == null || x.ItemMasterLocationId == model.LocationId)
+                                            && (model.ItemId == null || x.ItemMasterItemId == model.ItemId)
+                                            && (model.ItemGroupId==null || x.ItemMasterRef1==model.ItemGroupId)
+                                            )
 
                             join sr in _context.StockRegister on im.ItemMasterItemId equals sr.StockRegisterMaterialID.GetValueOrDefault() into gim
                             from y in gim.DefaultIfEmpty()
