@@ -64,16 +64,19 @@ namespace Inspire.Erp.Application.Store.Implementation
                              });
 
 
-                       var results = await (from im in _context.ItemMaster.Where(x=>x.ItemMasterItemName.ToLower().Contains(model.ItemName.ToLower()) 
-                                            && x.ItemMasterDefaultLocationName.ToLower().Contains(model.Location.ToLower()) 
-                                            && model.ItemId == null || x.ItemMasterItemId == model.ItemId)
+                       var results = await (from im in _context.ItemMaster.Where(x=>x.ItemMasterItemName.ToLower().Contains(model.ItemName.ToLower())
+                                            // && x.ItemMasterDefaultLocationName.ToLower().Contains(model.Location.ToLower()) 
+                                            && model.LocationId == null || x.ItemMasterLocationId == model.LocationId
+                                            && model.ItemId == null || x.ItemMasterItemId == model.ItemId
+                                            && model.ItemGroupId==null || x.ItemMasterRef1==model.ItemGroupId)
+
                             join sr in _context.StockRegister on im.ItemMasterItemId equals sr.StockRegisterMaterialID.GetValueOrDefault() into gim
                             from y in gim.DefaultIfEmpty()
                                   join r in subrq on y.StockRegisterMaterialID.GetValueOrDefault() equals r.ItemId into grj
                                   from q in grj.DefaultIfEmpty()
                                   join um in _context.UnitMaster on q.UnitId equals um.UnitMasterUnitId into gum
                                   from n in gum.DefaultIfEmpty()
-                                  where im.ItemMasterItemType == model.ItemType
+                                  where im.ItemMasterItemType == "A"
                                   select new StockReportBaseUnitResponse
                                     {
                                       ItemId=  y.StockRegisterMaterialID,
