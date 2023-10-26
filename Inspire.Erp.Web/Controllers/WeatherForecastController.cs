@@ -9,12 +9,14 @@ using Inspire.Erp.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using NPOI.HPSF;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using OfficeOpenXml;
 
 namespace Inspire.Erp.Web.Controllers
 {
+
     [ApiController]
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
@@ -202,6 +204,38 @@ namespace Inspire.Erp.Web.Controllers
 
 
                     }
+                    return Ok(true);
+                }
+            }
+
+
+            return Ok(true);
+        }
+         [HttpPost, DisableRequestSizeLimit]
+        [Route("readpdffile")]
+        public async Task<IActionResult> PostPdfFileAsync(List<IFormFile> files)
+        {
+            if (files == null || files.Count == 0)
+                return Content("File Not Selected");
+            foreach (var file in files)
+            {
+                string fileExtension = Path.GetExtension(file.FileName);
+                var pathBuilt = Path.Combine(Directory.GetCurrentDirectory(), "Upload\\Pdfs");
+
+                if (!Directory.Exists(pathBuilt))
+                {
+                    Directory.CreateDirectory(pathBuilt);
+                }
+
+                var path = Path.Combine(Directory.GetCurrentDirectory(), "Upload\\Pdfs",
+                   file.FileName);
+
+                using (var stream = new MemoryStream())
+                {
+
+                    await file.CopyToAsync(stream);
+                   
+              
                     return Ok(true);
                 }
             }
