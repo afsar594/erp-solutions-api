@@ -459,7 +459,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 var orders = await _salesVoucherRepository.GetAsQueryable().Where(x => x.SalesVoucherEnqNo != null).Skip(model.Skip).Take(model.Take).ToListAsync();
                 response.AddRange(orders.Select(x => new GetSalesVoucherResponse
                 {
-                    SalesVoucherId = x.SalesVoucherId,
+                    SalesVoucherId = (decimal)x.SalesVoucherId,
                     SalesVoucherNo = x.SalesVoucherNo
                 }).ToList());
                 var gridResponse = new GridWrapperResponse<List<GetSalesVoucherResponse>>();

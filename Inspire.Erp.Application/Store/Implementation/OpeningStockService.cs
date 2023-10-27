@@ -331,13 +331,14 @@ namespace Inspire.Erp.Application.Store.Implementation
                 }).ToList();
                 
 
-                var osVDetails = openstockVoucherDetails.Select(async osvd =>
+                var osVDetails = await Task.WhenAll(openstockVoucherDetails.Select(async (osvd) =>
                 {
                     osvd.OpeningStockVoucherDetailsConversionType =  await _utilityService.GetBasicUnitConversion(osvd.OpeningStockVoucherDetailsMatId, osvd.OpeningStockVoucherDetailsUnitId);
-                });
+                    return osvd;
+                }));
 
-
-                // openstockVoucher.OpeningStockVoucherDetails = await Task.FromResult<List<OpeningStockVoucherDetails>>(osVDetails);
+                openstockVoucher.OpeningStockVoucherDetails = osVDetails;
+    
 
                 //_openstockVoucherDetailsRepository.InsertList(issueVoucherDetails);
 
