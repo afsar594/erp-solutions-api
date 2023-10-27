@@ -32,6 +32,8 @@ namespace Inspire.Erp.Application.Store.Implementation
         private IRepository<StockRegister> _stockRegisterRepository;
         private IRepository<ProgramSettings> _programsettingsRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
+        private IRepository<OpeningStockVoucher> _openingstockVoucherRepository;
+        private IRepository<OpeningStockVoucherDetails> _openingstockVoucherDetailsRepository;
 
         private readonly ILogger<OpeningStockService> _logger;
 
@@ -207,6 +209,41 @@ namespace Inspire.Erp.Application.Store.Implementation
 
         }
 
+
+        public VouchersNumbers GenerateOpeningStockVoucherNo(DateTime? VoucherGenDate)
+        {
+            try
+            {
+
+
+                var prefix = this._programsettingsRepository.GetAsQueryable().Where(k => k.ProgramSettingsKeyValue == Prefix.OpeningStockVoucher_Prefix).FirstOrDefault().ProgramSettingsTextValue;
+                int vnoMaxVal = Convert.ToInt32(_voucherNumbersRepository.GetAsQueryable()
+                                                        .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == VoucherType.OpeningStockVoucher_TYPE)
+                                                        .DefaultIfEmpty()
+                                                        .Max(o => o == null ? 0 : o.VouchersNumbersVNoNu)) + 1;
+
+
+               
+                VouchersNumbers vouchersNumbers = new VouchersNumbers
+                {
+                    VouchersNumbersVNo = prefix + vnoMaxVal,
+                    VouchersNumbersVNoNu = vnoMaxVal,
+                    VouchersNumbersVType = VoucherType.OpeningStockVoucher_TYPE,
+                    VouchersNumbersFsno = 1,
+                    VouchersNumbersStatus = AccountStatus.Pending,
+                    VouchersNumbersVoucherDate = VoucherGenDate
+
+                };
+                _voucherNumbersRepository.Insert(vouchersNumbers);
+                return vouchersNumbers;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
         {
             try
@@ -250,6 +287,92 @@ namespace Inspire.Erp.Application.Store.Implementation
                 _logger.LogError(ex.Message);
                 throw ex;
             }
+
+        }
+
+
+
+
+
+        public OpeningStockVoucherModel InsertOpeningStockVoucher(OpeningStockVoucher openstockVoucher, List<AccountsTransactions> accountsTransactions, List<OpeningStockVoucherDetails> openstockVoucherDetails
+        , List<StockRegister> stockRegister
+         )
+        {
+            try
+            {
+                _openingstockVoucherRepository.BeginTransaction();
+                string openingstockVoucherNumber = this.GenerateOpeningStockVoucherNo(openstockVoucher.OpeningStockVoucherDate.Date).VouchersNumbersVNo;
+                openstockVoucher.OpeningStockVoucherNo = openingstockVoucherNumber;
+
+
+                int maxcount = 0;
+                maxcount = Convert.ToInt32(
+                    _openingstockVoucherRepository.GetAsQueryable()
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.OpeningStockVoucherId) + 1);
+
+                openstockVoucher.OpeningStockVoucherId = maxcount;
+
+
+                openstockVoucherDetails = openstockVoucherDetails.Select((x) =>
+                {
+                    x.OpeningStockVoucherId = maxcount;
+                    x.OpeningStockVoucherDetailsNo =openingstockVoucherNumber;
+                    return x;
+                }).ToList();
+                //_issueVoucherDetailsRepository.InsertList(issueVoucherDetails);
+
+
+
+
+                accountsTransactions = accountsTransactions.Select((k) =>
+                {
+                    //k.AccountsTransactionsTransDate = issueVoucher.IssueVoucherDate;
+                    k.AccountsTransactionsVoucherNo = openingstockVoucherNumber;
+                    k.AccountsTransactionsVoucherType = VoucherType.OpeningStockVoucher_TYPE;
+                    k.AccountsTransactionsStatus = AccountStatus.Approved;
+                    return k;
+                }).ToList();
+                _accountTransactionRepository.InsertList(accountsTransactions);
+
+
+
+                stockRegister = stockRegister.Select((k) =>
+                {
+                    k.StockRegisterVoucherDate = openstockVoucher.OpeningStockVoucherDate;
+                    k.StockRegisterRefVoucherNo = openingstockVoucherNumber;
+                    k.StockRegisterTransType = VoucherType.OpeningStockVoucher_TYPE;
+                    k.StockRegisterStatus = AccountStatus.Approved;
+                    return k;
+                }).ToList();
+                _stockRegisterRepository.InsertList(stockRegister);
+
+                _openingstockVoucherRepository.Insert(openstockVoucher);
+                _openingstockVoucherRepository.TransactionCommit();
+                return this.GetSavedOpeningStockVoucherDetails(openstockVoucher.OpeningStockVoucherNo);
+
+            }
+            catch (Exception ex)
+            {
+                _openingstockVoucherRepository.TransactionRollback();
+                throw ex;
+            }
+
+
+        }
+
+
+        public OpeningStockVoucherModel GetSavedOpeningStockVoucherDetails(string pvno)
+        {
+            OpeningStockVoucherModel openingstockVoucherModel = new OpeningStockVoucherModel();
+
+            openingstockVoucherModel.openingstockVoucher = _openingstockVoucherRepository.GetAsQueryable().Where(k => k.OpeningStockVoucherNo == pvno).SingleOrDefault();
+
+
+
+            openingstockVoucherModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.OpeningStockVoucher_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
+            openingstockVoucherModel.openingstockVoucherDetails = _openingstockVoucherDetailsRepository.GetAsQueryable().Where(x => x.OpeningStockVoucherDetailsNo == pvno && (x.OpeningStockVoucherDetailsDelStatus == false || x.OpeningStockVoucherDetailsDelStatus == null)).ToList();
+            return openingstockVoucherModel;
+
 
         }
     }

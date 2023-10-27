@@ -17,5 +17,9 @@ namespace Inspire.Erp.Application.Store.Interfaces
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
 
         public VouchersNumbers GetVouchersNumbers(string pvno);
+
+        public OpeningStockVoucherModel InsertOpeningStockVoucher(OpeningStockVoucher openstockVoucher, List<AccountsTransactions> accountsTransactions, List<OpeningStockVoucherDetails> openstockVoucherDetails
+        , List<StockRegister> stockRegister
+       );
     }
 }

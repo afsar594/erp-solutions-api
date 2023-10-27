@@ -27,6 +27,7 @@ using Inspire.Erp.Web.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Inspire.Erp.Web.MODULE;
 
 namespace Inspire.Erp.Web.Controllers.Store
 {
@@ -41,6 +42,64 @@ namespace Inspire.Erp.Web.Controllers.Store
         {
             _openingStockService = openingStockService;
             _mapper = mapper;
+        }
+
+
+
+
+        [HttpPost]
+        [Route("InsertOpeningStockVoucher")]
+        public ApiResponse<OpeningStockVoucherViewModel> InsertOpeningStockVoucher([FromBody] OpeningStockVoucherViewModel voucherCompositeView)
+        {
+
+
+            ApiResponse<OpeningStockVoucherViewModel> apiResponse = new ApiResponse<OpeningStockVoucherViewModel>();
+            if (_openingStockService.GetVouchersNumbers(voucherCompositeView.OpeningStockVoucherNo) == null)
+            {
+                var param1 = _mapper.Map<OpeningStockVoucher>(voucherCompositeView);
+                var param2 = _mapper.Map<List<OpeningStockVoucherDetails>>(voucherCompositeView.OpeningStockVoucherDetails);
+                var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
+                var param4 = _mapper.Map<List<StockRegister>>(voucherCompositeView.StockRegister);
+                param3 = new List<AccountsTransactions>();
+                 //clsAccountAndStock.OpeningStockVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
+
+                var xs = _openingStockService.InsertOpeningStockVoucher(param1, param3, param2
+               , param4
+               );
+                
+                OpeningStockVoucherViewModel openingStockVoucherViewModel = new OpeningStockVoucherViewModel
+                {
+
+                    OpeningStockVoucherId = xs.openingstockVoucher.OpeningStockVoucherId,
+                    OpeningStockVoucherNo = xs.openingstockVoucher.OpeningStockVoucherNo,
+                    OpeningStockVoucherDate = xs.openingstockVoucher.OpeningStockVoucherDate,
+             
+                };
+
+                openingStockVoucherViewModel.OpeningStockVoucherDetails = _mapper.Map<List<OpeningStockVoucherDetailsViewModel>>(xs.openingstockVoucherDetails);
+                openingStockVoucherViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
+                apiResponse = new ApiResponse<OpeningStockVoucherViewModel>
+                {
+                    Valid = true,
+                    Result = _mapper.Map<OpeningStockVoucherViewModel>(openingStockVoucherViewModel),
+                    Message = OpeningStockVoucherMessage.SaveVoucher
+                };
+            }
+            else
+            {
+                apiResponse = new ApiResponse<OpeningStockVoucherViewModel>
+                {
+                    Valid = false,
+                    Error = true,
+                    Exception = null,
+                    Message = OpeningStockVoucherMessage.VoucherAlreadyExist
+                };
+
+            }
+
+
+            return apiResponse;
+
         }
 
 
