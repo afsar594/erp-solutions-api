@@ -20,6 +20,8 @@ namespace Inspire.Erp.Application.Common
         private readonly IRepository<AccountsTransactions> _accountTransaction;
         private readonly IRepository<MasterAccountsTable> _masterAccountTable;
         private readonly IRepository<ItemMaster> _itemMaster;
+
+        private readonly IRepository<UnitDetails> _unitDetail;
         public UtilityService(IRepository<UserTracking> activityLog, IRepository<FinancialPeriods> financialPeriods,
              IRepository<AccountsTransactions> accountTransaction, IRepository<MasterAccountsTable> masterAccountTable,
             IRepository<VouchersNumbers> voucherNumber, IRepository<ItemMaster> itemMaster)
@@ -277,6 +279,26 @@ namespace Inspire.Erp.Application.Common
                 return Response<bool>.Fail(false, ex.Message);
             }
         }
+
+
+        public async Task<decimal> GetBasicUnitConversion(int? itemId, int? unitId)
+        {
+            try
+            {
+                
+               
+                var unitDetails = await _unitDetail.GetAsQueryable().Where(x => x.UnitDetailsItemId == (Int64)itemId && x.UnitDetailsUnitId== unitId).FirstOrDefaultAsync();
+                
+                return Convert.ToDecimal(unitDetails.UnitDetailsConversionType);
+            }
+            catch (Exception ex)
+            {
+
+                return 1;
+            }
+        }
+
+
 
     }
 }

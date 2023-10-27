@@ -237,6 +237,8 @@ namespace Inspire.Erp.Application.Store.Implementation
                     x.IssueVoucherDetailsNo = issueVoucherNumber;
                     return x;
                 }).ToList();
+
+
                 //_issueVoucherDetailsRepository.InsertList(issueVoucherDetails);
 
                 

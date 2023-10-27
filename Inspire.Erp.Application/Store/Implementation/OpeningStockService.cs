@@ -22,6 +22,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 
 namespace Inspire.Erp.Application.Store.Implementation
 {
@@ -36,10 +38,12 @@ namespace Inspire.Erp.Application.Store.Implementation
         private IRepository<OpeningStockVoucherDetails> _openingstockVoucherDetailsRepository;
 
         private readonly ILogger<OpeningStockService> _logger;
+        private readonly IUtilityService _utilityService;
 
         public OpeningStockService(IRepository<AccountsTransactions> accountTransactionRepository, IRepository<ProgramSettings> programsettingsRepository,
             IRepository<VouchersNumbers> voucherNumbers, ILogger<OpeningStockService> logger,
-            IRepository<OpeningStock> openingStockRepository, IRepository<StockRegister> stockRegisterRepository)
+            IRepository<OpeningStock> openingStockRepository, IRepository<StockRegister> stockRegisterRepository,
+            IUtilityService utilityService)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._openingStockRepository = openingStockRepository;
@@ -47,6 +51,7 @@ namespace Inspire.Erp.Application.Store.Implementation
             _programsettingsRepository = programsettingsRepository;
             _voucherNumbersRepository = voucherNumbers;
             _logger = logger;
+            _utilityService= utilityService;
 
         }
        
@@ -294,13 +299,17 @@ namespace Inspire.Erp.Application.Store.Implementation
 
 
 
-        public OpeningStockVoucherModel InsertOpeningStockVoucher(OpeningStockVoucher openstockVoucher, List<AccountsTransactions> accountsTransactions, List<OpeningStockVoucherDetails> openstockVoucherDetails
+        public async Task<OpeningStockVoucherModel> InsertOpeningStockVoucher(OpeningStockVoucher openstockVoucher, List<AccountsTransactions> accountsTransactions, List<OpeningStockVoucherDetails> openstockVoucherDetails
         , List<StockRegister> stockRegister
          )
         {
             try
             {
                 _openingstockVoucherRepository.BeginTransaction();
+
+
+             
+
                 string openingstockVoucherNumber = this.GenerateOpeningStockVoucherNo(openstockVoucher.OpeningStockVoucherDate.Date).VouchersNumbersVNo;
                 openstockVoucher.OpeningStockVoucherNo = openingstockVoucherNumber;
 
@@ -312,17 +321,25 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                 openstockVoucher.OpeningStockVoucherId = maxcount;
 
-
+                //x.OpeningStockVoucherDetailsConversionType = await _utilityService.GetBasicUnitConversion(x.OpeningStockVoucherDetailsMatId, x.OpeningStockVoucherDetailsUnitId);
                 openstockVoucherDetails = openstockVoucherDetails.Select((x) =>
                 {
                     x.OpeningStockVoucherId = maxcount;
                     x.OpeningStockVoucherDetailsNo =openingstockVoucherNumber;
+
                     return x;
                 }).ToList();
-                //_issueVoucherDetailsRepository.InsertList(issueVoucherDetails);
+                
+
+                var osVDetails = openstockVoucherDetails.Select(async osvd =>
+                {
+                    osvd.OpeningStockVoucherDetailsConversionType =  await _utilityService.GetBasicUnitConversion(osvd.OpeningStockVoucherDetailsMatId, osvd.OpeningStockVoucherDetailsUnitId);
+                });
 
 
+                // openstockVoucher.OpeningStockVoucherDetails = await Task.FromResult<List<OpeningStockVoucherDetails>>(osVDetails);
 
+                //_openstockVoucherDetailsRepository.InsertList(issueVoucherDetails);
 
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {

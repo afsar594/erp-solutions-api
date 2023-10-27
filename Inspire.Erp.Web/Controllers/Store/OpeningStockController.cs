@@ -49,7 +49,7 @@ namespace Inspire.Erp.Web.Controllers.Store
 
         [HttpPost]
         [Route("InsertOpeningStockVoucher")]
-        public ApiResponse<OpeningStockVoucherViewModel> InsertOpeningStockVoucher([FromBody] OpeningStockVoucherViewModel voucherCompositeView)
+        public async Task<ApiResponse<OpeningStockVoucherViewModel>> InsertOpeningStockVoucher([FromBody] OpeningStockVoucherViewModel voucherCompositeView)
         {
 
 
@@ -63,7 +63,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 param3 = new List<AccountsTransactions>();
                  //clsAccountAndStock.OpeningStockVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
 
-                var xs = _openingStockService.InsertOpeningStockVoucher(param1, param3, param2
+                var xs = await _openingStockService.InsertOpeningStockVoucher(param1, param3, param2
                , param4
                );
                 

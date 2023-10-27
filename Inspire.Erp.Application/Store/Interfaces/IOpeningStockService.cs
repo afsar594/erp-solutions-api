@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Application.Common;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Inspire.Erp.Application.Store.Interfaces
 {
@@ -18,7 +19,7 @@ namespace Inspire.Erp.Application.Store.Interfaces
 
         public VouchersNumbers GetVouchersNumbers(string pvno);
 
-        public OpeningStockVoucherModel InsertOpeningStockVoucher(OpeningStockVoucher openstockVoucher, List<AccountsTransactions> accountsTransactions, List<OpeningStockVoucherDetails> openstockVoucherDetails
+        public async Task<OpeningStockVoucherModel>  InsertOpeningStockVoucher(OpeningStockVoucher openstockVoucher, List<AccountsTransactions> accountsTransactions, List<OpeningStockVoucherDetails> openstockVoucherDetails
         , List<StockRegister> stockRegister
        );
     }
