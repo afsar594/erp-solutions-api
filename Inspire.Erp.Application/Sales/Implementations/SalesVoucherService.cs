@@ -17,6 +17,7 @@ using Inspire.Erp.Application.MODULE;
 using Inspire.Erp.Domain.Modals.Sales;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Modals;
+using Inspire.Erp.Infrastructure.Database;
 
 
 namespace Inspire.Erp.Application.Sales.Implementations
@@ -41,7 +42,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<CustomerMaster> _customerMasterRepository;
         private IRepository<CustomerMaster> _salesManMasterRepository;
         private IRepository<DepartmentMaster> _departmentMasterRepository;
-
+        public readonly InspireErpDBContext _Context;
 
 
         //private IRepository<ReportSalesVoucher> _reportSalesVoucherRepository;
@@ -56,7 +57,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
 
-            IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository)
+            IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository, InspireErpDBContext Context)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository;
@@ -64,7 +65,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             this._salesVoucherDetailsRepository = salesVoucherDetailsRepository;
             _programsettingsRepository = programsettingsRepository;
             _voucherNumbersRepository = voucherNumbers;
-
+            _Context = Context;
 
             _itemMasterRepository = itemMasterRepository;
             _unitMasterRepository = unitMasterRepository;
@@ -135,7 +136,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             return _itemMasterRepository.GetAll();
         }
 
-        public SalesVoucherModel UpdateSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions, 
+        public SalesVoucherModel UpdateSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions,
             List<SalesVoucherDetails> salesVoucherDetails
            , List<StockRegister> stockRegister
             )
@@ -290,7 +291,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             try
             {
                 _salesVoucherRepository.BeginTransaction();
-                string salesVoucherNumber = this.GenerateVoucherNo(salesVoucher.SalesVoucherDate.Date).VouchersNumbersVNo;
+                string salesVoucherNumber = this.GenerateVoucherNo(salesVoucher.SalesVoucherDate).VouchersNumbersVNo;
                 salesVoucher.SalesVoucherNo = salesVoucherNumber;
 
 
@@ -321,15 +322,15 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
 
 
-                stockRegister = stockRegister.Select((k) =>
-                {
-                    k.StockRegisterVoucherDate = salesVoucher.SalesVoucherDate;
-                    k.StockRegisterRefVoucherNo = salesVoucherNumber;
-                    k.StockRegisterTransType = VoucherType.SalesVoucher_TYPE;
-                    k.StockRegisterStatus = AccountStatus.Approved;
-                    return k;
-                }).ToList();
-                _stockRegisterRepository.InsertList(stockRegister);
+                //stockRegister = stockRegister.Select((k) =>
+                //{
+                //    k.StockRegisterVoucherDate = salesVoucher.SalesVoucherDate;
+                //    k.StockRegisterRefVoucherNo = salesVoucherNumber;
+                //    k.StockRegisterTransType = VoucherType.SalesVoucher_TYPE;
+                //    k.StockRegisterStatus = AccountStatus.Approved;
+                //    return k;
+                //}).ToList();
+                //_stockRegisterRepository.InsertList(stockRegister);
 
 
 
@@ -434,6 +435,19 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 throw ex;
             }
 
+        }
+
+        public IQueryable GetSalesVoucherDetailsByMasterNo(string SalesVoucherNo)
+        {
+            try
+            {
+                var Details = _Context.SalesVoucherDetails.Where(o => o.SalesVoucherDetailsNo == SalesVoucherNo).AsQueryable();
+                return Details;
+            }
+            catch (System.Exception ex)
+            {
+                throw ex;
+            }
         }
 
 

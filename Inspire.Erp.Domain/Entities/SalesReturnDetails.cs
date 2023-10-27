@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inspire.Erp.Domain.Entities
 {
     public partial class SalesReturnDetails
     {
-        public decimal SalesReturnDetailsId { get; set; }
-        public decimal? SalesReturnId { get; set; }
+        public long SalesReturnDetailsId { get; set; }
+        public long? SalesReturnId { get; set; }
         public string SalesReturnDetailsNo { get; set; }
         public decimal? SalesReturnDetailsSno { get; set; }
         public int? SalesReturnDetailsMatId { get; set; }
@@ -44,7 +45,7 @@ namespace Inspire.Erp.Domain.Entities
         public int? SalesReturnDetailsSvId { get; set; }
         public int? SalesReturnDetailsSvdId { get; set; }
         public bool? SalesReturnDetailsDelStatus { get; set; }
-
+        [NotMapped]
         public virtual SalesReturn SalesReturnDetailsNoNavigation { get; set; }
     }
 }

@@ -12466,183 +12466,63 @@ namespace Inspire.Erp.Domain.Entities
 
             modelBuilder.Entity<SalesReturn>(entity =>
             {
-                entity.HasIndex(e => e.SalesReturnNo)
-                    .HasName("UQ__SalesReturn__7620E1441D4655FB")
-                    .IsUnique();
-
-                entity.Property(e => e.SalesReturnId).HasColumnType("numeric(18, 0)");
-
-                entity.Property(e => e.SalesReturnContPerson)
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesReturnContent)
-                    .HasMaxLength(1000)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesReturnDate).HasColumnType("datetime");
-
-                entity.Property(e => e.SalesReturnDelivery)
-                    .HasMaxLength(1000)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesReturnDescription)
-                    .HasMaxLength(200)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesReturnDlvDate).HasColumnType("datetime");
-
-                entity.Property(e => e.SalesReturnDlvNo)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesReturnDptId).HasColumnName("SalesReturnDptID");
-
-                entity.Property(e => e.SalesReturnEnqDate).HasColumnType("datetime");
-
-                entity.Property(e => e.SalesReturnEnqNo)
-                    .HasMaxLength(10)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesReturnExcludeVat)
-                    .HasColumnName("SalesReturnExcludeVAT")
-                    .HasDefaultValueSql("((0))");
-
-                entity.Property(e => e.SalesReturnFcRate)
-                    .HasColumnName("SalesReturnFc_Rate")
-                    .HasColumnType("numeric(18, 4)");
-
-                entity.Property(e => e.SalesReturnFooter)
-                    .HasMaxLength(1000)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesReturnFsno)
-                    .HasColumnName("SalesReturnFSNO")
-                    .HasColumnType("numeric(18, 0)");
-
-                entity.Property(e => e.SalesReturnHeader)
-                    .HasMaxLength(1000)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesReturnLocationId).HasColumnName("SalesReturnLocationID");
-
-                entity.Property(e => e.SalesReturnNetAmount).HasColumnType("numeric(18, 4)");
-
-                entity.Property(e => e.SalesReturnNetDisAmount).HasColumnType("numeric(18, 4)");
-
-                entity.Property(e => e.SalesReturnNo)
-                    .IsRequired()
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesReturnNotes)
-                    .HasMaxLength(1000)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesReturnPartyAddress)
-                    .HasMaxLength(500)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesReturnPartyId).HasColumnType("numeric(18, 0)");
-
-                entity.Property(e => e.SalesReturnPartyName)
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesReturnPartyVatNo)
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesReturnPaymentTerms)
-                    .HasMaxLength(1000)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesReturnQtnDate).HasColumnType("datetime");
-
-                entity.Property(e => e.SalesReturnQtnNo)
-                    .HasMaxLength(10)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesReturnRefNo)
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesReturnRemarks1)
-                    .HasMaxLength(1000)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesReturnRemarks2)
-                    .HasMaxLength(1000)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesReturnSalesManId).HasColumnName("SalesReturnSalesManID");
-
-                entity.Property(e => e.SalesReturnShippinAddress)
-                    .HasMaxLength(1000)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesReturnSodate)
-                    .HasColumnName("SalesReturnSODate")
-                    .HasColumnType("datetime");
-
-                entity.Property(e => e.SalesReturnSono)
-                    .HasColumnName("SalesReturnSONo")
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesReturnStatus)
-                    .HasMaxLength(2)
-                    .IsUnicode(false)
-                    .IsFixedLength();
-
-                entity.Property(e => e.SalesReturnSubject)
-                    .HasMaxLength(1000)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesReturnSvdate)
-                    .HasColumnName("SalesReturnSVDate")
-                    .HasColumnType("datetime");
-
-                entity.Property(e => e.SalesReturnSvno)
-                    .HasColumnName("SalesReturnSVNo")
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesReturnTermsAndCondition)
-                    .HasMaxLength(1000)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesReturnTotalActualAmount).HasColumnType("numeric(18, 4)");
-
-                entity.Property(e => e.SalesReturnTotalDisAmount).HasColumnType("numeric(18, 4)");
-
-                entity.Property(e => e.SalesReturnTotalDisPer).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.SalesReturnTotalGrossAmount).HasColumnType("numeric(18, 4)");
-
-                entity.Property(e => e.SalesReturnTotalItemDisAmount).HasColumnType("numeric(18, 4)");
-
-                entity.Property(e => e.SalesReturnType)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesReturnUserId).HasColumnName("SalesReturnUserID");
-
-                entity.Property(e => e.SalesReturnVatAmt)
-                    .HasColumnName("SalesReturnVat_AMT")
-                    .HasColumnType("numeric(18, 4)");
-
-                entity.Property(e => e.SalesReturnVatPer)
-                    .HasColumnName("SalesReturnVat_Per")
-                    .HasColumnType("numeric(18, 4)");
-
-                entity.Property(e => e.SalesReturnVatRoundSign)
-                    .HasColumnName("SalesReturnVat_RoundSign")
-                    .HasMaxLength(1);
-
-                entity.Property(e => e.SalesReturnVatRountAmt)
-                    .HasColumnName("SalesReturnVat_RountAmt")
-                    .HasColumnType("numeric(18, 4)");
+                entity.ToTable("SalesReturn");
+                entity.HasKey(o => o.SalesReturnId);
+                entity.Property(e => e.SalesReturnId).HasColumnName("SalesReturnId");
+                entity.Property(e => e.SalesReturnNo).HasColumnName("SaSalesReturnNolesReturnId");
+                entity.Property(e => e.SalesReturnDate).HasColumnName("SalesReturnDate");
+                entity.Property(e => e.SalesReturnType).HasColumnName("SalesReturnType");
+                entity.Property(e => e.SalesReturnPartyId).HasColumnName("SalesReturnPartyId");
+                entity.Property(e => e.SalesReturnPartyName).HasColumnName("SalesReturnPartyName");
+                entity.Property(e => e.SalesReturnPartyAddress).HasColumnName("SalesReturnPartyAddress");
+                entity.Property(e => e.SalesReturnPartyVatNo).HasColumnName("SalesReturnPartyVatNo");
+                entity.Property(e => e.SalesReturnRefNo).HasColumnName("SalesReturnRefNo");
+                entity.Property(e => e.SalesReturnContPerson).HasColumnName("SalesReturnContPerson");
+                entity.Property(e => e.SalesReturnDlvNo).HasColumnName("SalesReturnDlvNo");
+                entity.Property(e => e.SalesReturnDlvDate).HasColumnName("SalesReturnId");
+                entity.Property(e => e.SalesReturnSONo).HasColumnName("SalesReturnSONo");
+                entity.Property(e => e.SalesReturnSODate).HasColumnName("SalesReturnSODate");
+                entity.Property(e => e.SalesReturnQtnNo).HasColumnName("SalesReturnQtnNo");
+                entity.Property(e => e.SalesReturnQtnDate).HasColumnName("SalesReturnQtnDate");
+                entity.Property(e => e.SalesReturnSalesManID).HasColumnName("SalesReturnSalesManID");
+                entity.Property(e => e.SalesReturnDptID).HasColumnName("SalesReturnDptID");
+                entity.Property(e => e.SalesReturnEnqNo).HasColumnName("SalesReturnEnqNo");
+                entity.Property(e => e.SalesReturnEnqDate).HasColumnName("SalesReturnEnqDate");
+                entity.Property(e => e.SalesReturnDescription).HasColumnName("SalesReturnDescription");
+                entity.Property(e => e.SalesReturnExcludeVAT).HasColumnName("SalesReturnExcludeVAT");
+                entity.Property(e => e.SalesReturnLocationID).HasColumnName("SalesReturnLocationID");
+                entity.Property(e => e.SalesReturnUserID).HasColumnName("SalesReturnUserID");
+                entity.Property(e => e.SalesReturnCurrencyId).HasColumnName("SalesReturnCurrencyId");
+                entity.Property(e => e.SalesReturnCompanyId).HasColumnName("SalesReturnCompanyId");
+                entity.Property(e => e.SalesReturnJobId).HasColumnName("SalesReturnJobId");
+                entity.Property(e => e.SalesReturnFSNO).HasColumnName("SalesReturnFSNO");
+                entity.Property(e => e.SalesReturnFc_Rate).HasColumnName("SalesReturnFc_Rate");
+                entity.Property(e => e.SalesReturnStatus).HasColumnName("SalesReturnStatus");
+                entity.Property(e => e.SalesReturnTotalGrossAmount).HasColumnName("SalesReturnTotalGrossAmount");
+                entity.Property(e => e.SalesReturnTotalItemDisAmount).HasColumnName("SalesReturnTotalItemDisAmount");
+                entity.Property(e => e.SalesReturnTotalActualAmount).HasColumnName("SalesReturnTotalActualAmount");
+                entity.Property(e => e.SalesReturnTotalDisPer).HasColumnName("SalesReturnTotalDisPer");
+                entity.Property(e => e.SalesReturnTotalDisAmount).HasColumnName("SalesReturnTotalDisAmount");
+                entity.Property(e => e.SalesReturnVat_AMT).HasColumnName("SalesReturnVat_AMT");
+                entity.Property(e => e.SalesReturnVat_Per).HasColumnName("SalesReturnVat_Per");
+                entity.Property(e => e.SalesReturnVat_RoundSign).HasColumnName("SalesReturnVat_RoundSign");
+                entity.Property(e => e.SalesReturnVat_RountAmt).HasColumnName("SalesReturnVat_RountAmt");
+                entity.Property(e => e.SalesReturnNetDisAmount).HasColumnName("SalesReturnNetDisAmount");
+                entity.Property(e => e.SalesReturnNetAmount).HasColumnName("SalesReturnNetAmount");
+                entity.Property(e => e.SalesReturnHeader).HasColumnName("SalesReturnHeader");
+                entity.Property(e => e.SalesReturnDelivery).HasColumnName("SalesReturnDelivery");
+                entity.Property(e => e.SalesReturnNotes).HasColumnName("SalesReturnNotes")
+                entity.Property(e => e.SalesReturnFooter).HasColumnName("SalesReturnFooter");
+                entity.Property(e => e.SalesReturnPaymentTerms).HasColumnName("SalesReturnPaymentTerms");
+                entity.Property(e => e.SalesReturnSubject).HasColumnName("SalesReturnSubject");
+                entity.Property(e => e.SalesReturnContent).HasColumnName("SalesReturnContent");
+                entity.Property(e => e.SalesReturnRemarks1).HasColumnName("SalesReturnRemarks1");
+                entity.Property(e => e.SalesReturnRemarks2).HasColumnName("SalesReturnRemarks2")
+                entity.Property(e => e.SalesReturnTermsAndCondition).HasColumnName("SalesReturnTermsAndCondition");
+                entity.Property(e => e.SalesReturnShippinAddress).HasColumnName("SalesReturnShippinAddress");
+                entity.Property(e => e.SalesReturnSVNo).HasColumnName("SalesReturnSVNo");
+                entity.Property(e => e.SalesReturnSVDate).HasColumnName("SalesReturnSVDate");
+                entity.Property(e => e.SalesReturnDelStatus).HasColumnName("SalesReturnDelStatus");
             });
 
             modelBuilder.Entity<SalesReturnDetails>(entity =>
@@ -12890,178 +12770,65 @@ namespace Inspire.Erp.Domain.Entities
 
                 entity.Property(e => e.SalesReturnMasterWorkPeriodId).HasColumnName("Sales_Return_Master_WorkPeriodID");
             });
-
             modelBuilder.Entity<SalesVoucher>(entity =>
-            {
-                entity.HasIndex(e => e.SalesVoucherNo)
-                    .HasName("UQ__SalesVoucher__7620E1441D4655FB")
-                    .IsUnique();
-
-                entity.Property(e => e.SalesVoucherId).HasColumnType("numeric(18, 0)");
-
-                entity.Property(e => e.SalesVoucherContPerson)
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesVoucherContent)
-                    .HasMaxLength(1000)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesVoucherDate).HasColumnType("datetime");
-
-                entity.Property(e => e.SalesVoucherDelivery)
-                    .HasMaxLength(1000)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesVoucherDescription)
-                    .HasMaxLength(200)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesVoucherDlvDate).HasColumnType("datetime");
-
-                entity.Property(e => e.SalesVoucherDlvNo)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesVoucherDptId).HasColumnName("SalesVoucherDptID");
-
-                entity.Property(e => e.SalesVoucherEnqDate).HasColumnType("datetime");
-
-                entity.Property(e => e.SalesVoucherEnqNo)
-                    .HasMaxLength(10)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesVoucherExcludeVat)
-                    .HasColumnName("SalesVoucherExcludeVAT")
-                    .HasDefaultValueSql("((0))");
-
-                entity.Property(e => e.SalesVoucherFcRate)
-                    .HasColumnName("SalesVoucherFc_Rate")
-                    .HasColumnType("numeric(18, 4)");
-
-                entity.Property(e => e.SalesVoucherFooter)
-                    .HasMaxLength(1000)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesVoucherFsno)
-                    .HasColumnName("SalesVoucherFSNO")
-                    .HasColumnType("numeric(18, 0)");
-
-                entity.Property(e => e.SalesVoucherHeader)
-                    .HasMaxLength(1000)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesVoucherLocationId).HasColumnName("SalesVoucherLocationID");
-
-                entity.Property(e => e.SalesVoucherNetAmount).HasColumnType("numeric(18, 4)");
-
-                entity.Property(e => e.SalesVoucherNetDisAmount).HasColumnType("numeric(18, 4)");
-
-                entity.Property(e => e.SalesVoucherNo)
-                    .IsRequired()
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesVoucherNotes)
-                    .HasMaxLength(1000)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesVoucherPartyAddress)
-                    .HasMaxLength(500)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesVoucherPartyId).HasColumnType("numeric(18, 0)");
-
-                entity.Property(e => e.SalesVoucherPartyName)
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesVoucherPartyVatNo)
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesVoucherPaymentTerms)
-                    .HasMaxLength(1000)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesVoucherQtnDate).HasColumnType("datetime");
-
-                entity.Property(e => e.SalesVoucherQtnNo)
-                    .HasMaxLength(10)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesVoucherRefNo)
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesVoucherRemarks1)
-                    .HasMaxLength(1000)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesVoucherRemarks2)
-                    .HasMaxLength(1000)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesVoucherSalesManId).HasColumnName("SalesVoucherSalesManID");
-
-                entity.Property(e => e.SalesVoucherShippinAddress)
-                    .HasMaxLength(1000)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesVoucherSodate)
-                    .HasColumnName("SalesVoucherSODate")
-                    .HasColumnType("datetime");
-
-                entity.Property(e => e.SalesVoucherSono)
-                    .HasColumnName("SalesVoucherSONo")
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesVoucherStatus)
-                    .HasMaxLength(2)
-                    .IsUnicode(false)
-                    .IsFixedLength();
-
-                entity.Property(e => e.SalesVoucherSubject)
-                    .HasMaxLength(1000)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesVoucherTermsAndCondition)
-                    .HasMaxLength(1000)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesVoucherTotalActualAmount).HasColumnType("numeric(18, 4)");
-
-                entity.Property(e => e.SalesVoucherTotalDisAmount).HasColumnType("numeric(18, 4)");
-
-                entity.Property(e => e.SalesVoucherTotalDisPer).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.SalesVoucherTotalGrossAmount).HasColumnType("numeric(18, 4)");
-
-                entity.Property(e => e.SalesVoucherTotalItemDisAmount).HasColumnType("numeric(18, 4)");
-
-                entity.Property(e => e.SalesVoucherType)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.SalesVoucherUserId).HasColumnName("SalesVoucherUserID");
-
-                entity.Property(e => e.SalesVoucherVatAmt)
-                    .HasColumnName("SalesVoucherVat_AMT")
-                    .HasColumnType("numeric(18, 4)");
-
-                entity.Property(e => e.SalesVoucherVatPer)
-                    .HasColumnName("SalesVoucherVat_Per")
-                    .HasColumnType("numeric(18, 4)");
-
-                entity.Property(e => e.SalesVoucherVatRoundSign)
-                    .HasColumnName("SalesVoucherVat_RoundSign")
-                    .HasMaxLength(1);
-
-                entity.Property(e => e.SalesVoucherVatRountAmt)
-                    .HasColumnName("SalesVoucherVat_RountAmt")
-                    .HasColumnType("numeric(18, 4)");
-            });
+                   {
+                     entity.ToTable("SalesVoucher");
+                       entity.HasKey(o => o.SalesVoucherId);
+                       entity.Property(e => e.SalesVoucherId).HasColumnName("SalesVoucherId");
+                       entity.Property(e => e.SalesVoucherNo).HasColumnName("SalesVoucherNo");
+                       entity.Property(e => e.SalesVoucherDate).HasColumnName("SalesVoucherDate");
+                       entity.Property(e => e.SalesVoucherType).HasColumnName("SalesVoucherType");
+                       entity.Property(e => e.SalesVoucherPartyId).HasColumnName("SalesVoucherPartyId");
+                       entity.Property(e => e.SalesVoucherPartyName).HasColumnName("SalesVoucherPartyName");
+                       entity.Property(e => e.SalesVoucherPartyAddress).HasColumnName("SalesVoucherPartyAddress");
+                       entity.Property(e => e.SalesVoucherPartyVatNo).HasColumnName("SalesVoucherPartyVatNo");
+                       entity.Property(e => e.SalesVoucherRefNo).HasColumnName("SalesVoucherRefNo");
+                       entity.Property(e => e.SalesVoucherContPerson).HasColumnName("SalesVoucherContPerson");
+                       entity.Property(e => e.SalesVoucherDlvNo).HasColumnName("SalesVoucherDlvNo");
+                       entity.Property(e => e.SalesVoucherDlvDate).HasColumnName("SalesVoucherDlvDate");
+                       entity.Property(e => e.SalesVoucherSONo).HasColumnName("SalesVoucherSONo");
+                       entity.Property(e => e.SalesVoucherSODate).HasColumnName("SalesVoucherSODate");
+                       entity.Property(e => e.SalesVoucherQtnNo).HasColumnName("SalesVoucherQtnNo");
+                       entity.Property(e => e.SalesVoucherQtnDate).HasColumnName("SalesVoucherQtnDate");
+                       entity.Property(e => e.SalesVoucherSalesManID).HasColumnName("SalesVoucherSalesManID");
+                       entity.Property(e => e.SalesVoucherDptID).HasColumnName("SalesVoucherDptID");
+                       entity.Property(e => e.SalesVoucherEnqNo).HasColumnName("SalesVoucherEnqNo");
+                       entity.Property(e => e.SalesVoucherEnqDate).HasColumnName("SalesVoucherEnqDate");
+                       entity.Property(e => e.SalesVoucherDescription).HasColumnName("SalesVoucherDescription");
+                       entity.Property(e => e.SalesVoucherExcludeVAT).HasColumnName("SalesVoucherExcludeVAT");
+                       entity.Property(e => e.SalesVoucherLocationID).HasColumnName("SalesVoucherLocationID");
+                       entity.Property(e => e.SalesVoucherUserID).HasColumnName("SalesVoucherUserID");
+                       entity.Property(e => e.SalesVoucherCurrencyId).HasColumnName("SalesVoucherCurrencyId");
+                       entity.Property(e => e.SalesVoucherCompanyId).HasColumnName("SalesVoucherCompanyId");
+                       entity.Property(e => e.SalesVoucherJobId).HasColumnName("SalesVoucherJobId");
+                       entity.Property(e => e.SalesVoucherFSNO).HasColumnName("SalesVoucherFSNO");
+                       entity.Property(e => e.SalesVoucherFc_Rate).HasColumnName("SalesVoucherFc_Rate");
+                       entity.Property(e => e.SalesVoucherStatus).HasColumnName("SalesVoucherStatus");
+                       entity.Property(e => e.SalesVoucherTotalGrossAmount).HasColumnName("SalesVoucherTotalGrossAmount");
+                       entity.Property(e => e.SalesVoucherTotalItemDisAmount).HasColumnName("SalesVoucherTotalItemDisAmount");
+                       entity.Property(e => e.SalesVoucherTotalActualAmount).HasColumnName("SalesVoucherTotalActualAmount");
+                       entity.Property(e => e.SalesVoucherTotalDisPer).HasColumnName("SalesVoucherTotalDisPer");
+                       entity.Property(e => e.SalesVoucherTotalDisAmount).HasColumnName("SalesVoucherTotalDisAmount");
+                       entity.Property(e => e.SalesVoucherVat_AMT).HasColumnName("SalesVoucherVat_AMT");
+                       entity.Property(e => e.SalesVoucherVat_Per).HasColumnName("SalesVoucherVat_Per");
+                       entity.Property(e => e.SalesVoucherVat_RoundSign).HasColumnName("SalesVoucherVat_RoundSign");
+                       entity.Property(e => e.SalesVoucherVat_RountAmt).HasColumnName("SalesVoucherVat_RountAmt");
+                       entity.Property(e => e.SalesVoucherNetDisAmount).HasColumnName("SalesVoucherNetDisAmount");
+                       entity.Property(e => e.SalesVoucherNetAmount).HasColumnName("SalesVoucherNetAmount");
+                       entity.Property(e => e.SalesVoucherHeader).HasColumnName("SalesVoucherHeader");
+                       entity.Property(e => e.SalesVoucherDelivery).HasColumnName("SalesVoucherDelivery");
+                       entity.Property(e => e.SalesVoucherNotes).HasColumnName("SalesVoucherNotes");
+                       entity.Property(e => e.SalesVoucherFooter).HasColumnName("SalesVoucherFooter");
+                       entity.Property(e => e.SalesVoucherPaymentTerms).HasColumnName("SalesVoucherPaymentTerms");
+                       entity.Property(e => e.SalesVoucherSubject).HasColumnName("SalesVoucherSubject");
+                       entity.Property(e => e.SalesVoucherContent).HasColumnName("SalesVoucherContent");
+                       entity.Property(e => e.SalesVoucherRemarks1).HasColumnName("SalesVoucherRemarks1");
+                       entity.Property(e => e.SalesVoucherRemarks2).HasColumnName("SalesVoucherRemarks2");
+                       entity.Property(e => e.SalesVoucherTermsAndCondition).HasColumnName("SalesVoucherTermsAndCondition");
+                       entity.Property(e => e.SalesVoucherShippinAddress).HasColumnName("SalesVoucherShippinAddress");
+                       entity.Property(e => e.SalesVoucherDelStatus).HasColumnName("SalesVoucherDelStatus");
+                    //    entity.Property(e => e.SalesVoucherShortNo).HasColumnName("SalesVoucherShortNo");
+                   });
 
             modelBuilder.Entity<SalesVoucherBatchDetials>(entity =>
             {

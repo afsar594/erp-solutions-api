@@ -16,4 +16,20 @@ namespace Inspire.Erp.Domain.Modals.Common
         public string Extension { get; set; }
         public string  FormatType { get; set; }
     }
+
+    public class ReportFilter
+    {
+        public string fromDate { get; set; }
+        public string toDate { get; set; }
+        public string Formate { get; set; }
+        public int TotalCount { get; set; }
+        public string Query { get; set; }
+        public string Serach { get; set; }
+        public string CostCenter { get; set; }
+        public bool HideZeroTransactions { get; set; }
+        public string PrintGroupWise { get; set; }
+        public string FinancialMindate { get; set; }
+
+
+    }
 }

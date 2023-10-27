@@ -44,7 +44,7 @@ namespace Inspire.Erp.Application.Account.Interfaces
 
         
         public SalesReturnModel GetSavedSalesReturnDetails(string pvno);
-        public IEnumerable<SalesReturn> GetSalesReturn();
+        public List<SalesReturn> GetSalesReturn();
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
 
         public VouchersNumbers GetVouchersNumbers(string pvno);

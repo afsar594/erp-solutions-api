@@ -3,6 +3,7 @@ using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,14 +17,15 @@ namespace Inspire.Erp.Application.Master
         private IRepository<CustomerMaster> customerrepository;
         private readonly IRepository<MasterAccountsTable> _masterAccountTable;
         private readonly IUtilityService _utilityService;
-        private string DeptorsRelativeNo = "001001005";
+        private string DeptorsRelativeNo = "";
 
-        public CustomerMasterService(IRepository<CustomerMaster> _customerrepository,
+        public CustomerMasterService(IRepository<CustomerMaster> _customerrepository,IConfiguration config,
             IRepository<MasterAccountsTable> masterAccountTable, IUtilityService utilityService)
         {
             customerrepository = _customerrepository;
             _masterAccountTable = masterAccountTable;
             _utilityService = utilityService;
+            DeptorsRelativeNo = config["ApplicationSettings:DebtorRelativeNo"];
         }
         public async Task<IEnumerable<CustomerMaster>> InsertCustomer(CustomerMaster customerMaster)
         {
@@ -34,7 +36,7 @@ namespace Inspire.Erp.Application.Master
                 valid = true;
                 int mxc = 0;
                 var maxId = _masterAccountTable.GetAsQueryable().Max(x => x.MaSno);
-                string accNo = "AS" + maxId + 1;
+                string accNo = "AS" +( maxId + 1);
                 mxc = customerrepository.GetAsQueryable().Where(k => k.CustomerMasterCustomerNo != null).Select(x => x.CustomerMasterCustomerNo).Max();
                 if (mxc == null) { mxc = 1; } else { mxc = mxc + 1; }
 
@@ -42,8 +44,6 @@ namespace Inspire.Erp.Application.Master
                 customerMaster.CustomerMasterCustomerReffAcNo = accNo;
                 customerrepository.Insert(customerMaster);
                 var masterAccount = _masterAccountTable.GetAsQueryable().Where(x => x.MaAccNo == DeptorsRelativeNo).FirstOrDefault();
-                var subhead = _masterAccountTable.GetAsQueryable().Where(x => x.MaRelativeNo == masterAccount.MaAccNo).FirstOrDefault();
-                var head = _masterAccountTable.GetAsQueryable().Where(x => x.MaRelativeNo == subhead.MaAccNo).FirstOrDefault();
                 MasterAccountsTable masterAccountsTable = new MasterAccountsTable()
                 {
                     MaAccName = customerMaster.CustomerMasterCustomerName,
@@ -52,9 +52,9 @@ namespace Inspire.Erp.Application.Master
                     MaImageKey = masterAccount.MaImageKey,
                     MaAssetDate = DateTime.Now,
                     MaFsno = fs.Result.FinancialPeriodsFsno,
-                    MaMainHead = head.MaMainHead,
+                    MaMainHead = masterAccount.MaMainHead,
                     MaRelativeNo = masterAccount.MaAccNo,
-                    MaSubHead = subhead.MaSubHead,
+                    MaSubHead = masterAccount.MaSubHead,
                     MaUserId = 0,
                     MaDateCreated = DateTime.Now,
                     MaStatus = "R",

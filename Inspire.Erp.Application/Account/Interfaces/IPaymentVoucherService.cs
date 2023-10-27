@@ -18,6 +18,6 @@ namespace Inspire.Erp.Application.Account.Interfaces
         public VouchersNumbers GenerateVoucherNo();
         public IQueryable GetUserTracking(string voucherNo);
         public VouchersNumbers GetVouchersNumbers(string pvno);
-        public IQueryable GetAllocationDetails(string accountNo, string voucherNo);
+        public List<Domain.Models.AllocationDetails> GetAllocationDetails(string accountNo, string voucherNo);
     }
 }

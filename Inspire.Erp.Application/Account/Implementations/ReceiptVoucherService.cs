@@ -179,7 +179,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             {
                 var userTrackngData = (from hdr in context.UserTracking.Where(o => o.UserTrackingUserVpType == "RECEIPTVOUCHER" && o.UserTrackingUserVpNo == Rvno)
                                        join dtl in context.UserFile on (long)hdr.UserTrackingUserUserId equals dtl.UserId
-                                       select new
+                                       select new Domain.Models.TrackingData()
                                        {
                                            VPAction = hdr.UserTrackingUserVpAction,
                                            UserId = dtl.UserId,
@@ -188,7 +188,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                            ChangeDt = hdr.UserTrackingUserChangeDt,
                                            ChangeTime = hdr.UserTrackingUserChangeTime,
                                            VPNo = hdr.UserTrackingUserVpNo,
-                                       }).AsQueryable();
+                                       }).ToList();
                 ReceiptVoucherMaster voucherdata = _voucherNumbersRepository.GetAsQueryable().Where(x => x.VouchersNumbersVNo == Rvno)
                                                 .Include(k => k.AccountsTransactions)
                                                 .Include(k => k.ReceiptVoucherDetails).AsEnumerable()

@@ -5,6 +5,7 @@ namespace Inspire.Erp.Domain.Entities
 {
     public partial class TrialBalance
     {
+        public int TrialBalanceID { get; set; }
         public string TrialBalanceMainHead { get; set; }
         public string TrialBalanceSubHead { get; set; }
         public string TrialBalanceRelativeNo { get; set; }

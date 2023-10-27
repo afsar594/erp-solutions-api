@@ -156,7 +156,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 trackingData.UserTrackingUserChangeDt = DateTime.Now;
                 trackingData.UserTrackingUserChangeTime = DateTime.Now;
                 trackingData.UserTrackingUserVpType = "PAYMENTVOUCHER";
-                UserTracking.Insert(trackingData);
+                //UserTracking.Insert(trackingData);
                 _paymentVoucherRepository.TransactionCommit();
                 return this.GetSavedPaymentDetails(paymentVoucher.PaymentVoucherVoucherNo);
             }
@@ -172,7 +172,7 @@ namespace Inspire.Erp.Application.Account.Implementations
         }
         public IEnumerable<PaymentVoucher> GetPaymentVouchers()
         {
-            IEnumerable<PaymentVoucher> paymentVouchers = _paymentVoucherRepository.GetAll().Where(k => k.PaymentVoucherDelStatus == false || k.PaymentVoucherDelStatus == null);
+            IEnumerable<PaymentVoucher> paymentVouchers = _paymentVoucherRepository.GetAll().Where(k => k.PaymentVoucherDelStatus == false || k.PaymentVoucherDelStatus == null).ToList();
             return paymentVouchers;
         }
         public PaymentVoucher GetSavedPaymentDetails(string pvno)
@@ -263,7 +263,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             }
         }
 
-        public IQueryable GetAllocationDetails(string accountNo, string voucherNo)
+        public List<Domain.Models.AllocationDetails> GetAllocationDetails(string accountNo, string voucherNo)
         {
             try
             {
@@ -272,7 +272,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                             where (dtl.RefNo == voucherNo &&
                             dtl.AccountsTransactionsAccNo == accountNo
                             )
-                            select new
+                            select new Domain.Models.AllocationDetails()
                             {
                                 TransDate = dtl.AccountsTransactionsTransDate,
                                 VoucherNo = dtl.AccountsTransactionsVoucherNo,
@@ -282,7 +282,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                 Balance = dtl.AccountsTransactionsAllocBalance,
                                 AllocAmount = dtl.AccountsTransactionsFcRate,
                                 NetAllocation = dtl.AccountsTransactionsVatableAmount,
-                            }).AsQueryable();
+                            }).ToList();
                 return data;
             }
             catch (System.Exception ex)

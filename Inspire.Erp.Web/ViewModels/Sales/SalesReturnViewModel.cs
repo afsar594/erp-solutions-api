@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Inspire.Erp.Domain.Entities;
 
 namespace Inspire.Erp.Web.ViewModels.sales
 {
@@ -72,5 +73,12 @@ namespace Inspire.Erp.Web.ViewModels.sales
         //public List<StockRegisterViewModel> StockRegister { get; set; }
 
 
+    }
+
+    public class DTOSalesReturnSave
+    {
+        public SalesReturn salesReturn { get; set; }
+        public List<SalesReturnDetails> salesReturnDetails { get; set; }
+        public List<AccountsTransactions> accountsTransactions { get; set; }
     }
 }

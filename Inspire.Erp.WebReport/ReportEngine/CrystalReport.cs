@@ -1,10 +1,16 @@
 ﻿using CrystalDecisions.CrystalReports.Engine;
 using CrystalDecisions.Shared;
+using Inspire.Erp.WebReport.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Web;
+using System.Web.Helpers;
 
 namespace Inspire.Erp.WebReport.ReportEngine
 {
@@ -49,8 +55,9 @@ namespace Inspire.Erp.WebReport.ReportEngine
 		
 		public CrystalReport()
 		{
-			
-			SetConnectionInfo("", "", "", "", "");
+            string filePath = AppDomain.CurrentDomain.BaseDirectory + $@"bin\DbConnection\DSN.json";
+			var dbSettings = getDbSettingsFromJSonFle(filePath);
+            SetConnectionInfo(dbSettings.ServerName, dbSettings.UserName,dbSettings.Password, dbSettings.DBName, "");
 			SetDefaults();
 		}
 
@@ -489,7 +496,7 @@ namespace Inspire.Erp.WebReport.ReportEngine
 						break;
 				}
 				// Export options
-				lReportFileExport = tempDir + @"\\" + identifier + extensionFile;
+				lReportFileExport = tempDir + @"\" + identifier + extensionFile;
 				diskFileDestOptions = new DiskFileDestinationOptions();
 				diskFileDestOptions.DiskFileName = lReportFileExport;
 				expOptions = lReportDocument.ExportOptions;
@@ -521,6 +528,47 @@ namespace Inspire.Erp.WebReport.ReportEngine
 
 	
 			reportDoc = PrepareReport(PathReport);
+			if (reportDoc.ParameterFields.Count > 0)
+            {
+				var dt = new DataTable();
+				dt.Columns.Add("Name", typeof(string));
+				dt.Columns.Add("Value", typeof(string));
+				DataRow newRow = dt.NewRow();
+				newRow["Name"] = "Company";
+				newRow["Value"] = "Company";
+				dt.Rows.Add(newRow);
+
+				newRow = dt.NewRow();
+				newRow["Name"] = "Add1";
+				newRow["Value"] = "Add1";
+				dt.Rows.Add(newRow);
+
+				newRow = dt.NewRow();
+				newRow["Name"] = "Add2";
+				newRow["Value"] = "Add2";
+				dt.Rows.Add(newRow);
+
+				newRow = dt.NewRow();
+				newRow["Name"] = "Email";
+				newRow["Value"] = "Email";
+				dt.Rows.Add(newRow);
+
+				newRow = dt.NewRow();
+				newRow["Name"] = "Heading";
+				newRow["Value"] = "Heading";
+				dt.Rows.Add(newRow);
+				newRow = dt.NewRow();
+				newRow["Name"] = "Company";
+				newRow["Value"] = "Company";
+				dt.Rows.Add(newRow);
+				newRow = dt.NewRow();
+				newRow["Name"] = "subHeading";
+				newRow["Value"] = "subHeading";
+				dt.Rows.Add(newRow);
+
+
+				reportDoc = SetArrayParameterValue(reportDoc, dt);
+			}
 			reportDoc = AddSelectionFormula(reportDoc, SelectionFormula);
 
 	
@@ -760,5 +808,62 @@ namespace Inspire.Erp.WebReport.ReportEngine
 			}
 
 		}
-	}
+
+
+
+		
+		public HttpResponseMessage RenderReport(string PathReport, string SelectionFormula, string Namefile, List<Models.ReportParameters> reportParameters)
+		{
+			ReportDocument reportDoc;
+
+
+			reportDoc = PrepareReport(PathReport);
+			if (reportDoc.ParameterFields.Count > 0 && reportParameters.Count > 0)
+			{
+                var dt = new DataTable();
+                dt.Columns.Add("Name", typeof(string));
+                dt.Columns.Add("Value", typeof(string));
+                foreach (Models.ReportParameters item in reportParameters)
+				{
+                    DataRow newRow = dt.NewRow();
+                    newRow["Name"] = item.Key;
+                    newRow["Value"] = item.Value;
+                    dt.Rows.Add(newRow);
+                }
+				reportDoc = SetArrayParameterValue(reportDoc, dt);
+			}
+			reportDoc = AddSelectionFormula(reportDoc, SelectionFormula);
+
+			MemoryStream ms = new MemoryStream();
+			using (var stream = reportDoc.ExportToStream(ExportFormatType.PortableDocFormat))
+			{
+				stream.CopyTo(ms);
+			}
+
+			var result = new HttpResponseMessage(HttpStatusCode.OK)
+			{
+				Content = new ByteArrayContent(ms.ToArray())
+			};
+			result.Content.Headers.ContentDisposition =
+				new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
+				{
+					FileName = Namefile
+				};
+			result.Content.Headers.ContentType =
+				new System.Net.Http.Headers.MediaTypeHeaderValue("application/pdf");
+			return result;
+		}
+
+
+		public DbConnectionModel getDbSettingsFromJSonFle(string filePath)
+		{
+            DbConnectionModel dbConnectionModel = new DbConnectionModel();
+            if (File.Exists(filePath))
+            {
+                dbConnectionModel = JsonConvert.DeserializeObject<DbConnectionModel>(File.ReadAllText(filePath));
+            }
+			return dbConnectionModel;
+        }
+       
+    }
 }

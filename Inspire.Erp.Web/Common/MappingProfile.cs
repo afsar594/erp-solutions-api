@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Inspire.Erp.Web.ViewModels.Settings;
+using Inspire.Erp.Domain.Modals.Common;
 
 namespace Inspire.Erp.Web.Common
 {
@@ -78,6 +79,15 @@ namespace Inspire.Erp.Web.Common
             CreateMap<JobMaster, JobMasterViewModel>();
             CreateMap<JobMasterViewModel, JobMaster>();
 
+            CreateMap<JobMasterBudgetDetails, JobMasterBudgetDetailsViewModels>();
+            CreateMap<JobMasterBudgetDetailsViewModels, JobMasterBudgetDetails>();
+            
+            CreateMap<JobMasterJobDetails, JobMasterJobDetailsViewModels>();
+            CreateMap<JobMasterJobDetailsViewModels, JobMasterJobDetails>();
+            
+            CreateMap<JobMasterJobWiseBankGuarantees, JobMasterJobWiseBankGuaranteesViewModels>();
+            CreateMap<JobMasterJobWiseBankGuaranteesViewModels, JobMasterJobWiseBankGuarantees>();
+
             CreateMap<UnitMaster, UnitMasterViewModel>();
             CreateMap<UnitMasterViewModel, UnitMaster>();
 
@@ -131,6 +141,9 @@ namespace Inspire.Erp.Web.Common
 
             CreateMap<TaxMaster, TaxMasterViewModel>();
             CreateMap<TaxMasterViewModel,TaxMaster>();
+
+            
+            
 
             //**********************************Masters ending **********
             //**********************************Accounts ****************
@@ -376,6 +389,14 @@ namespace Inspire.Erp.Web.Common
             CreateMap<OptionsMasterViewModel,OptionsMaster>();
 
             //*******************Settings Ending ****************
+
+
+            #region MIS Rports Mappings
+            //trial balance
+            CreateMap<ReportFilter, ReportFilterViewModel>();
+            CreateMap<ReportFilterViewModel, ReportFilter>();
+
+            #endregion
 
         }
     }
