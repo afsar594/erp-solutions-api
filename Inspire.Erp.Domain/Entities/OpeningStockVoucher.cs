@@ -20,8 +20,9 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? OpeningStockVoucherFSNO { get; set; }
 
         public string OpeningStockVoucherVNO { get; set; }
-       
 
+
+        public bool? OpeningStockVoucherDelStatus { get; set; }
         public virtual ICollection<OpeningStockVoucherDetails> OpeningStockVoucherDetails { get; set; }
     }
 }

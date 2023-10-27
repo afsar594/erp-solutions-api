@@ -103,6 +103,9 @@ namespace Inspire.Erp.Web.Controllers.Store
         }
 
 
+
+
+
         [HttpPost]
         [Route("InsertOpeningStock")]
         public ApiResponse<OpeningStockDtViewModel> InsertOpeningStock([FromBody] OpeningStockDtViewModel voucherCompositeView)
@@ -165,6 +168,49 @@ namespace Inspire.Erp.Web.Controllers.Store
             return apiResponse;
         }
 
+
+
+        [HttpPost]
+        [Route("UpdateOpeningStockVoucher")]
+        public async Task<ApiResponse<OpeningStockVoucherViewModel>> UpdateOpeningStockVoucher([FromBody] OpeningStockVoucherViewModel voucherCompositeView)
+        {
+            var param1 = _mapper.Map<OpeningStockVoucher>(voucherCompositeView);
+            var param2 = _mapper.Map<List<OpeningStockVoucherDetails>>(voucherCompositeView.OpeningStockVoucherDetails);
+            var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
+            var param4 = _mapper.Map<List<StockRegister>>(voucherCompositeView.StockRegister);
+
+            param3 = new List<AccountsTransactions>();
+
+            //List<StockRegister> param4 = new List<StockRegister>();
+            //clsAccountAndStock.OpeningStockVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
+
+            var xs = await _openingStockService.UpdateOpeningStockVoucher(param1, param3, param2
+           , param4
+           );
+           
+            OpeningStockVoucherViewModel openingstockVoucherViewModel = new OpeningStockVoucherViewModel
+            {
+                OpeningStockVoucherId = xs.openingstockVoucher.OpeningStockVoucherId,
+                OpeningStockVoucherNo = xs.openingstockVoucher.OpeningStockVoucherNo,
+                OpeningStockVoucherDate = xs.openingstockVoucher.OpeningStockVoucherDate,
+                //OpeningStockVoucherDelStatus = xs.openingstockVoucher.OpeningStockVoucherDelStatus,
+            };
+
+            openingstockVoucherViewModel.OpeningStockVoucherDetails = _mapper.Map<List<OpeningStockVoucherDetailsViewModel>>(xs.openingstockVoucherDetails);
+            openingstockVoucherViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
+
+            ApiResponse<OpeningStockVoucherViewModel> apiResponse = new ApiResponse<OpeningStockVoucherViewModel>
+            {
+                Valid = true,
+                Result = _mapper.Map<OpeningStockVoucherViewModel>(openingstockVoucherViewModel),
+                Message = OpeningStockVoucherMessage.UpdateVoucher
+            };
+
+            return apiResponse;
+
+        }
+
+
         [HttpPost]
         [Route("UpdateOpeningStock")]
         public ApiResponse<OpeningStockViewModel> UpdateOpeningStock([FromBody] OpeningStockViewModel voucherCompositeView)
@@ -210,6 +256,46 @@ namespace Inspire.Erp.Web.Controllers.Store
 
             return apiResponse;
         }
+
+
+
+        [HttpPost]
+        [Route("DeleteOpeningStockVoucher")]
+        public ApiResponse<int> DeleteOpeningStockVoucher([FromBody] OpeningStockVoucherViewModel voucherCompositeView)
+        {
+            var param1 = _mapper.Map<OpeningStockVoucher>(voucherCompositeView);
+            var param2 = _mapper.Map<List<OpeningStockVoucherDetails>>(voucherCompositeView.OpeningStockVoucherDetails);
+            var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
+
+            var param4 = _mapper.Map<List<StockRegister>>(voucherCompositeView.StockRegister);
+            //List<StockRegister> param4 = new List<StockRegister>();
+            //var xs = _openingstockVoucherService.DeleteOpeningStockVoucher(  param1,    param3, param2
+            //    , param4
+            //    );
+
+            //==============
+            //param3 = new List<AccountsTransactions>();
+            //List<StockRegister> param4 = new List<StockRegister>();
+            //clsAccountAndStock.OpeningStockVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
+
+            var xs = _openingStockService.DeleteOpeningStockVoucher(param1, param3, param2
+           , param4
+           );
+            //========================
+
+
+            ApiResponse<int> apiResponse = new ApiResponse<int>
+            {
+                Valid = true,
+                Result = 0,
+                Message = OpeningStockVoucherMessage.DeleteVoucher
+            };
+
+            return apiResponse;
+
+        }
+
+
 
         [HttpPost]
         [Route("DeleteOpeningStock")]

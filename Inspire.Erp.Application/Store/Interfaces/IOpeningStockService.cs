@@ -22,5 +22,17 @@ namespace Inspire.Erp.Application.Store.Interfaces
         public  Task<OpeningStockVoucherModel>  InsertOpeningStockVoucher(OpeningStockVoucher openstockVoucher, List<AccountsTransactions> accountsTransactions, List<OpeningStockVoucherDetails> openstockVoucherDetails
         , List<StockRegister> stockRegister
        );
+
+
+        public Task<OpeningStockVoucherModel> UpdateOpeningStockVoucher(OpeningStockVoucher openingstockVoucher, List<AccountsTransactions> accountsTransactions,
+        List<OpeningStockVoucherDetails> openingstockVoucherDetails
+        , List<StockRegister> stockRegister
+        );
+
+
+        public Task<int> DeleteOpeningStockVoucher(OpeningStockVoucher openingstockVoucher, List<AccountsTransactions> accountsTransactions,
+            List<OpeningStockVoucherDetails> openingstockVoucherDetails
+            , List<StockRegister> stockRegister
+            );
     }
 }

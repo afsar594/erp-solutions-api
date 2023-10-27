@@ -24,8 +24,9 @@ namespace Inspire.Erp.Domain.Entities
         public long? OpeningStockVoucherDetailsJob_Id { get; set; }
      
         public string OpeningStockVoucherDetailsRemarks { get; set; }
-        
-   
+
+      
+
 
         public virtual OpeningStockVoucher OpeningStockVoucherDetailsNoNavigation { get; set; }
     }
