@@ -16,11 +16,7 @@ using Inspire.Erp.Web.Common;
 using Inspire.Erp.Web.MODULE;
 
 using Microsoft.AspNetCore.Mvc.Rendering;
-
-
-
-
-
+using Inspire.Erp.WebReport.ReportEngine;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -567,6 +563,7 @@ namespace Inspire.Erp.Web.Controllers
             return apiResponse;
         }
 
+       
 
 
     }

@@ -26,6 +26,7 @@
 	  <ProjectReference Include="..\Inspire.Erp.Application\Inspire.Erp.Application.csproj" />
 	  <ProjectReference Include="..\Inspire.Erp.Domain\Inspire.Erp.Domain.csproj" />
 	  <ProjectReference Include="..\Inspire.Erp.Infrastructure\Inspire.Erp.Infrastructure.csproj" />
+	  <ProjectReference Include="..\Inspire.Erp.WebReport\Inspire.Erp.WebReport.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 	  <None Update="ViewModels\ChartofAccountsViewModel.ts">
