@@ -426,7 +426,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     {
                         k.AccountsTransactionsTransDate = openingstockVoucher.OpeningStockVoucherDate;
                         k.AccountsTransactionsVoucherNo = openingstockVoucher.OpeningStockVoucherNo;
-                        k.AccountsTransactionsVoucherType = VoucherType.IssueVoucher_TYPE;
+                        k.AccountsTransactionsVoucherType = VoucherType.OpeningStockVoucher_TYPE;
                         k.AccountsTransactionsStatus = AccountStatus.Approved;
                     }
 
