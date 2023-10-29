@@ -19,12 +19,14 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<CustomerQuotation> _customerQuotationRepository;
         private IRepository<CustomerQuotationDetails> _customerQuotationDetailsRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
-        private IRepository<ProgramSettings> _programsettingsRepository;
+        private IRepository<ProgramSettings> _programsettingsRepository;  
+        private IRepository<UserTracking> _userTrackingRepository;
         private readonly ILogger<CustomerQuotationService> _logger;
 
         public CustomerQuotationService(ILogger<CustomerQuotationService> logger,
             IRepository<CustomerQuotation> customerQuotationRepository, IRepository<VouchersNumbers> voucherNumbersRepository, IRepository<ProgramSettings> programsettingsRepository,
-            IRepository<CustomerQuotationDetails> customerQuotationDetailsRepository)
+            IRepository<CustomerQuotationDetails> customerQuotationDetailsRepository,
+            IRepository<UserTracking> userTrackingRepository)
         {
 
             this._customerQuotationRepository = customerQuotationRepository;
@@ -32,6 +34,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
             this._voucherNumbersRepository = voucherNumbersRepository;
             this._programsettingsRepository = programsettingsRepository;
             _logger = logger;
+            this._userTrackingRepository = userTrackingRepository;
+            
 
         }
 
@@ -44,6 +48,16 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 _customerQuotationRepository.Update(customerQuotation);
                 _customerQuotationDetailsRepository.UpdateList(customerQuotationDetails);
+
+
+                UserTracking trackingData = new UserTracking();
+                trackingData.UserTrackingUserUserId = 1;
+                trackingData.UserTrackingUserVpAction = "Update";
+                trackingData.UserTrackingUserVpNo = customerQuotation.CustomerQuotationQuotationId;
+                trackingData.UserTrackingUserChangeDt = DateTime.Now;
+                trackingData.UserTrackingUserChangeTime = DateTime.Now;
+                trackingData.UserTrackingUserVpType = "CustomerQuotation";
+                _userTrackingRepository.Insert(trackingData);
                 _customerQuotationRepository.TransactionCommit();
 
             }
@@ -109,6 +123,17 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 _customerQuotationDetailsRepository.InsertList(customerQuotationDetails);
 
                 _customerQuotationRepository.Insert(customerQuotation);
+               
+                
+                UserTracking trackingData = new UserTracking();
+                trackingData.UserTrackingUserUserId = 1;
+                trackingData.UserTrackingUserVpAction = "Insert";
+                trackingData.UserTrackingUserVpNo = customerQuotation.CustomerQuotationQuotationId;
+                trackingData.UserTrackingUserChangeDt = DateTime.Now;
+                trackingData.UserTrackingUserChangeTime = DateTime.Now;
+                trackingData.UserTrackingUserVpType = "CustomerQuotation";
+                _userTrackingRepository.Insert(trackingData);
+                
                 _customerQuotationRepository.TransactionCommit();
                 return this.GetSavedCustQuotationDetails(customerQuotation.CustomerQuotationQuotationId);
 
