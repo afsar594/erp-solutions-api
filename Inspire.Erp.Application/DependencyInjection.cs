@@ -167,7 +167,7 @@ namespace Inspire.Erp.Application
             services.AddScoped<ICustomerSalesOrderService, CustomerSalesOrderService>();
 
             services.AddScoped<IPurchaseReturnService, PurchaseReturnService>();
-            //services.AddScoped<IStationmasterService, StationmasterService>();
+            services.AddScoped<IOpeningStockService, OpeningStockService>();
 
             services.AddScoped<ISalesVoucherService, SalesVoucherService>();
            services.AddScoped<IStockService, StockService>();
