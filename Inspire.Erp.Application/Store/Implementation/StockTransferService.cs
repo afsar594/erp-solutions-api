@@ -1,6 +1,7 @@
 ﻿using Inspire.Erp.Application.Common;
 using Inspire.Erp.Application.MODULE;
 using Inspire.Erp.Application.Store.Interface;
+using Inspire.Erp.Domain.DTO;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Domain.Modals;
@@ -58,26 +59,54 @@ namespace Inspire.Erp.Application.Store.Implementation
         {
             try
             {
-                //var x = _StockItemResponse.GetBySP($"EXEC getStockItemsList");
-                var items = await (from s in _context.ItemMaster
-                              select new StockItemResponse
-                              {
-                                  Item_Master_Item_Id = s.ItemMasterItemId,
-                                 Item_Master_Item_Name =s.ItemMasterItemName,
-                                  Item_Master_Batch_Code =s.ItemMasterBatchCode,
-                                  Item_Master_Part_No=s.ItemMasterPartNo,
-                                  Item_Master_Barcode=s.ItemMasterBarcode,
-                                  Stock=0
-                              }).ToListAsync();
 
-                var itemsWStock = await Task.WhenAll(items.Select(async (osvd) =>
-                {
-                    osvd.Stock = await _utilityService.GetStockQuantity(osvd.Item_Master_Item_Id,null);
-                    return osvd;
-                }));
+                var results = await (from im in _context.ItemMaster
+                                          join sr in _context.StockRegister on im.ItemMasterItemId equals sr.StockRegisterMaterialID.GetValueOrDefault() into gim
+                                     from y in gim.DefaultIfEmpty()
+                                     
+                                     where im.ItemMasterItemType == "A"
+                                     select new StockItemResponse
+                                     {
+
+                                         Item_Master_Item_Id = im.ItemMasterItemId,
+                                         Item_Master_Item_Name = im.ItemMasterItemName,
+                                         Item_Master_Batch_Code = im.ItemMasterBatchCode,
+                                         Item_Master_Part_No = im.ItemMasterPartNo,
+                                         Item_Master_Barcode = im.ItemMasterBarcode,
+                                         //Stock=0
+                                         //Stock= itemS.Any()?itemS.Sum(y => y.StockRegisterSIN??0 - y.StockRegisterSout??0):0
+                                         Stock = (y.StockRegisterSIN ?? 0 - y.StockRegisterSout ?? 0)
+
+                                     }).ToListAsync();
 
 
-                return itemsWStock.ToList();
+                //var items = await (from s in _context.ItemMaster
+                //             join sr in _context.StockRegister on s.ItemMasterItemId equals sr.StockRegisterMaterialID.GetValueOrDefault()
+                //             into leftDetail
+                //             from ItemStock in leftDetail.DefaultIfEmpty()
+                             
+                //             select new StockItemResponse()
+                //             {
+                //                 Item_Master_Item_Id = s.ItemMasterItemId,
+                //                 Item_Master_Item_Name = s.ItemMasterItemName,
+                //                 Item_Master_Batch_Code = s.ItemMasterBatchCode,
+                //                 Item_Master_Part_No = s.ItemMasterPartNo,
+                //                 Item_Master_Barcode = s.ItemMasterBarcode,
+                //                 //Stock=0
+                //                 //Stock= itemS.Any()?itemS.Sum(y => y.StockRegisterSIN??0 - y.StockRegisterSout??0):0
+                //                 Stock =  leftDetail.Count(t=>t.StockRegisterSIN !=null)
+                //             }).ToListAsync();
+
+
+                //var itemsWStock = await Task.WhenAll(items.Select(async (osvd) =>
+                //{
+                //    osvd.Stock = await _utilityService.GetStockQuantity(osvd.Item_Master_Item_Id, null);
+                //    return osvd;
+                //}));
+
+
+                //return itemsWStock.ToList();
+                return results;
 
 
 
