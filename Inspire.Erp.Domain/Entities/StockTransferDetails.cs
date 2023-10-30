@@ -6,7 +6,7 @@ namespace Inspire.Erp.Domain.Entities
     public partial class StockTransferDetails
     {
         public int? StockTransferDetailsStid { get; set; }
-        public int? StockTransferDetailsSno { get; set; }
+        public int? StockTransferDetailsSNo { get; set; }
         public int? StockTransferDetailsMaterialId { get; set; }
         public int? StockTransferDetailsUnitId { get; set; }
         public double? StockTransferDetailsQty { get; set; }
@@ -15,6 +15,6 @@ namespace Inspire.Erp.Domain.Entities
         public string StockTransferDetailsBatchCode { get; set; }
         public DateTime? StockTransferDetailsExpDate { get; set; }
         public bool? StockTransferDetailsDelStatus { get; set; }
-        public int? VoucherNumber { get; set; }
+        public string StockTransferDetailsVoucherNo { get; set; }
     }
 }

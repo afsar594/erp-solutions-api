@@ -48,6 +48,8 @@ namespace Inspire.Erp.Domain.Enums
         public static String JournalVoucher_TYPE { get { return "JournalVoucher"; } }
         public static String ContraVoucher_TYPE { get { return "ContraVoucher"; } }
 
+        public static String StockTransferVoucher_TYPE { get { return "StockTransferVoucher"; } }
+
     }
 
     public static class AccountStatus

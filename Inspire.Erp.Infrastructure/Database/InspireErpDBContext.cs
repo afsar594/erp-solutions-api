@@ -21364,31 +21364,31 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.StockTransferApproved).HasColumnName("Stock_Transfer_Approved");
 
                 entity.Property(e => e.StockTransferApprovedBy)
-                    .HasColumnName("Stock_Transfer_ApprovedBy")
+                    .HasColumnName("StockTransferApprovedBy")
                     .HasMaxLength(50)
                     .IsUnicode(false);
 
                 entity.Property(e => e.StockTransferApprovedDate)
-                    .HasColumnName("Stock_Transfer_Approved_Date")
+                    .HasColumnName("StockTransferApprovedDate")
                     .HasColumnType("datetime");
 
-                entity.Property(e => e.StockTransferDelStatus).HasColumnName("Stock_Transfer_DelStatus");
+                entity.Property(e => e.StockTransferDelStatus).HasColumnName("StockTransferDelStatus");
 
-                entity.Property(e => e.StockTransferFsno).HasColumnName("Stock_Transfer_FSNO");
+                entity.Property(e => e.StockTransferFSNo).HasColumnName("StockTransferFSNo");
 
-                entity.Property(e => e.StockTransferJobId).HasColumnName("Stock_Transfer_Job_ID");
+                entity.Property(e => e.StockTransferJobId).HasColumnName("StockTransferJobId");
 
-                entity.Property(e => e.StockTransferLocationIdFrom).HasColumnName("Stock_Transfer_Location_ID_From");
+                entity.Property(e => e.StockTransferLocationIdFrom).HasColumnName("StockTransferLocationIdFrom");
 
-                entity.Property(e => e.StockTransferLocationIdTo).HasColumnName("Stock_Transfer_Location_ID_To");
+                entity.Property(e => e.StockTransferLocationIdTo).HasColumnName("StockTransferLocationIdTo");
 
                 entity.Property(e => e.StockTransferNarration)
-                    .HasColumnName("Stock_Transfer_Narration")
+                    .HasColumnName("StockTransferNarration")
                     .HasMaxLength(150)
                     .IsUnicode(false);
 
                 entity.Property(e => e.StockTransferStDate)
-                    .HasColumnName("Stock_Transfer_ST_DATE")
+                    .HasColumnName("StockTransferStDate")
                     .HasColumnType("datetime");
 
                 entity.Property(e => e.StockTransferStatus)
@@ -21396,14 +21396,14 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasMaxLength(10)
                     .IsUnicode(false);
 
-                entity.Property(e => e.StockTransferStid).HasColumnName("Stock_Transfer_STID");
+                entity.Property(e => e.StockTransferId).HasColumnName("StockTransferId");
 
-                entity.Property(e => e.StockTransferStvno)
-                    .HasColumnName("Stock_Transfer_STVNo")
+                entity.Property(e => e.StockTransferVoucherNo)
+                    .HasColumnName("StockTransferVoucherNo")
                     .HasMaxLength(30)
                     .IsUnicode(false);
 
-                entity.Property(e => e.StockTransferUserId).HasColumnName("Stock_Transfer_User_ID");
+                entity.Property(e => e.StockTransferUserId).HasColumnName("StockTransferUserId");
             });
 
             modelBuilder.Entity<StockTransferDetails>(entity =>
@@ -21413,32 +21413,32 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.ToTable("Stock_Transfer_Details");
 
                 entity.Property(e => e.StockTransferDetailsBatchCode)
-                    .HasColumnName("Stock_Transfer_Details_BatchCode")
+                    .HasColumnName("StockTransferDetailsBatchCode")
                     .HasMaxLength(50)
                     .IsUnicode(false);
 
-                entity.Property(e => e.StockTransferDetailsDelStatus).HasColumnName("Stock_Transfer_Details_DelStatus");
+                entity.Property(e => e.StockTransferDetailsDelStatus).HasColumnName("StockTransferDetailsDelStatus");
 
                 entity.Property(e => e.StockTransferDetailsExpDate)
-                    .HasColumnName("Stock_Transfer_Details_Exp_Date")
+                    .HasColumnName("StockTransferDetailsExpDate")
                     .HasColumnType("datetime");
 
-                entity.Property(e => e.StockTransferDetailsMaterialId).HasColumnName("Stock_Transfer_Details_Material_ID");
+                entity.Property(e => e.StockTransferDetailsMaterialId).HasColumnName("StockTransferDetailsMaterialId");
 
-                entity.Property(e => e.StockTransferDetailsQty).HasColumnName("Stock_Transfer_Details_QTY");
+                entity.Property(e => e.StockTransferDetailsQty).HasColumnName("StockTransferDetailsQty");
 
-                entity.Property(e => e.StockTransferDetailsRate).HasColumnName("Stock_Transfer_Details_Rate");
+                entity.Property(e => e.StockTransferDetailsRate).HasColumnName("StockTransferDetailsRate");
 
                 entity.Property(e => e.StockTransferDetailsRemarks)
-                    .HasColumnName("Stock_Transfer_Details_Remarks")
+                    .HasColumnName("StockTransferDetailsRemarks")
                     .HasMaxLength(150)
                     .IsUnicode(false);
 
-                entity.Property(e => e.StockTransferDetailsSno).HasColumnName("Stock_Transfer_Details_SNO");
+                entity.Property(e => e.StockTransferDetailsSNo).HasColumnName("StockTransferDetailsSNo");
 
-                entity.Property(e => e.StockTransferDetailsStid).HasColumnName("Stock_Transfer_Details_STID");
+                entity.Property(e => e.StockTransferDetailsStid).HasColumnName("StockTransferDetailsStid");
 
-                entity.Property(e => e.StockTransferDetailsUnitId).HasColumnName("Stock_Transfer_Details_Unit_ID");
+                entity.Property(e => e.StockTransferDetailsUnitId).HasColumnName("StockTransferDetailsUnitId");
             });
 
             modelBuilder.Entity<StockTransferDetailsJobWise>(entity =>

@@ -2781,7 +2781,82 @@ false
 ));
     }
 
-    //===================================SalesReturn==========================================
+        //===================================SalesReturn==========================================
 
-  }
+
+
+
+
+        //===================================StockTransfer==========================================
+        public static void StockTransfer_Accounts_STOCK_Transactions(string VoucherNo, string VoucherType, StockTransfer MASTER, List<StockTransferDetails> DTLS, ref List<StockRegister> STOCK)
+
+        {
+            for (int i = 0; i < DTLS.Count; i++)
+            {
+                STOCK.Add(clsCommonFunctions.AddNewEntry_To_StockRegister(
+
+                 // long ? StockRegisterId,
+                 0,
+                 //              string StockRegisterVoucherNo,
+                 "",
+                 //     string StockRegisterTransType,
+                 "",
+                  //      DateTime ? StockRegisterVoucherDate,
+                 (DateTime) MASTER.StockTransferStDate,
+                 //     string StockRegisterRemarks,
+                 MASTER.StockTransferNarration,
+                //     decimal ? StockRegisterSno,
+                i,
+                    //       long ? StockRegisterMatId,
+                    DTLS[i].StockTransferDetailsMaterialId,
+
+                  //     int ? StockRegisterUnitId,
+                  DTLS[i].StockTransferDetailsUnitId,
+
+                 //     decimal ? StockRegisterQuantity,
+                (decimal) DTLS[i].StockTransferDetailsQty,
+                 //     decimal ? StockRegisterSin,
+                (decimal) DTLS[i].StockTransferDetailsQty,
+                 //     decimal ? StockRegisterSout,
+                 0,
+                  //     string StockRegisterStatus,
+                  "",
+                 //      string StockRegisterBatchCode,
+                 "",
+                 //     decimal ? StockRegisterRate,
+                 (decimal)DTLS[i].StockTransferDetailsRate,
+                  //     decimal ? StockRegisterFcRate,
+                  (decimal)DTLS[i].StockTransferDetailsRate,
+                 //   decimal ? StockRegisterAmount,
+                 (decimal)DTLS[i].StockTransferDetailsRate * (decimal)DTLS[i].StockTransferDetailsQty,
+                 //   decimal ? StockRegisterFCAmount,
+                 (decimal)DTLS[i].StockTransferDetailsRate * (decimal)DTLS[i].StockTransferDetailsQty,
+                   //     Double ? StockRegisterLandingCost,
+                   (decimal)DTLS[i].StockTransferDetailsRate * (decimal)DTLS[i].StockTransferDetailsQty,
+                   //int ? StockRegisterLocationID,
+                   MASTER.StockTransferLocationIdFrom,
+                  //      int ? StockRegisterFsno,
+                  1,
+                   //     int StockRegisterDepId,
+                   0,
+                    //       int StockRegisterJobId,
+                    MASTER.StockTransferJobId,
+
+                //      DateTime ? StockRegisterExpDate,
+                null,
+                  //     double ? StockRegisterNetStkBal,
+                  0,
+                 //      bool ? StockRegisterDelStatus
+                 false
+
+                    ));
+
+            }
+
+
+            
+
+        }
+
+    }
 }

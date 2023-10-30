@@ -162,7 +162,7 @@ namespace Inspire.Erp.Application
             services.AddScoped<IApprovalService, ApprovalService>();
 
             services.AddScoped<IVoucherAllocationService, VoucherAllocationService>();
-            services.AddScoped<IStockTransfer, StockTransferImp>();
+            services.AddScoped<IStockTransferService, StockTransferService>();
             //services.AddScoped<IUser, UserService>();
             services.AddScoped<ICustomerSalesOrderService, CustomerSalesOrderService>();
 
