@@ -44,6 +44,7 @@ namespace Inspire.Erp.Application.Store.Implementation
         public OpeningStockService(IRepository<AccountsTransactions> accountTransactionRepository, IRepository<ProgramSettings> programsettingsRepository,
             IRepository<VouchersNumbers> voucherNumbers, ILogger<OpeningStockService> logger,
             IRepository<OpeningStock> openingStockRepository, IRepository<StockRegister> stockRegisterRepository,
+             IRepository<OpeningStockVoucher> openingstockVoucherRepository, IRepository<OpeningStockVoucherDetails> openingstockVoucherDetailsRepository,
             IUtilityService utilityService)
         {
             this._accountTransactionRepository = accountTransactionRepository;
@@ -53,6 +54,8 @@ namespace Inspire.Erp.Application.Store.Implementation
             _voucherNumbersRepository = voucherNumbers;
             _logger = logger;
             _utilityService= utilityService;
+            _openingstockVoucherRepository = openingstockVoucherRepository;
+            _openingstockVoucherDetailsRepository = openingstockVoucherDetailsRepository;
 
         }
        
@@ -194,6 +197,16 @@ namespace Inspire.Erp.Application.Store.Implementation
             IEnumerable<OpeningStock> openingStocks = _openingStockRepository.GetAll().Where(k => k.OpeningStockDelStatus == false || k.OpeningStockDelStatus == null);
             return openingStocks;
         }
+
+
+        public IEnumerable<OpeningStockVoucher> GetOpeningStockVouchers()
+        {
+            IEnumerable<OpeningStockVoucher> openingStocks = _openingstockVoucherRepository.GetAll().Where(k => k.OpeningStockVoucherDelStatus == false || k.OpeningStockVoucherDelStatus == null);
+            return openingStocks;
+        }
+
+
+    
         public OpeningStockModel GetSavedOPStockDetails(string pvno)
         {
             if (_voucherNumbersRepository.GetAsQueryable().Any(x => x.VouchersNumbersVNo == pvno))
@@ -467,6 +480,22 @@ namespace Inspire.Erp.Application.Store.Implementation
         }
 
 
+
+        //public OpeningStockVoucherModel GetSavedOpeningStockVoucherDetails(string pvno)
+        //{
+        //    OpeningStockVoucherModel openstockVoucherModel = new OpeningStockVoucherModel();
+        //    //issueVoucherModel.issueVoucher = _issueVoucherRepository.GetAsQueryable().Where(k => k.IssueVoucherNo == pvno && k.IssueVoucherDelStatus == false).SingleOrDefault();
+
+        //    openstockVoucherModel.openingstockVoucher = _openingstockVoucherRepository.GetAsQueryable().Where(k => k.OpeningStockVoucherNo == pvno).SingleOrDefault();
+
+
+
+        //    openstockVoucherModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.IssueVoucher_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
+        //    openstockVoucherModel.openingstockVoucherDetails = _openingstockVoucherDetailsRepository.GetAsQueryable().Where(x => x.OpeningStockVoucherDetailsNo == pvno && (x.OpeningStockVoucherDetailsDelStatus == false || x.OpeningStockVoucherDetailsDelStatus == null)).ToList();
+        //    return openstockVoucherModel;
+
+
+        //}
         public OpeningStockVoucherModel GetSavedOpeningStockVoucherDetails(string pvno)
         {
             OpeningStockVoucherModel openingstockVoucherModel = new OpeningStockVoucherModel();

@@ -8284,30 +8284,31 @@ namespace Inspire.Erp.Infrastructure.Database
             });
 
 
-            //modelBuilder.Entity<OpeningStockVoucher>(entity =>
-            //{
-            //    entity.HasIndex(e => e.OpeningStockVoucherNo)
-            //        .HasName("UQ__OpeningStockVoucher__7620E1441D4655FB")
-            //        .IsUnique();
+            modelBuilder.Entity<OpeningStockVoucher>(entity =>
+            {
+                entity.HasIndex(e => e.OpeningStockVoucherNo)
+                    .HasName("UQ__OpeningStockVoucher__7620E1441D4655FB")
+                    .IsUnique();
+                entity.ToTable("OpeningStockVoucher");
 
-            //    entity.Property(e => e.OpeningStockVoucherId).HasColumnType("numeric(18, 0)");
+                entity.Property(e => e.OpeningStockVoucherId).HasColumnType("numeric(18, 0)");
 
-            //    entity.Property(e => e.OpeningStockVoucherDate).HasColumnType("datetime");
+                entity.Property(e => e.OpeningStockVoucherDate).HasColumnType("datetime");
 
-            //    entity.Property(e => e.OpeningStockVoucherLocationId).HasColumnName("OpeningStockVoucherLocationID");
+                entity.Property(e => e.OpeningStockVoucherLocationId).HasColumnName("OpeningStockVoucherLocationID");
 
 
-            //    entity.Property(e => e.OpeningStockVoucherFSNO).HasColumnType("numeric(18, 0)");
+                entity.Property(e => e.OpeningStockVoucherFSNO).HasColumnType("numeric(18, 0)");
 
-            //    entity.Property(e => e.OpeningStockVoucherVNO)
-            //                .HasMaxLength(50)
-            //                .IsUnicode(false);
+                entity.Property(e => e.OpeningStockVoucherVNO)
+                            .HasMaxLength(50)
+                            .IsUnicode(false);
 
-            //    entity.Property(e => e.OpeningStockVoucherRemarks)
-            //                .HasMaxLength(50)
-            //                .IsUnicode(false);
+                entity.Property(e => e.OpeningStockVoucherRemarks)
+                            .HasMaxLength(50)
+                            .IsUnicode(false);
 
-            //});
+            });
 
             //modelBuilder.Entity<OpeningStockVoucherDetails>(entity =>
             //    {
@@ -8338,296 +8339,296 @@ namespace Inspire.Erp.Infrastructure.Database
 
             //    });
 
-                ////////modelBuilder.Entity<ItemImages>(entity =>
-                ////////{
-                ////////    entity.HasNoKey();
+            ////////modelBuilder.Entity<ItemImages>(entity =>
+            ////////{
+            ////////    entity.HasNoKey();
 
-                ////////    entity.ToTable("Item_Images");
+            ////////    entity.ToTable("Item_Images");
 
-                ////////    entity.Property(e => e.ItemImagesItemCatelogImage)
-                ////////        .HasColumnName("Item_Images_Item_Catelog_Image")
-                ////////        .HasColumnType("image");
+            ////////    entity.Property(e => e.ItemImagesItemCatelogImage)
+            ////////        .HasColumnName("Item_Images_Item_Catelog_Image")
+            ////////        .HasColumnType("image");
 
-                ////////    entity.Property(e => e.ItemImagesItemId).HasColumnName("Item_Images_Item_ID");
+            ////////    entity.Property(e => e.ItemImagesItemId).HasColumnName("Item_Images_Item_ID");
 
-                ////////    entity.Property(e => e.ItemImagesItemImage)
-                ////////        .HasColumnName("Item_Images_Item_Image")
-                ////////        .HasColumnType("image");
+            ////////    entity.Property(e => e.ItemImagesItemImage)
+            ////////        .HasColumnName("Item_Images_Item_Image")
+            ////////        .HasColumnType("image");
 
-                ////////    entity.Property(e => e.ItemImagesItemImage1)
-                ////////        .HasColumnName("Item_Images_Item_Image1")
-                ////////        .HasColumnType("image");
+            ////////    entity.Property(e => e.ItemImagesItemImage1)
+            ////////        .HasColumnName("Item_Images_Item_Image1")
+            ////////        .HasColumnType("image");
 
-                ////////    entity.Property(e => e.ItemImagesItemImageDelStatus).HasColumnName("Item_Images_Item_Image_DelStatus");
+            ////////    entity.Property(e => e.ItemImagesItemImageDelStatus).HasColumnName("Item_Images_Item_Image_DelStatus");
 
-                ////////    entity.HasOne(d => d.ItemImagesItem)
-                ////////        .WithMany(p => p.ItemImages)
-                ////////        .HasForeignKey(d => d.ItemImagesItemId)
-                ////////        .HasConstraintName("FK_Item_Images_Item_Master");
-                ////////});
-                ///
+            ////////    entity.HasOne(d => d.ItemImagesItem)
+            ////////        .WithMany(p => p.ItemImages)
+            ////////        .HasForeignKey(d => d.ItemImagesItemId)
+            ////////        .HasConstraintName("FK_Item_Images_Item_Master");
+            ////////});
+            ///
 
 
-                ////////modelBuilder.Entity<ItemImages>(entity =>
-                ////////{
-                ////////    entity.HasKey(e => e.ItemImagesItemImageId);
+            ////////modelBuilder.Entity<ItemImages>(entity =>
+            ////////{
+            ////////    entity.HasKey(e => e.ItemImagesItemImageId);
 
-                ////////    entity.ToTable("Item_Images");
+            ////////    entity.ToTable("Item_Images");
 
-                ////////    entity.Property(e => e.ItemImagesItemImageId).HasColumnName("Item_Images_Item_Image_ID");
+            ////////    entity.Property(e => e.ItemImagesItemImageId).HasColumnName("Item_Images_Item_Image_ID");
 
-                ////////    entity.Property(e => e.ItemImagesItemCatelogImage)
-                ////////        .HasColumnName("Item_Images_Item_Catelog_Image")
-                ////////        .HasColumnType("image");
+            ////////    entity.Property(e => e.ItemImagesItemCatelogImage)
+            ////////        .HasColumnName("Item_Images_Item_Catelog_Image")
+            ////////        .HasColumnType("image");
 
-                ////////    entity.Property(e => e.ItemImagesItemId).HasColumnName("Item_Images_Item_ID");
+            ////////    entity.Property(e => e.ItemImagesItemId).HasColumnName("Item_Images_Item_ID");
 
-                ////////    entity.Property(e => e.ItemImagesItemImage)
-                ////////        .HasColumnName("Item_Images_Item_Image")
-                ////////        .HasColumnType("image");
+            ////////    entity.Property(e => e.ItemImagesItemImage)
+            ////////        .HasColumnName("Item_Images_Item_Image")
+            ////////        .HasColumnType("image");
 
-                ////////    entity.Property(e => e.ItemImagesItemImage1)
-                ////////        .HasColumnName("Item_Images_Item_Image1")
-                ////////        .HasColumnType("image");
+            ////////    entity.Property(e => e.ItemImagesItemImage1)
+            ////////        .HasColumnName("Item_Images_Item_Image1")
+            ////////        .HasColumnType("image");
 
-                ////////    entity.Property(e => e.ItemImagesItemImageDelStatus).HasColumnName("Item_Images_Item_Image_DelStatus");
+            ////////    entity.Property(e => e.ItemImagesItemImageDelStatus).HasColumnName("Item_Images_Item_Image_DelStatus");
 
-                ////////    entity.HasOne(d => d.ItemImagesItem)
-                ////////        .WithMany(p => p.ItemImages)
-                ////////        .HasForeignKey(d => d.ItemImagesItemId)
-                ////////        .HasConstraintName("FK_Item_Images_Item_Master");
-                ////////});
+            ////////    entity.HasOne(d => d.ItemImagesItem)
+            ////////        .WithMany(p => p.ItemImages)
+            ////////        .HasForeignKey(d => d.ItemImagesItemId)
+            ////////        .HasConstraintName("FK_Item_Images_Item_Master");
+            ////////});
 
 
 
-                ////////modelBuilder.Entity<ItemMaster>(entity =>
-                ////////{
-                ////////    entity.HasKey(e => e.ItemMasterItemId);
+            ////////modelBuilder.Entity<ItemMaster>(entity =>
+            ////////{
+            ////////    entity.HasKey(e => e.ItemMasterItemId);
 
-                ////////    entity.ToTable("Item_Master");
+            ////////    entity.ToTable("Item_Master");
 
-                ////////    entity.Property(e => e.ItemMasterItemId)
-                ////////        .HasColumnName("Item_Master_Item_ID")
-                ////////        .ValueGeneratedNever();
+            ////////    entity.Property(e => e.ItemMasterItemId)
+            ////////        .HasColumnName("Item_Master_Item_ID")
+            ////////        .ValueGeneratedNever();
 
-                ////////    entity.Property(e => e.ItemMasterAccountNo).HasColumnName("Item_Master_Account_No");
+            ////////    entity.Property(e => e.ItemMasterAccountNo).HasColumnName("Item_Master_Account_No");
 
-                ////////    entity.Property(e => e.ItemMasterActive).HasColumnName("Item_Master_Active");
+            ////////    entity.Property(e => e.ItemMasterActive).HasColumnName("Item_Master_Active");
 
-                ////////    entity.Property(e => e.ItemMasterAliasName)
-                ////////        .HasColumnName("Item_Master_Alias_Name")
-                ////////        .HasMaxLength(50)
-                ////////        .IsUnicode(false);
+            ////////    entity.Property(e => e.ItemMasterAliasName)
+            ////////        .HasColumnName("Item_Master_Alias_Name")
+            ////////        .HasMaxLength(50)
+            ////////        .IsUnicode(false);
 
-                ////////    entity.Property(e => e.ItemMasterAssetAcc)
-                ////////        .HasColumnName("Item_Master_Asset_ACC")
-                ////////        .HasMaxLength(40)
-                ////////        .IsUnicode(false);
+            ////////    entity.Property(e => e.ItemMasterAssetAcc)
+            ////////        .HasColumnName("Item_Master_Asset_ACC")
+            ////////        .HasMaxLength(40)
+            ////////        .IsUnicode(false);
 
-                ////////    entity.Property(e => e.ItemMasterAvgCostYel)
-                ////////        .HasColumnName("Item_Master_Avg_Cost_Yel")
-                ////////        .HasMaxLength(10)
-                ////////        .IsFixedLength();
+            ////////    entity.Property(e => e.ItemMasterAvgCostYel)
+            ////////        .HasColumnName("Item_Master_Avg_Cost_Yel")
+            ////////        .HasMaxLength(10)
+            ////////        .IsFixedLength();
 
-                ////////    entity.Property(e => e.ItemMasterBarcode)
-                ////////        .HasColumnName("Item_Master_Barcode")
-                ////////        .HasMaxLength(50)
-                ////////        .IsUnicode(false);
+            ////////    entity.Property(e => e.ItemMasterBarcode)
+            ////////        .HasColumnName("Item_Master_Barcode")
+            ////////        .HasMaxLength(50)
+            ////////        .IsUnicode(false);
 
-                ////////    entity.Property(e => e.ItemMasterBaseValue).HasColumnName("Item_Master_Base_Value");
+            ////////    entity.Property(e => e.ItemMasterBaseValue).HasColumnName("Item_Master_Base_Value");
 
-                ////////    entity.Property(e => e.ItemMasterBatchCode)
-                ////////        .HasColumnName("Item_Master_Batch_Code")
-                ////////        .HasMaxLength(50)
-                ////////        .IsUnicode(false);
-
-                ////////    entity.Property(e => e.ItemMasterColor)
-                ////////        .HasColumnName("Item_Master_Color")
-                ////////        .HasMaxLength(50)
-                ////////        .IsUnicode(false);
+            ////////    entity.Property(e => e.ItemMasterBatchCode)
+            ////////        .HasColumnName("Item_Master_Batch_Code")
+            ////////        .HasMaxLength(50)
+            ////////        .IsUnicode(false);
+
+            ////////    entity.Property(e => e.ItemMasterColor)
+            ////////        .HasColumnName("Item_Master_Color")
+            ////////        .HasMaxLength(50)
+            ////////        .IsUnicode(false);
 
-                ////////    entity.Property(e => e.ItemMasterCountryId).HasColumnName("Item_Master_Country_ID");
-
-                ////////    entity.Property(e => e.ItemMasterCurrentStock).HasColumnName("Item_Master_Current_Stock");
+            ////////    entity.Property(e => e.ItemMasterCountryId).HasColumnName("Item_Master_Country_ID");
+
+            ////////    entity.Property(e => e.ItemMasterCurrentStock).HasColumnName("Item_Master_Current_Stock");
 
-                ////////    entity.Property(e => e.ItemMasterDefaultLocation).HasColumnName("Item_Master_Default_Location");
+            ////////    entity.Property(e => e.ItemMasterDefaultLocation).HasColumnName("Item_Master_Default_Location");
 
-                ////////    entity.Property(e => e.ItemMasterDefaultLocationName)
-                ////////        .HasColumnName("Item_Master_Default_Location_Name")
-                ////////        .HasMaxLength(50)
-                ////////        .IsUnicode(false);
+            ////////    entity.Property(e => e.ItemMasterDefaultLocationName)
+            ////////        .HasColumnName("Item_Master_Default_Location_Name")
+            ////////        .HasMaxLength(50)
+            ////////        .IsUnicode(false);
 
-                ////////    entity.Property(e => e.ItemMasterDelStatus).HasColumnName("Item_Master_DelStatus");
+            ////////    entity.Property(e => e.ItemMasterDelStatus).HasColumnName("Item_Master_DelStatus");
 
-                ////////    entity.Property(e => e.ItemMasterExpenseAcc)
-                ////////        .HasColumnName("Item_Master_Expense_ACC")
-                ////////        .HasMaxLength(40)
-                ////////        .IsUnicode(false);
+            ////////    entity.Property(e => e.ItemMasterExpenseAcc)
+            ////////        .HasColumnName("Item_Master_Expense_ACC")
+            ////////        .HasMaxLength(40)
+            ////////        .IsUnicode(false);
 
-                ////////    entity.Property(e => e.ItemMasterGenericName)
-                ////////        .HasColumnName("Item_Master_Generic_Name")
-                ////////        .HasMaxLength(100)
-                ////////        .IsUnicode(false);
+            ////////    entity.Property(e => e.ItemMasterGenericName)
+            ////////        .HasColumnName("Item_Master_Generic_Name")
+            ////////        .HasMaxLength(100)
+            ////////        .IsUnicode(false);
 
-                ////////    entity.Property(e => e.ItemMasterGroupCreditAcc)
-                ////////        .HasColumnName("Item_Master_Group_Credit_ACC")
-                ////////        .HasMaxLength(20)
-                ////////        .IsUnicode(false);
+            ////////    entity.Property(e => e.ItemMasterGroupCreditAcc)
+            ////////        .HasColumnName("Item_Master_Group_Credit_ACC")
+            ////////        .HasMaxLength(20)
+            ////////        .IsUnicode(false);
 
-                ////////    entity.Property(e => e.ItemMasterGroupDebitAcc)
-                ////////        .HasColumnName("Item_Master_Group_Debit_ACC")
-                ////////        .HasMaxLength(20)
-                ////////        .IsUnicode(false);
+            ////////    entity.Property(e => e.ItemMasterGroupDebitAcc)
+            ////////        .HasColumnName("Item_Master_Group_Debit_ACC")
+            ////////        .HasMaxLength(20)
+            ////////        .IsUnicode(false);
 
-                ////////    entity.Property(e => e.ItemMasterHeightN).HasColumnName("Item_Master_Height_N");
+            ////////    entity.Property(e => e.ItemMasterHeightN).HasColumnName("Item_Master_Height_N");
 
-                ////////    entity.Property(e => e.ItemMasterImage)
-                ////////        .HasColumnName("Item_Master_Image")
-                ////////        .HasMaxLength(50)
-                ////////        .IsFixedLength();
+            ////////    entity.Property(e => e.ItemMasterImage)
+            ////////        .HasColumnName("Item_Master_Image")
+            ////////        .HasMaxLength(50)
+            ////////        .IsFixedLength();
 
-                ////////    entity.Property(e => e.ItemMasterItemName)
-                ////////        .HasColumnName("Item_Master_Item_Name")
-                ////////        .HasMaxLength(500)
-                ////////        .IsUnicode(false);
+            ////////    entity.Property(e => e.ItemMasterItemName)
+            ////////        .HasColumnName("Item_Master_Item_Name")
+            ////////        .HasMaxLength(500)
+            ////////        .IsUnicode(false);
 
-                ////////    entity.Property(e => e.ItemMasterItemSize)
-                ////////        .HasColumnName("Item_Master_Item_Size")
-                ////////        .HasMaxLength(500)
-                ////////        .IsUnicode(false);
+            ////////    entity.Property(e => e.ItemMasterItemSize)
+            ////////        .HasColumnName("Item_Master_Item_Size")
+            ////////        .HasMaxLength(500)
+            ////////        .IsUnicode(false);
 
-                ////////    entity.Property(e => e.ItemMasterItemType)
-                ////////        .HasColumnName("Item_Master_Item_Type")
-                ////////        .HasMaxLength(1)
-                ////////        .IsUnicode(false)
-                ////////        .IsFixedLength();
+            ////////    entity.Property(e => e.ItemMasterItemType)
+            ////////        .HasColumnName("Item_Master_Item_Type")
+            ////////        .HasMaxLength(1)
+            ////////        .IsUnicode(false)
+            ////////        .IsFixedLength();
 
-                ////////    entity.Property(e => e.ItemMasterLandingCost).HasColumnName("Item_Master_Landing_Cost");
+            ////////    entity.Property(e => e.ItemMasterLandingCost).HasColumnName("Item_Master_Landing_Cost");
 
-                ////////    entity.Property(e => e.ItemMasterLastPurchasePrice)
-                ////////        .HasColumnName("Item_Master_Last_Purchase_Price")
-                ////////        .HasColumnType("numeric(18, 4)");
+            ////////    entity.Property(e => e.ItemMasterLastPurchasePrice)
+            ////////        .HasColumnName("Item_Master_Last_Purchase_Price")
+            ////////        .HasColumnType("numeric(18, 4)");
 
-                ////////    entity.Property(e => e.ItemMasterLocationId).HasColumnName("Item_Master_Location_ID");
+            ////////    entity.Property(e => e.ItemMasterLocationId).HasColumnName("Item_Master_Location_ID");
 
-                ////////    entity.Property(e => e.ItemMasterManufactureName)
-                ////////        .HasColumnName("Item_Master_Manufacture_Name")
-                ////////        .HasMaxLength(500)
-                ////////        .IsUnicode(false);
+            ////////    entity.Property(e => e.ItemMasterManufactureName)
+            ////////        .HasColumnName("Item_Master_Manufacture_Name")
+            ////////        .HasMaxLength(500)
+            ////////        .IsUnicode(false);
 
-                ////////    entity.Property(e => e.ItemMasterMaterialCode)
-                ////////        .HasColumnName("Item_Master_Material_Code")
-                ////////        .HasMaxLength(50)
-                ////////        .IsUnicode(false);
+            ////////    entity.Property(e => e.ItemMasterMaterialCode)
+            ////////        .HasColumnName("Item_Master_Material_Code")
+            ////////        .HasMaxLength(50)
+            ////////        .IsUnicode(false);
 
-                ////////    entity.Property(e => e.ItemMasterModelId).HasColumnName("Item_Master_Model_ID");
+            ////////    entity.Property(e => e.ItemMasterModelId).HasColumnName("Item_Master_Model_ID");
 
-                ////////    entity.Property(e => e.ItemMasterPackageId)
-                ////////        .HasColumnName("Item_Master_Package_ID")
-                ////////        .HasMaxLength(50)
-                ////////        .IsUnicode(false);
+            ////////    entity.Property(e => e.ItemMasterPackageId)
+            ////////        .HasColumnName("Item_Master_Package_ID")
+            ////////        .HasMaxLength(50)
+            ////////        .IsUnicode(false);
 
-                ////////    entity.Property(e => e.ItemMasterPacking)
-                ////////        .HasColumnName("Item_Master_Packing")
-                ////////        .HasMaxLength(50)
-                ////////        .IsUnicode(false);
+            ////////    entity.Property(e => e.ItemMasterPacking)
+            ////////        .HasColumnName("Item_Master_Packing")
+            ////////        .HasMaxLength(50)
+            ////////        .IsUnicode(false);
 
-                ////////    entity.Property(e => e.ItemMasterPartNo)
-                ////////        .HasColumnName("Item_Master_Part_No")
-                ////////        .HasMaxLength(50)
-                ////////        .IsUnicode(false);
+            ////////    entity.Property(e => e.ItemMasterPartNo)
+            ////////        .HasColumnName("Item_Master_Part_No")
+            ////////        .HasMaxLength(50)
+            ////////        .IsUnicode(false);
 
-                ////////    entity.Property(e => e.ItemMasterProMrp)
-                ////////        .HasColumnName("Item_Master_PRO_MRP")
-                ////////        .HasColumnType("numeric(18, 4)");
+            ////////    entity.Property(e => e.ItemMasterProMrp)
+            ////////        .HasColumnName("Item_Master_PRO_MRP")
+            ////////        .HasColumnType("numeric(18, 4)");
 
-                ////////    entity.Property(e => e.ItemMasterProPurchaseRate)
-                ////////        .HasColumnName("Item_Master_PRO_Purchase_Rate")
-                ////////        .HasColumnType("numeric(18, 4)");
+            ////////    entity.Property(e => e.ItemMasterProPurchaseRate)
+            ////////        .HasColumnName("Item_Master_PRO_Purchase_Rate")
+            ////////        .HasColumnType("numeric(18, 4)");
 
-                ////////    entity.Property(e => e.ItemMasterProSaleRate)
-                ////////        .HasColumnName("Item_Master_PRO_Sale_Rate")
-                ////////        .HasColumnType("numeric(18, 4)");
+            ////////    entity.Property(e => e.ItemMasterProSaleRate)
+            ////////        .HasColumnName("Item_Master_PRO_Sale_Rate")
+            ////////        .HasColumnType("numeric(18, 4)");
 
-                ////////    entity.Property(e => e.ItemMasterRackId).HasColumnName("Item_Master_Rack_ID");
+            ////////    entity.Property(e => e.ItemMasterRackId).HasColumnName("Item_Master_Rack_ID");
 
-                ////////    entity.Property(e => e.ItemMasterReOrderLevel).HasColumnName("Item_Master_ReOrder_Level");
+            ////////    entity.Property(e => e.ItemMasterReOrderLevel).HasColumnName("Item_Master_ReOrder_Level");
 
-                ////////    entity.Property(e => e.ItemMasterRedeemRewardPoint)
-                ////////        .HasColumnName("Item_Master_Redeem_Reward_Point")
-                ////////        .HasColumnType("numeric(10, 2)");
+            ////////    entity.Property(e => e.ItemMasterRedeemRewardPoint)
+            ////////        .HasColumnName("Item_Master_Redeem_Reward_Point")
+            ////////        .HasColumnType("numeric(10, 2)");
 
-                ////////    entity.Property(e => e.ItemMasterRef1)
-                ////////        .HasColumnName("Item_Master_Ref1")
-                ////////        .HasMaxLength(50)
-                ////////        .IsUnicode(false);
+            ////////    entity.Property(e => e.ItemMasterRef1)
+            ////////        .HasColumnName("Item_Master_Ref1")
+            ////////        .HasMaxLength(50)
+            ////////        .IsUnicode(false);
 
-                ////////    entity.Property(e => e.ItemMasterRef2)
-                ////////        .HasColumnName("Item_Master_Ref2")
-                ////////        .HasMaxLength(50)
-                ////////        .IsUnicode(false);
+            ////////    entity.Property(e => e.ItemMasterRef2)
+            ////////        .HasColumnName("Item_Master_Ref2")
+            ////////        .HasMaxLength(50)
+            ////////        .IsUnicode(false);
 
-                ////////    entity.Property(e => e.ItemMasterReorderCheck).HasColumnName("Item_Master_Reorder_Check");
+            ////////    entity.Property(e => e.ItemMasterReorderCheck).HasColumnName("Item_Master_Reorder_Check");
 
-                ////////    entity.Property(e => e.ItemMasterServices).HasColumnName("Item_Master_Services");
+            ////////    entity.Property(e => e.ItemMasterServices).HasColumnName("Item_Master_Services");
 
-                ////////    entity.Property(e => e.ItemMasterShape)
-                ////////        .HasColumnName("Item_Master_Shape")
-                ////////        .HasMaxLength(50)
-                ////////        .IsUnicode(false);
+            ////////    entity.Property(e => e.ItemMasterShape)
+            ////////        .HasColumnName("Item_Master_Shape")
+            ////////        .HasMaxLength(50)
+            ////////        .IsUnicode(false);
 
-                ////////    entity.Property(e => e.ItemMasterStatus).HasColumnName("Item_Master_Status");
+            ////////    entity.Property(e => e.ItemMasterStatus).HasColumnName("Item_Master_Status");
 
-                ////////    entity.Property(e => e.ItemMasterStockType).HasColumnName("Item_Master_Stock_Type");
+            ////////    entity.Property(e => e.ItemMasterStockType).HasColumnName("Item_Master_Stock_Type");
 
-                ////////    entity.Property(e => e.ItemMasterSuplierCode)
-                ////////        .HasColumnName("Item_Master_Suplier_Code")
-                ////////        .HasMaxLength(50)
-                ////////        .IsUnicode(false);
+            ////////    entity.Property(e => e.ItemMasterSuplierCode)
+            ////////        .HasColumnName("Item_Master_Suplier_Code")
+            ////////        .HasMaxLength(50)
+            ////////        .IsUnicode(false);
 
-                ////////    entity.Property(e => e.ItemMasterSupplierId).HasColumnName("Item_Master_Supplier_ID");
+            ////////    entity.Property(e => e.ItemMasterSupplierId).HasColumnName("Item_Master_Supplier_ID");
 
-                ////////    entity.Property(e => e.ItemMasterTypeId)
-                ////////        .HasColumnName("Item_Master_Type_ID")
-                ////////        .HasMaxLength(50)
-                ////////        .IsUnicode(false);
+            ////////    entity.Property(e => e.ItemMasterTypeId)
+            ////////        .HasColumnName("Item_Master_Type_ID")
+            ////////        .HasMaxLength(50)
+            ////////        .IsUnicode(false);
 
-                ////////    entity.Property(e => e.ItemMasterUnitId).HasColumnName("Item_Master_Unit_ID");
+            ////////    entity.Property(e => e.ItemMasterUnitId).HasColumnName("Item_Master_Unit_ID");
 
-                ////////    entity.Property(e => e.ItemMasterUnitPrice)
-                ////////        .HasColumnName("Item_Master_Unit_Price")
-                ////////        .HasColumnType("numeric(18, 4)");
+            ////////    entity.Property(e => e.ItemMasterUnitPrice)
+            ////////        .HasColumnName("Item_Master_Unit_Price")
+            ////////        .HasColumnType("numeric(18, 4)");
 
-                ////////    entity.Property(e => e.ItemMasterUnitPrice1)
-                ////////        .HasColumnName("Item_Master_Unit_Price1")
-                ////////        .HasColumnType("numeric(18, 4)");
+            ////////    entity.Property(e => e.ItemMasterUnitPrice1)
+            ////////        .HasColumnName("Item_Master_Unit_Price1")
+            ////////        .HasColumnType("numeric(18, 4)");
 
-                ////////    entity.Property(e => e.ItemMasterUnitPrice2)
-                ////////        .HasColumnName("Item_Master_Unit_Price2")
-                ////////        .HasColumnType("numeric(18, 4)");
+            ////////    entity.Property(e => e.ItemMasterUnitPrice2)
+            ////////        .HasColumnName("Item_Master_Unit_Price2")
+            ////////        .HasColumnType("numeric(18, 4)");
 
-                ////////    entity.Property(e => e.ItemMasterUserId).HasColumnName("Item_Master_User_ID");
+            ////////    entity.Property(e => e.ItemMasterUserId).HasColumnName("Item_Master_User_ID");
 
-                ////////    entity.Property(e => e.ItemMasterVat).HasColumnName("Item_Master_VAT");
+            ////////    entity.Property(e => e.ItemMasterVat).HasColumnName("Item_Master_VAT");
 
-                ////////    entity.Property(e => e.ItemMasterVatInclues).HasColumnName("Item_Master_Vat_Inclues");
+            ////////    entity.Property(e => e.ItemMasterVatInclues).HasColumnName("Item_Master_Vat_Inclues");
 
-                ////////    entity.Property(e => e.ItemMasterVatPercentage)
-                ////////        .HasColumnName("Item_Master_Vat_Percentage")
-                ////////        .HasColumnType("numeric(4, 4)");
+            ////////    entity.Property(e => e.ItemMasterVatPercentage)
+            ////////        .HasColumnName("Item_Master_Vat_Percentage")
+            ////////        .HasColumnType("numeric(4, 4)");
 
-                ////////    entity.Property(e => e.ItemMasterVenderId).HasColumnName("Item_Master_Vender_ID");
+            ////////    entity.Property(e => e.ItemMasterVenderId).HasColumnName("Item_Master_Vender_ID");
 
-                ////////    entity.Property(e => e.ItemMasterWeight)
-                ////////        .HasColumnName("Item_Master_Weight")
-                ////////        .HasMaxLength(50)
-                ////////        .IsUnicode(false);
+            ////////    entity.Property(e => e.ItemMasterWeight)
+            ////////        .HasColumnName("Item_Master_Weight")
+            ////////        .HasMaxLength(50)
+            ////////        .IsUnicode(false);
 
-                ////////    entity.Property(e => e.ItemMasterWeightN).HasColumnName("Item_Master_Weight_N");
-                ////////});
+            ////////    entity.Property(e => e.ItemMasterWeightN).HasColumnName("Item_Master_Weight_N");
+            ////////});
 
 
-                modelBuilder.Entity<ItemImages>(entity =>
+            modelBuilder.Entity<ItemImages>(entity =>
             {
                 entity.HasKey(e => e.ItemImagesItemImageId);
 

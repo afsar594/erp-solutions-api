@@ -282,10 +282,13 @@ namespace Inspire.Erp.Web.Common
             CreateMap<PurchaseRequisitionDetailsViewModel, PurchaseRequisitionDetails>();
 
 
+            CreateMap<OpeningStockVoucher, OpeningStockVoucherViewModel>();
+            CreateMap<OpeningStockVoucherViewModel, OpeningStockVoucher>();
+
 
             //*********************** Procurement Ending ******
             //*********************** Sales *******************
-           
+
             CreateMap<SalesVoucher, SalesVoucherViewModel>();
             CreateMap<SalesVoucherViewModel, SalesVoucher>();
 
