@@ -44,6 +44,7 @@ namespace Inspire.Erp.Application.Store.Implementation
         public OpeningStockService(IRepository<AccountsTransactions> accountTransactionRepository, IRepository<ProgramSettings> programsettingsRepository,
             IRepository<VouchersNumbers> voucherNumbers, ILogger<OpeningStockService> logger,
             IRepository<OpeningStock> openingStockRepository, IRepository<StockRegister> stockRegisterRepository,
+             IRepository<OpeningStockVoucher> openingstockVoucherRepository, IRepository<OpeningStockVoucherDetails> openingstockVoucherDetailsRepository,
             IUtilityService utilityService)
         {
             this._accountTransactionRepository = accountTransactionRepository;
@@ -53,6 +54,8 @@ namespace Inspire.Erp.Application.Store.Implementation
             _voucherNumbersRepository = voucherNumbers;
             _logger = logger;
             _utilityService= utilityService;
+            _openingstockVoucherRepository = openingstockVoucherRepository;
+            _openingstockVoucherDetailsRepository = openingstockVoucherDetailsRepository;
 
         }
        

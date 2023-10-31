@@ -17,6 +17,7 @@ namespace Inspire.Erp.Web.ViewModels.Store
 
         public string OpeningStockVoucherVNO { get; set; }
 
+        public bool? OpeningStockVoucherDelStatus { get; set; }
 
         public List<AccountTransactionViewModel> AccountsTransactions { get; set; }
         public List<OpeningStockVoucherDetailsViewModel> OpeningStockVoucherDetails { get; set; }
