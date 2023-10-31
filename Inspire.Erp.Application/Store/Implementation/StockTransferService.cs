@@ -116,7 +116,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 throw;
             }
         }
-        public async Task<bool> InsertStockTransfer(StockTransfer stockTransfer, List<StockTransferDetails> stockTransferDetails
+        public async Task<StockTransferModel> InsertStockTransfer(StockTransfer stockTransfer, List<StockTransferDetails> stockTransferDetails
              , List<StockRegister> stockRegister)
         {
 
@@ -151,9 +151,6 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                     stockTransfer.StockTransferDetails = stockTransferDetails;
 
-
-
-
                     //accountsTransactions = accountsTransactions.Select((k) =>
                     //{
                     //    //k.AccountsTransactionsTransDate = issueVoucher.OpeningStockVoucherDate;
@@ -179,41 +176,29 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                     _StockTransferRepo.Insert(stockTransfer);
                     _StockTransferRepo.TransactionCommit();
-                    //return this.GetSavedOpeningStockVoucherDetails(openstockVoucher.OpeningStockVoucherNo);
-                    return true;
+                    return this.GetSavedStockTransferDetails(stockTransfer.StockTransferVoucherNo);
+                   
 
                 }
                 catch (Exception ex)
                 {
                     _StockTransferRepo.TransactionRollback();
-                    return false;
+                    return null;
                    
                     
                 }
 
                 
             });
-            return false;
 
+            return null;
             //try
             //{
-
-
-
-
-
-
-
-
-
 
             //    List<StockTransferDetails> std = new List<StockTransferDetails>();
             //    List<StockTransfer> st = new List<StockTransfer>();
             //    List<VouchersNumbers> vn = new List<VouchersNumbers>();
             //    List<StockRegister> sr = new List<StockRegister>();
-
-
-
 
             //    await Task.Run(() =>
 
@@ -275,6 +260,23 @@ namespace Inspire.Erp.Application.Store.Implementation
             //    throw ex;
 
             //}
+        }
+
+
+        public StockTransferModel GetSavedStockTransferDetails(string pvno)
+        {
+            StockTransferModel issueVoucherModel = new StockTransferModel();
+            //issueVoucherModel.issueVoucher = _issueVoucherRepository.GetAsQueryable().Where(k => k.IssueVoucherNo == pvno && k.IssueVoucherDelStatus == false).SingleOrDefault();
+
+            issueVoucherModel.stockTransfer = _StockTransferRepo.GetAsQueryable().Where(k => k.StockTransferVoucherNo == pvno).SingleOrDefault();
+
+
+
+           // issueVoucherModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.IssueVoucher_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
+            issueVoucherModel.stockTransferDetails = _StockTransferDetailRepo.GetAsQueryable().Where(x => x.StockTransferDetailsVoucherNo == pvno && (x.StockTransferDetailsDelStatus == false || x.StockTransferDetailsDelStatus == null)).ToList();
+            return issueVoucherModel;
+
+
         }
 
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
@@ -530,7 +532,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
         }
 
-        public async Task<bool> UpdateStockTransfer(StockTransfer stockTransfer, List<StockTransferDetails> stockTransferDetails
+        public async Task<StockTransferModel> UpdateStockTransfer(StockTransfer stockTransfer, List<StockTransferDetails> stockTransferDetails
              , List<StockRegister> stockRegister
     )
         {
@@ -599,21 +601,20 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                     _StockTransferRepo.Insert(stockTransfer);
                     _StockTransferRepo.TransactionCommit();
-                    //return this.GetSavedOpeningStockVoucherDetails(openstockVoucher.OpeningStockVoucherNo);
-                    return true;
+                    return this.GetSavedStockTransferDetails(stockTransfer.StockTransferVoucherNo);
 
                 }
                 catch (Exception ex)
                 {
                     _StockTransferRepo.TransactionRollback();
-                    return false;
+                    return null;
 
 
                 }
 
 
             });
-            return false;
+            return null;
 
 
       

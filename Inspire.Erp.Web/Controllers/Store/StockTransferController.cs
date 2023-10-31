@@ -4,6 +4,7 @@ using Inspire.Erp.Application.StoreWareHouse.Interface;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Domain.Modals;
+
 using Inspire.Erp.Web.Common;
 using Inspire.Erp.Web.MODULE;
 using Inspire.Erp.Web.ViewModels;
@@ -77,25 +78,60 @@ namespace Inspire.Erp.Web.Controllers.Store
 
         [HttpPost]
         [Route("InsertStockTransfer")]
-        public async Task<bool> InsertStockTransfer([FromBody] StockTransferViewModel stockTranfermodel)
+        public async Task<ApiResponse<StockTransferViewModel>> InsertStockTransfer([FromBody] StockTransferViewModel stockTranfermodel)
         {
+            ApiResponse<StockTransferViewModel> apiResponse = new ApiResponse<StockTransferViewModel>();
             try
             {
-                
-                
-                
+
+               
+
                 var param1 = _mapper.Map<StockTransfer>(stockTranfermodel);
                 var param2 = _mapper.Map<List<StockTransferDetails>>(stockTranfermodel.StockTransferDetails);
                 var  param3 = new List<AccountsTransactions>();
                 List<StockRegister> param4 = new List<StockRegister>();
                 clsAccountAndStock.StockTransfer_Accounts_STOCK_Transactions("", "", param1, param2, ref param4);
-                await _st.InsertStockTransfer(param1,param2, param4);
-                return true;
+                var xs = await _st.InsertStockTransfer(param1,param2, param4);
+                StockTransferViewModel openingStockVoucherViewModel = new StockTransferViewModel
+                {
+
+                    StockTransferId = xs.stockTransfer.StockTransferId,
+                    StockTransferVoucherNo = xs.stockTransfer.StockTransferVoucherNo,
+                    StockTransferStDate = xs.stockTransfer.StockTransferStDate,
+                     StockTransferLocationIdFrom= xs.stockTransfer.StockTransferLocationIdFrom,
+     StockTransferLocationIdTo= xs.stockTransfer.StockTransferLocationIdTo,
+     StockTransferFSNo= xs.stockTransfer.StockTransferFSNo,
+        StockTransferStatus= xs.stockTransfer.StockTransferStatus,
+     StockTransferUserId= xs.stockTransfer.StockTransferUserId,
+        StockTransferNarration= xs.stockTransfer.StockTransferNarration,
+     StockTransferJobId= xs.stockTransfer.StockTransferJobId,
+       StockTransferApproved= xs.stockTransfer.StockTransferApproved,
+        StockTransferApprovedBy= xs.stockTransfer.StockTransferApprovedBy,
+       StockTransferApprovedDate= xs.stockTransfer.StockTransferApprovedDate,
+       StockTransferDelStatus= xs.stockTransfer.StockTransferDelStatus,
+
+    };
+
+                openingStockVoucherViewModel.StockTransferDetails = _mapper.Map<List<StockTransferDetailsViewModel>>(xs.stockTransferDetails);
+                //openingStockVoucherViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
+                apiResponse = new ApiResponse<StockTransferViewModel>
+                {
+                    Valid = true,
+                    Result = _mapper.Map<StockTransferViewModel>(openingStockVoucherViewModel),
+                    Message = StockTransferMessage.SaveStockTransfer
+                };
             }
             catch (Exception ex)
             {
-                throw ex;
+                apiResponse = new ApiResponse<StockTransferViewModel>
+                {
+                    Valid = false,
+                    Result = null,
+                    Message = StockTransferMessage.SaveStockTransfer
+                };
             }
+
+            return apiResponse;
         }
 
 
@@ -158,9 +194,9 @@ namespace Inspire.Erp.Web.Controllers.Store
 
         [HttpPost]
         [Route("UpdateStockTransfer")]
-        public async Task<bool> UpdateStockTransfer([FromBody] StockTransferViewModel stockTranfermodel)
+        public async Task<ApiResponse<StockTransferViewModel>> UpdateStockTransfer([FromBody] StockTransferViewModel stockTranfermodel)
         {
-
+            ApiResponse<StockTransferViewModel> apiResponse = new ApiResponse<StockTransferViewModel>();
             try
             {
                 var param1 = _mapper.Map<StockTransfer>(stockTranfermodel);
@@ -176,15 +212,47 @@ namespace Inspire.Erp.Web.Controllers.Store
             List<StockRegister> param4 = new List<StockRegister>();
             clsAccountAndStock.StockTransfer_Accounts_STOCK_Transactions("", "", param1, param2, ref param4);
 
-            await _st.UpdateStockTransfer(param1, param2, param4);
-                //========================
+                var xs = await _st.UpdateStockTransfer(param1, param2, param4);
+                StockTransferViewModel openingStockVoucherViewModel = new StockTransferViewModel
+                {
 
-                return true;
+                    StockTransferId = xs.stockTransfer.StockTransferId,
+                    StockTransferVoucherNo = xs.stockTransfer.StockTransferVoucherNo,
+                    StockTransferStDate = xs.stockTransfer.StockTransferStDate,
+                    StockTransferLocationIdFrom = xs.stockTransfer.StockTransferLocationIdFrom,
+                    StockTransferLocationIdTo = xs.stockTransfer.StockTransferLocationIdTo,
+                    StockTransferFSNo = xs.stockTransfer.StockTransferFSNo,
+                    StockTransferStatus = xs.stockTransfer.StockTransferStatus,
+                    StockTransferUserId = xs.stockTransfer.StockTransferUserId,
+                    StockTransferNarration = xs.stockTransfer.StockTransferNarration,
+                    StockTransferJobId = xs.stockTransfer.StockTransferJobId,
+                    StockTransferApproved = xs.stockTransfer.StockTransferApproved,
+                    StockTransferApprovedBy = xs.stockTransfer.StockTransferApprovedBy,
+                    StockTransferApprovedDate = xs.stockTransfer.StockTransferApprovedDate,
+                    StockTransferDelStatus = xs.stockTransfer.StockTransferDelStatus,
+
+                };
+
+                openingStockVoucherViewModel.StockTransferDetails = _mapper.Map<List<StockTransferDetailsViewModel>>(xs.stockTransferDetails);
+                //openingStockVoucherViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
+                apiResponse = new ApiResponse<StockTransferViewModel>
+                {
+                    Valid = true,
+                    Result = _mapper.Map<StockTransferViewModel>(openingStockVoucherViewModel),
+                    Message = StockTransferMessage.SaveStockTransfer
+                };
             }
             catch (Exception ex)
             {
-                return false;
+                apiResponse = new ApiResponse<StockTransferViewModel>
+                {
+                    Valid = false,
+                    Result = null,
+                    Message = StockTransferMessage.UpdateStockTransfer
+                };
             }
+
+            return apiResponse;
 
         }
 
