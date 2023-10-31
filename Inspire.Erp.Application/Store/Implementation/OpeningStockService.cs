@@ -194,6 +194,13 @@ namespace Inspire.Erp.Application.Store.Implementation
             IEnumerable<OpeningStock> openingStocks = _openingStockRepository.GetAll().Where(k => k.OpeningStockDelStatus == false || k.OpeningStockDelStatus == null);
             return openingStocks;
         }
+
+
+        public IEnumerable<OpeningStockVoucher> GetOpeningStockVouchers()
+        {
+            IEnumerable<OpeningStockVoucher> openingStocks = _openingstockVoucherRepository.GetAll().Where(k => k.OpeningStockVoucherDelStatus == false || k.OpeningStockVoucherDelStatus == null);
+            return openingStocks;
+        }
         public OpeningStockModel GetSavedOPStockDetails(string pvno)
         {
             if (_voucherNumbersRepository.GetAsQueryable().Any(x => x.VouchersNumbersVNo == pvno))

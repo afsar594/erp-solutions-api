@@ -15,6 +15,8 @@ namespace Inspire.Erp.Application.Store.Interfaces
         public IEnumerable<AccountsTransactions> GetAllTransaction();
         public OpeningStockModel GetSavedOPStockDetails(string pvno);
         public IEnumerable<OpeningStock> GetOpeningStocks();
+
+        public IEnumerable<OpeningStockVoucher> GetOpeningStockVouchers();
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
 
         public VouchersNumbers GetVouchersNumbers(string pvno);

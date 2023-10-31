@@ -342,6 +342,21 @@ namespace Inspire.Erp.Web.Controllers.Store
             return apiResponse;
         }
 
+
+        [HttpGet]
+        [Route("GetOpeningStockVouchers")]
+        public ApiResponse<List<OpeningStockVoucher>> GetOpeningStockVouchers()
+        {
+            ApiResponse<List<OpeningStockVoucher>> apiResponse = new ApiResponse<List<OpeningStockVoucher>>
+            {
+                Valid = true,
+                Result = _mapper.Map<List<OpeningStockVoucher>>(_openingStockService.GetOpeningStockVouchers()),
+                Message = ""
+            };
+            return apiResponse;
+        }
+
+
         [HttpGet]
         [Route("GetSavedOPStockDetails/{id}")]
         public ApiResponse<OpeningStockViewModel> GetSavedOPStockDetails(string id)
