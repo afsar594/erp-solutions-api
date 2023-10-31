@@ -443,7 +443,7 @@ namespace Inspire.Erp.Web.Controllers
         public IActionResult GetAllSalesVoucher()
         {
 
-            var item = _salesVoucherService.GetSalesVoucher();
+            //var item = _salesVoucherService.GetSalesVoucher();
             //return Ok(item);
             ApiResponse<List<SalesVoucher>> apiResponse = new ApiResponse<List<SalesVoucher>>
             {
