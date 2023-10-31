@@ -1,4 +1,5 @@
-﻿using Inspire.Erp.Domain.Entities;
+﻿using Inspire.Erp.Application.Common;
+using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Modals;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ namespace Inspire.Erp.Application.Store.Interface
     public interface IStockTransferService
     {
         public Task<List<StockItemResponse>> getStockItemResponse();
-        public Task<bool> InsertStockTransfer(StockTransfer stockTransfer, List<StockTransferDetails> stockTransferDetails
+        public Task<StockTransferModel> InsertStockTransfer(StockTransfer stockTransfer, List<StockTransferDetails> stockTransferDetails
              , List<StockRegister> stockRegister);
         //public Task<bool> deleteStockTransfer(StockTransferRequestModel obj);
 
@@ -18,7 +19,7 @@ namespace Inspire.Erp.Application.Store.Interface
          , List<StockRegister> stockRegister);
         //public Task<bool> UpdateStockTransfer(StockTransferRequestModel obj);
 
-        public Task<bool> UpdateStockTransfer(StockTransfer stockTransfer, List<StockTransferDetails> stockTransferDetails
+        public Task<StockTransferModel> UpdateStockTransfer(StockTransfer stockTransfer, List<StockTransferDetails> stockTransferDetails
             , List<StockRegister> stockRegister);
         public IEnumerable<StockTransferResponseModel> getStockTransferReport();
     }

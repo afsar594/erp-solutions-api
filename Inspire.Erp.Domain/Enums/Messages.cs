@@ -233,6 +233,16 @@ namespace Inspire.Erp.Domain.Enums
       
     }
 
+    public static class StockTransferMessage
+    {
+        public static String SaveStockTransfer { get { return "Stock Transfered successfully"; } }
+        public static string UpdateStockTransfer { get { return "Stock Transfer updated successfully"; } }
+        public static string DeleteStockTransfer { get { return "Stock Transfer deleted successfully"; } }
+        public static string StockTransferAlreadyExist { get { return "StockTransfer is already exist"; } }
+        public static string StockTransferNumberExist { get { return "StockTransfer Number is exist"; } }
+
+    }
+
     public static class ContraVoucherMessage
     {
         public static String SaveVoucher { get { return "Payment Voucher saved successfully"; } }
