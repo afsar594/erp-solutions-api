@@ -444,14 +444,14 @@ namespace Inspire.Erp.Web.Controllers
         {
 
             var item = _salesVoucherService.GetSalesVoucher();
-            return Ok(item);
-            // ApiResponse<List<SalesVoucher>> apiResponse = new ApiResponse<List<SalesVoucher>>
-            // {
-            //     Valid = true,
-            //     Result = _mapper.Map<List<SalesVoucher>>(_salesVoucherService.GetSalesVoucher()),
-            //     Message = ""
-            // };
-            // return apiResponse;
+            //return Ok(item);
+            ApiResponse<List<SalesVoucher>> apiResponse = new ApiResponse<List<SalesVoucher>>
+            {
+                Valid = true,
+                Result = _mapper.Map<List<SalesVoucher>>(_salesVoucherService.GetSalesVoucher()),
+                Message = ""
+            };
+             return Ok( apiResponse);
 
 
 
