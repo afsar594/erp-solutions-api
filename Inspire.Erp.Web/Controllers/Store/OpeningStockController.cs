@@ -358,6 +358,46 @@ namespace Inspire.Erp.Web.Controllers.Store
 
 
         [HttpGet]
+        [Route("GetSavedOpeningStockVoucherDetails/{id}")]
+        public ApiResponse<OpeningStockVoucherViewModel> GetSavedOpeningStockVoucherDetails(string id)
+        {
+            OpeningStockVoucherModel openingstockVoucher = _openingStockService.GetSavedOpeningStockVoucherDetails(id);
+
+            if (openingstockVoucher != null)
+            {
+                OpeningStockVoucherViewModel openingstockVoucherViewModel = new OpeningStockVoucherViewModel
+                {
+
+                OpeningStockVoucherId = openingstockVoucher.openingstockVoucher.OpeningStockVoucherId,
+                OpeningStockVoucherNo = openingstockVoucher.openingstockVoucher.OpeningStockVoucherNo,
+                OpeningStockVoucherDate = openingstockVoucher.openingstockVoucher.OpeningStockVoucherDate,
+                OpeningStockVoucherLocationId = openingstockVoucher.openingstockVoucher.OpeningStockVoucherLocationId,
+
+                OpeningStockVoucherRemarks = openingstockVoucher.openingstockVoucher.OpeningStockVoucherRemarks,
+
+                OpeningStockVoucherFSNO = openingstockVoucher.openingstockVoucher.OpeningStockVoucherFSNO,
+
+                OpeningStockVoucherVNO = openingstockVoucher.openingstockVoucher.OpeningStockVoucherVNO,
+
+                };
+                openingstockVoucherViewModel.OpeningStockVoucherDetails = _mapper.Map<List<OpeningStockVoucherDetailsViewModel>> (openingstockVoucher.openingstockVoucherDetails);
+                openingstockVoucherViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(openingstockVoucher.accountsTransactions);
+                ApiResponse<OpeningStockVoucherViewModel> apiResponse = new ApiResponse<OpeningStockVoucherViewModel>
+                {
+                    Valid = true,
+                    Result = openingstockVoucherViewModel,
+                    Message = ""
+                };
+                return apiResponse;
+            }
+            return null;
+
+
+
+        }
+
+
+        [HttpGet]
         [Route("GetSavedOPStockDetails/{id}")]
         public ApiResponse<OpeningStockViewModel> GetSavedOPStockDetails(string id)
         {

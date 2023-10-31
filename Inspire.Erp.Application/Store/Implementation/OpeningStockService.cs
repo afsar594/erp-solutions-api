@@ -201,6 +201,9 @@ namespace Inspire.Erp.Application.Store.Implementation
             IEnumerable<OpeningStockVoucher> openingStocks = _openingstockVoucherRepository.GetAll().Where(k => k.OpeningStockVoucherDelStatus == false || k.OpeningStockVoucherDelStatus == null);
             return openingStocks;
         }
+
+
+    
         public OpeningStockModel GetSavedOPStockDetails(string pvno)
         {
             if (_voucherNumbersRepository.GetAsQueryable().Any(x => x.VouchersNumbersVNo == pvno))
@@ -474,6 +477,22 @@ namespace Inspire.Erp.Application.Store.Implementation
         }
 
 
+
+        //public OpeningStockVoucherModel GetSavedOpeningStockVoucherDetails(string pvno)
+        //{
+        //    OpeningStockVoucherModel openstockVoucherModel = new OpeningStockVoucherModel();
+        //    //issueVoucherModel.issueVoucher = _issueVoucherRepository.GetAsQueryable().Where(k => k.IssueVoucherNo == pvno && k.IssueVoucherDelStatus == false).SingleOrDefault();
+
+        //    openstockVoucherModel.openingstockVoucher = _openingstockVoucherRepository.GetAsQueryable().Where(k => k.OpeningStockVoucherNo == pvno).SingleOrDefault();
+
+
+
+        //    openstockVoucherModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.IssueVoucher_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
+        //    openstockVoucherModel.openingstockVoucherDetails = _openingstockVoucherDetailsRepository.GetAsQueryable().Where(x => x.OpeningStockVoucherDetailsNo == pvno && (x.OpeningStockVoucherDetailsDelStatus == false || x.OpeningStockVoucherDetailsDelStatus == null)).ToList();
+        //    return openstockVoucherModel;
+
+
+        //}
         public OpeningStockVoucherModel GetSavedOpeningStockVoucherDetails(string pvno)
         {
             OpeningStockVoucherModel openingstockVoucherModel = new OpeningStockVoucherModel();
