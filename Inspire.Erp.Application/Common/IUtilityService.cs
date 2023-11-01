@@ -18,5 +18,9 @@ namespace Inspire.Erp.Application.Common
         Task<Response<bool>> SaveAccountTransaction(AccountsTransactions model);
         Task<Response<List<ItemMaster>>> GetItemMaster();
         Task<Response<bool>> SaveMasterAccountTable(MasterAccountsTable model);
+
+        Task<decimal> GetBasicUnitConversion(int? ItemId, int? UnitId);
+
+        Task<decimal> GetStockQuantity(long? itemId, int? locationId);
     }
 }

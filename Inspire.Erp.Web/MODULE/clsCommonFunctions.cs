@@ -15,7 +15,7 @@ namespace Inspire.Erp.Web.MODULE
        string StockRegisterTransType,
         DateTime StockRegisterVoucherDate,
        string StockRegisterRemarks,
-       decimal? StockRegisterSno,
+       int? StockRegisterSno,
          int? StockRegisterMaterialId,
        int? StockRegisterUnitID,
        decimal? StockRegisterQuantity,

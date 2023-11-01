@@ -40,6 +40,21 @@ namespace Inspire.Erp.Application.Settings.Implementations
             return optionsSettings;
         }
 
+        public bool ImportOptionsSettingsFromFile(List<OptionsMaster> optionsSettings)
+        {
+            try
+            {
+                if (optionsSettings.Count > 0)
+                {
+                    _optionsSettingsRepo.InsertList(optionsSettings);
+                }
+                return true;
+            }catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
         public Boolean updateOptionsSettings(List<OptionsMaster> optionsSettings)
         {
             try

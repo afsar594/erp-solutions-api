@@ -162,15 +162,15 @@ namespace Inspire.Erp.Application
             services.AddScoped<IApprovalService, ApprovalService>();
 
             services.AddScoped<IVoucherAllocationService, VoucherAllocationService>();
-            services.AddScoped<IStockTransfer, StockTransferImp>();
+            services.AddScoped<IStockTransferService, StockTransferService>();
             //services.AddScoped<IUser, UserService>();
             services.AddScoped<ICustomerSalesOrderService, CustomerSalesOrderService>();
 
             services.AddScoped<IPurchaseReturnService, PurchaseReturnService>();
-            //services.AddScoped<IStationmasterService, StationmasterService>();
+            services.AddScoped<IOpeningStockService, OpeningStockService>();
 
             services.AddScoped<ISalesVoucherService, SalesVoucherService>();
-            //services.AddScoped<IStockMovementService, StockMovementService>();
+           services.AddScoped<IStockService, StockService>();
 
             #region Reports
             //trial Balance 

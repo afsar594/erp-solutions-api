@@ -9,12 +9,14 @@ using Inspire.Erp.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using NPOI.HPSF;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using OfficeOpenXml;
 
 namespace Inspire.Erp.Web.Controllers
 {
+
     [ApiController]
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
@@ -209,7 +211,7 @@ namespace Inspire.Erp.Web.Controllers
 
             return Ok(true);
         }
-
+ 
         [HttpGet]
         [Route("excelprint")]
         public async Task<IActionResult> DemoExcelPrint()

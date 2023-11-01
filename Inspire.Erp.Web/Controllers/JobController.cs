@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -158,6 +159,44 @@ namespace Inspire.Erp.Web.Controllers
 
             }).ToList();
         }
+        [HttpPost]
+        [Route("readpdffile")]
+        public async Task<IActionResult> PostPdfFile()
+        {
+            List<string> uploadedFiles = new List<string>();
+            var files = Request.Form.Files;
 
+            if (files.Count == 0)
+                return Content("File Not Selected");
+
+            foreach (var file in files)
+            {
+                Random rn = new Random();
+                int count = rn.Next(1111,9999);
+                var fileName = count + file.FileName;
+                
+                //string fileExtension = Path.GetExtension(file.FileName);
+                //var pathBuilt = Path.Combine(Directory.GetCurrentDirectory() ,"Upload\\Pdfs");
+
+                //if (!Directory.Exists(pathBuilt))
+                //{
+                //    Directory.CreateDirectory(pathBuilt);
+                //}
+
+                var path = Path.Combine(Directory.GetCurrentDirectory(), "Upload/Pdfs/",
+                   fileName);
+
+                using (var stream = new FileStream(path, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+                //JobDocuments jobDocuments = new JobDocuments();
+                //jobDocuments.JobDocumentName = "/Upload/Pdfs/" + fileName;
+                //jobMasterService.SaveJobDocument(jobDocuments);
+            }
+
+
+            return Ok(true);
+        }
     }
 }

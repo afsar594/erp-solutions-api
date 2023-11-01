@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Inspire.Erp.Application.Master.Interfaces;
 using Inspire.Erp.Application.Procurement.Interfaces;
 using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Modals.Common;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Inspire.Erp.Web.Controllers
@@ -100,6 +101,12 @@ namespace Inspire.Erp.Web.Controllers
             {
                 return StatusCode(500, ex.Message.ToString());
             }
+        }
+
+        [HttpPost("GetPurchaseVoucherReport")]
+        public async Task<IActionResult> GetPurchaseVoucherReport(GenericGridViewModel model)
+        {
+            return Ok(await _service.GetPurchaseVoucherReport(model));
         }
     }
 }

@@ -63,6 +63,18 @@ namespace Inspire.Erp.Web.Controllers.Settings
             };
             return apiResponse;
         }
+
+
+
+        [HttpPost]
+        [Route("ImportOptionSettingsFromFile")]
+        public IActionResult ImportOptionSettingsFromFile()
+        {
+            ReadingFiles<OptionsMaster> readingFiles = new ReadingFiles<OptionsMaster>();
+            var options = readingFiles.ReadFile("OptionsSettings.json");
+            bool result = _optionsSvc.ImportOptionsSettingsFromFile(options);
+            return Ok(result);
+        }
     }
 }
 

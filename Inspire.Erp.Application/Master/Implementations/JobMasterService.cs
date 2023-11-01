@@ -1,4 +1,6 @@
-﻿using Inspire.Erp.Domain.Entities;
+﻿using Inspire.Erp.Domain.DTO.Job_Master;
+using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Infrastructure.Database;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -16,19 +18,23 @@ namespace Inspire.Erp.Application.Master
         private IRepository<JobMasterBudgetDetails> jobbudgetRepository;
         private IRepository<JobMasterJobDetails> jobdetailsRepository;
         private IRepository<JobMasterJobWiseBankGuarantees> jobBankGuaruRepository;
-        private IRepository<AccountsTransactions> accountsTransactionsRepository;
+        private IRepository<JobDocuments> jobDocumentsRepository;
 
+        private IRepository<AccountsTransactions> accountsTransactionsRepository;
+        private readonly InspireErpDBContext context;
         public JobMasterService(IRepository<JobMaster> _jobrepository,
             IRepository<JobMasterBudgetDetails> _jobbudgetRepository,
             IRepository<JobMasterJobDetails> _jobdetailsRepository,
             IRepository<JobMasterJobWiseBankGuarantees> _jobBankGuaruRepository,
-            IRepository<AccountsTransactions> _accountsTransactionsRepository)
+            IRepository<AccountsTransactions> _accountsTransactionsRepository,
+            InspireErpDBContext _context)
         {
             jobrepository = _jobrepository;
             jobbudgetRepository = _jobbudgetRepository;
             jobdetailsRepository = _jobdetailsRepository;
             jobBankGuaruRepository = _jobBankGuaruRepository;
             accountsTransactionsRepository = _accountsTransactionsRepository;
+            context = _context;
         }
         //public IEnumerable<JobMaster> InsertJob(JobMaster jobMaster)
         //{
@@ -145,8 +151,7 @@ namespace Inspire.Erp.Application.Master
                 if (jobId == null) { jobId = 1; } else { jobId = jobId + 1; }
 
                 jobMaster.JobMasterJobId = jobId;
-                jobrepository.Insert(jobMaster);
-
+              
                 jobMasterBudgetDetails.Select((x) =>
                 {
                     x.JobMasterBudgetDetailsJobId = jobId;
@@ -168,6 +173,8 @@ namespace Inspire.Erp.Application.Master
                 }).ToList();
 
                 jobBankGuaruRepository.InsertList(jobMasterJobWiseBankGuarantees);
+                jobrepository.Insert(jobMaster);
+
                 return this.GetSavedJobMasterDetails(jobMaster.JobMasterJobNo);
             }
             catch (Exception ex)
@@ -184,14 +191,6 @@ namespace Inspire.Erp.Application.Master
             {
                 jobrepository.Update(jobMaster);
                 
-                //jobbudgetRepository.UpdateList(jobMasterBudgetDetails);
-
-              
-                //jobdetailsRepository.UpdateList(jobMasterJobDetails);
-
-            
-               // jobBankGuaruRepository.UpdateList(jobMasterJobWiseBankGuarantees);
-
                 return this.GetSavedJobMasterDetails(jobMaster.JobMasterJobNo);
                 
             }
@@ -210,9 +209,34 @@ namespace Inspire.Erp.Application.Master
                 jobMasterData.JobMasterJobDetails = jobdetailsRepository.GetAll().Where(x => x.JobMasterNo == jbno && x.JobMasterJobDetailsDelStatus == false).ToList();
                 jobMasterData.JobMasterJobWiseBankGuarantees = jobBankGuaruRepository.GetAll().Where(x => x.JobMasterNo == jbno && x.JobMasterJobWiseBankGuaranteesDelStatus == false).ToList();
                 jobMasterData.AccountsTransactions = accountsTransactionsRepository.GetAll().Where(x => x.AccountsTransactionsJobNo == jobMasterData.JobMasterJobId).ToList();
+                
+                jobMasterData.JobMasterExpenses =
+                                       (from at in context.AccountsTransactions
+                                       join mat in context.MasterAccountsTable on at.AccountsTransactionsAccNo equals mat.MaAccNo
+                                       join cos in context.CostCenterMaster on at.AccountsTransactionsCostCenterId equals cos.CostCenterMasterCostCenterId
+                                       where (mat.MaMainHead == "Expenses" && at.AccountsTransactionsJobNo == jobMasterData.JobMasterJobId && at.AccountstransactionsDelStatus == false)
+                                       select new JobMasterExpenseDto {
+
+                                           accNo  = at.AccountsTransactionsAccNo,
+                                           accName = mat.MaAccName,
+                                           Description = at.AccountsTransactionsDescription,
+                                           VoucherNo = at.AccountsTransactionsVoucherNo,
+                                           VoucherType = at.AccountsTransactionsVoucherType,
+                                           transDate = at.AccountsTransactionsTransDate,
+                                           Chq_Date = at.AccountsTransactionsCheqDate,
+                                           Chq_No = at.AccountsTransactionsCheqNo,
+                                           CrAmt = at.AccountsTransactionsCredit,
+                                           DrAmt = at.AccountsTransactionsDebit,
+                                           CostName = cos.CostCenterMasterCostCenterName
+                                       }).ToList();
                 return jobMasterData;
             }
             return null;
+        }
+
+        public void SaveJobDocument(JobDocuments jobDocumnet)
+        {
+            jobDocumentsRepository.Insert(jobDocumnet);
         }
     }
 }

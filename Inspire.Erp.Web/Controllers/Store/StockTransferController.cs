@@ -1,0 +1,260 @@
+﻿using AutoMapper;
+using Inspire.Erp.Application.Store.Interface;
+using Inspire.Erp.Application.StoreWareHouse.Interface;
+using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Domain.Modals;
+
+using Inspire.Erp.Web.Common;
+using Inspire.Erp.Web.MODULE;
+using Inspire.Erp.Web.ViewModels;
+using Inspire.Erp.Web.ViewModels.Store;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace Inspire.Erp.Web.Controllers.Store
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class StockTransferController : ControllerBase
+    {
+        private IStockTransferService _st;
+        private readonly IMapper _mapper;
+        public StockTransferController(IStockTransferService st, IMapper mapper)
+        {
+            _st = st;
+            _mapper = mapper;
+        }
+        /// <summary>
+        /// Need to replace SP getStockItemsList by LINQ see from the vb.code and load it according to the reposnse 
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("getStockItemsList")]
+        public async Task<ApiResponse<List<StockItemResponse>>> getStockItemsList()
+        {
+            try
+            {
+                List<StockItemResponse> list =await _st.getStockItemResponse();
+                ApiResponse<List<StockItemResponse>> response = new ApiResponse<List<StockItemResponse>>()
+                {
+                    Result = list,
+                    Message = "Ok"
+                };
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        /// <summary>
+        ///  Need to replace SP getStockTransferReport by LINQ see from the vb.code and load it according to the reposnse  
+        /// </summary>
+        /// <returns></returns>
+        //[HttpGet("getStockTransferReport")]
+        //public async Task<ApiResponse<List<StockTransferResponseModel>>> getStockTransferReport()
+        //{
+        //    try
+        //    {
+        //        ApiResponse<List<StockTransferResponseModel>> response = new ApiResponse<List<StockTransferResponseModel>>()
+        //        {
+        //            Result = _st.getStockTransferReport().ToList(),
+        //            Message = "Ok"
+        //        };
+        //        return response;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
+
+
+
+
+        [HttpPost]
+        [Route("InsertStockTransfer")]
+        public async Task<ApiResponse<StockTransferViewModel>> InsertStockTransfer([FromBody] StockTransferViewModel stockTranfermodel)
+        {
+            ApiResponse<StockTransferViewModel> apiResponse = new ApiResponse<StockTransferViewModel>();
+            try
+            {
+
+               
+
+                var param1 = _mapper.Map<StockTransfer>(stockTranfermodel);
+                var param2 = _mapper.Map<List<StockTransferDetails>>(stockTranfermodel.StockTransferDetails);
+                var  param3 = new List<AccountsTransactions>();
+                List<StockRegister> param4 = new List<StockRegister>();
+                clsAccountAndStock.StockTransfer_Accounts_STOCK_Transactions("", "", param1, param2, ref param4);
+                var xs = await _st.InsertStockTransfer(param1,param2, param4);
+                StockTransferViewModel openingStockVoucherViewModel = new StockTransferViewModel
+                {
+
+                    StockTransferId = xs.stockTransfer.StockTransferId,
+                    StockTransferVoucherNo = xs.stockTransfer.StockTransferVoucherNo,
+                    StockTransferStDate = xs.stockTransfer.StockTransferStDate,
+                     StockTransferLocationIdFrom= xs.stockTransfer.StockTransferLocationIdFrom,
+     StockTransferLocationIdTo= xs.stockTransfer.StockTransferLocationIdTo,
+     StockTransferFSNo= xs.stockTransfer.StockTransferFSNo,
+        StockTransferStatus= xs.stockTransfer.StockTransferStatus,
+     StockTransferUserId= xs.stockTransfer.StockTransferUserId,
+        StockTransferNarration= xs.stockTransfer.StockTransferNarration,
+     StockTransferJobId= xs.stockTransfer.StockTransferJobId,
+       StockTransferApproved= xs.stockTransfer.StockTransferApproved,
+        StockTransferApprovedBy= xs.stockTransfer.StockTransferApprovedBy,
+       StockTransferApprovedDate= xs.stockTransfer.StockTransferApprovedDate,
+       StockTransferDelStatus= xs.stockTransfer.StockTransferDelStatus,
+
+    };
+
+                openingStockVoucherViewModel.StockTransferDetails = _mapper.Map<List<StockTransferDetailsViewModel>>(xs.stockTransferDetails);
+                //openingStockVoucherViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
+                apiResponse = new ApiResponse<StockTransferViewModel>
+                {
+                    Valid = true,
+                    Result = _mapper.Map<StockTransferViewModel>(openingStockVoucherViewModel),
+                    Message = StockTransferMessage.SaveStockTransfer
+                };
+            }
+            catch (Exception ex)
+            {
+                apiResponse = new ApiResponse<StockTransferViewModel>
+                {
+                    Valid = false,
+                    Result = null,
+                    Message = StockTransferMessage.SaveStockTransfer
+                };
+            }
+
+            return apiResponse;
+        }
+
+
+        [HttpPost]
+        [Route("DeleteStockTransfer")]
+        public async Task<bool> DeleteStockTransfer([FromBody] StockTransferViewModel stockTranfermodel)
+        {
+            try
+            {
+                var param1 = _mapper.Map<StockTransfer>(stockTranfermodel);
+            var param2 = _mapper.Map<List<StockTransferDetails>>(stockTranfermodel.StockTransferDetails);
+
+   
+
+                //==============
+               var  param3 = new List<AccountsTransactions>();
+                List<StockRegister> param4 = new List<StockRegister>();
+
+                var result= await _st.DeleteStockTransfer(param1, param2
+               , param4
+               );
+            return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        //[HttpPost("deleteStockTransfer")]
+        //public async Task<bool> deleteStockTransfer(StockTransferRequestModel obj)
+        //{
+        //    try
+        //    {
+        //        await _st.deleteStockTransfer(obj);
+        //        return true;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
+        //[HttpPost("UpdateStockTransfer")]
+        //public async Task<bool> UpdateStockTransfer(StockTransferRequestModel obj)
+        //{
+        //    try
+        //    {
+        //        await _st.UpdateStockTransfer(obj);
+        //        return true;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
+
+
+
+
+        [HttpPost]
+        [Route("UpdateStockTransfer")]
+        public async Task<ApiResponse<StockTransferViewModel>> UpdateStockTransfer([FromBody] StockTransferViewModel stockTranfermodel)
+        {
+            ApiResponse<StockTransferViewModel> apiResponse = new ApiResponse<StockTransferViewModel>();
+            try
+            {
+                var param1 = _mapper.Map<StockTransfer>(stockTranfermodel);
+            var param2 = _mapper.Map<List<StockTransferDetails>>(stockTranfermodel.StockTransferDetails);
+           // var param3 = _mapper.Map<List<AccountsTransactions>>(stockTranfermodel.AccountsTransactions);
+            //List<StockRegister> param4 = new List<StockRegister>();
+            //var xs = _issueVoucherService.UpdateIssueVoucher(param1, param3, param2
+            //    , param4
+            //    );
+
+            //==============
+            //param3 = new List<AccountsTransactions>();
+            List<StockRegister> param4 = new List<StockRegister>();
+            clsAccountAndStock.StockTransfer_Accounts_STOCK_Transactions("", "", param1, param2, ref param4);
+
+                var xs = await _st.UpdateStockTransfer(param1, param2, param4);
+                StockTransferViewModel openingStockVoucherViewModel = new StockTransferViewModel
+                {
+
+                    StockTransferId = xs.stockTransfer.StockTransferId,
+                    StockTransferVoucherNo = xs.stockTransfer.StockTransferVoucherNo,
+                    StockTransferStDate = xs.stockTransfer.StockTransferStDate,
+                    StockTransferLocationIdFrom = xs.stockTransfer.StockTransferLocationIdFrom,
+                    StockTransferLocationIdTo = xs.stockTransfer.StockTransferLocationIdTo,
+                    StockTransferFSNo = xs.stockTransfer.StockTransferFSNo,
+                    StockTransferStatus = xs.stockTransfer.StockTransferStatus,
+                    StockTransferUserId = xs.stockTransfer.StockTransferUserId,
+                    StockTransferNarration = xs.stockTransfer.StockTransferNarration,
+                    StockTransferJobId = xs.stockTransfer.StockTransferJobId,
+                    StockTransferApproved = xs.stockTransfer.StockTransferApproved,
+                    StockTransferApprovedBy = xs.stockTransfer.StockTransferApprovedBy,
+                    StockTransferApprovedDate = xs.stockTransfer.StockTransferApprovedDate,
+                    StockTransferDelStatus = xs.stockTransfer.StockTransferDelStatus,
+
+                };
+
+                openingStockVoucherViewModel.StockTransferDetails = _mapper.Map<List<StockTransferDetailsViewModel>>(xs.stockTransferDetails);
+                //openingStockVoucherViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
+                apiResponse = new ApiResponse<StockTransferViewModel>
+                {
+                    Valid = true,
+                    Result = _mapper.Map<StockTransferViewModel>(openingStockVoucherViewModel),
+                    Message = StockTransferMessage.SaveStockTransfer
+                };
+            }
+            catch (Exception ex)
+            {
+                apiResponse = new ApiResponse<StockTransferViewModel>
+                {
+                    Valid = false,
+                    Result = null,
+                    Message = StockTransferMessage.UpdateStockTransfer
+                };
+            }
+
+            return apiResponse;
+
+        }
+
+    }
+}

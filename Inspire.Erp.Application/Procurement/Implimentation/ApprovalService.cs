@@ -67,7 +67,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     PurchaseOrderDate = x.PurchaseOrderDate,
                     // sup = _supplierMaster.GetAsQueryable().FirstOrDefault(c => c.SuppliersMasterSupplierId == x.purchaseOrderSupplierId) != null ?
                     // _supplierMaster.GetAsQueryable().FirstOrDefault(c => c.SuppliersMasterSupplierId == x.purchaseOrderSupplierId).SuppliersMasterSupplierName : "",
-                    purchaseOrderJobName = _jobMaster.GetAsQueryable().FirstOrDefault(c => c.JobMasterJobId == x.PurchaseOrderJobId) != null ?
+                    PurchaseOrderJobName = _jobMaster.GetAsQueryable().FirstOrDefault(c => c.JobMasterJobId == x.PurchaseOrderJobId) != null ?
                     _jobMaster.GetAsQueryable().FirstOrDefault(c => c.JobMasterJobId == x.PurchaseOrderJobId).JobMasterJobName : "",
                     PurchaseOrderNetAmount = x.PurchaseOrderNetAmount,
                     PurchaseOrderTotalActualAmount = x.PurchaseOrderTotalActualAmount,

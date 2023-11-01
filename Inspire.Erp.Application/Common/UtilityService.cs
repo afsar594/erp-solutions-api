@@ -1,4 +1,5 @@
-﻿using Inspire.Erp.Domain.Entities;
+﻿using DinkToPdf;
+using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
@@ -20,9 +21,12 @@ namespace Inspire.Erp.Application.Common
         private readonly IRepository<AccountsTransactions> _accountTransaction;
         private readonly IRepository<MasterAccountsTable> _masterAccountTable;
         private readonly IRepository<ItemMaster> _itemMaster;
+
+        private readonly IRepository<UnitDetails> _unitDetail;
+        private readonly IRepository<StockRegister> _stockRegister;
         public UtilityService(IRepository<UserTracking> activityLog, IRepository<FinancialPeriods> financialPeriods,
              IRepository<AccountsTransactions> accountTransaction, IRepository<MasterAccountsTable> masterAccountTable,
-            IRepository<VouchersNumbers> voucherNumber, IRepository<ItemMaster> itemMaster)
+            IRepository<VouchersNumbers> voucherNumber, IRepository<StockRegister> stockRegister, IRepository<ItemMaster> itemMaster)
         {
             _activityLog = activityLog;
             _itemMaster = itemMaster;
@@ -30,6 +34,7 @@ namespace Inspire.Erp.Application.Common
             _accountTransaction = accountTransaction;
             _financialPeriods = financialPeriods;
             _masterAccountTable = masterAccountTable;
+            _stockRegister=stockRegister;
         }
         public string ConvertNumbertoWords(int number)
         {
@@ -277,6 +282,44 @@ namespace Inspire.Erp.Application.Common
                 return Response<bool>.Fail(false, ex.Message);
             }
         }
+
+
+        public async Task<decimal> GetBasicUnitConversion(int? itemId, int? unitId)
+        {
+            try
+            {
+                
+               
+                var unitDetails = await _unitDetail.GetAsQueryable().Where(x => x.UnitDetailsItemId == (Int64)itemId && x.UnitDetailsUnitId== unitId).FirstOrDefaultAsync();
+                
+                return Convert.ToDecimal(unitDetails.UnitDetailsConversionType);
+            }
+            catch (Exception ex)
+            {
+
+                return 1;
+            }
+        }
+
+
+        public async Task<decimal> GetStockQuantity(long? itemId, int? locationId)
+        {
+            try
+            {
+
+
+                var result = await _stockRegister.GetAsQueryable().Where(x => x.StockRegisterMaterialID == (Int64)itemId && locationId==null || x.StockRegisterLocationID==locationId).SumAsync(y=>(y.StockRegisterSIN-y.StockRegisterSout));
+
+                return Convert.ToDecimal(result);
+            }
+            catch (Exception ex)
+            {
+
+                return 1;
+            }
+        }
+
+
 
     }
 }

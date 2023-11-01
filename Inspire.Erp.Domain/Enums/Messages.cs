@@ -211,6 +211,16 @@ namespace Inspire.Erp.Domain.Enums
         public static string VoucherNumberExist { get { return "Voucher Number is exist"; } }
     }
 
+    public static class OpeningStockVoucherMessage
+    {
+        public static String SaveVoucher { get { return "OpeningStock Voucher saved successfully"; } }
+        public static string UpdateVoucher { get { return "OpeningStock Voucher updated successfully"; } }
+        public static string DeleteVoucher { get { return "OpeningStock Voucher updated successfully"; } }
+        public static string VoucherAlreadyExist { get { return "OpeningStock Voucher is already exist"; } }
+        public static string VoucherNumberExist { get { return "Voucher Number is exist"; } }
+    }
+
+
 
 
     public static class IssueReturnMessage
@@ -221,6 +231,16 @@ namespace Inspire.Erp.Domain.Enums
         public static string VoucherAlreadyExist { get { return "Issue Return is already exist"; } }
         public static string VoucherNumberExist { get { return "Voucher Number is exist"; } }
       
+    }
+
+    public static class StockTransferMessage
+    {
+        public static String SaveStockTransfer { get { return "Stock Transfered successfully"; } }
+        public static string UpdateStockTransfer { get { return "Stock Transfer updated successfully"; } }
+        public static string DeleteStockTransfer { get { return "Stock Transfer deleted successfully"; } }
+        public static string StockTransferAlreadyExist { get { return "StockTransfer is already exist"; } }
+        public static string StockTransferNumberExist { get { return "StockTransfer Number is exist"; } }
+
     }
 
     public static class ContraVoucherMessage
@@ -249,6 +269,16 @@ namespace Inspire.Erp.Domain.Enums
         public static String SaveFailed { get { return "Account Item save failed"; } }
         public static string UpdateFailed { get { return "Account Item update failed"; } }
         public static string DeleteFailed { get { return "Account Item delete failed"; } }
+    }
+    public static class JobMasterMessage
+    {
+        public static String SaveJob{ get { return "Job saved successfully"; } }
+        public static string UpdateJob { get { return "Job updated sucessfully"; } } 
+        public static string DeleteJob { get { return "Job deleted sucessfully"; } }
+
+        public static String SaveFailed { get { return "Job Item save failed"; } }
+        public static string UpdateFailed { get { return "Job Item update failed"; } }
+        public static string DeleteFailed { get { return "Job Item delete failed"; } }
     }
 
 }

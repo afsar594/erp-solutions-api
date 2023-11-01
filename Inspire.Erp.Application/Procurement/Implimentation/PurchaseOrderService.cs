@@ -102,7 +102,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 _purchaseOrderRepository.BeginTransaction();
 
 
-                purchaseOrder.purchaseOrderDetails = purchaseOrderDetails.Select((k) =>
+                purchaseOrder.PurchaseOrderDetails = purchaseOrderDetails.Select((k) =>
                 ////purchaseOrder.PurchaseOrderDetailsPurchaseOrder = purchaseOrderDetails.Select((k) =>
                 {
                     //if (k.PurchaseOrderDetailsId == 0)
@@ -204,7 +204,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
 
 
-                purchaseOrder.purchaseOrderDetails = purchaseOrderDetails;
+                purchaseOrder.PurchaseOrderDetails = purchaseOrderDetails;
                 ////purchaseOrder.PurchaseOrderDetailsPurchaseOrder = purchaseOrderDetails;
 
 

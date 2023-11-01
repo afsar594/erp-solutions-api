@@ -10,5 +10,7 @@ namespace Inspire.Erp.Application.Settings.Interfaces
         IEnumerable<OptionsMaster> GetOptionsSettings(string search);
         IEnumerable<OptionsMaster> GetOptionsSettingsbyKey(string key);
         Boolean updateOptionsSettings(List<OptionsMaster> optionsSettings);
+        Boolean ImportOptionsSettingsFromFile(List<OptionsMaster> optionsSettings);
+        
     }
 }

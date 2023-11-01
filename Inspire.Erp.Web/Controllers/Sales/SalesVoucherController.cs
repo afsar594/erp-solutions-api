@@ -16,11 +16,7 @@ using Inspire.Erp.Web.Common;
 using Inspire.Erp.Web.MODULE;
 
 using Microsoft.AspNetCore.Mvc.Rendering;
-
-
-
-
-
+using Inspire.Erp.WebReport.ReportEngine;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -447,15 +443,15 @@ namespace Inspire.Erp.Web.Controllers
         public IActionResult GetAllSalesVoucher()
         {
 
-            var item = _salesVoucherService.GetSalesVoucher();
-            return Ok(item);
-            // ApiResponse<List<SalesVoucher>> apiResponse = new ApiResponse<List<SalesVoucher>>
-            // {
-            //     Valid = true,
-            //     Result = _mapper.Map<List<SalesVoucher>>(_salesVoucherService.GetSalesVoucher()),
-            //     Message = ""
-            // };
-            // return apiResponse;
+            //var item = _salesVoucherService.GetSalesVoucher();
+            //return Ok(item);
+            ApiResponse<List<SalesVoucher>> apiResponse = new ApiResponse<List<SalesVoucher>>
+            {
+                Valid = true,
+                Result = _mapper.Map<List<SalesVoucher>>(_salesVoucherService.GetSalesVoucher()),
+                Message = ""
+            };
+             return Ok( apiResponse);
 
 
 
@@ -567,6 +563,7 @@ namespace Inspire.Erp.Web.Controllers
             return apiResponse;
         }
 
+       
 
 
     }

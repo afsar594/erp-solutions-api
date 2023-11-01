@@ -1,10 +1,14 @@
-﻿using Inspire.Erp.WebReport.Models;
+﻿using CrystalDecisions.CrystalReports.Engine;
+using CrystalDecisions.Shared;
+using Inspire.Erp.WebReport.Models;
 using Inspire.Erp.WebReport.ReportEngine;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Web;
 using System.Web.Http;
 
 namespace Inspire.Erp.WebReport.Controllers
@@ -76,5 +80,11 @@ namespace Inspire.Erp.WebReport.Controllers
 
             return string.IsNullOrEmpty(errorMessage) ? "Success" : errorMessage;
         }
+
+
+
+
+
+     
     }
 }
