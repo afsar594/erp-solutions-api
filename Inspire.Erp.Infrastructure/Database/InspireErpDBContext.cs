@@ -817,8 +817,8 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<AllocationVoucher>(entity =>
             {
-                entity.HasNoKey();
-
+                entity.HasKey(x=>x.AllocationVoucherId);
+           
                 entity.ToTable("Allocation_Voucher");
 
                 entity.Property(e => e.AllocationVoucherAvStatus)
@@ -884,7 +884,9 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<AllocationVoucherDetails>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(x=>x.AllocationVoucherDetailsId);
+
+              
 
                 entity.ToTable("Allocation_Voucher_Details");
 
@@ -903,7 +905,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.AllocationVoucherDetailsFcAllocDebit).HasColumnName("Allocation_Voucher_Details_FC_Alloc_Debit");
 
-                entity.Property(e => e.AllocationVoucherDetailsId).HasColumnName("Allocation_Voucher_Details_ID");
+                entity.Property(e => e.AllocationVoucherDetailsId).HasColumnName("Allocation_Voucher_Details_ID").ValueGeneratedOnAdd();
 
                 entity.Property(e => e.AllocationVoucherDetailsRefFsno).HasColumnName("Allocation_Voucher_Details_Ref_FSNO");
 
@@ -920,8 +922,7 @@ namespace Inspire.Erp.Infrastructure.Database
                     .IsUnicode(false);
 
                 entity.Property(e => e.AllocationVoucherDetailsSno)
-                    .HasColumnName("Allocation_Voucher_Details_SNO")
-                    .ValueGeneratedOnAdd();
+                    .HasColumnName("Allocation_Voucher_Details_SNO");
 
                 entity.Property(e => e.AllocationVoucherDetailsTransSno).HasColumnName("Allocation_Voucher_Details_TransSno");
 
@@ -935,6 +936,11 @@ namespace Inspire.Erp.Infrastructure.Database
                     .IsUnicode(false);
 
                 entity.Property(e => e.AllocationVoucherDetailsVtype).HasColumnName("Allocation_Voucher_Details_Vtype");
+                entity.HasOne(d => d.AllocationVoucher)
+                  .WithMany(p => p.VoucherAllocationDetails)
+                  .HasPrincipalKey(p => p.AllocationVoucherId)
+                  .HasForeignKey(d => d.AllocationVoucherDetailsSno)
+                  .HasConstraintName("FK_Allocation_Voucher_Details");
             });
 
             modelBuilder.Entity<AssetDepDetails>(entity =>
