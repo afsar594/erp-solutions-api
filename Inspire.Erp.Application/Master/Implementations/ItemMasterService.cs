@@ -186,7 +186,7 @@ namespace Inspire.Erp.Application.Master
                     ItemMasterItemId = k.ItemMasterItemId,
                     ItemMasterItemName = k.ItemMasterItemName
 
-                }); ;
+                });
 
             }
             catch (Exception ex)

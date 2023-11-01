@@ -23315,7 +23315,9 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<UserTracking>(entity =>
             {
-                entity.HasNoKey();
+                //entity.HasNoKey();
+                entity.HasKey(e => e.UserTrackingUserNo)
+                   .HasName("User_Tracking_User_No");
 
                 entity.ToTable("User_Tracking");
 

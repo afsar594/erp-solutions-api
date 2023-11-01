@@ -47,6 +47,11 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 _customerQuotationRepository.BeginTransaction();
 
                 _customerQuotationRepository.Update(customerQuotation);
+
+                customerQuotationDetails.ForEach(x =>
+                {
+                    x.CustomerQuotationDetailsQuotationId = customerQuotation.CustomerQuotationQuotationId;
+                });
                 _customerQuotationDetailsRepository.UpdateList(customerQuotationDetails);
 
 
