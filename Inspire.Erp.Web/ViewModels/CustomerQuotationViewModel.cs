@@ -7,9 +7,6 @@ namespace Inspire.Erp.Web.ViewModels
 {
     public class CustomerQuotationViewModel
     {
-       
-        
-
         public long? CustomerQuotationQid { get; set; }
         public string? CustomerQuotationQuotationId { get; set; }
         public long? CustomerQuotationQuotationAddition { get; set; }

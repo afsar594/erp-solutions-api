@@ -148,6 +148,7 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<JobMasterBudgetDetails> JobMasterBudgetDetails { get; set; }
         public virtual DbSet<JobMasterJobDetails> JobMasterJobDetails { get; set; }
         public virtual DbSet<JobMasterJobWiseBankGuarantees> JobMasterJobWiseBankGuarantees { get; set; }
+        public virtual DbSet<JobDocuments> JobDocuments { get; set; }
         public virtual DbSet<JobOrder> JobOrder { get; set; }
         public virtual DbSet<JobOrderDetails> JobOrderDetails { get; set; }
         public virtual DbSet<JournalInvoiceDetails> JournalInvoiceDetails { get; set; }
@@ -10247,6 +10248,28 @@ namespace Inspire.Erp.Infrastructure.Database
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Job_Master_JobWiseBankGuarantees_Job_Master");
             });
+
+
+            modelBuilder.Entity<JobDocuments>(entity =>
+            {
+                entity.HasKey(e => e.JobDocumentId);
+
+                entity.ToTable("Job_Documents");
+
+                entity.Property(e => e.JobDocumentId)
+                    .HasColumnName("Job_Document_ID");
+
+                entity.Property(e => e.JobDocumentJobId).HasColumnName("Job_Document_Job_ID");
+
+                entity.Property(e => e.JobDocumentName)
+                    .HasColumnName("Job_Document_Name")
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.JobDocumentDelStatus).HasColumnName("Job_Document_DelStatus");
+            });
+
+
 
             modelBuilder.Entity<JobOrder>(entity =>
             {
@@ -23048,7 +23071,9 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<UserTracking>(entity =>
             {
-                entity.HasNoKey();
+                //entity.HasNoKey();
+                entity.HasKey(e => e.UserTrackingUserNo)
+                   .HasName("User_Tracking_User_No");
 
                 entity.ToTable("User_Tracking");
 

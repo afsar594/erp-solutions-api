@@ -270,5 +270,15 @@ namespace Inspire.Erp.Domain.Enums
         public static string UpdateFailed { get { return "Account Item update failed"; } }
         public static string DeleteFailed { get { return "Account Item delete failed"; } }
     }
+    public static class JobMasterMessage
+    {
+        public static String SaveJob{ get { return "Job saved successfully"; } }
+        public static string UpdateJob { get { return "Job updated sucessfully"; } } 
+        public static string DeleteJob { get { return "Job deleted sucessfully"; } }
+
+        public static String SaveFailed { get { return "Job Item save failed"; } }
+        public static string UpdateFailed { get { return "Job Item update failed"; } }
+        public static string DeleteFailed { get { return "Job Item delete failed"; } }
+    }
 
 }
