@@ -92,7 +92,7 @@ namespace Inspire.Erp.Web.Controllers
                 var param1 = _mapper.Map<SalesReturn>(dataObj.salesReturn);
                 var param2 = _mapper.Map<List<SalesReturnDetails>>(dataObj.salesReturnDetails);
                 var param3 = _mapper.Map<List<AccountsTransactions>>(dataObj.accountsTransactions);
-                param3 = new List<AccountsTransactions>();
+                //param3 = new List<AccountsTransactions>();
                 List<StockRegister> param4 = new List<StockRegister>();
                 //clsAccountAndStock.SalesReturn_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
                 var xs = _salesReturnService.InsertSalesReturn(param1, param3, param2, param4);
