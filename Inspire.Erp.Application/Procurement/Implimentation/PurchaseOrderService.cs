@@ -105,8 +105,16 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             {
                 _purchaseOrderRepository.BeginTransaction();
 
+                var deleteTrackingRegister = _trackingRegisterRepository.GetAsQueryable().Where(x => x.TrackingRegisterVoucherType == purchaseOrder.PurchaseOrderType && x.TrackingRegisterVoucherNo == purchaseOrder.PurchaseOrderNo).FirstOrDefault();
+                _trackingRegisterRepository.Delete(deleteTrackingRegister);
+                _trackingRegisterRepository.SaveChangesAsync();
+                var deletePurOrderRegister = _purOrderRegisterRepository.GetAsQueryable().Where(x => x.PurOrderRegisterTransType == purchaseOrder.PurchaseOrderType && x.PurOrderRegisterOrderNo == purchaseOrder.PurchaseOrderNo).FirstOrDefault();
+                _purOrderRegisterRepository.Delete(deletePurOrderRegister);
+                _purOrderRegisterRepository.SaveChangesAsync();
 
-                purchaseOrder.PurchaseOrderDetails = purchaseOrderDetails.Select((k) =>
+
+
+                purchaseOrder.PurchaseOrderDetails = purchaseOrder.PurchaseOrderDetails.Select((k) =>
                 ////purchaseOrder.PurchaseOrderDetailsPurchaseOrder = purchaseOrderDetails.Select((k) =>
                 {
                     //if (k.PurchaseOrderDetailsId == 0)
@@ -157,6 +165,50 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 //_stockRegisterRepository.UpdateList(stockRegister);
 
 
+                //insert tracking register
+                var listTrackRegs = new List<TrackingRegister>();
+                var listTrackPurchOrderReg = new List<PurOrderRegister>();
+                foreach (var purOrderDet in purchaseOrder.PurchaseOrderDetails)
+                {
+                    var tr = new TrackingRegister
+                    {
+                        TrackingRegisterDetailsId = (int)purOrderDet.PurchaseOrderDetailsId,
+                        TrackingRegisterVoucherNo = purOrderDet.PurchaseOrderDetailsNo,
+                        TrackingRegisterMaterialId = (int)purOrderDet.PurchaseOrderDetailsMatId,
+                        TrackingRegisterVoucherType = purchaseOrder.PurchaseOrderType,
+                        TrackingRegisterQty = (int)purOrderDet.PurchaseOrderDetailsQuantity,
+                        TrackingRegisterQtyin = (int)purOrderDet.PurchaseOrderDetailsQuantity,
+                        TrackingRegisterQtyout = 0,
+                        TrackingRegisterRate = (double)purOrderDet.PurchaseOrderDetailsRate,
+                        TrackingRegisterTrackDate = purchaseOrder.PurchaseOrderDate,
+                        TrackingRegisterFsno = null,//to be alloted
+
+                    };
+                    listTrackRegs.Add(tr);
+
+                    var poReg = new PurOrderRegister
+                    {
+                        PurOrderRegisterOrderNo = purOrderDet.PurchaseOrderDetailsId.ToString(),
+                        PurOrderRegisterRefVoucherNo = purOrderDet.PurchaseOrderDetailsNo,
+                        PurOrderRegisterMaterialId = (int)purOrderDet.PurchaseOrderDetailsMatId,
+                        PurOrderRegisterTransType = purchaseOrder.PurchaseOrderType,
+                        PurOrderRegisterQtyOrder = (int)purOrderDet.PurchaseOrderDetailsQuantity,
+                        PurOrderRegisterQtyIssued = 0,
+                        PurOrderRegisterRate = (double)purOrderDet.PurchaseOrderDetailsRate,
+                        PurOrderRegisterAssignedDate = DateTime.Now,
+                        PurOrderRegisterFsno = null,//to be alloted,
+                        PurOrderRegisterSupplierId = (int)purchaseOrder.PurchaseOrderPartyId,
+                        PurOrderRegisterStatus = "A"
+
+                    };
+                    listTrackPurchOrderReg.Add(poReg);
+
+                }
+
+                _trackingRegisterRepository.InsertList(listTrackRegs);
+                _purOrderRegisterRepository.InsertList(listTrackPurchOrderReg);
+
+
                 _purchaseOrderRepository.TransactionCommit();
 
             }
@@ -179,9 +231,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             {
                 _purchaseOrderRepository.BeginTransaction();
 
+
                 purchaseOrder.PurchaseOrderDelStatus = true;
 
-                purchaseOrderDetails = purchaseOrderDetails.Select((k) =>
+                purchaseOrder.PurchaseOrderDetails = purchaseOrder.PurchaseOrderDetails.Select((k) =>
                 {
                     k.PurchaseOrderDetailsDelStatus = true;
                     return k;
@@ -208,7 +261,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
 
 
-                purchaseOrder.PurchaseOrderDetails = purchaseOrderDetails;
+              //  purchaseOrder.PurchaseOrderDetails = purchaseOrderDetails;
                 ////purchaseOrder.PurchaseOrderDetailsPurchaseOrder = purchaseOrderDetails;
 
 
