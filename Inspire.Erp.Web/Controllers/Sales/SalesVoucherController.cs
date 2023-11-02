@@ -195,13 +195,11 @@ namespace Inspire.Erp.Web.Controllers
                 //    );
 
                 //==============
-                param3 = new List<AccountsTransactions>();
+                //param3 = new List<AccountsTransactions>();
                 List<StockRegister> param4 = new List<StockRegister>();
-                clsAccountAndStock.SalesVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
+                //clsAccountAndStock.SalesVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
 
-                var xs = _salesVoucherService.InsertSalesVoucher(param1, param3, param2
-               , param4
-               );
+                var xs = _salesVoucherService.InsertSalesVoucher(param1, param3, param2, param4);
                 //========================
 
 
