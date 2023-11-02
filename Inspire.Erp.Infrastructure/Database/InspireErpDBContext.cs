@@ -8317,34 +8317,37 @@ namespace Inspire.Erp.Infrastructure.Database
 
             });
 
-            //modelBuilder.Entity<OpeningStockVoucherDetails>(entity =>
-            //    {
-            //        entity.Property(e => e.OpeningStockVoucherDetailsId)
-            //            .HasColumnName("OpeningStockVoucherDetailsID")
-            //            .HasColumnType("numeric(18, 0)")
-            //            .ValueGeneratedOnAdd();
+            modelBuilder.Entity<OpeningStockVoucherDetails>(entity =>
+                {
+                    entity.Property(e => e.OpeningStockVoucherDetailsId)
+                        .HasColumnName("OpeningStockVoucherDetailsID")
+                        .HasColumnType("numeric(18, 0)")
+                        .ValueGeneratedOnAdd();
 
-            //        entity.Property(e => e.OpeningStockVoucherId).HasColumnType("numeric(18, 4)");
+                    entity.Property(e => e.OpeningStockVoucherId).HasColumnType("numeric(18, 4)");
 
-            //        entity.Property(e => e.OpeningStockVoucherDetailsNo).HasColumnType("numeric(18, 4)");
+                    entity.Property(e => e.OpeningStockVoucherDetailsNo).HasColumnName("OpeningStockVoucherDetailsNo");
 
-            //        entity.Property(e => e.OpeningStockVoucherDetailsMatId).HasColumnName("OpeningStockVoucherDetailsMatID");
+                    entity.Property(e => e.OpeningStockVoucherDetailsMatId).HasColumnName("OpeningStockVoucherDetailsMatID");
 
-            //        entity.Property(e => e.OpeningStockVoucherDetailsManualQty).HasColumnType("numeric(18, 4)");
-            //        entity.Property(e => e.OpeningStockVoucherDetailsAdjQty).HasColumnType("numeric(18, 4)");
+                    entity.Property(e => e.OpeningStockVoucherDetailsManualQty).HasColumnType("numeric(18, 4)");
+                    entity.Property(e => e.OpeningStockVoucherDetailsAdjQty).HasColumnType("numeric(18, 4)");
 
-            //        entity.Property(e => e.OpeningStockVoucherDetailsItemName)
-            //                    .HasMaxLength(100)
-            //                    .IsUnicode(false);
+                    entity.Property(e => e.OpeningStockVoucherDetailsItemName)
+                                .HasMaxLength(100)
+                                .IsUnicode(false);
 
-            //        entity.Property(e => e.OpeningStockVoucherDetailsUnitId).HasColumnType("numeric(18, 4)");
+                    entity.Property(e => e.OpeningStockVoucherDetailsUnitId).HasColumnType("numeric(18, 4)");
 
-            //        entity.Property(e => e.OpeningStockVoucherDetailsAmount).HasColumnType("numeric(18, 4)");
-            //        entity.Property(e => e.OpeningStockVoucherDetailsCost).HasColumnType("numeric(18, 4)");
+                    entity.Property(e => e.OpeningStockVoucherDetailsAmount).HasColumnType("numeric(18, 4)");
+                    entity.Property(e => e.OpeningStockVoucherDetailsCost).HasColumnType("numeric(18, 4)");
 
-            //        entity.Property(e => e.OpeningStockVoucherDetailsConversionType).HasColumnType("numeric(18, 4)");
+                    entity.Property(e => e.OpeningStockVoucherDetailsConversionType).HasColumnType("numeric(18, 4)");
 
-            //    });
+                    entity.Property(e => e.OpeningStockVoucherDetailsRemarks)
+                                .HasMaxLength(100)
+                                .IsUnicode(false);
+                });
 
             ////////modelBuilder.Entity<ItemImages>(entity =>
             ////////{
@@ -13378,9 +13381,13 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<PurOrderRegister>(entity =>
             {
-                entity.HasNoKey();
+               // entity.HasNoKey();
 
                 entity.ToTable("PurOrder_Register");
+
+                entity.HasKey(e => e.PurOrderRegisterId);
+
+              
 
                 entity.Property(e => e.PurOrderRegisterAmount).HasColumnName("PurOrder_Register_Amount");
 
@@ -22754,7 +22761,9 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<TrackingRegister>(entity =>
             {
-                entity.HasNoKey();
+                //entity.HasNoKey();
+
+                entity.HasKey(e => e.TrackingRegisterTrackId);
 
                 entity.ToTable("Tracking_Register");
 

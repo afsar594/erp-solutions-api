@@ -22,5 +22,8 @@ namespace Inspire.Erp.Application.Store.Interface
         public Task<StockTransferModel> UpdateStockTransfer(StockTransfer stockTransfer, List<StockTransferDetails> stockTransferDetails
             , List<StockRegister> stockRegister);
         public IEnumerable<StockTransferResponseModel> getStockTransferReport();
+
+
+        public StockTransferModel GetSavedStockTransferDetails(string pvno);
     }
 }
