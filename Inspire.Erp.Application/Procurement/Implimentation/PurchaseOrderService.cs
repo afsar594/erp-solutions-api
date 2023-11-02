@@ -108,7 +108,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 var deleteTrackingRegister = _trackingRegisterRepository.GetAsQueryable().Where(x => x.TrackingRegisterVoucherType == purchaseOrder.PurchaseOrderType && x.TrackingRegisterVoucherNo == purchaseOrder.PurchaseOrderNo).FirstOrDefault();
                 _trackingRegisterRepository.Delete(deleteTrackingRegister);
                 _trackingRegisterRepository.SaveChangesAsync();
-                var deletePurOrderRegister = _purOrderRegisterRepository.GetAsQueryable().Where(x => x.PurOrderRegisterTransType == purchaseOrder.PurchaseOrderType && x.PurOrderRegisterOrderNo == purchaseOrder.PurchaseOrderNo).FirstOrDefault();
+
+                var deletePurOrderRegister = _purOrderRegisterRepository.GetAsQueryable().Where(x => x.PurOrderRegisterTransType == purchaseOrder.PurchaseOrderType && x.PurOrderRegisterRefVoucherNo == purchaseOrder.PurchaseOrderNo).FirstOrDefault();
                 _purOrderRegisterRepository.Delete(deletePurOrderRegister);
                 _purOrderRegisterRepository.SaveChangesAsync();
 

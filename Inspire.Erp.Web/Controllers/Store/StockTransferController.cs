@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Inspire.Erp.Application.Common;
 using Inspire.Erp.Application.Store.Interface;
 using Inspire.Erp.Application.StoreWareHouse.Interface;
 using Inspire.Erp.Domain.Entities;
@@ -254,6 +255,48 @@ namespace Inspire.Erp.Web.Controllers.Store
 
             return apiResponse;
 
+        }
+
+
+
+        [HttpGet]
+        [Route("GetSavedStockTransferDetails/{id}")]
+        public ApiResponse<StockTransferViewModel> GetSavedStockTransferDetails(string id)
+        {
+            StockTransferModel stockTransfer = _st.GetSavedStockTransferDetails(id);
+
+            if (stockTransfer != null)
+            {
+                StockTransferViewModel stockTransferViewModel = new StockTransferViewModel
+                {
+
+                    StockTransferId = stockTransfer.stockTransfer.StockTransferId,
+                    StockTransferVoucherNo = stockTransfer.stockTransfer.StockTransferVoucherNo,
+                    StockTransferStDate = stockTransfer.stockTransfer.StockTransferStDate,
+                    StockTransferLocationIdFrom = stockTransfer.stockTransfer.StockTransferLocationIdFrom,
+                    StockTransferLocationIdTo = stockTransfer.stockTransfer.StockTransferLocationIdTo,
+                    StockTransferFSNo = stockTransfer.stockTransfer.StockTransferFSNo,
+                    StockTransferStatus = stockTransfer.stockTransfer.StockTransferStatus,
+                    StockTransferUserId = stockTransfer.stockTransfer.StockTransferUserId,
+                    StockTransferNarration = stockTransfer.stockTransfer.StockTransferNarration,
+                    StockTransferJobId = stockTransfer.stockTransfer.StockTransferJobId,
+                    StockTransferApproved = stockTransfer.stockTransfer.StockTransferApproved,
+                    StockTransferApprovedBy = stockTransfer.stockTransfer.StockTransferApprovedBy,
+                    StockTransferApprovedDate = stockTransfer.stockTransfer.StockTransferApprovedDate,
+                    StockTransferDelStatus = stockTransfer.stockTransfer.StockTransferDelStatus,
+
+                };
+                stockTransferViewModel.StockTransferDetails = _mapper.Map<List<StockTransferDetailsViewModel>>(stockTransfer.stockTransferDetails);
+                //stockTransferViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(openingstockVoucher.accountsTransactions);
+                ApiResponse<StockTransferViewModel> apiResponse = new ApiResponse<StockTransferViewModel>
+                {
+                    Valid = true,
+                    Result = stockTransferViewModel,
+                    Message = ""
+                };
+                return apiResponse;
+            }
+            return null;
         }
 
     }

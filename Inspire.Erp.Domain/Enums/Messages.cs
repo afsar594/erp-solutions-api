@@ -175,7 +175,7 @@ namespace Inspire.Erp.Domain.Enums
     {
         public static String SaveVoucher { get { return "Purchase Order saved successfully"; } }
         public static string UpdateVoucher { get { return "Purchase Order updated successfully"; } }
-        public static string DeleteVoucher { get { return "Purchase Order updated successfully"; } }
+        public static string DeleteVoucher { get { return "Purchase Order deleted successfully"; } }
         public static string VoucherAlreadyExist { get { return "Purchase Order is already exist"; } }
         public static string VoucherNumberExist { get { return "Voucher Number is exist"; } }
    

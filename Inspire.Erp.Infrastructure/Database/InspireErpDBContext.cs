@@ -13358,6 +13358,8 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.HasKey(e => e.PurOrderRegisterId);
 
+              
+
                 entity.Property(e => e.PurOrderRegisterAmount).HasColumnName("PurOrder_Register_Amount");
 
                 entity.Property(e => e.PurOrderRegisterAssignedDate)
