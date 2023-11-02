@@ -25,7 +25,7 @@ namespace Inspire.Erp.Application.Common
         private readonly IRepository<UnitDetails> _unitDetail;
         private readonly IRepository<StockRegister> _stockRegister;
         public UtilityService(IRepository<UserTracking> activityLog, IRepository<FinancialPeriods> financialPeriods,
-             IRepository<AccountsTransactions> accountTransaction, IRepository<MasterAccountsTable> masterAccountTable,
+             IRepository<AccountsTransactions> accountTransaction, IRepository<MasterAccountsTable> masterAccountTable, IRepository<UnitDetails> unitDetail,
             IRepository<VouchersNumbers> voucherNumber, IRepository<StockRegister> stockRegister, IRepository<ItemMaster> itemMaster)
         {
             _activityLog = activityLog;
@@ -35,6 +35,7 @@ namespace Inspire.Erp.Application.Common
             _financialPeriods = financialPeriods;
             _masterAccountTable = masterAccountTable;
             _stockRegister=stockRegister;
+            _unitDetail = unitDetail;
         }
         public string ConvertNumbertoWords(int number)
         {
@@ -290,7 +291,7 @@ namespace Inspire.Erp.Application.Common
             {
                 
                
-                var unitDetails = await _unitDetail.GetAsQueryable().Where(x => x.UnitDetailsItemId == (Int64)itemId && x.UnitDetailsUnitId== unitId).FirstOrDefaultAsync();
+                var unitDetails = await _unitDetail.GetAsQueryable().Where(x => itemId==null || x.UnitDetailsItemId == (Int64)itemId && x.UnitDetailsUnitId== unitId).FirstOrDefaultAsync();
                 
                 return Convert.ToDecimal(unitDetails.UnitDetailsConversionType);
             }

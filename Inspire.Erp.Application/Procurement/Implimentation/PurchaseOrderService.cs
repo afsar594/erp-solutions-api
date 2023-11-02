@@ -30,7 +30,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private IRepository<SuppliersMaster> _suppliersMasterRepository;
         private IRepository<LocationMaster> _locationMasterRepository;
         private IRepository<UserFile> _userFileRepository;
-        
+        private IRepository<TrackingRegister> _trackingRegisterRepository;
+        private IRepository<PurOrderRegister> _purOrderRegisterRepository;
+
         //private IRepository<ReportPurchaseOrder> _reportPurchaseOrderRepository;
         public PurchaseOrderService(
             IRepository<UserFile> userFileRepository,
@@ -41,7 +43,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
 
-            IRepository<PurchaseOrder> purchaseOrderRepository, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository)
+            IRepository<PurchaseOrder> purchaseOrderRepository, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository,
+            IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PurOrderRegister> purOrderRegisterRepository)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository;
@@ -56,7 +59,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _suppliersMasterRepository = suppliersMasterRepository;
             _locationMasterRepository = locationMasterRepository;
             _userFileRepository = userFileRepository;
-            //_reportPurchaseOrderRepository = reportPurchaseOrderRepository;
+            _trackingRegisterRepository = trackingRegisterRepository;
+            _purOrderRegisterRepository = purOrderRegisterRepository;
         }
 
         //public IEnumerable<ReportPurchaseOrder> PurchaseOrder_GetReportPurchaseOrder()
@@ -280,6 +284,50 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
 
                 _purchaseOrderRepository.Insert(purchaseOrder);
+
+                //insert tracking register
+                var listTrackRegs = new List<TrackingRegister>();
+                var listTrackPurchOrderReg = new List<PurOrderRegister>();
+                foreach (var purOrderDet in purchaseOrder.PurchaseOrderDetails)
+                {
+                    var tr = new TrackingRegister
+                    {
+                        TrackingRegisterDetailsId = (int)purOrderDet.PurchaseOrderDetailsId,
+                        TrackingRegisterVoucherNo = purOrderDet.PurchaseOrderDetailsNo,
+                        TrackingRegisterMaterialId=(int) purOrderDet.PurchaseOrderDetailsMatId,
+                        TrackingRegisterVoucherType=purchaseOrder.PurchaseOrderType,
+                        TrackingRegisterQty=(int)purOrderDet.PurchaseOrderDetailsQuantity,
+                        TrackingRegisterQtyin= (int)purOrderDet.PurchaseOrderDetailsQuantity,
+                        TrackingRegisterQtyout = 0,
+                        TrackingRegisterRate=(double)purOrderDet.PurchaseOrderDetailsRate,
+                        TrackingRegisterTrackDate=purchaseOrder.PurchaseOrderDate,
+                        TrackingRegisterFsno=null,//to be alloted
+
+                    };
+                    listTrackRegs.Add(tr);
+
+                    var poReg = new PurOrderRegister
+                    {
+                        PurOrderRegisterOrderNo = purOrderDet.PurchaseOrderDetailsId.ToString(),
+                        PurOrderRegisterRefVoucherNo = purOrderDet.PurchaseOrderDetailsNo,
+                        PurOrderRegisterMaterialId = (int)purOrderDet.PurchaseOrderDetailsMatId,
+                        PurOrderRegisterTransType = purchaseOrder.PurchaseOrderType,
+                        PurOrderRegisterQtyOrder = (int)purOrderDet.PurchaseOrderDetailsQuantity,
+                        PurOrderRegisterQtyIssued = 0,
+                        PurOrderRegisterRate = (double)purOrderDet.PurchaseOrderDetailsRate,
+                        PurOrderRegisterAssignedDate =DateTime.Now,
+                        PurOrderRegisterFsno = null,//to be alloted,
+                        PurOrderRegisterSupplierId=(int)purchaseOrder.PurchaseOrderPartyId,
+                        PurOrderRegisterStatus="A"
+
+                    };
+                    listTrackPurchOrderReg.Add(poReg);
+
+                }
+
+                _trackingRegisterRepository.InsertList(listTrackRegs);
+                _purOrderRegisterRepository.InsertList(listTrackPurchOrderReg);
+
                 _purchaseOrderRepository.TransactionCommit();
                 return this.GetSavedPurchaseOrderDetails(purchaseOrder.PurchaseOrderNo);
 
