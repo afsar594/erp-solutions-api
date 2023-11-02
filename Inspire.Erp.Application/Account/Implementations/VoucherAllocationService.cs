@@ -24,9 +24,11 @@ namespace Inspire.Erp.Application.Account.Implementations
         private readonly IRepository<AllocationVoucher> _voucherAllocation;
         private readonly IRepository<AllocationVoucherDetails> _voucherAllocationDetails;
         private readonly IUtilityService _utilityService;
+        private readonly IRepository<CurrencyMaster> _currencyMaster;
+
         public VoucherAllocationService(IRepository<CustomerMaster> customerMaster, IRepository<AccountsTransactions> accountTransaction,
             IRepository<SuppliersMaster> supplierMaster, IRepository<AllocationVoucherDetails> voucherAllocationDetails,
-            IRepository<MasterAccountsTable> masterAccountTable, IRepository<AllocationVoucher> voucherAllocation, IUtilityService utilityService)
+            IRepository<MasterAccountsTable> masterAccountTable, IRepository<AllocationVoucher> voucherAllocation, IUtilityService utilityService, IRepository<CurrencyMaster> currencyMaster)
         {
             _customerMaster = customerMaster;
             _supplierMaster = supplierMaster;
@@ -34,6 +36,8 @@ namespace Inspire.Erp.Application.Account.Implementations
             _masterAccountTable = masterAccountTable;
             _voucherAllocation = voucherAllocation;
             _voucherAllocationDetails = voucherAllocationDetails;
+            _utilityService = utilityService;
+            _currencyMaster = currencyMaster;
         }
 
         public async Task<Response<List<DropdownResponse>>> GetCustomerMasterDropdown()
@@ -86,8 +90,10 @@ namespace Inspire.Erp.Application.Account.Implementations
             try
             {
                 string query = @$" 1==1 {model.Filter}";
+
+
                 //var a = await _accountTransaction.GetAsQueryable().Where(x =>( x.AccountsTransactionsTransDate >= Convert.ToDateTime("")) &&  )
-                //    .ToListAsync();
+                //    .ToListAsync();va
                 var result = await _accountTransaction.GetAsQueryable().Where(query).Select(x => new GetAccountTransactionMutilAccountResponse
                 {
                     AccountsTransactionsAccNo = x.AccountsTransactionsAccNo,
@@ -101,12 +107,13 @@ namespace Inspire.Erp.Application.Account.Implementations
                     AccountsTransactionsTransDate = x.AccountsTransactionsTransDate != null ? Convert.ToDateTime(x.AccountsTransactionsTransDate) : DateTime.MinValue,
                     AccountsTransactionsTransDateString = Convert.ToDateTime(x.AccountsTransactionsTransDate).ToString("MM-dd-yyyy"),
                     AccountsTransactionsParticulars = x.AccountsTransactionsParticulars,
+                    AccountsTransactionsFsno = x.AccountsTransactionsFsno,
                     RefNo = x.RefNo,
                     AccountsTransactionsTransSno = Convert.ToInt32(x.AccountsTransactionsTransSno),
                     AccountsTransactionsAllocDebit = x.AccountsTransactionsAllocDebit,
                     AccountsTransactionsAllocCredit = x.AccountsTransactionsAllocCredit,
                     AccountsTransactionsAllocUpdateBal = x.AccountsTransactionsAllocUpdateBal,
-
+                    
 
                 }).ToListAsync();
 
@@ -125,12 +132,18 @@ namespace Inspire.Erp.Application.Account.Implementations
         {
             try
             {
+
+
+
+             var q =   InsertVoucherAllocation(model);
+
                 if (model.AllocationVoucherId == null || model.AllocationVoucherId == 0)
                 {
                     try
                     {
                         AllocationVoucher order = new AllocationVoucher()
                         {
+
                             AllocationVoucherType = model.AllocationVoucherType,
                             AllocationVoucherVoucherAccType = model.AllocationVoucherVoucherAccType,
                             AllocationVoucherDelStatus = false,
@@ -138,6 +151,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                             AllocationVoucherVcreation = model.AllocationVoucherVcreation,
                             AllocationVoucherVoucherNo = model.AllocationVoucherVoucherNo,
                             AllocationVoucherVoucherAccNo = model.AllocationVoucherVoucherAccNo,
+                            AllocationVoucherId = getMaxVoucherAllocation()
 
                         };
                         _voucherAllocation.Insert(order);
@@ -166,6 +180,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                 AllocationVoucherDetailsVtype = x.AllocationVoucherDetailsVtype,
                                 AllocationVoucherDetailsDelStatus = false,
                                 AllocationVoucherDetailsSno = Convert.ToInt32(vouchetAlloc.AllocationVoucherId),
+                                AllocationVoucherDetailsId = getMaxVoucherAllocationDetails()
                             }));
                             _voucherAllocationDetails.InsertList(orderDetails);
                             _voucherAllocationDetails.SaveChangesAsync();
@@ -242,6 +257,35 @@ namespace Inspire.Erp.Application.Account.Implementations
                 return Response<bool>.Fail(false, ex.Message);
             }
         }
+
+        private int getMaxVoucherAllocationDetails()
+        {
+            try
+            {
+                int? maxValue = _voucherAllocationDetails.GetAll().Max(x => x.AllocationVoucherDetailsId);
+                int? incrementedValue = maxValue.HasValue ? maxValue + 1 : 1;
+                return (int)incrementedValue;
+            }
+            catch
+            {
+                return 1;
+            }
+        }
+
+        private int getMaxVoucherAllocation()
+        {
+            try
+            {
+                int? maxValue = _voucherAllocation.GetAll().Max(x => x.AllocationVoucherId);
+                int? incrementedValue = maxValue.HasValue ? maxValue + 1 : 1;
+                return (int)incrementedValue;
+            }
+            catch
+            {
+                return 1;
+            }
+        }
+
         private async Task<string> AddVoucherAllocation(AddEditVoucherAllocationResponse model)
         {
             try
@@ -411,12 +455,12 @@ namespace Inspire.Erp.Application.Account.Implementations
                 await Task.Run(() =>
                 {
                     var orders = _voucherAllocation.GetAsQueryable().FirstOrDefault(x => x.AllocationVoucherId == id);
-                    model.AllocationVoucherType = orders.AllocationVoucherType != null? orders.AllocationVoucherType:0 ;
-                    model.AllocationVoucherVcreation = orders.AllocationVoucherVcreation != null? orders.AllocationVoucherVcreation:"";
-                    model.AllocationVoucherVoucherNo = orders.AllocationVoucherVoucherNo != null? orders.AllocationVoucherVoucherNo:"";
-                    model.AllocationVoucherVoucherAccNo = orders.AllocationVoucherVoucherAccNo != null? orders.AllocationVoucherVoucherAccNo:"";
-                    model.AllocationVoucherVoucherAccType = orders.AllocationVoucherVoucherAccType != null? orders.AllocationVoucherVoucherAccType:"";
-                    model.AllocationVoucherVoucherDate = orders.AllocationVoucherVoucherDate != null? orders.AllocationVoucherVoucherDate:DateTime.MinValue;
+                    model.AllocationVoucherType = orders.AllocationVoucherType != null ? orders.AllocationVoucherType : 0;
+                    model.AllocationVoucherVcreation = orders.AllocationVoucherVcreation != null ? orders.AllocationVoucherVcreation : "";
+                    model.AllocationVoucherVoucherNo = orders.AllocationVoucherVoucherNo != null ? orders.AllocationVoucherVoucherNo : "";
+                    model.AllocationVoucherVoucherAccNo = orders.AllocationVoucherVoucherAccNo != null ? orders.AllocationVoucherVoucherAccNo : "";
+                    model.AllocationVoucherVoucherAccType = orders.AllocationVoucherVoucherAccType != null ? orders.AllocationVoucherVoucherAccType : "";
+                    model.AllocationVoucherVoucherDate = orders.AllocationVoucherVoucherDate != null ? orders.AllocationVoucherVoucherDate : DateTime.MinValue;
                     model.VoucherAllocationDetails = _voucherAllocationDetails.GetAsQueryable()
                         .Where(x => x.AllocationVoucherDetailsSno == id).Select(x => new VoucherAllocationDetailsResponse
                         {
@@ -466,6 +510,64 @@ namespace Inspire.Erp.Application.Account.Implementations
             catch (System.Exception ex)
             {
                 throw ex;
+            }
+        }
+
+        public async Task<Response<GetVoucherAllocationListResponse>> InsertVoucherAllocation(AllocationVoucher model)
+        {
+            try
+            {
+                var av = new AllocationVoucher()
+                {
+                    AllocationVoucherId = getMaxVoucherAllocation(),
+                    AllocationVoucherType = model.AllocationVoucherType,
+                    AllocationVoucherVoucherAccType = model.AllocationVoucherVoucherAccType,
+                    AllocationVoucherDelStatus = false,
+                    AllocationVoucherVoucherDate = model.AllocationVoucherVoucherDate,
+                    AllocationVoucherVcreation = model.AllocationVoucherVcreation,
+                    AllocationVoucherVoucherNo = model.AllocationVoucherVoucherNo,
+                    AllocationVoucherVoucherAccNo = model.AllocationVoucherVoucherAccNo,
+
+                };
+                _voucherAllocation.Insert(av);
+                List<AllocationVoucherDetails> allocationVoucherDetails = new List<AllocationVoucherDetails>();
+                allocationVoucherDetails.AddRange(model.VoucherAllocationDetails.Select(x => new AllocationVoucherDetails
+                {
+                    AllocationVoucherDetailsVno = x.AllocationVoucherDetailsVno,
+                    AllocationVoucherDetailsAllocDebit = x.AllocationVoucherDetailsAllocDebit,
+                    AllocationVoucherDetailsAllocCredit = x.AllocationVoucherDetailsAllocCredit,
+                    AllocationVoucherDetailsId = getMaxVoucherAllocationDetails(),
+                    AllocationVoucherDetailsVtype = x.AllocationVoucherDetailsVtype,
+                    AllocationVoucherDetailsDelStatus = false,
+                    AllocationVoucherDetailsSno = Convert.ToInt32(model.AllocationVoucherId),
+                }));
+                _voucherAllocationDetails.InsertList(allocationVoucherDetails);
+
+               
+                List<AccountsTransactions> accountsTransactions = new List<AccountsTransactions>();
+                foreach (var item in allocationVoucherDetails)
+                {
+                    AccountsTransactions acc = _accountTransaction.GetAsQueryable().Where(x => x.AccountsTransactionsTransSno == item.AccountsTransactionsTransSno).FirstOrDefault();
+                    if (acc.AccountsTransactionsDebit > 0)
+                    {
+                        acc.AccountsTransactionsFcAllocDebit = acc.AccountsTransactionsDebit * 1;
+                        acc.AccountsTransactionsAllocDebit = acc.AccountsTransactionsDebit;
+                    }
+                    if (acc.AccountsTransactionsAllocCredit > 0) { 
+                        acc.AccountsTransactionsAllocCredit = acc.AccountsTransactionsCredit;
+                        acc.AccountsTransactionsFcAllocCredit= acc.AccountsTransactionsCredit;
+                    }
+                    accountsTransactions.Add(acc) ;
+                };
+                _accountTransaction.UpdateList(accountsTransactions);
+
+
+                return Response<GetVoucherAllocationListResponse>.Success(new GetVoucherAllocationListResponse(),"Success");
+
+            }
+            catch (System.Exception ex)
+            {
+                return Response<GetVoucherAllocationListResponse>.Fail(new GetVoucherAllocationListResponse(), ex.Message);
             }
         }
     }

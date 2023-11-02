@@ -18,6 +18,8 @@ namespace Inspire.Erp.Application.Master
         private IRepository<JobMasterBudgetDetails> jobbudgetRepository;
         private IRepository<JobMasterJobDetails> jobdetailsRepository;
         private IRepository<JobMasterJobWiseBankGuarantees> jobBankGuaruRepository;
+        private IRepository<JobDocuments> jobDocumentsRepository;
+
         private IRepository<AccountsTransactions> accountsTransactionsRepository;
         private readonly InspireErpDBContext context;
         public JobMasterService(IRepository<JobMaster> _jobrepository,
@@ -189,14 +191,6 @@ namespace Inspire.Erp.Application.Master
             {
                 jobrepository.Update(jobMaster);
                 
-                //jobbudgetRepository.UpdateList(jobMasterBudgetDetails);
-
-              
-                //jobdetailsRepository.UpdateList(jobMasterJobDetails);
-
-            
-               // jobBankGuaruRepository.UpdateList(jobMasterJobWiseBankGuarantees);
-
                 return this.GetSavedJobMasterDetails(jobMaster.JobMasterJobNo);
                 
             }
@@ -238,6 +232,11 @@ namespace Inspire.Erp.Application.Master
                 return jobMasterData;
             }
             return null;
+        }
+
+        public void SaveJobDocument(JobDocuments jobDocumnet)
+        {
+            jobDocumentsRepository.Insert(jobDocumnet);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -22,5 +23,9 @@ namespace Inspire.Erp.Domain.Entities
         public int? AllocationVoucherDetailsRefLocationId { get; set; }
         public int? AllocationVoucherDetailsRefFsno { get; set; }
         public bool? AllocationVoucherDetailsDelStatus { get; set; }
+        [NotMapped]
+        public long AccountsTransactionsTransSno { get; set; }
+        [NotMapped]
+        public virtual AllocationVoucher AllocationVoucher { get; set; }
     }
 }
