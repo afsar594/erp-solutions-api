@@ -139,6 +139,7 @@ namespace Inspire.Erp.Application.Account.Implementations
 
             try
             {
+                List<SalesReturnDetails> addedSalesReturnist =new List<SalesReturnDetails>();
                 _salesReturnRepository.BeginTransaction();
                 salesReturn.SalesReturnDate = DateTime.Now;
                 salesReturn.SalesReturnDlvDate = DateTime.Now;
@@ -154,16 +155,25 @@ namespace Inspire.Erp.Application.Account.Implementations
                 //=================================
                 salesReturnDetails = salesReturnDetails.Select((k) =>
                  {
-                     //if (k.SalesReturnDetailsId == 0)
-                     //{
+                     k.SalesReturnDetailsId = 0;
                      k.SalesReturnId = salesReturn.SalesReturnId;
                      k.SalesReturnDetailsNo = salesReturn.SalesReturnNo;
-                     //k.SalesReturnDetailsId = 0;
-                     //}
-
                      return k;
                  }).ToList();
-                _salesReturnDetailsRepository.UpdateList(salesReturnDetails);
+
+                //addedSalesReturnist = salesReturnDetails.Select((k) =>
+                //{
+                //    k.SalesReturnDetailsId = 0;
+                //    k.SalesReturnId = salesReturn.SalesReturnId;
+                //    k.SalesReturnDetailsNo = salesReturn.SalesReturnNo;
+                //    return k;
+                //}).ToList();
+                var removedList = _Context.SalesReturnDetails.Where(o => o.SalesReturnId == salesReturn.SalesReturnId).ToList();
+                _Context.SalesReturnDetails.RemoveRange(removedList);
+                _Context.SaveChanges();
+
+                _Context.SalesReturnDetails.AddRange(salesReturnDetails);
+                _Context.SaveChanges();
 
 
                 Console.WriteLine("STEP TWO");
