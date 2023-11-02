@@ -320,13 +320,8 @@ namespace Inspire.Erp.Application.Store.Implementation
             try
             {
                 _openingstockVoucherRepository.BeginTransaction();
-
-
-             
-
                 string openingstockVoucherNumber = this.GenerateOpeningStockVoucherNo(openstockVoucher.OpeningStockVoucherDate.Date).VouchersNumbersVNo;
                 openstockVoucher.OpeningStockVoucherNo = openingstockVoucherNumber;
-
 
                 int maxcount = 0;
                 maxcount = Convert.ToInt32(
@@ -461,11 +456,6 @@ namespace Inspire.Erp.Application.Store.Implementation
                     return k;
                 }).ToList();
                 _stockRegisterRepository.UpdateList(stockRegister);
-
-
-
-
-
 
                 _openingstockVoucherRepository.TransactionCommit();
 
