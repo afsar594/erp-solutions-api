@@ -8,6 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Upload\Pdfs\**" />
+    <Content Remove="Upload\Pdfs\**" />
+    <EmbeddedResource Remove="Upload\Pdfs\**" />
+    <None Remove="Upload\Pdfs\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Remove="Controllers\Accounts\MainReportController.cs" />
   </ItemGroup>
 	<ItemGroup>
@@ -41,7 +48,6 @@
 	  </None>
 	</ItemGroup>
 	<ItemGroup>
-	  <Folder Include="Upload\Pdfs\" />
 	  <Folder Include="ViewModels\Dashboard\" />
 	</ItemGroup>
 	<ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>

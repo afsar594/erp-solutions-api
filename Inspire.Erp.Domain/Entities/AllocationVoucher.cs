@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inspire.Erp.Domain.Entities
 {
     public partial class AllocationVoucher
     {
-        public int? AllocationVoucherId { get; set; }
+        public int AllocationVoucherId { get; set; }
         public int? AllocationVoucherType { get; set; }
         public string AllocationVoucherVoucherNo { get; set; }
         public DateTime? AllocationVoucherVoucherDate { get; set; }
@@ -21,6 +22,8 @@ namespace Inspire.Erp.Domain.Entities
         public int? AllocationVoucherLocationId { get; set; }
         public string AllocationVoucherVcreation { get; set; }
         public bool? AllocationVoucherDelStatus { get; set; }
-        public List<AllocationVoucherDetails> VoucherAllocationDetails { get; set; }
+        
+        [NotMapped]
+        public virtual ICollection<AllocationVoucherDetails> VoucherAllocationDetails { get; set; }
     }
 }
