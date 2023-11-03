@@ -17,7 +17,7 @@ namespace Inspire.Erp.Application.Settings.Implementations
         }
         public IEnumerable<OptionsMaster> GetOptionsSettings(string search)
         {
-            IEnumerable<OptionsMaster> optionsSettings = _optionsSettingsRepo.GetAsQueryable().Where(x => x.OptionsMasterFullDescription.Contains(search));
+            IEnumerable<OptionsMaster> optionsSettings = _optionsSettingsRepo.GetAsQueryable().Where(x => string.IsNullOrEmpty(search)?true: x.OptionsMasterFullDescription.Contains(search));
             return optionsSettings;
         }
 
