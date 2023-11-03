@@ -10614,65 +10614,65 @@ namespace Inspire.Erp.Infrastructure.Database
             modelBuilder.Entity<JournalVoucherDetails>(entity =>
             {
 
-                entity.ToTable("Journal_Voucher_Details");
+                entity.ToTable("JournalVoucherDetails");
 
                 entity.Property(e => e.JournalVoucherDetailsAccNo)
-                    .HasColumnName("Journal_Voucher_Details_AccNO")
+                    .HasColumnName("JournalVoucherDetails_AccNO")
                     .HasMaxLength(30)
                     .IsUnicode(false);
-                entity.Property(e => e.JournalVoucherDetailVrefNo).HasColumnName("Journal_Voucher_Details_VrefNo");
+                entity.Property(e => e.JournalVoucherDetailVrefNo).HasColumnName("JournalVoucherDetails_VrefNo");
 
-                entity.Property(e => e.JournalVoucherDetailsAccSno).HasColumnName("Journal_Voucher_Details_AccSNO");
+                entity.Property(e => e.JournalVoucherDetailsAccSno).HasColumnName("JournalVoucherDetails_AccSNO");
 
-                entity.Property(e => e.JournalVoucherDetailsAmount).HasColumnName("Journal_Voucher_Details_Amount");
+                entity.Property(e => e.JournalVoucherDetailsAmount).HasColumnName("JournalVoucherDetails_Amount");
 
-                entity.Property(e => e.JournalVoucherDetailsCostCenterId).HasColumnName("Journal_Voucher_Details_CostCenter_ID");
+                entity.Property(e => e.JournalVoucherDetailsCostCenterId).HasColumnName("JournalVoucherDetails_CostCenter_ID");
 
-                entity.Property(e => e.JournalVoucherDetailsDelStatus).HasColumnName("Journal_Voucher_Details_DelStatus");
+                entity.Property(e => e.JournalVoucherDetailsDelStatus).HasColumnName("JournalVoucherDetails_DelStatus");
 
                 entity.Property(e => e.JournalVoucherDetailsDrCr)
-                    .HasColumnName("Journal_Voucher_Details_DrCr")
+                    .HasColumnName("JournalVoucherDetails_DrCr")
                     .HasMaxLength(2)
                     .IsUnicode(false);
 
-                entity.Property(e => e.JournalVoucherDetailsFcAmount).HasColumnName("Journal_Voucher_Details_FC_Amount");
+                entity.Property(e => e.JournalVoucherDetailsFcAmount).HasColumnName("JournalVoucherDetails_FC_Amount");
 
-                entity.Property(e => e.JournalVoucherDetailsFcRate).HasColumnName("Journal_Voucher_Details_FC_Rate");
+                entity.Property(e => e.JournalVoucherDetailsFcRate).HasColumnName("JournalVoucherDetails_FC_Rate");
 
-                entity.Property(e => e.JournalVoucherDetailsFsno).HasColumnName("Journal_Voucher_Details_FSNO");
+                entity.Property(e => e.JournalVoucherDetailsFsno).HasColumnName("JournalVoucherDetails_FSNO");
 
-                entity.Property(e => e.JournalVoucherDetailsId).HasColumnName("Journal_Voucher_Details_ID");
+                entity.Property(e => e.JournalVoucherDetailsId).HasColumnName("JournalVoucherDetails_ID");
 
-                entity.Property(e => e.JournalVoucherDetailsJobId).HasColumnName("Journal_Voucher_Details_Job_ID");
+                entity.Property(e => e.JournalVoucherDetailsJobId).HasColumnName("JournalVoucherDetails_Job_ID");
 
-                entity.Property(e => e.JournalVoucherDetailsLocationId).HasColumnName("Journal_Voucher_Details_Location_ID");
+                entity.Property(e => e.JournalVoucherDetailsLocationId).HasColumnName("JournalVoucherDetails_Location_ID");
 
                 entity.Property(e => e.JournalVoucherDetailsNarration)
-                    .HasColumnName("Journal_Voucher_Details_Narration")
+                    .HasColumnName("JournalVoucherDetails_Narration")
                     .HasMaxLength(200)
                     .IsUnicode(false);
 
                 entity.Property(e => e.JournalVoucherDetailsReferenceNo)
-                    .HasColumnName("Journal_Voucher_Details_Reference_No")
+                    .HasColumnName("JournalVoucherDetails_Reference_No")
                     .HasMaxLength(100)
                     .IsUnicode(false);
                 entity.HasKey(e => e.JournalVoucherDetailsId);
-                entity.Property(e => e.JournalVoucherDetailsSno).HasColumnName("Journal_Voucher_Details_Sno");
+                entity.Property(e => e.JournalVoucherDetailsSno).HasColumnName("JournalVoucherDetails_Sno");
 
-                //entity.Property(e => e.JournalVoucher_ID).HasColumnName("JournalVoucher_ID");
-                //entity.Property(e => e.JournalVoucherDetails_ID).HasColumnName("JournalVoucherDetails_ID");
-                //entity.Property(e => e.JournalVoucherDetails_VNO).HasColumnName("JournalVoucherDetails_VNO");
-                //entity.Property(e => e.JournalVoucherDetails_Acc_No).HasColumnName("JournalVoucherDetails_Acc_No");
-                //entity.Property(e => e.JournalVoucherDetails_VatableAmount).HasColumnName("JournalVoucherDetails_VatableAmount");
-                //entity.Property(e => e.JournalVoucherDetails_Dr_Amount).HasColumnName("JournalVoucherDetails_Dr_Amount");
-                //entity.Property(e => e.JournalVoucherDetails_FC_Dr_Amount).HasColumnName("JournalVoucherDetails_FC_Dr_Amount");
-                //entity.Property(e => e.JournalVoucherDetails_Cr_Amount).HasColumnName("JournalVoucherDetails_Cr_Amount");
-                //entity.Property(e => e.JournalVoucherDetails_FC_Cr_Amount).HasColumnName("JournalVoucherDetails_FC_Cr_Amount");
-                //entity.Property(e => e.JournalVoucherDetails_JobNo).HasColumnName("JournalVoucherDetails_JobNo");
-                //entity.Property(e => e.JournalVoucherDetails_CostCenter_Id).HasColumnName("JournalVoucherDetails_CostCenter_Id");
-                //entity.Property(e => e.JournalVoucherDetails_Narration).HasColumnName("JournalVoucherDetails_Narration");
-                //entity.Property(e => e.JournalVoucherDetails_Reference_No).HasColumnName("JournalVoucherDetails_Reference_No");
-                //entity.Property(e => e.JournalVoucherDetails_DelStatus).HasColumnName("JournalVoucherDetails_DelStatus");
+                // entity.Property(e => e.JournalVoucher_ID).HasColumnName("JournalVoucher_ID");
+                // entity.Property(e => e.JournalVoucherDetails_ID).HasColumnName("JournalVoucherDetails_ID");
+                // entity.Property(e => e.JournalVoucherDetails_VNO).HasColumnName("JournalVoucherDetails_VNO");
+                // entity.Property(e => e.JournalVoucherDetails_Acc_No).HasColumnName("JournalVoucherDetails_Acc_No");
+                // entity.Property(e => e.JournalVoucherDetails_VatableAmount).HasColumnName("JournalVoucherDetails_VatableAmount");
+                // entity.Property(e => e.JournalVoucherDetails_Dr_Amount).HasColumnName("JournalVoucherDetails_Dr_Amount");
+                // entity.Property(e => e.JournalVoucherDetails_FC_Dr_Amount).HasColumnName("JournalVoucherDetails_FC_Dr_Amount");
+                // entity.Property(e => e.JournalVoucherDetails_Cr_Amount).HasColumnName("JournalVoucherDetails_Cr_Amount");
+                // entity.Property(e => e.JournalVoucherDetails_FC_Cr_Amount).HasColumnName("JournalVoucherDetails_FC_Cr_Amount");
+                // entity.Property(e => e.JournalVoucherDetails_JobNo).HasColumnName("JournalVoucherDetails_JobNo");
+                // entity.Property(e => e.JournalVoucherDetails_CostCenter_Id).HasColumnName("JournalVoucherDetails_CostCenter_Id");
+                // entity.Property(e => e.JournalVoucherDetails_Narration).HasColumnName("JournalVoucherDetails_Narration");
+                // entity.Property(e => e.JournalVoucherDetails_Reference_No).HasColumnName("JournalVoucherDetails_Reference_No");
+                // entity.Property(e => e.JournalVoucherDetails_DelStatus).HasColumnName("JournalVoucherDetails_DelStatus");
             });
 
 
@@ -13672,49 +13672,49 @@ namespace Inspire.Erp.Infrastructure.Database
             {
                 entity.HasNoKey();
 
-                entity.ToTable("Purchase_Journal_Voucher_Details");
+                entity.ToTable("Purchase_JournalVoucherDetails");
 
                 entity.Property(e => e.PurchaseJournalVoucherDetailsAccNo)
-                    .HasColumnName("Purchase_Journal_Voucher_Details_AccNo")
+                    .HasColumnName("Purchase_JournalVoucherDetails_AccNo")
                     .HasMaxLength(30)
                     .IsUnicode(false);
 
-                entity.Property(e => e.PurchaseJournalVoucherDetailsAccSno).HasColumnName("Purchase_Journal_Voucher_Details_AccSNO");
+                entity.Property(e => e.PurchaseJournalVoucherDetailsAccSno).HasColumnName("Purchase_JournalVoucherDetails_AccSNO");
 
-                entity.Property(e => e.PurchaseJournalVoucherDetailsAmount).HasColumnName("Purchase_Journal_Voucher_Details_Amount");
+                entity.Property(e => e.PurchaseJournalVoucherDetailsAmount).HasColumnName("Purchase_JournalVoucherDetails_Amount");
 
-                entity.Property(e => e.PurchaseJournalVoucherDetailsCostCenterId).HasColumnName("Purchase_Journal_Voucher_Details_CostCenter_ID");
+                entity.Property(e => e.PurchaseJournalVoucherDetailsCostCenterId).HasColumnName("Purchase_JournalVoucherDetails_CostCenter_ID");
 
-                entity.Property(e => e.PurchaseJournalVoucherDetailsDelStatus).HasColumnName("Purchase_Journal_Voucher_Details_DelStatus");
+                entity.Property(e => e.PurchaseJournalVoucherDetailsDelStatus).HasColumnName("Purchase_JournalVoucherDetails_DelStatus");
 
                 entity.Property(e => e.PurchaseJournalVoucherDetailsDrCr)
-                    .HasColumnName("Purchase_Journal_Voucher_Details_DrCr")
+                    .HasColumnName("Purchase_JournalVoucherDetails_DrCr")
                     .HasMaxLength(2)
                     .IsUnicode(false);
 
-                entity.Property(e => e.PurchaseJournalVoucherDetailsFcAmount).HasColumnName("Purchase_Journal_Voucher_Details_FC_Amount");
+                entity.Property(e => e.PurchaseJournalVoucherDetailsFcAmount).HasColumnName("Purchase_JournalVoucherDetails_FC_Amount");
 
-                entity.Property(e => e.PurchaseJournalVoucherDetailsFcRate).HasColumnName("Purchase_Journal_Voucher_Details_FC_Rate");
+                entity.Property(e => e.PurchaseJournalVoucherDetailsFcRate).HasColumnName("Purchase_JournalVoucherDetails_FC_Rate");
 
-                entity.Property(e => e.PurchaseJournalVoucherDetailsFsno).HasColumnName("Purchase_Journal_Voucher_Details_FSNO");
+                entity.Property(e => e.PurchaseJournalVoucherDetailsFsno).HasColumnName("Purchase_JournalVoucherDetails_FSNO");
 
-                entity.Property(e => e.PurchaseJournalVoucherDetailsJobId).HasColumnName("Purchase_Journal_Voucher_Details_Job_ID");
+                entity.Property(e => e.PurchaseJournalVoucherDetailsJobId).HasColumnName("Purchase_JournalVoucherDetails_Job_ID");
 
-                entity.Property(e => e.PurchaseJournalVoucherDetailsJvid).HasColumnName("Purchase_Journal_Voucher_Details_JVID");
+                entity.Property(e => e.PurchaseJournalVoucherDetailsJvid).HasColumnName("Purchase_JournalVoucherDetails_JVID");
 
-                entity.Property(e => e.PurchaseJournalVoucherDetailsLocationId).HasColumnName("Purchase_Journal_Voucher_Details_Location_ID");
+                entity.Property(e => e.PurchaseJournalVoucherDetailsLocationId).HasColumnName("Purchase_JournalVoucherDetails_Location_ID");
 
                 entity.Property(e => e.PurchaseJournalVoucherDetailsNarration)
-                    .HasColumnName("Purchase_Journal_Voucher_Details_Narration")
+                    .HasColumnName("Purchase_JournalVoucherDetails_Narration")
                     .HasMaxLength(200)
                     .IsUnicode(false);
 
                 entity.Property(e => e.PurchaseJournalVoucherDetailsReference)
-                    .HasColumnName("Purchase_Journal_Voucher_Details_Reference")
+                    .HasColumnName("Purchase_JournalVoucherDetails_Reference")
                     .HasMaxLength(100)
                     .IsUnicode(false);
 
-                entity.Property(e => e.PurchaseJournalVoucherDetailsSno).HasColumnName("Purchase_Journal_Voucher_Details_SNO");
+                entity.Property(e => e.PurchaseJournalVoucherDetailsSno).HasColumnName("Purchase_JournalVoucherDetails_SNO");
             });
 
             //////modelBuilder.Entity<PurchaseOrder>(entity =>
@@ -14186,11 +14186,11 @@ namespace Inspire.Erp.Infrastructure.Database
 
     
 
-                entity.HasOne(d => d.PurchaseOrderDetailsNoNavigation)
-                    .WithMany(p => p.PurchaseOrderDetails)
-                    .HasPrincipalKey(p => p.PurchaseOrderNo)
-                    .HasForeignKey(d => d.PurchaseOrderDetailsNo)
-                    .HasConstraintName("FK_PurchaseOrderDetails_PurchaseOrder");
+                // entity.HasOne(d => d.PurchaseOrderDetailsNoNavigation)
+                //     .WithMany(p => p.PurchaseOrderDetails)
+                //     .HasPrincipalKey(p => p.PurchaseOrderNo)
+                //     .HasForeignKey(d => d.PurchaseOrderDetailsNo)
+                //     .HasConstraintName("FK_PurchaseOrderDetails_PurchaseOrder");
 
 
                 //////entity.HasOne(d => d.PurchaseOrderDetailsNoNavigation)
@@ -19046,49 +19046,49 @@ namespace Inspire.Erp.Infrastructure.Database
             {
                 entity.HasNoKey();
 
-                entity.ToTable("Sales_Journal_Voucher_Details");
+                entity.ToTable("Sales_JournalVoucherDetails");
 
                 entity.Property(e => e.SalesJournalVoucherDetailsAccNo)
-                    .HasColumnName("Sales_Journal_Voucher_Details_AccNo")
+                    .HasColumnName("Sales_JournalVoucherDetails_AccNo")
                     .HasMaxLength(20)
                     .IsUnicode(false);
 
-                entity.Property(e => e.SalesJournalVoucherDetailsAccSno).HasColumnName("Sales_Journal_Voucher_Details_AccSNO");
+                entity.Property(e => e.SalesJournalVoucherDetailsAccSno).HasColumnName("Sales_JournalVoucherDetails_AccSNO");
 
-                entity.Property(e => e.SalesJournalVoucherDetailsAmount).HasColumnName("Sales_Journal_Voucher_Details_Amount");
+                entity.Property(e => e.SalesJournalVoucherDetailsAmount).HasColumnName("Sales_JournalVoucherDetails_Amount");
 
-                entity.Property(e => e.SalesJournalVoucherDetailsCostCenterId).HasColumnName("Sales_Journal_Voucher_Details_CostCenter_ID");
+                entity.Property(e => e.SalesJournalVoucherDetailsCostCenterId).HasColumnName("Sales_JournalVoucherDetails_CostCenter_ID");
 
-                entity.Property(e => e.SalesJournalVoucherDetailsDelStatus).HasColumnName("Sales_Journal_Voucher_Details_DelStatus");
+                entity.Property(e => e.SalesJournalVoucherDetailsDelStatus).HasColumnName("Sales_JournalVoucherDetails_DelStatus");
 
                 entity.Property(e => e.SalesJournalVoucherDetailsDrCr)
-                    .HasColumnName("Sales_Journal_Voucher_Details_DrCr")
+                    .HasColumnName("Sales_JournalVoucherDetails_DrCr")
                     .HasMaxLength(2)
                     .IsUnicode(false);
 
-                entity.Property(e => e.SalesJournalVoucherDetailsFcAmount).HasColumnName("Sales_Journal_Voucher_Details_FC_Amount");
+                entity.Property(e => e.SalesJournalVoucherDetailsFcAmount).HasColumnName("Sales_JournalVoucherDetails_FC_Amount");
 
-                entity.Property(e => e.SalesJournalVoucherDetailsFcRate).HasColumnName("Sales_Journal_Voucher_Details_FC_Rate");
+                entity.Property(e => e.SalesJournalVoucherDetailsFcRate).HasColumnName("Sales_JournalVoucherDetails_FC_Rate");
 
-                entity.Property(e => e.SalesJournalVoucherDetailsFsno).HasColumnName("Sales_Journal_Voucher_Details_FSNO");
+                entity.Property(e => e.SalesJournalVoucherDetailsFsno).HasColumnName("Sales_JournalVoucherDetails_FSNO");
 
-                entity.Property(e => e.SalesJournalVoucherDetailsId).HasColumnName("Sales_Journal_Voucher_Details_ID");
+                entity.Property(e => e.SalesJournalVoucherDetailsId).HasColumnName("Sales_JournalVoucherDetails_ID");
 
-                entity.Property(e => e.SalesJournalVoucherDetailsJobId).HasColumnName("Sales_Journal_Voucher_Details_Job_ID");
+                entity.Property(e => e.SalesJournalVoucherDetailsJobId).HasColumnName("Sales_JournalVoucherDetails_Job_ID");
 
-                entity.Property(e => e.SalesJournalVoucherDetailsLocationId).HasColumnName("Sales_Journal_Voucher_Details_Location_ID");
+                entity.Property(e => e.SalesJournalVoucherDetailsLocationId).HasColumnName("Sales_JournalVoucherDetails_Location_ID");
 
                 entity.Property(e => e.SalesJournalVoucherDetailsNarration)
-                    .HasColumnName("Sales_Journal_Voucher_Details_Narration")
+                    .HasColumnName("Sales_JournalVoucherDetails_Narration")
                     .HasMaxLength(200)
                     .IsUnicode(false);
 
                 entity.Property(e => e.SalesJournalVoucherDetailsReference)
-                    .HasColumnName("Sales_Journal_Voucher_Details_Reference")
+                    .HasColumnName("Sales_JournalVoucherDetails_Reference")
                     .HasMaxLength(100)
                     .IsUnicode(false);
 
-                entity.Property(e => e.SalesJournalVoucherDetailsSno).HasColumnName("Sales_Journal_Voucher_Details_SNO");
+                entity.Property(e => e.SalesJournalVoucherDetailsSno).HasColumnName("Sales_JournalVoucherDetails_SNO");
             });
 
             modelBuilder.Entity<SalesManMaster>(entity =>
@@ -21168,7 +21168,7 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasMaxLength(150)
                     .IsUnicode(false);
 
-                entity.Property(e => e.StockTransferDetailsSNo).HasColumnName("StockTransferDetailsSNo");
+                // entity.Property(e => e.StockTransferDetailsSNo).HasColumnName("StockTransferDetailsSNo");
 
                 entity.Property(e => e.StockTransferDetailsStid).HasColumnName("StockTransferDetailsStid");
 

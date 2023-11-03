@@ -191,7 +191,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         k.StockRegisterVoucherDate = salesVoucher.SalesVoucherDate;
                         k.StockRegisterRefVoucherNo = salesVoucher.SalesVoucherNo;
                         k.StockRegisterTransType = VoucherType.SalesVoucher_TYPE;
-
                         k.StockRegisterStatus = AccountStatus.Approved;
                     }
 
@@ -321,16 +320,31 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
 
+                List<StockRegister> sr = new List<StockRegister>();
 
+                foreach (var item in salesVoucherDetails)
+                {
+                    sr.Add(new StockRegister()
+                    {
+                        StockRegisterRefVoucherNo = salesVoucherNumber,
+                        StockRegisterAssignedDate = DateTime.Now,
+                        StockRegisterTransType = VoucherType.SalesVoucher_TYPE,
+                        StockRegisterStatus = AccountStatus.Approved,
+                        StockRegisterVoucherDate = salesVoucher.SalesVoucherDate,
+                        StockRegisterSout = item.SalesVoucherDetailsQuantity,
+                        StockRegisterMaterialID = item.SalesVoucherDetailsMatId,
+                    });
+                }
                 //stockRegister = stockRegister.Select((k) =>
                 //{
-                //    k.StockRegisterVoucherDate = salesVoucher.SalesVoucherDate;
-                //    k.StockRegisterRefVoucherNo = salesVoucherNumber;
-                //    k.StockRegisterTransType = VoucherType.SalesVoucher_TYPE;
-                //    k.StockRegisterStatus = AccountStatus.Approved;
-                //    return k;
+                //   k.StockRegisterVoucherDate = salesVoucher.SalesVoucherDate;
+                //   k.StockRegisterRefVoucherNo = salesVoucherNumber;
+                //   k.StockRegisterTransType = VoucherType.SalesVoucher_TYPE;
+                //   k.StockRegisterStatus = AccountStatus.Approved;
+                //    k.StockRegisterSout = 
+                //   return k;
                 //}).ToList();
-                //_stockRegisterRepository.InsertList(stockRegister);
+                _stockRegisterRepository.InsertList(sr);
 
 
 
