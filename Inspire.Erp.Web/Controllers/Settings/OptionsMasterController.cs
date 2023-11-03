@@ -6,6 +6,7 @@ using AutoMapper;
 using System.Collections.Generic;
 using System.Linq;
 using Inspire.Erp.Web.ViewModels.Settings;
+using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers.Settings
 {
@@ -28,6 +29,17 @@ namespace Inspire.Erp.Web.Controllers.Settings
         {
             return Ok(_optionsSvc.GetOptionsSettings(search));
         }
+
+
+        [HttpGet]
+        [Route("getAllOPtionSettings")]
+        public async Task< IActionResult> getAllOPtionSettings()
+        {
+            return Ok(await _optionsSvc.GetAllOptionSettings());
+        }
+
+
+
         [ApiExplorerSettings(IgnoreApi = true)]
         [HttpGet("GetOptionsSettingbyKey/{key}")]
         public ApiResponse<List<OptionsMasterViewModel>> GetOptionsSettingbyKey(string key)
