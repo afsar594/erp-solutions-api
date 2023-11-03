@@ -1,4 +1,5 @@
-﻿using Inspire.Erp.Domain.Entities;
+﻿using Inspire.Erp.Application.Common;
+using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Modals.Procurement;
@@ -22,5 +23,21 @@ namespace Inspire.Erp.Application.Procurement.Interface
         Task<Response<List<DropdownResponse>>> GetVoucherTypeDropdown();
 
         List<PurchaseReturn> GetPurchaseReturn();
+        PurchaseReturnModel GetSavedPurchaseReturnDetails(string pvno);
+
+        PurchaseReturnModel InsertPurchaseReturn(PurchaseReturn purchaseReturn,
+                                 List<AccountsTransactions> accountsTransactions,
+                                 List<PurchaseReturnDetails> purchaseReturnDetails,
+                                 List<StockRegister> stockRegister);
+        PurchaseReturnModel UpdatePurchaseReturn(PurchaseReturn purchaseReturn,
+                                 List<AccountsTransactions> accountsTransactions,
+                                 List<PurchaseReturnDetails> purchaseReturnDetails,
+                                 List<StockRegister> stockRegister);
+        int DeletePurchaseReturn(PurchaseReturn purchaseReturn, 
+                                 List<AccountsTransactions> accountsTransactions, 
+                                 List<PurchaseReturnDetails> purchaseReturnDetails, 
+                                 List<StockRegister> stockRegister);
+
+        VouchersNumbers GetVouchersNumbers(string pvno);
     }
 }

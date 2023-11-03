@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inspire.Erp.Web.ViewModels.Procurement
 {
@@ -77,6 +78,9 @@ namespace Inspire.Erp.Web.ViewModels.Procurement
         public DateTime? PurchaseOrderDelivToDate { get; set; }
         public string PurchaseOrderDelivStatus { get; set; }
         public string PurchaseOrderDelivPlace { get; set; }
+
+        [NotMapped]
+        public decimal PurchaseOrderQuantityTill { get; set; }
         public List<AccountTransactionViewModel> AccountsTransactions { get; set; }
         public List<PurchaseOrderDetailsViewModel> PurchaseOrderDetails { get; set; }
 

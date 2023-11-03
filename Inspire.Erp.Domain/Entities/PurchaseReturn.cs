@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -56,6 +57,9 @@ namespace Inspire.Erp.Domain.Entities
         public bool? PurchaseReturnJobDirectPur { get; set; }
         public bool? PurchaseReturnDelStatus { get; set; }
 
+        [NotMapped]
+
+        public string CurrencyMasterCurrencyName { get; set; }
         public virtual ICollection<PurchaseReturnDetails> PurchaseReturnDetails { get; set; }
     }
 }

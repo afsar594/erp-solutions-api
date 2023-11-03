@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -40,5 +41,8 @@ namespace Inspire.Erp.Domain.Entities
         public bool? PurchaseReturnDetailsDelStatus { get; set; }
 
         public virtual PurchaseReturn PurchaseReturnDetailsNoNavigation { get; set; }
+
+        [NotMapped]
+        public decimal? PurchaseReturnNetStock { get; set; }
     }
 }

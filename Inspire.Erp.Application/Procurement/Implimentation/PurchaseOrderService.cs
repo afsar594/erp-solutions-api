@@ -298,6 +298,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         public IEnumerable<PurchaseOrder> GetPurchaseOrder()
         {
             IEnumerable<PurchaseOrder> purchaseOrder_ALL = _purchaseOrderRepository.GetAll().Where(k => k.PurchaseOrderDelStatus == false || k.PurchaseOrderDelStatus == null);
+            //foreach (var purchaseOrderDetail in purchaseOrder_ALL)
+            //{
+            //    purchaseOrderDetail.PurchaseOrderDetails = _purchaseOrderDetailsRepository.GetAll().Where(c => c.PurchaseOrderDetailsNo == purchaseOrderDetail.PurchaseOrderNo).ToList();
+            //}
             return purchaseOrder_ALL;
         }
         public PurchaseOrderModel GetSavedPurchaseOrderDetails(string pvno)
@@ -315,6 +319,16 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             catch { 
             }
             purchaseOrderModel.purchaseOrderDetails = _purchaseOrderDetailsRepository.GetAsQueryable().Where(x => x.PurchaseOrderDetailsNo == pvno && (x.PurchaseOrderDetailsDelStatus == false || x.PurchaseOrderDetailsDelStatus == null)).ToList();
+
+            foreach (var purchaseOrderDetail in purchaseOrderModel.purchaseOrderDetails)
+            {
+                if (_stockRegisterRepository.GetAsQueryable().Where(c => c.StockRegisterRefVoucherNo == purchaseOrderDetail.PurchaseOrderDetailsNo).FirstOrDefault() != null)
+                {
+                    purchaseOrderDetail.PurchaseOrderNetStock = _stockRegisterRepository.GetAsQueryable().Where(c => c.StockRegisterRefVoucherNo == purchaseOrderDetail.PurchaseOrderDetailsNo).FirstOrDefault().StockRegisterSIN;
+
+                }
+            }
+
             return purchaseOrderModel;
 
         }
