@@ -5,8 +5,10 @@ namespace Inspire.Erp.Domain.Entities
 {
     public partial class StockTransferDetails
     {
-        public int? StockTransferDetailsStid { get; set; }
-        public int? StockTransferDetailsSNo { get; set; }
+        public int StockTransferDetailsStId { get; set; }
+
+        public int StockTransferId { get; set; }
+        public string StockTransferDetailsSNo { get; set; }
         public int? StockTransferDetailsMaterialId { get; set; }
         public int? StockTransferDetailsUnitId { get; set; }
         public double? StockTransferDetailsQty { get; set; }
@@ -16,5 +18,7 @@ namespace Inspire.Erp.Domain.Entities
         public DateTime? StockTransferDetailsExpDate { get; set; }
         public bool? StockTransferDetailsDelStatus { get; set; }
         public string StockTransferDetailsVoucherNo { get; set; }
+
+        public virtual StockTransfer StockTransferDetailsNoNavigation { get; set; }
     }
 }

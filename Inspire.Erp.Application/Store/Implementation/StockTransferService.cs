@@ -116,6 +116,13 @@ namespace Inspire.Erp.Application.Store.Implementation
                 throw;
             }
         }
+
+
+        public IEnumerable<StockTransfer> GetStockTransfer()
+        {
+            IEnumerable<StockTransfer> stockTransfer_ALL = _StockTransferRepo.GetAll().Where(k => k.StockTransferDelStatus == false || k.StockTransferDelStatus == null);
+            return stockTransfer_ALL;
+        }
         public async Task<StockTransferModel> InsertStockTransfer(StockTransfer stockTransfer, List<StockTransferDetails> stockTransferDetails
              , List<StockRegister> stockRegister)
         {
@@ -141,7 +148,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     //x.OpeningStockVoucherDetailsConversionType = await _utilityService.GetBasicUnitConversion(x.OpeningStockVoucherDetailsMatId, x.OpeningStockVoucherDetailsUnitId);
                     stockTransferDetails = stockTransferDetails.Select((x) =>
                     {
-                        x.StockTransferDetailsStid = maxcount;
+                        x.StockTransferDetailsStId = maxcount;
                         x.StockTransferDetailsVoucherNo = openingstockVoucherNumber;
 
                         return x;
@@ -563,7 +570,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     //x.OpeningStockVoucherDetailsConversionType = await _utilityService.GetBasicUnitConversion(x.OpeningStockVoucherDetailsMatId, x.OpeningStockVoucherDetailsUnitId);
                     stockTransferDetails = stockTransferDetails.Select((x) =>
                     {
-                        x.StockTransferDetailsStid = maxcount;
+                        x.StockTransferDetailsStId = maxcount;
                         x.StockTransferDetailsVoucherNo = openingstockVoucherNumber;
 
                         return x;

@@ -52,6 +52,24 @@ namespace Inspire.Erp.Web.Controllers.Store
                 throw ex;
             }
         }
+
+
+        [HttpGet]
+        [Route("GetAllStockTransfer")]
+        public ApiResponse<List<StockTransfer>> GetAllStockTransfer()
+        {
+
+
+            ApiResponse<List<StockTransfer>> apiResponse = new ApiResponse<List<StockTransfer>>
+            {
+                Valid = true,
+                Result = _mapper.Map<List<StockTransfer>>(_st.GetStockTransfer()),
+                Message = ""
+            };
+            return apiResponse;
+
+
+        }
         /// <summary>
         ///  Need to replace SP getStockTransferReport by LINQ see from the vb.code and load it according to the reposnse  
         /// </summary>
@@ -91,7 +109,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 var param2 = _mapper.Map<List<StockTransferDetails>>(stockTranfermodel.StockTransferDetails);
                 var  param3 = new List<AccountsTransactions>();
                 List<StockRegister> param4 = new List<StockRegister>();
-                clsAccountAndStock.StockTransfer_Accounts_STOCK_Transactions("", "", param1, param2, ref param4);
+               // clsAccountAndStock.StockTransfer_Accounts_STOCK_Transactions("", "", param1, param2, ref param4);
                 var xs = await _st.InsertStockTransfer(param1,param2, param4);
                 StockTransferViewModel openingStockVoucherViewModel = new StockTransferViewModel
                 {
