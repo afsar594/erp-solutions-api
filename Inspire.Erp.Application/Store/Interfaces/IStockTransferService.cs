@@ -23,7 +23,7 @@ namespace Inspire.Erp.Application.Store.Interface
             , List<StockRegister> stockRegister);
         public IEnumerable<StockTransferResponseModel> getStockTransferReport();
 
-
+        public IEnumerable<StockTransfer> GetStockTransfer();
         public StockTransferModel GetSavedStockTransferDetails(string pvno);
     }
 }

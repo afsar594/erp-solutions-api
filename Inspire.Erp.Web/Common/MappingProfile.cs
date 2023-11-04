@@ -342,6 +342,12 @@ namespace Inspire.Erp.Web.Common
             CreateMap<ViewStockTransferType, ViewStockTransferTypeViewModel>();
             CreateMap<ViewStockTransferTypeViewModel, ViewStockTransferType>();
 
+            CreateMap<StockTransfer, StockTransferViewModel>();
+            CreateMap<StockTransferViewModel, StockTransfer>();
+
+            CreateMap<StockTransferDetails, StockTransferDetailsViewModel>();
+            CreateMap<StockTransferDetailsViewModel, StockTransferDetails>();
+
             CreateMap<ReportStockBaseUnit, ReportStockBaseUnitViewModel>();
             CreateMap<ReportStockBaseUnitViewModel, ReportStockBaseUnit>();
 
