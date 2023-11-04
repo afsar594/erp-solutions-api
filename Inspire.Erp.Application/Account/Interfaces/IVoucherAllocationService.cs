@@ -20,8 +20,5 @@ namespace Inspire.Erp.Application.Account.Interfaces
         Task<Response<GetVoucherAllocationListResponse>> GetSpecificVoucherAllocation(int id = 0);
         IQueryable GetVoucherAllocation();
         AllocationVoucher DeleteAllocationVoucher(long ID);
-
-
-        Task<Response<GetVoucherAllocationListResponse>> InsertVoucherAllocation(AllocationVoucher model);
-    }
+            }
 }

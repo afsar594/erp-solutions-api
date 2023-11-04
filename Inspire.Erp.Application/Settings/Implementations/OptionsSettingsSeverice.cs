@@ -5,6 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using System.Threading.Tasks;
+using Inspire.Erp.Domain.Modals;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Inspire.Erp.Application.Settings.Implementations
 {
@@ -15,9 +19,23 @@ namespace Inspire.Erp.Application.Settings.Implementations
         {
             _optionsSettingsRepo = optionsSettingsRepo;
         }
+
+        public async Task<Response<List<OptionsMaster>>> GetAllOptionSettings()
+        {
+            List < OptionsMaster > optionsMasters = new List < OptionsMaster >();
+            try
+            {
+                optionsMasters = await _optionsSettingsRepo.GetAsQueryable().ToListAsync();
+                return Response<List<OptionsMaster>>.Success(optionsMasters, "Data found");
+            }catch (Exception ex)
+            {
+                return Response<List<OptionsMaster>>.Fail(optionsMasters, "Data not found");
+            }
+        }
+
         public IEnumerable<OptionsMaster> GetOptionsSettings(string search)
         {
-            IEnumerable<OptionsMaster> optionsSettings = _optionsSettingsRepo.GetAsQueryable().Where(x => x.OptionsMasterFullDescription.Contains(search));
+            IEnumerable<OptionsMaster> optionsSettings = _optionsSettingsRepo.GetAsQueryable().Where(x =>string.IsNullOrEmpty(search) ? true :  x.OptionsMasterFullDescription.Contains(search)).ToList();
             return optionsSettings;
         }
 

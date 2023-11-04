@@ -139,6 +139,7 @@ namespace Inspire.Erp.Application.Account.Implementations
 
             try
             {
+                List<SalesReturnDetails> addedSalesReturnist =new List<SalesReturnDetails>();
                 _salesReturnRepository.BeginTransaction();
                 salesReturn.SalesReturnDate = DateTime.Now;
                 salesReturn.SalesReturnDlvDate = DateTime.Now;
@@ -154,16 +155,25 @@ namespace Inspire.Erp.Application.Account.Implementations
                 //=================================
                 salesReturnDetails = salesReturnDetails.Select((k) =>
                  {
-                     //if (k.SalesReturnDetailsId == 0)
-                     //{
+                     k.SalesReturnDetailsId = 0;
                      k.SalesReturnId = salesReturn.SalesReturnId;
                      k.SalesReturnDetailsNo = salesReturn.SalesReturnNo;
-                     //k.SalesReturnDetailsId = 0;
-                     //}
-
                      return k;
                  }).ToList();
-                _salesReturnDetailsRepository.UpdateList(salesReturnDetails);
+
+                //addedSalesReturnist = salesReturnDetails.Select((k) =>
+                //{
+                //    k.SalesReturnDetailsId = 0;
+                //    k.SalesReturnId = salesReturn.SalesReturnId;
+                //    k.SalesReturnDetailsNo = salesReturn.SalesReturnNo;
+                //    return k;
+                //}).ToList();
+                var removedList = _Context.SalesReturnDetails.Where(o => o.SalesReturnId == salesReturn.SalesReturnId).ToList();
+                _Context.SalesReturnDetails.RemoveRange(removedList);
+                _Context.SaveChanges();
+
+                _Context.SalesReturnDetails.AddRange(salesReturnDetails);
+                _Context.SaveChanges();
 
 
                 Console.WriteLine("STEP TWO");
@@ -314,21 +324,32 @@ namespace Inspire.Erp.Application.Account.Implementations
                 }).ToList();
                 _Context.AccountsTransactions.AddRange(accountsTransactions);
                 _Context.SaveChanges();
-                StockRegister sr = new StockRegister();
-                // sr.StockRegisterStoreID = 0;
-                sr.StockRegisterRefVoucherNo = salesReturn.SalesReturnNo;
-                sr.StockRegisterAssignedDate = DateTime.Now;
-                sr.StockRegisterTransType = VoucherType.SalesReturn_TYPE;
-                sr.StockRegisterFCAmount = salesReturn.SalesReturnTotalActualAmount;
-                sr.StockRegisterFcRate = salesReturn.SalesReturnFc_Rate;
-                sr.StockRegisterStatus = "A";
-                sr.StockRegisterJobID = salesReturn.SalesReturnJobId;
-                sr.StockRegisterLocationID = salesReturn.SalesReturnLocationID;
-                sr.StockRegisterFSNO = null;
-                sr.StockRegisterVoucherDate = salesReturn.SalesReturnDate;
+
+                List<StockRegister> sr = new List<StockRegister>();
+               
+                foreach (var item in salesReturnDetails)
+                {
+                    sr.Add(new StockRegister()
+                    {
+                        StockRegisterRefVoucherNo = salesReturn.SalesReturnNo,
+                        StockRegisterAssignedDate = DateTime.Now,
+                        StockRegisterTransType = VoucherType.SalesReturn_TYPE,
+                        StockRegisterFCAmount = salesReturn.SalesReturnTotalActualAmount,
+                        StockRegisterFcRate = salesReturn.SalesReturnFc_Rate,
+                        StockRegisterStatus = "A",
+                        StockRegisterJobID = salesReturn.SalesReturnJobId,
+                        StockRegisterLocationID = salesReturn.SalesReturnLocationID,
+                        StockRegisterFSNO = null,
+                        StockRegisterVoucherDate = salesReturn.SalesReturnDate,
+                        StockRegisterSIN = item.SalesReturnDetailsQuantity,
+                        StockRegisterMaterialID = item.SalesReturnDetailsMatId,
+                    });
+                }
+               
+                //sr.StockRegisterUsedQTY= salesReturn.
                 // return sr;
                 // }).ToList();
-                _Context.StockRegister.Add(sr);
+                _Context.StockRegister.AddRange(sr);
                 _Context.SaveChanges();
                 return this.GetSavedSalesReturnDetails(salesReturn.SalesReturnNo);
             }
