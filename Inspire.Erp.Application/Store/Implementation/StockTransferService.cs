@@ -149,7 +149,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     stockTransferDetails = stockTransferDetails.Select((x) =>
                     {
                         x.StockTransferDetailsStId = maxcount;
-                        x.StockTransferDetailsVoucherNo = openingstockVoucherNumber;
+                        x.StockTransferDetailsSNo = openingstockVoucherNumber;
 
                         return x;
                     }).ToList();
@@ -280,7 +280,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
 
            // issueVoucherModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.IssueVoucher_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
-            issueVoucherModel.stockTransferDetails = _StockTransferDetailRepo.GetAsQueryable().Where(x => x.StockTransferDetailsVoucherNo == pvno && (x.StockTransferDetailsDelStatus == false || x.StockTransferDetailsDelStatus == null)).ToList();
+            issueVoucherModel.stockTransferDetails = _StockTransferDetailRepo.GetAsQueryable().Where(x => x.StockTransferDetailsSNo == pvno && (x.StockTransferDetailsDelStatus == false || x.StockTransferDetailsDelStatus == null)).ToList();
             return issueVoucherModel;
 
 
@@ -571,7 +571,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     stockTransferDetails = stockTransferDetails.Select((x) =>
                     {
                         x.StockTransferDetailsStId = maxcount;
-                        x.StockTransferDetailsVoucherNo = openingstockVoucherNumber;
+                        x.StockTransferDetailsSNo = openingstockVoucherNumber;
 
                         return x;
                     }).ToList();
