@@ -7,7 +7,7 @@ namespace Inspire.Erp.Domain.Entities
     {
         public int StockTransferDetailsStId { get; set; }
 
-        public int StockTransferId { get; set; }
+        public int? StockTransferId { get; set; }
         public string StockTransferDetailsSNo { get; set; }
         public int? StockTransferDetailsMaterialId { get; set; }
         public int? StockTransferDetailsUnitId { get; set; }
