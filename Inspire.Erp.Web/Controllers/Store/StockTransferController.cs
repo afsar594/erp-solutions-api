@@ -283,7 +283,7 @@ namespace Inspire.Erp.Web.Controllers.Store
         {
             StockTransferModel stockTransfer = _st.GetSavedStockTransferDetails(id);
 
-            if (stockTransfer != null)
+            if (stockTransfer.stockTransfer != null)
             {
                 StockTransferViewModel stockTransferViewModel = new StockTransferViewModel
                 {
