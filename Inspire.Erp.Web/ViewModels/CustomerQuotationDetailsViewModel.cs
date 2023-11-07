@@ -28,5 +28,6 @@ namespace Inspire.Erp.Web.ViewModels
         public string CustomerQuotationDetailsCashCustomerName { get; set; }
         public long? CustomerQuotationDetailsEnquiryDetailsId { get; set; }
         public bool? CustomerQuotationDetailsDelStatus { get; set; }
+        public decimal?  CustomerQuotationDetailsGrossProfit { get; set; }
     }
 }

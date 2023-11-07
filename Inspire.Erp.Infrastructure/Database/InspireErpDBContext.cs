@@ -5976,6 +5976,8 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.CustomerPurchaseOrderDetailsUnitPrice)
                     .HasColumnName("Customer_Purchase_Order_Details_Unit_Price")
                     .HasColumnType("numeric(18, 2)");
+
+
             });
 
 
@@ -6128,14 +6130,36 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnName("Customer_Quotation_VAT_Percentage")
                     .HasColumnType("numeric(18, 2)");
 
+
+
+                entity.Property(e => e.CustomerQuotationReviseQuotation)
+                      .HasColumnName("Customer_Quotation_Revise_Quotation");
+
+                entity.Property(e => e.CustomerQuotationProjectRef)
+                      .HasColumnName("Customer_Quotation_ProjectRef"); 
+
+
+                entity.Property(e => e.CustomerQuotationProjectN)
+                      .HasColumnName("Customer_Quotation_Project_Name");
+
+
+                entity.Property(e => e.CustomerQuotationGrossProfitTotal)
+                .HasColumnName("Customer_Quotation_Gross_Profit_Total")
+                .HasColumnType("numreic(18,2)");
+
                 entity.Property(e => e.CustomerQuotationVendorId).HasColumnName("Customer_Quotation_Vendor_ID");
 
                 entity.Property(e => e.CustomerQuotationVoucherType).HasColumnName("Customer_Quotation_Voucher_Type");
+
+
+
 
                 entity.Property(e => e.CustomerQuotationWarranty)
                     .HasColumnName("Customer_Quotation_Warranty")
                     .HasMaxLength(200)
                     .IsUnicode(false);
+
+
             });
 
             modelBuilder.Entity<CustomerQuotationDetails>(entity =>
@@ -6204,6 +6228,11 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.CustomerQuotationDetailsVat)
                     .HasColumnName("Customer_Quotation_Details_VAT")
+                    .HasColumnType("numeric(18, 2)");  
+                
+                
+                entity.Property(e => e.CustomerQuotationDetailsGrossProfit)
+                    .HasColumnName("Customer_Quotation_Details_Gross_Profit")
                     .HasColumnType("numeric(18, 2)");
 
                 entity.Property(e => e.CustomerQuotationDetailsVoucherType).HasColumnName("Customer_Quotation_Details_Voucher_Type");

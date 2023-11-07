@@ -48,5 +48,9 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? CustomerQuotationVatAmount { get; set; }
         public int? CustomerQuotationQuotationEnquiryN { get; set; }
         public bool? CustomerQuotationDelStatus { get; set; }
+        public string CustomerQuotationProjectRef { get; set; }
+        public string CustomerQuotationProjectN { get; set; }
+        public bool? CustomerQuotationReviseQuotation { get; set; }
+        public decimal? CustomerQuotationGrossProfitTotal { get; set; }
     }
 }

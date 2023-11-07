@@ -26,7 +26,7 @@ namespace Inspire.Erp.Domain.Entities
         public string CustomerQuotationDetailsCashCustomerName { get; set; }
         public long? CustomerQuotationDetailsEnquiryDetailsId { get; set; }
         public bool? CustomerQuotationDetailsDelStatus { get; set; }
-
+        public decimal? CustomerQuotationDetailsGrossProfit { get; set; }
         public virtual VouchersNumbers CustomerQuotationDetailsQuotation { get; set; }
     }
 }
