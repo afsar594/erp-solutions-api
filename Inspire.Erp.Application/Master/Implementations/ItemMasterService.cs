@@ -175,6 +175,30 @@ namespace Inspire.Erp.Application.Master
             return itemMaster;
         }
 
+        public IEnumerable<ItemMaster> GetAllItemMaster()
+        {
+            IEnumerable<ItemMaster> itemMaster;
+            try
+            {
+                itemMaster = itemrepository.GetAsQueryable().Where(o => o.ItemMasterDelStatus == false || o.ItemMasterDelStatus == null).Select(k => new ItemMaster
+                {
+                    ItemMasterItemId = k.ItemMasterItemId,
+                    ItemMasterItemName = k.ItemMasterItemName
+                });
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+            finally
+            {
+                //cityrepository.Dispose();
+            }
+            return itemMaster;
+        }
+
         public IEnumerable<ItemMaster> GetAllItemNotGroup()
         {
             IEnumerable<ItemMaster> itemMaster;
