@@ -6,7 +6,8 @@ namespace Inspire.Erp.Domain.Entities
     public partial class CustomerPurchaseOrderDetails
     {
         public long CustomerPurchaseOrderDetailsId { get; set; }
-        public string CustomerPurchaseOrderDetailsCpoId { get; set; }
+        public long CustomerPurchaseOrderDetailsOrderId { get; set; }
+        public string CustomerPurchaseOrderDetailsVoucherNo { get; set; }
         public int? CustomerPurchaseOrderDetailsSlno { get; set; }
         public long? CustomerPurchaseOrderDetailsItemId { get; set; }
         public string CustomerPurchaseOrderDetailsDescription { get; set; }
@@ -24,5 +25,6 @@ namespace Inspire.Erp.Domain.Entities
         public string CustomerPurchaseOrderDetailsRemarks { get; set; }
         public decimal? CustomerPurchaseOrderDetailsFocQty { get; set; }
         public bool? CustomerPurchaseOrderDetailsDelStatus { get; set; }
+        public virtual CustomerPurchaseOrder CustomerPurchaseOrderDetailsNoNavigation { get; set; }
     }
 }

@@ -5,8 +5,13 @@ namespace Inspire.Erp.Domain.Entities
 {
     public partial class CustomerPurchaseOrder
     {
-        public string CustomerPurchaseOrderCpoId { get; set; }
-        public DateTime? CustomerPurchaseOrderCpoDate { get; set; }
+        public CustomerPurchaseOrder()
+        {
+            CustomerPurchaseOrderDetails = new HashSet<CustomerPurchaseOrderDetails>();
+        }
+        public int CustomerPurchaseOrderId { get; set; }
+        public string CustomerPurchaseOrderVoucherNo { get; set; }
+        public DateTime? CustomerPurchaseOrderDate { get; set; }
         public long? CustomerPurchaseOrderLocationId { get; set; }
         public string CustomerPurchaseOrderCustomerCode { get; set; }
         public string CustomerPurchaseOrderCustomerName { get; set; }
@@ -38,7 +43,6 @@ namespace Inspire.Erp.Domain.Entities
         public int? CustomerPurchaseOrderPoEnquiryIdN { get; set; }
         public int? CustomerPurchaseOrderPoQuotationIdN { get; set; }
         public bool? CustomerPurchaseOrderDelStatus { get; set; }
-
-        public virtual VouchersNumbers CustomerPurchaseOrderCpo { get; set; }
+        public virtual ICollection<CustomerPurchaseOrderDetails> CustomerPurchaseOrderDetails { get; set; }
     }
 }

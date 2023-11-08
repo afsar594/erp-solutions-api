@@ -233,6 +233,14 @@ namespace Inspire.Erp.Web.Common
             CreateMap<SalesJournalDetailsViewModel, SalesJournalDetails>();
 
 
+            CreateMap<CustomerPurchaseOrder, CustomerPurchaseOrderViewModel>();
+            CreateMap<CustomerPurchaseOrderViewModel, CustomerPurchaseOrder>();
+
+            CreateMap<CustomerPurchaseOrderDetails, CustomerPurchaseOrderDetailsViewModel>();
+            CreateMap<CustomerPurchaseOrderDetailsViewModel, CustomerPurchaseOrderDetails>();
+
+
+
             // ********************* Accounts ending *************
             // ********************* Procurement *****************
 
@@ -399,6 +407,9 @@ namespace Inspire.Erp.Web.Common
 
             CreateMap<OptionsMaster,OptionsMasterViewModel>();
             CreateMap<OptionsMasterViewModel,OptionsMaster>();
+
+
+
 
             //*******************Settings Ending ****************
 
