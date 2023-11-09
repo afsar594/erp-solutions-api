@@ -233,6 +233,14 @@ namespace Inspire.Erp.Web.Common
             CreateMap<SalesJournalDetailsViewModel, SalesJournalDetails>();
 
 
+            CreateMap<CustomerPurchaseOrder, CustomerPurchaseOrderViewModel>();
+            CreateMap<CustomerPurchaseOrderViewModel, CustomerPurchaseOrder>();
+
+            CreateMap<CustomerPurchaseOrderDetails, CustomerPurchaseOrderDetailsViewModel>();
+            CreateMap<CustomerPurchaseOrderDetailsViewModel, CustomerPurchaseOrderDetails>();
+
+
+
             // ********************* Accounts ending *************
             // ********************* Procurement *****************
 
@@ -284,6 +292,9 @@ namespace Inspire.Erp.Web.Common
 
             CreateMap<OpeningStockVoucher, OpeningStockVoucherViewModel>();
             CreateMap<OpeningStockVoucherViewModel, OpeningStockVoucher>();
+
+            CreateMap<OpeningStockVoucherDetails, OpeningStockVoucherDetailsViewModel>();
+            CreateMap<OpeningStockVoucherDetailsViewModel, OpeningStockVoucherDetails>();
 
 
             //*********************** Procurement Ending ******
@@ -339,6 +350,12 @@ namespace Inspire.Erp.Web.Common
             CreateMap<ViewStockTransferType, ViewStockTransferTypeViewModel>();
             CreateMap<ViewStockTransferTypeViewModel, ViewStockTransferType>();
 
+            CreateMap<StockTransfer, StockTransferViewModel>();
+            CreateMap<StockTransferViewModel, StockTransfer>();
+
+            CreateMap<StockTransferDetails, StockTransferDetailsViewModel>();
+            CreateMap<StockTransferDetailsViewModel, StockTransferDetails>();
+
             CreateMap<ReportStockBaseUnit, ReportStockBaseUnitViewModel>();
             CreateMap<ReportStockBaseUnitViewModel, ReportStockBaseUnit>();
 
@@ -390,6 +407,9 @@ namespace Inspire.Erp.Web.Common
 
             CreateMap<OptionsMaster,OptionsMasterViewModel>();
             CreateMap<OptionsMasterViewModel,OptionsMaster>();
+
+
+
 
             //*******************Settings Ending ****************
 

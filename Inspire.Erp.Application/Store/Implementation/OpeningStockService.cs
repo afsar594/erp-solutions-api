@@ -320,13 +320,8 @@ namespace Inspire.Erp.Application.Store.Implementation
             try
             {
                 _openingstockVoucherRepository.BeginTransaction();
-
-
-             
-
                 string openingstockVoucherNumber = this.GenerateOpeningStockVoucherNo(openstockVoucher.OpeningStockVoucherDate.Date).VouchersNumbersVNo;
                 openstockVoucher.OpeningStockVoucherNo = openingstockVoucherNumber;
-
 
                 int maxcount = 0;
                 maxcount = Convert.ToInt32(
@@ -336,22 +331,22 @@ namespace Inspire.Erp.Application.Store.Implementation
                 openstockVoucher.OpeningStockVoucherId = maxcount;
 
                 //x.OpeningStockVoucherDetailsConversionType = await _utilityService.GetBasicUnitConversion(x.OpeningStockVoucherDetailsMatId, x.OpeningStockVoucherDetailsUnitId);
-                openstockVoucherDetails = openstockVoucherDetails.Select((x) =>
+                openstockVoucher.OpeningStockVoucherDetails = openstockVoucherDetails.Select((x) =>
                 {
                     x.OpeningStockVoucherId = maxcount;
                     x.OpeningStockVoucherDetailsNo =openingstockVoucherNumber;
 
                     return x;
                 }).ToList();
-                
 
-                var osVDetails = await Task.WhenAll(openstockVoucherDetails.Select(async (osvd) =>
+
+                openstockVoucher.OpeningStockVoucherDetails = await Task.WhenAll(openstockVoucher.OpeningStockVoucherDetails.Select(async (osvd) =>
                 {
                     osvd.OpeningStockVoucherDetailsConversionType =  await _utilityService.GetBasicUnitConversion(osvd.OpeningStockVoucherDetailsMatId, osvd.OpeningStockVoucherDetailsUnitId);
                     return osvd;
                 }));
 
-                openstockVoucher.OpeningStockVoucherDetails = osVDetails;
+               // openstockVoucher.OpeningStockVoucherDetails = osVDetails;
     
 
                 //_openstockVoucherDetailsRepository.InsertList(issueVoucherDetails);
@@ -462,11 +457,6 @@ namespace Inspire.Erp.Application.Store.Implementation
                 }).ToList();
                 _stockRegisterRepository.UpdateList(stockRegister);
 
-
-
-
-
-
                 _openingstockVoucherRepository.TransactionCommit();
 
             }
@@ -531,7 +521,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                 openingstockVoucher.OpeningStockVoucherDelStatus = true;
 
-                openingstockVoucherDetails = openingstockVoucherDetails.Select((k) =>
+                openingstockVoucher.OpeningStockVoucherDetails = openingstockVoucher.OpeningStockVoucherDetails.Select((k) =>
                 {
                     k.OpeningStockVoucherDetailsDelStatus = true;
                     return k;
@@ -559,7 +549,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
 
 
-                openingstockVoucher.OpeningStockVoucherDetails = openingstockVoucherDetails;
+             //   openingstockVoucher.OpeningStockVoucherDetails = openingstockVoucherDetails;
 
                 _openingstockVoucherRepository.Update(openingstockVoucher);
 

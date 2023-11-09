@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Inspire.Erp.Application.Common;
 using Inspire.Erp.Application.Store.Interface;
 using Inspire.Erp.Application.StoreWareHouse.Interface;
 using Inspire.Erp.Domain.Entities;
@@ -51,6 +52,24 @@ namespace Inspire.Erp.Web.Controllers.Store
                 throw ex;
             }
         }
+
+
+        [HttpGet]
+        [Route("GetAllStockTransfer")]
+        public ApiResponse<List<StockTransfer>> GetAllStockTransfer()
+        {
+
+
+            ApiResponse<List<StockTransfer>> apiResponse = new ApiResponse<List<StockTransfer>>
+            {
+                Valid = true,
+                Result = _mapper.Map<List<StockTransfer>>(_st.GetStockTransfer()),
+                Message = ""
+            };
+            return apiResponse;
+
+
+        }
         /// <summary>
         ///  Need to replace SP getStockTransferReport by LINQ see from the vb.code and load it according to the reposnse  
         /// </summary>
@@ -90,7 +109,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 var param2 = _mapper.Map<List<StockTransferDetails>>(stockTranfermodel.StockTransferDetails);
                 var  param3 = new List<AccountsTransactions>();
                 List<StockRegister> param4 = new List<StockRegister>();
-                clsAccountAndStock.StockTransfer_Accounts_STOCK_Transactions("", "", param1, param2, ref param4);
+               // clsAccountAndStock.StockTransfer_Accounts_STOCK_Transactions("", "", param1, param2, ref param4);
                 var xs = await _st.InsertStockTransfer(param1,param2, param4);
                 StockTransferViewModel openingStockVoucherViewModel = new StockTransferViewModel
                 {
@@ -254,6 +273,48 @@ namespace Inspire.Erp.Web.Controllers.Store
 
             return apiResponse;
 
+        }
+
+
+
+        [HttpGet]
+        [Route("GetSavedStockTransferDetails/{id}")]
+        public ApiResponse<StockTransferViewModel> GetSavedStockTransferDetails(string id)
+        {
+            StockTransferModel stockTransfer = _st.GetSavedStockTransferDetails(id);
+
+            if (stockTransfer.stockTransfer != null)
+            {
+                StockTransferViewModel stockTransferViewModel = new StockTransferViewModel
+                {
+
+                    StockTransferId = stockTransfer.stockTransfer.StockTransferId,
+                    StockTransferVoucherNo = stockTransfer.stockTransfer.StockTransferVoucherNo,
+                    StockTransferStDate = stockTransfer.stockTransfer.StockTransferStDate,
+                    StockTransferLocationIdFrom = stockTransfer.stockTransfer.StockTransferLocationIdFrom,
+                    StockTransferLocationIdTo = stockTransfer.stockTransfer.StockTransferLocationIdTo,
+                    StockTransferFSNo = stockTransfer.stockTransfer.StockTransferFSNo,
+                    StockTransferStatus = stockTransfer.stockTransfer.StockTransferStatus,
+                    StockTransferUserId = stockTransfer.stockTransfer.StockTransferUserId,
+                    StockTransferNarration = stockTransfer.stockTransfer.StockTransferNarration,
+                    StockTransferJobId = stockTransfer.stockTransfer.StockTransferJobId,
+                    StockTransferApproved = stockTransfer.stockTransfer.StockTransferApproved,
+                    StockTransferApprovedBy = stockTransfer.stockTransfer.StockTransferApprovedBy,
+                    StockTransferApprovedDate = stockTransfer.stockTransfer.StockTransferApprovedDate,
+                    StockTransferDelStatus = stockTransfer.stockTransfer.StockTransferDelStatus,
+
+                };
+                stockTransferViewModel.StockTransferDetails = _mapper.Map<List<StockTransferDetailsViewModel>>(stockTransfer.stockTransferDetails);
+                //stockTransferViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(openingstockVoucher.accountsTransactions);
+                ApiResponse<StockTransferViewModel> apiResponse = new ApiResponse<StockTransferViewModel>
+                {
+                    Valid = true,
+                    Result = stockTransferViewModel,
+                    Message = ""
+                };
+                return apiResponse;
+            }
+            return null;
         }
 
     }

@@ -13,7 +13,7 @@ namespace Inspire.Erp.Application.Store.Interface
         public Task<List<StockItemResponse>> getStockItemResponse();
         public Task<StockTransferModel> InsertStockTransfer(StockTransfer stockTransfer, List<StockTransferDetails> stockTransferDetails
              , List<StockRegister> stockRegister);
-        //public Task<bool> deleteStockTransfer(StockTransferRequestModel obj);
+        //public Task<bool>  ddeleteStockTransfer(StockTransferRequestModel obj);
 
         public Task<bool> DeleteStockTransfer(StockTransfer stockTransfer, List<StockTransferDetails> stockTransferDetails
          , List<StockRegister> stockRegister);
@@ -22,5 +22,8 @@ namespace Inspire.Erp.Application.Store.Interface
         public Task<StockTransferModel> UpdateStockTransfer(StockTransfer stockTransfer, List<StockTransferDetails> stockTransferDetails
             , List<StockRegister> stockRegister);
         public IEnumerable<StockTransferResponseModel> getStockTransferReport();
+
+        public IEnumerable<StockTransfer> GetStockTransfer();
+        public StockTransferModel GetSavedStockTransferDetails(string pvno);
     }
 }

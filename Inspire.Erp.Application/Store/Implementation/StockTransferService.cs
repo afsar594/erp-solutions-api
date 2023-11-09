@@ -116,6 +116,13 @@ namespace Inspire.Erp.Application.Store.Implementation
                 throw;
             }
         }
+
+
+        public IEnumerable<StockTransfer> GetStockTransfer()
+        {
+            IEnumerable<StockTransfer> stockTransfer_ALL = _StockTransferRepo.GetAll().Where(k => k.StockTransferDelStatus == false || k.StockTransferDelStatus == null);
+            return stockTransfer_ALL;
+        }
         public async Task<StockTransferModel> InsertStockTransfer(StockTransfer stockTransfer, List<StockTransferDetails> stockTransferDetails
              , List<StockRegister> stockRegister)
         {
@@ -141,8 +148,8 @@ namespace Inspire.Erp.Application.Store.Implementation
                     //x.OpeningStockVoucherDetailsConversionType = await _utilityService.GetBasicUnitConversion(x.OpeningStockVoucherDetailsMatId, x.OpeningStockVoucherDetailsUnitId);
                     stockTransferDetails = stockTransferDetails.Select((x) =>
                     {
-                        x.StockTransferDetailsStid = maxcount;
-                        x.StockTransferDetailsVoucherNo = openingstockVoucherNumber;
+                        x.StockTransferDetailsStId = maxcount;
+                        x.StockTransferDetailsSNo = openingstockVoucherNumber;
 
                         return x;
                     }).ToList();
@@ -273,7 +280,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
 
            // issueVoucherModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.IssueVoucher_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
-            issueVoucherModel.stockTransferDetails = _StockTransferDetailRepo.GetAsQueryable().Where(x => x.StockTransferDetailsVoucherNo == pvno && (x.StockTransferDetailsDelStatus == false || x.StockTransferDetailsDelStatus == null)).ToList();
+            issueVoucherModel.stockTransferDetails = _StockTransferDetailRepo.GetAsQueryable().Where(x => x.StockTransferDetailsSNo == pvno && (x.StockTransferDetailsDelStatus == false || x.StockTransferDetailsDelStatus == null)).ToList();
             return issueVoucherModel;
 
 
@@ -563,8 +570,8 @@ namespace Inspire.Erp.Application.Store.Implementation
                     //x.OpeningStockVoucherDetailsConversionType = await _utilityService.GetBasicUnitConversion(x.OpeningStockVoucherDetailsMatId, x.OpeningStockVoucherDetailsUnitId);
                     stockTransferDetails = stockTransferDetails.Select((x) =>
                     {
-                        x.StockTransferDetailsStid = maxcount;
-                        x.StockTransferDetailsVoucherNo = openingstockVoucherNumber;
+                        x.StockTransferDetailsStId = maxcount;
+                        x.StockTransferDetailsSNo = openingstockVoucherNumber;
 
                         return x;
                     }).ToList();

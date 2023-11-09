@@ -193,12 +193,6 @@ namespace Inspire.Erp.Web.Controllers.Procurement
 
 
             return apiResponse;
-
-
-
-
-
-
         }
 
         [HttpPost]
