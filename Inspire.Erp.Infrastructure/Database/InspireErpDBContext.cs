@@ -5996,10 +5996,10 @@ namespace Inspire.Erp.Infrastructure.Database
 
     //            entity.Property(e => e.CustomerPurchaseOrderDetailsUnitId).HasColumnName("Customer_Purchase_Order_Details_Unit_ID");
 
-                entity.Property(e => e.CustomerPurchaseOrderDetailsUnitPrice)
-                    .HasColumnName("Customer_Purchase_Order_Details_Unit_Price")
-                    .HasColumnType("numeric(18, 2)");
-            });
+            //    entity.Property(e => e.CustomerPurchaseOrderDetailsUnitPrice)
+            //        .HasColumnName("Customer_Purchase_Order_Details_Unit_Price")
+            //        .HasColumnType("numeric(18, 2)");
+            //});
 
 
             //------------------------modified on Aug 19th 2020
