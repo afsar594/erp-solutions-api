@@ -130,7 +130,6 @@ namespace Inspire.Erp.Web.Controllers
             }
 
             return apiResponse;
-
         }
         [HttpPost]
         [Route("UpdateSalesOrder")]
@@ -238,7 +237,6 @@ namespace Inspire.Erp.Web.Controllers
             return apiResponse;
 
         }
-
 
         //[HttpGet]
         //[Route("GetAllAccountTransaction")]

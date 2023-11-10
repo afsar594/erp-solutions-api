@@ -5561,9 +5561,12 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<CustomerOrderRegister>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.CustomerOrderRegisterId);
 
                 entity.ToTable("Customer_Order_Register");
+
+          
+
 
                 entity.Property(e => e.CustomerOrderRegisterAmount).HasColumnName("Customer_Order_Register_Amount");
 
@@ -5577,7 +5580,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.CustomerOrderRegisterFsno).HasColumnName("Customer_Order_Register_FSNO");
 
-                entity.Property(e => e.CustomerOrderRegisterId).HasColumnName("Customer_Order_Register_ID");
+                entity.Property(e => e.CustomerOrderRegisterId).HasColumnName("Customer_Order_Register_ID").ValueGeneratedOnAdd(); ;
 
                 entity.Property(e => e.CustomerOrderRegisterLocationId).HasColumnName("Customer_Order_Register_Location_ID");
 
