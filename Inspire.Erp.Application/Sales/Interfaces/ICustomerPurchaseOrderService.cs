@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace Inspire.Erp.Application.Sales.Interfaces
 {
     public interface ICustomerPurchaseOrderService
@@ -29,6 +30,8 @@ namespace Inspire.Erp.Application.Sales.Interfaces
         //public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
         public VouchersNumbers GetVouchersNumbers(string pvno);
         //public IQueryable GetSalesVoucherDetailsByMasterNo(string SalesVoucherNo);
+
+        public Task<Response<List<GetCustomerPurchaseOrderTrackingResponse>>> GetCustomerPurchaseOrderTracking(CustPurchOrderFilterModel model);
 
     }
 }
