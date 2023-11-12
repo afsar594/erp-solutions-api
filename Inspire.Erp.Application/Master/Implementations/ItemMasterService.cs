@@ -184,8 +184,8 @@ namespace Inspire.Erp.Application.Master
                 && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new ItemMaster
                 {
                     ItemMasterItemId = k.ItemMasterItemId,
-                    ItemMasterItemName = k.ItemMasterItemName
-
+                    ItemMasterItemName = k.ItemMasterItemName,
+                    ItemMasterPartNo = k.ItemMasterPartNo,
                 });
 
             }
