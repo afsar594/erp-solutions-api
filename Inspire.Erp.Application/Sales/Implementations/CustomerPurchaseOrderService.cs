@@ -15,8 +15,9 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Inspire.Erp.Application.MODULE;
 using Inspire.Erp.Domain.Modals.Sales;
-using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Modals;
+using Inspire.Erp.Domain.Modals.Common;
+
 using Inspire.Erp.Infrastructure.Database;
 
 
@@ -39,7 +40,10 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<CustomerMaster> _salesManMasterRepository;
         private IRepository<DepartmentMaster> _departmentMasterRepository;
         public readonly InspireErpDBContext _Context;
-        //private IRepository<ReportSalesVoucher> _reportSalesVoucherRepository;
+        private IRepository<TrackingRegister> _trackingRegisterRepository;
+        private IRepository<PurOrderRegister> _purOrderRegisterRepository;
+        private IRepository<CustomerOrderRegister> _custOrderRegRepository;
+     
         public CustomerPurchaseOrderService(
             //IRepository<ReportSalesVoucher> reportSalesVoucherRepository,
             IRepository<CustomerMaster> customerMasterRepository,
@@ -51,7 +55,10 @@ namespace Inspire.Erp.Application.Sales.Implementations
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
 
-            IRepository<CustomerPurchaseOrder> customerPurchaseOrderRepository, IRepository<CustomerPurchaseOrderDetails> customerPurchaseOrderDetailsRepository, InspireErpDBContext Context)
+            IRepository<CustomerPurchaseOrder> customerPurchaseOrderRepository, IRepository<CustomerPurchaseOrderDetails> customerPurchaseOrderDetailsRepository,
+            IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PurOrderRegister> purOrderRegisterRepository,
+            IRepository<CustomerOrderRegister> custOrderRegRepository,
+            InspireErpDBContext Context)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository;
@@ -73,7 +80,9 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
             _departmentMasterRepository = departmentMasterRepository;
 
-            //_reportSalesVoucherRepository = reportSalesVoucherRepository;
+            _trackingRegisterRepository = trackingRegisterRepository;
+            _purOrderRegisterRepository = purOrderRegisterRepository;
+            _custOrderRegRepository = custOrderRegRepository;
         }
 
 
@@ -135,6 +144,18 @@ namespace Inspire.Erp.Application.Sales.Implementations
             {
                 _customerPurchaseOrderRepository.BeginTransaction();
 
+                var deleteTrackingRegister = _trackingRegisterRepository.GetAsQueryable().Where(x => x.TrackingRegisterVoucherType == VoucherType.CustomerPurchaseOrder_TYPE && x.TrackingRegisterVoucherNo == customerPurchaseOrder.CustomerPurchaseOrderVoucherNo).FirstOrDefault();
+                _trackingRegisterRepository.Delete(deleteTrackingRegister);
+                _trackingRegisterRepository.SaveChangesAsync();
+
+                var deletePurOrderRegister = _purOrderRegisterRepository.GetAsQueryable().Where(x => x.PurOrderRegisterTransType == VoucherType.CustomerPurchaseOrder_TYPE && x.PurOrderRegisterRefVoucherNo == customerPurchaseOrder.CustomerPurchaseOrderVoucherNo).FirstOrDefault();
+                _purOrderRegisterRepository.Delete(deletePurOrderRegister);
+                _purOrderRegisterRepository.SaveChangesAsync();
+
+                var deletecustOrderRegister = _custOrderRegRepository.GetAsQueryable().Where(x => x.CustomerOrderRegisterTransType == VoucherType.CustomerPurchaseOrder_TYPE && x.CustomerOrderRegisterRefVoucherNo == customerPurchaseOrder.CustomerPurchaseOrderVoucherNo).FirstOrDefault();
+                _custOrderRegRepository.Delete(deletecustOrderRegister);
+                _custOrderRegRepository.SaveChangesAsync();
+
                 //=================================
                 clsCommonFunctions.Delete_OldEntry_StockRegister(customerPurchaseOrder.CustomerPurchaseOrderVoucherNo, VoucherType.CustomerPurchaseOrder_TYPE, _stockRegisterRepository);
                 clsCommonFunctions.Delete_OldEntry_AccountsTransactions(customerPurchaseOrder.CustomerPurchaseOrderVoucherNo, VoucherType.CustomerPurchaseOrder_TYPE, _accountTransactionRepository);
@@ -164,7 +185,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     {
                         k.AccountsTransactionsTransDate = customerPurchaseOrder.CustomerPurchaseOrderDate;
                         k.AccountsTransactionsVoucherNo = customerPurchaseOrder.CustomerPurchaseOrderVoucherNo;
-                        k.AccountsTransactionsVoucherType = VoucherType.SalesVoucher_TYPE;
+                        k.AccountsTransactionsVoucherType = VoucherType.CustomerPurchaseOrder_TYPE;
                         k.AccountsTransactionsStatus = AccountStatus.Approved;
                     }
 
@@ -186,6 +207,72 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     return k;
                 }).ToList();
                 _stockRegisterRepository.UpdateList(stockRegister);
+
+
+                //insert tracking register
+                var listTrackRegs = new List<TrackingRegister>();
+                var listTrackPurchOrderReg = new List<PurOrderRegister>();
+                var listCustOrderRegisterReg = new List<CustomerOrderRegister>();
+                foreach (var purOrderDet in customerPurchaseOrder.CustomerPurchaseOrderDetails)
+                {
+                    var tr = new TrackingRegister
+                    {
+                        TrackingRegisterDetailsId = (int)purOrderDet.CustomerPurchaseOrderDetailsId,
+                        TrackingRegisterVoucherNo = purOrderDet.CustomerPurchaseOrderDetailsVoucherNo,
+                        TrackingRegisterMaterialId = (int)purOrderDet.CustomerPurchaseOrderDetailsItemId,
+                        TrackingRegisterVoucherType = VoucherType.CustomerPurchaseOrder_TYPE,
+                        TrackingRegisterQty = (int)purOrderDet.CustomerPurchaseOrderDetailsQty,
+                        TrackingRegisterQtyin = (int)purOrderDet.CustomerPurchaseOrderDetailsQty,
+                        TrackingRegisterQtyout = 0,
+                        TrackingRegisterRate = (double)purOrderDet.CustomerPurchaseOrderDetailsAmount,
+                        TrackingRegisterTrackDate = customerPurchaseOrder.CustomerPurchaseOrderDate,
+                        TrackingRegisterFsno = (int)purOrderDet.CustomerPurchaseOrderDetailsFsno,
+
+                    };
+                    listTrackRegs.Add(tr);
+
+                    var poReg = new PurOrderRegister
+                    {
+                        PurOrderRegisterOrderNo = purOrderDet.CustomerPurchaseOrderDetailsId.ToString(),
+                        PurOrderRegisterRefVoucherNo = purOrderDet.CustomerPurchaseOrderDetailsVoucherNo,
+                        PurOrderRegisterMaterialId = (int)purOrderDet.CustomerPurchaseOrderDetailsItemId,
+                        PurOrderRegisterTransType = VoucherType.CustomerPurchaseOrder_TYPE,
+                        PurOrderRegisterQtyOrder = (int)purOrderDet.CustomerPurchaseOrderDetailsQty,
+                        PurOrderRegisterQtyIssued = 0,
+                        PurOrderRegisterRate = (double)purOrderDet.CustomerPurchaseOrderDetailsAmount,
+                        PurOrderRegisterAmount = (double)purOrderDet.CustomerPurchaseOrderDetailsAmount,
+                        PurOrderRegisterFcAmount = (double)purOrderDet.CustomerPurchaseOrderDetailsFcAmount,
+                        PurOrderRegisterAssignedDate = DateTime.Now,
+                        PurOrderRegisterFsno = (int)purOrderDet.CustomerPurchaseOrderDetailsFsno,//to be alloted,
+                        PurOrderRegisterSupplierId = (int)0,
+                        PurOrderRegisterStatus = "A"
+
+                    };
+                    listTrackPurchOrderReg.Add(poReg);
+
+                    var custOrdReg = new CustomerOrderRegister
+                    {
+                        CustomerOrderRegisterRefVoucherNo = purOrderDet.CustomerPurchaseOrderDetailsId.ToString(),
+                        CustomerOrderRegisterOrderNo = purOrderDet.CustomerPurchaseOrderDetailsVoucherNo,
+                        CustomerOrderRegisterMaterialId = (int)purOrderDet.CustomerPurchaseOrderDetailsItemId,
+                        CustomerOrderRegisterTransType = VoucherType.CustomerPurchaseOrder_TYPE,
+                        CustomerOrderRegisterQtyOrder = (int)purOrderDet.CustomerPurchaseOrderDetailsQty,
+                        CustomerOrderRegisterQtyIssued = 0,
+                        CustomerOrderRegisterRate = (double)purOrderDet.CustomerPurchaseOrderDetailsAmount,
+                        CustomerOrderRegisterAssignedDate = DateTime.Now,
+                        CustomerOrderRegisterFsno = (int)purOrderDet.CustomerPurchaseOrderDetailsFsno,//to be alloted,
+                        CustomerOrderRegisterCustomerId = (int)0,
+                        CustomerOrderRegisterStatus = "A"
+
+                    };
+                    listCustOrderRegisterReg.Add(custOrdReg);
+
+                }
+
+                _trackingRegisterRepository.InsertList(listTrackRegs);
+                _purOrderRegisterRepository.InsertList(listTrackPurchOrderReg);
+                _custOrderRegRepository.InsertList(listCustOrderRegisterReg);
+
                 _customerPurchaseOrderRepository.TransactionCommit();
 
             }
@@ -209,8 +296,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 _customerPurchaseOrderRepository.BeginTransaction();
 
                 //=================================
-                clsCommonFunctions.Delete_OldEntry_StockRegister(customerPurchaseOrder.CustomerPurchaseOrderVoucherNo, VoucherType.SalesVoucher_TYPE, _stockRegisterRepository);
-                clsCommonFunctions.Delete_OldEntry_AccountsTransactions(customerPurchaseOrder.CustomerPurchaseOrderVoucherNo, VoucherType.SalesVoucher_TYPE, _accountTransactionRepository);
+                clsCommonFunctions.Delete_OldEntry_StockRegister(customerPurchaseOrder.CustomerPurchaseOrderVoucherNo, VoucherType.CustomerPurchaseOrder_TYPE, _stockRegisterRepository);
+                clsCommonFunctions.Delete_OldEntry_AccountsTransactions(customerPurchaseOrder.CustomerPurchaseOrderVoucherNo, VoucherType.CustomerPurchaseOrder_TYPE, _accountTransactionRepository);
                 //=================================
 
 
@@ -311,7 +398,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 //    {
                 //        StockRegisterRefVoucherNo = customerPurchaseOrderNumber,
                 //        StockRegisterAssignedDate = DateTime.Now,
-                //        StockRegisterTransType = VoucherType.SalesVoucher_TYPE,
+                //        StockRegisterTransType = VoucherType.CustomerPurchaseOrder_TYPE,
                 //        StockRegisterStatus = AccountStatus.Approved,
                 //        StockRegisterVoucherDate = customerPurchaseOrder.CustomerPurchaseOrderDate\,
                 //        StockRegisterSout = item.SalesVoucherDetailsQuantity,
@@ -322,7 +409,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 //{
                 //   k.StockRegisterVoucherDate = customerPurchaseOrder.SalesVoucherDate;
                 //   k.StockRegisterRefVoucherNo = customerPurchaseOrderNumber;
-                //   k.StockRegisterTransType = VoucherType.SalesVoucher_TYPE;
+                //   k.StockRegisterTransType = VoucherType.CustomerPurchaseOrder_TYPE;
                 //   k.StockRegisterStatus = AccountStatus.Approved;
                 //    k.StockRegisterSout = 
                 //   return k;
@@ -334,6 +421,72 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
 
                 _customerPurchaseOrderRepository.Insert(customerPurchaseOrder);
+
+
+                //insert tracking register
+                var listTrackRegs = new List<TrackingRegister>();
+                var listTrackPurchOrderReg = new List<PurOrderRegister>();
+                var listCustOrderRegisterReg = new List<CustomerOrderRegister>();
+                foreach (var purOrderDet in customerPurchaseOrder.CustomerPurchaseOrderDetails)
+                {
+                    var tr = new TrackingRegister
+                    {
+                        TrackingRegisterDetailsId = (int)purOrderDet.CustomerPurchaseOrderDetailsId,
+                        TrackingRegisterVoucherNo = purOrderDet.CustomerPurchaseOrderDetailsVoucherNo,
+                        TrackingRegisterMaterialId = (int)purOrderDet.CustomerPurchaseOrderDetailsItemId,
+                        TrackingRegisterVoucherType = VoucherType.CustomerPurchaseOrder_TYPE,
+                        TrackingRegisterQty = (int)purOrderDet.CustomerPurchaseOrderDetailsQty,
+                        TrackingRegisterQtyin = (int)purOrderDet.CustomerPurchaseOrderDetailsQty,
+                        TrackingRegisterQtyout = 0,
+                        TrackingRegisterRate = (double)purOrderDet.CustomerPurchaseOrderDetailsAmount,
+                        TrackingRegisterTrackDate = customerPurchaseOrder.CustomerPurchaseOrderDate,
+                        TrackingRegisterFsno = (int)purOrderDet.CustomerPurchaseOrderDetailsFsno,
+
+                    };
+                    listTrackRegs.Add(tr);
+
+                    var poReg = new PurOrderRegister
+                    {
+                        PurOrderRegisterOrderNo = purOrderDet.CustomerPurchaseOrderDetailsId.ToString(),
+                        PurOrderRegisterRefVoucherNo = purOrderDet.CustomerPurchaseOrderDetailsVoucherNo,
+                        PurOrderRegisterMaterialId = (int)purOrderDet.CustomerPurchaseOrderDetailsItemId,
+                        PurOrderRegisterTransType = VoucherType.CustomerPurchaseOrder_TYPE,
+                        PurOrderRegisterQtyOrder = (int)purOrderDet.CustomerPurchaseOrderDetailsQty,
+                        PurOrderRegisterQtyIssued = 0,
+                        PurOrderRegisterRate = (double)purOrderDet.CustomerPurchaseOrderDetailsAmount,
+                        PurOrderRegisterAmount = (double)purOrderDet.CustomerPurchaseOrderDetailsAmount,
+                        PurOrderRegisterFcAmount = (double)purOrderDet.CustomerPurchaseOrderDetailsFcAmount,
+                        PurOrderRegisterAssignedDate = DateTime.Now,
+                        PurOrderRegisterFsno = (int)purOrderDet.CustomerPurchaseOrderDetailsFsno,//to be alloted,
+                        PurOrderRegisterSupplierId = (int)0,
+                        PurOrderRegisterStatus = "A"
+
+                    };
+                    listTrackPurchOrderReg.Add(poReg);
+
+                    var custOrdReg = new CustomerOrderRegister
+                    {
+                        CustomerOrderRegisterRefVoucherNo = purOrderDet.CustomerPurchaseOrderDetailsId.ToString(),
+                        CustomerOrderRegisterOrderNo = purOrderDet.CustomerPurchaseOrderDetailsVoucherNo,
+                        CustomerOrderRegisterMaterialId = (int)purOrderDet.CustomerPurchaseOrderDetailsItemId,
+                        CustomerOrderRegisterTransType = VoucherType.CustomerPurchaseOrder_TYPE,
+                        CustomerOrderRegisterQtyOrder = (int)purOrderDet.CustomerPurchaseOrderDetailsQty,
+                        CustomerOrderRegisterQtyIssued = 0,
+                        CustomerOrderRegisterRate = (double)purOrderDet.CustomerPurchaseOrderDetailsAmount,
+                        CustomerOrderRegisterAssignedDate = DateTime.Now,
+                        CustomerOrderRegisterFsno = (int)purOrderDet.CustomerPurchaseOrderDetailsFsno,//to be alloted,
+                        CustomerOrderRegisterCustomerId = (int)0,
+                        CustomerOrderRegisterStatus = "A"
+
+                    };
+                    listCustOrderRegisterReg.Add(custOrdReg);
+
+                }
+
+                _trackingRegisterRepository.InsertList(listTrackRegs);
+                _purOrderRegisterRepository.InsertList(listTrackPurchOrderReg);
+                _custOrderRegRepository.InsertList(listCustOrderRegisterReg);
+
                 _customerPurchaseOrderRepository.TransactionCommit();
                 return this.GetSavedCustomerPurchaseOrderDetails(customerPurchaseOrder.CustomerPurchaseOrderVoucherNo);
 
@@ -363,7 +516,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
 
 
-            customerPurchaseOrderModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.SalesVoucher_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
+            customerPurchaseOrderModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.CustomerPurchaseOrder_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
             customerPurchaseOrderModel.customerPurchaseOrderDetails = _customerPurchaseOrderDetailsRepository.GetAsQueryable().Where(x => x.CustomerPurchaseOrderDetailsVoucherNo == pvno && (x.CustomerPurchaseOrderDetailsDelStatus == false || x.CustomerPurchaseOrderDetailsDelStatus == null)).ToList();
             return customerPurchaseOrderModel;
 
@@ -437,5 +590,73 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 throw ex;
             }
         }
+
+
+        public async Task<Response<List<GetCustomerPurchaseOrderTrackingResponse>>> GetCustomerPurchaseOrderTracking(CustPurchOrderFilterModel model)
+        {
+            try
+            {
+                List<GetCustomerPurchaseOrderTrackingResponse> response = new List<GetCustomerPurchaseOrderTrackingResponse>();
+
+                var subqueryDRQ = (from s in _Context.CustomerDeliveryNote
+                             group s by new { s.CustomerDeliveryNoteDeliveryId, s.CustomerDeliveryNoteCpoId,s.CustomerDeliveryNoteDeliveryDate } into g
+                             select new
+                             {
+                                 CustomerDeliveryNoteDeliveryId = g.Key.CustomerDeliveryNoteDeliveryId,
+                                 CustomerDeliveryNoteCpoId = g.Key.CustomerDeliveryNoteCpoId,
+                                 CustomerDeliveryNoteDeliveryDate = g.Key.CustomerDeliveryNoteDeliveryDate
+                             });
+
+                var subqueryDRQD = (from s in _Context.CustomerDeliveryNoteDetails
+                                    group s by new { s.CustomerDeliveryNoteDetailsPodId } into g
+                                   select new
+                                   {
+                                       CustomerDeliveryNoteDetailsPodId = g.Key.CustomerDeliveryNoteDetailsPodId,
+                                       CustomerDeliveryNoteDetailsQty = g.Sum(s => s.CustomerDeliveryNoteDetailsQty)
+                                   });
+
+
+                var results = await (from cpod in _Context.CustomerPurchaseOrderDetails
+                                     join cpo in _Context.CustomerPurchaseOrder on cpod.CustomerPurchaseOrderDetailsOrderId equals (long)cpo.CustomerPurchaseOrderId into gim
+                                     from cpog in gim.DefaultIfEmpty()
+                                     join cm in _Context.CustomerMaster on Convert.ToInt32(cpog.CustomerPurchaseOrderCustomerCode) equals cm.CustomerMasterCustomerNo into gum
+                                     from cmg in gum.DefaultIfEmpty()
+                                     join im in _Context.ItemMaster on cpod.CustomerPurchaseOrderDetailsItemId equals im.ItemMasterItemId into iminto
+                                     from img in iminto.DefaultIfEmpty()
+                                     join um in _Context.UnitMaster on cpod.CustomerPurchaseOrderDetailsUnitId equals um.UnitMasterUnitId into uminto
+                                     from umg in iminto.DefaultIfEmpty()
+                                     join srq in subqueryDRQD on cpod.CustomerPurchaseOrderDetailsPodId equals srq.CustomerDeliveryNoteDetailsPodId
+                                     join drq in subqueryDRQ on cpod.CustomerPurchaseOrderDetailsPodId equals drq.CustomerDeliveryNoteCpoId into gdrq
+                                     from q in gdrq.DefaultIfEmpty()
+                                     where cpog.CustomerPurchaseOrderCustomerCode != null
+                                     select new GetCustomerPurchaseOrderTrackingResponse
+                                     {
+                                         CPOId = cpog.CustomerPurchaseOrderId,
+                                         CPODate=cpog.CustomerPurchaseOrderDate,
+                                         LPONo = cpog.CustomerPurchaseOrderLpoNo==null?"": cpog.CustomerPurchaseOrderLpoNo,
+                                         CustomerName=cpog.CustomerPurchaseOrderCustomerName,
+                                         PartNo = img.ItemMasterPartNo == null ? "" : img.ItemMasterPartNo,
+                                         MatDes = cpod.CustomerPurchaseOrderDetailsDescription == null ? img.ItemMasterItemName : cpod.CustomerPurchaseOrderDetailsDescription,
+                                         UnitDes = umg.ItemMasterAliasName,
+                                         Quantity = cpod.CustomerPurchaseOrderDetailsQty,
+                                         UnitPrice = cpod.CustomerPurchaseOrderDetailsUnitPrice,
+                                         DeliveredQuantity = srq.CustomerDeliveryNoteDetailsQty ?? 0,
+                                         BalancedQuantity = cpod.CustomerPurchaseOrderDetailsQty - srq.CustomerDeliveryNoteDetailsQty ?? 0,
+                                         DeliveryDate = q.CustomerDeliveryNoteDeliveryDate,
+                                         DeliveredId = q.CustomerDeliveryNoteDeliveryId
+                                     }).ToListAsync();
+
+
+
+
+                return Response<List<GetCustomerPurchaseOrderTrackingResponse>>.Success(results, "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<List<GetCustomerPurchaseOrderTrackingResponse>>.Fail(new List<GetCustomerPurchaseOrderTrackingResponse>(), ex.Message);
+            }
+        }
+
+
     }
 }

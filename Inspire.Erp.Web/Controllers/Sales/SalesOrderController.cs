@@ -17,6 +17,7 @@ using Inspire.Erp.Web.MODULE;
 
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Inspire.Erp.WebReport.ReportEngine;
+using Inspire.Erp.Domain.Modals.Sales;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -130,7 +131,6 @@ namespace Inspire.Erp.Web.Controllers
             }
 
             return apiResponse;
-
         }
         [HttpPost]
         [Route("UpdateSalesOrder")]
@@ -238,8 +238,6 @@ namespace Inspire.Erp.Web.Controllers
             return apiResponse;
 
         }
-
-
         //[HttpGet]
         //[Route("GetAllAccountTransaction")]
         //public ApiResponse<List<AccountsTransactions>> GetAllAccountTransaction()
@@ -327,7 +325,6 @@ namespace Inspire.Erp.Web.Controllers
 
 
         }
-
         //[HttpGet]
         //[Route("CheckVnoExist/{id}")]
         //public ApiResponse<bool> CheckVnoExist(string id)
@@ -350,6 +347,20 @@ namespace Inspire.Erp.Web.Controllers
 
         //    return apiResponse;
         //}
+
+
+        [HttpPost]
+        [Route("GetPurchaseOrderTracking")]
+        public IActionResult GetPurchaseOrderTracking(CustPurchOrderFilterModel model)
+        {
+            ApiResponse<List<GetCustomerPurchaseOrderTrackingResponse>> apiResponse = new ApiResponse<List<GetCustomerPurchaseOrderTrackingResponse>>
+            {
+                Valid = true,
+                Result = _mapper.Map<List<GetCustomerPurchaseOrderTrackingResponse>>(_salesOrderService.GetCustomerPurchaseOrderTracking(model)),
+                Message = ""
+            };
+            return Ok(apiResponse);
+        }
     }
 }
 
