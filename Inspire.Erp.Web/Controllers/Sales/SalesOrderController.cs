@@ -349,7 +349,7 @@ namespace Inspire.Erp.Web.Controllers
         //}
 
 
-        [HttpGet]
+        [HttpPost]
         [Route("GetPurchaseOrderTracking")]
         public IActionResult GetPurchaseOrderTracking(CustPurchOrderFilterModel model)
         {

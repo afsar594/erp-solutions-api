@@ -617,7 +617,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
 
                 var results = await (from cpod in _Context.CustomerPurchaseOrderDetails
-                                     join cpo in _Context.CustomerPurchaseOrder on cpod.CustomerPurchaseOrderDetailsOrderId equals cpo.CustomerPurchaseOrderId into gim
+                                     join cpo in _Context.CustomerPurchaseOrder on cpod.CustomerPurchaseOrderDetailsOrderId equals (long)cpo.CustomerPurchaseOrderId into gim
                                      from cpog in gim.DefaultIfEmpty()
                                      join cm in _Context.CustomerMaster on Convert.ToInt32(cpog.CustomerPurchaseOrderCustomerCode) equals cm.CustomerMasterCustomerNo into gum
                                      from cmg in gum.DefaultIfEmpty()
@@ -637,13 +637,13 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                          CustomerName=cpog.CustomerPurchaseOrderCustomerName,
                                          PartNo = img.ItemMasterPartNo == null ? "" : img.ItemMasterPartNo,
                                          MatDes = cpod.CustomerPurchaseOrderDetailsDescription == null ? img.ItemMasterItemName : cpod.CustomerPurchaseOrderDetailsDescription,
-                                         UnitDes=umg.ItemMasterAliasName,
-                                         Quantity= cpod.CustomerPurchaseOrderDetailsQty,
-                                         UnitPrice=cpod.CustomerPurchaseOrderDetailsUnitPrice,
-                                         DeliveredQuantity= srq.CustomerDeliveryNoteDetailsQty??0,
-                                         BalancedQuantity= cpod.CustomerPurchaseOrderDetailsQty- srq.CustomerDeliveryNoteDetailsQty ?? 0,
-                                         DeliveryDate=q.CustomerDeliveryNoteDeliveryDate,
-                                         DeliveredId=q.CustomerDeliveryNoteDeliveryId
+                                         UnitDes = umg.ItemMasterAliasName,
+                                         Quantity = cpod.CustomerPurchaseOrderDetailsQty,
+                                         UnitPrice = cpod.CustomerPurchaseOrderDetailsUnitPrice,
+                                         DeliveredQuantity = srq.CustomerDeliveryNoteDetailsQty ?? 0,
+                                         BalancedQuantity = cpod.CustomerPurchaseOrderDetailsQty - srq.CustomerDeliveryNoteDetailsQty ?? 0,
+                                         DeliveryDate = q.CustomerDeliveryNoteDeliveryDate,
+                                         DeliveredId = q.CustomerDeliveryNoteDeliveryId
                                      }).ToListAsync();
 
 

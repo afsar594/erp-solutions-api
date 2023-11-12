@@ -43,6 +43,7 @@ namespace Inspire.Erp.Domain.Entities
         public int? CustomerPurchaseOrderPoEnquiryIdN { get; set; }
         public int? CustomerPurchaseOrderPoQuotationIdN { get; set; }
         public bool? CustomerPurchaseOrderDelStatus { get; set; }
+        public virtual VouchersNumbers CustomerPurchaseOrderVoucherNoNavigation { get; set; }
         public virtual ICollection<CustomerPurchaseOrderDetails> CustomerPurchaseOrderDetails { get; set; }
     }
 }

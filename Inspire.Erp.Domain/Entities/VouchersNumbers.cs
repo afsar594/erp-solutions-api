@@ -32,6 +32,7 @@ namespace Inspire.Erp.Domain.Entities
 
         //public virtual BankPaymentVoucher BankPaymentVoucher { get; set; }
         //public virtual BankReceiptVoucher BankReceiptVoucher { get; set; }
+        //public int CustomerPurchaseOrderId { get; set; }
         public virtual CustomerPurchaseOrder CustomerPurchaseOrder { get; set; }
         public virtual PaymentVoucher PaymentVoucher { get; set; }
         public virtual ICollection<AccountsTransactions> AccountsTransactions { get; set; }
