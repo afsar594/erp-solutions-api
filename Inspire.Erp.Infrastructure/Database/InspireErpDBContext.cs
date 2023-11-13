@@ -5946,9 +5946,9 @@ namespace Inspire.Erp.Infrastructure.Database
             {
                 entity.ToTable("CustomerPurchaseOrderDetails");
 
-                entity.Property(e => e.CustomerPurchaseOrderDetailsId)
-                    .HasColumnName("CustomerPurchaseOrderDetailsId")
-                    .ValueGeneratedNever();
+                //entity.Property(e => e.CustomerPurchaseOrderDetailsId)
+                //    .HasColumnName("CustomerPurchaseOrderDetailsId")
+                //    .ValueGeneratedNever();
 
 
 

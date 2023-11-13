@@ -624,7 +624,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                      join im in _Context.ItemMaster on cpod.CustomerPurchaseOrderDetailsItemId equals im.ItemMasterItemId into iminto
                                      from img in iminto.DefaultIfEmpty()
                                      join um in _Context.UnitMaster on cpod.CustomerPurchaseOrderDetailsUnitId equals um.UnitMasterUnitId into uminto
-                                     from umg in iminto.DefaultIfEmpty()
+                                     from umg in uminto.DefaultIfEmpty()
                                      join srq in subqueryDRQD on cpod.CustomerPurchaseOrderDetailsPodId equals srq.CustomerDeliveryNoteDetailsPodId
                                      join drq in subqueryDRQ on cpod.CustomerPurchaseOrderDetailsPodId equals drq.CustomerDeliveryNoteCpoId into gdrq
                                      from q in gdrq.DefaultIfEmpty()
@@ -633,11 +633,11 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                      {
                                          CPOId = cpog.CustomerPurchaseOrderId,
                                          CPODate=cpog.CustomerPurchaseOrderDate,
-                                         LPONo = cpog.CustomerPurchaseOrderLpoNo==null?"": cpog.CustomerPurchaseOrderLpoNo,
-                                         CustomerName=cpog.CustomerPurchaseOrderCustomerName,
+                                         LPONo = cpog.CustomerPurchaseOrderLpoNo == null ? "" : cpog.CustomerPurchaseOrderLpoNo,
+                                         CustomerName = cpog.CustomerPurchaseOrderCustomerName,
                                          PartNo = img.ItemMasterPartNo == null ? "" : img.ItemMasterPartNo,
                                          MatDes = cpod.CustomerPurchaseOrderDetailsDescription == null ? img.ItemMasterItemName : cpod.CustomerPurchaseOrderDetailsDescription,
-                                         UnitDes = umg.ItemMasterAliasName,
+                                         UnitDes = umg.UnitMasterUnitDescription,
                                          Quantity = cpod.CustomerPurchaseOrderDetailsQty,
                                          UnitPrice = cpod.CustomerPurchaseOrderDetailsUnitPrice,
                                          DeliveredQuantity = srq.CustomerDeliveryNoteDetailsQty ?? 0,

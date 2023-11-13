@@ -11,7 +11,7 @@ namespace Inspire.Erp.Domain.Entities
         public int? CustomerPurchaseOrderDetailsSlno { get; set; }
         public long? CustomerPurchaseOrderDetailsItemId { get; set; }
         public string CustomerPurchaseOrderDetailsDescription { get; set; }
-        public int? CustomerPurchaseOrderDetailsUnitId { get; set; }
+        public int CustomerPurchaseOrderDetailsUnitId { get; set; }
         public decimal? CustomerPurchaseOrderDetailsQty { get; set; }
         public decimal? CustomerPurchaseOrderDetailsUnitPrice { get; set; }
         public decimal? CustomerPurchaseOrderDetailsAmount { get; set; }

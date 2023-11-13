@@ -351,12 +351,17 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpPost]
         [Route("GetPurchaseOrderTracking")]
-        public IActionResult GetPurchaseOrderTracking(CustPurchOrderFilterModel model)
+        public async Task<IActionResult> GetPurchaseOrderTracking(CustPurchOrderFilterModel model)
         {
+
+            var response = await _salesOrderService.GetCustomerPurchaseOrderTracking(model);
+
+            //return null;
+
             ApiResponse<List<GetCustomerPurchaseOrderTrackingResponse>> apiResponse = new ApiResponse<List<GetCustomerPurchaseOrderTrackingResponse>>
             {
                 Valid = true,
-                Result = _mapper.Map<List<GetCustomerPurchaseOrderTrackingResponse>>(_salesOrderService.GetCustomerPurchaseOrderTracking(model)),
+                Result = response.Result,
                 Message = ""
             };
             return Ok(apiResponse);
