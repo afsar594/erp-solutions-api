@@ -442,7 +442,9 @@ false
 
 
     //===================================PurchaseReturn==========================================
-    public static void PurchaseReturn_Accounts_STOCK_Transactions(string VoucherNo, string VoucherType, PurchaseReturn MASTER, List<PurchaseReturnDetails> DTLS, ref List<StockRegister> STOCK, ref List<AccountsTransactions> ACC)
+    public static void PurchaseReturn_Accounts_STOCK_Transactions(string VoucherNo, string VoucherType, PurchaseReturn MASTER, 
+                                                                  List<PurchaseReturnDetails> DTLS, ref List<StockRegister> STOCK, 
+                                                                  ref List<AccountsTransactions> ACC,decimal? convertedValue, decimal? currencyRate)
 
     {
       for (int i = 0; i < DTLS.Count; i++)
@@ -470,9 +472,10 @@ false
          //     decimal ? StockRegisterQuantity,
          DTLS[i].PurchaseReturnDetailsQuantity,
          //     decimal ? StockRegisterSin,
-         DTLS[i].PurchaseReturnDetailsQuantity,
-         //     decimal ? StockRegisterSout,
          0,
+        //     decimal ? StockRegisterSout,
+        // DTLS[i].PurchaseReturnDetailsRate * DTLS[i].PurchaseReturnDetailsQuantity,
+        DTLS[i].PurchaseReturnDetailsQuantity,
           //     string StockRegisterStatus,
           "",
          //      string StockRegisterBatchCode,
@@ -480,11 +483,13 @@ false
          //     decimal ? StockRegisterRate,
          DTLS[i].PurchaseReturnDetailsRate,
           //     decimal ? StockRegisterFcRate,
-          DTLS[i].PurchaseReturnDetailsRate,
+          //DTLS[i].PurchaseReturnDetailsRate,
+          currencyRate,
          //   decimal ? StockRegisterAmount,
          DTLS[i].PurchaseReturnDetailsRate * DTLS[i].PurchaseReturnDetailsQuantity,
-         //   decimal ? StockRegisterFCAmount,
-         DTLS[i].PurchaseReturnDetailsRate * DTLS[i].PurchaseReturnDetailsQuantity,
+          //   decimal ? StockRegisterFCAmount,
+          //DTLS[i].PurchaseReturnDetailsRate * DTLS[i].PurchaseReturnDetailsQuantity,
+          convertedValue,
           //     Double ? StockRegisterLandingCost,
           DTLS[i].PurchaseReturnDetailsRate * DTLS[i].PurchaseReturnDetailsQuantity,
            //int ? StockRegisterLocationID,

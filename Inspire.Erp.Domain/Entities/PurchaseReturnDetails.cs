@@ -44,5 +44,11 @@ namespace Inspire.Erp.Domain.Entities
 
         [NotMapped]
         public decimal? PurchaseReturnNetStock { get; set; }
+
+        [NotMapped]
+        public decimal? PurchaseOrderPurchaseQTY { get; set; }
+
+        [NotMapped]
+        public decimal? PurchaseReturnQtyTill { get; set; }
     }
 }

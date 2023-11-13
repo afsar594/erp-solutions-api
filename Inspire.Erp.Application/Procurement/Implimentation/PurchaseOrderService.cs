@@ -20,6 +20,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private IRepository<StockRegister> _stockRegisterRepository;
         private IRepository<AccountsTransactions> _accountTransactionRepository;
         private IRepository<PurchaseOrder> _purchaseOrderRepository;
+        private IRepository<PurchaseReturn> _purchaseReturnRepository;
+        private IRepository<PurchaseReturnDetails> _purchaseReturnDetailsRepository;
         private IRepository<PurchaseOrderDetails> _purchaseOrderDetailsRepository;
         private IRepository<ProgramSettings> _programsettingsRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
@@ -30,7 +32,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private IRepository<SuppliersMaster> _suppliersMasterRepository;
         private IRepository<LocationMaster> _locationMasterRepository;
         private IRepository<UserFile> _userFileRepository;
-        
+
         //private IRepository<ReportPurchaseOrder> _reportPurchaseOrderRepository;
         public PurchaseOrderService(
             IRepository<UserFile> userFileRepository,
@@ -41,7 +43,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
 
-            IRepository<PurchaseOrder> purchaseOrderRepository, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository)
+            IRepository<PurchaseOrder> purchaseOrderRepository, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository, IRepository<PurchaseReturn> purchaseReturnRepository, IRepository<PurchaseReturnDetails> purchaseReturnDetailsRepository)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository;
@@ -56,6 +58,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _suppliersMasterRepository = suppliersMasterRepository;
             _locationMasterRepository = locationMasterRepository;
             _userFileRepository = userFileRepository;
+            _purchaseReturnRepository = purchaseReturnRepository;
+            _purchaseReturnDetailsRepository = purchaseReturnDetailsRepository;
             //_reportPurchaseOrderRepository = reportPurchaseOrderRepository;
         }
 
@@ -325,12 +329,70 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 if (_stockRegisterRepository.GetAsQueryable().Where(c => c.StockRegisterRefVoucherNo == purchaseOrderDetail.PurchaseOrderDetailsNo).FirstOrDefault() != null)
                 {
                     purchaseOrderDetail.PurchaseOrderNetStock = _stockRegisterRepository.GetAsQueryable().Where(c => c.StockRegisterRefVoucherNo == purchaseOrderDetail.PurchaseOrderDetailsNo).FirstOrDefault().StockRegisterSIN;
-
+                   
                 }
+                purchaseOrderDetail.PurchaseOrderNetStock = 0;
+                purchaseOrderDetail.PurchaseOrderTillNowQTY = GetTillNowQTY(pvno);
             }
 
             return purchaseOrderModel;
 
+        }
+
+        private decimal? GetTillNowQTY(string pvno)
+        {
+            try
+            {
+                //var pr = _purchaseReturnRepository.GetAll().Where(c => c.PurchaseReturnGrno == pvno).LastOrDefault();
+
+                //if (pr != null)
+                //{
+                //    decimal? qty = 0.0M;
+
+                //        var prDetails = _purchaseReturnDetailsRepository.GetAll().Where(c => c.PurchaseReturnDetailsNo == pr.PurchaseReturnNo);
+                //        if (prDetails != null)
+                //        {
+                //        foreach (var item in prDetails)
+                //        {
+                //            if (item.PurchaseReturnDetailsQuantity !=null)
+                //            {
+                //                qty += item.PurchaseReturnDetailsQuantity;
+                //            }
+                //        }
+                //            //qty += Convert.ToDecimal(_purchaseReturnDetailsRepository.GetAll().Where(c => c.PurchaseReturnDetailsNo == item.PurchaseReturnNo).FirstOrDefault().PurchaseReturnDetailsQuantity);
+
+                //        }
+
+
+                //    return qty;
+                //}
+                //return 0;
+
+
+                //=====================================//
+                var pr = _purchaseReturnRepository.GetAll().Where(c => c.PurchaseReturnGrno == pvno);
+                if (pr != null)
+                {
+                    decimal? qty = 0.0M;
+                    foreach (var prdetail in pr)
+                    {
+                        var rslt = _purchaseReturnDetailsRepository.GetAll().Where(c => c.PurchaseReturnDetailsNo == prdetail.PurchaseReturnNo).FirstOrDefault();
+                        if (rslt != null)
+                        {
+                            qty += rslt.PurchaseReturnDetailsQuantity;
+                        }
+                            // qty += rslt;
+                    }
+                    //var prDetails = _purchaseReturnDetailsRepository.GetAll().Where(c => c.PurchaseReturnDetailsNo == pr.PurchaseReturnNo);
+                    return qty;
+                }
+                return 0;
+            }
+            catch (Exception)
+            {
+                return 0;
+                throw;
+            }
         }
 
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate) 

@@ -79,8 +79,8 @@ namespace Inspire.Erp.Web.ViewModels.Procurement
         public string PurchaseOrderDelivStatus { get; set; }
         public string PurchaseOrderDelivPlace { get; set; }
 
-        [NotMapped]
-        public decimal PurchaseOrderQuantityTill { get; set; }
+        public decimal? PurchaseOrderNetStock { get; set; }
+        public decimal? PurchaseOrderTillNowQTY { get; set; }
         public List<AccountTransactionViewModel> AccountsTransactions { get; set; }
         public List<PurchaseOrderDetailsViewModel> PurchaseOrderDetails { get; set; }
 

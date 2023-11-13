@@ -42,5 +42,8 @@ namespace Inspire.Erp.Domain.Entities
         public virtual PurchaseOrder PurchaseOrderDetailsNoNavigation { get; set; }
         [NotMapped]
         public decimal? PurchaseOrderNetStock { get; set; }
+
+        [NotMapped]
+        public decimal? PurchaseOrderTillNowQTY { get; set; }
     }
 }

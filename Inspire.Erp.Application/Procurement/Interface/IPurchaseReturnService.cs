@@ -39,5 +39,8 @@ namespace Inspire.Erp.Application.Procurement.Interface
                                  List<StockRegister> stockRegister);
 
         VouchersNumbers GetVouchersNumbers(string pvno);
+
+        decimal? CurrencyConversion(PurchaseReturn purchaseReturn);
+        decimal? GetCurrencyRate(PurchaseReturn pr);
     }
 }

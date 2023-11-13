@@ -33,13 +33,23 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private readonly IRepository<JobMaster> _jobMaster;
         private readonly IRepository<PurchaseReturn> _purchaseReturnRepo;
         private readonly IRepository<PurchaseReturnDetails> _purchaseReturnDetailsRepo;
+
+        private readonly IRepository<PurchaseOrder> _purchaseOrderRepo;
+        private readonly IRepository<PurchaseOrderDetails> _purchaseOrderDetailsRepo;
+
         private readonly IUtilityService _utilityService;
 
         private IRepository<ProgramSettings> _programsettingsRepository;
         public PurchaseReturnService(IRepository<PurchaseReturnVoucher> purchaseReturn, IUtilityService utilityService,
             IRepository<PurchaseVoucherDetails> purchasevoucherDetail, IRepository<PurchaseVoucher> purchaseVoucher,
             IRepository<LocationMaster> location, IRepository<StockRegister> stockRegister, IRepository<JobMaster> jobMasters,
-            IRepository<PurchaseReturnVoucherDetails> purchaseReturnDetail, IRepository<SuppliersMaster> supplierMaster, IRepository<PurchaseReturn> purchaseReturnRepo, IRepository<PurchaseReturnDetails> purchaseReturnDetailsRepo, IRepository<AccountsTransactions> accountTransaction, IRepository<CurrencyMaster> currencyMasterRepository, IRepository<ProgramSettings> programsettingsRepository, IRepository<VouchersNumbers> voucherNumber)
+            IRepository<PurchaseReturnVoucherDetails> purchaseReturnDetail, IRepository<SuppliersMaster> supplierMaster, 
+            IRepository<PurchaseReturn> purchaseReturnRepo,
+            IRepository<PurchaseReturnDetails> purchaseReturnDetailsRepo, IRepository<AccountsTransactions> accountTransaction,
+            IRepository<CurrencyMaster> currencyMasterRepository, IRepository<ProgramSettings> programsettingsRepository,
+            IRepository<VouchersNumbers> voucherNumber,
+            IRepository<PurchaseOrder> purchaseOrderRepo, 
+            IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepo)
         {
             _purchaseReturn = purchaseReturn;
             _purchaseReturnDetail = purchaseReturnDetail;
@@ -56,6 +66,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _currencyMasterRepository = currencyMasterRepository;
             _programsettingsRepository = programsettingsRepository;
             _voucherNumber = voucherNumber;
+            _purchaseOrderRepo = purchaseOrderRepo;
+            _purchaseOrderDetailsRepo = purchaseOrderDetailsRepo;
         }
         public async Task<Response<List<DropdownResponse>>> GetLocationMasterDropdown()
         {
@@ -704,7 +716,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
             purchaseReturnModel.purchaseReturn = _purchaseReturnRepo.GetAsQueryable().Where(k => k.PurchaseReturnNo == pvno).SingleOrDefault();
 
-
+            
 
             purchaseReturnModel.accountsTransactions = _accountTransaction.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.PurchaseReturn_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
             purchaseReturnModel.purchaseReturnDetails = _purchaseReturnDetailsRepo.GetAsQueryable().Where(x => x.PurchaseReturnDetailsNo == pvno && (x.PurchaseReturnDetailsDelStatus == false || x.PurchaseReturnDetailsDelStatus == null)).ToList();
@@ -716,10 +728,58 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     purchaseReturnDetail.PurchaseReturnNetStock = _stockRegister.GetAsQueryable().Where(c => c.StockRegisterRefVoucherNo == purchaseReturnDetail.PurchaseReturnDetailsNo).FirstOrDefault().StockRegisterSIN;
 
                 }
+                purchaseReturnDetail.PurchaseOrderPurchaseQTY = GetPurchaseQTY(purchaseReturnModel.purchaseReturn.PurchaseReturnGrno);
+
+               
             }
+            var purchaseReturnList = _purchaseReturnRepo.GetAll().Where(c => c.PurchaseReturnGrno == purchaseReturnModel.purchaseReturn.PurchaseReturnGrno);
+            if (purchaseReturnList != null)
+            {
+                decimal? qty = 0.0M;
+                foreach (var prdetail in purchaseReturnList)
+                {
+                    var rslt = _purchaseReturnDetailsRepo.GetAll().Where(c => c.PurchaseReturnDetailsNo == prdetail.PurchaseReturnNo).FirstOrDefault();
+                    if (rslt != null)
+                    {
+                        qty += rslt.PurchaseReturnDetailsQuantity;
+                    }
+                    // qty += rslt;
+                }
+
+                purchaseReturnModel.purchaseReturnDetails=purchaseReturnModel.purchaseReturnDetails.Select((c) =>
+                {
+                    c.PurchaseReturnQtyTill = qty;
+                    return c;
+                }).ToList();
+            }
+            //return 0;
+            //foreach (var item in purchaseReturnModel.purchaseReturnDetails)
+            //{
+            //    item.PurchaseReturnQtyTill += item.PurchaseReturnDetailsQuantity;
+            //}
 
             return purchaseReturnModel;
 
+        }
+
+        private decimal? GetPurchaseQTY(string pvno)
+        {
+            try
+            {
+                var pr = _purchaseOrderRepo.GetAsQueryable().FirstOrDefault(c => c.PurchaseOrderNo == pvno);
+
+                if (pr != null)
+                {
+                    var qty = _purchaseOrderDetailsRepo.GetAll().Where(c => c.PurchaseOrderDetailsNo == pr.PurchaseOrderNo).Select(c => c.PurchaseOrderDetailsQuantity).FirstOrDefault();
+                    return qty;
+                }
+                return 0;
+            }
+            catch (Exception)
+            {
+                return 0;
+                throw;
+            }
         }
 
         public int DeletePurchaseReturn(PurchaseReturn purchaseReturn, List<AccountsTransactions> accountsTransactions, List<PurchaseReturnDetails> purchaseReturnDetails, List<StockRegister> stockRegister)
@@ -903,6 +963,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 {
                     x.PurchaseReturnId = maxcount;
                     x.PurchaseReturnDetailsNo = purchaseReturnNumber;
+                    x.PurchaseReturnDetailsId = 0;
                     return x;
                 }).ToList();
                 //_salesReturnDetailsRepository.InsertList(salesReturnDetails);
@@ -930,7 +991,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 _stockRegister.InsertList(stockRegister);
 
 
-
+                purchaseReturn.PurchaseReturnDetails = purchaseReturnDetails;
 
 
                 _purchaseReturnRepo.Insert(purchaseReturn);
@@ -984,6 +1045,33 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 throw ex;
             }
 
+        }
+
+        public decimal? CurrencyConversion(PurchaseReturn pr)
+        {
+            decimal? convertedValiue = 0.0M;
+            var currencyMaster = _currencyMasterRepository.GetAsQueryable().Where(c => c.CurrencyMasterCurrencyId == pr.PurchaseReturnCurrencyId).FirstOrDefault();
+            if (currencyMaster == null)
+            {
+                return null;
+            }   
+            foreach (var prDetails in pr.PurchaseReturnDetails)
+            {
+                convertedValiue = prDetails.PurchaseReturnDetailsQuantity * Convert.ToDecimal(currencyMaster.CurrencyMasterCurrencyRate);
+            }
+            return convertedValiue;
+        }
+
+        public decimal? GetCurrencyRate(PurchaseReturn pr)
+        {
+            decimal? currencyRate = 0.0M;
+            var currencyMaster = _currencyMasterRepository.GetAsQueryable().Where(c => c.CurrencyMasterCurrencyId == pr.PurchaseReturnCurrencyId).FirstOrDefault();
+            if (currencyMaster == null)
+            {
+                return null;
+            }
+
+            return Convert.ToDecimal(currencyMaster.CurrencyMasterCurrencyRate);
         }
     }
 }
