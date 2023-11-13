@@ -84,7 +84,11 @@ namespace Inspire.Erp.Web.Controllers
                     CustomerQuotationVatPercentage = xs.custQuotation.CustomerQuotationVatPercentage,
                     CustomerQuotationVatAmount = xs.custQuotation.CustomerQuotationVatAmount,
                     CustomerQuotationQuotationEnquiryN = xs.custQuotation.CustomerQuotationQuotationEnquiryN,
-                    CustomerQuotationDelStatus = xs.custQuotation.CustomerQuotationDelStatus
+                    CustomerQuotationDelStatus = xs.custQuotation.CustomerQuotationDelStatus,
+                    CustomerQuotationProjectN = xs.custQuotation.CustomerQuotationProjectN,
+                    CustomerQuotationProjectRef = xs.custQuotation.CustomerQuotationProjectRef,
+                    CustomerQuotationReviseQuotation = xs.custQuotation.CustomerQuotationReviseQuotation,
+                    CustomerQuotationGrossProfitTotal = xs.custQuotation.CustomerQuotationGrossProfitTotal,
 
                 };
 
@@ -166,7 +170,13 @@ namespace Inspire.Erp.Web.Controllers
                 CustomerQuotationVatPercentage = xs.custQuotation.CustomerQuotationVatPercentage,
                 CustomerQuotationVatAmount = xs.custQuotation.CustomerQuotationVatAmount,
                 CustomerQuotationQuotationEnquiryN = xs.custQuotation.CustomerQuotationQuotationEnquiryN,
-                CustomerQuotationDelStatus = xs.custQuotation.CustomerQuotationDelStatus
+                CustomerQuotationDelStatus = xs.custQuotation.CustomerQuotationDelStatus,
+                CustomerQuotationProjectN   = xs.custQuotation.CustomerQuotationProjectN,
+                CustomerQuotationProjectRef = xs.custQuotation.CustomerQuotationProjectRef,
+                CustomerQuotationReviseQuotation = xs.custQuotation.CustomerQuotationReviseQuotation,
+                CustomerQuotationGrossProfitTotal = xs.custQuotation.CustomerQuotationGrossProfitTotal,
+
+
             };
 
             customerQuotationViewModel.CustomerQuotationDetails = _mapper.Map<List<CustomerQuotationDetailsViewModel>>(xs.customerQuotationDetails);
@@ -197,7 +207,6 @@ namespace Inspire.Erp.Web.Controllers
             return apiResponse;
 
         }
-
 
         [HttpGet]
         [Route("GetCustomerQuotation")]
@@ -264,7 +273,14 @@ namespace Inspire.Erp.Web.Controllers
                     CustomerQuotationVatPercentage = custQuotation.custQuotation.CustomerQuotationVatPercentage,
                     CustomerQuotationVatAmount = custQuotation.custQuotation.CustomerQuotationVatAmount,
                     CustomerQuotationQuotationEnquiryN = custQuotation.custQuotation.CustomerQuotationQuotationEnquiryN,
-                    CustomerQuotationDelStatus = custQuotation.custQuotation.CustomerQuotationDelStatus
+                    CustomerQuotationDelStatus = custQuotation.custQuotation.CustomerQuotationDelStatus,
+                    CustomerQuotationProjectN = custQuotation.custQuotation.CustomerQuotationProjectN,
+                    CustomerQuotationProjectRef = custQuotation.custQuotation.CustomerQuotationProjectRef,
+                    CustomerQuotationReviseQuotation = custQuotation.custQuotation.CustomerQuotationReviseQuotation,
+                    CustomerQuotationGrossProfitTotal = custQuotation.custQuotation.CustomerQuotationGrossProfitTotal,
+
+
+
                 };
                 customerQuotationViewModel.CustomerQuotationDetails = _mapper.Map<List<CustomerQuotationDetailsViewModel>>(custQuotation.customerQuotationDetails);
                 ApiResponse<CustomerQuotationViewModel> apiResponse = new ApiResponse<CustomerQuotationViewModel>
