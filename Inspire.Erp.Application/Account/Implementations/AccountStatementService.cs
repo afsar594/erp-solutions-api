@@ -44,7 +44,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     Value = "",
                     Name = "All"
                 });
-                 response.AddRange( await _masterAccountsTable.ListSelectAsync(x => 1 == 1, x => new DropdownResponse
+                 response.AddRange( await _masterAccountsTable.ListSelectAsync(x => x.MaAccType=="A", x => new DropdownResponse
                 {
                     Value = x.MaAccNo,
                     Name = x.MaAccName
