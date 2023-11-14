@@ -1378,9 +1378,7 @@ false
     //===================================SalesVoucher==========================================
 
     public static void SalesVoucher_Accounts_STOCK_Transactions(string VoucherNo, string VoucherType, SalesVoucher MASTER, List<SalesVoucherDetails> DTLS, ref List<StockRegister> STOCK, ref List<AccountsTransactions> ACC)
-
     {
-
 
       for (int i = 0; i < DTLS.Count; i++)
       {
@@ -2778,9 +2776,6 @@ false
     }
 
         //===================================SalesReturn==========================================
-
-
-
 
 
         //===================================StockTransfer==========================================

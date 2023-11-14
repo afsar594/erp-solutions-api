@@ -170,7 +170,8 @@ namespace Inspire.Erp.Application
             services.AddScoped<IOpeningStockService, OpeningStockService>();
 
             services.AddScoped<ISalesVoucherService, SalesVoucherService>();
-           services.AddScoped<IStockService, StockService>();
+            services.AddScoped<IStockService, StockService>();
+            services.AddScoped<ICustomerPurchaseOrderService, CustomerPurchaseOrderService>();
 
             #region Reports
             //trial Balance 
