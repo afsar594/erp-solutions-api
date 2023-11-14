@@ -26,6 +26,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private IRepository<ProgramSettings> _programsettingsRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
         private readonly ILogger<PaymentVoucherService> _logger;
+        private readonly IRepository<TrackingRegister> _trackingRegisterRepository;
+        private readonly IRepository<PurOrderRegister> _purOrderRegisterRepository;
+
+
 
         private IRepository<ItemMaster> _itemMasterRepository;
         private IRepository<UnitMaster> _unitMasterRepository;
@@ -43,7 +47,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
 
-            IRepository<PurchaseOrder> purchaseOrderRepository, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository, IRepository<PurchaseReturn> purchaseReturnRepository, IRepository<PurchaseReturnDetails> purchaseReturnDetailsRepository)
+            IRepository<PurchaseOrder> purchaseOrderRepository, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository, IRepository<PurchaseReturn> purchaseReturnRepository, IRepository<PurchaseReturnDetails> purchaseReturnDetailsRepository, IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PurOrderRegister> purOrderRegisterRepository)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository;
@@ -52,7 +56,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _programsettingsRepository = programsettingsRepository;
             _voucherNumbersRepository = voucherNumbers;
             _logger = logger;
-
+            _trackingRegisterRepository = trackingRegisterRepository;
             _itemMasterRepository = itemMasterRepository;
             _unitMasterRepository = unitMasterRepository;
             _suppliersMasterRepository = suppliersMasterRepository;
@@ -60,6 +64,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _userFileRepository = userFileRepository;
             _purchaseReturnRepository = purchaseReturnRepository;
             _purchaseReturnDetailsRepository = purchaseReturnDetailsRepository;
+            _purOrderRegisterRepository = purOrderRegisterRepository;
             //_reportPurchaseOrderRepository = reportPurchaseOrderRepository;
         }
 

@@ -66,8 +66,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
             this._salesVoucherDetailsRepository = salesVoucherDetailsRepository;
             _programsettingsRepository = programsettingsRepository;
             _voucherNumbersRepository = voucherNumbers;
-            _Context = Context;
-
             _itemMasterRepository = itemMasterRepository;
             _unitMasterRepository = unitMasterRepository;
             _suppliersMasterRepository = suppliersMasterRepository;
@@ -459,7 +457,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
         {
             try
             {
-                var Details = _Context.SalesVoucherDetails.Where(o => o.SalesVoucherDetailsNo == SalesVoucherNo).AsQueryable();
+                var Details = _salesVoucherDetailsRepository.GetAll().Where(o => o.SalesVoucherDetailsNo == SalesVoucherNo).AsQueryable();
                 return Details;
             }
             catch (System.Exception ex)

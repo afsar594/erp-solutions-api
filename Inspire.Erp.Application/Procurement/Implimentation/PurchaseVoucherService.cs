@@ -11,6 +11,10 @@ using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Application.MODULE;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using System.Threading.Tasks;
+using Inspire.Erp.Domain.Modals;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Domain.Modals.Procurement;
 //using Microsoft.Data.SqlClient;
 
 namespace Inspire.Erp.Application.Master.Implementations
