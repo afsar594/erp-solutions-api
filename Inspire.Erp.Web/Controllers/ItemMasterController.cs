@@ -30,7 +30,7 @@ namespace Inspire.Erp.Web.Controllers
         [Route("GetAllItem")]
         public ApiResponse<List<ItemMasterViewModel>> GetAllItem()
         {
-            IEnumerable<ItemMaster> listItemnater = itemMasterService.GetAllItem();
+            List<ItemMaster> listItemnater = itemMasterService.GetAllItem();
              var x = _mapper.Map<List<ItemMasterViewModel>>(listItemnater);
             ApiResponse<List<ItemMasterViewModel>> apiResponse = new ApiResponse<List<ItemMasterViewModel>>
             {

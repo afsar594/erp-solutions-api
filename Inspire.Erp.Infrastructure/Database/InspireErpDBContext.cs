@@ -413,7 +413,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-
+           
             #region If the db table and entity has same name
             //modelBuilder.Entity<SalesVoucherResponse>().HasNoKey();
             //modelBuilder.Entity<PONumber>().HasNoKey();
@@ -17419,8 +17419,9 @@ namespace Inspire.Erp.Infrastructure.Database
                 //     .HasName("UniquePaymenPurID")
                 //     .IsUnique();
 
-                // entity.Property(e => e.PurchaseVoucherPurID)
-                //     .HasColumnName("Purchase_Voucher_Pur_ID");
+                entity.Property(e => e.PurchaseVoucherPurID)
+                    .HasColumnName("Purchase_Voucher_Pur_ID")
+                    .ValueGeneratedOnAdd();
 
                 // entity.Property(e => e.PurchaseVoucherActualAmount)
                 //     .HasColumnName("Purchase_Voucher_Actual_Amount")
@@ -17772,7 +17773,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.PurchaseVoucherDetailsQtndId).HasColumnName("Purchase_Voucher_Details_QTND_ID");
                 entity.Property(e => e.PurchaseVoucherDetailsDelStatus).HasColumnName("Purchase_Voucher_Details_DelStatus");
             });
-
+            
 
             ////////////////==============================================================================
 
@@ -20810,12 +20811,15 @@ namespace Inspire.Erp.Infrastructure.Database
             modelBuilder.Entity<StockRegister>(entity =>
             {
 
-                entity.ToTable("Stock_Register");
 
-                //entity.Property(e => e.StockRegisterStoreId)
-                //    .HasColumnName("Stock_Register_Store_ID")
-                //    .HasColumnType("numeric(18, 0)")
-                //    .ValueGeneratedOnAdd();
+                entity.ToTable("Stock_Register");
+                //entity.Property(e => e.StockRegisterStoreID)
+                //              .ValueGeneratedOnAdd()
+                //              .UseIdentityColumn();
+                entity.Property(e => e.StockRegisterStoreID)
+                    .HasColumnName("Stock_Register_Store_ID")
+                    .HasColumnType("bigint")
+                    .ValueGeneratedOnAdd().UseIdentityColumn();
 
                 entity.Property(e => e.StockRegisterAmount)
                     .HasColumnName("Stock_Register_Amount")

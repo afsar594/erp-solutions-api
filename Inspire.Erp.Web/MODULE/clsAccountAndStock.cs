@@ -10,6 +10,7 @@ namespace Inspire.Erp.Web.MODULE
 {
   public static class clsAccountAndStock
   {
+
     //===================================PurchaseVoucher==========================================
     public static void PurchaseVoucher_Accounts_STOCK_Transactions(string VoucherNo, string VoucherType, PurchaseVoucher MASTER, List<PurchaseVoucherDetails> DTLS, ref List<StockRegister> STOCK, ref List<AccountsTransactions> ACC)
 
@@ -38,10 +39,10 @@ namespace Inspire.Erp.Web.MODULE
 
          //     decimal ? StockRegisterQuantity,
          DTLS[i].PurchaseVoucherDetailsQuantity,
-         //     decimal ? StockRegisterSin,
-         0,
+          //     decimal ? StockRegisterSin,
+          DTLS[i].PurchaseVoucherDetailsQuantity,
          //     decimal ? StockRegisterSout,
-         DTLS[i].PurchaseVoucherDetailsQuantity,
+        0,
           //     string StockRegisterStatus,
           "",
          //      string StockRegisterBatchCode,
@@ -441,7 +442,9 @@ false
 
 
     //===================================PurchaseReturn==========================================
-    public static void PurchaseReturn_Accounts_STOCK_Transactions(string VoucherNo, string VoucherType, PurchaseReturn MASTER, List<PurchaseReturnDetails> DTLS, ref List<StockRegister> STOCK, ref List<AccountsTransactions> ACC)
+    public static void PurchaseReturn_Accounts_STOCK_Transactions(string VoucherNo, string VoucherType, PurchaseReturn MASTER, 
+                                                                  List<PurchaseReturnDetails> DTLS, ref List<StockRegister> STOCK, 
+                                                                  ref List<AccountsTransactions> ACC,decimal? convertedValue, decimal? currencyRate)
 
     {
       for (int i = 0; i < DTLS.Count; i++)
@@ -469,9 +472,10 @@ false
          //     decimal ? StockRegisterQuantity,
          DTLS[i].PurchaseReturnDetailsQuantity,
          //     decimal ? StockRegisterSin,
-         DTLS[i].PurchaseReturnDetailsQuantity,
-         //     decimal ? StockRegisterSout,
          0,
+        //     decimal ? StockRegisterSout,
+        // DTLS[i].PurchaseReturnDetailsRate * DTLS[i].PurchaseReturnDetailsQuantity,
+        DTLS[i].PurchaseReturnDetailsQuantity,
           //     string StockRegisterStatus,
           "",
          //      string StockRegisterBatchCode,
@@ -479,11 +483,13 @@ false
          //     decimal ? StockRegisterRate,
          DTLS[i].PurchaseReturnDetailsRate,
           //     decimal ? StockRegisterFcRate,
-          DTLS[i].PurchaseReturnDetailsRate,
+          //DTLS[i].PurchaseReturnDetailsRate,
+          currencyRate,
          //   decimal ? StockRegisterAmount,
          DTLS[i].PurchaseReturnDetailsRate * DTLS[i].PurchaseReturnDetailsQuantity,
-         //   decimal ? StockRegisterFCAmount,
-         DTLS[i].PurchaseReturnDetailsRate * DTLS[i].PurchaseReturnDetailsQuantity,
+          //   decimal ? StockRegisterFCAmount,
+          //DTLS[i].PurchaseReturnDetailsRate * DTLS[i].PurchaseReturnDetailsQuantity,
+          convertedValue,
           //     Double ? StockRegisterLandingCost,
           DTLS[i].PurchaseReturnDetailsRate * DTLS[i].PurchaseReturnDetailsQuantity,
            //int ? StockRegisterLocationID,
@@ -1377,7 +1383,8 @@ false
 
     //===================================SalesVoucher==========================================
 
-    public static void SalesVoucher_Accounts_STOCK_Transactions(string VoucherNo, string VoucherType, SalesVoucher MASTER, List<SalesVoucherDetails> DTLS, ref List<StockRegister> STOCK, ref List<AccountsTransactions> ACC)
+    public static void SalesVoucher_Accounts_STOCK_Transactions(string VoucherNo, string VoucherType, SalesVoucher MASTER, List<SalesVoucherDetails> DTLS, ref List<StockRegister> STOCK, ref List<AccountsTransactions> ACC, List<UnitDetails> unitDetails)
+
     {
 
       for (int i = 0; i < DTLS.Count; i++)
@@ -1405,9 +1412,9 @@ false
          //     decimal ? StockRegisterQuantity,
          DTLS[i].SalesVoucherDetailsQuantity,
          //     decimal ? StockRegisterSin,
-         DTLS[i].SalesVoucherDetailsQuantity,
-         //     decimal ? StockRegisterSout,
          0,
+         //     decimal ? StockRegisterSout,
+         DTLS[i].SalesVoucherDetailsQuantity * Convert.ToDecimal(unitDetails[i].UnitDetailsConversionType),
           //     string StockRegisterStatus,
           "",
          //      string StockRegisterBatchCode,

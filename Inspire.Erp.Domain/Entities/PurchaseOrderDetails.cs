@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -39,5 +40,10 @@ namespace Inspire.Erp.Domain.Entities
 
         ////public virtual PurchaseOrder PurchaseOrder { get; set; }
         public virtual PurchaseOrder PurchaseOrderDetailsNoNavigation { get; set; }
+        [NotMapped]
+        public decimal? PurchaseOrderNetStock { get; set; }
+
+        [NotMapped]
+        public decimal? PurchaseOrderTillNowQTY { get; set; }
     }
 }

@@ -111,7 +111,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 {
                     item.PurchaseVoucherDetailsVoucherNo = grn.PurchaseVoucherVoucherNo;
                 }
-                _purchaseVoucherDetailsRepository.UpdateList(grn.PurchaseVoucherDetails);
+                _purchaseVoucherDetailsRepository.UpdateList(grn.PurchaseVoucherDetails.ToList());
 
                 UserTracking trackingData = new UserTracking();
                 trackingData.UserTrackingUserUserId = 1;
@@ -150,7 +150,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                     item.PurchaseVoucherDetailsVoucherNo = grn.PurchaseVoucherVoucherNo;
                 }
 
-                _purchaseVoucherDetailsRepository.InsertList(grn.PurchaseVoucherDetails);
+                _purchaseVoucherDetailsRepository.InsertList(grn.PurchaseVoucherDetails.ToList());
                 /////////////Model check karna hai 
                 StockRegister sr = new StockRegister();
                 sr.StockRegisterStoreID = 0;
