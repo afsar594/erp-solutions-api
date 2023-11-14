@@ -95,7 +95,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             return _itemMasterRepository.GetAll();
         }
 
-        public PurchaseOrderModel UpdatePurchaseOrder(PurchaseOrder purchaseOrder, List<AccountsTransactions> accountsTransactions, 
+        public PurchaseOrderModel UpdatePurchaseOrder(PurchaseOrder purchaseOrder, List<AccountsTransactions> accountsTransactions,
             List<PurchaseOrderDetails> purchaseOrderDetails
             //, List<StockRegister> stockRegister
             )
@@ -262,7 +262,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
 
 
-              //  purchaseOrder.PurchaseOrderDetails = purchaseOrderDetails;
+                //  purchaseOrder.PurchaseOrderDetails = purchaseOrderDetails;
                 ////purchaseOrder.PurchaseOrderDetailsPurchaseOrder = purchaseOrderDetails;
 
 
@@ -308,7 +308,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 purchaseOrderDetails = purchaseOrderDetails.Select((x) =>
                 {
                     x.PurchaseOrderId = maxcount;
-                    x.PurchaseOrderDetailsNo = purchaseOrderNumber;
+                    x.PurchaseOrderDetailsNo = purchaseOrder.PurchaseOrderNo;
                     return x;
                 }).ToList();
                 //_purchaseOrderDetailsRepository.InsertList(purchaseOrderDetails);
@@ -316,7 +316,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     //k.AccountsTransactionsTransDate = purchaseOrder.PurchaseOrderDate;
-                    k.AccountsTransactionsVoucherNo = purchaseOrderNumber;
+                    k.AccountsTransactionsVoucherNo = purchaseOrder.PurchaseOrderNo;
                     k.AccountsTransactionsVoucherType = VoucherType.PurchaseOrder_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
@@ -348,14 +348,14 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     {
                         TrackingRegisterDetailsId = (int)purOrderDet.PurchaseOrderDetailsId,
                         TrackingRegisterVoucherNo = purOrderDet.PurchaseOrderDetailsNo,
-                        TrackingRegisterMaterialId=(int) purOrderDet.PurchaseOrderDetailsMatId,
-                        TrackingRegisterVoucherType=purchaseOrder.PurchaseOrderType,
-                        TrackingRegisterQty=(int)purOrderDet.PurchaseOrderDetailsQuantity,
-                        TrackingRegisterQtyin= (int)purOrderDet.PurchaseOrderDetailsQuantity,
+                        TrackingRegisterMaterialId = (int)purOrderDet.PurchaseOrderDetailsMatId,
+                        TrackingRegisterVoucherType = purchaseOrder.PurchaseOrderType,
+                        TrackingRegisterQty = (int)purOrderDet.PurchaseOrderDetailsQuantity,
+                        TrackingRegisterQtyin = (int)purOrderDet.PurchaseOrderDetailsQuantity,
                         TrackingRegisterQtyout = 0,
-                        TrackingRegisterRate=(double)purOrderDet.PurchaseOrderDetailsRate,
-                        TrackingRegisterTrackDate=purchaseOrder.PurchaseOrderDate,
-                        TrackingRegisterFsno=null,//to be alloted
+                        TrackingRegisterRate = (double)purOrderDet.PurchaseOrderDetailsRate,
+                        TrackingRegisterTrackDate = purchaseOrder.PurchaseOrderDate,
+                        TrackingRegisterFsno = null,//to be alloted
 
                     };
                     listTrackRegs.Add(tr);
@@ -369,10 +369,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         PurOrderRegisterQtyOrder = (int)purOrderDet.PurchaseOrderDetailsQuantity,
                         PurOrderRegisterQtyIssued = 0,
                         PurOrderRegisterRate = (double)purOrderDet.PurchaseOrderDetailsRate,
-                        PurOrderRegisterAssignedDate =DateTime.Now,
+                        PurOrderRegisterAssignedDate = DateTime.Now,
                         PurOrderRegisterFsno = null,//to be alloted,
-                        PurOrderRegisterSupplierId=(int)purchaseOrder.PurchaseOrderPartyId,
-                        PurOrderRegisterStatus="A"
+                        PurOrderRegisterSupplierId = (int)purchaseOrder.PurchaseOrderPartyId,
+                        PurOrderRegisterStatus = "A"
 
                     };
                     listTrackPurchOrderReg.Add(poReg);
@@ -414,14 +414,15 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             {
                 purchaseOrderModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.PurchaseOrder_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
             }
-            catch { 
+            catch
+            {
             }
             purchaseOrderModel.purchaseOrderDetails = _purchaseOrderDetailsRepository.GetAsQueryable().Where(x => x.PurchaseOrderDetailsNo == pvno && (x.PurchaseOrderDetailsDelStatus == false || x.PurchaseOrderDetailsDelStatus == null)).ToList();
             return purchaseOrderModel;
 
         }
 
-        public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate) 
+        public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
         {
             try
             {
@@ -436,7 +437,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 //int vnoMaxVal = 1;
 
                 VouchersNumbers vouchersNumbers = new VouchersNumbers
-                { 
+                {
                     VouchersNumbersVNo = prefix + vnoMaxVal,
                     VouchersNumbersVNoNu = vnoMaxVal,
                     VouchersNumbersVType = VoucherType.PurchaseOrder_TYPE,
@@ -471,7 +472,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 throw ex;
             }
 
-        } 
+        }
         public VouchersNumbers GetVouchersNumbers(string pvno, string vType)
         {
             try
@@ -491,7 +492,29 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
         }
 
-
-
+        public IQueryable GetPODetailsForGRN()
+        {
+            try
+            {
+                var materialList = _itemMasterRepository.GetAll();
+                //var unitList = _unitMasterRepository.GetAll().ToList();
+                var data = _purchaseOrderDetailsRepository.GetAll().Select(d => new
+                {
+                    purchaseOrderDetailsNo = d.PurchaseOrderDetailsNo,
+                    itemId = d.PurchaseOrderDetailsMatId,
+                    itemObj = materialList.FirstOrDefault(m => m.ItemMasterItemId == d.PurchaseOrderDetailsMatId),
+                    //itemname = materialList.FirstOrDefault(m => m.ItemMasterItemId == d.PurchaseOrderDetailsMatId).ItemMasterItemName,
+                    unitId = d.PurchaseOrderDetailsUnitId,
+                    //unit = unitList.FirstOrDefault(u => u.UnitMasterUnitId == d.PurchaseOrderDetailsUnitId).UnitMasterUnitFullName,
+                    //price = materialList.FirstOrDefault(m => m.ItemMasterItemId == d.PurchaseOrderDetailsMatId).ItemMasterLastPurchasePrice,
+                    poQty = d.PurchaseOrderDetailsQuantity,
+                }).AsQueryable();
+                return data;
+            }
+            catch (System.Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

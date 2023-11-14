@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -7,7 +8,7 @@ namespace Inspire.Erp.Domain.Entities
     {
         public Suppliers()
         {
-            PurchaseVoucher = new HashSet<PurchaseVoucher>();
+            //PurchaseVoucher = new HashSet<PurchaseVoucher>();
         }
 
         public int SuppliersInsId { get; set; }
@@ -41,7 +42,7 @@ namespace Inspire.Erp.Domain.Entities
         public string SuppliersTrno { get; set; }
         public string SuppliersVatNo { get; set; }
         public bool? SuppliersDelStatus { get; set; }
-
-        public virtual ICollection<PurchaseVoucher> PurchaseVoucher { get; set; }
+        [NotMapped]
+        public List<PurchaseVoucher> PurchaseVoucher { get; set; }
     }
 }

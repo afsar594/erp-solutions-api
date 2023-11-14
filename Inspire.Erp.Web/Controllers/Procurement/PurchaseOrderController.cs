@@ -484,7 +484,20 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             return apiResponse;
         }
 
-
+        [HttpGet]
+        [Route("GetPODetailsForGRN")]
+        public IActionResult GetPODetailsForGRN()
+        {
+            try
+            {
+                var item = _purchaseOrderService.GetPODetailsForGRN();
+                return Ok(item);
+            }
+           catch(Exception ex)
+            { 
+                return StatusCode(500, ex.Message.ToString());
+            }
+        }
 
     }
 }
