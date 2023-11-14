@@ -31,5 +31,7 @@ namespace Inspire.Erp.Application.Master.Interfaces
         public IQueryable GetPurchaseReturnReport();
 
         public VouchersNumbers GetVouchersNumbers(string pvno);
+        Task<Response<GridWrapperResponse<List<GetPurchaseVoucherResponse>>>> GetPurchaseVoucherReport(GenericGridViewModel model);
+
     }
 }

@@ -470,7 +470,7 @@ namespace Inspire.Erp.Web.Controllers
                 Result = _mapper.Map<IEnumerable<SalesVoucher>>(_salesVoucherService.GetSalesVoucher()),
                 Message = ""
             };
-             return Ok( apiResponse);
+             return  apiResponse;
 
 
 
