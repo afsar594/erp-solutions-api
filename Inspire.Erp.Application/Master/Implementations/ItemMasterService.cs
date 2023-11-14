@@ -13,10 +13,12 @@ namespace Inspire.Erp.Application.Master
     {
         private IRepository<ItemMaster> itemrepository;
         private IRepository<ItemStockType> itemStockRepository;
-        public ItemMasterService(IRepository<ItemMaster> _itemrepository, IRepository<ItemStockType> _itemStockRepository)
+        private IRepository<UnitDetails> _unitDetailsRepo;
+        public ItemMasterService(IRepository<ItemMaster> _itemrepository, IRepository<ItemStockType> _itemStockRepository, IRepository<UnitDetails> unitDetailsRepo)
         {
             itemrepository = _itemrepository;
             itemStockRepository = _itemStockRepository;
+            _unitDetailsRepo = unitDetailsRepo;
         }
         public IEnumerable<ItemMaster> InsertItem(ItemMaster itemMaster)
         {
@@ -148,9 +150,9 @@ namespace Inspire.Erp.Application.Master
             return this.GetAllItem();
         }
 
-        public IEnumerable<ItemMaster> GetAllItem()
+        public List<ItemMaster> GetAllItem()
         {
-            IEnumerable<ItemMaster> itemMaster;
+            List<ItemMaster> itemMaster;
             try
             {
                 itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo == 0 && (k.ItemMasterDelStatus == false || k.ItemMasterDelStatus == null)
@@ -160,7 +162,7 @@ namespace Inspire.Erp.Application.Master
                     ItemMasterItemName = k.ItemMasterItemName
 
 
-                }) ;
+                }).ToList() ;
 
             }
             catch (Exception ex)
@@ -175,9 +177,9 @@ namespace Inspire.Erp.Application.Master
             return itemMaster;
         }
 
-        public IEnumerable<ItemMaster> GetAllItemNotGroup()
+        public List<ItemMaster> GetAllItemNotGroup()
         {
-            IEnumerable<ItemMaster> itemMaster;
+            List<ItemMaster> itemMaster;
             try
             {
                 itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus == false || k.ItemMasterDelStatus == null)
@@ -186,7 +188,13 @@ namespace Inspire.Erp.Application.Master
                     ItemMasterItemId = k.ItemMasterItemId,
                     ItemMasterItemName = k.ItemMasterItemName
 
-                });
+                }).ToList(); ;
+                var allUnitDetails = _unitDetailsRepo.GetAll().ToList();
+                foreach (var item in itemMaster)
+                {
+                    item.UnitDetails = allUnitDetails.Where(c => c.UnitDetailsItemId == item.ItemMasterItemId).ToList();
+
+                }
 
             }
             catch (Exception ex)

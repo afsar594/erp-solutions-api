@@ -230,25 +230,25 @@ namespace Inspire.Erp.Web.Controllers.Sales
         }
 
 
-        ////[HttpGet]
-        ////[Route("GetDeliveryNote")]
-        ////public ApiResponse<List<CustomerDeliveryNote>> GetAllDeliveryNote()
-        ////{
+        [HttpGet]
+        [Route("GetDeliveryNote")]
+        public ApiResponse<List<CustomerDeliveryNote>> GetAllDeliveryNote()
+        {
 
 
-        ////    ApiResponse<List<CustomerDeliveryNote>> apiResponse = new ApiResponse<List<CustomerDeliveryNote>>
-        ////    {
-        ////        Valid = true,
-        ////        Result = _mapper.Map<List<CustomerDeliveryNote>>(_deliveryNoteService.GetDeliveryNote()),
-        ////        Message = ""
-        ////    };
-        ////    return apiResponse;
+            ApiResponse<List<CustomerDeliveryNote>> apiResponse = new ApiResponse<List<CustomerDeliveryNote>>
+            {
+                Valid = true,
+                Result = _mapper.Map<List<CustomerDeliveryNote>>(_deliveryNoteService.GetDeliveryNote()),
+                Message = ""
+            };
+            return apiResponse;
 
 
 
 
 
-        ////}
+        }
 
         [HttpGet]
         [Route("GetSavedDeliveryNoteDetails/{id}")]

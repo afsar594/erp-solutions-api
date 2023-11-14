@@ -16,7 +16,7 @@ using Inspire.Erp.Web.Common;
 using Inspire.Erp.Web.MODULE;
 
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Inspire.Erp.WebReport.ReportEngine;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -27,10 +27,13 @@ namespace Inspire.Erp.Web.Controllers
     {
         private ISalesVoucherService _salesVoucherService;
         private readonly IMapper _mapper;
-        public SalesVoucherController(ISalesVoucherService salesVoucherService, IMapper mapper)
+
+        private IRepository<UnitDetails> _UnitDetailsRepository;
+        public SalesVoucherController(ISalesVoucherService salesVoucherService, IMapper mapper, IRepository<UnitDetails> unitDetailsRepository)
         {
             _salesVoucherService = salesVoucherService;
             _mapper = mapper;
+            _UnitDetailsRepository = unitDetailsRepository;
         }
 
         //[HttpGet]
@@ -193,11 +196,18 @@ namespace Inspire.Erp.Web.Controllers
                 //var xs = _salesVoucherService.InsertSalesVoucher(param1, param3, param2
                 //    //, param4
                 //    );
-
+                var allUnits = new List<UnitDetails>();
+                var unitDetails = new UnitDetails();
+                foreach (var item in param1.SalesVoucherDetails)
+                {
+                     unitDetails = _UnitDetailsRepository.GetAsQueryable().Where(c => c.UnitDetailsUnitId == item.SalesVoucherDetailsUnitId).FirstOrDefault();
+                    allUnits.Add(unitDetails);
+                }   
+               
                 //==============
                 //param3 = new List<AccountsTransactions>();
                 List<StockRegister> param4 = new List<StockRegister>();
-                //clsAccountAndStock.SalesVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
+                clsAccountAndStock.SalesVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3, allUnits);
 
                 var xs = _salesVoucherService.InsertSalesVoucher(param1, param3, param2, param4);
                 //========================
@@ -205,6 +215,8 @@ namespace Inspire.Erp.Web.Controllers
 
                 SalesVoucherViewModel salesVoucherViewModel = new SalesVoucherViewModel
                 {
+
+                        
                     SalesVoucherId = xs.salesVoucher.SalesVoucherId,
                     SalesVoucherNo = xs.salesVoucher.SalesVoucherNo,
                     SalesVoucherDate = xs.salesVoucher.SalesVoucherDate,
@@ -302,7 +314,17 @@ namespace Inspire.Erp.Web.Controllers
             //==============
             param3 = new List<AccountsTransactions>();
             List<StockRegister> param4 = new List<StockRegister>();
-            clsAccountAndStock.SalesVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
+
+            var allUnits = new List<UnitDetails>();
+            var unitDetails = new UnitDetails();
+            foreach (var item in param1.SalesVoucherDetails)
+            {
+                unitDetails = _UnitDetailsRepository.GetAsQueryable().Where(c => c.UnitDetailsUnitId == item.SalesVoucherDetailsUnitId).FirstOrDefault();
+                allUnits.Add(unitDetails);
+            }
+
+
+            clsAccountAndStock.SalesVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3, allUnits);
 
             var xs = _salesVoucherService.UpdateSalesVoucher(param1, param3, param2
            , param4
@@ -438,15 +460,14 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("GetSalesVoucher")]
-        public IActionResult GetAllSalesVoucher()
+        public ApiResponse<IEnumerable<SalesVoucher>> GetAllSalesVoucher()
         {
 
-            //var item = _salesVoucherService.GetSalesVoucher();
-            //return Ok(item);
-            ApiResponse<List<SalesVoucher>> apiResponse = new ApiResponse<List<SalesVoucher>>
+
+            ApiResponse<IEnumerable<SalesVoucher>> apiResponse = new ApiResponse<IEnumerable<SalesVoucher>>
             {
                 Valid = true,
-                Result = _mapper.Map<List<SalesVoucher>>(_salesVoucherService.GetSalesVoucher()),
+                Result = _mapper.Map<IEnumerable<SalesVoucher>>(_salesVoucherService.GetSalesVoucher()),
                 Message = ""
             };
              return Ok( apiResponse);
