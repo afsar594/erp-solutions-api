@@ -5790,7 +5790,9 @@ namespace Inspire.Erp.Infrastructure.Database
             modelBuilder.Entity<CustomerPurchaseOrder>(entity =>
             {
                 entity.HasKey(e => e.CustomerPurchaseOrderId);
-
+                //entity.Property(e => e.CustomerPurchaseOrderId)
+                //    .HasColumnName("CustomerPurchaseOrderId")
+                //    .ValueGeneratedNever();
                 //            entity.ToTable("Customer_Purchase_Order");
 
                 //            entity.Property(e => e.CustomerPurchaseOrderId)

@@ -180,7 +180,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         TrackingRegisterQty = (int)purOrderDet.PurchaseOrderDetailsQuantity,
                         TrackingRegisterQtyin = (int)purOrderDet.PurchaseOrderDetailsQuantity,
                         TrackingRegisterQtyout = 0,
-                        TrackingRegisterRate = (double)purOrderDet.PurchaseOrderDetailsRate,
+                        TrackingRegisterRate = purOrderDet.PurchaseOrderDetailsRate,
                         TrackingRegisterTrackDate = purchaseOrder.PurchaseOrderDate,
                         TrackingRegisterFsno = null,//to be alloted
 
@@ -195,7 +195,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         PurOrderRegisterTransType = purchaseOrder.PurchaseOrderType,
                         PurOrderRegisterQtyOrder = (int)purOrderDet.PurchaseOrderDetailsQuantity,
                         PurOrderRegisterQtyIssued = 0,
-                        PurOrderRegisterRate = (double)purOrderDet.PurchaseOrderDetailsRate,
+                        PurOrderRegisterRate = purOrderDet.PurchaseOrderDetailsRate,
                         PurOrderRegisterAssignedDate = DateTime.Now,
                         PurOrderRegisterFsno = null,//to be alloted,
                         PurOrderRegisterSupplierId = (int)purchaseOrder.PurchaseOrderPartyId,
@@ -353,7 +353,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         TrackingRegisterQty=(int)purOrderDet.PurchaseOrderDetailsQuantity,
                         TrackingRegisterQtyin= (int)purOrderDet.PurchaseOrderDetailsQuantity,
                         TrackingRegisterQtyout = 0,
-                        TrackingRegisterRate=(double)purOrderDet.PurchaseOrderDetailsRate,
+                        TrackingRegisterRate=purOrderDet.PurchaseOrderDetailsRate,
                         TrackingRegisterTrackDate=purchaseOrder.PurchaseOrderDate,
                         TrackingRegisterFsno=null,//to be alloted
 
@@ -366,9 +366,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         PurOrderRegisterRefVoucherNo = purOrderDet.PurchaseOrderDetailsNo,
                         PurOrderRegisterMaterialId = (int)purOrderDet.PurchaseOrderDetailsMatId,
                         PurOrderRegisterTransType = purchaseOrder.PurchaseOrderType,
-                        PurOrderRegisterQtyOrder = (int)purOrderDet.PurchaseOrderDetailsQuantity,
+                        PurOrderRegisterQtyOrder = purOrderDet.PurchaseOrderDetailsQuantity,
                         PurOrderRegisterQtyIssued = 0,
-                        PurOrderRegisterRate = (double)purOrderDet.PurchaseOrderDetailsRate,
+                        PurOrderRegisterRate = purOrderDet.PurchaseOrderDetailsRate,
                         PurOrderRegisterAssignedDate =DateTime.Now,
                         PurOrderRegisterFsno = null,//to be alloted,
                         PurOrderRegisterSupplierId=(int)purchaseOrder.PurchaseOrderPartyId,
