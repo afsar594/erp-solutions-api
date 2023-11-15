@@ -10,7 +10,7 @@ namespace Inspire.Erp.Web.ViewModels.sales
         public string CustomerPurchaseOrderVoucherNo { get; set; }
         public DateTime? CustomerPurchaseOrderDate { get; set; }
         public long? CustomerPurchaseOrderLocationId { get; set; }
-        public string CustomerPurchaseOrderCustomerCode { get; set; }
+        public int? CustomerPurchaseOrderCustomerId { get; set; }
         public string CustomerPurchaseOrderCustomerName { get; set; }
         public long? CustomerPurchaseOrderSalesManId { get; set; }
         public string CustomerPurchaseOrderLpoNo { get; set; }
@@ -30,6 +30,8 @@ namespace Inspire.Erp.Web.ViewModels.sales
         public string CustomerPurchaseOrderTechnicalDetails { get; set; }
         public string CustomerPurchaseOrderTerms { get; set; }
         public int? CustomerPurchaseOrderCpoAboutId { get; set; }
+
+        public int? CustomerPurchaseOrderDepartmentId { get; set; }
         public DateTime? CustomerPurchaseOrderCpoDeliveryTimeDate { get; set; }
         public string CustomerPurchaseOrderPacking { get; set; }
         public string CustomerPurchaseOrderQuotationId { get; set; }

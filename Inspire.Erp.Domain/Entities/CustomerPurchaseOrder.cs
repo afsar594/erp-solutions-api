@@ -13,7 +13,9 @@ namespace Inspire.Erp.Domain.Entities
         public string CustomerPurchaseOrderVoucherNo { get; set; }
         public DateTime? CustomerPurchaseOrderDate { get; set; }
         public long? CustomerPurchaseOrderLocationId { get; set; }
-        public string CustomerPurchaseOrderCustomerCode { get; set; }
+
+        public int? CustomerPurchaseOrderDepartmentId { get; set; }
+        public int? CustomerPurchaseOrderCustomerId { get; set; }
         public string CustomerPurchaseOrderCustomerName { get; set; }
         public long? CustomerPurchaseOrderSalesManId { get; set; }
         public string CustomerPurchaseOrderLpoNo { get; set; }
