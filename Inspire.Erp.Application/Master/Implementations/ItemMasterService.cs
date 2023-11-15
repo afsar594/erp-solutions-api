@@ -186,8 +186,8 @@ namespace Inspire.Erp.Application.Master
                 && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new ItemMaster
                 {
                     ItemMasterItemId = k.ItemMasterItemId,
-                    ItemMasterItemName = k.ItemMasterItemName
-                    ItemMasterPartNo = k.ItemMasterPartNo,
+                    ItemMasterItemName = k.ItemMasterItemName,
+                    ItemMasterPartNo = k.ItemMasterPartNo
                 }).ToList();
 
                 var allUnitDetails = _unitDetailsRepo.GetAll().ToList();
