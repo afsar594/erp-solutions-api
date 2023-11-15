@@ -41,6 +41,11 @@ namespace Inspire.Erp.Web.ViewModels
         public decimal? PurchaseReturnDetailsSalesPrice { get; set; }
         public bool? PurchaseReturnDetailsDelStatus { get; set; }
 
+        public decimal? PurchaseOrderPurchaseQTY { get; set; }
+
+        public decimal? PurchaseReturnNetStock { get; set; }
+
+        public decimal? PurchaseReturnQtyTill { get; set; }
         //public virtual PurchaseReturnController PurchaseReturnDetailsNoNavigation { get; set; }
     }
 }

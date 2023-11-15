@@ -346,6 +346,13 @@ namespace Inspire.Erp.Application.Sales.Implementations
             return deliveryNoteModel;
         }
 
+        public IEnumerable<CustomerDeliveryNote> GetDeliveryNote()
+        {
+            var allCustomerDeliveryNotes = _deliveryNoteRepository.GetAsQueryable();
+            return allCustomerDeliveryNotes;
+          //  throw new NotImplementedException();
+        }
+
         ////public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
         ////{
         ////    try

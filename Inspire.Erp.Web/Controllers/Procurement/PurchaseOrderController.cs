@@ -345,11 +345,10 @@ namespace Inspire.Erp.Web.Controllers.Procurement
         public ApiResponse<List<PurchaseOrder>> GetAllPurchaseOrder()
         {
 
-
             ApiResponse<List<PurchaseOrder>> apiResponse = new ApiResponse<List<PurchaseOrder>>
             {
                 Valid = true,
-                Result = _mapper.Map<List<PurchaseOrder>>(_purchaseOrderService.GetPurchaseOrder()),
+                Result = _purchaseOrderService.GetPurchaseOrder().ToList(),
                 Message = ""
             };
             return apiResponse;

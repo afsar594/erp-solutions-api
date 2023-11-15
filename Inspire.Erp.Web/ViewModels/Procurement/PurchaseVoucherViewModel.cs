@@ -80,7 +80,7 @@ namespace Inspire.Erp.Web.ViewModels.Procurement
         public string PurchaseVoucherSpAccNo { get; set; }
         public decimal? PurchaseVoucherSpAmount { get; set; }
         public decimal? PurchaseVoucherFcSpAmount { get; set; }
-        public DateTime PurchaseVoucherPurchaseDate { get; set; }
+        public DateTime? PurchaseVoucherPurchaseDate { get; set; }
         public string PurchaseVoucherLpoNo { get; set; }
         public DateTime? PurchaseVoucherLpoDate { get; set; }
         public string PurchaseVoucherQuatationNo { get; set; }
@@ -108,6 +108,7 @@ namespace Inspire.Erp.Web.ViewModels.Procurement
         public decimal? PurchaseVoucherDiscountPercentage { get; set; }
         public int? PurchaseVoucherPoNo { get; set; }
         public int? PurchaseVoucherCurrencyId { get; set; }
+        public string CurrencyMasterCurrencyName { get; set; }
         public int? PurchaseVoucherCompanyId { get; set; }
         public int? PurchaseVoucherJobId { get; set; }
         public string PurchaseVoucherBatchCode { get; set; }

@@ -11,7 +11,7 @@ namespace Inspire.Erp.Domain.Entities
             ItemImages = new HashSet<ItemImages>();
             ItemPriceLevelDetails = new HashSet<ItemPriceLevelDetails>();
             ItemSupplierDetails = new HashSet<ItemSupplierDetails>();
-            UnitDetails = new HashSet<UnitDetails>();
+            UnitDetails = new List<UnitDetails>();
         }
 
         public long ItemMasterItemId { get; set; }

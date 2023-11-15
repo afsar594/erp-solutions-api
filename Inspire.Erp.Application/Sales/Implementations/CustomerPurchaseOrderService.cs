@@ -164,7 +164,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 {
                     //if (k.SalesVoucherDetailsId == 0)
                     //{
-                    k.CustomerPurchaseOrderDetailsOrderId = customerPurchaseOrder.CustomerPurchaseOrderId;
+                    k.CustomerPurchaseOrderId = customerPurchaseOrder.CustomerPurchaseOrderId;
                     k.CustomerPurchaseOrderDetailsVoucherNo = customerPurchaseOrder.CustomerPurchaseOrderVoucherNo;
                     //k.SalesVoucherDetailsId = 0;
                     //}
@@ -224,9 +224,9 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         TrackingRegisterQty = (int)purOrderDet.CustomerPurchaseOrderDetailsQty,
                         TrackingRegisterQtyin = (int)purOrderDet.CustomerPurchaseOrderDetailsQty,
                         TrackingRegisterQtyout = 0,
-                        TrackingRegisterRate = (double)purOrderDet.CustomerPurchaseOrderDetailsAmount,
+                        TrackingRegisterRate = purOrderDet.CustomerPurchaseOrderDetailsAmount,
                         TrackingRegisterTrackDate = customerPurchaseOrder.CustomerPurchaseOrderDate,
-                        TrackingRegisterFsno = (int)purOrderDet.CustomerPurchaseOrderDetailsFsno,
+                        TrackingRegisterFsno = purOrderDet.CustomerPurchaseOrderDetailsFsno,
 
                     };
                     listTrackRegs.Add(tr);
@@ -237,13 +237,13 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         PurOrderRegisterRefVoucherNo = purOrderDet.CustomerPurchaseOrderDetailsVoucherNo,
                         PurOrderRegisterMaterialId = (int)purOrderDet.CustomerPurchaseOrderDetailsItemId,
                         PurOrderRegisterTransType = VoucherType.CustomerPurchaseOrder_TYPE,
-                        PurOrderRegisterQtyOrder = (int)purOrderDet.CustomerPurchaseOrderDetailsQty,
+                        PurOrderRegisterQtyOrder = purOrderDet.CustomerPurchaseOrderDetailsQty,
                         PurOrderRegisterQtyIssued = 0,
-                        PurOrderRegisterRate = (double)purOrderDet.CustomerPurchaseOrderDetailsAmount,
-                        PurOrderRegisterAmount = (double)purOrderDet.CustomerPurchaseOrderDetailsAmount,
-                        PurOrderRegisterFcAmount = (double)purOrderDet.CustomerPurchaseOrderDetailsFcAmount,
+                        PurOrderRegisterRate = purOrderDet.CustomerPurchaseOrderDetailsAmount,
+                        PurOrderRegisterAmount = purOrderDet.CustomerPurchaseOrderDetailsAmount,
+                        PurOrderRegisterFcAmount = purOrderDet.CustomerPurchaseOrderDetailsFcAmount,
                         PurOrderRegisterAssignedDate = DateTime.Now,
-                        PurOrderRegisterFsno = (int)purOrderDet.CustomerPurchaseOrderDetailsFsno,//to be alloted,
+                        PurOrderRegisterFsno = purOrderDet.CustomerPurchaseOrderDetailsFsno,//to be alloted,
                         PurOrderRegisterSupplierId = (int)0,
                         PurOrderRegisterStatus = "A"
 
@@ -258,9 +258,9 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         CustomerOrderRegisterTransType = VoucherType.CustomerPurchaseOrder_TYPE,
                         CustomerOrderRegisterQtyOrder = (int)purOrderDet.CustomerPurchaseOrderDetailsQty,
                         CustomerOrderRegisterQtyIssued = 0,
-                        CustomerOrderRegisterRate = (double)purOrderDet.CustomerPurchaseOrderDetailsAmount,
+                        CustomerOrderRegisterRate = purOrderDet.CustomerPurchaseOrderDetailsAmount,
                         CustomerOrderRegisterAssignedDate = DateTime.Now,
-                        CustomerOrderRegisterFsno = (int)purOrderDet.CustomerPurchaseOrderDetailsFsno,//to be alloted,
+                        CustomerOrderRegisterFsno = purOrderDet.CustomerPurchaseOrderDetailsFsno,//to be alloted,
                         CustomerOrderRegisterCustomerId = (int)0,
                         CustomerOrderRegisterStatus = "A"
 
@@ -362,7 +362,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 _customerPurchaseOrderRepository.BeginTransaction();
                 string customerPurchaseOrderNumber = this.GenerateVoucherNo(customerPurchaseOrder.CustomerPurchaseOrderDate).VouchersNumbersVNo;
                 customerPurchaseOrder.CustomerPurchaseOrderVoucherNo = customerPurchaseOrderNumber;
-
+                customerPurchaseOrder.CustomerPurchaseOrderDate = DateTime.Now;
 
                 int maxcount = 0;
                 maxcount = Convert.ToInt32(
@@ -373,7 +373,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 customerPurchaseOrder.CustomerPurchaseOrderDetails = customerPurchaseOrder.CustomerPurchaseOrderDetails.Select((x) =>
                 {
-                    x.CustomerPurchaseOrderDetailsOrderId = maxcount;
+                    x.CustomerPurchaseOrderId = maxcount;
                     x.CustomerPurchaseOrderDetailsVoucherNo = customerPurchaseOrderNumber;
                     return x;
                 }).ToList();
@@ -438,9 +438,9 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         TrackingRegisterQty = (int)purOrderDet.CustomerPurchaseOrderDetailsQty,
                         TrackingRegisterQtyin = (int)purOrderDet.CustomerPurchaseOrderDetailsQty,
                         TrackingRegisterQtyout = 0,
-                        TrackingRegisterRate = (double)purOrderDet.CustomerPurchaseOrderDetailsAmount,
+                        TrackingRegisterRate = purOrderDet.CustomerPurchaseOrderDetailsAmount,
                         TrackingRegisterTrackDate = customerPurchaseOrder.CustomerPurchaseOrderDate,
-                        TrackingRegisterFsno = (int)purOrderDet.CustomerPurchaseOrderDetailsFsno,
+                        TrackingRegisterFsno = purOrderDet.CustomerPurchaseOrderDetailsFsno,
 
                     };
                     listTrackRegs.Add(tr);
@@ -451,13 +451,13 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         PurOrderRegisterRefVoucherNo = purOrderDet.CustomerPurchaseOrderDetailsVoucherNo,
                         PurOrderRegisterMaterialId = (int)purOrderDet.CustomerPurchaseOrderDetailsItemId,
                         PurOrderRegisterTransType = VoucherType.CustomerPurchaseOrder_TYPE,
-                        PurOrderRegisterQtyOrder = (int)purOrderDet.CustomerPurchaseOrderDetailsQty,
+                        PurOrderRegisterQtyOrder = purOrderDet.CustomerPurchaseOrderDetailsQty,
                         PurOrderRegisterQtyIssued = 0,
-                        PurOrderRegisterRate = (double)purOrderDet.CustomerPurchaseOrderDetailsAmount,
-                        PurOrderRegisterAmount = (double)purOrderDet.CustomerPurchaseOrderDetailsAmount,
-                        PurOrderRegisterFcAmount = (double)purOrderDet.CustomerPurchaseOrderDetailsFcAmount,
+                        PurOrderRegisterRate = purOrderDet.CustomerPurchaseOrderDetailsAmount,
+                        PurOrderRegisterAmount = purOrderDet.CustomerPurchaseOrderDetailsAmount,
+                        PurOrderRegisterFcAmount = purOrderDet.CustomerPurchaseOrderDetailsFcAmount,
                         PurOrderRegisterAssignedDate = DateTime.Now,
-                        PurOrderRegisterFsno = (int)purOrderDet.CustomerPurchaseOrderDetailsFsno,//to be alloted,
+                        PurOrderRegisterFsno = purOrderDet.CustomerPurchaseOrderDetailsFsno,//to be alloted,
                         PurOrderRegisterSupplierId = (int)0,
                         PurOrderRegisterStatus = "A"
 
@@ -472,9 +472,9 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         CustomerOrderRegisterTransType = VoucherType.CustomerPurchaseOrder_TYPE,
                         CustomerOrderRegisterQtyOrder = (int)purOrderDet.CustomerPurchaseOrderDetailsQty,
                         CustomerOrderRegisterQtyIssued = 0,
-                        CustomerOrderRegisterRate = (double)purOrderDet.CustomerPurchaseOrderDetailsAmount,
+                        CustomerOrderRegisterRate = purOrderDet.CustomerPurchaseOrderDetailsAmount,
                         CustomerOrderRegisterAssignedDate = DateTime.Now,
-                        CustomerOrderRegisterFsno = (int)purOrderDet.CustomerPurchaseOrderDetailsFsno,//to be alloted,
+                        CustomerOrderRegisterFsno = purOrderDet.CustomerPurchaseOrderDetailsFsno,//to be alloted,
                         CustomerOrderRegisterCustomerId = (int)0,
                         CustomerOrderRegisterStatus = "A"
 
@@ -617,14 +617,14 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
 
                 var results = await (from cpod in _Context.CustomerPurchaseOrderDetails
-                                     join cpo in _Context.CustomerPurchaseOrder on cpod.CustomerPurchaseOrderDetailsOrderId equals (long)cpo.CustomerPurchaseOrderId into gim
+                                     join cpo in _Context.CustomerPurchaseOrder on cpod.CustomerPurchaseOrderId equals cpo.CustomerPurchaseOrderId into gim
                                      from cpog in gim.DefaultIfEmpty()
                                      join cm in _Context.CustomerMaster on Convert.ToInt32(cpog.CustomerPurchaseOrderCustomerCode) equals cm.CustomerMasterCustomerNo into gum
                                      from cmg in gum.DefaultIfEmpty()
                                      join im in _Context.ItemMaster on cpod.CustomerPurchaseOrderDetailsItemId equals im.ItemMasterItemId into iminto
                                      from img in iminto.DefaultIfEmpty()
                                      join um in _Context.UnitMaster on cpod.CustomerPurchaseOrderDetailsUnitId equals um.UnitMasterUnitId into uminto
-                                     from umg in iminto.DefaultIfEmpty()
+                                     from umg in uminto.DefaultIfEmpty()
                                      join srq in subqueryDRQD on cpod.CustomerPurchaseOrderDetailsPodId equals srq.CustomerDeliveryNoteDetailsPodId
                                      join drq in subqueryDRQ on cpod.CustomerPurchaseOrderDetailsPodId equals drq.CustomerDeliveryNoteCpoId into gdrq
                                      from q in gdrq.DefaultIfEmpty()
@@ -633,11 +633,11 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                      {
                                          CPOId = cpog.CustomerPurchaseOrderId,
                                          CPODate=cpog.CustomerPurchaseOrderDate,
-                                         LPONo = cpog.CustomerPurchaseOrderLpoNo==null?"": cpog.CustomerPurchaseOrderLpoNo,
-                                         CustomerName=cpog.CustomerPurchaseOrderCustomerName,
+                                         LPONo = cpog.CustomerPurchaseOrderLpoNo == null ? "" : cpog.CustomerPurchaseOrderLpoNo,
+                                         CustomerName = cpog.CustomerPurchaseOrderCustomerName,
                                          PartNo = img.ItemMasterPartNo == null ? "" : img.ItemMasterPartNo,
                                          MatDes = cpod.CustomerPurchaseOrderDetailsDescription == null ? img.ItemMasterItemName : cpod.CustomerPurchaseOrderDetailsDescription,
-                                         UnitDes = umg.ItemMasterAliasName,
+                                         UnitDes = umg.UnitMasterUnitDescription,
                                          Quantity = cpod.CustomerPurchaseOrderDetailsQty,
                                          UnitPrice = cpod.CustomerPurchaseOrderDetailsUnitPrice,
                                          DeliveredQuantity = srq.CustomerDeliveryNoteDetailsQty ?? 0,

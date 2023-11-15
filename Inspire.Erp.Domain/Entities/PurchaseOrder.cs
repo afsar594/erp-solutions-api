@@ -79,8 +79,13 @@ namespace Inspire.Erp.Domain.Entities
         public DateTime? PurchaseOrderDelivToDate { get; set; }
         public string PurchaseOrderDelivStatus { get; set; }
         public string PurchaseOrderDelivPlace { get; set; }
+       // [NotMapped]
+       // public List<PurchaseOrderDetails>? purchaseOrderDetails { get; set; }
         [NotMapped]
-        public string PurchaseOrderJobName { get; set; }
+        public string purchaseOrderJobName { get; set; }
+
+        ////public virtual ICollection<PurchaseOrderDetails> PurchaseOrderDetailsPurchaseOrder { get; set; }
+        ////public virtual ICollection<PurchaseOrderDetails> PurchaseOrderDetailsPurchaseOrderDetailsNoNavigation { get; set; }
         public virtual ICollection<PurchaseOrderDetails> PurchaseOrderDetails { get; set; }
     }
 }

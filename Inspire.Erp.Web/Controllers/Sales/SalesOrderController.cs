@@ -52,8 +52,8 @@ namespace Inspire.Erp.Web.Controllers
         public ApiResponse<CustomerPurchaseOrderViewModel> InsertSalesOrder([FromBody] CustomerPurchaseOrderViewModel voucherCompositeView)
         {
             ApiResponse<CustomerPurchaseOrderViewModel> apiResponse = new ApiResponse<CustomerPurchaseOrderViewModel>();
-            if (_salesOrderService.GetVouchersNumbers(voucherCompositeView.CustomerPurchaseOrderVoucherNo) == null)
-            {
+            //if (_salesOrderService.GetVouchersNumbers(voucherCompositeView.CustomerPurchaseOrderVoucherNo) == null)
+            //{
                 var param1 = _mapper.Map<CustomerPurchaseOrder>(voucherCompositeView);
                 var param2 = _mapper.Map<List<CustomerPurchaseOrderDetails>>(voucherCompositeView.CustomerPurchaseOrderDetails);
                 var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
@@ -117,18 +117,18 @@ namespace Inspire.Erp.Web.Controllers
                     Result = _mapper.Map<CustomerPurchaseOrderViewModel>(salesVoucherViewModel),
                     Message = CustomerPurchaseOrderMessage.SavePurchaseOrder
                 };
-            }
-            else
-            {
-                apiResponse = new ApiResponse<CustomerPurchaseOrderViewModel>
-                {
-                    Valid = false,
-                    Error = true,
-                    Exception = null,
-                    Message = CustomerPurchaseOrderMessage.PurchaseOrderAlreadyExist
-                };
+            //}
+            //else
+            //{
+            //    apiResponse = new ApiResponse<CustomerPurchaseOrderViewModel>
+            //    {
+            //        Valid = false,
+            //        Error = true,
+            //        Exception = null,
+            //        Message = CustomerPurchaseOrderMessage.PurchaseOrderAlreadyExist
+            //    };
 
-            }
+            //}
 
             return apiResponse;
         }
@@ -351,12 +351,17 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpPost]
         [Route("GetPurchaseOrderTracking")]
-        public IActionResult GetPurchaseOrderTracking(CustPurchOrderFilterModel model)
+        public async Task<IActionResult> GetPurchaseOrderTracking(CustPurchOrderFilterModel model)
         {
+
+            var response = await _salesOrderService.GetCustomerPurchaseOrderTracking(model);
+
+            //return null;
+
             ApiResponse<List<GetCustomerPurchaseOrderTrackingResponse>> apiResponse = new ApiResponse<List<GetCustomerPurchaseOrderTrackingResponse>>
             {
                 Valid = true,
-                Result = _mapper.Map<List<GetCustomerPurchaseOrderTrackingResponse>>(_salesOrderService.GetCustomerPurchaseOrderTracking(model)),
+                Result = response.Result,
                 Message = ""
             };
             return Ok(apiResponse);
