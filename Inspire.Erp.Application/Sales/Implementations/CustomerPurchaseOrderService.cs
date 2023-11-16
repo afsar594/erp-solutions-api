@@ -252,8 +252,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                     var custOrdReg = new CustomerOrderRegister
                     {
-                        CustomerOrderRegisterRefVoucherNo = purOrderDet.CustomerPurchaseOrderDetailsId.ToString(),
-                        CustomerOrderRegisterOrderNo = purOrderDet.CustomerPurchaseOrderDetailsVoucherNo,
+                        CustomerOrderRegisterRefVoucherNo = purOrderDet.CustomerPurchaseOrderDetailsVoucherNo,
+                        CustomerOrderRegisterOrderNo = purOrderDet.CustomerPurchaseOrderDetailsId.ToString(),
                         CustomerOrderRegisterMaterialId = (int)purOrderDet.CustomerPurchaseOrderDetailsItemId,
                         CustomerOrderRegisterTransType = VoucherType.CustomerPurchaseOrder_TYPE,
                         CustomerOrderRegisterQtyOrder = (int)purOrderDet.CustomerPurchaseOrderDetailsQty,
@@ -466,8 +466,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                     var custOrdReg = new CustomerOrderRegister
                     {
-                        CustomerOrderRegisterRefVoucherNo = purOrderDet.CustomerPurchaseOrderDetailsId.ToString(),
-                        CustomerOrderRegisterOrderNo = purOrderDet.CustomerPurchaseOrderDetailsVoucherNo,
+                        CustomerOrderRegisterRefVoucherNo = purOrderDet.CustomerPurchaseOrderDetailsVoucherNo,
+                        CustomerOrderRegisterOrderNo = purOrderDet.CustomerPurchaseOrderDetailsId.ToString(),
                         CustomerOrderRegisterMaterialId = (int)purOrderDet.CustomerPurchaseOrderDetailsItemId,
                         CustomerOrderRegisterTransType = VoucherType.CustomerPurchaseOrder_TYPE,
                         CustomerOrderRegisterQtyOrder = (int)purOrderDet.CustomerPurchaseOrderDetailsQty,
