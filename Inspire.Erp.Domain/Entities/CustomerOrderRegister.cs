@@ -10,11 +10,11 @@ namespace Inspire.Erp.Domain.Entities
         public string CustomerOrderRegisterOrderNo { get; set; }
         public int? CustomerOrderRegisterMaterialId { get; set; }
         public int? CustomerOrderRegisterUnitId { get; set; }
-        public double? CustomerOrderRegisterQtyOrder { get; set; }
-        public double? CustomerOrderRegisterQtyIssued { get; set; }
-        public double? CustomerOrderRegisterRate { get; set; }
-        public double? CustomerOrderRegisterAmount { get; set; }
-        public double? CustomerOrderRegisterFcAmount { get; set; }
+        public decimal? CustomerOrderRegisterQtyOrder { get; set; }
+        public decimal? CustomerOrderRegisterQtyIssued { get; set; }
+        public decimal? CustomerOrderRegisterRate { get; set; }
+        public decimal? CustomerOrderRegisterAmount { get; set; }
+        public decimal? CustomerOrderRegisterFcAmount { get; set; }
         public DateTime? CustomerOrderRegisterAssignedDate { get; set; }
         public int? CustomerOrderRegisterLocationId { get; set; }
         public string CustomerOrderRegisterStatus { get; set; }

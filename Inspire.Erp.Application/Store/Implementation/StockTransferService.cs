@@ -190,9 +190,9 @@ namespace Inspire.Erp.Application.Store.Implementation
                 catch (Exception ex)
                 {
                     _StockTransferRepo.TransactionRollback();
-                    return null;
-                   
-                    
+                    throw ex;
+
+
                 }
 
                 
@@ -531,8 +531,8 @@ namespace Inspire.Erp.Application.Store.Implementation
             {
                 _StockTransferRepo.TransactionRollback();
                 i = 0;
-                return false;
-            }
+                    throw ex;
+                }
 
             });
             return false;
@@ -614,7 +614,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 catch (Exception ex)
                 {
                     _StockTransferRepo.TransactionRollback();
-                    return null;
+                    throw ex;
 
 
                 }
