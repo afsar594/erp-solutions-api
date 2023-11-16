@@ -127,8 +127,8 @@ namespace Inspire.Erp.Application.Store.Implementation
              , List<StockRegister> stockRegister)
         {
 
-            await Task.Run(() =>
-            {
+            //await Task.Run(() =>
+            //{
                 try
                 {
 
@@ -140,15 +140,15 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                     int maxcount = 0;
                     maxcount = Convert.ToInt32(
-                        _StockTransferRepo.GetAsQueryable()
-                        .DefaultIfEmpty().Max(o => o == null ? 0 : o.StockTransferId) + 1);
+                        await _StockTransferRepo.GetAsQueryable()
+                        .DefaultIfEmpty().MaxAsync(o => o == null ? 0 : o.StockTransferId) + 1);
 
                     stockTransfer.StockTransferId = maxcount;
 
                     //x.OpeningStockVoucherDetailsConversionType = await _utilityService.GetBasicUnitConversion(x.OpeningStockVoucherDetailsMatId, x.OpeningStockVoucherDetailsUnitId);
-                    stockTransferDetails = stockTransferDetails.Select((x) =>
+                    stockTransfer.StockTransferDetails = stockTransfer.StockTransferDetails.Select((x) =>
                     {
-                        x.StockTransferDetailsStId = maxcount;
+                        x.StockTransferId = maxcount;
                         x.StockTransferDetailsSNo = openingstockVoucherNumber;
 
                         return x;
@@ -156,7 +156,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
 
 
-                    stockTransfer.StockTransferDetails = stockTransferDetails;
+                   // stockTransfer.StockTransferDetails = stockTransferDetails;
 
                     //accountsTransactions = accountsTransactions.Select((k) =>
                     //{
@@ -196,9 +196,9 @@ namespace Inspire.Erp.Application.Store.Implementation
                 }
 
                 
-            });
+           // });
 
-            return null;
+          //  return null;
             //try
             //{
 
@@ -292,9 +292,9 @@ namespace Inspire.Erp.Application.Store.Implementation
             {
 
 
-                var prefix = this._programsettingsRepository.GetAsQueryable().Where(k => k.ProgramSettingsKeyValue == Prefix.OpeningStockVoucher_Prefix).FirstOrDefault().ProgramSettingsTextValue;
+                var prefix = this._programsettingsRepository.GetAsQueryable().Where(k => k.ProgramSettingsKeyValue == Prefix.StockTransfer_Prefix).FirstOrDefault().ProgramSettingsTextValue;
                 int vnoMaxVal = Convert.ToInt32(_VoucherNumberRepo.GetAsQueryable()
-                                                        .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == VoucherType.OpeningStockVoucher_TYPE)
+                                                        .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == VoucherType.StockTransferVoucher_TYPE)
                                                         .DefaultIfEmpty()
                                                         .Max(o => o == null ? 0 : o.VouchersNumbersVNoNu)) + 1;
 
@@ -474,9 +474,9 @@ namespace Inspire.Erp.Application.Store.Implementation
           )
         {
 
-            await Task.Run(() =>
-            {
-                int i = 0;
+            //await Task.Run(() =>
+            //{
+            //    int i = 0;
             try
             {
                 _StockTransferRepo.BeginTransaction();
@@ -488,7 +488,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                 stockTransfer.StockTransferDelStatus = true;
 
-                stockTransferDetails = stockTransferDetails.Select((k) =>
+                    stockTransfer.StockTransferDetails = stockTransfer.StockTransferDetails.Select((k) =>
                 {
                     k.StockTransferDetailsDelStatus = true;
                     return k;
@@ -516,13 +516,13 @@ namespace Inspire.Erp.Application.Store.Implementation
 
 
 
-                stockTransfer.StockTransferDetails = stockTransferDetails;
+                //stockTransfer.StockTransferDetails = stockTransferDetails;
 
-                _StockTransferRepo.Update(stockTransfer);
+                _StockTransferRepo.UpdateAsync(stockTransfer);
 
-                var vchrnumer = _VoucherNumberRepo.GetAsQueryable().Where(k => k.VouchersNumbersVNo == stockTransfer.StockTransferVoucherNo).FirstOrDefault();
+                var vchrnumer =await  _VoucherNumberRepo.GetAsQueryable().Where(k => k.VouchersNumbersVNo == stockTransfer.StockTransferVoucherNo).FirstOrDefaultAsync();
 
-                _VoucherNumberRepo.Update(vchrnumer);
+                 _VoucherNumberRepo.UpdateAsync(vchrnumer);
 
                 _StockTransferRepo.TransactionCommit();
                 return true;
@@ -530,13 +530,12 @@ namespace Inspire.Erp.Application.Store.Implementation
             catch (Exception ex)
             {
                 _StockTransferRepo.TransactionRollback();
-                i = 0;
+               
                     throw ex;
                 }
 
-            });
-            return false;
-
+          
+           
         }
 
         public async Task<StockTransferModel> UpdateStockTransfer(StockTransfer stockTransfer, List<StockTransferDetails> stockTransferDetails
@@ -544,8 +543,8 @@ namespace Inspire.Erp.Application.Store.Implementation
     )
         {
 
-            await Task.Run(() =>
-            {
+            //await Task.Run(() =>
+            //{
                 try
                 {
 
@@ -553,32 +552,32 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                     //=================================
                     clsCommonFunctions.Delete_OldEntry_StockRegister(stockTransfer.StockTransferVoucherNo, VoucherType.IssueVoucher_TYPE, _StockRegisterRepo);
-                   // clsCommonFunctions.Delete_OldEntry_AccountsTransactions(stockTransfer.StockTransferVoucherNo, VoucherType.IssueVoucher_TYPE, _accountTransactionRepository);
-                    //=================================
+                // clsCommonFunctions.Delete_OldEntry_AccountsTransactions(stockTransfer.StockTransferVoucherNo, VoucherType.IssueVoucher_TYPE, _accountTransactionRepository);
+                //=================================
 
-                    string openingstockVoucherNumber = this.GenerateVoucherNo(stockTransfer.StockTransferStDate.Value).VouchersNumbersVNo;
-                    stockTransfer.StockTransferVoucherNo = openingstockVoucherNumber;
+                //string openingstockVoucherNumber = this.GenerateVoucherNo(stockTransfer.StockTransferStDate.Value).VouchersNumbersVNo;
+                //stockTransfer.StockTransferVoucherNo = openingstockVoucherNumber;
 
 
-                    int maxcount = 0;
-                    maxcount = Convert.ToInt32(
-                        _StockTransferRepo.GetAsQueryable()
-                        .DefaultIfEmpty().Max(o => o == null ? 0 : o.StockTransferId) + 1);
+                int maxcount = 0;
+                maxcount = Convert.ToInt32(
+                    await _StockTransferRepo.GetAsQueryable()
+                    .DefaultIfEmpty().MaxAsync(o => o == null ? 0 : o.StockTransferId) + 1);
 
-                    stockTransfer.StockTransferId = maxcount;
+                //stockTransfer.StockTransferId = maxcount;
 
-                    //x.OpeningStockVoucherDetailsConversionType = await _utilityService.GetBasicUnitConversion(x.OpeningStockVoucherDetailsMatId, x.OpeningStockVoucherDetailsUnitId);
-                    stockTransferDetails = stockTransferDetails.Select((x) =>
+                //x.OpeningStockVoucherDetailsConversionType = await _utilityService.GetBasicUnitConversion(x.OpeningStockVoucherDetailsMatId, x.OpeningStockVoucherDetailsUnitId);
+                stockTransfer.StockTransferDetails = stockTransfer.StockTransferDetails.Select((x) =>
                     {
-                        x.StockTransferDetailsStId = maxcount;
-                        x.StockTransferDetailsSNo = openingstockVoucherNumber;
+                        x.StockTransferId = stockTransfer.StockTransferId;
+                        x.StockTransferDetailsSNo = stockTransfer.StockTransferVoucherNo;
 
                         return x;
                     }).ToList();
 
 
 
-                    stockTransfer.StockTransferDetails = stockTransferDetails;
+                    //stockTransfer.StockTransferDetails = stockTransferDetails;
 
 
 
@@ -598,7 +597,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     stockRegister = stockRegister.Select((k) =>
                     {
                         k.StockRegisterVoucherDate = stockTransfer.StockTransferStDate;
-                        k.StockRegisterRefVoucherNo = openingstockVoucherNumber;
+                        k.StockRegisterRefVoucherNo = stockTransfer.StockTransferVoucherNo;
                         k.StockRegisterTransType = VoucherType.StockTransferVoucher_TYPE;
                         k.StockRegisterStatus = AccountStatus.Approved;
                         return k;
@@ -606,7 +605,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                     _StockRegisterRepo.InsertList(stockRegister);
 
-                    _StockTransferRepo.Insert(stockTransfer);
+                    _StockTransferRepo.Update(stockTransfer);
                     _StockTransferRepo.TransactionCommit();
                     return this.GetSavedStockTransferDetails(stockTransfer.StockTransferVoucherNo);
 
@@ -620,8 +619,8 @@ namespace Inspire.Erp.Application.Store.Implementation
                 }
 
 
-            });
-            return null;
+            //});
+            //return null;
 
 
       
