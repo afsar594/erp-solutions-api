@@ -56,6 +56,7 @@ namespace Inspire.Erp.Application.Master
                     MaRelativeNo = masterAccount.MaAccNo,
                     MaSubHead = masterAccount.MaSubHead,
                     MaUserId = 0,
+                    MaSno= maxId+1,
                     MaDateCreated = DateTime.Now,
                     MaStatus = "R",
 
