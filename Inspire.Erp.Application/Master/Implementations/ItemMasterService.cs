@@ -186,15 +186,16 @@ namespace Inspire.Erp.Application.Master
                 && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new ItemMaster
                 {
                     ItemMasterItemId = k.ItemMasterItemId,
-                    ItemMasterItemName = k.ItemMasterItemName
+                    ItemMasterItemName = k.ItemMasterItemName,
+                    ItemMasterPartNo = k.ItemMasterPartNo
+                }).ToList();
 
-                }).ToList(); ;
                 var allUnitDetails = _unitDetailsRepo.GetAll().ToList();
                 foreach (var item in itemMaster)
                 {
                     item.UnitDetails = allUnitDetails.Where(c => c.UnitDetailsItemId == item.ItemMasterItemId).ToList();
 
-                }
+                } 
 
             }
             catch (Exception ex)
