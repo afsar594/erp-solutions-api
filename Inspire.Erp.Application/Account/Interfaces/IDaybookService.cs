@@ -10,7 +10,7 @@ namespace Inspire.Erp.Application.Account.Interfaces
 {
    public interface IDaybookService
     {
-        Task<Response<GetDaybookResponse>> GetDaybookAccountTransactions(GenericGridViewModel model);
+        Task<Response<GridWrapperResponse<GetDaybookResponse>>> GetDaybookAccountTransactions(GenericGridViewModel model);
         Task<Response<ReturnPrintResponse>> DaybookPrint(GenericGridViewModel model);
     }
 }

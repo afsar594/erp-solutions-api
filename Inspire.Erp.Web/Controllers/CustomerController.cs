@@ -181,52 +181,62 @@ namespace Inspire.Erp.Web.Controllers
         [HttpPost("InsertCustomer")]
         public async Task <List<CustomerMasterViewModel>> InsertCustomer([FromBody] CustomerMasterViewModel customerMaster)
         {
-            var result = _mapper.Map<CustomerMaster>(customerMaster);
-            return  (await customerMasterService.InsertCustomer(result)).Select(k => new CustomerMasterViewModel
+            try
             {
-                CustomerMasterCustomerNo = k.CustomerMasterCustomerNo,
-                CustomerMasterCustomerTitle = k.CustomerMasterCustomerTitle,
-                CustomerMasterCustomerName = k.CustomerMasterCustomerName,
-                CustomerMasterCustomerType = k.CustomerMasterCustomerType,
-                CustomerMasterCustomerContactPerson = k.CustomerMasterCustomerContactPerson,
-                CustomerMasterCustomerCountryId = k.CustomerMasterCustomerCountryId,
-                CustomerMasterCustomerCityId = k.CustomerMasterCustomerCityId,
-                CustomerMasterCustomerPoBox = k.CustomerMasterCustomerPoBox,
-                CustomerMasterCustomerTel1 = k.CustomerMasterCustomerTel1,
-                CustomerMasterCustomerTel2 = k.CustomerMasterCustomerTel2,
-                CustomerMasterCustomerMobile = k.CustomerMasterCustomerMobile,
-                CustomerMasterCustomerFax = k.CustomerMasterCustomerFax,
-                CustomerMasterCustomerEmail = k.CustomerMasterCustomerEmail,
-                CustomerMasterCustomerWebSite = k.CustomerMasterCustomerWebSite,
-                CustomerMasterCustomerLocation = k.CustomerMasterCustomerLocation,
-                CustomerMasterCustomerRemarks = k.CustomerMasterCustomerRemarks,
-                CustomerMasterCustomerReffAcNo = k.CustomerMasterCustomerReffAcNo,
-                CustomerMasterCustomerUserId = k.CustomerMasterCustomerUserId,
-                CustomerMasterCustomerCurrencyId = k.CustomerMasterCustomerCurrencyId,
-                CustomerMasterCustomerCreditLimit = k.CustomerMasterCustomerCreditLimit,
-                CustomerMasterCustomerCreditDays = k.CustomerMasterCustomerCreditDays,
-                CustomerMasterCustomerBlackList = k.CustomerMasterCustomerBlackList,
-                CustomerMasterCustomerStatus = k.CustomerMasterCustomerStatus,
-                CustomerMasterCustomerDeleteStatus = k.CustomerMasterCustomerDeleteStatus,
-                CustomerMasterCustomerJoinDate = k.CustomerMasterCustomerJoinDate,
-                CustomerMasterCustomerStatusValue = k.CustomerMasterCustomerStatusValue,
-                CustomerMasterCustomerCreateAccount = k.CustomerMasterCustomerCreateAccount,
-                CustomerMasterCustomerPriceLevel = k.CustomerMasterCustomerPriceLevel,
-                CustomerMasterCustomerPriceLevelId = k.CustomerMasterCustomerPriceLevelId,
-                CustomerMasterCustomerCustType = k.CustomerMasterCustomerCustType,
-                CustomerMasterCustomerContactPerson2 = k.CustomerMasterCustomerContactPerson2,
-                CustomerMasterCustomerContactPerson3 = k.CustomerMasterCustomerContactPerson3,
-                CustomerMasterCustomerVatNo = k.CustomerMasterCustomerVatNo,
-                CustomerMasterCustomerLoyaltyId = k.CustomerMasterCustomerLoyaltyId,
-                CustomerMasterCustomerEarnPoints = k.CustomerMasterCustomerEarnPoints,
-                CustomerMasterCustomerTotalPoints = k.CustomerMasterCustomerTotalPoints,
-                CustomerMasterCustomerTotalValue = k.CustomerMasterCustomerTotalValue,
-                CustomerMasterCustomerRedeemEarnPoints = k.CustomerMasterCustomerRedeemEarnPoints,
-                CustomerMasterCustomerArabicName = k.CustomerMasterCustomerArabicName,
-                CustomerMasterCustomerGroupAccNo = k.CustomerMasterCustomerGroupAccNo,
-                CustomerMasterCustomerCtTypeId = k.CustomerMasterCustomerCtTypeId,
-                CustomerMasterCustomerDelStatus = k.CustomerMasterCustomerDelStatus
-            }).ToList();
+                var result = _mapper.Map<CustomerMaster>(customerMaster);
+                var data = (await customerMasterService.InsertCustomer(result)).Select(k => new CustomerMasterViewModel
+                {
+                    CustomerMasterCustomerNo = k.CustomerMasterCustomerNo,
+                    CustomerMasterCustomerTitle = k.CustomerMasterCustomerTitle,
+                    CustomerMasterCustomerName = k.CustomerMasterCustomerName,
+                    CustomerMasterCustomerType = k.CustomerMasterCustomerType,
+                    CustomerMasterCustomerContactPerson = k.CustomerMasterCustomerContactPerson,
+                    CustomerMasterCustomerCountryId = k.CustomerMasterCustomerCountryId,
+                    CustomerMasterCustomerCityId = k.CustomerMasterCustomerCityId,
+                    CustomerMasterCustomerPoBox = k.CustomerMasterCustomerPoBox,
+                    CustomerMasterCustomerTel1 = k.CustomerMasterCustomerTel1,
+                    CustomerMasterCustomerTel2 = k.CustomerMasterCustomerTel2,
+                    CustomerMasterCustomerMobile = k.CustomerMasterCustomerMobile,
+                    CustomerMasterCustomerFax = k.CustomerMasterCustomerFax,
+                    CustomerMasterCustomerEmail = k.CustomerMasterCustomerEmail,
+                    CustomerMasterCustomerWebSite = k.CustomerMasterCustomerWebSite,
+                    CustomerMasterCustomerLocation = k.CustomerMasterCustomerLocation,
+                    CustomerMasterCustomerRemarks = k.CustomerMasterCustomerRemarks,
+                    CustomerMasterCustomerReffAcNo = k.CustomerMasterCustomerReffAcNo,
+                    CustomerMasterCustomerUserId = k.CustomerMasterCustomerUserId,
+                    CustomerMasterCustomerCurrencyId = k.CustomerMasterCustomerCurrencyId,
+                    CustomerMasterCustomerCreditLimit = k.CustomerMasterCustomerCreditLimit,
+                    CustomerMasterCustomerCreditDays = k.CustomerMasterCustomerCreditDays,
+                    CustomerMasterCustomerBlackList = k.CustomerMasterCustomerBlackList,
+                    CustomerMasterCustomerStatus = k.CustomerMasterCustomerStatus,
+                    CustomerMasterCustomerDeleteStatus = k.CustomerMasterCustomerDeleteStatus,
+                    CustomerMasterCustomerJoinDate = k.CustomerMasterCustomerJoinDate,
+                    CustomerMasterCustomerStatusValue = k.CustomerMasterCustomerStatusValue,
+                    CustomerMasterCustomerCreateAccount = k.CustomerMasterCustomerCreateAccount,
+                    CustomerMasterCustomerPriceLevel = k.CustomerMasterCustomerPriceLevel,
+                    CustomerMasterCustomerPriceLevelId = k.CustomerMasterCustomerPriceLevelId,
+                    CustomerMasterCustomerCustType = k.CustomerMasterCustomerCustType,
+                    CustomerMasterCustomerContactPerson2 = k.CustomerMasterCustomerContactPerson2,
+                    CustomerMasterCustomerContactPerson3 = k.CustomerMasterCustomerContactPerson3,
+                    CustomerMasterCustomerVatNo = k.CustomerMasterCustomerVatNo,
+                    CustomerMasterCustomerLoyaltyId = k.CustomerMasterCustomerLoyaltyId,
+                    CustomerMasterCustomerEarnPoints = k.CustomerMasterCustomerEarnPoints,
+                    CustomerMasterCustomerTotalPoints = k.CustomerMasterCustomerTotalPoints,
+                    CustomerMasterCustomerTotalValue = k.CustomerMasterCustomerTotalValue,
+                    CustomerMasterCustomerRedeemEarnPoints = k.CustomerMasterCustomerRedeemEarnPoints,
+                    CustomerMasterCustomerArabicName = k.CustomerMasterCustomerArabicName,
+                    CustomerMasterCustomerGroupAccNo = k.CustomerMasterCustomerGroupAccNo,
+                    CustomerMasterCustomerCtTypeId = k.CustomerMasterCustomerCtTypeId,
+                    CustomerMasterCustomerDelStatus = k.CustomerMasterCustomerDelStatus
+                }).ToList();
+                return data;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
         }
 
         [HttpPost]

@@ -31,7 +31,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             _fileService = fileService;
             _locationMaster = locationMaster;
         }
-        public async Task<Response<GetDaybookResponse>> GetDaybookAccountTransactions(GenericGridViewModel model)
+        public async Task<Response<GridWrapperResponse<GetDaybookResponse>>> GetDaybookAccountTransactions(GenericGridViewModel model)
         {
             try
             {
@@ -40,7 +40,9 @@ namespace Inspire.Erp.Application.Account.Implementations
                 string query = @$" 1==1 {model.Filter}";
                 //var a = await _accountTransaction.GetAsQueryable().Where(x =>( x.AccountsTransactionsTransDate >= Convert.ToDateTime("02/21/2022")) && (x.AccountsTransactionsTransDate <= Convert.ToDateTime("02/21/2023")))
                 //    .ToListAsync();
-                var result = await _accountTransaction.GetAsQueryable().OrderBy(row => row.AccountsTransactionsTransDate ?? DateTime.MaxValue).Select(x => new GetDaybookAccountTransaction
+                var total = await _accountTransaction.GetAsQueryable().CountAsync(x=>x.AccountstransactionsDelStatus != null && x.AccountstransactionsDelStatus != true);
+                var queryData =  _accountTransaction.GetAsQueryable().Where(query).OrderBy(row => row.AccountsTransactionsTransDate ?? DateTime.MaxValue).AsQueryable();
+               var result=await queryData.Skip(model.Skip).Take(model.Take).Select(x => new GetDaybookAccountTransaction
                 {
                     AccountsTransactionsAccNo = x.AccountsTransactionsAccNo,
                     AccountsTransactionsAccName = _masterAccountsTable.GetAsQueryable().FirstOrDefault(c => c.MaAccNo == x.AccountsTransactionsAccNo).MaAccName,
@@ -106,12 +108,16 @@ namespace Inspire.Erp.Application.Account.Implementations
                 //gridModel.StationMasterWebSite = location != null ? location.StationMasterWebSite : "";
                 //gridModel.TotalCredit = totalCredit.ToString();
                 //gridModel.TotalDebit = totalDebit.ToString();
-
-                return Response<GetDaybookResponse>.Success(gridModel, "Data found");
+                var gridReponse = new GridWrapperResponse<GetDaybookResponse>()
+                {
+                    Data = gridModel,
+                    Total = total
+                };
+                return Response<GridWrapperResponse<GetDaybookResponse>>.Success(gridReponse, "Data found");
             }
             catch (Exception ex)
             {
-                return Response<GetDaybookResponse>.Fail(new GetDaybookResponse(), ex.Message);
+                return Response<GridWrapperResponse<GetDaybookResponse>>.Fail(new GridWrapperResponse<GetDaybookResponse>(), ex.Message);
             }
         }
         public async Task<Response<ReturnPrintResponse>> DaybookPrint(GenericGridViewModel model)
@@ -121,7 +127,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 string fileName = "Daybook";
                 ReturnPrintResponse response = new ReturnPrintResponse();
                 var dbResult = await GetDaybookAccountTransactions(model);
-                if (dbResult.Result.Details.Count < 1)
+                if (dbResult.Result.Data.Details.Count < 1)
                 {
                     return Response<ReturnPrintResponse>.Fail(new ReturnPrintResponse(), "No records");
                 }
@@ -130,7 +136,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 await _fileService.CheckFileExist(outPutPath);
                 AddPDFResponse pDFResponse = new AddPDFResponse()
                 {
-                    Html = GetHTMLString(dbResult.Result.Details),
+                    Html = GetHTMLString(dbResult.Result.Data.Details),
                     CssPath = cssPath,
                     OutputPath = outPutPath
                 };
