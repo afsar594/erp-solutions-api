@@ -25,8 +25,5 @@ namespace Inspire.Erp.Web.ViewModels.sales
         public string CustomerPurchaseOrderDetailsRemarks { get; set; }
         public decimal? CustomerPurchaseOrderDetailsFocQty { get; set; }
         public bool? CustomerPurchaseOrderDetailsDelStatus { get; set; }
-
-
-
     }
 }
