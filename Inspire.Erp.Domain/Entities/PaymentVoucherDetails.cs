@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -19,7 +20,7 @@ namespace Inspire.Erp.Domain.Entities
         public int? PaymentVoucherDetailsFsno { get; set; }
         public int? PaymentVoucherDetailsLocationId { get; set; }
         public bool? PaymentVocherDetailsDelStatus { get; set; }
-
+        [JsonIgnore]
         public virtual VouchersNumbers PaymentVoucherDetailsVoucherNoNavigation { get; set; }
     }
 }
