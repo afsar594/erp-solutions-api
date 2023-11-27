@@ -1,7 +1,9 @@
 ﻿using Inspire.Erp.Application.Dashboard.Interfaces;
+using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.Dashboard;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,10 +18,13 @@ namespace Inspire.Erp.Application.Dashboard.Implementations
         private readonly IRepository<GetSummaryResponse> _summaryService;
         private readonly IRepository<GetDashboardResponse> _dashboardService;
         private readonly IRepository<GetPDCResponse> _PDCService;
+        private readonly IRepository<MasterAccountsTable> _MasterAccountTable;
+        private readonly IRepository<PdcDetails> _PdcDetailService;
         private readonly IRepository<GetIncomeExpenseResponse> _incomeExpService;
         private readonly IRepository<GetCustomerSupplierResponse> _customerSupplierService;
         public DashboardService(IRepository<GetDashboardResponse> dashboardService, IRepository<GetSummaryResponse> summaryService,
             IRepository<GetSalesResponse> salesResponse, IRepository<GetCustomerSupplierResponse> customerSupplierService,
+            IRepository<PdcDetails> PdcDetailService, IRepository<MasterAccountsTable> MasterAccountTable,
              IRepository<GetPDCResponse> PDCService, IRepository<GetIncomeExpenseResponse> incomeExpService)
         {
             _dashboardService = dashboardService;
@@ -28,6 +33,8 @@ namespace Inspire.Erp.Application.Dashboard.Implementations
             _customerSupplierService = customerSupplierService;
             _PDCService = PDCService;
             _incomeExpService = incomeExpService;
+            _PdcDetailService= PdcDetailService;
+            _MasterAccountTable = MasterAccountTable;
         }
 
         public async Task<Response<List<GetSummaryResponse>>> GetSummaryChart(DashboardFilterModel model)
@@ -171,6 +178,88 @@ namespace Inspire.Erp.Application.Dashboard.Implementations
             catch (Exception ex)
             {
                 return Response<List<GetIncomeExpenseResponse>>.Fail(new List<GetIncomeExpenseResponse>(), ex.Message);
+            }
+        }
+        public async Task<Response<PDCCountResponse>> GetDasboardIssueCount(DashboardFilterModel model)
+        {
+            try
+            {
+                PDCCountResponse response = new PDCCountResponse();
+                Nullable<DateTime> startDate = null;
+                Nullable<DateTime> endDate = null;
+                if (model.StartDate != null)
+                {
+                    startDate = Convert.ToDateTime(model.StartDate);
+                }
+                if (model.EndDate != null)
+                {
+                    endDate = Convert.ToDateTime(model.EndDate);
+                }
+                var result = await _PDCService.GetBySPWithParameters<GetPDCResponse>(@$" exec Sp_GetDashboardData {model.Type},{startDate},{endDate}", x => new GetPDCResponse
+                {
+                    AccName = x.AccName,
+                    CAmount = x.CAmount,
+                    BAccNo = x.BAccNo,
+                    CBName = x.CBName,
+                    CNO = x.CNO,
+                    PartyName = x.PartyName,
+                    PDate = x.PDate,
+                    PID = x.PID,
+                    TDate = x.TDate,
+                    VNO = x.VNO,
+                    VType = x.VType
+                });
+                response.Total = result.Count;
+                response.IssueRecieved = _PdcDetailService.GetAsQueryable().Count(x => x.PDC_Details_DelStatus != true);
+
+                return Response<PDCCountResponse>.Success(response, "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<PDCCountResponse>.Fail(new PDCCountResponse(), ex.Message);
+            }
+        }
+        public async Task<Response<PDCCountResponse>> GetDashboardBankBalance(DashboardFilterModel model)
+        {
+            try
+            {
+                PDCCountResponse response = new PDCCountResponse();
+                Nullable<DateTime> startDate = null;
+                Nullable<DateTime> endDate = null;
+                if (model.StartDate != null)
+                {
+                    startDate = Convert.ToDateTime(model.StartDate);
+                }
+                if (model.EndDate != null)
+                {
+                    endDate = Convert.ToDateTime(model.EndDate);
+                }
+                if (model.Type!="Bank_Balance")
+                {
+                    var mainCash =await  _MasterAccountTable.GetAsQueryable().Where(x => x.MaAccName.Contains("Main Cash")).FirstOrDefaultAsync();
+                    var result= await _MasterAccountTable.GetAsQueryable().Where(x=>x.MaRelativeNo==mainCash.MaAccNo).ToListAsync();
+                    result.ForEach((x) =>
+                    {
+                        response.Total=x.MaOpenBalance.HasValue? Convert.ToInt32(x.MaOpenBalance.Value):0;
+                    });
+
+                }
+                else
+                {
+                    var mainCash = await _MasterAccountTable.GetAsQueryable().Where(x => x.MaAccName.Contains("Bank")).FirstOrDefaultAsync();
+                    var result = await _MasterAccountTable.GetAsQueryable().Where(x => x.MaRelativeNo == mainCash.MaAccNo).ToListAsync();
+                    result.ForEach((x) =>
+                    {
+                        response.Total = x.MaOpenBalance.HasValue ? Convert.ToInt32(x.MaOpenBalance.Value) : 0;
+                    });
+                }
+
+
+                return Response<PDCCountResponse>.Success(response, "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<PDCCountResponse>.Fail(new PDCCountResponse(), ex.Message);
             }
         }
     }

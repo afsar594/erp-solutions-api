@@ -14,5 +14,7 @@ namespace Inspire.Erp.Application.Dashboard.Interfaces
          Task<Response<List<GetSalesResponse>>> GetDasboardPurchaseGroupAccount(DashboardFilterModel model);
          Task<Response<List<GetPDCResponse>>> GetDashboardPDCIssueRecieved(DashboardFilterModel model);
          Task<Response<List<GetIncomeExpenseResponse>>> GetDasboardIncomeExpense(DashboardFilterModel model);
+        Task<Response<PDCCountResponse>> GetDasboardIssueCount(DashboardFilterModel model);
+        Task<Response<PDCCountResponse>> GetDashboardBankBalance(DashboardFilterModel model);
     }
 }
