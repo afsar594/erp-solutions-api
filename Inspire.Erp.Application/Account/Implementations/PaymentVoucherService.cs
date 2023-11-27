@@ -132,10 +132,18 @@ namespace Inspire.Erp.Application.Account.Implementations
             try
             {
                 _paymentVoucherRepository.BeginTransaction();
-                paymentVoucher.PaymentVoucherVoucherNo = paymentVoucher.PaymentVoucherVoucherNo;
+                string paymentVoucherNumber = this.GenerateVoucherNo().VouchersNumbersVNo;
+                paymentVoucher.PaymentVoucherVoucherNo = paymentVoucherNumber;
+
+                int maxcount = 0;
+                maxcount = Convert.ToInt32(
+                    _paymentVoucherRepository.GetAsQueryable()
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.PaymentVoucherSno) + 1);
+
+                //paymentVoucher.PaymentVoucherVoucherNo = paymentVoucher.PaymentVoucherVoucherNo;
                 paymentVoucherDetails = paymentVoucherDetails.Select((x) =>
                 {
-                    x.PaymentVoucherDetailsSno = null;
+                    x.PaymentVoucherDetailsSno = maxcount;
                     x.PaymentVoucherDetailsVoucherNo = paymentVoucher.PaymentVoucherVoucherNo;
                     return x;
                 }).ToList();
@@ -156,7 +164,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 trackingData.UserTrackingUserChangeDt = DateTime.Now;
                 trackingData.UserTrackingUserChangeTime = DateTime.Now;
                 trackingData.UserTrackingUserVpType = "PAYMENTVOUCHER";
-                //UserTracking.Insert(trackingData);
+                UserTracking.Insert(trackingData);
                 _paymentVoucherRepository.TransactionCommit();
                 return this.GetSavedPaymentDetails(paymentVoucher.PaymentVoucherVoucherNo);
             }

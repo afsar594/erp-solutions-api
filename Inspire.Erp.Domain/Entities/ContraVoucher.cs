@@ -25,6 +25,7 @@ namespace Inspire.Erp.Domain.Entities
         public long? ContraVoucherLocationId { get; set; }
         public bool? ContraVoucherDelStatus { get; set; }
         public string ContraVoucherVoucherType { get; set; }
+        [NotMapped]
         public List<ContraVoucherDetails> ContraVoucherDetails { get; set; }
         [NotMapped]
         public List<AccountsTransactions> AccountsTransactions { get; set; }

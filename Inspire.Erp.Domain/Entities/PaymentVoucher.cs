@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -23,7 +24,7 @@ namespace Inspire.Erp.Domain.Entities
         public int? PaymentVoucherLocationId { get; set; }
         public int? PaymentVoucherAllocationId { get; set; }
         public bool? PaymentVoucherDelStatus { get; set; }
-
+        [JsonIgnore]
         public virtual VouchersNumbers PaymentVoucherVoucherNoNavigation { get; set; }
         [NotMapped]
         public List<PaymentVoucherDetails> PaymentVoucherDetails { get; set; }

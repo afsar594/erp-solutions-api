@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -124,11 +125,18 @@ namespace Inspire.Erp.Application.Account.Implementations
         {
             try
             {
-                // _receiptVoucherRepository.BeginTransaction();
-                receiptVoucher.ReceiptVoucherMasterVoucherNo = receiptVoucher.ReceiptVoucherMasterVoucherNo;
+                _receiptVoucherRepository.BeginTransaction();
+                //receiptVoucher.ReceiptVoucherMasterVoucherNo = receiptVoucher.ReceiptVoucherMasterVoucherNo;
+                string receiptVoucherNumber = this.GenerateVoucherNo(receiptVoucher.ReceiptVoucherMasterVoucherDate).VouchersNumbersVNo;
+                receiptVoucher.ReceiptVoucherMasterVoucherNo = receiptVoucherNumber;
+
+                int maxcount = 0;
+                maxcount = Convert.ToInt32(
+                    _receiptVoucherRepository.GetAsQueryable()
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.ReceiptVoucherMasterSno) + 1);
                 receiptVoucherDetails = receiptVoucherDetails.Select((x) =>
                 {
-                    x.ReceiptVoucherDetailsSlNo = null;
+                    x.ReceiptVoucherDetailsSlNo = maxcount;
                     x.ReceiptVoucherDetailsVoucherNo = receiptVoucher.ReceiptVoucherMasterVoucherNo;
                     return x;
                 }).ToList();
@@ -152,12 +160,12 @@ namespace Inspire.Erp.Application.Account.Implementations
                 trackingData.UserTrackingUserChangeTime = DateTime.Now;
                 trackingData.UserTrackingUserVpType = "RECEIPTVOUCHER";
                 UserTracking.Insert(trackingData);
-                // _receiptVoucherRepository.TransactionCommit();
+                _receiptVoucherRepository.TransactionCommit();
                 return receiptVoucher;
             }
             catch (Exception ex)
             {
-                // _receiptVoucherRepository.TransactionRollback();
+                _receiptVoucherRepository.TransactionRollback();
                 throw ex;
             }
         }
