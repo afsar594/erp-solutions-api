@@ -209,8 +209,8 @@ namespace Inspire.Erp.Application.Dashboard.Implementations
                     VNO = x.VNO,
                     VType = x.VType
                 });
-                response.Total = result.Count;
-                response.IssueRecieved = _PdcDetailService.GetAsQueryable().Count(x => x.PDC_Details_DelStatus != true);
+                response.Total = _PdcDetailService.GetAsQueryable().Count(x => x.PDC_Details_DelStatus != true);
+                response.IssueRecieved =  result.Count;
 
                 return Response<PDCCountResponse>.Success(response, "Data found");
             }
@@ -246,7 +246,7 @@ namespace Inspire.Erp.Application.Dashboard.Implementations
                 }
                 else
                 {
-                    var mainCash = await _MasterAccountTable.GetAsQueryable().Where(x => x.MaAccName.Contains("Bank")).FirstOrDefaultAsync();
+                    var mainCash = await _MasterAccountTable.GetAsQueryable().Where(x => x.MaAccName.Contains("Banks")).FirstOrDefaultAsync();
                     var result = await _MasterAccountTable.GetAsQueryable().Where(x => x.MaRelativeNo == mainCash.MaAccNo).ToListAsync();
                     result.ForEach((x) =>
                     {
