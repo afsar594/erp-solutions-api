@@ -68,47 +68,85 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpPost]
         [Route("UpdateBankReceiptVoucher")]
-        public BankReceiptVoucher UpdateBankReceiptVoucher([FromBody] BankReceiptVoucher voucherCompositeView)
+        public ApiResponse<BankReceiptVoucher> UpdateBankReceiptVoucher([FromBody] BankReceiptVoucher voucherCompositeView)
         {
             var param1 = _mapper.Map<BankReceiptVoucher>(voucherCompositeView);
             var param2 = _mapper.Map<List<BankReceiptVoucherDetails>>(voucherCompositeView.BankReceiptVoucherDetails);
             var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
             var xs = _bankReceiptVoucherService.UpdateBankReceiptVoucher(param1, param3, param2);
-            return _mapper.Map<BankReceiptVoucher>(xs);
+            
+            var apiResponse = new ApiResponse<BankReceiptVoucher>()
+            {
+                Valid = true,
+                Result = _mapper.Map<BankReceiptVoucher>(xs),
+                Message = BankReceiptVoucherMessage.UpdateReceiptVoucher
+            };
+
+            return apiResponse;
         }
 
         [HttpPost]
         [Route("DeleteBankReceiptVoucher")]
-        public int DeleteBankReceiptVoucher([FromBody] BankReceiptVoucher voucherCompositeView)
+        public ApiResponse<int> DeleteBankReceiptVoucher([FromBody] BankReceiptVoucher voucherCompositeView)
         {
             var param1 = _mapper.Map<BankReceiptVoucher>(voucherCompositeView);
             var param2 = _mapper.Map<List<BankReceiptVoucherDetails>>(voucherCompositeView.BankReceiptVoucherDetails);
             var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
             var xs = _bankReceiptVoucherService.DeleteBankReceiptVoucher(param1, param3, param2);
-            return xs;
+  
+            var  apiResponse = new ApiResponse<int>
+            {
+                Valid = true,
+                Result = 0,
+                Message = BankReceiptVoucherMessage.DeleteReceiptVoucher
+            };
+           
+            return apiResponse;
 
         }
 
         [HttpGet]
         [Route("GetAllAccountTransaction")]
-        public List<AccountsTransactions> GetAllAccountTransaction()
+        public ApiResponse<List<AccountsTransactions>> GetAllAccountTransaction()
         {
-            return _mapper.Map<List<AccountsTransactions>>(_bankReceiptVoucherService.GetAllTransaction());
+
+            var apiResponse = new ApiResponse<List<AccountsTransactions>>
+            {
+                Valid = true,
+                Result = _mapper.Map<List<AccountsTransactions>>(_bankReceiptVoucherService.GetAllTransaction()),
+                Message = ""
+            };
+            return apiResponse;
         }
 
         [HttpGet]
         [Route("GetBankReceiptVouchers")]
-        public List<BankReceiptVoucher> GetAllBankPayments()
+        public ApiResponse<List<BankReceiptVoucher>> GetAllBankPayments()
         {
-            return _mapper.Map<List<BankReceiptVoucher>>(_bankReceiptVoucherService.GetBankReceiptVouchers());
+
+            var apiResponse = new ApiResponse<List<BankReceiptVoucher>>
+            {
+                Valid = true,
+                Result = _mapper.Map<List<BankReceiptVoucher>>(_bankReceiptVoucherService.GetBankReceiptVouchers()),
+                Message = ""
+            };
+            return apiResponse;
         }
 
         [HttpGet]
         [Route("GetSavedBankReceiptDetails/{id}")]
-        public BankReceiptVoucher GetSavedBankPaymentDetails(string id)
+        public ApiResponse<BankReceiptVoucher> GetSavedBankPaymentDetails(string id)
         {
             BankReceiptVoucher bankReceiptVoucher = _bankReceiptVoucherService.GetSavedBankReceiptDetails(id);
-            return bankReceiptVoucher;
+            var apiResposne = new ApiResponse<BankReceiptVoucher>
+            {
+                Valid = true,
+                Result = bankReceiptVoucher,
+                Message = ""
+            };
+            
+            
+            return apiResposne;
         }
     }
 }

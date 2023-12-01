@@ -33,7 +33,7 @@ namespace Inspire.Erp.Domain.Entities
         [NotMapped]
         public List<AccountsTransactions> AccountsTransactions { get; set; }
         [NotMapped]
-        public IQueryable UserTrackingData { get; set; }
+        public List<UserTrackingDisplay> UserTrackingData { get; set; }
         [NotMapped]
         public List<Domain.Models.AllocationDetails> AllocationDetails { get; set; }
     }

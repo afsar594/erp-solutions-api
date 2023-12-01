@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Inspire.Erp.Application.Account.Implementations;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -65,47 +66,85 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpPost]
         [Route("UpdateBankPaymentVoucher")]
-        public BankPaymentVoucher UpdateBankPaymentVoucher([FromBody] BankPaymentVoucher voucherCompositeView)
+        public ApiResponse<BankPaymentVoucher> UpdateBankPaymentVoucher([FromBody] BankPaymentVoucher voucherCompositeView)
         {
             var param1 = _mapper.Map<BankPaymentVoucher>(voucherCompositeView);
             var param2 = _mapper.Map<List<BankPaymentVoucherDetails>>(voucherCompositeView.BankPaymentVoucherDetails);
             var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
             var xs = _bankPaymentVoucherService.UpdateBankPaymentVoucher(param1, param3, param2);
-            return _mapper.Map<BankPaymentVoucher>(xs);
+
+            ApiResponse<BankPaymentVoucher> apiResponse = new ApiResponse<BankPaymentVoucher>
+            {
+                Valid = true,
+                Result = _mapper.Map<BankPaymentVoucher>(xs),
+                Message = BankPaymentVoucherMessage.UpdateVoucher
+            };
+
+            return apiResponse;
         }
 
         [HttpPost]
         [Route("DeleteBankPaymentVoucher")]
-        public int DeleteBankPaymentVoucher([FromBody] BankPaymentVoucher voucherCompositeView)
+        public ApiResponse<int> DeleteBankPaymentVoucher([FromBody] BankPaymentVoucher voucherCompositeView)
         {
             var param1 = _mapper.Map<BankPaymentVoucher>(voucherCompositeView);
             var param2 = _mapper.Map<List<BankPaymentVoucherDetails>>(voucherCompositeView.BankPaymentVoucherDetails);
             var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
             var xs = _bankPaymentVoucherService.DeleteBankPaymentVoucher(param1, param3, param2);
-            return xs;
 
+            ApiResponse<int> apiResponse = new ApiResponse<int>
+            {
+                Valid = true,
+                Result = 0,
+                Message = BankPaymentVoucherMessage.DeleteVoucher
+            };
+            return apiResponse;
         }
 
         [HttpGet]
         [Route("GetAllAccountTransaction")]
-        public List<AccountsTransactions> GetAllAccountTransaction()
+        public ApiResponse<List<AccountsTransactions>> GetAllAccountTransaction()
         {
-            return _mapper.Map<List<AccountsTransactions>>(_bankPaymentVoucherService.GetAllTransaction());
+
+            ApiResponse<List<AccountsTransactions>> apiResponse = new ApiResponse<List<AccountsTransactions>>
+            {
+                Valid = true,
+                Result = _mapper.Map<List<AccountsTransactions>>(_bankPaymentVoucherService.GetAllTransaction()),
+                Message = ""
+            };
+            return apiResponse;
         }
 
         [HttpGet]
         [Route("GetBankPaymentVouchers")]
-        public List<BankPaymentVoucher> GetAllBankPayments()
+        public ApiResponse<List<BankPaymentVoucher>> GetAllBankPayments()
         {
-            return _mapper.Map<List<BankPaymentVoucher>>(_bankPaymentVoucherService.GetBankPaymentVouchers());
+            
+            ApiResponse<List<BankPaymentVoucher>> apiResponse = new ApiResponse<List<BankPaymentVoucher>>
+            {
+                Valid = true,
+                Result = _mapper.Map<List<BankPaymentVoucher>>(_bankPaymentVoucherService.GetBankPaymentVouchers()),
+               Message = ""
+            };
+            return apiResponse;
         }
 
         [HttpGet]
         [Route("GetSavedBankPaymentDetails/{id}")]
-        public BankPaymentVoucher GetSavedBankPaymentDetails(string id)
+        public ApiResponse<BankPaymentVoucher> GetSavedBankPaymentDetails(string id)
         {
             BankPaymentVoucher bankPaymentVoucher = _bankPaymentVoucherService.GetSavedBankPaymentDetails(id);
-            return bankPaymentVoucher;
+            if (bankPaymentVoucher != null)
+            {
+                ApiResponse<BankPaymentVoucher> apiResponse = new ApiResponse<BankPaymentVoucher>
+                {
+                    Valid = true,
+                    Result = bankPaymentVoucher,
+                    Message = ""
+                };
+                return apiResponse;
+            }
+            return null;
         }
     }
 }
