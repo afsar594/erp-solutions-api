@@ -133,6 +133,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     .DefaultIfEmpty().Max(o => o == null ? 0 : o.ContraVoucherId) + 1);
 
                 contraVoucher.ContraVoucherId = maxcount;
+               
                 contraVoucherDetails = contraVoucherDetails.Select((x) =>
                 {
                     x.ContraVoucherId = maxcount;
