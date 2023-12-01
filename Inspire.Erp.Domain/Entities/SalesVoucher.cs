@@ -35,6 +35,8 @@ namespace Inspire.Erp.Domain.Entities
         public int? SalesVoucherLocationID { get; set; }
         public long? SalesVoucherUserID { get; set; }
         public int? SalesVoucherCurrencyId { get; set; }
+        [NotMapped]
+        public string? CurrencyMasterCurrencyName { get; set; }
         public int? SalesVoucherCompanyId { get; set; }
         public int? SalesVoucherJobId { get; set; }
         public decimal? SalesVoucherFSNO { get; set; }

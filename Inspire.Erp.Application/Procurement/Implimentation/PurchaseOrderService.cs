@@ -20,18 +20,22 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private IRepository<StockRegister> _stockRegisterRepository;
         private IRepository<AccountsTransactions> _accountTransactionRepository;
         private IRepository<PurchaseOrder> _purchaseOrderRepository;
+        private IRepository<PurchaseReturn> _purchaseReturnRepository;
+        private IRepository<PurchaseReturnDetails> _purchaseReturnDetailsRepository;
         private IRepository<PurchaseOrderDetails> _purchaseOrderDetailsRepository;
         private IRepository<ProgramSettings> _programsettingsRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
         private readonly ILogger<PaymentVoucherService> _logger;
+        private readonly IRepository<TrackingRegister> _trackingRegisterRepository;
+        private readonly IRepository<PurOrderRegister> _purOrderRegisterRepository;
+
+
 
         private IRepository<ItemMaster> _itemMasterRepository;
         private IRepository<UnitMaster> _unitMasterRepository;
         private IRepository<SuppliersMaster> _suppliersMasterRepository;
         private IRepository<LocationMaster> _locationMasterRepository;
         private IRepository<UserFile> _userFileRepository;
-        private IRepository<TrackingRegister> _trackingRegisterRepository;
-        private IRepository<PurOrderRegister> _purOrderRegisterRepository;
 
         //private IRepository<ReportPurchaseOrder> _reportPurchaseOrderRepository;
         public PurchaseOrderService(
@@ -43,8 +47,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
 
-            IRepository<PurchaseOrder> purchaseOrderRepository, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository,
-            IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PurOrderRegister> purOrderRegisterRepository)
+            IRepository<PurchaseOrder> purchaseOrderRepository, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository, IRepository<PurchaseReturn> purchaseReturnRepository, IRepository<PurchaseReturnDetails> purchaseReturnDetailsRepository, IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PurOrderRegister> purOrderRegisterRepository)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository;
@@ -53,14 +56,16 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _programsettingsRepository = programsettingsRepository;
             _voucherNumbersRepository = voucherNumbers;
             _logger = logger;
-
+            _trackingRegisterRepository = trackingRegisterRepository;
             _itemMasterRepository = itemMasterRepository;
             _unitMasterRepository = unitMasterRepository;
             _suppliersMasterRepository = suppliersMasterRepository;
             _locationMasterRepository = locationMasterRepository;
             _userFileRepository = userFileRepository;
-            _trackingRegisterRepository = trackingRegisterRepository;
+            _purchaseReturnRepository = purchaseReturnRepository;
+            _purchaseReturnDetailsRepository = purchaseReturnDetailsRepository;
             _purOrderRegisterRepository = purOrderRegisterRepository;
+            //_reportPurchaseOrderRepository = reportPurchaseOrderRepository;
         }
 
         //public IEnumerable<ReportPurchaseOrder> PurchaseOrder_GetReportPurchaseOrder()
@@ -180,7 +185,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         TrackingRegisterQty = (int)purOrderDet.PurchaseOrderDetailsQuantity,
                         TrackingRegisterQtyin = (int)purOrderDet.PurchaseOrderDetailsQuantity,
                         TrackingRegisterQtyout = 0,
-                        TrackingRegisterRate = (double)purOrderDet.PurchaseOrderDetailsRate,
+                        TrackingRegisterRate = purOrderDet.PurchaseOrderDetailsRate,
                         TrackingRegisterTrackDate = purchaseOrder.PurchaseOrderDate,
                         TrackingRegisterFsno = null,//to be alloted
 
@@ -195,7 +200,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         PurOrderRegisterTransType = purchaseOrder.PurchaseOrderType,
                         PurOrderRegisterQtyOrder = (int)purOrderDet.PurchaseOrderDetailsQuantity,
                         PurOrderRegisterQtyIssued = 0,
-                        PurOrderRegisterRate = (double)purOrderDet.PurchaseOrderDetailsRate,
+                        PurOrderRegisterRate = purOrderDet.PurchaseOrderDetailsRate,
                         PurOrderRegisterAssignedDate = DateTime.Now,
                         PurOrderRegisterFsno = null,//to be alloted,
                         PurOrderRegisterSupplierId = (int)purchaseOrder.PurchaseOrderPartyId,
@@ -353,9 +358,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         TrackingRegisterQty = (int)purOrderDet.PurchaseOrderDetailsQuantity,
                         TrackingRegisterQtyin = (int)purOrderDet.PurchaseOrderDetailsQuantity,
                         TrackingRegisterQtyout = 0,
-                        TrackingRegisterRate = (double)purOrderDet.PurchaseOrderDetailsRate,
-                        TrackingRegisterTrackDate = purchaseOrder.PurchaseOrderDate,
-                        TrackingRegisterFsno = null,//to be alloted
+                        TrackingRegisterRate=purOrderDet.PurchaseOrderDetailsRate,
+                        TrackingRegisterTrackDate=purchaseOrder.PurchaseOrderDate,
+                        TrackingRegisterFsno=null,//to be alloted
 
                     };
                     listTrackRegs.Add(tr);
@@ -366,10 +371,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         PurOrderRegisterRefVoucherNo = purOrderDet.PurchaseOrderDetailsNo,
                         PurOrderRegisterMaterialId = (int)purOrderDet.PurchaseOrderDetailsMatId,
                         PurOrderRegisterTransType = purchaseOrder.PurchaseOrderType,
-                        PurOrderRegisterQtyOrder = (int)purOrderDet.PurchaseOrderDetailsQuantity,
+                        PurOrderRegisterQtyOrder = purOrderDet.PurchaseOrderDetailsQuantity,
                         PurOrderRegisterQtyIssued = 0,
-                        PurOrderRegisterRate = (double)purOrderDet.PurchaseOrderDetailsRate,
-                        PurOrderRegisterAssignedDate = DateTime.Now,
+                        PurOrderRegisterRate = purOrderDet.PurchaseOrderDetailsRate,
+                        PurOrderRegisterAssignedDate =DateTime.Now,
                         PurOrderRegisterFsno = null,//to be alloted,
                         PurOrderRegisterSupplierId = (int)purchaseOrder.PurchaseOrderPartyId,
                         PurOrderRegisterStatus = "A"
@@ -399,7 +404,11 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         }
         public IEnumerable<PurchaseOrder> GetPurchaseOrder()
         {
-            IEnumerable<PurchaseOrder> purchaseOrder_ALL = _purchaseOrderRepository.GetAll().Where(k => k.PurchaseOrderDelStatus == false || k.PurchaseOrderDelStatus == null).ToList();
+            IEnumerable<PurchaseOrder> purchaseOrder_ALL = _purchaseOrderRepository.GetAll().Where(k => k.PurchaseOrderDelStatus == false || k.PurchaseOrderDelStatus == null);
+            //foreach (var purchaseOrderDetail in purchaseOrder_ALL)
+            //{
+            //    purchaseOrderDetail.PurchaseOrderDetails = _purchaseOrderDetailsRepository.GetAll().Where(c => c.PurchaseOrderDetailsNo == purchaseOrderDetail.PurchaseOrderNo).ToList();
+            //}
             return purchaseOrder_ALL;
         }
         public PurchaseOrderModel GetSavedPurchaseOrderDetails(string pvno)
@@ -418,8 +427,76 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             {
             }
             purchaseOrderModel.purchaseOrderDetails = _purchaseOrderDetailsRepository.GetAsQueryable().Where(x => x.PurchaseOrderDetailsNo == pvno && (x.PurchaseOrderDetailsDelStatus == false || x.PurchaseOrderDetailsDelStatus == null)).ToList();
+
+            foreach (var purchaseOrderDetail in purchaseOrderModel.purchaseOrderDetails)
+            {
+                if (_stockRegisterRepository.GetAsQueryable().Where(c => c.StockRegisterRefVoucherNo == purchaseOrderDetail.PurchaseOrderDetailsNo).FirstOrDefault() != null)
+                {
+                    purchaseOrderDetail.PurchaseOrderNetStock = _stockRegisterRepository.GetAsQueryable().Where(c => c.StockRegisterRefVoucherNo == purchaseOrderDetail.PurchaseOrderDetailsNo).FirstOrDefault().StockRegisterSIN;
+                   
+                }
+                purchaseOrderDetail.PurchaseOrderNetStock = 0;
+                purchaseOrderDetail.PurchaseOrderTillNowQTY = GetTillNowQTY(pvno);
+            }
+
             return purchaseOrderModel;
 
+        }
+
+        private decimal? GetTillNowQTY(string pvno)
+        {
+            try
+            {
+                //var pr = _purchaseReturnRepository.GetAll().Where(c => c.PurchaseReturnGrno == pvno).LastOrDefault();
+
+                //if (pr != null)
+                //{
+                //    decimal? qty = 0.0M;
+
+                //        var prDetails = _purchaseReturnDetailsRepository.GetAll().Where(c => c.PurchaseReturnDetailsNo == pr.PurchaseReturnNo);
+                //        if (prDetails != null)
+                //        {
+                //        foreach (var item in prDetails)
+                //        {
+                //            if (item.PurchaseReturnDetailsQuantity !=null)
+                //            {
+                //                qty += item.PurchaseReturnDetailsQuantity;
+                //            }
+                //        }
+                //            //qty += Convert.ToDecimal(_purchaseReturnDetailsRepository.GetAll().Where(c => c.PurchaseReturnDetailsNo == item.PurchaseReturnNo).FirstOrDefault().PurchaseReturnDetailsQuantity);
+
+                //        }
+
+
+                //    return qty;
+                //}
+                //return 0;
+
+
+                //=====================================//
+                var pr = _purchaseReturnRepository.GetAll().Where(c => c.PurchaseReturnGrno == pvno);
+                if (pr != null)
+                {
+                    decimal? qty = 0.0M;
+                    foreach (var prdetail in pr)
+                    {
+                        var rslt = _purchaseReturnDetailsRepository.GetAll().Where(c => c.PurchaseReturnDetailsNo == prdetail.PurchaseReturnNo).FirstOrDefault();
+                        if (rslt != null)
+                        {
+                            qty += rslt.PurchaseReturnDetailsQuantity;
+                        }
+                            // qty += rslt;
+                    }
+                    //var prDetails = _purchaseReturnDetailsRepository.GetAll().Where(c => c.PurchaseReturnDetailsNo == pr.PurchaseReturnNo);
+                    return qty;
+                }
+                return 0;
+            }
+            catch (Exception)
+            {
+                return 0;
+                throw;
+            }
         }
 
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)

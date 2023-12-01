@@ -115,7 +115,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 {
                     item.PurchaseVoucherDetailsVoucherNo = grn.PurchaseVoucherVoucherNo;
                 }
-                _purchaseVoucherDetailsRepository.UpdateList(grn.PurchaseVoucherDetails);
+                _purchaseVoucherDetailsRepository.UpdateList(grn.PurchaseVoucherDetails.ToList());
 
                 UserTracking trackingData = new UserTracking();
                 trackingData.UserTrackingUserUserId = 1;
@@ -155,28 +155,21 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                     item.PurchaseVoucherDetailsVoucherNo = grn.PurchaseVoucherVoucherNo;
                 }
 
-                _purchaseVoucherDetailsRepository.InsertList(grn.PurchaseVoucherDetails);
-                
-                List < StockRegister > sr = new List<StockRegister>();
-                foreach (var item in grn.PurchaseVoucherDetails)
-                {
-                    sr.Add(new StockRegister()
-                    {
-                        StockRegisterRefVoucherNo = grn.PurchaseVoucherVoucherNo,
-                        StockRegisterAssignedDate = DateTime.Now,
-                        StockRegisterTransType = VoucherType.PurchaseVoucher_TYPE,
-                        StockRegisterFCAmount = grn.PurchaseVoucherActualAmount,
-                        StockRegisterFcRate = grn.PurchaseVoucherFCRate,
-                        StockRegisterStatus = "A",
-                        StockRegisterJobID = grn.PurchaseVoucherJobID,
-                        StockRegisterLocationID = grn.PurchaseVoucherLocationID,
-                        StockRegisterFSNO = null,
-                        StockRegisterVoucherDate = grn.PurchaseVoucherGRDate,
-                        StockRegisterSIN = item.PurchaseVoucherDetailsQuantity,
-                        StockRegisterMaterialID = item.PurchaseVoucherDetailsMaterialId,
-                    });
-                }
-                _context.StockRegister.AddRange(sr);
+                _purchaseVoucherDetailsRepository.InsertList(grn.PurchaseVoucherDetails.ToList());
+                /////////////Model check karna hai 
+                StockRegister sr = new StockRegister();
+                sr.StockRegisterStoreID = 0;
+                sr.StockRegisterRefVoucherNo = grn.PurchaseVoucherVoucherNo;
+                sr.StockRegisterAssignedDate = DateTime.Now;
+                sr.StockRegisterTransType = grn.PurchaseVoucherPurchaseType;
+                sr.StockRegisterFCAmount = grn.PurchaseVoucherFCActualAmount;
+                sr.StockRegisterFcRate = grn.PurchaseVoucherFcRate;
+                sr.StockRegisterStatus = "A";
+                sr.StockRegisterTransType = "PurchaseVoucher";
+                sr.StockRegisterJobID = grn.PurchaseVoucherJobId;
+                sr.StockRegisterLocationID = grn.PurchaseVoucherLocationId;
+                sr.StockRegisterFSNO = grn.PurchaseVoucherFsno;
+                _stockRegisterRepository.Insert(sr);
 
                 UserTracking trackingData = new UserTracking();
                 trackingData.UserTrackingUserUserId = 1;

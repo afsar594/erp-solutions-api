@@ -115,7 +115,21 @@ namespace Inspire.Erp.Infrastructure.Database.Repositoy
                 throw new ArgumentNullException("entity");
             }
             entities.UpdateRange(entity);
-            context.SaveChanges();
+            try
+            {
+                context.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Exception Message: " + ex.Message);
+                Console.WriteLine("Stack Trace: " + ex.StackTrace);
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine("Inner Exception Message: " + ex.InnerException.Message);
+                }
+                throw;
+            }
+            
         }
         public void Delete(T entity)
         {

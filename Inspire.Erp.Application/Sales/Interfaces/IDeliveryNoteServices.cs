@@ -24,7 +24,7 @@ namespace Inspire.Erp.Application.Sales.Interfaces
         public DeliveryNoteModel GetSavedDeliveryNoteDetails(long pvno);
         ////public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
 
-        ////public IEnumerable<CustomerDeliveryNote> GetDeliveryNote();
+        public IEnumerable<CustomerDeliveryNote> GetDeliveryNote();
         ////public VouchersNumbers GetVouchersNumbers(long pvno);
     }
 }

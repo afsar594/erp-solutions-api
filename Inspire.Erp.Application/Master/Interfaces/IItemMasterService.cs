@@ -13,9 +13,9 @@ namespace Inspire.Erp.Application.Master
         public ItemMaster UpdateNewItem(ItemMaster itemMaster);
         public IEnumerable<ItemMaster> UpdateItem(ItemMaster itemMaster);
         public IEnumerable<ItemMaster> DeleteItem(ItemMaster itemMaster);
-        public IEnumerable<ItemMaster> GetAllItem();
+        public List<ItemMaster> GetAllItem();
         public IEnumerable<ItemMaster> GetAllItemById(int id);
-        public IEnumerable<ItemMaster> GetAllItemNotGroup();
+        public List<ItemMaster> GetAllItemNotGroup();
         public IEnumerable<ItemStockType> GetAllStockType();
         public IEnumerable<ItemMaster> GetItemMastersByName(string name);
         public IEnumerable<ItemMaster> GetAllItemSearchFilter(string group, string name);

@@ -47,9 +47,13 @@ namespace Inspire.Erp.Web.ViewModels
         public long? CustomerQuotationTypeId { get; set; }
         public long? CustomerQuotationModelId { get; set; }
         public decimal? CustomerQuotationVatPercentage { get; set; }
-        public decimal? CustomerQuotationVatAmount { get; set; }
+        public decimal? CustomerQuotationVatAmount { get; set; }    
         public int? CustomerQuotationQuotationEnquiryN { get; set; }
         public bool? CustomerQuotationDelStatus { get; set; }
+        public string CustomerQuotationProjectRef { get; set; }
+        public string CustomerQuotationProjectN { get; set; }
+        public bool? CustomerQuotationReviseQuotation { get; set; }
+        public decimal? CustomerQuotationGrossProfitTotal { get; set; }
         public List<CustomerQuotationDetailsViewModel> CustomerQuotationDetails { get; set; }
 
     }
