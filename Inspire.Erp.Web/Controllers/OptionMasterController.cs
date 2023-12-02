@@ -58,7 +58,17 @@ namespace Inspire.Erp.Web.Controllers
             List<OptionsMaster> listoptionsSettings = _optionsSvc.GetOptionsSettingsbyKey(key).ToList();
             if (listoptionsSettings != null)
             {
-                var x = _mapper.Map<List<OptionsMasterViewModel>>(listoptionsSettings);
+                //var x = _mapper.Map<List<OptionsMasterViewModel>>(listoptionsSettings);
+                var x = listoptionsSettings.Select(x => new OptionsMasterViewModel
+                {
+                    OptionsMasterDelStatus= x.OptionsMasterDelStatus,
+                    OptionsMasterDescription= x.OptionsMasterDescription,
+                    OptionsMasterFormName= x.OptionsMasterFormName,
+                    OptionsMasterFullDescription    = x.OptionsMasterFullDescription,
+                    OptionsMasterId = x.OptionsMasterId
+                    ,OptionsMasterType = x.OptionsMasterType,
+                    OptionsMasterTypeBoolean = x.OptionsMasterType == "Yes"?true:false,
+                }).ToList();
 
                 ApiResponse<List<OptionsMasterViewModel>> apiResponse = new ApiResponse<List<OptionsMasterViewModel>>
                 {

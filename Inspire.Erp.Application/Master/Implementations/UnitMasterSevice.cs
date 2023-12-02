@@ -87,7 +87,6 @@ namespace Inspire.Erp.Application.Master
             try
             {
                 unitMasters = unitrepository.GetAll();
-
             }
             catch (Exception ex)
             {
