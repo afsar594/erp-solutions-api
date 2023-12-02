@@ -19,6 +19,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
+using OfficeOpenXml.FormulaParsing.Logging;
+using System.IO;
+using Inspire.Erp.Domain.Models.Common;
 
 namespace Inspire.Erp.Web
 {
@@ -47,6 +50,7 @@ namespace Inspire.Erp.Web
 
             IMapper mapper = mappingConfig.CreateMapper();
             services.AddSingleton(mapper);
+            services.Configure<EmailSettingViewModel>(Configuration.GetSection("MailSettings"));
             services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
@@ -98,7 +102,7 @@ namespace Inspire.Erp.Web
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
             if (env.IsDevelopment())
             {
@@ -131,6 +135,7 @@ namespace Inspire.Erp.Web
                 endpoints.MapControllers();
                 endpoints.MapHub<NotificationHub>("/signal");
             });
+            loggerFactory.AddFile($@"{Directory.GetCurrentDirectory()}\Logs\log.txt");
         }
     }
 }
