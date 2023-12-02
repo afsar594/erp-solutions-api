@@ -68,15 +68,15 @@ namespace Inspire.Erp.Web.Controllers
         }
 
         [HttpPost("saveGRNVoucher")]
-        public IActionResult> saveGRN([FromBody] PurchaseVoucher obj)
+        public IActionResult saveGRN([FromBody] PurchaseVoucher obj)
         {
-            return await _grn.saveGRN(obj, obj.AccountsTransactions.ToList());
+            return Ok(_grn.saveGRN(obj));
         }
 
         [HttpPost("updateGRN")]
-        public async Task<IActionResult> updateGRN([FromBody] PurchaseVoucher obj)
+        public IActionResult updateGRN([FromBody] PurchaseVoucher obj)
         {
-            return await _grn.updateGRN(obj, obj.AccountsTransactions.ToList());
+            return Ok(_grn.updateGRN(obj, obj.AccountsTransactions.ToList()));
         }
 
         [HttpPost("DeleteGRN")]

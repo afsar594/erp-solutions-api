@@ -22959,7 +22959,7 @@ namespace Inspire.Erp.Infrastructure.Database
             {
                 entity.ToTable("Unit_Details");
 
-                entity.Property(e => e.UnitDetailsId).HasColumnName("Unit_Details_ID");
+                entity.Property(e => e.UnitDetailsId).HasColumnName("Unit_Details_ID").ValueGeneratedOnAdd();
 
                 entity.Property(e => e.UnitDetailsBarcode)
                     .HasColumnName("Unit_Details_Barcode")
