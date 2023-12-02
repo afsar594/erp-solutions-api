@@ -297,5 +297,10 @@ namespace Inspire.Erp.Application.Master
         {
             throw new NotImplementedException();
         }
+
+        public IEnumerable<ItemMaster> GetAllItemMaster()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
