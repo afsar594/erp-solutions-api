@@ -33,29 +33,33 @@ namespace Inspire.Erp.Application.Settings.Implementations
             }
         }
 
-        public IEnumerable<OptionsMaster> GetOptionsSettings(string search)
+        public async Task<Response<List<OptionsMaster>>> GetOptionsSettings(string search)
         {
-            IEnumerable<OptionsMaster> optionsSettings = _optionsSettingsRepo.GetAsQueryable().Where(x => string.IsNullOrEmpty(search)?true: x.OptionsMasterFullDescription.Contains(search));
-            return optionsSettings;
-        }
-
-        public IEnumerable<OptionsMaster> GetOptionsSettingsbyKey(string key)
-        {
-
-            IEnumerable<OptionsMaster> optionsSettings;
+            List<OptionsMaster> optionsMasters = new List<OptionsMaster>();
             try
             {
-                optionsSettings = _optionsSettingsRepo.GetAll().Where(k => k.OptionsMasterDescription.Trim() == key);
+                optionsMasters =await  _optionsSettingsRepo.GetAsQueryable().Where(x => string.IsNullOrEmpty(search) ? true : x.OptionsMasterFullDescription.Contains(search)).ToListAsync();
+                return Response<List<OptionsMaster>>.Success(optionsMasters, "Data found");
             }
             catch (Exception ex)
             {
-                throw ex;
+                return Response<List<OptionsMaster>>.Fail(optionsMasters, "Data not found");
             }
-            finally
-            {
+        }
 
+        public async Task<Response<List<OptionsMaster>>> GetOptionsSettingsbyKey(string key)
+        {
+
+            List<OptionsMaster> optionsMasters = new List<OptionsMaster>();
+            try
+            {
+                optionsMasters = await _optionsSettingsRepo.GetAsQueryable().Where(k => k.OptionsMasterDescription.Trim() == key).ToListAsync();
+                return Response<List<OptionsMaster>>.Success(optionsMasters, "Data found");
             }
-            return optionsSettings;
+            catch (Exception ex)
+            {
+                return Response<List<OptionsMaster>>.Fail(optionsMasters, "Data not found");
+            }
         }
 
         public bool ImportOptionsSettingsFromFile(List<OptionsMaster> optionsSettings)
