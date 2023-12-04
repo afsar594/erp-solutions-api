@@ -12410,6 +12410,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.ToTable("Options_Master");
 
                 entity.Property(e => e.OptionsMasterDelStatus).HasColumnName("Options_Master_DelStatus");
+                entity.Property(e => e.OptionsMasterValueType).HasColumnName("Options_Master_ValueType");
 
                 entity.Property(e => e.OptionsMasterDescription)
                     .HasColumnName("Options_Master_Description")

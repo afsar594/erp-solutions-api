@@ -11,5 +11,6 @@ namespace Inspire.Erp.Domain.Entities
         public string OptionsMasterFullDescription { get; set; }
         public string OptionsMasterFormName { get; set; }
         public bool? OptionsMasterDelStatus { get; set; }
+        public string OptionsMasterValueType { get; set; }
     }
 }
