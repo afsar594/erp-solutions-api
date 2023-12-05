@@ -14,7 +14,7 @@ using System.Text;
 
 namespace Inspire.Erp.Application.Authentication.Implementations
 {
-    class LoginService : IloginService
+   public class LoginService : IloginService
     {
         private IRepository<UserFile> userFileRepository;
         private IConfiguration Configuration;
