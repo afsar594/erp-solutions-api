@@ -100,7 +100,8 @@ namespace Inspire.Erp.Web.Controllers
                   OptionsMasterFormName=x.OptionsMasterFormName,
                   OptionsMasterFullDescription=x.OptionsMasterFullDescription,
                   OptionsMasterId=x.OptionsMasterId,
-                  OptionsMasterType=x.OptionsMasterType == "Yes" || x.OptionsMasterType=="No"?x.OptionsMasterTypeBoolean?"Yes":"No":x.OptionsMasterType
+                  OptionsMasterType=x.OptionsMasterType == "Yes" || x.OptionsMasterType=="No"?x.OptionsMasterTypeBoolean?"Yes":"No":x.OptionsMasterType,
+                  OptionsMasterValueType = x.OptionsMasterValueType
               }).ToList();
                  result = _optionsSvc.updateOptionsSettings(options);
             }
