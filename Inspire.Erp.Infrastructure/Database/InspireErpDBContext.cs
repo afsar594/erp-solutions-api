@@ -12417,6 +12417,10 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasMaxLength(150)
                     .IsUnicode(false);
 
+                entity.HasIndex(e => e.OptionsMasterDescription)
+                    .HasName("Options_Master_Description")
+                    .IsUnique();
+
                 entity.Property(e => e.OptionsMasterFormName)
                     .HasColumnName("Options_Master_Form_Name")
                     .HasMaxLength(50)
