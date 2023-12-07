@@ -19,18 +19,21 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
         private IRepository<ProgramSettings> _programsettingsRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
         private readonly ILogger<PaymentVoucherService> _logger;
+        private readonly IRepository<UserTracking> _UserTracking;
 
 
         public DebitNoteService(IRepository<AccountsTransactions> accountTransactionRepository, IRepository<ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
 
-            IRepository<DebitNote> debitNoteRepository, IRepository<DebitNoteDetails> debitNoteDetailsRepository)
+            IRepository<DebitNote> debitNoteRepository, IRepository<DebitNoteDetails> debitNoteDetailsRepository,
+            IRepository<UserTracking> UserTracking)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._debitNoteRepository = debitNoteRepository;
             this._debitNoteDetailsRepository = debitNoteDetailsRepository;
             _programsettingsRepository = programsettingsRepository;
             _voucherNumbersRepository = voucherNumbers;
+            _UserTracking = UserTracking;
 
         }
 
@@ -56,6 +59,14 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                     return k;
                 }).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
+                UserTracking trackingData = new UserTracking();
+                trackingData.UserTrackingUserUserId = 1;
+                trackingData.UserTrackingUserVpAction = "Update";
+                trackingData.UserTrackingUserVpNo = debitNote.DebitNoteVno;
+                trackingData.UserTrackingUserChangeDt = DateTime.Now;
+                trackingData.UserTrackingUserChangeTime = DateTime.Now;
+                trackingData.UserTrackingUserVpType = "DEBITNOTEVOUCHER";
+                _UserTracking.Insert(trackingData);
                 _debitNoteRepository.TransactionCommit();
 
             }
@@ -87,8 +98,16 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 debitNote.DebitNoteDetails = debitNoteDetails;
                 _debitNoteRepository.Update(debitNote);
-                var vchrnumer = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == debitNote.DebitNoteVno).FirstOrDefault();
-                _voucherNumbersRepository.Update(vchrnumer);
+                UserTracking trackingData = new UserTracking();
+                trackingData.UserTrackingUserUserId = 1;
+                trackingData.UserTrackingUserVpAction = "Delete";
+                trackingData.UserTrackingUserVpNo = debitNote.DebitNoteVno;
+                trackingData.UserTrackingUserChangeDt = DateTime.Now;
+                trackingData.UserTrackingUserChangeTime = DateTime.Now;
+                trackingData.UserTrackingUserVpType = "DEBITNOTEVOUCHER";
+                _UserTracking.Insert(trackingData);
+                 var vchrnumer = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == debitNote.DebitNoteVno).FirstOrDefault();
+                  _voucherNumbersRepository.Update(vchrnumer);
                 _debitNoteRepository.TransactionCommit();
                 i = 1;
             }
@@ -105,7 +124,10 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
             try
             {
                 _debitNoteRepository.BeginTransaction();
-                debitNote.DebitNoteVno = debitNote.DebitNoteVno;
+                //debitNote.DebitNoteVno = debitNote.DebitNoteVno;
+                string DebitNoteName = this.GenerateVoucherNo(debitNote.DebitNoteDate).VouchersNumbersVNo;
+                debitNote.DebitNoteVno = DebitNoteName;
+
                 int maxcount = 0;
                 maxcount = Convert.ToInt32(
                     _debitNoteRepository.GetAsQueryable()
@@ -128,6 +150,14 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 }).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
                 _debitNoteRepository.Insert(debitNote);
+                UserTracking trackingData = new UserTracking();
+                trackingData.UserTrackingUserUserId = 1;
+                trackingData.UserTrackingUserVpAction = "Insert";
+                trackingData.UserTrackingUserVpNo = debitNote.DebitNoteVno;
+                trackingData.UserTrackingUserChangeDt = DateTime.Now;
+                trackingData.UserTrackingUserChangeTime = DateTime.Now;
+                trackingData.UserTrackingUserVpType = "DEBITNOTEVOUCHER";
+                _UserTracking.Insert(trackingData);
                 _debitNoteRepository.TransactionCommit();
                 return this.GetSavedDebitNoteDetails(debitNote.DebitNoteVno);
             }
