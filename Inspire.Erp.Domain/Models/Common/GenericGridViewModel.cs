@@ -32,7 +32,9 @@ namespace Inspire.Erp.Domain.Modals.Common
         public int SupplierId { get; set; }
         public int  JobId { get; set; }
         public string Status { get; set; }
-
+        public int  LocationId { get; set; }
+        public int ItemId { get; set; }
+        public string PONO { get; set; }
 
     }
 }
