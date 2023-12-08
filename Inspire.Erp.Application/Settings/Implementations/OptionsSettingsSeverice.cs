@@ -33,33 +33,30 @@ namespace Inspire.Erp.Application.Settings.Implementations
             }
         }
 
-        public async Task<Response<List<OptionsMaster>>> GetOptionsSettings(string search)
+        public async Task<IEnumerable<OptionsMaster>> GetOptionsSettings(string search)
         {
-            List<OptionsMaster> optionsMasters = new List<OptionsMaster>();
-            try
-            {
-                optionsMasters =await  _optionsSettingsRepo.GetAsQueryable().Where(x => string.IsNullOrEmpty(search) ? true : x.OptionsMasterFullDescription.Contains(search)).ToListAsync();
-                return Response<List<OptionsMaster>>.Success(optionsMasters, "Data found");
-            }
-            catch (Exception ex)
-            {
-                return Response<List<OptionsMaster>>.Fail(optionsMasters, "Data not found");
-            }
+            IEnumerable<OptionsMaster> optionsSettings = _optionsSettingsRepo.GetAsQueryable().Where(x => string.IsNullOrEmpty(search)?true: x.OptionsMasterFullDescription.Contains(search));
+            return optionsSettings;
         }
 
-        public async Task<Response<List<OptionsMaster>>> GetOptionsSettingsbyKey(string key)
+        public async Task<Response<List<OptionsMaster>>>  GetOptionsSettingsbyKey(string key)
         {
 
-            List<OptionsMaster> optionsMasters = new List<OptionsMaster>();
+            IEnumerable<OptionsMaster> optionsSettings;
             try
             {
-                optionsMasters = await _optionsSettingsRepo.GetAsQueryable().Where(k => k.OptionsMasterDescription.Trim() == key).ToListAsync();
-                return Response<List<OptionsMaster>>.Success(optionsMasters, "Data found");
+                optionsSettings = await  _optionsSettingsRepo.GetAsQueryable().Where(k => k.OptionsMasterDescription.Trim() == key).ToListAsync();
             }
             catch (Exception ex)
             {
-                return Response<List<OptionsMaster>>.Fail(optionsMasters, "Data not found");
+                throw ex;
             }
+            finally
+            {
+
+            }
+
+            return Response<List<OptionsMaster>>.Success(optionsSettings.ToList(), "Data found");
         }
 
         public bool ImportOptionsSettingsFromFile(List<OptionsMaster> optionsSettings)
@@ -88,6 +85,16 @@ namespace Inspire.Erp.Application.Settings.Implementations
                 return false;
             }
             return true;
+        }
+
+        Task<Response<List<OptionsMaster>>> IOptionsSettings.GetOptionsSettings(string search)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<Response<List<OptionsMaster>>> IOptionsSettings.GetOptionsSettingsbyKey(string key)
+        {
+            throw new NotImplementedException();
         }
     }
 }

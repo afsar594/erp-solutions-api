@@ -30,59 +30,16 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpGet]
         [Route("GetOptionSetting")]
-        public async Task <IActionResult> GetOptionSetting(string search)
+        public async Task<IActionResult> GetOptionSetting(string search)
         {
-
             return Ok(await _optionsSvc.GetOptionsSettings(search));
-            //var model = new List<OptionsMasterViewModel>();
-            //var listoptionsSettings = await _optionsSvc.GetOptionsSettings(search);
-            //if (listoptionsSettings != null)
-            //{
-            //    model = listoptionsSettings.Result.Select(x => new OptionsMasterViewModel
-            //    {
-            //        OptionsMasterDelStatus = x.OptionsMasterDelStatus,
-            //        OptionsMasterDescription = x.OptionsMasterDescription,
-            //        OptionsMasterFormName = x.OptionsMasterFormName,
-            //        OptionsMasterFullDescription = x.OptionsMasterFullDescription,
-            //        OptionsMasterId = x.OptionsMasterId,
-            //        OptionsMasterTypeBoolean = x.OptionsMasterType == "Yes",
-            //        OptionsMasterType= x.OptionsMasterType,
-            //    }).ToList();
-
-            //}
-            //return Ok(model);
         }
 
         [HttpGet]
         [Route("GetOptionsSettingbyKey/{key}")]
-        public async Task<IActionResult> GetOptionsSettingbyKey(string key)
+        public async Task<IActionResult>  GetOptionsSettingbyKey(string key)
         {
-            return  Ok(await _optionsSvc.GetOptionsSettingsbyKey(key));
-            //if (listoptionsSettings != null)
-            //{
-
-            //    //var x = _mapper.Map<List<OptionsMasterViewModel>>(listoptionsSettings);
-            //    var x = listoptionsSettings.Select(x => new OptionsMasterViewModel
-            //    {
-            //        OptionsMasterDelStatus= x.OptionsMasterDelStatus,
-            //        OptionsMasterDescription= x.OptionsMasterDescription,
-            //        OptionsMasterFormName= x.OptionsMasterFormName,
-            //        OptionsMasterFullDescription    = x.OptionsMasterFullDescription,
-            //        OptionsMasterId = x.OptionsMasterId
-            //        ,OptionsMasterType = x.OptionsMasterType,
-            //        OptionsMasterTypeBoolean = x.OptionsMasterType == "Yes"?true:false,
-            //    }).ToList();
-
-            //    ApiResponse<List<OptionsMasterViewModel>> apiResponse = new ApiResponse<List<OptionsMasterViewModel>>
-            //    {
-            //        Valid = true,
-            //        Result = x,
-            //        Message = ""
-            //    };
-
-            //    return apiResponse;
-            //}
-            //return null;
+            return Ok(await _optionsSvc.GetOptionsSettingsbyKey(key));
 
         }
 
@@ -91,19 +48,18 @@ namespace Inspire.Erp.Web.Controllers
         public ApiResponse<bool> UpdateOptionsSetting([FromBody] List<OptionsMasterViewModel> optionsSettings)
         {
             var result = false;
-            if (optionsSettings != null && optionsSettings.Count >0)
+            if (optionsSettings != null && optionsSettings.Count > 0)
             {
-              var options=  optionsSettings.Select(x => new OptionsMaster
+                var options = optionsSettings.Select(x => new OptionsMaster
                 {
-                  OptionsMasterDelStatus=x.OptionsMasterDelStatus,
-                  OptionsMasterDescription=x.OptionsMasterDescription,
-                  OptionsMasterFormName=x.OptionsMasterFormName,
-                  OptionsMasterFullDescription=x.OptionsMasterFullDescription,
-                  OptionsMasterId=x.OptionsMasterId,
-                  OptionsMasterType=x.OptionsMasterType == "Yes" || x.OptionsMasterType=="No"?x.OptionsMasterTypeBoolean?"Yes":"No":x.OptionsMasterType,
-                  OptionsMasterValueType = x.OptionsMasterValueType
-              }).ToList();
-                 result = _optionsSvc.updateOptionsSettings(options);
+                    OptionsMasterDelStatus = x.OptionsMasterDelStatus,
+                    OptionsMasterDescription = x.OptionsMasterDescription,
+                    OptionsMasterFormName = x.OptionsMasterFormName,
+                    OptionsMasterFullDescription = x.OptionsMasterFullDescription,
+                    OptionsMasterId = x.OptionsMasterId,
+                    OptionsMasterType = x.OptionsMasterType == "Yes" || x.OptionsMasterType == "No" ? x.OptionsMasterTypeBoolean ? "Yes" : "No" : x.OptionsMasterType
+                }).ToList();
+                result = _optionsSvc.updateOptionsSettings(options);
             }
             ApiResponse<bool> apiResponse = new ApiResponse<bool>
             {

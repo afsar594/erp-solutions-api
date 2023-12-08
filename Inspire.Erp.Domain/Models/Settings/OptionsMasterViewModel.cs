@@ -13,6 +13,6 @@ namespace Inspire.Erp.Domain.Modals.Settings
         public string OptionsMasterFullDescription { get; set; }
         public string OptionsMasterFormName { get; set; }
         public bool? OptionsMasterDelStatus { get; set; }
-        public string OptionsMasterValueType { get; set; }
+
     }
 }
