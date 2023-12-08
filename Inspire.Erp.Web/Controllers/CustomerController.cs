@@ -184,7 +184,8 @@ namespace Inspire.Erp.Web.Controllers
             try
             {
                 var result = _mapper.Map<CustomerMaster>(customerMaster);
-                var data = (await customerMasterService.InsertCustomer(result)).Select(k => new CustomerMasterViewModel
+                var returnResult = await customerMasterService.InsertCustomer(result);
+                var data = (returnResult).Select(k => new CustomerMasterViewModel
                 {
                     CustomerMasterCustomerNo = k.CustomerMasterCustomerNo,
                     CustomerMasterCustomerTitle = k.CustomerMasterCustomerTitle,

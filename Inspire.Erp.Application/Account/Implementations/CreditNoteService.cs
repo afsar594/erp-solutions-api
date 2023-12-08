@@ -22,15 +22,18 @@ namespace Inspire.Erp.Application.Account.Implementations
         private IRepository<ProgramSettings> _programsettingsRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
         private readonly ILogger<PaymentVoucherService> _logger;
+        private IRepository<UserTracking> _userTracking;
         public CreditNoteService(IRepository<AccountsTransactions> accountTransactionRepository, IRepository<ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
-            IRepository<CreditNote> creditNoteRepository, IRepository<CreditNoteDetails> creditNoteDetailsRepository)
+            IRepository<CreditNote> creditNoteRepository, IRepository<CreditNoteDetails> creditNoteDetailsRepository,
+            IRepository<UserTracking> userTracking)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._creditNoteRepository = creditNoteRepository;
             this._creditNoteDetailsRepository = creditNoteDetailsRepository;
             _programsettingsRepository = programsettingsRepository;
             _voucherNumbersRepository = voucherNumbers;
+            this._userTracking = userTracking;
         }
 
         public CreditNote UpdateCreditNote(CreditNote creditNote, List<AccountsTransactions> accountsTransactions, List<CreditNoteDetails> creditNoteDetails)
@@ -55,6 +58,14 @@ namespace Inspire.Erp.Application.Account.Implementations
                     return k;
                 }).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
+                UserTracking trackingData = new UserTracking();
+                trackingData.UserTrackingUserUserId = 1;
+                trackingData.UserTrackingUserVpAction = "Update";
+                trackingData.UserTrackingUserVpNo = creditNote.CreditNoteVno;
+                trackingData.UserTrackingUserChangeDt = DateTime.Now;
+                trackingData.UserTrackingUserChangeTime = DateTime.Now;
+                trackingData.UserTrackingUserVpType = "CREDITNOTEVOUCHER";
+                _userTracking.Insert(trackingData);
                 _creditNoteRepository.TransactionCommit();
             }
             catch (Exception ex)
@@ -85,6 +96,15 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 creditNote.CreditNoteDetails = creditNoteDetails;
                 _creditNoteRepository.Update(creditNote);
+                _accountTransactionRepository.UpdateList(accountsTransactions);
+                UserTracking trackingData = new UserTracking();
+                trackingData.UserTrackingUserUserId = 1;
+                trackingData.UserTrackingUserVpAction = "Delete";
+                trackingData.UserTrackingUserVpNo = creditNote.CreditNoteVno;
+                trackingData.UserTrackingUserChangeDt = DateTime.Now;
+                trackingData.UserTrackingUserChangeTime = DateTime.Now;
+                trackingData.UserTrackingUserVpType = "CREDITNOTEVOUCHER";
+                _userTracking.Insert(trackingData);
                 var vchrnumer = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == creditNote.CreditNoteVno).FirstOrDefault();
                 _voucherNumbersRepository.Update(vchrnumer);
                 _creditNoteRepository.TransactionCommit();
@@ -105,6 +125,8 @@ namespace Inspire.Erp.Application.Account.Implementations
             {
                 _creditNoteRepository.BeginTransaction();
                 creditNote.CreditNoteVno = creditNote.CreditNoteVno;
+                string creditVno = this.GenerateVoucherNo(creditNote.CreditNoteDate).VouchersNumbersVNo;
+                creditNote.CreditNoteVno = creditVno;
                 int maxcount = 0;
                 maxcount = Convert.ToInt32(
                     _creditNoteRepository.GetAsQueryable()
@@ -127,6 +149,14 @@ namespace Inspire.Erp.Application.Account.Implementations
                 }).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
                 _creditNoteRepository.Insert(creditNote);
+                UserTracking trackingData = new UserTracking();
+                trackingData.UserTrackingUserUserId = 1;
+                trackingData.UserTrackingUserVpAction = "Insert";
+                trackingData.UserTrackingUserVpNo = creditNote.CreditNoteVno;
+                trackingData.UserTrackingUserChangeDt = DateTime.Now;
+                trackingData.UserTrackingUserChangeTime = DateTime.Now;
+                trackingData.UserTrackingUserVpType = "CREDITNOTEVOUCHER";
+                _userTracking.Insert(trackingData);
                 _creditNoteRepository.TransactionCommit();
                 return this.GetSavedCreditNoteDetails(creditNote.CreditNoteVno);
             }

@@ -32,6 +32,8 @@ namespace Inspire.Erp.Application.Master
             bool valid = false;
             try
             {
+                
+                _masterAccountTable.BeginTransaction();
                 var fs = await _utilityService.GetFinancialPeriods();
                 valid = true;
                 int mxc = 0;
@@ -73,9 +75,11 @@ namespace Inspire.Erp.Application.Master
                 await _utilityService.AddUserTrackingLog(log);
                 #endregion
                 customerrepository.SaveChangesAsync();
+                _masterAccountTable.TransactionCommit();
             }
             catch (Exception ex)
             {
+                _masterAccountTable.TransactionRollback();
                 valid = false;
                 throw ex;
 

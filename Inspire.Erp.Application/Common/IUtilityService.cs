@@ -1,6 +1,7 @@
 ﻿using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Domain.Models.Common;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -22,5 +23,6 @@ namespace Inspire.Erp.Application.Common
         Task<decimal> GetBasicUnitConversion(int? ItemId, int? UnitId);
 
         Task<decimal> GetStockQuantity(long? itemId, int? locationId);
+        Task<bool> SendEmailAsync(EmailRequestViewModel mailRequest);
     }
 }
