@@ -378,7 +378,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
         public virtual DbSet<GetAccountTransactionProfitLossResponse> ProfitLossTransaction { get; set; }
         public virtual DbSet<SingleValueSPResult> TrialBalacnceTransaction { get; set; }
- 
+
 
         public virtual DbSet<GetAccountTransactionBalanceSheetResponse> BalanceSheetTransaction { get; set; }
         public virtual DbSet<GetAccountTransactionDBResponse> MultiAccountTransaction { get; set; }
@@ -392,6 +392,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
         public virtual DbSet<OpeningStockVoucher> OpeningStockVoucher { get; set; }
         public virtual DbSet<OpeningStockVoucherDetails> OpeningStockVoucherDetails { get; set; }
+        public virtual DbSet<OrderApprovals> OrderApprovels { get; set; }
 
         //// ========================================================================================================= Reports Section
         ////public virtual DbSet<ReportStockRegister> ReportStockRegister { get; set; }
@@ -413,7 +414,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-           
+
             #region If the db table and entity has same name
             //modelBuilder.Entity<SalesVoucherResponse>().HasNoKey();
             //modelBuilder.Entity<PONumber>().HasNoKey();
@@ -818,8 +819,8 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<AllocationVoucher>(entity =>
             {
-                entity.HasKey(x=>x.AllocationVoucherId);
-           
+                entity.HasKey(x => x.AllocationVoucherId);
+
                 entity.ToTable("Allocation_Voucher");
 
                 entity.Property(e => e.AllocationVoucherAvStatus)
@@ -885,9 +886,9 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<AllocationVoucherDetails>(entity =>
             {
-                entity.HasKey(x=>x.AllocationVoucherDetailsId);
+                entity.HasKey(x => x.AllocationVoucherDetailsId);
 
-              
+
 
                 entity.ToTable("Allocation_Voucher_Details");
 
@@ -5565,7 +5566,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.ToTable("Customer_Order_Register");
 
-          
+
 
 
                 entity.Property(e => e.CustomerOrderRegisterAmount).HasColumnName("Customer_Order_Register_Amount");
@@ -5934,12 +5935,12 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasConstraintName("FK_Customer_Purchase_Order_Vouchers_Numbers");
 
 
-         //       entity.HasOne(d => d.PaymentVoucherVoucherNoNavigation)
-         //.WithOne(p => p.PaymentVoucher)
-         //.HasPrincipalKey<VouchersNumbers>(p => p.VouchersNumbersVNo)
-         //.HasForeignKey<PaymentVoucher>(d => d.PaymentVoucherVoucherNo)
-         //.OnDelete(DeleteBehavior.ClientSetNull)
-         //.HasConstraintName("FK_Payment_Voucher_Vouchers_Numbers");
+                //       entity.HasOne(d => d.PaymentVoucherVoucherNoNavigation)
+                //.WithOne(p => p.PaymentVoucher)
+                //.HasPrincipalKey<VouchersNumbers>(p => p.VouchersNumbersVNo)
+                //.HasForeignKey<PaymentVoucher>(d => d.PaymentVoucherVoucherNo)
+                //.OnDelete(DeleteBehavior.ClientSetNull)
+                //.HasConstraintName("FK_Payment_Voucher_Vouchers_Numbers");
 
 
             });
@@ -5954,66 +5955,66 @@ namespace Inspire.Erp.Infrastructure.Database
 
 
 
-               // entity.Property(e => e.CustomerPurchaseOrderDetailsAmount)
-               //     .HasColumnName("Customer_Purchase_Order_Details_Amount")
-               //     .HasColumnType("numeric(18, 2)");
+                // entity.Property(e => e.CustomerPurchaseOrderDetailsAmount)
+                //     .HasColumnName("Customer_Purchase_Order_Details_Amount")
+                //     .HasColumnType("numeric(18, 2)");
 
-               // entity.Property(e => e.CustomerPurchaseOrderDetailsOrderId)
-               //     .HasColumnName("Customer_Purchase_Order_Details_CPO_ID")
-               //     ;
+                // entity.Property(e => e.CustomerPurchaseOrderDetailsOrderId)
+                //     .HasColumnName("Customer_Purchase_Order_Details_CPO_ID")
+                //     ;
 
-               // entity.Property(e => e.CustomerPurchaseOrderDetailsVourcherNo)
-               //.HasColumnName("Customer_Purchase_Order_Details_Voucher_No")
-               //.HasMaxLength(50)
-               //.IsUnicode(false);
+                // entity.Property(e => e.CustomerPurchaseOrderDetailsVourcherNo)
+                //.HasColumnName("Customer_Purchase_Order_Details_Voucher_No")
+                //.HasMaxLength(50)
+                //.IsUnicode(false);
 
-               // entity.Property(e => e.CustomerPurchaseOrderDetailsDelStatus).HasColumnName("Customer_Purchase_Order_Details_DelStatus");
+                // entity.Property(e => e.CustomerPurchaseOrderDetailsDelStatus).HasColumnName("Customer_Purchase_Order_Details_DelStatus");
 
-               // entity.Property(e => e.CustomerPurchaseOrderDetailsDeliverdQty)
-               //     .HasColumnName("Customer_Purchase_Order_Details_Deliverd_Qty")
-               //     .HasColumnType("numeric(18, 2)");
+                // entity.Property(e => e.CustomerPurchaseOrderDetailsDeliverdQty)
+                //     .HasColumnName("Customer_Purchase_Order_Details_Deliverd_Qty")
+                //     .HasColumnType("numeric(18, 2)");
 
-               // entity.Property(e => e.CustomerPurchaseOrderDetailsDescription)
-               //     .HasColumnName("Customer_Purchase_Order_Details_Description")
-               //     .HasMaxLength(1000)
-               //     .IsUnicode(false);
+                // entity.Property(e => e.CustomerPurchaseOrderDetailsDescription)
+                //     .HasColumnName("Customer_Purchase_Order_Details_Description")
+                //     .HasMaxLength(1000)
+                //     .IsUnicode(false);
 
-               // entity.Property(e => e.CustomerPurchaseOrderDetailsFcAmount)
-               //     .HasColumnName("Customer_Purchase_Order_Details_FC_Amount")
-               //     .HasColumnType("numeric(18, 2)");
+                // entity.Property(e => e.CustomerPurchaseOrderDetailsFcAmount)
+                //     .HasColumnName("Customer_Purchase_Order_Details_FC_Amount")
+                //     .HasColumnType("numeric(18, 2)");
 
-               // entity.Property(e => e.CustomerPurchaseOrderDetailsFocQty)
-               //     .HasColumnName("Customer_Purchase_Order_Details_FOC_Qty")
-               //     .HasColumnType("numeric(18, 2)");
+                // entity.Property(e => e.CustomerPurchaseOrderDetailsFocQty)
+                //     .HasColumnName("Customer_Purchase_Order_Details_FOC_Qty")
+                //     .HasColumnType("numeric(18, 2)");
 
-               // entity.Property(e => e.CustomerPurchaseOrderDetailsFsno).HasColumnName("Customer_Purchase_Order_Details_FSNO");
+                // entity.Property(e => e.CustomerPurchaseOrderDetailsFsno).HasColumnName("Customer_Purchase_Order_Details_FSNO");
 
-               // entity.Property(e => e.CustomerPurchaseOrderDetailsIsEdited).HasColumnName("Customer_Purchase_Order_Details_IsEdited");
+                // entity.Property(e => e.CustomerPurchaseOrderDetailsIsEdited).HasColumnName("Customer_Purchase_Order_Details_IsEdited");
 
-               // entity.Property(e => e.CustomerPurchaseOrderDetailsItemId).HasColumnName("Customer_Purchase_Order_Details_Item_ID");
+                // entity.Property(e => e.CustomerPurchaseOrderDetailsItemId).HasColumnName("Customer_Purchase_Order_Details_Item_ID");
 
-               // entity.Property(e => e.CustomerPurchaseOrderDetailsPodId).HasColumnName("Customer_Purchase_Order_Details_POD_ID");
+                // entity.Property(e => e.CustomerPurchaseOrderDetailsPodId).HasColumnName("Customer_Purchase_Order_Details_POD_ID");
 
-               // entity.Property(e => e.CustomerPurchaseOrderDetailsPodId2).HasColumnName("Customer_Purchase_Order_Details_POD_ID2");
+                // entity.Property(e => e.CustomerPurchaseOrderDetailsPodId2).HasColumnName("Customer_Purchase_Order_Details_POD_ID2");
 
-               // entity.Property(e => e.CustomerPurchaseOrderDetailsQty)
-               //     .HasColumnName("Customer_Purchase_Order_Details_Qty")
-               //     .HasColumnType("numeric(18, 2)");
+                // entity.Property(e => e.CustomerPurchaseOrderDetailsQty)
+                //     .HasColumnName("Customer_Purchase_Order_Details_Qty")
+                //     .HasColumnType("numeric(18, 2)");
 
-               // entity.Property(e => e.CustomerPurchaseOrderDetailsQuotationDetailsId).HasColumnName("Customer_Purchase_Order_Details_Quotation_Details_ID");
+                // entity.Property(e => e.CustomerPurchaseOrderDetailsQuotationDetailsId).HasColumnName("Customer_Purchase_Order_Details_Quotation_Details_ID");
 
-               // entity.Property(e => e.CustomerPurchaseOrderDetailsRemarks)
-               //     .HasColumnName("Customer_Purchase_Order_Details_Remarks")
-               //     .HasMaxLength(750)
-               //     .IsUnicode(false);
+                // entity.Property(e => e.CustomerPurchaseOrderDetailsRemarks)
+                //     .HasColumnName("Customer_Purchase_Order_Details_Remarks")
+                //     .HasMaxLength(750)
+                //     .IsUnicode(false);
 
-               // entity.Property(e => e.CustomerPurchaseOrderDetailsSlno).HasColumnName("Customer_Purchase_Order_Details_SLNo");
+                // entity.Property(e => e.CustomerPurchaseOrderDetailsSlno).HasColumnName("Customer_Purchase_Order_Details_SLNo");
 
-               // entity.Property(e => e.CustomerPurchaseOrderDetailsUnitId).HasColumnName("Customer_Purchase_Order_Details_Unit_ID");
+                // entity.Property(e => e.CustomerPurchaseOrderDetailsUnitId).HasColumnName("Customer_Purchase_Order_Details_Unit_ID");
 
-               // entity.Property(e => e.CustomerPurchaseOrderDetailsUnitPrice)
-               //             .HasColumnName("Customer_Purchase_Order_Details_Unit_Price")
-               //             .HasColumnType("numeric(18, 2)");
+                // entity.Property(e => e.CustomerPurchaseOrderDetailsUnitPrice)
+                //             .HasColumnName("Customer_Purchase_Order_Details_Unit_Price")
+                //             .HasColumnType("numeric(18, 2)");
             });
 
 
@@ -6172,7 +6173,7 @@ namespace Inspire.Erp.Infrastructure.Database
                       .HasColumnName("Customer_Quotation_Revise_Quotation");
 
                 entity.Property(e => e.CustomerQuotationProjectRef)
-                      .HasColumnName("Customer_Quotation_ProjectRef"); 
+                      .HasColumnName("Customer_Quotation_ProjectRef");
 
 
                 entity.Property(e => e.CustomerQuotationProjectN)
@@ -6264,9 +6265,9 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.CustomerQuotationDetailsVat)
                     .HasColumnName("Customer_Quotation_Details_VAT")
-                    .HasColumnType("numeric(18, 2)");  
-                
-                
+                    .HasColumnType("numeric(18, 2)");
+
+
                 entity.Property(e => e.CustomerQuotationDetailsGrossProfit)
                     .HasColumnName("Customer_Quotation_Details_Gross_Profit")
                     .HasColumnType("numeric(18, 2)");
@@ -10586,7 +10587,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<JournalVoucher>(entity =>
             {
-                entity.HasKey(x=>x.JournalVoucherId);
+                entity.HasKey(x => x.JournalVoucherId);
 
                 entity.ToTable("Journal_Voucher");
 
@@ -10630,7 +10631,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.JournalVoucherSno)
                     .HasColumnName("Journal_Voucher_SNO");
-                    //.ValueGeneratedOnAdd();
+                //.ValueGeneratedOnAdd();
 
                 entity.Property(e => e.JournalVoucherStatus)
                     .HasColumnName("Journal_Voucher_Status")
@@ -12406,7 +12407,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<OptionsMaster>(entity =>
             {
-                entity.HasKey(x=>x.OptionsMasterId);
+                entity.HasKey(x => x.OptionsMasterId);
 
                 entity.ToTable("Options_Master");
 
@@ -13446,13 +13447,13 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<PurOrderRegister>(entity =>
             {
-               // entity.HasNoKey();
+                // entity.HasNoKey();
 
                 entity.ToTable("PurOrder_Register");
 
                 entity.HasKey(e => e.PurOrderRegisterId);
 
-              
+
 
                 entity.Property(e => e.PurOrderRegisterAmount).HasColumnName("PurOrder_Register_Amount");
 
@@ -14171,7 +14172,7 @@ namespace Inspire.Erp.Infrastructure.Database
                     .IsUnicode(false);
             });
 
-            
+
 
             modelBuilder.Entity<PurchaseOrderDetails>(entity =>
             {
@@ -14250,7 +14251,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.PurchaseOrderId).HasColumnType("numeric(18, 0)");
 
 
-    
+
 
                 // entity.HasOne(d => d.PurchaseOrderDetailsNoNavigation)
                 //     .WithMany(p => p.PurchaseOrderDetails)
@@ -14278,7 +14279,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             });
 
-           
+
             modelBuilder.Entity<PurchaseQuotation>(entity =>
             {
                 entity.HasIndex(e => e.PurchaseQuotationNo)
@@ -17782,7 +17783,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.PurchaseVoucherDetailsQtndId).HasColumnName("Purchase_Voucher_Details_QTND_ID");
                 entity.Property(e => e.PurchaseVoucherDetailsDelStatus).HasColumnName("Purchase_Voucher_Details_DelStatus");
             });
-            
+
 
             ////////////////==============================================================================
 
@@ -21161,7 +21162,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<StockTransfer>(entity =>
             {
-                entity.HasKey(e => e.StockTransferId) ;
+                entity.HasKey(e => e.StockTransferId);
 
                 entity.ToTable("Stock_Transfer");
 
@@ -22889,7 +22890,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<TrialBalance>(entity =>
             {
-                entity.HasKey(e=>e.TrialBalanceID);
+                entity.HasKey(e => e.TrialBalanceID);
 
                 entity.ToTable("Trial_Balance");
                 entity.Property(e => e.TrialBalanceID).HasColumnName("Trial_Balance_ID");
@@ -24184,6 +24185,26 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.Task).HasMaxLength(50);
             });
 
+
+            modelBuilder.Entity<OrderApprovals>(e =>
+           {
+               e.ToTable("Order_Approvals");
+               e.HasKey(x => x.Id);
+               e.Property(x => x.Id).ValueGeneratedOnAdd().HasColumnName("Order_Approvals_Id");
+               e.Property(x => x.VoucherNo).HasColumnName("Order_Approvals_VoucherNo");
+               e.Property(x => x.VoucherType).HasColumnName("Order_Approvals_VoucherType");
+               e.Property(x => x.ApprovelDate).HasColumnName("Order_Approvals_ApprovelDate");
+               e.Property(x => x.ApprovelTime).HasColumnName("Order_Approvals_ApprovelTime");
+               e.Property(x => x.ApprovedBy).HasColumnName("Order_Approvals_ApprovedBy");
+               e.Property(x => x.IsAllowed).HasColumnName("Order_Approvals_IsAllowed");
+               e.Property(x => x.Level1).HasColumnName("Order_Approvals_Level1");
+               e.Property(x => x.Level2).HasColumnName("Order_Approvals_Level2");
+               e.Property(x => x.Level3).HasColumnName("Order_Approvals_Level3");
+               e.Property(x => x.UserId).HasColumnName("Order_Approvals_UserId");
+               e.Property(x => x.Remarks).HasColumnName("Order_Approvals_Remarks");
+               e.Property(x => x.CreatedDate).HasColumnName("Order_Approvals_CreatedDate");
+               e.Property(x => x.CreatedBy).HasColumnName("Order_Approvals_CreatedBy");
+           });
 
 
             OnModelCreatingPartial(modelBuilder);
