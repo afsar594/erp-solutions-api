@@ -10,6 +10,7 @@ namespace Inspire.Erp.Domain.Models.Procurement.PurchaseOrderTracking
         public DateTime? PODate { get; set; }
         public string Supplier { get; set; }
         public string Currency { get; set; }
+        public decimal? CurrencyRate { get; set; }
         public decimal? Amount { get; set; }
         public decimal AmountAED { get; set; }
         public decimal? DiscountPerc { get; set; }

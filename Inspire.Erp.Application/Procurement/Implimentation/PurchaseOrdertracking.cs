@@ -21,19 +21,17 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
         private IRepository<Suppliers> _supliers;
         private IRepository<JobMaster> _jobMaster;
         private IRepository<ItemMaster> _itemMaster;
-        private IRepository<GrnPoDetails> _grnPODetails;
         private IRepository<CurrencyMaster> _curreny;
         private IRepository<StockRegister> _stock;
         private IRepository<PurOrderRegister> _poRegister;
 
-        public PurchaseOrdertracking(IRepository<PurchaseOrder> purchaseOrder, IRepository<PurchaseOrderDetails> poDetails, IRepository<Suppliers> supliers, IRepository<JobMaster> jobMaster, IRepository<ItemMaster> itemMaster, IRepository<GrnPoDetails> grnPODetails, IRepository<CurrencyMaster> curreny, IRepository<StockRegister> stock, IRepository<PurOrderRegister> poRegister)
+        public PurchaseOrdertracking(IRepository<PurchaseOrder> purchaseOrder, IRepository<PurchaseOrderDetails> poDetails, IRepository<Suppliers> supliers, IRepository<JobMaster> jobMaster, IRepository<ItemMaster> itemMaster, IRepository<CurrencyMaster> curreny, IRepository<StockRegister> stock, IRepository<PurOrderRegister> poRegister)
         {
             _purchaseOrder = purchaseOrder;
             _poDetails = poDetails;
             _supliers = supliers;
             _jobMaster = jobMaster;
             _itemMaster = itemMaster;
-            _grnPODetails = grnPODetails;
             _curreny = curreny;
             _stock = stock;
             _poRegister = poRegister;
@@ -69,8 +67,10 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
                 {
                     filteredValue += $" and po.PurchaseOrderPono = {model.ItemId} ";
                 }
-
-
+                if (!string.IsNullOrEmpty(model.Status))
+                {
+                    filteredValue += $" and po.PurchaseOrderStatus = {model.Status} ";
+                }
                 var result = await (from po in _purchaseOrder.GetAsQueryable().Where($"1 == 1 {filteredValue}")
                                     join sp in _supliers.GetAsQueryable() on po.PurchaseOrderSupInvNo equals sp.SuppliersInsId.ToString() into spGroup
                                     from sp in spGroup.DefaultIfEmpty()
@@ -128,20 +128,169 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
             }
         }
 
-        public async Task<Response<List<POTrackingSummary>>> GetPurchaseOrderTrackingSummary(ReportFilter filter)
+
+        public async Task<Response<List<POTrackingSummary>>> GetPurchaseOrderTrackingSummary(ReportFilter model)
         {
             try
             {
                 List<POTrackingSummary> data = new List<POTrackingSummary>();
 
-                    return new Response<List<POTrackingSummary>>()
+                #region Update Existing Record for Delivered Qty If Any
+                //updating existing record
+                var query = from a in _poRegister.GetAsQueryable()
+                            group a by new { a.PurOrderRegisterOrderNo, a.PurOrderRegisterMaterialId, a.PurOrderRegisterDetailId } into g
+                            select new
+                            {
+                                OrderNo = g.Key.PurOrderRegisterOrderNo,
+                                Mat_id = g.Key.PurOrderRegisterMaterialId,
+                                DetailId = g.Key.PurOrderRegisterDetailId,
+                                DelQty = g.Sum(x => x.PurOrderRegisterQtyIssued ?? 0)
+                            };
+
+                foreach (var item in query.ToList())
+                {
+                    var purchaseOrderDetail = _poDetails
+                        .GetAsQueryable()
+                        .FirstOrDefault(pod => pod.PurchaseOrderDetailsId == item.DetailId && pod.PurchaseOrderDetailsMatId == item.Mat_id);
+
+                    if (purchaseOrderDetail != null)
                     {
-                        Valid = true,
-                        Message = "Data Found",
-                        Result = data
-                    };
+                        purchaseOrderDetail.PurchaseOrderDetailsDelQty = item.DelQty;
+                        _poDetails.Update(purchaseOrderDetail);
+                    }
+                }
+                #endregion
+
+                #region Update Existing Record for Delivered Qty If NULL
+                //UPDATE PurchaseOrderDetails SET DelQty = 0 WHERE DelQty IS NULL
+                var nullQty = from a in _poDetails.GetAsQueryable().Where(x => x.PurchaseOrderDetailsDelQty == null) select a;
+                foreach (var item in nullQty.ToList())
+                {
+                    item.PurchaseOrderDetailsDelQty = 0;
+                    _poDetails.Update(item);
+                }
+                #endregion
+
+                #region UPDATE PurchaseOrder SET POStatus=NULL
+                var poStatusNull = from a in _purchaseOrder.GetAsQueryable() select a;
+                foreach (var item in poStatusNull.ToList())
+                {
+                    item.PurchaseOrderStatus = null;
+                    _purchaseOrder.Update(item);
+                }
+                #endregion
+
+                #region update PurchaseOrder SET POStatus='P' WHERE ID IN (SELECT poid from PurchaseOrderDetails WHERE DelQty=0 )
+                var poIds = from a in _poDetails.GetAsQueryable().Where(x => x.PurchaseOrderDetailsDelQty == 0) select a;
+                foreach (var item in poIds.ToList())
+                {
+                    //var po = from p in _purchaseOrder.GetAsQueryable().Where(x => x.PurchaseOrderId == item.PurchaseOrderId) select p;
+                    var po = _purchaseOrder.GetAsQueryable().FirstOrDefault(x => x.PurchaseOrderId == item.PurchaseOrderId);
+                    po.PurchaseOrderStatus = "P";
+                    _purchaseOrder.Update(po);
+                }
+                #endregion
+
+                #region UPDATE PurchaseOrder SET POStatus='R' FROM PurchaseOrder INNER JOIN (SELECT SUM(DelQty) AS DelQty,SUM(Quantity) AS Quantity,POID FROM PurchaseOrderDetails GROUP BY POID) AS T ON PurchaseOrder.ID=T.POID WHERE t.DelQty>0 AND t.DelQty<t.Quantity
+                var qtySummaries = from po in _purchaseOrder.GetAsQueryable() // Assuming GetAll() returns IQueryable<PurchaseOrder>
+                                   join pod in _poDetails.GetAll() on (int)po.PurchaseOrderId equals pod.PurchaseOrderDetailsPoId
+                                   group pod by pod.PurchaseOrderDetailsPoId into grouped
+                                   where grouped.Sum(g => g.PurchaseOrderDetailsDelQty) > 0 && grouped.Sum(g => g.PurchaseOrderDetailsDelQty) < grouped.Sum(g => g.PurchaseOrderDetailsQuantity)
+                                   select new { POID = grouped.Key };
+
+                foreach (var item in qtySummaries.ToList())
+                {
+                    var po = _purchaseOrder.GetAsQueryable().FirstOrDefault(x => x.PurchaseOrderId == item.POID);
+                    if (po != null)
+                    {
+                        po.PurchaseOrderDelivStatus = "R";
+                        _purchaseOrder.Update(po);
+                    }
+                }
+
+
+                #endregion
+
+                #region UPDATE PurchaseOrder SET POStatus='L' WHERE Status='CLOSE'
+                var closePOs = _purchaseOrder.GetAsQueryable().Where(x => x.PurchaseOrderStatus.ToUpper().Equals("Close".ToUpper()));
+                foreach (var item in closePOs.ToList())
+                {
+                    if (item != null)
+                    {
+                        item.PurchaseOrderStatus = "L";
+                        _purchaseOrder.Update(item);
+                    }
+                }
+                #endregion
+
+                #region UPDATE PurchaseOrder SET POStatus='C' WHERE POStatus IS NULL
+                var nullPOs = _purchaseOrder.GetAsQueryable().Where(x => x.PurchaseOrderStatus == null);
+                foreach (var item in nullPOs.ToList())
+                {
+                    if (item == null) continue;
+                    item.PurchaseOrderStatus = "C";
+                    _purchaseOrder.Update(item);
+                }
+                #endregion
+
+                string filteredValue = string.Empty;
+                if (!string.IsNullOrEmpty(model.fromDate) && !string.IsNullOrEmpty(model.toDate))
+                {
+                    filteredValue += $" and (po.PurchaseOrderDate >= {model.fromDate} and  po.PurchaseOrderDate <= {model.toDate} )";
+                }
+                if (model.SupplierId > 0)
+                {
+                    filteredValue += $" and po.PurchaseOrderSupInvNo = {model.SupplierId} ";
+                }
+                if (model.JobId > 0)
+                {
+                    filteredValue += $" and po.PurchaseOrderJobId = {model.JobId} ";
+                }
+                if (model.LocationId > 0)
+                {
+                    filteredValue += $" and po.PurchaseOrderLocationId = {model.LocationId} ";
+                }
+                if (!string.IsNullOrEmpty(model.PONO) && model.PONO.ToUpper() != "ALL".ToUpper())
+                {
+                    filteredValue += $" and po.PurchaseOrderPono = {model.ItemId} ";
+                }
+                if (!string.IsNullOrEmpty(model.Status))
+                {
+                    filteredValue += $" and po.PurchaseOrderStatus = {model.Status} ";
+                }
+
+
+
+                var detailsQuery = await (from po in _purchaseOrder.GetAsQueryable().Where($"1==1 { filteredValue }")
+                                          join sp in _supliers.GetAsQueryable() on po.PurchaseOrderSupInvNo equals sp.SuppliersInsId.ToString() into spGroup
+                                          from sp in spGroup.DefaultIfEmpty()
+                                          join cm in _curreny.GetAsQueryable() on po.PurchaseOrderCurrencyId equals cm.CurrencyMasterCurrencyId into cmGroup
+                                          from cm in cmGroup.DefaultIfEmpty()
+                                          join jm in _jobMaster.GetAsQueryable() on po.PurchaseOrderJobId equals jm.JobMasterJobId into jmGroup
+                                          from jm in jmGroup.DefaultIfEmpty()
+                                          select new POTrackingSummary()
+                                          {
+                                              PONO = po.PurchaseOrderPono,
+                                              PODate = po.PurchaseOrderDate,
+                                              Supplier = sp != null ? sp.SuppliersInsName : "",
+                                              Amount = po.PurchaseOrderNetAmount,
+                                              POStatus = po.PurchaseOrderStatus,
+                                              DeliveryFrom = po.PurchaseOrderDelivFromDate,
+                                              DeliveryTo = po.PurchaseOrderDelivToDate,
+                                              Status = po.PurchaseOrderStatus,
+                                              Currency = cm != null ? cm.CurrencyMasterCurrencyName : "",
+                                              JobName = jm != null ? jm.JobMasterJobName : "",
+                                              JobNo = jm != null ? jm.JobMasterJobNo : "",
+                                              CurrencyRate = cm != null ? (decimal?)cm.CurrencyMasterCurrencyRate : 1
+                                          }).OrderBy(x => x.PODate).ThenBy(x => x.PONO).ToDynamicListAsync();
+                foreach (var item in detailsQuery)
+                {
+                    data.Add(item);
+                }
+
+                return Response<List<POTrackingSummary>>.Success(data, "Data Found");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Response<List<POTrackingSummary>>.Fail(new List<POTrackingSummary>(), ex.Message);
             }

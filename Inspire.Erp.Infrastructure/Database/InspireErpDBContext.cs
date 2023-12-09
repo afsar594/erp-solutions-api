@@ -7113,6 +7113,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.GeneralPurchaseOrderDetailsPreqId).HasColumnName("General_Purchase_Order_Details_PReq_ID");
 
                 entity.Property(e => e.GeneralPurchaseOrderDetailsQuantity).HasColumnName("General_Purchase_Order_Details_Quantity");
+                entity.Property(e => e.GeneralPurchaseOrderDetailsQuantity).HasColumnName("Purchase_Order_Details_DelQty");
 
                 entity.Property(e => e.GeneralPurchaseOrderDetailsRate).HasColumnName("General_Purchase_Order_Details_Rate");
 
@@ -14220,6 +14221,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.PurchaseOrderDetailsQtndId).HasColumnName("PurchaseOrderDetailsQTND_Id");
 
                 entity.Property(e => e.PurchaseOrderDetailsQuantity).HasColumnType("numeric(18, 4)");
+                entity.Property(e => e.PurchaseOrderDetailsDelQty).HasColumnName("Purchase_Order_Details_DelQty");
 
                 entity.Property(e => e.PurchaseOrderDetailsRate).HasColumnType("numeric(18, 4)");
 

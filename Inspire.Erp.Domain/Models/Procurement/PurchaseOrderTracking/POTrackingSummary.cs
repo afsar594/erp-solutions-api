@@ -8,5 +8,6 @@ namespace Inspire.Erp.Domain.Models.Procurement.PurchaseOrderTracking
     {
         public DateTime? DeliveryFrom { get; set; }
         public DateTime? DeliveryTo { get; set; }
+        public string Status { get; set; }
     }
 }
