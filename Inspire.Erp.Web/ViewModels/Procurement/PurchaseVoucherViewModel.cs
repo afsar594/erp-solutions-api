@@ -69,7 +69,7 @@ namespace Inspire.Erp.Web.ViewModels.Procurement
         //////public List<StockRegisterViewModel> StockRegister { get; set; }
 
 
-        public int PurchaseVoucherPurId { get; set; }
+        public long PurchaseVoucherPurId { get; set; }
         public string PurchaseVoucherVoucherNo { get; set; }
         public int? PurchaseVoucherPurchaseIdNum { get; set; }
         public string PurchaseVoucherPurchaseRef { get; set; }

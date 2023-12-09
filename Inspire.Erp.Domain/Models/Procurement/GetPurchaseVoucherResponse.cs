@@ -6,7 +6,7 @@ namespace Inspire.Erp.Domain.Modals.Procurement
 {
    public class GetPurchaseVoucherResponse
     {
-        public int PurchaseVoucherPurId { get; set; }
+        public long PurchaseVoucherPurId { get; set; }
         // public string PurchaseVoucherPurchaseId { get; set; }
         public string PurchaseVoucherVoucherNo { get; set; }
         public int? PurchaseVoucherPurchaseIdNum { get; set; }

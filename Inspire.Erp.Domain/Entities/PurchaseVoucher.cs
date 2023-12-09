@@ -13,7 +13,7 @@ namespace Inspire.Erp.Domain.Entities
             AccountsTransactions = new HashSet<AccountsTransactions>();
             UserTrackingData = new HashSet<UserTrackingDisplay>();
         }
-        public int PurchaseVoucherPurID { get; set; }
+        public long PurchaseVoucherPurID { get; set; }
         public string PurchaseVoucherVoucherNo { get; set; }
         public int? PurchaseVoucherPurchaseIDNum { get; set; }
         public string? PurchaseVoucherPurchaseRef { get; set; }

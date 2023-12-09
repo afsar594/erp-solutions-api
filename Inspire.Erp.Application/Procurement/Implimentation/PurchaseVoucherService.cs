@@ -372,7 +372,7 @@ namespace Inspire.Erp.Application.Master.Implementations
 
                 purchaseVoucher.PurchaseVoucherDetails = purchaseVoucher.PurchaseVoucherDetails.Select((x) =>
                 {
-                    x.PurchaseVoucherDetailsPrId = purchaseVoucher.PurchaseVoucherPurID;
+                    x.PurchaseVoucherDetailsPrId = Convert.ToInt32(purchaseVoucher.PurchaseVoucherPurID);
                     x.PurchaseVoucherDetailsVoucherNo = purchaseVoucher.PurchaseVoucherVoucherNo;
                     x.PurchaseVoucherDetailsPurcahseDetailsId = 0;
                     return x;
