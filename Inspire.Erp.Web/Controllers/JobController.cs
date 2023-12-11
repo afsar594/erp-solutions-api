@@ -68,7 +68,7 @@ namespace Inspire.Erp.Web.Controllers
             var param3 = _mapper.Map<List<JobMasterJobDetails>>(jobMaster.JobMasterJobDetails);
             var param4 = _mapper.Map<List<JobMasterJobWiseBankGuarantees>>(jobMaster.JobMasterJobWiseBankGuarantees);
 
-           var respone = jobMasterService.InsertJobMaster(param1, param2, param3,param4);
+            var respone = jobMasterService.InsertJobMaster(param1, param2, param3,param4);
 
             apiResponse = new ApiResponse<JobMaster>
             {
