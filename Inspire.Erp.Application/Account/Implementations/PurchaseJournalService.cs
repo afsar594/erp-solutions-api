@@ -21,16 +21,21 @@ namespace Inspire.Erp.Application.Account.Implementations
         private IRepository<ProgramSettings> _programsettingsRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
         private readonly ILogger<PaymentVoucherService> _logger;
+        private readonly IRepository<UserTracking> _UserTracking;
+
+
 
         public PurchaseJournalService(IRepository<AccountsTransactions> accountTransactionRepository, IRepository<ProgramSettings> programsettingsRepository,
             IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
-            IRepository<PurchaseJournal> purchaseJournalRepository, IRepository<PurchaseJournalDetails> purchaseJournalDetailsRepository)
+            IRepository<PurchaseJournal> purchaseJournalRepository, IRepository<PurchaseJournalDetails> purchaseJournalDetailsRepository
+            , IRepository<UserTracking> UserTracking)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._purchaseJournalRepository = purchaseJournalRepository;
             this._purchaseJournalDetailsRepository = purchaseJournalDetailsRepository;
             _programsettingsRepository = programsettingsRepository;
             _voucherNumbersRepository = voucherNumbers;
+            _UserTracking = UserTracking;
 
         }
         //public PurchaseJournal InsertPurchaseJournal(PurchaseJournal purchaseJournal,
@@ -93,33 +98,13 @@ namespace Inspire.Erp.Application.Account.Implementations
 
         //}
 
-        public PurchaseJournalModel UpdatePurchaseJournal(PurchaseJournal purchaseJournal, List<AccountsTransactions> accountsTransactions, List<PurchaseJournalDetails> purchaseJournalDetails)
+        public PurchaseJournal UpdatePurchaseJournal(PurchaseJournal purchaseJournal, List<AccountsTransactions> accountsTransactions, List<PurchaseJournalDetails> purchaseJournalDetails)
         {
 
             try
             {
                 _purchaseJournalRepository.BeginTransaction();
-
-
-                purchaseJournal.PurchaseJournalDetails = purchaseJournalDetails.Select((k) =>
-                {
-                    //if (k.PurchaseJournalDetailsId == 0)
-                    //{
-                    k.PurchaseJournalId = purchaseJournal.PurchaseJournalId;
-                    k.PurchaseJournalDetailsVno = purchaseJournal.PurchaseJournalVno;
-                    //k.PurchaseJournalDetailsId = 0;
-                    //}
-
-                    return k;
-                }).ToList();
-
-                _purchaseJournalRepository.Update(purchaseJournal);
-
-
-
-
-
-                //_purchaseJournalRepository.Update(purchaseJournal);
+              
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     if (k.AccountsTransactionsTransSno == 0)
@@ -130,22 +115,19 @@ namespace Inspire.Erp.Application.Account.Implementations
 
                     return k;
                 }).ToList();
+
                 _accountTransactionRepository.UpdateList(accountsTransactions);
-
-
-                //purchaseJournalDetails = purchaseJournalDetails.Select((k) =>
-                //{
-                //    if (k.PurchaseJournalId == 0)
-                //    {
-                //        k.PurchaseJournalId = purchaseJournal.PurchaseJournalId;
-                //        k.PurchaseJournalDetailsVno = purchaseJournal.PurchaseJournalVno;
-                //    }
-
-                //    return k;
-                //}).ToList();
-
-
-                //_purchaseJournalDetailsRepository.UpdateList(purchaseJournalDetails);
+                _purchaseJournalDetailsRepository.UpdateList(purchaseJournalDetails);
+                _purchaseJournalRepository.Update(purchaseJournal);
+              
+                UserTracking trackingData = new UserTracking();
+                trackingData.UserTrackingUserUserId = 1;
+                trackingData.UserTrackingUserVpAction = "Update";
+                trackingData.UserTrackingUserVpNo = purchaseJournal.PurchaseJournalVno;
+                trackingData.UserTrackingUserChangeDt = DateTime.Now;
+                trackingData.UserTrackingUserChangeTime = DateTime.Now;
+                trackingData.UserTrackingUserVpType = "PURCHASEVOUCHER";
+                _UserTracking.Insert(trackingData);
                 _purchaseJournalRepository.TransactionCommit();
 
             }
@@ -187,7 +169,14 @@ namespace Inspire.Erp.Application.Account.Implementations
                 var vchrnumer = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == purchaseJournal.PurchaseJournalVno).FirstOrDefault();
 
                 _voucherNumbersRepository.Update(vchrnumer);
-
+                UserTracking trackingData = new UserTracking();
+                trackingData.UserTrackingUserUserId = 1;
+                trackingData.UserTrackingUserVpAction = "Delete";
+                trackingData.UserTrackingUserVpNo = purchaseJournal.PurchaseJournalVno;
+                trackingData.UserTrackingUserChangeDt = DateTime.Now;
+                trackingData.UserTrackingUserChangeTime = DateTime.Now;
+                trackingData.UserTrackingUserVpType = "PURCHASEVOUCHER";
+                _UserTracking.Insert(trackingData);
                 _purchaseJournalRepository.TransactionCommit();
                 i = 1;
             }
@@ -202,7 +191,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             return i;
 
         }
-        public PurchaseJournalModel InsertPurchaseJournal(PurchaseJournal purchaseJournal, List<AccountsTransactions> accountsTransactions, List<PurchaseJournalDetails> purchaseJournalDetails)
+        public PurchaseJournal InsertPurchaseJournal(PurchaseJournal purchaseJournal, List<AccountsTransactions> accountsTransactions, List<PurchaseJournalDetails> purchaseJournalDetails)
         {
             try
             {
@@ -219,21 +208,12 @@ namespace Inspire.Erp.Application.Account.Implementations
 
                 purchaseJournal.PurchaseJournalDetails = purchaseJournal.PurchaseJournalDetails.AsEnumerable().Where(k => k != null).Select(x =>
                 {
+                    x.PurchaseJournalId = maxcount; 
                     x.PurchaseJournalDetailsVno = purchaseJournalNumber;
                     return x;
                 }).ToList();
-
+                _purchaseJournalDetailsRepository.InsertList(purchaseJournalDetails);
                 _purchaseJournalRepository.Insert(purchaseJournal);
-
-
-
-                ////purchaseJournalDetails = purchaseJournalDetails.Select((x) =>
-                ////{
-                ////    x.PurchaseJournalId = maxcount;
-                ////    x.PurchaseJournalDetailsVno = purchaseJournalNumber;
-                ////    return x;
-                ////}).ToList();
-                ////_purchaseJournalDetailsRepository.InsertList(purchaseJournalDetails);
 
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
@@ -243,7 +223,14 @@ namespace Inspire.Erp.Application.Account.Implementations
                     return k;
                 }).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
-               
+                UserTracking trackingData = new UserTracking();
+                trackingData.UserTrackingUserUserId = 1;
+                trackingData.UserTrackingUserVpAction = "Insert";
+                trackingData.UserTrackingUserVpNo = purchaseJournal.PurchaseJournalVno;
+                trackingData.UserTrackingUserChangeDt = DateTime.Now;
+                trackingData.UserTrackingUserChangeTime = DateTime.Now;
+                trackingData.UserTrackingUserVpType = "PURCHASEVOUCHER";
+                _UserTracking.Insert(trackingData);
 
                 _purchaseJournalRepository.TransactionCommit();
                 return this.GetSavedPurchaseJournalDetails(purchaseJournal.PurchaseJournalVno);
@@ -267,18 +254,14 @@ namespace Inspire.Erp.Application.Account.Implementations
             IEnumerable<PurchaseJournal> purchaseJournal_ALL = _purchaseJournalRepository.GetAll().Where(k => k.PurchaseJournalDelStatus == false || k.PurchaseJournalDelStatus == null);
             return purchaseJournal_ALL;
         }
-        public PurchaseJournalModel GetSavedPurchaseJournalDetails(string pvno)
+        public PurchaseJournal GetSavedPurchaseJournalDetails(string pvno)
         {
-            PurchaseJournalModel purchaseJournalModel = new PurchaseJournalModel();
-            //purchaseJournalModel.purchaseJournal = _purchaseJournalRepository.GetAsQueryable().Where(k => k.PurchaseJournalVno == pvno && k.PurchaseJournalDelStatus == false).SingleOrDefault();
-
-            purchaseJournalModel.purchaseJournal = _purchaseJournalRepository.GetAsQueryable().Where(k => k.PurchaseJournalVno == pvno).SingleOrDefault();
-
-
-
-            purchaseJournalModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.PurchaseJournal_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
-            purchaseJournalModel.purchaseJournalDetails = _purchaseJournalDetailsRepository.GetAsQueryable().Where(x => x.PurchaseJournalDetailsVno == pvno && (x.PurchaseJournalDetailsDelStatus == false || x.PurchaseJournalDetailsDelStatus == null)).ToList();
-            return purchaseJournalModel;
+            PurchaseJournal purchaseJournal = new PurchaseJournal();
+         
+            purchaseJournal = _purchaseJournalRepository.GetAsQueryable().Where(k => k.PurchaseJournalVno == pvno).SingleOrDefault();
+            purchaseJournal.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.PurchaseJournal_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
+            purchaseJournal.PurchaseJournalDetails = _purchaseJournalDetailsRepository.GetAsQueryable().Where(x => x.PurchaseJournalDetailsVno == pvno && (x.PurchaseJournalDetailsDelStatus == false || x.PurchaseJournalDetailsDelStatus == null)).ToList();
+            return purchaseJournal;
 
 
         }
@@ -288,21 +271,13 @@ namespace Inspire.Erp.Application.Account.Implementations
             try
             {
 
-
-
-
-
-
                 var prefix = this._programsettingsRepository.GetAsQueryable().Where(k => k.ProgramSettingsKeyValue == Prefix.PurchaseJournal_Prefix).FirstOrDefault().ProgramSettingsTextValue;
                 int vnoMaxVal = Convert.ToInt32(_voucherNumbersRepository.GetAsQueryable()
                                                         .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == VoucherType.PurchaseJournal_TYPE)
                                                         .DefaultIfEmpty()
                                                         .Max(o => o == null ? 0 : o.VouchersNumbersVNoNu)) + 1;
-
-
                 //var prefix = "CN";
                 //int vnoMaxVal = 1;
-
 
                 VouchersNumbers vouchersNumbers = new VouchersNumbers
                 {
