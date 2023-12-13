@@ -18,6 +18,7 @@ namespace Inspire.Erp.Domain.Entities
         public DateTime? PurchaseOrderDetailsManfDate { get; set; }
         public DateTime? PurchaseOrderDetailsExpDate { get; set; }
         public decimal? PurchaseOrderDetailsQuantity { get; set; }
+        public decimal? PurchaseOrderDetailsDelQty { get; set; }
         public decimal? PurchaseOrderDetailsRate { get; set; }
         public decimal? PurchaseOrderDetailsGrossAmount { get; set; }
         public decimal? PurchaseOrderDetailsDiscAmount { get; set; }

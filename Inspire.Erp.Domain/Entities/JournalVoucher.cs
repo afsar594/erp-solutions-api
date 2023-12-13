@@ -49,10 +49,14 @@ namespace Inspire.Erp.Domain.Entities
         [NotMapped]
         public List<AccountsTransactions> AccountsTransactions { get; set; }
         public int JournalVoucherSno { get; set; }
-        public int? JournalVoucherId { get; set; }
+        public int JournalVoucherId { get; set; }
         public string JournalVoucherVrefNo { get; set; }
         public DateTime? JournalVoucherDate { get; set; }
         public double? JournalVoucherAmount { get; set; }
+        public decimal? JournalVoucherDrAmount { get; set; }
+        public decimal? JournalVoucherFcDrAmount { get; set; }
+        public decimal? JournalVoucherCrAmount { get; set; }
+        public decimal? JournalVoucherFcCrAmount { get; set; }
         public string JournalVoucherNarration { get; set; }
         public int? JournalVoucherFsno { get; set; }
         public string JournalVoucherStatus { get; set; }

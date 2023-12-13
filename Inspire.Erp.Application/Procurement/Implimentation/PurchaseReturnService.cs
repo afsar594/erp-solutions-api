@@ -240,15 +240,15 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     PurchaseVoucherActualAmount = x.PurchaseVoucherActualAmount,
                     PurchaseVoucherLpoNo = x.PurchaseVoucherLPONo,
                     PurchaseVoucherGrDate = x.PurchaseVoucherGRDate,
-                    PurchaseVoucherGrDateString= x.PurchaseVoucherGRDate != null?x.PurchaseVoucherGRDate.Value.ToString("dd-MM-yyyy"):"",
-                    PurchaseVoucherVoucherNo=x.PurchaseVoucherVoucherNo,
-                    PurchaseVoucherDescription=x.PurchaseVoucherDescription,
-                    PurchaseVoucherCashSupplierName=x.PurchaseVoucherCashSupplierName,
-                    PurchaseVoucherNetAmount=x.PurchaseVoucherNetAmount,
-                    PurchaseVoucherPurchaseType=x.PurchaseVoucherPurchaseType,
-                    PurchaseVoucherGrNo=x.PurchaseVoucherGRNo,
-                    PurchaseVoucherPurId=x.PurchaseVoucherPurID,
-                    
+                    PurchaseVoucherGrDateString = x.PurchaseVoucherGRDate != null ? x.PurchaseVoucherGRDate.Value.ToString("dd-MM-yyyy") : "",
+                    PurchaseVoucherVoucherNo = x.PurchaseVoucherVoucherNo,
+                    PurchaseVoucherDescription = x.PurchaseVoucherDescription,
+                    PurchaseVoucherCashSupplierName = x.PurchaseVoucherCashSupplierName,
+                    PurchaseVoucherNetAmount = x.PurchaseVoucherNetAmount,
+                    PurchaseVoucherPurchaseType = x.PurchaseVoucherPurchaseType,
+                    PurchaseVoucherGrNo = x.PurchaseVoucherGRNo,
+                    PurchaseVoucherPurId = (int)x.PurchaseVoucherPurID,
+
                 }).ToList());
                 var gridResponse = new GridWrapperResponse<List<GetPurchaseVoucherResponse>>();
                 gridResponse.Data = response;
@@ -270,11 +270,11 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     model.PurchaseReturnVoucherGrno = orders.PurchaseVoucherVoucherNo;
                 model.PurchaseReturnVoucherVoucherDate = orders.PurchaseVoucherGRDate;
                     model.PurchaseReturnVoucherVoucherType = orders.PurchaseVoucherPurchaseType;
-                    model.PurchaseReturnVoucherLocationId = orders.PurchaseVoucherLocationId;
+                    model.PurchaseReturnVoucherLocationId = orders.PurchaseVoucherLocationID;
                     //model.PurchaseReturnVoucherSpId = orders.PurchaseVoucherSPID;
                     model.PurchaseReturnVoucherSpId = orders.PurchaseVoucherSPID;
                     model.PurchaseReturnVoucherNarration = orders.PurchaseVoucherDescription;
-                    model.PurchaseReturnVoucherVatNo = orders.PurchaseVoucherVatNo;
+                    model.PurchaseReturnVoucherVatNo = orders.PurchaseVoucherVATNo;
                     model.PurchaseReturnVoucherSupInvNo = orders.PurchaseVoucherSupplyInvoiceNo;
                 model.PurchaseReturnVoucherDetails = new List<PurchaseReturnVoucherDetailResponse>();
                 var purchaseReturnVoucherDetails = await _purchasevoucherDetail.GetAsQueryable()

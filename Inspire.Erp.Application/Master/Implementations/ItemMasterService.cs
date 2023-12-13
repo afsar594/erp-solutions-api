@@ -85,6 +85,7 @@ namespace Inspire.Erp.Application.Master
             bool valid = false;
             try
             {
+                
                 itemrepository.Update(itemMaster);
                 valid = true;
                 return itemMaster;
@@ -93,8 +94,8 @@ namespace Inspire.Erp.Application.Master
             catch (Exception ex)
             {
                 valid = false;
-                throw ex;
-
+                 throw ex;
+               // return itemMaster;
             }
             finally
             {
@@ -294,6 +295,11 @@ namespace Inspire.Erp.Application.Master
         }
 
         public IEnumerable<ItemMaster> GetAllItemGroupAndSubGroup()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<ItemMaster> GetAllItemMaster()
         {
             throw new NotImplementedException();
         }

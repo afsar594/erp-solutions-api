@@ -67,29 +67,24 @@ namespace Inspire.Erp.Web.Controllers
             }
         }
 
-        [HttpPost("saveGRN")]
-        public async Task<bool> saveGRN([FromBody] PurchaseVoucher obj)
+        [HttpPost("saveGRNVoucher")]
+        public IActionResult saveGRN([FromBody] PurchaseVoucher obj)
         {
-            return await _grn.saveGRN(obj, obj.AccountsTransactions.ToList());
+            return Ok(_grn.saveGRN(obj));
         }
 
         [HttpPost("updateGRN")]
-        public async Task<bool> updateGRN([FromBody] PurchaseVoucher obj)
+        public IActionResult updateGRN([FromBody] PurchaseVoucher obj)
         {
-            return await _grn.updateGRN(obj, obj.AccountsTransactions.ToList());
+            return Ok(_grn.updateGRN(obj, obj.AccountsTransactions.ToList()));
         }
 
         [HttpPost("DeleteGRN")]
-        public async Task<bool> DeleteGRN([FromBody] GRNRequest obj)
+        public IActionResult DeleteGRN([FromBody] PurchaseVoucher obj)
         {
-            return await _grn.DeleteGRN(obj);
+            return Ok(_grn.DeleteGRN(obj));
         }
 
-        [HttpPost("saveGRNVoucher")]
-        public async Task<List<GRNVoucherRquest>> saveGRNVoucher([FromBody] List<GRNVoucherRquest> obj)
-        {
-            return _grn.saveGRNVoucher(obj).ToList();
-        }
 
         [HttpPost("loadPO")]
         public async Task<IEnumerable<GRNResponse>> loadPO(GRNRequest obj)

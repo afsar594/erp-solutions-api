@@ -181,7 +181,7 @@ namespace Inspire.Erp.Application.Master
 
             IEnumerable<ItemMasterSupplierDetais> supplierDetails = (from PD in pVoucherDetailsrepo.GetAsQueryable()
                     join P in pVoucherrepo.GetAsQueryable()
-                    on PD.PurchaseVoucherDetailsGrnNo equals P.PurchaseVoucherDayBookNo
+                    on PD.PurchaseVoucherDetailsGrnNo equals P.PurchaseVoucherDayBookno
                     join S in supplierrepository.GetAsQueryable()
                     //on P.PurchaseVoucherSPID equals S.SuppliersMasterSupplierId
                     on P.PurchaseVoucherSPID equals S.SuppliersMasterSupplierId

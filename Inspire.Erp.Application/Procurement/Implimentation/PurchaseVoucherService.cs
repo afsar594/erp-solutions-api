@@ -89,6 +89,19 @@ namespace Inspire.Erp.Application.Master.Implementations
             }
         }
 
+        public IQueryable GetAllGRN()
+        {
+            try
+            {
+                var grnList = _context.PurchaseVoucher.Where(o => o.PurchaseVoucherVoucherNo.Contains("GRN")).AsQueryable();
+                return grnList;
+            }
+            catch (System.Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public PurchaseVoucherModel InsertPurchaseVoucher(PurchaseVoucher purchaseVoucher, List<AccountsTransactions> accountsTransactions,
               List<PurchaseVoucherDetails> purchaseVoucherDetails
               , List<StockRegister> stockRegister
@@ -211,15 +224,15 @@ namespace Inspire.Erp.Application.Master.Implementations
                                   }).AsQueryable();
 
                 var finalData = (from hdr in _context.PurchaseVoucher.ToList()
-                                 join job in _context.JobMaster.ToList() on hdr.PurchaseVoucherJobId equals job.JobMasterJobId into leftjob
+                                 join job in _context.JobMaster.ToList() on hdr.PurchaseVoucherJobID equals job.JobMasterJobId into leftjob
                                  from jobmaster in leftjob.DefaultIfEmpty()
-                                 join location in _context.LocationMaster.ToList() on hdr.PurchaseVoucherLocationId equals location.LocationMasterLocationId into leftlocation
+                                 join location in _context.LocationMaster.ToList() on hdr.PurchaseVoucherLocationID equals location.LocationMasterLocationId into leftlocation
                                  from locationmaster in leftlocation.DefaultIfEmpty()
                                  select new
                                  {
-                                     JobId = hdr.PurchaseVoucherJobId,
-                                     LocationId = hdr.PurchaseVoucherLocationId,
-                                     CurrencyId = hdr.PurchaseVoucherCurrencyId,
+                                     JobId = hdr.PurchaseVoucherJobID,
+                                     LocationId = hdr.PurchaseVoucherLocationID,
+                                     CurrencyId = hdr.PurchaseVoucherCurrencyID,
                                      SupplierId = supplierList.FirstOrDefault(o => o.SuppliersInsName == hdr.PurchaseVoucherCashSupplierName) == null ? 0 : supplierList.FirstOrDefault(o => o.SuppliersInsName == hdr.PurchaseVoucherCashSupplierName).SuppliersInsId,
                                      PurchaseID = hdr.PurchaseVoucherPurID,
                                      PurchaseType = hdr.PurchaseVoucherPurchaseType,
@@ -227,7 +240,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                                      SupplierInvoice = hdr.PurchaseVoucherSupplyInvoiceNo,
                                      Gross = hdr.PurchaseVoucherActualAmount,
                                      Discount = hdr.PurchaseVoucherTotalDiscountAmt,
-                                     VatAmount = hdr.PurchaseVoucherVatAmount,
+                                     VatAmount = hdr.PurchaseVoucherVATAmount,
                                      NetAmount = hdr.PurchaseVoucherNetAmount,
                                      LocationName = locationmaster != null ? locationmaster.LocationMasterLocationName : "",
                                      PurchaseDetails = detailData.Where(o => o.PurchaseVoucherDetailsVoucherNo == hdr.PurchaseVoucherVoucherNo).ToList()
@@ -488,9 +501,9 @@ namespace Inspire.Erp.Application.Master.Implementations
 
 
                 var purVouchers = (from pm in _context.PurchaseVoucher
-                           join jm in _context.JobMaster on pm.PurchaseVoucherJobId equals jm.JobMasterJobId into jmpm
+                           join jm in _context.JobMaster on pm.PurchaseVoucherJobID equals jm.JobMasterJobId into jmpm
                            from y in jmpm.DefaultIfEmpty()
-                           join lm in _context.LocationMaster on pm.PurchaseVoucherLocationId equals lm.LocationMasterLocationId into locs
+                           join lm in _context.LocationMaster on pm.PurchaseVoucherLocationID equals lm.LocationMasterLocationId into locs
                            from x in locs.DefaultIfEmpty()
                            select new GetPurchaseVoucherResponse{ PurchaseVoucherVoucherNo = pm.PurchaseVoucherVoucherNo,
                                PurchaseVoucherPurchaseDate = pm.PurchaseVoucherPurchaseDate,
@@ -499,7 +512,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                                PurchaseVoucherSupplyInvoiceNo = pm.PurchaseVoucherSupplyInvoiceNo,
                                PurchaseVoucherActualAmount = pm.PurchaseVoucherActualAmount,
                                PurchaseVoucherDisAmount = pm.PurchaseVoucherDisAmount,
-                               PurchaseVoucherVatAmount = pm.PurchaseVoucherVatAmount,
+                               PurchaseVoucherVatAmount = pm.PurchaseVoucherVATAmount,
                                PurchaseVoucherNetAmount = pm.PurchaseVoucherNetAmount
                            }).ToList();
 
