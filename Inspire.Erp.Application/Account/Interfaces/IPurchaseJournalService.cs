@@ -11,11 +11,11 @@ namespace Inspire.Erp.Application.Account.Interfaces
         //public PurchaseJournal InsertPurchaseJournal(PurchaseJournal purchaseJournal,
         //  List<PurchaseJournalDetails> purchaseJournalDetails);
 
-        public PurchaseJournalModel InsertPurchaseJournal(PurchaseJournal purchaseJournal, List<AccountsTransactions> accountsTransactions, List<PurchaseJournalDetails> purchaseJournalDetails);
-        public PurchaseJournalModel UpdatePurchaseJournal(PurchaseJournal purchaseJournal, List<AccountsTransactions> accountsTransactions, List<PurchaseJournalDetails> purchaseJournalDetails);
+        public PurchaseJournal InsertPurchaseJournal(PurchaseJournal purchaseJournal, List<AccountsTransactions> accountsTransactions, List<PurchaseJournalDetails> purchaseJournalDetails);
+        public PurchaseJournal UpdatePurchaseJournal(PurchaseJournal purchaseJournal, List<AccountsTransactions> accountsTransactions, List<PurchaseJournalDetails> purchaseJournalDetails);
         public int DeletePurchaseJournal(PurchaseJournal purchaseJournal, List<AccountsTransactions> accountsTransactions, List<PurchaseJournalDetails> purchaseJournalDetails);
         public IEnumerable<AccountsTransactions> GetAllTransaction();
-        public PurchaseJournalModel GetSavedPurchaseJournalDetails(string pvno);
+        public PurchaseJournal GetSavedPurchaseJournalDetails(string pvno);
         public IEnumerable<PurchaseJournal> GetPurchaseJournal();
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
 

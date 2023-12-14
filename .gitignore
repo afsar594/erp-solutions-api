@@ -53,7 +53,11 @@ Inspire.Erp.WebReport/obj/Debug/DesignTimeResolveAssemblyReferencesInput.cache
 /Inspire.Erp.WebReport/report
 /Inspire.Erp.WebReport/FileExports
 /Inspire.Erp.WebReport/Reports
+<<<<<<< HEAD
+/Inspire.Erp.Web/Logs
+=======
 # Ignore log files and log directory
 *.log
 *.txt
 Inspire.Erp.Web/Logs/
+>>>>>>> f928b838d25bc9b433b2dd50f82f799921b2e04a
