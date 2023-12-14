@@ -90,7 +90,7 @@ namespace Inspire.Erp.Application.Account.Implementations
         {
             try
             {
-                string query = @$" 1==1 {model.Filter}";
+                string query = @$" AccountstransactionsDelStatus != true {model.Filter}";
 
 
                 //var a = await _accountTransaction.GetAsQueryable().Where(x =>( x.AccountsTransactionsTransDate >= Convert.ToDateTime("")) &&  )
@@ -161,9 +161,9 @@ namespace Inspire.Erp.Application.Account.Implementations
                             Entity = "Voucher Allocation ",
 
                         };
-                        await _utilityService.AddUserTrackingLog(log);
+                        //await _utilityService.AddUserTrackingLog(log);
                         #endregion
-                        _voucherAllocation.SaveChangesAsync();
+                        //_voucherAllocation.SaveChangesAsync();
 
                         if (model.VoucherAllocationDetails != null && model.VoucherAllocationDetails.Count() > 0)
                         {
@@ -178,7 +178,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                 AllocationVoucherDetailsVtype = x.AllocationVoucherDetailsVtype,
                                 AllocationVoucherDetailsDelStatus = false,
                                 AllocationVoucherDetailsSno = Convert.ToInt32(vouchetAlloc.AllocationVoucherId),
-                                AllocationVoucherDetailsId = getMaxVoucherAllocationDetails()
+                                //AllocationVoucherDetailsId = getMaxVoucherAllocationDetails()
                             }));
                             _voucherAllocationDetails.InsertList(orderDetails);
                             _voucherAllocationDetails.SaveChangesAsync();
@@ -193,17 +193,18 @@ namespace Inspire.Erp.Application.Account.Implementations
                                 {
                                     if (DC == "D")
                                     {
-                                        acc.AccountsTransactionsAllocDebit += (decimal)item.AllocationVoucherDetailsAllocDebit; //NetAlloc;
-                                        acc.AccountsTransactionsFcAllocDebit += (decimal)item.AllocationVoucherDetailsAllocDebit * (decimal)currency.CurrencyMasterCurrencyRate;
+
+                                        acc.AccountsTransactionsAllocDebit = (decimal)item.AllocationVoucherDetailsAllocDebit; //NetAlloc;
+                                        acc.AccountsTransactionsFcAllocDebit = (decimal)item.AllocationVoucherDetailsAllocDebit * (currency != null?(decimal)currency.CurrencyMasterCurrencyRate:1);
                                         acc.AccountsTransactionsFcAllocBalance = acc.AccountsTransactionsDebit - (acc.AccountsTransactionsFcAllocDebit + (decimal)item.AllocationVoucherDetailsAllocDebit);
-                                        acc.AccountsTransactionsFcAllocBalance = acc.AccountsTransactionsFcDebit - (acc.AccountsTransactionsAllocDebit + ((decimal)item.AllocationVoucherDetailsAllocDebit * (decimal)currency.CurrencyMasterCurrencyRate));
+                                        acc.AccountsTransactionsFcAllocBalance = acc.AccountsTransactionsFcDebit - (acc.AccountsTransactionsAllocDebit + ((decimal)item.AllocationVoucherDetailsAllocDebit * (currency != null ? (decimal)currency.CurrencyMasterCurrencyRate : 1)));
                                     }
                                     else if (DC == "C")
                                     {
-                                        acc.AccountsTransactionsAllocCredit += (decimal)item.AllocationVoucherDetailsAllocCredit; //NetAlloc;;
-                                        acc.AccountsTransactionsFcAllocCredit += (decimal)item.AllocationVoucherDetailsAllocCredit * (decimal)currency.CurrencyMasterCurrencyRate;
+                                        acc.AccountsTransactionsAllocCredit = (decimal)item.AllocationVoucherDetailsAllocCredit; //NetAlloc;;
+                                        acc.AccountsTransactionsFcAllocCredit = (decimal)item.AllocationVoucherDetailsAllocCredit * (currency != null ? (decimal)currency.CurrencyMasterCurrencyRate : 1);
                                         acc.AccountsTransactionsAllocBalance = acc.AccountsTransactionsCredit - (acc.AccountsTransactionsFcAllocCredit + (decimal)item.AllocationVoucherDetailsAllocCredit);
-                                        acc.AccountsTransactionsFcAllocBalance = acc.AccountsTransactionsFcCredit - (acc.AccountsTransactionsAllocCredit + ((decimal)item.AllocationVoucherDetailsAllocCredit * (decimal)currency.CurrencyMasterCurrencyRate));
+                                        acc.AccountsTransactionsFcAllocBalance = acc.AccountsTransactionsFcCredit - (acc.AccountsTransactionsAllocCredit + ((decimal)item.AllocationVoucherDetailsAllocCredit * (currency != null ? (decimal)currency.CurrencyMasterCurrencyRate : 1)));
                                     }
 
                                     accountsTransactions.Add(acc);
@@ -247,7 +248,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                             Entity = "Voucher Allocation ",
 
                         };
-                        await _utilityService.AddUserTrackingLog(Deletelog);
+                        //await _utilityService.AddUserTrackingLog(Deletelog);
                         #endregion
                         _voucherAllocationDetails.SaveChangesAsync();
 
