@@ -37,4 +37,16 @@ namespace Inspire.Erp.Domain.Modals.Common
         public string PONO { get; set; }
 
     }
+    public class DeliveryNoteReportFilter
+    {
+        public int LocationId { get; set; }
+        public int CustomerId { get; set; }
+        public string InvioceStatus { get; set; }
+        public string fromDate { get; set; }
+        public string toDate { get; set; }
+        public string Formate { get; set; }
+
+
+
+    }
 }
