@@ -1,8 +1,14 @@
 ﻿using Inspire.Erp.Application.Common;
 using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Modals;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Domain.Models.Sales.DeliveryNoteReport;
+using SendGrid;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
+
 namespace Inspire.Erp.Application.Sales.Interfaces
 {
     public interface IDeliveryNoteServices
@@ -26,5 +32,6 @@ namespace Inspire.Erp.Application.Sales.Interfaces
 
         public IEnumerable<CustomerDeliveryNote> GetDeliveryNote();
         ////public VouchersNumbers GetVouchersNumbers(long pvno);
+        public Task<Response<List<DNReportDetails>>> DeliveryNoteReportDetails(DeliveryNoteReportFilter filter);
     }
 }

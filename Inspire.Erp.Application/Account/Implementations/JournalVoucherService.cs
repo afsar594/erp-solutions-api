@@ -155,7 +155,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 trackingData.UserTrackingUserVpNo = journalVoucher.JournalVoucherVrefNo;
                 trackingData.UserTrackingUserChangeDt = DateTime.Now;
                 trackingData.UserTrackingUserChangeTime = DateTime.Now;
-                trackingData.UserTrackingUserVpType = "JOURNALVOUCHER";
+                trackingData.UserTrackingUserVpType = "JOVOUCHER";
                 _UserTracking.Insert(trackingData);
                 _journalVoucherRepository.TransactionCommit();
                 return this.GetSavedJournalVoucherDetails(journalVoucher.JournalVoucherVrefNo);
