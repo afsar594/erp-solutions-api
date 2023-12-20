@@ -369,14 +369,14 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 {
                     filteredValue += $" && CustomerDeliveryNoteCustomerName == {filter.CustomerId} "; 
                 }
-                if (!string.IsNullOrEmpty(filter.fromDate) && !string.IsNullOrEmpty(filter.toDate))
-                {
-                    filteredValue += $" && (CustomerDeliveryNoteDeliveryDate >= {filter.fromDate} && CustomerDeliveryNoteDeliveryDate <= {filter.toDate} )";
-                }
-                if(!string.IsNullOrEmpty(filter.InvioceStatus))
-                {
-                    filteredValue += $" && CustomerDeliveryNoteDeliveryStatus == {filter.InvioceStatus} ";
-                }
+                ////if (!string.IsNullOrEmpty(filter.fromDate) && !string.IsNullOrEmpty(filter.toDate))
+                ////{
+                ////    filteredValue += $" && CustomerDeliveryNoteDeliveryDate >= {Convert.ToDateTime(filter.fromDate)} && CustomerDeliveryNoteDeliveryDate <= {Convert.ToDateTime(filter.toDate)} ";
+                ////}
+                //if(!string.IsNullOrEmpty(filter.InvioceStatus))
+                //{
+                //    filteredValue += $" && CustomerDeliveryNoteDeliveryStatus == {filter.InvioceStatus} ";
+                //}
                 reportDetails = await (from dn in _deliveryNoteRepository.GetAsQueryable().Where($"1 == 1  { filteredValue }")
                                     join lm in _locationMasterRepo.GetAsQueryable() on dn.CustomerDeliveryNoteLocationId equals (long)lm.LocationMasterLocationId into lmGroup
                                     from lm in lmGroup.DefaultIfEmpty()
@@ -396,9 +396,10 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                               Description   = dnd.CustomerDeliveryNoteDetailsDescription,
                                               Qty  = dnd.CustomerDeliveryNoteDetailsQty,
                                               MaterialId = dnd.CustomerDeliveryNoteDetailsItemId
-                                              
+
                                             }
                                         },
+
 
                                     }).OrderBy(x => x.DaliveryDate).ToListAsync();
 
