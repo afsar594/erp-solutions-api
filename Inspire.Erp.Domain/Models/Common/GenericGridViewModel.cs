@@ -40,7 +40,7 @@ namespace Inspire.Erp.Domain.Modals.Common
     public class DeliveryNoteReportFilter
     {
         public int LocationId { get; set; }
-        public int CustomerId { get; set; }
+        public long CustomerId { get; set; }
         public string InvioceStatus { get; set; }
         public string fromDate { get; set; }
         public string toDate { get; set; }
