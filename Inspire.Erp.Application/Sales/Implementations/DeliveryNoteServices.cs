@@ -367,7 +367,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 }
                 if(filter.CustomerId > 0)
                 {
-                    filteredValue += $" && CustomerDeliveryNoteCustomerName == {filter.CustomerId} "; 
+                    filteredValue += $" && CustomerDeliveryNoteCustomerCode == {filter.CustomerId} "; 
                 }
                 ////if (!string.IsNullOrEmpty(filter.fromDate) && !string.IsNullOrEmpty(filter.toDate))
                 ////{
