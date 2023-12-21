@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Modals.Procurement;
+using Microsoft.AspNetCore.Server.IIS.Core;
 //using Microsoft.Data.SqlClient;
 
 namespace Inspire.Erp.Application.Master.Implementations
@@ -264,6 +265,15 @@ namespace Inspire.Erp.Application.Master.Implementations
             return voucherModel;
 
            // throw new NotImplementedException();
+        }
+
+        public PurchaseVoucher GetSavedPurchaseVoucherDetailsV2(string pvno)
+        {
+            PurchaseVoucher voucherModel = new PurchaseVoucher();
+            voucherModel = _PurchaseVoucher.GetAsQueryable().Where(k => k.PurchaseVoucherVoucherNo == pvno).SingleOrDefault();
+            voucherModel.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.PurchaseVoucher_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
+            voucherModel.PurchaseVoucherDetails = _PurchaseVoucherDetails.GetAsQueryable().Where(x => x.PurchaseVoucherDetailsVoucherNo == pvno && (x.PurchaseVoucherDetailsDelStatus == false || x.PurchaseVoucherDetailsDelStatus == null)).ToList();
+            return voucherModel;
         }
 
         public VouchersNumbers GetVouchersNumbers(string pvno)
@@ -528,6 +538,50 @@ namespace Inspire.Erp.Application.Master.Implementations
             catch (Exception ex)
             {
                 return Response<GridWrapperResponse<List<GetPurchaseVoucherResponse>>>.Fail(new GridWrapperResponse<List<GetPurchaseVoucherResponse>>(), ex.Message);
+            }
+        }
+        public PurchaseVoucher InsertPurchaseVoucher(PurchaseVoucher purchaseVoucher, List<AccountsTransactions> accountsTransactions, List<PurchaseVoucherDetails> purchaseVoucherDetails)
+        {
+            try
+            {
+
+                _accountTransactionRepository.BeginTransaction();
+                string vnumber = this.GenerateVoucherNo(purchaseVoucher.PurchaseVoucherPurchaseDate).VouchersNumbersVNo;
+                purchaseVoucher.PurchaseVoucherVoucherNo = vnumber;
+
+                int maxcount = 0;
+                maxcount = Convert.ToInt32(
+                    _PurchaseVoucher.GetAsQueryable()
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.PurchaseVoucherPurID) + 1);
+
+                purchaseVoucherDetails.ForEach((x) =>
+                {
+                    x.PurchaseVoucherDetailsVoucherNo = vnumber;
+                });
+
+                _PurchaseVoucherDetails.InsertList(purchaseVoucherDetails);
+                _PurchaseVoucher.Insert(purchaseVoucher);
+                _accountTransactionRepository.Commit();
+
+                return this.GetSavedPurchaseVoucherDetailsV2(purchaseVoucher.PurchaseVoucherVoucherNo);
+            }
+            catch (Exception ex)
+            {
+                _accountTransactionRepository.TransactionRollback();
+                throw;
+            }
+        }
+
+        public PurchaseVoucher UpdatePurchaseVoucher(PurchaseVoucher purchaseVoucher, List<AccountsTransactions> accountsTransactions, List<PurchaseVoucherDetails> purchaseVoucherDetails)
+        {
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+                _accountTransactionRepository.TransactionRollback();
+                throw;
             }
         }
     }
