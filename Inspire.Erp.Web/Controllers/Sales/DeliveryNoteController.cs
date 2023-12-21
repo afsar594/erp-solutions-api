@@ -68,6 +68,7 @@ namespace Inspire.Erp.Web.Controllers.Sales
                 ////clsAccountAndStock.SalesVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4);
 
                 var xs = _deliveryNoteService.InsertDeliveryNote(param1, param2);
+
                 //========================
 
 
