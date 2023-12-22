@@ -21,28 +21,28 @@ namespace Inspire.Erp.Web.Controllers.Templates
         }
 
         [HttpPost]
-        [Route("DeleteTemplate")]
-        public async Task<IActionResult> DeleteTemplate(int qtemplateId)
+        [Route("DeleteTemplate/{Id}")]
+        public async Task<IActionResult> DeleteTemplate(int Id)
         {
-            return Ok(await template.DeleteTemplate(qtemplateId));
+            return Ok(await template.DeleteTemplate(Id));
         }
-        [HttpPost]
+        [HttpGet]
         [Route("GetAllActiveTemplates")]
         public async Task<IActionResult> GetAllActiveTemplates()
         {
             return Ok(await template.GetAllActiveTemplates());
         }
-        [HttpPost]
-        [Route("GetTemplateById")]
-        public async Task<IActionResult> GetTemplateById(int qtemplateId)
+        [HttpGet]
+        [Route("GetTemplateById/{Id}")]
+        public async Task<IActionResult> GetTemplateById(int Id)
         {
-            return Ok(await template.GetTemplateById(qtemplateId));
+            return Ok(await template.GetTemplateById(Id));
         }
-        [HttpPost]
-        [Route("GetTemplateBytype")]
-        public async Task<IActionResult> GetTemplateBytype(string qtemplateType)
+        [HttpGet]
+        [Route("GetTemplateBytype/{type}")]
+        public async Task<IActionResult> GetTemplateBytype(string type)
         {
-            return Ok(await template.GetTemplateBytype(qtemplateType));
+            return Ok(await template.GetTemplateBytype(type));
         }
         [HttpPost]
         [Route("InsterTemplate")]
@@ -57,13 +57,13 @@ namespace Inspire.Erp.Web.Controllers.Templates
             return Ok(await template.UpdateTemplate(qtemplate));
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("GetAllDeletedTemplates")]
         public async Task<IActionResult> GetAllDeletedTemplates()
         {
             return Ok(await template.GetAllDeletedTemplates());
         }
-        [HttpPost]
+        [HttpGet]
         [Route("GetAllTemplates")]
         public async Task<IActionResult> GetAllTemplates()
         {
