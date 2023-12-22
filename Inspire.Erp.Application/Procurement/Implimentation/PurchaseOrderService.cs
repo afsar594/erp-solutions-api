@@ -111,12 +111,20 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 _purchaseOrderRepository.BeginTransaction();
 
                 var deleteTrackingRegister = _trackingRegisterRepository.GetAsQueryable().Where(x => x.TrackingRegisterVoucherType == purchaseOrder.PurchaseOrderType && x.TrackingRegisterVoucherNo == purchaseOrder.PurchaseOrderNo).FirstOrDefault();
-                _trackingRegisterRepository.Delete(deleteTrackingRegister);
-                _trackingRegisterRepository.SaveChangesAsync();
+                if (deleteTrackingRegister != null)
+                {
+                    _trackingRegisterRepository.Delete(deleteTrackingRegister);
+                    _trackingRegisterRepository.SaveChangesAsync();
+                }
+
 
                 var deletePurOrderRegister = _purOrderRegisterRepository.GetAsQueryable().Where(x => x.PurOrderRegisterTransType == purchaseOrder.PurchaseOrderType && x.PurOrderRegisterRefVoucherNo == purchaseOrder.PurchaseOrderNo).FirstOrDefault();
-                _purOrderRegisterRepository.Delete(deletePurOrderRegister);
-                _purOrderRegisterRepository.SaveChangesAsync();
+                if (deletePurOrderRegister != null)
+                {
+                    _purOrderRegisterRepository.Delete(deletePurOrderRegister);
+                    _purOrderRegisterRepository.SaveChangesAsync();
+
+                }
 
 
 
@@ -358,9 +366,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         TrackingRegisterQty = (int)purOrderDet.PurchaseOrderDetailsQuantity,
                         TrackingRegisterQtyin = (int)purOrderDet.PurchaseOrderDetailsQuantity,
                         TrackingRegisterQtyout = 0,
-                        TrackingRegisterRate=purOrderDet.PurchaseOrderDetailsRate,
-                        TrackingRegisterTrackDate=purchaseOrder.PurchaseOrderDate,
-                        TrackingRegisterFsno=null,//to be alloted
+                        TrackingRegisterRate = purOrderDet.PurchaseOrderDetailsRate,
+                        TrackingRegisterTrackDate = purchaseOrder.PurchaseOrderDate,
+                        TrackingRegisterFsno = null,//to be alloted
 
                     };
                     listTrackRegs.Add(tr);
@@ -374,7 +382,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         PurOrderRegisterQtyOrder = purOrderDet.PurchaseOrderDetailsQuantity,
                         PurOrderRegisterQtyIssued = 0,
                         PurOrderRegisterRate = purOrderDet.PurchaseOrderDetailsRate,
-                        PurOrderRegisterAssignedDate =DateTime.Now,
+                        PurOrderRegisterAssignedDate = DateTime.Now,
                         PurOrderRegisterFsno = null,//to be alloted,
                         PurOrderRegisterSupplierId = (int)purchaseOrder.PurchaseOrderPartyId,
                         PurOrderRegisterStatus = "A"
@@ -433,7 +441,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 if (_stockRegisterRepository.GetAsQueryable().Where(c => c.StockRegisterRefVoucherNo == purchaseOrderDetail.PurchaseOrderDetailsNo).FirstOrDefault() != null)
                 {
                     purchaseOrderDetail.PurchaseOrderNetStock = _stockRegisterRepository.GetAsQueryable().Where(c => c.StockRegisterRefVoucherNo == purchaseOrderDetail.PurchaseOrderDetailsNo).FirstOrDefault().StockRegisterSIN;
-                   
+
                 }
                 purchaseOrderDetail.PurchaseOrderNetStock = 0;
                 purchaseOrderDetail.PurchaseOrderTillNowQTY = GetTillNowQTY(pvno);
@@ -485,7 +493,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         {
                             qty += rslt.PurchaseReturnDetailsQuantity;
                         }
-                            // qty += rslt;
+                        // qty += rslt;
                     }
                     //var prDetails = _purchaseReturnDetailsRepository.GetAll().Where(c => c.PurchaseReturnDetailsNo == pr.PurchaseReturnNo);
                     return qty;
