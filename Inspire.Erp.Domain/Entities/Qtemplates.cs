@@ -8,6 +8,6 @@ namespace Inspire.Erp.Domain.Entities
         public int QtemplatesId { get; set; }
         public string QtemplatesDescription { get; set; }
         public string QtemplatesType { get; set; }
-        public bool? QtemplatesDelStatus { get; set; }
+        public bool? QtemplatesDelStatus { get; set; } = false;
     }
 }
