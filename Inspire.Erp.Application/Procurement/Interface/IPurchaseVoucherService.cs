@@ -28,10 +28,21 @@ namespace Inspire.Erp.Application.Master.Interfaces
         public IEnumerable<PurchaseVoucherDetails> GetPurchaseVoucherDetails();
 
         public PurchaseVoucherModel GetSavedPurchaseVoucherDetails(string id);
+        
+      
+
         public IQueryable GetPurchaseReturnReport();
 
         public VouchersNumbers GetVouchersNumbers(string pvno);
         Task<Response<GridWrapperResponse<List<GetPurchaseVoucherResponse>>>> GetPurchaseVoucherReport(GenericGridViewModel model);
+        public PurchaseVoucher InsertPurchaseVoucher(PurchaseVoucher purchaseVoucher,
+                                                                     List<AccountsTransactions> accountsTransactions,
+                                                                     List<PurchaseVoucherDetails> purchaseVoucherDetails);
+        public PurchaseVoucher UpdatePurchaseVoucher(PurchaseVoucher purchaseVoucher,
+                                                                     List<AccountsTransactions> accountsTransactions,
+                                                                     List<PurchaseVoucherDetails> purchaseVoucherDetails);
+
+        public PurchaseVoucher GetSavedPurchaseVoucherDetailsV2(string id);
 
     }
 }

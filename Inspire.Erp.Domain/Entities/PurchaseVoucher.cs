@@ -7,12 +7,12 @@ namespace Inspire.Erp.Domain.Entities
 {
     public partial class PurchaseVoucher
     {
-        public PurchaseVoucher()
-        {
-            PurchaseVoucherDetails = new HashSet<PurchaseVoucherDetails>();
-            AccountsTransactions = new HashSet<AccountsTransactions>();
-            UserTrackingData = new HashSet<UserTrackingDisplay>();
-        }
+        //public PurchaseVoucher()
+        //{
+        //    PurchaseVoucherDetails = new HashSet<PurchaseVoucherDetails>();
+        //    AccountsTransactions = new HashSet<AccountsTransactions>();
+        //    UserTrackingData = new HashSet<UserTrackingDisplay>();
+        //}
         public long PurchaseVoucherPurID { get; set; }
         public string PurchaseVoucherVoucherNo { get; set; }
         public int? PurchaseVoucherPurchaseIDNum { get; set; }
@@ -73,14 +73,27 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? PurchaseVoucherTotalGrossAmt { get; set; }
         public decimal? PurchaseVoucherTotalItemDisAmount { get; set; }
         public decimal? PurchaseVoucherTotalDiscountAmt { get; set; }
+
+        [NotMapped]
         public virtual Suppliers PurchaseVoucherSp { get; set; }
+        //[NotMapped]
+        //public virtual ICollection<PurchaseVoucherDetails> PurchaseVoucherDetails { get; set; }
+        //[NotMapped]
+        //public virtual ICollection<AccountsTransactions> AccountsTransactions { get; set; }
+        ////public IQueryable UserTrackingData { get; set; }
+        //[NotMapped]
+        //public virtual ICollection<UserTrackingDisplay> UserTrackingData { get; set; }
+
         [NotMapped]
-        public virtual ICollection<PurchaseVoucherDetails> PurchaseVoucherDetails { get; set; }
+        public List<PurchaseVoucherDetails> PurchaseVoucherDetails { get; set; }
         [NotMapped]
-        public virtual ICollection<AccountsTransactions> AccountsTransactions { get; set; }
-        //public IQueryable UserTrackingData { get; set; }
+        public List<AccountsTransactions> AccountsTransactions { get; set; }
+
         [NotMapped]
-        public virtual ICollection<UserTrackingDisplay> UserTrackingData { get; set; }
+        public List<UserTrackingDisplay> UserTrackingData { get; set; }
+
+
+
 
         [NotMapped]
 
