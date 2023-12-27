@@ -32,19 +32,19 @@ namespace Inspire.Erp.Web.Controllers
             _mapper = mapper;
             _UnitDetailsRepository = unitDetailsRepository;
         }
-        [HttpGet("GetPurchaseVoucher")]
-        public IActionResult GetPurchaseVoucher()
-        {
-            try
-            {
-                var item = _service.GetPurchaseVoucher();
-                return Ok(item);
-            }
-            catch (System.Exception ex)
-            {
-                return StatusCode(500, ex.Message.ToString());
-            }
-        }
+        //[HttpGet("GetPurchaseVoucher")]
+        //public IActionResult GetPurchaseVoucher()
+        //{
+        //    try
+        //    {
+        //        var item = _service.GetPurchaseVoucher();
+        //        return Ok(item);
+        //    }
+        //    catch (System.Exception ex)
+        //    {
+        //        return StatusCode(500, ex.Message.ToString());
+        //    }
+        //}
 
         [HttpGet("GetPurchaseReturnReport")]
         public IActionResult GetPurchaseReturnReport()
@@ -60,20 +60,20 @@ namespace Inspire.Erp.Web.Controllers
             }
         }
 
-        [HttpGet("GetPurchaseVoucherDetails")]
-        public IActionResult GetPurchaseVoucherDetails()
-        {
-            try
-            {
-                var item = _service.GetPurchaseVoucherDetails();
-                return Ok(item);
-            }
-            catch (System.Exception ex)
-            {
-                return StatusCode(500, ex.Message.ToString());
-            }
+        //[HttpGet("GetPurchaseVoucherDetails")]
+        //public IActionResult GetPurchaseVoucherDetails()
+        //{
+        //    try
+        //    {
+        //        var item = _service.GetPurchaseVoucherDetails();
+        //        return Ok(item);
+        //    }
+        //    catch (System.Exception ex)
+        //    {
+        //        return StatusCode(500, ex.Message.ToString());
+        //    }
 
-        }
+        //}
 
         //[HttpPost("InsertPurchaseVoucher")]
         //public ApiResponse<PurchaseVoucherViewModel> InsertPurchaseVoucher([FromBody] PurchaseVoucherViewModel dataObj)
@@ -483,6 +483,19 @@ namespace Inspire.Erp.Web.Controllers
         public async Task<IActionResult> GetPurchaseVoucherReport(GenericGridViewModel model)
         {
             return Ok(await _service.GetPurchaseVoucherReport(model));
+        }
+
+        [HttpGet]
+        [Route("GetPurchaseVoucher")]
+        public ApiResponse<List<PurchaseVoucher>> GetPurchaseVoucher()
+        {
+            ApiResponse<List<PurchaseVoucher>> apiResponse = new ApiResponse<List<PurchaseVoucher>>
+            {
+                Valid = true,
+                Result = _mapper.Map<List<PurchaseVoucher>>(_service.GetPurchaseVoucher()),
+                Message = ""
+            };
+            return apiResponse;
         }
 
         [HttpPost("InsertPurchaseVoucher")]
