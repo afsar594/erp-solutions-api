@@ -46,8 +46,8 @@ namespace Inspire.Erp.Application.Store.Implementation
                     var result = from sr in _sRegister.GetAsQueryable().Where($"1==1 {qry}")
                                  join im in _iMster.GetAsQueryable() on sr.StockRegisterMaterialID equals (int)im.ItemMasterItemId into imGroup
                                  from im in imGroup.DefaultIfEmpty()
-                                 join gsv in GetStockValue(0, 0) on sr.StockRegisterMaterialID equals (int)gsv.MatId into gsvGroup
-                                 from gsv in gsvGroup.DefaultIfEmpty()
+                                 //join gsv in GetStockValue(0, 0) on sr.StockRegisterMaterialID equals (int)gsv.MatId into gsvGroup
+                                 //from gsv in gsvGroup.DefaultIfEmpty()
                                  where im.ItemMasterServices == false &&
                                        sr.StockRegisterAssignedDate <= sFilter.toDate &&
                                        !(new[] { "STOCKTRANS" }).Contains(sr.StockRegisterTransType)
@@ -106,13 +106,14 @@ namespace Inspire.Erp.Application.Store.Implementation
                 else
                 {
                     var minFDate = _fP.GetAsQueryable().Select(x => x.FinancialPeriodsStartDate).SingleOrDefault();
+
+                    var items = _iMster.GetAsQueryable().ToList();
                     var result = from sr in _sRegister.GetAsQueryable().Where($"1==1 {qry}")
                                  join im in _iMster.GetAsQueryable() on sr.StockRegisterMaterialID equals (int)im.ItemMasterItemId into imGroup
                                  from im in imGroup.DefaultIfEmpty()
-                                 join gsv in GetStockValue(0, 0) on sr.StockRegisterMaterialID equals (int)gsv.MatId into gsvGroup
-                                 from gsv in gsvGroup.DefaultIfEmpty()
+                                
                                  where im.ItemMasterServices == false &&
-                                       sr.StockRegisterAssignedDate <= sFilter.toDate &&
+                                       sr.StockRegisterAssignedDate <= minFDate &&
                                        !(new[] { "STOCKTRANS" }).Contains(sr.StockRegisterTransType)
                                  group new
                                  {
@@ -165,6 +166,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     }
                     else
                     {
+                        var a = result.ToList();
                         return Response<List<StockLedgerResponse>>.Success(result.ToList(), "Data Found");
                     }
                 }
@@ -198,22 +200,38 @@ namespace Inspire.Erp.Application.Store.Implementation
                              .OrderBy(im => im.ItemMasterItemId);
             }
 
-            var res = (from im in query.ToList()
-                       join d in _pvDetail.GetAsQueryable() on (int?)im.ItemMasterItemId equals d.PurchaseVoucherDetailsMaterialId
-                       join p in _pv.GetAsQueryable() on d.PurchaseVoucherDetailsVoucherNo equals p.PurchaseVoucherVoucherNo
-                       where p.PurchaseVoucherStatus == "P"
-                       group new { d.PurchaseVoucherDetailsQuantity, im.ItemMasterItemId } by im.ItemMasterItemId into g
-                       select new
-                       {
-                           ItemMasterItemId = g.Key,
-                           TotalQuantity = g.Sum(x => x.PurchaseVoucherDetailsQuantity),
-                       }).ToList();
+            
+            var vDetailItems = (from d in _pvDetail.GetAsQueryable()
+                     join p in _pv.GetAsQueryable() on d.PurchaseVoucherDetailsVoucherNo equals p.PurchaseVoucherVoucherNo
+                     where p.PurchaseVoucherStatus == "P"
+                     select d).ToList();
 
-            var result = res.Select((x) => new StockValueResult
+            var itemDetails = (from ss in query.ToList()
+                      join a in vDetailItems on ss.ItemMasterItemId equals (long)a.PurchaseVoucherDetailsMaterialId
+                      group a by a.PurchaseVoucherDetailsMaterialId into g
+                      select new { 
+                      ItemId = g.Key,
+                      TotalQty = g.Sum(x=>x.PurchaseVoucherDetailsQuantity)
+                      }).ToList();
+
+
+
+            //var res = (from im in query.ToList()
+            //           join d in _pvDetail.GetAsQueryable() on (int?)im.ItemMasterItemId equals d.PurchaseVoucherDetailsMaterialId
+            //           join p in _pv.GetAsQueryable() on d.PurchaseVoucherDetailsVoucherNo equals p.PurchaseVoucherVoucherNo
+            //           where p.PurchaseVoucherStatus == "P"
+            //           group new { d.PurchaseVoucherDetailsQuantity, im.ItemMasterItemId } by im.ItemMasterItemId into g
+            //           select new
+            //           {
+            //               ItemMasterItemId = g.Key,
+            //               TotalQuantity = g.Sum(x => x.PurchaseVoucherDetailsQuantity),
+            //           }).ToList();
+
+            var result = itemDetails.Select((x) => new StockValueResult
             {
-                MatId = x.ItemMasterItemId,
-                StockRate = (decimal)x.TotalQuantity > 0 ? getQuantityValue(x.ItemMasterItemId) / (decimal)x.TotalQuantity : 0,
-                StockValue = (decimal)x.TotalQuantity * ((decimal)x.TotalQuantity > 0 ? getQuantityValue(x.ItemMasterItemId) / (decimal)x.TotalQuantity : 0)
+                MatId =(long) x.ItemId,
+                StockRate = (decimal)x.TotalQty > 0 ? getQuantityValue((long)x.ItemId) / (decimal)x.TotalQty : 0,
+                StockValue = (decimal)x.TotalQty * ((decimal)x.TotalQty > 0 ? getQuantityValue((long)x.ItemId) / (decimal)x.TotalQty : 0)
             }).ToList();
 
             return result;
