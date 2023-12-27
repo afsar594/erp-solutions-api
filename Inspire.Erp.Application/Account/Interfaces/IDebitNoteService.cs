@@ -16,5 +16,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Interface
         public IEnumerable<DebitNote> GetDebitNote();
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
         public VouchersNumbers GetVouchersNumbers(string pvno);
+
+
     }
 }

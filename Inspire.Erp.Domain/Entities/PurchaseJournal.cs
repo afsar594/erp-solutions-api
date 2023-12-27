@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Inspire.Erp.Domain.Entities
 {
     public partial class PurchaseJournal
     {
-        public PurchaseJournal()
-        {
-            PurchaseJournalDetails = new HashSet<PurchaseJournalDetails>();
-        }
+        //public PurchaseJournal()
+        //{
+        //    PurchaseJournalDetails = new HashSet<PurchaseJournalDetails>();
+        //}
 
         public long PurchaseJournalId { get; set; }
         public string PurchaseJournalVno { get; set; }
@@ -28,6 +30,10 @@ namespace Inspire.Erp.Domain.Entities
         public bool? PurchaseJournalDelStatus { get; set; }
         public string PurchaseJournalVoucherType { get; set; }
 
-        public virtual ICollection<PurchaseJournalDetails> PurchaseJournalDetails { get; set; }
+        [NotMapped]
+        public List<PurchaseJournalDetails> PurchaseJournalDetails { get; set; }
+        [NotMapped]
+        public List<AccountsTransactions> AccountsTransactions { get; set; }
+
     }
 }

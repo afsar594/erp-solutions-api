@@ -5,20 +5,16 @@ namespace Inspire.Erp.Domain.Entities
 {
     public partial class JournalVoucherDetails
     {
-        public int? JournalVoucherDetailsId { get; set; }
-        public int? JournalVoucherDetailsAccSno { get; set; }
+        public int JournalVoucherDetailsId { get; set; }
         public string JournalVoucherDetailVrefNo { get; set; }
         public string JournalVoucherDetailsAccNo { get; set; }
-        public string JournalVoucherDetailsDrCr { get; set; }
-        public double? JournalVoucherDetailsFcRate { get; set; }
-        public double? JournalVoucherDetailsFcAmount { get; set; }
-        public double? JournalVoucherDetailsAmount { get; set; }
         public string JournalVoucherDetailsNarration { get; set; }
-        public int? JournalVoucherDetailsLocationId { get; set; }
         public string JournalVoucherDetailsReferenceNo { get; set; }
-        public int? JournalVoucherDetailsJobId { get; set; }
-        public int? JournalVoucherDetailsFsno { get; set; }
-        public int? JournalVoucherDetailsSno { get; set; }
+        public decimal? JournalVoucherDetailsDrAmount { get; set; }
+        public decimal? JournalVoucherDetailsFcDrAmount { get; set; }
+        public decimal? JournalVoucherDetailsCrAmount { get; set; }
+        public decimal? JournalVoucherDetailsFcCrAmount { get; set; }
+        public long? JournalVoucherDetailsJobId { get; set; }
         public int? JournalVoucherDetailsCostCenterId { get; set; }
         public bool? JournalVoucherDetailsDelStatus { get; set; }
 

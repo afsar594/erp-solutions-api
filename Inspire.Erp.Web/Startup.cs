@@ -58,7 +58,8 @@ namespace Inspire.Erp.Web
                     Title = "InspireErpApi",
                     Version = "v1",
                     Description = "Services offered by inspire solutions",
-                }); options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                }); 
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     In = ParameterLocation.Header,
                     Description = "Please insert JWT with Bearer into field",

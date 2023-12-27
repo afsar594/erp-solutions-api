@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -21,6 +22,7 @@ namespace Inspire.Erp.Domain.Entities
         public string PurchaseJournalDetailsAccNo { get; set; }
         public bool? PurchaseJournalDetailsDelStatus { get; set; }
 
+        [JsonIgnore]
         public virtual PurchaseJournal PurchaseJournal { get; set; }
     }
 }
