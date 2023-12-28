@@ -17549,7 +17549,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<Qtemplates>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(x=>x.QtemplatesId);
 
                 entity.Property(e => e.QtemplatesDelStatus).HasColumnName("Qtemplates_DelStatus");
 
