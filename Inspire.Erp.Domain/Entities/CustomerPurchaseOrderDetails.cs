@@ -27,7 +27,6 @@ namespace Inspire.Erp.Domain.Entities
         public string CustomerPurchaseOrderDetailsRemarks { get; set; }
         public decimal? CustomerPurchaseOrderDetailsFocQty { get; set; }
         public bool? CustomerPurchaseOrderDetailsDelStatus { get; set; }
-
         [NotMapped]
         public virtual CustomerPurchaseOrder CustomerPurchaseOrderDetailsNoNavigation { get; set; }
     }
