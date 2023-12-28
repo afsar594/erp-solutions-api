@@ -130,19 +130,23 @@ namespace Inspire.Erp.Application.Account.Implementations
             try
             {
                 _bankReceiptVoucherRepository.BeginTransaction();
-                bankReceiptVoucher.BankReceiptVoucherVoucherNo = bankReceiptVoucher.BankReceiptVoucherVoucherNo;
+                //bankReceiptVoucher.BankReceiptVoucherVoucherNo = bankReceiptVoucher.BankReceiptVoucherVoucherNo;
+                string bankReceiptVoucherNumber = this.GenerateVoucherNo(bankReceiptVoucher.BankReceiptVoucherVDate).VouchersNumbersVNo;
+                
+                bankReceiptVoucher.BankReceiptVoucherVoucherNo = bankReceiptVoucherNumber;
+               
                 bankReceiptVoucherDetails = bankReceiptVoucherDetails.Select((x) =>
                 {
                     x.BankReceiptVoucherDetailsSno = null;
                     x.BankReceiptVoucherDetailsVoucherNo = bankReceiptVoucher.BankReceiptVoucherVoucherNo;
                     return x;
                 }).ToList();
-                _bankReceiptVoucherDetailsRepository.UpdateList(bankReceiptVoucherDetails);
+                _bankReceiptVoucherDetailsRepository.InsertList(bankReceiptVoucherDetails);
 
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     k.AccountsTransactionsVoucherNo = bankReceiptVoucher.BankReceiptVoucherVoucherNo;
-                    k.AccountsTransactionsVoucherType = VoucherType.BankPayment;
+                    k.AccountsTransactionsVoucherType = VoucherType.BankReceipt;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
                 }).ToList();
@@ -182,7 +186,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     _pdcDetailsRepository.InsertList(_pdcDetails);
                 }
-                _accountTransactionRepository.UpdateList(accountsTransactions);
+                _accountTransactionRepository.InsertList(accountsTransactions);
                 _bankReceiptVoucherRepository.Insert(bankReceiptVoucher);
                 UserTracking trackingData = new UserTracking();
                 trackingData.UserTrackingUserUserId = 1;
@@ -222,15 +226,22 @@ namespace Inspire.Erp.Application.Account.Implementations
             var userTrackngData = (from hdr in context.UserTracking
                                    join dtl in context.UserFile on (long)hdr.UserTrackingUserUserId equals dtl.UserId
                                    where (hdr.UserTrackingUserVpType == "BANKRECEIPTVOUCHER" && hdr.UserTrackingUserVpNo == pvno)
-                                   select new
+                                   select new UserTrackingDisplay
                                    {
-                                       VPAction = hdr.UserTrackingUserVpAction,
-                                       UserId = dtl.UserId,
-                                       VPType = hdr.UserTrackingUserVpType,
-                                       ChangeDt = hdr.UserTrackingUserChangeDt,
-                                       ChangeTime = hdr.UserTrackingUserChangeTime,
-                                       VPNo = hdr.UserTrackingUserVpNo,
-                                   }).AsQueryable();
+                                       //VPAction = hdr.UserTrackingUserVpAction,
+                                       //UserId = dtl.UserId,
+                                       //VPType = hdr.UserTrackingUserVpType,
+                                       //ChangeDt = hdr.UserTrackingUserChangeDt,
+                                       //ChangeTime = hdr.UserTrackingUserChangeTime,
+                                       //VPNo = hdr.UserTrackingUserVpNo,
+
+                                       Action = hdr.UserTrackingUserVpAction,
+                                       Id = dtl.UserId.ToString(),
+                                       VType = hdr.UserTrackingUserVpType,
+                                       Date = hdr.UserTrackingUserChangeDt.Value.ToString("dd/MM/yyyy"),
+                                       Time = hdr.UserTrackingUserChangeTime.Value.ToString("hh:mm t"),
+                                       VNo = hdr.UserTrackingUserVpNo,
+                                   }).ToList();
             voucherdata = _bankReceiptVoucherRepository.GetAsQueryable().Where(k => k.BankReceiptVoucherVoucherNo == pvno).SingleOrDefault();
             voucherdata.UserTrackingData = userTrackngData;
             voucherdata.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno).ToList();

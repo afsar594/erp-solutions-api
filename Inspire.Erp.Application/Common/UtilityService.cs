@@ -2,12 +2,18 @@
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Domain.Models.Common;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using SendGrid;
+using SendGrid.Helpers.Mail;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.Linq;
+using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -21,12 +27,14 @@ namespace Inspire.Erp.Application.Common
         private readonly IRepository<AccountsTransactions> _accountTransaction;
         private readonly IRepository<MasterAccountsTable> _masterAccountTable;
         private readonly IRepository<ItemMaster> _itemMaster;
-
+        private readonly ILogger<UtilityService> _logger;
         private readonly IRepository<UnitDetails> _unitDetail;
+        private readonly EmailSettingViewModel _mailSettings;
         private readonly IRepository<StockRegister> _stockRegister;
-        public UtilityService(IRepository<UserTracking> activityLog, IRepository<FinancialPeriods> financialPeriods,
+        public UtilityService(IRepository<UserTracking> activityLog, IRepository<FinancialPeriods> financialPeriods, ILogger<UtilityService> logger,
              IRepository<AccountsTransactions> accountTransaction, IRepository<MasterAccountsTable> masterAccountTable, IRepository<UnitDetails> unitDetail,
-            IRepository<VouchersNumbers> voucherNumber, IRepository<StockRegister> stockRegister, IRepository<ItemMaster> itemMaster)
+            IRepository<VouchersNumbers> voucherNumber, IRepository<StockRegister> stockRegister, IRepository<ItemMaster> itemMaster,
+            IOptions<EmailSettingViewModel> mailSettings)
         {
             _activityLog = activityLog;
             _itemMaster = itemMaster;
@@ -36,6 +44,8 @@ namespace Inspire.Erp.Application.Common
             _masterAccountTable = masterAccountTable;
             _stockRegister=stockRegister;
             _unitDetail = unitDetail;
+            _logger = logger;
+            _mailSettings = mailSettings.Value;
         }
         public string ConvertNumbertoWords(int number)
         {
@@ -318,6 +328,36 @@ namespace Inspire.Erp.Application.Common
 
                 return 1;
             }
+        }
+
+        public async Task<bool> SendEmailAsync(EmailRequestViewModel mailRequest)
+        {
+            try
+            {
+                _logger.LogInformation(@$"{nameof(SendEmailAsync)} has been started.");
+
+                var client = new SendGridClient(_mailSettings.Key);
+                var from = new EmailAddress(_mailSettings.Mail, _mailSettings.DisplayName);
+                var subject = mailRequest.Subject;
+                var emails = new List<EmailAddress>();
+                foreach (var email in mailRequest.Emails)
+                {
+                    emails.Add(new EmailAddress(email));
+                }
+                emails.AddRange(_mailSettings.CCEmails.Select(x => new EmailAddress(x)).ToList());
+                var plainTextContent = "";
+                var htmlContent = mailRequest.Body;
+                var msg = MailHelper.CreateSingleEmailToMultipleRecipients(from, emails, subject, plainTextContent, htmlContent);
+                var response = await client.SendEmailAsync(msg);
+                _logger.LogInformation(@$"Message send successfully.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                return false;
+            }
+
         }
 
 

@@ -44,6 +44,16 @@ namespace Inspire.Erp.Web.Controllers
         {
             return Ok(await _dashboardService.GetDasboardPurchaseGroupAccount(model));
         }
+        [HttpPost("GetDasboardIssueCount")]
+        public async Task<IActionResult> GetDasboardIssueCount(DashboardFilterModel model)
+        {
+            return Ok(await _dashboardService.GetDasboardIssueCount(model));
+        }
+        [HttpPost("GetDashboardBankBalance")]
+        public async Task<IActionResult> GetDashboardBankBalance(DashboardFilterModel model)
+        {
+            return Ok(await _dashboardService.GetDashboardBankBalance(model));
+        }
 
 
 

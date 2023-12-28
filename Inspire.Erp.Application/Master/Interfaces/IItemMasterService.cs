@@ -7,6 +7,7 @@ namespace Inspire.Erp.Application.Master
 {
     public interface IItemMasterService
     {
+        IEnumerable<ItemMaster> GetAllItemMaster();
         public IEnumerable<ItemMaster> InsertItem(ItemMaster itemMaster);
         public ItemMaster NewItem(ItemMaster itemMaster);
         public ItemMaster UpdateNewItem(ItemMaster itemMaster);

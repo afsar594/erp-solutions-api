@@ -43,6 +43,22 @@ namespace Inspire.Erp.Web.Controllers
         }
 
         [HttpGet]
+        [Route("GetAllItemMaster")]
+        public ApiResponse<List<ItemMasterViewModel>> GetAllItemMaster()
+        {
+            IEnumerable<ItemMaster> listItemnater = itemMasterService.GetAllItemMaster();
+            var x = _mapper.Map<List<ItemMasterViewModel>>(listItemnater);
+            ApiResponse<List<ItemMasterViewModel>> apiResponse = new ApiResponse<List<ItemMasterViewModel>>
+            {
+                Valid = true,
+                Result = x,
+                Message = ""
+            };
+
+            return apiResponse;
+        }
+
+        [HttpGet]
         [Route("GetAllItemGroupAndSubGroup")]
         public ApiResponse<List<ItemMasterViewModel>> GetAllItemGroupAndSubGroup()
         {

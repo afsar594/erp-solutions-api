@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Mvc;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Web.Common;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Inspire.Erp.Application.Account.Implementations;
+
 namespace Inspire.Erp.Web.Controllers.Accounts
 {
     [Route("api/JournalVoucher")]
@@ -32,9 +34,9 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         public ApiResponse<JournalVoucher> InsertJournalVoucher([FromBody] JournalVoucher voucherCompositeView)
         {
             ApiResponse<JournalVoucher> apiResponse = new ApiResponse<JournalVoucher>();
-            var param1 = voucherCompositeView;
-            var param2 = voucherCompositeView.JournalVoucherDetails;
-            var param3 = voucherCompositeView.AccountsTransactions;
+            var param1 = _mapper.Map<JournalVoucher>(voucherCompositeView);
+            var param2 = _mapper.Map<List<JournalVoucherDetails>>(voucherCompositeView.JournalVoucherDetails);
+            var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
             var xs = _journalVoucherService.InsertJournalVoucher(param1, param3, param2);
             apiResponse = new ApiResponse<JournalVoucher>
             {
@@ -94,12 +96,12 @@ namespace Inspire.Erp.Web.Controllers.Accounts
 
         [HttpGet]
         [Route("GetAllJournalVoucher")]
-        public ApiResponse<IEnumerable<JournalVoucher>> GetAllJournalVoucher()
+        public ApiResponse<List<JournalVoucher>> GetAllJournalVoucher()
         {
-            ApiResponse<IEnumerable<JournalVoucher>> apiResponse = new ApiResponse<IEnumerable<JournalVoucher>>
+            ApiResponse<List<JournalVoucher>> apiResponse = new ApiResponse<List<JournalVoucher>>
             {
                 Valid = true,
-                Result = _journalVoucherService.GetJournalVoucher(),
+                Result = _mapper.Map<List<JournalVoucher>>(_journalVoucherService.GetJournalVoucher()),
                 Message = ""
             };
             return apiResponse;

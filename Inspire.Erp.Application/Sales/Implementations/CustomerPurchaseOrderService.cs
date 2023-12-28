@@ -619,7 +619,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 var results = await (from cpod in _Context.CustomerPurchaseOrderDetails
                                      join cpo in _Context.CustomerPurchaseOrder on cpod.CustomerPurchaseOrderId equals cpo.CustomerPurchaseOrderId into gim
                                      from cpog in gim.DefaultIfEmpty()
-                                     join cm in _Context.CustomerMaster on Convert.ToInt32(cpog.CustomerPurchaseOrderCustomerCode) equals cm.CustomerMasterCustomerNo into gum
+                                     join cm in _Context.CustomerMaster on Convert.ToInt32(cpog.CustomerPurchaseOrderCustomerId) equals cm.CustomerMasterCustomerNo into gum
                                      from cmg in gum.DefaultIfEmpty()
                                      join im in _Context.ItemMaster on cpod.CustomerPurchaseOrderDetailsItemId equals im.ItemMasterItemId into iminto
                                      from img in iminto.DefaultIfEmpty()
@@ -628,7 +628,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                      join srq in subqueryDRQD on cpod.CustomerPurchaseOrderDetailsPodId equals srq.CustomerDeliveryNoteDetailsPodId
                                      join drq in subqueryDRQ on cpod.CustomerPurchaseOrderDetailsPodId equals drq.CustomerDeliveryNoteCpoId into gdrq
                                      from q in gdrq.DefaultIfEmpty()
-                                     where cpog.CustomerPurchaseOrderCustomerCode != null
+                                     where cpog.CustomerPurchaseOrderCustomerId != null
                                      select new GetCustomerPurchaseOrderTrackingResponse
                                      {
                                          CPOId = cpog.CustomerPurchaseOrderId,

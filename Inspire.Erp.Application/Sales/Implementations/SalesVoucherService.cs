@@ -369,7 +369,9 @@ namespace Inspire.Erp.Application.Sales.Implementations
             {
                 salesVoucher.CurrencyMasterCurrencyName = _currencyMaster
                                                              .Where(c => c.CurrencyMasterCurrencyId == salesVoucher.SalesVoucherCurrencyId)
-                                                             .FirstOrDefault().CurrencyMasterCurrencyName;
+                                                             .FirstOrDefault() != null? _currencyMaster
+                                                             .Where(c => c.CurrencyMasterCurrencyId == salesVoucher.SalesVoucherCurrencyId)
+                                                             .FirstOrDefault().CurrencyMasterCurrencyName:null;
             }
             return salesVoucher_ALL;
         }

@@ -1,5 +1,6 @@
 ﻿using Inspire.Erp.Application.Common;
 using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Domain.Models.Common;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -25,5 +26,11 @@ namespace Inspire.Erp.Web.Controllers
             return Ok(await _utilityService.AddUserTrackingLog(model));
         }
         #endregion
+
+        [HttpPost("SendEmailAsync")]
+        public async Task<IActionResult> SendEmailAsync(EmailRequestViewModel model)
+        {
+            return Ok(await _utilityService.SendEmailAsync(model));
+        }
     }
 }

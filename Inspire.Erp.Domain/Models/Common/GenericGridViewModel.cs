@@ -29,6 +29,23 @@ namespace Inspire.Erp.Domain.Modals.Common
         public bool HideZeroTransactions { get; set; }
         public string PrintGroupWise { get; set; }
         public string FinancialMindate { get; set; }
+        public int SupplierId { get; set; }
+        public int  JobId { get; set; }
+        public string Status { get; set; }
+        public int  LocationId { get; set; }
+        public int ItemId { get; set; }
+        public string PONO { get; set; }
+
+    }
+    public class DeliveryNoteReportFilter
+    {
+        public int LocationId { get; set; }
+        public long CustomerId { get; set; }
+        public string InvioceStatus { get; set; }
+        public string fromDate { get; set; }
+        public string toDate { get; set; }
+        public string Formate { get; set; }
+
 
 
     }

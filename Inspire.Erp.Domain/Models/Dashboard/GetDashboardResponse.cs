@@ -50,4 +50,10 @@ namespace Inspire.Erp.Domain.Modals.Dashboard
         public decimal? Profit { get; set; }
         public DateTime? TransDate { get; set; }
     }
+    public class PDCCountResponse
+    {
+        public int Total { get; set; }
+        public int IssueRecieved { get; set; }
+        public string Type { get; set; }
+    }
 }

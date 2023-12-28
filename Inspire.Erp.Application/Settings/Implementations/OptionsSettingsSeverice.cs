@@ -33,19 +33,19 @@ namespace Inspire.Erp.Application.Settings.Implementations
             }
         }
 
-        public IEnumerable<OptionsMaster> GetOptionsSettings(string search)
+        public async Task<IEnumerable<OptionsMaster>> GetOptionsSettings(string search)
         {
             IEnumerable<OptionsMaster> optionsSettings = _optionsSettingsRepo.GetAsQueryable().Where(x => string.IsNullOrEmpty(search)?true: x.OptionsMasterFullDescription.Contains(search));
             return optionsSettings;
         }
 
-        public IEnumerable<OptionsMaster> GetOptionsSettingsbyKey(string key)
+        public async Task<Response<List<OptionsMaster>>>  GetOptionsSettingsbyKey(string key)
         {
 
             IEnumerable<OptionsMaster> optionsSettings;
             try
             {
-                optionsSettings = _optionsSettingsRepo.GetAll().Where(k => k.OptionsMasterDescription.Trim() == key);
+                optionsSettings = await  _optionsSettingsRepo.GetAsQueryable().Where(k => k.OptionsMasterDescription.Trim() == key).ToListAsync();
             }
             catch (Exception ex)
             {
@@ -55,7 +55,8 @@ namespace Inspire.Erp.Application.Settings.Implementations
             {
 
             }
-            return optionsSettings;
+
+            return Response<List<OptionsMaster>>.Success(optionsSettings.ToList(), "Data found");
         }
 
         public bool ImportOptionsSettingsFromFile(List<OptionsMaster> optionsSettings)
@@ -84,6 +85,16 @@ namespace Inspire.Erp.Application.Settings.Implementations
                 return false;
             }
             return true;
+        }
+
+        Task<Response<List<OptionsMaster>>> IOptionsSettings.GetOptionsSettings(string search)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<Response<List<OptionsMaster>>> IOptionsSettings.GetOptionsSettingsbyKey(string key)
+        {
+            throw new NotImplementedException();
         }
     }
 }

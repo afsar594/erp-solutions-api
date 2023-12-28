@@ -123,13 +123,17 @@ namespace Inspire.Erp.Application.Account.Implementations
             try
             {
                 _contraVoucherRepository.BeginTransaction();
-                contraVoucher.ContraVoucherVno = contraVoucher.ContraVoucherVno;
+               // contraVoucher.ContraVoucherVno = contraVoucher.ContraVoucherVno;
+                string contraVoucherNumber = this.GenerateVoucherNo(contraVoucher.ContraVoucherDate).VouchersNumbersVNo;
+                contraVoucher.ContraVoucherVno = contraVoucherNumber;
+
                 int maxcount = 0;
                 maxcount = Convert.ToInt32(
                     _contraVoucherRepository.GetAsQueryable()
                     .DefaultIfEmpty().Max(o => o == null ? 0 : o.ContraVoucherId) + 1);
 
                 contraVoucher.ContraVoucherId = maxcount;
+               
                 contraVoucherDetails = contraVoucherDetails.Select((x) =>
                 {
                     x.ContraVoucherId = maxcount;

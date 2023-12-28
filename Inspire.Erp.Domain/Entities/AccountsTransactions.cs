@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -46,7 +47,7 @@ namespace Inspire.Erp.Domain.Entities
         public string? AccountsTransactionsVatno { get; set; }
         public decimal? AccountsTransactionsVatableAmount { get; set; }
         public bool? AccountstransactionsDelStatus { get; set; }
-
+        [JsonIgnore]
         public virtual VouchersNumbers AccountsTransactionsVoucherNoNavigation { get; set; }
     }
 }

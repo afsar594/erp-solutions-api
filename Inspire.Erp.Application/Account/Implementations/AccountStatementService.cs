@@ -39,11 +39,11 @@ namespace Inspire.Erp.Application.Account.Implementations
             try
             {
                 var response = new List<DropdownResponse>();
-                response.Add(new DropdownResponse()
-                {
-                    Value = "",
-                    Name = "All"
-                });
+                //response.Add(new DropdownResponse()
+                //{
+                //    Value = "",
+                //    Name = "All"
+                //});
                  response.AddRange( await _masterAccountsTable.ListSelectAsync(x => x.MaAccType=="A", x => new DropdownResponse
                 {
                     Value = x.MaAccNo,
@@ -61,11 +61,11 @@ namespace Inspire.Erp.Application.Account.Implementations
             try
             {
                 var response = new List<DropdownResponse>();
-                response.Add(new DropdownResponse()
-                {
-                    Id = 0,
-                    Name = "All"
-                });
+                //response.Add(new DropdownResponse()
+                //{
+                //    Id = 0,
+                //    Name = "All"
+                //});
                 response.AddRange(await _jobMaster.ListSelectAsync(x => 1 == 1, x => new DropdownResponse
                 {
                     Id =x.JobMasterJobId != null? Convert.ToInt32(x.JobMasterJobId):0,
