@@ -576,16 +576,16 @@ namespace Inspire.Erp.Application.Master.Implementations
                     {
                         StockRegisterMaterialID = item.PurchaseVoucherDetailsMaterialId,
                         StockRegisterRefVoucherNo = vnumber,
-                        StockRegisterVoucherDate = purchaseVoucher.PurchaseVoucherPurchaseDate, 
-                        StockRegisterQuantity  = item.PurchaseVoucherDetailsQuantity,
+                        StockRegisterVoucherDate = purchaseVoucher.PurchaseVoucherPurchaseDate,
+                        StockRegisterQuantity = item.PurchaseVoucherDetailsQuantity,
                         StockRegisterSIN = item.PurchaseVoucherDetailsQuantity,
                         StockRegisterRate = item.PurchaseVoucherDetailsRate,
                         StockRegisterAmount = item.PurchaseVoucherDetailsAmount,
-                    });
+                    }); ;
                 }
                 _stockRegisterRepository.InsertList(stockRegisters);
                 
-                _accountTransactionRepository.Commit();
+                _accountTransactionRepository.TransactionCommit();
 
                 return this.GetSavedPurchaseVoucherDetailsV2(purchaseVoucher.PurchaseVoucherVoucherNo);
             }
@@ -621,7 +621,7 @@ namespace Inspire.Erp.Application.Master.Implementations
 
                 _PurchaseVoucherDetails.UpdateList(purchaseVoucherDetails);
              
-                _accountTransactionRepository.Commit();
+                _accountTransactionRepository.TransactionCommit();
                 return this.GetSavedPurchaseVoucherDetailsV2(purchaseVoucher.PurchaseVoucherVoucherNo);
 
             }
