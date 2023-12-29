@@ -163,12 +163,12 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 sr.StockRegisterAssignedDate = DateTime.Now;
                 sr.StockRegisterTransType = grn.PurchaseVoucherPurchaseType;
                 sr.StockRegisterFCAmount = grn.PurchaseVoucherFCActualAmount;
-                sr.StockRegisterFcRate = grn.PurchaseVoucherFcRate;
+                sr.StockRegisterFcRate = grn.PurchaseVoucherFCRate;
                 sr.StockRegisterStatus = "A";
                 sr.StockRegisterTransType = "PurchaseVoucher";
-                sr.StockRegisterJobID = grn.PurchaseVoucherJobId;
-                sr.StockRegisterLocationID = grn.PurchaseVoucherLocationId;
-                sr.StockRegisterFSNO = grn.PurchaseVoucherFsno;
+                sr.StockRegisterJobID = grn.PurchaseVoucherJobID;
+                sr.StockRegisterLocationID = grn.PurchaseVoucherLocationID;
+                sr.StockRegisterFSNO = grn.PurchaseVoucherFSNO;
                 _stockRegisterRepository.Insert(sr);
 
                 UserTracking trackingData = new UserTracking();

@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Modals.Procurement;
+using Microsoft.AspNetCore.Server.IIS.Core;
 //using Microsoft.Data.SqlClient;
 
 namespace Inspire.Erp.Application.Master.Implementations
@@ -56,24 +57,28 @@ namespace Inspire.Erp.Application.Master.Implementations
         }
         public IEnumerable<PurchaseVoucher> GetPurchaseVoucher()
         {
-            try
-            {
-                IEnumerable<PurchaseVoucher> _PurchaseVoucherList = _PurchaseVoucher.GetAll().Where(c=>c.PurchaseVoucherDelStatus == false || c.PurchaseVoucherDelStatus == null).ToList();
-                IEnumerable<CurrencyMaster> _currencyMaster = _currencyMasterRepository.GetAll().ToList();
+            //try
+            //{
+            //    IEnumerable<PurchaseVoucher> _PurchaseVoucherList = _PurchaseVoucher.GetAll().Where(c => c.PurchaseVoucherDelStatus == false || c.PurchaseVoucherDelStatus == null).ToList();
+            //    IEnumerable<CurrencyMaster> _currencyMaster = _currencyMasterRepository.GetAll().ToList();
 
-               
-                foreach (var purchaseVoucher in _PurchaseVoucherList)
-                {
-                    purchaseVoucher.CurrencyMasterCurrencyName = _currencyMaster
-                                                                 .Where(c => c.CurrencyMasterCurrencyId == purchaseVoucher.PurchaseVoucherCurrencyId)
-                                                                 .FirstOrDefault().CurrencyMasterCurrencyName;
-                }
-                return _PurchaseVoucherList;
-            }
-            catch (System.Exception ex)
-            {
-                throw ex;
-            }
+
+            //    foreach (var purchaseVoucher in _PurchaseVoucherList)
+            //    {
+            //        purchaseVoucher.CurrencyMasterCurrencyName = _currencyMaster
+            //                                                     .Where(c => c.CurrencyMasterCurrencyId == purchaseVoucher.PurchaseVoucherCurrencyId)
+            //                                                     .FirstOrDefault().CurrencyMasterCurrencyName;
+            //    }
+            //    return _PurchaseVoucherList;
+            //}
+            //catch (System.Exception ex)
+            //{
+            //    throw ex;
+            //}
+
+            IEnumerable<PurchaseVoucher> purchaseVouchers = _PurchaseVoucher.GetAll().Where(k => k.PurchaseVoucherDelStatus == false || k.PurchaseVoucherDelStatus == null);
+            return purchaseVouchers;
+
         }
 
         public IEnumerable<PurchaseVoucherDetails> GetPurchaseVoucherDetails()
@@ -266,6 +271,15 @@ namespace Inspire.Erp.Application.Master.Implementations
            // throw new NotImplementedException();
         }
 
+        public PurchaseVoucher GetSavedPurchaseVoucherDetailsV2(string pvno)
+        {
+            PurchaseVoucher voucherModel = new PurchaseVoucher();
+            voucherModel = _PurchaseVoucher.GetAsQueryable().Where(k => k.PurchaseVoucherVoucherNo == pvno).SingleOrDefault();
+            voucherModel.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.PurchaseVoucher_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
+            voucherModel.PurchaseVoucherDetails = _PurchaseVoucherDetails.GetAsQueryable().Where(x => x.PurchaseVoucherDetailsVoucherNo == pvno && (x.PurchaseVoucherDetailsDelStatus == false || x.PurchaseVoucherDetailsDelStatus == null)).ToList();
+            return voucherModel;
+        }
+
         public VouchersNumbers GetVouchersNumbers(string pvno)
         {
             try
@@ -410,12 +424,6 @@ namespace Inspire.Erp.Application.Master.Implementations
                     return k;
                 }).ToList();
                 _stockRegisterRepository.UpdateList(stockRegister);
-
-
-
-
-
-
                 _PurchaseVoucher.TransactionCommit();
 
             }
@@ -457,9 +465,6 @@ namespace Inspire.Erp.Application.Master.Implementations
                     return k;
                 }).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
-
-
-
 
                 stockRegister = stockRegister.Select((k) =>
                 {
@@ -528,6 +533,102 @@ namespace Inspire.Erp.Application.Master.Implementations
             catch (Exception ex)
             {
                 return Response<GridWrapperResponse<List<GetPurchaseVoucherResponse>>>.Fail(new GridWrapperResponse<List<GetPurchaseVoucherResponse>>(), ex.Message);
+            }
+        }
+        public PurchaseVoucher InsertPurchaseVoucher(PurchaseVoucher purchaseVoucher, List<AccountsTransactions> accountsTransactions, List<PurchaseVoucherDetails> purchaseVoucherDetails)
+        {
+            try
+            {
+
+                _accountTransactionRepository.BeginTransaction();
+                
+                string vnumber = this.GenerateVoucherNo(purchaseVoucher.PurchaseVoucherPurchaseDate).VouchersNumbersVNo;
+                purchaseVoucher.PurchaseVoucherVoucherNo = vnumber;
+
+                int maxcount = 0;
+                maxcount = Convert.ToInt32(
+                    _PurchaseVoucher.GetAsQueryable()
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.PurchaseVoucherPurID) + 1);
+                _PurchaseVoucher.Insert(purchaseVoucher);
+                purchaseVoucherDetails = purchaseVoucherDetails.Select((x) =>
+                {
+                    x.PurchaseVoucherDetailsPrId = maxcount;
+                    x.PurchaseVoucherDetailsVoucherNo = vnumber;
+                    return x;
+                }).ToList();
+
+                _PurchaseVoucherDetails.InsertList(purchaseVoucherDetails);
+
+                //accountsTransactions = accountsTransactions.Select((k) =>
+                //{
+                //    k.AccountsTransactionsVoucherNo = vnumber;
+                //    k.AccountsTransactionsVoucherType = VoucherType.PurchaseVoucher_TYPE;
+                //    k.AccountsTransactionsStatus = AccountStatus.Approved;
+                //    return k;
+                //}).ToList();
+                //_accountTransactionRepository.InsertList(accountsTransactions);
+
+           
+                List<StockRegister> stockRegisters = new List<StockRegister>();
+                foreach (var item in purchaseVoucherDetails)
+                {
+                    stockRegisters.Add(new StockRegister
+                    {
+                        StockRegisterMaterialID = item.PurchaseVoucherDetailsMaterialId,
+                        StockRegisterRefVoucherNo = vnumber,
+                        StockRegisterVoucherDate = purchaseVoucher.PurchaseVoucherPurchaseDate,
+                        StockRegisterQuantity = item.PurchaseVoucherDetailsQuantity,
+                        StockRegisterSIN = item.PurchaseVoucherDetailsQuantity,
+                        StockRegisterRate = item.PurchaseVoucherDetailsRate,
+                        StockRegisterAmount = item.PurchaseVoucherDetailsAmount,
+                    }); ;
+                }
+                _stockRegisterRepository.InsertList(stockRegisters);
+                
+                _accountTransactionRepository.TransactionCommit();
+
+                return this.GetSavedPurchaseVoucherDetailsV2(purchaseVoucher.PurchaseVoucherVoucherNo);
+            }
+            catch (Exception ex)
+            {
+                _accountTransactionRepository.TransactionRollback();
+                throw;
+            }
+        }
+
+        public PurchaseVoucher UpdatePurchaseVoucher(PurchaseVoucher purchaseVoucher, List<AccountsTransactions> accountsTransactions, List<PurchaseVoucherDetails> purchaseVoucherDetails)
+        {
+            try
+            {
+
+                _accountTransactionRepository.BeginTransaction();
+
+                //accountsTransactions = accountsTransactions.Select((k) =>
+                //{
+                //    if (k.AccountsTransactionsTransSno == 0)
+                //    {
+                //        k.AccountsTransactionsTransDate = purchaseVoucher.PurchaseVoucherPurchaseDate;
+                //        k.AccountsTransactionsVoucherNo = purchaseVoucher.PurchaseVoucherVoucherNo;
+                //        k.AccountsTransactionsVoucherType = VoucherType.PurchaseVoucher_TYPE;
+                //        k.AccountsTransactionsStatus = AccountStatus.Approved;
+                //    }
+
+                //    return k;
+                //}).ToList();
+                //_accountTransactionRepository.UpdateList(accountsTransactions);
+
+                _PurchaseVoucher.Update(purchaseVoucher);
+
+                _PurchaseVoucherDetails.UpdateList(purchaseVoucherDetails);
+             
+                _accountTransactionRepository.TransactionCommit();
+                return this.GetSavedPurchaseVoucherDetailsV2(purchaseVoucher.PurchaseVoucherVoucherNo);
+
+            }
+            catch (Exception ex)
+            {
+                _accountTransactionRepository.TransactionRollback();
+                throw;
             }
         }
     }
