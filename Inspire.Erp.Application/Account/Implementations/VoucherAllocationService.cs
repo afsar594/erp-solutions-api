@@ -194,17 +194,17 @@ namespace Inspire.Erp.Application.Account.Implementations
                                     if (DC == "D")
                                     {
 
-                                        acc.AccountsTransactionsAllocDebit = (decimal)item.AllocationVoucherDetailsAllocDebit; //NetAlloc;
-                                        acc.AccountsTransactionsFcAllocDebit = (decimal)item.AllocationVoucherDetailsAllocDebit * (currency != null?(decimal)currency.CurrencyMasterCurrencyRate:1);
-                                        acc.AccountsTransactionsFcAllocBalance = acc.AccountsTransactionsDebit - (acc.AccountsTransactionsFcAllocDebit + (decimal)item.AllocationVoucherDetailsAllocDebit);
-                                        acc.AccountsTransactionsFcAllocBalance = acc.AccountsTransactionsFcDebit - (acc.AccountsTransactionsAllocDebit + ((decimal)item.AllocationVoucherDetailsAllocDebit * (currency != null ? (decimal)currency.CurrencyMasterCurrencyRate : 1)));
+                                        acc.AccountsTransactionsAllocDebit = (decimal)(item.AllocationVoucherDetailsAllocDebit != null?item.AllocationVoucherDetailsAllocDebit:0); //NetAlloc;
+                                        acc.AccountsTransactionsFcAllocDebit = (decimal)(item.AllocationVoucherDetailsAllocDebit != null ? item.AllocationVoucherDetailsAllocDebit : 1) * (currency != null?(decimal)(currency.CurrencyMasterCurrencyRate != null? currency.CurrencyMasterCurrencyRate:1) :1);
+                                        acc.AccountsTransactionsFcAllocBalance = acc.AccountsTransactionsDebit  - (acc.AccountsTransactionsFcAllocDebit != null? acc.AccountsTransactionsFcAllocDebit:0 + (decimal)(item.AllocationVoucherDetailsAllocDebit != null ? item.AllocationVoucherDetailsAllocDebit : 0));
+                                        acc.AccountsTransactionsAllocBalance = acc.AccountsTransactionsFcDebit != null? acc.AccountsTransactionsFcDebit:0 - (acc.AccountsTransactionsAllocDebit != null? acc.AccountsTransactionsAllocDebit:0 + ((decimal)(item.AllocationVoucherDetailsAllocDebit!= null? item.AllocationVoucherDetailsAllocDebit:1) * (currency != null ? (decimal)(currency.CurrencyMasterCurrencyRate != null ? currency.CurrencyMasterCurrencyRate : 1) : 1)));
                                     }
                                     else if (DC == "C")
                                     {
-                                        acc.AccountsTransactionsAllocCredit = (decimal)item.AllocationVoucherDetailsAllocCredit; //NetAlloc;;
-                                        acc.AccountsTransactionsFcAllocCredit = (decimal)item.AllocationVoucherDetailsAllocCredit * (currency != null ? (decimal)currency.CurrencyMasterCurrencyRate : 1);
-                                        acc.AccountsTransactionsAllocBalance = acc.AccountsTransactionsCredit - (acc.AccountsTransactionsFcAllocCredit + (decimal)item.AllocationVoucherDetailsAllocCredit);
-                                        acc.AccountsTransactionsFcAllocBalance = acc.AccountsTransactionsFcCredit - (acc.AccountsTransactionsAllocCredit + ((decimal)item.AllocationVoucherDetailsAllocCredit * (currency != null ? (decimal)currency.CurrencyMasterCurrencyRate : 1)));
+                                        acc.AccountsTransactionsAllocCredit = (decimal)(item.AllocationVoucherDetailsAllocCredit!= null? item.AllocationVoucherDetailsAllocCredit:0); //NetAlloc;;
+                                        acc.AccountsTransactionsFcAllocCredit = (decimal)(item.AllocationVoucherDetailsAllocCredit != null ? item.AllocationVoucherDetailsAllocCredit : 1) * (currency != null ? (decimal)(currency.CurrencyMasterCurrencyRate != null ? currency.CurrencyMasterCurrencyRate : 1) : 1);
+                                        acc.AccountsTransactionsFcAllocBalance = acc.AccountsTransactionsCredit - (acc.AccountsTransactionsFcAllocCredit != null? acc.AccountsTransactionsFcAllocCredit:0 + (decimal)(item.AllocationVoucherDetailsAllocCredit != null ? item.AllocationVoucherDetailsAllocCredit : 0));
+                                        acc.AccountsTransactionsAllocBalance = acc.AccountsTransactionsFcCredit != null? acc.AccountsTransactionsFcCredit:0 - (acc.AccountsTransactionsAllocCredit != null? acc.AccountsTransactionsAllocCredit:0 + ((decimal)(item.AllocationVoucherDetailsAllocCredit != null ? item.AllocationVoucherDetailsAllocCredit : 1) * (currency != null ? (decimal)(currency.CurrencyMasterCurrencyRate != null ? currency.CurrencyMasterCurrencyRate : 1) : 1)));
                                     }
 
                                     accountsTransactions.Add(acc);
