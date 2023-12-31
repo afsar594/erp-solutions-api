@@ -1,6 +1,7 @@
 ﻿using Inspire.Erp.Application.Account.Interfaces;
 using Inspire.Erp.Application.Common;
 using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.AccountStatement;
 using Inspire.Erp.Domain.Modals.Common;
@@ -11,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Inspire.Erp.Application.MODULE;
 
 namespace Inspire.Erp.Application.Account.Implementations
 {
@@ -21,11 +23,11 @@ namespace Inspire.Erp.Application.Account.Implementations
         private readonly IRepository<AssetMaster> _assetMaster;
         private readonly IRepository<FinancialPeriods> _financialPeriods;
         private readonly IRepository<AssetPurchaseVoucher> _assetopening;
-        private readonly IRepository<AssetPurchaseVoucherDetail> _assetopeningDetail;
+        private readonly IRepository<AssetPurchaseVoucherDetails> _assetopeningDetail;
         private readonly IUtilityService _utilityService;
         private readonly string PurchaseAccNo = "EX6601";
         public AssetsOpeningService(IRepository<AssetPurchaseVoucher> assetopening, IRepository<VouchersNumbers> voucherNumber,
-            IRepository<AssetPurchaseVoucherDetail> assetopeningDetail, IRepository<AssetMaster> assetMaster,
+            IRepository<AssetPurchaseVoucherDetails> assetopeningDetail, IRepository<AssetMaster> assetMaster,
             IRepository<FinancialPeriods> financialPeriods, IRepository<CurrencyMaster> currencyMaster, IUtilityService utilityService)
         {
             _voucherNumber = voucherNumber;
@@ -145,6 +147,150 @@ namespace Inspire.Erp.Application.Account.Implementations
                 return Response<bool>.Fail(false, ex.Message);
             }
         }
+        //public AssetPurchaseVoucherModel InsertAssetPurchaseVoucher(AssetPurchaseVoucher customerPurchaseOrder)
+        //{
+        //    try
+        //    {
+        //        _assetopening.BeginTransaction();
+        //        string customerPurchaseOrderNumber = clsCommonFunctions.GenerateVoucherNo(customerPurchaseOrder.AstPurDt
+        //            ,).VouchersNumbersVNo;
+        //        customerPurchaseOrder.CustomerPurchaseOrderVoucherNo = customerPurchaseOrderNumber;
+        //        customerPurchaseOrder.CustomerPurchaseOrderDate = DateTime.Now;
+
+        //        int maxcount = 0;
+        //        maxcount = Convert.ToInt32(
+        //            _customerPurchaseOrderRepository.GetAsQueryable()
+        //            .DefaultIfEmpty().Max(o => o == null ? 0 : o.CustomerPurchaseOrderId) + 1);
+
+        //        customerPurchaseOrder.CustomerPurchaseOrderId = maxcount;
+
+        //        customerPurchaseOrder.CustomerPurchaseOrderDetails = customerPurchaseOrder.CustomerPurchaseOrderDetails.Select((x) =>
+        //        {
+        //            x.CustomerPurchaseOrderId = maxcount;
+        //            x.CustomerPurchaseOrderDetailsVoucherNo = customerPurchaseOrderNumber;
+        //            return x;
+        //        }).ToList();
+        //        //_customerPurchaseOrderDetailsRepository.InsertList(customerPurchaseOrderDetails);
+
+        //        accountsTransactions = accountsTransactions.Select((k) =>
+        //        {
+        //            //k.AccountsTransactionsTransDate = customerPurchaseOrder.SalesVoucherDate;
+        //            k.AccountsTransactionsVoucherNo = customerPurchaseOrderNumber;
+        //            k.AccountsTransactionsVoucherType = VoucherType.CustomerPurchaseOrder_TYPE;
+        //            k.AccountsTransactionsStatus = AccountStatus.Approved;
+        //            return k;
+        //        }).ToList();
+        //        _accountTransactionRepository.InsertList(accountsTransactions);
+
+
+        //        //List<StockRegister> sr = new List<StockRegister>();
+
+        //        //foreach (var item in customerPurchaseOrderDetails)
+        //        //{
+        //        //    sr.Add(new StockRegister()
+        //        //    {
+        //        //        StockRegisterRefVoucherNo = customerPurchaseOrderNumber,
+        //        //        StockRegisterAssignedDate = DateTime.Now,
+        //        //        StockRegisterTransType = VoucherType.CustomerPurchaseOrder_TYPE,
+        //        //        StockRegisterStatus = AccountStatus.Approved,
+        //        //        StockRegisterVoucherDate = customerPurchaseOrder.CustomerPurchaseOrderDate\,
+        //        //        StockRegisterSout = item.SalesVoucherDetailsQuantity,
+        //        //        StockRegisterMaterialID = item.SalesVoucherDetailsMatId,
+        //        //    });
+        //        //}
+        //        //stockRegister = stockRegister.Select((k) =>
+        //        //{
+        //        //   k.StockRegisterVoucherDate = customerPurchaseOrder.SalesVoucherDate;
+        //        //   k.StockRegisterRefVoucherNo = customerPurchaseOrderNumber;
+        //        //   k.StockRegisterTransType = VoucherType.CustomerPurchaseOrder_TYPE;
+        //        //   k.StockRegisterStatus = AccountStatus.Approved;
+        //        //    k.StockRegisterSout = 
+        //        //   return k;
+        //        //}).ToList();
+        //        // _stockRegisterRepository.InsertList(sr);
+
+
+
+
+
+        //        _customerPurchaseOrderRepository.Insert(customerPurchaseOrder);
+
+
+        //        //insert tracking register
+        //        var listTrackRegs = new List<TrackingRegister>();
+        //        var listTrackPurchOrderReg = new List<PurOrderRegister>();
+        //        var listCustOrderRegisterReg = new List<CustomerOrderRegister>();
+        //        foreach (var purOrderDet in customerPurchaseOrder.CustomerPurchaseOrderDetails)
+        //        {
+        //            var tr = new TrackingRegister
+        //            {
+        //                TrackingRegisterDetailsId = (int)purOrderDet.CustomerPurchaseOrderDetailsId,
+        //                TrackingRegisterVoucherNo = purOrderDet.CustomerPurchaseOrderDetailsVoucherNo,
+        //                TrackingRegisterMaterialId = (int)purOrderDet.CustomerPurchaseOrderDetailsItemId,
+        //                TrackingRegisterVoucherType = VoucherType.CustomerPurchaseOrder_TYPE,
+        //                TrackingRegisterQty = (int)purOrderDet.CustomerPurchaseOrderDetailsQty,
+        //                TrackingRegisterQtyin = (int)purOrderDet.CustomerPurchaseOrderDetailsQty,
+        //                TrackingRegisterQtyout = 0,
+        //                TrackingRegisterRate = purOrderDet.CustomerPurchaseOrderDetailsAmount,
+        //                TrackingRegisterTrackDate = customerPurchaseOrder.CustomerPurchaseOrderDate,
+        //                TrackingRegisterFsno = purOrderDet.CustomerPurchaseOrderDetailsFsno,
+
+        //            };
+        //            listTrackRegs.Add(tr);
+
+        //            var poReg = new PurOrderRegister
+        //            {
+        //                PurOrderRegisterOrderNo = purOrderDet.CustomerPurchaseOrderDetailsId.ToString(),
+        //                PurOrderRegisterRefVoucherNo = purOrderDet.CustomerPurchaseOrderDetailsVoucherNo,
+        //                PurOrderRegisterMaterialId = (int)purOrderDet.CustomerPurchaseOrderDetailsItemId,
+        //                PurOrderRegisterTransType = VoucherType.CustomerPurchaseOrder_TYPE,
+        //                PurOrderRegisterQtyOrder = purOrderDet.CustomerPurchaseOrderDetailsQty,
+        //                PurOrderRegisterQtyIssued = 0,
+        //                PurOrderRegisterRate = purOrderDet.CustomerPurchaseOrderDetailsAmount,
+        //                PurOrderRegisterAmount = purOrderDet.CustomerPurchaseOrderDetailsAmount,
+        //                PurOrderRegisterFcAmount = purOrderDet.CustomerPurchaseOrderDetailsFcAmount,
+        //                PurOrderRegisterAssignedDate = DateTime.Now,
+        //                PurOrderRegisterFsno = purOrderDet.CustomerPurchaseOrderDetailsFsno,//to be alloted,
+        //                PurOrderRegisterSupplierId = (int)0,
+        //                PurOrderRegisterStatus = "A"
+
+        //            };
+        //            listTrackPurchOrderReg.Add(poReg);
+
+        //            var custOrdReg = new CustomerOrderRegister
+        //            {
+        //                CustomerOrderRegisterRefVoucherNo = purOrderDet.CustomerPurchaseOrderDetailsVoucherNo,
+        //                CustomerOrderRegisterOrderNo = purOrderDet.CustomerPurchaseOrderDetailsId.ToString(),
+        //                CustomerOrderRegisterMaterialId = (int)purOrderDet.CustomerPurchaseOrderDetailsItemId,
+        //                CustomerOrderRegisterTransType = VoucherType.CustomerPurchaseOrder_TYPE,
+        //                CustomerOrderRegisterQtyOrder = (int)purOrderDet.CustomerPurchaseOrderDetailsQty,
+        //                CustomerOrderRegisterQtyIssued = 0,
+        //                CustomerOrderRegisterRate = purOrderDet.CustomerPurchaseOrderDetailsAmount,
+        //                CustomerOrderRegisterAssignedDate = DateTime.Now,
+        //                CustomerOrderRegisterFsno = purOrderDet.CustomerPurchaseOrderDetailsFsno,//to be alloted,
+        //                CustomerOrderRegisterCustomerId = (int)0,
+        //                CustomerOrderRegisterStatus = "A"
+
+        //            };
+        //            listCustOrderRegisterReg.Add(custOrdReg);
+
+        //        }
+
+        //        _trackingRegisterRepository.InsertList(listTrackRegs);
+        //        _purOrderRegisterRepository.InsertList(listTrackPurchOrderReg);
+        //        _custOrderRegRepository.InsertList(listCustOrderRegisterReg);
+
+        //        _customerPurchaseOrderRepository.TransactionCommit();
+        //        return this.GetSavedCustomerPurchaseOrderDetails(customerPurchaseOrder.CustomerPurchaseOrderVoucherNo);
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _customerPurchaseOrderRepository.TransactionRollback();
+        //        throw ex;
+        //    }
+
+        //}
         private async Task <string> AddAssetOpening(AddEditAssetPurchaseVoucher model)
         {
             try
@@ -188,8 +334,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _assetopening.Insert(order);
                 
                 _assetopening.SaveChangesAsync();
-                List<AssetPurchaseVoucherDetail> orderDetails = new List<AssetPurchaseVoucherDetail>();
-                orderDetails.AddRange(model.AssetPurchaseVoucherDetail.Select(x => new AssetPurchaseVoucherDetail
+                List<AssetPurchaseVoucherDetails> orderDetails = new List<AssetPurchaseVoucherDetails>();
+                orderDetails.AddRange(model.AssetPurchaseVoucherDetail.Select(x => new AssetPurchaseVoucherDetails
                 {
                     AstPurDetID= vouhcerDetailid,
                     AstPurchaseID=Id,
@@ -282,8 +428,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                 await _utilityService.AddUserTrackingLog(Deletelog);
                 #endregion
                 _assetopeningDetail.SaveChangesAsync();
-                List<AssetPurchaseVoucherDetail> orderDetails = new List<AssetPurchaseVoucherDetail>();
-                orderDetails.AddRange(model.AssetPurchaseVoucherDetail.Select(x => new AssetPurchaseVoucherDetail
+                List<AssetPurchaseVoucherDetails> orderDetails = new List<AssetPurchaseVoucherDetails>();
+                orderDetails.AddRange(model.AssetPurchaseVoucherDetail.Select(x => new AssetPurchaseVoucherDetails
                 {
                     AstPurDetID = vouhcerDetailid,
                     AstPurchaseID = model.AstPurID,
