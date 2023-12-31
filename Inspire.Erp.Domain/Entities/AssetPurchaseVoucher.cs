@@ -7,7 +7,10 @@ namespace Inspire.Erp.Domain.Entities
 {
    public class AssetPurchaseVoucher
     {
-        [Key]
+        public AssetPurchaseVoucher()
+        {
+            AssetPurchaseVoucherDetails = new HashSet<AssetPurchaseVoucherDetails>();
+        }
         public int AstPurID { get; set; }
         public string AstPurchaseID { get; set; }
         public long  AstPurchaseIDNum { get; set; }
@@ -53,5 +56,8 @@ namespace Inspire.Erp.Domain.Entities
         public string VatRoundSign { get; set; }
         public decimal VatRountAmt { get; set; }
         public string AstVatNo { get; set; }
+
+        public virtual VouchersNumbers AssetPurchaseVoucherNoNavigation { get; set; }
+        public virtual ICollection<AssetPurchaseVoucherDetails> AssetPurchaseVoucherDetails { get; set; }
     }
 }
