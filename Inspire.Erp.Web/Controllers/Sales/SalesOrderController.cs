@@ -369,6 +369,26 @@ namespace Inspire.Erp.Web.Controllers
             };
             return Ok(apiResponse);
         }
+
+
+
+        [HttpPost]
+        [Route("GetPurchaseOrderStatuses")]
+        public async Task<IActionResult> GetPurchaseOrderStatuses(CustPurchOrderFilterModel model)
+        {
+
+            var response = await _salesOrderService.GetCustomerPOStatuses(model);
+
+            //return null;
+
+            ApiResponse<List<GetCustomerPurchaseOrderTrackingResponse>> apiResponse = new ApiResponse<List<GetCustomerPurchaseOrderTrackingResponse>>
+            {
+                Valid = true,
+                Result = response.Result,
+                Message = ""
+            };
+            return Ok(apiResponse);
+        }
     }
 }
 

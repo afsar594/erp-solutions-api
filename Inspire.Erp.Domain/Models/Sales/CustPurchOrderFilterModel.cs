@@ -7,7 +7,10 @@ namespace Inspire.Erp.Domain.Modals.Sales
   public  class CustPurchOrderFilterModel
     {
         public int? LocacationId { get; set; }
-      
+
+        public int? ItemId { get; set; }
+
+        public int? CustomerId { get; set; }
         public string CustomerName { get; set; }
 
         public bool  IsDeliveryAgainstSales { get; set; }

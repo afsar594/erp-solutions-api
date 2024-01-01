@@ -549,7 +549,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                 maxcount = Convert.ToInt32(
                     _PurchaseVoucher.GetAsQueryable()
                     .DefaultIfEmpty().Max(o => o == null ? 0 : o.PurchaseVoucherPurID) + 1);
-
+                _PurchaseVoucher.Insert(purchaseVoucher);
                 purchaseVoucherDetails = purchaseVoucherDetails.Select((x) =>
                 {
                     x.PurchaseVoucherDetailsPrId = maxcount;
@@ -576,15 +576,16 @@ namespace Inspire.Erp.Application.Master.Implementations
                     {
                         StockRegisterMaterialID = item.PurchaseVoucherDetailsMaterialId,
                         StockRegisterRefVoucherNo = vnumber,
-                        StockRegisterVoucherDate = purchaseVoucher.PurchaseVoucherPurchaseDate, 
-                        StockRegisterQuantity  = item.PurchaseVoucherDetailsQuantity,
+                        StockRegisterVoucherDate = purchaseVoucher.PurchaseVoucherPurchaseDate,
+                        StockRegisterQuantity = item.PurchaseVoucherDetailsQuantity,
                         StockRegisterSIN = item.PurchaseVoucherDetailsQuantity,
                         StockRegisterRate = item.PurchaseVoucherDetailsRate,
                         StockRegisterAmount = item.PurchaseVoucherDetailsAmount,
-                    });
+                    }); ;
                 }
                 _stockRegisterRepository.InsertList(stockRegisters);
-                _accountTransactionRepository.Commit();
+                
+                _accountTransactionRepository.TransactionCommit();
 
                 return this.GetSavedPurchaseVoucherDetailsV2(purchaseVoucher.PurchaseVoucherVoucherNo);
             }
@@ -601,16 +602,20 @@ namespace Inspire.Erp.Application.Master.Implementations
             {
 
                 _accountTransactionRepository.BeginTransaction();
-              
-                accountsTransactions = accountsTransactions.Select((k) =>
-                {
-                    if (k.AccountsTransactionsTransSno == 0)
-                    {
-                        k.AccountsTransactionsTransDate = purchaseVoucher.PurchaseVoucherPurchaseDate;
-                        k.AccountsTransactionsVoucherNo = purchaseVoucher.PurchaseVoucherVoucherNo;
-                        k.AccountsTransactionsVoucherType = VoucherType.PurchaseVoucher_TYPE;
-                        k.AccountsTransactionsStatus = AccountStatus.Approved;
-                    }
+
+                //accountsTransactions = accountsTransactions.Select((k) =>
+                //{
+                //    if (k.AccountsTransactionsTransSno == 0)
+                //    {
+                //        k.AccountsTransactionsTransDate = purchaseVoucher.PurchaseVoucherPurchaseDate;
+                //        k.AccountsTransactionsVoucherNo = purchaseVoucher.PurchaseVoucherVoucherNo;
+                //        k.AccountsTransactionsVoucherType = VoucherType.PurchaseVoucher_TYPE;
+                //        k.AccountsTransactionsStatus = AccountStatus.Approved;
+                //    }
+
+                //    return k;
+                //}).ToList();
+                //_accountTransactionRepository.UpdateList(accountsTransactions);
 
                     return k;
                 }).ToList();
