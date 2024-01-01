@@ -556,7 +556,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                     x.PurchaseVoucherDetailsVoucherNo = vnumber;
                     return x;
                 }).ToList();
-
+                _PurchaseVoucher.Insert(purchaseVoucher);
                 _PurchaseVoucherDetails.InsertList(purchaseVoucherDetails);
 
                 accountsTransactions = accountsTransactions.Select((k) =>
@@ -568,7 +568,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                 }).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
-                _PurchaseVoucher.Insert(purchaseVoucher);
+                //_PurchaseVoucher.Insert(purchaseVoucher);
                 List<StockRegister> stockRegisters = new List<StockRegister>();
                 foreach (var item in purchaseVoucherDetails)
                 {
@@ -615,10 +615,10 @@ namespace Inspire.Erp.Application.Master.Implementations
                     return k;
                 }).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
-
+_PurchaseVoucher.Update(purchaseVoucher);
                 _PurchaseVoucherDetails.UpdateList(purchaseVoucherDetails);
 
-                _PurchaseVoucher.Update(purchaseVoucher);
+                
 
                 _accountTransactionRepository.Commit();
                 return this.GetSavedPurchaseVoucherDetailsV2(purchaseVoucher.PurchaseVoucherVoucherNo);

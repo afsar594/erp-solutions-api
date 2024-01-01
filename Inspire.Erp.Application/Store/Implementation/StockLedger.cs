@@ -52,31 +52,35 @@ namespace Inspire.Erp.Application.Store.Implementation
                                     .Select(x => new
                                     {
                                         ItemId = (long)x.StockRegisterMaterialID,
-                                        OpenQty = x.StockRegisterSIN ?? 0 - x.StockRegisterSout ?? 0,
-                                        OpenQtyAmt = x.StockRegisterSIN ?? 0 * x.StockRegisterRate ?? 0 - x.StockRegisterSout ?? 0 * x.StockRegisterRate ?? 0,
+                                        OpenQty = x.StockRegisterSIN  - x.StockRegisterSout ,
+                                        OpenQtyAmt = x.StockRegisterSIN  * x.StockRegisterRate  - x.StockRegisterSout  * x.StockRegisterRate ,
 
                                     }).ToList();
 
                     qry += $" and (StockRegisterAssignedDate.Value.Date >  DateTime({ sFilter.fromDate.Year},{ sFilter.fromDate.Month},{ sFilter.fromDate.Day}) and StockRegisterAssignedDate <=  DateTime({ sFilter.toDate.Year},{ sFilter.toDate.Month},{ sFilter.toDate.Day}))";
-                    var otherrValues = _sRegister.GetAsQueryable().Where($"1==1 {qry}")
-                                    .Select(x => new
-                                    {
-                                        ItemId = (long)x.StockRegisterMaterialID,
-                                        TotRevd = x.StockRegisterTransType != "SR" ? x.StockRegisterSIN ?? 0 : 0,
-                                        TotRevdAmt = x.StockRegisterTransType != "SR" ? x.StockRegisterSIN ?? 0 * x.StockRegisterRate ?? 0 : 0,
+                    var otherValues = (from s in _sRegister.GetAsQueryable().Where($"1==1 {itemQry}")
+                                       join im in _iMster.GetAsQueryable() on s.StockRegisterMaterialID equals (int?)im.ItemMasterItemId
+                                       group s by s.StockRegisterMaterialID into g
+                                       select new
+                                       {
+                                           ItemId = (long)g.Key,
+                                           TotRevd = g.Sum(x => x.StockRegisterTransType != "SR" ? x.StockRegisterSIN : 0),
+                                           TotRevdAmt = g.Sum(x => x.StockRegisterTransType != "SR" ? x.StockRegisterSIN * x.StockRegisterRate : 0),
 
-                                        TOTSaled = x.StockRegisterSout ?? 0 - (x.StockRegisterTransType == "SR" ? x.StockRegisterSIN ?? 0 : 0),
-                                        TOTSaledAmt = x.StockRegisterSout ?? 0 * x.StockRegisterRate ?? 0 - (x.StockRegisterTransType == "SR" ? x.StockRegisterSIN ?? 0 * x.StockRegisterRate ?? 0 : 0),
+                                           TOTSaled = g.Sum(x => x.StockRegisterSout - (x.StockRegisterTransType == "SR" ? x.StockRegisterSIN : 0)),
+                                           TOTSaledAmt = g.Sum(x => x.StockRegisterSout * x.StockRegisterRate - (x.StockRegisterTransType == "SR" ? x.StockRegisterSIN * x.StockRegisterRate : 0)),
 
-                                        BalaTot = x.StockRegisterSIN ?? 0 - x.StockRegisterSout ?? 0,
-                                        BalaTotamt = x.StockRegisterSIN ?? 0 * x.StockRegisterRate ?? 0 - x.StockRegisterSout ?? 0 * x.StockRegisterRate ?? 0,
-                                        StockRate = x.StockRegisterRate
+                                           BalaTot = g.Sum(x => x.StockRegisterSIN - x.StockRegisterSout),
+                                           BalaTotamt = g.Sum(x => x.StockRegisterSIN * x.StockRegisterRate - x.StockRegisterSout * x.StockRegisterRate),
+                                           StockRate = g.Max(x => x.StockRegisterRate)
+                                       }
 
-                                    }).ToList();
+                                ).ToList();
+
 
                     var result = from im in items
                                  join op in openValues on im.ItemMasterItemId equals op.ItemId
-                                 join sr in otherrValues on im.ItemMasterItemId equals sr.ItemId
+                                 join sr in otherValues on im.ItemMasterItemId equals sr.ItemId
                                  group new
                                  {
                                      Mat_ID = sr.ItemId,
@@ -102,14 +106,14 @@ namespace Inspire.Erp.Application.Store.Implementation
                                  select new StockLedgerResponse()
                                  {
                                      ItemId = g.Key.ToString(),
-                                     OpenQuantity = g.Sum(x => x.OpenQty),
-                                     OpenValue = g.Sum(x => x.OpenQtyAmt),
-                                     ReceivedQuantity = g.Sum(x => x.TotRevd),
-                                     ReceivedValue = g.Sum(x => x.TotRevdAmt),
-                                     SaledQuantity = g.Sum(x => x.TOTSaled),
-                                     SaledValue = g.Sum(x => x.TOTSaledAmt),
-                                     ClosingQuantity = g.Sum(x => x.BalaTot),
-                                     ClosingValue = g.Sum(x => x.BalaTotamt),
+                                     OpenQuantity = (decimal)g.Sum(x => x.OpenQty),
+                                     OpenValue = (decimal)g.Sum(x => x.OpenQtyAmt),
+                                     ReceivedQuantity = (decimal)g.Sum(x => x.TotRevd),
+                                     ReceivedValue = (decimal)g.Sum(x => x.TotRevdAmt),
+                                     SaledQuantity = (decimal)g.Sum(x => x.TOTSaled),
+                                     SaledValue = (decimal)g.Sum(x => x.TOTSaledAmt),
+                                     ClosingQuantity = (decimal)g.Sum(x => x.BalaTot),
+                                     ClosingValue = (decimal)g.Sum(x => x.BalaTotamt),
                                      RelativeNo = g.Max(x => x.RelativeNo).ToString(),
                                      PartNo = g.Max(x => x.PartNo),
                                      ItemName = g.Max(x => x.ItemName),
@@ -144,31 +148,37 @@ namespace Inspire.Erp.Application.Store.Implementation
                                     .Select(x => new
                                     {
                                         ItemId = (long)x.StockRegisterMaterialID,
-                                        OpenQty = x.StockRegisterSIN ?? 0 - x.StockRegisterSout ?? 0,
-                                        OpenQtyAmt = x.StockRegisterSIN ?? 0 * x.StockRegisterRate ?? 0 - x.StockRegisterSout ?? 0 * x.StockRegisterRate ?? 0,
+                                        OpenQty = x.StockRegisterSIN  - x.StockRegisterSout ,
+                                        OpenQtyAmt = x.StockRegisterSIN  * x.StockRegisterRate  - x.StockRegisterSout  * x.StockRegisterRate ,
 
                                     }).ToList();
 
 
-                    var otherrValues = _sRegister.GetAsQueryable().Where($"1==1 {qry}")
-                                    .Select(x => new
-                                    {
-                                        ItemId = (long)x.StockRegisterMaterialID,
-                                        TotRevd = x.StockRegisterTransType != "SR" ? x.StockRegisterSIN ?? 0 : 0,
-                                        TotRevdAmt = x.StockRegisterTransType != "SR" ? x.StockRegisterSIN ?? 0 * x.StockRegisterRate ?? 0 : 0,
+                  
 
-                                        TOTSaled = x.StockRegisterSout ?? 0 - (x.StockRegisterTransType == "SR" ? x.StockRegisterSIN ?? 0 : 0),
-                                        TOTSaledAmt = x.StockRegisterSout ?? 0 * x.StockRegisterRate ?? 0 - (x.StockRegisterTransType == "SR" ? x.StockRegisterSIN ?? 0 * x.StockRegisterRate ?? 0 : 0),
+                    var otherValues = (from s in _sRegister.GetAsQueryable().Where($"1==1 {itemQry}")
+                                       join im in _iMster.GetAsQueryable() on s.StockRegisterMaterialID equals (int?)im.ItemMasterItemId
+                                       group s by s.StockRegisterMaterialID into g
+                                select new {
+                                    ItemId = (long)g.Key,
+                                    TotRevd = g.Sum(x=> x.StockRegisterTransType != "SR" ? x.StockRegisterSIN : 0),
+                                    TotRevdAmt = g.Sum(x => x.StockRegisterTransType != "SR" ? x.StockRegisterSIN * x.StockRegisterRate : 0),
 
-                                        BalaTot = x.StockRegisterSIN ?? 0 - x.StockRegisterSout ?? 0,
-                                        BalaTotamt = x.StockRegisterSIN ?? 0 * x.StockRegisterRate ?? 0 - x.StockRegisterSout ?? 0 * x.StockRegisterRate ?? 0,
-                                        StockRate = x.StockRegisterRate
+                                    TOTSaled = g.Sum(x => x.StockRegisterSout - (x.StockRegisterTransType == "SR" ? x.StockRegisterSIN : 0)),
+                                    TOTSaledAmt = g.Sum(x => x.StockRegisterSout * x.StockRegisterRate - (x.StockRegisterTransType == "SR" ? x.StockRegisterSIN * x.StockRegisterRate : 0)),
 
-                                    }).ToList();
+                                    BalaTot = g.Sum(x => x.StockRegisterSIN - x.StockRegisterSout),
+                                    BalaTotamt = g.Sum(x => x.StockRegisterSIN * x.StockRegisterRate - x.StockRegisterSout * x.StockRegisterRate),
+                                    StockRate = g.Max(x => x.StockRegisterRate)
+                                }
 
+                                ).ToList();
+
+
+                    
                     var result = from im in items
                                  join op in openValues on im.ItemMasterItemId equals op.ItemId
-                                 join sr in otherrValues on im.ItemMasterItemId equals sr.ItemId
+                                 join sr in otherValues on im.ItemMasterItemId equals sr.ItemId
                                  group new
                                  {
                                      Mat_ID = sr.ItemId,
@@ -194,14 +204,14 @@ namespace Inspire.Erp.Application.Store.Implementation
                                  select new StockLedgerResponse()
                                  {
                                      ItemId = g.Key.ToString(),
-                                     OpenQuantity = g.Sum(x => x.OpenQty),
-                                     OpenValue = g.Sum(x => x.OpenQtyAmt),
-                                     ReceivedQuantity = g.Sum(x => x.TotRevd),
-                                     ReceivedValue = g.Sum(x => x.TotRevdAmt),
-                                     SaledQuantity = g.Sum(x => x.TOTSaled),
-                                     SaledValue = g.Sum(x => x.TOTSaledAmt),
-                                     ClosingQuantity = g.Sum(x => x.BalaTot),
-                                     ClosingValue = g.Sum(x => x.BalaTotamt),
+                                     OpenQuantity = (decimal)g.Sum(x => x.OpenQty),
+                                     OpenValue = (decimal)g.Sum(x => x.OpenQtyAmt),
+                                     ReceivedQuantity = (decimal)g.Sum(x => x.TotRevd),
+                                     ReceivedValue = (decimal)g.Sum(x => x.TotRevdAmt),
+                                     SaledQuantity = (decimal)g.Sum(x => x.TOTSaled),
+                                     SaledValue = (decimal)g.Sum(x => x.TOTSaledAmt),
+                                     ClosingQuantity = (decimal)g.Sum(x => x.BalaTot),
+                                     ClosingValue = (decimal)g.Sum(x => x.BalaTotamt),
                                      RelativeNo = g.Max(x => x.RelativeNo).ToString(),
                                      PartNo = g.Max(x => x.PartNo),
                                      ItemName = g.Max(x => x.ItemName),
@@ -221,6 +231,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     else
                     {
                         var a = result.ToList();
+
                         return Response<List<StockLedgerResponse>>.Success(result.ToList(), "Data Found");
                     }
                 }
