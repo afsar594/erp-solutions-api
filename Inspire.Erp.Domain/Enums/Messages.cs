@@ -230,6 +230,15 @@ namespace Inspire.Erp.Domain.Enums
         public static string VoucherNumberExist { get { return "Voucher Number is exist"; } }
     }
 
+    public static class AssetPurchaseVoucherMessage
+    {
+        public static String SaveVoucher { get { return "AssetPurchase Voucher saved successfully"; } }
+        public static string UpdateVoucher { get { return "AssetPurchase Voucher updated successfully"; } }
+        public static string DeleteVoucher { get { return "AssetPurchase Voucher updated successfully"; } }
+        public static string VoucherAlreadyExist { get { return "AssetPurchase Voucher is already exist"; } }
+        public static string VoucherNumberExist { get { return "Voucher Number is exist"; } }
+    }
+
 
 
 

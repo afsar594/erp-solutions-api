@@ -12,8 +12,7 @@ namespace Inspire.Erp.Domain.Entities
             AssetPurchaseVoucherDetails = new HashSet<AssetPurchaseVoucherDetails>();
         }
         public int AstPurID { get; set; }
-        public string AstPurchaseID { get; set; }
-        public long  AstPurchaseIDNum { get; set; }
+        public string AssetPurchaseVoucherNo { get; set; }
         public string AstPurchaseRef { get; set; }
         public string AstPurchaseType { get; set; }
         public string GRNo { get; set; }
