@@ -48,9 +48,6 @@ namespace Inspire.Erp.Web.Controllers.Store
             _mapper = mapper;
         }
 
-
-      
-
         [HttpPost]
         [Route("GetStockReportBaseUnitList")]
         public async Task<IActionResult> GetStockReportBaseUnitList(StockFilterModel model)
