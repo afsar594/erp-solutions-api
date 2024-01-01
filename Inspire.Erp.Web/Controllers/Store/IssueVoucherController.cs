@@ -115,30 +115,19 @@ namespace Inspire.Erp.Web.Controllers.Store
         [Route("InsertIssueVoucher")]
         public ApiResponse<IssueVoucherViewModel> InsertIssueVoucher([FromBody] IssueVoucherViewModel voucherCompositeView)
         {
-           
 
-            ApiResponse<IssueVoucherViewModel> apiResponse = new ApiResponse<IssueVoucherViewModel>();
-            if (_issueVoucherService.GetVouchersNumbers(voucherCompositeView.IssueVoucherNo) == null)
-            {
+                ApiResponse<IssueVoucherViewModel> apiResponse = new ApiResponse<IssueVoucherViewModel>();
+            
                 var param1 = _mapper.Map<IssueVoucher>(voucherCompositeView);
                 var param2 = _mapper.Map<List<IssueVoucherDetails>>(voucherCompositeView.IssueVoucherDetails);
                 var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-                //List<StockRegister> param4 = new List<StockRegister>();
-                //var xs = _issueVoucherService.InsertIssueVoucher(param1, param3, param2
-                //    , param4
-                //    );
-
-                //==============
-
                 param3 = new List<AccountsTransactions>();
                 List<StockRegister> param4 = new List<StockRegister>();
-                clsAccountAndStock.IssueVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
+               // clsAccountAndStock.IssueVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
 
                 var xs = _issueVoucherService.InsertIssueVoucher(param1, param3, param2
                , param4
                );
-                //========================
-
 
                 IssueVoucherViewModel issueVoucherViewModel = new IssueVoucherViewModel
                 {
@@ -200,20 +189,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                     Result = _mapper.Map<IssueVoucherViewModel>(issueVoucherViewModel),
                     Message = IssueVoucherMessage.SaveVoucher
                 };
-            }
-            else
-            {
-                apiResponse = new ApiResponse<IssueVoucherViewModel>
-                {
-                    Valid = false,
-                    Error = true,
-                    Exception = null,
-                    Message = IssueVoucherMessage.VoucherAlreadyExist
-                };
-
-            }
-
-
+            
             return apiResponse;
 
         }
@@ -225,30 +201,14 @@ namespace Inspire.Erp.Web.Controllers.Store
             var param1 = _mapper.Map<IssueVoucher>(voucherCompositeView);
             var param2 = _mapper.Map<List<IssueVoucherDetails>>(voucherCompositeView.IssueVoucherDetails);
             var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-            //List<StockRegister> param4 = new List<StockRegister>();
-            //var xs = _issueVoucherService.UpdateIssueVoucher(param1, param3, param2
-            //    , param4
-            //    );
-
-            //==============
             param3 = new List<AccountsTransactions>();
             List<StockRegister> param4 = new List<StockRegister>();
-            clsAccountAndStock.IssueVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
+           // clsAccountAndStock.IssueVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
 
             var xs = _issueVoucherService.UpdateIssueVoucher(param1, param3, param2
            , param4
            );
             //========================
-
-
-
-
-
-
-
-
-
-
             IssueVoucherViewModel issueVoucherViewModel = new IssueVoucherViewModel
             {
                 IssueVoucherId = xs.issueVoucher.IssueVoucherId,
@@ -319,12 +279,6 @@ namespace Inspire.Erp.Web.Controllers.Store
             var param1 = _mapper.Map<IssueVoucher>(voucherCompositeView);
             var param2 = _mapper.Map<List<IssueVoucherDetails>>(voucherCompositeView.IssueVoucherDetails);
             var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-            //List<StockRegister> param4 = new List<StockRegister>();
-            //var xs = _issueVoucherService.DeleteIssueVoucher(  param1,    param3, param2
-            //    , param4
-            //    );
-
-            //==============
             param3 = new List<AccountsTransactions>();
             List<StockRegister> param4 = new List<StockRegister>();
             //clsAccountAndStock.IssueVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);

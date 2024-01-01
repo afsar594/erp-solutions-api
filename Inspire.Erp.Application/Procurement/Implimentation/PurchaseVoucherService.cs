@@ -576,12 +576,15 @@ namespace Inspire.Erp.Application.Master.Implementations
                     {
                         StockRegisterMaterialID = item.PurchaseVoucherDetailsMaterialId,
                         StockRegisterRefVoucherNo = vnumber,
+                        StockRegisterPurchaseID = vnumber,
                         StockRegisterVoucherDate = purchaseVoucher.PurchaseVoucherPurchaseDate,
                         StockRegisterQuantity = item.PurchaseVoucherDetailsQuantity,
                         StockRegisterSIN = item.PurchaseVoucherDetailsQuantity,
                         StockRegisterRate = item.PurchaseVoucherDetailsRate,
                         StockRegisterAmount = item.PurchaseVoucherDetailsAmount,
-                    }); ;
+                        StockRegisterTransType = VoucherType.PurchaseVoucher_TYPE,
+                        StockRegisterStatus = AccountStatus.Approved,
+                    });
                 }
                 _stockRegisterRepository.InsertList(stockRegisters);
                 
