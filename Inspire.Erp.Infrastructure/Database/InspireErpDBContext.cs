@@ -374,7 +374,7 @@ namespace Inspire.Erp.Infrastructure.Database
         //public virtual DbSet<SalesVoucherResponse> SalesResponse { get; set; }
         //public virtual DbSet<PONumber> PONumber { get; set; }
         public virtual DbSet<AssetPurchaseVoucher> AssetPurchaseVoucher { get; set; }
-        public virtual DbSet<AssetPurchaseVoucherDetail> AssetPurchaseVoucherDetail { get; set; }
+        public virtual DbSet<AssetPurchaseVoucherDetails> AssetPurchaseVoucherDetails { get; set; }
 
         public virtual DbSet<GetAccountTransactionProfitLossResponse> ProfitLossTransaction { get; set; }
         public virtual DbSet<SingleValueSPResult> TrialBalacnceTransaction { get; set; }
@@ -23964,6 +23964,24 @@ namespace Inspire.Erp.Infrastructure.Database
                e.Property(x => x.CreatedDate).HasColumnName("Order_Approvals_CreatedDate");
                e.Property(x => x.CreatedBy).HasColumnName("Order_Approvals_CreatedBy");
            });
+
+            modelBuilder.Entity<AssetPurchaseVoucher>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToTable("Ast_Purchase_Voucher");
+
+            
+            });
+
+            modelBuilder.Entity<AssetPurchaseVoucherDetails>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToTable("AstPurchase_Voucher_Details");
+
+
+            });
 
 
             OnModelCreatingPartial(modelBuilder);
