@@ -454,5 +454,90 @@ namespace Inspire.Erp.Application.Master
             return accountMasters;
         }
 
+        public MasterAccountsTable AddNewAccount(MasterAccountsTable masterAccountsTable)
+        {
+            try
+            {
+                masterAccountsTable.MaSno = Convert.ToInt32(masteraccountstablerepository.GetAsQueryable()
+                                             .Where(x => Convert.ToInt32(x.MaSno) > 0)
+                                             .DefaultIfEmpty()
+                                             .Max(o => o == null ? 0 : o.MaSno)) + 1;
+                var AccNo = masteraccountstablerepository.GetAsQueryable()
+                                             .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == masterAccountsTable.MaRelativeNo)
+                                             .DefaultIfEmpty()
+                                             .Max(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length - 3, 3))) + 1;
+
+                masterAccountsTable.MaAccType = AccountStatus.Approved;
+
+                var mainHead = masteraccountstablerepository.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == masterAccountsTable.MaRelativeNo).MaMainHead;
+                var subHead = masteraccountstablerepository.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == masterAccountsTable.MaRelativeNo).MaSubHead;
+                masterAccountsTable.MaMainHead = mainHead ?? "";
+                masterAccountsTable.MaSubHead = subHead?? "";
+
+
+
+                masterAccountsTable.MaAccNo = masterAccountsTable.MaRelativeNo + String.Format("{0:000}", AccNo);
+                if (masterAccountsTable.MaAccType == ItemMasterStatus.Group)
+                {
+
+                    masterAccountsTable.MaImageKey = ItemMasterStatus.GroupItem;
+                }
+                else
+                {
+                    masterAccountsTable.MaImageKey = ItemMasterStatus.SubItem;
+                }
+
+                masteraccountstablerepository.Insert(masterAccountsTable);
+                return masterAccountsTable;
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        public IEnumerable<MasterAccountsTable> InsertAccountGroup(MasterAccountsTable masterAccountsTable)
+        {
+            try
+            {
+                masterAccountsTable.MaSno = Convert.ToInt32(masteraccountstablerepository.GetAsQueryable()
+                                             .Where(x => Convert.ToInt32(x.MaSno) > 0)
+                                             .DefaultIfEmpty()
+                                             .Max(o => o == null ? 0 : o.MaSno)) + 1;
+                var AccNo = masteraccountstablerepository.GetAsQueryable()
+                                             .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == masterAccountsTable.MaRelativeNo)
+                                             .DefaultIfEmpty()
+                                             .Max(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length - 3, 3))) + 1;
+
+
+                var mainHead = masteraccountstablerepository.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == masterAccountsTable.MaRelativeNo).MaMainHead;
+                var subHead = masteraccountstablerepository.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == masterAccountsTable.MaRelativeNo).MaSubHead;
+                
+                masterAccountsTable.MaMainHead = mainHead ?? "";
+                masterAccountsTable.MaSubHead = subHead ?? "";
+                masterAccountsTable.MaStatus = AccountStatus.AccStatus;
+
+                if (masterAccountsTable.MaAccType == ItemMasterStatus.Group || masterAccountsTable.MaAccType == AccountMasterStatus.SubItem)
+                {
+
+                    masterAccountsTable.MaImageKey = ItemMasterStatus.GroupItem;
+                }
+                else
+                {
+                    masterAccountsTable.MaImageKey = ItemMasterStatus.SubItem;
+                }
+
+                masterAccountsTable.MaAccNo = masterAccountsTable.MaRelativeNo + String.Format("{0:00}", AccNo);
+            
+                masteraccountstablerepository.Insert(masterAccountsTable);
+                return this.GetAllAccount();
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
     }
 }

@@ -132,14 +132,7 @@ namespace Inspire.Erp.Application.MODULE
            //_accountTransactionRepository.UpdateList(accttrans);
         }
 
-
-
-
-
-
-
-
-        public static  void Delete_OldEntry_StockRegister(string StockRegisterVoucherNo, string StockRegisterTransType, IRepository<StockRegister> _stockRegisterRepository)
+          public static  void Delete_OldEntry_StockRegister(string StockRegisterVoucherNo, string StockRegisterTransType, IRepository<StockRegister> _stockRegisterRepository)
         {
             List<StockRegister> stockTrans = _stockRegisterRepository.GetAsQueryable()
                  .Where(k => k.StockRegisterRefVoucherNo == StockRegisterVoucherNo && k.StockRegisterTransType == StockRegisterTransType && k.StockRegisterDelStatus != true).Select((l) => new StockRegister

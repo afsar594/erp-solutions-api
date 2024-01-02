@@ -8,7 +8,9 @@ namespace Inspire.Erp.Application.Master
     public interface IMasterAccountsTableService
     {
         public IEnumerable<MasterAccountsTable> InsertAccount(MasterAccountsTable masterAccountsTable);
+        public IEnumerable<MasterAccountsTable> InsertAccountGroup(MasterAccountsTable masterAccountsTable);
         public MasterAccountsTable NewAccount(MasterAccountsTable masterAccountsTable);
+        public MasterAccountsTable AddNewAccount(MasterAccountsTable masterAccountsTable);
         public MasterAccountsTable UpdateNewAccount(MasterAccountsTable masterAccountsTable);
         public IEnumerable<MasterAccountsTable> UpdateAccount(MasterAccountsTable masterAccountsTable);
         public IEnumerable<MasterAccountsTable> DeleteAccount(MasterAccountsTable masterAccountsTable);

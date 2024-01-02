@@ -8,6 +8,7 @@ namespace Inspire.Erp.Web.ViewModels.Accounts
 
         public int AstPurDetID { get; set; }
         public int AstPurchaseID { get; set; }
+        public string AssetPurchaseDetailsVoucherNo { get; set; }
         public int Sno { get; set; }
         public int AstID { get; set; }
         public decimal Rate { get; set; }

@@ -556,19 +556,18 @@ namespace Inspire.Erp.Application.Master.Implementations
                     x.PurchaseVoucherDetailsVoucherNo = vnumber;
                     return x;
                 }).ToList();
-
                 _PurchaseVoucherDetails.InsertList(purchaseVoucherDetails);
 
-                //accountsTransactions = accountsTransactions.Select((k) =>
-                //{
-                //    k.AccountsTransactionsVoucherNo = vnumber;
-                //    k.AccountsTransactionsVoucherType = VoucherType.PurchaseVoucher_TYPE;
-                //    k.AccountsTransactionsStatus = AccountStatus.Approved;
-                //    return k;
-                //}).ToList();
-                //_accountTransactionRepository.InsertList(accountsTransactions);
+                accountsTransactions = accountsTransactions.Select((k) =>
+                {
+                    k.AccountsTransactionsVoucherNo = vnumber;
+                    k.AccountsTransactionsVoucherType = VoucherType.PurchaseVoucher_TYPE;
+                    k.AccountsTransactionsStatus = AccountStatus.Approved;
+                    return k;
+                }).ToList();
+                _accountTransactionRepository.InsertList(accountsTransactions);
 
-           
+                //_PurchaseVoucher.Insert(purchaseVoucher);
                 List<StockRegister> stockRegisters = new List<StockRegister>();
                 foreach (var item in purchaseVoucherDetails)
                 {
@@ -576,12 +575,15 @@ namespace Inspire.Erp.Application.Master.Implementations
                     {
                         StockRegisterMaterialID = item.PurchaseVoucherDetailsMaterialId,
                         StockRegisterRefVoucherNo = vnumber,
+                        StockRegisterPurchaseID = vnumber,
                         StockRegisterVoucherDate = purchaseVoucher.PurchaseVoucherPurchaseDate,
                         StockRegisterQuantity = item.PurchaseVoucherDetailsQuantity,
                         StockRegisterSIN = item.PurchaseVoucherDetailsQuantity,
                         StockRegisterRate = item.PurchaseVoucherDetailsRate,
                         StockRegisterAmount = item.PurchaseVoucherDetailsAmount,
-                    }); ;
+                        StockRegisterTransType = VoucherType.PurchaseVoucher_TYPE,
+                        StockRegisterStatus = AccountStatus.Approved,
+                    });
                 }
                 _stockRegisterRepository.InsertList(stockRegisters);
                 
@@ -618,9 +620,8 @@ namespace Inspire.Erp.Application.Master.Implementations
                 //_accountTransactionRepository.UpdateList(accountsTransactions);
 
                 _PurchaseVoucher.Update(purchaseVoucher);
-
                 _PurchaseVoucherDetails.UpdateList(purchaseVoucherDetails);
-             
+
                 _accountTransactionRepository.TransactionCommit();
                 return this.GetSavedPurchaseVoucherDetailsV2(purchaseVoucher.PurchaseVoucherVoucherNo);
 
