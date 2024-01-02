@@ -332,20 +332,10 @@ namespace Inspire.Erp.Application.Account.Implementations
         public AssetPurchaseVoucherModel GetSavedAssetPurchaseVoucherDetails(string pvno)
         {
             AssetPurchaseVoucherModel customerPurchaseOrderModel = new AssetPurchaseVoucherModel();
-    
-
             customerPurchaseOrderModel.assetPurchaseVoucher = _assetopening.GetAsQueryable().Where(k => k.AssetPurchaseVoucherNo == pvno).SingleOrDefault();
-
-
-
             customerPurchaseOrderModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.CustomerPurchaseOrder_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
            // customerPurchaseOrderModel.customerPurchaseOrderDetails = _customerPurchaseOrderDetailsRepository.GetAsQueryable().Where(x => x.CustomerPurchaseOrderDetailsVoucherNo == pvno && (x.CustomerPurchaseOrderDetailsDelStatus == false || x.CustomerPurchaseOrderDetailsDelStatus == null)).ToList();
             return customerPurchaseOrderModel;
-
-
-
-
-
         }
 
 
