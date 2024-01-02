@@ -95,66 +95,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 return Response<List<GetAssetsMasterList>>.Fail(new List<GetAssetsMasterList>(), ex.Message);
             }
         }
-        public async Task<Response<GridWrapperResponse<List<GetAssetPurchaseVoucher>>>> GetAssetOpeningList(GenericGridViewModel model)
-        {
-            try
-            {
-                List<GetAssetPurchaseVoucher> response = new List<GetAssetPurchaseVoucher>();
-                var orders = await _assetopening.GetAsQueryable().Where(x => 1 == 1).Skip(model.Skip).Take(model.Take).ToListAsync();
-                response.AddRange(orders.Select(x => new GetAssetPurchaseVoucher
-                {
-                    AstPurID = x.AstPurID,
-                   // AstPurchaseIDNum = x.AstPurchaseIDNum,
-                    AstPurchaseID = x.AstPurID.ToString(),
-                    ActualAmount = x.ActualAmount,
-                    AstPurchaseType = x.AstPurchaseType,
-                    AstPurDt = x.AstPurDt,
-                    NetAmount = x.NetAmount,
-                    DrAccNo = x.DrAccNo,
-                    DrAmount = x.DrAmount,
-                    DisAmount = x.DisAmount,
-                    Description = x.Description,
-                    DisPer = x.DisPer,
-                }).ToList());
-                var gridResponse = new GridWrapperResponse<List<GetAssetPurchaseVoucher>>();
-                gridResponse.Data = response;
-                gridResponse.Total = 0;
-                return Response<GridWrapperResponse<List<GetAssetPurchaseVoucher>>>.Success(gridResponse, "Data found");
-            }
-            catch (Exception ex)
-            {
-                return Response<GridWrapperResponse<List<GetAssetPurchaseVoucher>>>.Fail(new GridWrapperResponse<List<GetAssetPurchaseVoucher>>(), ex.Message);
-            }
-        }
-        public async Task<Response<bool>> AddEditAssetOpening(AddEditAssetPurchaseVoucher model)
-        {
-            try
-            {
-                string message = null;
-                if (model.AstPurID == 0)
-                {
-                   
-                        message = await AddAssetOpening(model) ;
-                    
-                }
-                else
-                {
-                    
-                        message = await EditAssetOpening(model);
-                  
-                }
-                if (message == null)
-                {
-                    return Response<bool>.Fail(false, "Something went wrong. Please try again later.");
-                }
-                return Response<bool>.Success(true, "Changes Saved Successfully.");
-            }
-            catch (Exception ex)
-            {
 
-                return Response<bool>.Fail(false, ex.Message);
-            }
-        }
         public AssetPurchaseVoucherModel InsertAssetPurchaseVoucher(AssetPurchaseVoucher assetPurchaseVoucher, List<AccountsTransactions> accountsTransactions)
         {
             try
@@ -340,6 +281,54 @@ namespace Inspire.Erp.Application.Account.Implementations
 
             return this.GetSavedAssetPurchaseVoucherDetails(assetPurchaseVoucher.AssetPurchaseVoucherNo);
         }
+
+
+
+        public int DeleteAssetPurchaseVoucher(AssetPurchaseVoucher assetPurchaseVoucher, List<AccountsTransactions> accountsTransactions
+        )
+        {
+            int i = 0;
+            try
+            {
+                _assetopening.BeginTransaction();
+
+
+                clsCommonFunctions.Delete_OldEntry_AccountsTransactions(assetPurchaseVoucher.AssetPurchaseVoucherNo, VoucherType.AssetPurchaseVoucher_TYPE, _accountTransactionRepository);
+
+                assetPurchaseVoucher.AssetPurchaseVoucherDelStatus = true;
+
+                assetPurchaseVoucher.AssetPurchaseVoucherDetails = assetPurchaseVoucher.AssetPurchaseVoucherDetails.Select((k) =>
+                {
+                    k.AssetPurchaseVoucherDetailsDelStatus = true;
+                    return k;
+                }).ToList();
+
+                accountsTransactions = accountsTransactions.Select((k) =>
+                {
+                    k.AccountstransactionsDelStatus = true;
+                    return k;
+                }).ToList();
+                _accountTransactionRepository.UpdateList(accountsTransactions);
+
+                _assetopening.Update(assetPurchaseVoucher);
+
+                var vchrnumer = _voucherNumber.GetAsQueryable().Where(k => k.VouchersNumbersVNo == assetPurchaseVoucher.AssetPurchaseVoucherNo).FirstOrDefault();
+
+                _voucherNumber.Update(vchrnumer);
+
+                _assetopening.TransactionCommit();
+                i = 1;
+            }
+            catch (Exception ex)
+            {
+                _assetopening.TransactionRollback();
+                i = 0;
+                throw ex;
+            }
+
+            return i;
+
+        }
         public AssetPurchaseVoucherModel GetSavedAssetPurchaseVoucherDetails(string pvno)
         {
             AssetPurchaseVoucherModel customerPurchaseOrderModel = new AssetPurchaseVoucherModel();
@@ -358,7 +347,75 @@ namespace Inspire.Erp.Application.Account.Implementations
 
 
         }
-        private async Task <string> AddAssetOpening(AddEditAssetPurchaseVoucher model)
+
+
+        public IEnumerable<AssetPurchaseVoucher> GetAssetPurchaseVouchers()
+        {
+            IEnumerable<AssetPurchaseVoucher> customerPurchaseOrder_ALL = _assetopening.GetAll();//.Where(k => k.CustomerPurchaseOrderDelStatus == false || k.CustomerPurchaseOrderDelStatus == null);
+            return customerPurchaseOrder_ALL;
+        }
+
+        public async Task<Response<GridWrapperResponse<List<GetAssetPurchaseVoucher>>>> GetAssetOpeningList(GenericGridViewModel model)
+        {
+            try
+            {
+                List<GetAssetPurchaseVoucher> response = new List<GetAssetPurchaseVoucher>();
+                var orders = await _assetopening.GetAsQueryable().Where(x => 1 == 1).Skip(model.Skip).Take(model.Take).ToListAsync();
+                response.AddRange(orders.Select(x => new GetAssetPurchaseVoucher
+                {
+                    AstPurID = x.AstPurID,
+                    // AstPurchaseIDNum = x.AstPurchaseIDNum,
+                    AstPurchaseID = x.AstPurID.ToString(),
+                    ActualAmount = x.ActualAmount,
+                    AstPurchaseType = x.AstPurchaseType,
+                    AstPurDt = x.AstPurDt,
+                    NetAmount = x.NetAmount,
+                    DrAccNo = x.DrAccNo,
+                    DrAmount = x.DrAmount,
+                    DisAmount = x.DisAmount,
+                    Description = x.Description,
+                    DisPer = x.DisPer,
+                }).ToList());
+                var gridResponse = new GridWrapperResponse<List<GetAssetPurchaseVoucher>>();
+                gridResponse.Data = response;
+                gridResponse.Total = 0;
+                return Response<GridWrapperResponse<List<GetAssetPurchaseVoucher>>>.Success(gridResponse, "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<GridWrapperResponse<List<GetAssetPurchaseVoucher>>>.Fail(new GridWrapperResponse<List<GetAssetPurchaseVoucher>>(), ex.Message);
+            }
+        }
+        public async Task<Response<bool>> AddEditAssetOpening(AddEditAssetPurchaseVoucher model)
+        {
+            try
+            {
+                string message = null;
+                if (model.AstPurID == 0)
+                {
+
+                    message = await AddAssetOpening(model);
+
+                }
+                else
+                {
+
+                    message = await EditAssetOpening(model);
+
+                }
+                if (message == null)
+                {
+                    return Response<bool>.Fail(false, "Something went wrong. Please try again later.");
+                }
+                return Response<bool>.Success(true, "Changes Saved Successfully.");
+            }
+            catch (Exception ex)
+            {
+
+                return Response<bool>.Fail(false, ex.Message);
+            }
+        }
+        private async Task<string> AddAssetOpening(AddEditAssetPurchaseVoucher model)
         {
             try
             {
@@ -366,59 +423,59 @@ namespace Inspire.Erp.Application.Account.Implementations
                 var financial = _financialPeriods.GetAsQueryable().FirstOrDefault();
                 Random random = new Random();
                 int vouhcerDetailid = random.Next();
-                var Id = Convert.ToInt32(maxid.Max(x => Math.Round(Convert.ToDecimal(x.VouchersNumbersVsno)))+1);
+                var Id = Convert.ToInt32(maxid.Max(x => Math.Round(Convert.ToDecimal(x.VouchersNumbersVsno))) + 1);
                 AssetPurchaseVoucher order = new AssetPurchaseVoucher()
                 {
                     AstPurID = Id,
-                   // AstPurchaseIDNum = Id,
-                    AssetPurchaseVoucherNo = "AO"+ Id,
-                    ActualAmount=model.ActualAmount,
-                    AstPurchaseType="Cash",
-                    AstPurDt=Convert.ToDateTime(model.AstPurDt),
-                    SPID=0,
-                    GRNo="",
-                    GRDate=DateTime.Now,
-                    LPODate=DateTime.Now,
-                    LPONo="",
-                    NetAmount=model.NetAmount,
-                    TransportCost=0,
-                    Handlingcharges=0,
-                    DrAccNo=PurchaseAccNo,
-                    DrAmount=model.DrAmount,
-                    DisAmount=model.DisAmount,
-                    FSNO=financial != null? Convert.ToInt32(financial.FinancialPeriodsFsno):0,
-                    Status="P",
-                    UserID=0,
-                    FcRate=0,
-                    LocationID=0,
-                    Description=model.Description,
-                    DisPer=model.DisPer,
-                    SupInvNo="",
-                    CurrencyId=model.CurrencyId,
-                    PONO="",
+                    // AstPurchaseIDNum = Id,
+                    AssetPurchaseVoucherNo = "AO" + Id,
+                    ActualAmount = model.ActualAmount,
+                    AstPurchaseType = "Cash",
+                    AstPurDt = Convert.ToDateTime(model.AstPurDt),
+                    SPID = 0,
+                    GRNo = "",
+                    GRDate = DateTime.Now,
+                    LPODate = DateTime.Now,
+                    LPONo = "",
+                    NetAmount = model.NetAmount,
+                    TransportCost = 0,
+                    Handlingcharges = 0,
+                    DrAccNo = PurchaseAccNo,
+                    DrAmount = model.DrAmount,
+                    DisAmount = model.DisAmount,
+                    FSNO = financial != null ? Convert.ToInt32(financial.FinancialPeriodsFsno) : 0,
+                    Status = "P",
+                    UserID = 0,
+                    FcRate = 0,
+                    LocationID = 0,
+                    Description = model.Description,
+                    DisPer = model.DisPer,
+                    SupInvNo = "",
+                    CurrencyId = model.CurrencyId,
+                    PONO = "",
 
                 };
                 _assetopening.Insert(order);
-                
+
                 _assetopening.SaveChangesAsync();
                 List<AssetPurchaseVoucherDetails> orderDetails = new List<AssetPurchaseVoucherDetails>();
                 orderDetails.AddRange(model.AssetPurchaseVoucherDetail.Select(x => new AssetPurchaseVoucherDetails
                 {
-                    AstPurDetID= vouhcerDetailid,
-                    AstPurchaseID=Id,
-                    AssetSize=x.AssetSize,
-                    AstPurDate=DateTime.Now,
-                    Amount=x.Amount,
-                    Quantity=x.Quantity,
-                    BookValue=x.BookValue,
-                    AccDepAmt=x.AccDepAmt,
-                    Rate=x.Rate,
-                    LifrInYrs=x.LifrInYrs,
-                    DepMode=x.DepMode,
-                    Colour=x.Colour,
-                    AstID=x.AstID,
-                    AstPurRefNo=x.AstPurRefNo,
-                    BatchCode=x.BatchCode,
+                    AstPurDetID = vouhcerDetailid,
+                    AstPurchaseID = Id,
+                    AssetSize = x.AssetSize,
+                    AstPurDate = DateTime.Now,
+                    Amount = x.Amount,
+                    Quantity = x.Quantity,
+                    BookValue = x.BookValue,
+                    AccDepAmt = x.AccDepAmt,
+                    Rate = x.Rate,
+                    LifrInYrs = x.LifrInYrs,
+                    DepMode = x.DepMode,
+                    Colour = x.Colour,
+                    AstID = x.AstID,
+                    AstPurRefNo = x.AstPurRefNo,
+                    BatchCode = x.BatchCode,
                 }));
                 _assetopeningDetail.InsertList(orderDetails);
                 #region ADD ACTIVITY LOGS
@@ -457,8 +514,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                 //orders.TransportCost = 0,
                 // orders.Handlingcharges = 0,
                 orders.DrAccNo = PurchaseAccNo;
-                   orders.DrAmount = model.DrAmount;
-                   orders.DisAmount = model.DisAmount;
+                orders.DrAmount = model.DrAmount;
+                orders.DisAmount = model.DisAmount;
                 //   orders.FSNO = financial != null ? Convert.ToInt32(financial.FinancialPeriodsFsno) : 0,
                 // orders.Status = "P",
                 orders.UserID = 0;
@@ -582,10 +639,6 @@ namespace Inspire.Erp.Application.Account.Implementations
             }
         }
 
-        public IEnumerable<AssetPurchaseVoucher> GetAssetPurchaseVouchers()
-        {
-            IEnumerable<AssetPurchaseVoucher> customerPurchaseOrder_ALL = _assetopening.GetAll();//.Where(k => k.CustomerPurchaseOrderDelStatus == false || k.CustomerPurchaseOrderDelStatus == null);
-            return customerPurchaseOrder_ALL;
-        }
+
     }
 }

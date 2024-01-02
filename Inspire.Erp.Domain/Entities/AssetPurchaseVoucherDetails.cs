@@ -41,5 +41,7 @@ namespace Inspire.Erp.Domain.Entities
         public string Colour { get; set; }
         public decimal OPCAccDepAmt { get; set; }
         public decimal OPBookValue { get; set; }
+
+        public bool? AssetPurchaseVoucherDetailsDelStatus { get; set; }
     }
 }
