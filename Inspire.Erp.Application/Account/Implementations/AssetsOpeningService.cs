@@ -95,7 +95,6 @@ namespace Inspire.Erp.Application.Account.Implementations
                 return Response<List<GetAssetsMasterList>>.Fail(new List<GetAssetsMasterList>(), ex.Message);
             }
         }
-
         public AssetPurchaseVoucherModel InsertAssetPurchaseVoucher(AssetPurchaseVoucher assetPurchaseVoucher, List<AccountsTransactions> accountsTransactions)
         {
             try
@@ -241,8 +240,6 @@ namespace Inspire.Erp.Application.Account.Implementations
             }
 
         }
-
-
         public AssetPurchaseVoucherModel UpdateAssetPurchaseVoucher(AssetPurchaseVoucher assetPurchaseVoucher, List<AccountsTransactions> accountsTransactions
 
     )
@@ -281,9 +278,6 @@ namespace Inspire.Erp.Application.Account.Implementations
 
             return this.GetSavedAssetPurchaseVoucherDetails(assetPurchaseVoucher.AssetPurchaseVoucherNo);
         }
-
-
-
         public int DeleteAssetPurchaseVoucher(AssetPurchaseVoucher assetPurchaseVoucher, List<AccountsTransactions> accountsTransactions
         )
         {
@@ -344,7 +338,6 @@ namespace Inspire.Erp.Application.Account.Implementations
             IEnumerable<AssetPurchaseVoucher> customerPurchaseOrder_ALL = _assetopening.GetAll();//.Where(k => k.CustomerPurchaseOrderDelStatus == false || k.CustomerPurchaseOrderDelStatus == null);
             return customerPurchaseOrder_ALL;
         }
-
         public async Task<Response<GridWrapperResponse<List<GetAssetPurchaseVoucher>>>> GetAssetOpeningList(GenericGridViewModel model)
         {
             try
