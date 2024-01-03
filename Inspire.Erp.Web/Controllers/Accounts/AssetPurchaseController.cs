@@ -139,7 +139,26 @@ namespace Inspire.Erp.Web.Controllers
 
         }
 
+        [HttpPost]
+        [Route("DeleteAssetPurchase")]
+        public ApiResponse<int> DeleteAssetPurchase([FromBody] AssetPurchaseVoucherViewModel voucherCompositeView)
+        {
+            var param1 = _mapper.Map<AssetPurchaseVoucher>(voucherCompositeView);
+            
+            var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
+    
+            var xs = _salesOrderService.DeleteAssetPurchaseVoucher(param1, param3);
+        
+            ApiResponse<int> apiResponse = new ApiResponse<int>
+            {
+                Valid = true,
+                Result = 0,
+                Message = AssetPurchaseVoucherMessage.DeleteVoucher
+            };
 
+            return apiResponse;
+
+        }
 
         [HttpGet]
         [Route("GetAllAssetPurchase")]

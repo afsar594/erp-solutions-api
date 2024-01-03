@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Inspire.Erp.Application.Templates.Implementation
 {
@@ -19,17 +20,18 @@ namespace Inspire.Erp.Application.Templates.Implementation
             this.qtmplts = qtmplts;
         }
 
-        public async Task<Response<List<Qtemplates>>> DeleteTemplate(int qtemplateId)
+        public async Task<Response<bool>> DeleteTemplate(int qtemplateId)
         {
             try
             {
-                var qtmp = this.qtmplts.GetAsQueryable().SingleOrDefault(x => x.QtemplatesId == qtemplateId);
+                var qtmp = await this.qtmplts.GetAsQueryable().SingleOrDefaultAsync(x => x.QtemplatesId == qtemplateId);
                 qtmp.QtemplatesDelStatus = true;
                 this.qtmplts.UpdateAsync(qtmp);
-                return await  GetAllActiveTemplates();
-            }catch(Exception ex)
+                return Response<bool>.Success(true, "Record Deleted");
+            }
+            catch(Exception ex)
             {
-                return Response<List<Qtemplates>>.Fail(new List<Qtemplates>(), ex.Message);
+                return Response<bool>.Fail(false, ex.Message);
             }
         }
 
