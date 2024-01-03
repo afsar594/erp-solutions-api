@@ -10694,6 +10694,7 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasMaxLength(30)
                     .IsUnicode(false);
                 entity.Property(e => e.JournalVoucherDetailVrefNo).HasColumnName("JournalVoucherDetails_VNO");
+                entity.Property(e => e.JournalVoucherID).HasColumnName("JournalVoucher_ID");
 
                 entity.Property(e => e.JournalVoucherDetailsCostCenterId).HasColumnName("JournalVoucherDetails_CostCenter_ID");
 
