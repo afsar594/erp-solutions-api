@@ -91,7 +91,6 @@ namespace Inspire.Erp.Application.Templates.Implementation
                 return Response<List<Qtemplates>>.Fail(new List<Qtemplates>(), ex.Message);
             }
         }
-
         public async Task<Response<Qtemplates>> InsterTemplate(Qtemplates qtemplate)
         {
             try
