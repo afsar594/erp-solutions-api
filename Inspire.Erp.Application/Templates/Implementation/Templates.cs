@@ -112,9 +112,15 @@ namespace Inspire.Erp.Application.Templates.Implementation
             try
             {
                 var qtmp = await this.qtmplts.GetAsQueryable().Where(x => x.QtemplatesId == qtemplateId).FirstOrDefaultAsync();
-                qtmp.QtemplatesDelStatus = true;
-                this.qtmplts.UpdateAsync(qtmp);
-                return Response<bool>.Success(true, "Record Deleted");
+                if(qtmp!=null) {
+
+                    qtmp.QtemplatesDelStatus = true;
+                    this.qtmplts.UpdateAsync(qtmp);
+                    return Response<bool>.Success(true, "Record Deleted");
+                }
+
+                return Response<bool>.Fail(false, "Record not found");
+
             }
             catch (Exception ex)
             {
@@ -131,9 +137,11 @@ namespace Inspire.Erp.Application.Templates.Implementation
                 {
                     data.QtemplatesDescription = qtemplate.QtemplatesDescription;
                     data.QtemplatesType = qtemplate.QtemplatesType;
+                    this.qtmplts.Update(data);
+                    return Response<Qtemplates>.Success(data, "Record Updated");
                 }
-                this.qtmplts.Update(data);
-                return Response<Qtemplates>.Success(data, "Record Updated");
+                return Response<Qtemplates>.Fail(null, "Record not found");
+
                 // return await  GetAllActiveTemplates();
             }
             catch (Exception ex)
