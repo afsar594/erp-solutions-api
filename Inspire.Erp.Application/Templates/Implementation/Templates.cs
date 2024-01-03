@@ -20,20 +20,7 @@ namespace Inspire.Erp.Application.Templates.Implementation
             this.qtmplts = qtmplts;
         }
 
-        public async Task<Response<bool>> DeleteTemplate(int qtemplateId)
-        {
-            try
-            {
-                var qtmp = await this.qtmplts.GetAsQueryable().SingleOrDefaultAsync(x => x.QtemplatesId == qtemplateId);
-                qtmp.QtemplatesDelStatus = true;
-                this.qtmplts.UpdateAsync(qtmp);
-                return Response<bool>.Success(true, "Record Deleted");
-            }
-            catch(Exception ex)
-            {
-                return Response<bool>.Fail(false, ex.Message);
-            }
-        }
+     
 
         public async Task<Response<List<Qtemplates>>> GetAllActiveTemplates()
         {
@@ -105,33 +92,54 @@ namespace Inspire.Erp.Application.Templates.Implementation
             }
         }
 
-        public async Task<Response<List<Qtemplates>>> InsterTemplate(Qtemplates qtemplate)
+        public async Task<Response<Qtemplates>> InsterTemplate(Qtemplates qtemplate)
         {
             try
             {
+                await Task.Delay(1000);
                 qtemplate.QtemplatesDelStatus = false;
                 this.qtmplts.Insert(qtemplate);
-                return await  GetAllActiveTemplates();
+                return Response<Qtemplates>.Success(qtemplate, "Record Inserted");
+                // return await  GetAllActiveTemplates();
             }
             catch (Exception ex)
             {
-                return Response<List<Qtemplates>>.Fail(new List<Qtemplates>(), ex.Message);
+                return Response<Qtemplates>.Fail(null, ex.Message);
             }
         }
 
-     
-
-        public async Task<Response<List<Qtemplates>>> UpdateTemplate(Qtemplates qtemplate)
+        public async Task<Response<bool>> DeleteTemplate(int qtemplateId)
+        {
+            try
+            {
+                var qtmp = await this.qtmplts.GetAsQueryable().Where(x => x.QtemplatesId == qtemplateId).FirstOrDefaultAsync();
+                qtmp.QtemplatesDelStatus = true;
+                this.qtmplts.UpdateAsync(qtmp);
+                return Response<bool>.Success(true, "Record Deleted");
+            }
+            catch (Exception ex)
+            {
+                return Response<bool>.Fail(false, ex.Message);
+            }
+        }
+        public async Task<Response<Qtemplates>> UpdateTemplate(Qtemplates qtemplate)
         {
             try
             {
                 qtemplate.QtemplatesDelStatus = false;
-                this.qtmplts.Update(qtemplate);
-                return await  GetAllActiveTemplates();
+                var data = await this.qtmplts.GetAsQueryable().Where(x => x.QtemplatesId == qtemplate.QtemplatesId).FirstOrDefaultAsync();
+                if(data != null)
+                {
+                    data.QtemplatesDescription = qtemplate.QtemplatesDescription;
+                    data.QtemplatesType = qtemplate.QtemplatesType;
+                }
+                this.qtmplts.Update(data);
+                return Response<Qtemplates>.Success(data, "Record Updated");
+                // return await  GetAllActiveTemplates();
             }
             catch (Exception ex)
             {
-                return Response<List<Qtemplates>>.Fail(new List<Qtemplates>(), ex.Message);
+                  return Response<Qtemplates>.Fail(null, ex.Message);
             }
         }
     }
