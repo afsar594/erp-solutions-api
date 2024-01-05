@@ -198,7 +198,7 @@ namespace Inspire.Erp.Web.Controllers
         {
             var param1 = _mapper.Map<CustomerQuotation>(customerQuotationCompositeView);
             var param2 = _mapper.Map<List<CustomerQuotationDetails>>(customerQuotationCompositeView.CustomerQuotationDetails);
-            var xs = _customerQuotationService.DeleteCustomerQuotation(param1, param2);
+            var xs = _customerQuotationService.DeleteCustomerQuotation(param1);
             ApiResponse<int> apiResponse = new ApiResponse<int>
             {
                 Valid = true,
