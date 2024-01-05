@@ -79,20 +79,21 @@ namespace Inspire.Erp.Application.Store.Implementation
                 //clsCommonFunctions.Delete_OldEntry_StockRegister(issueVoucher.IssueVoucherNo, VoucherType.IssueVoucher_TYPE, _stockRegisterRepository);
                 //clsCommonFunctions.Delete_OldEntry_AccountsTransactions(issueVoucher.IssueVoucherNo, VoucherType.IssueVoucher_TYPE, _accountTransactionRepository);
                 ////=================================
+
+                _issueVoucherRepository.Update(issueVoucher);
+
                 issueVoucherDetails = issueVoucherDetails.Select((k) =>
                 {
-                    //if (k.IssueVoucherDetailsId == 0)
-                    //{
+
                     k.IssueVoucherId = issueVoucher.IssueVoucherId;
                     k.IssueVoucherDetailsNo = issueVoucher.IssueVoucherNo;
-                    //k.IssueVoucherDetailsId = 0;
-                    //}
 
                     return k;
                 }).ToList();
 
                 _issueVoucherDetailsRepository.UpdateList(issueVoucherDetails);
-                _issueVoucherRepository.Update(issueVoucher);
+
+              
 
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
@@ -103,31 +104,25 @@ namespace Inspire.Erp.Application.Store.Implementation
                         k.AccountsTransactionsVoucherType = VoucherType.IssueVoucher_TYPE;
                         k.AccountsTransactionsStatus = AccountStatus.Approved;
                     }
-
                     return k;
                 }).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
 
-                stockRegister = stockRegister.Select((k) =>
-                {
-                    if (k.StockRegisterStoreID == 0)
-                    {
-                        k.StockRegisterVoucherDate = issueVoucher.IssueVoucherDate;
-                        k.StockRegisterRefVoucherNo = issueVoucher.IssueVoucherNo;
-                        k.StockRegisterTransType = VoucherType.IssueVoucher_TYPE;
+                //stockRegister = stockRegister.Select((k) =>
+                //{
+                //    if (k.StockRegisterStoreID == 0)
+                //    {
+                //        k.StockRegisterVoucherDate = issueVoucher.IssueVoucherDate;
+                //        k.StockRegisterRefVoucherNo = issueVoucher.IssueVoucherNo;
+                //        k.StockRegisterTransType = VoucherType.IssueVoucher_TYPE;
 
-                        k.StockRegisterStatus = AccountStatus.Approved;
-                    }
+                //        k.StockRegisterStatus = AccountStatus.Approved;
+                //    }
 
-                    return k;
-                }).ToList();
-                _stockRegisterRepository.UpdateList(stockRegister);
-
-
-
-
-
+                //    return k;
+                //}).ToList();
+                //_stockRegisterRepository.UpdateList(stockRegister);
 
                 _issueVoucherRepository.TransactionCommit();
 

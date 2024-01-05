@@ -1,16 +1,4 @@
-﻿////using System;
-////using System.Collections.Generic;
-////using System.Linq;
-////using System.Threading.Tasks;
-
-////namespace Inspire.Erp.Web.Controllers.Sales
-////{
-////    public class DeliveryNoteController
-////    {
-////    }
-////}
-
-using Inspire.Erp.Application.Account.Interfaces;
+﻿using Inspire.Erp.Application.Account.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -234,8 +222,6 @@ namespace Inspire.Erp.Web.Controllers.Sales
         [Route("GetDeliveryNote")]
         public ApiResponse<List<CustomerDeliveryNote>> GetAllDeliveryNote()
         {
-
-
             ApiResponse<List<CustomerDeliveryNote>> apiResponse = new ApiResponse<List<CustomerDeliveryNote>>
             {
                 Valid = true,
@@ -243,11 +229,6 @@ namespace Inspire.Erp.Web.Controllers.Sales
                 Message = ""
             };
             return apiResponse;
-
-
-
-
-
         }
 
         [HttpGet]
