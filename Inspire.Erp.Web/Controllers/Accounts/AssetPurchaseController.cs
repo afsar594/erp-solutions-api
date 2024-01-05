@@ -100,7 +100,7 @@ namespace Inspire.Erp.Web.Controllers
 
             //            };
             var apvm = new AssetPurchaseVoucherViewModel();
-            apvm = _mapper.Map<AssetPurchaseVoucherViewModel>(xs);
+            apvm = _mapper.Map<AssetPurchaseVoucherViewModel>(xs.assetPurchaseVoucher);
             //salesVoucherViewModel.AssetPurchaseDetails = _mapper.Map<List<AssetPurchaseVoucherDetailsViewModel>>(xs.assetPurchaseVoucher.AssetPurchaseVoucherDetails);
             //salesVoucherViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
            // apvm.AccountsTransactions= _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
