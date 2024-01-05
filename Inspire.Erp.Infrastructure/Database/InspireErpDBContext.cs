@@ -9366,7 +9366,7 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnName("IssueVoucherDetailsID")
                     .HasColumnType("numeric(18, 0)")
                     .ValueGeneratedOnAdd();
-
+                
                 entity.Property(e => e.IssueVoucherDetailsActualAmount).HasColumnType("numeric(18, 4)");
 
                 entity.Property(e => e.IssueVoucherDetailsBatchCode)
