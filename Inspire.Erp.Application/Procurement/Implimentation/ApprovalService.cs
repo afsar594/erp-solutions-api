@@ -21,6 +21,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private IRepository<StationMaster> _locationMaster;
         private IRepository<SuppliersMaster> _supplierMaster;
         private IRepository<JobMaster> _jobMaster;
+
+
         public ApprovalService(IRepository<PurchaseOrder> purchaseOrderRepository, IRepository<SuppliersMaster> supplierMaster,
             IRepository<StationMaster> locationMaster, IRepository<JobMaster> jobMaster, IRepository<PurchaseRequisition> purchaseReqRepository)
         {
