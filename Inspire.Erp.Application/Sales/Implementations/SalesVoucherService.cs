@@ -115,19 +115,10 @@ namespace Inspire.Erp.Application.Sales.Implementations
         {
             return _customerMasterRepository.GetAll();
         }
-
-
-
-
-
-
-
         public IEnumerable<CustomerMaster> SalesVoucher_GetAllSalesManMaster()
         {
             return _salesManMasterRepository.GetAll();
         }
-
-
         public IEnumerable<UnitMaster> SalesVoucher_GetAllUnitMaster()
         {
             return _unitMasterRepository.GetAll();
@@ -379,19 +370,10 @@ namespace Inspire.Erp.Application.Sales.Implementations
         {
             SalesVoucherModel salesVoucherModel = new SalesVoucherModel();
             //salesVoucherModel.salesVoucher = _salesVoucherRepository.GetAsQueryable().Where(k => k.SalesVoucherNo == pvno && k.SalesVoucherDelStatus == false).SingleOrDefault();
-
             salesVoucherModel.salesVoucher = _salesVoucherRepository.GetAsQueryable().Where(k => k.SalesVoucherNo == pvno).SingleOrDefault();
-
-
-
             salesVoucherModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.SalesVoucher_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
             salesVoucherModel.salesVoucherDetails = _salesVoucherDetailsRepository.GetAsQueryable().Where(x => x.SalesVoucherDetailsNo == pvno && (x.SalesVoucherDetailsDelStatus == false || x.SalesVoucherDetailsDelStatus == null)).ToList();
             return salesVoucherModel;
-
-
-
-
-
         }
 
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
