@@ -12,6 +12,7 @@ using Inspire.Erp.Web.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Inspire.Erp.Web.ViewModels.Accounts;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -34,80 +35,83 @@ namespace Inspire.Erp.Web.Controllers
         public ApiResponse<CustomerQuotationViewModel> InsertCustomerQuotation([FromBody] CustomerQuotationViewModel customerQuotationCompositeView)
         {
             ApiResponse<CustomerQuotationViewModel> apiResponse = new ApiResponse<CustomerQuotationViewModel>();
-            if (_customerQuotationService.GetVouchersNumbers(customerQuotationCompositeView.CustomerQuotationQuotationId) == null)
-            {
+           
+           // if (_customerQuotationService.GetVouchersNumbers(customerQuotationCompositeView.CustomerQuotationQuotationId) == null)
+            try{
                 var param1 = _mapper.Map<CustomerQuotation>(customerQuotationCompositeView);
-                var param2 = _mapper.Map<List<CustomerQuotationDetails>>(customerQuotationCompositeView.CustomerQuotationDetails);
-                var xs = _customerQuotationService.InsertCustomerQuotation(param1, param2);
-                CustomerQuotationViewModel customerQuotationViewModel = new CustomerQuotationViewModel
-                {
+                //var param2 = _mapper.Map<List<CustomerQuotationDetails>>(customerQuotationCompositeView.CustomerQuotationDetails);
+                var xs = _customerQuotationService.InsertCustomerQuotation(param1);
+                var apvm = new CustomerQuotationViewModel();
+                apvm = _mapper.Map<CustomerQuotationViewModel>(xs);
+                //CustomerQuotationViewModel customerQuotationViewModel = new CustomerQuotationViewModel
+                //{
 
-                    CustomerQuotationQid = xs.custQuotation.CustomerQuotationQid,
-                    CustomerQuotationQuotationId = xs.custQuotation.CustomerQuotationQuotationId,
-                    CustomerQuotationQuotationAddition = xs.custQuotation.CustomerQuotationQuotationAddition,
-                    CustomerQuotationQuotationRoot = xs.custQuotation.CustomerQuotationQuotationRoot,
-                    CustomerQuotationQuotationDate = xs.custQuotation.CustomerQuotationQuotationDate,
-                    CustomerQuotationQuotationValidDate = xs.custQuotation.CustomerQuotationQuotationValidDate,
-                    CustomerQuotationCustomerId = xs.custQuotation.CustomerQuotationCustomerId,
-                    CustomerQuotationEnquiryId = xs.custQuotation.CustomerQuotationEnquiryId,
-                    CustomerQuotationRemarks = xs.custQuotation.CustomerQuotationRemarks,
-                    CustomerQuotationLocationId = xs.custQuotation.CustomerQuotationLocationId,
-                    CustomerQuotationDiscountPercentage = xs.custQuotation.CustomerQuotationDiscountPercentage,
-                    CustomerQuotationDiscountAmount = xs.custQuotation.CustomerQuotationDiscountAmount,
-                    CustomerQuotationGrossTotal = xs.custQuotation.CustomerQuotationGrossTotal,
-                    CustomerQuotationNetTotal = xs.custQuotation.CustomerQuotationNetTotal,
-                    CustomerQuotationSalesManId = xs.custQuotation.CustomerQuotationSalesManId,
-                    CustomerQuotationCurrencyId = xs.custQuotation.CustomerQuotationCurrencyId,
-                    CustomerQuotationJobId = xs.custQuotation.CustomerQuotationJobId,
-                    CustomerQuotationSubject = xs.custQuotation.CustomerQuotationSubject,
-                    CustomerQuotationNote = xs.custQuotation.CustomerQuotationNote,
-                    CustomerQuotationWarranty = xs.custQuotation.CustomerQuotationWarranty,
-                    CustomerQuotationTraining = xs.custQuotation.CustomerQuotationTraining,
-                    CustomerQuotationTechnicalDetails = xs.custQuotation.CustomerQuotationTechnicalDetails,
-                    CustomerQuotationTerms = xs.custQuotation.CustomerQuotationTerms,
-                    CustomerQuotationDeliveryTimeDate = xs.custQuotation.CustomerQuotationDeliveryTimeDate,
-                    CustomerQuotationPacking = xs.custQuotation.CustomerQuotationPacking,
-                    CustomerQuotationQuality = xs.custQuotation.CustomerQuotationQuality,
-                    CustomerQuotationHeader = xs.custQuotation.CustomerQuotationHeader,
-                    CustomerQuotationFooter = xs.custQuotation.CustomerQuotationFooter,
-                    CustomerQuotationQuotationStatusId = xs.custQuotation.CustomerQuotationQuotationStatusId,
-                    CustomerQuotationFsno = xs.custQuotation.CustomerQuotationFsno,
-                    CustomerQuotationIsClose = xs.custQuotation.CustomerQuotationIsClose,
-                    CustomerQuotationEnquiryNo = xs.custQuotation.CustomerQuotationEnquiryNo,
-                    CustomerQuotationVoucherType = xs.custQuotation.CustomerQuotationVoucherType,
-                    CustomerQuotationCashCustomerName = xs.custQuotation.CustomerQuotationCashCustomerName,
-                    CustomerQuotationContactPersonV = xs.custQuotation.CustomerQuotationContactPersonV,
-                    CustomerQuotationDiscountAmountTotal = xs.custQuotation.CustomerQuotationDiscountAmountTotal,
-                    CustomerQuotationVendorId = xs.custQuotation.CustomerQuotationVendorId,
-                    CustomerQuotationTypeId = xs.custQuotation.CustomerQuotationTypeId,
-                    CustomerQuotationModelId = xs.custQuotation.CustomerQuotationModelId,
-                    CustomerQuotationVatPercentage = xs.custQuotation.CustomerQuotationVatPercentage,
-                    CustomerQuotationVatAmount = xs.custQuotation.CustomerQuotationVatAmount,
-                    CustomerQuotationQuotationEnquiryN = xs.custQuotation.CustomerQuotationQuotationEnquiryN,
-                    CustomerQuotationDelStatus = xs.custQuotation.CustomerQuotationDelStatus,
-                    CustomerQuotationProjectN = xs.custQuotation.CustomerQuotationProjectN,
-                    CustomerQuotationProjectRef = xs.custQuotation.CustomerQuotationProjectRef,
-                    CustomerQuotationReviseQuotation = xs.custQuotation.CustomerQuotationReviseQuotation,
-                    CustomerQuotationGrossProfitTotal = xs.custQuotation.CustomerQuotationGrossProfitTotal,
+                //    CustomerQuotationQid = xs.custQuotation.CustomerQuotationQid,
+                //    CustomerQuotationQuotationId = xs.custQuotation.CustomerQuotationQuotationId,
+                //    CustomerQuotationQuotationAddition = xs.custQuotation.CustomerQuotationQuotationAddition,
+                //    CustomerQuotationQuotationRoot = xs.custQuotation.CustomerQuotationQuotationRoot,
+                //    CustomerQuotationQuotationDate = xs.custQuotation.CustomerQuotationQuotationDate,
+                //    CustomerQuotationQuotationValidDate = xs.custQuotation.CustomerQuotationQuotationValidDate,
+                //    CustomerQuotationCustomerId = xs.custQuotation.CustomerQuotationCustomerId,
+                //    CustomerQuotationEnquiryId = xs.custQuotation.CustomerQuotationEnquiryId,
+                //    CustomerQuotationRemarks = xs.custQuotation.CustomerQuotationRemarks,
+                //    CustomerQuotationLocationId = xs.custQuotation.CustomerQuotationLocationId,
+                //    CustomerQuotationDiscountPercentage = xs.custQuotation.CustomerQuotationDiscountPercentage,
+                //    CustomerQuotationDiscountAmount = xs.custQuotation.CustomerQuotationDiscountAmount,
+                //    CustomerQuotationGrossTotal = xs.custQuotation.CustomerQuotationGrossTotal,
+                //    CustomerQuotationNetTotal = xs.custQuotation.CustomerQuotationNetTotal,
+                //    CustomerQuotationSalesManId = xs.custQuotation.CustomerQuotationSalesManId,
+                //    CustomerQuotationCurrencyId = xs.custQuotation.CustomerQuotationCurrencyId,
+                //    CustomerQuotationJobId = xs.custQuotation.CustomerQuotationJobId,
+                //    CustomerQuotationSubject = xs.custQuotation.CustomerQuotationSubject,
+                //    CustomerQuotationNote = xs.custQuotation.CustomerQuotationNote,
+                //    CustomerQuotationWarranty = xs.custQuotation.CustomerQuotationWarranty,
+                //    CustomerQuotationTraining = xs.custQuotation.CustomerQuotationTraining,
+                //    CustomerQuotationTechnicalDetails = xs.custQuotation.CustomerQuotationTechnicalDetails,
+                //    CustomerQuotationTerms = xs.custQuotation.CustomerQuotationTerms,
+                //    CustomerQuotationDeliveryTimeDate = xs.custQuotation.CustomerQuotationDeliveryTimeDate,
+                //    CustomerQuotationPacking = xs.custQuotation.CustomerQuotationPacking,
+                //    CustomerQuotationQuality = xs.custQuotation.CustomerQuotationQuality,
+                //    CustomerQuotationHeader = xs.custQuotation.CustomerQuotationHeader,
+                //    CustomerQuotationFooter = xs.custQuotation.CustomerQuotationFooter,
+                //    CustomerQuotationQuotationStatusId = xs.custQuotation.CustomerQuotationQuotationStatusId,
+                //    CustomerQuotationFsno = xs.custQuotation.CustomerQuotationFsno,
+                //    CustomerQuotationIsClose = xs.custQuotation.CustomerQuotationIsClose,
+                //    CustomerQuotationEnquiryNo = xs.custQuotation.CustomerQuotationEnquiryNo,
+                //    CustomerQuotationVoucherType = xs.custQuotation.CustomerQuotationVoucherType,
+                //    CustomerQuotationCashCustomerName = xs.custQuotation.CustomerQuotationCashCustomerName,
+                //    CustomerQuotationContactPersonV = xs.custQuotation.CustomerQuotationContactPersonV,
+                //    CustomerQuotationDiscountAmountTotal = xs.custQuotation.CustomerQuotationDiscountAmountTotal,
+                //    CustomerQuotationVendorId = xs.custQuotation.CustomerQuotationVendorId,
+                //    CustomerQuotationTypeId = xs.custQuotation.CustomerQuotationTypeId,
+                //    CustomerQuotationModelId = xs.custQuotation.CustomerQuotationModelId,
+                //    CustomerQuotationVatPercentage = xs.custQuotation.CustomerQuotationVatPercentage,
+                //    CustomerQuotationVatAmount = xs.custQuotation.CustomerQuotationVatAmount,
+                //    CustomerQuotationQuotationEnquiryN = xs.custQuotation.CustomerQuotationQuotationEnquiryN,
+                //    CustomerQuotationDelStatus = xs.custQuotation.CustomerQuotationDelStatus,
+                //    CustomerQuotationProjectN = xs.custQuotation.CustomerQuotationProjectN,
+                //    CustomerQuotationProjectRef = xs.custQuotation.CustomerQuotationProjectRef,
+                //    CustomerQuotationReviseQuotation = xs.custQuotation.CustomerQuotationReviseQuotation,
+                //    CustomerQuotationGrossProfitTotal = xs.custQuotation.CustomerQuotationGrossProfitTotal,
 
-                };
+                //};
 
-                customerQuotationViewModel.CustomerQuotationDetails = _mapper.Map<List<CustomerQuotationDetailsViewModel>>(xs.customerQuotationDetails);
+                //customerQuotationViewModel.CustomerQuotationDetails = _mapper.Map<List<CustomerQuotationDetailsViewModel>>(xs.customerQuotationDetails);
                 apiResponse = new ApiResponse<CustomerQuotationViewModel>
                 {
                     Valid = true,
-                    Result = _mapper.Map<CustomerQuotationViewModel>(customerQuotationViewModel),
+                    Result = apvm,// _mapper.Map<CustomerQuotationViewModel>(customerQuotationViewModel),
                     Message = CustomerQuotationMessage.SaveCustomerQuotation     
                 };
             }
-            else
+           catch(Exception ex)
             {
                 apiResponse = new ApiResponse<CustomerQuotationViewModel>
                 {
                     Valid = false,
                     Error = true,
-                    Exception = null,
-                    Message = CustomerQuotationMessage.CustomerQuotationAlreadyExist
+                    Exception = ex.Message,
+                    Message = CustomerQuotationMessage.CustomerQuotationError
                 };
 
             }
@@ -129,7 +133,7 @@ namespace Inspire.Erp.Web.Controllers
             CustomerQuotationViewModel customerQuotationViewModel = new CustomerQuotationViewModel
             {
                 CustomerQuotationQid = xs.custQuotation.CustomerQuotationQid,
-                CustomerQuotationQuotationId = xs.custQuotation.CustomerQuotationQuotationId,
+                CustomerQuotationVoucherNo = xs.custQuotation.CustomerQuotationVoucherNo,
                 CustomerQuotationQuotationAddition = xs.custQuotation.CustomerQuotationQuotationAddition,
                 CustomerQuotationQuotationRoot = xs.custQuotation.CustomerQuotationQuotationRoot,
                 CustomerQuotationQuotationDate = xs.custQuotation.CustomerQuotationQuotationDate,
@@ -232,7 +236,7 @@ namespace Inspire.Erp.Web.Controllers
                 {
 
                     CustomerQuotationQid = custQuotation.custQuotation.CustomerQuotationQid,
-                    CustomerQuotationQuotationId = custQuotation.custQuotation.CustomerQuotationQuotationId,
+                    CustomerQuotationVoucherNo = custQuotation.custQuotation.CustomerQuotationVoucherNo,
                     CustomerQuotationQuotationAddition = custQuotation.custQuotation.CustomerQuotationQuotationAddition,
                     CustomerQuotationQuotationRoot = custQuotation.custQuotation.CustomerQuotationQuotationRoot,
                     CustomerQuotationQuotationDate = custQuotation.custQuotation.CustomerQuotationQuotationDate,

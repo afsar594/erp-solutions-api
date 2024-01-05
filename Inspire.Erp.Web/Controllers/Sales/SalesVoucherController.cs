@@ -184,8 +184,6 @@ namespace Inspire.Erp.Web.Controllers
         [Route("InsertSalesVoucher")]
         public ApiResponse<SalesVoucherViewModel> InsertSalesVoucher([FromBody] SalesVoucherViewModel voucherCompositeView)
         {
-
-
             ApiResponse<SalesVoucherViewModel> apiResponse = new ApiResponse<SalesVoucherViewModel>();
             if (_salesVoucherService.GetVouchersNumbers(voucherCompositeView.SalesVoucherNo) == null)
             {

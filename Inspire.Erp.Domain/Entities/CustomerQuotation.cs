@@ -5,8 +5,13 @@ namespace Inspire.Erp.Domain.Entities
 {
     public partial class CustomerQuotation
     {
+
+        public CustomerQuotation()
+        {
+            CustomerQuotationDetails = new HashSet<CustomerQuotationDetails>();
+        }
         public long CustomerQuotationQid { get; set; }
-        public string CustomerQuotationQuotationId { get; set; }
+        public string CustomerQuotationVoucherNo { get; set; }
         public long? CustomerQuotationQuotationAddition { get; set; }
         public long? CustomerQuotationQuotationRoot { get; set; }
         public DateTime? CustomerQuotationQuotationDate { get; set; }
@@ -52,5 +57,9 @@ namespace Inspire.Erp.Domain.Entities
         public string CustomerQuotationProjectN { get; set; }
         public bool? CustomerQuotationReviseQuotation { get; set; }
         public decimal? CustomerQuotationGrossProfitTotal { get; set; }
+
+
+        public virtual VouchersNumbers CustomerQuotationVoucherNoNavigation { get; set; }
+        public virtual ICollection<CustomerQuotationDetails> CustomerQuotationDetails { get; set; }
     }
 }
