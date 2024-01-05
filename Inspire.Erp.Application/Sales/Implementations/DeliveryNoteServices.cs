@@ -300,23 +300,16 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 {
                     stockRegister.Add(new StockRegister
                     {
-                        StockRegisterAmount = item.
+                        StockRegisterMaterialID =(int)item.CustomerDeliveryNoteDetailsItemId,
+                        StockRegisterQuantity = item.CustomerDeliveryNoteDetailsQty,
+                        StockRegisterSIN = item.CustomerDeliveryNoteDetailsQty,
                         StockRegisterVoucherDate = deliveryNote.CustomerDeliveryNoteDeliveryDate,
                         StockRegisterTransType = VoucherType.DebitNote_TYPE,
                         StockRegisterStatus = AccountStatus.Approved,
                     }); 
                 }
-                ////stockRegister = stockRegister.Select((k) =>
-                ////{
-                ////    k.StockRegisterVoucherDate = salesVoucher.SalesVoucherDate;
-                ////    k.StockRegisterRefVoucherNo = salesVoucherNumber;
-                ////    k.StockRegisterTransType = VoucherType.SalesVoucher_TYPE;
-                ////    k.StockRegisterStatus = AccountStatus.Approved;
-                ////    return k;
-                ////}).ToList();
-                ////_stockRegisterRepository.InsertList(stockRegister);
-
-
+                _stockRegisterRepository.InsertList(stockRegister);
+               
                 _deliveryNoteRepository.Insert(deliveryNote);
                 _deliveryNoteRepository.TransactionCommit();
 
