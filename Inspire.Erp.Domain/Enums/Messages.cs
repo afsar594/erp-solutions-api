@@ -52,6 +52,7 @@ namespace Inspire.Erp.Domain.Enums
         public static string UpdateCustomerQuotation { get { return "Customer Quotation updated successfully"; } }
         public static string DeleteCustomerQuotation { get { return "Customer Quotation Deleted successfully"; } }
         public static string CustomerQuotationAlreadyExist { get { return "Custome rQuotation is already exist"; } }
+        public static string CustomerQuotationError { get { return "Error in Insert/Update/Delete Quotation"; } }
     }
 
     public static class CustomerEnquiryMessage
