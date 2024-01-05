@@ -40,7 +40,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
         }
 
-        public CustomerQuotationModel UpdateCustomerQuotation(CustomerQuotation customerQuotation, List<CustomerQuotationDetails> customerQuotationDetails)
+        public CustomerQuotationModel UpdateCustomerQuotation(CustomerQuotation customerQuotation)
         {
 
             try
@@ -174,14 +174,15 @@ namespace Inspire.Erp.Application.Sales.Implementations
              {
             if (_voucherNumbersRepository.GetAsQueryable().Any(x => x.VouchersNumbersVNo == Qtno))
             {
-                CustomerQuotationModel voucherdata = _voucherNumbersRepository.GetAsQueryable().Where(x => x.VouchersNumbersVNo == Qtno)
-                                                .Include(k => k.CustomerQuotationDetails).AsEnumerable()
-                                                .Select((k) => new CustomerQuotationModel
-                                                {
-                                                    customerQuotationDetails = k.CustomerQuotationDetails.Where(x => x.CustomerQuotationDetailsDelStatus == false).ToList()
-                                                })
-                                                .SingleOrDefault();
-                voucherdata.custQuotation = _customerQuotationRepository.GetAsQueryable().Where(k => k.CustomerQuotationVoucherNo == Qtno).FirstOrDefault();
+                //CustomerQuotationModel voucherdata = _voucherNumbersRepository.GetAsQueryable().Where(x => x.VouchersNumbersVNo == Qtno)
+                //                                .Include(k => k.CustomerQuotationDetails).AsEnumerable()
+                //                                .Select((k) => new CustomerQuotationModel
+                //                                {
+                //                                    customerQuotationDetails = k.CustomerQuotationDetails.Where(x => x.CustomerQuotationDetailsDelStatus == false).ToList()
+                //                                })
+                //                                .SingleOrDefault();
+                CustomerQuotationModel voucherdata = new CustomerQuotationModel();
+               voucherdata.custQuotation = _customerQuotationRepository.GetAsQueryable().Where(k => k.CustomerQuotationVoucherNo == Qtno).FirstOrDefault();
                 return voucherdata;
 
             }

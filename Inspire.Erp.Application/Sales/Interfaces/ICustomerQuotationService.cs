@@ -12,7 +12,7 @@ namespace Inspire.Erp.Application.Sales.Interfaces
         //  List<PaymentVoucherDetails> paymentVoucherDetails);
 
         public CustomerQuotationModel InsertCustomerQuotation(CustomerQuotation customerQuotation);
-        public CustomerQuotationModel UpdateCustomerQuotation(CustomerQuotation customerQuotation, List<CustomerQuotationDetails> customerQuotationDetails);
+        public CustomerQuotationModel UpdateCustomerQuotation(CustomerQuotation customerQuotation);
         public int DeleteCustomerQuotation(CustomerQuotation customerQuotation, List<CustomerQuotationDetails> customerQuotationDetails);
         public CustomerQuotationModel GetSavedCustQuotationDetails(string Qtno); 
         public IEnumerable<CustomerQuotation> GetCustomerQuotation();
