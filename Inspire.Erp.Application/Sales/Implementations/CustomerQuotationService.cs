@@ -76,7 +76,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             return this.GetSavedCustQuotationDetails(customerQuotation.CustomerQuotationVoucherNo);
         }
 
-        public int DeleteCustomerQuotation(CustomerQuotation customerQuotation, List<CustomerQuotationDetails> customerQuotationDetails)
+        public int DeleteCustomerQuotation(CustomerQuotation customerQuotation)
         {
             int i = 0;
             try
@@ -85,13 +85,13 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 customerQuotation.CustomerQuotationDelStatus = true;
 
-                customerQuotationDetails = customerQuotationDetails.Select((k) =>
-                {
-                    k.CustomerQuotationDetailsDelStatus = true;
-                    return k;
-                }).ToList();
+                //customerQuotationDetails = customerQuotationDetails.Select((k) =>
+                //{
+                //    k.CustomerQuotationDetailsDelStatus = true;
+                //    return k;
+                //}).ToList();
 
-                _customerQuotationDetailsRepository.UpdateList(customerQuotationDetails);
+             //   _customerQuotationDetailsRepository.UpdateList(customerQuotationDetails);
 
                 _customerQuotationRepository.Update(customerQuotation);
 
