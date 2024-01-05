@@ -6121,8 +6121,8 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.CustomerQuotationQuotationEnquiryN).HasColumnName("Customer_Quotation_Quotation_Enquiry_N");
 
-                entity.Property(e => e.CustomerQuotationQuotationId)
-                    .HasColumnName("Customer_Quotation_Quotation_ID")
+                entity.Property(e => e.CustomerQuotationVoucherNo)
+                    .HasColumnName("Customer_Quotation_VoucherNo")
                     .HasMaxLength(50)
                     .IsUnicode(false);
 
@@ -6207,7 +6207,7 @@ namespace Inspire.Erp.Infrastructure.Database
             {
                 entity.ToTable("Customer_Quotation_Details");
 
-                entity.Property(e => e.CustomerQuotationDetailsId).HasColumnName("Customer_Quotation_Details_ID");
+                entity.Property(e => e.CustomerQuotationDetailsVoucherNo).HasColumnName("Customer_Quotation_Details_VoucherNo");
 
                 entity.Property(e => e.CustomerQuotationDetailsCashCustomerName)
                     .HasColumnName("Customer_Quotation_Details_Cash_Customer_Name")
@@ -6226,6 +6226,7 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnType("numeric(18, 2)");
 
                 entity.Property(e => e.CustomerQuotationDetailsEnquiryDetailsId).HasColumnName("Customer_Quotation_Details_Enquiry_Details_ID");
+                entity.Property(e => e.CustomerQuotationDetailsQuotationId).HasColumnName("Customer_Quotation_Details_QuotationID");
 
                 entity.Property(e => e.CustomerQuotationDetailsFsno).HasColumnName("Customer_Quotation_Details_FSNO");
 
@@ -6278,11 +6279,13 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.CustomerQuotationDetailsVoucherType).HasColumnName("Customer_Quotation_Details_Voucher_Type");
 
-                entity.HasOne(d => d.CustomerQuotationDetailsQuotation)
-                    .WithMany(p => p.CustomerQuotationDetails)
-                    .HasPrincipalKey(p => p.VouchersNumbersVNo)
-                    .HasForeignKey(d => d.CustomerQuotationDetailsQuotationId)
-                    .HasConstraintName("FK_Customer_Quotation_Details_Vouchers_Numbers");
+                //entity.HasOne(d => d.CustomerQuotationDetailsNoNavigation)
+                //    .WithMany(p => p.CustomerQuotation)
+                //    .HasPrincipalKey(p => p.VouchersNumbersVNo)
+                //    .HasForeignKey(d => d.CustomerQuotationDetailsQuotationId)
+                //    .HasConstraintName("FK_Customer_Quotation_Details_Vouchers_Numbers");
+
+              
             });
 
             modelBuilder.Entity<CustomerType>(entity =>
