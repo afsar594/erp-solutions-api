@@ -10694,6 +10694,7 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasMaxLength(30)
                     .IsUnicode(false);
                 entity.Property(e => e.JournalVoucherDetailVrefNo).HasColumnName("JournalVoucherDetails_VNO");
+                entity.Property(e => e.JournalVoucherID).HasColumnName("JournalVoucher_ID");
 
                 entity.Property(e => e.JournalVoucherDetailsCostCenterId).HasColumnName("JournalVoucherDetails_CostCenter_ID");
 
@@ -21534,6 +21535,8 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.SuppliersMasterSupplierCountryId).HasColumnName("Suppliers_Master_Supplier_Country_ID");
 
+                entity.Property(e => e.SuppliersMasterSupplierLocationId).HasColumnName("Suppliers_Location_ID");
+
                 entity.Property(e => e.SuppliersMasterSupplierCreditDays).HasColumnName("Suppliers_Master_Supplier_Credit_Days");
 
                 entity.Property(e => e.SuppliersMasterSupplierCreditLimit).HasColumnName("Suppliers_Master_Supplier_Credit_Limit");
@@ -21556,10 +21559,10 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasMaxLength(25)
                     .IsUnicode(false);
 
-                entity.Property(e => e.SuppliersMasterSupplierLocation)
-                    .HasColumnName("Suppliers_Master_Supplier_Location")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.SuppliersMasterSupplierLocation)
+                //    .HasColumnName("Suppliers_Master_Supplier_Location")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
                 entity.Property(e => e.SuppliersMasterSupplierMobile)
                     .HasColumnName("Suppliers_Master_Supplier_Mobile")

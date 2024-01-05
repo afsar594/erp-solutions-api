@@ -95,7 +95,6 @@ namespace Inspire.Erp.Application.Account.Implementations
                 return Response<List<GetAssetsMasterList>>.Fail(new List<GetAssetsMasterList>(), ex.Message);
             }
         }
-
         public AssetPurchaseVoucherModel InsertAssetPurchaseVoucher(AssetPurchaseVoucher assetPurchaseVoucher, List<AccountsTransactions> accountsTransactions)
         {
             try
@@ -241,8 +240,6 @@ namespace Inspire.Erp.Application.Account.Implementations
             }
 
         }
-
-
         public AssetPurchaseVoucherModel UpdateAssetPurchaseVoucher(AssetPurchaseVoucher assetPurchaseVoucher, List<AccountsTransactions> accountsTransactions
 
     )
@@ -281,9 +278,6 @@ namespace Inspire.Erp.Application.Account.Implementations
 
             return this.GetSavedAssetPurchaseVoucherDetails(assetPurchaseVoucher.AssetPurchaseVoucherNo);
         }
-
-
-
         public int DeleteAssetPurchaseVoucher(AssetPurchaseVoucher assetPurchaseVoucher, List<AccountsTransactions> accountsTransactions
         )
         {
@@ -332,20 +326,10 @@ namespace Inspire.Erp.Application.Account.Implementations
         public AssetPurchaseVoucherModel GetSavedAssetPurchaseVoucherDetails(string pvno)
         {
             AssetPurchaseVoucherModel customerPurchaseOrderModel = new AssetPurchaseVoucherModel();
-    
-
             customerPurchaseOrderModel.assetPurchaseVoucher = _assetopening.GetAsQueryable().Where(k => k.AssetPurchaseVoucherNo == pvno).SingleOrDefault();
-
-
-
             customerPurchaseOrderModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.CustomerPurchaseOrder_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
            // customerPurchaseOrderModel.customerPurchaseOrderDetails = _customerPurchaseOrderDetailsRepository.GetAsQueryable().Where(x => x.CustomerPurchaseOrderDetailsVoucherNo == pvno && (x.CustomerPurchaseOrderDetailsDelStatus == false || x.CustomerPurchaseOrderDetailsDelStatus == null)).ToList();
             return customerPurchaseOrderModel;
-
-
-
-
-
         }
 
 
@@ -354,7 +338,6 @@ namespace Inspire.Erp.Application.Account.Implementations
             IEnumerable<AssetPurchaseVoucher> customerPurchaseOrder_ALL = _assetopening.GetAll();//.Where(k => k.CustomerPurchaseOrderDelStatus == false || k.CustomerPurchaseOrderDelStatus == null);
             return customerPurchaseOrder_ALL;
         }
-
         public async Task<Response<GridWrapperResponse<List<GetAssetPurchaseVoucher>>>> GetAssetOpeningList(GenericGridViewModel model)
         {
             try

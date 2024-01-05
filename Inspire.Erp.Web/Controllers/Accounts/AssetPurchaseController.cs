@@ -153,14 +153,12 @@ namespace Inspire.Erp.Web.Controllers
             {
                 Valid = true,
                 Result = 0,
-                Message = CustomerPurchaseOrderMessage.DeletePurchaseOrder
+                Message = AssetPurchaseVoucherMessage.DeleteVoucher
             };
 
             return apiResponse;
 
         }
-
-
 
         [HttpGet]
         [Route("GetAllAssetPurchase")]
