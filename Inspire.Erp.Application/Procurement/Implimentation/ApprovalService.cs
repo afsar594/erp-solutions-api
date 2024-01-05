@@ -135,7 +135,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 //   var location = await _locationMaster.GetAsQueryable().FirstOrDefaultAsync();
                 var result = await _purchaseReqRepository.GetAsQueryable().Where(model.Filter).Select(x => new GetPRApprovalResponse
                 {
-                    PurchaseRequisitionPurchaseRequesId = x.PurchaseRequisitionPurchaseRequesId,
+                    PurchaseRequisitionPurchaseRequesId =(int) x.PurchaseRequisitionPurchaseRequestId,
                     PurchaseRequisitionStaffCode = x.PurchaseRequisitionStaffCode,
                     PurchaseRequisitionRequisitionDate = x.PurchaseRequisitionRequisitionDate,
                     PurchaseRequisitionJobName = _jobMaster.GetAsQueryable().FirstOrDefault(c => c.JobMasterJobId == x.PurchaseRequisitionJobId) != null ?
@@ -155,7 +155,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         {
             try
             {
-                var results = await _purchaseReqRepository.GetAsQueryable().Where(x => ids.Contains(x.PurchaseRequisitionPurchaseRequesId)).ToListAsync();
+                var results = await _purchaseReqRepository.GetAsQueryable().Where(x => ids.Contains((int)x.PurchaseRequisitionPurchaseRequestId)).ToListAsync();
                 results.ForEach((x) =>
                 {
                     x.PurchaseRequisitionApprovedDate = DateTime.Now;

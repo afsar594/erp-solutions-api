@@ -59,7 +59,7 @@ namespace Inspire.Erp.Domain.Entities
         public DateTime? PurchaseRequisitionDetailsReqDate { get; set; }
         public string PurchaseRequisitionDetailsReqStatus { get; set; }
 
-        public int PurchaseRequisitionPurchaseRequesId { get; set; }
+        public int? PurchaseRequisitionPurchaseRequestId { get; set; }
         public DateTime? PurchaseRequisitionRequisitionDate { get; set; }
         public int? PurchaseRequisitionStaffCode { get; set; }
         public string PurchaseRequisitionRemarks { get; set; }
