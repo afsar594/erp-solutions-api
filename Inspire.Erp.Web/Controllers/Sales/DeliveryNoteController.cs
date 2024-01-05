@@ -125,7 +125,7 @@ namespace Inspire.Erp.Web.Controllers.Sales
         public ApiResponse<CustomerDeliveryNoteViewModel> UpdateSalesVoucher([FromBody] CustomerDeliveryNoteViewModel voucherCompositeView)
         {
             var param1 = _mapper.Map<CustomerDeliveryNote>(voucherCompositeView);
-            var param2 = _mapper.Map<List<CustomerDeliveryNoteDetails>>(voucherCompositeView.CustomerDeliveryNoteDeliveryId);
+            var param2 = _mapper.Map<List<CustomerDeliveryNoteDetails>>(voucherCompositeView.CustomerDeliveryNoteDetails);
            // var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
             //var param4 = _mapper.Map<List<StockRegister>>(voucherCompositeView.StockRegister);
             //var xs = _deliveryNoteService.UpdateSalesVoucher(param1, param3, param2

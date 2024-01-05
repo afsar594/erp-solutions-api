@@ -148,12 +148,11 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 //////=================================
                 deliveryNoteDetails = deliveryNoteDetails.Select((k) =>
                 {
-                    //if (k.SalesVoucherDetailsId == 0)
-                    //{
-                    k.CustomerDeliveryNoteDetailsDetId = deliveryNote.CustomerDeliveryNoteDeliveryId;
-                  //  k.SalesVoucherDetailsNo = salesVoucher.SalesVoucherNo;
-                    //k.SalesVoucherDetailsId = 0;
-                    //}
+                    
+                    if(k.CustomerDeliveryNoteDetailsDeliveryNo == 0)
+                    {
+                      k.CustomerDeliveryNoteDetailsDetId = deliveryNote.CustomerDeliveryNoteDeliveryId;
+                    }
 
                     return k;
                 }).ToList();
@@ -342,14 +341,14 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
 
           //  salesVoucherModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.SalesVoucher_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
-            deliveryNoteModel.deliveryNoteDetails = _deliveryNoteDetailsRepository.GetAsQueryable().Where(x => x.CustomerDeliveryNoteDetailsDetId == pvno && (x.CustomerDeliveryNoteDetailsDelStatus == false || x.CustomerDeliveryNoteDetailsDelStatus == null)).ToList();
+            deliveryNoteModel.deliveryNoteDetails = _deliveryNoteDetailsRepository.GetAsQueryable().Where(x => x.CustomerDeliveryNoteDetailsDeliveryNo == pvno && (x.CustomerDeliveryNoteDetailsDelStatus == false || x.CustomerDeliveryNoteDetailsDelStatus == null)).ToList();
             return deliveryNoteModel;
         }
 
         public IEnumerable<CustomerDeliveryNote> GetDeliveryNote()
         {
             
-            var customerDeliveryNotes = _deliveryNoteRepository.GetAsQueryable().Where(x => x.CustomerDeliveryNoteDelStatus == false);
+            var customerDeliveryNotes = _deliveryNoteRepository.GetAll();
             return customerDeliveryNotes;
         }
 
