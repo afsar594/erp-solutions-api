@@ -149,10 +149,7 @@ namespace Inspire.Erp.Web.Controllers
             var xs = _salesOrderService.UpdateSalesOrder(param1, param3, param2
            , param4
            );
-            //========================
-
-
-
+           
             CustomerPurchaseOrderViewModel salesVoucherViewModel = new CustomerPurchaseOrderViewModel
             {
                 CustomerPurchaseOrderId = xs.customerPurchaseOrder.CustomerPurchaseOrderId,

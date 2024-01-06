@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Inspire.Erp.Web.ViewModels.Accounts;
+using Inspire.Erp.Domain.Modals.Sales;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -293,9 +294,24 @@ namespace Inspire.Erp.Web.Controllers
                 };
                 return apiResponse;
             }
-            //return null;
+        //return null;
 
-       
+        [HttpGet]
+        [Route("GetCustomerQuotationForSaleOrder")]
+        public async Task<IActionResult> GetCustomerQuotationForSaleOrder()
+        {
+
+            var response = await _customerQuotationService.GetCustomerQuotationForSaleOrder();
+            ApiResponse<List<GetCustQuotationForSaleOrderResponse>> apiResponse = new ApiResponse<List<GetCustQuotationForSaleOrderResponse>>
+            {
+                Valid = true,
+                Result = response.Result,
+                Message = ""
+            };
+            return Ok(apiResponse);
+
+
+        }
 
     }
 }
