@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using Inspire.Erp.Application.MODULE;
 
 namespace Inspire.Erp.Application.Sales.Implementations
 {
@@ -39,7 +40,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
         }
 
-        public CustomerQuotationModel UpdateCustomerQuotation(CustomerQuotation customerQuotation, List<CustomerQuotationDetails> customerQuotationDetails)
+        public CustomerQuotationModel UpdateCustomerQuotation(CustomerQuotation customerQuotation)
         {
 
             try
@@ -48,17 +49,17 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 _customerQuotationRepository.Update(customerQuotation);
 
-                customerQuotationDetails.ForEach(x =>
-                {
-                    x.CustomerQuotationDetailsQuotationId = customerQuotation.CustomerQuotationQuotationId;
-                });
-                _customerQuotationDetailsRepository.UpdateList(customerQuotationDetails);
+                //customerQuotationDetails.ForEach(x =>
+                //{
+                //    x.CustomerQuotationDetailsQuotationId = customerQuotation.CustomerQuotationQuotationId;
+                //});
+                //_customerQuotationDetailsRepository.UpdateList(customerQuotationDetails);
 
 
                 UserTracking trackingData = new UserTracking();
                 trackingData.UserTrackingUserUserId = 1;
                 trackingData.UserTrackingUserVpAction = "Update";
-                trackingData.UserTrackingUserVpNo = customerQuotation.CustomerQuotationQuotationId;
+                trackingData.UserTrackingUserVpNo = customerQuotation.CustomerQuotationVoucherNo;
                 trackingData.UserTrackingUserChangeDt = DateTime.Now;
                 trackingData.UserTrackingUserChangeTime = DateTime.Now;
                 trackingData.UserTrackingUserVpType = "CustomerQuotation";
@@ -72,10 +73,10 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 throw ex;
             }
 
-            return this.GetSavedCustQuotationDetails(customerQuotation.CustomerQuotationQuotationId);
+            return this.GetSavedCustQuotationDetails(customerQuotation.CustomerQuotationVoucherNo);
         }
 
-        public int DeleteCustomerQuotation(CustomerQuotation customerQuotation, List<CustomerQuotationDetails> customerQuotationDetails)
+        public int DeleteCustomerQuotation(CustomerQuotation customerQuotation)
         {
             int i = 0;
             try
@@ -84,13 +85,13 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 customerQuotation.CustomerQuotationDelStatus = true;
 
-                customerQuotationDetails = customerQuotationDetails.Select((k) =>
-                {
-                    k.CustomerQuotationDetailsDelStatus = true;
-                    return k;
-                }).ToList();
+                //customerQuotationDetails = customerQuotationDetails.Select((k) =>
+                //{
+                //    k.CustomerQuotationDetailsDelStatus = true;
+                //    return k;
+                //}).ToList();
 
-                _customerQuotationDetailsRepository.UpdateList(customerQuotationDetails);
+             //   _customerQuotationDetailsRepository.UpdateList(customerQuotationDetails);
 
                 _customerQuotationRepository.Update(customerQuotation);
 
@@ -110,22 +111,33 @@ namespace Inspire.Erp.Application.Sales.Implementations
             return i;
 
         }
-        public CustomerQuotationModel InsertCustomerQuotation(CustomerQuotation customerQuotation, List<CustomerQuotationDetails> customerQuotationDetails)
+        public CustomerQuotationModel InsertCustomerQuotation(CustomerQuotation customerQuotation)
         {
             try
             {
                 _customerQuotationRepository.BeginTransaction();
-                string customerQuotationNumber = (customerQuotation.CustomerQuotationQuotationId == null || customerQuotation.CustomerQuotationQuotationId.Trim() == "") ?
-                                              this.GenerateVoucherNo(customerQuotation.CustomerQuotationQuotationDate.Value).VouchersNumbersVNo : customerQuotation.CustomerQuotationQuotationId;
-                customerQuotation.CustomerQuotationQuotationId = customerQuotationNumber;
+                string customerQuotationNumber = clsCommonFunctions.GenerateVoucherNo(customerQuotation.CustomerQuotationQuotationDate
+                   , VoucherType.Quotation, Prefix.CQ_Prefix
+                   , _programsettingsRepository, _voucherNumbersRepository).VouchersNumbersVNo;
 
-                customerQuotationDetails = customerQuotationDetails.Select((x) =>
+                //string customerQuotationNumber = (customerQuotation.CustomerQuotationQuotationId == null || customerQuotation.CustomerQuotationQuotationId.Trim() == "") ?
+                //                              this.GenerateVoucherNo(customerQuotation.CustomerQuotationQuotationDate.Value).VouchersNumbersVNo : customerQuotation.CustomerQuotationQuotationId;
+                customerQuotation.CustomerQuotationVoucherNo = customerQuotationNumber;
+
+                int maxcount = 0;
+                maxcount = Convert.ToInt32(
+                    _customerQuotationRepository.GetAsQueryable()
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.CustomerQuotationQid) + 1);
+
+                customerQuotation.CustomerQuotationQid = maxcount;
+                customerQuotation.CustomerQuotationDetails  = customerQuotation.CustomerQuotationDetails.Select((x) =>
                 {
-                    x.CustomerQuotationDetailsId = 0;
-                    x.CustomerQuotationDetailsQuotationId = customerQuotationNumber;
+                    x.CustomerQuotationDetailsQuotationId = maxcount;
+                    x.CustomerQuotationDetailsVoucherNo = customerQuotationNumber;
                     return x;
                 }).ToList();
-                _customerQuotationDetailsRepository.InsertList(customerQuotationDetails);
+
+         
 
                 _customerQuotationRepository.Insert(customerQuotation);
                
@@ -133,14 +145,14 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 UserTracking trackingData = new UserTracking();
                 trackingData.UserTrackingUserUserId = 1;
                 trackingData.UserTrackingUserVpAction = "Insert";
-                trackingData.UserTrackingUserVpNo = customerQuotation.CustomerQuotationQuotationId;
+                trackingData.UserTrackingUserVpNo = customerQuotation.CustomerQuotationVoucherNo;
                 trackingData.UserTrackingUserChangeDt = DateTime.Now;
                 trackingData.UserTrackingUserChangeTime = DateTime.Now;
                 trackingData.UserTrackingUserVpType = "CustomerQuotation";
                 _userTrackingRepository.Insert(trackingData);
                 
                 _customerQuotationRepository.TransactionCommit();
-                return this.GetSavedCustQuotationDetails(customerQuotation.CustomerQuotationQuotationId);
+                return this.GetSavedCustQuotationDetails(customerQuotation.CustomerQuotationVoucherNo);
 
             }
             catch (Exception ex)
@@ -162,14 +174,15 @@ namespace Inspire.Erp.Application.Sales.Implementations
              {
             if (_voucherNumbersRepository.GetAsQueryable().Any(x => x.VouchersNumbersVNo == Qtno))
             {
-                CustomerQuotationModel voucherdata = _voucherNumbersRepository.GetAsQueryable().Where(x => x.VouchersNumbersVNo == Qtno)
-                                                .Include(k => k.CustomerQuotationDetails).AsEnumerable()
-                                                .Select((k) => new CustomerQuotationModel
-                                                {
-                                                    customerQuotationDetails = k.CustomerQuotationDetails.Where(x => x.CustomerQuotationDetailsDelStatus == false).ToList()
-                                                })
-                                                .SingleOrDefault();
-                voucherdata.custQuotation = _customerQuotationRepository.GetAsQueryable().Where(k => k.CustomerQuotationQuotationId == Qtno).FirstOrDefault();
+                //CustomerQuotationModel voucherdata = _voucherNumbersRepository.GetAsQueryable().Where(x => x.VouchersNumbersVNo == Qtno)
+                //                                .Include(k => k.CustomerQuotationDetails).AsEnumerable()
+                //                                .Select((k) => new CustomerQuotationModel
+                //                                {
+                //                                    customerQuotationDetails = k.CustomerQuotationDetails.Where(x => x.CustomerQuotationDetailsDelStatus == false).ToList()
+                //                                })
+                //                                .SingleOrDefault();
+                CustomerQuotationModel voucherdata = new CustomerQuotationModel();
+               voucherdata.custQuotation = _customerQuotationRepository.GetAsQueryable().Where(k => k.CustomerQuotationVoucherNo == Qtno).FirstOrDefault();
                 return voucherdata;
 
             }

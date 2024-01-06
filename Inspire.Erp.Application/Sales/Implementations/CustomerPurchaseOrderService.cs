@@ -671,17 +671,16 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                         CustomerDeliveryNoteDetailsQty = g.Sum(s => s.CustomerDeliveryNoteDetailsQty)
                                     });
 
-
-                var results = await (from cpo in _Context.CustomerPurchaseOrder
+                 var results = await (from cpo in _Context.CustomerPurchaseOrder
                                      join cpod in _Context.CustomerPurchaseOrderDetails on cpo.CustomerPurchaseOrderId equals cpod.CustomerPurchaseOrderId
                                      join im in _Context.ItemMaster on cpod.CustomerPurchaseOrderDetailsItemId equals im.ItemMasterItemId
                                      join um in _Context.UnitMaster on cpod.CustomerPurchaseOrderDetailsUnitId equals um.UnitMasterUnitId
                                      join umd in _Context.UnitDetails on new { unitId = um.UnitMasterUnitId, itemId = im.ItemMasterItemId } equals new { unitId = umd.UnitDetailsUnitId, itemId = umd.UnitDetailsItemId }
-                                     join srq in subqueryDRQD on cpod.CustomerPurchaseOrderDetailsPodId equals srq.CustomerDeliveryNoteDetailsPodId
-                                     where (model.CustomerId == null || cpo.CustomerPurchaseOrderCustomerId == model.CustomerId) &&
-                                    (model.ItemId == null || im.ItemMasterItemId == model.ItemId) &&
-                                    ((model.DateFrom == null || model.DateTo == null) || (cpo.CustomerPurchaseOrderDate.Value.Date >= model.DateFrom && cpo.CustomerPurchaseOrderDate.Value.Date <= model.DateTo))
-
+                                     join drq in subqueryDRQD on cpod.CustomerPurchaseOrderDetailsPodId equals drq.CustomerDeliveryNoteDetailsPodId into gdrq
+                                     from q in gdrq.DefaultIfEmpty()
+                                     where (model.CustomerId == null || cpo.CustomerPurchaseOrderCustomerId == model.CustomerId)
+                                     &&  (model.ItemId == null || im.ItemMasterItemId == model.ItemId)
+                                     &&   ((model.DateFrom == null || model.DateTo == null) || (cpo.CustomerPurchaseOrderDate.Value.Date >= model.DateFrom && cpo.CustomerPurchaseOrderDate.Value.Date <= model.DateTo))
                                      select new GetCustomerPurchaseOrderTrackingResponse
                                      {
                                          CPOId = cpo.CustomerPurchaseOrderId,
@@ -694,16 +693,12 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                          CPODId = cpod.CustomerPurchaseOrderDetailsId,
                                          Amount = cpod.CustomerPurchaseOrderDetailsAmount,
                                          Quantity = cpod.CustomerPurchaseOrderDetailsQty,
-                                         DeliveredQuantity = srq.CustomerDeliveryNoteDetailsQty ?? 0,
-                                         BalancedQuantity = cpod.CustomerPurchaseOrderDetailsQty - srq.CustomerDeliveryNoteDetailsQty ?? 0,
+                                         DeliveredQuantity = q.CustomerDeliveryNoteDetailsQty ?? 0,
+                                         BalancedQuantity = cpod.CustomerPurchaseOrderDetailsQty - q.CustomerDeliveryNoteDetailsQty ?? 0,
                                          UnitPrice = cpod.CustomerPurchaseOrderDetailsUnitPrice,
                                          StockQuantity = _Context.StockRegister.Sum(y=>y.StockRegisterSIN??0-y.StockRegisterSout??0)/ (decimal)umd.UnitDetailsConversionType
                                      }).ToListAsync();
-
-
-
-
-                return Response<List<GetCustomerPurchaseOrderTrackingResponse>>.Success(results, "Data found");
+                  return Response<List<GetCustomerPurchaseOrderTrackingResponse>>.Success(results, "Data found");
             }
             catch (Exception ex)
             {

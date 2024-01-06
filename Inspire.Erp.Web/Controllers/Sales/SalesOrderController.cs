@@ -378,9 +378,6 @@ namespace Inspire.Erp.Web.Controllers
         {
 
             var response = await _salesOrderService.GetCustomerPOStatuses(model);
-
-            //return null;
-
             ApiResponse<List<GetCustomerPurchaseOrderTrackingResponse>> apiResponse = new ApiResponse<List<GetCustomerPurchaseOrderTrackingResponse>>
             {
                 Valid = true,
