@@ -28,6 +28,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private readonly ILogger<PaymentVoucherService> _logger;
         private readonly IRepository<TrackingRegister> _trackingRegisterRepository;
         private readonly IRepository<PurOrderRegister> _purOrderRegisterRepository;
+        private readonly IRepository<PermissionApproval> _permissionApprovalRepo;
+        private readonly IRepository<Approval> _approvalRepo;
+        private readonly IRepository<ApprovalDetail> _approvalDetailRepo;
 
 
 
@@ -39,7 +42,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
         //private IRepository<ReportPurchaseOrder> _reportPurchaseOrderRepository;
         public PurchaseOrderService(
-            IRepository<UserFile> userFileRepository,
+            IRepository<UserFile> userFileRepository, IRepository<PermissionApproval> permissionApprovalRepo,
+            IRepository<Approval> approvalRepo, IRepository<ApprovalDetail> approvalDetailRepo,
             //IRepository<ReportPurchaseOrder> reportPurchaseOrderRepository,
             IRepository<ItemMaster> itemMasterRepository, IRepository<UnitMaster> unitMasterRepository,
             IRepository<SuppliersMaster> suppliersMasterRepository, IRepository<LocationMaster> locationMasterRepository,
@@ -65,6 +69,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _purchaseReturnRepository = purchaseReturnRepository;
             _purchaseReturnDetailsRepository = purchaseReturnDetailsRepository;
             _purOrderRegisterRepository = purOrderRegisterRepository;
+            _permissionApprovalRepo = permissionApprovalRepo;
+            _approvalRepo = approvalRepo;
+            _approvalDetailRepo= approvalDetailRepo;
             //_reportPurchaseOrderRepository = reportPurchaseOrderRepository;
         }
 
@@ -297,7 +304,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
             return i;
         }
-        public PurchaseOrderModel InsertPurchaseOrder(PurchaseOrder purchaseOrder, List<AccountsTransactions> accountsTransactions,
+        public  PurchaseOrderModel InsertPurchaseOrder(PurchaseOrder purchaseOrder, List<AccountsTransactions> accountsTransactions,
             List<PurchaseOrderDetails> purchaseOrderDetails
             //, List<StockRegister> stockRegister
             )
@@ -394,7 +401,23 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 _trackingRegisterRepository.InsertList(listTrackRegs);
                 _purOrderRegisterRepository.InsertList(listTrackPurchOrderReg);
-
+                var permsionApproval = _permissionApprovalRepo.GetAsQueryable().Where(x => x.VoucherType == "Purchase Order").OrderBy(x=>x.LevelOrder).ToList();
+                var approvals = new Approval()
+                {
+                    CreatedBy = 0,
+                    LocationId = null,
+                    Status = false,
+                    VoucherType = "Purchase Order"
+                };
+                _approvalRepo.Insert(approvals);
+                _approvalDetailRepo.InsertList(permsionApproval.Select(x => new ApprovalDetail()
+                {
+                    ApprovalId=approvals.Id,
+                    Status=false,
+                    UserId=x.UserId,
+                    LevelOrder = x.LevelOrder,
+                    ApprovedAt=DateTime.Now,
+                }).ToList());
                 _purchaseOrderRepository.TransactionCommit();
                 return this.GetSavedPurchaseOrderDetails(purchaseOrder.PurchaseOrderNo);
 

@@ -393,7 +393,10 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<OpeningStockVoucher> OpeningStockVoucher { get; set; }
         public virtual DbSet<OpeningStockVoucherDetails> OpeningStockVoucherDetails { get; set; }
         public virtual DbSet<OrderApprovals> OrderApprovels { get; set; }
-
+        public DbSet<Approval> Approvals { get; set; }
+        public DbSet<ApprovalDetail> ApprovalDetails { get; set; }
+        public DbSet<PermissionApproval> PermissionApprovals { get; set; }
+        public DbSet<VoucherTypeMaster> VoucherTypeMaster { get; set; }
         //// ========================================================================================================= Reports Section
         ////public virtual DbSet<ReportStockRegister> ReportStockRegister { get; set; }
         ////public virtual DbSet<ReportAccountsTransactions> ReportAccountsTransactions { get; set; }
@@ -23964,6 +23967,49 @@ namespace Inspire.Erp.Infrastructure.Database
                e.Property(x => x.CreatedDate).HasColumnName("Order_Approvals_CreatedDate");
                e.Property(x => x.CreatedBy).HasColumnName("Order_Approvals_CreatedBy");
            });
+            modelBuilder.Entity<Approval>(e =>
+            {
+                e.ToTable("Approvals");
+                e.HasKey(x => x.Id);
+                e.Property(x => x.Id).ValueGeneratedOnAdd().HasColumnName("Id");
+                e.Property(x => x.VoucherType).HasColumnName("VoucherType");
+                e.Property(x => x.CreatedAt).HasColumnName("CreatedAt");
+                e.Property(x => x.Status).HasColumnName("Status");
+                e.Property(x => x.LocationId).HasColumnName("LocationId");
+                e.Property(x => x.CreatedBy).HasColumnName("CreatedBy");
+            });
+            modelBuilder.Entity<ApprovalDetail>(e =>
+            {
+                e.ToTable("ApprovalDetails");
+                e.HasKey(x => x.Id);
+                e.Property(x => x.Id).ValueGeneratedOnAdd().HasColumnName("Id");
+                e.Property(x => x.UserId).HasColumnName("UserId");
+                e.Property(x => x.ApprovedAt).HasColumnName("ApprovedAt");
+                e.Property(x => x.ApprovalId).HasColumnName("ApprovalId");
+                e.Property(x => x.LevelOrder).HasColumnName("LevelOrder");
+                e.Property(x => x.Status).HasColumnName("Status");
+            });
+            modelBuilder.Entity<PermissionApproval>(e =>
+            {
+                e.ToTable("PermissionApprovals");
+                e.HasKey(x => x.Id);
+                e.Property(x => x.Id).ValueGeneratedOnAdd().HasColumnName("Id");
+                e.Property(x => x.UserId).HasColumnName("UserId");
+                e.Property(x => x.CreatedAt).HasColumnName("CreatedAt");
+                e.Property(x => x.IsApproval).HasColumnName("IsApproval");
+                e.Property(x => x.VoucherType).HasColumnName("VoucherType");
+                e.Property(x => x.LevelOrder).HasColumnName("LevelOrder");
+                e.Property(x => x.VoucherTypeId).HasColumnName("VoucherTypeId");
+            });
+            modelBuilder.Entity<VoucherTypeMaster>(e =>
+            {
+                e.ToTable("VoucherTypeMaster");
+                e.HasKey(x => x.Id);
+                e.Property(x => x.Id).ValueGeneratedOnAdd().HasColumnName("Id");
+                e.Property(x => x.VoucherTypeName).HasColumnName("VoucherTypeName");
+                e.Property(x => x.CreatedAt).HasColumnName("CreatedAt");
+                e.Property(x => x.LastVoucherNo).HasColumnName("LastVoucherNo");
+            });
 
 
             OnModelCreatingPartial(modelBuilder);
