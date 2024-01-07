@@ -23,8 +23,12 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<ProgramSettings> _programsettingsRepository;  
         private IRepository<UserTracking> _userTrackingRepository;
         private readonly ILogger<CustomerQuotationService> _logger;
+        private readonly IRepository<PermissionApproval> _permissionApprovalRepo;
+        private readonly IRepository<Approval> _approvalRepo;
+        private readonly IRepository<ApprovalDetail> _approvalDetailRepo;
 
-        public CustomerQuotationService(ILogger<CustomerQuotationService> logger,
+        public CustomerQuotationService(ILogger<CustomerQuotationService> logger, IRepository<PermissionApproval> permissionApprovalRepo,
+            IRepository<Approval> approvalRepo, IRepository<ApprovalDetail> approvalDetailRepo,
             IRepository<CustomerQuotation> customerQuotationRepository, IRepository<VouchersNumbers> voucherNumbersRepository, IRepository<ProgramSettings> programsettingsRepository,
             IRepository<CustomerQuotationDetails> customerQuotationDetailsRepository,
             IRepository<UserTracking> userTrackingRepository)
@@ -36,7 +40,10 @@ namespace Inspire.Erp.Application.Sales.Implementations
             this._programsettingsRepository = programsettingsRepository;
             _logger = logger;
             this._userTrackingRepository = userTrackingRepository;
-            
+            _approvalDetailRepo = approvalDetailRepo;
+            _approvalRepo= approvalRepo;
+            _permissionApprovalRepo = permissionApprovalRepo;
+
 
         }
 
@@ -150,7 +157,24 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 trackingData.UserTrackingUserChangeTime = DateTime.Now;
                 trackingData.UserTrackingUserVpType = "CustomerQuotation";
                 _userTrackingRepository.Insert(trackingData);
-                
+                var permsionApproval = _permissionApprovalRepo.GetAsQueryable().Where(x => x.VoucherType == "CustomerQuotation").OrderBy(x => x.LevelOrder).ToList();
+                var approvals = new Approval()
+                {
+                    CreatedBy = 0,
+                    LocationId = null,
+                    Status = false,
+                    VoucherType = "CustomerQuotation"
+                };
+                _approvalRepo.Insert(approvals);
+                _approvalDetailRepo.InsertList(permsionApproval.Select(x => new ApprovalDetail()
+                {
+                    ApprovalId = approvals.Id,
+                    Status = false,
+                    UserId = x.UserId,
+                    LevelOrder = x.LevelOrder,
+                    ApprovedAt = DateTime.Now,
+                }).ToList());
+
                 _customerQuotationRepository.TransactionCommit();
                 return this.GetSavedCustQuotationDetails(customerQuotation.CustomerQuotationVoucherNo);
 
