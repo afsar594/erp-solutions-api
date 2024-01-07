@@ -29,7 +29,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<UserTracking> _userTrackingRepository;
         private readonly ILogger<CustomerQuotationService> _logger;
         public readonly InspireErpDBContext _Context;
-        public CustomerQuotationService(ILogger<CustomerQuotationService> logger,
         private readonly IRepository<PermissionApproval> _permissionApprovalRepo;
         private readonly IRepository<Approval> _approvalRepo;
         private readonly IRepository<ApprovalDetail> _approvalDetailRepo;
