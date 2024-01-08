@@ -325,7 +325,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
 
 
-                purchaseOrderDetails = purchaseOrderDetails.Select((x) =>
+                purchaseOrder.PurchaseOrderDetails = purchaseOrder.PurchaseOrderDetails.Select((x) =>
                 {
                     x.PurchaseOrderId = maxcount;
                     x.PurchaseOrderDetailsNo = purchaseOrder.PurchaseOrderNo;
