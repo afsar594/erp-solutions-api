@@ -603,22 +603,21 @@ namespace Inspire.Erp.Application.Master.Implementations
 
                 _accountTransactionRepository.BeginTransaction();
 
-                //accountsTransactions = accountsTransactions.Select((k) =>
-                //{
-                //    if (k.AccountsTransactionsTransSno == 0)
-                //    {
-                //        k.AccountsTransactionsTransDate = purchaseVoucher.PurchaseVoucherPurchaseDate;
-                //        k.AccountsTransactionsVoucherNo = purchaseVoucher.PurchaseVoucherVoucherNo;
-                //        k.AccountsTransactionsVoucherType = VoucherType.PurchaseVoucher_TYPE;
-                //        k.AccountsTransactionsStatus = AccountStatus.Approved;
-                //    }
-
-                //    return k;
-                //}).ToList();
-                //_accountTransactionRepository.UpdateList(accountsTransactions);
+                accountsTransactions = accountsTransactions.Select((k) =>
+                {
+                    if (k.AccountsTransactionsTransSno == 0)
+                    {
+                        k.AccountsTransactionsTransDate = purchaseVoucher.PurchaseVoucherPurchaseDate;
+                        k.AccountsTransactionsVoucherNo = purchaseVoucher.PurchaseVoucherVoucherNo;
+                        k.AccountsTransactionsVoucherType = VoucherType.PurchaseVoucher_TYPE;
+                        k.AccountsTransactionsStatus = AccountStatus.Approved;
+                    }
 
                     return k;
                 }).ToList();
+                _accountTransactionRepository.UpdateList(accountsTransactions);
+
+
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 _PurchaseVoucher.Update(purchaseVoucher);
                 _PurchaseVoucherDetails.UpdateList(purchaseVoucherDetails);
