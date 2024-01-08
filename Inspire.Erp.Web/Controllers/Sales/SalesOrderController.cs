@@ -149,10 +149,7 @@ namespace Inspire.Erp.Web.Controllers
             var xs = _salesOrderService.UpdateSalesOrder(param1, param3, param2
            , param4
            );
-            //========================
-
-
-
+           
             CustomerPurchaseOrderViewModel salesVoucherViewModel = new CustomerPurchaseOrderViewModel
             {
                 CustomerPurchaseOrderId = xs.customerPurchaseOrder.CustomerPurchaseOrderId,
@@ -378,9 +375,6 @@ namespace Inspire.Erp.Web.Controllers
         {
 
             var response = await _salesOrderService.GetCustomerPOStatuses(model);
-
-            //return null;
-
             ApiResponse<List<GetCustomerPurchaseOrderTrackingResponse>> apiResponse = new ApiResponse<List<GetCustomerPurchaseOrderTrackingResponse>>
             {
                 Valid = true,

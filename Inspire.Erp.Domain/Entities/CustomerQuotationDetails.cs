@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inspire.Erp.Domain.Entities
 {
     public partial class CustomerQuotationDetails
     {
         public long CustomerQuotationDetailsId { get; set; }
-        public string CustomerQuotationDetailsQuotationId { get; set; }
+        public long CustomerQuotationDetailsQuotationId { get; set; }
+        public string CustomerQuotationDetailsVoucherNo { get; set; }
         public int? CustomerQuotationDetailsSlno { get; set; }
         public long? CustomerQuotationDetailsItemId { get; set; }
         public string CustomerQuotationDetailsDescription { get; set; }
@@ -27,6 +29,8 @@ namespace Inspire.Erp.Domain.Entities
         public long? CustomerQuotationDetailsEnquiryDetailsId { get; set; }
         public bool? CustomerQuotationDetailsDelStatus { get; set; }
         public decimal? CustomerQuotationDetailsGrossProfit { get; set; }
-        public virtual VouchersNumbers CustomerQuotationDetailsQuotation { get; set; }
+
+        [NotMapped]
+        public virtual CustomerQuotation CustomerQuotationDetailsNoNavigation { get; set; }
     }
 }

@@ -1,0 +1,26 @@
+﻿using Inspire.Erp.Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Inspire.Erp.Domain.Models.Approvals
+{
+    public class ApprovalResponse
+    {
+        public int Id { get; set; }
+        public string? VoucherType { get; set; }
+        public DateTime? CreatedAt { get; set; }
+        public bool? Status { get; set; }
+        public int? CreatedBy { get; set; }
+        public int? LocationId { get; set; }
+        public List<ApprovalDetailResponse> ApprovalDetails { get; set; }
+    }
+    public class ApprovalDetailResponse
+    {
+        public int Id { get; set; }
+        public int? UserId { get; set; }
+        public bool? Status { get; set; }
+        public DateTime? ApprovedAt { get; set; }
+        public int? ApprovalId { get; set; }
+    }
+}

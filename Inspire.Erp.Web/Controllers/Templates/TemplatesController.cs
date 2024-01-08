@@ -14,7 +14,6 @@ namespace Inspire.Erp.Web.Controllers.Templates
     public class TemplatesController : ControllerBase
     {
         private ITemplates template;
-
         public TemplatesController(ITemplates template)
         {
             this.template = template;
@@ -24,7 +23,9 @@ namespace Inspire.Erp.Web.Controllers.Templates
         [Route("DeleteTemplate/{Id}")]
         public async Task<IActionResult> DeleteTemplate(int Id)
         {
-            return Ok(await template.DeleteTemplate(Id));
+            var result = await template.DeleteTemplate(Id);
+            if(result.Result) return Ok(result.Message);
+            else return BadRequest(result.Message);
         }
         [HttpGet]
         [Route("GetAllActiveTemplates")]
@@ -44,17 +45,24 @@ namespace Inspire.Erp.Web.Controllers.Templates
         {
             return Ok(await template.GetTemplateBytype(type));
         }
+
         [HttpPost]
         [Route("InsterTemplate")]
         public async Task<IActionResult> InsterTemplate(Qtemplates qtemplate)
         {
-            return Ok(await template.InsterTemplate(qtemplate));
+            var result = await template.InsterTemplate(qtemplate);
+            if (result.Valid) return Ok(result.Message);
+            else return BadRequest(result.Message);
         }
         [HttpPost]
         [Route("UpdateTemplate")]
         public async Task<IActionResult> UpdateTemplate(Qtemplates qtemplate)
         {
-            return Ok(await template.UpdateTemplate(qtemplate));
+            var result = await template.UpdateTemplate(qtemplate);
+            if (result.Valid) return Ok(result.Message);
+            else return BadRequest(result.Message);
+
+          //  return Ok(await template.UpdateTemplate(qtemplate));
         }
 
         [HttpGet]

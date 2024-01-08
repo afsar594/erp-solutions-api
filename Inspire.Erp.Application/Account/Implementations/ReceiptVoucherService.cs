@@ -149,7 +149,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountstransactionsDelStatus = false;
                     return k;
                 }).ToList();
-                Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(accountsTransactions));
+               // Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(accountsTransactions));
                 _accountTransactionRepository.InsertList(accountsTransactions);
                 _receiptVoucherRepository.Insert(receiptVoucher);
                 UserTracking trackingData = new UserTracking();
@@ -161,7 +161,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                 trackingData.UserTrackingUserVpType = "RECEIPTVOUCHER";
                 UserTracking.Insert(trackingData);
                 _receiptVoucherRepository.TransactionCommit();
-                return receiptVoucher;
+
+                return this.GetSavedReceiptDetails(receiptVoucher.ReceiptVoucherMasterVoucherNo);
             }
             catch (Exception ex)
             {
@@ -207,8 +208,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                                                 })
                                                 .SingleOrDefault();
                 voucherdata = _receiptVoucherRepository.GetAsQueryable().Where(k => k.ReceiptVoucherMasterVoucherNo == Rvno).FirstOrDefault();
-                voucherdata.AccountsTransactions = _accountTransactionRepository.GetAll().Where(o => o.AccountsTransactionsVoucherNo == Rvno && o.AccountstransactionsDelStatus == false).ToList();
-                voucherdata.ReceiptVoucherDetails = _receiptVoucherDetailsRepository.GetAll().Where(o => o.ReceiptVoucherDetailsVoucherNo == Rvno && o.ReceiptVoucherDetailsDelStatus == false).ToList();
+                voucherdata.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(o => o.AccountsTransactionsVoucherNo == Rvno && o.AccountstransactionsDelStatus == false).ToList();
+                voucherdata.ReceiptVoucherDetails = _receiptVoucherDetailsRepository.GetAsQueryable().Where(o => o.ReceiptVoucherDetailsVoucherNo == Rvno && o.ReceiptVoucherDetailsDelStatus == false).ToList();
                 voucherdata.TrackingData = userTrackngData;
                 voucherdata.AllocationDetails = this._IPaymentVoucherService.GetAllocationDetails(voucherdata.ReceiptVoucherMasterDrAcNo, voucherdata.ReceiptVoucherMasterVoucherNo);
                 return voucherdata;

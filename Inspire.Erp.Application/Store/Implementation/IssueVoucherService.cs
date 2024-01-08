@@ -76,28 +76,25 @@ namespace Inspire.Erp.Application.Store.Implementation
                 _issueVoucherRepository.BeginTransaction();
 
                 //=================================
-                clsCommonFunctions.Delete_OldEntry_StockRegister(issueVoucher.IssueVoucherNo, VoucherType.IssueVoucher_TYPE, _stockRegisterRepository);
-                clsCommonFunctions.Delete_OldEntry_AccountsTransactions(issueVoucher.IssueVoucherNo, VoucherType.IssueVoucher_TYPE, _accountTransactionRepository);
-                //=================================
-                issueVoucher.IssueVoucherDetails = issueVoucherDetails.Select((k) =>
+                //clsCommonFunctions.Delete_OldEntry_StockRegister(issueVoucher.IssueVoucherNo, VoucherType.IssueVoucher_TYPE, _stockRegisterRepository);
+                //clsCommonFunctions.Delete_OldEntry_AccountsTransactions(issueVoucher.IssueVoucherNo, VoucherType.IssueVoucher_TYPE, _accountTransactionRepository);
+                ////=================================
+
+                _issueVoucherRepository.Update(issueVoucher);
+
+                issueVoucherDetails = issueVoucherDetails.Select((k) =>
                 {
-                    //if (k.IssueVoucherDetailsId == 0)
-                    //{
+
                     k.IssueVoucherId = issueVoucher.IssueVoucherId;
                     k.IssueVoucherDetailsNo = issueVoucher.IssueVoucherNo;
-                    //k.IssueVoucherDetailsId = 0;
-                    //}
 
                     return k;
                 }).ToList();
 
-                _issueVoucherRepository.Update(issueVoucher);
+                _issueVoucherDetailsRepository.UpdateList(issueVoucherDetails);
 
+              
 
-
-
-
-                //_issueVoucherRepository.Update(issueVoucher);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     if (k.AccountsTransactionsTransSno == 0)
@@ -107,31 +104,25 @@ namespace Inspire.Erp.Application.Store.Implementation
                         k.AccountsTransactionsVoucherType = VoucherType.IssueVoucher_TYPE;
                         k.AccountsTransactionsStatus = AccountStatus.Approved;
                     }
-
                     return k;
                 }).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
 
-                stockRegister = stockRegister.Select((k) =>
-                {
-                    if (k.StockRegisterStoreID == 0)
-                    {
-                        k.StockRegisterVoucherDate = issueVoucher.IssueVoucherDate;
-                        k.StockRegisterRefVoucherNo = issueVoucher.IssueVoucherNo;
-                        k.StockRegisterTransType = VoucherType.IssueVoucher_TYPE;
+                //stockRegister = stockRegister.Select((k) =>
+                //{
+                //    if (k.StockRegisterStoreID == 0)
+                //    {
+                //        k.StockRegisterVoucherDate = issueVoucher.IssueVoucherDate;
+                //        k.StockRegisterRefVoucherNo = issueVoucher.IssueVoucherNo;
+                //        k.StockRegisterTransType = VoucherType.IssueVoucher_TYPE;
 
-                        k.StockRegisterStatus = AccountStatus.Approved;
-                    }
+                //        k.StockRegisterStatus = AccountStatus.Approved;
+                //    }
 
-                    return k;
-                }).ToList();
-                _stockRegisterRepository.UpdateList(stockRegister);
-
-
-
-
-
+                //    return k;
+                //}).ToList();
+                //_stockRegisterRepository.UpdateList(stockRegister);
 
                 _issueVoucherRepository.TransactionCommit();
 
@@ -230,6 +221,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                 issueVoucher.IssueVoucherId = maxcount;
 
+                _issueVoucherRepository.Insert(issueVoucher);
 
                 issueVoucherDetails = issueVoucherDetails.Select((x) =>
                 {
@@ -239,11 +231,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 }).ToList();
 
 
-                //_issueVoucherDetailsRepository.InsertList(issueVoucherDetails);
-
-                
-
-
+                _issueVoucherDetailsRepository.InsertList(issueVoucherDetails);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     //k.AccountsTransactionsTransDate = issueVoucher.IssueVoucherDate;
@@ -255,18 +243,25 @@ namespace Inspire.Erp.Application.Store.Implementation
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
 
-
-                stockRegister = stockRegister.Select((k) =>
+                foreach (var item in issueVoucherDetails)
                 {
-                    k.StockRegisterVoucherDate = issueVoucher.IssueVoucherDate;
-                    k.StockRegisterRefVoucherNo = issueVoucherNumber;
-                    k.StockRegisterTransType = VoucherType.IssueVoucher_TYPE;
-                    k.StockRegisterStatus = AccountStatus.Approved;
-                    return k;
-                }).ToList();
+                    stockRegister.Add(new StockRegister
+                    {
+                        StockRegisterMaterialID = item.IssueVoucherDetailsMatId,
+                        StockRegisterPurchaseID = issueVoucherNumber,
+                        StockRegisterRefVoucherNo = issueVoucherNumber,
+                        StockRegisterQuantity = item.IssueVoucherDetailsQuantity,
+                        StockRegisterRate = item.IssueVoucherDetailsRate,
+                        StockRegisterSIN = item.IssueVoucherDetailsRate,
+                        StockRegisterAmount = item.IssueVoucherDetailsNetAmt,
+                        StockRegisterVoucherDate = issueVoucher.IssueVoucherDate,
+                        StockRegisterTransType = VoucherType.IssueVoucher_TYPE,
+                        StockRegisterStatus = AccountStatus.Approved,
+                    });
+                }
+                   
                 _stockRegisterRepository.InsertList(stockRegister);
 
-                _issueVoucherRepository.Insert(issueVoucher);
                 _issueVoucherRepository.TransactionCommit();
                 return this.GetSavedIssueVoucherDetails(issueVoucher.IssueVoucherNo);
 
@@ -295,13 +290,9 @@ namespace Inspire.Erp.Application.Store.Implementation
 
             issueVoucherModel.issueVoucher = _issueVoucherRepository.GetAsQueryable().Where(k => k.IssueVoucherNo == pvno).SingleOrDefault();
 
-
-
             issueVoucherModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.IssueVoucher_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
             issueVoucherModel.issueVoucherDetails = _issueVoucherDetailsRepository.GetAsQueryable().Where(x => x.IssueVoucherDetailsNo == pvno && (x.IssueVoucherDetailsDelStatus == false || x.IssueVoucherDetailsDelStatus == null)).ToList();
             return issueVoucherModel;
-
-
         }
 
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
@@ -340,12 +331,6 @@ namespace Inspire.Erp.Application.Store.Implementation
             }
 
         }
-
-
-
-        //using Microsoft.Extensions.Logging;
-        //private readonly ILogger<PaymentVoucherService> _logger;
-        //IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
         public VouchersNumbers GetVouchersNumbers(string pvno)
         {
             try

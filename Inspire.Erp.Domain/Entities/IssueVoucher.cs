@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Inspire.Erp.Domain.Entities
 {
     public partial class IssueVoucher
     {
-        public IssueVoucher()
-        {
-            IssueVoucherDetails = new HashSet<IssueVoucherDetails>();
-        }
+        //public IssueVoucher()
+        //{
+        //    IssueVoucherDetails = new HashSet<IssueVoucherDetails>();
+        //}
 
         public decimal IssueVoucherId { get; set; }
         public string IssueVoucherNo { get; set; }
@@ -56,6 +57,7 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? IssueVoucherNetAmount { get; set; }
         public bool? IssueVoucherDelStatus { get; set; }
 
+        [JsonIgnore]
         public virtual ICollection<IssueVoucherDetails> IssueVoucherDetails { get; set; }
     }
 }

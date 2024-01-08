@@ -24,6 +24,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private IRepository<ProgramSettings> _programsettingsRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
         private readonly ILogger<PaymentVoucherService> _logger;
+        private readonly IRepository<PermissionApproval> _permissionApprovalRepo;
+        private readonly IRepository<Approval> _approvalRepo;
+        private readonly IRepository<ApprovalDetail> _approvalDetailRepo;
 
         private IRepository<ItemMaster> _itemMasterRepository;
         private IRepository<UnitMaster> _unitMasterRepository;
@@ -34,7 +37,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         ////public PurchaseRequisitionService(IRepository<ReportPurchaseRequisition> reportPurchaseRequisitionRepository,
         public PurchaseRequisitionService(IRepository<ItemMaster> itemMasterRepository, IRepository<UnitMaster> unitMasterRepository,
             IRepository<SuppliersMaster> suppliersMasterRepository, IRepository<LocationMaster> locationMasterRepository,
-
+            IRepository<PermissionApproval> permissionApprovalRepo, IRepository<Approval> approvalRepo, IRepository<ApprovalDetail> approvalDetailRepo,
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
 
@@ -46,7 +49,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             this._purchaseRequisitionDetailsRepository = purchaseRequisitionDetailsRepository;
             _programsettingsRepository = programsettingsRepository;
             _voucherNumbersRepository = voucherNumbers;
-
+            _approvalDetailRepo = approvalDetailRepo;
+            _permissionApprovalRepo = permissionApprovalRepo;
+            _approvalRepo= approvalRepo;
 
             _itemMasterRepository = itemMasterRepository;
             _unitMasterRepository = unitMasterRepository;
@@ -367,6 +372,24 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
 
                 _purchaseRequisitionRepository.Insert(purchaseRequisition);
+                var permsionApproval = _permissionApprovalRepo.GetAsQueryable().Where(x => x.VoucherType == VoucherType.PurchaseRequisition_TYPE).OrderBy(x => x.LevelOrder).ToList();
+                var approvals = new Approval()
+                {
+                    CreatedBy = 0,
+                    LocationId = null,
+                    Status = false,
+                    VoucherType = "CustomerQuotation"
+                };
+                _approvalRepo.Insert(approvals);
+                _approvalDetailRepo.InsertList(permsionApproval.Select(x => new ApprovalDetail()
+                {
+                    ApprovalId = approvals.Id,
+                    Status = false,
+                    UserId = x.UserId,
+                    LevelOrder = x.LevelOrder,
+                    ApprovedAt = DateTime.Now,
+                }).ToList());
+
                 _purchaseRequisitionRepository.TransactionCommit();
                 return this.GetSavedPurchaseRequisitionDetails(purchaseRequisition.PurchaseRequisitionNo);
 

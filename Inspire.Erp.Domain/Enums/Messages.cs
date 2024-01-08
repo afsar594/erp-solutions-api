@@ -52,6 +52,7 @@ namespace Inspire.Erp.Domain.Enums
         public static string UpdateCustomerQuotation { get { return "Customer Quotation updated successfully"; } }
         public static string DeleteCustomerQuotation { get { return "Customer Quotation Deleted successfully"; } }
         public static string CustomerQuotationAlreadyExist { get { return "Custome rQuotation is already exist"; } }
+        public static string CustomerQuotationError { get { return "Error in Insert/Update/Delete Quotation"; } }
     }
 
     public static class CustomerEnquiryMessage
@@ -227,6 +228,15 @@ namespace Inspire.Erp.Domain.Enums
         public static string UpdateVoucher { get { return "OpeningStock Voucher updated successfully"; } }
         public static string DeleteVoucher { get { return "OpeningStock Voucher updated successfully"; } }
         public static string VoucherAlreadyExist { get { return "OpeningStock Voucher is already exist"; } }
+        public static string VoucherNumberExist { get { return "Voucher Number is exist"; } }
+    }
+
+    public static class AssetPurchaseVoucherMessage
+    {
+        public static String SaveVoucher { get { return "AssetPurchase Voucher saved successfully"; } }
+        public static string UpdateVoucher { get { return "AssetPurchase Voucher updated successfully"; } }
+        public static string DeleteVoucher { get { return "AssetPurchase Voucher updated successfully"; } }
+        public static string VoucherAlreadyExist { get { return "AssetPurchase Voucher is already exist"; } }
         public static string VoucherNumberExist { get { return "Voucher Number is exist"; } }
     }
 

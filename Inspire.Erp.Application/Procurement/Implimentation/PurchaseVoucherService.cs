@@ -556,7 +556,6 @@ namespace Inspire.Erp.Application.Master.Implementations
                     x.PurchaseVoucherDetailsVoucherNo = vnumber;
                     return x;
                 }).ToList();
-                _PurchaseVoucher.Insert(purchaseVoucher);
                 _PurchaseVoucherDetails.InsertList(purchaseVoucherDetails);
 
                 accountsTransactions = accountsTransactions.Select((k) =>
@@ -576,12 +575,15 @@ namespace Inspire.Erp.Application.Master.Implementations
                     {
                         StockRegisterMaterialID = item.PurchaseVoucherDetailsMaterialId,
                         StockRegisterRefVoucherNo = vnumber,
+                        StockRegisterPurchaseID = vnumber,
                         StockRegisterVoucherDate = purchaseVoucher.PurchaseVoucherPurchaseDate,
                         StockRegisterQuantity = item.PurchaseVoucherDetailsQuantity,
                         StockRegisterSIN = item.PurchaseVoucherDetailsQuantity,
                         StockRegisterRate = item.PurchaseVoucherDetailsRate,
                         StockRegisterAmount = item.PurchaseVoucherDetailsAmount,
-                    }); ;
+                        StockRegisterTransType = VoucherType.PurchaseVoucher_TYPE,
+                        StockRegisterStatus = AccountStatus.Approved,
+                    });
                 }
                 _stockRegisterRepository.InsertList(stockRegisters);
                 
@@ -613,18 +615,10 @@ namespace Inspire.Erp.Application.Master.Implementations
                         k.AccountsTransactionsStatus = AccountStatus.Approved;
                     }
 
-                    return k;
-                }).ToList();
-                _accountTransactionRepository.UpdateList(accountsTransactions);
-
-
-                _accountTransactionRepository.UpdateList(accountsTransactions);
-_PurchaseVoucher.Update(purchaseVoucher);
+                _PurchaseVoucher.Update(purchaseVoucher);
                 _PurchaseVoucherDetails.UpdateList(purchaseVoucherDetails);
 
-                
-
-                _accountTransactionRepository.Commit();
+                _accountTransactionRepository.TransactionCommit();
                 return this.GetSavedPurchaseVoucherDetailsV2(purchaseVoucher.PurchaseVoucherVoucherNo);
 
             }

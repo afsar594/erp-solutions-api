@@ -9,6 +9,6 @@ namespace Inspire.Erp.Application.Common
     {
         public AssetPurchaseVoucher assetPurchaseVoucher { get; set; }
         public List<AccountsTransactions> accountsTransactions { get; set; }
-        public List<StockRegister> stockRegister { get; set; }
+      //  public List<StockRegister> stockRegister { get; set; }
     }
 }
