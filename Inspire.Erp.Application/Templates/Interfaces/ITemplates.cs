@@ -9,9 +9,9 @@ namespace Inspire.Erp.Application.Templates.Interfaces
 {
     public interface ITemplates 
     {
-        public Task<Response<List<Qtemplates>>> InsterTemplate(Qtemplates qtemplate);
-        public Task<Response<List<Qtemplates>>> UpdateTemplate(Qtemplates qtemplate);
-        public Task<Response<List<Qtemplates>>> DeleteTemplate(int qtemplateId);
+        public Task<Response<Qtemplates>> InsterTemplate(Qtemplates qtemplate);
+        public Task<Response<Qtemplates>> UpdateTemplate(Qtemplates qtemplate);
+        public Task<Response<bool>> DeleteTemplate(int qtemplateId);
         public Task<Response<List<Qtemplates>>> GetAllActiveTemplates();
         public Task<Response<List<Qtemplates>>> GetAllTemplates();
         public Task<Response<List<Qtemplates>>> GetAllDeletedTemplates();

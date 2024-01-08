@@ -166,7 +166,8 @@ namespace Inspire.Erp.Web.Controllers
 
             var model = _mapper.Map<MasterAccountsTable>(MasterAccountsTable);
 
-            var data = (MasterAccountsTable.MaAccNo == null || MasterAccountsTable.MaAccNo == "") ? MasterAccountsTableService.InsertAccount(model) : MasterAccountsTableService.UpdateAccount(model);
+            //var data = (MasterAccountsTable.MaAccNo == null || MasterAccountsTable.MaAccNo == "") ? MasterAccountsTableService.InsertAccount(model) : MasterAccountsTableService.UpdateAccount(model);
+            var data = (MasterAccountsTable.MaAccNo == null || MasterAccountsTable.MaAccNo == "") ? MasterAccountsTableService.InsertAccountGroup(model) : MasterAccountsTableService.UpdateAccount(model);
             List<MasterAccountsTableViewModel> result = _mapper.Map<List<MasterAccountsTableViewModel>>(data);
             ApiResponse<List<MasterAccountsTableViewModel>> apiResponse = new ApiResponse<List<MasterAccountsTableViewModel>>
             {
@@ -191,7 +192,8 @@ namespace Inspire.Erp.Web.Controllers
 
             var model = _mapper.Map<MasterAccountsTable>(MasterAccountsTable);
 
-            var data = (MasterAccountsTable.MaSno == null || MasterAccountsTable.MaSno == 0) ? MasterAccountsTableService.NewAccount(model) : MasterAccountsTableService.UpdateNewAccount(model);
+            //var data = (MasterAccountsTable.MaSno == null || MasterAccountsTable.MaSno == 0) ? MasterAccountsTableService.NewAccount(model) : MasterAccountsTableService.UpdateNewAccount(model);
+            var data = (MasterAccountsTable.MaSno == null || MasterAccountsTable.MaSno == 0) ? MasterAccountsTableService.AddNewAccount(model) : MasterAccountsTableService.UpdateNewAccount(model);
             MasterAccountsTableViewModel result = _mapper.Map<MasterAccountsTableViewModel>(data);
             ApiResponse<MasterAccountsTableViewModel> apiResponse = new ApiResponse<MasterAccountsTableViewModel>
             {

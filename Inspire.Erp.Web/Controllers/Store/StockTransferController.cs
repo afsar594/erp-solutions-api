@@ -58,8 +58,6 @@ namespace Inspire.Erp.Web.Controllers.Store
         [Route("GetAllStockTransfer")]
         public ApiResponse<List<StockTransfer>> GetAllStockTransfer()
         {
-
-
             ApiResponse<List<StockTransfer>> apiResponse = new ApiResponse<List<StockTransfer>>
             {
                 Valid = true,
@@ -67,8 +65,6 @@ namespace Inspire.Erp.Web.Controllers.Store
                 Message = ""
             };
             return apiResponse;
-
-
         }
         /// <summary>
         ///  Need to replace SP getStockTransferReport by LINQ see from the vb.code and load it according to the reposnse  
@@ -92,9 +88,6 @@ namespace Inspire.Erp.Web.Controllers.Store
         //    }
         //}
 
-
-
-
         [HttpPost]
         [Route("InsertStockTransfer")]
         public async Task<ApiResponse<StockTransferViewModel>> InsertStockTransfer([FromBody] StockTransferViewModel stockTranfermodel)
@@ -102,8 +95,6 @@ namespace Inspire.Erp.Web.Controllers.Store
             ApiResponse<StockTransferViewModel> apiResponse = new ApiResponse<StockTransferViewModel>();
             try
             {
-
-               
 
                 var param1 = _mapper.Map<StockTransfer>(stockTranfermodel);
                 var param2 = _mapper.Map<List<StockTransferDetails>>(stockTranfermodel.StockTransferDetails);
@@ -162,8 +153,6 @@ namespace Inspire.Erp.Web.Controllers.Store
             {
                 var param1 = _mapper.Map<StockTransfer>(stockTranfermodel);
             var param2 = _mapper.Map<List<StockTransferDetails>>(stockTranfermodel.StockTransferDetails);
-
-   
 
                 //==============
                var  param3 = new List<AccountsTransactions>();
@@ -274,8 +263,6 @@ namespace Inspire.Erp.Web.Controllers.Store
             return apiResponse;
 
         }
-
-
 
         [HttpGet]
         [Route("GetSavedStockTransferDetails/{id}")]

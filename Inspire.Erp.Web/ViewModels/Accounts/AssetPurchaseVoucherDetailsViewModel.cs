@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Text;
 
-namespace Inspire.Erp.Domain.Entities
+namespace Inspire.Erp.Web.ViewModels.Accounts
 {
-    public class AssetPurchaseVoucherDetail
+    public partial class AssetPurchaseVoucherDetailsViewModel
     {
-        [Key]
+
         public int AstPurDetID { get; set; }
         public int AstPurchaseID { get; set; }
+        public string AssetPurchaseDetailsVoucherNo { get; set; }
         public int Sno { get; set; }
         public int AstID { get; set; }
         public decimal Rate { get; set; }
@@ -41,5 +40,6 @@ namespace Inspire.Erp.Domain.Entities
         public string Colour { get; set; }
         public decimal OPCAccDepAmt { get; set; }
         public decimal OPBookValue { get; set; }
+
     }
 }

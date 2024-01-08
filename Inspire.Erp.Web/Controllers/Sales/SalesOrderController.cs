@@ -149,10 +149,7 @@ namespace Inspire.Erp.Web.Controllers
             var xs = _salesOrderService.UpdateSalesOrder(param1, param3, param2
            , param4
            );
-            //========================
-
-
-
+           
             CustomerPurchaseOrderViewModel salesVoucherViewModel = new CustomerPurchaseOrderViewModel
             {
                 CustomerPurchaseOrderId = xs.customerPurchaseOrder.CustomerPurchaseOrderId,
@@ -361,6 +358,23 @@ namespace Inspire.Erp.Web.Controllers
 
             //return null;
 
+            ApiResponse<List<GetCustomerPurchaseOrderTrackingResponse>> apiResponse = new ApiResponse<List<GetCustomerPurchaseOrderTrackingResponse>>
+            {
+                Valid = true,
+                Result = response.Result,
+                Message = ""
+            };
+            return Ok(apiResponse);
+        }
+
+
+
+        [HttpPost]
+        [Route("GetPurchaseOrderStatuses")]
+        public async Task<IActionResult> GetPurchaseOrderStatuses(CustPurchOrderFilterModel model)
+        {
+
+            var response = await _salesOrderService.GetCustomerPOStatuses(model);
             ApiResponse<List<GetCustomerPurchaseOrderTrackingResponse>> apiResponse = new ApiResponse<List<GetCustomerPurchaseOrderTrackingResponse>>
             {
                 Valid = true,
