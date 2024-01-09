@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -37,11 +38,6 @@ namespace Inspire.Erp.Domain.Entities
 
     public partial class CustomerDeliveryNote
     {
-        //public CustomerDeliveryNote()
-        //{
-        //    CustomerDeliveryNoteDetails = new HashSet<CustomerDeliveryNoteDetails>();
-        //}
-
         public long CustomerDeliveryNoteDeliveryId { get; set; }
         public DateTime? CustomerDeliveryNoteDeliveryDate { get; set; }
         public long? CustomerDeliveryNoteCpoId { get; set; }
@@ -70,8 +66,8 @@ namespace Inspire.Erp.Domain.Entities
         public string CustomerDeliveryNoteDeliveryStatus { get; set; }
         public bool? CustomerDeliveryNoteDelStatus { get; set; }
 
+        [NotMapped]
         public List<CustomerDeliveryNoteDetails> CustomerDeliveryNoteDetails { get; set; }
 
-        //public virtual ICollection<CustomerDeliveryNoteDetails> CustomerDeliveryNoteDetails { get; set; }
     }
 }

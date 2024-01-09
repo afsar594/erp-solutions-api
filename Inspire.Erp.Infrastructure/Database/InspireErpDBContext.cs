@@ -5157,7 +5157,8 @@ namespace Inspire.Erp.Infrastructure.Database
                 .HasMaxLength(200)
                 .IsUnicode(false);
 
-            entity.Property(e => e.CustomerDeliveryNoteDelDetId).HasColumnName("Customer_Delivery_Note_Del_Det_ID");
+            entity.Property(e => e.CustomerDeliveryNoteDelDetId).
+            HasColumnName("Customer_Delivery_Note_Del_Det_ID");
 
             entity.Property(e => e.CustomerDeliveryNoteDelStatus).HasColumnName("Customer_Delivery_Note_DelStatus");
 
