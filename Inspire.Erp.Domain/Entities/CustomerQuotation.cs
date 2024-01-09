@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -58,7 +59,7 @@ namespace Inspire.Erp.Domain.Entities
         public bool? CustomerQuotationReviseQuotation { get; set; }
         public decimal? CustomerQuotationGrossProfitTotal { get; set; }
 
-
+        [NotMapped]
         public virtual VouchersNumbers CustomerQuotationVoucherNoNavigation { get; set; }
         public virtual ICollection<CustomerQuotationDetails> CustomerQuotationDetails { get; set; }
     }

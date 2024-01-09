@@ -25,6 +25,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private IRepository<ProgramSettings> _programsettingsRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
         private readonly ILogger<PaymentVoucherService> _logger;
+        private readonly IRepository<PermissionApproval> _permissionApprovalRepo;
+        private readonly IRepository<Approval> _approvalRepo;
+        private readonly IRepository<ApprovalDetail> _approvalDetailRepo;
 
         private IRepository<ItemMaster> _itemMasterRepository;
         private IRepository<UnitMaster> _unitMasterRepository;
@@ -35,7 +38,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         ////public PurchaseQuotationService(IRepository<ReportPurchaseQuotation> reportPurchaseQuotationRepository,
         public PurchaseQuotationService(IRepository<ItemMaster> itemMasterRepository, IRepository<UnitMaster> unitMasterRepository,
             IRepository<SuppliersMaster> suppliersMasterRepository, IRepository<LocationMaster> locationMasterRepository,
-
+             IRepository<PermissionApproval> permissionApprovalRepo,
+            IRepository<Approval> approvalRepo, IRepository<ApprovalDetail> approvalDetailRepo,
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
 
@@ -53,6 +57,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _unitMasterRepository = unitMasterRepository;
             _suppliersMasterRepository = suppliersMasterRepository;
             _locationMasterRepository = locationMasterRepository;
+            _permissionApprovalRepo = permissionApprovalRepo;
+            _approvalRepo = approvalRepo;
+            _approvalDetailRepo = approvalDetailRepo;
 
             ////_reportPurchaseQuotationRepository = reportPurchaseQuotationRepository;
         }
@@ -282,6 +289,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
 
                 _purchaseQuotationRepository.Insert(purchaseQuotation);
+
                 _purchaseQuotationRepository.TransactionCommit();
                 return this.GetSavedPurchaseQuotationDetails(purchaseQuotation.PurchaseQuotationNo);
 
