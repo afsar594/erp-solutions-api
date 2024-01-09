@@ -283,7 +283,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     return x;
                 }).ToList();
                  _deliveryNoteDetailsRepository.InsertList(deliveryNoteDetails);
-                _deliveryNoteRepository.Insert(deliveryNote);
+                 _deliveryNoteRepository.Insert(deliveryNote);
 
               
                 List<StockRegister> stockRegister = new List<StockRegister>();
