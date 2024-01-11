@@ -27,6 +27,6 @@ namespace Inspire.Erp.Domain.Entities
         public string PDC_Details_Contract { get; set; }
         public string PDC_Details_Old_Cheque_Status { get; set; }
         public string PDC_Details_PartyAccNo { get; set; }
-        public bool PDC_Details_DelStatus { get; set; }
+        public bool? PDC_Details_DelStatus { get; set; }
     }
 }

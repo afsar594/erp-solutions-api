@@ -52,10 +52,10 @@ namespace Inspire.Erp.Web.Controllers
             return await _pdc.GetBankNames();
         }
 
-        //[HttpPost("getFilteredPDCList")]
-        //public async Task<IEnumerable<PDCGetList>> getFilteredPDCList(PDCFilters obj)
-        //{
-        //    return await _pdc.getFilteredPDCList(obj);
-        //}
+        [HttpPost("getFilteredPDCList")]
+        public async Task<IEnumerable<PDCGetList>> getFilteredPDCList(PDCFilters obj)
+        {
+            return await _pdc.getFilteredPDCList(obj);
+        }
     }
 }

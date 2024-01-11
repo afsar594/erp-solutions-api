@@ -24019,22 +24019,16 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<AssetPurchaseVoucher>(entity =>
             {
-                entity.HasNoKey();
-
                 entity.ToTable("Ast_Purchase_Voucher");
-
-            
+                entity.HasKey(e => e.AstPurID);
             });
 
             modelBuilder.Entity<AssetPurchaseVoucherDetails>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.AstPurDetID);
 
                 entity.ToTable("AstPurchase_Voucher_Details");
-
-
             });
-
 
             OnModelCreatingPartial(modelBuilder);
         }
