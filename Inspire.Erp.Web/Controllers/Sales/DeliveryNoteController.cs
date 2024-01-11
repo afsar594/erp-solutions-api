@@ -16,6 +16,7 @@ using Inspire.Erp.Web.Common;
 using Inspire.Erp.Web.MODULE;
 
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Inspire.Erp.Application.Account.Implementations;
 
 
 namespace Inspire.Erp.Web.Controllers.Sales
@@ -32,7 +33,7 @@ namespace Inspire.Erp.Web.Controllers.Sales
             _deliveryNoteService = deliveryNoteService;
             _mapper = mapper;
         }
-       
+
         [HttpPost]
         [Route("InsertDeliveryNote")]
         public ApiResponse<CustomerDeliveryNoteViewModel> InsertSalesVoucher([FromBody] CustomerDeliveryNoteViewModel voucherCompositeView)
@@ -40,19 +41,14 @@ namespace Inspire.Erp.Web.Controllers.Sales
 
 
             ApiResponse<CustomerDeliveryNoteViewModel> apiResponse = new ApiResponse<CustomerDeliveryNoteViewModel>();
-           // if (_deliveryNoteService.GetVouchersNumbers(voucherCompositeView.CustomerDeliveryNoteDeliveryId) == null)
+            // if (_deliveryNoteService.GetVouchersNumbers(voucherCompositeView.CustomerDeliveryNoteDeliveryId) == null)
             {
                 var param1 = _mapper.Map<CustomerDeliveryNote>(voucherCompositeView);
                 var param2 = _mapper.Map<List<CustomerDeliveryNoteDetails>>(voucherCompositeView.CustomerDeliveryNoteDetails);
-                ////var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-                //var param4 = _mapper.Map<List<StockRegister>>(voucherCompositeView.StockRegister);
-                //var xs = _deliveryNoteService.InsertSalesVoucher(param1, param3, param2
-                //    //, param4
-                //    );
-
+                
                 //==============
-               // param3 = new List<AccountsTransactions>();
-               //// List<StockRegister> param4 = new List<StockRegister>();
+                // param3 = new List<AccountsTransactions>();
+                //// List<StockRegister> param4 = new List<StockRegister>();
                 ////clsAccountAndStock.SalesVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4);
 
                 var xs = _deliveryNoteService.InsertDeliveryNote(param1, param2);
@@ -95,7 +91,7 @@ namespace Inspire.Erp.Web.Controllers.Sales
 
                 deliveryNoteViewModel.CustomerDeliveryNoteDetails = _mapper.Map<List<CustomerDeliveryNoteDetailsViewModel>>(xs.deliveryNoteDetails);
                 //deliveryNoteViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionsViewModel>>(xs.accountsTransactions);
-               //// apiResponse = new ApiResponse<CustomerDeliveryNoteViewModel>
+                //// apiResponse = new ApiResponse<CustomerDeliveryNoteViewModel>
                 ////{
                 ////    Valid = true,
                 ////    Result = _mapper.Map<CustomerDeliveryNoteViewModel>(deliveryNoteViewModel),
@@ -119,6 +115,25 @@ namespace Inspire.Erp.Web.Controllers.Sales
 
 
         }
+
+
+        //[HttpPost]
+        //[Route("InsertDeliveryNote")]
+        //public ApiResponse<CustomerDeliveryNote> InsertSalesVoucher([FromBody] CustomerDeliveryNote voucherCompositeView)
+        //{
+        //    ApiResponse<CustomerDeliveryNote> apiResponse = new ApiResponse<CustomerDeliveryNote>();
+        //    var param1 = _mapper.Map<CustomerDeliveryNote>(voucherCompositeView);
+        //    var param2 = _mapper.Map<List<CustomerDeliveryNoteDetails>>(voucherCompositeView.CustomerDeliveryNoteDetails);
+   
+        //    var xs = _deliveryNoteService.InsertCustomerDeliveryNote(param1,param2);
+        //    apiResponse = new ApiResponse<CustomerDeliveryNote>
+        //    {
+        //        Valid = true,
+        //        Result = _mapper.Map<CustomerDeliveryNote>(xs),
+        //        Message = DebitNoteMessage.SaveVoucher
+        //    };
+        //    return apiResponse;
+        //}
 
         [HttpPost]
         [Route("UpdateDeliveryNote")]

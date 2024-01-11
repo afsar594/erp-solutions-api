@@ -7,6 +7,7 @@ namespace Inspire.Erp.Web.ViewModels.Sales
 {
     public partial class CustomerDeliveryNoteDetailsViewModel
     {
+        public long CustomerDeliveryNoteDetailsDetId { get; set; }
         public long? CustomerDeliveryNoteDetailsDeliveryNo { get; set; }
         public int? CustomerDeliveryNoteDetailsSlno { get; set; }
         public long? CustomerDeliveryNoteDetailsItemId { get; set; }
@@ -24,5 +25,7 @@ namespace Inspire.Erp.Web.ViewModels.Sales
         public double? CustomerDeliveryNoteDetailsBaseValue { get; set; }
         public double? CustomerDeliveryNoteDetailsFoc { get; set; }
         public bool? CustomerDeliveryNoteDetailsDelStatus { get; set; }
+
+
     }
 }
