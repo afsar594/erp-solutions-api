@@ -146,17 +146,17 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 ////clsCommonFunctions.Delete_OldEntry_StockRegister(deliveryNote.CustomerDeliveryNoteDeliveryId, VoucherType.SalesVoucher_TYPE, _stockRegisterRepository);
                 ////clsCommonFunctions.Delete_OldEntry_AccountsTransactions(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _accountTransactionRepository);
                 //////=================================
-                deliveryNoteDetails = deliveryNoteDetails.Select((k) =>
+                deliveryNote.CustomerDeliveryNoteDetails = deliveryNote.CustomerDeliveryNoteDetails.Select((k) =>
                 {
                     
-                    if(k.CustomerDeliveryNoteDetailsDeliveryNo == 0)
+                    if(k.CustomerDeliveryNoteDetailsDetId == 0)
                     {
-                      k.CustomerDeliveryNoteDetailsDetId = deliveryNote.CustomerDeliveryNoteDeliveryId;
+                      k.CustomerDeliveryNoteDetailsDeliveryDetailId = (int)deliveryNote.CustomerDeliveryNoteDeliveryId;
                     }
 
                     return k;
                 }).ToList();
-                _deliveryNoteDetailsRepository.UpdateList(deliveryNoteDetails);
+               // _deliveryNoteDetailsRepository.UpdateList(deliveryNoteDetails);
                 _deliveryNoteRepository.Update(deliveryNote);
 
 
@@ -277,12 +277,12 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 deliveryNote.CustomerDeliveryNoteDeliveryId = maxcount;
                 
-                deliveryNoteDetails = deliveryNoteDetails.Select((x) =>
+                deliveryNote.CustomerDeliveryNoteDetails = deliveryNote.CustomerDeliveryNoteDetails.Select((x) =>
                 {
                     x.CustomerDeliveryNoteDetailsDeliveryDetailId = maxcount;
                     return x;
                 }).ToList();
-                 _deliveryNoteDetailsRepository.InsertList(deliveryNoteDetails);
+                 //_deliveryNoteDetailsRepository.InsertList(deliveryNoteDetails);
                  _deliveryNoteRepository.Insert(deliveryNote);
 
               
