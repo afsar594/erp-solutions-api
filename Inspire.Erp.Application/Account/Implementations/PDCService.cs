@@ -88,6 +88,32 @@ namespace Inspire.Erp.Application.Account.Implementation
                 throw ex;
             }
         }
+        public async Task<IEnumerable<PDCGetList>> PDCGetReturnList()
+        {
+            try
+            {
+                //NC
+                var result = await _pdcDetails.GetAsQueryable().Where(x => x.PDC_Details_Cheque_Status == "R").Select(x => new PDCGetList
+                {
+                    BAccNo = x.PDC_Details_Bank_Account_No,
+                    CAmount = x.PDC_Details_Cheque_Amount,
+                    CBName = x.PDC_Details_Cheque_Bank_Name,
+                    CNO = x.PDC_Details_Cheque_No,
+                    PartyName = x.PDC_Details_PartyAccNo,
+                    PDate = x.PDC_Details_PDC_Date,
+                    PID = x.PDC_Details_ID,
+                    AccName = !string.IsNullOrEmpty(x.PDC_Details_PartyAccNo) ? _MasterAccountsTableRepo.GetAsQueryable().FirstOrDefault(c => c.MaAccNo == x.PDC_Details_PartyAccNo).MaAccName : "",
+                    TDate = x.PDC_Details_Trans_Date,
+                    VNO = x.PDC_Details_V_No,
+                    VType = x.PDC_Details_V_Type,
+                }).ToListAsync();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public async Task<IEnumerable<PDCGetList>> getFilteredPDCList(PDCFilters obj)
         {
             try
