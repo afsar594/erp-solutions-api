@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -46,6 +47,7 @@ namespace Inspire.Erp.Domain.Entities
         public double? CustomerDeliveryNoteDetailsFoc { get; set; }
         public bool? CustomerDeliveryNoteDetailsDelStatus { get; set; }
 
+        [JsonIgnore]
         public virtual CustomerDeliveryNote CustomerDeliveryNoteDetailsDeliveryNoNavigation { get; set; }
     }
 }

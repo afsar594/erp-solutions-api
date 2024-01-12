@@ -215,7 +215,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         //                                .SingleOrDefault();
                         CustomerQuotationModel voucherdata = new CustomerQuotationModel();
                        voucherdata.custQuotation = _customerQuotationRepository.GetAsQueryable().Where(k => k.CustomerQuotationVoucherNo == Qtno).FirstOrDefault();
-                        return voucherdata;
+                       voucherdata.customerQuotationDetails = _customerQuotationDetailsRepository.GetAsQueryable().Where(qd => qd.CustomerQuotationDetailsVoucherNo == Qtno).ToList();       
+                return voucherdata;
                     }
                     return null;
 

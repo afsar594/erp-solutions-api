@@ -8,7 +8,7 @@ namespace Inspire.Erp.Application.Common
     public class CustomerQuotationModel
     {
         public CustomerQuotation custQuotation { get; set; }
-       // public List<CustomerQuotationDetails> customerQuotationDetails { get; set; }
+        public List<CustomerQuotationDetails> customerQuotationDetails { get; set; }
 
     }
 }

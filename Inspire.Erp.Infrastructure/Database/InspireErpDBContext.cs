@@ -5160,7 +5160,8 @@ namespace Inspire.Erp.Infrastructure.Database
                 .HasMaxLength(200)
                 .IsUnicode(false);
 
-            entity.Property(e => e.CustomerDeliveryNoteDelDetId).HasColumnName("Customer_Delivery_Note_Del_Det_ID");
+            entity.Property(e => e.CustomerDeliveryNoteDelDetId).
+            HasColumnName("Customer_Delivery_Note_Del_Det_ID");
 
             entity.Property(e => e.CustomerDeliveryNoteDelStatus).HasColumnName("Customer_Delivery_Note_DelStatus");
 
@@ -5240,8 +5241,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.ToTable("Customer_Delivery_Note_Details");
 
                 entity.Property(e => e.CustomerDeliveryNoteDetailsDetId)
-                    .HasColumnName("Customer_Delivery_Note_details_DetId")
-                    .ValueGeneratedNever();
+                    .HasColumnName("Customer_Delivery_Note_details_DetId");
 
                 entity.Property(e => e.CustomerDeliveryNoteDetailsBaseValue).HasColumnName("Customer_Delivery_Note_Details_Base_Value");
 
@@ -5286,7 +5286,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.HasOne(d => d.CustomerDeliveryNoteDetailsDeliveryNoNavigation)
                     .WithMany(p => p.CustomerDeliveryNoteDetails)
-                    .HasForeignKey(d => d.CustomerDeliveryNoteDetailsDeliveryNo)
+                    .HasForeignKey(d => d.CustomerDeliveryNoteDetailsDetId)
                     .HasConstraintName("FK_Customer_Delivery_Note_Details_Customer_Delivery_Note");
             });
 
@@ -6033,7 +6033,8 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.ToTable("Customer_Quotation");
 
-                entity.Property(e => e.CustomerQuotationQid).HasColumnName("Customer_Quotation_QID");
+                entity.Property(e => e.CustomerQuotationQid).
+                HasColumnName("Customer_Quotation_QID");
 
                 entity.Property(e => e.CustomerQuotationCashCustomerName)
                     .HasColumnName("Customer_Quotation_Cash_Customer_Name")
@@ -6210,7 +6211,12 @@ namespace Inspire.Erp.Infrastructure.Database
             {
                 entity.ToTable("Customer_Quotation_Details");
 
-                entity.Property(e => e.CustomerQuotationDetailsVoucherNo).HasColumnName("Customer_Quotation_Details_VoucherNo");
+                entity.Property(e => e.CustomerQuotationDetailsId)
+                .HasColumnName("Customer_Quotation_Details_ID");
+
+                
+                entity.Property(e => e.CustomerQuotationDetailsVoucherNo)
+                .HasColumnName("Customer_Quotation_Details_VoucherNo");
 
                 entity.Property(e => e.CustomerQuotationDetailsCashCustomerName)
                     .HasColumnName("Customer_Quotation_Details_Cash_Customer_Name")
@@ -6256,10 +6262,11 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnName("Customer_Quotation_Details_Qty")
                     .HasColumnType("numeric(18, 2)");
 
-                entity.Property(e => e.CustomerQuotationDetailsQuotationDetailsId).HasColumnName("Customer_Quotation_Details_Quotation_Details_ID");
+                //entity.Property(e => e.CustomerQuotationDetailsQuotationDetailsId)
+                //.HasColumnName("Customer_Quotation_Details_Quotation_Details_ID");
 
                 entity.Property(e => e.CustomerQuotationDetailsQuotationId)
-                    .HasColumnName("Customer_Quotation_Details_Quotation_ID")
+                    .HasColumnName("Customer_Quotation_Details_QuotationID")
                     .HasMaxLength(30)
                     .IsUnicode(false);
 
@@ -24019,22 +24026,16 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<AssetPurchaseVoucher>(entity =>
             {
-                entity.HasNoKey();
-
                 entity.ToTable("Ast_Purchase_Voucher");
-
-            
+                entity.HasKey(e => e.AstPurID);
             });
 
             modelBuilder.Entity<AssetPurchaseVoucherDetails>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.AstPurDetID);
 
                 entity.ToTable("AstPurchase_Voucher_Details");
-
-
             });
-
 
             OnModelCreatingPartial(modelBuilder);
         }

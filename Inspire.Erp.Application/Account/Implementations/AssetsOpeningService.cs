@@ -348,7 +348,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     AstPurID = x.AstPurID,
                     // AstPurchaseIDNum = x.AstPurchaseIDNum,
-                    AstPurchaseID = x.AstPurID.ToString(),
+                  
                     ActualAmount = x.ActualAmount,
                     AstPurchaseType = x.AstPurchaseType,
                     AstPurDt = x.AstPurDt,
@@ -582,7 +582,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 await Task.Run(() =>
                 {
                     var orders = _assetopening.GetAsQueryable().FirstOrDefault(x => x.AstPurID == id);
-                    model.AstPurchaseID = orders.AstPurID.ToString();
+                  
                     model.AstPurID = orders.AstPurID;
                     model.AstPurDt = orders.AstPurDt;
                     model.ActualAmount = orders.ActualAmount;
