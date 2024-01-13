@@ -45,9 +45,28 @@ namespace Inspire.Erp.Web.Controllers
         {
             ApiResponse<AssetPurchaseVoucherViewModel> apiResponse = new ApiResponse<AssetPurchaseVoucherViewModel>();
 
-            var param1 = _mapper.Map<AssetPurchaseVoucher>(voucherCompositeView);
+            try
+            {
+                var param1 = _mapper.Map<AssetPurchaseVoucher>(voucherCompositeView);
+                var xs = await _salesOrderService.InsertAssetPurchaseVoucher(param1);
+                var apvm = new AssetPurchaseVoucherViewModel();
+                apvm = _mapper.Map<AssetPurchaseVoucherViewModel>(xs.assetPurchaseVoucher);
+                apiResponse = new ApiResponse<AssetPurchaseVoucherViewModel>
+                {
+                    Valid = true,
+                    Result = apvm,//_mapper.Map<AssetPurchaseVoucherViewModel>(apvm),
+                    Message = AssetPurchaseVoucherMessage.SaveVoucher
+                };
+
+                return Ok(apiResponse);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex);
+            }
+           
             //var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-            var xs = await _salesOrderService.InsertAssetPurchaseVoucher(param1);
+           
 
             //            AssetPurchaseVoucherViewModel salesVoucherViewModel = new AssetPurchaseVoucherViewModel
             //            {
@@ -99,19 +118,11 @@ namespace Inspire.Erp.Web.Controllers
 
 
             //            };
-            var apvm = new AssetPurchaseVoucherViewModel();
-            apvm = _mapper.Map<AssetPurchaseVoucherViewModel>(xs.assetPurchaseVoucher);
+          
             //salesVoucherViewModel.AssetPurchaseDetails = _mapper.Map<List<AssetPurchaseVoucherDetailsViewModel>>(xs.assetPurchaseVoucher.AssetPurchaseVoucherDetails);
             //salesVoucherViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
            // apvm.AccountsTransactions= _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
-            apiResponse = new ApiResponse<AssetPurchaseVoucherViewModel>
-            {
-                Valid = true,
-                Result = apvm,//_mapper.Map<AssetPurchaseVoucherViewModel>(apvm),
-                Message = AssetPurchaseVoucherMessage.SaveVoucher
-            };
-
-            return Ok(apiResponse);
+        
         }
         [HttpPost]
         [Route("UpdateAssetPurchase")]
