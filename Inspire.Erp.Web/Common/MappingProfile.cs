@@ -409,6 +409,8 @@ namespace Inspire.Erp.Web.Common
             CreateMap<OptionsMasterViewModel,OptionsMaster>();
 
 
+            CreateMap<AssetPurchaseVoucher, AssetPurchaseVoucherViewModel>();
+            CreateMap<AssetPurchaseVoucherViewModel, AssetPurchaseVoucher>();
 
 
             //*******************Settings Ending ****************
