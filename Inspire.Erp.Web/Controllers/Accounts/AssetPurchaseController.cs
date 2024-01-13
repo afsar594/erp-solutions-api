@@ -219,10 +219,6 @@ namespace Inspire.Erp.Web.Controllers
         //    return apiResponse;
         //}
 
-
-        
-
-     
     }
 }
 
