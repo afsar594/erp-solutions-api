@@ -14,7 +14,9 @@ namespace Inspire.Erp.Application.Account.Interfaces
     {
         Task<Response<List<DropdownResponse>>> GetCurrencyMaster();
         Task<Response<List<GetAssetsMasterList>>> GetAssetMaster();
-        AssetPurchaseVoucherModel InsertAssetPurchaseVoucher(AssetPurchaseVoucher assetPurchaseVoucher, List<AccountsTransactions> accountsTransactions);
+        Task<AssetPurchaseVoucherModel> InsertAssetPurchaseVoucher(AssetPurchaseVoucher assetPurchaseVoucher
+            //, List<AccountsTransactions> accountsTransactions
+            );
         AssetPurchaseVoucherModel UpdateAssetPurchaseVoucher(AssetPurchaseVoucher assetPurchaseVoucher, List<AccountsTransactions> accountsTransactions);
         int DeleteAssetPurchaseVoucher(AssetPurchaseVoucher assetPurchaseVoucher, List<AccountsTransactions> accountsTransactions);
         public AssetPurchaseVoucherModel GetSavedAssetPurchaseVoucherDetails(string pvno);
