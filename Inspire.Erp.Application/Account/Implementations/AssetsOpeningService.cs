@@ -334,8 +334,6 @@ namespace Inspire.Erp.Application.Account.Implementations
            // customerPurchaseOrderModel.customerPurchaseOrderDetails = _customerPurchaseOrderDetailsRepository.GetAsQueryable().Where(x => x.CustomerPurchaseOrderDetailsVoucherNo == pvno && (x.CustomerPurchaseOrderDetailsDelStatus == false || x.CustomerPurchaseOrderDetailsDelStatus == null)).ToList();
             return customerPurchaseOrderModel;
         }
-
-
         public IEnumerable<AssetPurchaseVoucher> GetAssetPurchaseVouchers()
         {
             IEnumerable<AssetPurchaseVoucher> customerPurchaseOrder_ALL = _assetopening.GetAll();//.Where(k => k.CustomerPurchaseOrderDelStatus == false || k.CustomerPurchaseOrderDelStatus == null);
