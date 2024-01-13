@@ -88,6 +88,32 @@ namespace Inspire.Erp.Application.Account.Implementation
                 throw ex;
             }
         }
+        public async Task<IEnumerable<PDCGetList>> PDCGetReturnList()
+        {
+            try
+            {
+                //NC
+                var result = await _pdcDetails.GetAsQueryable().Where(x => x.PDC_Details_Cheque_Status == "R").Select(x => new PDCGetList
+                {
+                    BAccNo = x.PDC_Details_Bank_Account_No,
+                    CAmount = x.PDC_Details_Cheque_Amount,
+                    CBName = x.PDC_Details_Cheque_Bank_Name,
+                    CNO = x.PDC_Details_Cheque_No,
+                    PartyName = x.PDC_Details_PartyAccNo,
+                    PDate = x.PDC_Details_PDC_Date,
+                    PID = x.PDC_Details_ID,
+                    AccName = !string.IsNullOrEmpty(x.PDC_Details_PartyAccNo) ? _MasterAccountsTableRepo.GetAsQueryable().FirstOrDefault(c => c.MaAccNo == x.PDC_Details_PartyAccNo).MaAccName : "",
+                    TDate = x.PDC_Details_Trans_Date,
+                    VNO = x.PDC_Details_V_No,
+                    VType = x.PDC_Details_V_Type,
+                }).ToListAsync();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public async Task<IEnumerable<PDCGetList>> getFilteredPDCList(PDCFilters obj)
         {
             try
@@ -95,7 +121,24 @@ namespace Inspire.Erp.Application.Account.Implementation
                 string s = "EXEC getFilteredPDCList @postDate='" + obj.postDate+ "',@dateFrom='" + obj.dateFrom + "'" +
      ",@dateTo='" + obj.dateTo + "',@pdcType='" + obj.pdcType + "',@keyWords='" +
      "" + obj.keyWords[0] + "',@searchType='" + obj.searchType + "'";
-                var result = _PDCGetListResponse.GetBySPParams($"{s}").ToList();
+                 var result = await _pdcDetails.GetAsQueryable()
+                    .Where(x => (obj.postDate != null?x.PDC_Details_Trans_Date== obj.postDate:true) && (x.PDC_Details_PDC_Date>=obj.dateFrom  && x.PDC_Details_PDC_Date <= obj.dateFrom) &&
+                    (obj.keyWords != null && obj.keyWords.Count >0 && !string.IsNullOrEmpty(obj.keyWords[0]) ? x.PDC_Details_Bank_Account_No.Contains(obj.keyWords[0]):true) && 
+                    (!string.IsNullOrEmpty(obj.pdcType) ? x.PDC_Details_Trans_Type== obj.pdcType :true))
+                    .Select(x => new PDCGetList
+                {
+                    BAccNo = x.PDC_Details_Bank_Account_No,
+                    CAmount = x.PDC_Details_Cheque_Amount,
+                    CBName = x.PDC_Details_Cheque_Bank_Name,
+                    CNO = x.PDC_Details_Cheque_No,
+                    PartyName = x.PDC_Details_PartyAccNo,
+                    PDate = x.PDC_Details_PDC_Date,
+                    PID = x.PDC_Details_ID,
+                    AccName = !string.IsNullOrEmpty(x.PDC_Details_PartyAccNo) ? _MasterAccountsTableRepo.GetAsQueryable().FirstOrDefault(c => c.MaAccNo == x.PDC_Details_PartyAccNo).MaAccName : "",
+                    TDate = x.PDC_Details_Trans_Date,
+                    VNO = x.PDC_Details_V_No,
+                    VType = x.PDC_Details_V_Type,
+                }).ToListAsync();
                 return result;
             }
             catch (Exception ex)

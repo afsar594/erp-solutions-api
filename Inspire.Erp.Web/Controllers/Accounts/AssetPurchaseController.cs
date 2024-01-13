@@ -41,13 +41,13 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpPost]
         [Route("InsertAssetPurchase")]
-        public ApiResponse<AssetPurchaseVoucherViewModel> InsertAssetPurchase([FromBody] AssetPurchaseVoucherViewModel voucherCompositeView)
+        public async Task<IActionResult> InsertAssetPurchase([FromBody] AssetPurchaseVoucherViewModel voucherCompositeView)
         {
             ApiResponse<AssetPurchaseVoucherViewModel> apiResponse = new ApiResponse<AssetPurchaseVoucherViewModel>();
 
             var param1 = _mapper.Map<AssetPurchaseVoucher>(voucherCompositeView);
-            var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-            var xs = _salesOrderService.InsertAssetPurchaseVoucher(param1,param3);
+            //var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
+            var xs = await _salesOrderService.InsertAssetPurchaseVoucher(param1);
 
             //            AssetPurchaseVoucherViewModel salesVoucherViewModel = new AssetPurchaseVoucherViewModel
             //            {
@@ -111,7 +111,7 @@ namespace Inspire.Erp.Web.Controllers
                 Message = AssetPurchaseVoucherMessage.SaveVoucher
             };
 
-            return apiResponse;
+            return Ok(apiResponse);
         }
         [HttpPost]
         [Route("UpdateAssetPurchase")]
@@ -219,10 +219,6 @@ namespace Inspire.Erp.Web.Controllers
         //    return apiResponse;
         //}
 
-
-        
-
-     
     }
 }
 
