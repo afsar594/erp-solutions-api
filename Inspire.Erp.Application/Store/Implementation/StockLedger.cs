@@ -161,6 +161,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                        group s by s.StockRegisterMaterialID into g
                                 select new {
                                     ItemId = (long)g.Key,
+
                                     TotRevd = g.Sum(x=> x.StockRegisterTransType != "SR" ? x.StockRegisterSIN : 0),
                                     TotRevdAmt = g.Sum(x => x.StockRegisterTransType != "SR" ? x.StockRegisterSIN * x.StockRegisterRate : 0),
 
