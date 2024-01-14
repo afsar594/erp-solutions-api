@@ -133,8 +133,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 }
 
-
-
                 purchaseOrder.PurchaseOrderDetails = purchaseOrder.PurchaseOrderDetails.Select((k) =>
                 ////purchaseOrder.PurchaseOrderDetailsPurchaseOrder = purchaseOrderDetails.Select((k) =>
                 {
@@ -150,10 +148,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 _purchaseOrderRepository.Update(purchaseOrder);
 
-
-
-
-
                 //_purchaseOrderRepository.Update(purchaseOrder);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
@@ -168,7 +162,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     return k;
                 }).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
-
 
                 //stockRegister = stockRegister.Select((k) =>
                 //{
@@ -225,13 +218,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     listTrackPurchOrderReg.Add(poReg);
 
                 }
-
                 _trackingRegisterRepository.InsertList(listTrackRegs);
                 _purOrderRegisterRepository.InsertList(listTrackPurchOrderReg);
-
-
                 _purchaseOrderRepository.TransactionCommit();
-
             }
             catch (Exception ex)
             {
@@ -325,7 +314,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
 
 
-                purchaseOrderDetails = purchaseOrderDetails.Select((x) =>
+                purchaseOrder.PurchaseOrderDetails = purchaseOrder.PurchaseOrderDetails.Select((x) =>
                 {
                     x.PurchaseOrderId = maxcount;
                     x.PurchaseOrderDetailsNo = purchaseOrder.PurchaseOrderNo;

@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Inspire.Erp.Domain.Entities
 {
     public partial class CustomerQuotation
     {
-
         public CustomerQuotation()
         {
             CustomerQuotationDetails = new HashSet<CustomerQuotationDetails>();
@@ -58,7 +59,8 @@ namespace Inspire.Erp.Domain.Entities
         public bool? CustomerQuotationReviseQuotation { get; set; }
         public decimal? CustomerQuotationGrossProfitTotal { get; set; }
 
-
+        [NotMapped]
+        [JsonIgnore]
         public virtual VouchersNumbers CustomerQuotationVoucherNoNavigation { get; set; }
         public virtual ICollection<CustomerQuotationDetails> CustomerQuotationDetails { get; set; }
     }
