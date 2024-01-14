@@ -41,13 +41,31 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpPost]
         [Route("InsertAssetPurchase")]
-        public ApiResponse<AssetPurchaseVoucherViewModel> InsertAssetPurchase([FromBody] AssetPurchaseVoucherViewModel voucherCompositeView)
+        public async Task<IActionResult> InsertAssetPurchase([FromBody] AssetPurchaseVoucherViewModel voucherCompositeView)
         {
             ApiResponse<AssetPurchaseVoucherViewModel> apiResponse = new ApiResponse<AssetPurchaseVoucherViewModel>();
+            try
+            {
+                var param1 = _mapper.Map<AssetPurchaseVoucher>(voucherCompositeView);
+                var xs = await _salesOrderService.InsertAssetPurchaseVoucher(param1);
+                var apvm = new AssetPurchaseVoucherViewModel();
+                apvm = _mapper.Map<AssetPurchaseVoucherViewModel>(xs.assetPurchaseVoucher);
+                apiResponse = new ApiResponse<AssetPurchaseVoucherViewModel>
+                {
+                    Valid = true,
+                    Result = apvm,//_mapper.Map<AssetPurchaseVoucherViewModel>(apvm),
+                    Message = AssetPurchaseVoucherMessage.SaveVoucher
+                };
 
-            var param1 = _mapper.Map<AssetPurchaseVoucher>(voucherCompositeView);
-            var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-            var xs = _salesOrderService.InsertAssetPurchaseVoucher(param1,param3);
+                return Ok(apiResponse);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex);
+            }
+           
+            //var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
+           
 
             //            AssetPurchaseVoucherViewModel salesVoucherViewModel = new AssetPurchaseVoucherViewModel
             //            {
@@ -99,19 +117,11 @@ namespace Inspire.Erp.Web.Controllers
 
 
             //            };
-            var apvm = new AssetPurchaseVoucherViewModel();
-            apvm = _mapper.Map<AssetPurchaseVoucherViewModel>(xs.assetPurchaseVoucher);
+          
             //salesVoucherViewModel.AssetPurchaseDetails = _mapper.Map<List<AssetPurchaseVoucherDetailsViewModel>>(xs.assetPurchaseVoucher.AssetPurchaseVoucherDetails);
             //salesVoucherViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
            // apvm.AccountsTransactions= _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
-            apiResponse = new ApiResponse<AssetPurchaseVoucherViewModel>
-            {
-                Valid = true,
-                Result = apvm,//_mapper.Map<AssetPurchaseVoucherViewModel>(apvm),
-                Message = AssetPurchaseVoucherMessage.SaveVoucher
-            };
-
-            return apiResponse;
+        
         }
         [HttpPost]
         [Route("UpdateAssetPurchase")]
@@ -119,24 +129,18 @@ namespace Inspire.Erp.Web.Controllers
         {
             ApiResponse<AssetPurchaseVoucherViewModel> apiResponse = new ApiResponse<AssetPurchaseVoucherViewModel>();
             var param1 = _mapper.Map<AssetPurchaseVoucher>(voucherCompositeView);
-           
+      
             var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-
             var xs = _salesOrderService.UpdateAssetPurchaseVoucher(param1, param3 );
             var apvm = new AssetPurchaseVoucherViewModel();
             apvm = _mapper.Map<AssetPurchaseVoucherViewModel>(xs);
-           
             apiResponse = new ApiResponse<AssetPurchaseVoucherViewModel>
             {
                 Valid = true,
                 Result = apvm,//_mapper.Map<AssetPurchaseVoucherViewModel>(apvm),
                 Message = AssetPurchaseVoucherMessage.UpdateVoucher
             };
-
             return apiResponse;
-
-
-
         }
 
         [HttpPost]
@@ -219,10 +223,6 @@ namespace Inspire.Erp.Web.Controllers
         //    return apiResponse;
         //}
 
-
-        
-
-     
     }
 }
 

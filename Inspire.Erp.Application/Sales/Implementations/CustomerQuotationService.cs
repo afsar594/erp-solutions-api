@@ -204,23 +204,23 @@ namespace Inspire.Erp.Application.Sales.Implementations
         }
         public CustomerQuotationModel GetSavedCustQuotationDetails(string Qtno)
              {
-            if (_voucherNumbersRepository.GetAsQueryable().Any(x => x.VouchersNumbersVNo == Qtno))
-            {
-                //CustomerQuotationModel voucherdata = _voucherNumbersRepository.GetAsQueryable().Where(x => x.VouchersNumbersVNo == Qtno)
-                //                                .Include(k => k.CustomerQuotationDetails).AsEnumerable()
-                //                                .Select((k) => new CustomerQuotationModel
-                //                                {
-                //                                    customerQuotationDetails = k.CustomerQuotationDetails.Where(x => x.CustomerQuotationDetailsDelStatus == false).ToList()
-                //                                })
-                //                                .SingleOrDefault();
-                CustomerQuotationModel voucherdata = new CustomerQuotationModel();
-               voucherdata.custQuotation = _customerQuotationRepository.GetAsQueryable().Where(k => k.CustomerQuotationVoucherNo == Qtno).FirstOrDefault();
+                    if (_voucherNumbersRepository.GetAsQueryable().Any(x => x.VouchersNumbersVNo == Qtno))
+                    {
+                        //CustomerQuotationModel voucherdata = _voucherNumbersRepository.GetAsQueryable().Where(x => x.VouchersNumbersVNo == Qtno)
+                        //                                .Include(k => k.CustomerQuotationDetails).AsEnumerable()
+                        //                                .Select((k) => new CustomerQuotationModel
+                        //                                {
+                        //                                    customerQuotationDetails = k.CustomerQuotationDetails.Where(x => x.CustomerQuotationDetailsDelStatus == false).ToList()
+                        //                                })
+                        //                                .SingleOrDefault();
+                        CustomerQuotationModel voucherdata = new CustomerQuotationModel();
+                       voucherdata.custQuotation = _customerQuotationRepository.GetAsQueryable().Where(k => k.CustomerQuotationVoucherNo == Qtno).FirstOrDefault();
+                       voucherdata.customerQuotationDetails = _customerQuotationDetailsRepository.GetAsQueryable().Where(qd => qd.CustomerQuotationDetailsVoucherNo == Qtno).ToList();       
                 return voucherdata;
+                    }
+                    return null;
 
-            }
-            return null;
-
-        }
+           }
 
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
         {
@@ -295,7 +295,14 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                      {
                                          ItemName = im.ItemMasterItemName,
                                          QuotationId=cpo.CustomerQuotationQid,
-                                         //CPODate = cpo.CustomerPurchaseOrderDate,
+                                         QuotationDate = cpo.CustomerQuotationQuotationDate,
+                                         QuotationSerial=cpod.CustomerQuotationDetailsSlno,
+                                         QuotationDetailsId=cpod.CustomerQuotationDetailsId,
+                                         Unit=um.UnitMasterUnitShortName,
+                                         UnitPrice=cpod.CustomerQuotationDetailsUnitPrice,
+                                         GrossAmount=cpod.CustomerQuotationDetailsGrossAmount,
+                                         Discount=cpod.CustomerQuotationDetailsDiscount,
+                                         NetAmount=cpod.CustomerQuotationDetailsNetAmount,
                                          //LPONo = cpo.CustomerPurchaseOrderLpoNo == null ? "" : cpo.CustomerPurchaseOrderLpoNo,
                                          //CustomerName = cpo.CustomerPurchaseOrderCustomerName,
                                          //PartNo = im.ItemMasterPartNo == null ? "" : im.ItemMasterPartNo,

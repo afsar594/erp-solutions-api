@@ -13,11 +13,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Web.Common;
-
-
 using Microsoft.AspNetCore.Mvc.Rendering;
-
-
 
 namespace Inspire.Erp.Web.Controllers.Procurement
 {
@@ -34,15 +30,10 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             _mapper = mapper;
         }
 
-
-
         //[HttpGet]
         //[Route("PurchaseOrder_GetReportPurchaseOrder")]
         //public ApiResponse<List<ReportPurchaseOrder>> PurchaseOrder_GetReportPurchaseOrder()
         //{
-
-
-
         //    ApiResponse<List<ReportPurchaseOrder>> apiResponse = new ApiResponse<List<ReportPurchaseOrder>>
         //    {
         //        Valid = true,
@@ -50,28 +41,16 @@ namespace Inspire.Erp.Web.Controllers.Procurement
         //        Message = ""
         //    };
         //    return apiResponse;
-
-
-
-
         //}
-
-
-
         [HttpGet]
         [Route("GetAllUserFile")]
 
         public List<UserFile> GetAllUserFile()
         {
             return _mapper.Map<List<UserFile>>(_purchaseOrderService.GetAllUserFile());
-
-
         }
 
- 
-
-
-        [HttpPost]
+         [HttpPost]
         [Route("InsertPurchaseOrder")]
         public ApiResponse<PurchaseOrderViewModel> InsertPurchaseOrder([FromBody] PurchaseOrderViewModel voucherCompositeView)
         { 
@@ -86,96 +65,98 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                 var xs = _purchaseOrderService.InsertPurchaseOrder(param1, param3, param2
                     //, param4
                     );
-                PurchaseOrderViewModel purchaseOrderViewModel = new PurchaseOrderViewModel
-                {
+            //PurchaseOrderViewModel purchaseOrderViewModel = new PurchaseOrderViewModel
+            //{
 
-                    PurchaseOrderId = xs.purchaseOrder.PurchaseOrderId,
-                    PurchaseOrderNo = xs.purchaseOrder.PurchaseOrderNo,
-                    PurchaseOrderDate = xs.purchaseOrder.PurchaseOrderDate,
-                    PurchaseOrderType = xs.purchaseOrder.PurchaseOrderType,
-                    PurchaseOrderPartyId = xs.purchaseOrder.PurchaseOrderPartyId,
-                    PurchaseOrderPartyName = xs.purchaseOrder.PurchaseOrderPartyName,
-                    PurchaseOrderPartyAddress = xs.purchaseOrder.PurchaseOrderPartyAddress,
-                    PurchaseOrderPartyVatNo = xs.purchaseOrder.PurchaseOrderPartyVatNo,
-                    PurchaseOrderSupInvNo = xs.purchaseOrder.PurchaseOrderSupInvNo,
-                    PurchaseOrderRefNo = xs.purchaseOrder.PurchaseOrderRefNo,
-                    PurchaseOrderDescription = xs.purchaseOrder.PurchaseOrderDescription,
-                    PurchaseOrderGrno = xs.purchaseOrder.PurchaseOrderGrno,
-                    PurchaseOrderGrdate = xs.purchaseOrder.PurchaseOrderGrdate,
-                    PurchaseOrderLpono = xs.purchaseOrder.PurchaseOrderLpono,
-                    PurchaseOrderLpodate = xs.purchaseOrder.PurchaseOrderLpodate,
-                    PurchaseOrderQtnNo = xs.purchaseOrder.PurchaseOrderQtnNo,
-                    PurchaseOrderQtnDate = xs.purchaseOrder.PurchaseOrderQtnDate,
-                    PurchaseOrderExcludeVat = xs.purchaseOrder.PurchaseOrderExcludeVat,
-                    PurchaseOrderPono = xs.purchaseOrder.PurchaseOrderPono,
-                    PurchaseOrderBatchCode = xs.purchaseOrder.PurchaseOrderBatchCode,
-                    PurchaseOrderDayBookNo = xs.purchaseOrder.PurchaseOrderDayBookNo,
-                    PurchaseOrderLocationId = xs.purchaseOrder.PurchaseOrderLocationId,
-                    PurchaseOrderUserId = xs.purchaseOrder.PurchaseOrderUserId,
-                    PurchaseOrderCurrencyId = xs.purchaseOrder.PurchaseOrderCurrencyId,
-                    PurchaseOrderCompanyId = xs.purchaseOrder.PurchaseOrderCompanyId,
-                    PurchaseOrderJobId = xs.purchaseOrder.PurchaseOrderJobId,
-                    PurchaseOrderFsno = xs.purchaseOrder.PurchaseOrderFsno,
-                    PurchaseOrderFcRate = xs.purchaseOrder.PurchaseOrderFcRate,
-                    PurchaseOrderStatus = xs.purchaseOrder.PurchaseOrderStatus,
-                    PurchaseOrderTotalGrossAmount = xs.purchaseOrder.PurchaseOrderTotalGrossAmount,
-                    PurchaseOrderTotalItemDisAmount = xs.purchaseOrder.PurchaseOrderTotalItemDisAmount,
-                    PurchaseOrderTotalActualAmount = xs.purchaseOrder.PurchaseOrderTotalActualAmount,
-                    PurchaseOrderTotalDisPer = xs.purchaseOrder.PurchaseOrderTotalDisPer,
-                    PurchaseOrderTotalDisAmount = xs.purchaseOrder.PurchaseOrderTotalDisAmount,
-                    PurchaseOrderVatAmt = xs.purchaseOrder.PurchaseOrderVatAmt,
-                    PurchaseOrderVatPer = xs.purchaseOrder.PurchaseOrderVatPer,
-                    PurchaseOrderVatRoundSign = xs.purchaseOrder.PurchaseOrderVatRoundSign,
-                    PurchaseOrderVatRountAmt = xs.purchaseOrder.PurchaseOrderVatRountAmt,
-                    PurchaseOrderNetDisAmount = xs.purchaseOrder.PurchaseOrderNetDisAmount,
-                    PurchaseOrderNetAmount = xs.purchaseOrder.PurchaseOrderNetAmount,
-                    PurchaseOrderTransportCost = xs.purchaseOrder.PurchaseOrderTransportCost,
-                    PurchaseOrderHandlingcharges = xs.purchaseOrder.PurchaseOrderHandlingcharges,
-                    PurchaseOrderIssueId = xs.purchaseOrder.PurchaseOrderIssueId,
-                    PurchaseOrderJobDirectPur = xs.purchaseOrder.PurchaseOrderJobDirectPur,
-                    PurchaseOrderDelStatus = xs.purchaseOrder.PurchaseOrderDelStatus,
-
-
-
-                    PurchaseOrderIndentNo = xs.purchaseOrder.PurchaseOrderIndentNo,
-                    PurchaseOrderContPerson = xs.purchaseOrder.PurchaseOrderContPerson,
-                    PurchaseOrderPreparedBy = xs.purchaseOrder.PurchaseOrderPreparedBy,
-                    PurchaseOrderRecommendedBy = xs.purchaseOrder.PurchaseOrderRecommendedBy,
-                    PurchaseOrderApproveEnable = xs.purchaseOrder.PurchaseOrderApproveEnable,
-                    PurchaseOrderApproveDate = xs.purchaseOrder.PurchaseOrderApproveDate,
-                    PurchaseOrderApproveStatus = xs.purchaseOrder.PurchaseOrderApproveStatus,
-                    PurchaseOrderApproveUserId = xs.purchaseOrder.PurchaseOrderApproveUserId,
+            //    PurchaseOrderId = xs.purchaseOrder.PurchaseOrderId,
+            //    PurchaseOrderNo = xs.purchaseOrder.PurchaseOrderNo,
+            //    PurchaseOrderDate = xs.purchaseOrder.PurchaseOrderDate,
+            //    PurchaseOrderType = xs.purchaseOrder.PurchaseOrderType,
+            //    PurchaseOrderPartyId = xs.purchaseOrder.PurchaseOrderPartyId,
+            //    PurchaseOrderPartyName = xs.purchaseOrder.PurchaseOrderPartyName,
+            //    PurchaseOrderPartyAddress = xs.purchaseOrder.PurchaseOrderPartyAddress,
+            //    PurchaseOrderPartyVatNo = xs.purchaseOrder.PurchaseOrderPartyVatNo,
+            //    PurchaseOrderSupInvNo = xs.purchaseOrder.PurchaseOrderSupInvNo,
+            //    PurchaseOrderRefNo = xs.purchaseOrder.PurchaseOrderRefNo,
+            //    PurchaseOrderDescription = xs.purchaseOrder.PurchaseOrderDescription,
+            //    PurchaseOrderGrno = xs.purchaseOrder.PurchaseOrderGrno,
+            //    PurchaseOrderGrdate = xs.purchaseOrder.PurchaseOrderGrdate,
+            //    PurchaseOrderLpono = xs.purchaseOrder.PurchaseOrderLpono,
+            //    PurchaseOrderLpodate = xs.purchaseOrder.PurchaseOrderLpodate,
+            //    PurchaseOrderQtnNo = xs.purchaseOrder.PurchaseOrderQtnNo,
+            //    PurchaseOrderQtnDate = xs.purchaseOrder.PurchaseOrderQtnDate,
+            //    PurchaseOrderExcludeVat = xs.purchaseOrder.PurchaseOrderExcludeVat,
+            //    PurchaseOrderPono = xs.purchaseOrder.PurchaseOrderPono,
+            //    PurchaseOrderBatchCode = xs.purchaseOrder.PurchaseOrderBatchCode,
+            //    PurchaseOrderDayBookNo = xs.purchaseOrder.PurchaseOrderDayBookNo,
+            //    PurchaseOrderLocationId = xs.purchaseOrder.PurchaseOrderLocationId,
+            //    PurchaseOrderUserId = xs.purchaseOrder.PurchaseOrderUserId,
+            //    PurchaseOrderCurrencyId = xs.purchaseOrder.PurchaseOrderCurrencyId,
+            //    PurchaseOrderCompanyId = xs.purchaseOrder.PurchaseOrderCompanyId,
+            //    PurchaseOrderJobId = xs.purchaseOrder.PurchaseOrderJobId,
+            //    PurchaseOrderFsno = xs.purchaseOrder.PurchaseOrderFsno,
+            //    PurchaseOrderFcRate = xs.purchaseOrder.PurchaseOrderFcRate,
+            //    PurchaseOrderStatus = xs.purchaseOrder.PurchaseOrderStatus,
+            //    PurchaseOrderTotalGrossAmount = xs.purchaseOrder.PurchaseOrderTotalGrossAmount,
+            //    PurchaseOrderTotalItemDisAmount = xs.purchaseOrder.PurchaseOrderTotalItemDisAmount,
+            //    PurchaseOrderTotalActualAmount = xs.purchaseOrder.PurchaseOrderTotalActualAmount,
+            //    PurchaseOrderTotalDisPer = xs.purchaseOrder.PurchaseOrderTotalDisPer,
+            //    PurchaseOrderTotalDisAmount = xs.purchaseOrder.PurchaseOrderTotalDisAmount,
+            //    PurchaseOrderVatAmt = xs.purchaseOrder.PurchaseOrderVatAmt,
+            //    PurchaseOrderVatPer = xs.purchaseOrder.PurchaseOrderVatPer,
+            //    PurchaseOrderVatRoundSign = xs.purchaseOrder.PurchaseOrderVatRoundSign,
+            //    PurchaseOrderVatRountAmt = xs.purchaseOrder.PurchaseOrderVatRountAmt,
+            //    PurchaseOrderNetDisAmount = xs.purchaseOrder.PurchaseOrderNetDisAmount,
+            //    PurchaseOrderNetAmount = xs.purchaseOrder.PurchaseOrderNetAmount,
+            //    PurchaseOrderTransportCost = xs.purchaseOrder.PurchaseOrderTransportCost,
+            //    PurchaseOrderHandlingcharges = xs.purchaseOrder.PurchaseOrderHandlingcharges,
+            //    PurchaseOrderIssueId = xs.purchaseOrder.PurchaseOrderIssueId,
+            //    PurchaseOrderJobDirectPur = xs.purchaseOrder.PurchaseOrderJobDirectPur,
+            //    PurchaseOrderDelStatus = xs.purchaseOrder.PurchaseOrderDelStatus,
 
 
 
-                    PurchaseOrderHeader = xs.purchaseOrder.PurchaseOrderHeader,
-                    PurchaseOrderDelivery = xs.purchaseOrder.PurchaseOrderDelivery,
-                    PurchaseOrderNotes = xs.purchaseOrder.PurchaseOrderNotes,
-                    PurchaseOrderFooter = xs.purchaseOrder.PurchaseOrderFooter,
-                    PurchaseOrderPaymentTerms = xs.purchaseOrder.PurchaseOrderPaymentTerms,
-                    PurchaseOrderSubject = xs.purchaseOrder.PurchaseOrderSubject,
-
-                    PurchaseOrderContent = xs.purchaseOrder.PurchaseOrderContent,
-                    PurchaseOrderRemarks1 = xs.purchaseOrder.PurchaseOrderRemarks1,
-                    PurchaseOrderRemarks2 = xs.purchaseOrder.PurchaseOrderRemarks2,
-                    PurchaseOrderRemarks3 = xs.purchaseOrder.PurchaseOrderRemarks3,
-
-
-                    PurchaseOrderDelivFromDate = xs.purchaseOrder.PurchaseOrderDelivFromDate,
-                    PurchaseOrderDelivToDate = xs.purchaseOrder.PurchaseOrderDelivToDate,
-                    PurchaseOrderDelivStatus = xs.purchaseOrder.PurchaseOrderDelivStatus,
-                    PurchaseOrderDelivPlace = xs.purchaseOrder.PurchaseOrderDelivPlace,
+            //    PurchaseOrderIndentNo = xs.purchaseOrder.PurchaseOrderIndentNo,
+            //    PurchaseOrderContPerson = xs.purchaseOrder.PurchaseOrderContPerson,
+            //    PurchaseOrderPreparedBy = xs.purchaseOrder.PurchaseOrderPreparedBy,
+            //    PurchaseOrderRecommendedBy = xs.purchaseOrder.PurchaseOrderRecommendedBy,
+            //    PurchaseOrderApproveEnable = xs.purchaseOrder.PurchaseOrderApproveEnable,
+            //    PurchaseOrderApproveDate = xs.purchaseOrder.PurchaseOrderApproveDate,
+            //    PurchaseOrderApproveStatus = xs.purchaseOrder.PurchaseOrderApproveStatus,
+            //    PurchaseOrderApproveUserId = xs.purchaseOrder.PurchaseOrderApproveUserId,
 
 
 
-                };
+            //    PurchaseOrderHeader = xs.purchaseOrder.PurchaseOrderHeader,
+            //    PurchaseOrderDelivery = xs.purchaseOrder.PurchaseOrderDelivery,
+            //    PurchaseOrderNotes = xs.purchaseOrder.PurchaseOrderNotes,
+            //    PurchaseOrderFooter = xs.purchaseOrder.PurchaseOrderFooter,
+            //    PurchaseOrderPaymentTerms = xs.purchaseOrder.PurchaseOrderPaymentTerms,
+            //    PurchaseOrderSubject = xs.purchaseOrder.PurchaseOrderSubject,
 
-                purchaseOrderViewModel.PurchaseOrderDetails = _mapper.Map<List<PurchaseOrderDetailsViewModel>>(xs.purchaseOrderDetails);
+            //    PurchaseOrderContent = xs.purchaseOrder.PurchaseOrderContent,
+            //    PurchaseOrderRemarks1 = xs.purchaseOrder.PurchaseOrderRemarks1,
+            //    PurchaseOrderRemarks2 = xs.purchaseOrder.PurchaseOrderRemarks2,
+            //    PurchaseOrderRemarks3 = xs.purchaseOrder.PurchaseOrderRemarks3,
+
+
+            //    PurchaseOrderDelivFromDate = xs.purchaseOrder.PurchaseOrderDelivFromDate,
+            //    PurchaseOrderDelivToDate = xs.purchaseOrder.PurchaseOrderDelivToDate,
+            //    PurchaseOrderDelivStatus = xs.purchaseOrder.PurchaseOrderDelivStatus,
+            //    PurchaseOrderDelivPlace = xs.purchaseOrder.PurchaseOrderDelivPlace,
+
+
+
+            //};
+            PurchaseOrderViewModel purchaseOrderViewModel = new PurchaseOrderViewModel();
+            purchaseOrderViewModel = _mapper.Map<PurchaseOrderViewModel>(xs.purchaseOrder);
+
+            //purchaseOrderViewModel.PurchaseOrderDetails = _mapper.Map<List<PurchaseOrderDetailsViewModel>>(xs.purchaseOrderDetails);
                 purchaseOrderViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
                 apiResponse = new ApiResponse<PurchaseOrderViewModel>
                 {
                     Valid = true,
-                    Result = _mapper.Map<PurchaseOrderViewModel>(purchaseOrderViewModel),
+                    Result = purchaseOrderViewModel, //_mapper.Map<PurchaseOrderViewModel>(purchaseOrderViewModel),
                     Message = PurchaseOrderMessage.SaveVoucher
                 };
             //}
@@ -207,92 +188,94 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                 //, param4
                 );
 
-            PurchaseOrderViewModel purchaseOrderViewModel = new PurchaseOrderViewModel
-            {
-                PurchaseOrderId = xs.purchaseOrder.PurchaseOrderId,
-                PurchaseOrderNo = xs.purchaseOrder.PurchaseOrderNo,
-                PurchaseOrderDate = xs.purchaseOrder.PurchaseOrderDate,
-                PurchaseOrderType = xs.purchaseOrder.PurchaseOrderType,
-                PurchaseOrderPartyId = xs.purchaseOrder.PurchaseOrderPartyId,
-                PurchaseOrderPartyName = xs.purchaseOrder.PurchaseOrderPartyName,
-                PurchaseOrderPartyAddress = xs.purchaseOrder.PurchaseOrderPartyAddress,
-                PurchaseOrderPartyVatNo = xs.purchaseOrder.PurchaseOrderPartyVatNo,
-                PurchaseOrderSupInvNo = xs.purchaseOrder.PurchaseOrderSupInvNo,
-                PurchaseOrderRefNo = xs.purchaseOrder.PurchaseOrderRefNo,
-                PurchaseOrderDescription = xs.purchaseOrder.PurchaseOrderDescription,
-                PurchaseOrderGrno = xs.purchaseOrder.PurchaseOrderGrno,
-                PurchaseOrderGrdate = xs.purchaseOrder.PurchaseOrderGrdate,
-                PurchaseOrderLpono = xs.purchaseOrder.PurchaseOrderLpono,
-                PurchaseOrderLpodate = xs.purchaseOrder.PurchaseOrderLpodate,
-                PurchaseOrderQtnNo = xs.purchaseOrder.PurchaseOrderQtnNo,
-                PurchaseOrderQtnDate = xs.purchaseOrder.PurchaseOrderQtnDate,
-                PurchaseOrderExcludeVat = xs.purchaseOrder.PurchaseOrderExcludeVat,
-                PurchaseOrderPono = xs.purchaseOrder.PurchaseOrderPono,
-                PurchaseOrderBatchCode = xs.purchaseOrder.PurchaseOrderBatchCode,
-                PurchaseOrderDayBookNo = xs.purchaseOrder.PurchaseOrderDayBookNo,
-                PurchaseOrderLocationId = xs.purchaseOrder.PurchaseOrderLocationId,
-                PurchaseOrderUserId = xs.purchaseOrder.PurchaseOrderUserId,
-                PurchaseOrderCurrencyId = xs.purchaseOrder.PurchaseOrderCurrencyId,
-                PurchaseOrderCompanyId = xs.purchaseOrder.PurchaseOrderCompanyId,
-                PurchaseOrderJobId = xs.purchaseOrder.PurchaseOrderJobId,
-                PurchaseOrderFsno = xs.purchaseOrder.PurchaseOrderFsno,
-                PurchaseOrderFcRate = xs.purchaseOrder.PurchaseOrderFcRate,
-                PurchaseOrderStatus = xs.purchaseOrder.PurchaseOrderStatus,
-                PurchaseOrderTotalGrossAmount = xs.purchaseOrder.PurchaseOrderTotalGrossAmount,
-                PurchaseOrderTotalItemDisAmount = xs.purchaseOrder.PurchaseOrderTotalItemDisAmount,
-                PurchaseOrderTotalActualAmount = xs.purchaseOrder.PurchaseOrderTotalActualAmount,
-                PurchaseOrderTotalDisPer = xs.purchaseOrder.PurchaseOrderTotalDisPer,
-                PurchaseOrderTotalDisAmount = xs.purchaseOrder.PurchaseOrderTotalDisAmount,
-                PurchaseOrderVatAmt = xs.purchaseOrder.PurchaseOrderVatAmt,
-                PurchaseOrderVatPer = xs.purchaseOrder.PurchaseOrderVatPer,
-                PurchaseOrderVatRoundSign = xs.purchaseOrder.PurchaseOrderVatRoundSign,
-                PurchaseOrderVatRountAmt = xs.purchaseOrder.PurchaseOrderVatRountAmt,
-                PurchaseOrderNetDisAmount = xs.purchaseOrder.PurchaseOrderNetDisAmount,
-                PurchaseOrderNetAmount = xs.purchaseOrder.PurchaseOrderNetAmount,
-                PurchaseOrderTransportCost = xs.purchaseOrder.PurchaseOrderTransportCost,
-                PurchaseOrderHandlingcharges = xs.purchaseOrder.PurchaseOrderHandlingcharges,
-                PurchaseOrderIssueId = xs.purchaseOrder.PurchaseOrderIssueId,
-                PurchaseOrderJobDirectPur = xs.purchaseOrder.PurchaseOrderJobDirectPur,
-                PurchaseOrderDelStatus = xs.purchaseOrder.PurchaseOrderDelStatus,
+            //PurchaseOrderViewModel purchaseOrderViewModel = new PurchaseOrderViewModel
+            //{
+            //    PurchaseOrderId = xs.purchaseOrder.PurchaseOrderId,
+            //    PurchaseOrderNo = xs.purchaseOrder.PurchaseOrderNo,
+            //    PurchaseOrderDate = xs.purchaseOrder.PurchaseOrderDate,
+            //    PurchaseOrderType = xs.purchaseOrder.PurchaseOrderType,
+            //    PurchaseOrderPartyId = xs.purchaseOrder.PurchaseOrderPartyId,
+            //    PurchaseOrderPartyName = xs.purchaseOrder.PurchaseOrderPartyName,
+            //    PurchaseOrderPartyAddress = xs.purchaseOrder.PurchaseOrderPartyAddress,
+            //    PurchaseOrderPartyVatNo = xs.purchaseOrder.PurchaseOrderPartyVatNo,
+            //    PurchaseOrderSupInvNo = xs.purchaseOrder.PurchaseOrderSupInvNo,
+            //    PurchaseOrderRefNo = xs.purchaseOrder.PurchaseOrderRefNo,
+            //    PurchaseOrderDescription = xs.purchaseOrder.PurchaseOrderDescription,
+            //    PurchaseOrderGrno = xs.purchaseOrder.PurchaseOrderGrno,
+            //    PurchaseOrderGrdate = xs.purchaseOrder.PurchaseOrderGrdate,
+            //    PurchaseOrderLpono = xs.purchaseOrder.PurchaseOrderLpono,
+            //    PurchaseOrderLpodate = xs.purchaseOrder.PurchaseOrderLpodate,
+            //    PurchaseOrderQtnNo = xs.purchaseOrder.PurchaseOrderQtnNo,
+            //    PurchaseOrderQtnDate = xs.purchaseOrder.PurchaseOrderQtnDate,
+            //    PurchaseOrderExcludeVat = xs.purchaseOrder.PurchaseOrderExcludeVat,
+            //    PurchaseOrderPono = xs.purchaseOrder.PurchaseOrderPono,
+            //    PurchaseOrderBatchCode = xs.purchaseOrder.PurchaseOrderBatchCode,
+            //    PurchaseOrderDayBookNo = xs.purchaseOrder.PurchaseOrderDayBookNo,
+            //    PurchaseOrderLocationId = xs.purchaseOrder.PurchaseOrderLocationId,
+            //    PurchaseOrderUserId = xs.purchaseOrder.PurchaseOrderUserId,
+            //    PurchaseOrderCurrencyId = xs.purchaseOrder.PurchaseOrderCurrencyId,
+            //    PurchaseOrderCompanyId = xs.purchaseOrder.PurchaseOrderCompanyId,
+            //    PurchaseOrderJobId = xs.purchaseOrder.PurchaseOrderJobId,
+            //    PurchaseOrderFsno = xs.purchaseOrder.PurchaseOrderFsno,
+            //    PurchaseOrderFcRate = xs.purchaseOrder.PurchaseOrderFcRate,
+            //    PurchaseOrderStatus = xs.purchaseOrder.PurchaseOrderStatus,
+            //    PurchaseOrderTotalGrossAmount = xs.purchaseOrder.PurchaseOrderTotalGrossAmount,
+            //    PurchaseOrderTotalItemDisAmount = xs.purchaseOrder.PurchaseOrderTotalItemDisAmount,
+            //    PurchaseOrderTotalActualAmount = xs.purchaseOrder.PurchaseOrderTotalActualAmount,
+            //    PurchaseOrderTotalDisPer = xs.purchaseOrder.PurchaseOrderTotalDisPer,
+            //    PurchaseOrderTotalDisAmount = xs.purchaseOrder.PurchaseOrderTotalDisAmount,
+            //    PurchaseOrderVatAmt = xs.purchaseOrder.PurchaseOrderVatAmt,
+            //    PurchaseOrderVatPer = xs.purchaseOrder.PurchaseOrderVatPer,
+            //    PurchaseOrderVatRoundSign = xs.purchaseOrder.PurchaseOrderVatRoundSign,
+            //    PurchaseOrderVatRountAmt = xs.purchaseOrder.PurchaseOrderVatRountAmt,
+            //    PurchaseOrderNetDisAmount = xs.purchaseOrder.PurchaseOrderNetDisAmount,
+            //    PurchaseOrderNetAmount = xs.purchaseOrder.PurchaseOrderNetAmount,
+            //    PurchaseOrderTransportCost = xs.purchaseOrder.PurchaseOrderTransportCost,
+            //    PurchaseOrderHandlingcharges = xs.purchaseOrder.PurchaseOrderHandlingcharges,
+            //    PurchaseOrderIssueId = xs.purchaseOrder.PurchaseOrderIssueId,
+            //    PurchaseOrderJobDirectPur = xs.purchaseOrder.PurchaseOrderJobDirectPur,
+            //    PurchaseOrderDelStatus = xs.purchaseOrder.PurchaseOrderDelStatus,
 
-                PurchaseOrderIndentNo = xs.purchaseOrder.PurchaseOrderIndentNo,
-                PurchaseOrderContPerson = xs.purchaseOrder.PurchaseOrderContPerson,
-                PurchaseOrderPreparedBy = xs.purchaseOrder.PurchaseOrderPreparedBy,
-                PurchaseOrderRecommendedBy = xs.purchaseOrder.PurchaseOrderRecommendedBy,
-                PurchaseOrderApproveEnable = xs.purchaseOrder.PurchaseOrderApproveEnable,
-                PurchaseOrderApproveDate = xs.purchaseOrder.PurchaseOrderApproveDate,
-                PurchaseOrderApproveStatus = xs.purchaseOrder.PurchaseOrderApproveStatus,
-                PurchaseOrderApproveUserId = xs.purchaseOrder.PurchaseOrderApproveUserId,
-
-
-
-                PurchaseOrderHeader = xs.purchaseOrder.PurchaseOrderHeader,
-                PurchaseOrderDelivery = xs.purchaseOrder.PurchaseOrderDelivery,
-                PurchaseOrderNotes = xs.purchaseOrder.PurchaseOrderNotes,
-                PurchaseOrderFooter = xs.purchaseOrder.PurchaseOrderFooter,
-                PurchaseOrderPaymentTerms = xs.purchaseOrder.PurchaseOrderPaymentTerms,
-                PurchaseOrderSubject = xs.purchaseOrder.PurchaseOrderSubject,
-
-                PurchaseOrderContent = xs.purchaseOrder.PurchaseOrderContent,
-                PurchaseOrderRemarks1 = xs.purchaseOrder.PurchaseOrderRemarks1,
-                PurchaseOrderRemarks2 = xs.purchaseOrder.PurchaseOrderRemarks2,
-                PurchaseOrderRemarks3 = xs.purchaseOrder.PurchaseOrderRemarks3,
+            //    PurchaseOrderIndentNo = xs.purchaseOrder.PurchaseOrderIndentNo,
+            //    PurchaseOrderContPerson = xs.purchaseOrder.PurchaseOrderContPerson,
+            //    PurchaseOrderPreparedBy = xs.purchaseOrder.PurchaseOrderPreparedBy,
+            //    PurchaseOrderRecommendedBy = xs.purchaseOrder.PurchaseOrderRecommendedBy,
+            //    PurchaseOrderApproveEnable = xs.purchaseOrder.PurchaseOrderApproveEnable,
+            //    PurchaseOrderApproveDate = xs.purchaseOrder.PurchaseOrderApproveDate,
+            //    PurchaseOrderApproveStatus = xs.purchaseOrder.PurchaseOrderApproveStatus,
+            //    PurchaseOrderApproveUserId = xs.purchaseOrder.PurchaseOrderApproveUserId,
 
 
-                PurchaseOrderDelivFromDate = xs.purchaseOrder.PurchaseOrderDelivFromDate,
-                PurchaseOrderDelivToDate = xs.purchaseOrder.PurchaseOrderDelivToDate,
-                PurchaseOrderDelivStatus = xs.purchaseOrder.PurchaseOrderDelivStatus,
-                PurchaseOrderDelivPlace = xs.purchaseOrder.PurchaseOrderDelivPlace,
 
-            };
+            //    PurchaseOrderHeader = xs.purchaseOrder.PurchaseOrderHeader,
+            //    PurchaseOrderDelivery = xs.purchaseOrder.PurchaseOrderDelivery,
+            //    PurchaseOrderNotes = xs.purchaseOrder.PurchaseOrderNotes,
+            //    PurchaseOrderFooter = xs.purchaseOrder.PurchaseOrderFooter,
+            //    PurchaseOrderPaymentTerms = xs.purchaseOrder.PurchaseOrderPaymentTerms,
+            //    PurchaseOrderSubject = xs.purchaseOrder.PurchaseOrderSubject,
 
-            purchaseOrderViewModel.PurchaseOrderDetails = _mapper.Map<List<PurchaseOrderDetailsViewModel>>(xs.purchaseOrderDetails);
+            //    PurchaseOrderContent = xs.purchaseOrder.PurchaseOrderContent,
+            //    PurchaseOrderRemarks1 = xs.purchaseOrder.PurchaseOrderRemarks1,
+            //    PurchaseOrderRemarks2 = xs.purchaseOrder.PurchaseOrderRemarks2,
+            //    PurchaseOrderRemarks3 = xs.purchaseOrder.PurchaseOrderRemarks3,
+
+
+            //    PurchaseOrderDelivFromDate = xs.purchaseOrder.PurchaseOrderDelivFromDate,
+            //    PurchaseOrderDelivToDate = xs.purchaseOrder.PurchaseOrderDelivToDate,
+            //    PurchaseOrderDelivStatus = xs.purchaseOrder.PurchaseOrderDelivStatus,
+            //    PurchaseOrderDelivPlace = xs.purchaseOrder.PurchaseOrderDelivPlace,
+
+            //};
+            PurchaseOrderViewModel purchaseOrderViewModel = new PurchaseOrderViewModel();
+
+            purchaseOrderViewModel = _mapper.Map<PurchaseOrderViewModel>(xs.purchaseOrder);
+           // purchaseOrderViewModel.PurchaseOrderDetails = _mapper.Map<List<PurchaseOrderDetailsViewModel>>(xs.purchaseOrderDetails);
             purchaseOrderViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
 
             ApiResponse<PurchaseOrderViewModel> apiResponse = new ApiResponse<PurchaseOrderViewModel>
             {
                 Valid = true,
-                Result = _mapper.Map<PurchaseOrderViewModel>(purchaseOrderViewModel),
+                Result = purchaseOrderViewModel,//_mapper.Map<PurchaseOrderViewModel>(xs.purchaseOrder),
                 Message = PurchaseOrderMessage.UpdateVoucher
             };
 
@@ -319,7 +302,6 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             };
 
             return apiResponse;
-
         }
 
 
@@ -327,9 +309,6 @@ namespace Inspire.Erp.Web.Controllers.Procurement
         [Route("GetAllAccountTransaction")]
         public ApiResponse<List<AccountsTransactions>> GetAllAccountTransaction()
         {
-
-
-
             ApiResponse<List<AccountsTransactions>> apiResponse = new ApiResponse<List<AccountsTransactions>>
             {
                 Valid = true,
@@ -344,7 +323,6 @@ namespace Inspire.Erp.Web.Controllers.Procurement
         [Route("GetPurchaseOrder")]
         public ApiResponse<List<PurchaseOrder>> GetAllPurchaseOrder()
         {
-
             ApiResponse<List<PurchaseOrder>> apiResponse = new ApiResponse<List<PurchaseOrder>>
             {
                 Valid = true,
@@ -352,8 +330,6 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                 Message = ""
             };
             return apiResponse;
-
-
         }
 
         [HttpGet]
@@ -361,13 +337,10 @@ namespace Inspire.Erp.Web.Controllers.Procurement
         public ApiResponse<PurchaseOrderViewModel> GetSavedPurchaseOrderDetails(string id)
         {
             PurchaseOrderModel purchaseOrder = _purchaseOrderService.GetSavedPurchaseOrderDetails(id);
-
             if (purchaseOrder != null)
             {
                 PurchaseOrderViewModel purchaseOrderViewModel = new PurchaseOrderViewModel
                 {
-
-
                     PurchaseOrderId = purchaseOrder.purchaseOrder.PurchaseOrderId,
                     PurchaseOrderNo = purchaseOrder.purchaseOrder.PurchaseOrderNo,
                     PurchaseOrderDate = purchaseOrder.purchaseOrder.PurchaseOrderDate,
@@ -413,9 +386,6 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                     PurchaseOrderIssueId = purchaseOrder.purchaseOrder.PurchaseOrderIssueId,
                     PurchaseOrderJobDirectPur = purchaseOrder.purchaseOrder.PurchaseOrderJobDirectPur,
                     PurchaseOrderDelStatus = purchaseOrder.purchaseOrder.PurchaseOrderDelStatus,
-
-
-
                     PurchaseOrderIndentNo = purchaseOrder.purchaseOrder.PurchaseOrderIndentNo,
                     PurchaseOrderContPerson = purchaseOrder.purchaseOrder.PurchaseOrderContPerson,
                     PurchaseOrderPreparedBy = purchaseOrder.purchaseOrder.PurchaseOrderPreparedBy,
@@ -424,27 +394,20 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                     PurchaseOrderApproveDate = purchaseOrder.purchaseOrder.PurchaseOrderApproveDate,
                     PurchaseOrderApproveStatus = purchaseOrder.purchaseOrder.PurchaseOrderApproveStatus,
                     PurchaseOrderApproveUserId = purchaseOrder.purchaseOrder.PurchaseOrderApproveUserId,
-
-
-
                     PurchaseOrderHeader = purchaseOrder.purchaseOrder.PurchaseOrderHeader,
                     PurchaseOrderDelivery = purchaseOrder.purchaseOrder.PurchaseOrderDelivery,
                     PurchaseOrderNotes = purchaseOrder.purchaseOrder.PurchaseOrderNotes,
                     PurchaseOrderFooter = purchaseOrder.purchaseOrder.PurchaseOrderFooter,
                     PurchaseOrderPaymentTerms = purchaseOrder.purchaseOrder.PurchaseOrderPaymentTerms,
                     PurchaseOrderSubject = purchaseOrder.purchaseOrder.PurchaseOrderSubject,
-
                     PurchaseOrderContent = purchaseOrder.purchaseOrder.PurchaseOrderContent,
                     PurchaseOrderRemarks1 = purchaseOrder.purchaseOrder.PurchaseOrderRemarks1,
                     PurchaseOrderRemarks2 = purchaseOrder.purchaseOrder.PurchaseOrderRemarks2,
                     PurchaseOrderRemarks3 = purchaseOrder.purchaseOrder.PurchaseOrderRemarks3,
-
-
                     PurchaseOrderDelivFromDate = purchaseOrder.purchaseOrder.PurchaseOrderDelivFromDate,
                     PurchaseOrderDelivToDate = purchaseOrder.purchaseOrder.PurchaseOrderDelivToDate,
                     PurchaseOrderDelivStatus = purchaseOrder.purchaseOrder.PurchaseOrderDelivStatus,
                     PurchaseOrderDelivPlace = purchaseOrder.purchaseOrder.PurchaseOrderDelivPlace,
-
                 };
                 purchaseOrderViewModel.PurchaseOrderDetails = _mapper.Map<List<PurchaseOrderDetailsViewModel>>(purchaseOrder.purchaseOrderDetails);
                 purchaseOrderViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(purchaseOrder.accountsTransactions);

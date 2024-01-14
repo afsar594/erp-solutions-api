@@ -26,6 +26,7 @@ namespace Inspire.Erp.Application.Sales.Interfaces
 
         public DeliveryNoteModel InsertDeliveryNote(CustomerDeliveryNote deliveryNote,List<CustomerDeliveryNoteDetails> deliveryNoteDetails);
         public DeliveryNoteModel UpdateDeliveryNote(CustomerDeliveryNote deliveryNote, List<CustomerDeliveryNoteDetails> deliveryNoteDetails);
+       
         public int DeleteDeliveryNote(CustomerDeliveryNote deliveryNote,  List<CustomerDeliveryNoteDetails> deliveryNoteDetails);
         public DeliveryNoteModel GetSavedDeliveryNoteDetails(long pvno);
         ////public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
@@ -33,5 +34,10 @@ namespace Inspire.Erp.Application.Sales.Interfaces
         public IEnumerable<CustomerDeliveryNote> GetDeliveryNote();
         ////public VouchersNumbers GetVouchersNumbers(long pvno);
         public Task<Response<List<DNReportDetails>>> DeliveryNoteReportDetails(DeliveryNoteReportFilter filter);
+
+        public CustomerDeliveryNote InsertCustomerDeliveryNote(CustomerDeliveryNote deliveryNote, List<CustomerDeliveryNoteDetails> deliveryNoteDetails);
+        public CustomerDeliveryNote UpdateCustomerDeliveryNote(CustomerDeliveryNote deliveryNote, List<CustomerDeliveryNoteDetails> deliveryNoteDetails);
+        public CustomerDeliveryNote GetSavedDeliveryNoteDetailsV2(long pvno);
+
     }
 }

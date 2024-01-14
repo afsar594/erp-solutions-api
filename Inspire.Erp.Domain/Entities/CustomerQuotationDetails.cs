@@ -23,7 +23,7 @@ namespace Inspire.Erp.Domain.Entities
         public bool? CustomerQuotationDetailsIsEdited { get; set; }
         public double? CustomerQuotationDetailsPurchasePrice { get; set; }
         public string CustomerQuotationDetailsPriceType { get; set; }
-        public long? CustomerQuotationDetailsQuotationDetailsId { get; set; }
+       // public long? CustomerQuotationDetailsQuotationDetailsId { get; set; }
         public int? CustomerQuotationDetailsVoucherType { get; set; }
         public string CustomerQuotationDetailsCashCustomerName { get; set; }
         public long? CustomerQuotationDetailsEnquiryDetailsId { get; set; }
