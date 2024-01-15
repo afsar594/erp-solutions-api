@@ -1,18 +1,26 @@
 ﻿using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Modals.AccountStatement;
+using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
+using Inspire.Erp.Domain.Modals.Sales;
+using Inspire.Erp.Infrastructure.Database;
+using Microsoft.EntityFrameworkCore;
 
 namespace Inspire.Erp.Application.Master
 {
     public class UnitMasterSevice: IUnitMasterService
     {
         private IRepository<UnitMaster> unitrepository;
-        public UnitMasterSevice(IRepository<UnitMaster> _unitrepository)
+        public readonly InspireErpDBContext _Context;
+        public UnitMasterSevice(IRepository<UnitMaster> _unitrepository, InspireErpDBContext Context)
         {
             unitrepository = _unitrepository;
+            _Context = Context;
         }
         public IEnumerable<UnitMaster> InsertUnit(UnitMaster unitMaster)
         {
@@ -120,25 +128,30 @@ namespace Inspire.Erp.Application.Master
 
         }
 
-        public IEnumerable<UnitMaster> GetAllUnitByItemId(int id)
+
+        public async Task<Response<List<GetUnitDetailsMasterList>>> GetUnitDetailsByItemId(long itemId)
         {
-            IEnumerable<UnitMaster> unitMasters;
             try
             {
-                unitMasters = unitrepository.GetAsQueryable().Where(k => k.UnitMasterUnitId == id).Select(k => k);
+                     var results = await (from cpod in _Context.UnitDetails
+                                     join cpo in _Context.UnitMaster on cpod.UnitDetailsUnitId equals cpo.UnitMasterUnitId 
+                                     where cpod.UnitDetailsItemId == itemId
+                                     select new GetUnitDetailsMasterList
+                                     {
+                                         UnitMasterUnitId = cpod.UnitDetailsUnitId,
+                                         UnitMasterUnitShortName = cpo.UnitMasterUnitShortName,
+                                         UnitMasterUnitFullName = cpo.UnitMasterUnitFullName == null ? "" : cpo.UnitMasterUnitFullName,
+                                         UnitMasterUnitDescription = cpo.UnitMasterUnitDescription == null ? "" : cpo.UnitMasterUnitDescription,
+                                         UnitMasterUnitStatus = cpo.UnitMasterUnitStatus == null ? false : cpo.UnitMasterUnitStatus,
 
+                                     }).ToListAsync();
+
+                return Response<List<GetUnitDetailsMasterList>>.Success(results, "Data found");
             }
             catch (Exception ex)
             {
-                throw ex;
-
+                return Response<List<GetUnitDetailsMasterList>>.Fail(new List<GetUnitDetailsMasterList>(), ex.Message);
             }
-            finally
-            {
-                //cityrepository.Dispose();
-            }
-            return unitMasters;
-
         }
 
     }
