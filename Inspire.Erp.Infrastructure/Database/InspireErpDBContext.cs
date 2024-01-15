@@ -23265,13 +23265,13 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<WorkGroupMaster>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(x=>x.WorkGroupMasterWorkGroupId);
 
                 entity.ToTable("WorkGroup_Master");
 
                 entity.Property(e => e.WorkGroupMasterWorkGroupDelStatus).HasColumnName("WorkGroup_Master_WorkGroup_DelStatus");
 
-                entity.Property(e => e.WorkGroupMasterWorkGroupId).HasColumnName("WorkGroup_Master_WorkGroup_ID");
+                entity.Property(e => e.WorkGroupMasterWorkGroupId).HasColumnName("WorkGroup_Master_WorkGroup_ID").ValueGeneratedOnAdd();
 
                 entity.Property(e => e.WorkGroupMasterWorkGroupName)
                     .HasColumnName("WorkGroup_Master_WorkGroup_Name")
