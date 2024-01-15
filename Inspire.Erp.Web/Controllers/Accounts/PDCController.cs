@@ -45,12 +45,12 @@ namespace Inspire.Erp.Web.Controllers
 
             }
         }
-        [HttpGet("PDCGetReturnList")]
-        public async Task<IEnumerable<PDCGetList>> PDCGetReturnList()
+        [HttpPost("PDCGetReturnList")]
+        public async Task<IEnumerable<PDCGetList>> PDCGetReturnList(PDCFilters obj)
         {
             try
             {
-                return await _pdc.PDCGetReturnList();
+                return await _pdc.PDCGetReturnList(obj);
             }
             catch (Exception ex)
             {

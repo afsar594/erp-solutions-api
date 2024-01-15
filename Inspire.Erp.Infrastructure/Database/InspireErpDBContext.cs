@@ -397,6 +397,8 @@ namespace Inspire.Erp.Infrastructure.Database
         public DbSet<ApprovalDetail> ApprovalDetails { get; set; }
         public DbSet<PermissionApproval> PermissionApprovals { get; set; }
         public DbSet<VoucherTypeMaster> VoucherTypeMaster { get; set; }
+        public DbSet<Menu> Menus { get; set; }
+        public DbSet<WorkGroupMenuDetail> WorkGroupMenuDetail { get; set; }
         //// ========================================================================================================= Reports Section
         ////public virtual DbSet<ReportStockRegister> ReportStockRegister { get; set; }
         ////public virtual DbSet<ReportAccountsTransactions> ReportAccountsTransactions { get; set; }
@@ -24035,6 +24037,27 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.HasKey(e => e.AstPurDetID);
 
                 entity.ToTable("AstPurchase_Voucher_Details");
+            });
+            modelBuilder.Entity<Menu>(e =>
+            {
+                e.ToTable("Menus");
+                e.HasKey(x => x.Id);
+                e.Property(x => x.Id).ValueGeneratedOnAdd().HasColumnName("Id");
+                e.Property(x => x.Title).HasColumnName("Title");
+                e.Property(x => x.CreatedAt).HasColumnName("CreatedAt");
+                e.Property(x => x.ParentId).HasColumnName("ParentId");
+                e.Property(x => x.Controller).HasColumnName("Controller");
+                e.Property(x => x.Action).HasColumnName("Action");
+                e.Property(x => x.RouteUrl).HasColumnName("RouteUrl");
+                e.Property(x => x.IconClass).HasColumnName("IconClass");
+            });
+            modelBuilder.Entity<WorkGroupMenuDetail>(e =>
+            {
+                e.ToTable("WorkGroupMenuDetail");
+                e.HasKey(x => x.Id);
+                e.Property(x => x.Id).ValueGeneratedOnAdd().HasColumnName("Id");
+                e.Property(x => x.MenuId).HasColumnName("MenuId");
+                e.Property(x => x.WorkgroupId).HasColumnName("WorkgroupId");
             });
 
             OnModelCreatingPartial(modelBuilder);
