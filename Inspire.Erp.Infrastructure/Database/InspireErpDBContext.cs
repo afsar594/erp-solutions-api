@@ -24050,6 +24050,8 @@ namespace Inspire.Erp.Infrastructure.Database
                 e.Property(x => x.Action).HasColumnName("Action");
                 e.Property(x => x.RouteUrl).HasColumnName("RouteUrl");
                 e.Property(x => x.IconClass).HasColumnName("IconClass");
+                e.Property(x => x.Page).HasColumnName("Page");
+                e.Property(x => x.Order).HasColumnName("Order");
             });
             modelBuilder.Entity<WorkGroupMenuDetail>(e =>
             {
