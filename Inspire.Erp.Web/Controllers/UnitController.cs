@@ -5,9 +5,13 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Inspire.Erp.Application.Master;
 using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Modals.Sales;
 using Inspire.Erp.Web.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+
+using Inspire.Erp.Domain.Modals.AccountStatement;
+using Inspire.Erp.Domain.Models;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -36,6 +40,28 @@ namespace Inspire.Erp.Web.Controllers
                  UnitMasterUnitStatus = k.UnitMasterUnitStatus,
                 UnitMasterUnitDelStatus=k.UnitMasterUnitDelStatus
             }).ToList();
+        }
+
+        [HttpGet]
+        [Route("GetUnitDetails")]
+        public async Task<IActionResult> GetUnitDetails(long itemId)
+        {
+            var response = await unitMasterService.GetUnitDetailsByItemId(itemId);
+            if(response.Status=="Success")
+            {
+                ApiResponse<List<UnitMasterViewModel>> apiResponse = new ApiResponse<List<UnitMasterViewModel>>
+                {
+                    Valid = true,
+                    Result = _mapper.Map<List<UnitMasterViewModel>>(response.Result),
+                    Message = ""
+                };
+                return Ok(apiResponse);
+            }
+            else
+            {
+                return BadRequest(response.Result);
+            }
+      
         }
 
         [HttpGet]
