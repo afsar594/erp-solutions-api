@@ -15,6 +15,8 @@ namespace Inspire.Erp.Domain.Entities
         public string Action { get; set; }
         public string RouteUrl { get; set; }
         public string IconClass { get; set; }
+        public int? Order { get; set; }
+        public string Page { get; set; }
         // Navigation property for many-to-many relationship
         public ICollection<WorkGroupMenuDetail> MenusWorkgroupDetails { get; set; }
     }
