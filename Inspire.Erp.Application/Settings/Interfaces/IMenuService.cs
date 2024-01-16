@@ -1,0 +1,14 @@
+﻿using Inspire.Erp.Domain.Modals;
+using Inspire.Erp.Domain.Models.Settings;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Inspire.Erp.Application.Settings.Interfaces
+{
+    public interface IMenuService
+    {
+        Task<Response<List<GetMenusResponse>>> GetMenusByWorkgroupId(int id = 0);
+    }
+}

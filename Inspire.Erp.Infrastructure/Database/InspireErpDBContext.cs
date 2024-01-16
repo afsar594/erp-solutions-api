@@ -397,6 +397,8 @@ namespace Inspire.Erp.Infrastructure.Database
         public DbSet<ApprovalDetail> ApprovalDetails { get; set; }
         public DbSet<PermissionApproval> PermissionApprovals { get; set; }
         public DbSet<VoucherTypeMaster> VoucherTypeMaster { get; set; }
+        public DbSet<Menu> Menus { get; set; }
+        public DbSet<WorkGroupMenuDetail> WorkGroupMenuDetail { get; set; }
         //// ========================================================================================================= Reports Section
         ////public virtual DbSet<ReportStockRegister> ReportStockRegister { get; set; }
         ////public virtual DbSet<ReportAccountsTransactions> ReportAccountsTransactions { get; set; }
@@ -23263,13 +23265,13 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<WorkGroupMaster>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(x=>x.WorkGroupMasterWorkGroupId);
 
                 entity.ToTable("WorkGroup_Master");
 
                 entity.Property(e => e.WorkGroupMasterWorkGroupDelStatus).HasColumnName("WorkGroup_Master_WorkGroup_DelStatus");
 
-                entity.Property(e => e.WorkGroupMasterWorkGroupId).HasColumnName("WorkGroup_Master_WorkGroup_ID");
+                entity.Property(e => e.WorkGroupMasterWorkGroupId).HasColumnName("WorkGroup_Master_WorkGroup_ID").ValueGeneratedOnAdd();
 
                 entity.Property(e => e.WorkGroupMasterWorkGroupName)
                     .HasColumnName("WorkGroup_Master_WorkGroup_Name")
@@ -24026,22 +24028,39 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<AssetPurchaseVoucher>(entity =>
             {
-                entity.HasNoKey();
-
                 entity.ToTable("Ast_Purchase_Voucher");
-
-            
+                entity.HasKey(e => e.AstPurID);
             });
 
             modelBuilder.Entity<AssetPurchaseVoucherDetails>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.AstPurDetID);
 
                 entity.ToTable("AstPurchase_Voucher_Details");
-
-
             });
-
+            modelBuilder.Entity<Menu>(e =>
+            {
+                e.ToTable("Menus");
+                e.HasKey(x => x.Id);
+                e.Property(x => x.Id).ValueGeneratedOnAdd().HasColumnName("Id");
+                e.Property(x => x.Title).HasColumnName("Title");
+                e.Property(x => x.CreatedAt).HasColumnName("CreatedAt");
+                e.Property(x => x.ParentId).HasColumnName("ParentId");
+                e.Property(x => x.Controller).HasColumnName("Controller");
+                e.Property(x => x.Action).HasColumnName("Action");
+                e.Property(x => x.RouteUrl).HasColumnName("RouteUrl");
+                e.Property(x => x.IconClass).HasColumnName("IconClass");
+                e.Property(x => x.Page).HasColumnName("Page");
+                e.Property(x => x.Order).HasColumnName("Order");
+            });
+            modelBuilder.Entity<WorkGroupMenuDetail>(e =>
+            {
+                e.ToTable("WorkGroupMenuDetail");
+                e.HasKey(x => x.Id);
+                e.Property(x => x.Id).ValueGeneratedOnAdd().HasColumnName("Id");
+                e.Property(x => x.MenuId).HasColumnName("MenuId");
+                e.Property(x => x.WorkgroupId).HasColumnName("WorkgroupId");
+            });
 
             OnModelCreatingPartial(modelBuilder);
         }

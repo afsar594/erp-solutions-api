@@ -13,5 +13,6 @@ namespace Inspire.Erp.Application.Account.Interface
         public Task<IEnumerable<PDCGetList>> PDCGetList();
         public Task<IEnumerable<PDCGetList>> getFilteredPDCList(PDCFilters obj);
         public Task<List<BankNamesModel>> GetBankNames();
+        Task<IEnumerable<PDCGetList>> PDCGetReturnList(PDCFilters obj);
     }
 }
