@@ -23,9 +23,11 @@ namespace Inspire.Erp.Web.Controllers.Accounts
     {
         private IJournalVoucherService _journalVoucherService;
         private readonly IMapper _mapper;
-        public JournalVoucherController(IJournalVoucherService journalVoucherService, IMapper mapper)
+        private IDepJournalVoucher _DepjournalVoucherService;
+        public JournalVoucherController(IJournalVoucherService journalVoucherService, IDepJournalVoucher DepjournalVoucherService, IMapper mapper)
         {
             _journalVoucherService = journalVoucherService;
+            _DepjournalVoucherService = DepjournalVoucherService;
             _mapper = mapper;
         }
 
@@ -172,5 +174,156 @@ namespace Inspire.Erp.Web.Controllers.Accounts
             }
             return apiResponse;
         }
+
+
+
+
+
+        #region DEP JV
+
+        [HttpPost]
+        [Route("InsertDepJournalVoucher")]
+        public ApiResponse<JournalVoucher> InsertDepJournalVoucher([FromBody] JournalVoucher voucherCompositeView)
+        {
+            ApiResponse<JournalVoucher> apiResponse = new ApiResponse<JournalVoucher>();
+            var param1 = _mapper.Map<JournalVoucher>(voucherCompositeView);
+            var param2 = _mapper.Map<List<JournalVoucherDetails>>(voucherCompositeView.JournalVoucherDetails);
+            var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
+            var xs = _DepjournalVoucherService.InsertDepJournalVoucher(param1, param3, param2);
+            apiResponse = new ApiResponse<JournalVoucher>
+            {
+                Valid = true,
+                Result = _mapper.Map<JournalVoucher>(xs),
+                Message = JournalVoucherMessage.SaveVoucher
+            };
+            return apiResponse;
+        }
+
+        [HttpPost]
+        [Route("UpdateDepJournalVoucher")]
+        public ApiResponse<JournalVoucher> UpdateDepJournalVoucher([FromBody] JournalVoucher voucherCompositeView)
+        {
+            var param1 = _mapper.Map<JournalVoucher>(voucherCompositeView);
+            var param2 = _mapper.Map<List<JournalVoucherDetails>>(voucherCompositeView.JournalVoucherDetails);
+            var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
+            var xs = _DepjournalVoucherService.UpdateDepJournalVoucher(param1, param3, param2);
+            ApiResponse<JournalVoucher> apiResponse = new ApiResponse<JournalVoucher>
+            {
+                Valid = true,
+                Result = _mapper.Map<JournalVoucher>(xs),
+                Message = JournalVoucherMessage.UpdateVoucher
+            };
+            return apiResponse;
+        }
+        [HttpPost]
+        [Route("DeleteDepJournalVoucher")]
+        public ApiResponse<int> DeleteDepJournalVoucher([FromBody] JournalVoucher voucherCompositeView)
+        {
+            var param1 = _mapper.Map<JournalVoucher>(voucherCompositeView);
+            var param2 = _mapper.Map<List<JournalVoucherDetails>>(voucherCompositeView.JournalVoucherDetails);
+            var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
+            var xs = _DepjournalVoucherService.DeleteDepJournalVoucher(param1, param3, param2);
+            ApiResponse<int> apiResponse = new ApiResponse<int>
+            {
+                Valid = true,
+                Result = 0,
+                Message = JournalVoucherMessage.DeleteVoucher
+            };
+            return apiResponse;
+        }
+
+        [HttpGet]
+        [Route("GetAllDepAccountTransaction")]
+        public ApiResponse<List<AccountsTransactions>> GetAllDepAccountTransaction()
+        {
+            ApiResponse<List<AccountsTransactions>> apiResponse = new ApiResponse<List<AccountsTransactions>>
+            {
+                Valid = true,
+                Result = _mapper.Map<List<AccountsTransactions>>(_DepjournalVoucherService.GetAllTransaction()),
+                Message = ""
+            };
+            return apiResponse;
+        }
+
+        [HttpGet]
+        [Route("GetAllDepJournalVoucher")]
+        public ApiResponse<List<JournalVoucher>> GetAllDepJournalVoucher()
+        {
+            ApiResponse<List<JournalVoucher>> apiResponse = new ApiResponse<List<JournalVoucher>>
+            {
+                Valid = true,
+                Result = _mapper.Map<List<JournalVoucher>>(_DepjournalVoucherService.GetDepJournalVoucher()),
+                Message = ""
+            };
+            return apiResponse;
+        }
+
+        [HttpGet]
+        [Route("GetSavedDepJournalVoucherDetails/{id}")]
+        public ApiResponse<JournalVoucher> GetSavedDepJournalVoucherDetails(string id)
+        {
+            JournalVoucher journalVoucher = _DepjournalVoucherService.GetSavedDepJournalVoucherDetails(id);
+
+            if (journalVoucher != null)
+            {
+                ApiResponse<JournalVoucher> apiResponse = new ApiResponse<JournalVoucher>
+                {
+                    Valid = true,
+                    Result = journalVoucher,
+                    Message = ""
+                };
+                return apiResponse;
+            }
+            return null;
+        }
+
+        [HttpGet]
+        [Route("GetDepJVTRacking")]
+        public IActionResult GetDepJVTRacking(string JournalVoucher_VNO)
+        {
+            try
+            {
+                return Ok(_DepjournalVoucherService.GetJVTRacking(JournalVoucher_VNO));
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
+        }
+
+        [HttpGet]
+        [Route("GenerateDepVoucherNo")]
+        public IActionResult GenerateDepVoucherNo()
+        {
+            try
+            {
+                return Ok(_DepjournalVoucherService.GenerateVoucherNo(null));
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("CheckDepVnoExist/{id}")]
+        public ApiResponse<bool> CheckDepVnoExist(string id)
+        {
+            ApiResponse<bool> apiResponse = new ApiResponse<bool>
+            {
+                Valid = true,
+                Result = true,
+                Message = JournalVoucherMessage.VoucherNumberExist
+            };
+            var x = _DepjournalVoucherService.GetVouchersNumbers(id);
+            if (x == null)
+            {
+                apiResponse.Result = false;
+                apiResponse.Message = "";
+            }
+            return apiResponse;
+        }
+
+        #endregion
     }
 }
