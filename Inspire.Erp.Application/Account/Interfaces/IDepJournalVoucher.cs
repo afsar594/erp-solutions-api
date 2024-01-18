@@ -9,7 +9,6 @@ namespace Inspire.Erp.Application.Account.Interfaces
 {
     public interface IDepJournalVoucher
     {
-
         JournalVoucher UpdateDepJournalVoucher(JournalVoucher journalVoucher, List<AccountsTransactions> accountsTransactions, List<JournalVoucherDetails> journalVoucherDetails);
 
         int DeleteDepJournalVoucher(JournalVoucher journalVoucher, List<AccountsTransactions> accountsTransactions, List<JournalVoucherDetails> journalVoucherDetails);
