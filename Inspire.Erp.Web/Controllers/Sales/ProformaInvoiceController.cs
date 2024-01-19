@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Inspire.Erp.Application.Sales.Interface;
 using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Domain.Models;
 using Inspire.Erp.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -65,8 +67,6 @@ namespace Inspire.Erp.Web.Controllers
                 return StatusCode(500, ex.Message.ToString());
             }
         }
-
-
         [HttpPut]
         [Route("UpdateProformaInvoice")]
         public IActionResult UpdateProformaInvoices([FromBody] ProformaInvoice proformaInvoiceViewModel)

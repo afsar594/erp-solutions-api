@@ -21,9 +21,9 @@ namespace Inspire.Erp.Application.Sales.Implementation
         {
             try
             {
-                var dataObj = repository.GetAll().Where(o => o.ProformaInvoiceId == Id).FirstOrDefault();
+                var dataObj = repository.GetAsQueryable().Where(o => o.ProformaInvoiceId == Id).FirstOrDefault();
                 dataObj.ProformaInvoiceDelStatus = true;
-                var detailData = detailrepository.GetAll().Where(o => o.ProformaInvoiceDetailsSlNo == Id).ToList();
+                var detailData = detailrepository.GetAsQueryable().Where(o => o.ProformaInvoiceDetailsSlNo == Id).ToList();
                 detailData.ForEach(elemt =>
                 {
                     elemt.ProformaInvoiceDetailsDelStatus = true;
@@ -42,7 +42,10 @@ namespace Inspire.Erp.Application.Sales.Implementation
         {
             try
             {
-                return repository.GetAsQueryable().FirstOrDefault(x => x.ProformaInvoiceId == id);
+                var proformaInvoice = new ProformaInvoice();
+                proformaInvoice = repository.GetAsQueryable().FirstOrDefault(x => x.ProformaInvoiceId == id);
+                proformaInvoice.ProformaInvoiceDetails = detailrepository.GetAsQueryable().Where(x => x.ProformaInvoiceDetailsSlNo == id).ToList();
+                return proformaInvoice;
             }
             catch (Exception ex)
             {
@@ -72,16 +75,26 @@ namespace Inspire.Erp.Application.Sales.Implementation
         {
             try
             {
+
+                repository.BeginTransaction();
+                int maxcount = 0;
+                maxcount = Convert.ToInt32(
+                    repository.GetAsQueryable()
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.ProformaInvoiceId) + 1);
+                proformaInvoice.ProformaInvoiceId = maxcount;
+
                 repository.Insert(proformaInvoice);
                 proformaInvoice.ProformaInvoiceDetails.ForEach(elemt =>
                 {
-                    elemt.ProformaInvoiceDetailsSlNo = proformaInvoice.ProformaInvoiceId;
+                    elemt.ProformaInvoiceDetailsSlNo = maxcount;
                 });
                 detailrepository.InsertList(proformaInvoice.ProformaInvoiceDetails);
+                repository.TransactionCommit();
                 return repository.GetAll();
             }
             catch (Exception ex)
             {
+                repository.TransactionRollback();
                 throw ex;
             }
         }
@@ -90,12 +103,15 @@ namespace Inspire.Erp.Application.Sales.Implementation
         {
             try
             {
+                repository.BeginTransaction();
                 repository.Update(proformaInvoice);
                 detailrepository.UpdateList(proformaInvoice.ProformaInvoiceDetails);
+                repository.TransactionCommit();
                 return repository.GetAll();
             }
             catch (Exception ex)
             {
+                repository.TransactionRollback();
                 throw ex;
             }
         }
