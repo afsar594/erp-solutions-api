@@ -13057,7 +13057,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<ProformaInvoice>(entity =>
             {
-                entity.HasNoKey();
+                //entity.HasNoKey();
 
                 entity.ToTable("Proforma_Invoice");
 
@@ -13166,7 +13166,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<ProformaInvoiceDetails>(entity =>
             {
-                entity.HasNoKey();
+                //entity.HasNoKey();
 
                 entity.ToTable("Proforma_Invoice_Details");
 
