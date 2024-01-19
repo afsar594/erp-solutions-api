@@ -169,7 +169,7 @@ namespace Inspire.Erp.Application.Account.Implementations
         }
         public IEnumerable<JournalVoucher> GetDepJournalVoucher()
         {
-            IEnumerable<JournalVoucher> journalVoucher_ALL = _journalVoucherRepository.GetAll().Where(k => k.JournalVoucherDelStatus == false || k.JournalVoucherDelStatus == null);
+            IEnumerable<JournalVoucher> journalVoucher_ALL = _journalVoucherRepository.GetAll().Where(k =>( k.JournalVoucherDelStatus == false || k.JournalVoucherDelStatus == null) && k.JournalVoucherType == "DEPJV");
             return journalVoucher_ALL;
         }
         public JournalVoucher GetSavedDepJournalVoucherDetails(string pvno)
