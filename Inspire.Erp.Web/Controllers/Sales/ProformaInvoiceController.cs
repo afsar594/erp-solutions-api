@@ -80,7 +80,7 @@ namespace Inspire.Erp.Web.Controllers
                 return StatusCode(500, ex.Message.ToString());
             }
         }
-
+         
 
         [HttpDelete]
         [Route("DeleteProformaInvoice")]
