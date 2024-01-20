@@ -38,7 +38,7 @@ namespace Inspire.Erp.Application.Sales.Implementation
             }
         }
 
-        public ProformaInvoice GetProformaInvoiceById(int id)
+        public ProformaInvoice GetProformaInvoiceById(int? id)
         {
             try
             {
@@ -71,7 +71,7 @@ namespace Inspire.Erp.Application.Sales.Implementation
             }
         }
 
-        public IEnumerable<ProformaInvoice> InsertProformaInvoice(ProformaInvoice proformaInvoice)
+        public ProformaInvoice InsertProformaInvoice(ProformaInvoice proformaInvoice)
         {
             try
             {
@@ -90,7 +90,7 @@ namespace Inspire.Erp.Application.Sales.Implementation
                 });
                 detailrepository.InsertList(proformaInvoice.ProformaInvoiceDetails);
                 repository.TransactionCommit();
-                return repository.GetAll();
+                return this.GetProformaInvoiceById(proformaInvoice.ProformaInvoiceId);
             }
             catch (Exception ex)
             {
@@ -99,7 +99,7 @@ namespace Inspire.Erp.Application.Sales.Implementation
             }
         }
 
-        public IEnumerable<ProformaInvoice> UpdateProformaInvoice(ProformaInvoice proformaInvoice)
+        public ProformaInvoice UpdateProformaInvoice(ProformaInvoice proformaInvoice)
         {
             try
             {
@@ -107,7 +107,7 @@ namespace Inspire.Erp.Application.Sales.Implementation
                 repository.Update(proformaInvoice);
                 detailrepository.UpdateList(proformaInvoice.ProformaInvoiceDetails);
                 repository.TransactionCommit();
-                return repository.GetAll();
+                return this.GetProformaInvoiceById(proformaInvoice.ProformaInvoiceId);
             }
             catch (Exception ex)
             {
