@@ -24,14 +24,14 @@ namespace Inspire.Erp.Application.Master
                 ////int mxc = 0;
                 ////mxc = (int)workGrouprepository.GetAsQueryable().Where(k => k.WorkGroupMasterWorkGroupId != null).Select(x => x.WorkGroupMasterWorkGroupId).Max();
 
-                int mxc = Convert.ToInt32(workGrouprepository.GetAsQueryable()
-                                                        .Where(x => x.WorkGroupMasterWorkGroupId > 0)
-                                                        .DefaultIfEmpty()
-                                                        .Max(o => o == null ? 0 : o.WorkGroupMasterWorkGroupId)) + 1;
+                //int mxc = Convert.ToInt32(workGrouprepository.GetAsQueryable()
+                //                                        .Where(x => x.WorkGroupMasterWorkGroupId > 0)
+                //                                        .DefaultIfEmpty()
+                //                                        .Max(o => o == null ? 0 : o.WorkGroupMasterWorkGroupId)) + 1;
 
-                ////if (mxc == null) { mxc = 1; } else { mxc = mxc + 1; }
+                //////if (mxc == null) { mxc = 1; } else { mxc = mxc + 1; }
 
-                workGroupMaster.WorkGroupMasterWorkGroupId = mxc;
+                //workGroupMaster.WorkGroupMasterWorkGroupId = mxc;
                 workGrouprepository.Insert(workGroupMaster);
             }
             catch (Exception ex)

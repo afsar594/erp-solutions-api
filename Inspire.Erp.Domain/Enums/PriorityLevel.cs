@@ -45,6 +45,7 @@ namespace Inspire.Erp.Domain.Enums
         public static String OpeningStockVoucher_TYPE { get { return "OpeningStockVoucher"; } }
         public static String IssueReturn_TYPE { get { return "IssueReturn"; } }
         public static String JournalVoucher_TYPE { get { return "JournalVoucher"; } }
+        public static String Dep_JournalVoucher_TYPE { get { return "DEPJV"; } }
         public static String ContraVoucher_TYPE { get { return "ContraVoucher"; } }
         public static String StockTransferVoucher_TYPE { get { return "StockTransferVoucher"; } }
         public static String CustomerPurchaseOrder_TYPE { get { return "CustomerPurchaseOrder"; } }
@@ -90,6 +91,11 @@ namespace Inspire.Erp.Domain.Enums
         public static String IssueReturn_Prefix { get { return "IssueReturn_Prefix"; } }
         public static String ContraVoucher_Prefix { get { return "ContraVoucher_Prefix"; } }
         public static String JournalVoucher_Prefix { get { return "JournalVoucher_Prefix"; } }
+<<<<<<< HEAD
+=======
+        public static String Dep_JournalVoucher_Prefix { get { return "Dep_JournalVoucher_Prefix"; } }
+
+>>>>>>> c584fe1afab027e0c386a51ac297c1f19cf6fc7a
         public static String AssetPurchaseVoucher_Prefix { get { return "AssetPurchaseVoucher_Prefix"; } }
     }
 

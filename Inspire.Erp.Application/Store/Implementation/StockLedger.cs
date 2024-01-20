@@ -45,7 +45,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 if (sFilter.IsDateChecked == true)
                 {
 
-                    var items = _iMster.GetAsQueryable().Where($"1==1 {itemQry}").ToList();
+                    var items = _iMster.GetAsQueryable().Where(i => i.ItemMasterItemType == "A").Where($"1==1 {itemQry}").ToList();
 
                     qry += $" and StockRegisterAssignedDate.Value.Date > DateTime({ sFilter.fromDate.Year},{ sFilter.fromDate.Month},{ sFilter.fromDate.Day})";
                     var openValues = _sRegister.GetAsQueryable().Where($"1==1 {qry}")
@@ -141,7 +141,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 {
                     var minFDate = _fP.GetAsQueryable().Select(x => x.FinancialPeriodsStartDate).SingleOrDefault();
 
-                    var items = _iMster.GetAsQueryable().Where($"1==1 {itemQry}").ToList();
+                    var items = _iMster.GetAsQueryable().Where(i => i.ItemMasterItemType == "A").Where($"1==1 {itemQry}").ToList();
 
                     qry += $" and StockRegisterAssignedDate.Value.Date > DateTime({ minFDate.Value.Year},{ minFDate.Value.Month},{ minFDate.Value.Day})";
                     var openValues = _sRegister.GetAsQueryable().Where($"1==1 {qry}")
