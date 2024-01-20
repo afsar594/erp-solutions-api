@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -35,5 +36,8 @@ namespace Inspire.Erp.Domain.Entities
         public bool? ProformaInvoiceIsLocalPurchase { get; set; }
         public int? ProformaInvoiceJobId { get; set; }
         public bool? ProformaInvoiceDelStatus { get; set; }
+
+        [NotMapped]
+        public List<ProformaInvoiceDetails> ProformaInvoiceDetails { get; set; }
     }
 }

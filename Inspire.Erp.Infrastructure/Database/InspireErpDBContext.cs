@@ -13057,7 +13057,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<ProformaInvoice>(entity =>
             {
-                entity.HasNoKey();
+                //entity.HasNoKey();
 
                 entity.ToTable("Proforma_Invoice");
 
@@ -13166,7 +13166,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<ProformaInvoiceDetails>(entity =>
             {
-                entity.HasNoKey();
+                //entity.HasNoKey();
 
                 entity.ToTable("Proforma_Invoice_Details");
 
@@ -23286,6 +23286,8 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.ToTable("WorkGroup_Permissions");
 
                 entity.Property(e => e.WorkGroupPermissionsDelStatus).HasColumnName("WorkGroup_Permissions_DelStatus");
+
+                entity.Property(e => e.WorkGroupPermissionsFormType).HasColumnName("WorkGroup_Permissions_FormType");
 
                 entity.Property(e => e.WorkGroupPermissionsFormId).HasColumnName("WorkGroup_Permissions_Form_ID");
 

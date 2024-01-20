@@ -21,7 +21,7 @@ namespace Inspire.Erp.Web.Controllers.Store
         }
 
         [HttpPost]
-        [Route("GetStockLedger")]
+        [Route("GetStockLedger")] 
         public async Task<IActionResult> GetStockLedger(StockFilterModel stockFilterModel)
         {
             return Ok(await stockLedger.GetStockLedgerReport(stockFilterModel));
