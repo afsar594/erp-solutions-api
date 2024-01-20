@@ -91,7 +91,7 @@ namespace Inspire.Erp.Domain.Enums
         public static String IssueReturn_Prefix { get { return "IssueReturn_Prefix"; } }
         public static String ContraVoucher_Prefix { get { return "ContraVoucher_Prefix"; } }
         public static String JournalVoucher_Prefix { get { return "JournalVoucher_Prefix"; } }
-
+        public static String Dep_JournalVoucher_Prefix { get { return "Dep_JournalVoucher_Prefix"; } }
         public static String AssetPurchaseVoucher_Prefix { get { return "AssetPurchaseVoucher_Prefix"; } }
     }
 
