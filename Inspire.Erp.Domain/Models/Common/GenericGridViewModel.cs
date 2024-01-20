@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Inspire.Erp.Domain.Modals.Common
 {
-   public class GenericGridViewModel
+    public class GenericGridViewModel
     {
         public int Skip { get; set; } = 0;
         public int Take { get; set; } = 10000000;
@@ -45,8 +45,6 @@ namespace Inspire.Erp.Domain.Modals.Common
         public string fromDate { get; set; }
         public string toDate { get; set; }
         public string Formate { get; set; }
-
-
 
     }
 }
