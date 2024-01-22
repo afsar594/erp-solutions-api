@@ -8,9 +8,9 @@ namespace Inspire.Erp.Application.Sales.Interface
     public interface IProformaInvoice
     {
         public IEnumerable<ProformaInvoice> GetProformaInvoices();
-        public IEnumerable<ProformaInvoice> InsertProformaInvoice(ProformaInvoice proformaInvoice);
-        public IEnumerable<ProformaInvoice> UpdateProformaInvoice(ProformaInvoice proformaInvoice);
+        public ProformaInvoice InsertProformaInvoice(ProformaInvoice proformaInvoice);
+        public ProformaInvoice UpdateProformaInvoice(ProformaInvoice proformaInvoice);
         public IEnumerable<ProformaInvoice> DeleteProformaInvoice(int Id);
-        public ProformaInvoice GetProformaInvoiceById(int id);
+        public ProformaInvoice GetProformaInvoiceById(int? id);
     }
 }
