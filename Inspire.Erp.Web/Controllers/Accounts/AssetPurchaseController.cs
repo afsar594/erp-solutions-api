@@ -185,7 +185,7 @@ namespace Inspire.Erp.Web.Controllers
             if (xs != null)
             {
                 var apvm = new AssetPurchaseVoucherViewModel();
-                apvm = _mapper.Map<AssetPurchaseVoucherViewModel>(xs);
+                apvm = _mapper.Map<AssetPurchaseVoucherViewModel>(xs.assetPurchaseVoucher);
                 ApiResponse<AssetPurchaseVoucherViewModel> apiResponse = new ApiResponse<AssetPurchaseVoucherViewModel>
                 {
                     Valid = true,
