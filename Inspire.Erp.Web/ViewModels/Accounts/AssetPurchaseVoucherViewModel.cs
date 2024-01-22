@@ -52,7 +52,7 @@ namespace Inspire.Erp.Web.ViewModels.Accounts
         public string AstVatNo { get; set; }
 
         public List<AccountTransactionViewModel> AccountsTransactions { get; set; }
-        public List<AssetPurchaseVoucherDetailsViewModel> AssetPurchaseDetails { get; set; }
+        public List<AssetPurchaseVoucherDetailsViewModel> AssetPurchaseVoucherDetails { get; set; }
 
       
 
