@@ -9,10 +9,10 @@ namespace Inspire.Erp.Web.ViewModels.Accounts
         public int AstPurDetID { get; set; }
         public int AstPurchaseID { get; set; }
         public string AssetPurchaseDetailsVoucherNo { get; set; }
-        public int? Sno { get; set; }
-        public int? AstID { get; set; }
+        public decimal? Sno { get; set; }
+        public decimal? AstID { get; set; }
         public decimal? Rate { get; set; }
-        public int? Quantity { get; set; }
+        public decimal? Quantity { get; set; }
         public decimal? Amount { get; set; }
         public decimal? FcAmount { get; set; }
         public string Remarks { get; set; }
@@ -28,7 +28,7 @@ namespace Inspire.Erp.Web.ViewModels.Accounts
         public decimal? SalesPrice2 { get; set; }
         public decimal? SalesPrice3 { get; set; }
         public int? CompanyId { get; set; }
-        public int? LPOID { get; set; }
+        public decimal? LPOID { get; set; }
         public string GRNNO { get; set; }
         public string BatchCode { get; set; }
         public decimal? AccDepAmt { get; set; }
