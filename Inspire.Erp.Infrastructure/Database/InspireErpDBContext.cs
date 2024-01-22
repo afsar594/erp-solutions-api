@@ -24039,6 +24039,10 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.HasKey(e => e.AstPurDetID);
 
                 entity.ToTable("AstPurchase_Voucher_Details");
+                entity.HasOne(d => d.AssetPurchaseVoucherDetailsNoNavigation)
+                  .WithMany(p => p.AssetPurchaseVoucherDetails)
+
+                  .HasForeignKey(d => d.AstPurchaseID);
             });
             modelBuilder.Entity<Menu>(e =>
             {

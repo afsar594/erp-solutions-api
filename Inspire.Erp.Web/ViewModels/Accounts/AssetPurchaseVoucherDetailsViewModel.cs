@@ -38,7 +38,7 @@ namespace Inspire.Erp.Web.ViewModels.Accounts
         public string Manufacturer { get; set; }
         public string AssetSize { get; set; }
         public string Colour { get; set; }
-        public decimal OPCAccDepAmt { get; set; }
+        public decimal OPAccDepAmt { get; set; }
         public decimal OPBookValue { get; set; }
 
     }

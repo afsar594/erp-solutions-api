@@ -228,7 +228,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     AccountsTransactionsLpoNo = assetPurchaseVoucher.LPONo
                 });
                 ////End Credit AccountsTransactions
-                //_accountTransactionRepository.InsertList(accountsTransactions);
+                _accountTransactionRepository.InsertList(accountsTransactions);
 
                 _assetopening.Insert(assetPurchaseVoucher);
 
@@ -269,7 +269,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     return k;
                 }).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
-
+                _assetopening.Update(assetPurchaseVoucher);
                 _assetopening.TransactionCommit();
 
             }
@@ -329,9 +329,9 @@ namespace Inspire.Erp.Application.Account.Implementations
         public AssetPurchaseVoucherModel GetSavedAssetPurchaseVoucherDetails(string pvno)
         {
             AssetPurchaseVoucherModel customerPurchaseOrderModel = new AssetPurchaseVoucherModel();
-            customerPurchaseOrderModel.assetPurchaseVoucher = _assetopening.GetAsQueryable().Where(k => k.AssetPurchaseVoucherNo == pvno).SingleOrDefault();
+            customerPurchaseOrderModel.assetPurchaseVoucher = _assetopening.GetAsQueryable().Include(x=>x.AssetPurchaseVoucherDetails).Where(k => k.AssetPurchaseVoucherNo == pvno).SingleOrDefault();
             customerPurchaseOrderModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.CustomerPurchaseOrder_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
-           // customerPurchaseOrderModel.customerPurchaseOrderDetails = _customerPurchaseOrderDetailsRepository.GetAsQueryable().Where(x => x.CustomerPurchaseOrderDetailsVoucherNo == pvno && (x.CustomerPurchaseOrderDetailsDelStatus == false || x.CustomerPurchaseOrderDetailsDelStatus == null)).ToList();
+            //customerPurchaseOrderModel.assetPurchaseVoucher.AssetPurchaseVoucherDetails = _assetopeningDetail.GetAsQueryable().Where(x => x.AssetPurchaseDetailsVoucherNo == pvno && (x.AssetPurchaseVoucherDetailsDelStatus == false || x.AssetPurchaseVoucherDetailsDelStatus == null)).ToList();
             return customerPurchaseOrderModel;
         }
         public IEnumerable<AssetPurchaseVoucher> GetAssetPurchaseVouchers()
