@@ -118,6 +118,7 @@ namespace Inspire.Erp.Application.Account.Implementations
 
                 assetPurchaseVoucher.AssetPurchaseVoucherDetails = assetPurchaseVoucher.AssetPurchaseVoucherDetails.Select((x) =>
                 {
+                    x.AstPurDetID = 0;
                     x.AstPurchaseID = maxcount;
                     x.AssetPurchaseDetailsVoucherNo = assetPurchaseVoucherNumber;
                     return x;
@@ -602,14 +603,14 @@ namespace Inspire.Erp.Application.Account.Implementations
                             AssetSize = x.AssetSize,
                             AstPurDate = x.AstPurDate,
                             Amount = x.Amount,
-                            Quantity = x.Quantity,
+                            Quantity = (int)x.Quantity,
                             BookValue = x.BookValue,
                             AccDepAmt = x.AccDepAmt,
                             Rate = x.Rate,
                             LifrInYrs = x.LifrInYrs,
                             DepMode = x.DepMode,
                             Colour = x.Colour,
-                            AstID = x.AstID,
+                            AstID =(int) x.AstID,
                             AstPurRefNo = x.AstPurRefNo,
                             BatchCode = x.BatchCode,
                         }).ToList();
