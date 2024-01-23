@@ -84,7 +84,7 @@ namespace Inspire.Erp.Web.Controllers
             //         LPONo=xs.assetPurchaseVoucher.LPONo,
             //         LPODate=xs.assetPurchaseVoucher.LPODate,
             //         QuotationNo=xs.assetPurchaseVoucher.QuotationNo,
-            //       QuotationDate=xs.assetPurchaseVoucher.QuotationDate,
+            //         QuotationDate=xs.assetPurchaseVoucher.QuotationDate,
             //         ActualAmount=xs.assetPurchaseVoucher.ActualAmount,
             //         NetAmount=xs.assetPurchaseVoucher.NetAmount,
             //         TransportCost=xs.assetPurchaseVoucher.TransportCost,
@@ -182,11 +182,10 @@ namespace Inspire.Erp.Web.Controllers
         public ApiResponse<AssetPurchaseVoucherViewModel> GetAssetVoucherDetails(string id)
         {
             AssetPurchaseVoucherModel xs = _salesOrderService.GetSavedAssetPurchaseVoucherDetails(id);
-
             if (xs != null)
             {
                 var apvm = new AssetPurchaseVoucherViewModel();
-                apvm = _mapper.Map<AssetPurchaseVoucherViewModel>(xs);
+                apvm = _mapper.Map<AssetPurchaseVoucherViewModel>(xs.assetPurchaseVoucher);
                 ApiResponse<AssetPurchaseVoucherViewModel> apiResponse = new ApiResponse<AssetPurchaseVoucherViewModel>
                 {
                     Valid = true,
@@ -196,9 +195,6 @@ namespace Inspire.Erp.Web.Controllers
                 return apiResponse;
             }
             return null;
-
-
-
         }
         //[HttpGet]
         //[Route("CheckVnoExist/{id}")]

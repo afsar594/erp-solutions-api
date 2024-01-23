@@ -11,10 +11,10 @@ namespace Inspire.Erp.Domain.Entities
         public int AstPurDetID { get; set; }
         public int AstPurchaseID { get; set; }
         public string AssetPurchaseDetailsVoucherNo { get; set; }
-        public int? Sno { get; set; }
-        public int? AstID { get; set; }
+        public decimal? Sno { get; set; }
+        public decimal? AstID { get; set; }
         public decimal? Rate { get; set; }
-        public int? Quantity { get; set; }
+        public decimal? Quantity { get; set; }
         public decimal? Amount { get; set; }
         public decimal? FcAmount { get; set; }
         public string Remarks { get; set; }
@@ -30,7 +30,7 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? SalesPrice2 { get; set; }
         public decimal? SalesPrice3 { get; set; }
         public int? CompanyId { get; set; }
-        public int? LPOID { get; set; }
+        public decimal? LPOID { get; set; }
         public string GRNNO { get; set; }
         public string BatchCode { get; set; }
         public decimal? AccDepAmt { get; set; }
@@ -40,7 +40,7 @@ namespace Inspire.Erp.Domain.Entities
         public string Manufacturer { get; set; }
         public string AssetSize { get; set; }
         public string Colour { get; set; }
-        public decimal? OPCAccDepAmt { get; set; }
+        public decimal? OPAccDepAmt { get; set; }
         public decimal? OPBookValue { get; set; }
 
         public bool? AssetPurchaseVoucherDetailsDelStatus { get; set; }

@@ -13057,7 +13057,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<ProformaInvoice>(entity =>
             {
-                entity.HasNoKey();
+                //entity.HasNoKey();
 
                 entity.ToTable("Proforma_Invoice");
 
@@ -13166,7 +13166,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<ProformaInvoiceDetails>(entity =>
             {
-                entity.HasNoKey();
+                //entity.HasNoKey();
 
                 entity.ToTable("Proforma_Invoice_Details");
 
@@ -24039,6 +24039,10 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.HasKey(e => e.AstPurDetID);
 
                 entity.ToTable("AstPurchase_Voucher_Details");
+                entity.HasOne(d => d.AssetPurchaseVoucherDetailsNoNavigation)
+                  .WithMany(p => p.AssetPurchaseVoucherDetails)
+
+                  .HasForeignKey(d => d.AstPurchaseID);
             });
             modelBuilder.Entity<Menu>(e =>
             {
