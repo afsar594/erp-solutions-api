@@ -4,7 +4,6 @@ using Inspire.Erp.Infrastructure.Database.Repositoy;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Linq;
 using Inspire.Erp.Infrastructure.Database;
 using Inspire.Erp.Application.Common;
 using Inspire.Erp.Domain.Enums;
@@ -16,6 +15,7 @@ using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Modals.Procurement;
 using Microsoft.AspNetCore.Server.IIS.Core;
+using System.Linq;
 //using Microsoft.Data.SqlClient;
 
 namespace Inspire.Erp.Application.Master.Implementations
@@ -614,11 +614,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                 //        k.AccountsTransactionsVoucherType = VoucherType.PurchaseVoucher_TYPE;
                 //        k.AccountsTransactionsStatus = AccountStatus.Approved;
                 //    }
-
-                //    return k;
-                //}).ToList();
-                //_accountTransactionRepository.UpdateList(accountsTransactions);
-
+                //});
                 _PurchaseVoucher.Update(purchaseVoucher);
                 _PurchaseVoucherDetails.UpdateList(purchaseVoucherDetails);
 
