@@ -4,7 +4,6 @@ using Inspire.Erp.Infrastructure.Database.Repositoy;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Linq;
 using Inspire.Erp.Infrastructure.Database;
 using Inspire.Erp.Application.Common;
 using Inspire.Erp.Domain.Enums;
@@ -16,6 +15,7 @@ using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Modals.Procurement;
 using Microsoft.AspNetCore.Server.IIS.Core;
+using System.Linq;
 //using Microsoft.Data.SqlClient;
 
 namespace Inspire.Erp.Application.Master.Implementations
@@ -605,16 +605,16 @@ namespace Inspire.Erp.Application.Master.Implementations
 
                 _accountTransactionRepository.BeginTransaction();
 
-                accountsTransactions = accountsTransactions.Select((k) =>
-                {
-                    if (k.AccountsTransactionsTransSno == 0)
-                    {
-                        k.AccountsTransactionsTransDate = purchaseVoucher.PurchaseVoucherPurchaseDate;
-                        k.AccountsTransactionsVoucherNo = purchaseVoucher.PurchaseVoucherVoucherNo;
-                        k.AccountsTransactionsVoucherType = VoucherType.PurchaseVoucher_TYPE;
-                        k.AccountsTransactionsStatus = AccountStatus.Approved;
-                    }
-
+                //accountsTransactions = accountsTransactions.Select((k) =>
+                //{
+                //    if (k.AccountsTransactionsTransSno == 0)
+                //    {
+                //        k.AccountsTransactionsTransDate = purchaseVoucher.PurchaseVoucherPurchaseDate;
+                //        k.AccountsTransactionsVoucherNo = purchaseVoucher.PurchaseVoucherVoucherNo;
+                //        k.AccountsTransactionsVoucherType = VoucherType.PurchaseVoucher_TYPE;
+                //        k.AccountsTransactionsStatus = AccountStatus.Approved;
+                //    }
+                //});
                 _PurchaseVoucher.Update(purchaseVoucher);
                 _PurchaseVoucherDetails.UpdateList(purchaseVoucherDetails);
 
