@@ -86,15 +86,5 @@ namespace Inspire.Erp.Application.Settings.Implementations
             }
             return true;
         }
-
-        Task<Response<List<OptionsMaster>>> IOptionsSettings.GetOptionsSettings(string search)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<Response<List<OptionsMaster>>> IOptionsSettings.GetOptionsSettingsbyKey(string key)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
