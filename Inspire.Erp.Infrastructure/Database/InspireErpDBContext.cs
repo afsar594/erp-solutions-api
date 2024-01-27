@@ -13057,7 +13057,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<ProformaInvoice>(entity =>
             {
-                entity.HasNoKey();
+                //entity.HasNoKey();
 
                 entity.ToTable("Proforma_Invoice");
 
@@ -13166,7 +13166,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<ProformaInvoiceDetails>(entity =>
             {
-                entity.HasNoKey();
+                //entity.HasNoKey();
 
                 entity.ToTable("Proforma_Invoice_Details");
 
@@ -23265,13 +23265,13 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<WorkGroupMaster>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(x=>x.WorkGroupMasterWorkGroupId);
 
                 entity.ToTable("WorkGroup_Master");
 
                 entity.Property(e => e.WorkGroupMasterWorkGroupDelStatus).HasColumnName("WorkGroup_Master_WorkGroup_DelStatus");
 
-                entity.Property(e => e.WorkGroupMasterWorkGroupId).HasColumnName("WorkGroup_Master_WorkGroup_ID");
+                entity.Property(e => e.WorkGroupMasterWorkGroupId).HasColumnName("WorkGroup_Master_WorkGroup_ID").ValueGeneratedOnAdd();
 
                 entity.Property(e => e.WorkGroupMasterWorkGroupName)
                     .HasColumnName("WorkGroup_Master_WorkGroup_Name")
@@ -23286,6 +23286,8 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.ToTable("WorkGroup_Permissions");
 
                 entity.Property(e => e.WorkGroupPermissionsDelStatus).HasColumnName("WorkGroup_Permissions_DelStatus");
+
+                entity.Property(e => e.WorkGroupPermissionsFormType).HasColumnName("WorkGroup_Permissions_FormType");
 
                 entity.Property(e => e.WorkGroupPermissionsFormId).HasColumnName("WorkGroup_Permissions_Form_ID");
 
@@ -24037,6 +24039,10 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.HasKey(e => e.AstPurDetID);
 
                 entity.ToTable("AstPurchase_Voucher_Details");
+                entity.HasOne(d => d.AssetPurchaseVoucherDetailsNoNavigation)
+                  .WithMany(p => p.AssetPurchaseVoucherDetails)
+
+                  .HasForeignKey(d => d.AstPurchaseID);
             });
             modelBuilder.Entity<Menu>(e =>
             {
@@ -24050,6 +24056,8 @@ namespace Inspire.Erp.Infrastructure.Database
                 e.Property(x => x.Action).HasColumnName("Action");
                 e.Property(x => x.RouteUrl).HasColumnName("RouteUrl");
                 e.Property(x => x.IconClass).HasColumnName("IconClass");
+                e.Property(x => x.Page).HasColumnName("Page");
+                e.Property(x => x.Order).HasColumnName("Order");
             });
             modelBuilder.Entity<WorkGroupMenuDetail>(e =>
             {

@@ -413,6 +413,14 @@ namespace Inspire.Erp.Web.Common
             CreateMap<AssetPurchaseVoucher, AssetPurchaseVoucherViewModel>();
             CreateMap<AssetPurchaseVoucherViewModel, AssetPurchaseVoucher>();
 
+            CreateMap<AssetPurchaseVoucherDetails, AssetPurchaseVoucherDetailsViewModel>();
+            CreateMap<AssetPurchaseVoucherDetailsViewModel, AssetPurchaseVoucherDetails>();
+
+            CreateMap<AssetPurchaseVoucherModel, AssetPurchaseVoucherViewModel>();
+            CreateMap<AssetPurchaseVoucherViewModel, AssetPurchaseVoucherModel>();
+
+
+
             CreateMap<GetUnitDetailsMasterList, UnitMasterViewModel>();
             CreateMap<UnitMasterViewModel, GetUnitDetailsMasterList>();
 

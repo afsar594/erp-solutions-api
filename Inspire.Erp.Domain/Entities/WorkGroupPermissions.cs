@@ -15,5 +15,6 @@ namespace Inspire.Erp.Domain.Entities
         public bool? WorkGroupPermissionsUview { get; set; }
         public bool? WorkGroupPermissionsUprint { get; set; }
         public bool? WorkGroupPermissionsDelStatus { get; set; }
+        public string WorkGroupPermissionsFormType { get; set; }
     }
 }

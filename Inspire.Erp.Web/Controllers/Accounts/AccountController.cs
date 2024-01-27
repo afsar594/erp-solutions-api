@@ -26,10 +26,11 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         private readonly IAgeingReport _ageingReport;
         private readonly IAssetsOpeningService _assetsOpeningService;
         private readonly IVatStatementService _vatStatementService;
+        private readonly IAssetsMasterService _assetsMasterService;
         public AccountController(IAccountStatementService accountStatService, IDaybookService daybookService, IAssetsOpeningService assetsOpeningService,
             IVoucherAllocationService voucherAllocation, IOutstandingStatementService outstandingStatement, IOldBalanceSheetService oldBalanceSheet,
             IVoucherPrintService iVoucherPrintService, IAccountStatementMultiAccountService multiAccountService, IAgeingReport ageingReport,
-            IVatStatementService vatStatementService)
+            IVatStatementService vatStatementService, IAssetsMasterService assetsMasterService)
         {
             _accountStatService = accountStatService;
             _iVoucherPrintService = iVoucherPrintService;
@@ -41,6 +42,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
             _ageingReport = ageingReport;
             _assetsOpeningService = assetsOpeningService;
             _vatStatementService = vatStatementService;
+            _assetsMasterService = assetsMasterService;
         }
         #region Account Statement 
         [HttpGet("GetAccountMasterDropdown")]
@@ -329,6 +331,14 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         public async Task<IActionResult> GetDistinctVoucherType()
         {
             return Ok(await _vatStatementService.GetDistinctVoucherType());
+        }
+        #endregion
+
+        #region ASSET MASTER 
+        [HttpPost("GetFixedAccountForAssetMaster")]
+        public async Task<IActionResult> GetFixedAccountForAssetMaster(GenericGridViewModel model)
+        {
+            return Ok(await _assetsMasterService.GetFixedAccountForAssetMaster(model));
         }
         #endregion
 
