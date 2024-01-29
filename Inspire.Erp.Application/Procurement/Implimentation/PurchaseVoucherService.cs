@@ -566,8 +566,6 @@ namespace Inspire.Erp.Application.Master.Implementations
                     return k;
                 }).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
-
-                //_PurchaseVoucher.Insert(purchaseVoucher);
                 List<StockRegister> stockRegisters = new List<StockRegister>();
                 foreach (var item in purchaseVoucherDetails)
                 {
@@ -605,16 +603,17 @@ namespace Inspire.Erp.Application.Master.Implementations
 
                 _accountTransactionRepository.BeginTransaction();
 
-                //accountsTransactions = accountsTransactions.Select((k) =>
-                //{
-                //    if (k.AccountsTransactionsTransSno == 0)
-                //    {
-                //        k.AccountsTransactionsTransDate = purchaseVoucher.PurchaseVoucherPurchaseDate;
-                //        k.AccountsTransactionsVoucherNo = purchaseVoucher.PurchaseVoucherVoucherNo;
-                //        k.AccountsTransactionsVoucherType = VoucherType.PurchaseVoucher_TYPE;
-                //        k.AccountsTransactionsStatus = AccountStatus.Approved;
-                //    }
-                //});
+                accountsTransactions = accountsTransactions.Select((k) =>
+                {
+                    if (k.AccountsTransactionsTransSno == 0)
+                    {
+                        k.AccountsTransactionsTransDate = purchaseVoucher.PurchaseVoucherPurchaseDate;
+                        k.AccountsTransactionsVoucherNo = purchaseVoucher.PurchaseVoucherVoucherNo;
+                        k.AccountsTransactionsVoucherType = VoucherType.PurchaseVoucher_TYPE;
+                        k.AccountsTransactionsStatus = AccountStatus.Approved;
+                    }
+                    return k;
+                }).ToList();
                 _PurchaseVoucher.Update(purchaseVoucher);
                 _PurchaseVoucherDetails.UpdateList(purchaseVoucherDetails);
 

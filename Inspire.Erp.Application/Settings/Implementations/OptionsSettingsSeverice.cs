@@ -22,7 +22,7 @@ namespace Inspire.Erp.Application.Settings.Implementations
 
         public async Task<Response<List<OptionsMaster>>> GetAllOptionSettings()
         {
-            List < OptionsMaster > optionsMasters = new List < OptionsMaster >();
+            List <OptionsMaster> optionsMasters = new List < OptionsMaster >();
             try
             {
                 optionsMasters = await _optionsSettingsRepo.GetAsQueryable().ToListAsync();
