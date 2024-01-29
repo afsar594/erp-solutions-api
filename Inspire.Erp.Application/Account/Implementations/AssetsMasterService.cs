@@ -34,6 +34,19 @@ namespace Inspire.Erp.Application.Account.Implementations
                 return Response<List<MasterAccountsTable>>.Fail(new List<MasterAccountsTable>(), ex.Message);
             }
         }
+        public async Task<Response<List<MasterAccountsTable>>> GetRelativeAccountAssetMaster(string accNo)
+        {
+            try
+            {
+                var result = await _masterAccountTable.GetAsQueryable().Where(x => x.MaAccNo== accNo).ToListAsync();
+
+                return Response<List<MasterAccountsTable>>.Success(result, "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<List<MasterAccountsTable>>.Fail(new List<MasterAccountsTable>(), ex.Message);
+            }
+        }
         private List<MasterAccountsTable> RecursionMasterAccountTable(List<MasterAccountsTable> model)
         {
             var result = new List<MasterAccountsTable>();

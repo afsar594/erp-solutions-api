@@ -340,6 +340,11 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         {
             return Ok(await _assetsMasterService.GetFixedAccountForAssetMaster(model));
         }
+        [HttpGet("GetRelativeAccountAssetMaster")]
+        public async Task<IActionResult> GetRelativeAccountAssetMaster(string accNo)
+        {
+            return Ok(await _assetsMasterService.GetRelativeAccountAssetMaster(accNo));
+        }
         #endregion
 
 
