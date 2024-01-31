@@ -86,9 +86,6 @@ namespace Inspire.Erp.Web.Controllers.Store
         [Route("MainReport_GetReportStockRegister")]
         public ApiResponse<List<ReportStockRegister>> MainReport_GetReportStockRegister()
         {
-
-            
-
             ApiResponse<List<ReportStockRegister>> apiResponse = new ApiResponse<List<ReportStockRegister>>
             {
                 Valid = true,
@@ -110,7 +107,6 @@ namespace Inspire.Erp.Web.Controllers.Store
             {
 
                 Valid = true,
-
                 Result = _mapper.Map<List<ReportStockBaseUnit>>(_mainReportService.MainReport_GetReportStockLedger_PARAM_CLASS(
                      param1, param2
                 )),
