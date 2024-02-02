@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace Inspire.Erp.Application.Master
 {
@@ -19,7 +20,7 @@ namespace Inspire.Erp.Application.Master
         private readonly IUtilityService _utilityService;
         private string DeptorsRelativeNo = "";
 
-        public CustomerMasterService(IRepository<CustomerMaster> _customerrepository,IConfiguration config,
+        public CustomerMasterService(IRepository<CustomerMaster> _customerrepository, IConfiguration config,
             IRepository<MasterAccountsTable> masterAccountTable, IUtilityService utilityService)
         {
             customerrepository = _customerrepository;
@@ -30,40 +31,51 @@ namespace Inspire.Erp.Application.Master
         public async Task<IEnumerable<CustomerMaster>> InsertCustomer(CustomerMaster customerMaster)
         {
             bool valid = false;
+
             try
             {
-                
-                _masterAccountTable.BeginTransaction();
+
+                  _masterAccountTable.BeginTransaction();
                 var fs = await _utilityService.GetFinancialPeriods();
                 valid = true;
                 int mxc = 0;
                 var maxId = _masterAccountTable.GetAsQueryable().Max(x => x.MaSno);
-                string accNo = "AS" +( maxId + 1);
-                mxc = customerrepository.GetAsQueryable().Where(k => k.CustomerMasterCustomerNo != null).Select(x => x.CustomerMasterCustomerNo).Max();
-                if (mxc == null) { mxc = 1; } else { mxc = mxc + 1; }
-
-                customerMaster.CustomerMasterCustomerNo = mxc;
-                customerMaster.CustomerMasterCustomerReffAcNo = accNo;
-                customerrepository.Insert(customerMaster);
                 var masterAccount = _masterAccountTable.GetAsQueryable().Where(x => x.MaAccNo == DeptorsRelativeNo).FirstOrDefault();
-                MasterAccountsTable masterAccountsTable = new MasterAccountsTable()
+                var cusAccNo = string.Empty;
+                MasterAccountsTable masterAccountsTable = null;
+                if (customerMaster.IsCreateAccount)
                 {
-                    MaAccName = customerMaster.CustomerMasterCustomerName,
-                    MaAccNo= accNo,
-                    MaAccType = "G",
-                    MaImageKey = masterAccount.MaImageKey,
-                    MaAssetDate = DateTime.Now,
-                    MaFsno = fs.Result.FinancialPeriodsFsno,
-                    MaMainHead = masterAccount.MaMainHead,
-                    MaRelativeNo = masterAccount.MaAccNo,
-                    MaSubHead = masterAccount.MaSubHead,
-                    MaUserId = 0,
-                    MaSno= maxId+1,
-                    MaDateCreated = DateTime.Now,
-                    MaStatus = "R",
+                    var count = _masterAccountTable.GetAsQueryable().Where(x => x.MaRelativeNo == DeptorsRelativeNo).ToList().Count();
+                    cusAccNo = count.ToString().Length == 1 ? "00" + count : count.ToString().Length == 2 ? "0" + count : count.ToString();
+                    cusAccNo = masterAccount.MaAccNo + cusAccNo;
+                    masterAccountsTable = new MasterAccountsTable()
+                    {
+                        MaAccName = customerMaster.CustomerMasterCustomerName,
+                        MaAccNo = cusAccNo,
+                        MaAccType = "A",
+                        MaImageKey = masterAccount.MaImageKey,
+                        MaAssetDate = DateTime.Now,
+                        MaFsno = fs.Result.FinancialPeriodsFsno,
+                        MaMainHead = masterAccount.MaMainHead,
+                        MaRelativeNo = masterAccount.MaAccNo,
+                        MaSubHead = masterAccount.MaSubHead,
+                        MaUserId = 0,
+                        MaSno = maxId + 1,
+                        MaDateCreated = DateTime.Now,
+                        MaStatus = "R",
 
-                };
-                await _utilityService.SaveMasterAccountTable(masterAccountsTable);
+                    };
+                }
+                mxc = customerrepository.GetAsQueryable().Where(k => k.CustomerMasterCustomerNo != null).Select(x => x.CustomerMasterCustomerNo).Max();
+                //if (mxc == null) { mxc = 1; } else { mxc = mxc + 1; }
+                mxc = mxc == null ? 1 : mxc + 1;
+                customerMaster.CustomerMasterCustomerNo = mxc;
+                customerMaster.CustomerMasterCustomerReffAcNo = cusAccNo;
+                customerrepository.Insert(customerMaster);
+
+                if (masterAccountsTable != null)
+                    await _utilityService.SaveMasterAccountTable(masterAccountsTable);
+
                 #region ADD ACTIVITY LOGS
                 AddActivityLogViewModel log = new AddActivityLogViewModel()
                 {
@@ -76,6 +88,7 @@ namespace Inspire.Erp.Application.Master
                 #endregion
                 customerrepository.SaveChangesAsync();
                 _masterAccountTable.TransactionCommit();
+
             }
             catch (Exception ex)
             {
@@ -88,6 +101,8 @@ namespace Inspire.Erp.Application.Master
             {
                 //customerrepository.Dispose();
             }
+
+
             return this.GetAllCustomer();
         }
         public IEnumerable<CustomerMaster> UpdateCustomer(CustomerMaster customerMaster)
