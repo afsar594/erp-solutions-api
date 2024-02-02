@@ -11,5 +11,6 @@ namespace Inspire.Erp.Application.Account.Interfaces
     public interface IAssetsMasterService
     {
         Task<Response<List<MasterAccountsTable>>> GetFixedAccountForAssetMaster(GenericGridViewModel model);
+        Task<Response<List<MasterAccountsTable>>> GetRelativeAccountAssetMaster(string accNo);
     }
 }
