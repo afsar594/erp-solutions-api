@@ -300,6 +300,7 @@ namespace Inspire.Erp.Application.Account.Implementations
         {
             try
             {
+                _accountTransactionRepository.BeginTransaction();
                 salesReturn.SalesReturnNo = salesReturn.SalesReturnNo;
                 _Context.SalesReturn.Add(salesReturn);
                 _Context.SaveChanges();
@@ -320,6 +321,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsVoucherNo = salesReturn.SalesReturnNo;
                     k.AccountsTransactionsVoucherType = VoucherType.SalesReturn_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
+                    k.AccountsTransactionsUserId = 0;
                     return k;
                 }).ToList();
                 _Context.AccountsTransactions.AddRange(accountsTransactions);
@@ -342,6 +344,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                         StockRegisterFSNO = null,
                         StockRegisterVoucherDate = salesReturn.SalesReturnDate,
                         StockRegisterSIN = item.SalesReturnDetailsQuantity,
+                        StockRegisterRate = item.SalesReturnDetailsRate,
+                        StockRegisterAmount = item.SalesReturnDetailsGrossAmount,
                         StockRegisterMaterialID = item.SalesReturnDetailsMatId,
                     });
                 }
@@ -351,11 +355,12 @@ namespace Inspire.Erp.Application.Account.Implementations
                 // }).ToList();
                 _Context.StockRegister.AddRange(sr);
                 _Context.SaveChanges();
+                _accountTransactionRepository.TransactionCommit();
                 return this.GetSavedSalesReturnDetails(salesReturn.SalesReturnNo);
             }
             catch (Exception ex)
             {
-                // _salesReturnRepository.TransactionRollback();
+                 _salesReturnRepository.TransactionRollback();
                 throw ex;
             }
         }
@@ -387,12 +392,6 @@ namespace Inspire.Erp.Application.Account.Implementations
         {
             try
             {
-
-
-
-
-
-
                 var prefix = this._programsettingsRepository.GetAsQueryable().Where(k => k.ProgramSettingsKeyValue == Prefix.SalesReturn_Prefix).FirstOrDefault().ProgramSettingsTextValue;
                 int vnoMaxVal = Convert.ToInt32(_voucherNumbersRepository.GetAsQueryable()
                                                         .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == VoucherType.SalesReturn_TYPE)

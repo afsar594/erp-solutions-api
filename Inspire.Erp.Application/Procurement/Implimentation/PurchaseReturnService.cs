@@ -956,11 +956,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 purchaseReturn.PurchaseReturnId = maxcount;
 
-
-
-
-
-
                 purchaseReturnDetails = purchaseReturnDetails.Select((x) =>
                 {
                     x.PurchaseReturnId = maxcount;
@@ -968,11 +963,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     x.PurchaseReturnDetailsId = 0;
                     return x;
                 }).ToList();
-                //_salesReturnDetailsRepository.InsertList(salesReturnDetails);
+                //_purchaseReturnDetailsRepo.InsertList(purchaseReturnDetails);
 
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
-                    //k.AccountsTransactionsTransDate = salesReturn.SalesReturnDate;
                     k.AccountsTransactionsVoucherNo = purchaseReturnNumber;
                     k.AccountsTransactionsVoucherType = VoucherType.PurchaseReturn_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
@@ -980,17 +974,30 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 }).ToList();
                 _accountTransaction.InsertList(accountsTransactions);
 
+                List<StockRegister> sr = new List<StockRegister>();
 
-
-                stockRegister = stockRegister.Select((k) =>
+                foreach (var item in purchaseReturnDetails)
                 {
-                    k.StockRegisterVoucherDate = purchaseReturn.PurchaseReturnDate;
-                    k.StockRegisterRefVoucherNo = purchaseReturnNumber;
-                    k.StockRegisterTransType = VoucherType.PurchaseReturn_TYPE;
-                    k.StockRegisterStatus = AccountStatus.Approved;
-                    return k;
-                }).ToList();
-                _stockRegister.InsertList(stockRegister);
+                    sr.Add(new StockRegister()
+                    {
+                        StockRegisterRefVoucherNo = purchaseReturnNumber,
+                        StockRegisterAssignedDate = DateTime.Now,
+                        StockRegisterTransType = VoucherType.PurchaseReturn_TYPE,
+                        StockRegisterFCAmount = purchaseReturn.PurchaseReturnTotalActualAmount,
+                        StockRegisterFcRate = purchaseReturn.PurchaseReturnFcRate,
+                        StockRegisterStatus = "A",
+                        StockRegisterJobID = purchaseReturn.PurchaseReturnJobId,
+                        StockRegisterLocationID = purchaseReturn.PurchaseReturnLocationId,
+                        StockRegisterFSNO = null,
+                        StockRegisterVoucherDate = purchaseReturn.PurchaseReturnDate,
+                        StockRegisterSout = item.PurchaseReturnDetailsQuantity,
+                        StockRegisterRate = item.PurchaseReturnDetailsRate,
+                        StockRegisterAmount = item.PurchaseReturnDetailsGrossAmount,
+                        StockRegisterMaterialID = item.PurchaseReturnDetailsMatId,
+                       
+                    });
+                }
+                _stockRegister.InsertList(sr);
 
 
                 purchaseReturn.PurchaseReturnDetails = purchaseReturnDetails;
