@@ -995,7 +995,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<AssetMaster>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(x=>x.AssetMasterAssetId);
 
                 entity.ToTable("Asset_Master");
 
@@ -1025,7 +1025,7 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasMaxLength(20)
                     .IsUnicode(false);
 
-                entity.Property(e => e.AssetMasterAssetId).HasColumnName("Asset_Master_Asset_ID");
+                entity.Property(e => e.AssetMasterAssetId).HasColumnName("Asset_Master_Asset_ID").ValueGeneratedOnAdd();
 
                 entity.Property(e => e.AssetMasterAssetName)
                     .HasColumnName("Asset_Master_Asset_Name")
