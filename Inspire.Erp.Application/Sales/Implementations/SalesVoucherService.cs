@@ -46,6 +46,12 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<UnitDetails> _UnitDetailsRepository;
 
 
+        /// <summary>
+        /// Master accounts
+        /// </summary>
+        private IRepository<MasterAccountsTable> accMaster;
+
+
         //private IRepository<ReportSalesVoucher> _reportSalesVoucherRepository;
         public SalesVoucherService(
             //IRepository<ReportSalesVoucher> reportSalesVoucherRepository,
@@ -58,7 +64,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
 
-            IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository, IRepository<CurrencyMaster> currencyMasterRepository, IRepository<UnitDetails> unitDetailsRepository)
+            IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository, IRepository<CurrencyMaster> currencyMasterRepository, IRepository<UnitDetails> unitDetailsRepository, IRepository<MasterAccountsTable> accMaster)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository;
@@ -79,6 +85,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             _departmentMasterRepository = departmentMasterRepository;
             _currencyMasterRepository = currencyMasterRepository;
             _UnitDetailsRepository = unitDetailsRepository;
+            this.accMaster = accMaster;
 
             //_reportSalesVoucherRepository = reportSalesVoucherRepository;
         }
@@ -294,12 +301,12 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 salesVoucher.SalesVoucherId = maxcount;
 
-               // var currencyMaster = _currencyMasterRepository.GetAsQueryable().Where(c => c.CurrencyMasterCurrencyId == salesVoucher.SalesVoucherCurrencyId).FirstOrDefault();
+                // var currencyMaster = _currencyMasterRepository.GetAsQueryable().Where(c => c.CurrencyMasterCurrencyId == salesVoucher.SalesVoucherCurrencyId).FirstOrDefault();
                 //foreach (var saleVoucherDetail in salesVoucherDetails)
                 //{
                 //    saleVoucherDetail.SalesVoucherDetailsRate = saleVoucherDetail.SalesVoucherDetailsRate * Convert.ToDecimal(currencyMaster.CurrencyMasterCurrencyRate);
                 //}
-               // salesVoucher.SalesVoucherFcRate = salesVoucher.SalesVoucherFcRate * Convert.ToDecimal(currencyMaster.CurrencyMasterCurrencyRate);
+                // salesVoucher.SalesVoucherFcRate = salesVoucher.SalesVoucherFcRate * Convert.ToDecimal(currencyMaster.CurrencyMasterCurrencyRate);
                 salesVoucherDetails = salesVoucherDetails.Select((x) =>
                 {
                     x.SalesVoucherId = maxcount;
@@ -308,17 +315,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 }).ToList();
                 //_salesVoucherDetailsRepository.InsertList(salesVoucherDetails);
 
-                accountsTransactions = accountsTransactions.Select((k) =>
-                {
-                    //k.AccountsTransactionsTransDate = salesVoucher.SalesVoucherDate;
-                    k.AccountsTransactionsVoucherNo = salesVoucherNumber;
-                    k.AccountsTransactionsVoucherType = VoucherType.SalesVoucher_TYPE;
-                    k.AccountsTransactionsStatus = AccountStatus.Approved;
-                    return k;
-                }).ToList();
-                _accountTransactionRepository.InsertList(accountsTransactions);
-
-                
+                //accunt transaction entries for sales
+                 createAccountTransactionEntries(salesVoucher, accountsTransactions);
 
                 stockRegister = stockRegister.Select((k) =>
                 {
@@ -347,6 +345,91 @@ namespace Inspire.Erp.Application.Sales.Implementations
             }
 
         }
+        /// <summary>
+        /// Name : createAccountTransactionEntries
+        /// Desc : this is used to create transaction entries again sales customer 
+        ///  not to change/ remove OR replace any field in below method, may leads to an unexpected errors/
+        ///  may be create a wrong entry in account transaction table
+        /// </summary>
+        /// <param name="salesVoucher"></param>
+        /// <param name="accountsTransactions"></param>
+        /// <param name="salesVoucherNumber"></param>
+        private void createAccountTransactionEntries(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions)
+        {
+            decimal currencyRate = getCurrencyRate(salesVoucher.SalesVoucherCurrencyId);
+
+            //Credit Entry
+
+            //Debit Entry
+            if(salesVoucher.SalesVoucherType == "Credit")//here there are two entries for invoice type
+                                                                                        //need to replace SalesVoucherType by invoice type
+            {
+
+            }
+            else
+            {
+
+            }
+            accountsTransactions = accountsTransactions.Select((k) =>
+            {
+                k.AccountsTransactionsAccNo = getAccountNoByPartyName(salesVoucher.SalesVoucherPartyName); // need to modify for its original acc no, this is just to test the field
+                k.AccountsTransactionsVoucherNo = salesVoucher.SalesVoucherNo;
+                k.AccountsTransactionsVoucherType = VoucherType.SalesVoucher_TYPE;
+                k.AccountsTransactionsStatus = AccountStatus.Approved;
+                k.AccountsTransactionsTransDate = DateTime.Now.Date;
+                k.AccountsTransactionsParticulars = $"{VoucherType.SalesVoucher_TYPE} {salesVoucher.CurrencyMasterCurrencyName}"; //need to replace salesVoucher.CurrencyMasterCurrencyName by customer name
+                k.AccountsTransactionsDebit = (decimal)salesVoucher.SalesVoucherNetAmount * currencyRate; //need replace by its original value
+                k.AccountsTransactionsCredit = 0;
+                k.AccountsTransactionsDescription = string.Empty;//need to add description here if needed
+                k.AccountsTransactionsUserId = salesVoucher.SalesVoucherUserID;
+                k.AccountsTransactionsStatus = "A"; //you can change it if needed
+                k.AccountsTransactionsTstamp = DateTime.Now; // can be changable if needed for date and time
+                k.RefNo = string.Empty; // you can add here the Ref no if needed
+                k.AccountsTransactionsFsno = (decimal)salesVoucher.SalesVoucherFSNO;
+                k.AccountsTransactionsFcAllocDebit = 0;
+                k.AccountsTransactionsFcAllocCredit = 0;
+                k.AccountsTransactionsAllocCredit = 0;
+                k.AccountsTransactionsAllocDebit = 0;
+                k.AccountsTransactionsAllocBalance = (decimal)salesVoucher.SalesVoucherNetAmount * currencyRate;//need to replace by its original value
+                k.AccountsTransactionsFcAllocBalance = (decimal)salesVoucher.SalesVoucherNetAmount * currencyRate;//need to replace by its original value
+                k.AccountsTransactionsFcCredit = 0;
+                k.AccountsTransactionsFcDebit = (decimal)salesVoucher.SalesVoucherNetAmount * currencyRate;//need to replace by its original value
+                k.AccountsTransactionsLocation = salesVoucher.SalesVoucherLocationID;
+                k.AccountsTransactionsJobNo = salesVoucher.SalesVoucherJobId;
+                k.AccountsTransactionsCurrencyId = salesVoucher.SalesVoucherCurrencyId;
+                k.AccountsTransactionsFcRate = currencyRate;
+                k.AccountsTransactionsLpoNo = string.Empty; // change it to desired option if needed
+                k.AccountsTransactionsDeptId = -1; // change it to desired option if needed
+                return k;
+            }).ToList();
+            _accountTransactionRepository.InsertList(accountsTransactions);
+        }
+
+        private string getAccountNoByPartyName(string partyName)
+        {
+            try
+            {
+                return this.accMaster.GetAsQueryable().FirstOrDefault(x => x.MaAccName.ToUpper().Equals(partyName.ToUpper())).MaAccNo;
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+
+        private decimal getCurrencyRate(int? salesVoucherCurrencyId)
+        {
+            try
+            {
+                return (decimal)this._currencyMasterRepository.GetAsQueryable().FirstOrDefault(x => x.CurrencyMasterCurrencyId == salesVoucherCurrencyId).CurrencyMasterCurrencyRate;
+            }
+            catch
+            {
+                return 1;
+            }
+        }
+       
+
         public IEnumerable<AccountsTransactions> GetAllTransaction()
         {
             return _accountTransactionRepository.GetAll();
