@@ -53,7 +53,7 @@ namespace Inspire.Erp.Application.Master
                 {
                     MaAccName = SuppliersMaster.SuppliersMasterSupplierName,
                     MaAccNo = accNo,
-                    MaAccType = "S",
+                    MaAccType = "A",
                     MaImageKey = masterAccount.MaImageKey,
                     MaAssetDate = DateTime.Now,
                     MaFsno = fs.Result.FinancialPeriodsFsno,

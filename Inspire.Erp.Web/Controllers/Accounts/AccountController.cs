@@ -351,7 +351,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         {
             return Ok(await _assetsMasterService.GetRelativeAssetMasterRecord(id));
         }
-        [HttpGet("GetAssetMaster")]
+        [HttpGet("GetAssetsMaster")]
         public async Task<IActionResult> GetAssetMaster(int id)
         {
             return Ok(await _assetsMasterService.GetAssetMaster(id));

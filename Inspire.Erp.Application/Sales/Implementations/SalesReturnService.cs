@@ -318,6 +318,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 Console.WriteLine("FOUR = " + salesReturn.SalesReturnId);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
+                    k.AccountsTransactionsUserId = salesReturn.SalesReturnUserID == null ? -1 : salesReturn.SalesReturnUserID;
                     k.AccountsTransactionsVoucherNo = salesReturn.SalesReturnNo;
                     k.AccountsTransactionsVoucherType = VoucherType.SalesReturn_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
