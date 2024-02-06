@@ -678,8 +678,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                      join umd in _Context.UnitDetails on new { unitId = um.UnitMasterUnitId, itemId = im.ItemMasterItemId } equals new { unitId = umd.UnitDetailsUnitId, itemId = umd.UnitDetailsItemId }
                                      join drq in subqueryDRQD on cpod.CustomerPurchaseOrderDetailsPodId equals drq.CustomerDeliveryNoteDetailsPodId into gdrq
                                      from q in gdrq.DefaultIfEmpty()
-                                     where (model.CustomerId == null || cpo.CustomerPurchaseOrderCustomerId == model.CustomerId)
-                                     &&  (model.ItemId == null || im.ItemMasterItemId == model.ItemId)
+                                     where (model.CustomerId == 0 || model.CustomerId == null || cpo.CustomerPurchaseOrderCustomerId == model.CustomerId)
+                                     &&  (model.ItemId == 0 || model.ItemId == null ||im.ItemMasterItemId == model.ItemId)
                                      &&   ((model.DateFrom == null || model.DateTo == null) || (cpo.CustomerPurchaseOrderDate.Value.Date >= model.DateFrom && cpo.CustomerPurchaseOrderDate.Value.Date <= model.DateTo))
                                      select new GetCustomerPurchaseOrderTrackingResponse
                                      {
