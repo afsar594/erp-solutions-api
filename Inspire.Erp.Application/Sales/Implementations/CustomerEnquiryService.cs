@@ -241,14 +241,14 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 {
                     filteredValue += $" && EnquiryMasterSalesManId == {filter.CustomerId} ";
                 }
-                //if (filter.Enquiry_No != null)
-                //{
-                //    filteredValue += $" && EnquiryMasterEnquiryId == {filter.Enquiry_No} ";
-                //}
-                //if (!string.IsNullOrEmpty(filter.fromDate) && !string.IsNullOrEmpty(filter.toDate))
-                //{
-                //    filteredValue += $" && EnquiryMasterEnquiryDate >= {Convert.ToDateTime(filter.fromDate)} && EnquiryMasterEnquiryDate <= {Convert.ToDateTime(filter.toDate)} ";
-                //}
+                if (filter.Enquiry_No != null)
+                {
+                    filteredValue += $" && EnquiryMasterEnquiryId == {filter.Enquiry_No} ";
+                }
+                if (!string.IsNullOrEmpty(filter.fromDate) && !string.IsNullOrEmpty(filter.toDate))
+                {
+                    filteredValue += $" && EnquiryMasterEnquiryDate >= {Convert.ToDateTime(filter.fromDate)} && EnquiryMasterEnquiryDate <= {Convert.ToDateTime(filter.toDate)} ";
+                }
 
                 reportDetails = await (from ce in _customerEnquiryRepository.GetAsQueryable().Where($"1 == 1  {filteredValue}")
                                        join lm in _locationMasterRepository.GetAsQueryable() on ce.EnquiryMasterLocationId equals (long)lm.LocationMasterLocationId into lmGroup
