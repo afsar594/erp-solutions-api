@@ -47,4 +47,13 @@ namespace Inspire.Erp.Domain.Modals.Common
         public string Formate { get; set; }
 
     }
+
+    public class CustomerEnquirySearchFilter
+    {
+        public string Enquiry_No { get; set; }
+        public long CustomerId { get; set; }
+        public string fromDate { get; set; }
+        public string toDate { get; set; }
+    }
+
 }

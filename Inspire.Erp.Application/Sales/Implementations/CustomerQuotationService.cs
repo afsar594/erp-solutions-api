@@ -17,6 +17,8 @@ using Inspire.Erp.Domain.Modals;
 using SendGrid.Helpers.Mail;
 using System.Threading.Tasks;
 using Inspire.Erp.Infrastructure.Database;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Domain.Models.Sales.DeliveryNoteReport;
 
 namespace Inspire.Erp.Application.Sales.Implementations
 {
@@ -324,6 +326,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 return Response<List<GetCustQuotationForSaleOrderResponse>>.Fail(new List<GetCustQuotationForSaleOrderResponse>(), ex.Message);
             }
         }
+
     }
 }
 
