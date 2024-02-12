@@ -16,6 +16,7 @@ using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Models.Sales.DeliveryNoteReport;
 using System.Linq.Dynamic.Core;
+using Inspire.Erp.Domain.DTO.Customer_Enquiry;
 
 namespace Inspire.Erp.Application.Sales.Implementations
 {
@@ -288,6 +289,27 @@ namespace Inspire.Erp.Application.Sales.Implementations
             {
 
                 throw;
+            }
+        }
+
+
+        public async Task<IEnumerable<EnquiryNoDto>> GetAllEnquiryNo()
+        {
+            try
+            {
+                var allEnquiryIdsStrings = await _customerEnquiryRepository.GetAsQueryable()
+                    .Select(ce => new EnquiryNoDto
+                    {
+                       EnquiryNO  = ce.EnquiryMasterEnquiryId,
+                       EnquiryNOId = ce.EnquiryMasterEnquiryId
+                    }) 
+                    .ToListAsync();
+
+                return allEnquiryIdsStrings;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while fetching Enquiry IDs: {ex.Message}", ex);
             }
         }
 
