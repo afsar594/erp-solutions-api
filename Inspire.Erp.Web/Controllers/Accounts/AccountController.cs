@@ -2,6 +2,7 @@
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Modals.AccountStatement;
 using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Domain.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -339,6 +340,27 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         public async Task<IActionResult> GetFixedAccountForAssetMaster(GenericGridViewModel model)
         {
             return Ok(await _assetsMasterService.GetFixedAccountForAssetMaster(model));
+        }
+        [HttpGet("GetRelativeAccountAssetMaster")]
+        public async Task<IActionResult> GetRelativeAccountAssetMaster(string accNo)
+        {
+            return Ok(await _assetsMasterService.GetRelativeAccountAssetMaster(accNo));
+        }
+        [HttpGet("GetRelativeAssetMasterRecord")]
+        public async Task<IActionResult> GetRelativeAssetMasterRecord(int id)
+        {
+            return Ok(await _assetsMasterService.GetRelativeAssetMasterRecord(id));
+        }
+        [HttpGet("GetAssetsMaster")]
+        public async Task<IActionResult> GetAssetMaster(int id)
+        {
+            return Ok(await _assetsMasterService.GetAssetMaster(id));
+        }
+
+        [HttpPost("AddEditAssetMaster")]
+        public async Task<IActionResult> AddEditAssetMaster(AssetMasterViewModel model)
+        {
+            return Ok(await _assetsMasterService.AddEditAssetMaster(model));
         }
         #endregion
 

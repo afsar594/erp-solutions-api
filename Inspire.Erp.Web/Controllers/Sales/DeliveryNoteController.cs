@@ -52,6 +52,7 @@ namespace Inspire.Erp.Web.Controllers.Sales
                 ////clsAccountAndStock.SalesVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4);
 
                 var xs = _deliveryNoteService.InsertDeliveryNote(param1, param2);
+
                 //========================
 
 
@@ -90,12 +91,12 @@ namespace Inspire.Erp.Web.Controllers.Sales
 
                 deliveryNoteViewModel.CustomerDeliveryNoteDetails = _mapper.Map<List<CustomerDeliveryNoteDetailsViewModel>>(xs.deliveryNoteDetails);
                 //deliveryNoteViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionsViewModel>>(xs.accountsTransactions);
-                //// apiResponse = new ApiResponse<CustomerDeliveryNoteViewModel>
-                ////{
-                ////    Valid = true,
-                ////    Result = _mapper.Map<CustomerDeliveryNoteViewModel>(deliveryNoteViewModel),
-                ////    Message = SalesVoucherMessage.SaveVoucher
-                ////};
+                apiResponse = new ApiResponse<CustomerDeliveryNoteViewModel>
+                {
+                    Valid = true,
+                    Result = _mapper.Map<CustomerDeliveryNoteViewModel>(deliveryNoteViewModel),
+                    Message = SalesVoucherMessage.SaveVoucher
+                };
             }
             ////else
             ////{

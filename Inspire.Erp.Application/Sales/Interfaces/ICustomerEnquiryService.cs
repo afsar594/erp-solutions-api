@@ -1,8 +1,12 @@
 ﻿using Inspire.Erp.Application.Common;
 using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Domain.Modals;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
+using Inspire.Erp.Domain.DTO.Customer_Enquiry;
 
 namespace Inspire.Erp.Application.Sales.Interfaces
 {
@@ -19,8 +23,12 @@ namespace Inspire.Erp.Application.Sales.Interfaces
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
          
         public VouchersNumbers GetVouchersNumbers(string Qtno);
+        public Task<Response<List<CustomerEnquiryReportResponse>>> GetCustomerEnquirySearch(CustomerEnquirySearchFilter filter);
+        public Task<IEnumerable<EnquiryNoDto>> GetAllEnquiryNo();
+
 
     }
+
 }
 
 

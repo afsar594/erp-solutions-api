@@ -50,5 +50,7 @@ namespace Inspire.Erp.Domain.Entities
         //[NotMapped]
         //public int? CustomerMasterCustomerRouteID { get; set; }
         public bool? CustomerMasterCustomerDelStatus { get; set; }
+        [NotMapped]
+        public bool IsCreateAccount { get; set; } = true;  
     }
 }

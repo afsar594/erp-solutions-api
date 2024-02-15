@@ -11,6 +11,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Threading.Tasks;
+using Inspire.Erp.Domain.Modals;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Domain.Models.Sales.DeliveryNoteReport;
+using System.Linq.Dynamic.Core;
+using Inspire.Erp.Domain.DTO.Customer_Enquiry;
 
 namespace Inspire.Erp.Application.Sales.Implementations
 {
@@ -20,11 +26,27 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<EnquiryDetails> _customerEnquiryDetailsRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
         private IRepository<ProgramSettings> _programsettingsRepository;
+       
+        private IRepository<CustomerMaster> _customerMasterRepository;
+        private IRepository<LocationMaster> _locationMasterRepository;
+        private IRepository<EnquiryAbout> _enquiryAboutRepository;
+        private IRepository<EnquiryStatus> _enquiryStatusRepository;
+        private IRepository<BusinessTypeMaster> _businessTypeRepository;
+        private IRepository<CurrencyMaster> _currenyMasterRepository;
+
+
         private readonly ILogger<CustomerEnquiryService> _logger;
 
         public CustomerEnquiryService(ILogger<CustomerEnquiryService> logger,
             IRepository<EnquiryMaster> customerEnquiryRepository, IRepository<VouchersNumbers> voucherNumbersRepository, IRepository<ProgramSettings> programsettingsRepository,
-            IRepository<EnquiryDetails> customerEnquiryDetailsRepository)
+            IRepository<EnquiryDetails> customerEnquiryDetailsRepository,
+            IRepository<CustomerMaster> customerMasterRepository,
+            IRepository<LocationMaster> locationMasterRepository,
+            IRepository<EnquiryAbout> enquiryAboutRepository,
+            IRepository<EnquiryStatus> enquiryStatusRepository,
+            IRepository<BusinessTypeMaster> businessTypeRepository,
+            IRepository<CurrencyMaster> currenyMasterRepository
+            )
         {
 
             this._customerEnquiryRepository = customerEnquiryRepository;
@@ -32,6 +54,12 @@ namespace Inspire.Erp.Application.Sales.Implementations
             this._programsettingsRepository = programsettingsRepository;
             this._voucherNumbersRepository = voucherNumbersRepository;
             _logger = logger;
+            this._locationMasterRepository = locationMasterRepository;
+            this._currenyMasterRepository = currenyMasterRepository;
+            this._customerMasterRepository = customerMasterRepository;
+            this._enquiryAboutRepository = enquiryAboutRepository;
+            this._enquiryStatusRepository = enquiryStatusRepository;
+            this._businessTypeRepository = businessTypeRepository;
 
         }
 
@@ -200,5 +228,90 @@ namespace Inspire.Erp.Application.Sales.Implementations
             }
 
         }
+
+        public async Task<Response<List<CustomerEnquiryReportResponse>>> GetCustomerEnquirySearch(CustomerEnquirySearchFilter filter)
+        {
+            List<CustomerEnquiryReportResponse> reportDetails = new List<CustomerEnquiryReportResponse>();
+            string filteredValue = " && 1 == 1";
+
+            try
+            {
+
+                if (filter.CustomerId > 0)
+                {
+                    filteredValue += $" && EnquiryMasterSalesManId == {filter.CustomerId} ";
+                }
+                if (filter.Enquiry_No != null)
+                {
+                    filteredValue += $" && EnquiryMasterEnquiryId == {filter.Enquiry_No} ";
+                }
+                if (!string.IsNullOrEmpty(filter.fromDate) && !string.IsNullOrEmpty(filter.toDate))
+                {
+                    filteredValue += $" && EnquiryMasterEnquiryDate >= {Convert.ToDateTime(filter.fromDate)} && EnquiryMasterEnquiryDate <= {Convert.ToDateTime(filter.toDate)} ";
+                }
+
+                reportDetails = await (from ce in _customerEnquiryRepository.GetAsQueryable().Where($"1 == 1  {filteredValue}")
+                                       join lm in _locationMasterRepository.GetAsQueryable() on ce.EnquiryMasterLocationId equals (long)lm.LocationMasterLocationId into lmGroup
+                                       from lm in lmGroup.DefaultIfEmpty()
+                                       join cm in _customerMasterRepository.GetAsQueryable() on ce.EnquiryMasterSalesManId equals cm.CustomerMasterCustomerNo into cmGroup
+                                       from cm in cmGroup.DefaultIfEmpty()
+                                       join bt in _businessTypeRepository.GetAsQueryable() on ce.EnquiryMasterBusineesTypeId equals bt.BusinessTypeMasterBusinessTypeId into btGroup
+                                       from bt in btGroup.DefaultIfEmpty()
+                                       join curr in _currenyMasterRepository.GetAsQueryable() on ce.EnquiryMasterCurrencyId equals curr.CurrencyMasterCurrencyId into currGroup
+                                       from curr in currGroup.DefaultIfEmpty()
+                                       join abt in _enquiryAboutRepository.GetAsQueryable() on ce.EnquiryMasterEnquiryAboutId equals abt.EnquiryAboutEnquiryAboutId into abtGroup
+                                       from abt in abtGroup.DefaultIfEmpty()
+                                       join es in _enquiryStatusRepository.GetAsQueryable() on ce.EnquiryMasterEnquiryStatusId equals es.EnquiryStatusEnquiryStatusId into esGroup
+                                       from es in esGroup.DefaultIfEmpty()
+                                       select new CustomerEnquiryReportResponse()
+                                       {
+                                           Enquiry_Master_Enquiry_ID  = ce.EnquiryMasterEnquiryId,
+                                           Enquiry_Master_Enquiry_Date = ce.EnquiryMasterEnquiryDate, 
+                                           Enquiry_Master_Remarks = ce.EnquiryMasterRemarks,
+                                           Customer_Master_Customer_Name = cm.CustomerMasterCustomerName,
+                                           Location_Master_Location_Name = lm.LocationMasterLocationName,
+                                           Currency_Master_Currency_Name = curr.CurrencyMasterCurrencyName,
+                                           Enquiry_About_Enquiry_About  =  abt.EnquiryAboutEnquiryAbout,
+                                           Business_Type_Master_Business_Type_Name = bt.BusinessTypeMasterBusinessTypeName,
+                                           Enquiry_Master_Contact_Email  = ce.EnquiryMasterContactEmail,
+                                           Enquiry_Status_Enquiry_Status = es.EnquiryStatusEnquiryStatus                                      
+                                       }).ToListAsync();
+
+
+                return new Response<List<CustomerEnquiryReportResponse>>
+                {
+                    Valid = true,
+                    Result = reportDetails,
+                    Message = "Customer Enquiry Data Fonud"
+                };
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+
+        public async Task<IEnumerable<EnquiryNoDto>> GetAllEnquiryNo()
+        {
+            try
+            {
+                var allEnquiryIdsStrings = await _customerEnquiryRepository.GetAsQueryable()
+                    .Select(ce => new EnquiryNoDto
+                    {
+                       EnquiryNO  = ce.EnquiryMasterEnquiryId,
+                       EnquiryNOId = ce.EnquiryMasterEnquiryId
+                    }) 
+                    .ToListAsync();
+
+                return allEnquiryIdsStrings;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while fetching Enquiry IDs: {ex.Message}", ex);
+            }
+        }
+
     }
 }
