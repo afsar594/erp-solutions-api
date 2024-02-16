@@ -45,7 +45,7 @@ namespace Inspire.Erp.Web.Controllers
                 SuppliersMasterSupplierMobile = k.SuppliersMasterSupplierMobile,
                 SuppliersMasterSupplierEmail = k.SuppliersMasterSupplierEmail,
                 SuppliersMasterSupplierWebSite = k.SuppliersMasterSupplierWebSite,
-                SuppliersMasterSupplierLocationId = k.SuppliersMasterSupplierLocationId,
+                SuppliersMasterSupplierLocationId = k.SuppliersMasterSupplierLocationId??-1,
                 SuppliersMasterSupplierRemarks = k.SuppliersMasterSupplierRemarks,
                 SuppliersMasterSupplierReffAcNo = k.SuppliersMasterSupplierReffAcNo,
                 SuppliersMasterSupplierType = k.SuppliersMasterSupplierType,
@@ -108,6 +108,7 @@ namespace Inspire.Erp.Web.Controllers
         public async Task<List<SuppliersMasterViewModel>> InsertSupplier([FromBody] SuppliersMasterViewModel suppliersMaster)
         {
             var result = _mapper.Map<SuppliersMaster>(suppliersMaster);
+            result.SuppliersMasterSupplierLocationId = result.SuppliersMasterSupplierLocationId == null ? 1 : result.SuppliersMasterSupplierLocationId;
             return (await supplierMasterService.InsertSupplier(result)).Select(k => new SuppliersMasterViewModel
             {
                 SuppliersMasterSupplierId = k.SuppliersMasterSupplierId,

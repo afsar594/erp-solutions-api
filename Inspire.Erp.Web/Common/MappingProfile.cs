@@ -16,6 +16,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Inspire.Erp.Web.ViewModels.Settings;
 using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Domain.Modals.AccountStatement;
 
 namespace Inspire.Erp.Web.Common
 {
@@ -411,6 +412,17 @@ namespace Inspire.Erp.Web.Common
 
             CreateMap<AssetPurchaseVoucher, AssetPurchaseVoucherViewModel>();
             CreateMap<AssetPurchaseVoucherViewModel, AssetPurchaseVoucher>();
+
+            CreateMap<AssetPurchaseVoucherDetails, AssetPurchaseVoucherDetailsViewModel>();
+            CreateMap<AssetPurchaseVoucherDetailsViewModel, AssetPurchaseVoucherDetails>();
+
+            CreateMap<AssetPurchaseVoucherModel, AssetPurchaseVoucherViewModel>();
+            CreateMap<AssetPurchaseVoucherViewModel, AssetPurchaseVoucherModel>();
+
+
+
+            CreateMap<GetUnitDetailsMasterList, UnitMasterViewModel>();
+            CreateMap<UnitMasterViewModel, GetUnitDetailsMasterList>();
 
 
             //*******************Settings Ending ****************

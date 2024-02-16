@@ -22,7 +22,7 @@ namespace Inspire.Erp.Application.Settings.Implementations
 
         public async Task<Response<List<OptionsMaster>>> GetAllOptionSettings()
         {
-            List < OptionsMaster > optionsMasters = new List < OptionsMaster >();
+            List <OptionsMaster> optionsMasters = new List < OptionsMaster >();
             try
             {
                 optionsMasters = await _optionsSettingsRepo.GetAsQueryable().ToListAsync();
@@ -85,16 +85,6 @@ namespace Inspire.Erp.Application.Settings.Implementations
                 return false;
             }
             return true;
-        }
-
-        Task<Response<List<OptionsMaster>>> IOptionsSettings.GetOptionsSettings(string search)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<Response<List<OptionsMaster>>> IOptionsSettings.GetOptionsSettingsbyKey(string key)
-        {
-            throw new NotImplementedException();
         }
     }
 }

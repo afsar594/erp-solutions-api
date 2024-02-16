@@ -24,7 +24,7 @@ namespace Inspire.Erp.Web.Controllers.Settings
             _mapper = mapper;
         }
         [HttpGet]
-        [Route("options")]
+        [Route("GetOptionSetting")]
         public IActionResult GetOptionSetting(string search)
         {
             return Ok(_optionsSvc.GetOptionsSettings(search));
@@ -38,8 +38,6 @@ namespace Inspire.Erp.Web.Controllers.Settings
             return Ok(await _optionsSvc.GetAllOptionSettings());
         }
 
-
-
         [ApiExplorerSettings(IgnoreApi = true)]
         [HttpGet("GetOptionsSettingbyKey/{key}")]
         public async Task<IActionResult> GetOptionsSettingbyKey(string key)
@@ -47,12 +45,27 @@ namespace Inspire.Erp.Web.Controllers.Settings
             return Ok(await _optionsSvc.GetOptionsSettingsbyKey(key));
         }
 
+        //[HttpPost]
+        //[Route("updateOptions")]
+        //public async Task<IActionResult> UpdateOptionsSetting([FromBody] List<OptionsMaster> optionsSettings)
+        //{
+        //    bool result = _optionsSvc.updateOptionsSettings(optionsSettings);
+        //    return Ok(await _optionsSvc.GetOptionsSettings(""));
+        //}
+
+
         [HttpPost]
         [Route("updateOptions")]
-        public async Task<IActionResult> UpdateOptionsSetting([FromBody] List<OptionsMaster> optionsSettings)
+        public ApiResponse<List<OptionsMaster>> UpdateOptionsSetting([FromBody] List<OptionsMaster> optionsSettings)
         {
             bool result = _optionsSvc.updateOptionsSettings(optionsSettings);
-            return Ok(await _optionsSvc.GetOptionsSettings(""));
+            ApiResponse<List<OptionsMaster>> apiResponse = new ApiResponse<List<OptionsMaster>>
+            {
+                Valid = result,
+                Result = _optionsSvc.GetOptionsSettings("").Result.ToList(),
+                Message = ""
+            };
+            return apiResponse;
         }
 
 

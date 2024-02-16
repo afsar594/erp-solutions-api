@@ -42,14 +42,12 @@ namespace Inspire.Erp.Domain.Enums
         public static String PurchaseQuotation_TYPE { get { return "PurchaseQuotation"; } }
         public static String PurchaseRequisition_TYPE { get { return "PurchaseRequisition"; } }
         public static String IssueVoucher_TYPE { get { return "IssueVoucher"; } }
-
         public static String OpeningStockVoucher_TYPE { get { return "OpeningStockVoucher"; } }
         public static String IssueReturn_TYPE { get { return "IssueReturn"; } }
         public static String JournalVoucher_TYPE { get { return "JournalVoucher"; } }
+        public static String Dep_JournalVoucher_TYPE { get { return "DEPJV"; } }
         public static String ContraVoucher_TYPE { get { return "ContraVoucher"; } }
-
         public static String StockTransferVoucher_TYPE { get { return "StockTransferVoucher"; } }
-
         public static String CustomerPurchaseOrder_TYPE { get { return "CustomerPurchaseOrder"; } }
         public static String AssetPurchaseVoucher_TYPE { get { return "AssetPurchaseVoucher"; } }
     }
@@ -62,7 +60,6 @@ namespace Inspire.Erp.Domain.Enums
         public static String PDCStatus { get { return "NC"; } }
         public static String StockAccountNumber { get { return "STOCK_AC_NO"; } }
         public static String ExpenseAccountNo { get { return "EXPENSES_AC_NO"; } }
-
         public static String BRStatus { get { return "RECEIVED"; } }
         public static String BPStatus { get { return "ISSUED"; } }
 
@@ -85,18 +82,16 @@ namespace Inspire.Erp.Domain.Enums
         public static String PurchaseJournal_Prefix { get { return "PurchaseJournal_Prefix"; } }
         public static String SalesReturn_Prefix { get { return "SalesReturn_Prefix"; } }
         public static String PurchaseOrder_Prefix { get { return "PurchaseOrder_Prefix"; } }
-
         public static String CustomerPurchaseOrder_Prefix { get { return "CustomerPurchaseOrder_Prefix"; } }
         public static String PurchaseRequisition_Prefix { get { return "PurchaseRequisition_Prefix"; } }
         public static String PurchaseQuotation_Prefix { get { return "PurchaseQuotation_Prefix"; } }
         public static String IssueVoucher_Prefix { get { return "IssueVoucher_Prefix"; } }
-
         public static String OpeningStockVoucher_Prefix { get { return "OpeningStockVoucher_Prefix"; } }
         public static String StockTransfer_Prefix { get { return "StockTransfer_Prefix"; } }
         public static String IssueReturn_Prefix { get { return "IssueReturn_Prefix"; } }
         public static String ContraVoucher_Prefix { get { return "ContraVoucher_Prefix"; } }
         public static String JournalVoucher_Prefix { get { return "JournalVoucher_Prefix"; } }
-
+        public static String Dep_JournalVoucher_Prefix { get { return "Dep_JournalVoucher_Prefix"; } }
         public static String AssetPurchaseVoucher_Prefix { get { return "AssetPurchaseVoucher_Prefix"; } }
     }
 
@@ -116,8 +111,6 @@ namespace Inspire.Erp.Domain.Enums
         public static String Group { get { return "G"; } }
         public static String Account { get { return "A"; } }
         public static String SubItem { get { return "S"; } }
-
-
     }
 
 }
