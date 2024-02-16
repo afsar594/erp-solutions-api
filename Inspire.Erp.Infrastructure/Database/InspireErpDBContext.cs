@@ -8417,7 +8417,7 @@ namespace Inspire.Erp.Infrastructure.Database
                                 .HasMaxLength(100)
                                 .IsUnicode(false);
 
-                    entity.Property(e => e.OpeningStockVoucherDetailsUnitId).HasColumnType("numeric(18, 4)");
+                    entity.Property(e => e.OpeningStockVoucherDetailsUnitId).HasColumnName("OpeningStockVoucherDetailsUnitId");
 
                     entity.Property(e => e.OpeningStockVoucherDetailsAmount).HasColumnType("numeric(18, 4)");
                     entity.Property(e => e.OpeningStockVoucherDetailsCost).HasColumnType("numeric(18, 4)");
