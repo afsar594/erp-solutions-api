@@ -5,7 +5,7 @@ namespace Inspire.Erp.Domain.Entities
 {
     public partial class ProformaInvoiceDetails
     {
-        public int? ProformaInvoiceDetailsId { get; set; }
+        public int ProformaInvoiceDetailsId { get; set; }
         public int? ProformaInvoiceDetailsSlNo { get; set; }
         public int? ProformaInvoiceDetailsItemId { get; set; }
         public string ProformaInvoiceDetailsDescription { get; set; }
