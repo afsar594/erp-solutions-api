@@ -316,6 +316,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _Context.SalesReturnDetails.AddRange(salesReturnDetails);
                 _Context.SaveChanges();
                 Console.WriteLine("FOUR = " + salesReturn.SalesReturnId);
+
+
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     k.AccountsTransactionsUserId = salesReturn.SalesReturnUserID == null ? -1 : salesReturn.SalesReturnUserID;
@@ -323,10 +325,14 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsVoucherType = VoucherType.SalesReturn_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     k.AccountsTransactionsUserId = 0;
+                    k.AccountsTransactionsAccNo = "";
                     return k;
                 }).ToList();
                 _Context.AccountsTransactions.AddRange(accountsTransactions);
                 _Context.SaveChanges();
+
+
+
 
                 List<StockRegister> sr = new List<StockRegister>();
                
