@@ -8417,7 +8417,7 @@ namespace Inspire.Erp.Infrastructure.Database
                                 .HasMaxLength(100)
                                 .IsUnicode(false);
 
-                    entity.Property(e => e.OpeningStockVoucherDetailsUnitId).HasColumnType("numeric(18, 4)");
+                    entity.Property(e => e.OpeningStockVoucherDetailsUnitId).HasColumnName("OpeningStockVoucherDetailsUnitId");
 
                     entity.Property(e => e.OpeningStockVoucherDetailsAmount).HasColumnType("numeric(18, 4)");
                     entity.Property(e => e.OpeningStockVoucherDetailsCost).HasColumnType("numeric(18, 4)");
@@ -13168,7 +13168,11 @@ namespace Inspire.Erp.Infrastructure.Database
             {
                 //entity.HasNoKey();
 
-                entity.ToTable("Proforma_Invoice_Details");
+
+                entity.ToTable("Proforma_Invoice_DetailsV2");
+                entity.Property(e => e.ProformaInvoiceDetailsId).
+                HasColumnName("Proforma_Invoice_Details_ID")
+                 .ValueGeneratedOnAdd();
 
                 entity.Property(e => e.ProformaInvoiceDetailsAmount).HasColumnName("Proforma_Invoice_Details_Amount");
 
@@ -13184,8 +13188,6 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.ProformaInvoiceDetailsFcAmount).HasColumnName("Proforma_Invoice_Details_FC_Amount");
 
                 entity.Property(e => e.ProformaInvoiceDetailsFsno).HasColumnName("Proforma_Invoice_Details_FSNO");
-
-                entity.Property(e => e.ProformaInvoiceDetailsId).HasColumnName("Proforma_Invoice_Details_ID");
 
                 entity.Property(e => e.ProformaInvoiceDetailsIsEdited).HasColumnName("Proforma_Invoice_Details_IsEdited");
 
