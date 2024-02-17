@@ -31,7 +31,9 @@ namespace Inspire.Erp.Application.Settings.Implementations
             {
                 List<GetMenusResponse> model = new List<GetMenusResponse>();
 
-                var menu = await _menu.GetAsQueryable().Include(x=>x.MenusWorkgroupDetails).Where(x => x.MenusWorkgroupDetails.Where(c => c.WorkgroupId == id).Count() > 0).ToListAsync();
+                var menu = await _menu.GetAsQueryable().ToListAsync();
+                //Include(x=>x.MenusWorkgroupDetails).Where(x => x.MenusWorkgroupDetails.Where(c => c.WorkgroupId == id).Count() > 0).ToListAsync();
+
                 model = menu.Select(x => new GetMenusResponse()
                 {
                     Action = x.Action,
@@ -45,15 +47,55 @@ namespace Inspire.Erp.Application.Settings.Implementations
                     Title=x.Title,
                     Page=x.Page,
                     Order=x.Order,
-                    
-                }).OrderBy(x=>x.Order).ToList();
+                 }).OrderBy(x=>x.Order).ToList();
 
-                return Response<List<GetMenusResponse>>.Success(model, "Records FOund.");
+                var allItems = new List<GetMenusResponse>();
+                foreach (var pageItem in model)
+                {
+                    var item = new GetMenusResponse()
+                    {
+                        Action = pageItem.Action,
+                        Controller = pageItem.Controller,
+                        CreatedAt = pageItem.CreatedAt,
+                        IconClass = pageItem.IconClass,
+                        Id = pageItem.Id,
+                        IsDeleted = pageItem.IsDeleted,
+                        ParentId = pageItem.ParentId,
+                        RouteUrl = pageItem.RouteUrl,
+                        Title = pageItem.Title,
+                        Page = pageItem.Page,
+                        Order = pageItem.Order,
+                    };
+                    
+                    var parent = allItems.Where(pi => pi.Id == item.ParentId).SingleOrDefault();
+                    if (parent == null)
+                    {
+                        allItems.Add(item);
+                    }
+                    else
+                    {
+                        if (parent.Items == null)
+                            parent.Items = new List<GetMenusResponse>();
+                        parent.Items.Add(item);
+                    }
+                }
+
+                return Response<List<GetMenusResponse>>.Success(allItems, "Records FOund.");
             }
             catch (Exception ex)
             {
                 return Response<List<GetMenusResponse>>.Fail(new List<GetMenusResponse>(), ex.Message);
             }
+
+            //public IEnumerable<Location> GetChild(int id)
+            //{
+            //    DBEntities db = new DBEntities();
+            //    var locations = db.Locations.Where(x => x.ParentLocationID == id || x.LocationID == id).ToList();
+
+            //    var child = locations.AsEnumerable().Union(
+            //                                db.Locations.AsEnumerable().Where(x => x.ParentLocationID == id).SelectMany(y => GetChild(y.LocationId))).ToList();
+            //    return child;
+            //}
         }
     }
 }

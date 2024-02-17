@@ -17,5 +17,6 @@ namespace Inspire.Erp.Domain.Models.Settings
         public string IconClass { get; set; }
         public int? Order { get; set; }
         public string Page { get; set; }
+        public List<GetMenusResponse> Items { get; set; }
     }
 }
