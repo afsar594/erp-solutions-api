@@ -243,7 +243,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 }
                 if (filter.Enquiry_No != null)
                 {
-                    filteredValue += $" && EnquiryMasterEnquiryId == {filter.Enquiry_No} ";
+                    filteredValue += $" && EnquiryMasterEnquiryId == \"{filter.Enquiry_No}\" ";
+
                 }
                 if (!string.IsNullOrEmpty(filter.fromDate) && !string.IsNullOrEmpty(filter.toDate))
                 {
