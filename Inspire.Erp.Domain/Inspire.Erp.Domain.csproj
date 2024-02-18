@@ -758,4 +758,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="DTO\Work Group Permission\" />
+  </ItemGroup>
+
 </Project>
