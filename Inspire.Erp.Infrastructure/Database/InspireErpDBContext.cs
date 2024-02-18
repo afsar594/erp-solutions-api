@@ -23283,7 +23283,12 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<WorkGroupPermissions>(entity =>
             {
-                entity.HasNoKey();
+
+                entity.HasKey(c => c.WorkGroupPermissionsSno);
+
+                entity.Property(e => e.WorkGroupPermissionsSno)
+                   .HasColumnName("WorkGroup_Permissions_Sno")
+                   .ValueGeneratedOnAdd();
 
                 entity.ToTable("WorkGroup_Permissions");
 
@@ -23293,9 +23298,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.WorkGroupPermissionsFormId).HasColumnName("WorkGroup_Permissions_Form_ID");
 
-                entity.Property(e => e.WorkGroupPermissionsSno)
-                    .HasColumnName("WorkGroup_Permissions_Sno")
-                    .ValueGeneratedOnAdd();
+               
 
                 entity.Property(e => e.WorkGroupPermissionsUadd).HasColumnName("WorkGroup_Permissions_UAdd");
 
