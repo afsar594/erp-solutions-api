@@ -9,6 +9,6 @@ namespace Inspire.Erp.Application.Settings.Interfaces
 {
     public interface IMenuService
     {
-        Task<Response<List<GetMenusResponse>>> GetMenusByWorkgroupId(int id = 0);
+        Task<Response<List<GetPrimeMenusResponse>>> GetMenusByWorkgroupId(int id = 0);
     }
 }
