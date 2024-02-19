@@ -18,6 +18,7 @@ using Inspire.Erp.Domain.Modals.Sales;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Infrastructure.Database;
+using SendGrid.Helpers.Mail;
 
 
 namespace Inspire.Erp.Application.Sales.Implementations
@@ -316,7 +317,16 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 //_salesVoucherDetailsRepository.InsertList(salesVoucherDetails);
 
                 //accunt transaction entries for sales
-                 createAccountTransactionEntries(salesVoucher, accountsTransactions);
+                //createAccountTransactionEntries(salesVoucher, accountsTransactions);
+
+                accountsTransactions = accountsTransactions.Select((k) =>
+                {
+                    k.AccountsTransactionsVoucherNo = salesVoucherNumber;
+                    k.AccountsTransactionsVoucherType = VoucherType.SalesVoucher_TYPE;
+                    k.AccountsTransactionsStatus = AccountStatus.Approved;
+                    return k;
+                }).ToList();
+                _accountTransactionRepository.InsertList(accountsTransactions);
 
                 stockRegister = stockRegister.Select((k) =>
                 {
