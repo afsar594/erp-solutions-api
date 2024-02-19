@@ -322,7 +322,6 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsVoucherNo = salesReturn.SalesReturnNo;
                     k.AccountsTransactionsVoucherType = VoucherType.SalesReturn_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
-                    k.AccountsTransactionsUserId = 0;
                     return k;
                 }).ToList();
                 _Context.AccountsTransactions.AddRange(accountsTransactions);
