@@ -137,5 +137,20 @@ namespace Inspire.Erp.Application.Settings.Implementations
             //    return child;
             //}
         }
+
+        public Task<bool> SaveMenu()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> DeleteMenu()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> UpdateMenu()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

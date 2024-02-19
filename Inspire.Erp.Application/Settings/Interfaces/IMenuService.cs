@@ -10,5 +10,8 @@ namespace Inspire.Erp.Application.Settings.Interfaces
     public interface IMenuService
     {
         Task<Response<List<GetPrimeMenusResponse>>> GetMenusByWorkgroupId(int id = 0);
+        Task<bool> SaveMenu();
+        Task<bool> DeleteMenu();
+        Task<bool> UpdateMenu();
     }
 }
