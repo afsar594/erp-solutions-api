@@ -19,4 +19,16 @@ namespace Inspire.Erp.Domain.Models.Settings
         public string Page { get; set; }
         public List<GetMenusResponse> Items { get; set; }
     }
+
+
+    public class GetPrimeMenusResponse
+    {
+        public int Id { get; set; }
+        public string Label { get; set; }
+        public string Target { get; set; }
+        public string Url { get; set; }
+        public string Icon { get; set; }
+        public string Title { get; set; }
+        public List<GetPrimeMenusResponse> Items { get; set; }
+    }
 }

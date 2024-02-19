@@ -28,17 +28,28 @@ namespace Inspire.Erp.Application.Settings.Implementations
         }
 
 
-        private List<GetMenusResponse> AddChildMenuItems(List<GetMenusResponse> allItems, GetMenusResponse parentMenu)
+        private List<GetPrimeMenusResponse> AddChildMenuItems(List<GetMenusResponse> allItems, GetMenusResponse parentMenu)
         {
             var childs = allItems.Where(y=>y.ParentId==parentMenu.Id).OrderBy(x => x.Order).ToList();
+            List<GetPrimeMenusResponse> subChilds = new List<GetPrimeMenusResponse>();
             foreach (GetMenusResponse child in childs)
             {
-                child.Items = new List<GetMenusResponse>();
-                child.Items=this.AddChildMenuItems(allItems, child).ToList();
+                var item = new GetPrimeMenusResponse()
+                {
+                    Target = child.Action,
+                    Icon = child.IconClass,
+                    Id = child.Id,
+                    Url = child.RouteUrl,
+                    Title = child.Title,
+                    Label = child.Title,
+                };
+                item.Items = new List<GetPrimeMenusResponse>();
+                item.Items=this.AddChildMenuItems(allItems, child).ToList();
+                subChilds.Add(item);
             }
-            return childs;
+            return subChilds;
         }
-        public async Task<Response<List<GetMenusResponse>>> GetMenusByWorkgroupId(int id = 0)
+        public async Task<Response<List<GetPrimeMenusResponse>>> GetMenusByWorkgroupId(int id = 0)
         {
             try
             {
@@ -77,25 +88,20 @@ namespace Inspire.Erp.Application.Settings.Implementations
                     Order = x.Order,
                 }).OrderBy(x => x.Order).ToListAsync();
 
-              
+                List<GetPrimeMenusResponse> menus = new List<GetPrimeMenusResponse>();
                 foreach (var pageItem in topMenu)
                 {
-                    //var item = new GetMenusResponse()
-                    //{
-                    //    Action = pageItem.Action,
-                    //    Controller = pageItem.Controller,
-                    //    CreatedAt = pageItem.CreatedAt,
-                    //    IconClass = pageItem.IconClass,
-                    //    Id = pageItem.Id,
-                    //    IsDeleted = pageItem.IsDeleted,
-                    //    ParentId = pageItem.ParentId,
-                    //    RouteUrl = pageItem.RouteUrl,
-                    //    Title = pageItem.Title,
-                    //    Page = pageItem.Page,
-                    //    Order = pageItem.Order,
-                    //};
+                    var item = new GetPrimeMenusResponse()
+                    {
+                        Target = pageItem.Action,
+                        Icon = pageItem.IconClass,
+                        Id = pageItem.Id,
+                        Url = pageItem.RouteUrl,
+                        Title = pageItem.Title,
+                        Label = pageItem.Title,
+                       };
 
-                    //allItems.Add(item);
+                 
 
                     //var parent = allItems.Where(pi => pi.Id == item.ParentId).SingleOrDefault();
                     //if (parent == null)
@@ -109,15 +115,16 @@ namespace Inspire.Erp.Application.Settings.Implementations
                     //    parent.Items.Add(item);
                     //}
 
-                    pageItem.Items=new List<GetMenusResponse>();
-                    pageItem.Items = this.AddChildMenuItems(allItems, pageItem);
+                    item.Items=new List<GetPrimeMenusResponse>();
+                    item.Items = this.AddChildMenuItems(allItems, pageItem);
+                    menus.Add(item);
                 }
 
-                return Response<List<GetMenusResponse>>.Success(topMenu, "Records FOund.");
+                return Response<List<GetPrimeMenusResponse >>.Success(menus, "Records FOund.");
             }
             catch (Exception ex)
             {
-                return Response<List<GetMenusResponse>>.Fail(new List<GetMenusResponse>(), ex.Message);
+                return Response<List<GetPrimeMenusResponse>>.Fail(new List<GetPrimeMenusResponse>(), ex.Message);
             }
 
             //public IEnumerable<Location> GetChild(int id)
