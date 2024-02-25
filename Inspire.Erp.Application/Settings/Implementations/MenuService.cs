@@ -138,19 +138,55 @@ namespace Inspire.Erp.Application.Settings.Implementations
             //}
         }
 
-        public Task<bool> SaveMenu()
+        public async Task<Response<Menu>> SaveMenu(Menu menu)
         {
-            throw new NotImplementedException();
+            _menu.Insert(menu);
+            return new Response<Menu>
+            {
+                Result = this.GetMenuById(menu.Id),
+                Message = "Menu Save Successfuly",
+                Valid = true,
+
+            };          
+        }
+ 
+        public Menu GetMenuById(int id)
+        {
+           return _menu.GetAsQueryable().Where(m => m.Id == id).FirstOrDefault();
         }
 
-        public Task<bool> DeleteMenu()
+        public async Task<Response<Menu>> DeleteMenu(int id)
         {
-            throw new NotImplementedException();
+           var menu = _menu.GetAsQueryable().Where(m => m.Id == id).FirstOrDefault();
+               menu.IsDeleted = true;
+              _menu.Update(menu);
+             return new Response<Menu>
+            {
+                Result = this.GetMenuById(menu.Id),
+                Message = "Menu Delete Successfuly",
+                Valid = true,
+            };
         }
 
-        public Task<bool> UpdateMenu()
+        public async Task<Response<Menu>> UpdateMenu(Menu menu)
         {
-            throw new NotImplementedException();
+            _menu.Update(menu);
+            return new Response<Menu>
+            {
+                Result = this.GetMenuById(menu.Id),
+                Message = "Menu Update Successfuly",
+                Valid = true,
+            };
+        }
+
+        public async Task<Response<List<Menu>>> MenuList()
+        {
+            return new Response<List<Menu>>
+            {
+                Result = _menu.GetAll().ToList(),
+                Valid = true,
+                Message = "Data Found"
+            };
         }
     }
 }

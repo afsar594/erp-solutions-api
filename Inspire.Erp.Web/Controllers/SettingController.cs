@@ -1,5 +1,6 @@
 ﻿using Inspire.Erp.Application.Common;
 using Inspire.Erp.Application.Settings.Interfaces;
+using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Modals.Common;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +23,35 @@ namespace Inspire.Erp.Web.Controllers
         {
             return Ok(await _menuService.GetMenusByWorkgroupId(id));
         }
+
+        [HttpPost("GetAllMenuList")]
+        public async Task<IActionResult> MenuList()
+        {
+            return Ok(await _menuService.MenuList());
+        }
+
+        [HttpPost("GetSavedMenuById/{id}")]
+        public async Task<IActionResult> GetSavedMenuById(int Id)
+        {
+            return Ok(_menuService.GetMenuById(Id));
+        }
+        [HttpPost("InsertMenu")]
+        public async Task<IActionResult> SaveMenu([FromBody] Menu menu)
+        {
+            return Ok(await _menuService.SaveMenu(menu));
+        }
+        [HttpPost("UpdateMenu")]
+        public async Task<IActionResult> UpdateMenu([FromBody] Menu menu)
+        {
+            return Ok(await _menuService.UpdateMenu(menu));
+        }
+        [HttpPost("DeleteMenu")]
+        public async Task<IActionResult> DeleteMenu(int id)
+        {
+            return Ok(await _menuService.DeleteMenu(id));
+        }
+
+   
         #endregion
     }
 }
