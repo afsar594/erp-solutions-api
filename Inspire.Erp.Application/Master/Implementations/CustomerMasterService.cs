@@ -84,9 +84,9 @@ namespace Inspire.Erp.Application.Master
                     Entity = "Customer Master",
 
                 };
-                await _utilityService.AddUserTrackingLog(log);
+               // await _utilityService.AddUserTrackingLog(log);
                 #endregion
-                customerrepository.SaveChangesAsync();
+                 customerrepository.SaveChangesAsync();
                 _masterAccountTable.TransactionCommit();
 
             }

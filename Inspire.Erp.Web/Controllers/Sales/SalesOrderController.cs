@@ -60,15 +60,12 @@ namespace Inspire.Erp.Web.Controllers
                 //var xs = _salesOrderService.InsertSalesOrder(param1, param3, param2
                 //    //, param4
                 //    );
-
                 //==============
                 //param3 = new List<AccountsTransactions>();
                 List<StockRegister> param4 = new List<StockRegister>();
                 //clsAccountAndStock.SalesOrder_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
-
                 var xs = _salesOrderService.InsertSalesOrder(param1, param3, param2, param4);
                 //========================
-
                 CustomerPurchaseOrderViewModel salesVoucherViewModel = new CustomerPurchaseOrderViewModel
                 {
                     CustomerPurchaseOrderId = xs.customerPurchaseOrder.CustomerPurchaseOrderId,
