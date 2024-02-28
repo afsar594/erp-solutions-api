@@ -7,6 +7,7 @@ namespace Inspire.Erp.Domain.Entities
     public partial class ProformaInvoice
     {
         public int? ProformaInvoiceId { get; set; }
+        public string? ContectPerson { get; set; }
         public DateTime? ProformaInvoiceDate { get; set; }
         public int? ProformaInvoiceLocationId { get; set; }
         public int? ProformaInvoiceCustCode { get; set; }

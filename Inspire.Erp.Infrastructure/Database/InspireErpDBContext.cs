@@ -13112,6 +13112,11 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasMaxLength(150)
                     .IsUnicode(false);
 
+                entity.Property(e => e.ContectPerson)
+                   .HasColumnName("ContectPerson")
+                   .HasMaxLength(150)
+                   .IsUnicode(false);
+
                 entity.Property(e => e.ProformaInvoicePacking)
                     .HasColumnName("Proforma_Invoice_Packing")
                     .HasMaxLength(100)
