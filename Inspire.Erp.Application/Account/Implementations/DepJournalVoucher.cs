@@ -122,6 +122,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _journalVoucherRepository.BeginTransaction();
                 string jvno = this.GenerateVoucherNo(journalVoucher.JournalVoucherDate).VouchersNumbersVNo;
                 journalVoucher.JournalVoucherVrefNo = jvno;
+                journalVoucher.JournalVoucherType = "DEPJV";
                 int maxcount = 0;
                 maxcount = Convert.ToInt32(
                     _journalVoucherRepository.GetAsQueryable()
