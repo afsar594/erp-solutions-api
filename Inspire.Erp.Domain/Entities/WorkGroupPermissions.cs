@@ -6,7 +6,9 @@ namespace Inspire.Erp.Domain.Entities
     public partial class WorkGroupPermissions
     {
         public int WorkGroupPermissionsSno { get; set; }
-        public int? WorkGroupPermissionsFormId { get; set; }
+       // public int? WorkGroupPermissionsFormId { get; set; }
+        public int? WorkGroupPermissionsMenuId { get; set; }
+
         public int? WorkGroupPermissionsWorkGroupId { get; set; }
         public bool? WorkGroupPermissionsUallow { get; set; }
         public bool? WorkGroupPermissionsUadd { get; set; }
