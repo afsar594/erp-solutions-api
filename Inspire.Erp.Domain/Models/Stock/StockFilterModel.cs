@@ -9,8 +9,8 @@ namespace Inspire.Erp.Domain.Modals.Stock
         public bool IsDateChecked { get; set; }
         public DateTime fromDate { get; set; }
         public DateTime toDate { get; set; }
-        public int? ItemId { get; set; }
-        public string ItemGroupId { get; set; }
+        public long? ItemId { get; set; }
+        public long? ItemGroupId { get; set; }
         public string ItemName { get; set; }
         public string PartNo { get; set; }
         public int? LocationId { get; set; }

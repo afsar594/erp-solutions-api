@@ -38,7 +38,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 string qry = string.Empty;
                 string itemQry = string.Empty;
                 if (sFilter.LocationId > 0) qry += $" and StockRegisterLocationID = {sFilter.LocationId}";
-                if (!string.IsNullOrWhiteSpace(sFilter.ItemGroupId)) itemQry += $" and ItemMasterAccountNo = {sFilter.ItemGroupId}";
+                if (!string.IsNullOrWhiteSpace(sFilter.ItemGroupId.ToString())) itemQry += $" and ItemMasterAccountNo = {sFilter.ItemGroupId}";
                 if (!string.IsNullOrWhiteSpace(sFilter.PartNo)) itemQry += $" and ItemMasterPartNo = {sFilter.PartNo}";
                 if (sFilter.ItemId > 0) itemQry += $" and ItemMasterItemId = {sFilter.ItemId}";
 

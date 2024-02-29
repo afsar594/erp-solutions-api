@@ -49,11 +49,11 @@ namespace Inspire.Erp.Web.Controllers.Store
         }
 
         [HttpPost]
-        [Route("GetStockReportBaseUnitList")]
-        public async Task<IActionResult> GetStockReportBaseUnitList(StockFilterModel model)
+        [Route("GetStockReportBaseUnit")]
+        public async Task<IActionResult> GetStockReportBaseUnit(StockFilterModel model)
         {
 
-            var results = await _openingStockService.GetStockReportBaseUnitList(model);
+            var results = await _openingStockService.GetStockReportBaseUnit(model);
             return Ok(results);
             //ApiResponse<List<StockReportBaseUnitResponse>> apiResponse = new ApiResponse<List<StockReportBaseUnitResponse>>
             //{

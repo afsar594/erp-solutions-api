@@ -210,7 +210,6 @@ namespace Inspire.Erp.Web.Controllers
             }
            
             var model = _mapper.Map<ItemMaster>(itemMaster);
-          
             var data = (itemMaster.ItemMasterItemId == null || itemMaster.ItemMasterItemId == 0)? itemMasterService.InsertItem(model):itemMasterService.UpdateItem(model);
             List<ItemMasterViewModel> result =  _mapper.Map<List<ItemMasterViewModel>>(data) ;
             ApiResponse<List<ItemMasterViewModel>> apiResponse = new ApiResponse<List<ItemMasterViewModel>>
