@@ -18,13 +18,13 @@ namespace Inspire.Erp.Application.Settings.Implementations
     {
 
         private IRepository<WorkGroupPermissions> _groupPermissions;
-        private IRepository<FormNames> _formNames;
+        private IRepository<Menu> _menus;
 
 
-        public PermissionSettingService(IRepository<WorkGroupPermissions> groupPermissions, IRepository<FormNames> formNames)
+        public PermissionSettingService(IRepository<WorkGroupPermissions> groupPermissions, IRepository<Menu> menus)
         {
             _groupPermissions = groupPermissions;
-            _formNames = formNames;
+            _menus = menus;
             
         }
         public Response<List<WorkGroupPermissionsDto>> GetPermissionSetting(int? groupId)
@@ -32,18 +32,18 @@ namespace Inspire.Erp.Application.Settings.Implementations
             List<WorkGroupPermissionsDto> permissionList = new List<WorkGroupPermissionsDto>();
 
             permissionList = (from wgp in _groupPermissions.GetAsQueryable().Where(x => x.WorkGroupPermissionsWorkGroupId == groupId)
-                              join fn in _formNames.GetAsQueryable() on wgp.WorkGroupPermissionsFormId equals fn.FormNamesId into fnGroup
-                              from fn in fnGroup.DefaultIfEmpty()
+                              join me in _menus.GetAsQueryable() on wgp.WorkGroupPermissionsMenuId equals me.Id into meGroup
+                              from me in meGroup.DefaultIfEmpty()
                               select new WorkGroupPermissionsDto
                               {
-                                  WorkGroupPermissionsFormName = fn.FormNamesName,
+                                  WorkGroupPermissionsMenuName = me.Title,
                                   WorkGroupPermissionsUadd = wgp.WorkGroupPermissionsUadd,
                                   WorkGroupPermissionsUallow = wgp.WorkGroupPermissionsUallow,
                                   WorkGroupPermissionsUdelete = wgp.WorkGroupPermissionsUdelete,
                                   WorkGroupPermissionsUview =   wgp.WorkGroupPermissionsUview,
                                   WorkGroupPermissionsUprint = wgp.WorkGroupPermissionsUprint,
                                   WorkGroupPermissionsUedit = wgp.WorkGroupPermissionsUedit,
-                                  WorkGroupPermissionsFormId = wgp.WorkGroupPermissionsFormId,
+                                  WorkGroupPermissionsMenuId = wgp.WorkGroupPermissionsMenuId,
                                   WorkGroupPermissionsWorkGroupId = wgp.WorkGroupPermissionsWorkGroupId,
                                  
 
