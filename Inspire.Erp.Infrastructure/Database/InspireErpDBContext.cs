@@ -6031,10 +6031,11 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<CustomerQuotation>(entity =>
             {
-                entity.HasKey(e => e.CustomerQuotationQid);
-
                 entity.ToTable("Customer_Quotation");
 
+                entity.HasKey(e => e.CustomerQuotationQid);
+
+                
                 entity.Property(e => e.CustomerQuotationQid).
                 HasColumnName("Customer_Quotation_QID");
 
