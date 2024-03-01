@@ -10,7 +10,7 @@ namespace Inspire.Erp.Domain.Entities
             AccountsTransactions = new HashSet<AccountsTransactions>();
             BankPaymentVoucherDetails = new HashSet<BankPaymentVoucherDetails>();
             BankReceiptVoucherDetails = new HashSet<BankReceiptVoucherDetails>();
-            CustomerQuotationDetails = new HashSet<CustomerQuotationDetails>();
+            //CustomerQuotationDetails = new HashSet<CustomerQuotationDetails>();
             EnquiryDetails = new HashSet<EnquiryDetails>();
             JournalInvoiceDetails = new HashSet<JournalInvoiceDetails>();
             OpeningVoucherDetails = new HashSet<OpeningVoucherDetails>();
@@ -38,7 +38,7 @@ namespace Inspire.Erp.Domain.Entities
         public virtual ICollection<AccountsTransactions> AccountsTransactions { get; set; }
         public virtual ICollection<BankPaymentVoucherDetails> BankPaymentVoucherDetails { get; set; }
         public virtual ICollection<BankReceiptVoucherDetails> BankReceiptVoucherDetails { get; set; }
-        public virtual ICollection<CustomerQuotationDetails> CustomerQuotationDetails { get; set; }
+        //public virtual ICollection<CustomerQuotationDetails> CustomerQuotationDetails { get; set; }
         public virtual ICollection<EnquiryDetails> EnquiryDetails { get; set; }
         public virtual ICollection<JournalInvoiceDetails> JournalInvoiceDetails { get; set; }
         public virtual ICollection<OpeningVoucherDetails> OpeningVoucherDetails { get; set; }

@@ -6031,10 +6031,11 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<CustomerQuotation>(entity =>
             {
-                entity.HasKey(e => e.CustomerQuotationQid);
-
                 entity.ToTable("Customer_Quotation");
 
+                entity.HasKey(e => e.CustomerQuotationQid);
+
+                
                 entity.Property(e => e.CustomerQuotationQid).
                 HasColumnName("Customer_Quotation_QID");
 
@@ -13111,6 +13112,11 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnName("Proforma_Invoice_Note")
                     .HasMaxLength(150)
                     .IsUnicode(false);
+
+                entity.Property(e => e.ContectPerson)
+                   .HasColumnName("ContectPerson")
+                   .HasMaxLength(150)
+                   .IsUnicode(false);
 
                 entity.Property(e => e.ProformaInvoicePacking)
                     .HasColumnName("Proforma_Invoice_Packing")
@@ -23296,7 +23302,9 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.WorkGroupPermissionsFormType).HasColumnName("WorkGroup_Permissions_FormType");
 
-                entity.Property(e => e.WorkGroupPermissionsFormId).HasColumnName("WorkGroup_Permissions_Form_ID");
+               // entity.Property(e => e.WorkGroupPermissionsFormId).HasColumnName("WorkGroup_Permissions_Form_ID");
+                
+                entity.Property(e => e.WorkGroupPermissionsMenuId).HasColumnName("WorkGroup_Permissions_Menu_ID");
 
                
 

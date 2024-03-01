@@ -15,10 +15,10 @@ namespace Inspire.Erp.Application.Sales.Interfaces
         //public PaymentVoucher InsertPaymentVoucher(PaymentVoucher paymentVoucher,
         //  List<PaymentVoucherDetails> paymentVoucherDetails);
 
-        public CustomerQuotationModel InsertCustomerQuotation(CustomerQuotation customerQuotation);
-        public CustomerQuotationModel UpdateCustomerQuotation(CustomerQuotation customerQuotation);
+        public CustomerQuotation InsertCustomerQuotation(CustomerQuotation customerQuotation, List<CustomerQuotationDetails> customerQuotationDetails );
+        public CustomerQuotation UpdateCustomerQuotation(CustomerQuotation customerQuotation, List<CustomerQuotationDetails> customerQuotationDetails);
         public int DeleteCustomerQuotation(CustomerQuotation customerQuotation);
-        public CustomerQuotationModel GetSavedCustQuotationDetails(string Qtno); 
+        public CustomerQuotation GetSavedCustQuotationDetails(string Qtno); 
         public IEnumerable<CustomerQuotation> GetCustomerQuotation();
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
 
