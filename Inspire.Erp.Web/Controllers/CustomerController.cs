@@ -241,10 +241,10 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpPost]
         [Route("UpdateCustomer")]
-        public List<CustomerMasterViewModel> UpdateCustomer([FromBody] CustomerMasterViewModel customerMaster)
+        public async Task<List<CustomerMasterViewModel>> UpdateCustomer([FromBody] CustomerMasterViewModel customerMaster)
         {
             var result = _mapper.Map<CustomerMaster>(customerMaster);
-            return customerMasterService.UpdateCustomer(result).Select(k => new CustomerMasterViewModel
+            var data = (await customerMasterService.UpdateCustomer(result)).Select(k => new CustomerMasterViewModel
             {
                 CustomerMasterCustomerNo = k.CustomerMasterCustomerNo,
                 CustomerMasterCustomerTitle = k.CustomerMasterCustomerTitle,
@@ -289,6 +289,9 @@ namespace Inspire.Erp.Web.Controllers
                 CustomerMasterCustomerCtTypeId = k.CustomerMasterCustomerCtTypeId,
                 CustomerMasterCustomerDelStatus = k.CustomerMasterCustomerDelStatus
             }).ToList();
+
+            return data;
+
         }
 
         [HttpPost]
