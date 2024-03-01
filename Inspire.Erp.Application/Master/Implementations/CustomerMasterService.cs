@@ -34,18 +34,17 @@ namespace Inspire.Erp.Application.Master
 
             try
             {
-
-                  _masterAccountTable.BeginTransaction();
+                _masterAccountTable.BeginTransaction();
                 var fs = await _utilityService.GetFinancialPeriods();
                 valid = true;
                 int mxc = 0;
-                var maxId = _masterAccountTable.GetAsQueryable().Max(x => x.MaSno);
-                var masterAccount = _masterAccountTable.GetAsQueryable().Where(x => x.MaAccNo == DeptorsRelativeNo).FirstOrDefault();
+                var maxId = _masterAccountTable.GetAsQueryable().AsNoTracking().Max(x => x.MaSno);
+                var masterAccount = _masterAccountTable.GetAsQueryable().AsNoTracking().Where(x => x.MaAccNo == DeptorsRelativeNo).FirstOrDefault();
                 var cusAccNo = string.Empty;
                 MasterAccountsTable masterAccountsTable = null;
                 if (customerMaster.IsCreateAccount)
                 {
-                    var count = _masterAccountTable.GetAsQueryable().Where(x => x.MaRelativeNo == DeptorsRelativeNo).ToList().Count();
+                    var count = _masterAccountTable.GetAsQueryable().AsNoTracking().Where(x => x.MaRelativeNo == DeptorsRelativeNo).ToList().Count()+1;
                     cusAccNo = count.ToString().Length == 1 ? "00" + count : count.ToString().Length == 2 ? "0" + count : count.ToString();
                     cusAccNo = masterAccount.MaAccNo + cusAccNo;
                     masterAccountsTable = new MasterAccountsTable()
@@ -63,10 +62,9 @@ namespace Inspire.Erp.Application.Master
                         MaSno = maxId + 1,
                         MaDateCreated = DateTime.Now,
                         MaStatus = "R",
-
                     };
                 }
-                mxc = customerrepository.GetAsQueryable().Where(k => k.CustomerMasterCustomerNo != null).Select(x => x.CustomerMasterCustomerNo).Max();
+                mxc = customerrepository.GetAsQueryable().AsNoTracking().Where(k => k.CustomerMasterCustomerNo != null).Select(x => x.CustomerMasterCustomerNo).Max();
                 //if (mxc == null) { mxc = 1; } else { mxc = mxc + 1; }
                 mxc = mxc == null ? 1 : mxc + 1;
                 customerMaster.CustomerMasterCustomerNo = mxc;
@@ -74,7 +72,8 @@ namespace Inspire.Erp.Application.Master
                 customerrepository.Insert(customerMaster);
 
                 if (masterAccountsTable != null)
-                    await _utilityService.SaveMasterAccountTable(masterAccountsTable);
+                   // _masterAccountTable.Insert(masterAccountsTable);
+                   await _utilityService.SaveMasterAccountTable(masterAccountsTable);
 
                 #region ADD ACTIVITY LOGS
                 AddActivityLogViewModel log = new AddActivityLogViewModel()
@@ -82,7 +81,6 @@ namespace Inspire.Erp.Application.Master
                     Page = "Customer Master",
                     Section = "Add Customer Master",
                     Entity = "Customer Master",
-
                 };
                // await _utilityService.AddUserTrackingLog(log);
                 #endregion
