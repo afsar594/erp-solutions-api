@@ -705,7 +705,37 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 return Response<List<GetCustomerPurchaseOrderTrackingResponse>>.Fail(new List<GetCustomerPurchaseOrderTrackingResponse>(), ex.Message);
             }
         }
+    
+        public async Task<Response<List<CustomerSalesQuotation>>> GetCustomerQuotationStatuses(CustQuotationFilterModel model)
+        {
+            try
+            {
+                List<CustomerSalesQuotation> response = new List<CustomerSalesQuotation>();
 
+                var results = await (from cpo in _Context.CustomerQuotation
+                                     join cpods in _Context.CustomerQuotationDetails on cpo.CustomerQuotationQid equals cpods.CustomerQuotationDetailsQuotationId
+                                     into gdrq
+                                     from q in gdrq.DefaultIfEmpty()
+                                     where (model.CustomerId == 0 || model.CustomerId == null || cpo.CustomerQuotationCustomerId == model.CustomerId)
+                                     && (model.LocacationId == 0 || model.LocacationId == null || cpo.CustomerQuotationLocationId == model.LocacationId)
+                                     && ((model.DateFrom == null || model.DateTo == null) || (cpo.CustomerQuotationQuotationDate.Value.Date >= model.DateFrom && cpo.CustomerQuotationQuotationValidDate.Value.Date <= model.DateTo))
+                                     select new CustomerSalesQuotation
+                                     {
+                                         CustomerQuotationQid = cpo.CustomerQuotationQid,
+                                         CustomerQuotationVoucherNo = cpo.CustomerQuotationVoucherNo == null ? "" : cpo.CustomerQuotationVoucherNo,
+                                         CustomerQuotationDetailsCashCustomerName = cpo.CustomerQuotationCashCustomerName,
+                                         customerQuotationQuotationdate = cpo.CustomerQuotationQuotationDate,                                        
+                                         CustomerQuotationDetailsQty = q.CustomerQuotationDetailsQty,
+                                         CustomerQuotationDetailsUnitPrice = q.CustomerQuotationDetailsUnitPrice
+
+                                     }).ToListAsync();
+                return Response<List<CustomerSalesQuotation>>.Success(results, "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<List<CustomerSalesQuotation>>.Fail(new List<CustomerSalesQuotation>(), ex.Message);
+            }
+        }
 
 
     }

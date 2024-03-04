@@ -34,6 +34,7 @@ namespace Inspire.Erp.Application.Sales.Interfaces
         public Task<Response<List<GetCustomerPurchaseOrderTrackingResponse>>> GetCustomerPurchaseOrderTracking(CustPurchOrderFilterModel model);
 
         public Task<Response<List<GetCustomerPurchaseOrderTrackingResponse>>> GetCustomerPOStatuses(CustPurchOrderFilterModel model);
+        public Task<Response<List<CustomerSalesQuotation>>> GetCustomerQuotationStatuses(CustQuotationFilterModel model);
 
     }
 }
