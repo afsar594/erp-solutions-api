@@ -199,7 +199,6 @@ namespace Inspire.Erp.Application.Master
             }
             return customerMasters;
         }
-
         public IEnumerable<CustomerMaster> GetAllCustomerById(int id)
         {
             IEnumerable<CustomerMaster> customerMasters;
