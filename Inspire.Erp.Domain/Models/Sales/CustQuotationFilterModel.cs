@@ -12,7 +12,7 @@ namespace Inspire.Erp.Domain.Modals.Sales
         public int? ItemId { get; set; }
         public int? QuotationId { get; set; }
         public int? LocacationId { get; set; }
-        //public bool  IsbyDate { get; set; }
+        public bool  IsbyDate { get; set; }
         public DateTime? DateFrom { get; set; }
         public DateTime? DateTo { get; set; }
 
