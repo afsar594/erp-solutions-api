@@ -261,6 +261,30 @@ namespace Inspire.Erp.Application.Master
 
         }
 
+        public ItemMaster GetAllItemMasterByBarCode(string barCode)
+        {
+            ItemMaster itemMaster;
+            try
+            {
+                itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterBarcode == barCode && (k.ItemMasterDelStatus == false || k.ItemMasterDelStatus == null))
+                                                            .Include(k => k.ItemImages)
+                                                            .Include(k => k.ItemPriceLevelDetails)
+                                                            .Include(k => k.UnitDetails).Select(k => k).SingleOrDefault();
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+            finally
+            {
+                //cityrepository.Dispose();
+            }
+            return itemMaster;
+
+        }
+
 
         public IEnumerable<ItemMaster> GetItemMastersByName(string name)
         {

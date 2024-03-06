@@ -160,6 +160,25 @@ namespace Inspire.Erp.Web.Controllers
         }
 
 
+        [HttpGet]
+        [Route("GetAllItemMasterByBarCode/{barCode}")]
+        public ApiResponse<ItemMasterViewModel> GetAllItemMasterByBarCode(string barCode)
+        {
+            ItemMaster listItemnater = itemMasterService.GetAllItemMasterByBarCode(barCode);
+
+            var x = _mapper.Map<ItemMasterViewModel>(listItemnater);
+            ApiResponse<ItemMasterViewModel> apiResponse = new ApiResponse<ItemMasterViewModel>
+            {
+                Valid = true,
+                Result = x,
+                Message = ""
+            };
+
+            return apiResponse;
+
+        }
+
+
         //[HttpGet("{id}", Name = "GetAllItemByName")]
         [HttpGet]
         [Route("GetAllItemByName/{id}")]
