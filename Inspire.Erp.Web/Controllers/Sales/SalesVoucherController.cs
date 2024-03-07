@@ -482,7 +482,7 @@ namespace Inspire.Erp.Web.Controllers
         {
             SalesVoucherModel xs = _salesVoucherService.GetSavedSalesVoucherDetails(id);
 
-            if (xs != null)
+            if (xs.salesVoucher != null)
             {
                 SalesVoucherViewModel salesVoucherViewModel = new SalesVoucherViewModel
                 {
