@@ -55,5 +55,27 @@ namespace Inspire.Erp.Domain.Modals.Common
         public string fromDate { get; set; }
         public string toDate { get; set; }
     }
+    public class PurChaseRequisitionStatusFilterReport
+    {
+        public int JobId { get; set; }
+        public int ItemId { get; set; }
+        public string POStatus { get; set; }
+        public string PRNO { get; set; }
+        public bool ByDate { get; set; }
+        public string fromDate { get; set; }
+        public string toDate { get; set; }       
+    }
+    public class PurChaseRequisitionStatus
+    {
+        public int issueQty { get; set; }
+        public int BalToIssue { get; set; }
+        public int stock { get; set; }
+        public string ItemName { get; set; }
+        public string Unit { get; set; }
+        public string PartNo { get; set; }
+        public int DelQty { get; set; }
+        public string PoStatus { get; set; }
+        public DateTime RequisitionDate { get; set; }
+    }
 
 }
