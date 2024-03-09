@@ -55,10 +55,7 @@ namespace Inspire.Erp.WebReport.ReportEngine
 		
 		public CrystalReport()
 		{
-            string filePath = AppDomain.CurrentDomain.BaseDirectory + $@"bin\DbConnection\DSN.json";
-			var dbSettings = getDbSettingsFromJSonFle(filePath);
-            SetConnectionInfo(dbSettings.ServerName, dbSettings.UserName,dbSettings.Password, dbSettings.DBName, "");
-			SetDefaults();
+           
 		}
 
 	
@@ -812,10 +809,11 @@ namespace Inspire.Erp.WebReport.ReportEngine
 
 
 		
-		public HttpResponseMessage RenderReport(string PathReport, string SelectionFormula, string Namefile, List<Models.ReportParameters> reportParameters)
+		public HttpResponseMessage RenderReport(string PathReport, string SelectionFormula, string Namefile, List<Models.ReportParameters> reportParameters, DbConnectionModel dbSettings )
 		{
 			ReportDocument reportDoc;
-
+			SetConnectionInfo(dbSettings.ServerName, dbSettings.UserName, dbSettings.Password, dbSettings.DBName, "");
+			SetDefaults();
 
 			reportDoc = PrepareReport(PathReport);
 			if (reportDoc.ParameterFields.Count > 0 && reportParameters.Count > 0)
