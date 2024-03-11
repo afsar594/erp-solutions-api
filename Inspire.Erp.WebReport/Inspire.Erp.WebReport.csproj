@@ -242,6 +242,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ReportController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
+    <Compile Include="Cores\AllowCrossSiteAttribute.cs" />
     <Compile Include="CrystalReportEngine\ClientCacheWithEtagAttribute.cs" />
     <Compile Include="DisplayReport.aspx.cs">
       <DependentUpon>DisplayReport.aspx</DependentUpon>
