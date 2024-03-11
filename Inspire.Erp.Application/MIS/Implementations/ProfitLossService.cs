@@ -475,10 +475,6 @@ namespace Inspire.Erp.Application.MIS.Implementations
                          .OrderBy(t => t.AccName).ToListAsync();
 
 
-
-                
-
-
                 gridModel.ExpenseDetails = await (from ma in _masterAccount.GetAsQueryable().Where(y => y.MaMainHead.ToUpper() == "EXPENSES")
                                                   join at in _accountTrans.GetAsQueryable()
                                                                 .Where(x => x.AccountsTransactionsTransDate >= model.FromDate
@@ -505,8 +501,6 @@ namespace Inspire.Erp.Application.MIS.Implementations
                                            })
                   
                          .OrderBy(t => t.AccName).ToListAsync();
-
-    
 
                 //              var list = _accountTrans.GetAsQueryable().GroupBy(t => t.Id)
                 //.Select(t => new { ID = t.Key, Value = t.Sum(u => u.Value) }).ToList();

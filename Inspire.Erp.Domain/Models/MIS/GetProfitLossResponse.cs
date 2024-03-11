@@ -51,9 +51,6 @@ namespace Inspire.Erp.Domain.Modals.MIS
         public string StationMasterSignPath { get; set; }
         public string StationMasterVatNo { get; set; }
     }
-
-
-
     public class GetProfitAndLossResponse
     {
         public string Head { get; set; }

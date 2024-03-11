@@ -91,6 +91,7 @@ namespace Inspire.Erp.Application.MIS.Implementations
                     AccountsTransactionsCredit = Convert.ToDecimal(Convert.ToDecimal(profitloss.Result.Details[2].amount) + Convert.ToDecimal(profitloss.Result.Details[2].amount) / 2),
                     AccountsTransactionsDebit = Convert.ToDecimal(Convert.ToDecimal(profitloss.Result.Details[2].amount) - Convert.ToDecimal(profitloss.Result.Details[2].amount) / 2)
                 });
+
                 BalanceSheetSummaryList.Add(GetBalanceSheetDetailAsset(assets.Result, ref totalasset));
                 BalanceSheetSummaryList.Add(GetBalanceSheetDetailEquity(listequity, ref totalequity));
                 BalanceSheetSummaryList.Add(GetBalanceSheetDetailLiability(liabilities.Result, ref totalLiabilities));
