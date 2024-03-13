@@ -1,13 +1,4 @@
-﻿////using System;
-////using System.Collections.Generic;
-////using System.Text;
-
-////namespace Inspire.Erp.Application.Administration.Implementations
-////{
-////    class StationMasterServices
-////    {
-////    }
-////}
+﻿
 
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
@@ -16,92 +7,133 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Inspire.Erp.Domain.Modals;
+using System.Threading.Tasks;
 
 namespace Inspire.Erp.Application.Administration.Implementations
 {
     public class StationMasterService : IStationMasterServices
     {
-        private IRepository<StationMaster> stationrepository;
-        public StationMasterService(IRepository<StationMaster> _stationrepository)
+        private readonly IRepository<StationMaster> stationMaster;
+
+        public StationMasterService(IRepository<StationMaster> stationMaster)
         {
-            stationrepository = _stationrepository;
+            this.stationMaster = stationMaster;
         }
 
-        ////public IEnumerable<CurrencyMaster> InsertCurrency(CurrencyMaster currencyMaster)
-        ////{
-        ////    bool valid = false;
-        ////    try
-        ////    {
-        ////        valid = true;
-        ////        int mxc = 0;
-        ////        mxc = currencyrepository.GetAsQueryable().Where(k => k.CurrencyMasterCurrencyId != null).Select(x => x.CurrencyMasterCurrencyId).Max();
-        ////        if (mxc == null) { mxc = 1; } else { mxc = mxc + 1; }
+        public async Task<Response<List<StationMaster>>> DeleteStationMaster(StationMaster stationMaster)
+        {
+            try
+            {
+                await Task.Delay(1000);
+                var station = this.stationMaster.GetAll().FirstOrDefault(x => x.StationMasterCode == stationMaster.StationMasterCode);
+                station.StationMasterStationName = stationMaster.StationMasterStationName;
+                station.StationMasterAddress = stationMaster.StationMasterAddress;
+                station.StationMasterCity = stationMaster.StationMasterCity;
+                station.StationMasterPostOffice = stationMaster.StationMasterPostOffice;
+                station.StationMasterTele1 = stationMaster.StationMasterTele1;
+                station.StationMasterTele2 = stationMaster.StationMasterTele2;
+                station.StationMasterFax = stationMaster.StationMasterFax;
+                station.StationMasterEmail = stationMaster.StationMasterEmail;
+                station.StationMasterWebSite = stationMaster.StationMasterWebSite;
+                station.StationMasterCountry = stationMaster.StationMasterCountry;
+                station.StationMasterLogoPath = stationMaster.StationMasterLogoPath;
+                station.StationMasterSignPath = stationMaster.StationMasterSignPath;
+                station.StationMasterLogoImg = stationMaster.StationMasterLogoImg;
+                station.StationMasterSignImg = stationMaster.StationMasterSignImg;
+                station.StationMasterSealImg = stationMaster.StationMasterSealImg;
+                station.StationMasterVatNo = stationMaster.StationMasterVatNo;
+                station.StationMasterDelStatus = true;
+                this.stationMaster.Update(station);
+                return await GetStationMasters();
+            }
+            catch (Exception ex)
+            {
+                return Response<List<StationMaster>>.Fail(new List<StationMaster>(), ex.Message);
+            }
+        }
 
-        ////        currencyMaster.CurrencyMasterCurrencyId = mxc;
+        public async Task<Response<StationMaster>> GetStationMaster(int code)
+        {
+            try
+            {
+                await Task.Delay(1000);
+                var station = this.stationMaster.GetAll().FirstOrDefault(x => x.StationMasterCode == code);
+                return Response<StationMaster>.Fail(station, "Company were deleted successfully");
+            }
+            catch (Exception ex)
+            {
+                return Response<StationMaster>.Fail(new StationMaster(), ex.Message);
+            }
+        }
+        public async Task<Response<List<StationMaster>>> GetStationMasters()
+        {
+            try
+            {
+                await Task.Delay(1000);
+                return Response<List<StationMaster>>.Success(
+                    this.stationMaster.GetAll().ToList(),
+                    "Data found"
+                    );
+            }
+            catch (Exception ex)
+            {
+                return Response<List<StationMaster>>.Fail(new List<StationMaster>(), ex.Message);
+            }
+        }
 
-        ////        currencyrepository.Insert(currencyMaster);
-        ////    }
-        ////    catch (Exception ex)
-        ////    {
-        ////        valid = false;
-        ////        throw ex;
+        public async Task<Response<List<StationMaster>>> InsertStationMaster(StationMaster stationMaster)
+        {
+            try
+            {
+                await Task.Delay(1000);
+                //stationMaster.StationMasterCode = this.stationMaster.GetAll().Max(x => x.StationMasterCode) + 1;
+                this.stationMaster.Insert(stationMaster);
+                return await GetStationMasters();
+            }
+            catch (Exception ex)
+            {
+                return Response<List<StationMaster>>.Fail(new List<StationMaster>(), ex.Message);
+            }
+        }
 
-        ////    }
-        ////    finally
-        ////    {
-        ////        //currencyrepository.Dispose();
-        ////    }
-        ////    return this.GetAllCurrency();
-        ////}
-        ////public IEnumerable<CurrencyMaster> UpdateCurrency(CurrencyMaster currencyMaster)
-        ////{
-        ////    bool valid = false;
-        ////    try
-        ////    {
-        ////        currencyrepository.Update(currencyMaster);
-        ////        valid = true;
-
-        ////    }
-        ////    catch (Exception ex)
-        ////    {
-        ////        valid = false;
-        ////        throw ex;
-
-        ////    }
-        ////    finally
-        ////    {
-        ////        //currencyrepository.Dispose();
-        ////    }
-        ////    return this.GetAllCurrency();
-        ////}
-        ////public IEnumerable<CurrencyMaster> DeleteCurrency(CurrencyMaster currencyMaster)
-        ////{
-        ////    bool valid = false;
-        ////    try
-        ////    {
-        ////        currencyrepository.Delete(currencyMaster);
-        ////        valid = true;
-
-        ////    }
-        ////    catch (Exception ex)
-        ////    {
-        ////        valid = false;
-        ////        throw ex;
-
-        ////    }
-        ////    finally
-        ////    {
-        ////        //currencyrepository.Dispose();
-        ////    }
-        ////    return this.GetAllCurrency();
-        ////}
-
+        public async Task<Response<List<StationMaster>>> UpdateStationMaster(StationMaster stationMaster)
+        {
+            try
+            {
+                await Task.Delay(1000);
+                var station = this.stationMaster.GetAll().FirstOrDefault(x => x.StationMasterCode == stationMaster.StationMasterCode);
+                station.StationMasterStationName = stationMaster.StationMasterStationName;
+                station.StationMasterAddress = stationMaster.StationMasterAddress;
+                station.StationMasterCity = stationMaster.StationMasterCity;
+                station.StationMasterPostOffice = stationMaster.StationMasterPostOffice;
+                station.StationMasterTele1 = stationMaster.StationMasterTele1;
+                station.StationMasterTele2 = stationMaster.StationMasterTele2;
+                station.StationMasterFax = stationMaster.StationMasterFax;
+                station.StationMasterEmail = stationMaster.StationMasterEmail;
+                station.StationMasterWebSite = stationMaster.StationMasterWebSite;
+                station.StationMasterCountry = stationMaster.StationMasterCountry;
+                station.StationMasterLogoPath = stationMaster.StationMasterLogoPath;
+                station.StationMasterSignPath = stationMaster.StationMasterSignPath;
+                station.StationMasterLogoImg = stationMaster.StationMasterLogoImg;
+                station.StationMasterSignImg = stationMaster.StationMasterSignImg;
+                station.StationMasterSealImg = stationMaster.StationMasterSealImg;
+                station.StationMasterVatNo = stationMaster.StationMasterVatNo;
+                station.StationMasterDelStatus = stationMaster.StationMasterDelStatus;
+                this.stationMaster.Update(station);
+                return await GetStationMasters();
+            }
+            catch (Exception ex)
+            {
+                return Response<List<StationMaster>>.Fail(new List<StationMaster>(), ex.Message);
+            }
+        }
         public IEnumerable<StationMaster> GetAllStation()
         {
             IEnumerable<StationMaster> stationMasters;
             try
             {
-                stationMasters = stationrepository.GetAll();
+                stationMasters = this.stationMaster.GetAll().Where(x=>x.StationMasterDelStatus == false).ToList();
 
             }
             catch (Exception ex)
@@ -115,27 +147,6 @@ namespace Inspire.Erp.Application.Administration.Implementations
             }
             return stationMasters;
         }
-
-        ////public IEnumerable<CurrencyMaster> GetAllCurrencyById(int id)
-        ////{
-        ////    IEnumerable<CurrencyMaster> currencyMasters;
-        ////    try
-        ////    {
-        ////        currencyMasters = currencyrepository.GetAsQueryable().Where(k => k.CurrencyMasterCurrencyId == id).Select(k => k);
-
-        ////    }
-        ////    catch (Exception ex)
-        ////    {
-        ////        throw ex;
-
-        ////    }
-        ////    finally
-        ////    {
-        ////        //cityrepository.Dispose();
-        ////    }
-        ////    return currencyMasters;
-
-        ////}
 
     }
 }

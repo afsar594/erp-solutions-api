@@ -59,6 +59,7 @@ namespace Inspire.Erp.Web
                     Version = "v1",
                     Description = "Services offered by inspire solutions",
                 }); 
+
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     In = ParameterLocation.Header,
@@ -66,6 +67,7 @@ namespace Inspire.Erp.Web
                     Name = "Authorization",
                     Type = SecuritySchemeType.ApiKey
                 });
+
                 options.AddSecurityRequirement(new OpenApiSecurityRequirement {
                {
                  new OpenApiSecurityScheme

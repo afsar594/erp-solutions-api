@@ -45,6 +45,8 @@ namespace Inspire.Erp.Domain.Modals.AccountStatement
         public DateTime? AccountsTransactionsCheqDate { get; set; }
         public string AccountsTransactionsOpposEntryDesc { get; set; }
         public double? AccountsTransactionsAllocUpdateBal { get; set; }
+        public decimal? AccountsTransactionsAllocationbalance{ get; set; }
+
         public long? AccountsTransactionsDeptId { get; set; }
         public string AccountsTransactionsVatno { get; set; }
         public decimal? AccountsTransactionsVatableAmount { get; set; }

@@ -242,6 +242,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ReportController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
+    <Compile Include="Cores\AllowCrossSiteAttribute.cs" />
     <Compile Include="CrystalReportEngine\ClientCacheWithEtagAttribute.cs" />
     <Compile Include="DisplayReport.aspx.cs">
       <DependentUpon>DisplayReport.aspx</DependentUpon>
@@ -310,13 +311,6 @@
     <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\CollectionModelDescription.cshtml" />
     <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\ApiGroup.cshtml" />
     <Content Include="Areas\HelpPage\Views\Help\Api.cshtml" />
-    <Content Include="Reports\AccountSatement.rpt" />
-    <Content Include="Reports\PaymentVoucher.rpt" />
-    <Content Include="Reports\ReceiptVoucherCredit.rpt" />
-    <Content Include="Reports\RepTrialBalance.rpt" />
-    <Content Include="Reports\RepTrialBalanceFormat1.rpt" />
-    <Content Include="Reports\RepTrialBalanceFormat2.rpt" />
-    <Content Include="Reports\SalesVoucherVAT.rpt" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.4.1.js" />
     <Content Include="Scripts\jquery-3.4.1.min.js" />

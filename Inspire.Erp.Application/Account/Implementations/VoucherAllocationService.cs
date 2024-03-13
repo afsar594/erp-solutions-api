@@ -114,7 +114,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     AccountsTransactionsAllocDebit = x.AccountsTransactionsAllocDebit,
                     AccountsTransactionsAllocCredit = x.AccountsTransactionsAllocCredit,
                     AccountsTransactionsAllocUpdateBal = x.AccountsTransactionsAllocUpdateBal,
-
+                    AccountsTransactionsAllocationbalance = x.AccountsTransactionsDebit > 0 ? x.AccountsTransactionsDebit : x.AccountsTransactionsCredit
 
                 }).ToListAsync();
 
