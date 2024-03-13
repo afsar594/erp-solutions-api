@@ -17,6 +17,8 @@ using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Models.Procurement.PurchaseOrderTracking;
 using System.Threading.Tasks;
 using Inspire.Erp.Infrastructure.Database;
+using SendGrid.Helpers.Mail;
+using System.Linq.Dynamic.Core;
 
 namespace Inspire.Erp.Application.Procurement.Implementation
 {
@@ -32,7 +34,11 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private readonly IRepository<PermissionApproval> _permissionApprovalRepo;
         private readonly IRepository<Approval> _approvalRepo;
         private readonly IRepository<ApprovalDetail> _approvalDetailRepo;
-        public readonly InspireErpDBContext dbContext;
+         public readonly InspireErpDBContext dbContext;
+        private IRepository<IPurchaseOrderService> _purchaseOrderService;
+        private IRepository<AvIssueVoucherDetails> _AvIssueVoucherDetails;
+        private IRepository<AvIssueVoucher> _AvIssueVoucher;
+
 
         private IRepository<ItemMaster> _itemMasterRepository;
         private IRepository<UnitMaster> _unitMasterRepository;
@@ -45,9 +51,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<SuppliersMaster> suppliersMasterRepository, IRepository<LocationMaster> locationMasterRepository,
             IRepository<PermissionApproval> permissionApprovalRepo, IRepository<Approval> approvalRepo, IRepository<ApprovalDetail> approvalDetailRepo,
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
-             IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
+            IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
+           
 
-            IRepository<PurchaseRequisition> purchaseRequisitionRepository, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository)
+        IRepository<PurchaseRequisition> purchaseRequisitionRepository, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository;
@@ -57,12 +64,13 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _voucherNumbersRepository = voucherNumbers;
             _approvalDetailRepo = approvalDetailRepo;
             _permissionApprovalRepo = permissionApprovalRepo;
-            _approvalRepo= approvalRepo;
+            _approvalRepo= approvalRepo;          
 
             _itemMasterRepository = itemMasterRepository;
             _unitMasterRepository = unitMasterRepository;
             _suppliersMasterRepository = suppliersMasterRepository;
             _locationMasterRepository = locationMasterRepository;
+           
 
             ////_reportPurchaseRequisitionRepository = reportPurchaseRequisitionRepository;
         }
@@ -503,94 +511,106 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             List<PurChaseRequisitionStatus> data = new List<PurChaseRequisitionStatus>();
             try
             {
-                //    string filteredValue = string.Empty;
-                //    if (model.JobId > 0)
-                //    {
-                //        filteredValue += $" and pd.PurchaseRequisitionJobId = {model.JobId} ";
-                //    }                
-                //    if (model.ItemId > 0)
-                //    {
-                //        filteredValue += $" and pd.PurchaseRequisitionDetailsItemID = {model.ItemId} ";
-                //    }
-                //    if (!string.IsNullOrEmpty(model.PRNO) && model.PRNO.ToUpper() != "ALL".ToUpper())
-                //    {
-                //        filteredValue += $" and po.PurchaseRequisitionRefNo = {model.PRNO} ";
-                //    }
-                //    if (!string.IsNullOrEmpty(model.POStatus))
-                //    {
-                //        filteredValue += $" and po.PurchaseRequisitionStatus = {model.POStatus} ";
-                //    }              
-                //    if (!string.IsNullOrEmpty(model.fromDate) && !string.IsNullOrEmpty(model.toDate))
-                //    {
-                //        filteredValue += $" and (pm.PurchaseRequisitionDate >= {model.fromDate} and  pm.PurchaseRequisitionDate <= {model.toDate} )";
-                //    }
-                //    var results = (from pd in dbContext.PurchaseRequisitionDetails
-                //                   join pm in dbContext.PurchaseRequisition on pd.PurchaseRequisitionId equals pm.PurchaseRequisitionId
-                //                     join im in dbContext.ItemMaster on pd.PurchaseRequisitionDetailsItemID equals im.ItemMasterItemId into imJoin
-                //                     from im in imJoin.DefaultIfEmpty()
-                //                     join um in dbContext.UnitMaster on pd.Purchase_Requisition_Details_Unit_ID equals um.UnitMasterUnitId into umJoin
-                //                     from um in umJoin.DefaultIfEmpty()
-                //                     join podGroup in (
-                //                     from pod in dbContext.PurchaseOrderDetails
-                //                     join po in dbContext.GeneralPurchaseOrder on pod.PurchaseOrderDetailsPoId equals po.GeneralPurchaseOrderId
-                //                     group new { pod, po } by new { pod.PurchaseOrderDetailsId, pod.PurchaseOrderDetailsPrdId, po.GeneralPurchaseOrderStatus } into grp
-                //                     select new
-                //                     {
-                //                         grp.Key.PurchaseOrderDetailsId,
-                //                         grp.Key.PurchaseOrderDetailsPrdId,
-                //                         grp.Key.GeneralPurchaseOrderStatus,
-                //                         Quantity = grp.Sum(x => x.pod.PurchaseOrderDetailsQuantity)
-                //                     }) on new { pd.Purchase_Requisition_Details_Purchase_Reques_Detail_ID, pd.Purchase_Requisition_Details_Item_ID } equals new { podGroup.PurchaseOrderDetailsPrdId } into podJoin
-                //                     from pod in podJoin.DefaultIfEmpty()
-                //                     join vd in (
-                //                     from d in dbContext.AvIssueVoucherDetails
-                //                     join i in dbContext.AvIssueVoucher on d.AvIssueVoucherDetailsAvSvNo equals i.AvIssueVoucherAccNo
-                //                     group d by d.AvIssueVoucherDetailsMaterialId into grp
-                //                     select new
-                //                     {
-                //                         grp.Key,
-                //                         issueQty = grp.Sum(x => x.AvIssueVoucherDetailsSoldQuantity),
-                //                         stock = grp.Sum(x => x.AvIssueVoucherDetailsStock),
-                //                         BalToIssue = grp.Sum(x => x.AvIssueVoucherDetailsStock) - grp.Sum(x => x.AvIssueVoucherDetailsSoldAmount)
-                //                     }) on im.Item_ID equals vd.Key into vdJoin
-                //                     from vd in vdJoin.DefaultIfEmpty()
-                //                     join vda in (
-                //                     from d in dbContext.AvIssueVoucherDetails
-                //                     join i in dbContext.AvIssueVoucher on d.AvIssueVoucherDetailsAvSvNo equals i.AvIssueVoucherAccNo
-                //                     join s in dbContext.StockRegister on d.AvIssueVoucherDetailsMaterialId equals s.StockRegisterMaterialID
-                //                     group new { d, s } by d.AvIssueVoucherDetailsMaterialId into grp
-                //                     select new
-                //                     {
-                //                         grp.Key,
-                //                         issueQty = grp.Sum(x => x.d.AvIssueVoucherDetailsSoldQuantity),
-                //                         stock = grp.Sum(x => x.s.StockRegisterSIN - x.s.StockRegisterSout),
-                //                         BalToIssue = grp.Sum(x => (x.s.StockRegisterSIN - x.s.StockRegisterSout) - Convert.ToDecimal(x.d.AvIssueVoucherDetailsSoldQuantity))
-                //                     }) on im.Item_ID equals vda.Key into vdaJoin
-                //                     from vda in vdaJoin.DefaultIfEmpty()
-                //                     where pd.Purchase_Requisition_Details_Required_Status == "OPEN" && $"1 == 1  {filteredValue}"
-                //                     select new PurChaseRequisitionStatus
-                //                     {
-                //                         issueQty = vd.issueQty ?? 0,
-                //                         BalToIssue = vd.BalToIssue ?? 0,
-                //                         stock = vd.stock ?? 0,
-                //                         Unit = um.Unit_Master_Unit_Short_Name + " :: " + um.Unit_Master_Unit_ID.ToString(),
-                //                         PartNo = im.Part_No ?? "",
-                //                         DelQty = pod.Quantity ?? 0,
-                //                         PoStatus = pod.PoStatus ?? "OPEN",
-                //                         RequisitionDate = pm.Purchase_Requisition_Requisition_Date
-
-                //                     }).ToListAsync();
-                return new Response<List<PurChaseRequisitionStatus>>()
+                string filteredValue = string.Empty;
+                if (model.JobId > 0)
                 {
-                    Valid = true,
-                    Message = "Data Found",
-                    Result = data
-                };
-            }
-            catch (Exception ex)
-            {
-                return Response<List<PurChaseRequisitionStatus>>.Fail(new List<PurChaseRequisitionStatus>(), ex.Message);
-            }
+                    filteredValue += $" and pd.PurchaseRequisitionJobId = {model.JobId} ";
+                }
+                if (model.ItemId > 0)
+                {
+                    filteredValue += $" and pd.PurchaseRequisitionDetailsItemID = {model.ItemId} ";
+                }
+                if (!string.IsNullOrEmpty(model.PRNO) && model.PRNO.ToUpper() != "ALL".ToUpper())
+                {
+                    filteredValue += $" and po.PurchaseRequisitionRefNo = {model.PRNO} ";
+                }
+                if (!string.IsNullOrEmpty(model.POStatus))
+                {
+                    filteredValue += $" and po.PurchaseRequisitionStatus = {model.POStatus} ";
+                }
+                if (!string.IsNullOrEmpty(model.fromDate) && !string.IsNullOrEmpty(model.toDate))
+                {
+                    filteredValue += $" and (pm.PurchaseRequisitionDate >= {model.fromDate} and  pm.PurchaseRequisitionDate <= {model.toDate} )";
+                }
+
+                var subqueryRDI = (from pod in dbContext.PurchaseOrderDetails
+                                    join po in dbContext.GeneralPurchaseOrder on pod.PurchaseOrderDetailsPoId equals po.GeneralPurchaseOrderId
+                                    group new { pod, po } by new
+                                    {
+                                        pod.PurchaseOrderDetailsId,
+                                        pod.PurchaseOrderDetailsPrdId,
+                                        po.GeneralPurchaseOrderStatus
+                                    } into grp
+                                    select new
+                                    {
+                                        grp.Key.PurchaseOrderDetailsId,
+                                        grp.Key.PurchaseOrderDetailsPrdId,
+                                        grp.Key.GeneralPurchaseOrderStatus,
+                                        Quantity = grp.Sum(x => x.pod.PurchaseOrderDetailsQuantity)
+                                    });
+                var subqueryIMT = (from d in dbContext.AvIssueVoucherDetails
+                                 join i in dbContext.AvIssueVoucher on d.AvIssueVoucherDetailsAvSvNo equals i.AvIssueVoucherAccNo
+                                 group d by d.AvIssueVoucherDetailsMaterialId into grp
+                                 select new
+                                 {
+                                     grp.Key,
+                                     issueQty = grp.Sum(x => x.AvIssueVoucherDetailsSoldQuantity),
+                                     stock = grp.Sum(x => x.AvIssueVoucherDetailsStock),
+                                     BalToIssue = grp.Sum(x => x.AvIssueVoucherDetailsStock) - grp.Sum(x => x.AvIssueVoucherDetailsSoldAmount)
+                                 });
+                var subquerySEI = (from d in dbContext.AvIssueVoucherDetails
+                            join i in dbContext.AvIssueVoucher on d.AvIssueVoucherDetailsAvSvNo equals i.AvIssueVoucherAccNo
+                            join s in dbContext.StockRegister on d.AvIssueVoucherDetailsMaterialId equals s.StockRegisterMaterialID
+                            group new { d, s } by d.AvIssueVoucherDetailsMaterialId into grp
+                            select new
+                            {
+                                grp.Key,
+                                issueQty = grp.Sum(x => x.d.AvIssueVoucherDetailsSoldQuantity),
+                                stock = grp.Sum(x => x.s.StockRegisterSIN - x.s.StockRegisterSout),
+                                BalToIssue = grp.Sum(x => (x.s.StockRegisterSIN - x.s.StockRegisterSout) - Convert.ToDecimal(x.d.AvIssueVoucherDetailsSoldQuantity))
+                            });
+              var results = (from pd in _purchaseRequisitionDetailsRepository.GetAsQueryable().Where($"1 == 1  {filteredValue}")
+
+                                join pm in dbContext.PurchaseRequisition on Convert.ToDecimal(pd.PurchaseRequisitionId) equals pm.PurchaseRequisitionId
+                               join im in dbContext.ItemMaster on (long)pd.PurchaseRequisitionDetailsItemID equals im.ItemMasterItemId into imJoin
+                               from im in imJoin.DefaultIfEmpty()
+
+                               join um in dbContext.UnitMaster on pd.PurchaseRequisitionDetailsUnitId equals um.UnitMasterUnitId into umJoin
+                               from um in umJoin.DefaultIfEmpty()
+
+                               join pods in subqueryRDI on pd.PurchaseRequisitionDetailsItemID equals  pods.PurchaseOrderDetailsPrdId into podJoin
+                               from pod in podJoin.DefaultIfEmpty()
+
+                               join vd in subqueryIMT on im.ItemMasterItemId equals Convert.ToInt64(vd.Key) into vdJoin
+                               from vd in vdJoin.DefaultIfEmpty()
+                               join vda in subquerySEI on im.ItemMasterItemId equals Convert.ToInt64(vda.Key) into vdaJoin
+                               from vda in vdaJoin.DefaultIfEmpty()
+
+                              // where pd.PurchaseRequisitionDetailsReqStatus == "OPEN" && "$ {filteredValue}"
+
+                               select new PurChaseRequisitionStatus
+                               {
+                                   issueQty = Convert.ToInt32(vd.issueQty),
+                                   BalToIssue = Convert.ToInt32(vd.BalToIssue),
+                                   stock = Convert.ToInt32(vd.stock),
+                                   Unit = um.UnitMasterUnitShortName + " :: " + um.UnitMasterUnitId.ToString(),
+                                   PartNo = Convert.ToString(im.ItemMasterPartNo),
+                                   DelQty = Convert.ToInt32(pod.Quantity),
+                                   PoStatus = pod.GeneralPurchaseOrderStatus,
+                                   RequisitionDate = Convert.ToDateTime(pm.PurchaseRequisitionDate)
+
+                               }).ToListAsync();
+                            return new Response<List<PurChaseRequisitionStatus>>()
+                           {
+                                Valid = true,
+                                Message = "Data Found",
+                                Result = data
+                            };
+                }
+                catch (Exception ex)
+                {
+                    return Response<List<PurChaseRequisitionStatus>>.Fail(new List<PurChaseRequisitionStatus>(), ex.Message);
+                }
         }
     }
 }
