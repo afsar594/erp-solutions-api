@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -25,5 +26,7 @@ namespace Inspire.Erp.Domain.Entities
         public DateTime? JobInvoiceLpoDate { get; set; }
         public string JobInvoiceSalesAccount { get; set; }
         public bool? JobInvoiceDelStatus { get; set; }
+        [NotMapped]
+        public List<JobInvoiceDetails> JobInvoiceDetails { get; set; }
     }
 }

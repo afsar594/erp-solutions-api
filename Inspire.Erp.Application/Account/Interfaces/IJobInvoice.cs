@@ -1,19 +1,18 @@
-﻿using Inspire.Erp.Application.Common;
-using Inspire.Erp.Domain.Entities;
-using Inspire.Erp.Domain.Modals;
+﻿using Inspire.Erp.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace Inspire.Erp.Application.Account.Interfaces
+namespace Inspire.Erp.Application.Account.Interface
 {
     public interface IJobInvoice
     {
-        public Task<List<MasterAccountsTable>> GetSalesAccount();
-        public Task<List<JobInvoiceModel>> GetJobInvoice();
-        public Task<bool> InsertJobInvoice(JobInvoiceRequest obj);
-        public Task<bool> UpdateJobInvoice(JobInvoiceRequest obj);
-        public Task<bool> DeleteJobInvoice(JobInvoiceRequest obj);
+        public IEnumerable<JobInvoice> Getjobinvoice();
+        public JobInvoice GetJobInvoiceById(int? id);
+        public JobInvoice InsertJobInvoice(JobInvoice JobInvoiceViewModel);
+        public JobInvoice UpdateJobInvoice(JobInvoice JobInvoiceViewModel);
+        public IEnumerable<JobInvoice> DeleteJobInvoice(int Id);
+        public JobInvoice GetSaleVoucherNo(string? id);
+        
     }
 }

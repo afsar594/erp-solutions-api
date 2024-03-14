@@ -11,7 +11,7 @@ namespace Inspire.Erp.Domain.Entities
         public string? vtype { get; set; }
         public string? fsno { get; set; }
         public string? status { get; set; }
-        public string? jobId { get; set; }
+        public int? jobId { get; set; }
         public string? cname { get; set; }
         public string? cid { get; set; }
         public string? loactionId { get; set; }

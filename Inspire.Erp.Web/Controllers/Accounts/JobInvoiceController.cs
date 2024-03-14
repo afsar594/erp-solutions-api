@@ -1,11 +1,16 @@
-﻿using Inspire.Erp.Application.Account.Interfaces;
+﻿using AutoMapper;
+using Inspire.Erp.Application.Account.Interfaces;
 using Inspire.Erp.Application.Common;
+using Inspire.Erp.Application.Sales.Interface;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Modals;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
+using Inspire.Erp.Application.Account.Interface;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -14,33 +19,127 @@ namespace Inspire.Erp.Web.Controllers
     public class JobInvoiceController : ControllerBase
     {
         private IJobInvoice _invoice;
-        public JobInvoiceController(IJobInvoice invoice)
+        private IMapper _mapper;
+        public JobInvoiceController(IJobInvoice invoice, IMapper mapper)
         {
-            _invoice = invoice; 
-        }
-        [HttpGet("GetSalesAccount")]
-        public async Task<List<MasterAccountsTable>> GetSalesAccount() {
-            return await _invoice.GetSalesAccount();
-        }
-        [HttpGet("GetJobInvoice")]
-        public async Task<List<JobInvoiceModel>> GetJobInvoice()
+            _invoice = invoice;
+            _mapper= mapper;
+        }      
+        [HttpGet]
+        [Route("GetJobInvoice")]
+        public IActionResult Getjobinvoice()
         {
-            return await _invoice.GetJobInvoice();
+            try
+            {
+                return Ok(_invoice.Getjobinvoice().ToList());
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
         }
-        [HttpPost("InsertJobInvoice")]
-        public async Task<bool> InsertJobInvoice(JobInvoiceRequest obj)
+        [HttpGet]
+        [Route("GetJobInvoiceById")]
+        public IActionResult GetJobInvoiceById(int id)
         {
-            return await _invoice.InsertJobInvoice(obj);
+            try
+            {
+                return Ok(_invoice.GetJobInvoiceById(id));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
         }
-        [HttpPost("UpdateJobInvoice")]
-        public async Task<bool> UpdateJobInvoice(JobInvoiceRequest obj)
+        [HttpPost]
+        [Route("InsertJobInvoice")]
+        public IActionResult InsertJobInvoice([FromBody] JobInvoice JobInvoiceViewModel)
         {
-            return await _invoice.UpdateJobInvoice(obj);
+            try
+            {
+                return Ok(_invoice.InsertJobInvoice(JobInvoiceViewModel));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
         }
-        [HttpPost("DeleteJobInvoice")]
-        public async Task<bool> DeleteJobInvoice(JobInvoiceRequest obj)
+        [HttpPut]
+        [Route("UpdateJobInvoice")]
+        public IActionResult UpdateJobInvoice([FromBody] JobInvoice JobInvoiceViewModel)
         {
-            return await _invoice.DeleteJobInvoice(obj);
+            try
+            {
+                return Ok(_invoice.UpdateJobInvoice(JobInvoiceViewModel));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
         }
+        [HttpDelete]
+        [Route("DeleteJobInvoice")]
+        public IActionResult DeleteJobInvoice(int Id)
+        {
+            try
+            {
+                return Ok(_invoice.DeleteJobInvoice(Id));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
+        }
+        [HttpGet]
+        [Route("GetSaleVoucherNo")]
+        public IActionResult GetSaleVoucherNo(string VNo)
+        {
+            try
+            {
+                return Ok(_invoice.GetSaleVoucherNo(VNo));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
+        }
+        //[HttpGet("GetSalesAccount")]
+        //public async Task<List<MasterAccountsTable>> GetSalesAccount() {
+        //    return await _invoice.GetSalesAccount();
+        //}
+        //[HttpGet("GetJobInvoice")]
+        //public async Task<List<JobInvoiceModel>> GetJobInvoice()
+        //{
+        //    return await _invoice.GetJobInvoice();
+        //}
+
+        //[HttpPost("InsertJobInvoice")]
+        //public async Task<bool> InsertJobInvoice(JobInvoiceRequest obj)
+        //{
+        //    return await _invoice.InsertJobInvoice(obj);
+        //}
+        //[HttpPost("UpdateJobInvoice")]
+        //public async Task<bool> UpdateJobInvoice(JobInvoiceRequest obj)
+        //{
+        //    return await _invoice.UpdateJobInvoice(obj);
+        //}
+        //[HttpPost("DeleteJobInvoice")]
+        //public async Task<bool> DeleteJobInvoice(JobInvoiceRequest obj)
+        //{
+        //    return await _invoice.DeleteJobInvoice(obj);
+        //}
+        //[HttpGet]
+        //[Route("GetSaleVoucherNo")]
+        //public IActionResult GetSaleVoucherNo(string VNo)
+        //{
+        //    try
+        //    {
+        //        return Ok(_invoice.GetSaleVoucherNo(VNo));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, ex.Message.ToString());
+        //    }
+        //}
     }
 }
