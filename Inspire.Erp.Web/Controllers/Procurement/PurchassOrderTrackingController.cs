@@ -55,8 +55,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
         {
             return Ok(await purchaseOrdertracking.GetPurchaseOrderTrackingSummary(reportFilter));
         }
-
-
+       
 
 
     }
