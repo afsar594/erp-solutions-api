@@ -5,7 +5,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <_PublishTargetUrl>C:\Users\irfan\Desktop\Inspire\Web App\ERP.APISV2.0.0\Inspire.Erp.WebReport\bin\app.publish\</_PublishTargetUrl>
-    <History>True|2024-03-11T09:10:12.0089416Z;True|2024-03-11T13:06:00.4924642+05:00;True|2024-03-11T13:04:28.5418625+05:00;True|2024-03-11T13:00:40.6785404+05:00;True|2024-03-11T12:19:40.7223635+05:00;True|2023-11-04T16:06:41.8355403+05:00;True|2023-11-04T15:57:40.4104546+05:00;True|2023-11-04T15:39:01.2566938+05:00;True|2023-11-04T15:37:47.5790050+05:00;</History>
+    <History>True|2024-03-12T07:43:24.5319062Z;True|2024-03-11T14:10:12.0089416+05:00;True|2024-03-11T13:06:00.4924642+05:00;True|2024-03-11T13:04:28.5418625+05:00;True|2024-03-11T13:00:40.6785404+05:00;True|2024-03-11T12:19:40.7223635+05:00;True|2023-11-04T16:06:41.8355403+05:00;True|2023-11-04T15:57:40.4104546+05:00;True|2023-11-04T15:39:01.2566938+05:00;True|2023-11-04T15:37:47.5790050+05:00;</History>
     <LastFailureDetails />
   </PropertyGroup>
   <ItemGroup>
@@ -151,10 +151,10 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>03/05/2024 08:47:29</publishTime>
     </File>
     <File Include="bin/Inspire.Erp.WebReport.dll">
-      <publishTime>03/11/2024 14:10:09</publishTime>
+      <publishTime>03/12/2024 12:43:23</publishTime>
     </File>
     <File Include="bin/Inspire.Erp.WebReport.pdb">
-      <publishTime>03/11/2024 14:10:09</publishTime>
+      <publishTime>03/12/2024 12:43:23</publishTime>
     </File>
     <File Include="bin/Microsoft.AspNetCore.Http.Abstractions.dll">
       <publishTime>03/05/2024 08:47:30</publishTime>

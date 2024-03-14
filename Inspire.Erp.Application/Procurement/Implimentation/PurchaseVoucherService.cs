@@ -560,6 +560,7 @@ namespace Inspire.Erp.Application.Master.Implementations
 
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
+                    k.AccountsTransactionsAccNo = k.AccountsTransactionsAccNo ?? "";
                     k.AccountsTransactionsVoucherNo = vnumber;
                     k.AccountsTransactionsVoucherType = VoucherType.PurchaseVoucher_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
