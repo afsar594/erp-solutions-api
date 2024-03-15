@@ -20197,8 +20197,8 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<StationMaster>(entity =>
             {
-                entity.HasNoKey();
-
+                //entity.HasNoKey();
+                entity.HasKey(e => e.StationMasterCode);
                 entity.ToTable("Station_Master");
 
                 entity.Property(e => e.StationMasterAddress)

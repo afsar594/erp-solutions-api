@@ -10,19 +10,22 @@
 ////}
 
 using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Modals;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Inspire.Erp.Application.Administration.Interfaces
 {
     public interface IStationMasterServices
     {
-        ////public IEnumerable<CurrencyMaster> InsertCurrency(CurrencyMaster currencyMaster);
-        ////public IEnumerable<CurrencyMaster> UpdateCurrency(CurrencyMaster currencyMaster);
-        ////public IEnumerable<CurrencyMaster> DeleteCurrency(CurrencyMaster currencyMaster);
         public IEnumerable<StationMaster> GetAllStation();
-        ////public IEnumerable<CurrencyMaster> GetAllCurrencyById(int id);
+        public Task<Response<List<StationMaster>>> InsertStationMaster(StationMaster stationMaster);
+        public Task<Response<List<StationMaster>>> UpdateStationMaster(StationMaster stationMaster);
+        public Task<Response<List<StationMaster>>> DeleteStationMaster(StationMaster stationMaster);
+        public Task<Response<List<StationMaster>>> GetStationMasters();
+        public Task<Response<StationMaster>> GetStationMaster(int id);
 
     }
 }

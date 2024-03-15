@@ -9,6 +9,7 @@ namespace Inspire.Erp.WebReport.Models
     {
         public string ReportName { get; set; }
         public string SelectionFormula { get; set; }
+        public string DsnFileName { get; set; } = string.Empty;
         public List<ReportParameters> Parameters { get; set; }
     }
     public class ReportParameters

@@ -16,7 +16,8 @@ using Inspire.Erp.Web.Common;
 
 
 using Microsoft.AspNetCore.Mvc.Rendering;
-
+using Inspire.Erp.Application.Procurement.Implimentation;
+using Inspire.Erp.Domain.Modals.Common;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -510,7 +511,19 @@ namespace Inspire.Erp.Web.Controllers
             return apiResponse;
         }
 
+        [HttpPost]
+        [Route("GetPurchaseRequisitionStatus")]
+        public async Task<IActionResult> GetPurchaseRequisitionStatus(PurChaseRequisitionStatusFilterReport model)
+        {
 
-
+            var response = await _purchaseRequisitionService.GetPurchaseRequisitionStatus(model);
+            ApiResponse<List<PurChaseRequisitionStatus>> apiResponse = new ApiResponse<List<PurChaseRequisitionStatus>>
+            {
+                Valid = true,
+                Result = response.Result,
+                Message = ""
+            };
+            return Ok(apiResponse);
+        }
     }
 }
