@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 using Inspire.Erp.Application.Account.Interface;
+using Inspire.Erp.Application.Account.Implementations;
+using Inspire.Erp.Domain.Models;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -25,31 +27,43 @@ namespace Inspire.Erp.Web.Controllers
             _invoice = invoice;
             _mapper= mapper;
         }      
+        //[HttpGet]
+        //[Route("GetJobInvoice")]
+        //public IActionResult Getjobinvoice()
+        //{
+        //    try
+        //    {
+        //        return Ok(_invoice.Getjobinvoice().ToList());
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, ex.Message.ToString());
+        //    }
+        //}
+
         [HttpGet]
         [Route("GetJobInvoice")]
-        public IActionResult Getjobinvoice()
+        public ApiResponse<List<JobInvoice>> Getjobinvoice()
         {
-            try
+            ApiResponse<List<JobInvoice>> apiResponse = new ApiResponse<List<JobInvoice>>
             {
-                return Ok(_invoice.Getjobinvoice().ToList());
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message.ToString());
-            }
+                Valid = true,
+                Result = _mapper.Map<List<JobInvoice>>(_invoice.Getjobinvoice()),
+                Message = ""
+            };
+            return apiResponse;
         }
         [HttpGet]
         [Route("GetJobInvoiceById")]
-        public IActionResult GetJobInvoiceById(int id)
+        public ApiResponse<List<JobInvoice>> GetJobInvoiceById(int id)
         {
-            try
+            ApiResponse<List<JobInvoice>> apiResponse = new ApiResponse<List<JobInvoice>>
             {
-                return Ok(_invoice.GetJobInvoiceById(id));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message.ToString());
-            }
+                Valid = true,
+                Result = _mapper.Map<List<JobInvoice>>(_invoice.GetJobInvoiceById(id)),
+                Message = ""
+            };
+            return apiResponse;
         }
         [HttpPost]
         [Route("InsertJobInvoice")]

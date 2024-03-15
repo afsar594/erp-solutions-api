@@ -177,6 +177,7 @@ namespace Inspire.Erp.Application.Account.implementations
                     JobInvoiceDetails = detailList.Where(a => a.JobInvoiceDetailsDetailsId == o.JobInvoiceId).ToList()
                 }).ToList();
                 return _jobinvoicerepo.GetAll();
+
             }
             catch (Exception ex)
             {
@@ -191,6 +192,7 @@ namespace Inspire.Erp.Application.Account.implementations
                 JobInvoice = _jobinvoicerepo.GetAsQueryable().FirstOrDefault(x => x.JobInvoiceId == id);
                 JobInvoice.JobInvoiceDetails =_jobdetailsrepo.GetAsQueryable().Where(x => x.JobInvoiceDetailsDetailsId == id).ToList();
                 return JobInvoice;
+
             }
             catch (Exception ex)
             {

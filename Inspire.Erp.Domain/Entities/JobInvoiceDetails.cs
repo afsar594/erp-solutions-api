@@ -6,9 +6,9 @@ namespace Inspire.Erp.Domain.Entities
     public partial class JobInvoiceDetails
     {
         public int JobInvoiceDetailsDetailsId { get; set; }
-        public string JobInvoiceDetailsVoucherNo { get; set; }
+        public string? JobInvoiceDetailsVoucherNo { get; set; }
         public int? JobInvoiceDetailsItemId { get; set; }
-        public string JobInvoiceDetailsDescription { get; set; }
+        public string? JobInvoiceDetailsDescription { get; set; }
         public int? JobInvoiceDetailsUnitId { get; set; }
         public double? JobInvoiceDetailsSoldQty { get; set; }
         public double? JobInvoiceDetailsUnitPrice { get; set; }
