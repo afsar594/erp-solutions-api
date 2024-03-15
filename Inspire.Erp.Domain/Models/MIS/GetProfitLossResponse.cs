@@ -61,6 +61,21 @@ namespace Inspire.Erp.Domain.Modals.MIS
         public decimal Amount { get; set; }
        
     }
+
+    public class BalanceSheetTypeResponse
+    {
+        public string Head { get; set; }
+        public string SubHead { get; set; }
+
+        public string AccNo { get; set; }
+        public string AccName { get; set; }
+        public string RelativeNo { get; set; }
+        public string RelativeName { get; set; }
+        public decimal Debit { get; set; }
+        public decimal Credit { get; set; }
+        public decimal Amount { get; set; }
+
+    }
     public class ProfitAndLossWrapper
     {
         public List<GetProfitAndLossResponse> IncomeDetails { get; set; }
