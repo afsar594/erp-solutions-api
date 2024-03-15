@@ -188,7 +188,8 @@ namespace Inspire.Erp.Application.Master
                 {
                     ItemMasterItemId = k.ItemMasterItemId,
                     ItemMasterItemName = k.ItemMasterItemName,
-                    ItemMasterPartNo = k.ItemMasterPartNo
+                    ItemMasterPartNo = k.ItemMasterPartNo,
+                    ItemMasterPacking = k.ItemMasterPacking
                 }).ToList();
 
                 var allUnitDetails = _unitDetailsRepo.GetAll().ToList();

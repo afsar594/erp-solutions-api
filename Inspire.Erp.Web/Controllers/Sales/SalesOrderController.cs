@@ -83,7 +83,10 @@ namespace Inspire.Erp.Web.Controllers
                     CustomerPurchaseOrderDiscountPercentage= xs.customerPurchaseOrder.CustomerPurchaseOrderDiscountPercentage,
                     CustomerPurchaseOrderDiscountAmount= xs.customerPurchaseOrder.CustomerPurchaseOrderDiscountAmount,
                     CustomerPurchaseOrderTotal= xs.customerPurchaseOrder.CustomerPurchaseOrderTotal,
-                    CustomerPurchaseOrderGrandTotal= xs.customerPurchaseOrder.CustomerPurchaseOrderGrandTotal,
+
+                    CustomerPurchaseOrderVat = xs.customerPurchaseOrder.CustomerPurchaseOrderVat,
+                    CustomerPurchaseOrderVAT_Percen = xs.customerPurchaseOrder.CustomerPurchaseOrderVAT_Percen,
+                    CustomerPurchaseOrderGrandTotal = xs.customerPurchaseOrder.CustomerPurchaseOrderGrandTotal,
                     CustomerPurchaseOrderFsno= xs.customerPurchaseOrder.CustomerPurchaseOrderFsno,
                     CustomerPurchaseOrderUserId= xs.customerPurchaseOrder.CustomerPurchaseOrderUserId,
                     CustomerPurchaseOrderSubject= xs.customerPurchaseOrder.CustomerPurchaseOrderSubject,
