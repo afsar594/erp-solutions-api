@@ -160,7 +160,28 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.SalesReturnDetailsNo = salesReturn.SalesReturnNo;
                     return k;
                 }).ToList();
+                var lSv = _Context.AccountsTransactions.FirstOrDefault(x => x.AccountsTransactionsVoucherNo == salesReturn.SalesReturnSVNo);
+                lSv.AccountsTransactionsAllocCredit = 0;
+                lSv.AccountsTransactionsAllocDebit = salesReturn.SalesReturnNetAmount == null ? 0 : salesReturn.SalesReturnNetAmount.Value;
+                lSv.AccountsTransactionsAllocBalance = lSv.AccountsTransactionsDebit - lSv.AccountsTransactionsAllocDebit;
 
+                _Context.AccountsTransactions.Update(lSv);
+                _Context.SaveChanges(true);
+                accountsTransactions = accountsTransactions.Select((k) =>
+                {
+                    k.AccountsTransactionsUserId = salesReturn.SalesReturnUserID == null ? -1 : salesReturn.SalesReturnUserID;
+                    k.AccountsTransactionsVoucherNo = salesReturn.SalesReturnNo;
+                    k.AccountsTransactionsVoucherType = VoucherType.SalesReturn_TYPE;
+                    k.AccountsTransactionsStatus = AccountStatus.Approved;
+                    k.AccountsTransactionsAllocCredit = k.AccountsTransactionsCredit;
+                    k.AccountsTransactionsAllocDebit = k.AccountsTransactionsDebit;
+                    k.AccountsTransactionsAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
+                    k.AccountsTransactionsFcAllocDebit = k.AccountsTransactionsDebit;
+                    k.AccountsTransactionsFcAllocCredit = k.AccountsTransactionsCredit;
+                    k.AccountsTransactionsFcAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
+                    return k;
+                }).ToList();
+                _accountTransactionRepository.UpdateList(accountsTransactions);
                 //addedSalesReturnist = salesReturnDetails.Select((k) =>
                 //{
                 //    k.SalesReturnDetailsId = 0;
