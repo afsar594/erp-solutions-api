@@ -73,7 +73,7 @@ namespace Inspire.Erp.Application.Account.implementations
             {
 
                 _jobinvoicerepo.BeginTransaction();
-                int maxcount = 0;
+                int maxcount = 1;
                 maxcount = Convert.ToInt32(
                     _jobinvoicerepo.GetAsQueryable()
                     .DefaultIfEmpty().Max(o => o == null ? 0 : o.JobInvoiceId) + 1);
@@ -135,46 +135,11 @@ namespace Inspire.Erp.Application.Account.implementations
         {
             try
             {
-                //var data = (from ji in _jobinvoicerepo.GetAsQueryable()
-                //            join jid in _jobdetailsrepo.GetAsQueryable()
-                //            on ji.JobInvoiceVoucherNo equals jid.JobInvoiceDetailsVoucherNo
-                //            join itm in _itemmasterrepo.GetAsQueryable()
-                //            on jid.JobInvoiceDetailsItemId equals Convert.ToInt32(itm.ItemMasterItemId)
-
-                //            where (ji.JobInvoiceDelStatus ?? false) == false
-                //            select new JobInvoiceModel
-                //            {
-                //                Job_Invoice_Voucher_Date = ji.JobInvoiceVoucherDate,
-                //                Job_Invoice_Voucher_No = ji.JobInvoiceVoucherNo,
-                //                Job_Invoice_Customer_Name =
-                //                (from cm in _cmrepo.GetAsQueryable()
-                //                 where (cm.CustomerMasterCustomerUserId == ji.JobInvoiceCustomerId)
-                //                 select cm.CustomerMasterCustomerName
-                //                 ).ToString(),
-                //                location =
-                //                (from lm in _lmrepo.GetAsQueryable()
-                //                 where (lm.LocationMasterLocationId == ji.JobInvoiceLocationId)
-                //                 select lm.LocationMasterLocationName
-                //                 ).ToString(),
-                //                Job_Invoice_Discount = jid.JobInvoiceDetailsDiscount,
-                //                Job_Invoice_Gross_Amount = jid.JobInvoiceDetailsGrossAmount,
-                //                Job_Invoice_Net_Amount = jid.JobInvoiceDetailsNetAmount,
-                //                Job_Invoice_Details_Unit_ID = jid.JobInvoiceDetailsUnitId,
-                //                Job_Invoice_Details_Unit = jid.JobInvoiceDetailsUnit,
-                //                Item_Name = itm.ItemMasterItemName,
-                //                Job_Invoice_Details_Unit_Price = jid.JobInvoiceDetailsUnitPrice,
-                //                Job_Invoice_Details_Sold_Qty = jid.JobInvoiceDetailsSoldQty,
-                //                Job_Invoice_Details_Item_ID = jid.JobInvoiceDetailsItemId
-                //            }).ToList();
-
-                //var response = _jobinvoiceresponserepo.GetBySP($"getjobinvoice").ToList();
-
-                //return data;
                 var detailList = _jobdetailsrepo.GetAll().ToList();
                 var data = _jobinvoicerepo.GetAll().Select(o => new
                 {
                     JobInvoice = o,
-                    JobInvoiceDetails = detailList.Where(a => a.JobInvoiceDetailsDetailsId == o.JobInvoiceId).ToList()
+                    JobInvoiceDetails = detailList.Where(a => Convert.ToInt32(a.JobInvoiceDetailsDetailsId) == Convert.ToInt32(o.JobInvoiceId)).ToList()
                 }).ToList();
                 return _jobinvoicerepo.GetAll();
 
@@ -199,7 +164,7 @@ namespace Inspire.Erp.Application.Account.implementations
                 throw ex;
             }
         }
-        public JobInvoice GetSaleVoucherNo(string VNo)
+        public JobInvoice GetJobInvoiceVoucherNo(string VNo)
         {
             try
             {

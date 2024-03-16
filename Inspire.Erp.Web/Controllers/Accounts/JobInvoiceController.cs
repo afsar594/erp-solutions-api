@@ -16,8 +16,8 @@ using Inspire.Erp.Domain.Models;
 
 namespace Inspire.Erp.Web.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/JobInvoice")]
     public class JobInvoiceController : ControllerBase
     {
         private IJobInvoice _invoice;
@@ -27,20 +27,6 @@ namespace Inspire.Erp.Web.Controllers
             _invoice = invoice;
             _mapper= mapper;
         }      
-        //[HttpGet]
-        //[Route("GetJobInvoice")]
-        //public IActionResult Getjobinvoice()
-        //{
-        //    try
-        //    {
-        //        return Ok(_invoice.Getjobinvoice().ToList());
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, ex.Message.ToString());
-        //    }
-        //}
-
         [HttpGet]
         [Route("GetJobInvoice")]
         public ApiResponse<List<JobInvoice>> Getjobinvoice()
@@ -78,7 +64,7 @@ namespace Inspire.Erp.Web.Controllers
                 return StatusCode(500, ex.Message.ToString());
             }
         }
-        [HttpPut]
+        [HttpPost]
         [Route("UpdateJobInvoice")]
         public IActionResult UpdateJobInvoice([FromBody] JobInvoice JobInvoiceViewModel)
         {
@@ -105,12 +91,12 @@ namespace Inspire.Erp.Web.Controllers
             }
         }
         [HttpGet]
-        [Route("GetSaleVoucherNo")]
-        public IActionResult GetSaleVoucherNo(string VNo)
+        [Route("GetJobInvoiceVoucherNo")]
+        public IActionResult GetJobInvoiceVoucherNo(string VNo)
         {
             try
             {
-                return Ok(_invoice.GetSaleVoucherNo(VNo));
+                return Ok(_invoice.GetJobInvoiceVoucherNo(VNo));
             }
             catch (Exception ex)
             {

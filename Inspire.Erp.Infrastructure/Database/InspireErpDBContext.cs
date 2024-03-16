@@ -9672,7 +9672,13 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<JobInvoice>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.JobInvoiceId);
+
+                entity.ToTable("Job_Invoice");
+
+                entity.Property(e => e.JobInvoiceId)
+                    .HasColumnName("Job_Invoice_ID")
+                    .ValueGeneratedNever();
 
                 entity.ToTable("Job_Invoice");
 
@@ -9695,9 +9701,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.JobInvoiceGrossAmount).HasColumnName("Job_Invoice_Gross_Amount");
 
-                entity.Property(e => e.JobInvoiceId).HasColumnName("Job_Invoice_ID");
-
-                entity.Property(e => e.JobInvoiceJobId).HasColumnName("Job_Invoice_Job_ID");
+                 entity.Property(e => e.JobInvoiceJobId).HasColumnName("Job_Invoice_Job_ID");
 
                 entity.Property(e => e.JobInvoiceLocationId).HasColumnName("Job_Invoice_Location_ID");
 
@@ -9738,9 +9742,18 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<JobInvoiceDetails>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.JobInvoiceDetailsDetailsId);
+
 
                 entity.ToTable("Job_Invoice_Details");
+
+
+                entity.Property(e => e.JobInvoiceDetailsDetailsId)
+                   .HasColumnName("Job_Invoice_Details_Details_ID")
+                   .ValueGeneratedOnAdd();
+
+               
+
 
                 entity.Property(e => e.JobInvoiceDetailsDelStatus).HasColumnName("Job_Invoice_Details_DelStatus");
 
@@ -9749,9 +9762,7 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasMaxLength(150)
                     .IsUnicode(false);
 
-                entity.Property(e => e.JobInvoiceDetailsDetailsId)
-                    .HasColumnName("Job_Invoice_Details_Details_ID")
-                    .ValueGeneratedOnAdd();
+                
 
                 entity.Property(e => e.JobInvoiceDetailsDiscount).HasColumnName("Job_Invoice_Details_Discount");
 

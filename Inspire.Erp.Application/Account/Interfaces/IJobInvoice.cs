@@ -12,7 +12,7 @@ namespace Inspire.Erp.Application.Account.Interface
         public JobInvoice InsertJobInvoice(JobInvoice JobInvoiceViewModel);
         public JobInvoice UpdateJobInvoice(JobInvoice JobInvoiceViewModel);
         public IEnumerable<JobInvoice> DeleteJobInvoice(int Id);
-        public JobInvoice GetSaleVoucherNo(string? id);
+        public JobInvoice GetJobInvoiceVoucherNo(string? id);
         
     }
 }
