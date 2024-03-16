@@ -25,9 +25,10 @@ namespace Inspire.Erp.Application.Account.Implementations
         private readonly IRepository<CustomerMaster> _cusomerMaster;
         private readonly IRepository<SuppliersMaster> _supplierMaster;
         private readonly IRepository<StationMaster> _stationMaster;
+        private readonly IRepository<JournalVoucher> _journalVoucher;
         private readonly IUtilityService _utilityService;
-        public OutstandingStatementService( IRepository<AccountsTransactions> accountTransaction, IRepository<CustomerMaster> cusomerMaster,
-            IFileService fileService, IRepository<SuppliersMaster> supplierMaster, IUtilityService utilityService, IRepository<StationMaster> stationMaster)
+        public OutstandingStatementService(IRepository<AccountsTransactions> accountTransaction, IRepository<CustomerMaster> cusomerMaster,
+            IFileService fileService, IRepository<SuppliersMaster> supplierMaster, IUtilityService utilityService, IRepository<StationMaster> stationMaster, IRepository<JournalVoucher> journalVoucher)
         {
             _accountTransaction = accountTransaction;
             _fileService = fileService;
@@ -35,6 +36,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             _cusomerMaster = cusomerMaster;
             _utilityService = utilityService;
             _stationMaster = stationMaster;
+            _journalVoucher = journalVoucher;
         }
         public async Task<Response<List<DropdownResponse>>> GetCustomerSupplierMasterGroup()
         {
@@ -176,6 +178,128 @@ namespace Inspire.Erp.Application.Account.Implementations
                 return Response<OutStandingStatementResponse>.Fail(new OutStandingStatementResponse(), ex.Message);
             }
         }
+
+
+        public async Task<Response<OutStandingReportGridResponse>> GetOutstandingStatementAccountTransactions(OutStandingReprortFilter model)
+        {
+            try
+            {
+                OutStandingReportGridResponse gridmodel = new OutStandingReportGridResponse();
+                var jvs = (from journalVoucher in _journalVoucher.GetAsQueryable()
+                           where journalVoucher.JournalVoucherType == "I"
+                           select journalVoucher.JournalVoucherVrefNo).ToList();
+
+                var result = (from transaction in _accountTransaction.GetAsQueryable()
+                              where transaction.AccountsTransactionsAccNo == model.accountNo
+                                && transaction.AccountsTransactionsAllocBalance > 0
+                                && !jvs.Contains(transaction.AccountsTransactionsVoucherNo)
+                                && transaction.AccountsTransactionsVoucherType != "SalesReturn"
+                              orderby transaction.AccountsTransactionsTransDate
+                              select new
+                              {
+                                  AccountsTransactionsVoucherNo = transaction.AccountsTransactionsVoucherNo,
+                                  AccountsTransactionsVoucherType = transaction.AccountsTransactionsVoucherType,
+                                  AccountsTransactionsAccNo = transaction.AccountsTransactionsAccNo,
+                                  AccountsTransactionsTransDate = transaction.AccountsTransactionsTransDate,
+                                  AccountsTransactionsDescription = transaction.AccountsTransactionsDescription,
+                                  RefNo = transaction.RefNo ?? "",
+                                  AccountsTransactionsDebit = transaction.AccountsTransactionsDebit,
+                                  AccountsTransactionsCredit = transaction.AccountsTransactionsCredit,
+                                  settled = transaction.AccountsTransactionsDebit > transaction.AccountsTransactionsCredit ? transaction.AccountsTransactionsAllocDebit : transaction.AccountsTransactionsAllocDebit,
+                                  Balance = transaction.AccountsTransactionsDebit > transaction.AccountsTransactionsCredit ? transaction.AccountsTransactionsAllocBalance : -1 * transaction.AccountsTransactionsAllocBalance,
+                                  RunningBal = 0m,
+                                  Days = (Convert.ToDateTime(model.fromDate).Date - transaction.AccountsTransactionsTransDate.Value.Date).Days
+                              }).ToList();
+
+                if (!model.isDateRange)
+                    result = result.Where(x => x.AccountsTransactionsTransDate.Value.Date <= Convert.ToDateTime(model.fromDate).Date).ToList();
+                else
+                    result = result.Where(x => x.AccountsTransactionsTransDate.Value.Date >= Convert.ToDateTime(model.fromDate).Date && x.AccountsTransactionsTransDate.Value.Date <= Convert.ToDateTime(model.toDate).Date).ToList();
+                decimal runningBalance = 0;
+                int ZeroToThirty = 0;
+                int ThirtyOneToSixty = 0;
+                int SixtyOneToNinety = 0;
+                int NinetyOneToOneEighty = 0;
+                int OneEightyToThreeSixty = 0;
+                int aboveThreeSixty = 0;
+                string accNo = "";
+                gridmodel.Details = new List<OutStandingReportGrid>();
+                decimal? gTotal = 0m;
+                foreach (var accounts in result)
+                {
+                    gTotal += accounts.Balance;
+                    gridmodel.Details.Add(new OutStandingReportGrid()
+                    {
+                        AccountsTransactionsVoucherNo = accounts.AccountsTransactionsVoucherNo,
+                        AccountsTransactionsVoucherType = accounts.AccountsTransactionsVoucherType,
+                        AccountsTransactionsDebit = accounts.AccountsTransactionsDebit,
+                        AccountsTransactionsCredit = accounts.AccountsTransactionsCredit,
+                        AccountsTransactionsTransDate = Convert.ToDateTime(accounts.AccountsTransactionsTransDate).ToString("MM-dd-yyyy"),
+                        AccountsTransactionsDescription = accounts.AccountsTransactionsDescription,
+                        Balance = accounts.Balance,//AccountsTransactionsAllocBalance != null ? accounts.AccountsTransactionsAllocBalance : 0,
+                        RefNo = accounts.RefNo,
+                        Days = accounts.Days,
+                        AccountsTransactionsAccNo = accounts.AccountsTransactionsAccNo,
+                        RunningBal = gTotal
+                    });
+                    accNo = accounts.AccountsTransactionsAccNo;
+                    if (accounts.Days >= 0 && accounts.Days < 31)
+                    {
+                        ZeroToThirty = Convert.ToInt32(gTotal);
+                    }
+                    else if (accounts.Days >= 31 && accounts.Days < 60)
+                    {
+                        ThirtyOneToSixty = Convert.ToInt32(gTotal);
+                    }
+                    else if (accounts.Days >= 61 && accounts.Days < 90)
+                    {
+                        SixtyOneToNinety = Convert.ToInt32(gTotal);
+                    }
+                    else if (accounts.Days >= 91 && accounts.Days < 180)
+                    {
+                        NinetyOneToOneEighty = Convert.ToInt32(gTotal);
+                    }
+                    else if (accounts.Days >= 181 && accounts.Days < 360)
+                    {
+                        OneEightyToThreeSixty = Convert.ToInt32(gTotal);
+                    }
+                    else if (accounts.Days > 360)
+                    {
+                        aboveThreeSixty = Convert.ToInt32(gTotal);
+                    }
+                }
+                gridmodel.TotalRunningBalance = runningBalance.ToString();
+                gridmodel.Currency = "AED";
+                gridmodel.TotalRunningBalanceInWords = _utilityService.ConvertNumbertoWords(Convert.ToInt32(runningBalance));
+                gridmodel.ZeroToThirty = ZeroToThirty.ToString();
+                gridmodel.ThirtyOneToSixty = ThirtyOneToSixty.ToString();
+                gridmodel.SixtyOneToNinety = SixtyOneToNinety.ToString();
+                gridmodel.NinetyOneToOneEighty = NinetyOneToOneEighty.ToString();
+                gridmodel.OneEightyToThreeSixty = OneEightyToThreeSixty.ToString();
+                gridmodel.AboveThreeSixty = aboveThreeSixty.ToString();
+                gridmodel.AccNo = accNo;
+                var supplier = _supplierMaster.GetAsQueryable().FirstOrDefault(x => x.SuppliersMasterSupplierReffAcNo == accNo);
+                if (supplier != null)
+                {
+                    gridmodel.AccountName = supplier.SuppliersMasterSupplierName;
+                }
+                else
+                {
+                    var customer = _cusomerMaster.GetAsQueryable().FirstOrDefault(x => x.CustomerMasterCustomerReffAcNo == accNo);
+                    gridmodel.AccountName = customer != null ? customer.CustomerMasterCustomerName : "";
+                }
+
+
+                return Response<OutStandingReportGridResponse>.Success(gridmodel, "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<OutStandingReportGridResponse>.Fail(new OutStandingReportGridResponse(), ex.Message);
+            }
+        }
+
+
+
         public async Task<Response<ReturnPrintResponse>> OutstandingStatementPrint(GenericGridViewModel model)
         {
             try
