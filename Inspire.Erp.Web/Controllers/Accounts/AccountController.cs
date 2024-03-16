@@ -226,6 +226,11 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         {
             return Ok(await _outstandingStatement.GetOutstandingStatementAccountTransactions(model));
         }
+        [HttpPost("GetOutstandingReportGrid")]
+        public async Task<IActionResult> GetOutstandingStatementAccountTransactions(OutStandingReprortFilter model)
+        {
+            return Ok(await _outstandingStatement.GetOutstandingStatementAccountTransactions(model));
+        }
         [HttpPost("OutstandingStatementPrint")]
         public async Task<IActionResult> OutstandingStatementPrint(GenericGridViewModel model)
         {

@@ -147,9 +147,13 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsVoucherType = VoucherType.Receipt;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     k.AccountstransactionsDelStatus = false;
+                    k.AccountsTransactionsAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
+                    k.AccountsTransactionsFcAllocDebit = k.AccountsTransactionsDebit;
+                    k.AccountsTransactionsFcAllocCredit = k.AccountsTransactionsCredit;
+                    k.AccountsTransactionsFcAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
                     return k;
                 }).ToList();
-               // Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(accountsTransactions));
+                // Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(accountsTransactions));
                 _accountTransactionRepository.InsertList(accountsTransactions);
                 _receiptVoucherRepository.Insert(receiptVoucher);
                 UserTracking trackingData = new UserTracking();

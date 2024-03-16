@@ -80,5 +80,11 @@ namespace Inspire.Erp.Domain.Modals.Common
         public string PoStatus { get; set; }
         public DateTime RequisitionDate { get; set; }
     }
-
+    public class OutStandingReprortFilter
+    {
+        public string accountNo { get; set; }
+        public string fromDate { get; set; }
+        public string toDate { get; set; }
+        public bool isDateRange { get; set; }
+    }
 }
