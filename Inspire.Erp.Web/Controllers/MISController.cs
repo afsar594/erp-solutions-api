@@ -33,7 +33,8 @@ namespace Inspire.Erp.Web.Controllers
         [HttpPost("GetAccountTransactionsProfitLoss")]
         public async Task<IActionResult> GetAccountTransactionsProfitLoss(GenericGridViewModel model)
         {
-            return Ok(await _profitLossService.GetAccountTransactionsProfitLoss(model));
+            //return Ok(await _profitLossService.GetAccountTransactionsProfitLoss(model));
+            return Ok(await _profitLossService.GetAccountTransactionsProfitAndLoss(model));
         }
         [HttpPost("GetAccountTransactionsProfitLossPrintMonthWise")]
         public async Task<IActionResult> GetAccountTransactionsProfitLossPrintMonthWise(GenericGridViewModel model)
@@ -56,7 +57,8 @@ namespace Inspire.Erp.Web.Controllers
         [HttpPost("GetAccountTransactionsBalanceSheetSummary")]
         public async Task<IActionResult> GetAccountTransactionsBalanceSheetSummary(GenericGridViewModel model)
         {
-            return Ok(await _balanceSheet.GetAccountTransactionsBalanceSheetSummary(model));
+            return Ok(await _balanceSheet.GetAccountTransactionsBalanceSheetsSummary(model));
+         //   return Ok(await _balanceSheet.GetAccountTransactionsBalanceSheetSummary(model));
         }
         [HttpPost("GetAccountTransactionsBalanceSheetDetail")]
         public async Task<IActionResult> GetAccountTransactionsBalanceSheetDetail(GenericGridViewModel model)

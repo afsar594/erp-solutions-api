@@ -18,6 +18,7 @@ using Inspire.Erp.Domain.Modals.Sales;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Infrastructure.Database;
+using SendGrid.Helpers.Mail;
 
 
 namespace Inspire.Erp.Application.Sales.Implementations
@@ -204,7 +205,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 _salesVoucherRepository.TransactionCommit();
 
-            
+
             }
             catch (Exception ex)
             {
@@ -316,7 +317,17 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 //_salesVoucherDetailsRepository.InsertList(salesVoucherDetails);
 
                 //accunt transaction entries for sales
-                 createAccountTransactionEntries(salesVoucher, accountsTransactions);
+                //createAccountTransactionEntries(salesVoucher, accountsTransactions);
+
+                accountsTransactions = accountsTransactions.Select((k) =>
+                {
+                    k.AccountsTransactionsVoucherNo = salesVoucherNumber;
+                    k.AccountsTransactionsAccNo = k.AccountsTransactionsAccNo ?? string.Empty;
+                    k.AccountsTransactionsVoucherType = VoucherType.SalesVoucher_TYPE;
+                    k.AccountsTransactionsStatus = AccountStatus.Approved;
+                    return k;
+                }).ToList();
+                _accountTransactionRepository.InsertList(accountsTransactions);
 
                 stockRegister = stockRegister.Select((k) =>
                 {
@@ -361,8 +372,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
             //Credit Entry
 
             //Debit Entry
-            if(salesVoucher.SalesVoucherType == "Credit")//here there are two entries for invoice type
-                                                                                        //need to replace SalesVoucherType by invoice type
+            if (salesVoucher.SalesVoucherType == "Credit")//here there are two entries for invoice type
+                                                          //need to replace SalesVoucherType by invoice type
             {
 
             }
@@ -432,7 +443,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 return 1;
             }
         }
-       
+
 
         public IEnumerable<AccountsTransactions> GetAllTransaction()
         {
@@ -440,25 +451,93 @@ namespace Inspire.Erp.Application.Sales.Implementations
         }
         public IEnumerable<SalesVoucher> GetSalesVoucher()
         {
-            IEnumerable<SalesVoucher> salesVoucher_ALL = _salesVoucherRepository.GetAll().Where(k => k.SalesVoucherDelStatus == false || k.SalesVoucherDelStatus == null).ToList();
-            IEnumerable<CurrencyMaster> _currencyMaster = _currencyMasterRepository.GetAll().ToList();
+            //IEnumerable<SalesVoucher> salesVoucher_ALL = _salesVoucherRepository.GetAll().Where(k => k.SalesVoucherDelStatus == false || k.SalesVoucherDelStatus == null).ToList();
+            //IEnumerable<CurrencyMaster> _currencyMaster = _currencyMasterRepository.GetAll().ToList();
 
-            foreach (var salesVoucher in salesVoucher_ALL)
-            {
-                salesVoucher.CurrencyMasterCurrencyName = _currencyMaster
-                                                             .Where(c => c.CurrencyMasterCurrencyId == salesVoucher.SalesVoucherCurrencyId)
-                                                             .FirstOrDefault() != null? _currencyMaster
-                                                             .Where(c => c.CurrencyMasterCurrencyId == salesVoucher.SalesVoucherCurrencyId)
-                                                             .FirstOrDefault().CurrencyMasterCurrencyName:null;
-            }
-            return salesVoucher_ALL;
+            //foreach (var salesVoucher in salesVoucher_ALL)
+            //{
+            //    salesVoucher.CurrencyMasterCurrencyName = _currencyMaster
+            //                                                 .Where(c => c.CurrencyMasterCurrencyId == salesVoucher.SalesVoucherCurrencyId)
+            //                                                 .FirstOrDefault() != null ? _currencyMaster
+            //                                                 .Where(c => c.CurrencyMasterCurrencyId == salesVoucher.SalesVoucherCurrencyId)
+            //                                                 .FirstOrDefault().CurrencyMasterCurrencyName : null;
+            //}
+
+
+            var salV = (from s in _salesVoucherRepository.GetAsQueryable()
+                        join c in _customerMasterRepository.GetAsQueryable() on s.SalesVoucherPartyId equals c.CustomerMasterCustomerNo
+                        join cr in _currencyMasterRepository.GetAsQueryable() on s.SalesVoucherCurrencyId equals cr.CurrencyMasterCurrencyId
+                        where s.SalesVoucherDelStatus == null || s.SalesVoucherDelStatus == false
+                        select new SalesVoucher()
+                        {
+                            SalesVoucherId = s.SalesVoucherId,
+                            SalesVoucherNo = s.SalesVoucherNo,
+                            SalesVoucherDate = s.SalesVoucherDate,
+                            SalesVoucherType = s.SalesVoucherType,
+                            SalesVoucherPartyId = c.CustomerMasterCustomerNo,
+                            SalesVoucherPartyName = c.CustomerMasterCustomerName,
+                            SalesVoucherPartyAddress = c.CustomerMasterCustomerLocation,
+                            SalesVoucherPartyVatNo = c.CustomerMasterCustomerVatNo,
+                            SalesVoucherRefNo = s.SalesVoucherRefNo,
+                            SalesVoucherContPerson = s.SalesVoucherContPerson,
+                            SalesVoucherDlvNo = s.SalesVoucherDlvNo,
+                            SalesVoucherDlvDate = s.SalesVoucherDlvDate,
+                            SalesVoucherSONo = s.SalesVoucherSONo,
+                            SalesVoucherSODate = s.SalesVoucherSODate,
+                            SalesVoucherQtnNo = s.SalesVoucherQtnNo,
+                            SalesVoucherQtnDate = s.SalesVoucherQtnDate,
+                            SalesVoucherSalesManID = s.SalesVoucherSalesManID,
+                            SalesVoucherDptID = s.SalesVoucherDptID,
+                            SalesVoucherEnqNo = s.SalesVoucherEnqNo,
+                            SalesVoucherEnqDate = s.SalesVoucherEnqDate,
+                            SalesVoucherDescription = s.SalesVoucherDescription,
+                            SalesVoucherExcludeVAT = s.SalesVoucherExcludeVAT,
+                            SalesVoucherLocationID = s.SalesVoucherLocationID,
+                            SalesVoucherUserID = s.SalesVoucherUserID,
+                            SalesVoucherCurrencyId = cr.CurrencyMasterCurrencyId,
+                            CurrencyMasterCurrencyName = cr.CurrencyMasterCurrencyName,
+                            SalesVoucherCompanyId = s.SalesVoucherCompanyId,
+                            SalesVoucherJobId = s.SalesVoucherJobId,
+                            SalesVoucherFSNO = s.SalesVoucherFSNO,
+                            SalesVoucherFc_Rate = s.SalesVoucherFc_Rate,
+                            SalesVoucherStatus = s.SalesVoucherStatus,
+                            SalesVoucherTotalGrossAmount = s.SalesVoucherTotalGrossAmount,
+                            SalesVoucherTotalItemDisAmount = s.SalesVoucherTotalItemDisAmount,
+                            SalesVoucherTotalActualAmount = s.SalesVoucherTotalActualAmount,
+                            SalesVoucherTotalDisPer = s.SalesVoucherTotalDisPer,
+                            SalesVoucherTotalDisAmount = s.SalesVoucherTotalDisAmount,
+                            SalesVoucherVat_AMT = s.SalesVoucherVat_AMT,
+                            SalesVoucherVat_Per = s.SalesVoucherVat_Per,
+                            SalesVoucherVat_RoundSign = s.SalesVoucherVat_RoundSign,
+                            SalesVoucherVat_RountAmt = s.SalesVoucherVat_RountAmt,
+                            SalesVoucherNetDisAmount = s.SalesVoucherNetDisAmount,
+                            SalesVoucherNetAmount = s.SalesVoucherNetAmount,
+                            SalesVoucherHeader = s.SalesVoucherHeader,
+                            SalesVoucherDelivery = s.SalesVoucherDelivery,
+                            SalesVoucherNotes = s.SalesVoucherNotes,
+                            SalesVoucherFooter = s.SalesVoucherFooter,
+                            SalesVoucherPaymentTerms = s.SalesVoucherPaymentTerms,
+                            SalesVoucherSubject = s.SalesVoucherSubject,
+                            SalesVoucherContent = s.SalesVoucherContent,
+                            SalesVoucherRemarks1 = s.SalesVoucherRemarks1,
+                            SalesVoucherRemarks2 = s.SalesVoucherRemarks2,
+                            SalesVoucherTermsAndCondition = s.SalesVoucherTermsAndCondition,
+                            SalesVoucherShippinAddress = s.SalesVoucherShippinAddress,
+                            SalesVoucherDelStatus = s.SalesVoucherDelStatus,
+                            SalesVoucherShortNo = s.SalesVoucherShortNo,
+                        }).ToList();
+
+
+
+
+
+            return salV;
         }
         public SalesVoucherModel GetSavedSalesVoucherDetails(string pvno)
         {
             SalesVoucherModel salesVoucherModel = new SalesVoucherModel();
             //salesVoucherModel.salesVoucher = _salesVoucherRepository.GetAsQueryable().Where(k => k.SalesVoucherNo == pvno && k.SalesVoucherDelStatus == false).SingleOrDefault();
             salesVoucherModel.salesVoucher = _salesVoucherRepository.GetAsQueryable().Where(k => k.SalesVoucherNo == pvno).SingleOrDefault();
-            salesVoucherModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.SalesVoucher_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
             salesVoucherModel.salesVoucherDetails = _salesVoucherDetailsRepository.GetAsQueryable().Where(x => x.SalesVoucherDetailsNo == pvno && (x.SalesVoucherDetailsDelStatus == false || x.SalesVoucherDetailsDelStatus == null)).ToList();
             return salesVoucherModel;
         }

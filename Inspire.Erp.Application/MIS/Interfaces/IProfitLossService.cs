@@ -12,6 +12,7 @@ namespace Inspire.Erp.Application.MIS.Interfaces
     {
         Task<Response<GetFinancialYearResponse>> GetFinancialYearResponse();
         Task<Response<ProfitLossWrapper>> GetAccountTransactionsProfitLoss(GenericGridViewModel model);
+        Task<Response<ProfitAndLossWrapper>> GetAccountTransactionsProfitAndLoss(GenericGridViewModel model);
         Task<Response<WrapperProfitLossPrintSimpleResponse>> GetAccountTransactionsProfitLossPrintSimple(GenericGridViewModel model);
         Task<Response<WrapperProfitLossPrintMonthWiseResponse>> GetAccountTransactionsProfitLossPrintMonthWise(GenericGridViewModel model);
         Task<Response<WrapperProfitLossPrintSummaryResponse>> GetAccountTransactionsProfitLossPrintSummary(GenericGridViewModel model);

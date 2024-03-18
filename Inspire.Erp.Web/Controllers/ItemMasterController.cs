@@ -160,6 +160,25 @@ namespace Inspire.Erp.Web.Controllers
         }
 
 
+        [HttpGet]
+        [Route("GetAllItemMasterByBarCode/{barCode}")]
+        public ApiResponse<ItemMasterViewModel> GetAllItemMasterByBarCode(string barCode)
+        {
+            ItemMaster listItemnater = itemMasterService.GetAllItemMasterByBarCode(barCode);
+
+            var x = _mapper.Map<ItemMasterViewModel>(listItemnater);
+            ApiResponse<ItemMasterViewModel> apiResponse = new ApiResponse<ItemMasterViewModel>
+            {
+                Valid = true,
+                Result = x,
+                Message = ""
+            };
+
+            return apiResponse;
+
+        }
+
+
         //[HttpGet("{id}", Name = "GetAllItemByName")]
         [HttpGet]
         [Route("GetAllItemByName/{id}")]
@@ -210,7 +229,6 @@ namespace Inspire.Erp.Web.Controllers
             }
            
             var model = _mapper.Map<ItemMaster>(itemMaster);
-          
             var data = (itemMaster.ItemMasterItemId == null || itemMaster.ItemMasterItemId == 0)? itemMasterService.InsertItem(model):itemMasterService.UpdateItem(model);
             List<ItemMasterViewModel> result =  _mapper.Map<List<ItemMasterViewModel>>(data) ;
             ApiResponse<List<ItemMasterViewModel>> apiResponse = new ApiResponse<List<ItemMasterViewModel>>

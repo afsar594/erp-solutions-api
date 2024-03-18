@@ -20,6 +20,8 @@ namespace Inspire.Erp.Web.ViewModels.sales
         public double? CustomerPurchaseOrderDiscountPercentage { get; set; }
         public double? CustomerPurchaseOrderDiscountAmount { get; set; }
         public double? CustomerPurchaseOrderTotal { get; set; }
+        public double? CustomerPurchaseOrderVat { get; set; }
+        public double? CustomerPurchaseOrderVAT_Percen { get; set; }
         public double? CustomerPurchaseOrderGrandTotal { get; set; }
         public long? CustomerPurchaseOrderFsno { get; set; }
         public long? CustomerPurchaseOrderUserId { get; set; }

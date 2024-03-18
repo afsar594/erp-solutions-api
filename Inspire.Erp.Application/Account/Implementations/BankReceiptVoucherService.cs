@@ -59,7 +59,12 @@ namespace Inspire.Erp.Application.Account.Implementations
                         k.AccountsTransactionsVoucherType = VoucherType.BankPayment;
                         k.AccountsTransactionsStatus = AccountStatus.Approved;
                     }
-
+                    k.AccountsTransactionsAllocCredit = k.AccountsTransactionsCredit;
+                    k.AccountsTransactionsAllocDebit = k.AccountsTransactionsDebit;
+                    k.AccountsTransactionsAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
+                    k.AccountsTransactionsFcAllocDebit = k.AccountsTransactionsDebit;
+                    k.AccountsTransactionsFcAllocCredit = k.AccountsTransactionsCredit;
+                    k.AccountsTransactionsFcAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
                     return k;
                 }).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
@@ -148,6 +153,12 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsVoucherNo = bankReceiptVoucher.BankReceiptVoucherVoucherNo;
                     k.AccountsTransactionsVoucherType = VoucherType.BankReceipt;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
+                    k.AccountsTransactionsAllocCredit = k.AccountsTransactionsCredit;
+                    k.AccountsTransactionsAllocDebit = k.AccountsTransactionsDebit;
+                    k.AccountsTransactionsAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
+                    k.AccountsTransactionsFcAllocDebit = k.AccountsTransactionsDebit;
+                    k.AccountsTransactionsFcAllocCredit = k.AccountsTransactionsCredit;
+                    k.AccountsTransactionsFcAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
                     return k;
                 }).ToList();
                 List<PdcDetails> _pdcDetails = new List<PdcDetails>();
@@ -163,13 +174,13 @@ namespace Inspire.Erp.Application.Account.Implementations
                             PDC_Details_Trans_Date = DateTime.Now,
                             PDC_Details_PDC_Date = DateTime.Now,
                             PDC_Details_Cheque_No = item.BankReceiptVoucherDetailsChequeNo == null ? "" : item.BankReceiptVoucherDetailsChequeNo.ToString(),
-                            PDC_Details_Cheque_Amount = 0,
-                            PDC_Details_FC_Cheque_Amount = 0,
+                            PDC_Details_Cheque_Amount = item.BankReceiptVoucherDetailsCrAmount,
+                            PDC_Details_FC_Cheque_Amount = item.BankReceiptVoucherDetailsCrAmount,
                             PDC_Details_Bank_Account_No = item.BankReceiptVoucherDetailsAcNo,
                             PDC_Details_Cheque_Bank_Name = "",
                             PDC_Details_Cheque_Status = "NC",
                             PDC_Details_PDC_Voucher_ID = null,
-                            PDC_Details_PDC_Voucher_Date = null,
+                            PDC_Details_PDC_Voucher_Date = DateTime.Now,
                             PDC_Details_PDC_Voucher_Narration = item.BankReceiptVoucherDetailsNarration,
                             PDC_Details_FSNO = item.BankReceiptVoucherDetailsFsno,
                             PDC_Details_User_ID = bankReceiptVoucher.BankReceiptVoucherUserId,

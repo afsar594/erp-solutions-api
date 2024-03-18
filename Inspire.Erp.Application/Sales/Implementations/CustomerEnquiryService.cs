@@ -16,6 +16,7 @@ using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Models.Sales.DeliveryNoteReport;
 using System.Linq.Dynamic.Core;
+using Inspire.Erp.Domain.DTO.Customer_Enquiry;
 
 namespace Inspire.Erp.Application.Sales.Implementations
 {
@@ -240,14 +241,15 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 {
                     filteredValue += $" && EnquiryMasterSalesManId == {filter.CustomerId} ";
                 }
-                //if (filter.Enquiry_No != null)
-                //{
-                //    filteredValue += $" && EnquiryMasterEnquiryId == {filter.Enquiry_No} ";
-                //}
-                //if (!string.IsNullOrEmpty(filter.fromDate) && !string.IsNullOrEmpty(filter.toDate))
-                //{
-                //    filteredValue += $" && EnquiryMasterEnquiryDate >= {Convert.ToDateTime(filter.fromDate)} && EnquiryMasterEnquiryDate <= {Convert.ToDateTime(filter.toDate)} ";
-                //}
+                if (filter.Enquiry_No != null)
+                {
+                    filteredValue += $" && EnquiryMasterEnquiryId == \"{filter.Enquiry_No}\" ";
+
+                }
+                if (!string.IsNullOrEmpty(filter.fromDate) && !string.IsNullOrEmpty(filter.toDate))
+                {
+                    filteredValue += $" && EnquiryMasterEnquiryDate >= {Convert.ToDateTime(filter.fromDate)} && EnquiryMasterEnquiryDate <= {Convert.ToDateTime(filter.toDate)} ";
+                }
 
                 reportDetails = await (from ce in _customerEnquiryRepository.GetAsQueryable().Where($"1 == 1  {filteredValue}")
                                        join lm in _locationMasterRepository.GetAsQueryable() on ce.EnquiryMasterLocationId equals (long)lm.LocationMasterLocationId into lmGroup
@@ -288,6 +290,27 @@ namespace Inspire.Erp.Application.Sales.Implementations
             {
 
                 throw;
+            }
+        }
+
+
+        public async Task<IEnumerable<EnquiryNoDto>> GetAllEnquiryNo()
+        {
+            try
+            {
+                var allEnquiryIdsStrings = await _customerEnquiryRepository.GetAsQueryable()
+                    .Select(ce => new EnquiryNoDto
+                    {
+                       EnquiryNO  = ce.EnquiryMasterEnquiryId,
+                       EnquiryNOId = ce.EnquiryMasterEnquiryId
+                    }) 
+                    .ToListAsync();
+
+                return allEnquiryIdsStrings;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while fetching Enquiry IDs: {ex.Message}", ex);
             }
         }
 

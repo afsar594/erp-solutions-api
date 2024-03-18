@@ -53,5 +53,37 @@ namespace Inspire.Erp.Web.Controllers.Administration
 
             }).ToList();
         }
+
+        [HttpPost]
+        [Route("DeleteStationMaster")]
+        public async Task<IActionResult> DeleteStationMaster(StationMaster stationMaster)
+        {
+            return Ok(await stationMasterService.DeleteStationMaster(stationMaster));
+        }
+       
+        [HttpGet]
+        [Route("GetStationMaster/{Id}")]
+        public async Task<IActionResult> GetStationMaster(int Id)
+        {
+            return Ok(await stationMasterService.GetStationMaster(Id));
+        }
+     
+        [HttpPost]
+        [Route("InsterStationMaster")]
+        public async Task<IActionResult> InsterStationMaster(StationMaster  stationMaster)
+        {
+            return Ok(await stationMasterService.InsertStationMaster(stationMaster));
+        }
+        [HttpPost]
+        [Route("UpdateStationMaster")]
+        public async Task<IActionResult> UpdateStationMaster(StationMaster stationMaster)
+        {
+            return Ok(await stationMasterService.UpdateStationMaster(stationMaster));
+        }
+
+      
+      
+
+
     }
 }

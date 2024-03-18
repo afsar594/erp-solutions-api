@@ -23,6 +23,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
     public class PurchaseOrderController : ControllerBase
     {
         private IPurchaseOrderService _purchaseOrderService;
+
         private readonly IMapper _mapper;
         public PurchaseOrderController(IPurchaseOrderService purchaseOrderService, IMapper mapper)
         {

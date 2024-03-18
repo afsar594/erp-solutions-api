@@ -60,15 +60,12 @@ namespace Inspire.Erp.Web.Controllers
                 //var xs = _salesOrderService.InsertSalesOrder(param1, param3, param2
                 //    //, param4
                 //    );
-
                 //==============
                 //param3 = new List<AccountsTransactions>();
                 List<StockRegister> param4 = new List<StockRegister>();
                 //clsAccountAndStock.SalesOrder_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
-
                 var xs = _salesOrderService.InsertSalesOrder(param1, param3, param2, param4);
                 //========================
-
                 CustomerPurchaseOrderViewModel salesVoucherViewModel = new CustomerPurchaseOrderViewModel
                 {
                     CustomerPurchaseOrderId = xs.customerPurchaseOrder.CustomerPurchaseOrderId,
@@ -86,7 +83,10 @@ namespace Inspire.Erp.Web.Controllers
                     CustomerPurchaseOrderDiscountPercentage= xs.customerPurchaseOrder.CustomerPurchaseOrderDiscountPercentage,
                     CustomerPurchaseOrderDiscountAmount= xs.customerPurchaseOrder.CustomerPurchaseOrderDiscountAmount,
                     CustomerPurchaseOrderTotal= xs.customerPurchaseOrder.CustomerPurchaseOrderTotal,
-                    CustomerPurchaseOrderGrandTotal= xs.customerPurchaseOrder.CustomerPurchaseOrderGrandTotal,
+
+                    CustomerPurchaseOrderVat = xs.customerPurchaseOrder.CustomerPurchaseOrderVat,
+                    CustomerPurchaseOrderVAT_Percen = xs.customerPurchaseOrder.CustomerPurchaseOrderVAT_Percen,
+                    CustomerPurchaseOrderGrandTotal = xs.customerPurchaseOrder.CustomerPurchaseOrderGrandTotal,
                     CustomerPurchaseOrderFsno= xs.customerPurchaseOrder.CustomerPurchaseOrderFsno,
                     CustomerPurchaseOrderUserId= xs.customerPurchaseOrder.CustomerPurchaseOrderUserId,
                     CustomerPurchaseOrderSubject= xs.customerPurchaseOrder.CustomerPurchaseOrderSubject,
@@ -375,6 +375,20 @@ namespace Inspire.Erp.Web.Controllers
 
             var response = await _salesOrderService.GetCustomerPOStatuses(model);
             ApiResponse<List<GetCustomerPurchaseOrderTrackingResponse>> apiResponse = new ApiResponse<List<GetCustomerPurchaseOrderTrackingResponse>>
+            {
+                Valid = true,
+                Result = response.Result,
+                Message = ""
+            };
+            return Ok(apiResponse);
+        }
+        [HttpPost]
+        [Route("GetCustomerQuotationStatuses")]
+        public async Task<IActionResult> GetCustomerQuotationStatuses(CustQuotationFilterModel model)
+        {
+
+            var response = await _salesOrderService.GetCustomerQuotationStatuses(model);
+            ApiResponse<List<CustomerSalesQuotation>> apiResponse = new ApiResponse<List<CustomerSalesQuotation>>
             {
                 Valid = true,
                 Result = response.Result,

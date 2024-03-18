@@ -364,10 +364,10 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 {
                     filteredValue += $" && CustomerDeliveryNoteCustomerCode == {filter.CustomerId} "; 
                 }
-                ////if (!string.IsNullOrEmpty(filter.fromDate) && !string.IsNullOrEmpty(filter.toDate))
-                ////{
-                ////    filteredValue += $" && CustomerDeliveryNoteDeliveryDate >= {Convert.ToDateTime(filter.fromDate)} && CustomerDeliveryNoteDeliveryDate <= {Convert.ToDateTime(filter.toDate)} ";
-                ////}
+                if (!string.IsNullOrEmpty(filter.fromDate) && !string.IsNullOrEmpty(filter.toDate))
+                {
+                    filteredValue += $" && CustomerDeliveryNoteDeliveryDate >= {Convert.ToDateTime(filter.fromDate)} && CustomerDeliveryNoteDeliveryDate <= {Convert.ToDateTime(filter.toDate)} ";
+                }
                 //if(!string.IsNullOrEmpty(filter.InvioceStatus))
                 //{
                 //    filteredValue += $" && CustomerDeliveryNoteDeliveryStatus == {filter.InvioceStatus} ";

@@ -6031,10 +6031,11 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<CustomerQuotation>(entity =>
             {
-                entity.HasKey(e => e.CustomerQuotationQid);
-
                 entity.ToTable("Customer_Quotation");
 
+                entity.HasKey(e => e.CustomerQuotationQid);
+
+                
                 entity.Property(e => e.CustomerQuotationQid).
                 HasColumnName("Customer_Quotation_QID");
 
@@ -8417,7 +8418,7 @@ namespace Inspire.Erp.Infrastructure.Database
                                 .HasMaxLength(100)
                                 .IsUnicode(false);
 
-                    entity.Property(e => e.OpeningStockVoucherDetailsUnitId).HasColumnType("numeric(18, 4)");
+                    entity.Property(e => e.OpeningStockVoucherDetailsUnitId).HasColumnName("OpeningStockVoucherDetailsUnitId");
 
                     entity.Property(e => e.OpeningStockVoucherDetailsAmount).HasColumnType("numeric(18, 4)");
                     entity.Property(e => e.OpeningStockVoucherDetailsCost).HasColumnType("numeric(18, 4)");
@@ -9671,7 +9672,13 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<JobInvoice>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.JobInvoiceId);
+
+                entity.ToTable("Job_Invoice");
+
+                entity.Property(e => e.JobInvoiceId)
+                    .HasColumnName("Job_Invoice_ID")
+                    .ValueGeneratedNever();
 
                 entity.ToTable("Job_Invoice");
 
@@ -9694,9 +9701,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.JobInvoiceGrossAmount).HasColumnName("Job_Invoice_Gross_Amount");
 
-                entity.Property(e => e.JobInvoiceId).HasColumnName("Job_Invoice_ID");
-
-                entity.Property(e => e.JobInvoiceJobId).HasColumnName("Job_Invoice_Job_ID");
+                 entity.Property(e => e.JobInvoiceJobId).HasColumnName("Job_Invoice_Job_ID");
 
                 entity.Property(e => e.JobInvoiceLocationId).HasColumnName("Job_Invoice_Location_ID");
 
@@ -9737,9 +9742,18 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<JobInvoiceDetails>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.JobInvoiceDetailsDetailsId);
+
 
                 entity.ToTable("Job_Invoice_Details");
+
+
+                entity.Property(e => e.JobInvoiceDetailsDetailsId)
+                   .HasColumnName("Job_Invoice_Details_Details_ID")
+                   .ValueGeneratedOnAdd();
+
+               
+
 
                 entity.Property(e => e.JobInvoiceDetailsDelStatus).HasColumnName("Job_Invoice_Details_DelStatus");
 
@@ -9748,9 +9762,7 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasMaxLength(150)
                     .IsUnicode(false);
 
-                entity.Property(e => e.JobInvoiceDetailsDetailsId)
-                    .HasColumnName("Job_Invoice_Details_Details_ID")
-                    .ValueGeneratedOnAdd();
+                
 
                 entity.Property(e => e.JobInvoiceDetailsDiscount).HasColumnName("Job_Invoice_Details_Discount");
 
@@ -13112,6 +13124,11 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasMaxLength(150)
                     .IsUnicode(false);
 
+                entity.Property(e => e.ContectPerson)
+                   .HasColumnName("ContectPerson")
+                   .HasMaxLength(150)
+                   .IsUnicode(false);
+
                 entity.Property(e => e.ProformaInvoicePacking)
                     .HasColumnName("Proforma_Invoice_Packing")
                     .HasMaxLength(100)
@@ -13168,7 +13185,11 @@ namespace Inspire.Erp.Infrastructure.Database
             {
                 //entity.HasNoKey();
 
-                entity.ToTable("Proforma_Invoice_Details");
+
+                entity.ToTable("Proforma_Invoice_DetailsV2");
+                entity.Property(e => e.ProformaInvoiceDetailsId).
+                HasColumnName("Proforma_Invoice_Details_ID")
+                 .ValueGeneratedOnAdd();
 
                 entity.Property(e => e.ProformaInvoiceDetailsAmount).HasColumnName("Proforma_Invoice_Details_Amount");
 
@@ -13184,8 +13205,6 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.ProformaInvoiceDetailsFcAmount).HasColumnName("Proforma_Invoice_Details_FC_Amount");
 
                 entity.Property(e => e.ProformaInvoiceDetailsFsno).HasColumnName("Proforma_Invoice_Details_FSNO");
-
-                entity.Property(e => e.ProformaInvoiceDetailsId).HasColumnName("Proforma_Invoice_Details_ID");
 
                 entity.Property(e => e.ProformaInvoiceDetailsIsEdited).HasColumnName("Proforma_Invoice_Details_IsEdited");
 
@@ -20189,8 +20208,8 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<StationMaster>(entity =>
             {
-                entity.HasNoKey();
-
+                //entity.HasNoKey();
+                entity.HasKey(e => e.StationMasterCode);
                 entity.ToTable("Station_Master");
 
                 entity.Property(e => e.StationMasterAddress)
@@ -23281,7 +23300,12 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<WorkGroupPermissions>(entity =>
             {
-                entity.HasNoKey();
+
+                entity.HasKey(c => c.WorkGroupPermissionsSno);
+
+                entity.Property(e => e.WorkGroupPermissionsSno)
+                   .HasColumnName("WorkGroup_Permissions_Sno")
+                   .ValueGeneratedOnAdd();
 
                 entity.ToTable("WorkGroup_Permissions");
 
@@ -23289,11 +23313,11 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.WorkGroupPermissionsFormType).HasColumnName("WorkGroup_Permissions_FormType");
 
-                entity.Property(e => e.WorkGroupPermissionsFormId).HasColumnName("WorkGroup_Permissions_Form_ID");
+               // entity.Property(e => e.WorkGroupPermissionsFormId).HasColumnName("WorkGroup_Permissions_Form_ID");
+                
+                entity.Property(e => e.WorkGroupPermissionsMenuId).HasColumnName("WorkGroup_Permissions_Menu_ID");
 
-                entity.Property(e => e.WorkGroupPermissionsSno)
-                    .HasColumnName("WorkGroup_Permissions_Sno")
-                    .ValueGeneratedOnAdd();
+               
 
                 entity.Property(e => e.WorkGroupPermissionsUadd).HasColumnName("WorkGroup_Permissions_UAdd");
 
