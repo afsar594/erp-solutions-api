@@ -105,6 +105,21 @@ namespace Inspire.Erp.Web.Controllers
                 return StatusCode(500, ex.Message.ToString());
             }
         }
+        [HttpGet]
+        [Route("GenerateVoucherNo")]
+        public IActionResult GenerateVoucherNo()
+        {
+            try
+            {
+                var item = _invoice.GenerateVoucherNo(null);
+                return Ok(item);
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
+        }
+
         //[HttpGet("GetSalesAccount")]
         //public async Task<List<MasterAccountsTable>> GetSalesAccount() {
         //    return await _invoice.GetSalesAccount();
