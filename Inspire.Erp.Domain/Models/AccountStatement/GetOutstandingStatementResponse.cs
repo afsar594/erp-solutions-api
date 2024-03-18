@@ -67,4 +67,40 @@ namespace Inspire.Erp.Domain.Modals.AccountStatement
         public string AccountName { get; set; }
         public string AccNo { get; set; }
     }
+
+    public class OutStandingReportGridResponse
+    {
+        public List<OutStandingReportGrid> Details { get; set; }
+        public string TotalRunningBalance { get; set; }
+        public string Currency { get; set; }
+        public string TotalRunningBalanceInWords { get; set; }
+        public string ZeroToThirty { get; set; }
+        public string ThirtyOneToSixty { get; set; }
+        public string SixtyOneToNinety { get; set; }
+        public string NinetyOneToOneEighty { get; set; }
+        public string OneEightyToThreeSixty { get; set; }
+        public string AboveThreeSixty { get; set; }
+        public string AccountName { get; set; }
+        public string AccNo { get; set; }
+    }
+
+
+
+
+    public class OutStandingReportGrid
+    {
+        public string AccountsTransactionsVoucherNo { get; set; }
+        public string AccountsTransactionsVoucherType { get; set; }
+        public string AccountsTransactionsAccNo { get; set; }
+        public string AccountsTransactionsTransDate { get; set; }
+        public string AccountsTransactionsDescription { get; set; }
+        public string RefNo { get; set; }
+        public decimal? AccountsTransactionsDebit { get; set; }
+        public decimal? AccountsTransactionsCredit { get; set; }
+        public decimal? settled { get; set; }
+        public decimal? Balance { get; set; }
+        public decimal? RunningBal { get; set; }
+        public int Days { get; set; }
+    }
+
 }
