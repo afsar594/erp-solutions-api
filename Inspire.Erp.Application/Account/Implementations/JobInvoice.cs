@@ -154,8 +154,8 @@ namespace Inspire.Erp.Application.Account.implementations
             try
             {
                 var JobInvoice = new JobInvoice();
-                JobInvoice = _jobinvoicerepo.GetAsQueryable().FirstOrDefault(x => x.JobInvoiceId == id);
-                JobInvoice.JobInvoiceDetails =_jobdetailsrepo.GetAsQueryable().Where(x => x.JobInvoiceDetailsDetailsId == id).ToList();
+                JobInvoice = _jobinvoicerepo.GetAsQueryable().FirstOrDefault(x => x.JobInvoiceId == Convert.ToInt32(id));
+                JobInvoice.JobInvoiceDetails =_jobdetailsrepo.GetAsQueryable().Where(x => x.JobInvoiceDetailsDetailsId == Convert.ToInt32(id)).ToList();
                 return JobInvoice;
 
             }
