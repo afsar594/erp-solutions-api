@@ -41,15 +41,17 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpGet]
         [Route("GetJobInvoiceById")]
-        public ApiResponse<List<JobInvoice>> GetJobInvoiceById(int id)
+        public IActionResult GetJobInvoiceById(int id)
         {
-            ApiResponse<List<JobInvoice>> apiResponse = new ApiResponse<List<JobInvoice>>
+            try
             {
-                Valid = true,
-                Result = _mapper.Map<List<JobInvoice>>(_invoice.GetJobInvoiceById(id)),
-                Message = ""
-            };
-            return apiResponse;
+                var item = _invoice.GetJobInvoiceById(id);
+                return Ok(item);
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
         }
         [HttpPost]
         [Route("InsertJobInvoice")]
