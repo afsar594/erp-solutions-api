@@ -9742,7 +9742,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<JobInvoiceDetails>(entity =>
             {
-                entity.HasKey();
+                entity.HasKey(e => e.JobInvoiceDetailsDetailsId);
 
 
                 entity.ToTable("Job_Invoice_Details");
