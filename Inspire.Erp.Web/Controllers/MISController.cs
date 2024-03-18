@@ -23,7 +23,7 @@ namespace Inspire.Erp.Web.Controllers
             _balanceSheet = balanceSheet;
             _utilityService = utilityService;
         }
-     
+
         #region Profit Loss 
         [HttpGet("GetFinancialYearResponse")]
         public async Task<IActionResult> GetFinancialYearResponse()
@@ -63,7 +63,8 @@ namespace Inspire.Erp.Web.Controllers
         [HttpPost("GetAccountTransactionsBalanceSheetDetail")]
         public async Task<IActionResult> GetAccountTransactionsBalanceSheetDetail(GenericGridViewModel model)
         {
-            return Ok(await _balanceSheet.GetAccountTransactionsBalanceSheetDetail(model));
+            //return Ok(await _balanceSheet.GetAccountTransactionsBalanceSheetDetail(model));
+            return Ok(await _balanceSheet.GetAccountTransactionsBalanceSheetsDetails(model));
         }
         [HttpPost("BalanceSheetPrint")]
         public async Task<IActionResult> BalanceSheetPrint(GenericGridViewModel model)
