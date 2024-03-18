@@ -239,6 +239,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                         Balance = accounts.Balance,//AccountsTransactionsAllocBalance != null ? accounts.AccountsTransactionsAllocBalance : 0,
                         RefNo = accounts.RefNo,
                         Days = accounts.Days,
+                        settled = accounts.settled,
                         AccountsTransactionsAccNo = accounts.AccountsTransactionsAccNo,
                         RunningBal = gTotal
                     });
