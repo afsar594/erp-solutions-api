@@ -168,10 +168,11 @@ namespace Inspire.Erp.Application.Account.implementations
         {
             try
             {
-                JobInvoice JobInvoiceModel = new JobInvoice();
-                JobInvoiceModel.JobInvoiceVoucherNo = Convert.ToString(_jobinvoicerepo.GetAll().Where(k => k.JobInvoiceVoucherNo == VNo).FirstOrDefault());
-                return JobInvoiceModel;
-
+             
+                JobInvoice JobInvoice = new JobInvoice();
+                JobInvoice = _jobinvoicerepo.GetAsQueryable().Where(k => k.JobInvoiceVoucherNo == VNo).SingleOrDefault();
+                JobInvoice.JobInvoiceDetails = _jobdetailsrepo.GetAsQueryable().Where(x => x.JobInvoiceDetailsVoucherNo == VNo && (x.JobInvoiceDetailsDelStatus == false || x.JobInvoiceDetailsDelStatus == null)).ToList();
+                return JobInvoice;
             }
             catch (Exception ex)
             {
