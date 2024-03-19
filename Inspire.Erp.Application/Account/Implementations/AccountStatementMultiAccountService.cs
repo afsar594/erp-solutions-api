@@ -259,6 +259,106 @@ namespace Inspire.Erp.Application.Account.Implementations
             }
         }
 
+
+        public async Task<Response<List<StatementOfAccountDetailResponse>>> GetAccountTransactionsForeignCurrencyDetail(GenericGridViewModel model)
+        {
+            try
+            {
+                var location = await _locationMaster.GetAsQueryable().FirstOrDefaultAsync();
+
+                var AccountTrans= _accountTransaction.GetAsQueryable()
+                                                             .Where(x => (model.FromDate==null || x.AccountsTransactionsTransDate >= model.FromDate)
+                                               && (model.ToDate == null || x.AccountsTransactionsTransDate <= model.ToDate) && x.AccountsTransactionsAccNo.Contains(model.Search)).Select(o =>
+
+                                               new StatementOfAccountDetailResponse
+                                               {
+                                                   AccountsTransactions_AccNo = o.AccountsTransactionsAccNo,
+                                                   AccountsTransactions_TransDate = (DateTime)o.AccountsTransactionsTransDate,
+                                                   AccountsTransactions_Particulars = o.AccountsTransactionsParticulars,
+                                                   AccountsTransactions_Debit = Convert.ToDouble(o.AccountsTransactionsFcDebit),
+                                                   AccountsTransactions_Credit = Convert.ToDouble(o.AccountsTransactionsFcCredit),
+                                                   AccountsTransactions_VoucherType = o.AccountsTransactionsVoucherType,
+                                                   AccountsTransactions_VoucherNo = o.AccountsTransactionsVoucherNo,
+                                                   AccountsTransactions_Description =o.AccountsTransactionsDescription,
+                                                   AccountsTransactions_FSNo=o.RefNo
+                                               }).ToList();
+
+
+
+                 return Response<List<StatementOfAccountDetailResponse>>.Success(AccountTrans, "Data found");
+            }
+            catch (Exception ex)
+            {
+                 return Response<List<StatementOfAccountDetailResponse>>.Fail(new List<StatementOfAccountDetailResponse>(), ex.Message);
+            }
+        }
+
+
+        public async Task<Response<StatementOfAccountFCSummResponse>> GetAccountTransactionsForeignCurrencySummary(GenericGridViewModel model)
+        {
+            try
+            {
+                var location = await _locationMaster.GetAsQueryable().FirstOrDefaultAsync();
+
+                var AccountTrans = _accountTransaction.GetAsQueryable()
+                                                             .Where(x => (model.FromDate == null || x.AccountsTransactionsTransDate >= model.FromDate)
+                                               && (model.ToDate == null || x.AccountsTransactionsTransDate <= model.ToDate)
+                                                //&&  model.accountNos.Contains(x.AccountsTransactionsAccNo)
+                                                && x.AccountsTransactionsAccNo.Contains(model.Search)
+                                               )
+                                                            .GroupBy(r => r.AccountsTransactionsAccNo).Select(o =>
+                              
+                                               new StatementOfAccountFCSummResponse
+                                               {
+                                                   AccNo = o.Key,
+                                                   TotalDebit = Convert.ToDouble(o.Sum(pc => pc.AccountsTransactionsFcDebit??0)),
+                                                   TotalCredit = Convert.ToDouble(o.Sum(pc => pc.AccountsTransactionsFcCredit??0)),
+
+                                               }).ToList();
+
+                double Total_Dr = AccountTrans.Sum(x => Convert.ToDouble(x.TotalDebit));
+                double Total_Cr = AccountTrans.Sum(x => Convert.ToDouble(x.TotalCredit));
+                var acctrans = new StatementOfAccountFCSummResponse
+                {
+                    TotalDebit =Total_Dr,
+                    TotalCredit =Total_Cr
+                };
+                if (acctrans.TotalDebit>0)
+                {
+                    acctrans.DebitBalance = acctrans.TotalDebit;
+                }
+                else
+                {
+                    acctrans.DebitBalance = 0;
+                }
+                if (acctrans.TotalCredit > 0)
+                {
+                    acctrans.CreditBalance = acctrans.TotalCredit;
+                }
+                else
+                {
+                    acctrans.CreditBalance = 0;
+                }
+
+                if (acctrans.DebitBalance >= acctrans.CreditBalance)
+                {
+                    acctrans.DebitBalance = acctrans.DebitBalance - acctrans.CreditBalance;
+                    acctrans.CreditBalance = 0;
+                }
+                if (acctrans.CreditBalance > acctrans.DebitBalance)
+                {
+                    acctrans.DebitBalance = 0;
+                    acctrans.CreditBalance = acctrans.CreditBalance - acctrans.DebitBalance ;
+                }
+
+                return Response<StatementOfAccountFCSummResponse>.Success(acctrans, "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<StatementOfAccountFCSummResponse>.Fail(new StatementOfAccountFCSummResponse(), ex.Message);
+            }
+        }
+
         public async Task<Response<ReturnPrintResponse>> VoucherPrint(GenericGridViewModel model)
         {
             try
