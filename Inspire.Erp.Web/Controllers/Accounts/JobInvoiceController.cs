@@ -142,7 +142,7 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("GetJobInvoiceVoucherNo/{id}")]
-        public ApiResponse<JobInvoice> c(string id)
+        public ApiResponse<JobInvoice> GetJobInvoiceVoucherNo(string id)
         {
             JobInvoice salesJournal = _invoice.GetJobInvoiceVoucherNo(id);
 
