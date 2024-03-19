@@ -13,6 +13,8 @@ using System.Linq;
 using Inspire.Erp.Application.Account.Interface;
 using Inspire.Erp.Application.Account.Implementations;
 using Inspire.Erp.Domain.Models;
+using Inspire.Erp.Web.ViewModels;
+using Inspire.Erp.Domain.Enums;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -55,29 +57,59 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpPost]
         [Route("InsertJobInvoice")]
-        public IActionResult InsertJobInvoice([FromBody] JobInvoice JobInvoiceViewModel)
+        //public IActionResult InsertJobInvoice([FromBody] JobInvoice JobInvoiceViewModel)
+        //{
+        //    try
+        //    {
+        //        return Ok(_invoice.InsertJobInvoice(JobInvoiceViewModel));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, ex.Message.ToString());
+        //    }
+        //}
+        public ApiResponse<JobInvoice> InsertJobInvoice([FromBody] JobInvoice JobInvoiceViewModel)
         {
-            try
+
+            var param1 = _mapper.Map<JobInvoice>(JobInvoiceViewModel);
+            var InsertJobInvoiceViewModel = _invoice.InsertJobInvoice(param1);
+
+            ApiResponse<JobInvoice> apiResponse = new ApiResponse<JobInvoice>
             {
-                return Ok(_invoice.InsertJobInvoice(JobInvoiceViewModel));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message.ToString());
-            }
+                Valid = true,
+                Result = _mapper.Map<JobInvoice>(InsertJobInvoiceViewModel),
+                Message = JobInvoiceMessage.SaveJobInvoice
+            };
+            return apiResponse;
         }
         [HttpPost]
         [Route("UpdateJobInvoice")]
-        public IActionResult UpdateJobInvoice([FromBody] JobInvoice JobInvoiceViewModel)
+        //public IActionResult UpdateJobInvoice([FromBody] JobInvoice JobInvoiceViewModel)
+        //{
+        //    try
+        //    {
+        //        return Ok(_invoice.UpdateJobInvoice(JobInvoiceViewModel));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, ex.Message.ToString());
+        //    }
+        //}
+        public ApiResponse<JobInvoice> UpdateJobInvoice([FromBody] JobInvoice JobInvoiceViewModel)
         {
-            try
+            var param1 = _mapper.Map<JobInvoice>(JobInvoiceViewModel);
+            var UpdateJobInvoiceViewModel = _invoice.UpdateJobInvoice(param1);
+
+
+            ApiResponse<JobInvoice> apiResponse = new ApiResponse<JobInvoice>
             {
-                return Ok(_invoice.UpdateJobInvoice(JobInvoiceViewModel));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message.ToString());
-            }
+                Valid = true,
+                Result = _mapper.Map<JobInvoice>(UpdateJobInvoiceViewModel),
+                Message = JobInvoiceMessage.UpdateJobInvoice
+
+            };
+            return apiResponse;
+
         }
         [HttpDelete]
         [Route("DeleteJobInvoice")]
@@ -92,18 +124,39 @@ namespace Inspire.Erp.Web.Controllers
                 return StatusCode(500, ex.Message.ToString());
             }
         }
+        //[HttpGet]
+        //[Route("GetJobInvoiceVoucherNo")]
+        //public IActionResult GetJobInvoiceVoucherNo(string VNo)
+        //{
+        //    try
+
+        //    {
+               
+        //        return Ok(_invoice.GetJobInvoiceVoucherNo(VNo));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, ex.Message.ToString());
+        //    }
+        //}
+
         [HttpGet]
-        [Route("GetJobInvoiceVoucherNo")]
-        public IActionResult GetJobInvoiceVoucherNo(string VNo)
+        [Route("GetJobInvoiceVoucherNo/{id}")]
+        public ApiResponse<JobInvoice> GetJobInvoiceVoucherNo(string id)
         {
-            try
+            JobInvoice salesJournal = _invoice.GetJobInvoiceVoucherNo(id);
+
+            if (salesJournal != null)
             {
-                return Ok(_invoice.GetJobInvoiceVoucherNo(VNo));
+               ApiResponse<JobInvoice> apiResponse = new ApiResponse<JobInvoice>
+                {
+                    Valid = true,
+                    Result = salesJournal,
+                    Message = ""
+                };
+                return apiResponse;
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message.ToString());
-            }
+            return null;
         }
         [HttpGet]
         [Route("GenerateVoucherNo")]
@@ -119,45 +172,6 @@ namespace Inspire.Erp.Web.Controllers
                 return StatusCode(500, ex.Message.ToString());
             }
         }
-
-        //[HttpGet("GetSalesAccount")]
-        //public async Task<List<MasterAccountsTable>> GetSalesAccount() {
-        //    return await _invoice.GetSalesAccount();
-        //}
-        //[HttpGet("GetJobInvoice")]
-        //public async Task<List<JobInvoiceModel>> GetJobInvoice()
-        //{
-        //    return await _invoice.GetJobInvoice();
-        //}
-
-        //[HttpPost("InsertJobInvoice")]
-        //public async Task<bool> InsertJobInvoice(JobInvoiceRequest obj)
-        //{
-        //    return await _invoice.InsertJobInvoice(obj);
-        //}
-        //[HttpPost("UpdateJobInvoice")]
-        //public async Task<bool> UpdateJobInvoice(JobInvoiceRequest obj)
-        //{
-        //    return await _invoice.UpdateJobInvoice(obj);
-        //}
-        //[HttpPost("DeleteJobInvoice")]
-        //public async Task<bool> DeleteJobInvoice(JobInvoiceRequest obj)
-        //{
-        //    return await _invoice.DeleteJobInvoice(obj);
-        //}
-        //[HttpGet]
-        //[Route("GetSaleVoucherNo")]
-        //public IActionResult GetSaleVoucherNo(string VNo)
-        //{
-        //    try
-        //    {
-        //        return Ok(_invoice.GetSaleVoucherNo(VNo));
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, ex.Message.ToString());
-        //    }
-        //}
 
     }
 }
