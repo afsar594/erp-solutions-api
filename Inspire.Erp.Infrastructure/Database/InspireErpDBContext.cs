@@ -12704,9 +12704,9 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<PdcVoucher>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(c => c.PdcVoucherSno);
 
-                entity.ToTable("PDC_Voucher");
+                entity.ToTable("PDCVoucher");
 
                 entity.Property(e => e.PdcVoucherDelStatus).HasColumnName("PDC_Voucher_DelStatus");
 
@@ -12742,9 +12742,9 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<PdcVoucherDetails>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(c => c.PdcVoucherDetailsDetId);
 
-                entity.ToTable("PDC_Voucher_Details");
+                entity.ToTable("PDC_VoucherDetails");
 
                 entity.Property(e => e.PdcVoucherDetailsAccSno).HasColumnName("PDC_Voucher_Details_AccSNO");
 
@@ -12758,9 +12758,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.PdcVoucherDetailsDelStatus).HasColumnName("PDC_Voucher_Details_DelStatus");
 
                 entity.Property(e => e.PdcVoucherDetailsDetId)
-                    .HasColumnName("PDC_Voucher_Details_Det_ID")
-                    .HasMaxLength(30)
-                    .IsUnicode(false);
+                    .HasColumnName("PDC_Voucher_Details_Det_ID");
 
                 entity.Property(e => e.PdcVoucherDetailsDrCr)
                     .HasColumnName("PDC_Voucher_Details_DrCr")
