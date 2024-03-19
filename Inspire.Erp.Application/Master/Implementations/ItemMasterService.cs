@@ -85,7 +85,13 @@ namespace Inspire.Erp.Application.Master
             bool valid = false;
             try
             {
-                
+
+                itemMaster.ItemImages = itemMaster.ItemImages.AsEnumerable().Select(k =>
+                {
+                    k.ItemImagesItemImageId = null;
+                    return k;
+                }).ToList();
+
                 itemrepository.Update(itemMaster);
                 valid = true;
                 return itemMaster;
@@ -95,7 +101,8 @@ namespace Inspire.Erp.Application.Master
             {
                 valid = false;
                  throw ex;
-               // return itemMaster;
+               // Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException: 'Database operation expected to affect 1 row(s) but actually affected 0 row(s). Data may have been modified or deleted since entities were loaded. See http://go.microsoft.com/fwlink/?LinkId=527962 for information on understanding and handling optimistic concurrency exceptions.'
+return itemMaster;
             }
             finally
             {
