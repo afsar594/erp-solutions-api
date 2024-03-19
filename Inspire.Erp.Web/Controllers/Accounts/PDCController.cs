@@ -1,5 +1,6 @@
 ﻿using Inspire.Erp.Application.Account.Interface;
 using Inspire.Erp.Application.Procurement.Interfaces;
+using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Modals;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -70,5 +71,14 @@ namespace Inspire.Erp.Web.Controllers
         {
             return await _pdc.getFilteredPDCList(obj);
         }
+
+        [HttpPost("PostPDC")]
+        public async Task<IEnumerable<PDCGetList>> PostPDC([FromBody] List<PDCGetList> pDCGetList)
+        {
+            return await _pdc.PostPDC(pDCGetList);
+        }
+
+
+
     }
 }

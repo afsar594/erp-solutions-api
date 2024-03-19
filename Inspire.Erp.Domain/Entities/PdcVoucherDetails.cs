@@ -5,7 +5,7 @@ namespace Inspire.Erp.Domain.Entities
 {
     public partial class PdcVoucherDetails
     {
-        public string PdcVoucherDetailsDetId { get; set; }
+        public int PdcVoucherDetailsDetId { get; set; }
         public int? PdcVoucherDetailsAccSno { get; set; }
         public string PdcVoucherDetailsAccno { get; set; }
         public string PdcVoucherDetailsDrCr { get; set; }

@@ -1,4 +1,5 @@
-﻿using Inspire.Erp.Domain.Modals;
+﻿using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Modals;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -12,6 +13,8 @@ namespace Inspire.Erp.Application.Account.Interface
         public Task<IEnumerable<PDCPostedList>> PDCPostedList();
         public Task<IEnumerable<PDCGetList>> PDCGetList();
         public Task<IEnumerable<PDCGetList>> getFilteredPDCList(PDCFilters obj);
+        public Task<IEnumerable<PDCGetList>> PostPDC(List<PDCGetList> list);
+
         public Task<List<BankNamesModel>> GetBankNames();
         Task<IEnumerable<PDCGetList>> PDCGetReturnList(PDCFilters obj);
     }

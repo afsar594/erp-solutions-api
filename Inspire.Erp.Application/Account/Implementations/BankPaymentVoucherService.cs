@@ -191,14 +191,14 @@ namespace Inspire.Erp.Application.Account.Implementations
                             PDC_Details_Cheque_Status = "NC",
                             PDC_Details_PDC_Voucher_ID = null,
                             PDC_Details_PDC_Voucher_Date = DateTime.Now,
-                            PDC_Details_PDC_Voucher_Narration = item.BankPaymentVoucherDetailsNarration,
+                            PDC_Details_PDC_Voucher_Narration = bankPaymentVoucher.BankPaymentVoucherNarration,
                             PDC_Details_FSNO = item.BankPaymentVoucherDetailsFsno,
                             PDC_Details_User_ID = bankPaymentVoucher.BankPaymentVoucherUserId,
                             PDC_Details_Flat_ID = null,
                             PDC_Details_Building_ID = null,
                             PDC_Details_Contract = null,
                             PDC_Details_Old_Cheque_Status = null,
-                            PDC_Details_PartyAccNo = null,
+                            PDC_Details_PartyAccNo = item.BankPaymentVoucherDetailsAcNo,
                             PDC_Details_DelStatus = false,
                         });
                     }
