@@ -13,6 +13,7 @@ using System.Linq;
 using Inspire.Erp.Application.Account.Interface;
 using Inspire.Erp.Application.Account.Implementations;
 using Inspire.Erp.Domain.Models;
+using Inspire.Erp.Web.ViewModels;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -92,18 +93,39 @@ namespace Inspire.Erp.Web.Controllers
                 return StatusCode(500, ex.Message.ToString());
             }
         }
+        //[HttpGet]
+        //[Route("GetJobInvoiceVoucherNo")]
+        //public IActionResult GetJobInvoiceVoucherNo(string VNo)
+        //{
+        //    try
+
+        //    {
+               
+        //        return Ok(_invoice.GetJobInvoiceVoucherNo(VNo));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, ex.Message.ToString());
+        //    }
+        //}
+
         [HttpGet]
-        [Route("GetJobInvoiceVoucherNo")]
-        public IActionResult GetJobInvoiceVoucherNo(string VNo)
+        [Route("GetJobInvoiceVoucherNo/{id}")]
+        public ApiResponse<JobInvoice> GetJobInvoiceVoucherNo(string id)
         {
-            try
+            JobInvoice salesJournal = _invoice.GetJobInvoiceVoucherNo(id);
+
+            if (salesJournal != null)
             {
-                return Ok(_invoice.GetJobInvoiceVoucherNo(VNo));
+               ApiResponse<JobInvoice> apiResponse = new ApiResponse<JobInvoice>
+                {
+                    Valid = true,
+                    Result = salesJournal,
+                    Message = ""
+                };
+                return apiResponse;
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message.ToString());
-            }
+            return null;
         }
         [HttpGet]
         [Route("GenerateVoucherNo")]
@@ -119,45 +141,6 @@ namespace Inspire.Erp.Web.Controllers
                 return StatusCode(500, ex.Message.ToString());
             }
         }
-
-        //[HttpGet("GetSalesAccount")]
-        //public async Task<List<MasterAccountsTable>> GetSalesAccount() {
-        //    return await _invoice.GetSalesAccount();
-        //}
-        //[HttpGet("GetJobInvoice")]
-        //public async Task<List<JobInvoiceModel>> GetJobInvoice()
-        //{
-        //    return await _invoice.GetJobInvoice();
-        //}
-
-        //[HttpPost("InsertJobInvoice")]
-        //public async Task<bool> InsertJobInvoice(JobInvoiceRequest obj)
-        //{
-        //    return await _invoice.InsertJobInvoice(obj);
-        //}
-        //[HttpPost("UpdateJobInvoice")]
-        //public async Task<bool> UpdateJobInvoice(JobInvoiceRequest obj)
-        //{
-        //    return await _invoice.UpdateJobInvoice(obj);
-        //}
-        //[HttpPost("DeleteJobInvoice")]
-        //public async Task<bool> DeleteJobInvoice(JobInvoiceRequest obj)
-        //{
-        //    return await _invoice.DeleteJobInvoice(obj);
-        //}
-        //[HttpGet]
-        //[Route("GetSaleVoucherNo")]
-        //public IActionResult GetSaleVoucherNo(string VNo)
-        //{
-        //    try
-        //    {
-        //        return Ok(_invoice.GetSaleVoucherNo(VNo));
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, ex.Message.ToString());
-        //    }
-        //}
 
     }
 }
