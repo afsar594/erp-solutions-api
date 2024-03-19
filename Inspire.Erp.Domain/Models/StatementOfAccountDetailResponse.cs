@@ -17,4 +17,14 @@ namespace Inspire.Erp.Domain.Modals
         public string AccountsTransactions_FSNo { get; set; }
         public string CostCenter { get; set; }
     }
+
+    public class StatementOfAccountFCSummResponse
+    {
+        public string AccNo { get; set; }
+        public string AccountName { get; set; }
+        public double TotalDebit { get; set; }
+        public double TotalCredit { get; set; }
+        public double DebitBalance { get; set; }
+        public double CreditBalance { get; set; }
+    }
 }

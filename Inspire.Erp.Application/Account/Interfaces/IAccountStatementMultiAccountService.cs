@@ -16,5 +16,8 @@ namespace Inspire.Erp.Application.Account.Interfaces
         Task<Response<List<DropdownResponse>>> GetAccountMasterGroup();
         public Task<Response<ReturnPrintResponse>> VoucherPrint(GenericGridViewModel model);
 
+        Task<Response<List<StatementOfAccountDetailResponse>>> GetAccountTransactionsForeignCurrencyDetail(GenericGridViewModel model);
+
+        Task<Response<StatementOfAccountFCSummResponse>> GetAccountTransactionsForeignCurrencySummary(GenericGridViewModel model);
     }
 }
