@@ -14,6 +14,7 @@ using Inspire.Erp.Application.Account.Interface;
 using Inspire.Erp.Application.Account.Implementations;
 using Inspire.Erp.Domain.Models;
 using Inspire.Erp.Web.ViewModels;
+using Inspire.Erp.Domain.Enums;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -56,29 +57,59 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpPost]
         [Route("InsertJobInvoice")]
-        public IActionResult InsertJobInvoice([FromBody] JobInvoice JobInvoiceViewModel)
+        //public IActionResult InsertJobInvoice([FromBody] JobInvoice JobInvoiceViewModel)
+        //{
+        //    try
+        //    {
+        //        return Ok(_invoice.InsertJobInvoice(JobInvoiceViewModel));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, ex.Message.ToString());
+        //    }
+        //}
+        public ApiResponse<JobInvoice> InsertJobInvoice([FromBody] JobInvoice JobInvoiceViewModel)
         {
-            try
+
+            var param1 = _mapper.Map<JobInvoice>(JobInvoiceViewModel);
+            var InsertJobInvoiceViewModel = _invoice.InsertJobInvoice(param1);
+
+            ApiResponse<JobInvoice> apiResponse = new ApiResponse<JobInvoice>
             {
-                return Ok(_invoice.InsertJobInvoice(JobInvoiceViewModel));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message.ToString());
-            }
+                Valid = true,
+                Result = _mapper.Map<JobInvoice>(InsertJobInvoiceViewModel),
+                Message = JobInvoiceMessage.SaveJobInvoice
+            };
+            return apiResponse;
         }
         [HttpPost]
         [Route("UpdateJobInvoice")]
-        public IActionResult UpdateJobInvoice([FromBody] JobInvoice JobInvoiceViewModel)
+        //public IActionResult UpdateJobInvoice([FromBody] JobInvoice JobInvoiceViewModel)
+        //{
+        //    try
+        //    {
+        //        return Ok(_invoice.UpdateJobInvoice(JobInvoiceViewModel));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, ex.Message.ToString());
+        //    }
+        //}
+        public ApiResponse<JobInvoice> UpdateJobInvoice([FromBody] JobInvoice JobInvoiceViewModel)
         {
-            try
+            var param1 = _mapper.Map<JobInvoice>(JobInvoiceViewModel);
+            var UpdateJobInvoiceViewModel = _invoice.UpdateJobInvoice(param1);
+
+
+            ApiResponse<JobInvoice> apiResponse = new ApiResponse<JobInvoice>
             {
-                return Ok(_invoice.UpdateJobInvoice(JobInvoiceViewModel));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message.ToString());
-            }
+                Valid = true,
+                Result = _mapper.Map<JobInvoice>(UpdateJobInvoiceViewModel),
+                Message = JobInvoiceMessage.UpdateJobInvoice
+
+            };
+            return apiResponse;
+
         }
         [HttpDelete]
         [Route("DeleteJobInvoice")]
@@ -111,7 +142,7 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("GetJobInvoiceVoucherNo/{id}")]
-        public ApiResponse<JobInvoice> GetJobInvoiceVoucherNo(string id)
+        public ApiResponse<JobInvoice> c(string id)
         {
             JobInvoice salesJournal = _invoice.GetJobInvoiceVoucherNo(id);
 
