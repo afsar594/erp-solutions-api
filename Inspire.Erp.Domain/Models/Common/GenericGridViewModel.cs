@@ -68,6 +68,13 @@ namespace Inspire.Erp.Domain.Modals.Common
         public string fromDate { get; set; }
         public string toDate { get; set; }       
     }
+
+    public class AccountTransactionsFilterReport
+    {
+       public List<string> accountNos { get; set; }
+        public DateTime FromDate { get; set; }
+        public DateTime ToDate { get; set; }
+    }
     public class PurChaseRequisitionStatus
     {
         public int issueQty { get; set; }

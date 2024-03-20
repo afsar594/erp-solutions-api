@@ -421,10 +421,6 @@ namespace Inspire.Erp.Application.MIS.Implementations
                 return Response<ProfitLossWrapper>.Fail(new ProfitLossWrapper(), ex.Message);
             }
         }
-
-
-
-
         public async Task<Response<ProfitAndLossWrapper>> GetAccountTransactionsProfitAndLoss(GenericGridViewModel model)
         {
             try

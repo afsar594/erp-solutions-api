@@ -14,6 +14,7 @@ namespace Inspire.Erp.Application.MIS.Interfaces
         Task<Response<GridWrapperResponse<List<GetBalanceSheetSummaryResponse>>>> GetAccountTransactionsBalanceSheetSummary(GenericGridViewModel model);
 
         Task<Response<List<BalanceSheetResponse>>> GetAccountTransactionsBalanceSheetsSummary(GenericGridViewModel model);
+        Task<Response<List<BalanceSheetResponse>>> GetAccountTransactionsBalanceSheetsDetails(GenericGridViewModel model);
         public Task<Response<ReturnPrintResponse>> BalanceSheetPrint(GenericGridViewModel model);
         //private string GetHTMLString(List<GetBalanceSheetDetailResponse> records);
         public Task<Response<ReturnPrintResponse>> BalanceSheetPrintSummary(GenericGridViewModel model);
