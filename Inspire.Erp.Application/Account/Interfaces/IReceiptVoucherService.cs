@@ -1,5 +1,6 @@
 ﻿using Inspire.Erp.Application.Common;
 using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
