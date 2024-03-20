@@ -12,6 +12,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System.Security.Cryptography.Xml;
 using System.Text;
 
 namespace Inspire.Erp.Application.Account.Implementations
@@ -25,13 +26,15 @@ namespace Inspire.Erp.Application.Account.Implementations
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
         private readonly IPaymentVoucherService _IPaymentVoucherService;
         private IRepository<UserTracking> UserTracking;
+        private IRepository<AllocationVoucherDetails> allocationVDlts;
+
         private IRepository<UserFile> UserFile;
         private readonly InspireErpDBContext context;
         public ReceiptVoucherService(IRepository<AccountsTransactions> accountTransactionRepository, IRepository<ProgramSettings> programsettingsRepository,
             IRepository<VouchersNumbers> voucherNumbers,
             IRepository<ReceiptVoucherMaster> receiptVoucherRepository, IRepository<ReceiptVoucherDetails> receiptVoucherDetailsRepository,
             IRepository<UserFile> _UserFile, IRepository<UserTracking> _UserTracking, InspireErpDBContext _context,
-            IPaymentVoucherService IPaymentVoucherService)
+            IPaymentVoucherService IPaymentVoucherService, IRepository<AllocationVoucherDetails> allocationVDlts)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._receiptVoucherRepository = receiptVoucherRepository;
@@ -42,6 +45,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             UserFile = _UserFile;
             context = _context;
             _IPaymentVoucherService = IPaymentVoucherService;
+            this.allocationVDlts = allocationVDlts;
         }
         public ReceiptVoucherMaster UpdateReceiptVoucher(ReceiptVoucherMaster receiptVoucher, List<AccountsTransactions> accountsTransactions, List<ReceiptVoucherDetails> receiptVoucherDetails)
         {
@@ -254,6 +258,33 @@ namespace Inspire.Erp.Application.Account.Implementations
             return vouchersNumbers;
         }
 
-       
+        public IEnumerable<Domain.Models.AllocationDetails> GetReceiptVoucherAllocations(string accNo, string refNo)
+        {
+            try
+            {
+                List<Domain.Models.AllocationDetails> allocationDetails = new List<Domain.Models.AllocationDetails>();
+                var result = (from AD in this.allocationVDlts.GetAll()
+                              join AT in _accountTransactionRepository.GetAll() on AD.AllocationVoucherDetailsTransSno equals (int)AT.AccountsTransactionsTransSno
+                              where AD.AllocationVoucherDetailsAccNo == accNo && AD.AllocationVoucherDetailsRefVno == refNo && AD.AllocationVoucherDetailsRefVtype == "RECEIPT"
+                              select new Domain.Models.AllocationDetails()
+                              {
+                                  TransDate = AT.AccountsTransactionsTransDate,
+                                  VoucherNo = AD.AllocationVoucherDetailsVno,
+                                  Type = AD.AllocationVoucherDetailsRefVtype,
+                                  Credit = (decimal)AD.AllocationVoucherDetailsAllocCredit,
+                                  Debit = (decimal)AD.AllocationVoucherDetailsAllocDebit,
+                                 Balance = AT.AccountsTransactionsAllocBalance,
+                                  AllocAmount = 0,
+                                  NetAllocation =0
+                              }).ToList();
+               
+     
+                return result;
+            }
+            catch
+            {
+                return new List<Domain.Models.AllocationDetails>();
+            }
+        }
     }
 }
