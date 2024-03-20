@@ -16,5 +16,7 @@ namespace Inspire.Erp.Application.Account.Interfaces
         public IEnumerable<ReceiptVoucherMaster> GetReceiptVouchers();
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
         public VouchersNumbers GetVouchersNumbers(string Rvno);
+
+
     }
 }

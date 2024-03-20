@@ -7,7 +7,6 @@ namespace Inspire.Erp.Domain.Models
     public class AllocationDetails
     {
         public DateTime? TransDate { get; set; }
-       
        public string VoucherNo { get; set; }
         public string Type { get; set; }
         public decimal? Debit { get; set; }

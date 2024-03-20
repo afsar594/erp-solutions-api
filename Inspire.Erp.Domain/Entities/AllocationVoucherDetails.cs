@@ -31,3 +31,4 @@ namespace Inspire.Erp.Domain.Entities
         public virtual AllocationVoucher AllocationVoucher { get; set; }
     }
 }
+
