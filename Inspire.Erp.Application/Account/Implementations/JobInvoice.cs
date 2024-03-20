@@ -116,13 +116,13 @@ namespace Inspire.Erp.Application.Account.implementations
                 throw ex;
             }
         }
-        public IEnumerable<JobInvoice> DeleteJobInvoice(int Id)
+        public IEnumerable<JobInvoice> DeleteJobInvoice(string Id)
         {
             try
             {
-                var dataObj = _jobinvoicerepo.GetAsQueryable().Where(o => o.JobInvoiceId == Id).FirstOrDefault();
+                var dataObj = _jobinvoicerepo.GetAsQueryable().Where(o => o.JobInvoiceVoucherNo == Id).FirstOrDefault();
                 dataObj.JobInvoiceDelStatus = true;
-                var detailData = _jobdetailsrepo.GetAsQueryable().Where(o => o.JobInvoiceDetailsDetailsId == Id).ToList();
+                var detailData = _jobdetailsrepo.GetAsQueryable().Where(o => o.JobInvoiceDetailsVoucherNo == Id).ToList();
                 detailData.ForEach(elemt =>
                 {
                     elemt.JobInvoiceDetailsDelStatus = true;
