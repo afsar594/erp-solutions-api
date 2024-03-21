@@ -64,6 +64,16 @@ namespace Inspire.Erp.Web.Controllers.Store
             //return apiResponse;
         }
 
-       
+
+        [HttpPost]
+        [Route("GetStockMovementReport")]
+        public async Task<IActionResult> GetStockMovementReport(StockFilterModel model)
+        {
+            var results = await _openingStockService.GetStockMovementReport(model);
+            return Ok(results);
+  
+        }
+
+
     }
 }
