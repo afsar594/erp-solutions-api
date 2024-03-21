@@ -143,32 +143,37 @@ namespace Inspire.Erp.Web.Controllers.Store
 
             return apiResponse;
         }
-
-
-        [HttpPost]
-        [Route("DeleteStockTransfer")]
-        public async Task<bool> DeleteStockTransfer([FromBody] StockTransferViewModel stockTranfermodel)
-        {
-            try
-            {
-                var param1 = _mapper.Map<StockTransfer>(stockTranfermodel);
-            var param2 = _mapper.Map<List<StockTransferDetails>>(stockTranfermodel.StockTransferDetails);
-
-                //==============
-               var  param3 = new List<AccountsTransactions>();
-                List<StockRegister> param4 = new List<StockRegister>();
-
-                var result= await _st.DeleteStockTransfer(param1, param2
-               , param4
-               );
-            return true;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-
+        [HttpDelete]
+        [Route("DeleteStockTransfers")]
+        public IActionResult DeleteStockTransfers(string Id)
+        {     
+            return Ok(_st.DeleteStockTransfers(Id));
         }
+
+        //[HttpPost]
+        //[Route("DeleteStockTransfer")]
+        //public async Task<bool> DeleteStockTransfer([FromBody] StockTransferViewModel stockTranfermodel)
+        //{
+        //    try
+        //    {
+        //        var param1 = _mapper.Map<StockTransfer>(stockTranfermodel);
+        //    var param2 = _mapper.Map<List<StockTransferDetails>>(stockTranfermodel.StockTransferDetails);
+
+        //        //==============
+        //       var  param3 = new List<AccountsTransactions>();
+        //        List<StockRegister> param4 = new List<StockRegister>();
+
+        //        var result= await _st.DeleteStockTransfer(param1, param2
+        //       , param4
+        //       );
+        //    return true;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+
+        //}
 
         //[HttpPost("deleteStockTransfer")]
         //public async Task<bool> deleteStockTransfer(StockTransferRequestModel obj)
