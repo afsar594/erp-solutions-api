@@ -268,6 +268,26 @@ namespace Inspire.Erp.Application.Store.Implementation
 
             //}
         }
+        public IEnumerable<StockTransfer> DeleteStockTransfers(string Id)
+        {
+            try
+            {
+                var dataObj = _StockTransferRepo.GetAsQueryable().Where(o => o.StockTransferVoucherNo == Id).FirstOrDefault();
+                dataObj.StockTransferDelStatus = true;
+                var detailData = _StockTransferDetailRepo.GetAsQueryable().Where(o => o.StockTransferDetailsSNo == Id).ToList();
+                detailData.ForEach(elemt =>
+                {
+                    elemt.StockTransferDetailsDelStatus = true;
+                });
+                _StockTransferRepo.Update(dataObj);
+                _StockTransferDetailRepo.UpdateList(detailData);
+                return _StockTransferRepo.GetAll();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
 
         public StockTransferModel GetSavedStockTransferDetails(string pvno)
