@@ -77,9 +77,13 @@ namespace Inspire.Erp.Application.Account.implementations
         {
             try
             {
+                
 
+                string openingstockVoucherNumber = this.GenerateVoucherNo(JobInvoice.JobInvoiceVoucherDate.Value).VouchersNumbersVNo;
+                JobInvoice.JobInvoiceVoucherNo = openingstockVoucherNumber;
+              
                 _jobinvoicerepo.BeginTransaction();
-                int maxcount = 1;
+                int maxcount = 0;
                 maxcount = Convert.ToInt32(
                     _jobinvoicerepo.GetAsQueryable()
                     .DefaultIfEmpty().Max(o => o == null ? 0 : o.JobInvoiceId) + 1);
@@ -89,6 +93,7 @@ namespace Inspire.Erp.Application.Account.implementations
                 JobInvoice.JobInvoiceDetails.ForEach(elemt =>
                 {
                     elemt.JobInvoiceDetailsDetailsId = maxcount;
+                    elemt.JobInvoiceDetailsVoucherNo = JobInvoice.JobInvoiceVoucherNo;
                 });
                 _jobdetailsrepo.InsertList(JobInvoice.JobInvoiceDetails);               
                 _jobinvoicerepo.TransactionCommit();
@@ -189,9 +194,9 @@ namespace Inspire.Erp.Application.Account.implementations
         {
             try
             {
-                var prefix = this._programsettingsRepository.GetAsQueryable().Where(k => k.ProgramSettingsKeyValue == Prefix.SalesReturn_Prefix).FirstOrDefault().ProgramSettingsTextValue;
+                var prefix = this._programsettingsRepository.GetAsQueryable().Where(k => k.ProgramSettingsKeyValue == Prefix.JobInoviceVoucher_Prefix).FirstOrDefault().ProgramSettingsTextValue;
                 int vnoMaxVal = Convert.ToInt32(_voucherNumbersRepository.GetAsQueryable()
-                                                        .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == VoucherType.SalesReturn_TYPE)
+                                                        .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == VoucherType.JobInoviceVoucher_TYPE)
                                                         .DefaultIfEmpty()
                                                         .Max(o => o == null ? 0 : o.VouchersNumbersVNoNu)) + 1;
 
@@ -204,7 +209,7 @@ namespace Inspire.Erp.Application.Account.implementations
                 {
                     VouchersNumbersVNo = prefix + vnoMaxVal,
                     VouchersNumbersVNoNu = vnoMaxVal,
-                    VouchersNumbersVType = VoucherType.SalesReturn_TYPE,
+                    VouchersNumbersVType = VoucherType.JobInoviceVoucher_TYPE,
                     VouchersNumbersFsno = 1,
                     VouchersNumbersStatus = AccountStatus.Pending,
                     VouchersNumbersVoucherDate = VoucherGenDate
