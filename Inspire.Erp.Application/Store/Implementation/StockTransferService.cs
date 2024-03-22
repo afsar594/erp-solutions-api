@@ -577,8 +577,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                 //string openingstockVoucherNumber = this.GenerateVoucherNo(stockTransfer.StockTransferStDate.Value).VouchersNumbersVNo;
                 //stockTransfer.StockTransferVoucherNo = openingstockVoucherNumber;
-
-
+              
                 int maxcount = 0;
                 maxcount = Convert.ToInt32(
                     await _StockTransferRepo.GetAsQueryable()
@@ -623,10 +622,10 @@ namespace Inspire.Erp.Application.Store.Implementation
                         return k;
                     }).ToList();
 
-                    _StockRegisterRepo.InsertList(stockRegister);
+                _StockRegisterRepo.InsertList(stockRegister);
 
-                    _StockTransferRepo.Update(stockTransfer);
-                    _StockTransferRepo.TransactionCommit();
+                _StockTransferRepo.Update(stockTransfer);
+                _StockTransferRepo.TransactionCommit();
                     return this.GetSavedStockTransferDetails(stockTransfer.StockTransferVoucherNo);
 
                 }
