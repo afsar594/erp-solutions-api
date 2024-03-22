@@ -20368,12 +20368,14 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<StockAdjustmentVoucherDetails>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(sd => sd.StockAdjustmentVoucherDetailsDetId);
 
                 entity.ToTable("Stock_Adjustment_Voucher_Details");
 
                 entity.Property(e => e.StockAdjustmentVoucherDetailsAdjQty).HasColumnName("Stock_Adjustment_Voucher_Details_Adj_Qty");
+                entity.Property(e => e.StockAdjustmentVoucherDetailsSaNo).HasColumnName("Stock_Adjustment_Voucher_Details_SaNo");
 
+                
                 entity.Property(e => e.StockAdjustmentVoucherDetailsBatchCode)
                     .HasColumnName("Stock_Adjustment_Voucher_Details_BatchCode")
                     .HasMaxLength(40)

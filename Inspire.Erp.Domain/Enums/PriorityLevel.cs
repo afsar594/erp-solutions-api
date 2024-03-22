@@ -51,7 +51,11 @@ namespace Inspire.Erp.Domain.Enums
         public static String CustomerPurchaseOrder_TYPE { get { return "CustomerPurchaseOrder"; } }
         public static String AssetPurchaseVoucher_TYPE { get { return "AssetPurchaseVoucher"; } }
         public static String PDC_TYPE { get { return "PDCVoucher"; } }
+        public static String StockAdjustmentVoucher_TYPE
+        {
+            get { return "StockAdjustmentVoucher"; }
 
+        }
     }
 
     public static class AccountStatus

@@ -311,4 +311,13 @@ namespace Inspire.Erp.Domain.Enums
         public static string DeleteFailed { get { return "Job Invoice delete failed"; } }
     }
 
+    public static class StockeAdjustmentMessage
+    {
+        public static string SaveStockAdjustmentVoucher { get { return "Stock Adjustment Voucher saved successfully"; } }
+        public static string UpdateStockAdjustmentVoucher { get { return "Stock Adjustment Voucher updated successfully"; } }
+        public static string DeleteStockAdjustmentVoucher { get { return "Stock Adjustment Vouchar deleted successfully"; } }
+     
+    }
+
+
 }
