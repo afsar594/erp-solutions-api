@@ -260,7 +260,7 @@ namespace Inspire.Erp.Application.Account.Implementations
         }
 
 
-        public async Task<Response<List<StatementOfAccountDetailResponse>>> GetAccountTransactionsForeignCurrencyDetail(GenericGridViewModel model)
+        public async Task<Response<List<StatementOfAccountFCDetailResponse>>> GetAccountTransactionsForeignCurrencyDetail(GenericGridViewModel model)
         {
             try
             {
@@ -270,26 +270,42 @@ namespace Inspire.Erp.Application.Account.Implementations
                                                              .Where(x => (model.FromDate==null || x.AccountsTransactionsTransDate >= model.FromDate)
                                                && (model.ToDate == null || x.AccountsTransactionsTransDate <= model.ToDate) && x.AccountsTransactionsAccNo.Contains(model.Search)).Select(o =>
 
-                                               new StatementOfAccountDetailResponse
+                                               new StatementOfAccountFCDetailResponse
                                                {
-                                                   AccountsTransactions_AccNo = o.AccountsTransactionsAccNo,
-                                                   AccountsTransactions_TransDate = (DateTime)o.AccountsTransactionsTransDate,
-                                                   AccountsTransactions_Particulars = o.AccountsTransactionsParticulars,
-                                                   AccountsTransactions_Debit = Convert.ToDouble(o.AccountsTransactionsFcDebit),
-                                                   AccountsTransactions_Credit = Convert.ToDouble(o.AccountsTransactionsFcCredit),
-                                                   AccountsTransactions_VoucherType = o.AccountsTransactionsVoucherType,
-                                                   AccountsTransactions_VoucherNo = o.AccountsTransactionsVoucherNo,
-                                                   AccountsTransactions_Description =o.AccountsTransactionsDescription,
-                                                   AccountsTransactions_FSNo=o.RefNo
+                                                   AccNo = o.AccountsTransactionsAccNo,
+                                                   TransDate = (DateTime)o.AccountsTransactionsTransDate,
+                                                   Particulars = o.AccountsTransactionsParticulars,
+                                                   Debit = Convert.ToDouble(o.AccountsTransactionsFcDebit??0),
+                                                   Credit = Convert.ToDouble(o.AccountsTransactionsFcCredit??0),
+                                                   VoucherType = o.AccountsTransactionsVoucherType,
+                                                   VoucherNo = o.AccountsTransactionsVoucherNo,
+                                                   Description =o.AccountsTransactionsDescription,
+                                                   RefNo = o.RefNo
                                                }).ToList();
 
+                foreach(var account in AccountTrans)
+                {
+                   if(account.Debit>account.Credit)
+                    {
+                        account.RunningBalance = account.RunningBalance + account.Debit;
+                    }
 
+                    if (account.Credit > account.Debit)
+                    {
+                        account.RunningBalance = account.RunningBalance - account.Credit;
+                    }
+                }
 
-                 return Response<List<StatementOfAccountDetailResponse>>.Success(AccountTrans, "Data found");
+                //If DrBala > CrBala Then
+                //          RunningBala = RunningBala + DrBala
+                //        ElseIf CrBala > DrBala Then
+                //            RunningBala = RunningBala - CrBala
+                //        End If
+                 return Response<List<StatementOfAccountFCDetailResponse>>.Success(AccountTrans, "Data found");
             }
             catch (Exception ex)
             {
-                 return Response<List<StatementOfAccountDetailResponse>>.Fail(new List<StatementOfAccountDetailResponse>(), ex.Message);
+                 return Response<List<StatementOfAccountFCDetailResponse>>.Fail(new List<StatementOfAccountFCDetailResponse>(), ex.Message);
             }
         }
 

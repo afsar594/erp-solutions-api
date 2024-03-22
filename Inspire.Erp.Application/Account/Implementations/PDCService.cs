@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using static Inspire.Erp.Domain.Modals.PDCResponse;
 using Microsoft.EntityFrameworkCore;
+using Inspire.Erp.Domain.Enums;
 
 namespace Inspire.Erp.Application.Account.Implementation
 {
@@ -20,19 +21,33 @@ namespace Inspire.Erp.Application.Account.Implementation
         private readonly IRepository<MasterAccountsTable> _MasterAccountsTableRepo;
         private readonly IRepository<ProgramSettings> _programsettingsRepository;
         private readonly IRepository<PdcDetails> _pdcDetails;
+        private IRepository<VouchersNumbers> _voucherNumbersRepository;
+        private IRepository<PdcVoucher> _pdcVoucherRepository;
+        private IRepository<AccountsTransactions> _accountTransactionRepository;
+        private IRepository<PdcVoucherDetails> _pdcVoucherDetailsRepository;
+
+
         private static string prefix;
         public PDCService(
             IRepository<MasterAccountsTable> MasterAccountsTableRepo
             , IRepository<PDCGetList> PDCGetListResponse,
             IRepository<PDCPostedList> PDCPostedListRepo,
             IRepository<PdcDetails> pdcDetails,
-            IRepository<ProgramSettings> programsettingsRepository)
+            IRepository<ProgramSettings> programsettingsRepository,
+            IRepository<VouchersNumbers> voucherNumbersRepository,
+            IRepository<PdcVoucher> pdcVoucherRepository,
+            IRepository<AccountsTransactions> accountTransactionRepository,
+            IRepository<PdcVoucherDetails> pdcVoucherDetailsRepository)
         {
-            _MasterAccountsTableRepo=MasterAccountsTableRepo;
+            _MasterAccountsTableRepo = MasterAccountsTableRepo;
             _programsettingsRepository = programsettingsRepository;
-           _PDCPostedListRepo=PDCPostedListRepo;
+            _PDCPostedListRepo = PDCPostedListRepo;
             _PDCGetListResponse = PDCGetListResponse;
             _pdcDetails = pdcDetails;
+            _voucherNumbersRepository = voucherNumbersRepository;
+            _pdcVoucherRepository = pdcVoucherRepository;
+            _accountTransactionRepository = accountTransactionRepository;
+            _pdcVoucherDetailsRepository = pdcVoucherDetailsRepository;
         }
 
         public async Task<IEnumerable<PDCPostedList>> PDCPostedList()
@@ -80,6 +95,7 @@ namespace Inspire.Erp.Application.Account.Implementation
                     TDate = x.PDC_Details_Trans_Date,
                     VNO = x.PDC_Details_V_No,
                     VType = x.PDC_Details_V_Type,
+                    Narration = x.PDC_Details_PDC_Voucher_Narration
                 }).ToListAsync();
                 return result;
             }
@@ -114,6 +130,7 @@ namespace Inspire.Erp.Application.Account.Implementation
                        TDate = x.PDC_Details_Trans_Date,
                        VNO = x.PDC_Details_V_No,
                        VType = x.PDC_Details_V_Type,
+                       Narration = x.PDC_Details_PDC_Voucher_Narration
                    }).ToListAsync();
                 return result;
             }
@@ -129,10 +146,12 @@ namespace Inspire.Erp.Application.Account.Implementation
                 string s = "EXEC getFilteredPDCList @postDate='" + obj.postDate+ "',@dateFrom='" + obj.dateFrom + "'" +
      ",@dateTo='" + obj.dateTo + "',@pdcType='" + obj.pdcType + "',@keyWords='" +
      "" + obj.keyWords[0] + "',@searchType='" + obj.searchType + "'";
+               
                  var result = await _pdcDetails.GetAsQueryable()
-                    .Where(x => (obj.postDate != null?x.PDC_Details_Trans_Date== obj.postDate:true) && (x.PDC_Details_PDC_Date>=obj.dateFrom  && x.PDC_Details_PDC_Date <= obj.dateFrom) &&
-                    (obj.keyWords != null && obj.keyWords.Count >0 && !string.IsNullOrEmpty(obj.keyWords[0]) ? x.PDC_Details_Bank_Account_No.Contains(obj.keyWords[0]):true) && 
-                    (!string.IsNullOrEmpty(obj.pdcType) ? x.PDC_Details_Trans_Type== obj.pdcType :true))
+                    .Where(x => /*(obj.postDate != null?x.PDC_Details_Trans_Date== obj.postDate:true)
+                                 * && (x.PDC_Details_PDC_Date>=obj.dateFrom  && x.PDC_Details_PDC_Date <= obj.dateFrom) &&*/
+                    //(obj.keyWords != null && obj.keyWords.Count >0 && !string.IsNullOrEmpty(obj.keyWords[0]) ? x.PDC_Details_Bank_Account_No.Contains(obj.keyWords[0]):true) && 
+                    (!string.IsNullOrEmpty(obj.pdcType) ? x.PDC_Details_Trans_Type== obj.pdcType :true) && x.PDC_Details_Cheque_Status == "NC")
                     .Select(x => new PDCGetList
                 {
                     BAccNo = x.PDC_Details_Bank_Account_No,
@@ -146,7 +165,8 @@ namespace Inspire.Erp.Application.Account.Implementation
                     TDate = x.PDC_Details_Trans_Date,
                     VNO = x.PDC_Details_V_No,
                     VType = x.PDC_Details_V_Type,
-                }).ToListAsync();
+                    Narration = x.PDC_Details_PDC_Voucher_Narration
+                    }).ToListAsync();
                 return result;
             }
             catch (Exception ex)
@@ -172,5 +192,124 @@ namespace Inspire.Erp.Application.Account.Implementation
                 throw ex;
             }
         }
+
+        public async Task<IEnumerable<PDCGetList>> PostPDC(List<PDCGetList> list)
+        {
+            try
+            {
+                _pdcVoucherRepository.BeginTransaction();
+                List<PdcVoucher> pdcVouchers = new List<PdcVoucher>();
+                List<AccountsTransactions> accountsTransactions = new List<AccountsTransactions>();
+                List<PdcDetails> pdcDetails = new List<PdcDetails>();
+                List<PdcVoucherDetails> pdcVoucherDetails = new List<PdcVoucherDetails>(); 
+                foreach (var item in list)
+                {
+                    if (item.Pdc)
+                    {
+                        string pdcVoucherNumber = this.GenerateVoucherNo(item.PDate).VouchersNumbersVNo;
+                        //int maxcount = 0;
+                        //maxcount = Convert.ToInt32(
+                        //    _pdcVoucherRepository.GetAsQueryable()
+                        //    .DefaultIfEmpty().Max(o => o == null ? 0 : o.PdcVoucherSno) + 1);
+                        pdcVouchers.Add(new PdcVoucher()
+                        {
+                            PdcVoucherVid = pdcVoucherNumber,
+                            PdcVoucherRef = item.VNO,
+                            PdcVoucherPdcDate = item.PDate,
+                            PdcVoucherPdcAmount = item.CAmount,
+                            PdcVoucherFcPdcAmount = item.CAmount,
+                            PdcVoucherDelStatus = false,
+                            PdcVoucherNarration = item.Narration,
+                            
+                        });
+
+
+                        accountsTransactions.Add(new AccountsTransactions()
+                        {
+                            AccountsTransactionsAccNo = item.BAccNo,
+                            AccountsTransactionsCheqNo = item.CNO,
+                            AccountsTransactionsCredit = (decimal)item.CAmount,
+                            AccountsTransactionsFcCredit = (decimal)item.CAmount,
+                            AccountsTransactionsVoucherNo = pdcVoucherNumber,
+                            AccountsTransactionsVoucherType = VoucherType.PDC_TYPE,
+                            AccountsTransactionsStatus = AccountStatus.Approved,
+                            AccountsTransactionsTransDate = DateTime.Now,
+                            AccountsTransactionsParticulars = item.Narration
+                           
+                        });
+
+
+                        pdcDetails.Add(new PdcDetails()
+                        {  
+                            PDC_Details_Cheque_Status = "C",
+                        });
+
+
+                        pdcVoucherDetails.Add(new PdcVoucherDetails()
+                        {
+                            PdcVoucherDetailsAccno = item.BAccNo,
+                            PdcVoucherDetailsAmount = item.CAmount,
+                            PdcVoucherDetailsNarration = item.Narration
+                        });
+
+
+
+                    }
+                }
+                if(accountsTransactions.Count > 0)
+                {
+                    _accountTransactionRepository.InsertList(accountsTransactions);
+                }
+                if(pdcVouchers.Count > 0)
+                {
+                    _pdcVoucherRepository.InsertList(pdcVouchers);
+                }
+                if(pdcDetails.Count > 0)
+                {
+                    _pdcDetails.UpdateList(pdcDetails);
+                }
+                if (pdcVoucherDetails.Count > 0)
+                {
+                    _pdcVoucherDetailsRepository.InsertList(pdcVoucherDetails);
+                }
+               
+                _pdcVoucherRepository.TransactionCommit();
+                return list;
+            }
+            catch (Exception ex)
+            {
+                _pdcVoucherRepository.TransactionRollback();
+                throw;
+            }
+                       
+        }
+
+        public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
+        {
+            try
+            {
+                var prefix = this._programsettingsRepository.GetAsQueryable().Where(k => k.ProgramSettingsKeyValue == Prefix.PDC_Voucher_Prefix).FirstOrDefault().ProgramSettingsTextValue;
+                int vnoMaxVal = Convert.ToInt32(_voucherNumbersRepository.GetAsQueryable()
+                                                        .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == VoucherType.PDC_TYPE)
+                                                        .DefaultIfEmpty()
+                                                        .Max(o => o == null ? 0 : o.VouchersNumbersVNoNu)) + 1;
+                VouchersNumbers vouchersNumbers = new VouchersNumbers
+                {
+                    VouchersNumbersVNo = prefix + vnoMaxVal,
+                    VouchersNumbersVNoNu = vnoMaxVal,
+                    VouchersNumbersVType = VoucherType.PDC_TYPE,
+                    VouchersNumbersFsno = 1,
+                    VouchersNumbersStatus = AccountStatus.Pending,
+                    VouchersNumbersVoucherDate = VoucherGenDate
+                };
+                _voucherNumbersRepository.Insert(vouchersNumbers);
+                return vouchersNumbers;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 }

@@ -27,4 +27,19 @@ namespace Inspire.Erp.Domain.Modals
         public double DebitBalance { get; set; }
         public double CreditBalance { get; set; }
     }
+
+    public class StatementOfAccountFCDetailResponse
+    {
+        public string AccNo { get; set; }
+        public string AccountName { get; set; }
+        public DateTime TransDate { get; set; }
+        public double Debit { get; set; }
+        public double Credit { get; set; }
+        public string VoucherType { get; set; }
+        public string VoucherNo { get; set; }
+        public string Description { get; set; }
+        public string Particulars { get; set; }
+        public string RefNo { get; set; }
+        public double RunningBalance { get; set; }
+    }
 }
