@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -13,5 +14,8 @@ namespace Inspire.Erp.Domain.Entities
         public string StockAdjustmentVoucherStVno { get; set; }
         public int? StockAdjustmentVoucherLocationId { get; set; }
         public bool? StockAdjustmentVoucherDelStatus { get; set; }
+
+        [NotMapped]
+        public List<StockAdjustmentVoucherDetails> stockAdjustmentVoucherDetails { get; set; }
     }
 }
