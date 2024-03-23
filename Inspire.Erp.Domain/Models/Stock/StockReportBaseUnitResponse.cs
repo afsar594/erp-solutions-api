@@ -44,6 +44,12 @@ namespace Inspire.Erp.Domain.Modals.Stock
         public decimal?  SaleOutAmount { get; set; }
 
     }
+
+
+    public class StockMovementIN
+    {
+        public List<StockMovementINResponse> StockInReport { get; set; }
+    }
     public class StockMovementINResponse
     {
         public long? Mat_ID { get; set; }
@@ -62,6 +68,10 @@ namespace Inspire.Erp.Domain.Modals.Stock
         public decimal? Qty { get; set; }
         public decimal? Rate { get; set; }
         public decimal? TolAmt { get; set; }
+    }
+    public class StockMovementOUT
+    {
+        public List<StockMovementOUTResponse> StockOutReport { get; set; }
     }
     public class StockMovementOUTResponse
     {
