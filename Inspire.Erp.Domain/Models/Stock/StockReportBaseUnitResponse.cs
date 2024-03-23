@@ -43,7 +43,56 @@ namespace Inspire.Erp.Domain.Modals.Stock
         public decimal? SaleOutQty { get; set; }
         public decimal?  SaleOutAmount { get; set; }
 
+    }
 
+
+    public class StockMovementIN
+    {
+        public List<StockMovementINResponse> StockInReport { get; set; }
+    }
+    public class StockMovementINResponse
+    {
+        public long? Mat_ID { get; set; }
+        public long UnitId { get; set; }
+        public string ShortName { get; set; }
+        public string? Ref_Vocher_No { get; set; }
+        public string? AssingedDate { get; set; }
+        public string? TransType { get; set; }
+        public string? DisplayTranstype { get; set; }
+        public long? RelativeNo { get; set; }
+        public string? GroupName { get; set; }
+        public long? JobId { get; set; }
+        public string? jobname { get; set; }
+        public long? LocationId { get; set; }
+        public string? Loca_Name { get; set; }
+        public decimal? Qty { get; set; }
+        public decimal? Rate { get; set; }
+        public decimal? TolAmt { get; set; }
+    }
+    public class StockMovementOUT
+    {
+        public List<StockMovementOUTResponse> StockOutReport { get; set; }
+    }
+    public class StockMovementOUTResponse
+    {
+        public long? Mat_ID { get; set; }
+        public long UnitId { get; set; }
+        public string ShortName { get; set; }
+        public string? Ref_Vocher_No { get; set; }
+        public string? AssingedDate { get; set; }
+        public string? TransType { get; set; }
+        public string? DisplayTranstype { get; set; }
+        public long? RelativeNo { get; set; }
+        public string? GroupName { get; set; }
+        public long? JobId { get; set; }
+        public string? jobname { get; set; }
+        public long? LocationId { get; set; }
+        public string? Loca_Name { get; set; }
+        public decimal? Qty { get; set; }
+        public decimal? Rate { get; set; }
+        public decimal? TolAmt { get; set; }
+        public decimal? QtyOut { get; set; }
+        public decimal? TotAmtOUT { get; set; }
     }
 
 }
