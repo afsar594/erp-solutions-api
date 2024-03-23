@@ -357,7 +357,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 }
                 else if (model.ItemGroupId > 0)
                 {
-                    query = query.Where(im => im.ItemMasterAccountNo == model.ItemGroupId && im.te == "A")
+                    query = query.Where(im => im.ItemMasterAccountNo == model.ItemGroupId && im.ItemMasterItemType == "A")
                                  .OrderBy(im => im.ItemMasterItemId);
                 }
                 else
