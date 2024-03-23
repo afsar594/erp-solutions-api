@@ -104,7 +104,8 @@ namespace Inspire.Erp.Domain.Enums
         public static String JobInoviceVoucher_Prefix { get { return "JobInoviceVoucher_Prefix"; } }
     }
 
-    public static class ItemMasterStatus {
+    public static class ItemMasterStatus
+    {
         public static String Group { get { return "G"; } }
         public static String Item { get { return "I"; } }
         public static String SubItem { get { return "A"; } }

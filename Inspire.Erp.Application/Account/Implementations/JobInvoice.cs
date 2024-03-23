@@ -134,7 +134,7 @@ namespace Inspire.Erp.Application.Account.implementations
                 });
                 _jobinvoicerepo.Update(dataObj);
                 _jobdetailsrepo.UpdateList(detailData);
-                return _jobinvoicerepo.GetAll();
+                 return _jobinvoicerepo.GetAll();                
             }
             catch (Exception ex)
             {
