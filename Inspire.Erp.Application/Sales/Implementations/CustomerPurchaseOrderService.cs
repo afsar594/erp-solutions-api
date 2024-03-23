@@ -680,8 +680,10 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                      from q in gdrq.DefaultIfEmpty()
                                      where (model.CustomerId == 0 || model.CustomerId == null || cpo.CustomerPurchaseOrderCustomerId == model.CustomerId)
                                      &&  (model.ItemId == 0 || model.ItemId == null ||im.ItemMasterItemId == model.ItemId)
-                                     &&   ((model.DateFrom == null || model.DateTo == null) || (cpo.CustomerPurchaseOrderDate.Value.Date >= model.DateFrom && cpo.CustomerPurchaseOrderDate.Value.Date <= model.DateTo))
-                                     select new GetCustomerPurchaseOrderTrackingResponse
+                                
+                                     &&  ((model.DateFrom == null || model.DateTo == null) || (cpo.CustomerPurchaseOrderDate.Value.Date >= model.DateFrom && cpo.CustomerPurchaseOrderDate.Value.Date <= model.DateTo))
+                                    
+                                      select new GetCustomerPurchaseOrderTrackingResponse
                                      {
                                          CPOId = cpo.CustomerPurchaseOrderId,
                                          CPODate = cpo.CustomerPurchaseOrderDate,
@@ -705,7 +707,49 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 return Response<List<GetCustomerPurchaseOrderTrackingResponse>>.Fail(new List<GetCustomerPurchaseOrderTrackingResponse>(), ex.Message);
             }
         }
+    
+        public async Task<Response<List<CustomerSalesQuotation>>> GetCustomerQuotationStatuses(CustQuotationFilterModel model)
+        {
+            try
+            {
+                List<CustomerSalesQuotation> response = new List<CustomerSalesQuotation>();
 
+                var results = await (from cpo in _Context.CustomerQuotation
+                                     join cpods in _Context.CustomerQuotationDetails on cpo.CustomerQuotationQid equals cpods.CustomerQuotationDetailsQuotationId
+                                     join cl in _Context.LocationMaster on cpo.CustomerQuotationLocationId equals cl.LocationMasterLocationId
+                                     join cm in _Context.CustomerMaster on cpo.CustomerQuotationCustomerId equals cm.CustomerMasterCustomerNo
+                                     join itm in _Context.ItemMaster on cpods.CustomerQuotationDetailsItemId equals itm.ItemMasterItemId
+
+                                   into gdrq
+                                     from q in gdrq.DefaultIfEmpty()
+                                     where (model.CustomerId == 0 || model.CustomerId == null || cpo.CustomerQuotationCustomerId == model.CustomerId)
+                                     && (model.LocacationId == 0 || model.LocacationId == null || cpo.CustomerQuotationLocationId == model.LocacationId)
+                                  
+                                     
+                                     && (model.ItemId == 0 || model.ItemId == null || cpods.CustomerQuotationDetailsItemId == model.ItemId) 
+                                   && ((model.DateFrom == null || model.DateTo == null) || (cpo.CustomerQuotationQuotationDate.Value.Date >= model.DateFrom && cpo.CustomerQuotationQuotationDate.Value.Date <= model.DateTo))
+                                     select new CustomerSalesQuotation
+                                     {
+                                         CustomerQuotationQid = cpo.CustomerQuotationQid,
+                                         CustomerQuotationVoucherNo = cpo.CustomerQuotationVoucherNo,
+                                         CustomerQuotationDetailsCashCustomerName = cpo.CustomerQuotationCustomerId,
+                                         customerQuotationQuotationdate = cpo.CustomerQuotationQuotationDate,                                        
+                                         CustomerQuotationDetailsQty = cpods.CustomerQuotationDetailsQty,
+                                         CustomerQuotationDetailsUnitPrice = cpods.CustomerQuotationDetailsUnitPrice,
+                                         CustomerQuotationDetailsItemId = cpods.CustomerQuotationDetailsItemId,
+                                         CustomerQuotationDetailsDesription=cpods.CustomerQuotationDetailsDescription,
+                                          CustomerQuotationDetailsAmount=cpods.CustomerQuotationDetailsNetAmount,
+                                         CustomerQuotationDetailsUnits=cpods.CustomerQuotationDetailsUnitId,
+                                         CustomerQuotationDetailsRemarks=cpo.CustomerQuotationRemarks,
+
+                                     }).ToListAsync();
+                return Response<List<CustomerSalesQuotation>>.Success(results, "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<List<CustomerSalesQuotation>>.Fail(new List<CustomerSalesQuotation>(), ex.Message);
+            }
+        }
 
 
     }

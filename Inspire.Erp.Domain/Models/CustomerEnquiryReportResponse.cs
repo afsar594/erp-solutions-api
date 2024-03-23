@@ -8,7 +8,7 @@ namespace Inspire.Erp.Domain.Modals
     {
         public string Customer_Master_Customer_Name { get; set; }
         public string Location_Master_Location_Name { get; set; }
-        public DateTime Enquiry_Master_Enquiry_Date { get; set; }
+        public DateTime? Enquiry_Master_Enquiry_Date { get; set; }
         public string Enquiry_About_Enquiry_About { get; set; }
         public string Enquiry_Status_Enquiry_Status { get; set; }
         public string Currency_Master_Currency_Name { get; set; }

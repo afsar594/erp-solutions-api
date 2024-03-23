@@ -46,7 +46,6 @@ namespace Inspire.Erp.Application.Account.Implementations
         }
         public BankPaymentVoucher UpdateBankPaymentVoucher(BankPaymentVoucher bankPaymentVoucher, List<AccountsTransactions> accountsTransactions, List<BankPaymentVoucherDetails> bankPaymentVoucherDetails)
         {
-
             try
             {
                 _bankPaymentVoucherRepository.BeginTransaction();
@@ -60,7 +59,12 @@ namespace Inspire.Erp.Application.Account.Implementations
                         k.AccountsTransactionsStatus = AccountStatus.Approved;
                     }
 
+                     k.AccountsTransactionsAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
+                    k.AccountsTransactionsFcAllocDebit = k.AccountsTransactionsDebit;
+                    k.AccountsTransactionsFcAllocCredit = k.AccountsTransactionsCredit;
+                    k.AccountsTransactionsFcAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
                     return k;
+                   
                 }).ToList();
 
                 _accountTransactionRepository.UpdateList(accountsTransactions);
@@ -160,6 +164,10 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsVoucherNo = bankPaymentVoucher.BankPaymentVoucherVoucherNo;
                     k.AccountsTransactionsVoucherType = VoucherType.BankPayment;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
+                    k.AccountsTransactionsAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
+                    k.AccountsTransactionsFcAllocDebit = k.AccountsTransactionsDebit;
+                    k.AccountsTransactionsFcAllocCredit = k.AccountsTransactionsCredit;
+                    k.AccountsTransactionsFcAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
                     return k;
                 }).ToList();
 
@@ -176,21 +184,21 @@ namespace Inspire.Erp.Application.Account.Implementations
                             PDC_Details_Trans_Date = DateTime.Now,
                             PDC_Details_PDC_Date = DateTime.Now,
                             PDC_Details_Cheque_No = item.BankPaymentVoucherDetailsChequeNo == null ? "" : item.BankPaymentVoucherDetailsChequeNo.ToString(),
-                            PDC_Details_Cheque_Amount = 0,
-                            PDC_Details_FC_Cheque_Amount = 0,
+                            PDC_Details_Cheque_Amount = item.BankPaymentVoucherDetailsDrAmount,
+                            PDC_Details_FC_Cheque_Amount = item.BankPaymentVoucherDetailsDrAmount,
                             PDC_Details_Bank_Account_No = item.BankPaymentVoucherDetailsAcNo,
                             PDC_Details_Cheque_Bank_Name = "",
                             PDC_Details_Cheque_Status = "NC",
                             PDC_Details_PDC_Voucher_ID = null,
-                            PDC_Details_PDC_Voucher_Date = null,
-                            PDC_Details_PDC_Voucher_Narration = item.BankPaymentVoucherDetailsNarration,
+                            PDC_Details_PDC_Voucher_Date = DateTime.Now,
+                            PDC_Details_PDC_Voucher_Narration = bankPaymentVoucher.BankPaymentVoucherNarration,
                             PDC_Details_FSNO = item.BankPaymentVoucherDetailsFsno,
                             PDC_Details_User_ID = bankPaymentVoucher.BankPaymentVoucherUserId,
                             PDC_Details_Flat_ID = null,
                             PDC_Details_Building_ID = null,
                             PDC_Details_Contract = null,
                             PDC_Details_Old_Cheque_Status = null,
-                            PDC_Details_PartyAccNo = null,
+                            PDC_Details_PartyAccNo = item.BankPaymentVoucherDetailsAcNo,
                             PDC_Details_DelStatus = false,
                         });
                     }

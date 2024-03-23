@@ -22,6 +22,7 @@ namespace Inspire.Erp.Domain.Modals
         }
 
         public class PDCGetList {
+            public bool Pdc { get; set; }
             public string? VNO { get; set; }
             public string? PartyName { get; set; }
             public string? VType { get; set; }
@@ -33,6 +34,7 @@ namespace Inspire.Erp.Domain.Modals
             public string? BAccNo { get; set; }
             public string? AccName { get; set; }
             public int? PID { get; set; }
+            public string Narration { get; set; }
         }
     }
 }

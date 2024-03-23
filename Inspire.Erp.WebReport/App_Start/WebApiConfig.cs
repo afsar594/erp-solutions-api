@@ -12,6 +12,7 @@ namespace Inspire.Erp.WebReport
         {
             // Web API configuration and services
             var cors = new EnableCorsAttribute("*", "*", "*"); // This allows all origins, methods, and headers.
+
             config.EnableCors(cors);
             // Web API routes
             config.MapHttpAttributeRoutes();

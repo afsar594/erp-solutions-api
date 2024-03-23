@@ -65,6 +65,7 @@ namespace Inspire.Erp.Domain.Entities
         public string? SalesReturnSVNo { get; set; }
         public DateTime? SalesReturnSVDate { get; set; }
         public bool? SalesReturnDelStatus { get; set; }
+
         // [NotMapped]
         // public List<SalesReturnDetails> SalesReturnDetails { get; set; }
     }

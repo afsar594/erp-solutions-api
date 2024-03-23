@@ -194,18 +194,18 @@ namespace Inspire.Erp.Web.Controllers
                 //var xs = _salesVoucherService.InsertSalesVoucher(param1, param3, param2
                 //    //, param4
                 //    );
-                var allUnits = new List<UnitDetails>();
-                var unitDetails = new UnitDetails();
-                foreach (var item in param1.SalesVoucherDetails)
-                {
-                     unitDetails = _UnitDetailsRepository.GetAsQueryable().Where(c => c.UnitDetailsUnitId == item.SalesVoucherDetailsUnitId).FirstOrDefault();
-                    allUnits.Add(unitDetails);
-                }   
+                //var allUnits = new List<UnitDetails>();
+                //var unitDetails = new UnitDetails();
+                //foreach (var item in param1.SalesVoucherDetails)
+                //{
+                //     unitDetails = _UnitDetailsRepository.GetAsQueryable().Where(c => c.UnitDetailsUnitId == item.SalesVoucherDetailsUnitId).FirstOrDefault();
+                //    allUnits.Add(unitDetails);
+                //}   
                
                 //==============
                 //param3 = new List<AccountsTransactions>();
                 List<StockRegister> param4 = new List<StockRegister>();
-                clsAccountAndStock.SalesVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3, allUnits);
+                //clsAccountAndStock.SalesVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3, allUnits);
 
                 var xs = _salesVoucherService.InsertSalesVoucher(param1, param3, param2, param4);
                 //========================
@@ -313,16 +313,16 @@ namespace Inspire.Erp.Web.Controllers
             param3 = new List<AccountsTransactions>();
             List<StockRegister> param4 = new List<StockRegister>();
 
-            var allUnits = new List<UnitDetails>();
-            var unitDetails = new UnitDetails();
-            foreach (var item in param1.SalesVoucherDetails)
-            {
-                unitDetails = _UnitDetailsRepository.GetAsQueryable().Where(c => c.UnitDetailsUnitId == item.SalesVoucherDetailsUnitId).FirstOrDefault();
-                allUnits.Add(unitDetails);
-            }
+            //var allUnits = new List<UnitDetails>();
+            //var unitDetails = new UnitDetails();
+            //foreach (var item in param1.SalesVoucherDetails)
+            //{
+            //    unitDetails = _UnitDetailsRepository.GetAsQueryable().Where(c => c.UnitDetailsUnitId == item.SalesVoucherDetailsUnitId).FirstOrDefault();
+            //    allUnits.Add(unitDetails);
+            //}
 
 
-            clsAccountAndStock.SalesVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3, allUnits);
+            //clsAccountAndStock.SalesVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3, allUnits);
 
             var xs = _salesVoucherService.UpdateSalesVoucher(param1, param3, param2
            , param4
@@ -482,7 +482,7 @@ namespace Inspire.Erp.Web.Controllers
         {
             SalesVoucherModel xs = _salesVoucherService.GetSavedSalesVoucherDetails(id);
 
-            if (xs != null)
+            if (xs.salesVoucher != null)
             {
                 SalesVoucherViewModel salesVoucherViewModel = new SalesVoucherViewModel
                 {

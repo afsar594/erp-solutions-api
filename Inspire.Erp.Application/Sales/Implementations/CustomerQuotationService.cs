@@ -17,6 +17,8 @@ using Inspire.Erp.Domain.Modals;
 using SendGrid.Helpers.Mail;
 using System.Threading.Tasks;
 using Inspire.Erp.Infrastructure.Database;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Domain.Models.Sales.DeliveryNoteReport;
 
 namespace Inspire.Erp.Application.Sales.Implementations
 {
@@ -55,7 +57,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             _Context = Context;
         }
 
-        public CustomerQuotationModel UpdateCustomerQuotation(CustomerQuotation customerQuotation)
+        public CustomerQuotation UpdateCustomerQuotation(CustomerQuotation customerQuotation, List<CustomerQuotationDetails> customerQuotationDetails)
         {
 
             try
@@ -63,7 +65,16 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 _customerQuotationRepository.BeginTransaction();
 
                 _customerQuotationRepository.Update(customerQuotation);
-
+                customerQuotationDetails = customerQuotationDetails.Select((x) =>
+                {
+                    if(x.CustomerQuotationDetailsId == 0)
+                    {
+                        x.CustomerQuotationDetailsQuotationId = customerQuotation.CustomerQuotationQid;
+                        x.CustomerQuotationDetailsVoucherNo = customerQuotation.CustomerQuotationVoucherNo;
+                    }
+                    return x;
+                }).ToList();
+                _customerQuotationDetailsRepository.UpdateList(customerQuotationDetails);
                 //customerQuotationDetails.ForEach(x =>
                 //{
                 //    x.CustomerQuotationDetailsQuotationId = customerQuotation.CustomerQuotationQuotationId;
@@ -126,7 +137,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             return i;
 
         }
-        public CustomerQuotationModel InsertCustomerQuotation(CustomerQuotation customerQuotation)
+        public CustomerQuotation InsertCustomerQuotation(CustomerQuotation customerQuotation,List<CustomerQuotationDetails> customerQuotationDetails)
         {
             try
             {
@@ -145,16 +156,16 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     .DefaultIfEmpty().Max(o => o == null ? 0 : o.CustomerQuotationQid) + 1);
 
                 customerQuotation.CustomerQuotationQid = maxcount;
-                customerQuotation.CustomerQuotationDetails  = customerQuotation.CustomerQuotationDetails.Select((x) =>
+                customerQuotationDetails = customerQuotationDetails.Select((x) =>
                 {
                     x.CustomerQuotationDetailsQuotationId = maxcount;
                     x.CustomerQuotationDetailsVoucherNo = customerQuotationNumber;
                     return x;
                 }).ToList();
 
-         
-
                 _customerQuotationRepository.Insert(customerQuotation);
+                _customerQuotationDetailsRepository.InsertList(customerQuotationDetails);
+             
                
                 
                 UserTracking trackingData = new UserTracking();
@@ -202,20 +213,20 @@ namespace Inspire.Erp.Application.Sales.Implementations
             IEnumerable<CustomerQuotation> customerQuotation = _customerQuotationRepository.GetAll().Where(k => k.CustomerQuotationDelStatus == false || k.CustomerQuotationDelStatus == null);
             return customerQuotation;
         }
-        public CustomerQuotationModel GetSavedCustQuotationDetails(string Qtno)
+        public CustomerQuotation GetSavedCustQuotationDetails(string Qtno)
              {
                     if (_voucherNumbersRepository.GetAsQueryable().Any(x => x.VouchersNumbersVNo == Qtno))
                     {
-                        //CustomerQuotationModel voucherdata = _voucherNumbersRepository.GetAsQueryable().Where(x => x.VouchersNumbersVNo == Qtno)
-                        //                                .Include(k => k.CustomerQuotationDetails).AsEnumerable()
-                        //                                .Select((k) => new CustomerQuotationModel
-                        //                                {
-                        //                                    customerQuotationDetails = k.CustomerQuotationDetails.Where(x => x.CustomerQuotationDetailsDelStatus == false).ToList()
-                        //                                })
-                        //                                .SingleOrDefault();
-                        CustomerQuotationModel voucherdata = new CustomerQuotationModel();
-                       voucherdata.custQuotation = _customerQuotationRepository.GetAsQueryable().Where(k => k.CustomerQuotationVoucherNo == Qtno).FirstOrDefault();
-                       voucherdata.customerQuotationDetails = _customerQuotationDetailsRepository.GetAsQueryable().Where(qd => qd.CustomerQuotationDetailsVoucherNo == Qtno).ToList();       
+                //CustomerQuotationModel voucherdata = _voucherNumbersRepository.GetAsQueryable().Where(x => x.VouchersNumbersVNo == Qtno)
+                //                                .Include(k => k.CustomerQuotationDetails).AsEnumerable()
+                //                                .Select((k) => new CustomerQuotationModel
+                //                                {
+                //                                    customerQuotationDetails = k.CustomerQuotationDetails.Where(x => x.CustomerQuotationDetailsDelStatus == false).ToList()
+                //                                })
+                //                                .SingleOrDefault();
+                CustomerQuotation voucherdata = new CustomerQuotation();
+                       voucherdata = _customerQuotationRepository.GetAsQueryable().Where(k => k.CustomerQuotationVoucherNo == Qtno).FirstOrDefault();
+                       voucherdata.CustomerQuotationDetails = _customerQuotationDetailsRepository.GetAsQueryable().Where(qd => qd.CustomerQuotationDetailsVoucherNo == Qtno).ToList();       
                 return voucherdata;
                     }
                     return null;
@@ -324,6 +335,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 return Response<List<GetCustQuotationForSaleOrderResponse>>.Fail(new List<GetCustQuotationForSaleOrderResponse>(), ex.Message);
             }
         }
+
     }
 }
 

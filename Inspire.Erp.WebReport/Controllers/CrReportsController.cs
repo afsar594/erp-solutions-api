@@ -1,4 +1,5 @@
 ﻿using CrystalReportWebAPI.Utilities;
+using Inspire.Erp.WebReport.Cores;
 using Inspire.Erp.WebReport.Models;
 using Inspire.Erp.WebReport.ReportEngine;
 using System;
@@ -9,6 +10,8 @@ using System.Web.Http;
 namespace Inspire.Erp.WebReport.Controllers
 {
     [RoutePrefix("api/Reports")]
+    [Authorize]
+    [AllowCrossSite]
     public class CrReportsController : ApiController
     {
         /// <summary>
@@ -55,6 +58,7 @@ namespace Inspire.Erp.WebReport.Controllers
                                 }         
          
          */
+        [AllowCrossSite]
         [AllowAnonymous]
         [Route("getReportPrint")]
         [HttpPut]
@@ -62,16 +66,19 @@ namespace Inspire.Erp.WebReport.Controllers
         public HttpResponseMessage getReportPrint([FromBody] ReportFilterModel reportFilterModel)
         {
             string exportPath = AppDomain.CurrentDomain.BaseDirectory + @"FileExports";
-            string filePath = AppDomain.CurrentDomain.BaseDirectory + $@"Reports\{reportFilterModel.ReportName}.rpt";
             HttpResponseMessage result;
             try
             {
-
+                string driPath = AppDomain.CurrentDomain.BaseDirectory;
                 CrystalReport report = new CrystalReport();
+                string dsnFileName = !string.IsNullOrEmpty(reportFilterModel.DsnFileName) ? reportFilterModel.DsnFileName : "DSN";
+                var dbSettings = report.getDbSettingsFromJSonFle($@"{driPath }bin\{dsnFileName}.json");
+                string filePath =  $@"{driPath }Reports\{dbSettings.FolderName}\{reportFilterModel.ReportName}.rpt";
                 result = report.RenderReport(
                                                                     PathReport: filePath,
                                                                     SelectionFormula: reportFilterModel.SelectionFormula,
-                                                                    Namefile: reportFilterModel.ReportName  + ".pdf", reportFilterModel.Parameters
+                                                                    Namefile: reportFilterModel.ReportName  + ".pdf", reportFilterModel.Parameters,
+                                                                    dbSettings
                                                                );
                 return result;
             }

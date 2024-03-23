@@ -21,7 +21,8 @@ namespace Inspire.Erp.Application.Master
         public IEnumerable<ItemMaster> GetAllItemSearchFilter(string group, string name);
 
         public ItemMaster GetAllItemMasterById(int id);
-     //   public IEnumerable<ItemMaster> GetAllItemSearchFilter(string group, string name);
+        public ItemMaster GetAllItemMasterByBarCode(string  barCode);
+        //   public IEnumerable<ItemMaster> GetAllItemSearchFilter(string group, string name);
         public IEnumerable<ItemMaster> GetAllItemGroupAndSubGroup();
         public int ItemMasterIdMax();
     }

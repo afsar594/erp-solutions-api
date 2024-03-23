@@ -95,6 +95,25 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         {
             return Ok(await _multiAccountService.GetAccountTransactionsMultiAccountDetail(model));
         }
+
+
+        [HttpPost("GetAccountTransactionsForeignCurrencyDetail")]
+        public async Task<IActionResult> GetAccountTransactionsForeignCurrencyDetail(GenericGridViewModel model)
+        {
+            return Ok(await _multiAccountService.GetAccountTransactionsForeignCurrencyDetail(model));
+        }
+        //[HttpPost("GetAccountTransactionsForeignCurrencySummary")]
+        //public async Task<IActionResult> GetAccountTransactionsForeignCurrencySummary([FromBody] AccountTransactionsFilterReport model)
+        //{
+        //    return Ok(await _multiAccountService.GetAccountTransactionsForeignCurrencySummary(model));
+        //}
+
+        [HttpPost("GetAccountTransactionsForeignCurrencySummary")]
+        public async Task<IActionResult> GetAccountTransactionsForeignCurrencySummary(GenericGridViewModel model)
+        {
+            return Ok(await _multiAccountService.GetAccountTransactionsForeignCurrencySummary(model));
+        }
+
         [HttpPost("DownloadMultiAccountPrint")]
         public async Task<IActionResult> DownloadMultiAccountPrint(GenericGridViewModel model)
         {
@@ -226,6 +245,11 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         {
             return Ok(await _outstandingStatement.GetOutstandingStatementAccountTransactions(model));
         }
+        [HttpPost("GetOutstandingReportGrid")]
+        public async Task<IActionResult> GetOutstandingStatementAccountTransactions(OutStandingReprortFilter model)
+        {
+            return Ok(await _outstandingStatement.GetOutstandingStatementAccountTransactions(model));
+        }
         [HttpPost("OutstandingStatementPrint")]
         public async Task<IActionResult> OutstandingStatementPrint(GenericGridViewModel model)
         {
@@ -351,7 +375,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         {
             return Ok(await _assetsMasterService.GetRelativeAssetMasterRecord(id));
         }
-        [HttpGet("GetAssetMaster")]
+        [HttpGet("GetAssetsMaster")]
         public async Task<IActionResult> GetAssetMaster(int id)
         {
             return Ok(await _assetsMasterService.GetAssetMaster(id));
