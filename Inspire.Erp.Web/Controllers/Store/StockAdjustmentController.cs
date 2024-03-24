@@ -31,7 +31,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 Valid = true,
                 Result = _mapper.Map<List<StockAdjustmentVoucher>>(_sa.GetStockAdjustment()),
                 Message = ""
-            };
+            }; 
             return apiResponse;
         }
 
