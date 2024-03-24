@@ -11,7 +11,7 @@ namespace Inspire.Erp.Application.Account.Interface
         public JobInvoice GetJobInvoiceById(int? id);
         public JobInvoice InsertJobInvoice(JobInvoice JobInvoiceViewModel);
         public JobInvoice UpdateJobInvoice(JobInvoice JobInvoiceViewModel);
-        public IEnumerable<JobInvoice> DeleteJobInvoice(int Id);
+        public IEnumerable<JobInvoice> DeleteJobInvoice(string Id);
         public JobInvoice GetJobInvoiceVoucherNo(string? id);
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
 

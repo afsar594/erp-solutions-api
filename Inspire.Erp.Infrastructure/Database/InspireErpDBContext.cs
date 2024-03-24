@@ -20334,7 +20334,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<StockAdjustmentVoucher>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(sa => sa.StockAdjustmentVoucherSaId);
 
                 entity.ToTable("Stock_Adjustment_Voucher");
 
@@ -20995,7 +20995,7 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasMaxLength(10)
                     .IsUnicode(false);
 
-                entity.Property(e => e.StockTransferId).HasColumnName("Stock_Transfer_STID");//.ValueGeneratedOnAdd(); ;
+                entity.Property(e => e.StockTransferId).HasColumnName("Stock_Transfer_STID");//ValueGeneratedOnAdd(); ;
 
                 entity.Property(e => e.StockTransferVoucherNo)
                     .HasColumnName("Stock_Transfer_STVNo")

@@ -113,7 +113,7 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpDelete]
         [Route("DeleteJobInvoice")]
-        public IActionResult DeleteJobInvoice(int Id)
+        public IActionResult DeleteJobInvoice(string Id)
         {
             try
             {
