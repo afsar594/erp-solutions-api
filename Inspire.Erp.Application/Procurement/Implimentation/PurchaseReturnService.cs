@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace Inspire.Erp.Application.Procurement.Implementation
 {
-   public class PurchaseReturnService: IPurchaseReturnService
+    public class PurchaseReturnService : IPurchaseReturnService
     {
 
         private readonly IRepository<VouchersNumbers> _voucherNumber;
@@ -43,12 +43,12 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         public PurchaseReturnService(IRepository<PurchaseReturnVoucher> purchaseReturn, IUtilityService utilityService,
             IRepository<PurchaseVoucherDetails> purchasevoucherDetail, IRepository<PurchaseVoucher> purchaseVoucher,
             IRepository<LocationMaster> location, IRepository<StockRegister> stockRegister, IRepository<JobMaster> jobMasters,
-            IRepository<PurchaseReturnVoucherDetails> purchaseReturnDetail, IRepository<SuppliersMaster> supplierMaster, 
+            IRepository<PurchaseReturnVoucherDetails> purchaseReturnDetail, IRepository<SuppliersMaster> supplierMaster,
             IRepository<PurchaseReturn> purchaseReturnRepo,
             IRepository<PurchaseReturnDetails> purchaseReturnDetailsRepo, IRepository<AccountsTransactions> accountTransaction,
             IRepository<CurrencyMaster> currencyMasterRepository, IRepository<ProgramSettings> programsettingsRepository,
             IRepository<VouchersNumbers> voucherNumber,
-            IRepository<PurchaseOrder> purchaseOrderRepo, 
+            IRepository<PurchaseOrder> purchaseOrderRepo,
             IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepo)
         {
             _purchaseReturn = purchaseReturn;
@@ -81,7 +81,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 //});
                 response.AddRange(await _location.ListSelectAsync(x => 1 == 1, x => new DropdownResponse
                 {
-                    Id = x.LocationMasterLocationId != null?Convert.ToInt32(x.LocationMasterLocationId):0,
+                    Id = x.LocationMasterLocationId != null ? Convert.ToInt32(x.LocationMasterLocationId) : 0,
                     Name = x.LocationMasterLocationName
                 }));
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
@@ -170,7 +170,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     PurchaseReturnVoucherRetDate = x.PurchaseReturnVoucherRetDate,
                     PurchaseReturnVoucherRetId = x.PurchaseReturnVoucherRetId,
                     PurchaseReturnVoucherRetDateString = (x.PurchaseReturnVoucherRetDate != null ? x.PurchaseReturnVoucherRetDate : DateTime.MinValue).Value.ToString("dd-MM-yyyy"),
-                    PurchaseReturnVoucherVoucherDateString = (x.PurchaseReturnVoucherVoucherDate != null? x.PurchaseReturnVoucherVoucherDate : DateTime.MinValue ).Value.ToString("dd-MM-yyyy"),
+                    PurchaseReturnVoucherVoucherDateString = (x.PurchaseReturnVoucherVoucherDate != null ? x.PurchaseReturnVoucherVoucherDate : DateTime.MinValue).Value.ToString("dd-MM-yyyy"),
                     PurchaseReturnVoucherVoucherType = x.PurchaseReturnVoucherVoucherType,
                     PurchaseReturnVoucherNetAmount = x.PurchaseReturnVoucherNetAmount,
                     PurchaseReturnVoucherNarration = x.PurchaseReturnVoucherNarration,
@@ -186,7 +186,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 return Response<GridWrapperResponse<List<PurchaseReturnVoucherResponse>>>.Fail(new GridWrapperResponse<List<PurchaseReturnVoucherResponse>>(), ex.Message);
             }
         }
-        public async Task<Response<PurchaseReturnVoucherResponse>> GetSpecificPurchaseReturn(string id =null)
+        public async Task<Response<PurchaseReturnVoucherResponse>> GetSpecificPurchaseReturn(string id = null)
         {
             try
             {
@@ -205,16 +205,16 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     model.PurchaseReturnVoucherDetails = _purchaseReturnDetail.GetAsQueryable()
                         .Where(x => x.PurchaseReturnVoucherDetailsRetId == id).Select(x => new PurchaseReturnVoucherDetailResponse
                         {
-                            PurchaseReturnVoucherDetailsBatchCode=x.PurchaseReturnVoucherDetailsBatchCode,
-                            PurchaseReturnVoucherDetailsRetId=x.PurchaseReturnVoucherDetailsRetId,
-                            PurchaseReturnVoucherDetailsAmount=x.PurchaseReturnVoucherDetailsAmount,
-                            PurchaseReturnVoucherDetailsBatch=x.PurchaseReturnVoucherDetailsBatch,
-                            PurchaseReturnVoucherDetailsMaterialId=x.PurchaseReturnVoucherDetailsMaterialId,
-                            PurchaseReturnVoucherDetailsQty=x.PurchaseReturnVoucherDetailsQty,
-                            PurchaseReturnVoucherDetailsRemarks=x.PurchaseReturnVoucherDetailsRemarks,
-                            PurchaseReturnVoucherDetailsSno=x.PurchaseReturnVoucherDetailsSno,
-                            PurchaseReturnVoucherDetailsRate=x.PurchaseReturnVoucherDetailsRate,
-                            PurchaseReturnVoucherDetailsVoucherNo=x.PurchaseReturnVoucherDetailsVoucherNo
+                            PurchaseReturnVoucherDetailsBatchCode = x.PurchaseReturnVoucherDetailsBatchCode,
+                            PurchaseReturnVoucherDetailsRetId = x.PurchaseReturnVoucherDetailsRetId,
+                            PurchaseReturnVoucherDetailsAmount = x.PurchaseReturnVoucherDetailsAmount,
+                            PurchaseReturnVoucherDetailsBatch = x.PurchaseReturnVoucherDetailsBatch,
+                            PurchaseReturnVoucherDetailsMaterialId = x.PurchaseReturnVoucherDetailsMaterialId,
+                            PurchaseReturnVoucherDetailsQty = x.PurchaseReturnVoucherDetailsQty,
+                            PurchaseReturnVoucherDetailsRemarks = x.PurchaseReturnVoucherDetailsRemarks,
+                            PurchaseReturnVoucherDetailsSno = x.PurchaseReturnVoucherDetailsSno,
+                            PurchaseReturnVoucherDetailsRate = x.PurchaseReturnVoucherDetailsRate,
+                            PurchaseReturnVoucherDetailsVoucherNo = x.PurchaseReturnVoucherDetailsVoucherNo
                         }).ToList();
 
                 });
@@ -233,8 +233,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 string query = $@" 1 == 1 {model.Filter}";
                 List<GetPurchaseVoucherResponse> response = new List<GetPurchaseVoucherResponse>();
                 var orders = await _purchaseVoucher.GetAsQueryable()
-                    .Where(x=>model.Search != null? x.PurchaseVoucherGRNo.Contains(model.Search) || x.PurchaseVoucherDescription.Contains(model.Search)
-                    || x.PurchaseVoucherVoucherNo.Contains(model.Search):1==1).Where(query).ToListAsync();
+                    .Where(x => model.Search != null ? x.PurchaseVoucherGRNo.Contains(model.Search) || x.PurchaseVoucherDescription.Contains(model.Search)
+                    || x.PurchaseVoucherVoucherNo.Contains(model.Search) : 1 == 1).Where(query).ToListAsync();
                 response.AddRange(orders.Select(x => new GetPurchaseVoucherResponse
                 {
                     PurchaseVoucherActualAmount = x.PurchaseVoucherActualAmount,
@@ -265,17 +265,17 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             try
             {
                 PurchaseReturnVoucherResponse model = new PurchaseReturnVoucherResponse();
-                var itemmaster =await _utilityService.GetItemMaster();
-                    var orders =await _purchaseVoucher.GetAsQueryable().FirstOrDefaultAsync(x => x.PurchaseVoucherVoucherNo == id);
-                    model.PurchaseReturnVoucherGrno = orders.PurchaseVoucherVoucherNo;
+                var itemmaster = await _utilityService.GetItemMaster();
+                var orders = await _purchaseVoucher.GetAsQueryable().FirstOrDefaultAsync(x => x.PurchaseVoucherVoucherNo == id);
+                model.PurchaseReturnVoucherGrno = orders.PurchaseVoucherVoucherNo;
                 model.PurchaseReturnVoucherVoucherDate = orders.PurchaseVoucherGRDate;
-                    model.PurchaseReturnVoucherVoucherType = orders.PurchaseVoucherPurchaseType;
-                    model.PurchaseReturnVoucherLocationId = orders.PurchaseVoucherLocationID;
-                    //model.PurchaseReturnVoucherSpId = orders.PurchaseVoucherSPID;
-                    model.PurchaseReturnVoucherSpId = orders.PurchaseVoucherSPID;
-                    model.PurchaseReturnVoucherNarration = orders.PurchaseVoucherDescription;
-                    model.PurchaseReturnVoucherVatNo = orders.PurchaseVoucherVATNo;
-                    model.PurchaseReturnVoucherSupInvNo = orders.PurchaseVoucherSupplyInvoiceNo;
+                model.PurchaseReturnVoucherVoucherType = orders.PurchaseVoucherPurchaseType;
+                model.PurchaseReturnVoucherLocationId = orders.PurchaseVoucherLocationID;
+                //model.PurchaseReturnVoucherSpId = orders.PurchaseVoucherSPID;
+                model.PurchaseReturnVoucherSpId = orders.PurchaseVoucherSPID;
+                model.PurchaseReturnVoucherNarration = orders.PurchaseVoucherDescription;
+                model.PurchaseReturnVoucherVatNo = orders.PurchaseVoucherVATNo;
+                model.PurchaseReturnVoucherSupInvNo = orders.PurchaseVoucherSupplyInvoiceNo;
                 model.PurchaseReturnVoucherDetails = new List<PurchaseReturnVoucherDetailResponse>();
                 var purchaseReturnVoucherDetails = await _purchasevoucherDetail.GetAsQueryable()
                  .Where(x => x.PurchaseVoucherDetailsVoucherNo == id)
@@ -318,12 +318,12 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 if (model.PurchaseReturnVoucherId == 0)
                 {
 
-                        message =await AddPurchaseReturn(model);
+                    message = await AddPurchaseReturn(model);
                 }
                 else
                 {
 
-                        message =await EditPurchaseReturn(model);
+                    message = await EditPurchaseReturn(model);
                 }
                 if (message == null)
                 {
@@ -344,8 +344,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 var financial = await _utilityService.GetFinancialPeriods();
                 Random random = new Random();
                 int vouhcerDetailid = random.Next();
-               
-                var supplier = _supplierMaster.GetAsQueryable().Where(x => x.SuppliersMasterSupplierId==model.PurchaseReturnVoucherSpId).FirstOrDefault();
+
+                var supplier = _supplierMaster.GetAsQueryable().Where(x => x.SuppliersMasterSupplierId == model.PurchaseReturnVoucherSpId).FirstOrDefault();
                 string supAccount = supplier != null ? supplier.SuppliersMasterSupplierReffAcNo : "";
                 var vouchers = await _utilityService.AddVoucherNumber("Purchase Return", "PRV");
                 PurchaseReturnVoucher order = new PurchaseReturnVoucher()
@@ -362,19 +362,19 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     PurchaseReturnVoucherNarration = model.PurchaseReturnVoucherNarration,
                     PurchaseReturnVoucherSupInvNo = model.PurchaseReturnVoucherSupInvNo,
                     PurchaseReturnVoucherUserId = 0,
-                    
+
                     PurchaseReturnVoucherLocationId = model.PurchaseReturnVoucherLocationId,
                     PurchaseReturnVoucherVatNo = model.PurchaseReturnVoucherVatNo,
                     PurchaseReturnVoucherVoucherType = model.PurchaseReturnVoucherVoucherType,
                     PurchaseReturnVoucherTransportCost = model.PurchaseReturnVoucherTransportCost,
-                   PurchaseReturnVoucherVatAmount= model.PurchaseReturnVoucherVatAmount,
+                    PurchaseReturnVoucherVatAmount = model.PurchaseReturnVoucherVatAmount,
                     PurchaseReturnVoucherSpId = model.PurchaseReturnVoucherSpId,
                     PurchaseReturnVoucherVatPercentage = model.PurchaseReturnVoucherVatPercentage,
                     PurchaseReturnVoucherVatRoundAmt = model.PurchaseReturnVoucherVatRoundAmt,
                     PurchaseReturnVoucherStatus = model.PurchaseReturnVoucherStatus,
-                    PurchaseReturnVoucherNetAmount =model.PurchaseReturnVoucherNetAmount,
-                    PurchaseReturnVoucherGrossAmount=model.PurchaseReturnVoucherGrossAmount,
-                    PurchaseReturnVoucherVatRoundSign=model.PurchaseReturnVoucherVatRoundSign
+                    PurchaseReturnVoucherNetAmount = model.PurchaseReturnVoucherNetAmount,
+                    PurchaseReturnVoucherGrossAmount = model.PurchaseReturnVoucherGrossAmount,
+                    PurchaseReturnVoucherVatRoundSign = model.PurchaseReturnVoucherVatRoundSign
 
                 };
                 _purchaseReturn.Insert(order);
@@ -400,13 +400,13 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     PurchaseReturnVoucherDetailsFocQty = x.PurchaseReturnVoucherDetailsFocQty,
                     PurchaseReturnVoucherDetailsMaterialId = x.PurchaseReturnVoucherDetailsMaterialId,
 
-                    PurchaseReturnVoucherDetailsQty = x.PurchaseReturnVoucherDetailsQty+x.PurchaseReturnVoucherDetailsFocQty,
+                    PurchaseReturnVoucherDetailsQty = x.PurchaseReturnVoucherDetailsQty + x.PurchaseReturnVoucherDetailsFocQty,
                     PurchaseReturnVoucherDetailsRemarks = x.PurchaseReturnVoucherDetailsRemarks,
                     PurchaseReturnVoucherDetailsRetId = vouchers.Result.Value,
-                    PurchaseReturnVoucherDetailsRate=x.PurchaseReturnVoucherDetailsRate,
-                    PurchaseReturnVoucherDetailsUnitId=x.PurchaseReturnVoucherDetailsUnitId,
-                    PurchaseReturnVoucherDetailsVoucherNo=x.PurchaseReturnVoucherDetailsVoucherNo,
-                     PurchaseReturnVoucherDetailsVatAmount= x.PurchaseReturnVoucherDetailsVatAmount,
+                    PurchaseReturnVoucherDetailsRate = x.PurchaseReturnVoucherDetailsRate,
+                    PurchaseReturnVoucherDetailsUnitId = x.PurchaseReturnVoucherDetailsUnitId,
+                    PurchaseReturnVoucherDetailsVoucherNo = x.PurchaseReturnVoucherDetailsVoucherNo,
+                    PurchaseReturnVoucherDetailsVatAmount = x.PurchaseReturnVoucherDetailsVatAmount,
                     PurchaseReturnVoucherDetailsVatPercetage = x.PurchaseReturnVoucherDetailsVatPercetage,
                     PurchaseReturnVoucherDetailsPurQty = x.PurchaseReturnVoucherDetailsPurQty,
                     PurchaseReturnVoucherDetailsFcAmount = x.PurchaseReturnVoucherDetailsAmountNew,
@@ -430,22 +430,22 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     StockRegisterAmount = x.PurchaseReturnVoucherDetailsAmountNew.HasValue
         ? Convert.ToDecimal(x.PurchaseReturnVoucherDetailsAmount)
         : 0,
-                    StockRegisterAssignedDate =DateTime.Now,
-                    StockRegisterFSNO=financial.Result.FinancialPeriodsFsno,
-                    StockRegisterJobID=model.PurchaseReturnVoucherDetailsJobId,
-                    StockRegisterBatchCode=x.PurchaseReturnVoucherDetailsBatchCode,
-                    StockRegisterMaterialID=x.PurchaseReturnVoucherDetailsMaterialId,
+                    StockRegisterAssignedDate = DateTime.Now,
+                    StockRegisterFSNO = financial.Result.FinancialPeriodsFsno,
+                    StockRegisterJobID = model.PurchaseReturnVoucherDetailsJobId,
+                    StockRegisterBatchCode = x.PurchaseReturnVoucherDetailsBatchCode,
+                    StockRegisterMaterialID = x.PurchaseReturnVoucherDetailsMaterialId,
                     StockRegisterQuantity = x.PurchaseReturnVoucherDetailsQty.HasValue
         ? Convert.ToDecimal(x.PurchaseReturnVoucherDetailsQty)
         : 0,
                     StockRegisterFCAmount = Convert.ToDecimal(x.PurchaseReturnVoucherDetailsAmountNew),
-                     StockRegisterRefVoucherNo=vouchers.Result.Value,
-                     StockRegisterExpDate=DateTime.Now,
-                     StockRegisterLocationID=model.PurchaseReturnVoucherLocationId,
-                    StockRegisterRate= Convert.ToDecimal(x.PurchaseReturnVoucherDetailsAmountNew),
-                     StockRegisterTransType="Purchase Return",
-                     StockRegisterRemarks=x.PurchaseReturnVoucherDetailsRemarks,
-                     
+                    StockRegisterRefVoucherNo = vouchers.Result.Value,
+                    StockRegisterExpDate = DateTime.Now,
+                    StockRegisterLocationID = model.PurchaseReturnVoucherLocationId,
+                    StockRegisterRate = Convert.ToDecimal(x.PurchaseReturnVoucherDetailsAmountNew),
+                    StockRegisterTransType = "Purchase Return",
+                    StockRegisterRemarks = x.PurchaseReturnVoucherDetailsRemarks,
+
                 }).ToList();
                 _stockRegister.InsertList(stockRegister);
                 #region ADD ACTIVITY LOGS
@@ -461,27 +461,27 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 _stockRegister.SaveChangesAsync();
                 foreach (var item in model.PurchaseReturnVoucherDetails)
                 {
-                  var debit=  new AccountsTransactions
+                    var debit = new AccountsTransactions
                     {
 
                         AccountsTransactionsFsno = Convert.ToDecimal(financial.Result.FinancialPeriodsFsno),
                         AccountsTransactionsAccNo = supAccount,
-                        AccountsTransactionsDebit=Convert.ToDecimal(item.PurchaseReturnVoucherDetailsAmountNew),
-                        AccountsTransactionsFcDebit= Convert.ToDecimal(item.PurchaseReturnVoucherDetailsAmountNew),
-                      AccountsTransactionsAllocBalance = Convert.ToDecimal(item.PurchaseReturnVoucherDetailsAmountNew),
-                      AccountsTransactionsFcAllocBalance= Convert.ToDecimal(item.PurchaseReturnVoucherDetailsAmountNew),
-                      AccountsTransactionsTransDate=DateTime.Now,
-                      AccountsTransactionsVoucherType="Purchase Return",
-                      AccountsTransactionsParticulars= $@"Purchase Return as {supAccount} ",
-                      AccountsTransactionsVoucherNo= vouchers.Result.Value,
-                      AccountsTransactionsApprovalDt=DateTime.Now,
-                      AccountsTransactionsDescription=model.PurchaseReturnVoucherNarration,
-                      AccountsTransactionsUserId=0,
-                      RefNo="",
-                      AccountsTransactionsJobNo=model.PurchaseReturnVoucherDetailsJobId,
-                      
-                  };
-                  await  _utilityService.SaveAccountTransaction(debit);
+                        AccountsTransactionsDebit = Convert.ToDecimal(item.PurchaseReturnVoucherDetailsAmountNew),
+                        AccountsTransactionsFcDebit = Convert.ToDecimal(item.PurchaseReturnVoucherDetailsAmountNew),
+                        AccountsTransactionsAllocBalance = Convert.ToDecimal(item.PurchaseReturnVoucherDetailsAmountNew),
+                        AccountsTransactionsFcAllocBalance = Convert.ToDecimal(item.PurchaseReturnVoucherDetailsAmountNew),
+                        AccountsTransactionsTransDate = DateTime.Now,
+                        AccountsTransactionsVoucherType = "Purchase Return",
+                        AccountsTransactionsParticulars = $@"Purchase Return as {supAccount} ",
+                        AccountsTransactionsVoucherNo = vouchers.Result.Value,
+                        AccountsTransactionsApprovalDt = DateTime.Now,
+                        AccountsTransactionsDescription = model.PurchaseReturnVoucherNarration,
+                        AccountsTransactionsUserId = 0,
+                        RefNo = "",
+                        AccountsTransactionsJobNo = model.PurchaseReturnVoucherDetailsJobId,
+
+                    };
+                    await _utilityService.SaveAccountTransaction(debit);
                     var credit = new AccountsTransactions
                     {
                         AccountsTransactionsFsno = Convert.ToDecimal(financial.Result.FinancialPeriodsFsno),
@@ -550,7 +550,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 orders.PurchaseReturnVoucherVatAmount = model.PurchaseReturnVoucherVatAmount;
                 orders.PurchaseReturnVoucherSpId = model.PurchaseReturnVoucherSpId;
                 orders.PurchaseReturnVoucherVatPercentage = model.PurchaseReturnVoucherVatPercentage;
-                  orders.PurchaseReturnVoucherVatRoundAmt = model.PurchaseReturnVoucherVatRoundAmt;
+                orders.PurchaseReturnVoucherVatRoundAmt = model.PurchaseReturnVoucherVatRoundAmt;
                 orders.PurchaseReturnVoucherStatus = model.PurchaseReturnVoucherStatus;
                 orders.PurchaseReturnVoucherNetAmount = model.PurchaseReturnVoucherNetAmount;
                 orders.PurchaseReturnVoucherGrossAmount = model.PurchaseReturnVoucherGrossAmount;
@@ -698,15 +698,19 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
         public List<PurchaseReturn> GetPurchaseReturn()
         {
-            var AllPurchaseReturn = _purchaseReturnRepo.GetAll().Where(c=>c.PurchaseReturnDelStatus == false || c.PurchaseReturnDelStatus == null).ToList();
+            var AllPurchaseReturn = _purchaseReturnRepo.GetAll().Where(c => c.PurchaseReturnDelStatus == false || c.PurchaseReturnDelStatus == null).ToList();
             IEnumerable<CurrencyMaster> _currencyMaster = _currencyMasterRepository.GetAll().ToList();
             foreach (var purchaseReturn in AllPurchaseReturn)
             {
-                purchaseReturn.CurrencyMasterCurrencyName = _currencyMaster
-                                                             .Where(c => c.CurrencyMasterCurrencyId == purchaseReturn.PurchaseReturnCurrencyId)
-                                                             .FirstOrDefault()!= null? _currencyMaster
-                                                             .Where(c => c.CurrencyMasterCurrencyId == purchaseReturn.PurchaseReturnCurrencyId)
-                                                             .FirstOrDefault().CurrencyMasterCurrencyName:"";
+                try
+                {
+                    if (purchaseReturn.PurchaseReturnCurrencyId == null) continue;
+                    purchaseReturn.CurrencyMasterCurrencyName = _currencyMaster
+                                                                 .Where(c => c.CurrencyMasterCurrencyId == purchaseReturn.PurchaseReturnCurrencyId)
+                                                                 .FirstOrDefault().CurrencyMasterCurrencyName;
+                }
+                catch { }
+
             }
             return AllPurchaseReturn;
         }
@@ -718,7 +722,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
             purchaseReturnModel.purchaseReturn = _purchaseReturnRepo.GetAsQueryable().Where(k => k.PurchaseReturnNo == pvno).SingleOrDefault();
 
-            
+
 
             purchaseReturnModel.accountsTransactions = _accountTransaction.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.PurchaseReturn_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
             purchaseReturnModel.purchaseReturnDetails = _purchaseReturnDetailsRepo.GetAsQueryable().Where(x => x.PurchaseReturnDetailsNo == pvno && (x.PurchaseReturnDetailsDelStatus == false || x.PurchaseReturnDetailsDelStatus == null)).ToList();
@@ -732,7 +736,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 }
                 purchaseReturnDetail.PurchaseOrderPurchaseQTY = GetPurchaseQTY(purchaseReturnModel.purchaseReturn.PurchaseReturnGrno);
 
-               
+
             }
             var purchaseReturnList = _purchaseReturnRepo.GetAll().Where(c => c.PurchaseReturnGrno == purchaseReturnModel.purchaseReturn.PurchaseReturnGrno);
             if (purchaseReturnList != null)
@@ -748,11 +752,11 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     // qty += rslt;
                 }
 
-                purchaseReturnModel.purchaseReturnDetails=purchaseReturnModel.purchaseReturnDetails.Select((c) =>
-                {
-                    c.PurchaseReturnQtyTill = qty;
-                    return c;
-                }).ToList();
+                purchaseReturnModel.purchaseReturnDetails = purchaseReturnModel.purchaseReturnDetails.Select((c) =>
+                  {
+                      c.PurchaseReturnQtyTill = qty;
+                      return c;
+                  }).ToList();
             }
             //return 0;
             //foreach (var item in purchaseReturnModel.purchaseReturnDetails)
@@ -937,9 +941,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             }
         }
 
-        public PurchaseReturnModel InsertPurchaseReturn(PurchaseReturn purchaseReturn, 
-                                                        List<AccountsTransactions> accountsTransactions, 
-                                                        List<PurchaseReturnDetails> purchaseReturnDetails, 
+        public PurchaseReturnModel InsertPurchaseReturn(PurchaseReturn purchaseReturn,
+                                                        List<AccountsTransactions> accountsTransactions,
+                                                        List<PurchaseReturnDetails> purchaseReturnDetails,
                                                         List<StockRegister> stockRegister)
         {
             try
@@ -1057,7 +1061,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             if (currencyMaster == null)
             {
                 return null;
-            }   
+            }
             foreach (var prDetails in pr.PurchaseReturnDetails)
             {
                 convertedValiue = prDetails.PurchaseReturnDetailsQuantity * Convert.ToDecimal(currencyMaster.CurrencyMasterCurrencyRate);

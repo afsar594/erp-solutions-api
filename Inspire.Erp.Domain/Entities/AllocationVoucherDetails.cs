@@ -24,6 +24,8 @@ namespace Inspire.Erp.Domain.Entities
         public int? AllocationVoucherDetailsRefFsno { get; set; }
         public bool? AllocationVoucherDetailsDelStatus { get; set; }
         [NotMapped]
+        public double AllocationVoucherDetailsNetAllocation { get; set; }
+        [NotMapped]
         public double? AccountsTransactionsAllocBalance { get; set; }
         [NotMapped]
         public long AccountsTransactionsTransSno { get; set; }
@@ -31,3 +33,4 @@ namespace Inspire.Erp.Domain.Entities
         public virtual AllocationVoucher AllocationVoucher { get; set; }
     }
 }
+

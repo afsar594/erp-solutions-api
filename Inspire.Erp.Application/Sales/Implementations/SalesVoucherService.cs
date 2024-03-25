@@ -392,11 +392,11 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 k.AccountsTransactionsDebit = (decimal)salesVoucher.SalesVoucherNetAmount * currencyRate; //need replace by its original value
                 k.AccountsTransactionsCredit = 0;
                 k.AccountsTransactionsDescription = string.Empty;//need to add description here if needed
-                k.AccountsTransactionsUserId = salesVoucher.SalesVoucherUserID;
+                k.AccountsTransactionsUserId = salesVoucher.SalesVoucherUserID ?? k.AccountsTransactionsUserId;
                 k.AccountsTransactionsStatus = "A"; //you can change it if needed
                 k.AccountsTransactionsTstamp = DateTime.Now; // can be changable if needed for date and time
                 k.RefNo = string.Empty; // you can add here the Ref no if needed
-                k.AccountsTransactionsFsno = (decimal)salesVoucher.SalesVoucherFSNO;
+                k.AccountsTransactionsFsno = salesVoucher.SalesVoucherFSNO??0m;
                 k.AccountsTransactionsFcAllocDebit = 0;
                 k.AccountsTransactionsFcAllocCredit = 0;
                 k.AccountsTransactionsAllocCredit = 0;
@@ -420,7 +420,11 @@ namespace Inspire.Erp.Application.Sales.Implementations
         {
             try
             {
-                return this.accMaster.GetAsQueryable().FirstOrDefault(x => x.MaAccName.ToUpper().Equals(partyName.ToUpper())).MaAccNo;
+
+                string maAcc = this.accMaster.GetAsQueryable().Where(x => x.MaAccName.ToUpper().Equals(partyName.ToUpper())).Select(x => x.MaAccNo).FirstOrDefault();
+
+                return maAcc == null ? "" : maAcc;
+                //return this.accMaster.GetAsQueryable().FirstOrDefault(x => x.MaAccName.ToUpper().Equals(partyName.ToUpper())).MaAccNo??"";
             }
             catch
             {
