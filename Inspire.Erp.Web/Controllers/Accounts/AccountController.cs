@@ -28,10 +28,11 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         private readonly IAssetsOpeningService _assetsOpeningService;
         private readonly IVatStatementService _vatStatementService;
         private readonly IAssetsMasterService _assetsMasterService;
+        private readonly IAccountTransactionsServices _accountTransactionsServices;
         public AccountController(IAccountStatementService accountStatService, IDaybookService daybookService, IAssetsOpeningService assetsOpeningService,
             IVoucherAllocationService voucherAllocation, IOutstandingStatementService outstandingStatement, IOldBalanceSheetService oldBalanceSheet,
             IVoucherPrintService iVoucherPrintService, IAccountStatementMultiAccountService multiAccountService, IAgeingReport ageingReport,
-            IVatStatementService vatStatementService, IAssetsMasterService assetsMasterService)
+            IVatStatementService vatStatementService, IAssetsMasterService assetsMasterService, IAccountTransactionsServices accountTransactionsServices)
         {
             _accountStatService = accountStatService;
             _iVoucherPrintService = iVoucherPrintService;
@@ -44,6 +45,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
             _assetsOpeningService = assetsOpeningService;
             _vatStatementService = vatStatementService;
             _assetsMasterService = assetsMasterService;
+            _accountTransactionsServices = accountTransactionsServices;
         }
         #region Account Statement 
         [HttpGet("GetAccountMasterDropdown")]
@@ -173,6 +175,16 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         #endregion
 
         #region Voucher Allocation
+
+        [HttpPost]
+        [Route("GetAllocationDetailsByAccNoRefNo")]
+        public async Task<IActionResult> GetAllocationDetailsByAccNoRefNo(string accNo,string refNO)
+        {
+            return Ok(await _accountTransactionsServices.GetReceiptVoucherAllocations(accNo, refNO));
+        }
+
+
+
         [HttpGet("GetCustomerMasterDropdown")]
         public async Task<IActionResult> GetCustomerMasterDropdown()
         {

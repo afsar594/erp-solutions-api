@@ -26,7 +26,7 @@ namespace Inspire.Erp.Application.Account.Implementations
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
         private readonly IPaymentVoucherService _IPaymentVoucherService;
         private IRepository<UserTracking> UserTracking;
-        private IRepository<AllocationVoucherDetails> allocationVDlts;
+        
 
         private IRepository<UserFile> UserFile;
         private readonly InspireErpDBContext context;
@@ -45,7 +45,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             UserFile = _UserFile;
             context = _context;
             _IPaymentVoucherService = IPaymentVoucherService;
-            this.allocationVDlts = allocationVDlts;
+            
         }
         public ReceiptVoucherMaster UpdateReceiptVoucher(ReceiptVoucherMaster receiptVoucher, List<AccountsTransactions> accountsTransactions, List<ReceiptVoucherDetails> receiptVoucherDetails)
         {
@@ -258,33 +258,6 @@ namespace Inspire.Erp.Application.Account.Implementations
             return vouchersNumbers;
         }
 
-        public IEnumerable<Domain.Models.AllocationDetails> GetReceiptVoucherAllocations(string accNo, string refNo)
-        {
-            try
-            {
-                List<Domain.Models.AllocationDetails> allocationDetails = new List<Domain.Models.AllocationDetails>();
-                var result = (from AD in this.allocationVDlts.GetAll()
-                              join AT in _accountTransactionRepository.GetAll() on AD.AllocationVoucherDetailsTransSno equals (int)AT.AccountsTransactionsTransSno
-                              where AD.AllocationVoucherDetailsAccNo == accNo && AD.AllocationVoucherDetailsRefVno == refNo && AD.AllocationVoucherDetailsRefVtype == "RECEIPT"
-                              select new Domain.Models.AllocationDetails()
-                              {
-                                  TransDate = AT.AccountsTransactionsTransDate,
-                                  VoucherNo = AD.AllocationVoucherDetailsVno,
-                                  Type = AD.AllocationVoucherDetailsRefVtype,
-                                  Credit = (decimal)AD.AllocationVoucherDetailsAllocCredit,
-                                  Debit = (decimal)AD.AllocationVoucherDetailsAllocDebit,
-                                 Balance = AT.AccountsTransactionsAllocBalance,
-                                  AllocAmount = 0,
-                                  NetAllocation =0
-                              }).ToList();
-               
      
-                return result;
-            }
-            catch
-            {
-                return new List<Domain.Models.AllocationDetails>();
-            }
-        }
     }
 }

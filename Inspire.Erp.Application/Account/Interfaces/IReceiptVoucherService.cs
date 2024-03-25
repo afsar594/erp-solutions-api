@@ -15,7 +15,7 @@ namespace Inspire.Erp.Application.Account.Interfaces
         public IEnumerable<AccountsTransactions> GetAllTransaction();
         public ReceiptVoucherMaster GetSavedReceiptDetails(string Rvno);
         public IEnumerable<ReceiptVoucherMaster> GetReceiptVouchers();
-        public IEnumerable<AllocationDetails> GetReceiptVoucherAllocations(string accNo,string refNo);
+        
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
         public VouchersNumbers GetVouchersNumbers(string Rvno);
 
