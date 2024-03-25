@@ -317,10 +317,18 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 purchaseOrder.PurchaseOrderDetails = purchaseOrder.PurchaseOrderDetails.Select((x) =>
                 {
                     x.PurchaseOrderId = maxcount;
-                    x.PurchaseOrderDetailsNo = purchaseOrder.PurchaseOrderNo;
+                    x.PurchaseOrderDetailsNo = purchaseOrderNumber;// purchaseOrder.PurchaseOrderNo;
                     return x;
                 }).ToList();
                 //_purchaseOrderDetailsRepository.InsertList(purchaseOrderDetails);
+
+
+                purchaseOrder.PurchaseOrderDetails.Clear();
+                foreach (var item in purchaseOrderDetails)
+                {
+                    purchaseOrder.PurchaseOrderDetails.Add(item);
+                }
+
 
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
@@ -344,8 +352,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 //}).ToList();
                 //_stockRegisterRepository.InsertList(stockRegister);
 
-
-
+                
                 _purchaseOrderRepository.Insert(purchaseOrder);
 
                 //insert tracking register

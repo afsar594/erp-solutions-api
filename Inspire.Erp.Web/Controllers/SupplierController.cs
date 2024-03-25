@@ -45,7 +45,7 @@ namespace Inspire.Erp.Web.Controllers
                 SuppliersMasterSupplierMobile = k.SuppliersMasterSupplierMobile,
                 SuppliersMasterSupplierEmail = k.SuppliersMasterSupplierEmail,
                 SuppliersMasterSupplierWebSite = k.SuppliersMasterSupplierWebSite,
-                SuppliersMasterSupplierLocationId = k.SuppliersMasterSupplierLocationId,
+                SuppliersMasterSupplierLocationId = k.SuppliersMasterSupplierLocationId??-1,
                 SuppliersMasterSupplierRemarks = k.SuppliersMasterSupplierRemarks,
                 SuppliersMasterSupplierReffAcNo = k.SuppliersMasterSupplierReffAcNo,
                 SuppliersMasterSupplierType = k.SuppliersMasterSupplierType,

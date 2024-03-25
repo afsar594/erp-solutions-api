@@ -5,13 +5,13 @@ namespace Inspire.Erp.Domain.Entities
 {
     public partial class PurchaseRequisitionDetails
     {
-        public decimal PurchaseRequisitionDetailsId { get; set; }
+        public decimal? PurchaseRequisitionDetailsId { get; set; }
         public decimal? PurchaseRequisitionId { get; set; }
         public string PurchaseRequisitionDetailsNo { get; set; }
         public decimal? PurchaseRequisitionDetailsSno { get; set; }
         public decimal? PurchaseRequisitionDetailsMatId { get; set; }
         public string PurchaseRequisitionDetailsItemName { get; set; }
-        public decimal? PurchaseRequisitionDetailsUnitId { get; set; }
+        public int PurchaseRequisitionDetailsUnitId { get; set; }
         public string PurchaseRequisitionDetailsUnitName { get; set; }
         public string PurchaseRequisitionDetailsBatchCode { get; set; }
         public DateTime? PurchaseRequisitionDetailsManfDate { get; set; }

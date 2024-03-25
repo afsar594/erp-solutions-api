@@ -366,6 +366,9 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _Context.AccountsTransactions.AddRange(accountsTransactions);
                 _Context.SaveChanges();
 
+
+
+
                 List<StockRegister> sr = new List<StockRegister>();
 
                 foreach (var item in salesReturnDetails)
