@@ -67,7 +67,8 @@ namespace Inspire.Erp.Domain.Modals.Stock
         public string? Loca_Name { get; set; }
         public decimal? Qty { get; set; }
         public decimal? Rate { get; set; }
-        public decimal? TolAmt { get; set; }
+        public decimal? TotalAmount { get; set; }
+        public decimal? LPO { get; set; }
     }
     public class StockMovementOUT
     {
@@ -90,9 +91,8 @@ namespace Inspire.Erp.Domain.Modals.Stock
         public string? Loca_Name { get; set; }
         public decimal? Qty { get; set; }
         public decimal? Rate { get; set; }
-        public decimal? TolAmt { get; set; }
-        public decimal? QtyOut { get; set; }
-        public decimal? TotAmtOUT { get; set; }
+        public decimal? TotalAmount{ get; set; }
+        public decimal? LPO { get; set; }
     }
 
 }
