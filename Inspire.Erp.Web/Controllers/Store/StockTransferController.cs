@@ -109,18 +109,18 @@ namespace Inspire.Erp.Web.Controllers.Store
                     StockTransferVoucherNo = xs.stockTransfer.StockTransferVoucherNo,
                     StockTransferStDate = xs.stockTransfer.StockTransferStDate,
                      StockTransferLocationIdFrom= xs.stockTransfer.StockTransferLocationIdFrom,
-     StockTransferLocationIdTo= xs.stockTransfer.StockTransferLocationIdTo,
-     StockTransferFSNo= xs.stockTransfer.StockTransferFSNo,
-        StockTransferStatus= xs.stockTransfer.StockTransferStatus,
-     StockTransferUserId= xs.stockTransfer.StockTransferUserId,
-        StockTransferNarration= xs.stockTransfer.StockTransferNarration,
-     StockTransferJobId= xs.stockTransfer.StockTransferJobId,
-       StockTransferApproved= xs.stockTransfer.StockTransferApproved,
-        StockTransferApprovedBy= xs.stockTransfer.StockTransferApprovedBy,
-       StockTransferApprovedDate= xs.stockTransfer.StockTransferApprovedDate,
-       StockTransferDelStatus= xs.stockTransfer.StockTransferDelStatus,
+                     StockTransferLocationIdTo= xs.stockTransfer.StockTransferLocationIdTo,
+                     StockTransferFSNo= xs.stockTransfer.StockTransferFSNo,
+                        StockTransferStatus= xs.stockTransfer.StockTransferStatus,
+                     StockTransferUserId= xs.stockTransfer.StockTransferUserId,
+                        StockTransferNarration= xs.stockTransfer.StockTransferNarration,
+                     StockTransferJobId= xs.stockTransfer.StockTransferJobId,
+                       StockTransferApproved= xs.stockTransfer.StockTransferApproved,
+                        StockTransferApprovedBy= xs.stockTransfer.StockTransferApprovedBy,
+                       StockTransferApprovedDate= xs.stockTransfer.StockTransferApprovedDate,
+                       StockTransferDelStatus= xs.stockTransfer.StockTransferDelStatus,
 
-    };
+                 };
 
                 openingStockVoucherViewModel.StockTransferDetails = _mapper.Map<List<StockTransferDetailsViewModel>>(xs.stockTransferDetails);
                 //openingStockVoucherViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
@@ -143,32 +143,37 @@ namespace Inspire.Erp.Web.Controllers.Store
 
             return apiResponse;
         }
-
-
-        [HttpPost]
-        [Route("DeleteStockTransfer")]
-        public async Task<bool> DeleteStockTransfer([FromBody] StockTransferViewModel stockTranfermodel)
-        {
-            try
-            {
-                var param1 = _mapper.Map<StockTransfer>(stockTranfermodel);
-            var param2 = _mapper.Map<List<StockTransferDetails>>(stockTranfermodel.StockTransferDetails);
-
-                //==============
-               var  param3 = new List<AccountsTransactions>();
-                List<StockRegister> param4 = new List<StockRegister>();
-
-                var result= await _st.DeleteStockTransfer(param1, param2
-               , param4
-               );
-            return true;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-
+        [HttpDelete]
+        [Route("DeleteStockTransfers")]
+        public IActionResult DeleteStockTransfers(string Id)
+        {     
+            return Ok(_st.DeleteStockTransfers(Id));
         }
+
+        //[HttpPost]
+        //[Route("DeleteStockTransfer")]
+        //public async Task<bool> DeleteStockTransfer([FromBody] StockTransferViewModel stockTranfermodel)
+        //{
+        //    try
+        //    {
+        //        var param1 = _mapper.Map<StockTransfer>(stockTranfermodel);
+        //    var param2 = _mapper.Map<List<StockTransferDetails>>(stockTranfermodel.StockTransferDetails);
+
+        //        //==============
+        //       var  param3 = new List<AccountsTransactions>();
+        //        List<StockRegister> param4 = new List<StockRegister>();
+
+        //        var result= await _st.DeleteStockTransfer(param1, param2
+        //       , param4
+        //       );
+        //    return true;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+
+        //}
 
         //[HttpPost("deleteStockTransfer")]
         //public async Task<bool> deleteStockTransfer(StockTransferRequestModel obj)
@@ -208,17 +213,17 @@ namespace Inspire.Erp.Web.Controllers.Store
             try
             {
                 var param1 = _mapper.Map<StockTransfer>(stockTranfermodel);
-            var param2 = _mapper.Map<List<StockTransferDetails>>(stockTranfermodel.StockTransferDetails);
-           // var param3 = _mapper.Map<List<AccountsTransactions>>(stockTranfermodel.AccountsTransactions);
-            //List<StockRegister> param4 = new List<StockRegister>();
-            //var xs = _issueVoucherService.UpdateIssueVoucher(param1, param3, param2
-            //    , param4
-            //    );
+                var param2 = _mapper.Map<List<StockTransferDetails>>(stockTranfermodel.StockTransferDetails);
+                // var param3 = _mapper.Map<List<AccountsTransactions>>(stockTranfermodel.AccountsTransactions);
+                //List<StockRegister> param4 = new List<StockRegister>();
+                //var xs = _issueVoucherService.UpdateIssueVoucher(param1, param3, param2
+                //    , param4
+                //    );
 
-            //==============
-            //param3 = new List<AccountsTransactions>();
-            List<StockRegister> param4 = new List<StockRegister>();
-            clsAccountAndStock.StockTransfer_Accounts_STOCK_Transactions("", "", param1, param2, ref param4);
+                //==============
+                //param3 = new List<AccountsTransactions>();
+                List<StockRegister> param4 = new List<StockRegister>();
+                clsAccountAndStock.StockTransfer_Accounts_STOCK_Transactions("", "", param1, param2, ref param4);
 
                 var xs = await _st.UpdateStockTransfer(param1, param2, param4);
                 StockTransferViewModel openingStockVoucherViewModel = new StockTransferViewModel
@@ -261,9 +266,10 @@ namespace Inspire.Erp.Web.Controllers.Store
             }
 
             return apiResponse;
-
         }
 
+
+        
         [HttpGet]
         [Route("GetSavedStockTransferDetails/{id}")]
         public ApiResponse<StockTransferViewModel> GetSavedStockTransferDetails(string id)

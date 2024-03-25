@@ -268,6 +268,26 @@ namespace Inspire.Erp.Application.Store.Implementation
 
             //}
         }
+        public IEnumerable<StockTransfer> DeleteStockTransfers(string Id)
+        {
+            try
+            {
+                var dataObj = _StockTransferRepo.GetAsQueryable().Where(o => o.StockTransferVoucherNo == Id).FirstOrDefault();
+                dataObj.StockTransferDelStatus = true;
+                var detailData = _StockTransferDetailRepo.GetAsQueryable().Where(o => o.StockTransferDetailsSNo == Id).ToList();
+                detailData.ForEach(elemt =>
+                {
+                    elemt.StockTransferDetailsDelStatus = true;
+                });
+                _StockTransferRepo.Update(dataObj);
+                _StockTransferDetailRepo.UpdateList(detailData);
+                return _StockTransferRepo.GetAll();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
 
         public StockTransferModel GetSavedStockTransferDetails(string pvno)
@@ -557,8 +577,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                 //string openingstockVoucherNumber = this.GenerateVoucherNo(stockTransfer.StockTransferStDate.Value).VouchersNumbersVNo;
                 //stockTransfer.StockTransferVoucherNo = openingstockVoucherNumber;
-
-
+              
                 int maxcount = 0;
                 maxcount = Convert.ToInt32(
                     await _StockTransferRepo.GetAsQueryable()
@@ -603,10 +622,10 @@ namespace Inspire.Erp.Application.Store.Implementation
                         return k;
                     }).ToList();
 
-                    _StockRegisterRepo.InsertList(stockRegister);
+                _StockRegisterRepo.InsertList(stockRegister);
 
-                    _StockTransferRepo.Update(stockTransfer);
-                    _StockTransferRepo.TransactionCommit();
+                _StockTransferRepo.Update(stockTransfer);
+                _StockTransferRepo.TransactionCommit();
                     return this.GetSavedStockTransferDetails(stockTransfer.StockTransferVoucherNo);
 
                 }

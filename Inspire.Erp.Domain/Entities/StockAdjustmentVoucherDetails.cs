@@ -5,7 +5,8 @@ namespace Inspire.Erp.Domain.Entities
 {
     public partial class StockAdjustmentVoucherDetails
     {
-        public int? StockAdjustmentVoucherDetailsDetId { get; set; }
+        public int StockAdjustmentVoucherDetailsDetId { get; set; }
+        public string StockAdjustmentVoucherDetailsSaNo { get; set; }
         public int? StockAdjustmentVoucherDetailsMaterialId { get; set; }
         public double? StockAdjustmentVoucherDetailsManualQty { get; set; }
         public double? StockAdjustmentVoucherDetailsAdjQty { get; set; }

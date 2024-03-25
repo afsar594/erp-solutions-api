@@ -51,7 +51,13 @@ namespace Inspire.Erp.Domain.Enums
         public static String CustomerPurchaseOrder_TYPE { get { return "CustomerPurchaseOrder"; } }
         public static String AssetPurchaseVoucher_TYPE { get { return "AssetPurchaseVoucher"; } }
         public static String PDC_TYPE { get { return "PDCVoucher"; } }
+        public static String JobInoviceVoucher_TYPE { get { return "JobInoviceVoucher"; } }
 
+        public static String StockAdjustmentVoucher_TYPE
+        {
+            get { return "StockAdjustmentVoucher"; }
+
+        }
     }
 
     public static class AccountStatus
@@ -96,9 +102,12 @@ namespace Inspire.Erp.Domain.Enums
         public static String Dep_JournalVoucher_Prefix { get { return "Dep_JournalVoucher_Prefix"; } }
         public static String AssetPurchaseVoucher_Prefix { get { return "AssetPurchaseVoucher_Prefix"; } }
         public static String PDC_Voucher_Prefix { get { return "PDC_Voucher_Prefix"; } }
+
+        public static String JobInoviceVoucher_Prefix { get { return "JobInoviceVoucher_Prefix"; } }
     }
 
-    public static class ItemMasterStatus {
+    public static class ItemMasterStatus
+    {
         public static String Group { get { return "G"; } }
         public static String Item { get { return "I"; } }
         public static String SubItem { get { return "A"; } }
