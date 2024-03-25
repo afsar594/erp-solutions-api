@@ -20334,7 +20334,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<StockAdjustmentVoucher>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(sa => sa.StockAdjustmentVoucherSaId);
 
                 entity.ToTable("Stock_Adjustment_Voucher");
 
