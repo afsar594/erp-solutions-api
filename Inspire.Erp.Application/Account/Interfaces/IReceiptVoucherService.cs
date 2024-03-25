@@ -9,8 +9,8 @@ namespace Inspire.Erp.Application.Account.Interfaces
 {
     public interface IReceiptVoucherService
     {
-        public ReceiptVoucherMaster InsertReceiptVoucher(ReceiptVoucherMaster receiptVoucher, List<AccountsTransactions> accountsTransactions, List<ReceiptVoucherDetails> receiptVoucherDetails);
-        public ReceiptVoucherMaster UpdateReceiptVoucher(ReceiptVoucherMaster receiptVoucher, List<AccountsTransactions> accountsTransactions, List<ReceiptVoucherDetails> receiptVoucherDetails);
+        public ReceiptVoucherMaster InsertReceiptVoucher(ReceiptVoucherMaster receiptVoucher, List<AccountsTransactions> accountsTransactions, List<ReceiptVoucherDetails> receiptVoucherDetails, List<AllocationDetails> alloDetails);
+        public ReceiptVoucherMaster UpdateReceiptVoucher(ReceiptVoucherMaster receiptVoucher, List<AccountsTransactions> accountsTransactions, List<ReceiptVoucherDetails> receiptVoucherDetails, List<AllocationDetails> alloDetails);
         public int DeleteReceiptVoucher(ReceiptVoucherMaster receiptVoucher, List<AccountsTransactions> accountsTransactions, List<ReceiptVoucherDetails> receiptVoucherDetails);
         public IEnumerable<AccountsTransactions> GetAllTransaction();
         public ReceiptVoucherMaster GetSavedReceiptDetails(string Rvno);

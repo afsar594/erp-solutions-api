@@ -47,7 +47,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             _IPaymentVoucherService = IPaymentVoucherService;
             
         }
-        public ReceiptVoucherMaster UpdateReceiptVoucher(ReceiptVoucherMaster receiptVoucher, List<AccountsTransactions> accountsTransactions, List<ReceiptVoucherDetails> receiptVoucherDetails)
+        public ReceiptVoucherMaster UpdateReceiptVoucher(ReceiptVoucherMaster receiptVoucher, List<AccountsTransactions> accountsTransactions, List<ReceiptVoucherDetails> receiptVoucherDetails, List<Domain.Models.AllocationDetails> alloDetails)
         {
 
             try
@@ -126,7 +126,7 @@ namespace Inspire.Erp.Application.Account.Implementations
         }
 
         public ReceiptVoucherMaster InsertReceiptVoucher(ReceiptVoucherMaster receiptVoucher, List<AccountsTransactions> accountsTransactions,
-                                                       List<ReceiptVoucherDetails> receiptVoucherDetails)
+                                                       List<ReceiptVoucherDetails> receiptVoucherDetails, List<Domain.Models.AllocationDetails> alloDetails)
         {
             try
             {
