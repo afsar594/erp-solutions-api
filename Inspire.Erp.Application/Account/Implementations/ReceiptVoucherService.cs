@@ -206,12 +206,12 @@ namespace Inspire.Erp.Application.Account.Implementations
         {
             try
             {
-                
+                var avNo = $"AV {getMaxVoucherAllocation()}";
                 var alloModel = new AllocationVoucher()
                 {
                     AllocationVoucherId = 0,
                     AllocationVoucherType = 1,
-                    AllocationVoucherVoucherNo = $"AV{1}",
+                    AllocationVoucherVoucherNo = avNo,
                     AllocationVoucherVoucherDate = DateTime.Now.Date,
                     AllocationVoucherDescription = rcptVoucher.ReceiptVoucherMasterNarration,
                     AllocationVoucherVoucherAccNo = rcptVoucher.ReceiptVoucherMasterDrAcNo,
@@ -226,6 +226,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     AllocationVoucherVcreation = "AccForm",
                     AllocationVoucherDelStatus = false,
 
+
                 };
                 alloModel.VoucherAllocationDetails = new List<AllocationVoucherDetails>();
                 foreach (var item in alloDetails)
@@ -233,7 +234,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     alloModel.VoucherAllocationDetails.Add(new AllocationVoucherDetails()
                     {
                         //AllocationVoucherDetailsId =
-                        AllocationVoucherDetailsVno = "",
+                        AllocationVoucherDetailsVno = avNo,
                         AllocationVoucherDetailsVtype = 1,
                         AllocationVoucherDetailsVFsno = rcptVoucher.ReceiptVoucherMasterFsno,
                         AllocationVoucherDetailsVLocationId = 1,
@@ -247,7 +248,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                         AllocationVoucherDetailsRefVtype = "ALLOCATION",
                         AllocationVoucherDetailsRefLocationId = 1,
                         AllocationVoucherDetailsRefFsno = 1,
-                        AllocationVoucherDetailsDelStatus = false
+                        AllocationVoucherDetailsDelStatus = false,
+                        AllocationVoucherDetailsNetAllocation = (double)item.NetAllocation
 
                     });
                 }
@@ -264,21 +266,8 @@ namespace Inspire.Erp.Application.Account.Implementations
             {
                 if (model.AllocationVoucherId == null || model.AllocationVoucherId == 0)
                 {
-
-                    AllocationVoucher order = new AllocationVoucher()
-                    {
-
-                        AllocationVoucherType = model.AllocationVoucherType,
-                        AllocationVoucherVoucherAccType = model.AllocationVoucherVoucherAccType,
-                        AllocationVoucherDelStatus = false,
-                        AllocationVoucherVoucherDate = model.AllocationVoucherVoucherDate,
-                        AllocationVoucherVcreation = model.AllocationVoucherVcreation,
-                        AllocationVoucherVoucherNo = model.AllocationVoucherVoucherNo,
-                        AllocationVoucherVoucherAccNo = model.AllocationVoucherVoucherAccNo,
-                        AllocationVoucherId = getMaxVoucherAllocation()
-
-                    };
-                    _voucherAllocation.Insert(order);
+                    model.AllocationVoucherId = getMaxVoucherAllocation();
+                    _voucherAllocation.Insert(model);
 
                     if (model.VoucherAllocationDetails != null && model.VoucherAllocationDetails.Count() > 0)
                     {
@@ -302,13 +291,13 @@ namespace Inspire.Erp.Application.Account.Implementations
                                 AllocationVoucherDetailsTransSno = (int)x.AccountsTransactionsTransSno,
                                 AllocationVoucherDetailsAccNo = model.AllocationVoucherVoucherAccNo,
                                 AllocationVoucherDetailsFcAllocDebit = x.AllocationVoucherDetailsAllocDebit > 0 ? x.AllocationVoucherDetailsNetAllocation * 1 : 0.0, //==>currency rate
-                                    AllocationVoucherDetailsFcAllocCredit = x.AllocationVoucherDetailsAllocCredit > 0 ? x.AllocationVoucherDetailsNetAllocation * 1 : 0.0,
+                                AllocationVoucherDetailsFcAllocCredit = x.AllocationVoucherDetailsAllocCredit > 0 ? x.AllocationVoucherDetailsNetAllocation * 1 : 0.0,
                                 AllocationVoucherDetailsRefVno = model.AllocationVoucherRefVno,
                                 AllocationVoucherDetailsRefVtype = x.AllocationVoucherDetailsRefVtype,
                                 AllocationVoucherDetailsRefLocationId = x.AllocationVoucherDetailsRefLocationId,
                                 AllocationVoucherDetailsRefFsno = x.AllocationVoucherDetailsRefFsno,
-                                    //AllocationVoucherDetailsId = getMaxVoucherAllocationDetails()
-                                });
+                                //AllocationVoucherDetailsId = getMaxVoucherAllocationDetails()
+                            });
                         }
 
                         _voucherAllocationDetails.InsertList(orderDetails);
