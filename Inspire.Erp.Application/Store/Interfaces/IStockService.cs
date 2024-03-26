@@ -18,8 +18,7 @@ namespace Inspire.Erp.Application.Store.Interfaces
         Task<Response<List<StockReportBaseUnitResponse>>> GetStockReportBaseUnit(StockFilterModel model);
 
         Task<Response<StockMovementReportResponse>> GetStockMovementReport(StockFilterModel model);
-        Task<Response<StockMovementIN>> GetStockMovementINReport(StockFilterModel model);
-        Task<Response<StockMovementOUT>> GetStockMovementOUTReport(StockFilterModel model);
+    
 
     }
 }
