@@ -571,7 +571,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                             });
               var results = (from pd in _purchaseRequisitionDetailsRepository.GetAsQueryable().Where($"1 == 1  {filteredValue}")
 
-                                join pm in dbContext.PurchaseRequisition on Convert.ToDecimal(pd.PurchaseRequisitionId) equals pm.PurchaseRequisitionId
+                                join pm in dbContext.PurchaseRequisition on (decimal?)pd.PurchaseRequisitionId equals pm.PurchaseRequisitionId
                                join im in dbContext.ItemMaster on (long)pd.PurchaseRequisitionDetailsItemID equals im.ItemMasterItemId into imJoin
                                from im in imJoin.DefaultIfEmpty()
 

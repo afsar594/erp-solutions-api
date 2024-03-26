@@ -145,7 +145,9 @@ namespace Inspire.Erp.Application.Store.Implementation
           
                 _stockAdjustmentVoucherRepo.Update(stockAdjustmentVoucher);
                 _stockAdjustmentVoucherDetailsRepo.UpdateList(stockAdjustmentVoucherDetails);
-               
+
+                _stockAdjustmentVoucherRepo.TransactionCommit();
+
                 i = 1;
             }
             catch (Exception ex)
