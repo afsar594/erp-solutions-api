@@ -12,14 +12,14 @@ using System.Linq;
 
 namespace Inspire.Erp.Web.Controllers
 {
-    [Route("api/GetAllItemListSearch")]
+    [Route("api/ItemList")]
     [Produces("application/json")]
     [ApiController]
-    public class ItemLisrController : ControllerBase
+    public class ItemListController : ControllerBase
     {
         private readonly IMapper _mapper;
         private IItemListService IItemListService;
-        public ItemLisrController(IItemListService _IItemListService, IMapper mapper)
+        public ItemListController(IItemListService _IItemListService, IMapper mapper)
         {
 
             IItemListService = _IItemListService;
