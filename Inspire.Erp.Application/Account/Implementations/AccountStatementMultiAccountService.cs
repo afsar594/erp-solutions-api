@@ -332,16 +332,17 @@ namespace Inspire.Erp.Application.Account.Implementations
 
                                                }).ToList();
 
-
-                double Total_Dr = AccountTrans.Sum(x => Convert.ToDouble(x.TotalDebit));
+                if (AccountTrans.Count > 0)
+                { 
+                    double Total_Dr = AccountTrans.Sum(x => Convert.ToDouble(x.TotalDebit));
                 double Total_Cr = AccountTrans.Sum(x => Convert.ToDouble(x.TotalCredit));
                 var acctrans = new StatementOfAccountFCSummResponse
                 {
-                    AccNo= AccountTrans.FirstOrDefault().AccNo,
-                    TotalDebit =Total_Dr,
-                    TotalCredit =Total_Cr
+                    AccNo = AccountTrans.FirstOrDefault().AccNo,
+                    TotalDebit = Total_Dr,
+                    TotalCredit = Total_Cr
                 };
-                if (acctrans.TotalDebit>0)
+                if (acctrans.TotalDebit > 0)
                 {
                     acctrans.DebitBalance = acctrans.TotalDebit;
                 }
@@ -366,10 +367,15 @@ namespace Inspire.Erp.Application.Account.Implementations
                 if (acctrans.CreditBalance > acctrans.DebitBalance)
                 {
                     acctrans.DebitBalance = 0;
-                    acctrans.CreditBalance = acctrans.CreditBalance - acctrans.DebitBalance ;
+                    acctrans.CreditBalance = acctrans.CreditBalance - acctrans.DebitBalance;
                 }
-
                 return Response<StatementOfAccountFCSummResponse>.Success(acctrans, "Data found");
+            }
+                else
+                {
+                    return Response<StatementOfAccountFCSummResponse>.Success(new StatementOfAccountFCSummResponse(), "No Data found");
+                }
+               
             }
             catch (Exception ex)
             {
