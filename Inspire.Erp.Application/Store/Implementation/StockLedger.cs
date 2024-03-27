@@ -59,7 +59,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                     qry += $" and (StockRegisterAssignedDate.Value.Date >  DateTime({ sFilter.fromDate.Year},{ sFilter.fromDate.Month},{ sFilter.fromDate.Day}) and StockRegisterAssignedDate <=  DateTime({ sFilter.toDate.Year},{ sFilter.toDate.Month},{ sFilter.toDate.Day}))";
                     var otherValues = (from s in _sRegister.GetAsQueryable().Where($"1==1 {itemQry}")
-                                       join im in _iMster.GetAsQueryable() on s.StockRegisterMaterialID equals (int?)im.ItemMasterItemId
+                                       join im in _iMster.GetAsQueryable() on s.StockRegisterMaterialID equals (int)im.ItemMasterItemId
                                        group s by s.StockRegisterMaterialID into g
                                        select new
                                        {
@@ -70,8 +70,10 @@ namespace Inspire.Erp.Application.Store.Implementation
                                            TOTSaled = g.Sum(x => x.StockRegisterSout - (x.StockRegisterTransType == "SR" ? x.StockRegisterSIN : 0)),
                                            TOTSaledAmt = g.Sum(x => x.StockRegisterSout * x.StockRegisterRate - (x.StockRegisterTransType == "SR" ? x.StockRegisterSIN * x.StockRegisterRate : 0)),
 
-                                           BalaTot = g.Sum(x => x.StockRegisterSIN - x.StockRegisterSout),
-                                           BalaTotamt = g.Sum(x => x.StockRegisterSIN * x.StockRegisterRate - x.StockRegisterSout * x.StockRegisterRate),
+
+                                           TolSin = g.Sum(x=>x.StockRegisterSIN),
+                                           TolSOut = g.Sum(x=>x.StockRegisterSout),
+
                                            StockRate = g.Max(x => x.StockRegisterRate)
                                        }
 
@@ -95,9 +97,8 @@ namespace Inspire.Erp.Application.Store.Implementation
                                       TOTSaled = sr.TOTSaled,
                                       TOTSaledAmt = sr.TOTSaledAmt,
 
-                                      BalaTot = sr.BalaTot,
-                                      BalaTotamt = sr.BalaTotamt,
-
+                                      BalaTot = sr.TolSin - sr.TolSOut,
+                                      BalaTotamt = (sr.TolSin - sr.TolSOut)*sr.StockRate,
 
                                       RelativeNo = im.ItemMasterAccountNo,
                                       StockRate = sr.StockRate
@@ -176,8 +177,9 @@ namespace Inspire.Erp.Application.Store.Implementation
                                            TOTSaled = g.Sum(x => x.StockRegisterSout - (x.StockRegisterTransType == "SR" ? x.StockRegisterSIN : 0)),
                                            TOTSaledAmt = g.Sum(x => x.StockRegisterSout * x.StockRegisterRate - (x.StockRegisterTransType == "SR" ? x.StockRegisterSIN * x.StockRegisterRate : 0)),
 
-                                           BalaTot = g.Sum(x => x.StockRegisterSIN - x.StockRegisterSout),
-                                           BalaTotamt = g.Sum(x => x.StockRegisterSIN * x.StockRegisterRate - x.StockRegisterSout * x.StockRegisterRate),
+                                           TolSin = g.Sum(x => x.StockRegisterSIN),
+                                           TolSOut = g.Sum(x => x.StockRegisterSout),
+
                                            StockRate = g.Max(x => x.StockRegisterRate)
                                        }
 
@@ -202,8 +204,8 @@ namespace Inspire.Erp.Application.Store.Implementation
                                      TOTSaled = sr.TOTSaled,
                                      TOTSaledAmt = sr.TOTSaledAmt,
 
-                                     BalaTot = sr.BalaTot,
-                                     BalaTotamt = sr.BalaTotamt,
+                                     BalaTot = sr.TolSin - sr.TolSOut,
+                                     BalaTotamt = (sr.TolSin - sr.TolSOut) * sr.StockRate,
 
 
                                      RelativeNo = im.ItemMasterAccountNo,

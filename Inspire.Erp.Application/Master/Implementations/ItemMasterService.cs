@@ -196,7 +196,9 @@ return itemMaster;
                     ItemMasterItemId = k.ItemMasterItemId,
                     ItemMasterItemName = k.ItemMasterItemName,
                     ItemMasterPartNo = k.ItemMasterPartNo,
-                    ItemMasterPacking = k.ItemMasterPacking
+                    ItemMasterPacking = k.ItemMasterPacking,
+                    ItemMasterVenderId = k.ItemMasterVenderId,
+                    ItemMasterItemSize = k.ItemMasterItemSize,
                 }).ToList();
 
                 var allUnitDetails = _unitDetailsRepo.GetAll().ToList();

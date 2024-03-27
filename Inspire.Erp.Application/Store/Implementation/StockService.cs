@@ -215,10 +215,8 @@ namespace Inspire.Erp.Application.Store.Implementation
                                  .OrderBy(im => im.ItemMasterItemId);
                 }
 
-                var GroupItemIds =  _context.ItemMaster.Where(o => o.ItemMasterItemId == (long)model.ItemGroupId).Select(o => o.ItemMasterItemId).ToList();
-
+                var GroupItemIds = await _context.ItemMaster.Where(o => o.ItemMasterAccountNo == (long)model.ItemGroupId).Select(o => o.ItemMasterItemId).ToListAsync();
                 var MatIds = await _context.StockRegister.Select(o => o.StockRegisterMaterialID).ToListAsync();
-
                 //var subrq = (from s in _context.StockRegister.Where(x => x.StockRegisterMaterialID == model.ItemId
                 //             && GroupItemIds.Contains((long)x.StockRegisterMaterialID)
                 //             )
@@ -228,7 +226,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 //                 UnitId = s.UnitDetailsId
                 //             });
                 //&& GroupItemIds.Contains((long)y.StockRegisterMaterialID)
-                var stockInOut = (from im in query
+                var stockInOutGW = (from im in query
                                       join sr in _context.StockRegister on im.ItemMasterItemId equals sr.StockRegisterMaterialID.GetValueOrDefault() into gim
                                       from y in gim.DefaultIfEmpty()
                                       join ig in _context.ItemMaster on im.ItemMasterAccountNo equals ig.ItemMasterItemId
@@ -274,7 +272,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                         SaleOutAmount = g.Sum(x => x.SaleOutAmount),
                                     }
                                 )
-                                .Select(am => new StockMovementSINOutResponse
+                                .Select(am => new StockMovementSInOutGroupWiseResponse
                                 {
                                     ItemId = am.ItemId,
                                     ItemName = am.ItemName,
@@ -296,194 +294,44 @@ namespace Inspire.Erp.Application.Store.Implementation
                                     SaleOutAmount = am.SaleOutAmount,
                                 }).ToList();
 
-                         stockMov.StockMovementInOut = stockInOut;
-                // dbo].[GetStockValue]
-                //var stockvalues = (from ss in query
-                //                   join a in _context.stockregister on ss.itemmasteritemid equals (long)a.stockregistermaterialid.getvalueordefault()
-                //                   group a by a.stockregistermaterialid into g
-                //                   select new
-                //                   {
-                //                       itemid = (long)g.key,
-                //                       totalqty = g.sum(x => x.stockregistersin),
-                //                       stockrate = g.sum(x => x.stockregistersin * x.stockregisterrate),
-                //                       stockvalue = (decimal)g.sum(x => x.stockregistersin) * (g.sum(x => x.stockregistersin) > 0 ? g.sum(x => x.stockregistersin * x.stockregisterrate) / g.sum(x => x.stockregistersin) : 0)
-                //                   });
+                         stockMov.StockMovementInOutGroupWise = stockInOutGW;
 
-                //var results = await (from im in stockbaseunits
-                //                     join sr in stockvalues on im.itemid equals sr.itemid into gim
-                //                     from y in gim.defaultifempty()
-                //                     select new stockreportbaseunitresponse
-                //                     {
-                //                         itemid = im.itemid,
-                //                         itemname = im.itemname,
-                //                         stock = im.stock,
-                //                         unit = im.unit,
-                //                         partno = im.partno,
-                //                         averagerate = y.stockrate,
-                //                         amount = im.stock * y.stockrate,
-                //                         averagepurchasevalue = y.stockvalue,
-                //                     }).tolistasync();
+                
 
+                //var PurchOrdDetails = (from pod in _context.PurchaseOrderDetails
+                //                       join pvd in _context.PurchaseVoucherDetails on pod.PurchaseOrderDetailsPodId equals
+                //                       pvd.PurchaseVoucherDetailsPodId
+                //                       select new
+                //                       {
+                //                           pod.PurchaseOrderId,
+                //                           pvd.PurchaseVoucherDetailsVoucherNo
+                //                       }).AsQueryable();
 
-
-                return Response<StockMovementReportResponse>.Success(stockMov, "Data found");
-            }
-            catch (Exception ex)
-            {
-                return Response<StockMovementReportResponse>.Fail(new StockMovementReportResponse(), ex.Message);
-            }
-        }
-
-        private decimal getQuantityValue(long itemId)
-        {
-            var res = (from d in _context.StockRegister
-                        where (new string[] { "P", "OS", "OPENING_STOCK_VOUCHER" }).ToList().Contains(d.StockRegisterTransType)
-                         && (int)d.StockRegisterMaterialID == itemId
-                       select new
-                       {
-                           SIN = (decimal)d.StockRegisterSIN,
-                           Rate = (decimal)d.StockRegisterRate
-                       }).ToList().Sum(x => x.SIN * x.Rate);
-            return res;
-        }
-        public async Task<Response<StockMovementIN>> GetStockMovementINReport(StockFilterModel model)
-        {
-            try
-            {
-                var stockIn = new StockMovementIN();
-
-                var GroupItemIds = await _context.ItemMaster.Where(o => o.ItemMasterAccountNo == (long)model.ItemGroupId).Select(o => o.ItemMasterItemId).ToListAsync();
-
-
-
-                var PurchOrdDetails = (from pod in _context.PurchaseOrderDetails
-                                       join pvd in _context.PurchaseVoucherDetails on pod.PurchaseOrderDetailsPodId equals
-                                       pvd.PurchaseVoucherDetailsPodId
-                                       select new
-                                       {
-                                           pod.PurchaseOrderId,
-                                           pvd.PurchaseVoucherDetailsVoucherNo
-                                       }).AsQueryable();
-
-                var queryIn = (from sr in _context.StockRegister
-                                join pv in _context.PurchaseVoucher on sr.StockRegisterRefVoucherNo equals pv.PurchaseVoucherVoucherNo into gsr
-                                from srp in gsr.DefaultIfEmpty()
-
-                                join pod in PurchOrdDetails on srp.PurchaseVoucherPurID equals (int)pod.PurchaseOrderId into gpod
-                                from podl in gpod.DefaultIfEmpty()
-
-                                join im in _context.ItemMaster on (long)sr.StockRegisterMaterialID equals im.ItemMasterItemId into gim
-                                from ims in gim.DefaultIfEmpty()
-
-                                join gm in _context.ItemMaster on ims.ItemMasterItemId equals gm.ItemMasterAccountNo into ggm
-                                from gmi in ggm.DefaultIfEmpty()
-
-                                join jm in _context.JobMaster on sr.StockRegisterJobID equals jm.JobMasterJobId into gjm
-                                from sjm in gjm.DefaultIfEmpty()
-
-                                join lm in _context.LocationMaster on sr.StockRegisterLocationID equals lm.LocationMasterLocationId into glm
-                                from lms in glm.DefaultIfEmpty()
-
-                                where ims.ItemMasterItemType == "A" && sr.StockRegisterMaterialID == model.ItemId
-                               && GroupItemIds.Contains((int)sr.StockRegisterMaterialID)
-                               && sr.StockRegisterFSNO == 1
-                               && (model.fromDate == null || sr.StockRegisterAssignedDate >= model.fromDate)
-                               && (model.toDate == null || sr.StockRegisterAssignedDate <= model.toDate)
-                               && sr.StockRegisterSout != 0
-                                select new
-                                {
-                                    sr.StockRegisterMaterialID,
-                                    UnitId = 0,
-                                    ShortName = "",
-                                    sr.StockRegisterRefVoucherNo,
-                                    sr.StockRegisterAssignedDate,
-                                    sr.StockRegisterTransType,
-                                    DisplayTranstype = sr.StockRegisterTransType == "I" ? "ISSUE" : sr.StockRegisterTransType == "DLV" ? "DELIVERY NOTE" : sr.StockRegisterTransType == "S" ? "SALES" : sr.StockRegisterTransType == "SR" ? "SALES RETURN" : sr.StockRegisterTransType == "P" ? "PURCHASE" : sr.StockRegisterTransType == "PR" ? "PURCHASE RETURN" : sr.StockRegisterTransType == "STOCKTRANS" ? "STOCK TRANSFER" : sr.StockRegisterTransType == "OS" ? "OPENING STOCK" : sr.StockRegisterTransType,
-                                    RelativeNo = ims.ItemMasterAccountNo,
-                                    GroupName = gmi.ItemMasterItemName ?? "",
-                                    JobId = sr.StockRegisterJobID ?? 0,
-                                    JobName = sjm.JobMasterJobName ?? "",
-                                    LocationId = sr.StockRegisterLocationID ?? 0,
-                                    Loca_Name = lms.LocationMasterLocationName ?? "",
-                                    Qty = sr.StockRegisterSIN??0,
-                                    Rate = sr.StockRegisterRate,
-                                    TotAmt = (sr.StockRegisterSIN * sr.StockRegisterRate),
-                                    LPO = podl.PurchaseOrderId
-                                }
-                            )
-                             .Select(am => new StockMovementINResponse
-                             {
-                                 Mat_ID = am.StockRegisterMaterialID,
-                                 UnitId = am.UnitId,
-                                 ShortName = am.ShortName,
-                                 Ref_Vocher_No = am.StockRegisterRefVoucherNo,
-                                 AssingedDate = Convert.ToString(am.StockRegisterAssignedDate),
-                                 TransType = am.DisplayTranstype,
-                                 RelativeNo = am.RelativeNo,
-                                 GroupName = am.GroupName,
-                                 JobId = am.JobId,
-                                 jobname = am.JobName,
-                                 LocationId = am.LocationId,
-                                 Loca_Name = am.Loca_Name,
-                                 Qty = am.Qty,
-                                 Rate = am.Rate,
-                                 TotalAmount = am.TotAmt,
-                                 LPO = am.LPO
-                             }).ToList();
-
-              
-
-                stockIn.StockInReport = queryIn;
-                 return Response<StockMovementIN>.Success(stockIn, "Data found");
-               // return null;
-            }
-            catch (Exception ex)
-            {
-                return Response<StockMovementIN>.Fail(new StockMovementIN(), ex.Message);
-            }
-        }
-
-        public async Task<Response<StockMovementOUT>> GetStockMovementOUTReport(StockFilterModel model)
-        {
-            try
-            {
-                var stockout = new StockMovementOUT();
-                var GroupItemIds = await _context.ItemMaster.Where(o => o.ItemMasterAccountNo == (long)model.ItemGroupId).Select(o => o.ItemMasterItemId).ToListAsync();
-
-                var PurchOrdDetails = (from pod in _context.PurchaseOrderDetails
-                                       join pvd in _context.PurchaseVoucherDetails on pod.PurchaseOrderDetailsPodId equals
-                                       pvd.PurchaseVoucherDetailsPodId
-                                       select new
-                                       {
-                                           pod.PurchaseOrderId,
-                                           pvd.PurchaseVoucherDetailsVoucherNo
-                                       }).AsQueryable();
-
-                var queryOut = (from sr in _context.StockRegister
+                var queryInOut = (from sr in _context.StockRegister
                                join pv in _context.PurchaseVoucher on sr.StockRegisterRefVoucherNo equals pv.PurchaseVoucherVoucherNo into gsr
                                from srp in gsr.DefaultIfEmpty()
 
-                               join pod in PurchOrdDetails on srp.PurchaseVoucherPurID equals (int)pod.PurchaseOrderId into gpod
-                               from podl in gpod.DefaultIfEmpty()
+                               join pv in _context.PurchaseVoucher on sr.StockRegisterRefVoucherNo equals pv.PurchaseVoucherVoucherNo into pvg
+                               from pvgs in pvg.DefaultIfEmpty()
 
-                                join im in _context.ItemMaster on (long)sr.StockRegisterMaterialID equals im.ItemMasterItemId into gim
-                                from ims in gim.DefaultIfEmpty()
+                               join im in _context.ItemMaster on (long)sr.StockRegisterMaterialID equals im.ItemMasterItemId into gim
+                               from ims in gim.DefaultIfEmpty()
 
-                                join gm in _context.ItemMaster on ims.ItemMasterItemId equals gm.ItemMasterAccountNo into ggm
-                                from gmi in ggm.DefaultIfEmpty()
+                               join gm in _context.ItemMaster on ims.ItemMasterItemId equals gm.ItemMasterAccountNo into ggm
+                               from gmi in ggm.DefaultIfEmpty()
 
-                                join jm in _context.JobMaster on sr.StockRegisterJobID equals jm.JobMasterJobId into gjm
-                                from sjm in gjm.DefaultIfEmpty()
+                               join jm in _context.JobMaster on sr.StockRegisterJobID equals jm.JobMasterJobId into gjm
+                               from sjm in gjm.DefaultIfEmpty()
 
-                                join lm in _context.LocationMaster on sr.StockRegisterLocationID equals lm.LocationMasterLocationId into glm
-                                from lms in glm.DefaultIfEmpty()
+                               join lm in _context.LocationMaster on sr.StockRegisterLocationID equals lm.LocationMasterLocationId into glm
+                               from lms in glm.DefaultIfEmpty()
 
-                                where ims.ItemMasterItemType == "A" && sr.StockRegisterMaterialID == model.ItemId
-                               && GroupItemIds.Contains((int)sr.StockRegisterMaterialID)
-                               && sr.StockRegisterFSNO == 1
-                               && (model.fromDate == null || sr.StockRegisterAssignedDate >= model.fromDate)
-                               && (model.toDate == null || sr.StockRegisterAssignedDate <= model.toDate)
-                               && sr.StockRegisterSout != 0
+                               where ims.ItemMasterItemType == "A" && sr.StockRegisterMaterialID == model.ItemId
+                              && GroupItemIds.Contains((int)sr.StockRegisterMaterialID)
+                              && sr.StockRegisterFSNO == 1
+                              && (model.fromDate == null || sr.StockRegisterAssignedDate >= model.fromDate)
+                              && (model.toDate == null || sr.StockRegisterAssignedDate <= model.toDate)
+                             // && sr.StockRegisterSout != 0
                                select new
                                {
                                    sr.StockRegisterMaterialID,
@@ -499,13 +347,15 @@ namespace Inspire.Erp.Application.Store.Implementation
                                    JobName = sjm.JobMasterJobName ?? "",
                                    LocationId = sr.StockRegisterLocationID ?? 0,
                                    Loca_Name = lms.LocationMasterLocationName ?? "",
-                                   Qty = sr.StockRegisterSout,
-                                   Rate = sr.StockRegisterRate,
-                                   TotAmt = (sr.StockRegisterSout * sr.StockRegisterRate),
-                                   LPO = podl.PurchaseOrderId
+                                   QtyIn = sr.StockRegisterSIN ?? 0,
+                                   QtyInTotAmt = (sr.StockRegisterSIN * sr.StockRegisterRate),
+                                   QtyOut = sr.StockRegisterSout ?? 0,
+                                   QtyOutTotAmt = (sr.StockRegisterSout * sr.StockRegisterRate),
+                                   Rate = sr.StockRegisterRate, 
+                                   LPO = pvgs.PurchaseVoucherPONo
                                }
                             )
-                             .Select(am => new StockMovementOUTResponse
+                             .Select(am => new StockMovementInOutResponse
                              {
                                  Mat_ID = am.StockRegisterMaterialID,
                                  UnitId = am.UnitId,
@@ -519,20 +369,221 @@ namespace Inspire.Erp.Application.Store.Implementation
                                  jobname = am.JobName,
                                  LocationId = am.LocationId,
                                  Loca_Name = am.Loca_Name,
-                                 Qty = am.Qty,
                                  Rate = am.Rate,
-                                 TotalAmount = am.TotAmt,
+                                 QtyIn = am.QtyIn,
+                                 QtyInAmount = am.QtyInTotAmt,
+                                 QtyOut = am.QtyOut,
+                                 QtyOutAmount = am.QtyOutTotAmt,
                                  LPO = am.LPO
                              }).ToList();
 
-                stockout.StockOutReport = queryOut;
-                return Response<StockMovementOUT>.Success(stockout, "Data found");
+                stockMov.StockMovementInOut = queryInOut;
 
+
+
+                return Response<StockMovementReportResponse>.Success(stockMov, "Data found");
             }
             catch (Exception ex)
             {
-                return Response<StockMovementOUT>.Fail(new StockMovementOUT(), ex.Message);
+                return Response<StockMovementReportResponse>.Fail(new StockMovementReportResponse(), ex.Message);
             }
         }
+        private decimal getQuantityValue(long itemId)
+        {
+            var res = (from d in _context.StockRegister
+                        where (new string[] { "P", "OS", "OPENING_STOCK_VOUCHER" }).ToList().Contains(d.StockRegisterTransType)
+                         && (int)d.StockRegisterMaterialID == itemId
+                       select new
+                       {
+                           SIN = (decimal)d.StockRegisterSIN,
+                           Rate = (decimal)d.StockRegisterRate
+                       }).ToList().Sum(x => x.SIN * x.Rate);
+            return res;
+        }
+        //public async Task<Response<StockMovementIN>> GetStockMovementINReport(StockFilterModel model)
+        //{
+        //    try
+        //    {
+        //        var stockIn = new StockMovementIN();
+
+        //        var GroupItemIds = await _context.ItemMaster.Where(o => o.ItemMasterAccountNo == (long)model.ItemGroupId).Select(o => o.ItemMasterItemId).ToListAsync();
+
+        //        var PurchOrdDetails = (from pod in _context.PurchaseOrderDetails
+        //                               join pvd in _context.PurchaseVoucherDetails on pod.PurchaseOrderDetailsPodId equals
+        //                               pvd.PurchaseVoucherDetailsPodId
+        //                               select new
+        //                               {
+        //                                   pod.PurchaseOrderId,
+        //                                   pvd.PurchaseVoucherDetailsVoucherNo
+        //                               }).AsQueryable();
+
+        //        var queryIn = (from sr in _context.StockRegister
+        //                        join pv in _context.PurchaseVoucher on sr.StockRegisterRefVoucherNo equals pv.PurchaseVoucherVoucherNo into gsr
+        //                        from srp in gsr.DefaultIfEmpty()
+
+        //                        join pod in PurchOrdDetails on srp.PurchaseVoucherPurID equals (int)pod.PurchaseOrderId into gpod
+        //                        from podl in gpod.DefaultIfEmpty()
+
+        //                        join im in _context.ItemMaster on (long)sr.StockRegisterMaterialID equals im.ItemMasterItemId into gim
+        //                        from ims in gim.DefaultIfEmpty()
+
+        //                        join gm in _context.ItemMaster on ims.ItemMasterItemId equals gm.ItemMasterAccountNo into ggm
+        //                        from gmi in ggm.DefaultIfEmpty()
+
+        //                        join jm in _context.JobMaster on sr.StockRegisterJobID equals jm.JobMasterJobId into gjm
+        //                        from sjm in gjm.DefaultIfEmpty()
+
+        //                        join lm in _context.LocationMaster on sr.StockRegisterLocationID equals lm.LocationMasterLocationId into glm
+        //                        from lms in glm.DefaultIfEmpty()
+
+        //                        where ims.ItemMasterItemType == "A" && sr.StockRegisterMaterialID == model.ItemId
+        //                       && GroupItemIds.Contains((int)sr.StockRegisterMaterialID)
+        //                       && sr.StockRegisterFSNO == 1
+        //                       && (model.fromDate == null || sr.StockRegisterAssignedDate >= model.fromDate)
+        //                       && (model.toDate == null || sr.StockRegisterAssignedDate <= model.toDate)
+        //                       && sr.StockRegisterSout != 0
+        //                        select new
+        //                        {
+        //                            sr.StockRegisterMaterialID,
+        //                            UnitId = 0,
+        //                            ShortName = "",
+        //                            sr.StockRegisterRefVoucherNo,
+        //                            sr.StockRegisterAssignedDate,
+        //                            sr.StockRegisterTransType,
+        //                            DisplayTranstype = sr.StockRegisterTransType == "I" ? "ISSUE" : sr.StockRegisterTransType == "DLV" ? "DELIVERY NOTE" : sr.StockRegisterTransType == "S" ? "SALES" : sr.StockRegisterTransType == "SR" ? "SALES RETURN" : sr.StockRegisterTransType == "P" ? "PURCHASE" : sr.StockRegisterTransType == "PR" ? "PURCHASE RETURN" : sr.StockRegisterTransType == "STOCKTRANS" ? "STOCK TRANSFER" : sr.StockRegisterTransType == "OS" ? "OPENING STOCK" : sr.StockRegisterTransType,
+        //                            RelativeNo = ims.ItemMasterAccountNo,
+        //                            GroupName = gmi.ItemMasterItemName ?? "",
+        //                            JobId = sr.StockRegisterJobID ?? 0,
+        //                            JobName = sjm.JobMasterJobName ?? "",
+        //                            LocationId = sr.StockRegisterLocationID ?? 0,
+        //                            Loca_Name = lms.LocationMasterLocationName ?? "",
+        //                            Qty = sr.StockRegisterSIN??0,
+        //                            Rate = sr.StockRegisterRate,
+        //                            TotAmt = (sr.StockRegisterSIN * sr.StockRegisterRate),
+        //                            LPO = podl.PurchaseOrderId
+        //                        }
+        //                    )
+        //                     .Select(am => new StockMovementINResponse
+        //                     {
+        //                         Mat_ID = am.StockRegisterMaterialID,
+        //                         UnitId = am.UnitId,
+        //                         ShortName = am.ShortName,
+        //                         Ref_Vocher_No = am.StockRegisterRefVoucherNo,
+        //                         AssingedDate = Convert.ToString(am.StockRegisterAssignedDate),
+        //                         TransType = am.DisplayTranstype,
+        //                         RelativeNo = am.RelativeNo,
+        //                         GroupName = am.GroupName,
+        //                         JobId = am.JobId,
+        //                         jobname = am.JobName,
+        //                         LocationId = am.LocationId,
+        //                         Loca_Name = am.Loca_Name,
+        //                         Qty = am.Qty,
+        //                         Rate = am.Rate,
+        //                         TotalAmount = am.TotAmt,
+        //                         LPO = am.LPO
+        //                     }).ToList();
+
+              
+
+        //        stockIn.StockInReport = queryIn;
+        //         return Response<StockMovementIN>.Success(stockIn, "Data found");
+        //       // return null;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Response<StockMovementIN>.Fail(new StockMovementIN(), ex.Message);
+        //    }
+        //}
+        //public async Task<Response<StockMovementOUT>> GetStockMovementOUTReport(StockFilterModel model)
+        //{
+        //    try
+        //    {
+        //        var stockout = new StockMovementOUT();
+        //        var GroupItemIds = await _context.ItemMaster.Where(o => o.ItemMasterAccountNo == (long)model.ItemGroupId).Select(o => o.ItemMasterItemId).ToListAsync();
+
+        //        var PurchOrdDetails = (from pod in _context.PurchaseOrderDetails
+        //                               join pvd in _context.PurchaseVoucherDetails on pod.PurchaseOrderDetailsPodId equals
+        //                               pvd.PurchaseVoucherDetailsPodId
+        //                               select new
+        //                               {
+        //                                   pod.PurchaseOrderId,
+        //                                   pvd.PurchaseVoucherDetailsVoucherNo
+        //                               }).AsQueryable();
+
+        //        var queryOut = (from sr in _context.StockRegister
+        //                       join pv in _context.PurchaseVoucher on sr.StockRegisterRefVoucherNo equals pv.PurchaseVoucherVoucherNo into gsr
+        //                       from srp in gsr.DefaultIfEmpty()
+
+        //                       join pod in PurchOrdDetails on srp.PurchaseVoucherPurID equals (int)pod.PurchaseOrderId into gpod
+        //                       from podl in gpod.DefaultIfEmpty()
+
+        //                        join im in _context.ItemMaster on (long)sr.StockRegisterMaterialID equals im.ItemMasterItemId into gim
+        //                        from ims in gim.DefaultIfEmpty()
+
+        //                        join gm in _context.ItemMaster on ims.ItemMasterItemId equals gm.ItemMasterAccountNo into ggm
+        //                        from gmi in ggm.DefaultIfEmpty()
+
+        //                        join jm in _context.JobMaster on sr.StockRegisterJobID equals jm.JobMasterJobId into gjm
+        //                        from sjm in gjm.DefaultIfEmpty()
+
+        //                        join lm in _context.LocationMaster on sr.StockRegisterLocationID equals lm.LocationMasterLocationId into glm
+        //                        from lms in glm.DefaultIfEmpty()
+
+        //                        where ims.ItemMasterItemType == "A" && sr.StockRegisterMaterialID == model.ItemId
+        //                       && GroupItemIds.Contains((int)sr.StockRegisterMaterialID)
+        //                       && sr.StockRegisterFSNO == 1
+        //                       && (model.fromDate == null || sr.StockRegisterAssignedDate >= model.fromDate)
+        //                       && (model.toDate == null || sr.StockRegisterAssignedDate <= model.toDate)
+        //                       && sr.StockRegisterSout != 0
+        //                       select new
+        //                       {
+        //                           sr.StockRegisterMaterialID,
+        //                           UnitId = 0,
+        //                           ShortName = "",
+        //                           sr.StockRegisterRefVoucherNo,
+        //                           sr.StockRegisterAssignedDate,
+        //                           sr.StockRegisterTransType,
+        //                           DisplayTranstype = sr.StockRegisterTransType == "I" ? "ISSUE" : sr.StockRegisterTransType == "DLV" ? "DELIVERY NOTE" : sr.StockRegisterTransType == "S" ? "SALES" : sr.StockRegisterTransType == "SR" ? "SALES RETURN" : sr.StockRegisterTransType == "P" ? "PURCHASE" : sr.StockRegisterTransType == "PR" ? "PURCHASE RETURN" : sr.StockRegisterTransType == "STOCKTRANS" ? "STOCK TRANSFER" : sr.StockRegisterTransType == "OS" ? "OPENING STOCK" : sr.StockRegisterTransType,
+        //                           RelativeNo = ims.ItemMasterAccountNo,
+        //                           GroupName = gmi.ItemMasterItemName ?? "",
+        //                           JobId = sr.StockRegisterJobID ?? 0,
+        //                           JobName = sjm.JobMasterJobName ?? "",
+        //                           LocationId = sr.StockRegisterLocationID ?? 0,
+        //                           Loca_Name = lms.LocationMasterLocationName ?? "",
+        //                           Qty = sr.StockRegisterSout,
+        //                           Rate = sr.StockRegisterRate,
+        //                           TotAmt = (sr.StockRegisterSout * sr.StockRegisterRate),
+        //                           LPO = podl.PurchaseOrderId
+        //                       }
+        //                    )
+        //                     .Select(am => new StockMovementOUTResponse
+        //                     {
+        //                         Mat_ID = am.StockRegisterMaterialID,
+        //                         UnitId = am.UnitId,
+        //                         ShortName = am.ShortName,
+        //                         Ref_Vocher_No = am.StockRegisterRefVoucherNo,
+        //                         AssingedDate = Convert.ToString(am.StockRegisterAssignedDate),
+        //                         TransType = am.DisplayTranstype,
+        //                         RelativeNo = am.RelativeNo,
+        //                         GroupName = am.GroupName,
+        //                         JobId = am.JobId,
+        //                         jobname = am.JobName,
+        //                         LocationId = am.LocationId,
+        //                         Loca_Name = am.Loca_Name,
+        //                         Qty = am.Qty,
+        //                         Rate = am.Rate,
+        //                         TotalAmount = am.TotAmt,
+        //                         LPO = am.LPO
+        //                     }).ToList();
+
+        //        stockout.StockOutReport = queryOut;
+        //        return Response<StockMovementOUT>.Success(stockout, "Data found");
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Response<StockMovementOUT>.Fail(new StockMovementOUT(), ex.Message);
+        //    }
+        //}
     }
 }
