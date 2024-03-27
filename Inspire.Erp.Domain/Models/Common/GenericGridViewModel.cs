@@ -16,8 +16,8 @@ namespace Inspire.Erp.Domain.Modals.Common
         public string Extension { get; set; }
         public string  FormatType { get; set; }
 
-        public DateTime FromDate { get; set; }
-        public DateTime ToDate { get; set; }
+        public DateTime? FromDate { get; set; }
+        public DateTime? ToDate { get; set; }
     }
 
     public class ReportFilter
