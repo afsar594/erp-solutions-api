@@ -38,7 +38,7 @@ namespace Inspire.Erp.Application.Master
                 string qry = string.Empty;
 
                 var query = (from IM in _dbcontext.ItemMaster
-                             join IG in _dbcontext.ItemMaster on IM.ItemMasterItemId equals IG.ItemMasterItemId into IGJoin
+                             join IG in _dbcontext.ItemMaster on IM.ItemMasterAccountNo equals IG.ItemMasterItemId into IGJoin
                              from IG in IGJoin.DefaultIfEmpty()
 
                              join vendor in _dbcontext.VendorMaster on IM.ItemMasterVenderId equals vendor.VendorMasterVendorId into vendorJoin
@@ -74,7 +74,8 @@ namespace Inspire.Erp.Application.Master
                                  UD_Discrption = UD.UnitDetailsDescrption ?? "",
                                  UD_UnitCost = UD.UnitDetailsUnitCost ?? 0,
                                  UD_UnitPrice = UD.UnitDetailsUnitPrice ?? 0,
-                                 SupplierName = Convert.ToString(S.SuppliersInsName) ?? null
+                                 SupplierName = Convert.ToString(S.SuppliersInsName) ?? null,
+                                 ItemMasterAccountNo = IM.ItemMasterAccountNo ?? 0
                              }).ToList();
 
                 if (filteModle.Barcode != "" && filteModle.Barcode != "string")

@@ -22,6 +22,10 @@
         public double? UD_UnitPrice { get; set; }
         public string SupplierName { get; set; }
 
+        public long? ItemMasterAccountNo { get; set; }
+
+        
+
     }
 
     public class ItemFilterModel
