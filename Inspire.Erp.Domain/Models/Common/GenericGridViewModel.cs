@@ -94,4 +94,13 @@ namespace Inspire.Erp.Domain.Modals.Common
         public string toDate { get; set; }
         public bool isDateRange { get; set; }
     }
+
+    public class JobCostReportSearchFilter
+    {
+        public long JobNo { get; set; }
+        public long CostCenterId { get; set; }
+        public bool IsdateSelected { get; set; }
+        public string fromDate { get; set; }
+        public string toDate { get; set; }
+    }
 }

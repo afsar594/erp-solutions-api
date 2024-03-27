@@ -276,14 +276,14 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     .DefaultIfEmpty().Max(o => o == null ? 0 : o.CustomerDeliveryNoteDeliveryId) + 1);
 
                 deliveryNote.CustomerDeliveryNoteDeliveryId = maxcount;
-                
+
                 deliveryNote.CustomerDeliveryNoteDetails = deliveryNote.CustomerDeliveryNoteDetails.Select((x) =>
                 {
-                    x.CustomerDeliveryNoteDetailsDeliveryDetailId = maxcount;
+                    x.CustomerDeliveryNoteDetailsDeliveryNo = maxcount;
                     return x;
                 }).ToList();
-                 //_deliveryNoteDetailsRepository.InsertList(deliveryNoteDetails);
-                 _deliveryNoteRepository.Insert(deliveryNote);
+                //_deliveryNoteDetailsRepository.InsertList(deliveryNoteDetails);
+                _deliveryNoteRepository.Insert(deliveryNote);
 
               
                 List<StockRegister> stockRegister = new List<StockRegister>();
