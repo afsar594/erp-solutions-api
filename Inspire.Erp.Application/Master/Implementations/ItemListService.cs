@@ -80,7 +80,7 @@ namespace Inspire.Erp.Application.Master
 
                 if (filteModle.Barcode != "" && filteModle.Barcode != "string")
                 {
-                    query = query.Where(s => EF.Functions.Like(s.Barcode, "%" + filteModle.Barcode + "%")).ToList();
+                    query = query.Where(s => EF.Functions.Like(s.UD_Barcode, "%" + filteModle.Barcode + "%")).ToList();
                 }
                 if (filteModle.PartNo != "" && filteModle.PartNo != "string")
                 {
