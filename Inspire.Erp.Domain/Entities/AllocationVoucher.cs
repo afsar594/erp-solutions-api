@@ -27,3 +27,4 @@ namespace Inspire.Erp.Domain.Entities
         public virtual ICollection<AllocationVoucherDetails> VoucherAllocationDetails { get; set; }
     }
 }
+

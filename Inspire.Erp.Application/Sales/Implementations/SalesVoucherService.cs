@@ -337,9 +337,35 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     k.StockRegisterStatus = AccountStatus.Approved;
                     return k;
                 }).ToList();
-                _stockRegisterRepository.InsertList(stockRegister);
 
 
+
+                var stockReg = new List<StockRegister>();
+                foreach (var item in salesVoucher.SalesVoucherDetails)
+                {
+                    stockReg.Add(new StockRegister()
+                    {
+                        StockRegisterPurchaseID = salesVoucher.SalesVoucherNo,
+                        StockRegisterRefVoucherNo = salesVoucher.SalesVoucherNo,
+                        StockRegisterVoucherDate = DateTime.Now.Date,
+                        StockRegisterMaterialID = item.SalesVoucherDetailsMatId,
+                        StockRegisterQuantity = item.SalesVoucherDetailsQuantity,
+                        StockRegisterSIN = 0,
+                        StockRegisterSout = item.SalesVoucherDetailsQuantity,
+                        StockRegisterRate = item.SalesVoucherDetailsRate,
+                        StockRegisterAmount = item.SalesVoucherDetailsActualAmount ?? 0,
+                        StockRegisterFCAmount = item.SalesVoucherDetailsActualAmount ?? 0 * this.getCurrencyRate(salesVoucher.SalesVoucherCurrencyId),
+                        StockRegisterAssignedDate = DateTime.Now.Date,
+                        StockRegisterStatus = "A",
+                        StockRegisterTransType = salesVoucher.SalesVoucherType,
+                        StockRegisterUnitID = item.SalesVoucherDetailsUnitId,
+                        StockRegisterLocationID = salesVoucher.SalesVoucherLocationID,
+                        StockRegisterJobID = salesVoucher.SalesVoucherJobId,
+                        StockRegisterDepID = salesVoucher.SalesVoucherDptID,
+                        StockRegisterDelStatus = false
+                    });
+                }
+                _stockRegisterRepository.InsertList(stockReg);
 
 
 
@@ -396,7 +422,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 k.AccountsTransactionsStatus = "A"; //you can change it if needed
                 k.AccountsTransactionsTstamp = DateTime.Now; // can be changable if needed for date and time
                 k.RefNo = string.Empty; // you can add here the Ref no if needed
-                k.AccountsTransactionsFsno = salesVoucher.SalesVoucherFSNO??0m;
+                k.AccountsTransactionsFsno = salesVoucher.SalesVoucherFSNO ?? 0m;
                 k.AccountsTransactionsFcAllocDebit = 0;
                 k.AccountsTransactionsFcAllocCredit = 0;
                 k.AccountsTransactionsAllocCredit = 0;

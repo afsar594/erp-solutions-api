@@ -36,7 +36,7 @@ namespace Inspire.Erp.Web.Controllers
             var param1 = _mapper.Map<ReceiptVoucherMaster>(voucherCompositeView);
             var param2 = _mapper.Map<List<ReceiptVoucherDetails>>(voucherCompositeView.ReceiptVoucherDetails);
             var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-            var alloDetails = _mapper.Map<List<Domain.Models.AllocationDetails>>(voucherCompositeView.AllocationDetails);
+            var alloDetails = _mapper.Map<List<Domain.Models.AllocationDetails>>(voucherCompositeView.rvAllocationDetails);
             var xs = _receiptVoucherService.InsertReceiptVoucher(param1, param3, param2, alloDetails) ;
             apiResponse = new ApiResponse<ReceiptVoucherMaster>
             {
@@ -54,7 +54,7 @@ namespace Inspire.Erp.Web.Controllers
             var param1 = _mapper.Map<ReceiptVoucherMaster>(voucherCompositeView);
             var param2 = _mapper.Map<List<ReceiptVoucherDetails>>(voucherCompositeView.ReceiptVoucherDetails);
             var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-            var alloDetails = _mapper.Map<List<Domain.Models.AllocationDetails>>(voucherCompositeView.AllocationDetails);
+            var alloDetails = _mapper.Map<List<Domain.Models.AllocationDetails>>(voucherCompositeView.rvAllocationDetails);
             var xs = _receiptVoucherService.UpdateReceiptVoucher(param1, param3, param2,alloDetails);
             ApiResponse<ReceiptVoucherMaster> apiResponse = new ApiResponse<ReceiptVoucherMaster>
             {
