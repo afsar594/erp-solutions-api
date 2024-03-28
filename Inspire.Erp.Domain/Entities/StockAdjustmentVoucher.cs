@@ -11,7 +11,7 @@ namespace Inspire.Erp.Domain.Entities
         public DateTime? StockAdjustmentVoucherSaDate { get; set; }
         public string StockAdjustmentVoucherSaRemarks { get; set; }
         public int? StockAdjustmentVoucherFsno { get; set; }
-        public string StockAdjustmentVoucherStVno { get; set; }
+        public string? StockAdjustmentVoucherStVno { get; set; }
         public int? StockAdjustmentVoucherLocationId { get; set; }
         public bool? StockAdjustmentVoucherDelStatus { get; set; }
 
