@@ -10,7 +10,7 @@ namespace Inspire.Erp.Application.Account.Interfaces
     public interface IPaymentVoucherService
     {
         public PaymentVoucher InsertPaymentVoucher(PaymentVoucher paymentVoucher, List<AccountsTransactions> accountsTransactions, List<PaymentVoucherDetails> paymentVoucherDetails);
-        public PaymentVoucher UpdatePaymentVoucher(PaymentVoucher paymentVoucher, List<AccountsTransactions> accountsTransactions, List<PaymentVoucherDetails> paymentVoucherDetails);
+        public PaymentVoucher UpdatePaymentVoucher(PaymentVoucher paymentVoucher, List<AccountsTransactions> accountsTransactions, List<PaymentVoucherDetails> paymentVoucherDetails, List<AccountsTransactions> paymentAllocation);
         public int DeletePaymentVoucher(PaymentVoucher paymentVoucher, List<AccountsTransactions> accountsTransactions, List<PaymentVoucherDetails> paymentVoucherDetails);
         public IEnumerable<AccountsTransactions> GetAllTransaction();
         public PaymentVoucher GetSavedPaymentDetails(string pvno);
