@@ -26,7 +26,5 @@ namespace Inspire.Erp.Web.Controllers.Store
         {
             return Ok(await stockLedger.GetStockLedgerReport(stockFilterModel));
         }
-
-
     }
 }

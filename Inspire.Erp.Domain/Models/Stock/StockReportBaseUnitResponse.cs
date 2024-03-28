@@ -21,10 +21,11 @@ namespace Inspire.Erp.Domain.Modals.Stock
 
     public class StockMovementReportResponse
     {
-        public List<StockMovementSINOutResponse> StockMovementInOut { get; set; }
+        public List<StockMovementSInOutGroupWiseResponse> StockMovementInOutGroupWise { get; set; }
+        public List<StockMovementInOutResponse> StockMovementInOut { get; set; }
     }
 
-    public class StockMovementSINOutResponse
+    public class StockMovementSInOutGroupWiseResponse
     {
         public long? ItemId { get; set; }
         public string ItemName { get; set; }
@@ -46,11 +47,8 @@ namespace Inspire.Erp.Domain.Modals.Stock
     }
 
 
-    public class StockMovementIN
-    {
-        public List<StockMovementINResponse> StockInReport { get; set; }
-    }
-    public class StockMovementINResponse
+
+    public class StockMovementInOutResponse
     {
         public long? Mat_ID { get; set; }
         public long UnitId { get; set; }
@@ -65,34 +63,15 @@ namespace Inspire.Erp.Domain.Modals.Stock
         public string? jobname { get; set; }
         public long? LocationId { get; set; }
         public string? Loca_Name { get; set; }
-        public decimal? Qty { get; set; }
+     
         public decimal? Rate { get; set; }
-        public decimal? TotalAmount { get; set; }
+        public decimal? QtyIn { get; set; }
+        public decimal? QtyInAmount { get; set; }
+
+        public decimal? QtyOut { get; set; }
+        public decimal? QtyOutAmount { get; set; }
         public decimal? LPO { get; set; }
     }
-    public class StockMovementOUT
-    {
-        public List<StockMovementOUTResponse> StockOutReport { get; set; }
-    }
-    public class StockMovementOUTResponse
-    {
-        public long? Mat_ID { get; set; }
-        public long UnitId { get; set; }
-        public string ShortName { get; set; }
-        public string? Ref_Vocher_No { get; set; }
-        public string? AssingedDate { get; set; }
-        public string? TransType { get; set; }
-        public string? DisplayTranstype { get; set; }
-        public long? RelativeNo { get; set; }
-        public string? GroupName { get; set; }
-        public long? JobId { get; set; }
-        public string? jobname { get; set; }
-        public long? LocationId { get; set; }
-        public string? Loca_Name { get; set; }
-        public decimal? Qty { get; set; }
-        public decimal? Rate { get; set; }
-        public decimal? TotalAmount{ get; set; }
-        public decimal? LPO { get; set; }
-    }
+
 
 }

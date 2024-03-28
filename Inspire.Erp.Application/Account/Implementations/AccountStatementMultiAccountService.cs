@@ -314,32 +314,35 @@ namespace Inspire.Erp.Application.Account.Implementations
         {
             try
             {
-                var location = await _locationMaster.GetAsQueryable().FirstOrDefaultAsync();
+                //var location = await _locationMaster.GetAsQueryable().FirstOrDefaultAsync();
 
                 var AccountTrans = _accountTransaction.GetAsQueryable()
                                                              .Where(x => (model.FromDate == null || x.AccountsTransactionsTransDate >= model.FromDate)
                                                && (model.ToDate == null || x.AccountsTransactionsTransDate <= model.ToDate)
                                                 //&&  model.accountNos.Contains(x.AccountsTransactionsAccNo)
-                                                && x.AccountsTransactionsAccNo.Contains(model.Search)
+                                                && x.AccountsTransactionsAccNo.ToLower() == model.Filter.ToLower()
                                                )
                                                             .GroupBy(r => r.AccountsTransactionsAccNo).Select(o =>
-                              
+
                                                new StatementOfAccountFCSummResponse
                                                {
                                                    AccNo = o.Key,
-                                                   TotalDebit = Convert.ToDouble(o.Sum(pc => pc.AccountsTransactionsFcDebit??0)),
-                                                   TotalCredit = Convert.ToDouble(o.Sum(pc => pc.AccountsTransactionsFcCredit??0)),
+                                                   TotalDebit = Convert.ToDouble(o.Sum(pc => pc.AccountsTransactionsFcDebit ?? 0)),
+                                                   TotalCredit = Convert.ToDouble(o.Sum(pc => pc.AccountsTransactionsFcCredit ?? 0)),
 
                                                }).ToList();
 
-                double Total_Dr = AccountTrans.Sum(x => Convert.ToDouble(x.TotalDebit));
+                if (AccountTrans.Count > 0)
+                { 
+                    double Total_Dr = AccountTrans.Sum(x => Convert.ToDouble(x.TotalDebit));
                 double Total_Cr = AccountTrans.Sum(x => Convert.ToDouble(x.TotalCredit));
                 var acctrans = new StatementOfAccountFCSummResponse
                 {
-                    TotalDebit =Total_Dr,
-                    TotalCredit =Total_Cr
+                    AccNo = AccountTrans.FirstOrDefault().AccNo,
+                    TotalDebit = Total_Dr,
+                    TotalCredit = Total_Cr
                 };
-                if (acctrans.TotalDebit>0)
+                if (acctrans.TotalDebit > 0)
                 {
                     acctrans.DebitBalance = acctrans.TotalDebit;
                 }
@@ -364,10 +367,15 @@ namespace Inspire.Erp.Application.Account.Implementations
                 if (acctrans.CreditBalance > acctrans.DebitBalance)
                 {
                     acctrans.DebitBalance = 0;
-                    acctrans.CreditBalance = acctrans.CreditBalance - acctrans.DebitBalance ;
+                    acctrans.CreditBalance = acctrans.CreditBalance - acctrans.DebitBalance;
                 }
-
                 return Response<StatementOfAccountFCSummResponse>.Success(acctrans, "Data found");
+            }
+                else
+                {
+                    return Response<StatementOfAccountFCSummResponse>.Success(new StatementOfAccountFCSummResponse(), "No Data found");
+                }
+               
             }
             catch (Exception ex)
             {
