@@ -2,16 +2,20 @@
 using Inspire.Erp.Application.Common;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Domain.Models;
 using Inspire.Erp.Infrastructure.Database;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging;
+using SendGrid.Helpers.Errors.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Threading.Tasks;
 using System.Transactions;
 
 
@@ -22,7 +26,7 @@ namespace Inspire.Erp.Application.Account.Implementations
         private IRepository<AccountsTransactions> _accountTransactionRepository;
         private IRepository<PaymentVoucher> _paymentVoucherRepository;
         private IRepository<PaymentVoucherDetails> _paymentVoucherDetailsRepository;
-        private IRepository<ProgramSettings> _programsettingsRepository;
+        private IRepository<Domain.Entities.ProgramSettings> _programsettingsRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
         private IRepository<UserTracking> UserTracking;
         private IRepository<UserFile> UserFile;
@@ -32,7 +36,7 @@ namespace Inspire.Erp.Application.Account.Implementations
         private readonly IRepository<AllocationVoucher> _voucherAllocation;
         private readonly IRepository<CurrencyMaster> _currencyMaster;
 
-        public PaymentVoucherService(IRepository<AccountsTransactions> accountTransactionRepository, IRepository<ProgramSettings> programsettingsRepository,
+        public PaymentVoucherService(IRepository<AccountsTransactions> accountTransactionRepository, IRepository<Domain.Entities.ProgramSettings> programsettingsRepository,
             IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger, IRepository<UserFile> _UserFile, IRepository<UserTracking> _UserTracking,
             IRepository<PaymentVoucher> paymentVoucherRepository, IRepository<PaymentVoucherDetails> paymentVoucherDetailsRepository,
             InspireErpDBContext _context, IRepository<AllocationVoucherDetails> AllocationVoucherDetail, IRepository<AllocationVoucher> voucherAllocation, IRepository<CurrencyMaster> currencyMaster)
@@ -52,7 +56,7 @@ namespace Inspire.Erp.Application.Account.Implementations
         }
 
         public PaymentVoucher UpdatePaymentVoucher(PaymentVoucher paymentVoucher, List<AccountsTransactions> accountsTransactions,
-                                                        List<PaymentVoucherDetails> paymentVoucherDetails, List<AccountsTransactions> payAllo)
+                                                        List<PaymentVoucherDetails> paymentVoucherDetails, List<AllocationDetails> payAllo)
         {
             using (var scope = new TransactionScope())
             {
@@ -97,7 +101,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             }
             return this.GetSavedPaymentDetails(paymentVoucher.PaymentVoucherVoucherNo);
         }
-        private void insertAllocations(PaymentVoucher payVoucher, List<AccountsTransactions> payAllo)
+        private void insertAllocations(PaymentVoucher payVoucher, List<AllocationDetails> payAllo)
         {
             var avNo = $"AV {getMaxVoucherAllocation()}";
             var alloModel = new AllocationVoucher()
@@ -131,12 +135,12 @@ namespace Inspire.Erp.Application.Account.Implementations
                     AllocationVoucherDetailsVtype = 1,
                     AllocationVoucherDetailsVFsno = payVoucher.PaymentVoucherFsno,
                     AllocationVoucherDetailsVLocationId = 1,
-                    AllocationVoucherDetailsTransSno = (int)item.AccountsTransactionsTransSno,
+                    AllocationVoucherDetailsTransSno = (int)item.TransNo,
                     AllocationVoucherDetailsAccNo = payVoucher.PaymentVoucherCrAcNo,
-                    AllocationVoucherDetailsAllocDebit = item.AccountsTransactionsAllocDebit == null ?  0 : (double) item.AccountsTransactionsAllocDebit,
-                    AllocationVoucherDetailsAllocCredit = item.AccountsTransactionsAllocCredit == null ? 0 : (double)item.AccountsTransactionsAllocCredit,
-                    AllocationVoucherDetailsFcAllocDebit = item.AccountsTransactionsFcAllocDebit == null ? 0 : (double)item.AccountsTransactionsFcAllocDebit,
-                    AllocationVoucherDetailsFcAllocCredit = item.AccountsTransactionsFcAllocCredit == null ? 0 : (double)item.AccountsTransactionsFcAllocCredit,
+                    AllocationVoucherDetailsAllocDebit = item.Debit == null ?  0 : (double) item.Debit,
+                    AllocationVoucherDetailsAllocCredit = item.Credit== null ? 0 : (double)item.Debit,
+                    AllocationVoucherDetailsFcAllocDebit = item.Debit== null ? 0 : (double)item.Debit * 1, // currency rate
+                    AllocationVoucherDetailsFcAllocCredit = item.Credit== null ? 0 : (double)item.Debit * 1, // currency rate
                     AllocationVoucherDetailsRefVno = payVoucher.PaymentVoucherVoucherNo,
                     AllocationVoucherDetailsRefVtype = "ALLOCATION",
                     AllocationVoucherDetailsRefLocationId = 1,
@@ -284,14 +288,16 @@ namespace Inspire.Erp.Application.Account.Implementations
             return i;
         }
         public PaymentVoucher InsertPaymentVoucher(PaymentVoucher paymentVoucher, List<AccountsTransactions> accountsTransactions,
-                                                        List<PaymentVoucherDetails> paymentVoucherDetails)
+                                                        List<PaymentVoucherDetails> paymentVoucherDetails, List<AllocationDetails> paymentAllocation)
         {
             try
             {
                 _paymentVoucherRepository.BeginTransaction();
                 string paymentVoucherNumber = this.GenerateVoucherNo().VouchersNumbersVNo;
                 paymentVoucher.PaymentVoucherVoucherNo = paymentVoucherNumber;
-
+                paymentVoucher.PaymentVoucherFcCrAmount = paymentVoucher.PaymentVoucherFcCrAmount ?? 0;
+                paymentVoucher.PaymentVoucherCrAmount = paymentVoucher.PaymentVoucherCrAmount?? 0;
+                paymentVoucher.PaymentVoucherFcDbAmount = paymentVoucher.PaymentVoucherDbAmount ?? 0;
                 int maxcount = 0;
                 maxcount = Convert.ToInt32(
                     _paymentVoucherRepository.GetAsQueryable()
@@ -302,6 +308,9 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     x.PaymentVoucherDetailsSno = maxcount;
                     x.PaymentVoucherDetailsVoucherNo = paymentVoucher.PaymentVoucherVoucherNo;
+                    x.PaymentVoucherDetailsNarration = paymentVoucher.PaymentVoucherNarration;
+                    x.PaymentVoucherDetailsCrAmount = x.PaymentVoucherDetailsCrAmount ?? 0;
+                    x.PaymentVoucherDetailsCrFcAmount = x.PaymentVoucherDetailsCrFcAmount ?? 0;
                     return x;
                 }).ToList();
                 _paymentVoucherDetailsRepository.InsertList(paymentVoucherDetails);
@@ -322,6 +331,12 @@ namespace Inspire.Erp.Application.Account.Implementations
                 trackingData.UserTrackingUserChangeTime = DateTime.Now;
                 trackingData.UserTrackingUserVpType = "PAYMENTVOUCHER";
                 UserTracking.Insert(trackingData);
+
+                if(paymentAllocation.Count > 0)
+                    insertAllocations(paymentVoucher, paymentAllocation);
+
+
+
                 _paymentVoucherRepository.TransactionCommit();
                 return this.GetSavedPaymentDetails(paymentVoucher.PaymentVoucherVoucherNo);
             }
@@ -357,7 +372,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 voucherdata = _paymentVoucherRepository.GetAsQueryable().Where(k => k.PaymentVoucherVoucherNo == pvno).FirstOrDefault();
                 voucherdata.AccountsTransactions = _accountTransactionRepository.GetAll().Where(x => x.AccountsTransactionsVoucherNo == pvno && x.AccountstransactionsDelStatus == false).ToList();
                 voucherdata.PaymentVoucherDetails = _paymentVoucherDetailsRepository.GetAll().Where(x => x.PaymentVoucherDetailsVoucherNo == pvno && x.PaymentVocherDetailsDelStatus == false).ToList();
-                voucherdata.AllocationDetails = this.GetAllocationDetails(voucherdata.PaymentVoucherCrAcNo, voucherdata.PaymentVoucherVoucherNo);
+                voucherdata.allocationDetails = this.GetAllocationDetails(voucherdata.PaymentVoucherCrAcNo, voucherdata.PaymentVoucherVoucherNo).Result;
                 return voucherdata;
             }
             return null;
@@ -428,7 +443,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             }
         }
 
-        public List<Domain.Models.AllocationDetails> GetAllocationDetails(string accountNo, string voucherNo)
+        public ApiResponse<List<AllocationDetails>> GetAllocationDetails(string accountNo, string voucherNo)
         {
             try
             {
@@ -448,7 +463,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                 AllocAmount = dtl.AccountsTransactionsFcRate,
                                 NetAllocation = dtl.AccountsTransactionsVatableAmount,
                             }).ToList();
-                return data;
+                return ApiResponse<List<AllocationDetails>>.Success(data, "Data Found");
             }
             catch (System.Exception ex)
             {
