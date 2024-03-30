@@ -29,7 +29,9 @@ namespace Inspire.Erp.Domain.Entities
         [NotMapped]
         public List<PaymentVoucherDetails> PaymentVoucherDetails { get; set; }
         [NotMapped]
-        public List<AccountsTransactions> AccountsTransactions { get; set; }
+        public List<AccountsTransactions> AccountsTransactions { get; set; } 
+        [NotMapped]
+        public List<AccountsTransactions> PaymentAllocationDetails { get; set; }
         [NotMapped]
         public  List<Domain.Models.AllocationDetails> allocationDetails { get; set; }
 

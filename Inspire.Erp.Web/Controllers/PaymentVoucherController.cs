@@ -54,7 +54,6 @@ namespace Inspire.Erp.Web.Controllers
             var param1 = _mapper.Map<PaymentVoucher>(voucherCompositeView);
             var param2 = _mapper.Map<List<PaymentVoucherDetails>>(voucherCompositeView.PaymentVoucherDetails);
             var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-
             var payAlloca = voucherCompositeView.allocationDetails;
             var xs = _paymentVoucherService.UpdatePaymentVoucher(param1, param3, param2, payAlloca);
             ApiResponse<PaymentVoucher> apiResponse = new ApiResponse<PaymentVoucher>

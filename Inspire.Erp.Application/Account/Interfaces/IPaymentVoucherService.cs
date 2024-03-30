@@ -11,7 +11,6 @@ namespace Inspire.Erp.Application.Account.Interfaces
 {
     public interface IPaymentVoucherService
     {
-
         public PaymentVoucher InsertPaymentVoucher(PaymentVoucher paymentVoucher, List<AccountsTransactions> accountsTransactions, List<PaymentVoucherDetails> paymentVoucherDetails, List<AllocationDetails> paymentAllocation);
         public PaymentVoucher UpdatePaymentVoucher(PaymentVoucher paymentVoucher, List<AccountsTransactions> accountsTransactions, List<PaymentVoucherDetails> paymentVoucherDetails, List<AllocationDetails> paymentAllocation);
         public int DeletePaymentVoucher(PaymentVoucher paymentVoucher, List<AccountsTransactions> accountsTransactions, List<PaymentVoucherDetails> paymentVoucherDetails);

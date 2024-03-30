@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace Inspire.Erp.Domain.Entities
@@ -49,5 +50,7 @@ namespace Inspire.Erp.Domain.Entities
         public bool? AccountstransactionsDelStatus { get; set; }
         [JsonIgnore]
         public virtual VouchersNumbers AccountsTransactionsVoucherNoNavigation { get; set; }
+        [NotMapped]
+        public double? NetAllocation { get; set; } 
     }
 }
