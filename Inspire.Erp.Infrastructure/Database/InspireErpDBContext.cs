@@ -5460,7 +5460,7 @@ namespace Inspire.Erp.Infrastructure.Database
                     .IsFixedLength();
 
                 entity.Property(e => e.CustomerMasterCustomerUserId).HasColumnName("Customer_Master_Customer_User_ID");
-
+                
                 entity.Property(e => e.CustomerMasterCustomerVatNo)
                     .HasColumnName("Customer_Master_Customer_VAT_No")
                     .HasMaxLength(100)
@@ -5470,6 +5470,10 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnName("Customer_Master_Customer_Web_Site")
                     .HasMaxLength(50)
                     .IsUnicode(false);
+
+                entity.Property(e => e.CustomerMasterCustomerAddress).HasColumnName("Customer_Master_Customer_Address");
+                entity.Property(e => e.CustomerMasterCustomerWhatsAppNo).HasColumnName("Customer_Master_WhatsAppNo");
+
             });
 
             modelBuilder.Entity<CustomerOrder>(entity =>
@@ -21629,6 +21633,9 @@ namespace Inspire.Erp.Infrastructure.Database
                     .IsUnicode(false);
 
                 entity.Property(e => e.SuppliersMasterSupplierStatus).HasColumnName("Suppliers_Master_Supplier_Status");
+
+                entity.Property(e => e.SuppliersMasterSupplierAddress).HasColumnName("Suppliers_Master_Address");
+                entity.Property(e => e.SuppliersMasterSupplierWhatsAppNo).HasColumnName("Suppliers_Master_WhatsAppNo");
 
                 entity.Property(e => e.SuppliersMasterSupplierStatusValue).HasColumnName("Suppliers_Master_Supplier_Status_Value");
 

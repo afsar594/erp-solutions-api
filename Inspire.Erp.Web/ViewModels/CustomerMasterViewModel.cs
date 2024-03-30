@@ -23,6 +23,8 @@ namespace Inspire.Erp.Web.ViewModels
         public string CustomerMasterCustomerEmail { get; set; }
         public string CustomerMasterCustomerWebSite { get; set; }
         public string CustomerMasterCustomerLocation { get; set; }
+        public string CustomerMasterCustomerAddress { get; set; }
+        public string CustomerMasterCustomerWhatsAppNo { get; set; }
         public string CustomerMasterCustomerRemarks { get; set; }
         public string CustomerMasterCustomerReffAcNo { get; set; }
         public int? CustomerMasterCustomerUserId { get; set; }
