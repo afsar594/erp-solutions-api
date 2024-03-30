@@ -178,9 +178,9 @@ namespace Inspire.Erp.Web.Controllers.Accounts
 
         [HttpPost]
         [Route("GetAllocationDetailsByAccNoRefNo")]
-        public async Task<IActionResult> GetAllocationDetailsByAccNoRefNo(string accNo,string refNO)
+        public async Task<IActionResult> GetAllocationDetailsByAccNoRefNo(string accNo,string refNO, string vType)
         {
-            return Ok(await _accountTransactionsServices.GetReceiptVoucherAllocations(accNo, refNO));
+            return Ok(await _accountTransactionsServices.GetReceiptVoucherAllocations(accNo, refNO,vType));
         }
 
 

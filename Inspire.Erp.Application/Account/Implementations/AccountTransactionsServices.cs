@@ -21,7 +21,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             _accountTransactionRepository = accountTransactionRepository;
         }
 
-        public async Task<ApiResponse<List<AllocationDetails>>> GetReceiptVoucherAllocations(string accNo, string refNo)
+        public async Task<ApiResponse<List<AllocationDetails>>> GetReceiptVoucherAllocations(string accNo, string refNo ,string vType)
         {
             try
             {
@@ -69,6 +69,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                 return ApiResponse<List<AllocationDetails>>.Fail( ex.Message);
             }
         }
+
+        
 
         private decimal? getNatAllocationAmount(long transNo)
         {

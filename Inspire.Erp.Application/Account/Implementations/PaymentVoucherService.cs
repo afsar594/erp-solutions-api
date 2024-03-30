@@ -2,6 +2,7 @@
 using Inspire.Erp.Application.Common;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Domain.Models;
 using Inspire.Erp.Infrastructure.Database;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.EntityFrameworkCore;
@@ -21,14 +22,14 @@ namespace Inspire.Erp.Application.Account.Implementations
         private IRepository<AccountsTransactions> _accountTransactionRepository;
         private IRepository<PaymentVoucher> _paymentVoucherRepository;
         private IRepository<PaymentVoucherDetails> _paymentVoucherDetailsRepository;
-        private IRepository<ProgramSettings> _programsettingsRepository;
+        private IRepository<Domain.Entities.ProgramSettings> _programsettingsRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
         private IRepository<UserTracking> UserTracking;
         private IRepository<UserFile> UserFile;
         private readonly ILogger<PaymentVoucherService> _logger;
         private readonly InspireErpDBContext context;
         private IRepository<AllocationVoucherDetails> _AllocationVoucherDetails;
-        public PaymentVoucherService(IRepository<AccountsTransactions> accountTransactionRepository, IRepository<ProgramSettings> programsettingsRepository,
+        public PaymentVoucherService(IRepository<AccountsTransactions> accountTransactionRepository, IRepository<Domain.Entities.ProgramSettings> programsettingsRepository,
             IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger, IRepository<UserFile> _UserFile, IRepository<UserTracking> _UserTracking,
             IRepository<PaymentVoucher> paymentVoucherRepository, IRepository<PaymentVoucherDetails> paymentVoucherDetailsRepository,
             InspireErpDBContext _context, IRepository<AllocationVoucherDetails> AllocationVoucherDetail)
@@ -46,7 +47,7 @@ namespace Inspire.Erp.Application.Account.Implementations
         }
 
         public PaymentVoucher UpdatePaymentVoucher(PaymentVoucher paymentVoucher, List<AccountsTransactions> accountsTransactions,
-                                                        List<PaymentVoucherDetails> paymentVoucherDetails)
+                                                        List<PaymentVoucherDetails> paymentVoucherDetails,List<AllocationDetails> allocationDetails)
         {
             try
             {
@@ -127,7 +128,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             return i;
         }
         public PaymentVoucher InsertPaymentVoucher(PaymentVoucher paymentVoucher, List<AccountsTransactions> accountsTransactions,
-                                                        List<PaymentVoucherDetails> paymentVoucherDetails)
+                                                        List<PaymentVoucherDetails> paymentVoucherDetails,List<AllocationDetails> allocationDetails)
         {
             try
             {
@@ -200,7 +201,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 voucherdata = _paymentVoucherRepository.GetAsQueryable().Where(k => k.PaymentVoucherVoucherNo == pvno).FirstOrDefault();
                 voucherdata.AccountsTransactions = _accountTransactionRepository.GetAll().Where(x => x.AccountsTransactionsVoucherNo == pvno && x.AccountstransactionsDelStatus == false).ToList();
                 voucherdata.PaymentVoucherDetails = _paymentVoucherDetailsRepository.GetAll().Where(x => x.PaymentVoucherDetailsVoucherNo == pvno && x.PaymentVocherDetailsDelStatus == false).ToList();
-                voucherdata.AllocationDetails = this.GetAllocationDetails(voucherdata.PaymentVoucherCrAcNo, voucherdata.PaymentVoucherVoucherNo);
+                voucherdata.allocationDetails = this.GetAllocationDetails(voucherdata.PaymentVoucherCrAcNo, voucherdata.PaymentVoucherVoucherNo).Result;
                 return voucherdata;
             }
             return null;
@@ -271,7 +272,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             }
         }
 
-        public List<Domain.Models.AllocationDetails> GetAllocationDetails(string accountNo, string voucherNo)
+        public ApiResponse<List<AllocationDetails>> GetAllocationDetails(string accountNo, string voucherNo)
         {
             try
             {
@@ -291,12 +292,17 @@ namespace Inspire.Erp.Application.Account.Implementations
                                 AllocAmount = dtl.AccountsTransactionsFcRate,
                                 NetAllocation = dtl.AccountsTransactionsVatableAmount,
                             }).ToList();
-                return data;
+                return ApiResponse<List<AllocationDetails>>.Success(data,"Data found");
             }
             catch (System.Exception ex)
             {
                 throw ex;
             }
+        }
+
+        ApiResponse<List<AllocationDetails>> IPaymentVoucherService.GetAllocationDetails(string accountNo, string voucherNo)
+        {
+            throw new NotImplementedException();
         }
     }
 }

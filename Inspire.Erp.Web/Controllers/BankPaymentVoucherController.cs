@@ -54,7 +54,8 @@ namespace Inspire.Erp.Web.Controllers
             var param1 = _mapper.Map<BankPaymentVoucher>(voucherCompositeView);
             var param2 = _mapper.Map<List<BankPaymentVoucherDetails>>(voucherCompositeView.BankPaymentVoucherDetails);
             var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-            var xs = _bankPaymentVoucherService.InsertBankPaymentVoucher(param1, param3, param2);
+            var allocaDtls = voucherCompositeView.AllocationDetails;
+            var xs = _bankPaymentVoucherService.InsertBankPaymentVoucher(param1, param3, param2,allocaDtls);
             apiResponse = new ApiResponse<BankPaymentVoucher>
             {
                 Valid = true,
@@ -71,7 +72,8 @@ namespace Inspire.Erp.Web.Controllers
             var param1 = _mapper.Map<BankPaymentVoucher>(voucherCompositeView);
             var param2 = _mapper.Map<List<BankPaymentVoucherDetails>>(voucherCompositeView.BankPaymentVoucherDetails);
             var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-            var xs = _bankPaymentVoucherService.UpdateBankPaymentVoucher(param1, param3, param2);
+            var allocaDtls = voucherCompositeView.AllocationDetails;
+            var xs = _bankPaymentVoucherService.UpdateBankPaymentVoucher(param1, param3, param2, allocaDtls );
 
             ApiResponse<BankPaymentVoucher> apiResponse = new ApiResponse<BankPaymentVoucher>
             {
@@ -146,5 +148,6 @@ namespace Inspire.Erp.Web.Controllers
             }
             return null;
         }
+
     }
 }
