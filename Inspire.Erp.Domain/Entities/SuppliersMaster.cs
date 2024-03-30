@@ -18,8 +18,8 @@ namespace Inspire.Erp.Domain.Entities
         public string SuppliersMasterSupplierEmail { get; set; }
         public string SuppliersMasterSupplierWebSite { get; set; }
         public int? SuppliersMasterSupplierLocationId { get; set; }
-        public int? SuppliersMasterSupplierAddress { get; set; }
-        public int? SuppliersMasterSupplierWhatsAppNo { get; set; }
+        public string SuppliersMasterSupplierAddress { get; set; }
+        public string SuppliersMasterSupplierWhatsAppNo { get; set; }
         public string SuppliersMasterSupplierRemarks { get; set; }
         public string SuppliersMasterSupplierReffAcNo { get; set; }
         public string SuppliersMasterSupplierType { get; set; }
