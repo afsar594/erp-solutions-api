@@ -8,8 +8,8 @@ namespace Inspire.Erp.Application.Account.Interfaces
 {
    public interface IBankReceiptVoucherService
     {
-        public BankReceiptVoucher InsertBankReceiptVoucher(BankReceiptVoucher bankReceiptVoucher,List<AccountsTransactions> accountsTransactions,List<BankReceiptVoucherDetails> bankReceiptVoucherDetails);
-        public BankReceiptVoucher UpdateBankReceiptVoucher(BankReceiptVoucher bankReceiptVoucher, List<AccountsTransactions> accountsTransactions, List<BankReceiptVoucherDetails> bankReceiptVoucherDetails);
+        public BankReceiptVoucher InsertBankReceiptVoucher(BankReceiptVoucher bankReceiptVoucher,List<AccountsTransactions> accountsTransactions,List<BankReceiptVoucherDetails> bankReceiptVoucherDetails, List<Domain.Models.AllocationDetails> allocationDetails);
+        public BankReceiptVoucher UpdateBankReceiptVoucher(BankReceiptVoucher bankReceiptVoucher, List<AccountsTransactions> accountsTransactions, List<BankReceiptVoucherDetails> bankReceiptVoucherDetails, List<Domain.Models.AllocationDetails> allocationDetails);
         public int DeleteBankReceiptVoucher(BankReceiptVoucher bankReceiptVoucher, List<AccountsTransactions> accountsTransactions, List<BankReceiptVoucherDetails> bankReceiptVoucherDetails);
         public IEnumerable<AccountsTransactions> GetAllTransaction();
         public BankReceiptVoucher GetSavedBankReceiptDetails(string pvno);

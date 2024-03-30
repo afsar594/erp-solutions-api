@@ -135,6 +135,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _journalVoucherRepository.Insert(journalVoucher);
                 journalVoucherDetails = journalVoucherDetails.Select((x) =>
                 {
+                    x.JournalVoucherDetailsId = x.JournalVoucherDetailsId > 0 ? 0 : x.JournalVoucherDetailsId;
                     x.JournalVoucherID = maxcount;
                     x.JournalVoucherDetailVrefNo = journalVoucher.JournalVoucherVrefNo;
                     return x;

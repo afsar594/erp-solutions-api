@@ -21,14 +21,14 @@ namespace Inspire.Erp.Application.Account.Implementations
             _accountTransactionRepository = accountTransactionRepository;
         }
 
-        public async Task<ApiResponse<List<AllocationDetails>>> GetReceiptVoucherAllocations(string accNo, string refNo)
+        public async Task<ApiResponse<List<AllocationDetails>>> GetReceiptVoucherAllocations(string accNo, string refNo, string vType )
         {
             try
             {
                 await Task.Delay(500);
                 var result = (from AD in this.allocationVDlts.GetAll()
                               join AT in _accountTransactionRepository.GetAll() on AD.AllocationVoucherDetailsTransSno equals (int)AT.AccountsTransactionsTransSno
-                              where AD.AllocationVoucherDetailsAccNo == accNo && AD.AllocationVoucherDetailsVno.ToUpper() == refNo.ToUpper() && AD.AllocationVoucherDetailsRefVtype == "RECEIPT"
+                              where AD.AllocationVoucherDetailsAccNo == accNo && AD.AllocationVoucherDetailsVno.ToUpper() == refNo.ToUpper() && AD.AllocationVoucherDetailsRefVtype.ToUpper() == vType.ToUpper()
                               select new Domain.Models.AllocationDetails()
                               {
                                   TransNo = AT.AccountsTransactionsTransSno,
@@ -46,7 +46,7 @@ namespace Inspire.Erp.Application.Account.Implementations
 
                 var transValues = _accountTransactionRepository.GetAll()
                                         .Where(a => a.AccountsTransactionsAccNo.ToUpper() == accNo.ToUpper()
-                                                     && a.AccountsTransactionsAllocBalance > 0 && a.AccountsTransactionsDebit !=0 )
+                                                     && a.AccountsTransactionsAllocBalance > 0 && a.AccountsTransactionsDebit != 0)
                                         .Select(g => new Domain.Models.AllocationDetails()
                                         {
                                             TransNo = g.AccountsTransactionsTransSno,
@@ -69,6 +69,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 return ApiResponse<List<AllocationDetails>>.Fail( ex.Message);
             }
         }
+       
 
         private decimal? getNatAllocationAmount(long transNo)
         {
@@ -89,5 +90,6 @@ namespace Inspire.Erp.Application.Account.Implementations
             }
             catch (Exception) { return 0; }
         }
+
     }
 }

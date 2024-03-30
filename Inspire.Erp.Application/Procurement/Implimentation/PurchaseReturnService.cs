@@ -708,6 +708,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     purchaseReturn.CurrencyMasterCurrencyName = _currencyMaster
                                                                  .Where(c => c.CurrencyMasterCurrencyId == purchaseReturn.PurchaseReturnCurrencyId)
                                                                  .FirstOrDefault().CurrencyMasterCurrencyName;
+
                 }
                 catch { }
 
@@ -721,11 +722,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             //salesReturnModel.salesReturn = _salesReturnRepository.GetAsQueryable().Where(k => k.SalesReturnNo == pvno && k.SalesReturnDelStatus == false).SingleOrDefault();
 
             purchaseReturnModel.purchaseReturn = _purchaseReturnRepo.GetAsQueryable().Where(k => k.PurchaseReturnNo == pvno).SingleOrDefault();
-
-
-
             purchaseReturnModel.accountsTransactions = _accountTransaction.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.PurchaseReturn_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
             purchaseReturnModel.purchaseReturnDetails = _purchaseReturnDetailsRepo.GetAsQueryable().Where(x => x.PurchaseReturnDetailsNo == pvno && (x.PurchaseReturnDetailsDelStatus == false || x.PurchaseReturnDetailsDelStatus == null)).ToList();
+
+
 
             foreach (var purchaseReturnDetail in purchaseReturnModel.purchaseReturnDetails)
             {
@@ -747,7 +747,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     var rslt = _purchaseReturnDetailsRepo.GetAll().Where(c => c.PurchaseReturnDetailsNo == prdetail.PurchaseReturnNo).FirstOrDefault();
                     if (rslt != null)
                     {
-                        qty += rslt.PurchaseReturnDetailsQuantity;
+                        qty += rslt.PurchaseReturnDetailsQuantity??0;
                     }
                     // qty += rslt;
                 }

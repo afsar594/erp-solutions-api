@@ -138,20 +138,43 @@ namespace Inspire.Erp.Application.Account.Implementations
                     if (model.AllocationVoucherId == null || model.AllocationVoucherId == 0)
                     {
 
-                        AllocationVoucher order = new AllocationVoucher()
-                        {
+                        //AllocationVoucher order = new AllocationVoucher()
+                        //{
 
-                            AllocationVoucherType = model.AllocationVoucherType,
-                            AllocationVoucherVoucherAccType = model.AllocationVoucherVoucherAccType,
-                            AllocationVoucherDelStatus = false,
+                        //    AllocationVoucherType = model.AllocationVoucherType,
+                        //    AllocationVoucherVoucherAccType = model.AllocationVoucherVoucherAccType,
+                        //    AllocationVoucherDelStatus = false,
+                        //    AllocationVoucherVoucherDate = model.AllocationVoucherVoucherDate,
+                        //    AllocationVoucherVcreation = model.AllocationVoucherVcreation,
+                        //    AllocationVoucherVoucherNo = model.AllocationVoucherVoucherNo,
+                        //    AllocationVoucherVoucherAccNo = model.AllocationVoucherVoucherAccNo,
+                        //    AllocationVoucherId = getMaxVoucherAllocation()
+
+                        //};
+                        var avID = getMaxVoucherAllocation();
+                        var alloModel = new AllocationVoucher()
+                        {
+                            AllocationVoucherId = avID,
+                            AllocationVoucherType = 1,
+                            AllocationVoucherVoucherNo = $"AV{avID}",
                             AllocationVoucherVoucherDate = model.AllocationVoucherVoucherDate,
-                            AllocationVoucherVcreation = model.AllocationVoucherVcreation,
-                            AllocationVoucherVoucherNo = model.AllocationVoucherVoucherNo,
+                            AllocationVoucherDescription = model.AllocationVoucherDescription,
                             AllocationVoucherVoucherAccNo = model.AllocationVoucherVoucherAccNo,
-                            AllocationVoucherId = getMaxVoucherAllocation()
+                            AllocationVoucherVoucherAccType = "ALLOCATION",
+                            AllocationVoucherVoucherFsno = model.AllocationVoucherVoucherFsno,
+                            AllocationVoucherStatus = "A",
+                            AllocationVoucherUserId = model.AllocationVoucherUserId,
+                            AllocationVoucherAvStatus = "B",
+                            AllocationVoucherRefVno = model.AllocationVoucherRefVno,
+                            AllocationVoucherRefVtype = 1,//"RECEIPT",
+                            AllocationVoucherLocationId = 1,
+                            AllocationVoucherVcreation = "AccForm",
+                            AllocationVoucherDelStatus = false,
+
 
                         };
-                        _voucherAllocation.Insert(order);
+
+                        _voucherAllocation.Insert(alloModel);
                         #region ADD ACTIVITY LOGS
                         AddActivityLogViewModel log = new AddActivityLogViewModel()
                         {
