@@ -1,5 +1,8 @@
 ﻿using Inspire.Erp.Application.Common;
+using Inspire.Erp.Domain.DTO.Job_Master;
+using Inspire.Erp.Domain.DTO.Supplier;
 using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,11 +23,15 @@ namespace Inspire.Erp.Application.Master
         private readonly IRepository<PurchaseVoucherDetails> pVoucherDetailsrepo;
         private readonly IRepository<PurchaseVoucher> pVoucherrepo;
         private readonly IRepository<MasterAccountsTable> _masterAccountTable;
+        private readonly IRepository<CityMaster> _cityMasterrepository;
+        private readonly IRepository<CountryMaster> _counrtyMasterrepository;
         private readonly IUtilityService _utilityService;
         private string SupplierRelativeNo = "";
         public SupplierMasterService(IRepository<SuppliersMaster> _supplierrepository, IRepository<PurchaseVoucher> _pVoucherrepo,
             IUtilityService utilityService, IConfiguration config,
-                                     IRepository<MasterAccountsTable> masterAccountTable, IRepository<PurchaseVoucherDetails> _pVoucherDetailsrepo)
+                                     IRepository<MasterAccountsTable> masterAccountTable, IRepository<PurchaseVoucherDetails> _pVoucherDetailsrepo,
+                                     IRepository<CityMaster> cityMasterrepository,
+                                     IRepository<CountryMaster> counrtyMasterrepository)
         {
             supplierrepository = _supplierrepository;
             pVoucherDetailsrepo = _pVoucherDetailsrepo;
@@ -31,6 +39,8 @@ namespace Inspire.Erp.Application.Master
             _masterAccountTable = masterAccountTable;
             _utilityService = utilityService;
             SupplierRelativeNo = config["ApplicationSettings:SupplierRelativeNo"];
+            _cityMasterrepository = cityMasterrepository;
+            _counrtyMasterrepository = counrtyMasterrepository;
         }
         public async Task<IEnumerable<SuppliersMaster>> InsertSupplier(SuppliersMaster SuppliersMaster)
         {
@@ -208,6 +218,47 @@ namespace Inspire.Erp.Application.Master
             return supplierDetails;
         }
 
+        public async Task<Response<List<SupplierSearchListDto>>> GetSupplierFilteredList(string supplierName)
+        {
+            List<SupplierSearchListDto> reportDetails = new List<SupplierSearchListDto>();
+            string filteredValue = " && 1 == 1";
 
+            try
+            {
+                if (!string.IsNullOrEmpty(supplierName) && !string.IsNullOrEmpty(supplierName))
+                {
+                    filteredValue += $" && SuppliersMasterSupplierName == \"{supplierName}\" ";
+                }
+                
+                reportDetails = await (from s in supplierrepository.GetAsQueryable().Where($"1 == 1  {filteredValue}")
+                                      join c in _cityMasterrepository.GetAsQueryable() on s.SuppliersMasterSupplierCityId equals c.CityMasterCityId into scGroup
+                                      from c in scGroup.DefaultIfEmpty()
+                                      join cntry in _counrtyMasterrepository.GetAsQueryable() on s.SuppliersMasterSupplierCountryId equals cntry.CountryMasterCountryId into scntryGroup
+                                      from cntry in scntryGroup.DefaultIfEmpty()
+                                          select new SupplierSearchListDto()
+                                      {
+                                          ContactPerson = s.SuppliersMasterSupplierContactPerson,
+                                          SupplierName = s.SuppliersMasterSupplierName,
+                                          VatNo = s.SuppliersMasterSupplierVatNo,
+                                          MobileNo = s.SuppliersMasterSupplierMobile,
+                                          Telephone = s.SuppliersMasterSupplierTel1,
+                                          CityName = c.CityMasterCityName,
+                                          CountryName = cntry.CountryMasterCountryName
+                                      }).ToListAsync();
+
+                return new Response<List<SupplierSearchListDto>>
+                {
+                    Valid = true,
+                    Result = reportDetails,
+                    Message = "Job Cost Data Fonud"
+                };
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+
+        }
     }
 }

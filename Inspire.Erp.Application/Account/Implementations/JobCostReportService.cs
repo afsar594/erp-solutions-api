@@ -49,8 +49,10 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     if (!string.IsNullOrEmpty(filter.fromDate) && !string.IsNullOrEmpty(filter.toDate))
                     {
-                        filteredValue += $" && AccountsTransactionsTransDate >= {Convert.ToDateTime(filter.fromDate)} && AccountsTransactionsTransDate <= {Convert.ToDateTime(filter.toDate)} ";
+                        filteredValue += $" && AccountsTransactionsTransDate >= \"{Convert.ToDateTime(filter.fromDate)}\" && AccountsTransactionsTransDate <= \"{Convert.ToDateTime(filter.toDate)}\" ";
                     }
+
+                    
                 }
 
 
@@ -64,7 +66,7 @@ namespace Inspire.Erp.Application.Account.Implementations
 
                            accNo  = at.AccountsTransactionsAccNo,
                            accName = mat.MaAccName,
-                           Description = at.AccountsTransactionsDescription,
+                           Description = at.AccountsTransactionsParticulars,
                            VoucherNo = at.AccountsTransactionsVoucherNo,
                            VoucherType = at.AccountsTransactionsVoucherType,
                            transDate = at.AccountsTransactionsTransDate,
