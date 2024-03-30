@@ -236,5 +236,10 @@ namespace Inspire.Erp.Web.Controllers
             };
             return apiResponse;
         }
+        [HttpPost("getSupplierFilteredList")]
+        public async Task<IActionResult> GetSupplierFilteredList(string supplierName)
+        {
+            return Ok(await this.supplierMasterService.GetSupplierFilteredList(supplierName));
+        }
     }
 }

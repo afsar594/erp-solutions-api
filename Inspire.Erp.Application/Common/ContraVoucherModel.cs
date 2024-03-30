@@ -9,8 +9,7 @@ namespace Inspire.Erp.Application.Common
     {
        public ContraVoucher contraVoucher { get; set; }
        public List<AccountsTransactions> accountsTransactions { get; set; }
-
-        public List<ContraVoucherDetails> contraVoucherDetails { get; set; }
+       public List<ContraVoucherDetails> contraVoucherDetails { get; set; }
 
     }
 }

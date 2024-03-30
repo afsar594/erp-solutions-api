@@ -78,29 +78,60 @@ namespace Inspire.Erp.Application.Master
                                  ItemMasterAccountNo = IM.ItemMasterAccountNo ?? 0
                              }).ToList();
 
-                if (filteModle.Barcode != "" && filteModle.Barcode != "string")
+                if (filteModle.IsContaining == true)
                 {
-                    query = query.Where(s => EF.Functions.Like(s.UD_Barcode, "%" + filteModle.Barcode + "%")).ToList();
+                    if (filteModle.Barcode != "" && filteModle.Barcode != "string")
+                    {
+                        query = query.Where(s => EF.Functions.Like(s.UD_Barcode, "%" + filteModle.Barcode + "%")).ToList();
+                    }
+                    if (filteModle.PartNo != "" && filteModle.PartNo != "string")
+                    {
+                        query = query.Where(s => EF.Functions.Like(s.PartNo, "%" + filteModle.PartNo + "%")).ToList();
+                    }
+                    if (filteModle.ItemName != "" && filteModle.ItemName != "string")
+                    {
+                        query = query.Where(s => EF.Functions.Like(s.Item_Name, "%" + filteModle.ItemName + "%")).ToList();
+                    }
+                    if (filteModle.VendorName != "" && filteModle.VendorName != "string")
+                    {
+                        query = query.Where(s => EF.Functions.Like(s.VendorName, "%" + filteModle.VendorName + "%")).ToList();
+                    }
+                    if (filteModle.GruopName != "" && filteModle.GruopName != "string")
+                    {
+                        query = query.Where(s => EF.Functions.Like(s.GroupName, "%" + filteModle.GruopName + "%")).ToList();
+                    }
+                    if (filteModle.Priceinsname != "" && filteModle.Priceinsname != "string")
+                    {
+                        query = query.Where(s => EF.Functions.Like(s.SupplierName, "%" + filteModle.Priceinsname + "%")).ToList();
+                    }
                 }
-                if (filteModle.PartNo != "" && filteModle.PartNo != "string")
+                else
                 {
-                    query = query.Where(s => EF.Functions.Like(s.PartNo, "%" + filteModle.PartNo + "%")).ToList();
-                }
-                if (filteModle.ItemName != "" && filteModle.ItemName != "string")
-                {
-                    query = query.Where(s => EF.Functions.Like(s.Item_Name, "%" + filteModle.ItemName + "%")).ToList();
-                }
-                if (filteModle.VendorName != "" && filteModle.VendorName != "string")
-                {
-                    query = query.Where(s => EF.Functions.Like(s.VendorName, "%" + filteModle.VendorName + "%")).ToList();
-                }
-                if (filteModle.GruopName != "" && filteModle.GruopName != "string")
-                {
-                    query = query.Where(s => EF.Functions.Like(s.GroupName, "%" + filteModle.GruopName + "%")).ToList();
-                }
-                if (filteModle.Priceinsname != "" && filteModle.Priceinsname != "string")
-                {
-                    query = query.Where(s => EF.Functions.Like(s.SupplierName, "%" + filteModle.Priceinsname + "%")).ToList();
+                    if (filteModle.Barcode != "" && filteModle.Barcode != "string")
+                    {
+                        query = query.Where(s => EF.Functions.Like(s.UD_Barcode, "%" + filteModle.Barcode + "%")).ToList();
+                    }
+                    if (filteModle.PartNo != "" && filteModle.PartNo != "string")
+                    {
+                        query = query.Where(s => EF.Functions.Like(s.PartNo, "%" + filteModle.PartNo + "%")).ToList();
+                    }
+                    if (filteModle.ItemName != "" && filteModle.ItemName != "string")
+                    {
+                        query = query.Where(s => EF.Functions.Like(s.Item_Name, "%" + filteModle.ItemName + "%")).ToList();
+                    }
+                    if (filteModle.VendorName != "" && filteModle.VendorName != "string")
+                    {
+                        query = query.Where(s => EF.Functions.Like(s.VendorName, "%" + filteModle.VendorName + "%")).ToList();
+                    }
+                    if (filteModle.GruopName != "" && filteModle.GruopName != "string")
+                    {
+                        query = query.Where(s => EF.Functions.Like(s.GroupName, "%" + filteModle.GruopName + "%")).ToList();
+                    }
+                    if (filteModle.Priceinsname != "" && filteModle.Priceinsname != "string")
+                    {
+                        query = query.Where(s => EF.Functions.Like(s.SupplierName, "%" + filteModle.Priceinsname + "%")).ToList();
+                    }
+
                 }
 
                 return query;

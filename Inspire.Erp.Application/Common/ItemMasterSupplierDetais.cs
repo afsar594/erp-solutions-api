@@ -12,3 +12,4 @@ namespace Inspire.Erp.Application.Common
         public float Rate { get; set; }
     }
 }
+
