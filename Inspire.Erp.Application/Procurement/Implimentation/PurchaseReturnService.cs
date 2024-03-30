@@ -708,6 +708,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     purchaseReturn.CurrencyMasterCurrencyName = _currencyMaster
                                                                  .Where(c => c.CurrencyMasterCurrencyId == purchaseReturn.PurchaseReturnCurrencyId)
                                                                  .FirstOrDefault().CurrencyMasterCurrencyName;
+
                 }
                 catch { }
 

@@ -8,6 +8,6 @@ namespace Inspire.Erp.Application.Account.Interfaces
 {
     public interface IAccountTransactionsServices
     {
-        public Task<ApiResponse<List<AllocationDetails>>> GetReceiptVoucherAllocations(string accNo, string refNo);
+        public Task<ApiResponse<List<AllocationDetails>>> GetReceiptVoucherAllocations(string accNo, string refNo, string vType);
     }
 }

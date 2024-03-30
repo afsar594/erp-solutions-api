@@ -89,7 +89,10 @@ namespace Inspire.Erp.Application.Account.Implementations
                 trackingData.UserTrackingUserVpType = "RECEIPTVOUCHER";
                 UserTracking.Insert(trackingData);
 
-                insertAllocations(receiptVoucher, alloDetails);
+                if (alloDetails.Count > 0)
+                {
+                    insertAllocations(receiptVoucher, alloDetails);
+                }
                 _receiptVoucherRepository.TransactionCommit();
             }
             catch (Exception ex)
@@ -187,8 +190,10 @@ namespace Inspire.Erp.Application.Account.Implementations
                 trackingData.UserTrackingUserVpType = "RECEIPTVOUCHER";
                 UserTracking.Insert(trackingData);
 
-
-                insertAllocations(receiptVoucher, alloDetails);
+                if (alloDetails.Count > 0)
+                {
+                    insertAllocations(receiptVoucher, alloDetails);
+                }
 
 
 
@@ -393,7 +398,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 voucherdata.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(o => o.AccountsTransactionsVoucherNo == Rvno && o.AccountstransactionsDelStatus == false).ToList();
                 voucherdata.ReceiptVoucherDetails = _receiptVoucherDetailsRepository.GetAsQueryable().Where(o => o.ReceiptVoucherDetailsVoucherNo == Rvno && o.ReceiptVoucherDetailsDelStatus == false).ToList();
                 voucherdata.TrackingData = userTrackngData;
-                voucherdata.rvAllocationDetails = this._IPaymentVoucherService.GetAllocationDetails(voucherdata.ReceiptVoucherMasterDrAcNo, voucherdata.ReceiptVoucherMasterVoucherNo);
+                voucherdata.rvAllocationDetails = this._IPaymentVoucherService.GetAllocationDetails(voucherdata.ReceiptVoucherMasterDrAcNo, voucherdata.ReceiptVoucherMasterVoucherNo).Result   ;
                 return voucherdata;
             }
             return null;

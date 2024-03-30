@@ -33,7 +33,7 @@ namespace Inspire.Erp.Domain.Entities
         [NotMapped]
         public List<AccountsTransactions> PaymentAllocationDetails { get; set; }
         [NotMapped]
-        public  List<Domain.Models.AllocationDetails> AllocationDetails { get; set; }
+        public  List<Domain.Models.AllocationDetails> allocationDetails { get; set; }
 
     }
 }
