@@ -310,7 +310,7 @@ namespace Inspire.Erp.Web.Controllers
             //    );
 
             //==============
-            param3 = new List<AccountsTransactions>();
+            //param3 = new List<AccountsTransactions>();
             List<StockRegister> param4 = new List<StockRegister>();
 
             //var allUnits = new List<UnitDetails>();
