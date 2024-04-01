@@ -160,13 +160,13 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.SalesReturnDetailsNo = salesReturn.SalesReturnNo;
                     return k;
                 }).ToList();
-                var lSv = _Context.AccountsTransactions.FirstOrDefault(x => x.AccountsTransactionsVoucherNo == salesReturn.SalesReturnSVNo);
-                lSv.AccountsTransactionsAllocCredit = 0;
-                lSv.AccountsTransactionsAllocDebit = salesReturn.SalesReturnNetAmount == null ? 0 : salesReturn.SalesReturnNetAmount.Value;
-                lSv.AccountsTransactionsAllocBalance = lSv.AccountsTransactionsDebit - lSv.AccountsTransactionsAllocDebit;
+                //var lSv = _Context.AccountsTransactions.FirstOrDefault(x => x.AccountsTransactionsVoucherNo == salesReturn.SalesReturnSVNo);
+                //lSv.AccountsTransactionsAllocCredit = 0;
+                //lSv.AccountsTransactionsAllocDebit = salesReturn.SalesReturnNetAmount == null ? 0 : salesReturn.SalesReturnNetAmount.Value;
+                //lSv.AccountsTransactionsAllocBalance = lSv.AccountsTransactionsDebit - lSv.AccountsTransactionsAllocDebit;
 
-                _Context.AccountsTransactions.Update(lSv);
-                _Context.SaveChanges(true);
+                //_Context.AccountsTransactions.Update(lSv);
+                //_Context.SaveChanges(true);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     k.AccountsTransactionsUserId = salesReturn.SalesReturnUserID == null ? -1 : salesReturn.SalesReturnUserID;
