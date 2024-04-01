@@ -321,7 +321,14 @@ namespace Inspire.Erp.Application.Account.Implementations
         {
             try
             {
+
                 _accountTransactionRepository.BeginTransaction();
+
+                string openingstockVoucherNumber = this.GenerateVoucherNo(salesReturn.SalesReturnDate.Value).VouchersNumbersVNo;
+                salesReturn.SalesReturnNo = openingstockVoucherNumber;
+
+
+             
                 salesReturn.SalesReturnNo = salesReturn.SalesReturnNo;
                 _Context.SalesReturn.Add(salesReturn);
                 _Context.SaveChanges();
@@ -338,15 +345,16 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _Context.SaveChanges();
                 Console.WriteLine("FOUR = " + salesReturn.SalesReturnId);
 
-                var lSv = _Context.AccountsTransactions.FirstOrDefault(x => x.AccountsTransactionsVoucherNo == salesReturn.SalesReturnSVNo);
-                lSv.AccountsTransactionsAllocCredit = 0;
-                lSv.AccountsTransactionsAllocDebit = salesReturn.SalesReturnNetAmount == null ? 0 : salesReturn.SalesReturnNetAmount.Value;
-                lSv.AccountsTransactionsAllocBalance = lSv.AccountsTransactionsDebit - lSv.AccountsTransactionsAllocDebit;
+                //var lSv = _Context.AccountsTransactions.FirstOrDefault(x => x.AccountsTransactionsVoucherNo == salesReturn.SalesReturnSVNo);
+                //lSv.AccountsTransactionsAllocCredit = 0;
+                //lSv.AccountsTransactionsAllocDebit = salesReturn.SalesReturnNetAmount == null ? 0 : salesReturn.SalesReturnNetAmount.Value;
+                //lSv.AccountsTransactionsAllocBalance = lSv.AccountsTransactionsDebit - lSv.AccountsTransactionsAllocDebit;
 
-                _Context.AccountsTransactions.Update(lSv);
-                _Context.SaveChanges(true);
+                //_Context.AccountsTransactions.Update(lSv);
+                //_Context.SaveChanges(true);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
+                    k.AccountsTransactionsAccNo = k.AccountsTransactionsAccNo??"12345" ;
                     k.AccountsTransactionsUserId = salesReturn.SalesReturnUserID == null ? -1 : salesReturn.SalesReturnUserID;
                     k.AccountsTransactionsVoucherNo = salesReturn.SalesReturnNo;
                     k.AccountsTransactionsVoucherType = VoucherType.SalesReturn_TYPE;
@@ -389,6 +397,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                         StockRegisterRate = item.SalesReturnDetailsRate,
                         StockRegisterAmount = item.SalesReturnDetailsGrossAmount,
                         StockRegisterMaterialID = item.SalesReturnDetailsMatId,
+                        
                     });
                 }
 
@@ -441,7 +450,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                                         .Max(o => o == null ? 0 : o.VouchersNumbersVNoNu)) + 1;
 
 
-                //var prefix = "CN";
+                //var prefix = "CN";fv
                 //int vnoMaxVal = 1;
 
 
