@@ -47,6 +47,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
             _assetsMasterService = assetsMasterService;
             _accountTransactionsServices = accountTransactionsServices;
         }
+
         #region Account Statement 
         [HttpGet("GetAccountMasterDropdown")]
         public async Task<IActionResult> GetAccountMasterDropdown()

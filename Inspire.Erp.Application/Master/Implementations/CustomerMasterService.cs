@@ -44,7 +44,7 @@ namespace Inspire.Erp.Application.Master
                 MasterAccountsTable masterAccountsTable = null;
                 if (customerMaster.IsCreateAccount)
                 {
-                    var count = _masterAccountTable.GetAsQueryable().AsNoTracking().Where(x => x.MaRelativeNo == DeptorsRelativeNo).ToList().Count()+1;
+                    var count = _masterAccountTable.GetAsQueryable().AsNoTracking().Where(x => x.MaRelativeNo == DeptorsRelativeNo).ToList().Count() + 1;
                     cusAccNo = count.ToString().Length == 1 ? "00" + count : count.ToString().Length == 2 ? "0" + count : count.ToString();
                     cusAccNo = masterAccount.MaAccNo + cusAccNo;
                     masterAccountsTable = new MasterAccountsTable()
@@ -64,7 +64,17 @@ namespace Inspire.Erp.Application.Master
                         MaStatus = "R",
                     };
                 }
-                mxc = customerrepository.GetAsQueryable().AsNoTracking().Where(k => k.CustomerMasterCustomerNo != null).Select(x => x.CustomerMasterCustomerNo).Max();
+               // mxc = customerrepository.GetAsQueryable().AsNoTracking().Where(k => k.CustomerMasterCustomerNo != null).Select(x => x.CustomerMasterCustomerNo).Max();
+
+                var query = customerrepository
+                                                                    .GetAsQueryable()
+                                                                    .AsNoTracking()
+                                                                    .Where(k => k.CustomerMasterCustomerNo != null)
+                                                                    .Select(x => x.CustomerMasterCustomerNo);
+                                                                                if (query.Any())
+                                                                                {
+                                                                                    mxc = query.Max();
+                                                                                }
                 //if (mxc == null) { mxc = 1; } else { mxc = mxc + 1; }
                 mxc = mxc == null ? 1 : mxc + 1;
                 customerMaster.CustomerMasterCustomerNo = mxc;
@@ -72,7 +82,7 @@ namespace Inspire.Erp.Application.Master
                 customerrepository.Insert(customerMaster);
 
                 if (masterAccountsTable != null)
-                   await _utilityService.SaveMasterAccountTable(masterAccountsTable);
+                    await _utilityService.SaveMasterAccountTable(masterAccountsTable);
 
                 #region ADD ACTIVITY LOGS
                 AddActivityLogViewModel log = new AddActivityLogViewModel()
@@ -81,9 +91,9 @@ namespace Inspire.Erp.Application.Master
                     Section = "Add Customer Master",
                     Entity = "Customer Master",
                 };
-               // await _utilityService.AddUserTrackingLog(log);
+                // await _utilityService.AddUserTrackingLog(log);
                 #endregion
-                 customerrepository.SaveChangesAsync();
+                customerrepository.SaveChangesAsync();
                 _masterAccountTable.TransactionCommit();
 
             }
@@ -116,7 +126,7 @@ namespace Inspire.Erp.Application.Master
                 var isAlreadyAccount = _masterAccountTable.GetAsQueryable().AsNoTracking().Where(x => x.MaAccName == customerMaster.CustomerMasterCustomerName).FirstOrDefault();
                 var cusAccNo = string.Empty;
                 MasterAccountsTable masterAccountsTable = null;
-                if (customerMaster.IsCreateAccount && isAlreadyAccount ==null)
+                if (customerMaster.IsCreateAccount && isAlreadyAccount == null)
                 {
                     var count = _masterAccountTable.GetAsQueryable().AsNoTracking().Where(x => x.MaRelativeNo == DeptorsRelativeNo).ToList().Count() + 1;
                     cusAccNo = count.ToString().Length == 1 ? "00" + count : count.ToString().Length == 2 ? "0" + count : count.ToString();
