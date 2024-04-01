@@ -17,8 +17,8 @@ namespace Inspire.Erp.Application.Account.Interfaces
         Task<Response<bool>> AddEditVoucherAllocation(AllocationVoucher model);
         Task<Response<GridWrapperResponse<List<GetAccountTransactionMutilAccountResponse>>>> GetAccountTransactions(GenericGridViewModel model);
         Task<Response<GridWrapperResponse<List<GetVoucherAllocationListResponse>>>> GetVoucherAllocationsList(GenericGridViewModel model);
-        Task<Response<GetVoucherAllocationListResponse>> GetSpecificVoucherAllocation(int id = 0);
+        Task<Response<GetVoucherAllocationListResponse>> GetSpecificVoucherAllocation(string id);
         IQueryable GetVoucherAllocation();
-        AllocationVoucher DeleteAllocationVoucher(long ID);
-            }
+        Response<AllocationVoucher> DeleteAllocationVoucher(string id);
+    }
 }

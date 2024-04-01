@@ -25,3 +25,5 @@ namespace Inspire.Erp.Domain.Modals.AccountStatement
         public List<VoucherAllocationDetailsResponse> VoucherAllocationDetails { get; set; }
     }
 }
+
+
