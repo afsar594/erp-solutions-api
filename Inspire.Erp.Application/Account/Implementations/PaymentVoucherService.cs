@@ -470,10 +470,6 @@ namespace Inspire.Erp.Application.Account.Implementations
                 throw ex;
             }
         }
-
-        ApiResponse<List<AllocationDetails>> IPaymentVoucherService.GetAllocationDetails(string accountNo, string voucherNo)
-        {
-            throw new NotImplementedException();
-        }
+      
     }
 }
