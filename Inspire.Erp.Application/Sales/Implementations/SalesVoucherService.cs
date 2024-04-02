@@ -806,12 +806,15 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                 NetAmount = svd.SalesVoucherDetailsNetAmt,
                                 Discount = svd.SalesVoucherDetailsDiscAmount,
                                 GrossAmt = svd.SalesVoucherDetailsGrossAmount,
-                                UnitPrice = svd.SalesVoucherDetailsCostPrice,
+                                //UnitPrice = svd.SalesVoucherDetailsCostPrice,
                                 UnitDes = unitMaster.UnitMasterUnitShortName,
                                 MatDes = itemmaster.ItemMasterItemName,
                                 PartNo = itemmaster.ItemMasterPartNo,
                                 VoucherDate = salesVou.SalesVoucherDate,
                                 VoucherNo = salesVou.SalesVoucherNo,
+                                QuantitySold = svd.SalesVoucherDetailsQuantity ?? 0,
+                                unitPrice = itemmaster.ItemMasterUnitPrice ?? 0,
+                                baseUnit = svd.SalesVoucherDetailsQuantity * (decimal)unitDetail.UnitDetailsConversionType ?? 1   //SD.Sold_Qty * ISNULL(UD.ConversionType, 1)
                                 // ItemGroup = 
                             }).AsQueryable();
                 return data;
