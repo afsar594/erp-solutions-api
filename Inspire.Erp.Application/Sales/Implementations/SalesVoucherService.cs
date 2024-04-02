@@ -47,7 +47,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<UnitDetails> _UnitDetailsRepository;
 
 
-        private IRepository<SalesReturnMaster> _salesReturn;
+        private IRepository<SalesReturn> _salesReturn;
         private IRepository<SalesReturnDetails> _salesReturnDtls;
         private IRepository<OptionsMaster> _optionMaster;
 
@@ -70,7 +70,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
 
-            IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository, IRepository<CurrencyMaster> currencyMasterRepository, IRepository<UnitDetails> unitDetailsRepository, IRepository<MasterAccountsTable> accMaster, IRepository<SalesReturnMaster> salesReturn, IRepository<SalesReturnDetails> salesReturnDtls, IRepository<OptionsMaster> optionMaster)
+            IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository, IRepository<CurrencyMaster> currencyMasterRepository, IRepository<UnitDetails> unitDetailsRepository, IRepository<MasterAccountsTable> accMaster, IRepository<SalesReturn> salesReturn, IRepository<SalesReturnDetails> salesReturnDtls, IRepository<OptionsMaster> optionMaster)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository;
@@ -698,10 +698,10 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 var SalesReturnMaster = _salesReturn.GetAll().Select(o => new
                 {
-                    SalRetVatAmt = o.SalesReturnMasterVatAmt,
-                    SalesReturnNo = o.SalesReturnMasterSrNo,
-                    SalRetAmt = o.SalesReturnMasterNetAmount,
-                    SalRetRountAmt = o.SalesReturnMasterVatRoungSign == "-" ? o.SalesReturnMasterVatRoundAmt * -1 : o.SalesReturnMasterVatRoundAmt ,
+                    SalRetVatAmt = o.SalesReturnVat_RountAmt,
+                    SalesReturnNo = o.SalesReturnNo,
+                    SalRetAmt = o.SalesReturnNetAmount,
+                    SalRetRountAmt = o.SalesReturnVat_RoundSign == "-" ? o.SalesReturnVat_RountAmt * -1 : o.SalesReturnVat_RountAmt ,
                 }).ToList().GroupBy(g => new
                 {
                     SalesReturnNo = g.SalesReturnNo,
