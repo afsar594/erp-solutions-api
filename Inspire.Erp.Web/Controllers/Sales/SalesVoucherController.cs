@@ -580,7 +580,34 @@ namespace Inspire.Erp.Web.Controllers
             return apiResponse;
         }
 
-       
+        [HttpGet]
+        [Route("GetSalesReportDetailWise")]
+        public IActionResult GetSalesReportDetailWise()
+        {
+            try
+            {
+                return Ok(_salesVoucherService.GetSalesReportDetailWise());
+            }
+            catch (System.Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpGet]
+        [Route("GetSalesReportSummaryWise")]
+        public IActionResult GetSalesReportSummaryWise()
+        {
+            try
+            {
+                return Ok(_salesVoucherService.GetSalesReportSummaryWise());
+            }
+            catch (System.Exception ex)
+            {
+                throw ex;
+            }
+        }
+
 
 
     }

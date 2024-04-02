@@ -8,12 +8,14 @@ using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Transactions;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Inspire.Erp.Application.Account.Implementations
 {
@@ -246,28 +248,50 @@ namespace Inspire.Erp.Application.Account.Implementations
                             List<AccountsTransactions> accountsTransactions = new List<AccountsTransactions>();
                             foreach (var item in model.VoucherAllocationDetails)
                             {
-                                AccountsTransactions acc = _accountTransaction.GetAsQueryable().Where(x => x.AccountsTransactionsTransSno == item.AccountsTransactionsTransSno).FirstOrDefault();
-                                var currency = _currencyMaster.GetAsQueryable().Where(c => c.CurrencyMasterCurrencyId == acc.AccountsTransactionsCurrencyId).Distinct().FirstOrDefault();
-                                if (acc != null)
+
+
+                                var transactionToUpdate = _accountTransaction.GetAsQueryable().FirstOrDefault(t => t.AccountsTransactionsTransSno == item.AccountsTransactionsTransSno);
+
+                                if (transactionToUpdate != null && transactionToUpdate.AccountsTransactionsCredit > 0)
                                 {
-                                    if (item.AllocationVoucherDetailsAllocDebit > 0)
-                                    {
-
-                                        acc.AccountsTransactionsAllocDebit = (decimal)(item.AccountsTransactionsAllocBalance != null ? item.AllocationVoucherDetailsNetAllocation : 0); //NetAlloc;
-                                        acc.AccountsTransactionsFcAllocDebit = (decimal)(item.AllocationVoucherDetailsAllocDebit != null ? item.AllocationVoucherDetailsAllocDebit : 1) * (currency != null ? (decimal)(currency.CurrencyMasterCurrencyRate != null ? currency.CurrencyMasterCurrencyRate : 1) : 1);
-                                        acc.AccountsTransactionsFcAllocBalance = acc.AccountsTransactionsDebit - (acc.AccountsTransactionsFcAllocDebit != null ? acc.AccountsTransactionsFcAllocDebit : 0 + (decimal)(item.AllocationVoucherDetailsAllocDebit != null ? item.AllocationVoucherDetailsAllocDebit : 0));
-                                        acc.AccountsTransactionsAllocBalance = acc.AccountsTransactionsFcDebit != null ? acc.AccountsTransactionsFcDebit : 0 - (acc.AccountsTransactionsAllocDebit != null ? acc.AccountsTransactionsAllocDebit : 0 + ((decimal)(item.AllocationVoucherDetailsAllocDebit != null ? item.AllocationVoucherDetailsAllocDebit : 1) * (currency != null ? (decimal)(currency.CurrencyMasterCurrencyRate != null ? currency.CurrencyMasterCurrencyRate : 1) : 1)));
-                                    }
-                                    else if (item.AllocationVoucherDetailsAllocCredit > 0)
-                                    {
-                                        acc.AccountsTransactionsAllocCredit = (decimal)(item.AccountsTransactionsAllocBalance != null ? item.AllocationVoucherDetailsNetAllocation : 0); //NetAlloc;;
-                                        acc.AccountsTransactionsFcAllocCredit = (decimal)(item.AllocationVoucherDetailsAllocCredit != null ? item.AllocationVoucherDetailsAllocCredit : 1) * (currency != null ? (decimal)(currency.CurrencyMasterCurrencyRate != null ? currency.CurrencyMasterCurrencyRate : 1) : 1);
-                                        acc.AccountsTransactionsFcAllocBalance = acc.AccountsTransactionsCredit - (acc.AccountsTransactionsFcAllocCredit != null ? acc.AccountsTransactionsFcAllocCredit : 0 + (decimal)(item.AllocationVoucherDetailsAllocCredit != null ? item.AllocationVoucherDetailsAllocCredit : 0));
-                                        acc.AccountsTransactionsAllocBalance = acc.AccountsTransactionsFcCredit != null ? acc.AccountsTransactionsFcCredit : 0 - (acc.AccountsTransactionsAllocCredit != null ? acc.AccountsTransactionsAllocCredit : 0 + ((decimal)(item.AllocationVoucherDetailsAllocCredit != null ? item.AllocationVoucherDetailsAllocCredit : 1) * (currency != null ? (decimal)(currency.CurrencyMasterCurrencyRate != null ? currency.CurrencyMasterCurrencyRate : 1) : 1)));
-                                    }
-
-                                    accountsTransactions.Add(acc);
+                                    transactionToUpdate.AccountsTransactionsAllocCredit += (decimal)item.AllocationVoucherDetailsNetAllocation;
+                                    transactionToUpdate.AccountsTransactionsFcAllocCredit += (decimal)item.AllocationVoucherDetailsNetAllocation;
+                                    transactionToUpdate.AccountsTransactionsAllocBalance = transactionToUpdate.AccountsTransactionsCredit - (transactionToUpdate.AccountsTransactionsAllocCredit + (decimal)item.AllocationVoucherDetailsNetAllocation);
+                                    transactionToUpdate.AccountsTransactionsFcAllocBalance = transactionToUpdate.AccountsTransactionsFcCredit - (transactionToUpdate.AccountsTransactionsFcAllocCredit + (decimal)item.AllocationVoucherDetailsNetAllocation);
                                 }
+                                else if (transactionToUpdate != null && transactionToUpdate.AccountsTransactionsDebit > 0)
+                                {
+                                    //update AccountsTransactions set
+                                    //Alloc_Debit = Alloc_Debit + 18900,
+                                    //Fc_Alloc_Debit = Fc_Alloc_Debit + 18900,
+                                    //Alloc_Balance = Debit - (Alloc_Debit + 18900),
+                                    //Fc_Alloc_Balance = Fc_Debit - (Fc_Alloc_Debit + 18900)
+                                    //where TransSno = 177001
+                                }
+                                updateAllocationBalance(item.AccountsTransactionsTransSno);
+                                accountsTransactions.Add(transactionToUpdate);
+                                //AccountsTransactions acc = _accountTransaction.GetAsQueryable().Where(x => x.AccountsTransactionsTransSno == item.AccountsTransactionsTransSno).FirstOrDefault();
+                                //var currency = _currencyMaster.GetAsQueryable().Where(c => c.CurrencyMasterCurrencyId == acc.AccountsTransactionsCurrencyId).Distinct().FirstOrDefault();
+                                //if (acc != null)
+                                //{
+                                //    if (item.AllocationVoucherDetailsAllocDebit > 0)
+                                //    {
+
+                                //        acc.AccountsTransactionsAllocDebit = (decimal)(item.AccountsTransactionsAllocBalance != null ? item.AllocationVoucherDetailsNetAllocation : 0); //NetAlloc;
+                                //        acc.AccountsTransactionsFcAllocDebit = (decimal)(item.AllocationVoucherDetailsAllocDebit != null ? item.AllocationVoucherDetailsAllocDebit : 1) * (currency != null ? (decimal)(currency.CurrencyMasterCurrencyRate != null ? currency.CurrencyMasterCurrencyRate : 1) : 1);
+                                //        acc.AccountsTransactionsFcAllocBalance = acc.AccountsTransactionsDebit - (acc.AccountsTransactionsFcAllocDebit != null ? acc.AccountsTransactionsFcAllocDebit : 0 + (decimal)(item.AllocationVoucherDetailsAllocDebit != null ? item.AllocationVoucherDetailsAllocDebit : 0));
+                                //        acc.AccountsTransactionsAllocBalance = acc.AccountsTransactionsFcDebit != null ? acc.AccountsTransactionsFcDebit : 0 - (acc.AccountsTransactionsAllocDebit != null ? acc.AccountsTransactionsAllocDebit : 0 + ((decimal)(item.AllocationVoucherDetailsAllocDebit != null ? item.AllocationVoucherDetailsAllocDebit : 1) * (currency != null ? (decimal)(currency.CurrencyMasterCurrencyRate != null ? currency.CurrencyMasterCurrencyRate : 1) : 1)));
+                                //    }
+                                //    else if (item.AllocationVoucherDetailsAllocCredit > 0)
+                                //    {
+                                //        acc.AccountsTransactionsAllocCredit = (decimal)(item.AccountsTransactionsAllocBalance != null ? item.AllocationVoucherDetailsNetAllocation : 0); //NetAlloc;;
+                                //        acc.AccountsTransactionsFcAllocCredit = (decimal)(item.AllocationVoucherDetailsAllocCredit != null ? item.AllocationVoucherDetailsAllocCredit : 1) * (currency != null ? (decimal)(currency.CurrencyMasterCurrencyRate != null ? currency.CurrencyMasterCurrencyRate : 1) : 1);
+                                //        acc.AccountsTransactionsFcAllocBalance = acc.AccountsTransactionsCredit - (acc.AccountsTransactionsFcAllocCredit != null ? acc.AccountsTransactionsFcAllocCredit : 0 + (decimal)(item.AllocationVoucherDetailsAllocCredit != null ? item.AllocationVoucherDetailsAllocCredit : 0));
+                                //        acc.AccountsTransactionsAllocBalance = acc.AccountsTransactionsFcCredit != null ? acc.AccountsTransactionsFcCredit : 0 - (acc.AccountsTransactionsAllocCredit != null ? acc.AccountsTransactionsAllocCredit : 0 + ((decimal)(item.AllocationVoucherDetailsAllocCredit != null ? item.AllocationVoucherDetailsAllocCredit : 1) * (currency != null ? (decimal)(currency.CurrencyMasterCurrencyRate != null ? currency.CurrencyMasterCurrencyRate : 1) : 1)));
+                                //    }
+
+                                //    accountsTransactions.Add(acc);
+                                //}
                             }
                             _accountTransaction.UpdateList(accountsTransactions);
                         }
@@ -334,6 +358,56 @@ namespace Inspire.Erp.Application.Account.Implementations
                     trans.Dispose();
                     return Response<bool>.Fail(false, ex.Message);
                 }
+            }
+        }
+
+        private void updateAllocationBalance(long accountsTransactionsTransSno)
+        {
+            var transNO = _accountTransaction.GetAsQueryable().Where(x => x.Equals(accountsTransactionsTransSno)).FirstOrDefault();
+            if (transNO == null)
+            {
+                var avidsToDelete = _voucherAllocationDetails.GetAsQueryable()
+                                                .Where(avd => avd.AccountsTransactionsTransSno == accountsTransactionsTransSno)
+                                                .Select(avd => avd.AllocationVoucherDetailsSno)
+                                                .ToList();
+                var recordsToDelete = _voucherAllocationDetails.GetAsQueryable().Where(avd => avidsToDelete.Contains(avd.AllocationVoucherDetailsSno)).ToList();
+                _voucherAllocationDetails.DeleteList(recordsToDelete);
+
+                var toDel = _voucherAllocationDetails.GetAsQueryable()
+                                                .Where(avd => avd.AccountsTransactionsTransSno == accountsTransactionsTransSno)
+                                                .ToList();
+                _voucherAllocationDetails.DeleteList(toDel);
+            }
+            else
+            {
+                var AllBal = _voucherAllocationDetails.GetAsQueryable()
+                                                        .Where(avd => avd.AccountsTransactionsTransSno == accountsTransactionsTransSno)
+                                                        .Select(avd => Math.Abs((decimal)(avd.AllocationVoucherDetailsAllocDebit ?? 0) - (decimal)(avd.AllocationVoucherDetailsAllocCredit ?? 0)))
+                                                        .DefaultIfEmpty(0)
+                                                        .Sum();
+                var AllBalDb = _voucherAllocationDetails.GetAsQueryable()
+                                                        .Where(avd => avd.AccountsTransactionsTransSno == accountsTransactionsTransSno)
+                                                        .Select(avd => Math.Abs((decimal)(avd.AllocationVoucherDetailsAllocDebit ?? 0)))
+                                                        .DefaultIfEmpty(0)
+                                                        .Sum();
+                var AllBalCr = _voucherAllocationDetails.GetAsQueryable()
+                                                      .Where(avd => avd.AccountsTransactionsTransSno == accountsTransactionsTransSno)
+                                                      .Select(avd => Math.Abs((decimal)(avd.AllocationVoucherDetailsAllocCredit ?? 0)))
+                                                      .DefaultIfEmpty(0)
+                                                      .Sum();
+
+                var AllBalAT = _accountTransaction.GetAsQueryable()
+                                                                .Where(at => at.AccountsTransactionsTransSno == 176997)
+                                                                .Select(at => Math.Abs((decimal)(at.AccountsTransactionsDebit) - (decimal)(at.AccountsTransactionsCredit)))
+                                                                .DefaultIfEmpty(0) // Handle the case where there are no records
+                                                                .Sum();
+                AllBal = Math.Abs(AllBalAT - AllBal);
+                //Update AccountsTransactions Set Alloc_Balance=1100,Alloc_Debit=0,Alloc_Credit=18900 Where transsno = 176997
+                var trUpdate = _accountTransaction.GetAsQueryable().Where(x => x.Equals(accountsTransactionsTransSno)).FirstOrDefault();
+                trUpdate.AccountsTransactionsAllocBalance = AllBal;
+                trUpdate.AccountsTransactionsAllocDebit = AllBalDb;
+                trUpdate.AccountsTransactionsAllocCredit = AllBalCr;
+                _accountTransaction.Update(trUpdate);
             }
         }
 
