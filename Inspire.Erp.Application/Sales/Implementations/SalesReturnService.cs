@@ -176,8 +176,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsAllocCredit = k.AccountsTransactionsCredit;
                     k.AccountsTransactionsAllocDebit = k.AccountsTransactionsDebit;
                     k.AccountsTransactionsAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
-                    k.AccountsTransactionsFcAllocDebit = k.AccountsTransactionsDebit;
-                    k.AccountsTransactionsFcAllocCredit = k.AccountsTransactionsCredit;
+                    k.AccountsTransactionsFcAllocDebit = 0;
+                    k.AccountsTransactionsFcAllocCredit = 0;
                     k.AccountsTransactionsFcAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
                     return k;
                 }).ToList();
@@ -362,8 +362,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsAllocCredit = k.AccountsTransactionsCredit;
                     k.AccountsTransactionsAllocDebit = k.AccountsTransactionsDebit;
                     k.AccountsTransactionsAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
-                    k.AccountsTransactionsFcAllocDebit = k.AccountsTransactionsDebit;
-                    k.AccountsTransactionsFcAllocCredit = k.AccountsTransactionsCredit;
+                    k.AccountsTransactionsFcAllocDebit = 0;
+                    k.AccountsTransactionsFcAllocCredit = 0;
                     k.AccountsTransactionsFcAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
                     return k;
                 }).ToList();
