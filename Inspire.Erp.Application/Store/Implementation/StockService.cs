@@ -184,9 +184,6 @@ namespace Inspire.Erp.Application.Store.Implementation
                                          Amount = im.Stock * y.StockRate,
                                          AveragePurchaseValue = y.StockValue,
                                      }).ToListAsync();
-
-
-
                 return Response<List<StockReportBaseUnitResponse>>.Success(results, "Data found");
             }
             catch (Exception ex)
