@@ -23,6 +23,8 @@ namespace Inspire.Erp.Domain.Modals.AccountStatement
         public string AllocationVoucherVcreation { get; set; }
         public bool? AllocationVoucherDelStatus { get; set; }
         public List<VoucherAllocationDetailsResponse> VoucherAllocationDetails { get; set; }
+        public List<GetAccountTransactionMutilAccountResponse> AccountsTransactions { get; set; }
+
     }
 }
 

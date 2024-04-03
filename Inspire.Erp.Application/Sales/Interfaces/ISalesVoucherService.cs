@@ -16,12 +16,12 @@ namespace Inspire.Erp.Application.Sales.Interfaces
 
 
         public IEnumerable<DepartmentMaster> SalesVoucher_GetAllDepartmentMaster();
-
-
+        public IQueryable GetSalesReportDetailWise();
+        public IQueryable GetSalesReportSummaryWise();
 
         public IEnumerable<CustomerMaster> SalesVoucher_GetAllCustomerMaster();
 
-        public IEnumerable<CustomerMaster> SalesVoucher_GetAllSalesManMaster();
+        public IEnumerable<SalesManMaster> SalesVoucher_GetAllSalesManMaster();
 
 
 

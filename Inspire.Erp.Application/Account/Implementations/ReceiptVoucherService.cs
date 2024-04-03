@@ -173,8 +173,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     k.AccountstransactionsDelStatus = false;
                     k.AccountsTransactionsAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
-                    k.AccountsTransactionsFcAllocDebit = k.AccountsTransactionsDebit;
-                    k.AccountsTransactionsFcAllocCredit = k.AccountsTransactionsCredit;
+                    k.AccountsTransactionsFcAllocDebit = 0;
+                    k.AccountsTransactionsFcAllocCredit = 0;
                     k.AccountsTransactionsFcAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
                     return k;
                 }).ToList();
