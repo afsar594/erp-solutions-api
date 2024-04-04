@@ -338,7 +338,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 string purchaseRequisitionNumber = this.GenerateVoucherNo(purchaseRequisition.PurchaseRequisitionDate.Date).VouchersNumbersVNo;
                 purchaseRequisition.PurchaseRequisitionNo = purchaseRequisitionNumber;
 
-
                 int maxcount = 0;
                 maxcount = Convert.ToInt32(
                     _purchaseRequisitionRepository.GetAsQueryable()
@@ -346,17 +345,14 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 purchaseRequisition.PurchaseRequisitionId = maxcount;
 
-
-
-
-
-
-                purchaseRequisitionDetails = purchaseRequisitionDetails.Select((x) =>
+                purchaseRequisition.PurchaseRequisitionDetails = purchaseRequisition.PurchaseRequisitionDetails.Select((x) =>
                 {
+                    x.PurchaseRequisitionDetailsId = null;
                     x.PurchaseRequisitionId = maxcount;
                     x.PurchaseRequisitionDetailsNo = purchaseRequisitionNumber;
                     return x;
                 }).ToList();
+
                 //_purchaseRequisitionDetailsRepository.InsertList(purchaseRequisitionDetails);
 
                 accountsTransactions = accountsTransactions.Select((k) =>
@@ -369,8 +365,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 }).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
-
-
                 //stockRegister = stockRegister.Select((k) =>
                 //{
                 //    k.StockRegisterVoucherDate = purchaseRequisition.PurchaseRequisitionDate;
@@ -380,10 +374,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 //    return k;
                 //}).ToList();
                 //_stockRegisterRepository.InsertList(stockRegister);
-
-
-
-
 
                 _purchaseRequisitionRepository.Insert(purchaseRequisition);
                 var permsionApproval = _permissionApprovalRepo.GetAsQueryable().Where(x => x.VoucherType == VoucherType.PurchaseRequisition_TYPE).OrderBy(x => x.LevelOrder).ToList();
@@ -433,15 +423,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
             purchaseRequisitionModel.purchaseRequisition = _purchaseRequisitionRepository.GetAsQueryable().Where(k => k.PurchaseRequisitionNo == pvno).SingleOrDefault();
 
-
-
             purchaseRequisitionModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.PurchaseRequisition_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
             purchaseRequisitionModel.purchaseRequisitionDetails = _purchaseRequisitionDetailsRepository.GetAsQueryable().Where(x => x.PurchaseRequisitionDetailsNo == pvno && (x.PurchaseRequisitionDetailsDelStatus == false || x.PurchaseRequisitionDetailsDelStatus == null)).ToList();
             return purchaseRequisitionModel;
-
-
-
-
 
         }
 
@@ -572,13 +556,13 @@ namespace Inspire.Erp.Application.Procurement.Implementation
               var results = (from pd in _purchaseRequisitionDetailsRepository.GetAsQueryable().Where($"1 == 1  {filteredValue}")
 
                                 join pm in dbContext.PurchaseRequisition on (decimal?)pd.PurchaseRequisitionId equals pm.PurchaseRequisitionId
-                               join im in dbContext.ItemMaster on (long)pd.PurchaseRequisitionDetailsItemID equals im.ItemMasterItemId into imJoin
+                               join im in dbContext.ItemMaster on (long)pd.PurchaseRequisitionDetailsMatId equals im.ItemMasterItemId into imJoin
                                from im in imJoin.DefaultIfEmpty()
 
                                join um in dbContext.UnitMaster on pd.PurchaseRequisitionDetailsUnitId equals um.UnitMasterUnitId into umJoin
                                from um in umJoin.DefaultIfEmpty()
 
-                               join pods in subqueryRDI on pd.PurchaseRequisitionDetailsItemID equals  pods.PurchaseOrderDetailsPrdId into podJoin
+                               join pods in subqueryRDI on pd.PurchaseRequisitionDetailsMatId equals  pods.PurchaseOrderDetailsPrdId into podJoin
                                from pod in podJoin.DefaultIfEmpty()
 
                                join vd in subqueryIMT on im.ItemMasterItemId equals Convert.ToInt64(vd.Key) into vdJoin

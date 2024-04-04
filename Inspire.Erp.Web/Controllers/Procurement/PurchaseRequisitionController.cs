@@ -75,8 +75,6 @@ namespace Inspire.Erp.Web.Controllers
         [Route("InsertPurchaseRequisition")]
         public ApiResponse<PurchaseRequisitionViewModel> InsertPurchaseRequisition([FromBody] PurchaseRequisitionViewModel voucherCompositeView)
         {
-
-
             ApiResponse<PurchaseRequisitionViewModel> apiResponse = new ApiResponse<PurchaseRequisitionViewModel>();
             if (_purchaseRequisitionService.GetVouchersNumbers(voucherCompositeView.PurchaseRequisitionNo) == null)
             {
@@ -158,11 +156,7 @@ namespace Inspire.Erp.Web.Controllers
                 };
 
             }
-
-
             return apiResponse;
-
-
         }
 
         [HttpPost]
