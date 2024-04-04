@@ -8,7 +8,7 @@
 ////{
 ////    public class OpeningStockController : Controller
 ////    {
-       
+
 ////    }
 ////}
 
@@ -32,6 +32,7 @@ using Inspire.Erp.Domain.Modals.Common;
 
 using Inspire.Erp.Domain.Modals.Stock;
 using NPOI.OpenXmlFormats.Dml;
+using System.Net.Http.Headers;
 
 namespace Inspire.Erp.Web.Controllers.Store
 {
@@ -63,6 +64,33 @@ namespace Inspire.Erp.Web.Controllers.Store
             //};
             //return apiResponse;
         }
+        [HttpGet]
+        [Route("GetStockReportBaseUnitByItemId/{id}")]
+        public async Task<IActionResult> GetStockReportBaseUnit(int id)
+        {
+
+            var results = await _openingStockService.GetStockReportBaseUnit(new StockFilterModel()
+            {
+                ItemId = id,
+                ExcludeZeroBalance = false,
+                ExcludeZeroOpeningBalance = false,
+                IsDateChecked = false,
+                ItemGroupId = 0,
+                ItemName = string.Empty,
+                LocationId = 0,
+                PartNo = string.Empty,
+                OrderByGroup = false,
+                PrintReceivedQtyReport = false,
+            });
+            return Ok(results);
+            //ApiResponse<List<StockReportBaseUnitResponse>> apiResponse = new ApiResponse<List<StockReportBaseUnitResponse>>
+            //{
+            //    Valid = true,
+            //    Result = _mapper.Map<List<StockReportBaseUnitResponse>>(_openingStockService.GetStockReportBaseUnitList()),
+            //    Message = ""
+            //};
+            //return apiResponse;
+        }
 
 
         [HttpPost]
@@ -70,8 +98,8 @@ namespace Inspire.Erp.Web.Controllers.Store
         public async Task<IActionResult> GetStockMovementReport(StockFilterModel model)
         {
             var results = await _openingStockService.GetStockMovementReport(model);
-            return Ok(results);  
+            return Ok(results);
         }
-  
+
     }
 }
