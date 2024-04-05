@@ -33,6 +33,8 @@ using Inspire.Erp.Domain.Modals.Procurement;
 using Newtonsoft.Json.Linq;
 using System.Security.Cryptography;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System.Linq.Dynamic.Core;
+using System.Collections;
 
 namespace Inspire.Erp.Application.Store.Implementation
 {
@@ -401,6 +403,34 @@ namespace Inspire.Erp.Application.Store.Implementation
                            Rate = (decimal)d.StockRegisterRate
                        }).ToList().Sum(x => x.SIN * x.Rate);
             return res;
+        }
+
+        public async Task<Response<List<VWStockBaseUnitWithValue>>> GetStockReportBaseUnitWithValue(GenericGridViewModel model)
+        {
+            try
+            {
+                string query = $" ItemId > 0 {model.Filter}";
+                var data = await (from vw in this._context.VWStockBaseUnitWithValue.Where(query)
+                                  join i in this._context.ItemMaster on vw.ItemId equals i.ItemMasterItemId
+                                  select new VWStockBaseUnitWithValue()
+                                  {
+                                      ItemId = vw.ItemId,
+                                      Stock = (decimal)vw.Stock,
+                                      ItemName = (string)vw.ItemName,
+                                      RelativeNO = vw.RelativeNO,
+                                      UnitId = vw.UnitId,
+                                      UnitShortName = (string)vw.UnitShortName,
+                                      AVGRATE = vw.AVGRATE,
+                                      AMOUNT = vw.AMOUNT,
+                                      AVGPURCHASEValue = vw.AVGPURCHASEValue,
+                                      ItemNo = i.ItemMasterPartNo
+                                  }).ToListAsync();
+                return Response<List<VWStockBaseUnitWithValue>>.Success(data, "Data Were Found");
+            }
+            catch (Exception ex)
+            {
+                return Response<List<VWStockBaseUnitWithValue>>.Fail(new List<VWStockBaseUnitWithValue>(), "Not Data Were Found");
+            }
         }
         //public async Task<Response<StockMovementIN>> GetStockMovementINReport(StockFilterModel model)
         //{

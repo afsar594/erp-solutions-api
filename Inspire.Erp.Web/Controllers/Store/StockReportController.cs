@@ -101,5 +101,11 @@ namespace Inspire.Erp.Web.Controllers.Store
             return Ok(results);
         }
 
+        [HttpPost]
+        [Route("GetStockReportBaseUnitWithValue")]
+        public async Task<IActionResult> GetStockReportBaseUnitWithValue(GenericGridViewModel model)
+        {
+            return Ok( await _openingStockService.GetStockReportBaseUnitWithValue(model));
+        }
     }
 }
