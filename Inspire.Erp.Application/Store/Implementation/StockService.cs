@@ -46,10 +46,9 @@ namespace Inspire.Erp.Application.Store.Implementation
 
         public StockService(InspireErpDBContext context, ILogger<StockService> logger)
         {
-
+            
             _logger = logger;
             _context = context;
-
         }
 
         public async Task<Response<List<StockReportBaseUnitResponse>>> GetStockReportBaseUnitList(StockFilterModel model)
@@ -68,12 +67,12 @@ namespace Inspire.Erp.Application.Store.Implementation
                              });
 
 
-                var results = await (from im in _context.ItemMaster.Where(x => x.ItemMasterItemName.ToLower().Contains(model.ItemName.ToLower())
-                                     // && x.ItemMasterDefaultLocationName.ToLower().Contains(model.Location.ToLower()) 
-                                     && (model.LocationId == null || x.ItemMasterLocationId == model.LocationId)
-                                     && (model.ItemId == null || x.ItemMasterItemId == model.ItemId)
-                                     && (model.ItemGroupId == null || x.ItemMasterRef1 == model.ItemGroupId.ToString())
-                                     )
+                       var results = await (from im in _context.ItemMaster.Where(x=>x.ItemMasterItemName.ToLower().Contains(model.ItemName.ToLower())
+                                            // && x.ItemMasterDefaultLocationName.ToLower().Contains(model.Location.ToLower()) 
+                                            && (model.LocationId == null || x.ItemMasterLocationId == model.LocationId)
+                                            && (model.ItemId == null || x.ItemMasterItemId == model.ItemId)
+                                            && (model.ItemGroupId==null || x.ItemMasterRef1==model.ItemGroupId.ToString())
+                                            )
 
                                      join sr in _context.StockRegister on im.ItemMasterItemId equals sr.StockRegisterMaterialID.GetValueOrDefault() into gim
                                      from y in gim.DefaultIfEmpty()
@@ -382,9 +381,6 @@ namespace Inspire.Erp.Application.Store.Implementation
                              }).ToList();
 
                 stockMov.StockMovementInOut = queryInOut;
-
-
-
                 return Response<StockMovementReportResponse>.Success(stockMov, "Data found");
             }
             catch (Exception ex)
