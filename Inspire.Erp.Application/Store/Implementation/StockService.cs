@@ -44,10 +44,8 @@ namespace Inspire.Erp.Application.Store.Implementation
 
         public StockService(InspireErpDBContext context, ILogger<StockService> logger)
         {
-            
             _logger = logger;
             _context = context;
-
         }
 
         public async Task<Response<List<StockReportBaseUnitResponse>>>   GetStockReportBaseUnitList(StockFilterModel model)
@@ -64,7 +62,6 @@ namespace Inspire.Erp.Application.Store.Implementation
                                  UnitId = g.Key.UnitDetailsId,
                                  ConTyp = g.Max(s => s.UnitDetailsConversionType)
                              });
-
 
                        var results = await (from im in _context.ItemMaster.Where(x=>x.ItemMasterItemName.ToLower().Contains(model.ItemName.ToLower())
                                             // && x.ItemMasterDefaultLocationName.ToLower().Contains(model.Location.ToLower()) 
@@ -375,9 +372,6 @@ namespace Inspire.Erp.Application.Store.Implementation
                              }).ToList();
 
                 stockMov.StockMovementInOut = queryInOut;
-
-
-
                 return Response<StockMovementReportResponse>.Success(stockMov, "Data found");
             }
             catch (Exception ex)

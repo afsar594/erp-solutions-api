@@ -168,9 +168,6 @@ namespace Inspire.Erp.Web.Controllers
            var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
             List<AccountsTransactions> accountsTransactions = new List<AccountsTransactions>();
 
-
-           
-
             //var param4 = _mapper.Map<List<StockRegister>>(voucherCompositeView.StockRegister);
             var xs = _purchaseRequisitionService.UpdatePurchaseRequisition(param1, accountsTransactions, param2
                 //, param4

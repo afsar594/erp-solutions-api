@@ -331,12 +331,21 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
             };
             return tempReportAccStatement;
         }
-        public List<ReportAccountsTransactions> MainReport_GetReportAccountsTransactions_PARAM_CLASS(AccountStatementParameters accountStatementParameters, List<ViewAccountsTransactionsVoucherType> viewAccountsTransactionsVoucherType)
+        public List<ReportAccountsTransactions> MainReport_GetReportAccountsTransactions_PARAM_CLASS(AccountStatementParameters accountStatementParameters
+            //, List<ViewAccountsTransactionsVoucherType> viewAccountsTransactionsVoucherType
+            )
         {
-            viewAccountsTransactionsVoucherType = viewAccountsTransactionsVoucherType.Select((k) =>
-                       {
-                           return k;
-                       }).ToList();
+            //viewAccountsTransactionsVoucherType = viewAccountsTransactionsVoucherType.Select((k) =>
+            //           {
+            //               return k;
+            //           }).ToList();
+
+            var voucherTypes = accountStatementParameters.ViewAccountsTransactionsVoucherType.Select((k) =>
+            {
+                return k;
+            }).ToList();
+
+
             if (accountStatementParameters.rptDetails == true)
             {
                 List<ReportAccountsTransactions> reportAccountsTransactions_ALL = _reportAccountsTransactionsRepository.GetAsQueryable().Where(k =>
@@ -349,9 +358,13 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                           && (k.AccountsTransactionsTransDate.Date <= accountStatementParameters.rptDtpTo.Value.Date))
                      && (accountStatementParameters.rptNarration.Trim() == "" ? true : (k.AccountsTransactionsOpposEntryDesc.Trim() == accountStatementParameters.rptNarration.Trim()))
                      && (accountStatementParameters.rptDescription.Trim() == "" ? true : (k.AccountsTransactionsDescription.Trim() == accountStatementParameters.rptDescription.Trim()))
-               && (k.AccountstransactionsDelStatus == false || k.AccountstransactionsDelStatus == null))).OrderBy(x => x.AccountsTransactionsTransDate).ToList();
+                    && (k.AccountstransactionsDelStatus == false || k.AccountstransactionsDelStatus == null)
+                     && (voucherTypes.Count > 0  ? voucherTypes.Contains(k.AccountsTransactionsVoucherType):true)
+                    )
+                    
+                    ).OrderBy(x => x.AccountsTransactionsTransDate).ToList();
 
-                if (accountStatementParameters.rptDateRange == true)
+                if(accountStatementParameters.rptDateRange == true)
                 {
                     if (accountStatementParameters.rptHideOpeningBalance == false)
                     {
@@ -364,7 +377,9 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                               && (accountStatementParameters.rptDateRange == false ? true : (k.AccountsTransactionsTransDate.Date < accountStatementParameters.rptDtpFrom.Value.Date))
                               && (accountStatementParameters.rptNarration.Trim() == "" ? true : (k.AccountsTransactionsOpposEntryDesc.Trim() == accountStatementParameters.rptNarration.Trim()))
                               && (accountStatementParameters.rptDescription.Trim() == "" ? true : (k.AccountsTransactionsDescription.Trim() == accountStatementParameters.rptDescription.Trim()))
-                              && (k.AccountstransactionsDelStatus == false || k.AccountstransactionsDelStatus == null))).Select(c =>
+                              && (k.AccountstransactionsDelStatus == false || k.AccountstransactionsDelStatus == null)
+                              && (voucherTypes.Count > 0 ? voucherTypes.Contains(k.AccountsTransactionsVoucherType) : true)
+                              )).Select(c =>
                               new { difference = c.AccountsTransactionsDebit - c.AccountsTransactionsCredit }))
                                     .Sum(b => b.difference);
                         decimal dblOpeningBalCredit = 0;
@@ -460,7 +475,12 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                             && (k.AccountsTransactionsTransDate.Date <= accountStatementParameters.rptDtpTo.Value.Date))
                        && (accountStatementParameters.rptNarration.Trim() == "" ? true : (k.AccountsTransactionsOpposEntryDesc.Trim() == accountStatementParameters.rptNarration.Trim()))
                        && (accountStatementParameters.rptDescription.Trim() == "" ? true : (k.AccountsTransactionsDescription.Trim() == accountStatementParameters.rptDescription.Trim()))
-                            && (k.AccountstransactionsDelStatus == false || k.AccountstransactionsDelStatus == null))).Select(c =>
+                            && (k.AccountstransactionsDelStatus == false || k.AccountstransactionsDelStatus == null)
+                            && (voucherTypes.Count > 0 ? voucherTypes.Contains(k.AccountsTransactionsVoucherType) : true)
+                            )
+                            
+                            
+                            ).Select(c =>
                             new { difference = c.AccountsTransactionsDebit }))
                                   .Sum(b => b.difference);
                 var Credit = (_reportAccountsTransactionsRepository.GetAsQueryable().Where(k =>
@@ -473,7 +493,9 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                            && (k.AccountsTransactionsTransDate.Date <= accountStatementParameters.rptDtpTo.Value.Date))
                       && (accountStatementParameters.rptNarration.Trim() == "" ? true : (k.AccountsTransactionsOpposEntryDesc.Trim() == accountStatementParameters.rptNarration.Trim()))
                       && (accountStatementParameters.rptDescription.Trim() == "" ? true : (k.AccountsTransactionsDescription.Trim() == accountStatementParameters.rptDescription.Trim()))
-                           && (k.AccountstransactionsDelStatus == false || k.AccountstransactionsDelStatus == null))).Select(c =>
+                           && (k.AccountstransactionsDelStatus == false || k.AccountstransactionsDelStatus == null)
+                           && (voucherTypes.Count > 0 ? voucherTypes.Contains(k.AccountsTransactionsVoucherType) : true)
+                           )).Select(c =>
                            new { difference = c.AccountsTransactionsCredit }))
                                  .Sum(b => b.difference);
                 ReportAccountsTransactions Summ_ReportAccountsTransactions = new ReportAccountsTransactions
@@ -537,7 +559,10 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                              && (accountStatementParameters.rptDateRange == false ? true : (k.AccountsTransactionsTransDate.Date < accountStatementParameters.rptDtpFrom.Value.Date))
                              && (accountStatementParameters.rptNarration.Trim() == "" ? true : (k.AccountsTransactionsOpposEntryDesc.Trim() == accountStatementParameters.rptNarration.Trim()))
                              && (accountStatementParameters.rptDescription.Trim() == "" ? true : (k.AccountsTransactionsDescription.Trim() == accountStatementParameters.rptDescription.Trim()))
-                             && (k.AccountstransactionsDelStatus == false || k.AccountstransactionsDelStatus == null))).Select(c =>
+                             && (k.AccountstransactionsDelStatus == false || k.AccountstransactionsDelStatus == null)
+                             && (voucherTypes.Count > 0 ? voucherTypes.Contains(k.AccountsTransactionsVoucherType) : true)
+
+                             )).Select(c =>
                              new { difference = c.AccountsTransactionsDebit - c.AccountsTransactionsCredit }))
                                    .Sum(b => b.difference);
                 if (accountStatementParameters.rptDateRange == true)

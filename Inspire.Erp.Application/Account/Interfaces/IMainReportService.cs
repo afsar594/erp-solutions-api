@@ -11,7 +11,9 @@ namespace Inspire.Erp.Application.Account.Interfaces
 
         //public IEnumerable<ReportAccountsTransactions> MainReport_GetReportAccountsTransactions(string AccNo, int Location, int Job, int CostCenter, DateTime FromDate, DateTime ToDate, Boolean HideOpeningBal, string Narration, string Description,string TypeList);
         public IEnumerable<ReportAccountsTransactions> MainReport_GetReportAccountsTransactions(string AccNo, int Location, int Job, int CostCenter);
-        public List<ReportAccountsTransactions> MainReport_GetReportAccountsTransactions_PARAM_CLASS(AccountStatementParameters accountStatementParameters, List<ViewAccountsTransactionsVoucherType> viewAccountsTransactionsVoucherType);
+        public List<ReportAccountsTransactions> MainReport_GetReportAccountsTransactions_PARAM_CLASS(AccountStatementParameters accountStatementParameters
+            //, List<ViewAccountsTransactionsVoucherType> viewAccountsTransactionsVoucherType
+            );
         public IEnumerable<ReportStockRegister> MainReport_GetReportStockRegister();
         public IEnumerable<ViewAccountsTransactionsVoucherType> MainReport_GetAccountsTransactions_VoucherType();
         public IEnumerable<ReportStockBaseUnit> MainReport_GetReportStockLedger_PARAM_CLASS(StockLedgerParameters stockLedgerParameters, List<ViewStockTransferType> viewStockTransferType);
