@@ -1,7 +1,10 @@
 ﻿using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Domain.Modals;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Inspire.Erp.Application.Master
 {
@@ -25,5 +28,7 @@ namespace Inspire.Erp.Application.Master
         //   public IEnumerable<ItemMaster> GetAllItemSearchFilter(string group, string name);
         public IEnumerable<ItemMaster> GetAllItemGroupAndSubGroup();
         public int ItemMasterIdMax();
+
+        Task<Response<List<ItemResponse>>> GetItemsBySearch(string filter);
     }
 }
