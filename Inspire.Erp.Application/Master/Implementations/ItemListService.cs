@@ -15,6 +15,7 @@ using System.Xml.Linq;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using System.IO;
 
 namespace Inspire.Erp.Application.Master
 {
@@ -77,8 +78,8 @@ namespace Inspire.Erp.Application.Master
                                  SupplierName = Convert.ToString(S.SuppliersInsName) ?? null,
                                  ItemMasterAccountNo = IM.ItemMasterAccountNo ?? 0
                              }).ToList();
-
-                if (filteModle.IsContaining == true)
+                
+                 if (filteModle.IsContaining == true)
                 {
                     if (filteModle.Barcode != "" && filteModle.Barcode != "string")
                     {
@@ -142,6 +143,25 @@ namespace Inspire.Erp.Application.Master
 
             }
         }
+        public IEnumerable<ItemListViewModel> UpdateRateItemList(RateItemListrModel dates)
+        {
+            try
+            {
+                _unitDetailsRepo.BeginTransaction();
 
+                var detailData = _unitDetailsRepo.GetAsQueryable().Where(o => o.UnitDetailsUnitId == Convert.ToInt32(dates.id)).FirstOrDefault();
+                detailData.UnitDetailsRate = Convert.ToDouble(dates.rare);
+                _unitDetailsRepo.Update(detailData);
+                _unitDetailsRepo.TransactionCommit();
+                return this.GetAllItemListSearch(null); 
+
+            }
+            catch (Exception ex)
+            {
+                _unitDetailsRepo.TransactionRollback();
+                throw ex;
+            }
+        }
+        
     }
 }

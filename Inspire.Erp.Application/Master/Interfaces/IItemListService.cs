@@ -9,6 +9,7 @@ namespace Inspire.Erp.Application.Master
     {
         
         public IEnumerable<ItemListViewModel> GetAllItemListSearch(ItemFilterModel filteModle);
+        public IEnumerable<ItemListViewModel> UpdateRateItemList(RateItemListrModel dates);
 
-     }
+    }
 }

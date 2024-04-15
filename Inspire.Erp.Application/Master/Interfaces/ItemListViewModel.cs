@@ -41,4 +41,9 @@
         public bool IsContaining { get; set; }
 
     }
+    public class RateItemListrModel
+    {
+        public int? id { get; set; }
+        public double? rare { get; set; }
+    }
 }
