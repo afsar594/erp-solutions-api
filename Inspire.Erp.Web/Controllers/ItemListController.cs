@@ -44,17 +44,18 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpPost]
         [Route("UpdateRateItemList")]
-       public ApiResponse<Application.Master.ItemListViewModel> UpdateRateItemList(Application.Master.RateItemListrModel dates)
+       public ApiResponse<List<Application.Master.ItemListViewModel>> UpdateRateItemList(RateItemListrModel dates)
         {
-            var param1 = _mapper.Map<Application.Master.RateItemListrModel>(dates);
-            var UpdateJobInvoiceViewModel = IItemListService.UpdateRateItemList(param1);
+             var UpdateJobInvoiceViewModel = IItemListService.UpdateRateItemList(dates);
+            var x = _mapper.Map<List<Application.Master.ItemListViewModel>>(UpdateJobInvoiceViewModel);
 
 
-            ApiResponse<Application.Master.ItemListViewModel> apiResponse = new ApiResponse<Application.Master.ItemListViewModel>
+            ApiResponse<List<Application.Master.ItemListViewModel>> apiResponse = new ApiResponse<List<Application.Master.ItemListViewModel>>
+
             {
                 Valid = true,
-                Result = _mapper.Map<Application.Master.ItemListViewModel>(UpdateJobInvoiceViewModel),
-                Message = JobInvoiceMessage.UpdateJobInvoice
+                Result =x,
+                Message = "Rate has been updated."
 
             };
             return apiResponse;

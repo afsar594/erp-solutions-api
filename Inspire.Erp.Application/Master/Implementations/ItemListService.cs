@@ -78,8 +78,12 @@ namespace Inspire.Erp.Application.Master
                                  SupplierName = Convert.ToString(S.SuppliersInsName) ?? null,
                                  ItemMasterAccountNo = IM.ItemMasterAccountNo ?? 0
                              }).ToList();
-                
-                 if (filteModle.IsContaining == true)
+                if (filteModle==null )
+                {
+                    return query;
+
+                }
+                else if (filteModle.IsContaining == true )
                 {
                     if (filteModle.Barcode != "" && filteModle.Barcode != "string")
                     {
