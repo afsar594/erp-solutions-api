@@ -23,8 +23,9 @@
         public string SupplierName { get; set; }
 
         public long? ItemMasterAccountNo { get; set; }
-
+        public long? UnitDetailsID { get; set; }
         
+
 
     }
 

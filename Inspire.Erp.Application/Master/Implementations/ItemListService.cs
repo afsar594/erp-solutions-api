@@ -57,6 +57,7 @@ namespace Inspire.Erp.Application.Master
 
                              select new ItemListViewModel
                              {
+                                 UnitDetailsID= UD.UnitDetailsId,
                                  BarcodePrint = "",
                                  ItemId = (long?)IM.ItemMasterItemId ?? 0,
                                  PartNo = IM.ItemMasterPartNo ?? "",
