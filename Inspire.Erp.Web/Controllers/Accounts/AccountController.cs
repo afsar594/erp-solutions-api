@@ -47,6 +47,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
             _assetsMasterService = assetsMasterService;
             _accountTransactionsServices = accountTransactionsServices;
         }
+
         #region Account Statement 
         [HttpGet("GetAccountMasterDropdown")]
         public async Task<IActionResult> GetAccountMasterDropdown()
@@ -201,7 +202,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
             return Ok(await _voucherAllocation.GetAccountTransactions(model));
         }
         [HttpGet("GetSpecificVoucherAllocation")]
-        public async Task<IActionResult> GetSpecificVoucherAllocation(int id = 0)
+        public async Task<IActionResult> GetSpecificVoucherAllocation(string id)
         {
             return Ok(await _voucherAllocation.GetSpecificVoucherAllocation(id));
         }
@@ -237,11 +238,11 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         }
 
         [HttpDelete("DeleteAllocationVoucher")]
-        public IActionResult DeleteAllocationVoucher(long ID)
+        public IActionResult DeleteAllocationVoucher(string id)
         {
             try
             {
-                return Ok(_voucherAllocation.DeleteAllocationVoucher(ID));
+                return Ok(_voucherAllocation.DeleteAllocationVoucher(id));
             }
             catch (System.Exception ex)
             {

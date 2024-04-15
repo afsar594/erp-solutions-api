@@ -64,7 +64,7 @@ namespace Inspire.Erp.Web.Controllers.Store
               public ApiResponse<List<ReportAccountsTransactions>> MainReport_GetReportAccountsTransactions_PARAM_CLASS([FromBody] AccountStatementParametersViewModels voucherCompositeView)
         {
             var param1 = _mapper.Map<AccountStatementParameters>(voucherCompositeView);
-            var param2 = _mapper.Map<List<ViewAccountsTransactionsVoucherType>>(voucherCompositeView.ViewAccountsTransactionsVoucherType);
+            //var param2 = _mapper.Map<List<ViewAccountsTransactionsVoucherType>>(voucherCompositeView.ViewAccountsTransactionsVoucherType);
 
             ApiResponse<List<ReportAccountsTransactions>> apiResponse = new ApiResponse<List<ReportAccountsTransactions>>
             {
@@ -72,12 +72,12 @@ namespace Inspire.Erp.Web.Controllers.Store
                 Valid = true,
 
                 Result = _mapper.Map<List<ReportAccountsTransactions>>(_mainReportService.MainReport_GetReportAccountsTransactions_PARAM_CLASS(
-                     param1 , param2 
+                     param1 
+                     //, param2 
                 )),
                 Message = ""
             };
             return apiResponse;
-
         }
 
 
@@ -93,7 +93,6 @@ namespace Inspire.Erp.Web.Controllers.Store
                 Message = ""
             };
             return apiResponse;
-
         }
 
         [HttpPost]
@@ -102,10 +101,8 @@ namespace Inspire.Erp.Web.Controllers.Store
         {
             var param1 = _mapper.Map<StockLedgerParameters>(voucherCompositeView);
             var param2 = _mapper.Map<List<ViewStockTransferType>>(voucherCompositeView.viewStockTransferType);
-
             ApiResponse<List<ReportStockBaseUnit>> apiResponse = new ApiResponse<List<ReportStockBaseUnit>>
             {
-
                 Valid = true,
                 Result = _mapper.Map<List<ReportStockBaseUnit>>(_mainReportService.MainReport_GetReportStockLedger_PARAM_CLASS(
                      param1, param2
@@ -113,10 +110,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 Message = ""
             };
             return apiResponse;
-
         }
-
-
 
         [HttpPost]
         [Route("MainReport_GetReportStockLedger_Location_PARAM_CLASS")]
@@ -136,7 +130,6 @@ namespace Inspire.Erp.Web.Controllers.Store
                 Message = ""
             };
             return apiResponse;
-
         }
 
         [HttpPost]
@@ -180,7 +173,6 @@ namespace Inspire.Erp.Web.Controllers.Store
                 Message = ""
             };
             return apiResponse;
-
         }
 
         [HttpPost]

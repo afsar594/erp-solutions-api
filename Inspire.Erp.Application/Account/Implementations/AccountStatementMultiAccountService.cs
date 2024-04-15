@@ -381,7 +381,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             {
                 return Response<StatementOfAccountFCSummResponse>.Fail(new StatementOfAccountFCSummResponse(), ex.Message);
             }
-        }
+        }  
 
         public async Task<Response<ReturnPrintResponse>> VoucherPrint(GenericGridViewModel model)
         {

@@ -34,9 +34,9 @@ namespace Inspire.Erp.Application.Master
                                              .Max(o => o == null ? 0 : o.MaSno)) + 1;
 
                 long AccNo = masteraccountstablerepository.GetAsQueryable()
-                                             .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo== MasterAccountsTable.MaRelativeNo)
+                                             .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == MasterAccountsTable.MaRelativeNo)
                                              .DefaultIfEmpty()
-                                             .Max(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length-3,3))) + 1;
+                                             .Max(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length - 3, 3))) + 1;
 
 
                 MasterAccountsTable.MaAccNo = MasterAccountsTable.MaRelativeNo + String.Format("{0:000}", AccNo);
@@ -86,7 +86,7 @@ namespace Inspire.Erp.Application.Master
                     MasterAccountsTable.MaMainHead = mainhead;
                     MasterAccountsTable.MaSubHead = Subhead;
                     MasterAccountsTable.MaStatus = AccountStatus.AccStatus;
-                    if (MasterAccountsTable.MaAccType == ItemMasterStatus.Group|| MasterAccountsTable.MaAccType == AccountMasterStatus.SubItem)
+                    if (MasterAccountsTable.MaAccType == ItemMasterStatus.Group || MasterAccountsTable.MaAccType == AccountMasterStatus.SubItem)
                     {
 
                         MasterAccountsTable.MaImageKey = ItemMasterStatus.GroupItem;
@@ -133,7 +133,7 @@ namespace Inspire.Erp.Application.Master
                                              .Max(o => o == null ? 0 : o.MaSno)) + 1;
                 var accCheckDtls = masteraccountstablerepository.GetAsQueryable()
                     .Where(m => m.MaRelativeNo == MasterAccountsTable.MaRelativeNo).Select(b => b).ToList();
-                
+
 
 
                 long AccNo = masteraccountstablerepository.GetAsQueryable()
@@ -180,7 +180,7 @@ namespace Inspire.Erp.Application.Master
                         MasterAccountsTable.MaMainHead = mainhead;
                         MasterAccountsTable.MaSubHead = Subhead;
                     }
-                                       
+
                     MasterAccountsTable.MaStatus = AccountStatus.AccStatus;
                     if (MasterAccountsTable.MaAccType == ItemMasterStatus.Group)
                     {
@@ -191,7 +191,7 @@ namespace Inspire.Erp.Application.Master
                     {
                         MasterAccountsTable.MaImageKey = ItemMasterStatus.SubItem;
                     }
-                    
+
                 }
                 else if (maLen <= 5)
                 {
@@ -336,7 +336,7 @@ namespace Inspire.Erp.Application.Master
             try
             {
                 MasterAccountsTable = masteraccountstablerepository.GetAsQueryable().Where(k => k.MaAccNo != "" && (k.MaDelStatus == false || k.MaDelStatus == null)
-                && k.MaAccType == AccountMasterStatus.Account ).Select(k => k);
+                && k.MaAccType == AccountMasterStatus.Group).Select(k => k);
                 //|| k.MasterAccountsTableAccType == AccountMasterStatus.   ,
             }
             catch (Exception ex)
@@ -454,6 +454,49 @@ namespace Inspire.Erp.Application.Master
             return accountMasters;
         }
 
+        public IEnumerable<MasterAccountsTable> InsertAccountGroup(MasterAccountsTable masterAccountsTable)
+        {
+            try
+            {
+                masterAccountsTable.MaSno = Convert.ToInt32(masteraccountstablerepository.GetAsQueryable()
+                                             .Where(x => Convert.ToInt32(x.MaSno) > 0)
+                                             .DefaultIfEmpty()
+                                             .Max(o => o == null ? 0 : o.MaSno)) + 1;
+                var AccNo = masteraccountstablerepository.GetAsQueryable()
+                                             .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == masterAccountsTable.MaRelativeNo)
+                                             .DefaultIfEmpty()
+                                             .Max(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length - 3, 3))) + 1;
+
+
+                var mainHead = masteraccountstablerepository.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == masterAccountsTable.MaRelativeNo).MaMainHead;
+                var subHead = masteraccountstablerepository.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == masterAccountsTable.MaRelativeNo).MaSubHead;
+
+                masterAccountsTable.MaMainHead = mainHead ?? "";
+                masterAccountsTable.MaSubHead = subHead ?? "";
+                masterAccountsTable.MaStatus = AccountStatus.AccStatus;
+
+                if (masterAccountsTable.MaAccType == ItemMasterStatus.Group || masterAccountsTable.MaAccType == AccountMasterStatus.SubItem)
+                {
+
+                    masterAccountsTable.MaImageKey = ItemMasterStatus.GroupItem;
+                }
+                else
+                {
+                    masterAccountsTable.MaImageKey = ItemMasterStatus.SubItem;
+                }
+
+                masterAccountsTable.MaAccNo = masterAccountsTable.MaRelativeNo + String.Format("{0:00}", AccNo);
+
+                masteraccountstablerepository.Insert(masterAccountsTable);
+                return this.GetAllAccount();
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
         public MasterAccountsTable AddNewAccount(MasterAccountsTable masterAccountsTable)
         {
             try
@@ -472,7 +515,7 @@ namespace Inspire.Erp.Application.Master
                 var mainHead = masteraccountstablerepository.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == masterAccountsTable.MaRelativeNo).MaMainHead;
                 var subHead = masteraccountstablerepository.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == masterAccountsTable.MaRelativeNo).MaSubHead;
                 masterAccountsTable.MaMainHead = mainHead ?? "";
-                masterAccountsTable.MaSubHead = subHead?? "";
+                masterAccountsTable.MaSubHead = subHead ?? "";
 
 
 
@@ -489,49 +532,6 @@ namespace Inspire.Erp.Application.Master
 
                 masteraccountstablerepository.Insert(masterAccountsTable);
                 return masterAccountsTable;
-
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-        }
-
-        public IEnumerable<MasterAccountsTable> InsertAccountGroup(MasterAccountsTable masterAccountsTable)
-        {
-            try
-            {
-                masterAccountsTable.MaSno = Convert.ToInt32(masteraccountstablerepository.GetAsQueryable()
-                                             .Where(x => Convert.ToInt32(x.MaSno) > 0)
-                                             .DefaultIfEmpty()
-                                             .Max(o => o == null ? 0 : o.MaSno)) + 1;
-                var AccNo = masteraccountstablerepository.GetAsQueryable()
-                                             .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == masterAccountsTable.MaRelativeNo)
-                                             .DefaultIfEmpty()
-                                             .Max(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length - 3, 3))) + 1;
-
-
-                var mainHead = masteraccountstablerepository.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == masterAccountsTable.MaRelativeNo).MaMainHead;
-                var subHead = masteraccountstablerepository.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == masterAccountsTable.MaRelativeNo).MaSubHead;
-                
-                masterAccountsTable.MaMainHead = mainHead ?? "";
-                masterAccountsTable.MaSubHead = subHead ?? "";
-                masterAccountsTable.MaStatus = AccountStatus.AccStatus;
-
-                if (masterAccountsTable.MaAccType == ItemMasterStatus.Group || masterAccountsTable.MaAccType == AccountMasterStatus.SubItem)
-                {
-
-                    masterAccountsTable.MaImageKey = ItemMasterStatus.GroupItem;
-                }
-                else
-                {
-                    masterAccountsTable.MaImageKey = ItemMasterStatus.SubItem;
-                }
-
-                masterAccountsTable.MaAccNo = masterAccountsTable.MaRelativeNo + String.Format("{0:00}", AccNo);
-            
-                masteraccountstablerepository.Insert(masterAccountsTable);
-                return this.GetAllAccount();
 
             }
             catch (Exception ex)

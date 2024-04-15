@@ -9,12 +9,13 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers
 {
     [Route("api/master/item")]
     [Produces("application/json")]
-    [Authorize(AuthenticationSchemes = "Bearer")]
+    //[Authorize(AuthenticationSchemes = "Bearer")]
     [ApiController]
     public class ItemMasterController : ControllerBase
     {
@@ -175,6 +176,13 @@ namespace Inspire.Erp.Web.Controllers
             };
 
             return apiResponse;
+
+        }
+
+        [HttpGet("GetItemsBySearch")]
+        public async Task<IActionResult> GetItemsBySearch(string query)
+        {
+            return Ok(await itemMasterService.GetItemsBySearch(query));
 
         }
 

@@ -344,6 +344,7 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<UserWebAccSettings> UserWebAccSettings { get; set; }
         public virtual DbSet<VendorMaster> VendorMaster { get; set; }
         public virtual DbSet<ViewAccountsTransactionsVoucherType> ViewAccountsTransactionsVoucherType { get; set; }
+        public virtual DbSet<VWStockBaseUnitWithValue> VWStockBaseUnitWithValue { get; set; }
         public virtual DbSet<ViewQuotation> ViewQuotation { get; set; }
         public virtual DbSet<VouchersNumbers> VouchersNumbers { get; set; }
         public virtual DbSet<WorkGroupMaster> WorkGroupMaster { get; set; }
@@ -23125,6 +23126,13 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnName("AccountsTransactions_VoucherType")
                     .HasMaxLength(25)
                     .IsUnicode(false);
+            });
+
+
+            modelBuilder.Entity<VWStockBaseUnitWithValue>(e =>
+            {
+                e.HasNoKey();
+                e.ToView("VW_Stock_Base_Unit_With_Value");
             });
 
             modelBuilder.Entity<ViewQuotation>(entity =>

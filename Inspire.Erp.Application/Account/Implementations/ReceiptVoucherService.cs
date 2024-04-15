@@ -2,6 +2,7 @@
 using Inspire.Erp.Application.Common;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Domain.Models;
 using Inspire.Erp.Infrastructure.Database;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.EntityFrameworkCore;
@@ -22,7 +23,7 @@ namespace Inspire.Erp.Application.Account.Implementations
         private IRepository<AccountsTransactions> _accountTransactionRepository;
         private IRepository<ReceiptVoucherMaster> _receiptVoucherRepository;
         private IRepository<ReceiptVoucherDetails> _receiptVoucherDetailsRepository;
-        private IRepository<ProgramSettings> _programsettingsRepository;
+        private IRepository<Domain.Entities.ProgramSettings> _programsettingsRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
         private readonly IPaymentVoucherService _IPaymentVoucherService;
         private IRepository<UserTracking> UserTracking;
@@ -39,7 +40,7 @@ namespace Inspire.Erp.Application.Account.Implementations
 
         private IRepository<UserFile> UserFile;
         private readonly InspireErpDBContext context;
-        public ReceiptVoucherService(IRepository<AccountsTransactions> accountTransactionRepository, IRepository<ProgramSettings> programsettingsRepository,
+        public ReceiptVoucherService(IRepository<AccountsTransactions> accountTransactionRepository, IRepository<Domain.Entities.ProgramSettings> programsettingsRepository,
             IRepository<VouchersNumbers> voucherNumbers,
             IRepository<ReceiptVoucherMaster> receiptVoucherRepository, IRepository<ReceiptVoucherDetails> receiptVoucherDetailsRepository,
             IRepository<UserFile> _UserFile, IRepository<UserTracking> _UserTracking, InspireErpDBContext _context,
@@ -173,8 +174,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     k.AccountstransactionsDelStatus = false;
                     k.AccountsTransactionsAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
-                    k.AccountsTransactionsFcAllocDebit = k.AccountsTransactionsDebit;
-                    k.AccountsTransactionsFcAllocCredit = k.AccountsTransactionsCredit;
+                    k.AccountsTransactionsFcAllocDebit = 0;
+                    k.AccountsTransactionsFcAllocCredit = 0;
                     k.AccountsTransactionsFcAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
                     return k;
                 }).ToList();
@@ -308,33 +309,44 @@ namespace Inspire.Erp.Application.Account.Implementations
                     _voucherAllocationDetails.SaveChangesAsync();
 
                     //here need to update the accounts transaction table for allocation
-                    List<AccountsTransactions> accountsTransactions = new List<AccountsTransactions>();
                     foreach (var item in model.VoucherAllocationDetails)
                     {
+                        if (item.AllocationVoucherDetailsTransSno == 0) continue;
                         AccountsTransactions acc = _accountTransactionRepository.GetAsQueryable().Where(x => x.AccountsTransactionsTransSno == item.AllocationVoucherDetailsTransSno).FirstOrDefault();
                         var currency = _currencyMaster.GetAsQueryable().Where(c => c.CurrencyMasterCurrencyId == acc.AccountsTransactionsCurrencyId).Distinct().FirstOrDefault();
+                        decimal cRate = currency == null ? 1 : currency.CurrencyMasterCurrencyRate == null ? 1 : (decimal)currency.CurrencyMasterCurrencyRate;
                         if (acc != null)
                         {
-                            if (item.AllocationVoucherDetailsAllocDebit > 0)
+                            if (acc.AccountsTransactionsDebit > 0)
                             {
 
-                                acc.AccountsTransactionsAllocDebit = (decimal)(item.AccountsTransactionsAllocBalance != null ? item.AllocationVoucherDetailsNetAllocation : 0); //NetAlloc;
-                                acc.AccountsTransactionsFcAllocDebit = (decimal)(item.AllocationVoucherDetailsAllocDebit != null ? item.AllocationVoucherDetailsAllocDebit : 1) * (currency != null ? (decimal)(currency.CurrencyMasterCurrencyRate != null ? currency.CurrencyMasterCurrencyRate : 1) : 1);
-                                acc.AccountsTransactionsFcAllocBalance = acc.AccountsTransactionsDebit - (acc.AccountsTransactionsFcAllocDebit != null ? acc.AccountsTransactionsFcAllocDebit : 0 + (decimal)(item.AllocationVoucherDetailsAllocDebit != null ? item.AllocationVoucherDetailsAllocDebit : 0));
-                                acc.AccountsTransactionsAllocBalance = acc.AccountsTransactionsFcDebit != null ? acc.AccountsTransactionsFcDebit : 0 - (acc.AccountsTransactionsAllocDebit != null ? acc.AccountsTransactionsAllocDebit : 0 + ((decimal)(item.AllocationVoucherDetailsAllocDebit != null ? item.AllocationVoucherDetailsAllocDebit : 1) * (currency != null ? (decimal)(currency.CurrencyMasterCurrencyRate != null ? currency.CurrencyMasterCurrencyRate : 1) : 1)));
-                            }
-                            else if (item.AllocationVoucherDetailsAllocCredit > 0)
-                            {
-                                acc.AccountsTransactionsAllocCredit = (decimal)(item.AccountsTransactionsAllocBalance != null ? item.AllocationVoucherDetailsNetAllocation : 0); //NetAlloc;;
-                                acc.AccountsTransactionsFcAllocCredit = (decimal)(item.AllocationVoucherDetailsAllocCredit != null ? item.AllocationVoucherDetailsAllocCredit : 1) * (currency != null ? (decimal)(currency.CurrencyMasterCurrencyRate != null ? currency.CurrencyMasterCurrencyRate : 1) : 1);
-                                acc.AccountsTransactionsFcAllocBalance = acc.AccountsTransactionsCredit - (acc.AccountsTransactionsFcAllocCredit != null ? acc.AccountsTransactionsFcAllocCredit : 0 + (decimal)(item.AllocationVoucherDetailsAllocCredit != null ? item.AllocationVoucherDetailsAllocCredit : 0));
-                                acc.AccountsTransactionsAllocBalance = acc.AccountsTransactionsFcCredit != null ? acc.AccountsTransactionsFcCredit : 0 - (acc.AccountsTransactionsAllocCredit != null ? acc.AccountsTransactionsAllocCredit : 0 + ((decimal)(item.AllocationVoucherDetailsAllocCredit != null ? item.AllocationVoucherDetailsAllocCredit : 1) * (currency != null ? (decimal)(currency.CurrencyMasterCurrencyRate != null ? currency.CurrencyMasterCurrencyRate : 1) : 1)));
-                            }
+                                decimal debit = acc.AccountsTransactionsDebit == null ? 0 : (decimal)acc.AccountsTransactionsDebit;
+                                decimal alloDebit = acc.AccountsTransactionsAllocDebit == null ? 0 : (decimal)acc.AccountsTransactionsAllocDebit;
+                                decimal fc_alloDebit = acc.AccountsTransactionsFcAllocDebit == null ? 0 : (decimal)acc.AccountsTransactionsFcAllocDebit;
+                                decimal fcdebit = acc.AccountsTransactionsFcDebit == null ? 0 : (decimal)acc.AccountsTransactionsFcDebit;
 
-                            accountsTransactions.Add(acc);
+                                acc.AccountsTransactionsAllocBalance = debit - (alloDebit + (decimal)item.AllocationVoucherDetailsNetAllocation);
+                                acc.AccountsTransactionsAllocDebit = alloDebit + (decimal)item.AllocationVoucherDetailsNetAllocation;
+                                acc.AccountsTransactionsFcAllocDebit = fc_alloDebit + (decimal)item.AllocationVoucherDetailsNetAllocation * cRate;
+                                acc.AccountsTransactionsFcAllocBalance = fcdebit - (fc_alloDebit + ((decimal)item.AllocationVoucherDetailsNetAllocation) * cRate);
+
+                            }
+                            else if (acc.AccountsTransactionsCredit > 0)
+                            {
+                                decimal credit = acc.AccountsTransactionsCredit == null ? 0 : (decimal)acc.AccountsTransactionsCredit;
+                                decimal alloCredit = acc.AccountsTransactionsAllocCredit == null ? 0 : (decimal)acc.AccountsTransactionsAllocCredit;
+                                decimal fc_alloCredit = acc.AccountsTransactionsFcAllocCredit == null ? 0 : (decimal)acc.AccountsTransactionsFcAllocCredit;
+                                decimal fcCredit = acc.AccountsTransactionsFcCredit == null ? 0 : (decimal)acc.AccountsTransactionsFcCredit;
+
+                                acc.AccountsTransactionsAllocBalance = credit - (alloCredit + (decimal)item.AllocationVoucherDetailsNetAllocation);
+                                acc.AccountsTransactionsAllocCredit = alloCredit + (decimal)item.AllocationVoucherDetailsNetAllocation;
+                                acc.AccountsTransactionsFcAllocCredit = fc_alloCredit + (decimal)item.AllocationVoucherDetailsNetAllocation * cRate;
+                                acc.AccountsTransactionsFcAllocBalance = fcCredit - (fc_alloCredit + ((decimal)item.AllocationVoucherDetailsNetAllocation) * cRate);
+                            }
+                            _accountTransactionRepository.Update(acc);
+
                         }
                     }
-                    _accountTransactionRepository.UpdateList(accountsTransactions);
                 }
 
 
@@ -398,10 +410,40 @@ namespace Inspire.Erp.Application.Account.Implementations
                 voucherdata.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(o => o.AccountsTransactionsVoucherNo == Rvno && o.AccountstransactionsDelStatus == false).ToList();
                 voucherdata.ReceiptVoucherDetails = _receiptVoucherDetailsRepository.GetAsQueryable().Where(o => o.ReceiptVoucherDetailsVoucherNo == Rvno && o.ReceiptVoucherDetailsDelStatus == false).ToList();
                 voucherdata.TrackingData = userTrackngData;
-                voucherdata.rvAllocationDetails = _IPaymentVoucherService.GetAllocationDetails(voucherdata.ReceiptVoucherMasterDrAcNo, voucherdata.ReceiptVoucherMasterVoucherNo).Result   ;
+                voucherdata.rvAllocationDetails = getAllocationDetails(voucherdata.ReceiptVoucherMasterDrAcNo, voucherdata.ReceiptVoucherMasterVoucherNo); //_IPaymentVoucherService.GetAllocationDetails(voucherdata.ReceiptVoucherMasterDrAcNo, voucherdata.ReceiptVoucherMasterVoucherNo).Result   ;
                 return voucherdata;
             }
             return null;
+        }
+
+        private List<Domain.Models.AllocationDetails> getAllocationDetails(string accountNo, string voucherNo)
+        {
+            try
+            {
+                var data = (from hdr in context.AllocationVoucherDetails
+                            join dtl in context.AccountsTransactions on (long)hdr.AllocationVoucherDetailsTransSno equals dtl.AccountsTransactionsTransSno
+                            where (dtl.RefNo == voucherNo &&
+                            dtl.AccountsTransactionsAccNo == accountNo
+                            && dtl.AccountsTransactionsDebit != 0 
+                            && dtl.AccountsTransactionsAllocBalance > 0
+                            )
+                            select new Domain.Models.AllocationDetails()
+                            {
+                                TransDate = dtl.AccountsTransactionsTransDate,
+                                VoucherNo = dtl.AccountsTransactionsVoucherNo,
+                                Type = dtl.AccountsTransactionsVoucherType,
+                                Debit = dtl.AccountsTransactionsAllocDebit,
+                                Credit = dtl.AccountsTransactionsAllocCredit,
+                                Balance = dtl.AccountsTransactionsAllocBalance,
+                                AllocAmount = dtl.AccountsTransactionsFcRate,
+                                NetAllocation = dtl.AccountsTransactionsVatableAmount,
+                            }).ToList();
+                return data;
+            }
+            catch (System.Exception ex)
+            {
+                throw null;
+            }
         }
 
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)

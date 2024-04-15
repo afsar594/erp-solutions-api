@@ -45,7 +45,7 @@ namespace Inspire.Erp.Web.ViewModels
 
 
 
-        public List<ViewAccountsTransactionsVoucherTypeViewModels>? ViewAccountsTransactionsVoucherType { get; set; }
+        public List<string>? ViewAccountsTransactionsVoucherType { get; set; }
          
 
     }

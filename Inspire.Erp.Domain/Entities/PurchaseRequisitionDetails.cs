@@ -38,7 +38,7 @@ namespace Inspire.Erp.Domain.Entities
         public DateTime? PurchaseRequisitionDetailsReqDate { get; set; }
         public string PurchaseRequisitionDetailsReqStatus { get; set; }
         public bool? PurchaseRequisitionDetailsDelStatus { get; set; }
-        public int? PurchaseRequisitionDetailsItemID { get; set; }
+     //   public int? PurchaseRequisitionDetailsItemID { get; set; }
         public virtual PurchaseRequisition PurchaseRequisitionDetailsNoNavigation { get; set; }
     }
 }

@@ -75,8 +75,6 @@ namespace Inspire.Erp.Web.Controllers
         [Route("InsertPurchaseRequisition")]
         public ApiResponse<PurchaseRequisitionViewModel> InsertPurchaseRequisition([FromBody] PurchaseRequisitionViewModel voucherCompositeView)
         {
-
-
             ApiResponse<PurchaseRequisitionViewModel> apiResponse = new ApiResponse<PurchaseRequisitionViewModel>();
             if (_purchaseRequisitionService.GetVouchersNumbers(voucherCompositeView.PurchaseRequisitionNo) == null)
             {
@@ -158,11 +156,7 @@ namespace Inspire.Erp.Web.Controllers
                 };
 
             }
-
-
             return apiResponse;
-
-
         }
 
         [HttpPost]
@@ -173,9 +167,6 @@ namespace Inspire.Erp.Web.Controllers
             var param2 = _mapper.Map<List<PurchaseRequisitionDetails>>(voucherCompositeView.PurchaseRequisitionDetails);
            var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
             List<AccountsTransactions> accountsTransactions = new List<AccountsTransactions>();
-
-
-           
 
             //var param4 = _mapper.Map<List<StockRegister>>(voucherCompositeView.StockRegister);
             var xs = _purchaseRequisitionService.UpdatePurchaseRequisition(param1, accountsTransactions, param2
