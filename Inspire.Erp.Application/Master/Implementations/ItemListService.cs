@@ -155,7 +155,7 @@ namespace Inspire.Erp.Application.Master
                 _unitDetailsRepo.BeginTransaction();
 
                 var detailData = _unitDetailsRepo.GetAsQueryable().Where(o => o.UnitDetailsId == Convert.ToInt64(dates.id)).FirstOrDefault();
-                detailData.UnitDetailsRate = Convert.ToDouble(dates.rare);
+                detailData.UnitDetailsUnitPrice = Convert.ToDouble(dates.UnitPrice);
                 _unitDetailsRepo.Update(detailData);
                 _unitDetailsRepo.TransactionCommit();
                 return this.GetAllItemListSearch(null); 
