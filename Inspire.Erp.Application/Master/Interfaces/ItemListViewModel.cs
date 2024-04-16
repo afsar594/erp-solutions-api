@@ -24,7 +24,7 @@
 
         public long? ItemMasterAccountNo { get; set; }
 
-        
+        public long? UnitDetailsID { get; set; }
 
     }
 
@@ -43,7 +43,7 @@
     }
     public class RateItemListrModel
     {
-        public int? id { get; set; }
+        public long? id { get; set; }
         public double? rare { get; set; }
     }
 }
