@@ -73,6 +73,7 @@ namespace Inspire.Erp.Domain.Enums
         public static String SaveFailed { get { return "Item save failed"; } }
         public static string UpdateFailed { get { return "Item update failed"; } }
         public static string DeleteFailed { get { return "Item delete failed"; } }
+        public static string DeleteFaileds { get { return "Item delete sucessfully"; } }
     }
 
 
