@@ -44,6 +44,6 @@
     public class RateItemListrModel
     {
         public long? id { get; set; }
-        public double? rare { get; set; }
+        public double? UnitPrice { get; set; }
     }
 }
