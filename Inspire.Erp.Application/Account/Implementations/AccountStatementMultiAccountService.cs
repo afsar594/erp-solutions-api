@@ -268,7 +268,9 @@ namespace Inspire.Erp.Application.Account.Implementations
 
                 var AccountTrans= _accountTransaction.GetAsQueryable()
                                                              .Where(x => (model.FromDate==null || x.AccountsTransactionsTransDate >= model.FromDate)
-                                               && (model.ToDate == null || x.AccountsTransactionsTransDate <= model.ToDate) && x.AccountsTransactionsAccNo.Contains(model.Search)).Select(o =>
+                                               && (model.ToDate == null || x.AccountsTransactionsTransDate <= model.ToDate)
+                                                && (model.Filter == null || x.AccountsTransactionsAccNo.Contains(model.Filter)))
+                                             .Select(o =>
 
                                                new StatementOfAccountFCDetailResponse
                                                {
@@ -331,6 +333,27 @@ namespace Inspire.Erp.Application.Account.Implementations
                                                    TotalCredit = Convert.ToDouble(o.Sum(pc => pc.AccountsTransactionsFcCredit ?? 0)),
 
                                                }).ToList();
+
+                //var AccountTrans = _accountTransaction.GetAsQueryable()
+                //                                       .Where(x => (model.FromDate == null || x.AccountsTransactionsTransDate >= model.FromDate)
+                //                         && (model.ToDate == null || x.AccountsTransactionsTransDate <= model.ToDate)
+                //                          //&&  model.accountNos.Contains(x.AccountsTransactionsAccNo)
+                //                          && x.AccountsTransactionsAccNo.ToLower() == model.Filter.ToLower()
+                //                         )
+                //                                          //.GroupBy(r => r.AccountsTransactionsAccNo).Select(o =>
+                //                                          .GroupBy(c => new
+                //                                          {
+                //                                              c.AccountsTransactionsAccNo
+                //                                              //c.A
+
+                //                                          }).Select(o =>
+                //                         new StatementOfAccountFCSummResponse
+                //                         {
+                //                             AccNo = o.Key.AccountsTransactionsAccNo,
+                //                             TotalDebit = Convert.ToDouble(o.Sum(pc => pc.AccountsTransactionsFcDebit ?? 0)),
+                //                             TotalCredit = Convert.ToDouble(o.Sum(pc => pc.AccountsTransactionsFcCredit ?? 0)),
+
+                //                         }).ToList();
 
                 if (AccountTrans.Count > 0)
                 { 

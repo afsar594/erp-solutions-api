@@ -70,12 +70,10 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<CountryMaster> CountryMaster { get; set; }
         public virtual DbSet<CreditNote> CreditNote { get; set; }
         public virtual DbSet<CreditNoteDetails> CreditNoteDetails { get; set; }
-
         public virtual DbSet<IssueReturn> IssueReturn { get; set; }
         public virtual DbSet<IssueReturnDetails> IssueReturnDetails { get; set; }
         public virtual DbSet<IssueVoucher> IssueVoucher { get; set; }
         public virtual DbSet<IssueVoucherDetails> IssueVoucherDetails { get; set; }
-
         public virtual DbSet<CurrencyMaster> CurrencyMaster { get; set; }
         public virtual DbSet<CustomerContacts> CustomerContacts { get; set; }
         public virtual DbSet<CustomerDeliveryNote> CustomerDeliveryNote { get; set; }
