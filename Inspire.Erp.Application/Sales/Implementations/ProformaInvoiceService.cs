@@ -105,6 +105,11 @@ namespace Inspire.Erp.Application.Sales.Implementation
             {
                 repository.BeginTransaction();
                 repository.Update(proformaInvoice);
+
+                proformaInvoice.ProformaInvoiceDetails.ForEach(elemt =>
+                {
+                    elemt.ProformaInvoiceDetailsSlNo = proformaInvoice.ProformaInvoiceId;
+                });
                 detailrepository.UpdateList(proformaInvoice.ProformaInvoiceDetails);
                 repository.TransactionCommit();
                 return this.GetProformaInvoiceById(proformaInvoice.ProformaInvoiceId);
