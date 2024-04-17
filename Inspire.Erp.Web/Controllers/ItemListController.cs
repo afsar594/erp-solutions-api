@@ -6,6 +6,7 @@ using Inspire.Erp.Web.Common;
 using Inspire.Erp.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NPOI.POIFS.Crypt.Dsig;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,6 +41,25 @@ namespace Inspire.Erp.Web.Controllers
                 Message = ""
             };
             return apiResponse;
+        }
+        [HttpPost]
+        [Route("UpdateRateItemList")]
+       public ApiResponse<List<Application.Master.ItemListViewModel>> UpdateRateItemList(RateItemListrModel dates)
+        {
+             var UpdateJobInvoiceViewModel = IItemListService.UpdateRateItemList(dates);
+            var x = _mapper.Map<List<Application.Master.ItemListViewModel>>(UpdateJobInvoiceViewModel);
+
+
+            ApiResponse<List<Application.Master.ItemListViewModel>> apiResponse = new ApiResponse<List<Application.Master.ItemListViewModel>>
+
+            {
+                Valid = true,
+                Result =x,
+                Message = "Rate has been updated."
+
+            };
+            return apiResponse;
+
         }
     }
     

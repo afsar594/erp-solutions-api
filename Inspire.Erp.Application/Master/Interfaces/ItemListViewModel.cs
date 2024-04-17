@@ -24,7 +24,7 @@
 
         public long? ItemMasterAccountNo { get; set; }
 
-        
+        public long? UnitDetailsID { get; set; }
 
     }
 
@@ -40,5 +40,10 @@
         public string? Priceinsname { get; set; }
         public bool IsContaining { get; set; }
 
+    }
+    public class RateItemListrModel
+    {
+        public long? id { get; set; }
+        public double? UnitPrice { get; set; }
     }
 }

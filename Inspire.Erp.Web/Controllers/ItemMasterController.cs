@@ -282,7 +282,7 @@ namespace Inspire.Erp.Web.Controllers
                 {
                     Valid = true,
                     Result = result,
-                    Message = (itemMaster.ItemMasterItemId == null || itemMaster.ItemMasterItemId == 0) ? ItemMasterMessage.SaveItem : ItemMasterMessage.UpdateItem
+                    Message = ItemMasterMessage.DeleteFaileds
                 };
             }
             else

@@ -15,6 +15,7 @@ using System.Xml.Linq;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using System.IO;
 
 namespace Inspire.Erp.Application.Master
 {
@@ -56,6 +57,7 @@ namespace Inspire.Erp.Application.Master
 
                              select new ItemListViewModel
                              {
+                                 UnitDetailsID= UD.UnitDetailsId,
                                  BarcodePrint = "",
                                  ItemId = (long?)IM.ItemMasterItemId ?? 0,
                                  PartNo = IM.ItemMasterPartNo ?? "",
@@ -77,8 +79,12 @@ namespace Inspire.Erp.Application.Master
                                  SupplierName = Convert.ToString(S.SuppliersInsName) ?? null,
                                  ItemMasterAccountNo = IM.ItemMasterAccountNo ?? 0
                              }).ToList();
+                if (filteModle==null )
+                {
+                    return query;
 
-                if (filteModle.IsContaining == true)
+                }
+                else if (filteModle.IsContaining == true )
                 {
                     if (filteModle.Barcode != "" && filteModle.Barcode != "string")
                     {
@@ -142,6 +148,25 @@ namespace Inspire.Erp.Application.Master
 
             }
         }
+        public IEnumerable<ItemListViewModel> UpdateRateItemList(RateItemListrModel dates)
+        {
+            try
+            {
+                _unitDetailsRepo.BeginTransaction();
 
+                var detailData = _unitDetailsRepo.GetAsQueryable().Where(o => o.UnitDetailsId == Convert.ToInt64(dates.id)).FirstOrDefault();
+                detailData.UnitDetailsUnitPrice = Convert.ToDouble(dates.UnitPrice);
+                _unitDetailsRepo.Update(detailData);
+                _unitDetailsRepo.TransactionCommit();
+                return this.GetAllItemListSearch(null); 
+
+            }
+            catch (Exception ex)
+            {
+                _unitDetailsRepo.TransactionRollback();
+                throw ex;
+            }
+        }
+        
     }
 }

@@ -160,7 +160,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.SalesReturnDetailsNo = salesReturn.SalesReturnNo;
                     return k;
                 }).ToList();
-               // var lSv = _Context.AccountsTransactions.FirstOrDefault(x => x.AccountsTransactionsVoucherNo == salesReturn.SalesReturnSVNo);
+                //var lSv = _Context.AccountsTransactions.FirstOrDefault(x => x.AccountsTransactionsVoucherNo == salesReturn.SalesReturnSVNo);
                 //lSv.AccountsTransactionsAllocCredit = 0;
                 //lSv.AccountsTransactionsAllocDebit = salesReturn.SalesReturnNetAmount == null ? 0 : salesReturn.SalesReturnNetAmount.Value;
                 //lSv.AccountsTransactionsAllocBalance = lSv.AccountsTransactionsDebit - lSv.AccountsTransactionsAllocDebit;
