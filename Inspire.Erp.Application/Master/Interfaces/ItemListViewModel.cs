@@ -23,9 +23,8 @@
         public string SupplierName { get; set; }
 
         public long? ItemMasterAccountNo { get; set; }
-        public long? UnitDetailsID { get; set; }
-        
 
+        public long? UnitDetailsID { get; set; }
 
     }
 
@@ -45,6 +44,6 @@
     public class RateItemListrModel
     {
         public long? id { get; set; }
-        public double? rare { get; set; }
+        public double? UnitPrice { get; set; }
     }
 }
