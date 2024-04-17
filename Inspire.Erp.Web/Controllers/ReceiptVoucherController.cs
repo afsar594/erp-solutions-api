@@ -122,7 +122,7 @@ namespace Inspire.Erp.Web.Controllers
             }
         }
 
-                [HttpGet]
+        [HttpGet]
         [Route("GetSavedReceiptDetails/{id}")]
         public ApiResponse<ReceiptVoucherMaster> GetSavedReceiptDetails(string id)
         {
