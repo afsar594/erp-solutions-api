@@ -2,6 +2,7 @@
 using Inspire.Erp.Application.Store.Interfaces;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Web.Common;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -101,6 +102,12 @@ namespace Inspire.Erp.Web.Controllers.Store
                 Message = StockeAdjustmentMessage.DeleteStockAdjustmentVoucher
             };
             return apiResponse;
+        }
+
+        [HttpPost("StockAdjustmentReport")]
+        public async Task<IActionResult> StockAdjustmentReport(StockAdjustmentReportFilter model)
+        {
+            return Ok(await _sa.StockAdjustmentReport(model));
         }
     }
 }

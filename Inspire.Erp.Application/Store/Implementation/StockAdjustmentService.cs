@@ -1,6 +1,8 @@
 ﻿using Inspire.Erp.Application.Store.Interfaces;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -8,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Inspire.Erp.Domain.Modals.Stock;
 
 namespace Inspire.Erp.Application.Store.Implementation
 {
@@ -17,12 +20,20 @@ namespace Inspire.Erp.Application.Store.Implementation
         private readonly IRepository<StockAdjustmentVoucherDetails> _stockAdjustmentVoucherDetailsRepo;
         private IRepository<ProgramSettings> _programsettingsRepository;
         private readonly IRepository<VouchersNumbers> _VoucherNumberRepo;
-        public StockAdjustmentService(IRepository<StockAdjustmentVoucher> stockAdjustmentVoucherRepo, IRepository<VouchersNumbers> voucherNumberRepo, IRepository<StockAdjustmentVoucherDetails> stockAdjustmentVoucherDetailsRepo, IRepository<ProgramSettings> programsettingsRepository)
+        private IRepository<ItemMaster> _itemMaster;
+        private readonly IRepository<JobMaster> _jobMaster;
+        public StockAdjustmentService(IRepository<StockAdjustmentVoucher> stockAdjustmentVoucherRepo,
+            IRepository<VouchersNumbers> voucherNumberRepo, IRepository<StockAdjustmentVoucherDetails> stockAdjustmentVoucherDetailsRepo, 
+            IRepository<ProgramSettings> programsettingsRepository,
+            IRepository<JobMaster> jobMaster,
+            IRepository<ItemMaster> itemMasterRepository)
         {
             _stockAdjustmentVoucherRepo = stockAdjustmentVoucherRepo;
             _VoucherNumberRepo = voucherNumberRepo;
             _stockAdjustmentVoucherDetailsRepo = stockAdjustmentVoucherDetailsRepo;
             _programsettingsRepository = programsettingsRepository;
+            _jobMaster = jobMaster;
+            _itemMaster = itemMasterRepository;
         }
         public IEnumerable<StockAdjustmentVoucher> GetStockAdjustment()
         {
@@ -158,5 +169,56 @@ namespace Inspire.Erp.Application.Store.Implementation
             }
             return i;
         }
+
+        public async Task<Response<List<StockAdjustmentReportResponse>>> StockAdjustmentReport(StockAdjustmentReportFilter model)
+        {
+            try
+            {
+
+
+                var assets = await (from sav in _stockAdjustmentVoucherRepo.GetAsQueryable()
+                            
+                             .Where(x => (model.FromDate == null || x.StockAdjustmentVoucherSaDate >= model.FromDate)
+                                               && (model.ToDate == null || x.StockAdjustmentVoucherSaDate <= model.ToDate)
+                                              )
+                              join savd in _stockAdjustmentVoucherDetailsRepo.GetAsQueryable()
+                              on sav.StockAdjustmentVoucherSaId equals savd.StockAdjustmentVoucherDetailsSaId into g
+                              from savdg in g.DefaultIfEmpty()
+                              join jb in _jobMaster.GetAsQueryable()
+                              on savdg.StockAdjustmentVoucherDetailsJobId equals jb.JobMasterJobId into sbg
+                              from sbgj in sbg.DefaultIfEmpty()
+                              join im in _itemMaster.GetAsQueryable()
+                              on (long)savdg.StockAdjustmentVoucherDetailsMaterialId equals im.ItemMasterItemId into img
+                              from imsvg in img.DefaultIfEmpty()
+                                  //group savdg by new
+                                  //{
+                                  //    savdg.StockAdjustmentVoucherDetailsJobId,
+
+                                  //} into gp
+                                    where (model.JobId == null || sbgj.JobMasterJobId==model.JobId)
+                            //  where gp.Sum(x => x.AccountsTransactionsCredit) > 0 || gp.Sum(x => x.AccountsTransactionsDebit) > 0
+                              select new StockAdjustmentReportResponse
+                              {
+                                  SADate =sav.StockAdjustmentVoucherSaDate,
+                                  SANumber = sav.StockAdjustmentVoucherSaNo,
+                                  JobName= sbgj.JobMasterJobName,
+                                  ItemName=imsvg.ItemMasterItemName,
+                                  ManualQuantity =savdg.StockAdjustmentVoucherDetailsManualQty,
+                                  CostPrice = savdg.StockAdjustmentVoucherDetailsCosePrice,
+                                  AdjustedQuantity =savdg.StockAdjustmentVoucherDetailsAdjQty,
+                                  AdjustedValue=savdg.StockAdjustmentVoucherDetailsCosePrice * savdg.StockAdjustmentVoucherDetailsAdjQty,
+                                  ExistingQuantity=savdg.StockAdjustmentVoucherDetailsManualQty-savdg.StockAdjustmentVoucherDetailsAdjQty
+                              })
+
+                     .OrderBy(t => t.JobName).ToListAsync();
+
+                return Response<List<StockAdjustmentReportResponse>>.Success(assets, "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<List<StockAdjustmentReportResponse>>.Fail(new List<StockAdjustmentReportResponse>(), ex.Message);
+            }
+        }
+
     }
 }

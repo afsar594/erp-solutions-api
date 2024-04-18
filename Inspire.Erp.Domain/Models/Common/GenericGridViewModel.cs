@@ -51,6 +51,13 @@ namespace Inspire.Erp.Domain.Modals.Common
 
     }
 
+    public class StockAdjustmentReportFilter
+    {
+        public int? JobId { get; set; }
+        public DateTime? FromDate { get; set; }
+        public DateTime? ToDate { get; set; }
+    }
+
     public class CustomerEnquirySearchFilter
     {
         public string Enquiry_No { get; set; }

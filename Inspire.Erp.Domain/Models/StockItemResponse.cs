@@ -13,7 +13,6 @@ namespace Inspire.Erp.Domain.Modals
         public string? Item_Master_Barcode { get; set; }
         public decimal? Stock { get; set; }
     }
-
     public class ItemResponse
     {
         public long ItemId { get; set; }

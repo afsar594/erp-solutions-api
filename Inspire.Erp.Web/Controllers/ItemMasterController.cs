@@ -39,7 +39,6 @@ namespace Inspire.Erp.Web.Controllers
                 Result = x,
                 Message = ""
             };
-
             return apiResponse;
         }
 
@@ -71,7 +70,6 @@ namespace Inspire.Erp.Web.Controllers
                 Result = x,
                 Message = ""
             };
-
             return apiResponse;
         }
 
@@ -102,7 +100,6 @@ namespace Inspire.Erp.Web.Controllers
                 Result = x,
                 Message = ""
             };
-
             return apiResponse;
         }
 
@@ -118,7 +115,6 @@ namespace Inspire.Erp.Web.Controllers
                 Result = x,
                 Message = ""
             };
-
             return apiResponse;
         }
 
@@ -166,7 +162,6 @@ namespace Inspire.Erp.Web.Controllers
         public ApiResponse<ItemMasterViewModel> GetAllItemMasterByBarCode(string barCode)
         {
             ItemMaster listItemnater = itemMasterService.GetAllItemMasterByBarCode(barCode);
-
             var x = _mapper.Map<ItemMasterViewModel>(listItemnater);
             ApiResponse<ItemMasterViewModel> apiResponse = new ApiResponse<ItemMasterViewModel>
             {
@@ -174,9 +169,7 @@ namespace Inspire.Erp.Web.Controllers
                 Result = x,
                 Message = ""
             };
-
             return apiResponse;
-
         }
 
         [HttpGet("GetItemsBySearch")]
@@ -289,7 +282,7 @@ namespace Inspire.Erp.Web.Controllers
                 {
                     Valid = true,
                     Result = result,
-                    Message = (itemMaster.ItemMasterItemId == null || itemMaster.ItemMasterItemId == 0) ? ItemMasterMessage.SaveItem : ItemMasterMessage.UpdateItem
+                    Message = ItemMasterMessage.DeleteFaileds
                 };
             }
             else
