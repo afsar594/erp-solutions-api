@@ -18,6 +18,8 @@ namespace Inspire.Erp.Domain.Modals.Stock
         public double? AdjustedQuantity { get; set; }
         public double? AdjustedValue { get; set; }
 
+        public double? ExistingQuantity { get; set; }
+
     }
 
    

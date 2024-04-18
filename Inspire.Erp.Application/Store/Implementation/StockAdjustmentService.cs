@@ -176,8 +176,11 @@ namespace Inspire.Erp.Application.Store.Implementation
             {
 
 
-                var assets = await (from sav in _stockAdjustmentVoucherRepo.GetAsQueryable().Where(x => x.StockAdjustmentVoucherSaDate >= model.FromDate
-                              && x.StockAdjustmentVoucherSaDate <= model.ToDate)
+                var assets = await (from sav in _stockAdjustmentVoucherRepo.GetAsQueryable()
+                            
+                             .Where(x => (model.FromDate == null || x.StockAdjustmentVoucherSaDate >= model.FromDate)
+                                               && (model.ToDate == null || x.StockAdjustmentVoucherSaDate <= model.ToDate)
+                                              )
                               join savd in _stockAdjustmentVoucherDetailsRepo.GetAsQueryable()
                               on sav.StockAdjustmentVoucherSaId equals savd.StockAdjustmentVoucherDetailsSaId into g
                               from savdg in g.DefaultIfEmpty()
@@ -187,12 +190,12 @@ namespace Inspire.Erp.Application.Store.Implementation
                               join im in _itemMaster.GetAsQueryable()
                               on (long)savdg.StockAdjustmentVoucherDetailsMaterialId equals im.ItemMasterItemId into img
                               from imsvg in img.DefaultIfEmpty()
-                              //group savdg by new
-                              //{
-                              //    savdg.StockAdjustmentVoucherDetailsJobId,
-                                 
-                              //} into gp
+                                  //group savdg by new
+                                  //{
+                                  //    savdg.StockAdjustmentVoucherDetailsJobId,
 
+                                  //} into gp
+                                    where (model.JobId == null || sbgj.JobMasterJobId==model.JobId)
                             //  where gp.Sum(x => x.AccountsTransactionsCredit) > 0 || gp.Sum(x => x.AccountsTransactionsDebit) > 0
                               select new StockAdjustmentReportResponse
                               {
@@ -203,49 +206,12 @@ namespace Inspire.Erp.Application.Store.Implementation
                                   ManualQuantity =savdg.StockAdjustmentVoucherDetailsManualQty,
                                   CostPrice = savdg.StockAdjustmentVoucherDetailsCosePrice,
                                   AdjustedQuantity =savdg.StockAdjustmentVoucherDetailsAdjQty,
-                                  AdjustedValue=savdg.StockAdjustmentVoucherDetailsCosePrice * savdg.StockAdjustmentVoucherDetailsAdjQty
+                                  AdjustedValue=savdg.StockAdjustmentVoucherDetailsCosePrice * savdg.StockAdjustmentVoucherDetailsAdjQty,
+                                  ExistingQuantity=savdg.StockAdjustmentVoucherDetailsManualQty-savdg.StockAdjustmentVoucherDetailsAdjQty
                               })
 
-                     .OrderBy(t => t.SANumber).ToListAsync();
+                     .OrderBy(t => t.JobName).ToListAsync();
 
-
-                //var AccountTrans = _stockAdjustmentVoucherRepo.GetAsQueryable()
-                //                                             .Where(x => (model.FromDate == null || x.StockAdjustmentVoucherSaDate >= model.FromDate)
-                //                               && (model.ToDate == null || x.StockAdjustmentVoucherSaDate <= model.ToDate)
-                //                                && (model.Filter == null || x.AccountsTransactionsAccNo.Contains(model.Filter)))
-                //                             .Select(o =>
-
-                //                               new StatementOfAccountFCDetailResponse
-                //                               {
-                //                                   AccNo = o.AccountsTransactionsAccNo,
-                //                                   TransDate = (DateTime)o.AccountsTransactionsTransDate,
-                //                                   Particulars = o.AccountsTransactionsParticulars,
-                //                                   Debit = Convert.ToDouble(o.AccountsTransactionsFcDebit ?? 0),
-                //                                   Credit = Convert.ToDouble(o.AccountsTransactionsFcCredit ?? 0),
-                //                                   VoucherType = o.AccountsTransactionsVoucherType,
-                //                                   VoucherNo = o.AccountsTransactionsVoucherNo,
-                //                                   Description = o.AccountsTransactionsDescription,
-                //                                   RefNo = o.RefNo
-                //                               }).ToList();
-
-                //foreach (var account in AccountTrans)
-                //{
-                //    if (account.Debit > account.Credit)
-                //    {
-                //        account.RunningBalance = account.RunningBalance + account.Debit;
-                //    }
-
-                //    if (account.Credit > account.Debit)
-                //    {
-                //        account.RunningBalance = account.RunningBalance - account.Credit;
-                //    }
-                //}
-
-                //If DrBala > CrBala Then
-                //          RunningBala = RunningBala + DrBala
-                //        ElseIf CrBala > DrBala Then
-                //            RunningBala = RunningBala - CrBala
-                //        End If
                 return Response<List<StockAdjustmentReportResponse>>.Success(assets, "Data found");
             }
             catch (Exception ex)
