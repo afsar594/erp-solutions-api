@@ -53,7 +53,7 @@ namespace Inspire.Erp.Domain.Modals.Common
 
     public class StockAdjustmentReportFilter
     {
-        public int JobId { get; set; }
+        public int? JobId { get; set; }
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
     }
