@@ -26,6 +26,8 @@
 
         public long? UnitDetailsID { get; set; }
 
+        public string? ItemSize { get; set; }
+        
     }
 
     public class ItemFilterModel
