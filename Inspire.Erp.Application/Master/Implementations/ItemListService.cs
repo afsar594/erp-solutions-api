@@ -149,42 +149,28 @@ namespace Inspire.Erp.Application.Master
 
             }
         }
-        public IEnumerable<ItemListViewModel> UpdateRateItemList(RateItemListrModel dates)
+        public IEnumerable<ItemListViewModel> UpdateRateItemList(List<RateItemListrModel> dates)
         {
             try
             {
                 _unitDetailsRepo.BeginTransaction();
 
+                //List<int> idstoupdate = new List<int> { Convert.ToInt32(dates.id)};
+                //var recordstoupdate = _dbcontext.UnitDetails.Where(e => idstoupdate.Contains(Convert.ToInt32(dates.id))).ToList();
 
-
-
-                List<int> idstoupdate = new List<int> { Convert.ToInt32(dates.id)};
-                var recordstoupdate = _dbcontext.UnitDetails.Where(e => idstoupdate.Contains(Convert.ToInt32(dates.id))).ToList();
-                foreach (var detailData in recordstoupdate)
+                foreach (var detail in dates)
                 {
 
-                    detailData.UnitDetailsUnitPrice = Convert.ToDouble(dates.UnitPrice);
-                    detailData.UnitDetailsBarcode = Convert.ToString(dates.UD_Barcode);
-                    detailData.UnitDetailsPacking = Convert.ToString(dates.Packing);
-                    detailData.UnitDetailsDescrption = Convert.ToString(dates.UD_Discrption);
+                    var detailData = _unitDetailsRepo.GetAsQueryable().Where(o => o.UnitDetailsId == Convert.ToInt64(detail.id)).FirstOrDefault();
+
+                    detailData.UnitDetailsUnitPrice = Convert.ToDouble(detail.UnitPrice);
+                    detailData.UnitDetailsBarcode = Convert.ToString(detail.UD_Barcode);
+                    detailData.UnitDetailsPacking = Convert.ToString(detail.Packing);
+                    detailData.UnitDetailsDescrption = Convert.ToString(detail.UD_Discrption);
+
                     _unitDetailsRepo.Update(detailData);
+
                 }
-
-
-                //var detailData = _unitDetailsRepo.GetAsQueryable().Where(o => o.UnitDetailsId == Convert.ToInt64(dates.id)).FirstOrDefault();
-
-                //foreach (var ds in _unitDetailsRepo.GetAll())
-                //{
-                //    var detailData = _unitDetailsRepo.GetAsQueryable().Where(o => o.UnitDetailsId == Convert.ToInt64(ds.UnitDetailsId)).FirstOrDefault();
-
-                //    detailData.UnitDetailsUnitPrice = Convert.ToDouble(dates.UnitPrice);
-                //    detailData.UnitDetailsBarcode = Convert.ToString(dates.UD_Barcode);
-                //    detailData.UnitDetailsPacking = Convert.ToString(dates.Packing);
-                //    detailData.UnitDetailsDescrption = Convert.ToString(dates.UD_Discrption);
-                //    _unitDetailsRepo.Update(detailData);
-                //}
-
-
                 _unitDetailsRepo.TransactionCommit();
                 return this.GetAllItemListSearch(null); 
 

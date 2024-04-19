@@ -1,4 +1,12 @@
-﻿namespace Inspire.Erp.Application.Master
+﻿using Inspire.Erp.Domain.Entities;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+
+namespace Inspire.Erp.Application.Master
 {
     public class ItemListViewModel
     {
@@ -27,9 +35,8 @@
         public long? UnitDetailsID { get; set; }
 
         public string? ItemSize { get; set; }
-        
+        public List<RateItemListrModel> RateItemListrModel { get; set; }
     }
-
     public class ItemFilterModel
     {
         public string? Barcode { get; set; }
@@ -40,15 +47,6 @@
 
         public string? GruopName { get; set; }
         public string? Priceinsname { get; set; }
-        public bool IsContaining { get; set; }
-
-    }
-    public class RateItemListrModel
-    {
-        public long? id { get; set; }
-        public double? UnitPrice { get; set; }
-        public string? UD_Barcode { get; set; }
-        public string? Packing { get; set; }
-        public string? UD_Discrption { get; set; }
+        public bool IsContaining { get; set; }   
     }
 }
