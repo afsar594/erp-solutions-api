@@ -167,7 +167,8 @@ namespace Inspire.Erp.Application.Master
                     detailData.UnitDetailsDescrption = Convert.ToString(detail.UD_Discrption);
                     ItemDetails.ItemMasterItemSize = Convert.ToString(ItemDetails.ItemMasterItemSize);
 
-                    _unitDetailsRepo.Update(detailData);
+                        _unitDetailsRepo.Update(detailData);
+                    }
 
                 }
                 _unitDetailsRepo.TransactionCommit();
