@@ -162,13 +162,16 @@ namespace Inspire.Erp.Application.Master
                 {
 
                     var detailData = _unitDetailsRepo.GetAsQueryable().Where(o => o.UnitDetailsId == Convert.ToInt64(detail.id)).FirstOrDefault();
+                    if (detailData != null)
+                    {
 
-                    detailData.UnitDetailsUnitPrice = Convert.ToDouble(detail.UnitPrice);
-                    detailData.UnitDetailsBarcode = Convert.ToString(detail.UD_Barcode);
-                    detailData.UnitDetailsPacking = Convert.ToString(detail.Packing);
-                    detailData.UnitDetailsDescrption = Convert.ToString(detail.UD_Discrption);
+                        detailData.UnitDetailsUnitPrice = Convert.ToDouble(detail.UnitPrice);
+                        detailData.UnitDetailsBarcode = Convert.ToString(detail.UD_Barcode);
+                        detailData.UnitDetailsPacking = Convert.ToString(detail.Packing);
+                        detailData.UnitDetailsDescrption = Convert.ToString(detail.UD_Discrption);
 
-                    _unitDetailsRepo.Update(detailData);
+                        _unitDetailsRepo.Update(detailData);
+                    }
 
                 }
                 _unitDetailsRepo.TransactionCommit();
