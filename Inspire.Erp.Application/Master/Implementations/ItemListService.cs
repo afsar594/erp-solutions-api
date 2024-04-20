@@ -165,9 +165,15 @@ namespace Inspire.Erp.Application.Master
                     detailData.UnitDetailsBarcode = Convert.ToString(detail.UD_Barcode);
                     detailData.UnitDetailsPacking = Convert.ToString(detail.Packing);
                     detailData.UnitDetailsDescrption = Convert.ToString(detail.UD_Discrption);
-                    ItemDetails.ItemMasterItemSize = Convert.ToString(ItemDetails.ItemMasterItemSize);
-                     _unitDetailsRepo.Update(detailData);
+
+
+                    if (ItemDetails.ItemMasterItemSize != null)
+                    {
+                        ItemDetails.ItemMasterItemSize = Convert.ToString(ItemDetails.ItemMasterItemSize);
+                        itemrepository.Update(ItemDetails);
                     }
+                    _unitDetailsRepo.Update(detailData);
+                }
                 _unitDetailsRepo.TransactionCommit();
                 return this.GetAllItemListSearch(null); 
 
