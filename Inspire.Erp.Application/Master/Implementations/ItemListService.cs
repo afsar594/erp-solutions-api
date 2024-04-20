@@ -155,18 +155,17 @@ namespace Inspire.Erp.Application.Master
             {
                 _unitDetailsRepo.BeginTransaction();
 
-                //List<int> idstoupdate = new List<int> { Convert.ToInt32(dates.id)};
-                //var recordstoupdate = _dbcontext.UnitDetails.Where(e => idstoupdate.Contains(Convert.ToInt32(dates.id))).ToList();
-
                 foreach (var detail in dates)
                 {
 
                     var detailData = _unitDetailsRepo.GetAsQueryable().Where(o => o.UnitDetailsId == Convert.ToInt64(detail.id)).FirstOrDefault();
+                    var ItemDetails = itemrepository.GetAsQueryable().Where(o => o.ItemMasterItemId == Convert.ToInt64(detailData.UnitDetailsItemId)).FirstOrDefault();
 
                     detailData.UnitDetailsUnitPrice = Convert.ToDouble(detail.UnitPrice);
                     detailData.UnitDetailsBarcode = Convert.ToString(detail.UD_Barcode);
                     detailData.UnitDetailsPacking = Convert.ToString(detail.Packing);
                     detailData.UnitDetailsDescrption = Convert.ToString(detail.UD_Discrption);
+                    ItemDetails.ItemMasterItemSize = Convert.ToString(ItemDetails.ItemMasterItemSize);
 
                     _unitDetailsRepo.Update(detailData);
 

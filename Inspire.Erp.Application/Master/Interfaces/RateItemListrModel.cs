@@ -13,5 +13,6 @@ namespace Inspire.Erp.Application.Master
         public string? UD_Barcode { get; set; }
         public string? Packing { get; set; }
         public string? UD_Discrption { get; set; }
+        public string? ItemSize { get; set; }
     }
 }
