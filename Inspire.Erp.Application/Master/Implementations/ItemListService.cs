@@ -77,7 +77,8 @@ namespace Inspire.Erp.Application.Master
                                  UD_UnitCost = UD.UnitDetailsUnitCost ?? 0,
                                  UD_UnitPrice = UD.UnitDetailsUnitPrice ?? 0,
                                  SupplierName = Convert.ToString(S.SuppliersInsName) ?? null,
-                                 ItemMasterAccountNo = IM.ItemMasterAccountNo ?? 0
+                                 ItemMasterAccountNo = IM.ItemMasterAccountNo ?? 0,
+                                 ItemSize = Convert.ToString(IM.ItemMasterItemSize) ?? ""
                              }).ToList();
                 if (filteModle==null )
                 {
@@ -148,15 +149,31 @@ namespace Inspire.Erp.Application.Master
 
             }
         }
-        public IEnumerable<ItemListViewModel> UpdateRateItemList(RateItemListrModel dates)
+        public IEnumerable<ItemListViewModel> UpdateRateItemList(List<RateItemListrModel> dates)
         {
             try
             {
                 _unitDetailsRepo.BeginTransaction();
 
-                var detailData = _unitDetailsRepo.GetAsQueryable().Where(o => o.UnitDetailsId == Convert.ToInt64(dates.id)).FirstOrDefault();
-                detailData.UnitDetailsUnitPrice = Convert.ToDouble(dates.UnitPrice);
-                _unitDetailsRepo.Update(detailData);
+                foreach (var detail in dates)
+                {
+
+                    var detailData = _unitDetailsRepo.GetAsQueryable().Where(o => o.UnitDetailsId == Convert.ToInt64(detail.id)).FirstOrDefault();
+                    var ItemDetails = itemrepository.GetAsQueryable().Where(o => o.ItemMasterItemId == Convert.ToInt64(detailData.UnitDetailsItemId)).FirstOrDefault();
+
+                    detailData.UnitDetailsUnitPrice = Convert.ToDouble(detail.UnitPrice);
+                    detailData.UnitDetailsBarcode = Convert.ToString(detail.UD_Barcode);
+                    detailData.UnitDetailsPacking = Convert.ToString(detail.Packing);
+                    detailData.UnitDetailsDescrption = Convert.ToString(detail.UD_Discrption);
+
+
+                    if (ItemDetails.ItemMasterItemSize != null)
+                    {
+                        ItemDetails.ItemMasterItemSize = Convert.ToString(ItemDetails.ItemMasterItemSize);
+                        itemrepository.Update(ItemDetails);
+                    }
+                    _unitDetailsRepo.Update(detailData);
+                }
                 _unitDetailsRepo.TransactionCommit();
                 return this.GetAllItemListSearch(null); 
 
