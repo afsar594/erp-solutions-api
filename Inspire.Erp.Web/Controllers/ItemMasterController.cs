@@ -2,6 +2,7 @@
 using Inspire.Erp.Application.Master;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Web.Common;
 using Inspire.Erp.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -170,6 +171,15 @@ namespace Inspire.Erp.Web.Controllers
                 Message = ""
             };
             return apiResponse;
+        }
+
+
+        [HttpGet]
+        [Route("SearchItemByBarcodeLink/{barCode}")]
+        public async Task<IActionResult> SearchItemByBarcodeLink(ItemBarCodeSearchFilter model)
+        {
+            return Ok(await itemMasterService.SearchItemByBarcodeLink(model));
+
         }
 
         [HttpGet("GetItemsBySearch")]

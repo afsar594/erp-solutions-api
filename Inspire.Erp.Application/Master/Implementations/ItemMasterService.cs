@@ -11,6 +11,8 @@ using System.Text;
 using System.Threading.Tasks;
 using SendGrid.Helpers.Mail;
 using System.Runtime.CompilerServices;
+using Inspire.Erp.Domain.Modals.AccountStatement;
+using System.Security.Cryptography;
 
 namespace Inspire.Erp.Application.Master
 {
@@ -24,12 +26,17 @@ namespace Inspire.Erp.Application.Master
         private IRepository<PurchaseVoucher> purchVouchRepo;
         private IRepository<SalesVoucherDetails> saleVouchDetailsRepo;
         private IRepository<SalesVoucher> saleVouchRepo;
+
+        private IRepository<HappyHour> happyHourRepo;
+        private IRepository<HappyHourDeatils> happyHourDetailsRepo;
         public ItemMasterService(IRepository<ItemMaster> _itemrepository, IRepository<ItemStockType> _itemStockRepository, IRepository<UnitDetails> unitDetailsRepo
             , IRepository<VendorMaster> _vendorrepository
             , IRepository<PurchaseVoucherDetails> _purchVouchDetailsRepo
             , IRepository<PurchaseVoucher> _purchVouchRepo
             , IRepository<SalesVoucherDetails> _saleVouchDetailsRepo
-            , IRepository<SalesVoucher> _saleVouchRepo)
+            , IRepository<SalesVoucher> _saleVouchRepo
+            , IRepository<HappyHour> _happyHourRepo
+            , IRepository<HappyHourDeatils> _happyHourDetailsRepo)
         {
             itemrepository = _itemrepository;
             vendorrepository = _vendorrepository;
@@ -39,6 +46,8 @@ namespace Inspire.Erp.Application.Master
             purchVouchRepo = _purchVouchRepo;
             saleVouchDetailsRepo = _saleVouchDetailsRepo;
             saleVouchRepo = _saleVouchRepo;
+            happyHourRepo = _happyHourRepo;
+            happyHourDetailsRepo = _happyHourDetailsRepo;
         }
         public IEnumerable<ItemMaster> InsertItem(ItemMaster itemMaster)
         {
@@ -445,5 +454,103 @@ return itemMaster;
         {
             throw new NotImplementedException();
         }
+
+
+        public async Task<Response<ItemMasterResponse>> SearchItemByBarcodeLink(ItemBarCodeSearchFilter model)
+        {
+            try
+            {
+                string barqtys;
+                string prefix;
+                double barqty;
+
+
+                if (model.BarCode.Length == 13)
+                {
+                    if (model.BarCode.Length >=3)
+                    {
+                        prefix = model.BarCode.Substring(0, 2);
+                    }
+                
+                }
+                else
+                {
+                    if (model.BarCode.Length >= 3)
+                    {
+                        prefix = model.BarCode.Substring(1, 2);
+                    }
+                }
+
+                if (model.BarCode.Substring(3, 1)=="990" && model.BarCode.Length==13)
+                {
+                    barqtys = model.BarCode.Substring(7, 5);
+                    barqty =Convert.ToDouble(String.Format("{0:000}", Convert.ToDouble(barqtys) / (double)1000));
+                    model.BarCode = model.BarCode.Substring(4,4) ;
+                }
+
+                var result = await (from ir in itemrepository.GetAsQueryable()
+                                    join ud in _unitDetailsRepo.GetAsQueryable() on ir.ItemMasterItemId equals ud.UnitDetailsItemId
+                                    where ud.UnitDetailsBarcode == model.BarCode
+                                    select new ItemMasterResponse
+                                    {
+                                        BarCode=ud.UnitDetailsBarcode,
+                                        ItemName=ir.ItemMasterItemName,
+                                        UnitPriceTaxIncl=ud.UnitDetailsUnitPrice,
+                                        ItemId=ir.ItemMasterItemId,
+                                        SalesTax = ir.ItemMasterVatPercentage??0,
+                                        ItemwiseInclusive = ir.ItemMasterVatInclues??false,
+                                        UnitDetailsId=ud.UnitDetailsId,
+                                        OfferPrice=ud.UnitDetailsWrate
+
+                                    }).FirstOrDefaultAsync();
+
+                var happyH = await (from hh in happyHourRepo.GetAsQueryable()
+                                    join hhd in happyHourDetailsRepo.GetAsQueryable() on hh.HappyHourId equals hhd.HappyHourDeatilsHappyHourId
+                                    where hhd.HappyHourDeatilsItemId == result.ItemId
+                                    select new
+                                    {
+                                        FromDate =hh.HappyHourFromDate,
+                                        ToDate = hh.HappyHourToDate
+                                     }).FirstOrDefaultAsync();
+
+                if(happyH != null)
+                    if(happyH.FromDate <= DateTime.Now && happyH.ToDate >=DateTime.Now)
+                    {
+                        result.UnitPriceTaxIncl = result.OfferPrice;
+                    }
+
+
+                if(model.DisableVat)
+                {
+                    result.SalesTax =0;
+                }
+
+                if (result.ItemwiseInclusive && result.SalesTax != 0)
+                {
+                    result.SalesTax1 = (100 + result.SalesTax);
+                    result.SalesTax1 = (result.SalesTax1 / (decimal)100);
+                    result.UnitPrice = (double)Math.Round((decimal)result.UnitPriceTaxIncl / result.SalesTax1, 2);
+                    // 'Unitprice = Math.Round(Val(Val(UpriceTaxIncl) / 1.05), 2)
+                    result.VATValue = (double)Math.Round((decimal)result.UnitPriceTaxIncl - (decimal)result.UnitPrice, 2);
+                }
+                else if ( result.SalesTax != 0)
+                {
+                    result.VATValue = (double)Math.Round(((decimal)result.UnitPriceTaxIncl * result.SalesTax)/100, 2);
+                }
+                else if (result.SalesTax == 0)
+                {
+                    result.UnitPrice = (double)Math.Round((decimal)result.UnitPriceTaxIncl , 2);
+                    result.VATValue = (double)Math.Round(0.0, 2);
+                }
+
+
+                return Response<ItemMasterResponse>.Success(result, "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<ItemMasterResponse>.Fail(new ItemMasterResponse(), ex.Message);
+            }
+        }
+
     }
 }
