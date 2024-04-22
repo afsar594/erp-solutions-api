@@ -30,5 +30,7 @@ namespace Inspire.Erp.Application.Master
         public int ItemMasterIdMax();
 
         Task<Response<List<ItemResponse>>> GetItemsBySearch(string filter);
+
+        public Task<Response<ItemMasterResponse>> SearchItemByBarcodeLink(ItemBarCodeSearchFilter model);
     }
 }

@@ -110,4 +110,10 @@ namespace Inspire.Erp.Domain.Modals.Common
         public string fromDate { get; set; }
         public string toDate { get; set; }
     }
+
+    public class ItemBarCodeSearchFilter
+    {
+        public bool DisableVat { get; set; }
+        public string BarCode { get; set; }
+    }
 }
