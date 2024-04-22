@@ -29,6 +29,8 @@ namespace Inspire.Erp.Application.Master
 
         private IRepository<HappyHour> happyHourRepo;
         private IRepository<HappyHourDeatils> happyHourDetailsRepo;
+
+        private IRepository<BarcodeScale> barCodeRepo;
         public ItemMasterService(IRepository<ItemMaster> _itemrepository, IRepository<ItemStockType> _itemStockRepository, IRepository<UnitDetails> unitDetailsRepo
             , IRepository<VendorMaster> _vendorrepository
             , IRepository<PurchaseVoucherDetails> _purchVouchDetailsRepo
@@ -36,7 +38,8 @@ namespace Inspire.Erp.Application.Master
             , IRepository<SalesVoucherDetails> _saleVouchDetailsRepo
             , IRepository<SalesVoucher> _saleVouchRepo
             , IRepository<HappyHour> _happyHourRepo
-            , IRepository<HappyHourDeatils> _happyHourDetailsRepo)
+            , IRepository<HappyHourDeatils> _happyHourDetailsRepo
+            , IRepository<BarcodeScale> _barCodeRepo)
         {
             itemrepository = _itemrepository;
             vendorrepository = _vendorrepository;
@@ -48,6 +51,7 @@ namespace Inspire.Erp.Application.Master
             saleVouchRepo = _saleVouchRepo;
             happyHourRepo = _happyHourRepo;
             happyHourDetailsRepo = _happyHourDetailsRepo;
+            barCodeRepo = _barCodeRepo;
         }
         public IEnumerable<ItemMaster> InsertItem(ItemMaster itemMaster)
         {
@@ -461,10 +465,12 @@ return itemMaster;
             try
             {
                 string barqtys;
-                string prefix;
-                double barqty;
-
-
+                string prefix="";
+                string br = "";
+                string barqty="0";
+                string scaleBarcode = "";
+                string barQtyType = "0";
+                double? realRate=0;
                 if (model.BarCode.Length == 13)
                 {
                     if (model.BarCode.Length >=3)
@@ -481,10 +487,76 @@ return itemMaster;
                     }
                 }
 
+                string scaleNo="";
+                int? scaleDigi = 0;
+                int? scaleBarOne =0;
+                int? scaleBarTwo =0;
+                int? scaleBarThree =0;
+                int? scaleBarFour =0;
+                if ( prefix != "")
+                {
+                    var barcodeScale = await barCodeRepo.GetAsQueryable().Where(x => x.ScaleNo == Convert.ToInt32(prefix)).FirstOrDefaultAsync();
+                    if (barcodeScale != null)
+                    {
+                        scaleNo = barcodeScale.ScaleNo.ToString();
+                        scaleDigi = barcodeScale.ScaleDigit;
+                        scaleBarOne = barcodeScale.ScaleOne;
+                        scaleBarTwo = barcodeScale.ScaleOne;
+                        scaleBarThree = barcodeScale.ScaleOne;
+                        scaleBarFour = barcodeScale.ScaleOne;
+                    }
+                }
+
+                if (scaleNo !=null  && model.BarCode.Length == 13)
+                {
+                    scaleNo = model.BarCode.Substring(0, 5);
+                    barqty = model.BarCode.Substring(model.BarCode.Length+2, 6);
+                    var unitDetails = await _unitDetailsRepo.GetAsQueryable().Where(x => x.UnitDetailsBarcode == scaleNo).FirstOrDefaultAsync();
+                    if (unitDetails != null)
+                    {
+                        scaleBarcode = unitDetails.UnitDetailsItemId.ToString();
+                        realRate = unitDetails.UnitDetailsUnitPrice;
+                    }
+
+                    barqty = String.Format("{0:000}", Convert.ToDouble(barqty) / (double)1000);
+                    var itemDetails = await itemrepository.GetAsQueryable().Where(x => x.ItemMasterItemId == Convert.ToInt64(scaleBarcode)).FirstOrDefaultAsync();
+                    br = itemDetails.ItemMasterItemName;
+                }
+
+                else if (scaleNo != null && model.BarCode.Length == 14)
+                {
+                    scaleBarcode = model.BarCode.Substring(scaleNo.Length + (int)scaleBarFour, (int)scaleBarOne);
+                    barQtyType = model.BarCode.Substring(scaleNo.Length, (int)scaleBarFour);
+                    barqty = model.BarCode.Substring((scaleNo.Length + (int)scaleBarOne) + (int)scaleBarFour, (int)scaleBarThree);
+                  
+                    var itemDetails = await itemrepository.GetAsQueryable().Where(x => x.ItemMasterItemId == Convert.ToInt64(scaleBarcode)).FirstOrDefaultAsync();
+                    if (itemDetails != null)
+                    {
+                        br = itemDetails.ItemMasterItemName;
+                        realRate = (double)itemDetails.ItemMasterUnitPrice;
+                    }
+
+                    if(Convert.ToInt32(barQtyType) == 1)
+                    {
+                        barqty = String.Format("{0:000}", Convert.ToDouble(barqty) / (double)1000);
+                    }
+                    else
+                    {
+                        realRate = (double)realRate / Convert.ToDouble(barqty);
+                    }
+                   
+                }
+                else
+                {
+                    scaleBarcode = model.BarCode;
+                    barqty = "1";
+                }
+
+
                 if (model.BarCode.Substring(3, 1)=="990" && model.BarCode.Length==13)
                 {
                     barqtys = model.BarCode.Substring(7, 5);
-                    barqty =Convert.ToDouble(String.Format("{0:000}", Convert.ToDouble(barqtys) / (double)1000));
+                    barqty =String.Format("{0:000}", Convert.ToDouble(barqtys) / (double)1000);
                     model.BarCode = model.BarCode.Substring(4,4) ;
                 }
 
@@ -551,6 +623,5 @@ return itemMaster;
                 return Response<ItemMasterResponse>.Fail(new ItemMasterResponse(), ex.Message);
             }
         }
-
     }
 }
