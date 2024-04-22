@@ -24105,6 +24105,13 @@ namespace Inspire.Erp.Infrastructure.Database
                 e.Property(x => x.WorkgroupId).HasColumnName("WorkgroupId");
             });
 
+
+            modelBuilder.Entity<BarcodeScale>(e =>
+            {
+                e.ToTable("BarcodeScale");
+                e.HasKey(x => x.Id);
+            });
+
             OnModelCreatingPartial(modelBuilder);
         }
 
