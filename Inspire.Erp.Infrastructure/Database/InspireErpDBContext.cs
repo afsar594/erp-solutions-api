@@ -409,6 +409,11 @@ namespace Inspire.Erp.Infrastructure.Database
         /// ==========================================================================================================
 
 
+        //POS Tables
+
+        public DbSet<POS_Sales_Voucher> POS_Sales_Voucher { get; set; }
+        public DbSet<POS_Sales_Voucher_Details> POS_Sales_Voucher_Details { get; set; }
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

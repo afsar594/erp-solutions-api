@@ -46,7 +46,9 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? SV_SM_Bal { get; set; }
         public bool? SV_NoVat_B { get; set; }
         public decimal? Vat_TaxableAmt { get; set; }
-     
+
+        [NotMapped]
+        public List<POS_Sales_Voucher_Details> POSSalesVoucherDetails { get; set; }
     }
 }
 
