@@ -323,14 +323,16 @@ namespace Inspire.Erp.Application.Store.Implementation
                     _openingstockVoucherRepository.GetAsQueryable()
                     .DefaultIfEmpty().Max(o => o == null ? 0 : o.OpeningStockVoucherId) + 1);
 
+
+               
+
                 openstockVoucher.OpeningStockVoucherId = maxcount;
 
                 //x.OpeningStockVoucherDetailsConversionType = await _utilityService.GetBasicUnitConversion(x.OpeningStockVoucherDetailsMatId, x.OpeningStockVoucherDetailsUnitId);
                 openstockVoucher.OpeningStockVoucherDetails = openstockVoucherDetails.Select((x) =>
                 {
                     x.OpeningStockVoucherId = maxcount;
-                    x.OpeningStockVoucherDetailsNo =openingstockVoucherNumber;
-
+                    x.OpeningStockVoucherDetailsNo =openingstockVoucherNumber;           
                     return x;
                 }).ToList();
 
