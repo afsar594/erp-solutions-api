@@ -167,11 +167,11 @@ namespace Inspire.Erp.Application.Master
                     detailData.UnitDetailsDescrption = Convert.ToString(detail.UD_Discrption);
 
 
-                    if (ItemDetails.ItemMasterItemSize != null)
-                    {
-                        ItemDetails.ItemMasterItemSize = Convert.ToString(ItemDetails.ItemMasterItemSize);
-                        itemrepository.Update(ItemDetails);
-                    }
+                    //if (ItemDetails.ItemMasterItemSize != null)
+                    //{
+                    //    ItemDetails.ItemMasterItemSize = Convert.ToString(ItemDetails.ItemMasterItemSize);
+                    //    itemrepository.Update(ItemDetails);
+                    //}
                     _unitDetailsRepo.Update(detailData);
                 }
                 _unitDetailsRepo.TransactionCommit();

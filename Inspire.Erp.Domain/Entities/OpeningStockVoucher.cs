@@ -10,7 +10,7 @@ namespace Inspire.Erp.Domain.Entities
             OpeningStockVoucherDetails = new HashSet<OpeningStockVoucherDetails>();
         }
 
-        public decimal OpeningStockVoucherId { get; set; }
+        public int? OpeningStockVoucherId { get; set; }
         public string OpeningStockVoucherNo { get; set; }
         public DateTime OpeningStockVoucherDate { get; set; }
         public int? OpeningStockVoucherLocationId { get; set; }
