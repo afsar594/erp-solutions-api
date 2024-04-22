@@ -13,7 +13,7 @@ namespace Inspire.Erp.Web.ViewModels.Store
 
         public string OpeningStockVoucherRemarks { get; set; }
 
-        public decimal? OpeningStockVoucherFSNO { get; set; }
+        public int? OpeningStockVoucherFSNO { get; set; }
 
         public string OpeningStockVoucherVNO { get; set; }
 

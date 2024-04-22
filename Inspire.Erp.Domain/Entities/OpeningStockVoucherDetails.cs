@@ -6,7 +6,7 @@ namespace Inspire.Erp.Domain.Entities
     public partial class OpeningStockVoucherDetails
     {
 
-        public int? OpeningStockVoucherDetailsId { get; set; }
+        public decimal? OpeningStockVoucherDetailsId { get; set; }
         public int? OpeningStockVoucherId { get; set; }
         public string OpeningStockVoucherDetailsNo { get; set; }
         public int? OpeningStockVoucherDetailsMatId { get; set; }
