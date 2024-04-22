@@ -339,7 +339,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                 openstockVoucher.OpeningStockVoucherDetails = await Task.WhenAll(openstockVoucher.OpeningStockVoucherDetails.Select(async (osvd) =>
                 {
-                   // osvd.OpeningStockVoucherDetailsId = null;
+                    osvd.OpeningStockVoucherDetailsId = null;
                     osvd.OpeningStockVoucherDetailsConversionType =  await _utilityService.GetBasicUnitConversion(osvd.OpeningStockVoucherDetailsMatId, osvd.OpeningStockVoucherDetailsUnitId);
                     return osvd;
                 }));

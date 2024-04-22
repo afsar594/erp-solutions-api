@@ -8380,6 +8380,8 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.HasIndex(e => e.OpeningStockVoucherNo)
                     .HasName("UQ__OpeningStockVoucher__7620E1441D4655FB")
                     .IsUnique();
+                entity.HasKey(e => e.OpeningStockVoucherId);
+
                 entity.ToTable("OpeningStockVoucher");
 
                 entity.Property(e => e.OpeningStockVoucherId).HasColumnType("numeric(18, 0)");
@@ -8405,11 +8407,12 @@ namespace Inspire.Erp.Infrastructure.Database
                 {
 
 
+                    entity.HasKey(e => e.OpeningStockVoucherDetailsId);
 
-                    //entity.Property(e => e.OpeningStockVoucherDetailsId)
-                    //    .HasColumnName("OpeningStockVoucherDetailsID")
-                    //    .HasColumnType("numeric(18, 0)");
-                       // .ValueGeneratedOnAdd();
+                    entity.Property(e => e.OpeningStockVoucherDetailsId)
+                        .HasColumnName("OpeningStockVoucherDetailsID")
+                        .HasColumnType("numeric(18, 0)")
+                     .ValueGeneratedOnAdd();
 
                     entity.Property(e => e.OpeningStockVoucherId).HasColumnType("numeric(18, 4)");
 
