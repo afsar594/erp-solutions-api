@@ -6,7 +6,7 @@ namespace Inspire.Erp.Web.ViewModels.Store
     public partial class OpeningStockVoucherDetailsViewModel
     {
         public decimal OpeningStockVoucherDetailsId { get; set; }
-        public decimal? OpeningStockVoucherId { get; set; }
+        public int? OpeningStockVoucherId { get; set; }
         public string OpeningStockVoucherDetailsNo { get; set; }
         public int? OpeningStockVoucherDetailsMatId { get; set; }
         public decimal? OpeningStockVoucherDetailsManualQty { get; set; }
