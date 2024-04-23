@@ -74,7 +74,9 @@ namespace Inspire.Erp.Web.Controllers.Store
                     OpeningStockVoucherId = xs.openingstockVoucher.OpeningStockVoucherId,
                     OpeningStockVoucherNo = xs.openingstockVoucher.OpeningStockVoucherNo,
                     OpeningStockVoucherDate = xs.openingstockVoucher.OpeningStockVoucherDate,
-             
+                    OpeningStockVoucherLocationId = xs.openingstockVoucher.OpeningStockVoucherLocationId,
+                    OpeningStockVoucherRemarks = xs.openingstockVoucher.OpeningStockVoucherRemarks,
+
                 };
 
                 openingStockVoucherViewModel.OpeningStockVoucherDetails = _mapper.Map<List<OpeningStockVoucherDetailsViewModel>>(xs.openingstockVoucherDetails);
@@ -194,7 +196,8 @@ namespace Inspire.Erp.Web.Controllers.Store
                 OpeningStockVoucherId = xs.openingstockVoucher.OpeningStockVoucherId,
                 OpeningStockVoucherNo = xs.openingstockVoucher.OpeningStockVoucherNo,
                 OpeningStockVoucherDate = xs.openingstockVoucher.OpeningStockVoucherDate,
-                //OpeningStockVoucherDelStatus = xs.openingstockVoucher.OpeningStockVoucherDelStatus,
+                OpeningStockVoucherLocationId = xs.openingstockVoucher.OpeningStockVoucherLocationId,
+                OpeningStockVoucherRemarks = xs.openingstockVoucher.OpeningStockVoucherRemarks,
             };
 
             openingstockVoucherViewModel.OpeningStockVoucherDetails = _mapper.Map<List<OpeningStockVoucherDetailsViewModel>>(xs.openingstockVoucherDetails);
