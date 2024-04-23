@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Inspire.Erp.Application.Master;
+using Inspire.Erp.Application.Master.Interfaces;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Web.Common;
@@ -21,10 +22,12 @@ namespace Inspire.Erp.Web.Controllers
     {
         private readonly IMapper _mapper;
         private IItemMasterService itemMasterService;
-        public ItemMasterController(IItemMasterService _itemMasterService, IMapper mapper)
+        private ILocationMasterService locationMasterService;
+        public ItemMasterController(IItemMasterService _itemMasterService, ILocationMasterService _locationMasterService, IMapper mapper)
         {
 
             itemMasterService = _itemMasterService;
+            locationMasterService = _locationMasterService;
             _mapper = mapper;
         }
         [HttpGet]
@@ -32,7 +35,7 @@ namespace Inspire.Erp.Web.Controllers
         public ApiResponse<List<ItemMasterViewModel>> GetAllItem()
         {
             List<ItemMaster> listItemnater = itemMasterService.GetAllItem();
-             var x = _mapper.Map<List<ItemMasterViewModel>>(listItemnater);
+            var x = _mapper.Map<List<ItemMasterViewModel>>(listItemnater);
             ApiResponse<List<ItemMasterViewModel>> apiResponse = new ApiResponse<List<ItemMasterViewModel>>
             {
                 Valid = true,
@@ -203,7 +206,7 @@ namespace Inspire.Erp.Web.Controllers
         [Route("GetAllItemSearchFilter")]
         public ApiResponse<List<ItemMasterViewModel>> GetAllItemSearchFilter(ItemFilterViewModel data)
         {
-            IEnumerable<ItemMaster> listItemnater = itemMasterService.GetAllItemSearchFilter(data.ItemGroup,data.ItemName);
+            IEnumerable<ItemMaster> listItemnater = itemMasterService.GetAllItemSearchFilter(data.ItemGroup, data.ItemName);
 
             var x = _mapper.Map<List<ItemMasterViewModel>>(listItemnater);
             ApiResponse<List<ItemMasterViewModel>> apiResponse = new ApiResponse<List<ItemMasterViewModel>>
@@ -221,22 +224,22 @@ namespace Inspire.Erp.Web.Controllers
         [Route("InsertItem")]
         public ApiResponse<List<ItemMasterViewModel>> InsertItem([FromBody] ItemMasterViewModel itemMaster)
         {
-            if(itemMaster.ItemMasterImageBase64 != null && (itemMaster.ItemMasterItemId == null || itemMaster.ItemMasterItemId == 0))
+            if (itemMaster.ItemMasterImageBase64 != null && (itemMaster.ItemMasterItemId == null || itemMaster.ItemMasterItemId == 0))
             {
                 itemMaster.ItemImages = new List<ItemImagesViewModel> {
                                                         new ItemImagesViewModel {
                                                              ItemImagesItemImage = Convert.FromBase64String(itemMaster.ItemMasterImageBase64.Split(',')[1])
                                                         } };
             }
-           
+
             var model = _mapper.Map<ItemMaster>(itemMaster);
-            var data = (itemMaster.ItemMasterItemId == null || itemMaster.ItemMasterItemId == 0)? itemMasterService.InsertItem(model):itemMasterService.UpdateItem(model);
-            List<ItemMasterViewModel> result =  _mapper.Map<List<ItemMasterViewModel>>(data) ;
+            var data = (itemMaster.ItemMasterItemId == null || itemMaster.ItemMasterItemId == 0) ? itemMasterService.InsertItem(model) : itemMasterService.UpdateItem(model);
+            List<ItemMasterViewModel> result = _mapper.Map<List<ItemMasterViewModel>>(data);
             ApiResponse<List<ItemMasterViewModel>> apiResponse = new ApiResponse<List<ItemMasterViewModel>>
             {
                 Valid = true,
                 Result = result,
-                Message = (itemMaster.ItemMasterItemId == null || itemMaster.ItemMasterItemId == 0) ? ItemMasterMessage.SaveItem: ItemMasterMessage.UpdateItem
+                Message = (itemMaster.ItemMasterItemId == null || itemMaster.ItemMasterItemId == 0) ? ItemMasterMessage.SaveItem : ItemMasterMessage.UpdateItem
             };
             return apiResponse;
         }
@@ -352,9 +355,10 @@ namespace Inspire.Erp.Web.Controllers
                     Message = ItemMasterMessage.DeleteFailed
                 };
             }
-          
-            
+
+
             return apiResponse;
         }
+
     }
 }
