@@ -8380,6 +8380,8 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.HasIndex(e => e.OpeningStockVoucherNo)
                     .HasName("UQ__OpeningStockVoucher__7620E1441D4655FB")
                     .IsUnique();
+                entity.HasKey(e => e.OpeningStockVoucherId);
+
                 entity.ToTable("OpeningStockVoucher");
 
                 entity.Property(e => e.OpeningStockVoucherId).HasColumnType("numeric(18, 0)");
@@ -8403,10 +8405,14 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<OpeningStockVoucherDetails>(entity =>
                 {
+
+
+                    entity.HasKey(e => e.OpeningStockVoucherDetailsId);
+
                     entity.Property(e => e.OpeningStockVoucherDetailsId)
                         .HasColumnName("OpeningStockVoucherDetailsID")
                         .HasColumnType("numeric(18, 0)")
-                        .ValueGeneratedOnAdd();
+                     .ValueGeneratedOnAdd();
 
                     entity.Property(e => e.OpeningStockVoucherId).HasColumnType("numeric(18, 4)");
 
@@ -24103,6 +24109,13 @@ namespace Inspire.Erp.Infrastructure.Database
                 e.Property(x => x.Id).ValueGeneratedOnAdd().HasColumnName("Id");
                 e.Property(x => x.MenuId).HasColumnName("MenuId");
                 e.Property(x => x.WorkgroupId).HasColumnName("WorkgroupId");
+            });
+
+
+            modelBuilder.Entity<BarcodeScale>(e =>
+            {
+                e.ToTable("BarcodeScale");
+                e.HasKey(x => x.Id);
             });
 
             OnModelCreatingPartial(modelBuilder);

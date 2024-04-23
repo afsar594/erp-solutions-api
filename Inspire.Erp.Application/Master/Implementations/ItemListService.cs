@@ -159,15 +159,26 @@ namespace Inspire.Erp.Application.Master
                 {
 
                     var detailData = _unitDetailsRepo.GetAsQueryable().Where(o => o.UnitDetailsId == Convert.ToInt64(detail.id)).FirstOrDefault();
-                    var ItemDetails = itemrepository.GetAsQueryable().Where(o => o.ItemMasterItemId == Convert.ToInt64(detailData.UnitDetailsItemId)).FirstOrDefault();
+                    //var ItemDetails = itemrepository.GetAsQueryable().Where(o => o.ItemMasterItemId == Convert.ToInt64(detailData.UnitDetailsItemId) && Convert.ToInt64(detailData.UnitDetailsId) == Convert.ToInt64(detail.id)).FirstOrDefault();
+                    if (detailData != null)
+                    {
+                        detailData.UnitDetailsUnitPrice = Convert.ToDouble(detail.UnitPrice);
+                        detailData.UnitDetailsBarcode = Convert.ToString(detail.UD_Barcode);
+                        detailData.UnitDetailsPacking = Convert.ToString(detail.Packing);
+                        detailData.UnitDetailsDescrption = Convert.ToString(detail.UD_Discrption);
 
-                    detailData.UnitDetailsUnitPrice = Convert.ToDouble(detail.UnitPrice);
-                    detailData.UnitDetailsBarcode = Convert.ToString(detail.UD_Barcode);
-                    detailData.UnitDetailsPacking = Convert.ToString(detail.Packing);
-                    detailData.UnitDetailsDescrption = Convert.ToString(detail.UD_Discrption);
-                    ItemDetails.ItemMasterItemSize = Convert.ToString(ItemDetails.ItemMasterItemSize);
-                     _unitDetailsRepo.Update(detailData);
+                        //if (ItemDetails != null)
+                        //{
+                        //    if (ItemDetails.ItemMasterItemSize!= null)
+
+                        //    {
+                        //        ItemDetails.ItemMasterItemSize = Convert.ToString(ItemDetails.ItemMasterItemSize.ToLower());
+                        //        itemrepository.Update(ItemDetails);
+                        //    }
+                        //}
+                        _unitDetailsRepo.Update(detailData);
                     }
+                }
                 _unitDetailsRepo.TransactionCommit();
                 return this.GetAllItemListSearch(null); 
 
