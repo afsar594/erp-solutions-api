@@ -512,7 +512,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     k.OpeningStockVoucherDetailsDelStatus = true;
                     return k;
                 }).ToList();
-
+                _openingstockVoucherRepository.Update(openingstockVoucher);
                 //_openingstockVoucherDetailsRepository.UpdateList(openingstockVoucherDetails);
 
                 accountsTransactions = accountsTransactions.Select((k) =>
@@ -537,11 +537,11 @@ namespace Inspire.Erp.Application.Store.Implementation
 
              //   openingstockVoucher.OpeningStockVoucherDetails = openingstockVoucherDetails;
 
-                _openingstockVoucherRepository.Update(openingstockVoucher);
 
-                var vchrnumer = await _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == openingstockVoucher.OpeningStockVoucherNo).FirstOrDefaultAsync();
 
-                _voucherNumbersRepository.Update(vchrnumer);
+                //var vchrnumer = await _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == openingstockVoucher.OpeningStockVoucherNo).FirstOrDefaultAsync();
+
+                //_voucherNumbersRepository.Update(vchrnumer);
 
                 _openingstockVoucherRepository.TransactionCommit();
                 i = 1;
