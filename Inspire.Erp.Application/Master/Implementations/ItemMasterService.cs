@@ -46,8 +46,8 @@ namespace Inspire.Erp.Application.Master
             try
             {
                 valid = true;
-                itemMaster.ItemMasterItemId =  Convert.ToInt32(itemrepository.GetAsQueryable()
-                                             .Where(x => x.ItemMasterItemId > 0 )
+                itemMaster.ItemMasterItemId = Convert.ToInt32(itemrepository.GetAsQueryable()
+                                             .Where(x => x.ItemMasterItemId > 0)
                                              .DefaultIfEmpty()
                                              .Max(o => o == null ? 0 : o.ItemMasterItemId)) + 1;
 
@@ -64,7 +64,7 @@ namespace Inspire.Erp.Application.Master
             {
                 //cityrepository.Dispose();
             }
-            
+
         }
 
         public ItemMaster NewItem(ItemMaster itemMaster)
@@ -120,15 +120,15 @@ namespace Inspire.Erp.Application.Master
             catch (Exception ex)
             {
                 valid = false;
-                 throw ex;
-               // Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException: 'Database operation expected to affect 1 row(s) but actually affected 0 row(s). Data may have been modified or deleted since entities were loaded. See http://go.microsoft.com/fwlink/?LinkId=527962 for information on understanding and handling optimistic concurrency exceptions.'
-return itemMaster;
+                throw ex;
+                // Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException: 'Database operation expected to affect 1 row(s) but actually affected 0 row(s). Data may have been modified or deleted since entities were loaded. See http://go.microsoft.com/fwlink/?LinkId=527962 for information on understanding and handling optimistic concurrency exceptions.'
+                return itemMaster;
             }
             finally
             {
                 //cityrepository.Dispose();
             }
-            
+
         }
         public IEnumerable<ItemMaster> UpdateItem(ItemMaster itemMaster)
         {
@@ -190,7 +190,7 @@ return itemMaster;
                     ItemMasterItemName = k.ItemMasterItemName
 
 
-                }).ToList() ;
+                }).ToList();
 
             }
             catch (Exception ex)
@@ -219,6 +219,7 @@ return itemMaster;
                     ItemMasterPacking = k.ItemMasterPacking,
                     ItemMasterVenderId = k.ItemMasterVenderId,
                     ItemMasterItemSize = k.ItemMasterItemSize,
+                    ItemMasterAccountNo = k.ItemMasterAccountNo,
                 }).ToList();
 
                 var allUnitDetails = _unitDetailsRepo.GetAll().ToList();
@@ -226,7 +227,7 @@ return itemMaster;
                 {
                     item.UnitDetails = allUnitDetails.Where(c => c.UnitDetailsItemId == item.ItemMasterItemId).ToList();
 
-                } 
+                }
 
             }
             catch (Exception ex)
@@ -246,10 +247,10 @@ return itemMaster;
             IEnumerable<ItemMaster> itemMaster;
             try
             {
-                itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo == id && (k.ItemMasterDelStatus == false || k.ItemMasterDelStatus == null)) 
+                itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo == id && (k.ItemMasterDelStatus == false || k.ItemMasterDelStatus == null))
                                                             .Include(k => k.ItemImages)
                                                             .Include(k => k.ItemPriceLevelDetails)
-                                                            .Include(k =>k.UnitDetails).Select(k => k);
+                                                            .Include(k => k.UnitDetails).Select(k => k);
 
             }
             catch (Exception ex)
@@ -307,70 +308,70 @@ return itemMaster;
 
 
 
-                                           //var bb = (from pvd in purchVouchDetailsRepo.GetAsQueryable()
-                                           //             join pv in purchVouchRepo.GetAsQueryable() on (long)pvd.PurchaseVoucherDetailsPrId equals pv.PurchaseVoucherPurID
-                                                        
-                                           //           select new 
-                                           //             {
-                                           //                 Rate=pvd.PurchaseVoucherDetailsRate,
-                                           //                 PurchaseDate = pv.PurchaseVoucherPurchaseDate
-                                           //             }).OrderByDescending(c => c.PurchaseDate).FirstOrDefaultAsync();
+                //var bb = (from pvd in purchVouchDetailsRepo.GetAsQueryable()
+                //             join pv in purchVouchRepo.GetAsQueryable() on (long)pvd.PurchaseVoucherDetailsPrId equals pv.PurchaseVoucherPurID
 
-                var results =await (from ir in itemrepository.GetAsQueryable()
-                               join vr in vendorrepository.GetAsQueryable() on ir.ItemMasterVenderId equals vr.VendorMasterVendorId into irJoin
-                               from im in irJoin.DefaultIfEmpty()
-                                    join vd in (
-                                  from pod in _unitDetailsRepo.GetAsQueryable()
-                                  group pod by pod.UnitDetailsItemId into grp
-                                  select new
-                                  {
-                                      grp.Key,
-                                      ConTyp = grp.Max(x => x.UnitDetailsConversionType),
+                //           select new 
+                //             {
+                //                 Rate=pvd.PurchaseVoucherDetailsRate,
+                //                 PurchaseDate = pv.PurchaseVoucherPurchaseDate
+                //             }).OrderByDescending(c => c.PurchaseDate).FirstOrDefaultAsync();
 
-                                  }) on ir.ItemMasterItemId equals vd.Key into vdJoin
-                                    from vd in vdJoin.DefaultIfEmpty()
-                                    where ir.ItemMasterItemType=="A"
-                               && (ir.ItemMasterItemName.Contains(query) || im.VendorMasterVendorName.Contains(query)
-                               || ir.ItemMasterPartNo.Contains(query))
-                               select new ItemResponse
-                               {
-                                   ItemId = ir.ItemMasterItemId,
-                                   ItemName = ir.ItemMasterItemName,
-                                   PartNo = ir.ItemMasterPartNo,
-                                   MaterialCode = ir.ItemMasterMaterialCode,
-                                   VendorName = im.VendorMasterVendorName,
-                                   UnitPrice = ir.ItemMasterUnitPrice,
-                                   Stock=ir.ItemMasterCurrentStock??0/vd.ConTyp,
-                                   LandingCost=ir.ItemMasterLandingCost,
-                                   //LastPurPrice= (from pvd in purchVouchDetailsRepo.GetAsQueryable()
-                                   //                    join pv in purchVouchRepo.GetAsQueryable() on (long)pvd.PurchaseVoucherDetailsPrId equals pv.PurchaseVoucherPurID
-                                   //                    where pvd.PurchaseVoucherDetailsMaterialId==ir.ItemMasterItemId
-                                   //                    select new
-                                   //                    {
-                                   //                        Rate = pvd.PurchaseVoucherDetailsRate,
-                                   //                        PurchaseDate = pv.PurchaseVoucherPurchaseDate
-                                   //                    }).OrderByDescending(c => c.PurchaseDate).FirstOrDefault().Rate,
-                                   LastPurPrice = (from pvd in purchVouchDetailsRepo.GetAsQueryable()
-                                                   join pv in purchVouchRepo.GetAsQueryable() on pvd.PurchaseVoucherDetailsVoucherNo equals pv.PurchaseVoucherVoucherNo
-                                                   where pvd.PurchaseVoucherDetailsMaterialId == ir.ItemMasterItemId
-                                                   select new
-                                                   {
-                                                       Rate = pvd.PurchaseVoucherDetailsRate,
-                                                       PurchaseDate = pv.PurchaseVoucherPurchaseDate
-                                                   }).OrderByDescending(c => c.PurchaseDate).FirstOrDefault().Rate,
+                var results = await (from ir in itemrepository.GetAsQueryable()
+                                     join vr in vendorrepository.GetAsQueryable() on ir.ItemMasterVenderId equals vr.VendorMasterVendorId into irJoin
+                                     from im in irJoin.DefaultIfEmpty()
+                                     join vd in (
+                                   from pod in _unitDetailsRepo.GetAsQueryable()
+                                   group pod by pod.UnitDetailsItemId into grp
+                                   select new
+                                   {
+                                       grp.Key,
+                                       ConTyp = grp.Max(x => x.UnitDetailsConversionType),
+
+                                   }) on ir.ItemMasterItemId equals vd.Key into vdJoin
+                                     from vd in vdJoin.DefaultIfEmpty()
+                                     where ir.ItemMasterItemType == "A"
+                                && (ir.ItemMasterItemName.Contains(query) || im.VendorMasterVendorName.Contains(query)
+                                || ir.ItemMasterPartNo.Contains(query))
+                                     select new ItemResponse
+                                     {
+                                         ItemId = ir.ItemMasterItemId,
+                                         ItemName = ir.ItemMasterItemName,
+                                         PartNo = ir.ItemMasterPartNo,
+                                         MaterialCode = ir.ItemMasterMaterialCode,
+                                         VendorName = im.VendorMasterVendorName,
+                                         UnitPrice = ir.ItemMasterUnitPrice,
+                                         Stock = ir.ItemMasterCurrentStock ?? 0 / vd.ConTyp,
+                                         LandingCost = ir.ItemMasterLandingCost,
+                                         //LastPurPrice= (from pvd in purchVouchDetailsRepo.GetAsQueryable()
+                                         //                    join pv in purchVouchRepo.GetAsQueryable() on (long)pvd.PurchaseVoucherDetailsPrId equals pv.PurchaseVoucherPurID
+                                         //                    where pvd.PurchaseVoucherDetailsMaterialId==ir.ItemMasterItemId
+                                         //                    select new
+                                         //                    {
+                                         //                        Rate = pvd.PurchaseVoucherDetailsRate,
+                                         //                        PurchaseDate = pv.PurchaseVoucherPurchaseDate
+                                         //                    }).OrderByDescending(c => c.PurchaseDate).FirstOrDefault().Rate,
+                                         LastPurPrice = (from pvd in purchVouchDetailsRepo.GetAsQueryable()
+                                                         join pv in purchVouchRepo.GetAsQueryable() on pvd.PurchaseVoucherDetailsVoucherNo equals pv.PurchaseVoucherVoucherNo
+                                                         where pvd.PurchaseVoucherDetailsMaterialId == ir.ItemMasterItemId
+                                                         select new
+                                                         {
+                                                             Rate = pvd.PurchaseVoucherDetailsRate,
+                                                             PurchaseDate = pv.PurchaseVoucherPurchaseDate
+                                                         }).OrderByDescending(c => c.PurchaseDate).FirstOrDefault().Rate,
 
 
-                                   LastSalePrice = (from pvd in saleVouchDetailsRepo.GetAsQueryable()
-                                                   join pv in saleVouchRepo.GetAsQueryable() on pvd.SalesVoucherDetailsNo equals pv.SalesVoucherNo
-                                                   where pvd.SalesVoucherDetailsMatId == ir.ItemMasterItemId
-                                                   select new
-                                                   {
-                                                       Rate = pvd.SalesVoucherDetailsRate,
-                                                       PurchaseDate = pv.SalesVoucherDate
-                                                   }).OrderByDescending(c => c.PurchaseDate).FirstOrDefault().Rate
-                               })
+                                         LastSalePrice = (from pvd in saleVouchDetailsRepo.GetAsQueryable()
+                                                          join pv in saleVouchRepo.GetAsQueryable() on pvd.SalesVoucherDetailsNo equals pv.SalesVoucherNo
+                                                          where pvd.SalesVoucherDetailsMatId == ir.ItemMasterItemId
+                                                          select new
+                                                          {
+                                                              Rate = pvd.SalesVoucherDetailsRate,
+                                                              PurchaseDate = pv.SalesVoucherDate
+                                                          }).OrderByDescending(c => c.PurchaseDate).FirstOrDefault().Rate
+                                     })
 
-                       .OrderBy(t => t.ItemName).ThenBy(x=>x.MaterialCode).ToListAsync();
+                       .OrderBy(t => t.ItemName).ThenBy(x => x.MaterialCode).ToListAsync();
 
                 return Response<List<ItemResponse>>.Success(results, "Data found");
             }
@@ -406,7 +407,7 @@ return itemMaster;
 
         public IEnumerable<ItemMaster> GetItemMastersByName(string name)
         {
-            IEnumerable<ItemMaster> itemMasters = itemrepository.GetAsQueryable().Where(k => k.ItemMasterItemName.Contains(name) 
+            IEnumerable<ItemMaster> itemMasters = itemrepository.GetAsQueryable().Where(k => k.ItemMasterItemName.Contains(name)
             && (k.ItemMasterDelStatus == false || k.ItemMasterDelStatus == null)
             && k.ItemMasterAccountNo != 0 && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => k);
 
@@ -415,17 +416,17 @@ return itemMaster;
 
         public IEnumerable<ItemMaster> GetAllItemSearchFilter(string group, string name)
         {
-            IEnumerable<ItemMaster> itemMasters = itemrepository.GetAsQueryable().Where(k => (((name != null && name.Trim() != "") 
+            IEnumerable<ItemMaster> itemMasters = itemrepository.GetAsQueryable().Where(k => (((name != null && name.Trim() != "")
             || (group != null && group.Trim() != "")) &&
-            ((name != null && name.Trim() != "")? k.ItemMasterItemName.Equals(name): true
+            ((name != null && name.Trim() != "") ? k.ItemMasterItemName.Equals(name) : true
             || (group != null && group.Trim() != "") ? k.ItemMasterItemName.Equals(group) : true))
             && (k.ItemMasterDelStatus == false || k.ItemMasterDelStatus == null))
-                .Include(k =>k.ItemPriceLevelDetails)
-                .Include(x =>x.ItemImages)
+                .Include(k => k.ItemPriceLevelDetails)
+                .Include(x => x.ItemImages)
                 .Include(k => k.UnitDetails).Select(k => k);
-                
 
-            return itemMasters; 
+
+            return itemMasters;
         }
 
         public int ItemMasterIdMax()
