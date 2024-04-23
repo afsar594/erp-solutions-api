@@ -78,7 +78,8 @@ namespace Inspire.Erp.Application.Master
                                  UD_UnitPrice = UD.UnitDetailsUnitPrice ?? 0,
                                  SupplierName = Convert.ToString(S.SuppliersInsName) ?? null,
                                  ItemMasterAccountNo = IM.ItemMasterAccountNo ?? 0,
-                                 ItemSize = Convert.ToString(IM.ItemMasterItemSize) ?? ""
+                                 ItemSize = Convert.ToString(IM.ItemMasterItemSize) ?? "",
+                                 isUpdated=false
                              }).ToList();
                 if (filteModle == null)
                 {
@@ -157,32 +158,35 @@ namespace Inspire.Erp.Application.Master
 
                 foreach (var detail in dates)
                 {
-
-                    var detailData = _unitDetailsRepo.GetAsQueryable().Where(o => o.UnitDetailsId == Convert.ToInt32(detail.id)).FirstOrDefault();
-                    var ItemDetails = itemrepository.GetAsQueryable().Where(o => o.ItemMasterItemId == Convert.ToInt32(detailData.UnitDetailsItemId) && Convert.ToInt32(detailData.UnitDetailsId) == Convert.ToInt64(detail.id)).FirstOrDefault();
-                    if (detailData != null)
+                    if (detail.isUpdated == true)
                     {
-                        detailData.UnitDetailsUnitPrice = Convert.ToDouble(detail.UnitPrice);
-                        detailData.UnitDetailsBarcode = Convert.ToString(detail.UD_Barcode);
-                        detailData.UnitDetailsPacking = Convert.ToString(detail.Packing);
-                        detailData.UnitDetailsDescrption = Convert.ToString(detail.UD_Discrption);
-                        _unitDetailsRepo.Update(detailData);
+                        var detailData = _unitDetailsRepo.GetAsQueryable().Where(o => o.UnitDetailsId == Convert.ToInt32(detail.id)).FirstOrDefault();
+                      
+
+                        if (detailData != null)
+                        {
+                            detailData.UnitDetailsUnitPrice = Convert.ToDouble(detail.UnitPrice);
+                            detailData.UnitDetailsBarcode = Convert.ToString(detail.UD_Barcode);
+                            detailData.UnitDetailsPacking = Convert.ToString(detail.Packing);
+                            detailData.UnitDetailsDescrption = Convert.ToString(detail.UD_Discrption);
+                            _unitDetailsRepo.Update(detailData);
+                        }
+
+                        var ItemDetails = itemrepository.GetAsQueryable().Where(o => o.ItemMasterItemId == Convert.ToInt32(detail.itemMasterid)).FirstOrDefault();
 
                         if (ItemDetails != null)
                         {
                             if (ItemDetails.ItemMasterItemSize != null)
-
                             {
-                                ItemDetails.ItemMasterItemSize = Convert.ToString(ItemDetails.ItemMasterItemSize.ToLower());
+                                ItemDetails.ItemMasterItemSize = Convert.ToString(ItemDetails.ItemMasterItemSize);
                                 ItemDetails.ItemMasterStatus = true;
                                 itemrepository.Update(ItemDetails);
                             }
                         }
                     }
                 }
-
                 _unitDetailsRepo.TransactionCommit();
-                return this.GetAllItemListSearch(null);
+               return this.GetAllItemListSearch(null);
 
             }
             catch (Exception ex)

@@ -143,6 +143,7 @@ namespace Inspire.Erp.Application.Master
                                          UnitMasterUnitFullName = cpo.UnitMasterUnitFullName == null ? "" : cpo.UnitMasterUnitFullName,
                                          UnitMasterUnitDescription = cpo.UnitMasterUnitDescription == null ? "" : cpo.UnitMasterUnitDescription,
                                          UnitMasterUnitStatus = cpo.UnitMasterUnitStatus == null ? false : cpo.UnitMasterUnitStatus,
+                                         UnitDetailsConversionType = cpod.UnitDetailsConversionType == null ? 0 : cpod.UnitDetailsConversionType,
 
                                      }).ToListAsync();
 

@@ -35,6 +35,7 @@ namespace Inspire.Erp.Application.Master
         public long? UnitDetailsID { get; set; }
 
         public string? ItemSize { get; set; }
+        public bool? isUpdated { get; set; }
         public List<RateItemListrModel> RateItemListrModel { get; set; }
     }
     public class ItemFilterModel
