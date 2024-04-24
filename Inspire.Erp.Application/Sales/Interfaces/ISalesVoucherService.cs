@@ -51,5 +51,8 @@ namespace Inspire.Erp.Application.Sales.Interfaces
         public VouchersNumbers GetVouchersNumbers(string pvno);
         public IQueryable GetSalesVoucherDetailsByMasterNo(string SalesVoucherNo);
 
+
+        
+
     }
 }
