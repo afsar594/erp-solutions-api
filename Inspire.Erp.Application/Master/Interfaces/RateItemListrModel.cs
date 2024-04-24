@@ -14,5 +14,7 @@ namespace Inspire.Erp.Application.Master
         public string? Packing { get; set; }
         public string? UD_Discrption { get; set; }
         public string? ItemSize { get; set; }
+        public int? itemMasterid { get; set; }
+        public bool? isUpdated { get; set; }
     }
 }
