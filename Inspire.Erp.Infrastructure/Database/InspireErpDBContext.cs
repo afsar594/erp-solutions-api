@@ -14,6 +14,7 @@ using static Inspire.Erp.Domain.Modals.PDCResponse;
 //using Inspire.Erp.Domain.Modals.ViewModels;
 using Inspire.Erp.Domain.Modals.Settings;
 using Inspire.Erp.Domain.Models.MIS;
+using Inspire.Erp.Domain.Entities.POS;
 
 namespace Inspire.Erp.Infrastructure.Database
 {
@@ -24115,6 +24116,13 @@ namespace Inspire.Erp.Infrastructure.Database
             modelBuilder.Entity<BarcodeScale>(e =>
             {
                 e.ToTable("BarcodeScale");
+                e.HasKey(x => x.Id);
+            });
+
+            //POS
+            modelBuilder.Entity<POS_WorkPeriod>(e =>
+            {
+                e.ToTable("POS_WorkPeriod");
                 e.HasKey(x => x.Id);
             });
 

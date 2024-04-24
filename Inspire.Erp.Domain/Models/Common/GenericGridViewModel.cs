@@ -116,4 +116,10 @@ namespace Inspire.Erp.Domain.Modals.Common
         public bool DisableVat { get; set; }
         public string BarCode { get; set; }
     }
+    public class WorkPeriodFilter
+    {
+        public int?  StationId { get; set; }
+        public string? Status { get; set; }
+        public int? UserId { get; set; }
+    }
 }
