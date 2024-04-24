@@ -628,7 +628,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 {
                     query = query.Where(im => im.ItemMasterItemId == model.ItemId);
                 }
-                else if (model.ItemGroupId > 0)
+                if (model.ItemGroupId > 0)
                 {
                     query = query.Where(im => im.ItemMasterAccountNo == model.ItemGroupId && im.ItemMasterItemType == "A")
                                  .OrderBy(im => im.ItemMasterItemId);
@@ -670,6 +670,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                               join um in _context.UnitMaster on q.UnitId equals um.UnitMasterUnitId into gum
                               from n in gum.DefaultIfEmpty()
                               where im.ItemMasterItemType == "A" && im.ItemMasterItemId == model.ItemId
+                                      && (model.LocationId == null || y.StockRegisterLocationID == model.LocationId)
                               select new StockRegisterResponse
                               {
                                   Item_Id = im.ItemMasterItemId,
@@ -684,6 +685,8 @@ namespace Inspire.Erp.Application.Store.Implementation
                                   TotalBal = 0,
                                   TotalBalAmount = 0
                               }).ToList();
+
+                var res = result;
 
                 var results = result.Any() ? new List<StockRegisterResponse>
                 {
@@ -712,6 +715,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                 join um in _context.UnitMaster on q.UnitId equals um.UnitMasterUnitId into gum
                                 from n in gum.DefaultIfEmpty()
                                 where im.ItemMasterItemType == "A" && im.ItemMasterItemId == model.ItemId
+                                      && (model.LocationId == null || y.StockRegisterLocationID == model.LocationId)
                                 select new StockMovementInOut
                                 {
                                     Ref_Vocher_No = y.StockRegisterRefVoucherNo,
@@ -730,6 +734,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                 join um in _context.UnitMaster on q.UnitId equals um.UnitMasterUnitId into gum
                                 from n in gum.DefaultIfEmpty()
                                 where im.ItemMasterItemType == "A" && im.ItemMasterItemId == model.ItemId
+                                      && (model.LocationId == null || y.StockRegisterLocationID == model.LocationId)
                                 select new StockMovementInOut
                                 {
                                     Ref_Vocher_No = y.StockRegisterRefVoucherNo,

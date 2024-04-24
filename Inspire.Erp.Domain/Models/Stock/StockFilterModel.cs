@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Inspire.Erp.Domain.Modals.Stock
 {
-  public  class StockFilterModel
+    public class StockFilterModel
     {
         public bool IsDateChecked { get; set; }
         public DateTime fromDate { get; set; }
@@ -14,6 +14,7 @@ namespace Inspire.Erp.Domain.Modals.Stock
         public string ItemName { get; set; }
         public string PartNo { get; set; }
         public int? LocationId { get; set; }
+        public int? JobId { get; set; }
         public bool OrderByGroup { get; set; }
         public bool ExcludeZeroOpeningBalance { get; set; }
         public bool ExcludeZeroBalance { get; set; }
