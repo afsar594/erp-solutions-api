@@ -57,7 +57,7 @@ namespace Inspire.Erp.Application.Master
 
                              select new ItemListViewModel
                              {
-                                 UnitDetailsID= UD.UnitDetailsId,
+                                 UnitDetailsID = UD.UnitDetailsId,
                                  BarcodePrint = "",
                                  ItemId = (long?)IM.ItemMasterItemId ?? 0,
                                  PartNo = IM.ItemMasterPartNo ?? "",
@@ -78,14 +78,15 @@ namespace Inspire.Erp.Application.Master
                                  UD_UnitPrice = UD.UnitDetailsUnitPrice ?? 0,
                                  SupplierName = Convert.ToString(S.SuppliersInsName) ?? null,
                                  ItemMasterAccountNo = IM.ItemMasterAccountNo ?? 0,
-                                 ItemSize = Convert.ToString(IM.ItemMasterItemSize) ?? ""
+                                 ItemSize = Convert.ToString(IM.ItemMasterItemSize) ?? "",
+                                 isUpdated=false
                              }).ToList();
-                if (filteModle==null )
+                if (filteModle == null)
                 {
                     return query;
 
                 }
-                else if (filteModle.IsContaining == true )
+                else if (filteModle.IsContaining == true)
                 {
                     if (filteModle.Barcode != "" && filteModle.Barcode != "string")
                     {
@@ -157,25 +158,35 @@ namespace Inspire.Erp.Application.Master
 
                 foreach (var detail in dates)
                 {
+                    if (detail.isUpdated == true)
+                    {
+                        var detailData = _unitDetailsRepo.GetAsQueryable().Where(o => o.UnitDetailsId == Convert.ToInt32(detail.id)).FirstOrDefault();
+                      
 
-                    var detailData = _unitDetailsRepo.GetAsQueryable().Where(o => o.UnitDetailsId == Convert.ToInt64(detail.id)).FirstOrDefault();
-                    var ItemDetails = itemrepository.GetAsQueryable().Where(o => o.ItemMasterItemId == Convert.ToInt64(detailData.UnitDetailsItemId)).FirstOrDefault();
+                        if (detailData != null)
+                        {
+                            detailData.UnitDetailsUnitPrice = Convert.ToDouble(detail.UnitPrice);
+                            detailData.UnitDetailsBarcode = Convert.ToString(detail.UD_Barcode);
+                            detailData.UnitDetailsPacking = Convert.ToString(detail.Packing);
+                            detailData.UnitDetailsDescrption = Convert.ToString(detail.UD_Discrption);
+                            _unitDetailsRepo.Update(detailData);
+                        }
 
-                    detailData.UnitDetailsUnitPrice = Convert.ToDouble(detail.UnitPrice);
-                    detailData.UnitDetailsBarcode = Convert.ToString(detail.UD_Barcode);
-                    detailData.UnitDetailsPacking = Convert.ToString(detail.Packing);
-                    detailData.UnitDetailsDescrption = Convert.ToString(detail.UD_Discrption);
+                        var ItemDetails = itemrepository.GetAsQueryable().Where(o => o.ItemMasterItemId == Convert.ToInt32(detail.itemMasterid)).FirstOrDefault();
 
-
-                    //if (ItemDetails.ItemMasterItemSize != null)
-                    //{
-                    //    ItemDetails.ItemMasterItemSize = Convert.ToString(ItemDetails.ItemMasterItemSize);
-                    //    itemrepository.Update(ItemDetails);
-                    //}
-                    _unitDetailsRepo.Update(detailData);
+                        if (ItemDetails != null)
+                        {
+                            if (ItemDetails.ItemMasterItemSize != null)
+                            {
+                                ItemDetails.ItemMasterItemSize = Convert.ToString(ItemDetails.ItemMasterItemSize);
+                                ItemDetails.ItemMasterStatus = true;
+                                itemrepository.Update(ItemDetails);
+                            }
+                        }
+                    }
                 }
                 _unitDetailsRepo.TransactionCommit();
-                return this.GetAllItemListSearch(null); 
+               return this.GetAllItemListSearch(null);
 
             }
             catch (Exception ex)
@@ -184,6 +195,6 @@ namespace Inspire.Erp.Application.Master
                 throw ex;
             }
         }
-        
+
     }
 }
