@@ -626,21 +626,21 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                 if (model.ItemId > 0)
                 {
-                    query = query.Where(im => im.ItemMasterItemId == model.ItemId);
+                    query = query.Where(im => im.ItemMasterItemId == model.ItemId && im.ItemMasterDelStatus != true);
                 }
                 if (model.ItemGroupId > 0)
                 {
-                    query = query.Where(im => im.ItemMasterAccountNo == model.ItemGroupId && im.ItemMasterItemType == "A")
+                    query = query.Where(im => im.ItemMasterAccountNo == model.ItemGroupId && im.ItemMasterItemType == "A" && im.ItemMasterDelStatus != true)
                                  .OrderBy(im => im.ItemMasterItemId);
                 }
                 else
                 {
-                    query = query.Where(im => im.ItemMasterItemType == "A")
+                    query = query.Where(im => im.ItemMasterItemType == "A" && im.ItemMasterDelStatus != true)
                                  .OrderBy(im => im.ItemMasterItemId);
                 }
 
 
-                var subrq = (from s in _context.UnitDetails.Where(x => x.UnitDetailsConversionType == 1 && x.UnitDetailsItemId == model.ItemId)
+                var subrq = (from s in _context.UnitDetails.Where(x => x.UnitDetailsConversionType == 1 && (model.ItemId == null || x.UnitDetailsItemId == model.ItemId))
                              select new
                              {
                                  ItemId = s.UnitDetailsItemId,
@@ -658,98 +658,125 @@ namespace Inspire.Erp.Application.Store.Implementation
                                        TotalAmount = g.Sum(x => (x.StockRegisterSIN - x.StockRegisterSout) * x.StockRegisterRate)
                                    }).ToList();
 
-                //var query1 = query.ToList();
 
+                var results = (from im in query
+                               join sr in _context.StockRegister on im.ItemMasterItemId equals (long)sr.StockRegisterMaterialID.GetValueOrDefault() into gimV1
+                               from y in gimV1.DefaultIfEmpty()
+                               join r in subrq on y.StockRegisterMaterialID.GetValueOrDefault() equals (int)r.ItemId into grj
+                               from q in grj.DefaultIfEmpty()
+                               join um in _context.UnitMaster on q.UnitId equals um.UnitMasterUnitId into gum
+                               from n in gum.DefaultIfEmpty()
+                               where im.ItemMasterItemType == "A" && (model.ItemId == null || im.ItemMasterItemId == model.ItemId)
+                               && (model.LocationId == null || y.StockRegisterLocationID == model.LocationId)
+                               select new
+                               {
+                                   im.ItemMasterItemId,
+                                   im.ItemMasterItemName,
+                                   n.UnitMasterUnitShortName,
+                                   y.StockRegisterSIN,
+                                   y.StockRegisterSout,
+                                   y.StockRegisterVoucherDate,
+                                   y.StockRegisterAmount
+                               })
+               .AsEnumerable()
+               .Select(x => new StockRegisterResponse
+               {
+                   Item_Id = x.ItemMasterItemId,
+                   Item_Name = x.ItemMasterItemName,
+                   Stock_Register_Unit = x.UnitMasterUnitShortName ?? "",
+                   StockIn = (x.StockRegisterSIN != null && x.StockRegisterSIN > 0 && x.StockRegisterVoucherDate >= model.fromDate && x.StockRegisterVoucherDate <= model.toDate) ? x.StockRegisterSIN : 0,
+                   StockInAmount = (x.StockRegisterSIN != null && x.StockRegisterSIN > 0 && x.StockRegisterVoucherDate >= model.fromDate && x.StockRegisterVoucherDate <= model.toDate) ? x.StockRegisterAmount ?? 0 : 0,
+                   StockOut = (x.StockRegisterSout != null && x.StockRegisterSout > 0 && x.StockRegisterVoucherDate >= model.fromDate && x.StockRegisterVoucherDate <= model.toDate) ? x.StockRegisterSout ?? 0 : 0,
+                   StockOutAmount = (x.StockRegisterSout != null && x.StockRegisterSout > 0 && x.StockRegisterVoucherDate >= model.fromDate && x.StockRegisterVoucherDate <= model.toDate) ? x.StockRegisterAmount ?? 0 : 0,
+                   OpenQty = (x.StockRegisterSIN != null && x.StockRegisterSIN > 0 && x.StockRegisterVoucherDate < model.fromDate) ? (x.StockRegisterSIN ?? 0) - (x.StockRegisterSout ?? 0) : 0,
+                   OpenQtyAmount = (x.StockRegisterSIN != null && x.StockRegisterSIN > 0 && x.StockRegisterVoucherDate < model.fromDate) ? (x.StockRegisterAmount ?? 0) - (x.StockRegisterAmount ?? 0) : 0,
+                   TotalBal = 0,
+                   TotalBalAmount = 0
+               })
+               .GroupBy(
+                   m => new { m.Item_Id, m.Item_Name, m.Stock_Register_Unit },
+                   (k, g) => new StockRegisterResponse
+                   {
+                       Item_Id = k.Item_Id,
+                       Item_Name = k.Item_Name,
+                       Stock_Register_Unit = k.Stock_Register_Unit ?? "",
+                       StockIn = g.Sum(x => x.StockIn),
+                       StockInAmount = g.Sum(a => a.StockInAmount),
+                       StockOut = g.Sum(a => a.StockOut),
+                       StockOutAmount = g.Sum(a => a.StockOutAmount),
+                       OpenQty = g.Sum(a => a.OpenQty),
+                       OpenQtyAmount = g.Sum(a => a.OpenQtyAmount),
+                       TotalBal = g.Sum(a => a.StockIn) - g.Sum(a => a.StockOut),
+                       TotalBalAmount = g.Sum(a => a.StockInAmount) - g.Sum(a => a.StockOutAmount)
+                   })
+               .ToList();
 
+                var StockIn = (from im in query
+                               join sr in _context.StockRegister on im.ItemMasterItemId equals (long)sr.StockRegisterMaterialID.GetValueOrDefault() into gimV1
+                               from y in gimV1.DefaultIfEmpty()
+                               join r in subrq on y.StockRegisterMaterialID.GetValueOrDefault() equals (int)r.ItemId into grj
+                               from q in grj.DefaultIfEmpty()
+                               join um in _context.UnitMaster on q.UnitId equals um.UnitMasterUnitId into gum
+                               from n in gum.DefaultIfEmpty()
+                               join lm in _context.LocationMaster on y.StockRegisterLocationID equals lm.LocationMasterLocationId into glm
+                               from lms in glm.DefaultIfEmpty()
+                               where im.ItemMasterItemType == "A" && (model.ItemId == null || im.ItemMasterItemId == model.ItemId)
+                                     && (model.LocationId == null || y.StockRegisterLocationID == model.LocationId)
+                               select new StockMovementInOut
+                               {
+                                   Ref_Vocher_No = y.StockRegisterRefVoucherNo,
+                                   Voucher_Date = Convert.ToDateTime(y.StockRegisterVoucherDate).ToString("dd/MM/yyyy"),
+                                   TransType = y.StockRegisterTransType,
+                                   Unit = n.UnitMasterUnitShortName ?? "",
+                                   Location = lms.LocationMasterLocationName ?? "",
+                                   Rate = y != null && y.StockRegisterSIN > 0 && y.StockRegisterVoucherDate >= model.fromDate && y.StockRegisterVoucherDate <= model.toDate ? y.StockRegisterRate : 0,
+                                   Qty = y != null && y.StockRegisterSIN > 0 && y.StockRegisterVoucherDate >= model.fromDate && y.StockRegisterVoucherDate <= model.toDate ? y.StockRegisterSIN : 0,
+                                   QtyAmount = y != null && y.StockRegisterSIN > 0 && y.StockRegisterVoucherDate >= model.fromDate && y.StockRegisterVoucherDate <= model.toDate ? y.StockRegisterAmount : 0,
+                               }).ToList();
 
-                var result = (from im in query
-                              join sr in _context.StockRegister on im.ItemMasterItemId equals (long)sr.StockRegisterMaterialID.GetValueOrDefault() into gimV1
-                              from y in gimV1.DefaultIfEmpty()
-                              join r in subrq on y.StockRegisterMaterialID.GetValueOrDefault() equals (int)r.ItemId into grj
-                              from q in grj.DefaultIfEmpty()
-                              join um in _context.UnitMaster on q.UnitId equals um.UnitMasterUnitId into gum
-                              from n in gum.DefaultIfEmpty()
-                              where im.ItemMasterItemType == "A" && im.ItemMasterItemId == model.ItemId
-                                      && (model.LocationId == null || y.StockRegisterLocationID == model.LocationId)
-                              select new StockRegisterResponse
-                              {
-                                  Item_Id = im.ItemMasterItemId,
-                                  Item_Name = im.ItemMasterItemName,
-                                  Stock_Register_Unit = n.UnitMasterUnitShortName ?? "",
-                                  StockIn = y != null && y.StockRegisterSIN > 0 && y.StockRegisterVoucherDate >= model.fromDate && y.StockRegisterVoucherDate <= model.toDate ? y.StockRegisterSIN : 0,
-                                  StockInAmount = y != null && y.StockRegisterSIN > 0 && y.StockRegisterVoucherDate >= model.fromDate && y.StockRegisterVoucherDate <= model.toDate ? y.StockRegisterAmount : 0,
-                                  StockOut = y != null && y.StockRegisterSout > 0 && y.StockRegisterVoucherDate >= model.fromDate && y.StockRegisterVoucherDate <= model.toDate ? y.StockRegisterSout ?? 0 : 0,
-                                  StockOutAmount = y != null && y.StockRegisterSout > 0 && y.StockRegisterVoucherDate >= model.fromDate && y.StockRegisterVoucherDate <= model.toDate ? y.StockRegisterAmount : 0,
-                                  OpenQty = y != null && y.StockRegisterSIN > 0 && y.StockRegisterVoucherDate < model.fromDate ? y.StockRegisterSIN ?? 0 - y.StockRegisterSout ?? 0 : 0,
-                                  OpenQtyAmount = y != null && y.StockRegisterSIN > 0 && y.StockRegisterVoucherDate < model.fromDate ? y.StockRegisterAmount ?? 0 - y.StockRegisterAmount ?? 0 : 0,
-                                  TotalBal = 0,
-                                  TotalBalAmount = 0
-                              }).ToList();
+                var indexedStockMovementIn = StockIn.Where(x => x.Qty > 0)
+                                     .Select((x, index) =>
+                                     {
+                                         x.Sr = index + 1;
+                                         return x;
+                                     })
+                                     .ToList();
 
-                var res = result;
-
-                var results = result.Any() ? new List<StockRegisterResponse>
-                {
-                    new StockRegisterResponse
-                    {
-                        Item_Id = result[0].Item_Id,
-                        Item_Name = result[0].Item_Name,
-                        Stock_Register_Unit = result[0].Stock_Register_Unit,
-                        StockIn = result.Sum(r => r.StockIn),
-                        StockInAmount = result.Sum(r => r.StockInAmount),
-                        StockOut = result.Sum(r => r.StockOut),
-                        StockOutAmount = result.Sum(r => r.StockOutAmount),
-                        OpenQty = result.Sum(r => r.OpenQty),
-                        OpenQtyAmount = result.Sum(r => r.OpenQtyAmount),
-                        TotalBal =result.Sum(r => r.StockIn)-result.Sum(r => r.StockOut),
-                        TotalBalAmount = result.Sum(r => r.StockInAmount)-result.Sum(r => r.StockOutAmount),
-                    }
-                } : null;
-
-                //var results1 = new List<StockMovementInOut>();
-                var results1 = (from im in query
+                var StockOut = (from im in query
                                 join sr in _context.StockRegister on im.ItemMasterItemId equals (long)sr.StockRegisterMaterialID.GetValueOrDefault() into gimV1
                                 from y in gimV1.DefaultIfEmpty()
                                 join r in subrq on y.StockRegisterMaterialID.GetValueOrDefault() equals (int)r.ItemId into grj
                                 from q in grj.DefaultIfEmpty()
                                 join um in _context.UnitMaster on q.UnitId equals um.UnitMasterUnitId into gum
                                 from n in gum.DefaultIfEmpty()
-                                where im.ItemMasterItemType == "A" && im.ItemMasterItemId == model.ItemId
+                                join lm in _context.LocationMaster on y.StockRegisterLocationID equals lm.LocationMasterLocationId into glm
+                                from lms in glm.DefaultIfEmpty()
+                                where im.ItemMasterItemType == "A" && (model.ItemId == null || im.ItemMasterItemId == model.ItemId)
                                       && (model.LocationId == null || y.StockRegisterLocationID == model.LocationId)
                                 select new StockMovementInOut
                                 {
                                     Ref_Vocher_No = y.StockRegisterRefVoucherNo,
-                                    Voucher_Date = y.StockRegisterVoucherDate,
+                                    Voucher_Date = Convert.ToDateTime(y.StockRegisterVoucherDate).ToString("dd/MM/yyyy"),
                                     TransType = y.StockRegisterTransType,
                                     Unit = n.UnitMasterUnitShortName ?? "",
-                                    Rate = y != null && y.StockRegisterSIN > 0 && y.StockRegisterVoucherDate >= model.fromDate && y.StockRegisterVoucherDate <= model.toDate ? y.StockRegisterFcRate : 0,
-                                    Qty = y != null && y.StockRegisterSIN > 0 && y.StockRegisterVoucherDate >= model.fromDate && y.StockRegisterVoucherDate <= model.toDate ? y.StockRegisterSIN : 0,
-                                    QtyAmount = y != null && y.StockRegisterSIN > 0 && y.StockRegisterVoucherDate >= model.fromDate && y.StockRegisterVoucherDate <= model.toDate ? y.StockRegisterAmount : 0,
-                                }).ToList();
-                var results2 = (from im in query
-                                join sr in _context.StockRegister on im.ItemMasterItemId equals (long)sr.StockRegisterMaterialID.GetValueOrDefault() into gimV1
-                                from y in gimV1.DefaultIfEmpty()
-                                join r in subrq on y.StockRegisterMaterialID.GetValueOrDefault() equals (int)r.ItemId into grj
-                                from q in grj.DefaultIfEmpty()
-                                join um in _context.UnitMaster on q.UnitId equals um.UnitMasterUnitId into gum
-                                from n in gum.DefaultIfEmpty()
-                                where im.ItemMasterItemType == "A" && im.ItemMasterItemId == model.ItemId
-                                      && (model.LocationId == null || y.StockRegisterLocationID == model.LocationId)
-                                select new StockMovementInOut
-                                {
-                                    Ref_Vocher_No = y.StockRegisterRefVoucherNo,
-                                    Voucher_Date = y.StockRegisterVoucherDate,
-                                    TransType = y.StockRegisterTransType,
-                                    Unit = n.UnitMasterUnitShortName ?? "",
-                                    Rate = y != null && y.StockRegisterSout > 0 && y.StockRegisterVoucherDate >= model.fromDate && y.StockRegisterVoucherDate <= model.toDate ? y.StockRegisterFcRate : 0,
+                                    Location = lms.LocationMasterLocationName ?? "",
+                                    Rate = y != null && y.StockRegisterSout > 0 && y.StockRegisterVoucherDate >= model.fromDate && y.StockRegisterVoucherDate <= model.toDate ? y.StockRegisterRate : 0,
                                     Qty = y != null && y.StockRegisterSout > 0 && y.StockRegisterVoucherDate >= model.fromDate && y.StockRegisterVoucherDate <= model.toDate ? y.StockRegisterSout : 0,
                                     QtyAmount = y != null && y.StockRegisterSout > 0 && y.StockRegisterVoucherDate >= model.fromDate && y.StockRegisterVoucherDate <= model.toDate ? y.StockRegisterAmount : 0,
                                 }).ToList();
+
+                var indexedStockMovementOut = StockOut.Where(x => x.Qty > 0)
+                                     .Select((x, index) =>
+                                     {
+                                         x.Sr = index + 1;
+                                         return x;
+                                     })
+                                     .ToList();
                 var response1 = new StockMovementResponse
                 {
                     StockRegisterResponse = results,
-                    StockMovementIn = results1.Where(x => x.Qty > 0).ToList(),
-                    StockMovementOut = results2.Where(x => x.Qty > 0).ToList(),
+                    StockMovementIn = indexedStockMovementIn,
+                    StockMovementOut = indexedStockMovementOut,
                 };
                 return Response<StockMovementResponse>.Success(response1, "Data found");
             }
