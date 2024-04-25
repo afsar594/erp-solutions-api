@@ -11,8 +11,8 @@ namespace Inspire.Erp.Domain.Modals.Stock
         public DateTime toDate { get; set; }
         public long? ItemId { get; set; }
         public long? ItemGroupId { get; set; }
-        public string ItemName { get; set; }
-        public string PartNo { get; set; }
+        public string? ItemName { get; set; }
+        public string ?PartNo { get; set; }
         public int? LocationId { get; set; }
         public int? JobId { get; set; }
         public bool OrderByGroup { get; set; }
