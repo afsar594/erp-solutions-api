@@ -38,7 +38,8 @@ namespace Inspire.Erp.Web.Controllers
                  UnitMasterUnitFullName = k.UnitMasterUnitFullName,
                  UnitMasterUnitDescription = k.UnitMasterUnitDescription,
                  UnitMasterUnitStatus = k.UnitMasterUnitStatus,
-                UnitMasterUnitDelStatus=k.UnitMasterUnitDelStatus
+                UnitMasterUnitDelStatus=k.UnitMasterUnitDelStatus,
+                UnitDetailsConversionType = k.UnitDetails.Select(x => x.UnitDetailsConversionType).FirstOrDefault()
             }).ToList();
         }
 
