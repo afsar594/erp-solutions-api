@@ -9,18 +9,18 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 
-namespace Inspire.Erp.Web.Controllers.POS.Sales
+namespace Inspire.Erp.Web.Controllers.POS
 {
-    [Route("api/[controller]")]
+    [Produces("application/json")]
     [ApiController]
     public class PosSalesVoucherController : ControllerBase
     {
-        private IPosSalesVoucherService _posSalesVoucherService;
+        private ISalesVoucherService _salesVoucherService;
         private readonly IMapper _mapper;
-        public PosSalesVoucherController(IPosSalesVoucherService posSalesVoucherService, IMapper mapper)
+        public PosSalesVoucherController(ISalesVoucherService salesVoucherService, IMapper mapper)
         {
             _mapper = mapper;
-            _posSalesVoucherService = posSalesVoucherService;
+            _salesVoucherService = salesVoucherService;
         }
 
 
@@ -31,7 +31,7 @@ namespace Inspire.Erp.Web.Controllers.POS.Sales
             ApiResponse<POS_Sales_Voucher> apiResponse = new ApiResponse<POS_Sales_Voucher>();
             var param1 = _mapper.Map<POS_Sales_Voucher>(voucherCompositeView);
             var param2 = _mapper.Map<List<POS_Sales_Voucher_Details>>(voucherCompositeView.posSalesVoucherDetails);
-            var xs = _posSalesVoucherService.InsertPosSalesVoucher(param1, param2);
+            var xs = _salesVoucherService.InsertPosSalesVoucher(param1, param2);
             apiResponse = new ApiResponse<POS_Sales_Voucher>
             {
                 Valid = true,
@@ -47,7 +47,7 @@ namespace Inspire.Erp.Web.Controllers.POS.Sales
             ApiResponse<POS_Sales_Voucher> apiResponse = new ApiResponse<POS_Sales_Voucher>();
             var param1 = _mapper.Map<POS_Sales_Voucher>(voucherCompositeView);
             var param2 = _mapper.Map<List<POS_Sales_Voucher_Details>>(voucherCompositeView.posSalesVoucherDetails);
-            var xs = _posSalesVoucherService.UpdatePosSalesVoucher(param1, param2);
+            var xs = _salesVoucherService.UpdatePosSalesVoucher(param1, param2);
             apiResponse = new ApiResponse<POS_Sales_Voucher>
             {
                 Valid = true,
@@ -64,7 +64,7 @@ namespace Inspire.Erp.Web.Controllers.POS.Sales
             ApiResponse<IEnumerable<POS_Sales_Voucher>> apiResponse = new ApiResponse<IEnumerable<POS_Sales_Voucher>>
             {
                 Valid = true,
-                Result = _mapper.Map<IEnumerable<POS_Sales_Voucher>>(_posSalesVoucherService.GetPosSalesVoucher()),
+                Result = _mapper.Map<IEnumerable<POS_Sales_Voucher>>(_salesVoucherService.GetPosSalesVoucher()),
                 Message = ""
             };
             return apiResponse;

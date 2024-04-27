@@ -52,7 +52,13 @@ namespace Inspire.Erp.Application.Sales.Interfaces
         public IQueryable GetSalesVoucherDetailsByMasterNo(string SalesVoucherNo);
 
 
-        
+        #region POS sales voucher
+        public VouchersNumbers GeneratePosVoucherNo(DateTime? VoucherGenDate);
+        public POS_Sales_Voucher InsertPosSalesVoucher(POS_Sales_Voucher salesVoucher, List<POS_Sales_Voucher_Details> PosSalesVoucherDetails);
+        public POS_Sales_Voucher UpdatePosSalesVoucher(POS_Sales_Voucher salesVoucher, List<POS_Sales_Voucher_Details> PosSalesVoucherDetails);
+        public POS_Sales_Voucher GetSavedPosSalesVoucherDetails(string pvno);
+        public IEnumerable<POS_Sales_Voucher> GetPosSalesVoucher();
+        #endregion
 
     }
 }
