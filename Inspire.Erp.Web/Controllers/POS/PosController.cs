@@ -13,11 +13,11 @@ namespace Inspire.Erp.Web.Controllers.POS
 {
     [Produces("application/json")]
     [ApiController]
-    public class PosSalesVoucherController : ControllerBase
+    public class POSController : ControllerBase
     {
         private ISalesVoucherService _salesVoucherService;
         private readonly IMapper _mapper;
-        public PosSalesVoucherController(ISalesVoucherService salesVoucherService, IMapper mapper)
+        public POSController(ISalesVoucherService salesVoucherService, IMapper mapper)
         {
             _mapper = mapper;
             _salesVoucherService = salesVoucherService;
