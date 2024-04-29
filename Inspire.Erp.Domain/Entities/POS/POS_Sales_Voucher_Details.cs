@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Security.Principal;
 using System.Text;
 
-namespace Inspire.Erp.Domain.Entities
+namespace Inspire.Erp.Domain.Entities.POS
 {
     public class POS_Sales_Voucher_Details
     {
@@ -18,7 +18,7 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? CostPrice { get; set; }
         public decimal? GrossAmt { get; set; }
         public decimal? Discount { get; set; }
-        public decimal? NetAmount { get; set;}
+        public decimal? NetAmount { get; set; }
         public int? SNO { get; set; }
         public long? DeliveryNote { get; set; }
         public int? LocationID { get; set; }

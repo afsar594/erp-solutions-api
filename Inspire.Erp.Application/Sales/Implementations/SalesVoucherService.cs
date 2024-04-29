@@ -19,6 +19,7 @@ using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Infrastructure.Database;
 using SendGrid.Helpers.Mail;
+using Inspire.Erp.Domain.Entities.POS;
 
 
 namespace Inspire.Erp.Application.Sales.Implementations
@@ -73,7 +74,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
 
-            IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository, IRepository<CurrencyMaster> currencyMasterRepository, IRepository<UnitDetails> unitDetailsRepository, IRepository<MasterAccountsTable> accMaster, IRepository<SalesReturn> salesReturn, IRepository<SalesReturnDetails> salesReturnDtls, IRepository<OptionsMaster> optionMaster)
+            IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository, IRepository<CurrencyMaster> currencyMasterRepository, IRepository<UnitDetails> unitDetailsRepository, IRepository<MasterAccountsTable> accMaster, IRepository<SalesReturn> salesReturn, IRepository<SalesReturnDetails> salesReturnDtls, IRepository<OptionsMaster> optionMaster, IRepository<POS_Sales_Voucher> posSalesVoucherRepository, IRepository<POS_Sales_Voucher_Details> posSalesVoucherDetailsRepository)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository;
@@ -98,6 +99,9 @@ namespace Inspire.Erp.Application.Sales.Implementations
             _salesReturn = salesReturn;
             _salesReturnDtls = salesReturnDtls;
             _optionMaster = optionMaster;
+            _posSalesVoucherDetailsRepository = posSalesVoucherDetailsRepository;
+            _posSalesVoucherRepository = posSalesVoucherRepository;
+            
 
             //_reportSalesVoucherRepository = reportSalesVoucherRepository;
         }
@@ -954,14 +958,14 @@ namespace Inspire.Erp.Application.Sales.Implementations
         public IEnumerable<POS_Sales_Voucher> GetPosSalesVoucher()
         {
             var salV = (from s in _posSalesVoucherRepository.GetAsQueryable()
-                        join c in _customerMasterRepository.GetAsQueryable() on s.CustomerId equals c.CustomerMasterCustomerNo
+                        join c in _customerMasterRepository.GetAsQueryable() on s.Customer_ID equals c.CustomerMasterCustomerNo
                         select new POS_Sales_Voucher()
                         {
                             V_Id = s.V_Id,
                             VoucherNo = s.VoucherNo,
                             VoucherDate = s.VoucherDate,
                             Voucher_Type = s.Voucher_Type,
-                            CustomerId = c.CustomerMasterCustomerNo,
+                            Customer_ID = c.CustomerMasterCustomerNo,
                             CustomerName = c.CustomerMasterCustomerName,
                             refno = s.refno,
                             DeptID = s.DeptID,

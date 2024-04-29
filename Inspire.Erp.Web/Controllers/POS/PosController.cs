@@ -2,7 +2,7 @@
 using Inspire.Erp.Application.Account.Interfaces;
 using Inspire.Erp.Application.Sales.Implementations;
 using Inspire.Erp.Application.Sales.Interfaces;
-using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Entities.POS;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Domain.Models;
 using Microsoft.AspNetCore.Http;

@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
-namespace Inspire.Erp.Domain.Entities
+namespace Inspire.Erp.Domain.Entities.POS
 {
     public class POS_Sales_Voucher
     {
         public decimal V_Id { get; set; }
-        public string? VoucherNo { get; set; }
+        public string VoucherNo { get; set; }
         public long? ShortNo { get; set; }
         public DateTime? VoucherDate { get; set; }
-        public string? Voucher_Type { get; set; }
-        public string   CustomerName { get; set; }
-        public decimal? CustomerId { get; set; }
+        public string Voucher_Type { get; set; }
+        public string CustomerName { get; set; }
+        public decimal? Customer_ID { get; set; }
         public int? Location { get; set; }
         public int? Salesman { get; set; }
         public decimal? Discount { get; set; }
@@ -24,7 +24,7 @@ namespace Inspire.Erp.Domain.Entities
         public long? UserId { get; set; }
         public string Refrence { get; set; }
         public decimal? NetDiscount { get; set; }
-        public string CashCustName { get; set; } 
+        public string CashCustName { get; set; }
         public decimal? DiscountPer { get; set; }
         public string InvoiceType { get; set; }
         public decimal? VatAmount { get; set; }

@@ -14,6 +14,7 @@ using static Inspire.Erp.Domain.Modals.PDCResponse;
 //using Inspire.Erp.Domain.Modals.ViewModels;
 using Inspire.Erp.Domain.Modals.Settings;
 using Inspire.Erp.Domain.Models.MIS;
+using Inspire.Erp.Domain.Entities.POS;
 
 namespace Inspire.Erp.Infrastructure.Database
 {
@@ -464,7 +465,7 @@ namespace Inspire.Erp.Infrastructure.Database
             modelBuilder.Entity<GetAccountTransactionProfitLossResponse>().HasNoKey();
             modelBuilder.Entity<GetATFinancialClosingResponse>().HasNoKey();
             modelBuilder.Entity<SingleValueSPResult>().HasNoKey();
-
+           // modelBuilder.Entity<POS_Sales_Voucher>().HasNoKey();
 
 
             //modelBuilder.Query<IssueWithStockTransfer>().ToView("VW_ISSUE_WITH_STOCK_TRANSFER");
@@ -24112,6 +24113,21 @@ namespace Inspire.Erp.Infrastructure.Database
                 e.Property(x => x.WorkgroupId).HasColumnName("WorkgroupId");
             });
 
+           
+            
+            modelBuilder.Entity<POS_Sales_Voucher>(e =>
+            {
+                e.HasNoKey();
+
+                e.ToTable("POS_Sales_Voucher");
+            });
+
+            modelBuilder.Entity<POS_Sales_Voucher_Details>(e =>
+            {
+                e.HasNoKey();
+
+                e.ToTable("POS_Sales_Voucher_Details");
+            });
             OnModelCreatingPartial(modelBuilder);
         }
 
