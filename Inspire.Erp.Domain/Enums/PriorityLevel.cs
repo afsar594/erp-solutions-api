@@ -58,6 +58,8 @@ namespace Inspire.Erp.Domain.Enums
             get { return "StockAdjustmentVoucher"; }
 
         }
+
+        public static String PosSalesVoucher_TYPE { get { return "PosSalesVoucher"; } }
     }
 
     public static class AccountStatus

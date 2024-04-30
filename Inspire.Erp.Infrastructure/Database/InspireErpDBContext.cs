@@ -408,6 +408,11 @@ namespace Inspire.Erp.Infrastructure.Database
         /// ==========================================================================================================
 
 
+        //POS Tables
+
+        public DbSet<POS_Sales_Voucher> POS_Sales_Voucher { get; set; }
+        public DbSet<POS_Sales_Voucher_Details> POS_Sales_Voucher_Details { get; set; }
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -458,7 +463,7 @@ namespace Inspire.Erp.Infrastructure.Database
             modelBuilder.Entity<GetAccountTransactionProfitLossResponse>().HasNoKey();
             modelBuilder.Entity<GetATFinancialClosingResponse>().HasNoKey();
             modelBuilder.Entity<SingleValueSPResult>().HasNoKey();
-
+           // modelBuilder.Entity<POS_Sales_Voucher>().HasNoKey();
 
 
             //modelBuilder.Query<IssueWithStockTransfer>().ToView("VW_ISSUE_WITH_STOCK_TRANSFER");
@@ -24154,6 +24159,21 @@ namespace Inspire.Erp.Infrastructure.Database
                 e.HasKey(x => x.SDet_ID);
             });
 
+           
+            
+            modelBuilder.Entity<POS_Sales_Voucher>(e =>
+            {
+                e.HasNoKey();
+
+                e.ToTable("POS_Sales_Voucher");
+            });
+
+            modelBuilder.Entity<POS_Sales_Voucher_Details>(e =>
+            {
+                e.HasNoKey();
+
+                e.ToTable("POS_Sales_Voucher_Details");
+            });
             OnModelCreatingPartial(modelBuilder);
         }
 
