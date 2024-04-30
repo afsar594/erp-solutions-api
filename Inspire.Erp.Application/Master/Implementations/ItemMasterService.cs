@@ -212,13 +212,18 @@ namespace Inspire.Erp.Application.Master
             List<ItemMaster> itemMaster;
             try
             {
-                itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo == 0 && (k.ItemMasterDelStatus == false || k.ItemMasterDelStatus == null)
-                && k.ItemMasterItemType == ItemMasterStatus.Group).Select(k => new ItemMaster
+                //itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo == 0 && (k.ItemMasterDelStatus == false || k.ItemMasterDelStatus == null)
+                //&& k.ItemMasterItemType == ItemMasterStatus.Group).Select(k => new ItemMaster
+                //{
+                //    ItemMasterItemId = k.ItemMasterItemId,
+                //    ItemMasterItemName = k.ItemMasterItemName
+
+
+                //}).ToList();
+                itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterDelStatus == false || k.ItemMasterDelStatus == null).Select(k => new ItemMaster
                 {
                     ItemMasterItemId = k.ItemMasterItemId,
                     ItemMasterItemName = k.ItemMasterItemName
-
-
                 }).ToList();
 
             }

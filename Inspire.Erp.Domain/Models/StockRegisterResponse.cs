@@ -33,10 +33,11 @@ namespace Inspire.Erp.Domain.Modals
 
     public class StockMovementInOut
     {
-
+        public int? Sr { get;set; }
         public string? Ref_Vocher_No { get; set; }
-        public DateTime? Voucher_Date { get; set; }
+        public string? Voucher_Date { get; set; }
         public string? TransType { get; set; }
+        public string? Location { get; set; }
         public string? Unit { get; set; }
         public decimal? Rate { get; set; }
         public decimal? Qty { get; set; }
