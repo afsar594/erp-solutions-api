@@ -291,6 +291,18 @@ namespace Inspire.Erp.Application.Sales.Implementations
             return i;
 
         }
+        private decimal getConverionTypebyUnitId(int? unitDetailsid)
+        {
+            try
+            {
+                return (decimal)this._UnitDetailsRepository.GetAsQueryable().FirstOrDefault(x => x.UnitDetailsUnitId == unitDetailsid).UnitDetailsConversionType;
+            }
+            catch
+            {
+                return 1;
+            }
+        }
+
         public SalesVoucherModel InsertSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions,
             List<SalesVoucherDetails> salesVoucherDetails
             , List<StockRegister> stockRegister
@@ -351,15 +363,18 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 var stockReg = new List<StockRegister>();
                 foreach (var item in salesVoucher.SalesVoucherDetails)
                 {
+
+                 var converontype=   this.getConverionTypebyUnitId(item.SalesVoucherDetailsUnitId);
+                 
                     stockReg.Add(new StockRegister()
                     {
                         StockRegisterPurchaseID = salesVoucher.SalesVoucherNo,
                         StockRegisterRefVoucherNo = salesVoucher.SalesVoucherNo,
                         StockRegisterVoucherDate = DateTime.Now.Date,
                         StockRegisterMaterialID = item.SalesVoucherDetailsMatId,
-                        StockRegisterQuantity = item.SalesVoucherDetailsQuantity,
+                        StockRegisterQuantity = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
                         StockRegisterSIN = 0,
-                        StockRegisterSout = item.SalesVoucherDetailsQuantity,
+                        StockRegisterSout = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
                         StockRegisterRate = item.SalesVoucherDetailsRate,
                         StockRegisterAmount = item.SalesVoucherDetailsActualAmount ?? 0,
                         StockRegisterFCAmount = item.SalesVoucherDetailsActualAmount ?? 0 * this.getCurrencyRate(salesVoucher.SalesVoucherCurrencyId),
