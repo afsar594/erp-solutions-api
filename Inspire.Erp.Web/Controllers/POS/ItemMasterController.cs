@@ -2,6 +2,7 @@
 using Inspire.Erp.Application.Master;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Web.Common;
 using Inspire.Erp.Web.ViewModels;
@@ -35,7 +36,6 @@ namespace Inspire.Erp.Web.Controllers.POS
         public async Task<IActionResult> SearchItemByBarcodeLink(ItemBarCodeSearchFilter model)
         {
             return Ok(await itemMasterService.SearchItemByBarcode(model));
-
         }
 
         [HttpGet]
@@ -45,6 +45,40 @@ namespace Inspire.Erp.Web.Controllers.POS
             return Ok(await itemMasterService.GetWorkPeriod(model));
 
         }
+
+
+        [HttpGet]
+        [Route("GetItems/{barCode}")]
+        public async Task<IActionResult> GetItems(string barCode)
+        {
+            return Ok(await itemMasterService.GetItems(barCode));
+
+        }
+
+        [HttpGet]
+        [Route("GetItems/{unitDetailsId}")]
+        public async Task<IActionResult> SearchItemByItemLink(ItemBarCodeSearchFilter model)
+        {
+            return Ok(await itemMasterService.SearchItemByUnitDetailsId(model));
+
+        }
+
+        [HttpPost("AddSettlementDetails")]
+        public async Task<IActionResult> AddSettlementDetails(SettlementDetailsRequest model)
+        {
+            try
+            {
+                return Ok(await itemMasterService.AddSettlementDetails(model));
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
+
+        }
+
+
+
 
 
     }

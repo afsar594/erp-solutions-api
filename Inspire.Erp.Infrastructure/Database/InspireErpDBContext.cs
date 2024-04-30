@@ -24126,6 +24126,34 @@ namespace Inspire.Erp.Infrastructure.Database
                 e.HasKey(x => x.Id);
             });
 
+            modelBuilder.Entity<POS_SettlementDet>(e =>
+            {
+                e.ToTable("POS_SettlementDet");
+                e.HasKey(x => x.SettlementDetId);
+            });
+            modelBuilder.Entity<POS_SettlementDetTemp>(e =>
+            {
+                e.ToTable("POS_SettlementDetTemp");
+                e.HasKey(x => x.SettlementDetId);
+            });
+            modelBuilder.Entity<TransactionCodes>(e =>
+            {
+                e.ToTable("TransactionCodes");
+                e.HasKey(x => x.Id);
+            });
+
+            modelBuilder.Entity<POS_SalesVoucher>(e =>
+            {
+                e.ToTable("POS_Sales_Voucher");
+                e.HasKey(x => x.V_ID);
+            });
+
+            modelBuilder.Entity<POS_SalesVoucherDetails>(e =>
+            {
+                e.ToTable("POS_Sales_Voucher_Details");
+                e.HasKey(x => x.SDet_ID);
+            });
+
             OnModelCreatingPartial(modelBuilder);
         }
 

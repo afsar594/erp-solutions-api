@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Inspire.Erp.Domain.Entities.POS;
+using System.Linq;
+using System.Transactions;
 
 namespace Inspire.Erp.Application.Master
 {
@@ -33,5 +35,11 @@ namespace Inspire.Erp.Application.Master
         //POS
         public Task<Response<ItemMasterResponse>> SearchItemByBarcode(ItemBarCodeSearchFilter model);
         public Task<Response<POS_WorkPeriod>> GetWorkPeriod(WorkPeriodFilter model);
+
+        public Task<Response<List<ItemMasterResponse>>> GetItems(string barCode);
+
+        public Task<Response<ItemMasterResponse>> SearchItemByUnitDetailsId(ItemBarCodeSearchFilter model);
+
+        public  Task<Response<List<SettlementDetailsResponse>>> AddSettlementDetails(SettlementDetailsRequest model);
     }
 }
