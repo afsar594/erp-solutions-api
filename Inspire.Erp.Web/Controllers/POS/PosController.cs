@@ -1,27 +1,86 @@
 ﻿using AutoMapper;
-using Inspire.Erp.Application.Account.Interfaces;
-using Inspire.Erp.Application.Sales.Implementations;
+using Inspire.Erp.Application.Master;
 using Inspire.Erp.Application.Sales.Interfaces;
+using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Entities.POS;
 using Inspire.Erp.Domain.Enums;
-using Inspire.Erp.Domain.Models;
-using Microsoft.AspNetCore.Http;
+using Inspire.Erp.Domain.Modals;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Web.Common;
+using Inspire.Erp.Web.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers.POS
 {
+    [Route("api/pos/item")]
     [Produces("application/json")]
+    //[Authorize(AuthenticationSchemes = "Bearer")]
     [ApiController]
     public class POSController : ControllerBase
     {
-        private ISalesVoucherService _salesVoucherService;
         private readonly IMapper _mapper;
-        public POSController(ISalesVoucherService salesVoucherService, IMapper mapper)
+        private IItemMasterService itemMasterService;
+        private ISalesVoucherService _salesVoucherService;
+        public POSController(IItemMasterService _itemMasterService, IMapper mapper, ISalesVoucherService salesVoucherService)
         {
+
+            itemMasterService = _itemMasterService;
             _mapper = mapper;
             _salesVoucherService = salesVoucherService;
         }
+        
+
+        [HttpGet]
+        [Route("SearchItemByBarcodeLink/{barCode}")]
+        public async Task<IActionResult> SearchItemByBarcodeLink(ItemBarCodeSearchFilter model)
+        {
+            return Ok(await itemMasterService.SearchItemByBarcode(model));
+        }
+
+        [HttpGet]
+        [Route("GetWorkPeriods")]
+        public async Task<IActionResult> GetWorkPeriods(WorkPeriodFilter model)
+        {
+            return Ok(await itemMasterService.GetWorkPeriod(model));
+
+        }
+
+
+        [HttpGet]
+        [Route("GetItems/{barCode}")]
+        public async Task<IActionResult> GetItems(string barCode)
+        {
+            return Ok(await itemMasterService.GetItems(barCode));
+
+        }
+
+        [HttpGet]
+        [Route("GetItems/{unitDetailsId}")]
+        public async Task<IActionResult> SearchItemByItemLink(ItemBarCodeSearchFilter model)
+        {
+            return Ok(await itemMasterService.SearchItemByUnitDetailsId(model));
+
+        }
+
+        [HttpPost("AddSettlementDetails")]
+        public async Task<IActionResult> AddSettlementDetails(SettlementDetailsRequest model)
+        {
+            try
+            {
+                return Ok(await itemMasterService.AddSettlementDetails(model));
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
+
+        }
+
 
 
         [HttpPost]
@@ -70,5 +129,9 @@ namespace Inspire.Erp.Web.Controllers.POS
             return apiResponse;
 
         }
+
+
+
+
     }
 }

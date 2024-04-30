@@ -24147,17 +24147,17 @@ namespace Inspire.Erp.Infrastructure.Database
                 e.HasKey(x => x.Id);
             });
 
-            modelBuilder.Entity<POS_SalesVoucher>(e =>
-            {
-                e.ToTable("POS_Sales_Voucher");
-                e.HasKey(x => x.V_ID);
-            });
+            //modelBuilder.Entity<POS_SalesVoucher>(e =>
+            //{
+            //    e.ToTable("POS_Sales_Voucher");
+            //    e.HasKey(x => x.V_ID);
+            //});
 
-            modelBuilder.Entity<POS_SalesVoucherDetails>(e =>
-            {
-                e.ToTable("POS_Sales_Voucher_Details");
-                e.HasKey(x => x.SDet_ID);
-            });
+            //modelBuilder.Entity<POS_SalesVoucherDetails>(e =>
+            //{
+            //    e.ToTable("POS_Sales_Voucher_Details");
+            //    e.HasKey(x => x.SDet_ID);
+            //});
 
            
             
