@@ -40,7 +40,9 @@ namespace Inspire.Erp.Domain.Modals
         public string VATRoundSign { get; set; }
         public double? SalesTax { get; set; }
 
-       
+        public int UserId { get; set; }
+
+
     }
 
     public class SettlementDetailsResponse
