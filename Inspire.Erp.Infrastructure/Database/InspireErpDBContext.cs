@@ -218,6 +218,11 @@ namespace Inspire.Erp.Infrastructure.Database
         ////public virtual DbSet<PurchaseRequisition1> PurchaseRequisition1 { get; set; }
         public virtual DbSet<PurchaseRequisitionDetails> PurchaseRequisitionDetails { get; set; }
 
+
+        public virtual DbSet<StockRequisition> StockRequisition { get; set; }
+        ////public virtual DbSet<PurchaseRequisition1> PurchaseRequisition1 { get; set; }
+        public virtual DbSet<StockRequisitionDetails> StockRequisitionDetails { get; set; }
+
         //=================
         public virtual DbSet<PurchaseReturn> PurchaseReturn { get; set; }
         public virtual DbSet<PurchaseReturnDetails> PurchaseReturnDetails { get; set; }
@@ -994,7 +999,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<AssetMaster>(entity =>
             {
-                entity.HasKey(x=>x.AssetMasterAssetId);
+                entity.HasKey(x => x.AssetMasterAssetId);
 
                 entity.ToTable("Asset_Master");
 
@@ -5459,7 +5464,7 @@ namespace Inspire.Erp.Infrastructure.Database
                     .IsFixedLength();
 
                 entity.Property(e => e.CustomerMasterCustomerUserId).HasColumnName("Customer_Master_Customer_User_ID");
-                
+
                 entity.Property(e => e.CustomerMasterCustomerVatNo)
                     .HasColumnName("Customer_Master_Customer_VAT_No")
                     .HasMaxLength(100)
@@ -6038,7 +6043,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.HasKey(e => e.CustomerQuotationQid);
 
-                
+
                 entity.Property(e => e.CustomerQuotationQid).
                 HasColumnName("Customer_Quotation_QID");
 
@@ -6220,7 +6225,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.CustomerQuotationDetailsId)
                 .HasColumnName("Customer_Quotation_Details_ID");
 
-                
+
                 entity.Property(e => e.CustomerQuotationDetailsVoucherNo)
                 .HasColumnName("Customer_Quotation_Details_VoucherNo");
 
@@ -6301,7 +6306,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 //    .HasForeignKey(d => d.CustomerQuotationDetailsQuotationId)
                 //    .HasConstraintName("FK_Customer_Quotation_Details_Vouchers_Numbers");
 
-              
+
             });
 
             modelBuilder.Entity<CustomerType>(entity =>
@@ -6997,9 +7002,14 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<GeneralPurchaseOrder>(entity =>
             {
-                entity.HasNoKey();
+                //entity.HasNoKey();
+                entity.HasIndex(e => e.GeneralPurchaseOrderId)
+                   .HasName("UQ_General_Purchase_Order_ID")
+                   .IsUnique();
 
                 entity.ToTable("General_Purchase_Order");
+
+                entity.Property(e => e.GeneralPurchaseOrderId).HasColumnType("numeric(18, 0)");
 
                 entity.Property(e => e.GeneralPurchaseOrderApproveDate)
                     .HasColumnName("General_Purchase_Order_Approve_Date")
@@ -7101,12 +7111,18 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<GeneralPurchaseOrderDetails>(entity =>
             {
-                entity.HasNoKey();
+                //entity.HasNoKey();
+                entity.HasKey(e => e.GeneralPurchaseOrderDetailsPoid);
+
 
                 entity.ToTable("General_Purchase_Order_Details");
 
                 entity.Property(e => e.GeneralPurchaseOrderDetailsAmount).HasColumnName("General_Purchase_Order_Details_Amount");
 
+                entity.Property(e => e.GeneralPurchaseOrderDetailsPoid)
+                    .HasColumnName("General_Purchase_Order_Details_POID")
+                    .HasColumnType("numeric(18, 0)")
+                    .ValueGeneratedOnAdd();
                 entity.Property(e => e.GeneralPurchaseOrderDetailsDelStatus).HasColumnName("General_Purchase_Order_Details_DelStatus");
 
                 entity.Property(e => e.GeneralPurchaseOrderDetailsDescription)
@@ -7132,12 +7148,12 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.GeneralPurchaseOrderDetailsPodId).HasColumnName("General_Purchase_Order_Details_POD_ID");
 
-                entity.Property(e => e.GeneralPurchaseOrderDetailsPoid).HasColumnName("General_Purchase_Order_Details_POID");
+                //entity.Property(e => e.GeneralPurchaseOrderDetailsPoid).HasColumnName("General_Purchase_Order_Details_POID");
 
                 entity.Property(e => e.GeneralPurchaseOrderDetailsPreqId).HasColumnName("General_Purchase_Order_Details_PReq_ID");
 
                 entity.Property(e => e.GeneralPurchaseOrderDetailsQuantity).HasColumnName("General_Purchase_Order_Details_Quantity");
-                entity.Property(e => e.GeneralPurchaseOrderDetailsQuantity).HasColumnName("Purchase_Order_Details_DelQty");
+                //entity.Property(e => e.GeneralPurchaseOrderDetailsQuantity).HasColumnName("Purchase_Order_Details_DelQty");
 
                 entity.Property(e => e.GeneralPurchaseOrderDetailsRate).HasColumnName("General_Purchase_Order_Details_Rate");
 
@@ -7146,6 +7162,16 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.GeneralPurchaseOrderDetailsSrdId).HasColumnName("General_Purchase_Order_Details_SRD_ID");
 
                 entity.Property(e => e.GeneralPurchaseOrderDetailsUnitId).HasColumnName("General_Purchase_Order_Details_Unit_ID");
+                entity.Property(e => e.GeneralPurchaseOrderId).HasColumnName("General_Purchase_Order_ID").HasColumnType("numeric(18, 0)");
+                entity.Property(e => e.GeneralPurchaseOrderPono)
+                  .HasColumnName("General_Purchase_Order_PONO")
+                  .HasMaxLength(20)
+                  .IsUnicode(false);
+
+                entity.HasOne(d => d.GeneralPurchaseOrder)
+                .WithMany(p => p.GeneralPurchaseOrderDetails)
+                .HasForeignKey(d => d.GeneralPurchaseOrderId)
+                .HasConstraintName("FK_Generalpurchaseorderdetails_Generalpurchaseorder");
             });
 
             //////modelBuilder.Entity<GeneralSettings>(entity =>
@@ -9388,7 +9414,7 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnName("IssueVoucherDetailsID")
                     .HasColumnType("numeric(18, 0)")
                     .ValueGeneratedOnAdd();
-                
+
                 entity.Property(e => e.IssueVoucherDetailsActualAmount).HasColumnType("numeric(18, 4)");
 
                 entity.Property(e => e.IssueVoucherDetailsBatchCode)
@@ -9710,7 +9736,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.JobInvoiceGrossAmount).HasColumnName("Job_Invoice_Gross_Amount");
 
-                 entity.Property(e => e.JobInvoiceJobId).HasColumnName("Job_Invoice_Job_ID");
+                entity.Property(e => e.JobInvoiceJobId).HasColumnName("Job_Invoice_Job_ID");
 
                 entity.Property(e => e.JobInvoiceLocationId).HasColumnName("Job_Invoice_Location_ID");
 
@@ -9761,7 +9787,7 @@ namespace Inspire.Erp.Infrastructure.Database
                    .HasColumnName("Job_Invoice_Details_Details_ID")
                    .ValueGeneratedOnAdd();
 
-               
+
 
 
                 entity.Property(e => e.JobInvoiceDetailsDelStatus).HasColumnName("Job_Invoice_Details_DelStatus");
@@ -9771,7 +9797,7 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasMaxLength(150)
                     .IsUnicode(false);
 
-                
+
 
                 entity.Property(e => e.JobInvoiceDetailsDiscount).HasColumnName("Job_Invoice_Details_Discount");
 
@@ -10739,7 +10765,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.JournalVoucherDetailsId).HasColumnName("JournalVoucherDetails_ID");
 
                 entity.Property(e => e.JournalVoucherDetailsJobId).HasColumnName("JournalVoucherDetails_JobNo");
-                
+
                 entity.Property(e => e.JournalVoucherDetailsCrAmount).HasColumnName("JournalVoucherDetails_Cr_Amount");
                 entity.Property(e => e.JournalVoucherDetailsDrAmount).HasColumnName("JournalVoucherDetails_Dr_Amount");
                 entity.Property(e => e.JournalVoucherDetailsFcCrAmount).HasColumnName("JournalVoucherDetails_FC_Cr_Amount");
@@ -10756,7 +10782,7 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasMaxLength(100)
                     .IsUnicode(false);
                 entity.HasKey(e => e.JournalVoucherDetailsId);
-                
+
                 // entity.Property(e => e.JournalVoucher_ID).HasColumnName("JournalVoucher_ID");
                 // entity.Property(e => e.JournalVoucherDetails_ID).HasColumnName("JournalVoucherDetails_ID");
                 // entity.Property(e => e.JournalVoucherDetails_VNO).HasColumnName("JournalVoucherDetails_VNO");
@@ -14628,178 +14654,178 @@ namespace Inspire.Erp.Infrastructure.Database
             ////});
 
 
-    //        modelBuilder.Entity<PurchaseRequisition>(entity =>
-    //        {
-    //            entity.HasIndex(e => e.PurchaseRequisitionNo)
-    //                .HasName("UQ__PurchaseRequisition__7620E1441D4655FB")
-    //                .IsUnique();
+            //        modelBuilder.Entity<PurchaseRequisition>(entity =>
+            //        {
+            //            entity.HasIndex(e => e.PurchaseRequisitionNo)
+            //                .HasName("UQ__PurchaseRequisition__7620E1441D4655FB")
+            //                .IsUnique();
 
-    //            entity.Property(e => e.PurchaseRequisitionId).HasColumnType("numeric(18, 0)");
+            //            entity.Property(e => e.PurchaseRequisitionId).HasColumnType("numeric(18, 0)");
 
-    //            entity.Property(e => e.PurchaseRequisitionBatchCode)
-    //                .HasMaxLength(50)
-    //                .IsUnicode(false);
+            //            entity.Property(e => e.PurchaseRequisitionBatchCode)
+            //                .HasMaxLength(50)
+            //                .IsUnicode(false);
 
-    //            entity.Property(e => e.PurchaseRequisitionDate).HasColumnType("datetime");
+            //            entity.Property(e => e.PurchaseRequisitionDate).HasColumnType("datetime");
 
-    //            entity.Property(e => e.PurchaseRequisitionDayBookNo)
-    //                .HasMaxLength(150)
-    //                .IsUnicode(false);
+            //            entity.Property(e => e.PurchaseRequisitionDayBookNo)
+            //                .HasMaxLength(150)
+            //                .IsUnicode(false);
 
-    //            entity.Property(e => e.PurchaseRequisitionDescription)
-    //                .HasMaxLength(200)
-    //                .IsUnicode(false);
+            //            entity.Property(e => e.PurchaseRequisitionDescription)
+            //                .HasMaxLength(200)
+            //                .IsUnicode(false);
 
-    //            entity.Property(e => e.PurchaseRequisitionExcludeVat)
-    //                .HasColumnName("PurchaseRequisitionExcludeVAT")
-    //                .HasDefaultValueSql("((0))");
+            //            entity.Property(e => e.PurchaseRequisitionExcludeVat)
+            //                .HasColumnName("PurchaseRequisitionExcludeVAT")
+            //                .HasDefaultValueSql("((0))");
 
-    //            entity.Property(e => e.PurchaseRequisitionFcRate)
-    //                .HasColumnName("PurchaseRequisitionFc_Rate")
-    //                .HasColumnType("numeric(18, 4)");
+            //            entity.Property(e => e.PurchaseRequisitionFcRate)
+            //                .HasColumnName("PurchaseRequisitionFc_Rate")
+            //                .HasColumnType("numeric(18, 4)");
 
-    //            entity.Property(e => e.PurchaseRequisitionFsno)
-    //                .HasColumnName("PurchaseRequisitionFSNO")
-    //                .HasColumnType("numeric(18, 0)");
+            //            entity.Property(e => e.PurchaseRequisitionFsno)
+            //                .HasColumnName("PurchaseRequisitionFSNO")
+            //                .HasColumnType("numeric(18, 0)");
 
-    //            entity.Property(e => e.PurchaseRequisitionGrdate)
-    //                .HasColumnName("PurchaseRequisitionGRDate")
-    //                .HasColumnType("datetime");
+            //            entity.Property(e => e.PurchaseRequisitionGrdate)
+            //                .HasColumnName("PurchaseRequisitionGRDate")
+            //                .HasColumnType("datetime");
 
-    //            entity.Property(e => e.PurchaseRequisitionGrno)
-    //                .HasColumnName("PurchaseRequisitionGRNo")
-    //                .HasMaxLength(20)
-    //                .IsUnicode(false);
+            //            entity.Property(e => e.PurchaseRequisitionGrno)
+            //                .HasColumnName("PurchaseRequisitionGRNo")
+            //                .HasMaxLength(20)
+            //                .IsUnicode(false);
 
-    //            entity.Property(e => e.PurchaseRequisitionHandlingcharges).HasColumnType("numeric(18, 4)");
+            //            entity.Property(e => e.PurchaseRequisitionHandlingcharges).HasColumnType("numeric(18, 4)");
 
-    //            entity.Property(e => e.PurchaseRequisitionIssueId)
-    //                .HasColumnName("PurchaseRequisitionIssueID")
-    //                .HasMaxLength(50)
-    //                .IsUnicode(false);
+            //            entity.Property(e => e.PurchaseRequisitionIssueId)
+            //                .HasColumnName("PurchaseRequisitionIssueID")
+            //                .HasMaxLength(50)
+            //                .IsUnicode(false);
 
-    //            entity.Property(e => e.PurchaseRequisitionJobDirectPur).HasDefaultValueSql("((0))");
+            //            entity.Property(e => e.PurchaseRequisitionJobDirectPur).HasDefaultValueSql("((0))");
 
-    //            entity.Property(e => e.PurchaseRequisitionLocationId).HasColumnName("PurchaseRequisitionLocationID");
+            //            entity.Property(e => e.PurchaseRequisitionLocationId).HasColumnName("PurchaseRequisitionLocationID");
 
-    //            entity.Property(e => e.PurchaseRequisitionLpodate)
-    //                .HasColumnName("PurchaseRequisitionLPODate")
-    //                .HasColumnType("datetime");
+            //            entity.Property(e => e.PurchaseRequisitionLpodate)
+            //                .HasColumnName("PurchaseRequisitionLPODate")
+            //                .HasColumnType("datetime");
 
-    //            entity.Property(e => e.PurchaseRequisitionLpono)
-    //                .HasColumnName("PurchaseRequisitionLPONo")
-    //                .HasMaxLength(50)
-    //                .IsUnicode(false);
+            //            entity.Property(e => e.PurchaseRequisitionLpono)
+            //                .HasColumnName("PurchaseRequisitionLPONo")
+            //                .HasMaxLength(50)
+            //                .IsUnicode(false);
 
-    //            entity.Property(e => e.PurchaseRequisitionNetAmount).HasColumnType("numeric(18, 4)");
+            //            entity.Property(e => e.PurchaseRequisitionNetAmount).HasColumnType("numeric(18, 4)");
 
-    //            entity.Property(e => e.PurchaseRequisitionNetDisAmount).HasColumnType("numeric(18, 4)");
+            //            entity.Property(e => e.PurchaseRequisitionNetDisAmount).HasColumnType("numeric(18, 4)");
 
-    //            entity.Property(e => e.PurchaseRequisitionNo)
-    //                .IsRequired()
-    //                .HasMaxLength(20)
-    //                .IsUnicode(false);
+            //            entity.Property(e => e.PurchaseRequisitionNo)
+            //                .IsRequired()
+            //                .HasMaxLength(20)
+            //                .IsUnicode(false);
 
-    //            entity.Property(e => e.PurchaseRequisitionPartyAddress)
-    //                .HasMaxLength(500)
-    //                .IsUnicode(false);
+            //            entity.Property(e => e.PurchaseRequisitionPartyAddress)
+            //                .HasMaxLength(500)
+            //                .IsUnicode(false);
 
-    //            entity.Property(e => e.PurchaseRequisitionPartyId).HasColumnType("numeric(18, 0)");
+            //            entity.Property(e => e.PurchaseRequisitionPartyId).HasColumnType("numeric(18, 0)");
 
-    //            entity.Property(e => e.PurchaseRequisitionPartyName)
-    //                .HasMaxLength(50)
-    //                .IsUnicode(false);
+            //            entity.Property(e => e.PurchaseRequisitionPartyName)
+            //                .HasMaxLength(50)
+            //                .IsUnicode(false);
 
-    //            entity.Property(e => e.PurchaseRequisitionPartyVatNo)
-    //                .HasMaxLength(50)
-    //                .IsUnicode(false);
+            //            entity.Property(e => e.PurchaseRequisitionPartyVatNo)
+            //                .HasMaxLength(50)
+            //                .IsUnicode(false);
 
-    //            entity.Property(e => e.PurchaseRequisitionPono)
-    //                .HasColumnName("PurchaseRequisitionPONO")
-    //                .HasMaxLength(50)
-    //                .IsUnicode(false);
+            //            entity.Property(e => e.PurchaseRequisitionPono)
+            //                .HasColumnName("PurchaseRequisitionPONO")
+            //                .HasMaxLength(50)
+            //                .IsUnicode(false);
 
-    //            entity.Property(e => e.PurchaseRequisitionQtnDate).HasColumnType("datetime");
+            //            entity.Property(e => e.PurchaseRequisitionQtnDate).HasColumnType("datetime");
 
-    //            entity.Property(e => e.PurchaseRequisitionQtnNo)
-    //                .HasMaxLength(10)
-    //                .IsUnicode(false);
+            //            entity.Property(e => e.PurchaseRequisitionQtnNo)
+            //                .HasMaxLength(10)
+            //                .IsUnicode(false);
 
-    //            entity.Property(e => e.PurchaseRequisitionRefNo)
-    //                .HasMaxLength(50)
-    //                .IsUnicode(false);
+            //            entity.Property(e => e.PurchaseRequisitionRefNo)
+            //                .HasMaxLength(50)
+            //                .IsUnicode(false);
 
-    //            entity.Property(e => e.PurchaseRequisitionStatus)
-    //                .HasMaxLength(2)
-    //                .IsUnicode(false)
-    //                .IsFixedLength();
+            //            entity.Property(e => e.PurchaseRequisitionStatus)
+            //                .HasMaxLength(2)
+            //                .IsUnicode(false)
+            //                .IsFixedLength();
 
-    //            entity.Property(e => e.PurchaseRequisitionSupInvNo)
-    //                .HasMaxLength(50)
-    //                .IsUnicode(false);
+            //            entity.Property(e => e.PurchaseRequisitionSupInvNo)
+            //                .HasMaxLength(50)
+            //                .IsUnicode(false);
 
-    //            entity.Property(e => e.PurchaseRequisitionTotalActualAmount).HasColumnType("numeric(18, 4)");
+            //            entity.Property(e => e.PurchaseRequisitionTotalActualAmount).HasColumnType("numeric(18, 4)");
 
-    //            entity.Property(e => e.PurchaseRequisitionTotalDisAmount).HasColumnType("numeric(18, 4)");
+            //            entity.Property(e => e.PurchaseRequisitionTotalDisAmount).HasColumnType("numeric(18, 4)");
 
-    //            entity.Property(e => e.PurchaseRequisitionTotalDisPer).HasColumnType("numeric(18, 2)");
+            //            entity.Property(e => e.PurchaseRequisitionTotalDisPer).HasColumnType("numeric(18, 2)");
 
-    //            entity.Property(e => e.PurchaseRequisitionTotalGrossAmount).HasColumnType("numeric(18, 4)");
+            //            entity.Property(e => e.PurchaseRequisitionTotalGrossAmount).HasColumnType("numeric(18, 4)");
 
-    //            entity.Property(e => e.PurchaseRequisitionTotalItemDisAmount).HasColumnType("numeric(18, 4)");
+            //            entity.Property(e => e.PurchaseRequisitionTotalItemDisAmount).HasColumnType("numeric(18, 4)");
 
-    //            entity.Property(e => e.PurchaseRequisitionTransportCost).HasColumnType("numeric(18, 4)");
+            //            entity.Property(e => e.PurchaseRequisitionTransportCost).HasColumnType("numeric(18, 4)");
 
-    //            entity.Property(e => e.PurchaseRequisitionType)
-    //                .HasMaxLength(20)
-    //                .IsUnicode(false);
+            //            entity.Property(e => e.PurchaseRequisitionType)
+            //                .HasMaxLength(20)
+            //                .IsUnicode(false);
 
-    //            entity.Property(e => e.PurchaseRequisitionUserId).HasColumnName("PurchaseRequisitionUserID");
+            //            entity.Property(e => e.PurchaseRequisitionUserId).HasColumnName("PurchaseRequisitionUserID");
 
-    //            entity.Property(e => e.PurchaseRequisitionVatAmt)
-    //                .HasColumnName("PurchaseRequisitionVat_AMT")
-    //                .HasColumnType("numeric(18, 4)");
+            //            entity.Property(e => e.PurchaseRequisitionVatAmt)
+            //                .HasColumnName("PurchaseRequisitionVat_AMT")
+            //                .HasColumnType("numeric(18, 4)");
 
-    //            entity.Property(e => e.PurchaseRequisitionVatPer)
-    //                .HasColumnName("PurchaseRequisitionVat_Per")
-    //                .HasColumnType("numeric(18, 4)");
+            //            entity.Property(e => e.PurchaseRequisitionVatPer)
+            //                .HasColumnName("PurchaseRequisitionVat_Per")
+            //                .HasColumnType("numeric(18, 4)");
 
-    //            entity.Property(e => e.PurchaseRequisitionVatRoundSign)
-    //                .HasColumnName("PurchaseRequisitionVat_RoundSign")
-    //                .HasMaxLength(1);
+            //            entity.Property(e => e.PurchaseRequisitionVatRoundSign)
+            //                .HasColumnName("PurchaseRequisitionVat_RoundSign")
+            //                .HasMaxLength(1);
 
-    //            entity.Property(e => e.PurchaseRequisitionVatRountAmt)
-    //                .HasColumnName("PurchaseRequisitionVat_RountAmt")
-    //                .HasColumnType("numeric(18, 4)");
-    //           // entity.Property(e => e.PurchaseRequisitionDelStatus).HasColumnName("Purchase_Requisition_DelStatus");
+            //            entity.Property(e => e.PurchaseRequisitionVatRountAmt)
+            //                .HasColumnName("PurchaseRequisitionVat_RountAmt")
+            //                .HasColumnType("numeric(18, 4)");
+            //           // entity.Property(e => e.PurchaseRequisitionDelStatus).HasColumnName("Purchase_Requisition_DelStatus");
 
-    //           // entity.Property(e => e.PurchaseRequisitionJobId).HasColumnName("Purchase_Requisition_Job_ID");
+            //           // entity.Property(e => e.PurchaseRequisitionJobId).HasColumnName("Purchase_Requisition_Job_ID");
 
-    //           // entity.Property(e => e.PurchaseRequisitionPurchaseRequesId).HasColumnName("Purchase_Requisition_Purchase_Reques_ID");
+            //           // entity.Property(e => e.PurchaseRequisitionPurchaseRequesId).HasColumnName("Purchase_Requisition_Purchase_Reques_ID");
 
-    //            //entity.Property(e => e.PurchaseRequisitionRemarks)
-    //            //    .HasColumnName("Purchase_Requisition_Remarks")
-    //            //    .HasMaxLength(100)
-    //            //    .IsUnicode(false);
+            //            //entity.Property(e => e.PurchaseRequisitionRemarks)
+            //            //    .HasColumnName("Purchase_Requisition_Remarks")
+            //            //    .HasMaxLength(100)
+            //            //    .IsUnicode(false);
 
-    //            //entity.Property(e => e.PurchaseRequisitionRequestedBy).HasColumnName("Purchase_Requisition_Requested_By");
-    //          //  entity.Property(e => e.PurchaseRequisitionStatus).HasColumnName("Purchase_Requisition_Status");
-    //           // entity.Property(e => e.PurchaseRequisitionApprovedBy).HasColumnName("Purchase_Requisition_ApprovedBy");
+            //            //entity.Property(e => e.PurchaseRequisitionRequestedBy).HasColumnName("Purchase_Requisition_Requested_By");
+            //          //  entity.Property(e => e.PurchaseRequisitionStatus).HasColumnName("Purchase_Requisition_Status");
+            //           // entity.Property(e => e.PurchaseRequisitionApprovedBy).HasColumnName("Purchase_Requisition_ApprovedBy");
 
-    //            //entity.Property(e => e.PurchaseRequisitionRequisitionDate)
-    //            //    .HasColumnName("Purchase_Requisition_Requisition_Date")
-    //            //    .HasColumnType("datetime");
+            //            //entity.Property(e => e.PurchaseRequisitionRequisitionDate)
+            //            //    .HasColumnName("Purchase_Requisition_Requisition_Date")
+            //            //    .HasColumnType("datetime");
 
-    ////            entity.Property(e => e.PurchaseRequisitionApprovedDate)
-    ////.HasColumnName("Purchase_Requisition_ApprovedDate")
-    ////.HasColumnType("datetime");
+            ////            entity.Property(e => e.PurchaseRequisitionApprovedDate)
+            ////.HasColumnName("Purchase_Requisition_ApprovedDate")
+            ////.HasColumnType("datetime");
 
-    //            //entity.Property(e => e.PurchaseRequisitionStaffCode).HasColumnName("Purchase_Requisition_Staff_Code");
+            //            //entity.Property(e => e.PurchaseRequisitionStaffCode).HasColumnName("Purchase_Requisition_Staff_Code");
 
-    //          //  entity.Property(e => e.PurchaseRequisitionSubJobId).HasColumnName("Purchase_Requisition_Sub_Job_ID");
+            //          //  entity.Property(e => e.PurchaseRequisitionSubJobId).HasColumnName("Purchase_Requisition_Sub_Job_ID");
 
-    //           // entity.Property(e => e.PurchaseRequisitionSupplierCode).HasColumnName("Purchase_Requisition_Supplier_Code");
-    //        });
+            //           // entity.Property(e => e.PurchaseRequisitionSupplierCode).HasColumnName("Purchase_Requisition_Supplier_Code");
+            //        });
 
             ////////modelBuilder.Entity<PurchaseRequisition1>(entity =>
             ////////{
@@ -15045,6 +15071,159 @@ namespace Inspire.Erp.Infrastructure.Database
             });
 
 
+
+            //Stock Requisition 
+
+            modelBuilder.Entity<StockRequisition>(entity =>
+            {
+                entity.HasKey(e => e.StockRequisitionId);
+
+                entity.ToTable("StockRequisition");
+
+                //          entity.Property(e => e.StockRequisitionId)
+                //.HasColumnName("StockRequisitionId")
+                //.HasColumnType("numeric(18,0)")
+                //.IsRequired();
+
+                entity.Property(e => e.StockRequisitionNo)
+                    .HasColumnName("StockRequisitionNo")
+                    .HasMaxLength(20)
+                    .IsRequired();                    
+
+                entity.Property(e => e.StockRequisitionDate)
+                    .HasColumnName("StockRequisitionDate")
+                    .HasColumnType("datetime")
+                    .IsRequired();
+
+                entity.Property(e => e.StockRequisitionType)
+                    .HasColumnName("StockRequisitionType")
+                    .HasMaxLength(20);
+
+                entity.Property(e => e.StockRequisitionJobId)
+                    .HasColumnName("StockRequisitionJobId")
+                    .HasColumnType("bigint");
+
+                entity.Property(e => e.StockRequisitionStatus)
+                    .HasColumnName("StockRequisitionStatus")
+                     .HasMaxLength(20);
+
+                entity.Property(e => e.StockRequisitionDelStatus)
+                    .HasColumnName("StockRequisitionDelStatus")
+                    .HasColumnType("bit");
+
+                entity.Property(e => e.StockRequisitionDetailsReqDate)
+                    .HasColumnName("StockRequisitionDetailsReqDate")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.StockRequisitionDetailsReqStatus)
+                    .HasColumnName("StockRequisitionDetailsReqStatus")
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.StockRequisitionApprovedBy)
+                    .HasColumnName("StockRequisitionApprovedBy")
+                    .HasColumnType("int");
+
+                entity.Property(e => e.StockRequisitionApprovedDate)
+                    .HasColumnName("StockRequisitionApprovedDate")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.StockRequisitionRemarks)
+                    .HasColumnName("StockRequisitionRemarks")
+                    .HasMaxLength(200);
+
+                entity.Property(e => e.StockRequisitionRequestedBy)
+                    .HasColumnName("StockRequisitionRequestedBy")
+                    .HasColumnType("int");
+
+            });
+
+            // Stock Requisition Details
+
+
+            modelBuilder.Entity<StockRequisitionDetails>(entity =>
+            {
+                entity.HasKey(e => e.StockRequisitionDetailsId);
+
+                entity.ToTable("StockRequisitionDetails");
+                entity.Property(e => e.StockRequisitionDetailsActualAmount).HasColumnType("numeric(18, 4)");
+
+                entity.Property(e => e.StockRequisitionDetailsBatchCode)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.StockRequisitionDetailsDiscAmount).HasColumnType("numeric(18, 4)");
+
+                entity.Property(e => e.StockRequisitionDetailsExpDate).HasColumnType("datetime");
+
+                entity.Property(e => e.StockRequisitionDetailsGrossAmount).HasColumnType("numeric(18, 4)");
+
+                entity.Property(e => e.StockRequisitionDetailsItemName)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.StockRequisitionDetailsManfDate).HasColumnType("datetime");
+
+                entity.Property(e => e.StockRequisitionDetailsMatId)
+                    .HasColumnName("StockRequisitionDetailsMatID")
+                    .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.StockRequisitionDetailsNetAmt).HasColumnType("numeric(18, 4)");
+
+                entity.Property(e => e.StockRequisitionDetailsNo)
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.StockRequisitionDetailsPoId).HasColumnName("StockRequisitionDetailsPO_Id");
+
+                entity.Property(e => e.StockRequisitionDetailsPodId).HasColumnName("StockRequisitionDetailsPOD_Id");
+
+                entity.Property(e => e.StockRequisitionDetailsPrId).HasColumnName("StockRequisitionDetailsPR_Id");
+
+                entity.Property(e => e.StockRequisitionDetailsPrdId).HasColumnName("StockRequisitionDetailsPRD_Id");
+
+                entity.Property(e => e.StockRequisitionDetailsQtnId).HasColumnName("StockRequisitionDetailsQTN_Id");
+
+                entity.Property(e => e.StockRequisitionDetailsQtndId).HasColumnName("StockRequisitionDetailsQTND_Id");
+
+                entity.Property(e => e.StockRequisitionDetailsQuantity).HasColumnType("numeric(18, 4)");
+
+                entity.Property(e => e.StockRequisitionDetailsRate).HasColumnType("numeric(18, 4)");
+
+                entity.Property(e => e.StockRequisitionDetailsRemarks)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.StockRequisitionDetailsReqDate).HasColumnType("datetime");
+
+                entity.Property(e => e.StockRequisitionDetailsReqStatus)
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.StockRequisitionDetailsRfqId).HasColumnName("StockRequisitionDetailsRFQ_Id");
+
+                entity.Property(e => e.StockRequisitionDetailsRfqdId).HasColumnName("StockRequisitionDetailsRFQD_Id");
+
+                entity.Property(e => e.StockRequisitionDetailsSalesPrice).HasColumnType("numeric(18, 4)");
+
+                entity.Property(e => e.StockRequisitionDetailsSno).HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.StockRequisitionDetailsUnitId).HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.StockRequisitionDetailsUnitName)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.StockRequisitionDetailsVatAmt).HasColumnType("numeric(18, 4)");
+
+                entity.Property(e => e.StockRequisitionDetailsVatPer).HasColumnType("numeric(18, 4)");
+
+                entity.Property(e => e.StockRequisitionId).HasColumnType("numeric(18, 0)");
+
+                entity.HasOne(d => d.StockRequisition)
+                    .WithMany(p => p.StockRequisitionDetails)
+                     .HasForeignKey(d => d.StockRequisitionId)
+                    .HasConstraintName("fk_StockRequisitionId");
+            });
 
             /////========================================================================================================================================================
 
@@ -17591,7 +17770,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<Qtemplates>(entity =>
             {
-                entity.HasKey(x=>x.QtemplatesId);
+                entity.HasKey(x => x.QtemplatesId);
 
                 entity.Property(e => e.QtemplatesDelStatus).HasColumnName("Qtemplates_DelStatus");
 
@@ -20384,7 +20563,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.StockAdjustmentVoucherDetailsAdjQty).HasColumnName("Stock_Adjustment_Voucher_Details_Adj_Qty");
                 entity.Property(e => e.StockAdjustmentVoucherDetailsSaNo).HasColumnName("Stock_Adjustment_Voucher_Details_SaNo");
 
-                
+
                 entity.Property(e => e.StockAdjustmentVoucherDetailsBatchCode)
                     .HasColumnName("Stock_Adjustment_Voucher_Details_BatchCode")
                     .HasMaxLength(40)
@@ -23303,7 +23482,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<WorkGroupMaster>(entity =>
             {
-                entity.HasKey(x=>x.WorkGroupMasterWorkGroupId);
+                entity.HasKey(x => x.WorkGroupMasterWorkGroupId);
 
                 entity.ToTable("WorkGroup_Master");
 
@@ -23332,11 +23511,11 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.WorkGroupPermissionsFormType).HasColumnName("WorkGroup_Permissions_FormType");
 
-               // entity.Property(e => e.WorkGroupPermissionsFormId).HasColumnName("WorkGroup_Permissions_Form_ID");
-                
+                // entity.Property(e => e.WorkGroupPermissionsFormId).HasColumnName("WorkGroup_Permissions_Form_ID");
+
                 entity.Property(e => e.WorkGroupPermissionsMenuId).HasColumnName("WorkGroup_Permissions_Menu_ID");
 
-               
+
 
                 entity.Property(e => e.WorkGroupPermissionsUadd).HasColumnName("WorkGroup_Permissions_UAdd");
 

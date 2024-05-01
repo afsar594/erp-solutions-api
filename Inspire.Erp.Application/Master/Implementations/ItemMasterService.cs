@@ -26,10 +26,8 @@ namespace Inspire.Erp.Application.Master
         private IRepository<PurchaseVoucher> purchVouchRepo;
         private IRepository<SalesVoucherDetails> saleVouchDetailsRepo;
         private IRepository<SalesVoucher> saleVouchRepo;
-
         private IRepository<HappyHour> happyHourRepo;
         private IRepository<HappyHourDeatils> happyHourDetailsRepo;
-
         private IRepository<BarcodeScale> barCodeRepo;
         public ItemMasterService(IRepository<ItemMaster> _itemrepository, IRepository<ItemStockType> _itemStockRepository, IRepository<UnitDetails> unitDetailsRepo
             , IRepository<VendorMaster> _vendorrepository
@@ -63,7 +61,7 @@ namespace Inspire.Erp.Application.Master
                                              .Where(x => x.ItemMasterItemId > 0)
                                              .DefaultIfEmpty()
                                              .Max(o => o == null ? 0 : o.ItemMasterItemId)) + 1;
-
+                itemMaster.ItemMasterMaterialCode = itemMaster.ItemMasterItemId.ToString();
                 itemrepository.Insert(itemMaster);
                 return this.GetAllItem();
             }
@@ -79,7 +77,6 @@ namespace Inspire.Erp.Application.Master
             }
 
         }
-
         public ItemMaster NewItem(ItemMaster itemMaster)
         {
             bool valid = false;
@@ -112,7 +109,6 @@ namespace Inspire.Erp.Application.Master
             }
 
         }
-
         public ItemMaster UpdateNewItem(ItemMaster itemMaster)
         {
             bool valid = false;
@@ -164,7 +160,6 @@ namespace Inspire.Erp.Application.Master
             }
             return this.GetAllItem();
         }
-
         public IEnumerable<ItemStockType> GetAllStockType()
         {
             return itemStockRepository.GetAll();
@@ -190,7 +185,6 @@ namespace Inspire.Erp.Application.Master
             }
             return this.GetAllItem();
         }
-
         public List<ItemMaster> GetAllItem()
         {
             List<ItemMaster> itemMaster;
@@ -217,7 +211,6 @@ namespace Inspire.Erp.Application.Master
             }
             return itemMaster;
         }
-
         public List<ItemMaster> GetAllItemNotGroup()
         {
             List<ItemMaster> itemMaster;
@@ -254,7 +247,6 @@ namespace Inspire.Erp.Application.Master
             }
             return itemMaster;
         }
-
         public IEnumerable<ItemMaster> GetAllItemById(int id)
         {
             IEnumerable<ItemMaster> itemMaster;
@@ -278,9 +270,6 @@ namespace Inspire.Erp.Application.Master
             return itemMaster;
 
         }
-
-
-        //GetAllItemMasterById
         public ItemMaster GetAllItemMasterById(int id)
         {
             ItemMaster itemMaster;
@@ -304,8 +293,6 @@ namespace Inspire.Erp.Application.Master
             return itemMaster;
 
         }
-
-
         public async Task<Response<List<ItemResponse>>> GetItemsBySearch(string query)
         {
             try
@@ -416,8 +403,6 @@ namespace Inspire.Erp.Application.Master
             return itemMaster;
 
         }
-
-
         public IEnumerable<ItemMaster> GetItemMastersByName(string name)
         {
             IEnumerable<ItemMaster> itemMasters = itemrepository.GetAsQueryable().Where(k => k.ItemMasterItemName.Contains(name)
@@ -426,7 +411,6 @@ namespace Inspire.Erp.Application.Master
 
             return itemMasters;
         }
-
         public IEnumerable<ItemMaster> GetAllItemSearchFilter(string group, string name)
         {
             IEnumerable<ItemMaster> itemMasters = itemrepository.GetAsQueryable().Where(k => (((name != null && name.Trim() != "")
@@ -441,7 +425,6 @@ namespace Inspire.Erp.Application.Master
 
             return itemMasters;
         }
-
         public int ItemMasterIdMax()
         {
             return Convert.ToInt32(itemrepository.GetAsQueryable()
@@ -449,36 +432,32 @@ namespace Inspire.Erp.Application.Master
                                                         .DefaultIfEmpty()
                                                         .Max(o => o == null ? 0 : o.ItemMasterItemId)) + 1;
         }
-
         public IEnumerable<ItemMaster> GetAllItemGroupAndSubGroup()
         {
             throw new NotImplementedException();
         }
-
         public IEnumerable<ItemMaster> GetAllItemMaster()
         {
             throw new NotImplementedException();
         }
-
-
         public async Task<Response<ItemMasterResponse>> SearchItemByBarcodeLink(ItemBarCodeSearchFilter model)
         {
             try
             {
                 string barqtys;
-                string prefix="";
+                string prefix = "";
                 string br = "";
-                string barqty="0";
+                string barqty = "0";
                 string scaleBarcode = "";
                 string barQtyType = "0";
-                double? realRate=0;
+                double? realRate = 0;
                 if (model.BarCode.Length == 13)
                 {
-                    if (model.BarCode.Length >=3)
+                    if (model.BarCode.Length >= 3)
                     {
                         prefix = model.BarCode.Substring(0, 2);
                     }
-                
+
                 }
                 else
                 {
@@ -488,13 +467,13 @@ namespace Inspire.Erp.Application.Master
                     }
                 }
 
-                string scaleNo="";
+                string scaleNo = "";
                 int? scaleDigi = 0;
-                int? scaleBarOne =0;
-                int? scaleBarTwo =0;
-                int? scaleBarThree =0;
-                int? scaleBarFour =0;
-                if ( prefix != "")
+                int? scaleBarOne = 0;
+                int? scaleBarTwo = 0;
+                int? scaleBarThree = 0;
+                int? scaleBarFour = 0;
+                if (prefix != "")
                 {
                     var barcodeScale = await barCodeRepo.GetAsQueryable().Where(x => x.ScaleNo == Convert.ToInt32(prefix)).FirstOrDefaultAsync();
                     if (barcodeScale != null)
@@ -508,10 +487,10 @@ namespace Inspire.Erp.Application.Master
                     }
                 }
 
-                if (scaleNo !=null  && model.BarCode.Length == 13)
+                if (scaleNo != null && model.BarCode.Length == 13)
                 {
                     scaleNo = model.BarCode.Substring(0, 5);
-                    barqty = model.BarCode.Substring(model.BarCode.Length+2, 6);
+                    barqty = model.BarCode.Substring(model.BarCode.Length + 2, 6);
                     var unitDetails = await _unitDetailsRepo.GetAsQueryable().Where(x => x.UnitDetailsBarcode == scaleNo).FirstOrDefaultAsync();
                     if (unitDetails != null)
                     {
@@ -529,7 +508,7 @@ namespace Inspire.Erp.Application.Master
                     scaleBarcode = model.BarCode.Substring(scaleNo.Length + (int)scaleBarFour, (int)scaleBarOne);
                     barQtyType = model.BarCode.Substring(scaleNo.Length, (int)scaleBarFour);
                     barqty = model.BarCode.Substring((scaleNo.Length + (int)scaleBarOne) + (int)scaleBarFour, (int)scaleBarThree);
-                  
+
                     var itemDetails = await itemrepository.GetAsQueryable().Where(x => x.ItemMasterItemId == Convert.ToInt64(scaleBarcode)).FirstOrDefaultAsync();
                     if (itemDetails != null)
                     {
@@ -537,7 +516,7 @@ namespace Inspire.Erp.Application.Master
                         realRate = (double)itemDetails.ItemMasterUnitPrice;
                     }
 
-                    if(Convert.ToInt32(barQtyType) == 1)
+                    if (Convert.ToInt32(barQtyType) == 1)
                     {
                         barqty = String.Format("{0:000}", Convert.ToDouble(barqty) / (double)1000);
                     }
@@ -545,7 +524,7 @@ namespace Inspire.Erp.Application.Master
                     {
                         realRate = (double)realRate / Convert.ToDouble(barqty);
                     }
-                   
+
                 }
                 else
                 {
@@ -554,11 +533,11 @@ namespace Inspire.Erp.Application.Master
                 }
 
 
-                if (model.BarCode.Substring(3, 1)=="990" && model.BarCode.Length==13)
+                if (model.BarCode.Substring(3, 1) == "990" && model.BarCode.Length == 13)
                 {
                     barqtys = model.BarCode.Substring(7, 5);
-                    barqty =String.Format("{0:000}", Convert.ToDouble(barqtys) / (double)1000);
-                    model.BarCode = model.BarCode.Substring(4,4) ;
+                    barqty = String.Format("{0:000}", Convert.ToDouble(barqtys) / (double)1000);
+                    model.BarCode = model.BarCode.Substring(4, 4);
                 }
 
                 var result = await (from ir in itemrepository.GetAsQueryable()
@@ -566,14 +545,14 @@ namespace Inspire.Erp.Application.Master
                                     where ud.UnitDetailsBarcode == model.BarCode
                                     select new ItemMasterResponse
                                     {
-                                        BarCode=ud.UnitDetailsBarcode,
-                                        ItemName=ir.ItemMasterItemName,
-                                        UnitPriceTaxIncl=ud.UnitDetailsUnitPrice,
-                                        ItemId=ir.ItemMasterItemId,
-                                        SalesTax = ir.ItemMasterVatPercentage??0,
-                                        ItemwiseInclusive = ir.ItemMasterVatInclues??false,
-                                        UnitDetailsId=ud.UnitDetailsId,
-                                        OfferPrice=ud.UnitDetailsWrate
+                                        BarCode = ud.UnitDetailsBarcode,
+                                        ItemName = ir.ItemMasterItemName,
+                                        UnitPriceTaxIncl = ud.UnitDetailsUnitPrice,
+                                        ItemId = ir.ItemMasterItemId,
+                                        SalesTax = ir.ItemMasterVatPercentage ?? 0,
+                                        ItemwiseInclusive = ir.ItemMasterVatInclues ?? false,
+                                        UnitDetailsId = ud.UnitDetailsId,
+                                        OfferPrice = ud.UnitDetailsWrate
 
                                     }).FirstOrDefaultAsync();
 
@@ -582,20 +561,20 @@ namespace Inspire.Erp.Application.Master
                                     where hhd.HappyHourDeatilsItemId == result.ItemId
                                     select new
                                     {
-                                        FromDate =hh.HappyHourFromDate,
+                                        FromDate = hh.HappyHourFromDate,
                                         ToDate = hh.HappyHourToDate
-                                     }).FirstOrDefaultAsync();
+                                    }).FirstOrDefaultAsync();
 
-                if(happyH != null)
-                    if(happyH.FromDate <= DateTime.Now && happyH.ToDate >=DateTime.Now)
+                if (happyH != null)
+                    if (happyH.FromDate <= DateTime.Now && happyH.ToDate >= DateTime.Now)
                     {
                         result.UnitPriceTaxIncl = result.OfferPrice;
                     }
 
 
-                if(model.DisableVat)
+                if (model.DisableVat)
                 {
-                    result.SalesTax =0;
+                    result.SalesTax = 0;
                 }
 
                 if (result.ItemwiseInclusive && result.SalesTax != 0)
@@ -606,13 +585,13 @@ namespace Inspire.Erp.Application.Master
                     // 'Unitprice = Math.Round(Val(Val(UpriceTaxIncl) / 1.05), 2)
                     result.VATValue = (double)Math.Round((decimal)result.UnitPriceTaxIncl - (decimal)result.UnitPrice, 2);
                 }
-                else if ( result.SalesTax != 0)
+                else if (result.SalesTax != 0)
                 {
-                    result.VATValue = (double)Math.Round(((decimal)result.UnitPriceTaxIncl * result.SalesTax)/100, 2);
+                    result.VATValue = (double)Math.Round(((decimal)result.UnitPriceTaxIncl * result.SalesTax) / 100, 2);
                 }
                 else if (result.SalesTax == 0)
                 {
-                    result.UnitPrice = (double)Math.Round((decimal)result.UnitPriceTaxIncl , 2);
+                    result.UnitPrice = (double)Math.Round((decimal)result.UnitPriceTaxIncl, 2);
                     result.VATValue = (double)Math.Round(0.0, 2);
                 }
 
