@@ -39,6 +39,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private IRepository<SuppliersMaster> _suppliersMasterRepository;
         private IRepository<LocationMaster> _locationMasterRepository;
         private IRepository<UserFile> _userFileRepository;
+        private IRepository<UnitDetails> _UnitDetailsRepository;
 
         //private IRepository<ReportPurchaseOrder> _reportPurchaseOrderRepository;
         public PurchaseOrderService(
@@ -51,7 +52,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
 
-            IRepository<PurchaseOrder> purchaseOrderRepository, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository, IRepository<PurchaseReturn> purchaseReturnRepository, IRepository<PurchaseReturnDetails> purchaseReturnDetailsRepository, IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PurOrderRegister> purOrderRegisterRepository)
+            IRepository<PurchaseOrder> purchaseOrderRepository, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository, IRepository<PurchaseReturn> purchaseReturnRepository, IRepository<PurchaseReturnDetails> purchaseReturnDetailsRepository, IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PurOrderRegister> purOrderRegisterRepository, IRepository<UnitDetails> unitDetailsRepository)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository;
@@ -71,8 +72,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _purOrderRegisterRepository = purOrderRegisterRepository;
             _permissionApprovalRepo = permissionApprovalRepo;
             _approvalRepo = approvalRepo;
-            _approvalDetailRepo= approvalDetailRepo;
+            _approvalDetailRepo = approvalDetailRepo;
             //_reportPurchaseOrderRepository = reportPurchaseOrderRepository;
+            _UnitDetailsRepository = unitDetailsRepository;
+
         }
 
         //public IEnumerable<ReportPurchaseOrder> PurchaseOrder_GetReportPurchaseOrder()
@@ -230,6 +233,18 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
             return this.GetSavedPurchaseOrderDetails(purchaseOrder.PurchaseOrderNo);
         }
+        private decimal getConverionTypebyUnitId(int? unitDetailsid)
+        {
+            try
+            {
+                return (decimal)this._UnitDetailsRepository.GetAsQueryable().FirstOrDefault(x => x.UnitDetailsUnitId == unitDetailsid).UnitDetailsConversionType;
+            }
+            catch
+            {
+                return 1;
+            }
+        }
+
 
         public int DeletePurchaseOrder(PurchaseOrder purchaseOrder, List<AccountsTransactions> accountsTransactions,
             List<PurchaseOrderDetails> purchaseOrderDetails
@@ -360,14 +375,18 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 var listTrackPurchOrderReg = new List<PurOrderRegister>();
                 foreach (var purOrderDet in purchaseOrder.PurchaseOrderDetails)
                 {
+
+                    var converontype = this.getConverionTypebyUnitId(Convert.ToInt32(purOrderDet.PurchaseOrderDetailsUnitId));
+
+
                     var tr = new TrackingRegister
                     {
                         TrackingRegisterDetailsId = (int)purOrderDet.PurchaseOrderDetailsId,
                         TrackingRegisterVoucherNo = purOrderDet.PurchaseOrderDetailsNo,
                         TrackingRegisterMaterialId = (int)purOrderDet.PurchaseOrderDetailsMatId,
                         TrackingRegisterVoucherType = purchaseOrder.PurchaseOrderType,
-                        TrackingRegisterQty = (int)purOrderDet.PurchaseOrderDetailsQuantity,
-                        TrackingRegisterQtyin = (int)purOrderDet.PurchaseOrderDetailsQuantity,
+                        TrackingRegisterQty = (int)purOrderDet.PurchaseOrderDetailsQuantity * converontype,
+                        TrackingRegisterQtyin = (int)purOrderDet.PurchaseOrderDetailsQuantity * converontype,
                         TrackingRegisterQtyout = 0,
                         TrackingRegisterRate = purOrderDet.PurchaseOrderDetailsRate,
                         TrackingRegisterTrackDate = purchaseOrder.PurchaseOrderDate,
@@ -382,7 +401,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         PurOrderRegisterRefVoucherNo = purOrderDet.PurchaseOrderDetailsNo,
                         PurOrderRegisterMaterialId = (int)purOrderDet.PurchaseOrderDetailsMatId,
                         PurOrderRegisterTransType = purchaseOrder.PurchaseOrderType,
-                        PurOrderRegisterQtyOrder = purOrderDet.PurchaseOrderDetailsQuantity,
+                        PurOrderRegisterQtyOrder = purOrderDet.PurchaseOrderDetailsQuantity * converontype,
                         PurOrderRegisterQtyIssued = 0,
                         PurOrderRegisterRate = purOrderDet.PurchaseOrderDetailsRate,
                         PurOrderRegisterAssignedDate = DateTime.Now,
