@@ -27,5 +27,39 @@ namespace Inspire.Erp.Domain.Modals
         public decimal? OpeningCashUser { get; set; }
         public int? UserOpeningBal { get; set; }
     }
-   
+
+    public class SettlementDetailsRequest
+    {
+        public int Quantity { get; set; }
+        public double Total { get; set; }
+        public double? BillAmount { get; set; }
+        public double? ItemDiscount { get; set; }
+        public double? BillDiscount { get; set; }
+        public double? VAT { get; set; }
+        public double? DiscountVAT { get; set; }
+        public string VATRoundSign { get; set; }
+        public double? SalesTax { get; set; }
+
+        public int UserId { get; set; }
+
+
+    }
+
+    public class SettlementDetailsResponse
+    {
+        public string TransactionDesc { get; set; }
+        public int SettlementDetailsId { get; set; }
+        public double? Amount { get; set; }
+        public long? SalesVoucherId { get; set; }
+        public DateTime? SettlementDate { get; set; }
+        public int? UserId { get; set; }
+        public string  TransactionCode { get; set; }
+        public int? SortOrder { get; set; }
+        public bool? ShowinInvoice { get; set; }
+
+        public string Status { get; set; }
+    }
+
+
+
 }

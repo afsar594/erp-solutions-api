@@ -14,6 +14,10 @@ using System.Runtime.CompilerServices;
 using Inspire.Erp.Domain.Modals.AccountStatement;
 using System.Security.Cryptography;
 using Inspire.Erp.Domain.Entities.POS;
+using Microsoft.AspNetCore.Mvc;
+using System.Transactions;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using Inspire.Erp.Domain.Models;
 
 namespace Inspire.Erp.Application.Master
 {
@@ -31,6 +35,11 @@ namespace Inspire.Erp.Application.Master
         private IRepository<HappyHourDeatils> happyHourDetailsRepo;
         private IRepository<BarcodeScale> barCodeRepo;
         private IRepository<POS_WorkPeriod> workPeriodRepo;
+        private IRepository<POS_SettlementDetTemp> settDetailsTempRepo;
+        private IRepository<POS_SettlementDet> settDetailsRepo;
+        private IRepository<TransactionCodes> transCodesRepo;
+        private IRepository<POS_SalesVoucher> posSalesVoucherRepo;
+        private IRepository<POS_SalesVoucherDetails> posSalesVoucherDetailsRepo;
         public ItemMasterService(IRepository<ItemMaster> _itemrepository, IRepository<ItemStockType> _itemStockRepository, IRepository<UnitDetails> unitDetailsRepo
             , IRepository<VendorMaster> _vendorrepository
             , IRepository<PurchaseVoucherDetails> _purchVouchDetailsRepo
@@ -40,7 +49,9 @@ namespace Inspire.Erp.Application.Master
             , IRepository<HappyHour> _happyHourRepo
             , IRepository<HappyHourDeatils> _happyHourDetailsRepo
             , IRepository<BarcodeScale> _barCodeRepo
-            , IRepository<POS_WorkPeriod> _workPeriodRepo)
+            , IRepository<POS_WorkPeriod> _workPeriodRepo
+            , IRepository<POS_SettlementDetTemp> _settDetailsTempRepo
+            , IRepository<POS_SettlementDet> _settDetailsRepo, IRepository<TransactionCodes> _transCodesRepo)
         {
             itemrepository = _itemrepository;
             vendorrepository = _vendorrepository;
@@ -54,6 +65,10 @@ namespace Inspire.Erp.Application.Master
             happyHourDetailsRepo = _happyHourDetailsRepo;
             barCodeRepo = _barCodeRepo;
             workPeriodRepo = _workPeriodRepo;
+            settDetailsTempRepo = _settDetailsTempRepo;
+            settDetailsRepo = _settDetailsRepo;
+            this.transCodesRepo = _transCodesRepo;
+
         }
         public IEnumerable<ItemMaster> InsertItem(ItemMaster itemMaster)
         {
@@ -720,7 +735,306 @@ namespace Inspire.Erp.Application.Master
         }
 
 
+        public async Task<Response<List<ItemMasterResponse>>> GetItems(string barCode)
+        {
+            try
+            {
+                var result = await (from ir in itemrepository.GetAsQueryable().Where(x=>x.ItemMasterItemType=="A")
+                                    join ud in _unitDetailsRepo.GetAsQueryable() on ir.ItemMasterItemId equals ud.UnitDetailsItemId
+                                    where ir.ItemMasterItemName.Contains(barCode) || ud.UnitDetailsBarcode.Contains(barCode)
+                                    select new ItemMasterResponse
+                                    {
+                                        UnitDetailsId = ud.UnitDetailsId,
+                                        BarCode = ud.UnitDetailsBarcode,
+                                        ItemName = ir.ItemMasterItemName,
+                                        UnitPrice = ud.UnitDetailsUnitPrice,
+                                        ItemId = ir.ItemMasterItemId,
+                                        
 
+                                    }).GroupBy(
+                                    m => new { m.ItemId, m.ItemName, m.UnitDetailsId, m.UnitPrice,m.BarCode }
+                                ).Select(am => new ItemMasterResponse
+                                {
+                                    UnitDetailsId = am.Key.UnitDetailsId,
+                                    BarCode = am.Key.BarCode,
+                                    ItemName = am.Key.ItemName,
+                                    UnitPrice = am.Key.UnitPrice,
+                                    ItemId = am.Key.ItemId,
+                                }).ToListAsync();
+               
+
+                return Response<List<ItemMasterResponse>>.Success(result, "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<List<ItemMasterResponse>>.Fail(new List<ItemMasterResponse>(), ex.Message);
+            }
+        }
+
+
+        public async Task<Response<ItemMasterResponse>> SearchItemByUnitDetailsId(ItemBarCodeSearchFilter model)
+        {
+            try
+            {
+
+                var result = await (from ir in itemrepository.GetAsQueryable()
+                                    join ud in _unitDetailsRepo.GetAsQueryable() on ir.ItemMasterItemId equals ud.UnitDetailsItemId
+                                    where ud.UnitDetailsId==model.unitDetailsId
+                                    select new ItemMasterResponse
+                                    {
+                                        UnitDetailsId = ud.UnitDetailsId,
+                                        BarCode = ud.UnitDetailsBarcode,
+                                        ItemName = ir.ItemMasterItemName,
+                                        UnitPrice = ud.UnitDetailsUnitPrice,
+                                        ItemId = ir.ItemMasterItemId,
+                                        UnitPriceTaxIncl = ud.UnitDetailsUnitPrice,
+                                        SalesTax = ir.ItemMasterVatPercentage ?? 0,
+                                        ItemwiseInclusive = ir.ItemMasterVatInclues ?? false,
+                                        OfferPrice = ud.UnitDetailsWrate
+
+                                    }).FirstOrDefaultAsync();
+                var happyH = await (from hh in happyHourRepo.GetAsQueryable()
+                                    join hhd in happyHourDetailsRepo.GetAsQueryable() on hh.HappyHourId equals hhd.HappyHourDeatilsHappyHourId
+                                    where hhd.HappyHourDeatilsItemId == result.ItemId
+                                    select new
+                                    {
+                                        FromDate = hh.HappyHourFromDate,
+                                        ToDate = hh.HappyHourToDate
+                                    }).FirstOrDefaultAsync();
+
+                if (happyH != null)
+                    if (happyH.FromDate <= DateTime.Now && happyH.ToDate >= DateTime.Now)
+                    {
+                        result.UnitPriceTaxIncl = result.OfferPrice;
+                    }
+
+                if (model.disableVat??false)
+                {
+                    result.SalesTax = 0;
+                }
+
+                if (result.ItemwiseInclusive && result.SalesTax != 0)
+                {
+                    result.SalesTax1 = (100 + result.SalesTax);
+                    result.SalesTax1 = (result.SalesTax1 / (decimal)100);
+                    result.UnitPrice = (double)Math.Round((decimal)result.UnitPriceTaxIncl / result.SalesTax1, 2);
+                    // 'Unitprice = Math.Round(Val(Val(UpriceTaxIncl) / 1.05), 2)
+                    result.VATValue = (double)Math.Round((decimal)result.UnitPriceTaxIncl - (decimal)result.UnitPrice, 2);
+                }
+                else if (result.SalesTax != 0)
+                {
+                    result.VATValue = (double)Math.Round(((decimal)result.UnitPriceTaxIncl * result.SalesTax) / 100, 2);
+                }
+                else if (result.SalesTax == 0)
+                {
+                    result.UnitPrice = (double)Math.Round((decimal)result.UnitPriceTaxIncl, 2);
+                    result.VATValue = (double)Math.Round(0.0, 2);
+                }
+
+                return Response<ItemMasterResponse>.Success(result, "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<ItemMasterResponse>.Fail(new ItemMasterResponse(), ex.Message);
+            }
+        }
+
+        private long getMaxSalesVoucher()
+        {
+            try
+            {
+                long? maxValue = posSalesVoucherRepo.GetAll().Max(x => x.V_ID);
+                long? incrementedValue = maxValue.HasValue ? maxValue + 1 : 1;
+                return (long)incrementedValue;
+            }
+            catch
+            {
+                return 1;
+            }
+        }
+
+        private int getMaxSettlementDetails()
+        {
+            try
+            {
+                int? maxValue = settDetailsTempRepo.GetAll().Max(x => x.SettlementDetId);
+                int? incrementedValue = maxValue.HasValue ? maxValue + 1 : 1;
+                return (int)incrementedValue;
+            }
+            catch
+            {
+                return 1;
+            }
+        }
+        public async Task<Response<List<SettlementDetailsResponse>>> AddSettlementDetails(SettlementDetailsRequest model)
+        {
+            using (var trans = new TransactionScope())
+            {
+                try
+                {
+                    var salesVoucherNo = getMaxSalesVoucher();
+
+                    //Item Discount
+                   
+                    if(model.ItemDiscount>0)
+                    {
+
+                        var tempSettDetailsDis = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "DIS");
+                        if (tempSettDetailsDis != null) settDetailsTempRepo.Delete(tempSettDetailsDis);
+                        var settDetailsIdDis = getMaxSettlementDetails();
+                        var alloModelDis = new POS_SettlementDetTemp()
+                        {
+                            SettlementDetId = settDetailsIdDis,
+                            OrderId = salesVoucherNo,
+                            Amount = model.ItemDiscount,
+                            Status = "Y",
+                            Date = DateTime.Now,//to be changed
+                            UserId = model.UserId,
+                            TransactionCode = "DIS"
+
+                        };
+                        settDetailsTempRepo.Insert(alloModelDis);
+                    }
+
+                    //Bill Discount
+                    if (model.BillDiscount > 0)
+                    {
+                        var tempSettDetails = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "BIL");
+                        if (tempSettDetails != null) settDetailsTempRepo.Delete(tempSettDetails);
+                        var settDetailsId = getMaxSettlementDetails();
+                        var alloModel = new POS_SettlementDetTemp()
+                        {
+                            SettlementDetId = settDetailsId,
+                            OrderId = salesVoucherNo,
+                            Amount = model.BillAmount,
+                            Status = "Y",
+                            Date = DateTime.Now,//to be changed
+                            UserId = model.UserId,
+                            TransactionCode = "BIL"
+
+                        };
+                        settDetailsTempRepo.Insert(alloModel);
+
+                        tempSettDetails = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "DIS");
+                        if (tempSettDetails != null) settDetailsTempRepo.Delete(tempSettDetails);
+                        settDetailsId = getMaxSettlementDetails();
+                        alloModel = new POS_SettlementDetTemp()
+                        {
+                            SettlementDetId = settDetailsId,
+                            OrderId = salesVoucherNo,
+                            Amount = model.BillDiscount,
+                            Status = "Y",
+                            Date = DateTime.Now,//to be changed
+                            UserId = model.UserId,
+                            TransactionCode = "DIS"
+
+                        };
+                        settDetailsTempRepo.Insert(alloModel);
+
+                        tempSettDetails = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "VAT");
+                        if (tempSettDetails != null) settDetailsTempRepo.Delete(tempSettDetails);
+                        settDetailsId = getMaxSettlementDetails();
+                        alloModel = new POS_SettlementDetTemp()
+                        {
+                            SettlementDetId = settDetailsId,
+                            OrderId = salesVoucherNo,
+                            Amount = model.DiscountVAT,
+                            Status = "Y",
+                            Date = DateTime.Now,//to be changed
+                            UserId = model.UserId,
+                            TransactionCode = "VAT"
+
+                        };
+                        settDetailsTempRepo.Insert(alloModel);
+
+                    }
+                    else
+                    {
+                        var tempSettDetailsOth = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "VAT");
+                        if (tempSettDetailsOth != null) settDetailsTempRepo.Delete(tempSettDetailsOth);
+                        var settDetailsIdOth = getMaxSettlementDetails();
+                        var alloModelOth = new POS_SettlementDetTemp()
+                        {
+                            SettlementDetId = settDetailsIdOth,
+                            OrderId = salesVoucherNo,
+                            Amount = model.VAT,
+                            Status = "Y",
+                            Date = DateTime.Now,//to be changed
+                            UserId = model.UserId,
+                            TransactionCode = "VAT"
+
+                        };
+                        settDetailsTempRepo.Insert(alloModelOth);
+                    }
+
+                    var tempSettDetailsVat = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "VAMT");
+                    if (tempSettDetailsVat != null) settDetailsTempRepo.Delete(tempSettDetailsVat);
+                    var settDetailsIdVat = getMaxSettlementDetails();
+                    var alloModelVat = new POS_SettlementDetTemp()
+                    {
+                        SettlementDetId = settDetailsIdVat,
+                        OrderId = salesVoucherNo,
+                        Amount = model.BillAmount - model.BillDiscount - model.ItemDiscount,
+                        Status = "Y",
+                        Date = DateTime.Now,//to be changed
+                        UserId = model.UserId,
+                        TransactionCode = "VAT"
+
+                    };
+                    settDetailsTempRepo.Insert(alloModelVat);
+
+                    Double? netTotal=0;
+                    if(model.VAT>0)
+                    {
+                        netTotal = (model.BillAmount - model.ItemDiscount) - model.BillDiscount + model.DiscountVAT;
+                    }
+                    else
+                    {
+                        netTotal = (model.BillAmount - model.ItemDiscount) - model.BillDiscount + model.DiscountVAT;
+                    }
+
+
+                    #region ADD ACTIVITY LOGS
+                    //AddActivityLogViewModel log = new AddActivityLogViewModel()
+                    //{
+                    //    Page = "Voucher Allocation",
+                    //    Section = "Add Voucher Allocation ",
+                    //    Entity = "Voucher Allocation ",
+
+                    //};
+                    //await _utilityService.AddUserTrackingLog(log);
+                    #endregion
+
+
+                    var result = await (from ir in settDetailsTempRepo.GetAsQueryable()
+                                        join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode equals ud.Trans_code
+                                        where ir.UserId == 2 && ud.show_in_inv==true && !ir.TransactionCode.Contains("BIL")
+                                        select new SettlementDetailsResponse
+                                        {
+                                            TransactionDesc = ud.Trans_Description,
+                                            Amount = ir.Amount,
+                                            SettlementDetailsId = ir.SettlementDetId,
+                                            SalesVoucherId = ir.OrderId,
+                                            Status = ir.Status,
+                                            SettlementDate = ir.Date,
+                                            SortOrder = ud.Sort_order,
+                                            ShowinInvoice = ud.show_in_inv
+
+                                        }).OrderBy(x=>x.SortOrder).ToListAsync();
+
+                   
+                    trans.Complete();
+                    return Response<List<SettlementDetailsResponse>>.Success(result, "Settlement Details inserted Successfully.");
+
+                }
+                catch (Exception ex)
+                {
+                    trans.Dispose();
+                    return Response<List<SettlementDetailsResponse>>.Fail(new List<SettlementDetailsResponse>(), ex.Message);
+                }
+            }
+        }
+        
 
         #endregion 
 

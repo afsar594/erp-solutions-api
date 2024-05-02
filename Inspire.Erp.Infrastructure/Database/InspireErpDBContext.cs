@@ -408,6 +408,11 @@ namespace Inspire.Erp.Infrastructure.Database
         /// ==========================================================================================================
 
 
+        //POS Tables
+
+        public DbSet<POS_Sales_Voucher> POS_Sales_Voucher { get; set; }
+        public DbSet<POS_Sales_Voucher_Details> POS_Sales_Voucher_Details { get; set; }
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -458,7 +463,7 @@ namespace Inspire.Erp.Infrastructure.Database
             modelBuilder.Entity<GetAccountTransactionProfitLossResponse>().HasNoKey();
             modelBuilder.Entity<GetATFinancialClosingResponse>().HasNoKey();
             modelBuilder.Entity<SingleValueSPResult>().HasNoKey();
-
+           // modelBuilder.Entity<POS_Sales_Voucher>().HasNoKey();
 
 
             //modelBuilder.Query<IssueWithStockTransfer>().ToView("VW_ISSUE_WITH_STOCK_TRANSFER");
@@ -24126,6 +24131,49 @@ namespace Inspire.Erp.Infrastructure.Database
                 e.HasKey(x => x.Id);
             });
 
+            modelBuilder.Entity<POS_SettlementDet>(e =>
+            {
+                e.ToTable("POS_SettlementDet");
+                e.HasKey(x => x.SettlementDetId);
+            });
+            modelBuilder.Entity<POS_SettlementDetTemp>(e =>
+            {
+                e.ToTable("POS_SettlementDetTemp");
+                e.HasKey(x => x.SettlementDetId);
+            });
+            modelBuilder.Entity<TransactionCodes>(e =>
+            {
+                e.ToTable("TransactionCodes");
+                e.HasKey(x => x.Id);
+            });
+
+            //modelBuilder.Entity<POS_SalesVoucher>(e =>
+            //{
+            //    e.ToTable("POS_Sales_Voucher");
+            //    e.HasKey(x => x.V_ID);
+            //});
+
+            //modelBuilder.Entity<POS_SalesVoucherDetails>(e =>
+            //{
+            //    e.ToTable("POS_Sales_Voucher_Details");
+            //    e.HasKey(x => x.SDet_ID);
+            //});
+
+           
+            
+            modelBuilder.Entity<POS_Sales_Voucher>(e =>
+            {
+                e.HasNoKey();
+
+                e.ToTable("POS_Sales_Voucher");
+            });
+
+            modelBuilder.Entity<POS_Sales_Voucher_Details>(e =>
+            {
+                e.HasNoKey();
+
+                e.ToTable("POS_Sales_Voucher_Details");
+            });
             OnModelCreatingPartial(modelBuilder);
         }
 

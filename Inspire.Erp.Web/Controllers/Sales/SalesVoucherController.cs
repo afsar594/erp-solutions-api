@@ -460,8 +460,6 @@ namespace Inspire.Erp.Web.Controllers
         [Route("GetSalesVoucher")]
         public ApiResponse<IEnumerable<SalesVoucher>> GetAllSalesVoucher()
         {
-
-
             ApiResponse<IEnumerable<SalesVoucher>> apiResponse = new ApiResponse<IEnumerable<SalesVoucher>>
             {
                 Valid = true,
@@ -469,11 +467,6 @@ namespace Inspire.Erp.Web.Controllers
                 Message = ""
             };
              return  apiResponse;
-
-
-
-
-
         }
 
         [HttpGet]
