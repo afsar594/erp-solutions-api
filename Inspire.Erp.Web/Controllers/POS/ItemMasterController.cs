@@ -79,6 +79,34 @@ namespace Inspire.Erp.Web.Controllers.POS
 
 
 
+        [HttpPost("CalcualteCardAmount")]
+        public async Task<IActionResult> CalcualteCardAmount(SettlementDetailsRequest model)
+        {
+            try
+            {
+                return Ok(await itemMasterService.CalcualteCardAmount(model));
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
+
+        }
+
+
+        [HttpPost("ProcessCard")]
+        public async Task<IActionResult> ProcessCard(CardAmountResponse model)
+        {
+            try
+            {
+                return Ok(await itemMasterService.ProcessCard(model));
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
+
+        }
 
 
     }
