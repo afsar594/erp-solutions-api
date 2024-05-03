@@ -376,7 +376,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 foreach (var purOrderDet in purchaseOrder.PurchaseOrderDetails)
                 {
 
-                    var converontype = this.getConverionTypebyUnitId(Convert.ToInt32(purOrderDet.PurchaseOrderDetailsUnitId));
+                   // var converontype = this.getConverionTypebyUnitId(Convert.ToInt32(purOrderDet.PurchaseOrderDetailsUnitId));
 
 
                     var tr = new TrackingRegister
@@ -385,8 +385,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         TrackingRegisterVoucherNo = purOrderDet.PurchaseOrderDetailsNo,
                         TrackingRegisterMaterialId = (int)purOrderDet.PurchaseOrderDetailsMatId,
                         TrackingRegisterVoucherType = purchaseOrder.PurchaseOrderType,
-                        TrackingRegisterQty = (int)purOrderDet.PurchaseOrderDetailsQuantity * converontype,
-                        TrackingRegisterQtyin = (int)purOrderDet.PurchaseOrderDetailsQuantity * converontype,
+                        TrackingRegisterQty = (int)purOrderDet.PurchaseOrderDetailsQuantity ,
+                        TrackingRegisterQtyin = (int)purOrderDet.PurchaseOrderDetailsQuantity,
                         TrackingRegisterQtyout = 0,
                         TrackingRegisterRate = purOrderDet.PurchaseOrderDetailsRate,
                         TrackingRegisterTrackDate = purchaseOrder.PurchaseOrderDate,
@@ -401,7 +401,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         PurOrderRegisterRefVoucherNo = purOrderDet.PurchaseOrderDetailsNo,
                         PurOrderRegisterMaterialId = (int)purOrderDet.PurchaseOrderDetailsMatId,
                         PurOrderRegisterTransType = purchaseOrder.PurchaseOrderType,
-                        PurOrderRegisterQtyOrder = purOrderDet.PurchaseOrderDetailsQuantity * converontype,
+                        PurOrderRegisterQtyOrder = purOrderDet.PurchaseOrderDetailsQuantity,
                         PurOrderRegisterQtyIssued = 0,
                         PurOrderRegisterRate = purOrderDet.PurchaseOrderDetailsRate,
                         PurOrderRegisterAssignedDate = DateTime.Now,
