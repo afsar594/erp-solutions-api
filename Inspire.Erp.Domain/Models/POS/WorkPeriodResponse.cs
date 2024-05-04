@@ -73,8 +73,14 @@ namespace Inspire.Erp.Domain.Modals
         public double? CashAmount { get; set; }
         public string RefereceNo { get; set; }
         public string VoucherNo { get; set; }
+        public string CardType { get; set; }
         public int? UserId { get; set; }
+        public int WorkPeriodId { get; set; }
+        public int BillNoSetDet { get; set; }
+        public long? BillnoLoad { get; set; }
 
+        public string StationName { get; set; }
+        public string CreditCardNumber { get; set; }
     }
 
 
