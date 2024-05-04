@@ -14,7 +14,7 @@ namespace Inspire.Erp.Application.Settings.Interfaces
         Task<Response<Menu>> SaveMenu(Menu menu);
         Task<Response<Menu>> DeleteMenu(int id);
         Task<Response<Menu>> UpdateMenu(Menu menu);
-        Menu GetMenuById(int id);
+        Task<Response<Menu>> GetMenuById(int id);
         Task<Response<List<Menu>>> MenuList();
     }
 }

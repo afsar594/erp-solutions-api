@@ -129,6 +129,7 @@ namespace Inspire.Erp.Web.Controllers
         {
             IEnumerable<ItemMaster> listItemnater = itemMasterService.GetAllItemById(id);
 
+            
             var x = _mapper.Map<List<ItemMasterViewModel>>(listItemnater);
             ApiResponse<List<ItemMasterViewModel>> apiResponse = new ApiResponse<List<ItemMasterViewModel>>
             {
@@ -160,6 +161,7 @@ namespace Inspire.Erp.Web.Controllers
 
         }
 
+         
 
         [HttpGet]
         [Route("GetAllItemMasterByBarCode/{barCode}")]
