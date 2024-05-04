@@ -158,6 +158,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                     k.StockRegisterRefVoucherNo = puchaseVoucherNumber;
                     k.StockRegisterTransType = VoucherType.PurchaseVoucher_TYPE;
                     k.StockRegisterStatus = AccountStatus.Approved;
+                    //k.StockRegisterSout= purchaseVoucher.
                     return k;
                 }).ToList();
                 _stockRegisterRepository.InsertList(stockRegister);
@@ -535,6 +536,18 @@ namespace Inspire.Erp.Application.Master.Implementations
                 return Response<GridWrapperResponse<List<GetPurchaseVoucherResponse>>>.Fail(new GridWrapperResponse<List<GetPurchaseVoucherResponse>>(), ex.Message);
             }
         }
+        private decimal getConverionTypebyUnitId(int? unitDetailsid)
+        {
+            try
+            {
+                return (decimal)_context.UnitDetails.FirstOrDefault(x => x.UnitDetailsUnitId == unitDetailsid).UnitDetailsConversionType;
+            }
+            catch
+            {
+                return 1;
+            }
+        }
+
         public PurchaseVoucher InsertPurchaseVoucher(PurchaseVoucher purchaseVoucher, List<AccountsTransactions> accountsTransactions, List<PurchaseVoucherDetails> purchaseVoucherDetails)
         {
             try
@@ -570,14 +583,15 @@ namespace Inspire.Erp.Application.Master.Implementations
                 List<StockRegister> stockRegisters = new List<StockRegister>();
                 foreach (var item in purchaseVoucherDetails)
                 {
+                    var converontype = this.getConverionTypebyUnitId(item.PurchaseVoucherDetailsUnitId);
                     stockRegisters.Add(new StockRegister
                     {
                         StockRegisterMaterialID = item.PurchaseVoucherDetailsMaterialId,
                         StockRegisterRefVoucherNo = vnumber,
                         StockRegisterPurchaseID = vnumber,
                         StockRegisterVoucherDate = purchaseVoucher.PurchaseVoucherPurchaseDate,
-                        StockRegisterQuantity = item.PurchaseVoucherDetailsQuantity,
-                        StockRegisterSIN = item.PurchaseVoucherDetailsQuantity,
+                        StockRegisterQuantity = item.PurchaseVoucherDetailsQuantity * (converontype)?? 0,
+                        StockRegisterSIN = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 0,
                         StockRegisterRate = item.PurchaseVoucherDetailsRate,
                         StockRegisterAmount = item.PurchaseVoucherDetailsAmount,
                         StockRegisterTransType = VoucherType.PurchaseVoucher_TYPE,

@@ -24174,6 +24174,13 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 e.ToTable("POS_Sales_Voucher_Details");
             });
+
+            modelBuilder.Entity<POS_SalesTransactionDetails>(e =>
+            {
+                e.ToTable("POS_SalesTransactionDetails");
+                e.HasKey(x => x.Id);
+            });
+
             OnModelCreatingPartial(modelBuilder);
         }
 
