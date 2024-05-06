@@ -754,13 +754,13 @@ namespace Inspire.Erp.Application.Master
         }
 
 
-        public async Task<Response<List<ItemMasterResponse>>> GetItems(string barCode)
+        public async Task<Response<List<ItemMasterResponse>>> GetItems(string? barCode)
         {
             try
             {
                 var result = await (from ir in itemrepository.GetAsQueryable().Where(x=>x.ItemMasterItemType=="A")
                                     join ud in _unitDetailsRepo.GetAsQueryable() on ir.ItemMasterItemId equals ud.UnitDetailsItemId
-                                    where ir.ItemMasterItemName.Contains(barCode) || ud.UnitDetailsBarcode.Contains(barCode)
+                                    where (barCode==null || ( ir.ItemMasterItemName.Contains(barCode) || ud.UnitDetailsBarcode.Contains(barCode)))
                                     select new ItemMasterResponse
                                     {
                                         UnitDetailsId = ud.UnitDetailsId,
@@ -780,9 +780,7 @@ namespace Inspire.Erp.Application.Master
                                     UnitPrice = am.Key.UnitPrice,
                                     ItemId = am.Key.ItemId,
                                 }).ToListAsync();
-               
-
-                return Response<List<ItemMasterResponse>>.Success(result, "Data found");
+                 return Response<List<ItemMasterResponse>>.Success(result, "Data found");
             }
             catch (Exception ex)
             {
@@ -1462,8 +1460,6 @@ namespace Inspire.Erp.Application.Master
                         };
                         settDetailsRepo.Insert(alloModelOth);
                     }
-
-
 
                     Double? netTotal = 0;
                     if (model.VAT > 0)

@@ -52,11 +52,10 @@ namespace Inspire.Erp.Web.Controllers.POS
 
 
         [HttpGet]
-        [Route("GetItems/{barCode}")]
-        public async Task<IActionResult> GetItems(string barCode)
+        [Route("GetItems")]
+        public async Task<IActionResult> GetItems(string? barCode)
         {
             return Ok(await itemMasterService.GetItems(barCode));
-
         }
 
         [HttpGet]
