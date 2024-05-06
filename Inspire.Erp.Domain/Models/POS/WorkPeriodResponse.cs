@@ -79,6 +79,18 @@ namespace Inspire.Erp.Domain.Modals
         public int BillNoSetDet { get; set; }
         public long? BillnoLoad { get; set; }
 
+        public double? BillAmount { get; set; }
+        public double? ItemDiscount { get; set; }
+        public double? BillDiscount { get; set; }
+        public double? VAT { get; set; }
+
+        public int VATRound { get; set; }
+        public double? VATRoundAmount { get; set; }
+        public double? DiscountVAT { get; set; }
+        public string VATRoundSign { get; set; }
+        public double? SalesTax { get; set; }
+
+        public bool? SalesRet { get; set; }
         public string StationName { get; set; }
         public string CreditCardNumber { get; set; }
     }

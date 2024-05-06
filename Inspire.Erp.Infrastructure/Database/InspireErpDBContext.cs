@@ -24181,6 +24181,12 @@ namespace Inspire.Erp.Infrastructure.Database
                 e.HasKey(x => x.Id);
             });
 
+            modelBuilder.Entity<POS_Trans_Group_Master>(e =>
+            {
+                e.ToTable("POS_Trans_Group_Master");
+                e.HasKey(x => x.Id);
+            });
+
             OnModelCreatingPartial(modelBuilder);
         }
 
