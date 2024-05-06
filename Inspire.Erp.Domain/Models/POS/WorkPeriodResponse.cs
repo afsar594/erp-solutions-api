@@ -33,9 +33,13 @@ namespace Inspire.Erp.Domain.Modals
         public int Quantity { get; set; }
         public double Total { get; set; }
         public double? BillAmount { get; set; }
+        public double? CashAmount { get; set; }
         public double? ItemDiscount { get; set; }
         public double? BillDiscount { get; set; }
         public double? VAT { get; set; }
+
+        public int VATRound { get; set; }
+        public double? VATRoundAmount { get; set; }
         public double? DiscountVAT { get; set; }
         public string VATRoundSign { get; set; }
         public double? SalesTax { get; set; }
@@ -58,6 +62,37 @@ namespace Inspire.Erp.Domain.Modals
         public bool? ShowinInvoice { get; set; }
 
         public string Status { get; set; }
+    }
+
+
+    public class CardAmountResponse
+    {
+        
+        public double? CardAmount { get; set; }
+        public double? NetTotal { get; set; }
+        public double? CashAmount { get; set; }
+        public string RefereceNo { get; set; }
+        public string VoucherNo { get; set; }
+        public string CardType { get; set; }
+        public int? UserId { get; set; }
+        public int WorkPeriodId { get; set; }
+        public int BillNoSetDet { get; set; }
+        public long? BillnoLoad { get; set; }
+
+        public double? BillAmount { get; set; }
+        public double? ItemDiscount { get; set; }
+        public double? BillDiscount { get; set; }
+        public double? VAT { get; set; }
+
+        public int VATRound { get; set; }
+        public double? VATRoundAmount { get; set; }
+        public double? DiscountVAT { get; set; }
+        public string VATRoundSign { get; set; }
+        public double? SalesTax { get; set; }
+
+        public bool? SalesRet { get; set; }
+        public string StationName { get; set; }
+        public string CreditCardNumber { get; set; }
     }
 
 

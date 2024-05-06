@@ -35,11 +35,12 @@ namespace Inspire.Erp.Application.Master
         //POS
         public Task<Response<ItemMasterResponse>> SearchItemByBarcode(ItemBarCodeSearchFilter model);
         public Task<Response<POS_WorkPeriod>> GetWorkPeriod(WorkPeriodFilter model);
-
         public Task<Response<List<ItemMasterResponse>>> GetItems(string barCode);
-
         public Task<Response<ItemMasterResponse>> SearchItemByUnitDetailsId(ItemBarCodeSearchFilter model);
-
         public  Task<Response<List<SettlementDetailsResponse>>> AddSettlementDetails(SettlementDetailsRequest model);
+        public Task<Response<CardAmountResponse>> CalcualteCardAmount(SettlementDetailsRequest model);
+        public Task<Response<bool>> ProcessCard(CardAmountResponse model);
+        public Task<Response<bool>> ProcessCash(CardAmountResponse model);
+
     }
 }

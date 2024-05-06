@@ -18,6 +18,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Transactions;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using Inspire.Erp.Domain.Models;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Inspire.Erp.Application.Master
 {
@@ -40,6 +42,11 @@ namespace Inspire.Erp.Application.Master
         private IRepository<TransactionCodes> transCodesRepo;
         private IRepository<POS_SalesVoucher> posSalesVoucherRepo;
         private IRepository<POS_SalesVoucherDetails> posSalesVoucherDetailsRepo;
+        private IRepository<POS_SalesTransactionDetails> posSalesTranDetailsRepo;
+        private IRepository<POS_Trans_Group_Master> posTranGroupMasterRepo;
+        private IRepository<CustomerMaster> customerMasterRepo;
+        private IRepository<StockRegister> stockRegisterRepo;
+        private IRepository<AccountsTransactions> accTransRepo;
         public ItemMasterService(IRepository<ItemMaster> _itemrepository, IRepository<ItemStockType> _itemStockRepository, IRepository<UnitDetails> unitDetailsRepo
             , IRepository<VendorMaster> _vendorrepository
             , IRepository<PurchaseVoucherDetails> _purchVouchDetailsRepo
@@ -51,7 +58,14 @@ namespace Inspire.Erp.Application.Master
             , IRepository<BarcodeScale> _barCodeRepo
             , IRepository<POS_WorkPeriod> _workPeriodRepo
             , IRepository<POS_SettlementDetTemp> _settDetailsTempRepo
-            , IRepository<POS_SettlementDet> _settDetailsRepo, IRepository<TransactionCodes> _transCodesRepo)
+            , IRepository<POS_SettlementDet> _settDetailsRepo
+            ,IRepository<TransactionCodes> _transCodesRepo
+             , IRepository<POS_SalesTransactionDetails> _posSalesTranDetailsRepo
+            , IRepository<POS_Trans_Group_Master> _posTranGroupMasterRepo
+             , IRepository<CustomerMaster> _customerMasterRepo
+            , IRepository<StockRegister> _stockRegisterRepo
+            , IRepository<AccountsTransactions> _accTransRepo
+            )
         {
             itemrepository = _itemrepository;
             vendorrepository = _vendorrepository;
@@ -67,7 +81,12 @@ namespace Inspire.Erp.Application.Master
             workPeriodRepo = _workPeriodRepo;
             settDetailsTempRepo = _settDetailsTempRepo;
             settDetailsRepo = _settDetailsRepo;
-            this.transCodesRepo = _transCodesRepo;
+            transCodesRepo = _transCodesRepo;
+            posSalesTranDetailsRepo = _posSalesTranDetailsRepo;
+            posTranGroupMasterRepo = _posTranGroupMasterRepo;
+            customerMasterRepo = _customerMasterRepo;
+            stockRegisterRepo = _stockRegisterRepo;
+            accTransRepo = _accTransRepo;
 
         }
         public IEnumerable<ItemMaster> InsertItem(ItemMaster itemMaster)
@@ -978,7 +997,7 @@ namespace Inspire.Erp.Application.Master
                         Status = "Y",
                         Date = DateTime.Now,//to be changed
                         UserId = model.UserId,
-                        TransactionCode = "VAT"
+                        TransactionCode = "VAMT"
 
                     };
                     settDetailsTempRepo.Insert(alloModelVat);
@@ -993,18 +1012,111 @@ namespace Inspire.Erp.Application.Master
                         netTotal = (model.BillAmount - model.ItemDiscount) - model.BillDiscount + model.DiscountVAT;
                     }
 
+                    var tempSettDetailsNet = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "NET");
+                    if (tempSettDetailsNet != null) settDetailsTempRepo.Delete(tempSettDetailsNet);
+                    var settDetailsIdNet = getMaxSettlementDetails();
+                    var alloModelNet = new POS_SettlementDetTemp()
+                    {
+                        SettlementDetId = settDetailsIdNet,
+                        OrderId = salesVoucherNo,
+                        Amount = netTotal,
+                        Status = "Y",
+                        Date = DateTime.Now,//to be changed
+                        UserId = model.UserId,
+                        TransactionCode = "NET"
 
-                    #region ADD ACTIVITY LOGS
-                    //AddActivityLogViewModel log = new AddActivityLogViewModel()
-                    //{
-                    //    Page = "Voucher Allocation",
-                    //    Section = "Add Voucher Allocation ",
-                    //    Entity = "Voucher Allocation ",
+                    };
+                    settDetailsTempRepo.Insert(alloModelNet);
 
-                    //};
-                    //await _utilityService.AddUserTrackingLog(log);
-                    #endregion
 
+                    //Cash
+                   if (model.CashAmount > 0)
+                    {
+                        var tempSettDetailsCash = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "RCVE");
+                        if (tempSettDetailsCash != null) settDetailsTempRepo.Delete(tempSettDetailsCash);
+                        var settDetailsIdCash = getMaxSettlementDetails();
+                        var alloModelCash = new POS_SettlementDetTemp()
+                        {
+                            SettlementDetId = settDetailsIdCash,
+                            OrderId = salesVoucherNo,
+                            Amount = model.CashAmount,
+                            Status = "Y",
+                            Date = DateTime.Now,//to be changed
+                            UserId = model.UserId,
+                            TransactionCode = "RCVE"
+
+                        };
+                        settDetailsTempRepo.Insert(alloModelCash);
+
+                        tempSettDetailsCash = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "CHNG");
+                        if (tempSettDetailsCash != null) settDetailsTempRepo.Delete(tempSettDetailsCash);
+                        settDetailsIdCash = getMaxSettlementDetails();
+
+                        var cashResult = (from ir in settDetailsTempRepo.GetAsQueryable()
+                                            join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode equals ud.Trans_code
+                                            where ir.UserId == 2 && ir.Card == true
+                                                group ir by 1 into og
+                                            select new 
+                                            {
+                                                CardAmount =og.Sum(item=>item.Amount)
+                                            });
+
+                        Double? cardAmount = cashResult.Count() > 0 ? cashResult.First().CardAmount : 0;
+                        Double? netData = 0;
+                       tempSettDetailsCash = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "NET");
+                        if (tempSettDetailsCash != null)
+                        {
+                            netData = tempSettDetailsCash.Amount;
+                        }
+
+                        Double? totalChange = netData-model.CashAmount-cardAmount;
+                        if(model.VATRound > 0)
+                        {
+                            double? VATDAmt = 0;
+                            if (model.VATRoundSign == "-")
+                            {
+                                VATDAmt = 0 - model.VATRoundAmount;
+                            }
+                            else
+                            {
+                                VATDAmt = model.VATRoundAmount;
+                            }
+                            tempSettDetailsCash = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "RF");
+                            if (tempSettDetailsCash != null) settDetailsTempRepo.Delete(tempSettDetailsCash);
+                            alloModelCash = new POS_SettlementDetTemp()
+                            {
+                                SettlementDetId = settDetailsIdCash,
+                                OrderId = salesVoucherNo,
+                                Amount = VATDAmt,
+                                Status = "Y",
+                                Date = DateTime.Now,//to be changed
+                                UserId = model.UserId,
+                                TransactionCode = "RF"
+
+                            };
+                            settDetailsTempRepo.Insert(alloModelCash);
+                        }
+                        alloModelCash = new POS_SettlementDetTemp()
+                        {
+                            SettlementDetId = settDetailsIdCash,
+                            OrderId = salesVoucherNo,
+                            Amount = totalChange,
+                            Status = "Y",
+                            Date = DateTime.Now,//to be changed
+                            UserId = model.UserId,
+                            TransactionCode = "CHNG"
+
+                        };
+                        settDetailsTempRepo.Insert(alloModelCash);
+                    }
+                   else
+                    {
+                        var tempSettDetailsCash = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "RCVE");
+                        if (tempSettDetailsCash != null) settDetailsTempRepo.Delete(tempSettDetailsCash);
+
+                        tempSettDetailsCash = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "CHNG");
+                        if (tempSettDetailsCash != null) settDetailsTempRepo.Delete(tempSettDetailsCash);
+                    }
 
                     var result = await (from ir in settDetailsTempRepo.GetAsQueryable()
                                         join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode equals ud.Trans_code
@@ -1034,9 +1146,830 @@ namespace Inspire.Erp.Application.Master
                 }
             }
         }
-        
 
-        #endregion 
 
-    }
+        public async Task<Response<CardAmountResponse>> CalcualteCardAmount(SettlementDetailsRequest model)
+        {
+            using (var trans = new TransactionScope())
+            {
+                try
+                {
+                    var cardAmountResponse = new  CardAmountResponse();
+                    string billPOSCode = "LA";
+                    var salesVoucherNo = getMaxSalesVoucher();
+                    string voucherNo = billPOSCode + salesVoucherNo;
+
+                    double? netTotal = 0;
+                    var tempSettDetailsDis = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "NET");
+                    if (tempSettDetailsDis != null) netTotal=tempSettDetailsDis.Amount;
+
+                    double? vat = 0;
+                    tempSettDetailsDis = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "VAT");
+                    if (tempSettDetailsDis != null) vat = tempSettDetailsDis.Amount;
+
+                    
+
+                    double? balance = 0;
+                    if (netTotal < 0)
+                    {
+                        balance = netTotal + model.CashAmount;
+                    }
+                    else
+                    { 
+                        balance=netTotal - model.CashAmount;
+                    } 
+
+                    double? cash = model.CashAmount;
+
+                    var cashResult = await (from ir in settDetailsTempRepo.GetAsQueryable()
+                                      join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode equals ud.Trans_code
+                                      where ir.UserId == 2 && ir.Card == true
+                                      group ir by 1 into og
+                                      select new
+                                      {
+                                          CardAmount = og.Sum(item => item.Amount)
+                                      }).ToListAsync();
+
+                    double? lastBalance = 0;
+                    if (cashResult.Count() > 0)
+                    {
+                        if (netTotal < 0)
+                        {
+                            lastBalance = netTotal + model.CashAmount;
+                        }
+                        else
+                        {
+                            lastBalance = netTotal - model.CashAmount;
+                        }
+                    }
+                    else
+                    {
+                        if (netTotal < 0)
+                        {
+                            lastBalance = netTotal + cashResult.First().CardAmount + model.CashAmount;
+                        }
+                        else
+                        {
+                            lastBalance = netTotal  - cashResult.First().CardAmount - model.CashAmount;
+                        }
+                    }
+
+                    cardAmountResponse.CardAmount = lastBalance;
+                    cardAmountResponse.CashAmount = model.CashAmount;
+                    cardAmountResponse.NetTotal = netTotal;
+
+                    trans.Complete();
+                    return Response<CardAmountResponse>.Success(cardAmountResponse, "Settlement Details inserted Successfully.");
+
+                }
+                catch (Exception ex)
+                {
+                    trans.Dispose();
+                    return Response<CardAmountResponse>.Fail(new CardAmountResponse(), ex.Message);
+                }
+            }
+        }
+
+        public async Task<Response<bool>> ProcessCard(CardAmountResponse model)
+        {
+            using (var trans = new TransactionScope())
+            {
+                try
+                {
+                    string billPOSCode = "LA";
+                    var salesVoucherNo = getMaxSalesVoucher();
+                    string voucherNo = billPOSCode + salesVoucherNo;
+
+                    var tempSettDetailsCash = settDetailsRepo.GetAll().FirstOrDefault(o => o.OrderId == Convert.ToInt64(model.VoucherNo));
+                    if (tempSettDetailsCash != null) settDetailsRepo.Delete(tempSettDetailsCash);
+
+                    var tempSalesTrRepo = posSalesTranDetailsRepo.GetAll().FirstOrDefault(o => o.InvoiceNo == model.VoucherNo);
+                    if (tempSalesTrRepo != null) posSalesTranDetailsRepo.Delete(tempSalesTrRepo);
+
+
+                    var tempTransCodes = transCodesRepo.GetAll().FirstOrDefault(o => o.InHouse == true && o.Trans_Description == model.CardType);
+                    string transCode = "";
+                    string transDesc = "";
+                    if (tempTransCodes != null)
+                    {
+                        transCode = tempTransCodes.Trans_code;
+                        transDesc = tempTransCodes.Trans_Description;
+                    }
+
+                    var alloModelCash = new POS_SettlementDetTemp()
+                    {
+                        SettlementDetId = model.BillNoSetDet,
+                        OrderId = model.BillnoLoad,
+                        Amount = model.CashAmount,
+                        Status = "Y",
+                        Date = DateTime.Now,//to be changed
+                        UserId = model.UserId,
+                        TransactionCode = "CAS"
+
+                    };
+                    settDetailsTempRepo.Insert(alloModelCash);
+
+
+
+                    double? vat = 0;
+                    var tempSettDetailsList = settDetailsTempRepo.GetAll().Where(o => o.UserId == model.UserId).ToList();
+                    foreach (var item in tempSettDetailsList)
+                    {
+                        if (item.TransactionCode == "BIL")
+                        {
+                            SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)model.CardAmount
+                                , model.StationName, "BIL", (int)model.UserId, "BILL AMOUNT");
+                        }
+
+                        if (item.TransactionCode == "DIS")
+                        {
+                            SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)model.CardAmount
+                                , model.StationName, "DIS", (int)model.UserId, "DISCOUNT");
+                        }
+
+                        if (item.TransactionCode == "VAT")
+                        {
+                            if (item.Amount < 0)
+                            {
+                                SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)model.CardAmount
+                                                           , model.StationName, "VAT", (int)model.UserId, "VAT RETURN");
+                            }
+                            else
+                            {
+                                SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)model.CardAmount
+                                                          , model.StationName, "VAT", (int)model.UserId, "VAT");
+                            }
+                        }
+
+                        if (item.TransactionCode == "VAMT")
+                        {
+                            if (item.Amount < 0)
+                            {
+                                SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)model.CardAmount
+                                                           , model.StationName, "VAMTRET", (int)model.UserId, "VATABLE AMOUNT RETURNED");
+                            }
+                            else
+                            {
+                                SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)model.CardAmount
+                                                          , model.StationName, "VAMT", (int)model.UserId, "VATABLE AMOUNT");
+                            }
+                        }
+
+                        if (item.TransactionCode == "NET")
+                        {
+                            SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)model.CardAmount
+                                , model.StationName, "NET", (int)model.UserId, "NET AMOUNT");
+                        }
+
+                        if (item.TransactionCode == "RCVE")
+                        {
+                            SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)model.CardAmount
+                                , model.StationName, "RCVE", (int)model.UserId, "RECEIVED AMOUNT");
+                        }
+
+                        if (item.TransactionCode == "CAS")
+                        {
+                            if (item.Amount < 0)
+                            {
+                                SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)model.CardAmount
+                                                           , model.StationName, "POTCS", (int)model.UserId, "CASH PAID OUT");
+                            }
+                            else
+                            {
+                                SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)model.CardAmount
+                                                          , model.StationName, "CAS", (int)model.UserId, "CASH");
+                            }
+                        }
+                    }
+
+                    var settDetails = await (from ir in settDetailsTempRepo.GetAsQueryable()
+                                             join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode equals ud.Trans_code
+                                             where ir.UserId == model.UserId && ir.Card == true
+                                             select new
+                                             {
+                                                 Amount = ir.Amount,
+                                                 TransactionCode = ir.TransactionCode
+                                             }).ToListAsync();
+
+                    string paymentmode = "CARD";
+                    string transtype = "CARD";
+                    transDesc = "CARD SALES";
+
+                    foreach (var item in settDetails)
+                    {
+                        if (item.TransactionCode.Trim() == "CAS")
+                        {
+                            paymentmode = "CASH AND CARD";
+                            transtype = "SPLIT";
+                            transDesc = "CASH AND CARD SALES";
+                        }
+                    }
+
+                    var settDetailsId = getMaxSettlementDetails();
+                    var alloModel = new POS_SettlementDetTemp()
+                    {
+                        SettlementDetId = settDetailsId,
+                        OrderId = salesVoucherNo,
+                        Amount = model.CardAmount,
+                        Status = "Y",
+                        Date = DateTime.Now,//to be changed
+                        UserId = model.UserId,
+                        TransactionCode = transCode,
+                        Card = true,
+                        CreditCardNumber = model.CreditCardNumber
+                    };
+                    settDetailsTempRepo.Insert(alloModelCash);
+
+
+
+
+                    //Settlementdet
+                    settDetailsId = getMaxSettlementDetails();
+                    var settDetail = new POS_SettlementDet()
+                    {
+                        SettlementDetId = settDetailsId,
+                        OrderId = salesVoucherNo,
+                        Amount = model.CardAmount,
+                        Status = "Y",
+                        Date = DateTime.Now,//to be changed
+                        UserId = model.UserId,
+                        TransactionCode = "BIL",
+
+                    };
+                    settDetailsRepo.Insert(settDetail);
+
+                    if (model.ItemDiscount > 0)
+                    {
+                        var settDetailsIdDis = getMaxSettlementDetails();
+                        var alloModelDis = new POS_SettlementDet()
+                        {
+                            SettlementDetId = settDetailsIdDis,
+                            OrderId = salesVoucherNo,
+                            Amount = model.ItemDiscount,
+                            Status = "Y",
+                            Date = DateTime.Now,//to be changed
+                            UserId = model.UserId,
+                            TransactionCode = "DIS"
+
+                        };
+                        settDetailsRepo.Insert(alloModelDis);
+                    }
+
+                    //Bill Discount
+                    if (model.BillDiscount > 0)
+                    {
+                        settDetailsId = getMaxSettlementDetails();
+                        var alloModelDis = new POS_SettlementDet()
+                        {
+                            SettlementDetId = settDetailsId,
+                            OrderId = salesVoucherNo,
+                            Amount = model.BillDiscount,
+                            Status = "Y",
+                            Date = DateTime.Now,//to be changed
+                            UserId = model.UserId,
+                            TransactionCode = "DIS"
+
+                        };
+                        settDetailsRepo.Insert(alloModelDis);
+
+                        settDetailsId = getMaxSettlementDetails();
+                        var alloModelVat = new POS_SettlementDet()
+                        {
+                            SettlementDetId = settDetailsId,
+                            OrderId = salesVoucherNo,
+                            Amount = model.BillDiscount,
+                            Status = "Y",
+                            Date = DateTime.Now,//to be changed
+                            UserId = model.UserId,
+                            TransactionCode = "VAT"
+
+                        };
+                        settDetailsRepo.Insert(alloModelVat);
+                    }
+                    else
+                    {
+                        var settDetailsIdOth = getMaxSettlementDetails();
+                        var alloModelOth = new POS_SettlementDet()
+                        {
+                            SettlementDetId = settDetailsIdOth,
+                            OrderId = salesVoucherNo,
+                            Amount = model.VAT,
+                            Status = "Y",
+                            Date = DateTime.Now,//to be changed
+                            UserId = model.UserId,
+                            TransactionCode = "VAT"
+
+                        };
+                        settDetailsRepo.Insert(alloModelOth);
+                    }
+
+
+
+                    Double? netTotal = 0;
+                    if (model.VAT > 0)
+                    {
+                        netTotal = (model.BillAmount - model.ItemDiscount) - model.BillDiscount + model.DiscountVAT;
+                    }
+                    else
+                    {
+                        netTotal = (model.BillAmount - model.ItemDiscount) - model.BillDiscount + model.DiscountVAT;
+                    }
+
+                    var settDetailsIdNet = getMaxSettlementDetails();
+                    var alloModelNet = new POS_SettlementDet()
+                    {
+                        SettlementDetId = settDetailsIdNet,
+                        OrderId = salesVoucherNo,
+                        Amount = netTotal,
+                        Status = "Y",
+                        Date = DateTime.Now,//to be changed
+                        UserId = model.UserId,
+                        TransactionCode = "NET"
+
+                    };
+                    settDetailsRepo.Insert(alloModelNet);
+
+
+                    //Cash
+                    if (model.CashAmount > 0)
+                    {
+                        var settDetailsIdCash = getMaxSettlementDetails();
+                        var alloModelDCash = new POS_SettlementDet()
+                        {
+                            SettlementDetId = settDetailsIdCash,
+                            OrderId = salesVoucherNo,
+                            Amount = model.CashAmount,
+                            Status = "Y",
+                            Date = DateTime.Now,//to be changed
+                            UserId = model.UserId,
+                            TransactionCode = "RCVE"
+
+                        };
+                        settDetailsRepo.Insert(alloModelDCash);
+
+                        int cardId = 0;
+                        var groupMaster = posTranGroupMasterRepo.GetAll().FirstOrDefault(o => o.Trans_GroupName == "CREDIT CARD");
+                        if (tempSettDetailsCash != null) cardId = groupMaster.Id;
+                        settDetailsIdCash = getMaxSettlementDetails();
+
+                        var tempRepResult = (from ir in settDetailsTempRepo.GetAsQueryable()
+                                             join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode equals ud.Trans_code
+                                             join tg in posTranGroupMasterRepo.GetAsQueryable() on ud.Trans_group equals tg.Id
+                                             where tg.Id == cardId
+                                             select new
+                                             {
+                                                 Id = ir.SettlementDetId
+                                             });
+                        if (tempRepResult.Count() <= 0)
+                        {
+                            var settDetId = getMaxSettlementDetails();
+                            var alloModelD = new POS_SettlementDet()
+                            {
+                                SettlementDetId = settDetId,
+                                OrderId = salesVoucherNo,
+                                Amount = netTotal - model.CashAmount,
+                                Status = "Y",
+                                Date = DateTime.Now,//to be changed
+                                UserId = model.UserId,
+                                TransactionCode = "CHNG"
+
+                            };
+                            settDetailsRepo.Insert(alloModelD);
+                        }
+                        else
+                        {
+                            var tempSettDetails = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "NET");
+                            if (tempSettDetails != null) settDetailsTempRepo.Delete(tempSettDetails);
+                        }
+
+
+                    }
+
+                    trans.Complete();
+                    return Response<bool>.Success(true, "Card processed Successfully.");
+
+                }
+                catch (Exception ex)
+                {
+                    trans.Dispose();
+                    return Response<bool>.Fail(false, ex.Message);
+                }
+            }
+        }
+
+        public async Task<Response<bool>> ProcessCash(CardAmountResponse model)
+        {
+            using (var trans = new TransactionScope())
+            {
+                try
+                {
+                    string payModeCode = "CAS";
+                    string billPOSCode = "LA";
+                    var salesVoucherNo = getMaxSalesVoucher();
+                    string voucherNo = billPOSCode + salesVoucherNo;
+
+                    var tempSettDetailsCash = settDetailsRepo.GetAll().FirstOrDefault(o => o.OrderId == Convert.ToInt64(model.VoucherNo));
+                    if (tempSettDetailsCash != null) settDetailsRepo.Delete(tempSettDetailsCash);
+
+                    var tempSalesTrRepo = posSalesTranDetailsRepo.GetAll().FirstOrDefault(o => o.InvoiceNo == model.VoucherNo);
+                    if (tempSalesTrRepo != null) posSalesTranDetailsRepo.Delete(tempSalesTrRepo);
+
+                    double? netTotal = 0;
+                    var settDetTemp = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "BIL");
+                    if (settDetTemp != null) netTotal = settDetTemp.Amount;
+
+                    double? disc = 0;
+                    settDetTemp = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "BIL");
+                    if (settDetTemp != null) disc = settDetTemp.Amount;
+
+                    double? vat = 0;
+                    settDetTemp = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "BIL");
+                    if (settDetTemp != null) vat = settDetTemp.Amount;
+
+                    netTotal = netTotal - disc;
+
+                    var cashResult = (from ir in settDetailsTempRepo.GetAsQueryable()
+                                      join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode equals ud.Trans_code
+                                      where ir.UserId == model.UserId && ud.InHouse==true
+                                      && ud.CRDR == "D" && ud.Trans_code!="DIS"
+                                      group ir by 1 into og
+                                      select new
+                                      {
+                                          CardAmount = og.Sum(item => item.Amount)
+                                      });
+
+                    Double? cardAmount = cashResult.Count() > 0 ? cashResult.First().CardAmount : 0;
+
+                    double? payAmount = 0;
+                    double? cashAmount = 0;
+                    double? cashAmount1 = 0;
+                    
+                    if(model.NetTotal<0)
+                    {
+                        cashAmount1 = model.NetTotal + model.CardAmount + model.CashAmount;
+                    }
+                    else
+                    {
+                        cashAmount1 = model.NetTotal - model.CardAmount - model.CashAmount;
+                    }
+
+                    if(model.CashAmount >= model.NetTotal)
+                    {
+                        if(model.NetTotal < 0)
+                        {
+                            cashAmount=model.CashAmount * -1;
+                        }
+                        else
+                        {
+                            cashAmount = model.NetTotal;
+                        }
+                    }
+                    else if(model.CashAmount < model.NetTotal)
+                    {
+                        cashAmount = model.CashAmount + cashAmount1;
+                    }
+
+                    var tempSettDetails = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "CAS");
+                    if (tempSettDetails != null) settDetailsTempRepo.Delete(tempSettDetails);
+
+                    if(cashAmount1 < 0 && model.SalesRet==true)
+                    {
+                        if(model.CashAmount !=0)
+                        {
+                            if (cashAmount != 0)
+                            {
+                                var settDetailId = getMaxSettlementDetails();
+                                var settDetailModel = new POS_SettlementDetTemp()
+                                {
+                                    SettlementDetId = settDetailId,
+                                    OrderId = salesVoucherNo,
+                                    Amount = cashAmount,
+                                    Status = "Y",
+                                    Date = DateTime.Now,//to be changed
+                                    UserId = model.UserId,
+                                    TransactionCode = "CAS"
+                                };
+                                settDetailsTempRepo.Insert(settDetailModel);
+                            }
+                            else
+                            {
+                                var settDetailId = getMaxSettlementDetails();
+                                var settDetailModel = new POS_SettlementDetTemp()
+                                {
+                                    SettlementDetId = settDetailId,
+                                    OrderId = salesVoucherNo,
+                                    Amount = model.CashAmount,
+                                    Status = "Y",
+                                    Date = DateTime.Now,//to be changed
+                                    UserId = model.UserId,
+                                    TransactionCode = "CAS"
+                                };
+                                settDetailsTempRepo.Insert(settDetailModel);
+                            }
+                        }
+                        else
+                        {
+                            var settDetailId = getMaxSettlementDetails();
+                            var settDetailModel = new POS_SettlementDetTemp()
+                            {
+                                SettlementDetId = settDetailId,
+                                OrderId = salesVoucherNo,
+                                Amount = cashAmount1,
+                                Status = "Y",
+                                Date = DateTime.Now,//to be changed
+                                UserId = model.UserId,
+                                TransactionCode = "CAS"
+                            };
+                            settDetailsTempRepo.Insert(settDetailModel);
+                        }
+                    }
+                    else
+                    {
+                        var settDetailId = getMaxSettlementDetails();
+                        var settDetailModel = new POS_SettlementDetTemp()
+                        {
+                            SettlementDetId = settDetailId,
+                            OrderId = salesVoucherNo,
+                            Amount = cashAmount,
+                            Status = "Y",
+                            Date = DateTime.Now,//to be changed
+                            UserId = model.UserId,
+                            TransactionCode = "CAS"
+                        };
+                        settDetailsTempRepo.Insert(settDetailModel);
+                    }
+
+
+                    //TRANSACTION
+                    var tempSettDetailsList = settDetailsTempRepo.GetAll().Where(o => o.UserId == model.UserId).ToList();
+                    foreach (var item in tempSettDetailsList)
+                    {
+                        if (item.TransactionCode == "BIL")
+                        {
+                            SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)item.Amount
+                                , model.StationName, "BIL", (int)model.UserId, "BILL AMOUNT");
+                        }
+
+                        if (item.TransactionCode == "DIS")
+                        {
+                            SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)item.Amount
+                                , model.StationName, "DIS", (int)model.UserId, "DISCOUNT");
+                        }
+
+                        if (item.TransactionCode == "VAT")
+                        {
+                            if (item.Amount < 0)
+                            {
+                                SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)item.Amount
+                                                           , model.StationName, "VAT", (int)model.UserId, "VAT RETURN");
+                            }
+                            else
+                            {
+                                SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)item.Amount
+                                                          , model.StationName, "VAT", (int)model.UserId, "VAT");
+                            }
+                        }
+
+                        if (item.TransactionCode == "VAMT")
+                        {
+                            if (item.Amount < 0)
+                            {
+                                SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)item.Amount
+                                                           , model.StationName, "VAMTRET", (int)model.UserId, "VATABLE AMOUNT RETURNED");
+                            }
+                            else
+                            {
+                                SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)item.Amount
+                                                          , model.StationName, "VAMT", (int)model.UserId, "VATABLE AMOUNT");
+                            }
+                        }
+
+                        if (item.TransactionCode == "NET")
+                        {
+                            SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)item.Amount
+                                , model.StationName, "NET", (int)model.UserId, "NET AMOUNT");
+                        }
+
+                        if (item.TransactionCode == "RCVE")
+                        {
+                            SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)item.Amount
+                                , model.StationName, "RCVE", (int)model.UserId, "RECEIVED AMOUNT");
+                        }
+
+                        if (item.TransactionCode == "CAS")
+                        {
+                            if (item.Amount < 0 && model.SalesRet==true)
+                            {
+
+                                if (model.CashAmount > 0)
+                                {
+                                    SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)item.Amount
+                                                              , model.StationName, "CAS", (int)model.UserId, "CASH");
+                                }
+                                else
+                                {
+                                    SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)item.Amount
+                                                 , model.StationName, "POTCS", (int)model.UserId, "CASH PAID OUT");
+                                }
+                    
+                            }
+                            else
+                            {
+                                SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)item.Amount
+                                                          , model.StationName, "CAS", (int)model.UserId, "CASH");
+                            }
+                        }
+
+
+                        if (item.TransactionCode == "RF")
+                        {
+                            SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)item.Amount
+                                , model.StationName, "RF", (int)model.UserId, "Round OFF");
+                        }
+                    }
+                    
+                    //Card Transactions
+                    var settDetails = await (from ir in settDetailsTempRepo.GetAsQueryable()
+                                             join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode equals ud.Trans_code
+                                             where ir.UserId == model.UserId && ir.Card == true
+                                             select new
+                                             {
+                                                 Amount = ir.Amount,
+                                                 TransactionCode = ir.TransactionCode,
+                                                 TransDescription=ud.Trans_Description
+                                             }).ToListAsync();
+
+
+                    foreach (var item in settDetails)
+                    {
+                        //Settlementdet
+                        var settDetailsId = getMaxSettlementDetails();
+                        var settDetail = new POS_SettlementDet()
+                        {
+                            SettlementDetId = settDetailsId,
+                            OrderId = salesVoucherNo,
+                            Amount = item.Amount,
+                            Status = "Y",
+                            Date = DateTime.Now,//to be changed
+                            UserId = model.UserId,
+                            TransactionCode = item.TransactionCode,
+
+                        };
+                        settDetailsRepo.Insert(settDetail);
+
+                        SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)item.Amount
+                               , model.StationName, item.TransactionCode, (int)model.UserId, item.TransDescription);
+
+                    }
+
+                    int cardId = 0;
+                    var groupMaster = posTranGroupMasterRepo.GetAll().FirstOrDefault(o => o.Trans_GroupName == "CREDIT CARD");
+                    if (tempSettDetailsCash != null) cardId = groupMaster.Id;
+
+                    var tempRepResult = (from ir in settDetailsTempRepo.GetAsQueryable()
+                                         join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode equals ud.Trans_code
+                                         join tg in posTranGroupMasterRepo.GetAsQueryable() on ud.Trans_group equals tg.Id
+                                         where tg.Id == cardId
+                                         select new
+                                         {
+                                             Id = ir.SettlementDetId
+                                         });
+
+                    string paymentmode = "CASH";
+                    string transDesc = "CASH SALES";
+                    string transtype = "CASH";
+                    if (tempRepResult.Count() <= 0)
+                    {
+                        paymentmode = "CASH AND CARD";
+                        transDesc = "CASH AND CARD SALES";
+                        transtype = "SPLIT";
+                    }
+
+
+
+
+                    trans.Complete();
+                    return Response<bool>.Success(true, "Card processed Successfully.");
+                }
+                catch (Exception ex)
+                {
+                    trans.Dispose();
+                    return Response<bool>.Fail(false, ex.Message);
+                }
+            }
+        }
+
+
+
+        public void SaveVoucher(string voucherNo, int workPeriodId, decimal amount,
+      string stationName, string payMode, int userId, string desc,
+            string customerName, int customerId
+            , int saleManId)
+        {
+            try
+            {
+
+                var custDetails = customerMasterRepo.GetAll().FirstOrDefault(o => o.CustomerMasterCustomerNo == customerId);
+                string ustomerAccountNo = custDetails.CustomerMasterCustomerReffAcNo;
+
+                var tempSalesV = posSalesVoucherRepo.GetAll().FirstOrDefault(o => o.VoucherNo == voucherNo);
+                if (tempSalesV != null) posSalesVoucherRepo.Delete(tempSalesV);
+
+                var tempSalesVD = posSalesVoucherDetailsRepo.GetAll().FirstOrDefault(o => o.VoucherNo == voucherNo);
+                if (tempSalesVD != null) posSalesVoucherDetailsRepo.Delete(tempSalesVD);
+
+                var tempStockR = stockRegisterRepo.GetAll().FirstOrDefault(o => o.StockRegisterPurchaseID == voucherNo);
+                if (tempStockR != null) stockRegisterRepo.Delete(tempStockR);
+
+                var tempAccTrans = accTransRepo.GetAll().FirstOrDefault(o => o.AccountsTransactionsVoucherNo == voucherNo);
+                if (tempAccTrans != null) accTransRepo.Delete(tempAccTrans);
+
+                double? vatAmount = 0;
+                var tempVatD = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == userId && o.TransactionCode == "VAT");
+                if (tempVatD != null)
+                {
+                    if(tempVatD.Amount==null)
+                    {
+                        vatAmount = 0;
+                    }
+                    else
+                    {
+                        vatAmount = tempVatD.Amount;
+                    }
+                }
+
+                double? discount = 0;
+                var tempVatDis = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == userId && o.TransactionCode == "VAT");
+                if (tempVatDis != null)
+                {
+                    if (tempVatDis.Amount == null)
+                    {
+                        discount = 0;
+                    }
+                    else
+                    {
+                        discount = tempVatDis.Amount;
+                    }
+                }
+
+
+                var saleTr = new POS_SalesTransactionDetails()
+                {
+                    InvoiceNo = voucherNo,
+                    InvoiceDate = DateTime.Now,
+                    WorkPeriodId = workPeriodId,
+                    PaymentMode = payMode,
+                    Amount = amount,//to be changed
+                    CounterName = stationName,
+                    Description = desc,
+                    UserId = userId,
+                    Status = "Y"
+
+                };
+                posSalesTranDetailsRepo.Insert(saleTr);
+
+            }
+            catch (Exception ex)
+            {
+
+
+            }
+
+        }
+        public  void SaveTransaction(string voucherNo,int workPeriodId,decimal amount,
+            string stationName,string payMode,int userId,string desc)
+        {
+           
+                try
+                {
+                    
+
+                    var saleTr = new POS_SalesTransactionDetails()
+                    {
+                        InvoiceNo = voucherNo,
+                        InvoiceDate = DateTime.Now,
+                        WorkPeriodId = workPeriodId,
+                        PaymentMode = payMode,
+                        Amount = amount,//to be changed
+                        CounterName =stationName,
+                        Description =desc,
+                        UserId=userId,
+                        Status="Y"
+
+                    };
+                    posSalesTranDetailsRepo.Insert(saleTr);
+
+                }
+                catch (Exception ex)
+                {
+                   
+                    
+                }
+          
+        }
+
+
+            #endregion
+
+        }
 }
