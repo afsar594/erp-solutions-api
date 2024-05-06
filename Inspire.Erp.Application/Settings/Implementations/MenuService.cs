@@ -143,16 +143,23 @@ namespace Inspire.Erp.Application.Settings.Implementations
             _menu.Insert(menu);
             return new Response<Menu>
             {
-                Result = this.GetMenuById(menu.Id),
+                //Result = this.GetMenuById(menu.Id),
+                Result=menu,
                 Message = "Menu Save Successfuly",
                 Valid = true,
 
             };          
         }
  
-        public Menu GetMenuById(int id)
+        public async Task<Response<Menu>>  GetMenuById(int id)
         {
-           return _menu.GetAsQueryable().Where(m => m.Id == id).FirstOrDefault();
+           var menu= _menu.GetAsQueryable().Where(m => m.Id == id).FirstOrDefault();
+            return new Response<Menu>
+            {
+                Result = menu,
+                Message = "",
+                Valid = true,
+            };
         }
 
         public async Task<Response<Menu>> DeleteMenu(int id)
@@ -162,7 +169,7 @@ namespace Inspire.Erp.Application.Settings.Implementations
               _menu.Update(menu);
              return new Response<Menu>
             {
-                Result = this.GetMenuById(menu.Id),
+                Result = menu,
                 Message = "Menu Delete Successfuly",
                 Valid = true,
             };
@@ -173,7 +180,8 @@ namespace Inspire.Erp.Application.Settings.Implementations
             _menu.Update(menu);
             return new Response<Menu>
             {
-                Result = this.GetMenuById(menu.Id),
+               // Result = this.GetMenuById(menu.Id),
+               Result= menu,
                 Message = "Menu Update Successfuly",
                 Valid = true,
             };
