@@ -35,8 +35,8 @@ namespace Inspire.Erp.Web.Controllers.POS
         }
         
 
-        [HttpGet]
-        [Route("SearchItemByBarcodeLink/{barCode}")]
+        [HttpPost]
+        [Route("SearchItemByBarcodeLink")]
         public async Task<IActionResult> SearchItemByBarcodeLink(ItemBarCodeSearchFilter model)
         {
             return Ok(await itemMasterService.SearchItemByBarcode(model));
@@ -58,8 +58,8 @@ namespace Inspire.Erp.Web.Controllers.POS
             return Ok(await itemMasterService.GetItems(barCode));
         }
 
-        [HttpGet]
-        [Route("GetItems/{unitDetailsId}")]
+        [HttpPost]
+        [Route("SearchItemByItemLink")]
         public async Task<IActionResult> SearchItemByItemLink(ItemBarCodeSearchFilter model)
         {
             return Ok(await itemMasterService.SearchItemByUnitDetailsId(model));

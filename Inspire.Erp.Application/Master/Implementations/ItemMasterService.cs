@@ -47,6 +47,8 @@ namespace Inspire.Erp.Application.Master
         private IRepository<CustomerMaster> customerMasterRepo;
         private IRepository<StockRegister> stockRegisterRepo;
         private IRepository<AccountsTransactions> accTransRepo;
+        private IRepository<Inspire.Erp.Domain.Entities.GeneralSettings> gSettingRepo;
+
         public ItemMasterService(IRepository<ItemMaster> _itemrepository, IRepository<ItemStockType> _itemStockRepository, IRepository<UnitDetails> unitDetailsRepo
             , IRepository<VendorMaster> _vendorrepository
             , IRepository<PurchaseVoucherDetails> _purchVouchDetailsRepo
@@ -65,6 +67,7 @@ namespace Inspire.Erp.Application.Master
              , IRepository<CustomerMaster> _customerMasterRepo
             , IRepository<StockRegister> _stockRegisterRepo
             , IRepository<AccountsTransactions> _accTransRepo
+            , IRepository<Inspire.Erp.Domain.Entities.GeneralSettings> _gSettingRepo
             )
         {
             itemrepository = _itemrepository;
@@ -87,7 +90,7 @@ namespace Inspire.Erp.Application.Master
             customerMasterRepo = _customerMasterRepo;
             stockRegisterRepo = _stockRegisterRepo;
             accTransRepo = _accTransRepo;
-
+            _gSettingRepo = gSettingRepo;
         }
         public IEnumerable<ItemMaster> InsertItem(ItemMaster itemMaster)
         {
@@ -796,7 +799,7 @@ namespace Inspire.Erp.Application.Master
 
                 var result = await (from ir in itemrepository.GetAsQueryable()
                                     join ud in _unitDetailsRepo.GetAsQueryable() on ir.ItemMasterItemId equals ud.UnitDetailsItemId
-                                    where ud.UnitDetailsId==model.unitDetailsId
+                                    where ud.UnitDetailsId==model.UnitDetailsId
                                     select new ItemMasterResponse
                                     {
                                         UnitDetailsId = ud.UnitDetailsId,
@@ -825,7 +828,7 @@ namespace Inspire.Erp.Application.Master
                         result.UnitPriceTaxIncl = result.OfferPrice;
                     }
 
-                if (model.disableVat??false)
+                if (model.DisableVat==false)
                 {
                     result.SalesTax = 0;
                 }
@@ -847,6 +850,8 @@ namespace Inspire.Erp.Application.Master
                     result.UnitPrice = (double)Math.Round((decimal)result.UnitPriceTaxIncl, 2);
                     result.VATValue = (double)Math.Round(0.0, 2);
                 }
+
+
 
                 return Response<ItemMasterResponse>.Success(result, "Data found");
             }
@@ -1841,9 +1846,6 @@ namespace Inspire.Erp.Application.Master
                         transtype = "SPLIT";
                     }
 
-
-
-
                     trans.Complete();
                     return Response<bool>.Success(true, "Card processed Successfully.");
                 }
@@ -1857,31 +1859,31 @@ namespace Inspire.Erp.Application.Master
 
 
 
-        public void SaveVoucher(string voucherNo, int workPeriodId, decimal amount,
-      string stationName, string payMode, int userId, string desc,
-            string customerName, int customerId
-            , int saleManId)
+        public void SaveVoucher(CardAmountResponse model,string transType)
+        //  public void SaveVoucher(string voucherNo, int workPeriodId, decimal amount,
+        //string stationName, string payMode, int userId, string desc,
+        //      string customerName, int customerId
+        //      , int saleManId)
         {
             try
             {
-
-                var custDetails = customerMasterRepo.GetAll().FirstOrDefault(o => o.CustomerMasterCustomerNo == customerId);
+                var custDetails = customerMasterRepo.GetAll().FirstOrDefault(o => o.CustomerMasterCustomerNo == model.CustomerId);
                 string ustomerAccountNo = custDetails.CustomerMasterCustomerReffAcNo;
 
-                var tempSalesV = posSalesVoucherRepo.GetAll().FirstOrDefault(o => o.VoucherNo == voucherNo);
+                var tempSalesV = posSalesVoucherRepo.GetAll().FirstOrDefault(o => o.VoucherNo == model.VoucherNo);
                 if (tempSalesV != null) posSalesVoucherRepo.Delete(tempSalesV);
 
-                var tempSalesVD = posSalesVoucherDetailsRepo.GetAll().FirstOrDefault(o => o.VoucherNo == voucherNo);
+                var tempSalesVD = posSalesVoucherDetailsRepo.GetAll().FirstOrDefault(o => o.VoucherNo == model.VoucherNo);
                 if (tempSalesVD != null) posSalesVoucherDetailsRepo.Delete(tempSalesVD);
 
-                var tempStockR = stockRegisterRepo.GetAll().FirstOrDefault(o => o.StockRegisterPurchaseID == voucherNo);
+                var tempStockR = stockRegisterRepo.GetAll().FirstOrDefault(o => o.StockRegisterPurchaseID == model.VoucherNo);
                 if (tempStockR != null) stockRegisterRepo.Delete(tempStockR);
 
-                var tempAccTrans = accTransRepo.GetAll().FirstOrDefault(o => o.AccountsTransactionsVoucherNo == voucherNo);
+                var tempAccTrans = accTransRepo.GetAll().FirstOrDefault(o => o.AccountsTransactionsVoucherNo == model.VoucherNo);
                 if (tempAccTrans != null) accTransRepo.Delete(tempAccTrans);
 
                 double? vatAmount = 0;
-                var tempVatD = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == userId && o.TransactionCode == "VAT");
+                var tempVatD = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "VAT");
                 if (tempVatD != null)
                 {
                     if(tempVatD.Amount==null)
@@ -1895,7 +1897,7 @@ namespace Inspire.Erp.Application.Master
                 }
 
                 double? discount = 0;
-                var tempVatDis = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == userId && o.TransactionCode == "VAT");
+                var tempVatDis = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "DIS");
                 if (tempVatDis != null)
                 {
                     if (tempVatDis.Amount == null)
@@ -1909,25 +1911,35 @@ namespace Inspire.Erp.Application.Master
                 }
 
 
-                var saleTr = new POS_SalesTransactionDetails()
+                var currency=gSettingRepo.GetAll().FirstOrDefault(o => o.GeneralSettingsKeyValue == "DEFAULTCURRENCY");
+                string defCurr = currency.GeneralSettingsTextValue;
+
+                int indexPOS=defCurr.IndexOf("::");
+                string defaultCur = "";
+                if (indexPOS>0)
                 {
-                    InvoiceNo = voucherNo,
-                    InvoiceDate = DateTime.Now,
-                    WorkPeriodId = workPeriodId,
-                    PaymentMode = payMode,
-                    Amount = amount,//to be changed
-                    CounterName = stationName,
-                    Description = desc,
-                    UserId = userId,
-                    Status = "Y"
+                    defaultCur= defaultCur.Substring(indexPOS+2, defaultCur.Length);
+                }
+                else
+                {
+                    defaultCur = null;
+                }
+
+                var salesVC = new POS_SalesVoucher()
+                {
+                    VoucherNo = model.VoucherNo,
+                    ShortNo=model.BillNoSetDet,
+                    VoucherDate = DateTime.Now,
+                    Voucher_Type=transType,
+                    CustomerName= custDetails.CustomerMasterCustomerName,
+                    Customer_ID=model.CustomerId,
+                   
 
                 };
-                posSalesTranDetailsRepo.Insert(saleTr);
-
+               // posSalesTranDetailsRepo.Insert(saleTr);
             }
             catch (Exception ex)
             {
-
 
             }
 
