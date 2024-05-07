@@ -183,24 +183,24 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 }).ToList();
 
                 StockRequisition.StockRequisitionDetails.Clear();
+
+                decimal max1count = 0;
+                max1count =
+                    _StockRequisitionDetailsRepository.GetAsQueryable()
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : (decimal)o.StockRequisitionDetailsId) + 1;
                 foreach (var item in StockRequisitionDetails)
                 {
-                    decimal max1count = 0;
-                    max1count =
-                        _StockRequisitionDetailsRepository.GetAsQueryable()
-                        .DefaultIfEmpty().Max(o => o == null ? 0 : (decimal)o.StockRequisitionDetailsId) + 1;
 
                     item.StockRequisitionDetailsId = max1count;
                     item.StockRequisitionId = maxcount;
                     item.StockRequisitionDetailsNo = StockRequisitionNumber ?? "";
                     StockRequisition.StockRequisitionDetails.Add(item);
+                    max1count++;
                 }
 
-                //_StockRequisitionDetailsRepository.InsertList(StockRequisitionDetails);
 
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
-                    //k.AccountsTransactionsTransDate = StockRequisition.StockRequisitionDate;
                     k.AccountsTransactionsVoucherNo = StockRequisitionNumber;
                     k.AccountsTransactionsVoucherType = VoucherType.StockRequisition_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;

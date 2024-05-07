@@ -107,21 +107,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 }).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
-                //stockRegister = stockRegister.Select((k) =>
-                //{
-                //    if (k.StockRegisterId == 0)
-                //    {
-                //        k.StockRegisterVoucherDate = purchaseOrder.PurchaseOrderDate;
-                //        k.StockRegisterVoucherNo = purchaseOrder.PurchaseOrderNo;
-                //        k.StockRegisterTransType = VoucherType.PurchaseOrder_TYPE;
-
-                //        k.StockRegisterStatus = AccountStatus.Approved;
-                //    }
-
-                //    return k;
-                //}).ToList();
-                //_stockRegisterRepository.UpdateList(stockRegister);
-
 
                 _GeneralpurchaseOrderRepository.TransactionCommit();
             }
@@ -217,25 +202,24 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     return x;
                 }).ToList();
 
-
                 GeneralpurchaseOrder.GeneralPurchaseOrderDetails.Clear();
+
+                decimal max1count = 0;
+                max1count =
+                    _GeneralpurchaseOrderDetailsRepository.GetAsQueryable()
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : (decimal)o.GeneralPurchaseOrderDetailsPoid) + 1;
                 foreach (var item in GeneralpurchaseOrderDetails)
                 {
-                    decimal max1count = 0;
-                    max1count =
-                        _GeneralpurchaseOrderDetailsRepository.GetAsQueryable()
-                        .DefaultIfEmpty().Max(o => o == null ? 0 : (decimal)o.GeneralPurchaseOrderDetailsPoid) + 1;
-
                     item.GeneralPurchaseOrderDetailsPoid = max1count;
                     item.GeneralPurchaseOrderId = maxcount;
                     item.GeneralPurchaseOrderPono = purchaseOrderNumber ?? "";
                     GeneralpurchaseOrder.GeneralPurchaseOrderDetails.Add(item);
+                    max1count++;
                 }
-                //_GeneralpurchaseOrderDetailsRepository.InsertList(GeneralpurchaseOrderDetails);
+
 
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
-                    //k.AccountsTransactionsTransDate = purchaseOrder.PurchaseOrderDate;
                     k.AccountsTransactionsVoucherNo = GeneralpurchaseOrder.GeneralPurchaseOrderPono;
                     k.AccountsTransactionsVoucherType = VoucherType.PurchaseOrder_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
@@ -243,61 +227,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 }).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
-                //stockRegister = stockRegister.Select((k) =>
-                //{
-                //    k.StockRegisterVoucherDate = purchaseOrder.PurchaseOrderDate;
-                //    k.StockRegisterVoucherNo = purchaseOrderNumber;
-                //    k.StockRegisterTransType = VoucherType.PurchaseOrder_TYPE;
-                //    k.StockRegisterStatus = AccountStatus.Approved;
-                //    return k;
-                //}).ToList();
-                //_stockRegisterRepository.InsertList(stockRegister);
-
-
                 _GeneralpurchaseOrderRepository.Insert(GeneralpurchaseOrder);
 
-                //insert tracking register
-                //var listTrackRegs = new List<TrackingRegister>();
-                //var listTrackPurchOrderReg = new List<PurOrderRegister>();
-                //foreach (var purOrderDet in GeneralpurchaseOrder.GeneralPurchaseOrderDetails)
-                //{
-                //    var tr = new TrackingRegister
-                //    {
-                //TrackingRegisterDetailsId = (int)purOrderDet.det,
-                //TrackingRegisterVoucherNo = purOrderDet.PurchaseOrderDetailsNo,
-                //TrackingRegisterMaterialId = (int)purOrderDet.PurchaseOrderDetailsMatId,
-                //TrackingRegisterVoucherType = purchaseOrder.PurchaseOrderType,
-                //TrackingRegisterQty = (int)purOrderDet.PurchaseOrderDetailsQuantity,
-                //TrackingRegisterQtyin = (int)purOrderDet.PurchaseOrderDetailsQuantity,
-                //TrackingRegisterQtyout = 0,
-                //TrackingRegisterRate = purOrderDet.PurchaseOrderDetailsRate,
-                //TrackingRegisterTrackDate = purchaseOrder.PurchaseOrderDate,
-                //    TrackingRegisterFsno = null,//to be alloted
-
-                //};
-                //listTrackRegs.Add(tr);
-
-                //var poReg = new PurOrderRegister
-                //{
-                //PurOrderRegisterOrderNo = purOrderDet.PurchaseOrderDetailsId.ToString(),
-                //PurOrderRegisterRefVoucherNo = purOrderDet.PurchaseOrderDetailsNo,
-                //PurOrderRegisterMaterialId = (int)purOrderDet.PurchaseOrderDetailsMatId,
-                //PurOrderRegisterTransType = purchaseOrder.PurchaseOrderType,
-                //PurOrderRegisterQtyOrder = purOrderDet.PurchaseOrderDetailsQuantity,
-                //PurOrderRegisterQtyIssued = 0,
-                //PurOrderRegisterRate = purOrderDet.PurchaseOrderDetailsRate,
-                //PurOrderRegisterAssignedDate = DateTime.Now,
-                //PurOrderRegisterFsno = null,//to be alloted,
-                //    //PurOrderRegisterSupplierId = (int)purchaseOrder.PurchaseOrderPartyId,
-                //    PurOrderRegisterStatus = "A"
-
-                //};
-                //listTrackPurchOrderReg.Add(poReg);
-
-                //}
-
-                //_trackingRegisterRepository.InsertList(listTrackRegs);
-                //_purOrderRegisterRepository.InsertList(listTrackPurchOrderReg);
                 var permsionApproval = _permissionApprovalRepo.GetAsQueryable().Where(x => x.VoucherType == "General Purchase Order").OrderBy(x => x.LevelOrder).ToList();
                 var approvals = new Approval()
                 {
