@@ -32,11 +32,15 @@ namespace Inspire.Erp.Domain.Modals
     {
         public int Quantity { get; set; }
         public double Total { get; set; }
+
+        public double? ItemDiscount { get; set; }
+
+        public double? VAT { get; set; }
         public double? BillAmount { get; set; }
         public double? CashAmount { get; set; }
-        public double? ItemDiscount { get; set; }
+        
         public double? BillDiscount { get; set; }
-        public double? VAT { get; set; }
+      
 
         public int VATRound { get; set; }
         public double? VATRoundAmount { get; set; }
