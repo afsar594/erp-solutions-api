@@ -271,7 +271,6 @@ namespace Inspire.Erp.Application.Account.Implementations
                                                && (model.ToDate == null || x.AccountsTransactionsTransDate <= model.ToDate)
                                                 && (model.Filter == null || x.AccountsTransactionsAccNo.Contains(model.Filter)))
                                              .Select(o =>
-
                                                new StatementOfAccountFCDetailResponse
                                                {
                                                    AccNo = o.AccountsTransactionsAccNo,
