@@ -29,6 +29,7 @@ namespace Inspire.Erp.Application.Master
         private IRepository<VendorMaster> vendorrepository;
         private IRepository<ItemStockType> itemStockRepository;
         private IRepository<UnitDetails> _unitDetailsRepo;
+        private IRepository<UnitMaster> _unitMasterRepo;
         private IRepository<PurchaseVoucherDetails> purchVouchDetailsRepo;
         private IRepository<PurchaseVoucher> purchVouchRepo;
         private IRepository<SalesVoucherDetails> saleVouchDetailsRepo;
@@ -68,12 +69,14 @@ namespace Inspire.Erp.Application.Master
             , IRepository<StockRegister> _stockRegisterRepo
             , IRepository<AccountsTransactions> _accTransRepo
             , IRepository<Inspire.Erp.Domain.Entities.GeneralSettings> _gSettingRepo
+            ,, IRepository<UnitMaster> unitMasterRepo
             )
         {
             itemrepository = _itemrepository;
             vendorrepository = _vendorrepository;
             itemStockRepository = _itemStockRepository;
             _unitDetailsRepo = unitDetailsRepo;
+            _unitMasterRepo = unitMasterRepo;
             purchVouchDetailsRepo = _purchVouchDetailsRepo;
             purchVouchRepo = _purchVouchRepo;
             saleVouchDetailsRepo = _saleVouchDetailsRepo;
@@ -799,6 +802,8 @@ namespace Inspire.Erp.Application.Master
 
                 var result = await (from ir in itemrepository.GetAsQueryable()
                                     join ud in _unitDetailsRepo.GetAsQueryable() on ir.ItemMasterItemId equals ud.UnitDetailsItemId
+                                    join um in _unitMasterRepo.GetAsQueryable() on ud.UnitDetailsUnitId equals um.UnitMasterUnitId into umJoin
+                                    from umd in umJoin.DefaultIfEmpty()
                                     where ud.UnitDetailsId==model.UnitDetailsId
                                     select new ItemMasterResponse
                                     {
@@ -810,7 +815,8 @@ namespace Inspire.Erp.Application.Master
                                         UnitPriceTaxIncl = ud.UnitDetailsUnitPrice,
                                         SalesTax = ir.ItemMasterVatPercentage ?? 0,
                                         ItemwiseInclusive = ir.ItemMasterVatInclues ?? false,
-                                        OfferPrice = ud.UnitDetailsWrate
+                                        OfferPrice = ud.UnitDetailsWrate,
+                                        UnitName=umd.UnitMasterUnitShortName
 
                                     }).FirstOrDefaultAsync();
                 var happyH = await (from hh in happyHourRepo.GetAsQueryable()
@@ -852,6 +858,7 @@ namespace Inspire.Erp.Application.Master
                 }
 
 
+                result.Quantity = 1;
 
                 return Response<ItemMasterResponse>.Success(result, "Data found");
             }
