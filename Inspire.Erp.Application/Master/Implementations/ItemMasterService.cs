@@ -899,88 +899,122 @@ namespace Inspire.Erp.Application.Master
                 {
                     var salesVoucherNo = getMaxSalesVoucher();
 
+
+                    var tempSettDetBill = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "BIL");
+                    if (tempSettDetBill != null) settDetailsTempRepo.Delete(tempSettDetBill);
+                    var settDetailsBId = getMaxSettlementDetails();
+                    var billModel = new POS_SettlementDetTemp()
+                    {
+                        SettlementDetId = settDetailsBId,
+                        OrderId = salesVoucherNo,
+                        Amount = model.BillAmount + model.VAT,
+                        Status = "Y",
+                        Date = DateTime.Now,//to be changed
+                        UserId = model.UserId,
+                        TransactionCode = "BIL"
+
+                    };
+                    settDetailsTempRepo.Insert(billModel);
+
                     //Item Discount
-                   
-                    if(model.ItemDiscount>0)
+                    if (model.ItemDiscount > 0)
                     {
 
-                        var tempSettDetailsDis = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "DIS");
-                        if (tempSettDetailsDis != null) settDetailsTempRepo.Delete(tempSettDetailsDis);
-                        var settDetailsIdDis = getMaxSettlementDetails();
-                        var alloModelDis = new POS_SettlementDetTemp()
-                        {
-                            SettlementDetId = settDetailsIdDis,
-                            OrderId = salesVoucherNo,
-                            Amount = model.ItemDiscount,
-                            Status = "Y",
-                            Date = DateTime.Now,//to be changed
-                            UserId = model.UserId,
-                            TransactionCode = "DIS"
-
-                        };
-                        settDetailsTempRepo.Insert(alloModelDis);
                     }
 
                     //Bill Discount
                     if (model.BillDiscount > 0)
                     {
-                        var tempSettDetails = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "BIL");
-                        if (tempSettDetails != null) settDetailsTempRepo.Delete(tempSettDetails);
-                        var settDetailsId = getMaxSettlementDetails();
-                        var alloModel = new POS_SettlementDetTemp()
+                        if(model.BillDiscountPerc==1)
                         {
-                            SettlementDetId = settDetailsId,
-                            OrderId = salesVoucherNo,
-                            Amount = model.BillAmount,
-                            Status = "Y",
-                            Date = DateTime.Now,//to be changed
-                            UserId = model.UserId,
-                            TransactionCode = "BIL"
+                            var tempSettDetDisP = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "DISNT");
+                            if (tempSettDetDisP != null) settDetailsTempRepo.Delete(tempSettDetDisP);
+                            var settDetailsDisPId = getMaxSettlementDetails();
+                            var dispModel = new POS_SettlementDetTemp()
+                            {
+                                SettlementDetId = settDetailsDisPId,
+                                OrderId = salesVoucherNo,
+                                Amount = model.BillDiscount,
+                                Status = "Y",
+                                Date = DateTime.Now,//to be changed
+                                UserId = model.UserId,
+                                TransactionCode = "DISNT"
 
-                        };
-                        settDetailsTempRepo.Insert(alloModel);
+                            };
+                            settDetailsTempRepo.Insert(dispModel);
+                           
+                            double? testTaxable=model.BillAmount-model.BillDiscount;
+                            double? testvat = (testTaxable * model.SalesTax / 100);
+                            model.VAT = testvat;
 
-                        tempSettDetails = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "DIS");
-                        if (tempSettDetails != null) settDetailsTempRepo.Delete(tempSettDetails);
-                        settDetailsId = getMaxSettlementDetails();
-                        alloModel = new POS_SettlementDetTemp()
+
+                            var tempSettDetBillV = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "BIL");
+                            if (tempSettDetBillV != null) settDetailsTempRepo.Delete(tempSettDetBillV);
+                            var settDetailsBVId = getMaxSettlementDetails();
+                            var billVModel = new POS_SettlementDetTemp()
+                            {
+                                SettlementDetId = settDetailsBVId,
+                                OrderId = salesVoucherNo,
+                                Amount = model.BillAmount,
+                                Status = "Y",
+                                Date = DateTime.Now,//to be changed
+                                UserId = model.UserId,
+                                TransactionCode = "BIL"
+
+                            };
+                            settDetailsTempRepo.Insert(billVModel);
+                        }
+                        else
                         {
-                            SettlementDetId = settDetailsId,
-                            OrderId = salesVoucherNo,
-                            Amount = model.BillDiscount,
-                            Status = "Y",
-                            Date = DateTime.Now,//to be changed
-                            UserId = model.UserId,
-                            TransactionCode = "DIS"
 
-                        };
-                        settDetailsTempRepo.Insert(alloModel);
+                            var tempSettDetailsDis = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "DIS");
+                            if (tempSettDetailsDis != null) settDetailsTempRepo.Delete(tempSettDetailsDis);
+                            var settDetailsIdDis = getMaxSettlementDetails();
+                            var alloModelDis = new POS_SettlementDetTemp()
+                            {
+                                SettlementDetId = settDetailsIdDis,
+                                OrderId = salesVoucherNo,
+                                Amount = model.BillDiscount,
+                                Status = "Y",
+                                Date = DateTime.Now,//to be changed
+                                UserId = model.UserId,
+                                TransactionCode = "DIS"
 
-                        tempSettDetails = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "VAT");
-                        if (tempSettDetails != null) settDetailsTempRepo.Delete(tempSettDetails);
-                        settDetailsId = getMaxSettlementDetails();
-                        alloModel = new POS_SettlementDetTemp()
+                            };
+                            settDetailsTempRepo.Insert(alloModelDis);
+                        }
+
+                        if (model.BillDiscountPerc == 0)
                         {
-                            SettlementDetId = settDetailsId,
-                            OrderId = salesVoucherNo,
-                            Amount = model.DiscountVAT,
-                            Status = "Y",
-                            Date = DateTime.Now,//to be changed
-                            UserId = model.UserId,
-                            TransactionCode = "VAT"
+                            double? testTaxable = model.BillAmount - model.BillDiscount;
+                            double? testvat = (testTaxable * model.SalesTax / 100);
+                            model.VAT = testvat;
+                        }
 
-                        };
-                        settDetailsTempRepo.Insert(alloModel);
+                        var tempSettDetVat = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "VAT");
+                            if (tempSettDetVat != null) settDetailsTempRepo.Delete(tempSettDetVat);
+                            var settDetailsVateId = getMaxSettlementDetails();
+                            var billVatModel = new POS_SettlementDetTemp()
+                            {
+                                SettlementDetId = settDetailsVateId,
+                                OrderId = salesVoucherNo,
+                                Amount = model.VAT,
+                                Status = "Y",
+                                Date = DateTime.Now,//to be changed
+                                UserId = model.UserId,
+                                TransactionCode = "VAT"
 
+                            };
+                            settDetailsTempRepo.Insert(billVatModel);
                     }
                     else
                     {
-                        var tempSettDetailsOth = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "VAT");
-                        if (tempSettDetailsOth != null) settDetailsTempRepo.Delete(tempSettDetailsOth);
-                        var settDetailsIdOth = getMaxSettlementDetails();
+                        var tempSettDetailsV = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "VAT");
+                        if (tempSettDetailsV != null) settDetailsTempRepo.Delete(tempSettDetailsV);
+                        var settDetailsVId = getMaxSettlementDetails();
                         var alloModelOth = new POS_SettlementDetTemp()
                         {
-                            SettlementDetId = settDetailsIdOth,
+                            SettlementDetId = settDetailsVId,
                             OrderId = salesVoucherNo,
                             Amount = model.VAT,
                             Status = "Y",
@@ -992,6 +1026,7 @@ namespace Inspire.Erp.Application.Master
                         settDetailsTempRepo.Insert(alloModelOth);
                     }
 
+
                     var tempSettDetailsVat = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "VAMT");
                     if (tempSettDetailsVat != null) settDetailsTempRepo.Delete(tempSettDetailsVat);
                     var settDetailsIdVat = getMaxSettlementDetails();
@@ -999,7 +1034,7 @@ namespace Inspire.Erp.Application.Master
                     {
                         SettlementDetId = settDetailsIdVat,
                         OrderId = salesVoucherNo,
-                        Amount = model.BillAmount - model.BillDiscount - model.ItemDiscount,
+                        Amount = model.BillAmount - model.BillDiscount,
                         Status = "Y",
                         Date = DateTime.Now,//to be changed
                         UserId = model.UserId,
@@ -1008,16 +1043,37 @@ namespace Inspire.Erp.Application.Master
                     };
                     settDetailsTempRepo.Insert(alloModelVat);
 
-                    Double? netTotal=0;
-                    if(model.VAT>0)
+                    if (model.VATRound > 0)
                     {
-                        netTotal = (model.BillAmount - model.ItemDiscount) - model.BillDiscount + model.DiscountVAT;
-                    }
-                    else
-                    {
-                        netTotal = (model.BillAmount - model.ItemDiscount) - model.BillDiscount + model.DiscountVAT;
+                        double? VATDAmt = 0;
+                        if (model.VATRoundSign == "-")
+                        {
+                            VATDAmt = 0 - model.VATRoundAmount;
+                        }
+                        else
+                        {
+                            VATDAmt = model.VATRoundAmount;
+                        }
+                        var tempSettDetailsCASR = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "CASR");
+                        if (tempSettDetailsCASR != null) settDetailsTempRepo.Delete(tempSettDetailsCASR);
+                        var settDetailsIdCASR = getMaxSettlementDetails();
+                        var alloModelCASR = new POS_SettlementDetTemp()
+                        {
+                            SettlementDetId = settDetailsIdCASR,
+                            OrderId = salesVoucherNo,
+                            Amount = VATDAmt,
+                            Status = "Y",
+                            Date = DateTime.Now,//to be changed
+                            UserId = model.UserId,
+                            TransactionCode = "CASR"
+
+                        };
+                        settDetailsTempRepo.Insert(alloModelCASR);
                     }
 
+
+                    Double? netTotal= model.BillAmount - model.BillDiscount + model.VAT;
+     
                     var tempSettDetailsNet = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "NET");
                     if (tempSettDetailsNet != null) settDetailsTempRepo.Delete(tempSettDetailsNet);
                     var settDetailsIdNet = getMaxSettlementDetails();
@@ -1034,18 +1090,21 @@ namespace Inspire.Erp.Application.Master
                     };
                     settDetailsTempRepo.Insert(alloModelNet);
 
+              
+
 
                     //Cash
-                   if (model.CashAmount > 0)
+                    if (model.CashAmount > 0)
                     {
                         var tempSettDetailsCash = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "RCVE");
                         if (tempSettDetailsCash != null) settDetailsTempRepo.Delete(tempSettDetailsCash);
                         var settDetailsIdCash = getMaxSettlementDetails();
+
                         var alloModelCash = new POS_SettlementDetTemp()
                         {
                             SettlementDetId = settDetailsIdCash,
                             OrderId = salesVoucherNo,
-                            Amount = model.CashAmount,
+                            Amount =  netTotal < 0 ? model.CashAmount:model.CashAmount,
                             Status = "Y",
                             Date = DateTime.Now,//to be changed
                             UserId = model.UserId,
@@ -1076,7 +1135,8 @@ namespace Inspire.Erp.Application.Master
                         }
 
                         Double? totalChange = netData-model.CashAmount-cardAmount;
-                        if(model.VATRound > 0)
+
+                        if (model.VATRound > 0)
                         {
                             double? VATDAmt = 0;
                             if (model.VATRoundSign == "-")
@@ -1087,11 +1147,12 @@ namespace Inspire.Erp.Application.Master
                             {
                                 VATDAmt = model.VATRoundAmount;
                             }
-                            tempSettDetailsCash = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "RF");
-                            if (tempSettDetailsCash != null) settDetailsTempRepo.Delete(tempSettDetailsCash);
-                            alloModelCash = new POS_SettlementDetTemp()
+                            var tempSettDetailsRF = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "RF");
+                            if (tempSettDetailsRF != null) settDetailsTempRepo.Delete(tempSettDetailsRF);
+                            var settDetailsIdRF = getMaxSettlementDetails();
+                            var alloModelRF = new POS_SettlementDetTemp()
                             {
-                                SettlementDetId = settDetailsIdCash,
+                                SettlementDetId = settDetailsIdRF,
                                 OrderId = salesVoucherNo,
                                 Amount = VATDAmt,
                                 Status = "Y",
@@ -1100,8 +1161,9 @@ namespace Inspire.Erp.Application.Master
                                 TransactionCode = "RF"
 
                             };
-                            settDetailsTempRepo.Insert(alloModelCash);
+                            settDetailsTempRepo.Insert(alloModelRF);
                         }
+
                         alloModelCash = new POS_SettlementDetTemp()
                         {
                             SettlementDetId = settDetailsIdCash,
@@ -1121,6 +1183,9 @@ namespace Inspire.Erp.Application.Master
                         if (tempSettDetailsCash != null) settDetailsTempRepo.Delete(tempSettDetailsCash);
 
                         tempSettDetailsCash = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "CHNG");
+                        if (tempSettDetailsCash != null) settDetailsTempRepo.Delete(tempSettDetailsCash);
+
+                        tempSettDetailsCash = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "RF");
                         if (tempSettDetailsCash != null) settDetailsTempRepo.Delete(tempSettDetailsCash);
                     }
 
