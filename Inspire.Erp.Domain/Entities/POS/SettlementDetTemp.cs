@@ -8,7 +8,7 @@ namespace Inspire.Erp.Domain.Entities.POS
         public int SettlementDetId { get; set; }
         public long? OrderId { get; set; }
         public int PaymentmethodId { get; set; }
-        public double? Amount { get; set; }
+        public decimal? Amount { get; set; }
         public string Status { get; set; }
         public DateTime? Date { get; set; }
         public int? UserId { get; set; }

@@ -70,6 +70,8 @@ namespace Inspire.Erp.Application.Master
             , IRepository<AccountsTransactions> _accTransRepo
             , IRepository<Inspire.Erp.Domain.Entities.GeneralSettings> _gSettingRepo
             , IRepository<UnitMaster> unitMasterRepo
+            , IRepository<POS_SalesVoucher> _posSalesVoucherRepo
+
             )
         {
             itemrepository = _itemrepository;
@@ -94,6 +96,7 @@ namespace Inspire.Erp.Application.Master
             stockRegisterRepo = _stockRegisterRepo;
             accTransRepo = _accTransRepo;
             _gSettingRepo = gSettingRepo;
+            posSalesVoucherRepo = _posSalesVoucherRepo;
         }
         public IEnumerable<ItemMaster> InsertItem(ItemMaster itemMaster)
         {
@@ -899,7 +902,6 @@ namespace Inspire.Erp.Application.Master
                 {
                     var salesVoucherNo = getMaxSalesVoucher();
 
-
                     var tempSettDetBill = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "BIL");
                     if (tempSettDetBill != null) settDetailsTempRepo.Delete(tempSettDetBill);
                     var settDetailsBId = getMaxSettlementDetails();
@@ -912,7 +914,6 @@ namespace Inspire.Erp.Application.Master
                         Date = DateTime.Now,//to be changed
                         UserId = model.UserId,
                         TransactionCode = "BIL"
-
                     };
                     settDetailsTempRepo.Insert(billModel);
 
@@ -943,8 +944,8 @@ namespace Inspire.Erp.Application.Master
                             };
                             settDetailsTempRepo.Insert(dispModel);
                            
-                            double? testTaxable=model.BillAmount-model.BillDiscount;
-                            double? testvat = (testTaxable * model.SalesTax / 100);
+                            decimal? testTaxable=model.BillAmount-model.BillDiscount;
+                            decimal? testvat = (testTaxable * model.SalesTax / 100);
                             model.VAT = testvat;
 
 
@@ -986,8 +987,8 @@ namespace Inspire.Erp.Application.Master
 
                         if (model.BillDiscountPerc == 0)
                         {
-                            double? testTaxable = model.BillAmount - model.BillDiscount;
-                            double? testvat = (testTaxable * model.SalesTax / 100);
+                            decimal? testTaxable = model.BillAmount - model.BillDiscount;
+                            decimal? testvat = (testTaxable * model.SalesTax / 100);
                             model.VAT = testvat;
                         }
 
@@ -1045,7 +1046,7 @@ namespace Inspire.Erp.Application.Master
 
                     if (model.VATRound > 0)
                     {
-                        double? VATDAmt = 0;
+                        decimal? VATDAmt = 0;
                         if (model.VATRoundSign == "-")
                         {
                             VATDAmt = 0 - model.VATRoundAmount;
@@ -1072,7 +1073,7 @@ namespace Inspire.Erp.Application.Master
                     }
 
 
-                    Double? netTotal= model.BillAmount - model.BillDiscount + model.VAT;
+                    decimal? netTotal= model.BillAmount - model.BillDiscount + model.VAT;
      
                     var tempSettDetailsNet = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "NET");
                     if (tempSettDetailsNet != null) settDetailsTempRepo.Delete(tempSettDetailsNet);
@@ -1126,19 +1127,19 @@ namespace Inspire.Erp.Application.Master
                                                 CardAmount =og.Sum(item=>item.Amount)
                                             });
 
-                        Double? cardAmount = cashResult.Count() > 0 ? cashResult.First().CardAmount : 0;
-                        Double? netData = 0;
+                        decimal? cardAmount = cashResult.Count() > 0 ? cashResult.First().CardAmount : 0;
+                        decimal? netData = 0;
                        tempSettDetailsCash = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "NET");
                         if (tempSettDetailsCash != null)
                         {
                             netData = tempSettDetailsCash.Amount;
                         }
 
-                        Double? totalChange = netData-model.CashAmount-cardAmount;
+                        decimal? totalChange = netData-model.CashAmount-cardAmount;
 
                         if (model.VATRound > 0)
                         {
-                            double? VATDAmt = 0;
+                            decimal? VATDAmt = 0;
                             if (model.VATRoundSign == "-")
                             {
                                 VATDAmt = 0 - model.VATRoundAmount;
@@ -1191,7 +1192,7 @@ namespace Inspire.Erp.Application.Master
 
                     var result = await (from ir in settDetailsTempRepo.GetAsQueryable()
                                         join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode equals ud.Trans_code
-                                        where ir.UserId == 2 && ud.show_in_inv==true && !ir.TransactionCode.Contains("BIL")
+                                        where ir.UserId == model.UserId && ud.show_in_inv==true && !ir.TransactionCode.Contains("BIL")
                                         select new SettlementDetailsResponse
                                         {
                                             TransactionDesc = ud.Trans_Description,
@@ -1207,6 +1208,7 @@ namespace Inspire.Erp.Application.Master
 
                    
                     trans.Complete();
+                    trans.Dispose();
                     return Response<List<SettlementDetailsResponse>>.Success(result, "Settlement Details inserted Successfully.");
 
                 }
@@ -1230,17 +1232,17 @@ namespace Inspire.Erp.Application.Master
                     var salesVoucherNo = getMaxSalesVoucher();
                     string voucherNo = billPOSCode + salesVoucherNo;
 
-                    double? netTotal = 0;
+                    decimal? netTotal = 0;
                     var tempSettDetailsDis = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "NET");
                     if (tempSettDetailsDis != null) netTotal=tempSettDetailsDis.Amount;
 
-                    double? vat = 0;
+                    decimal? vat = 0;
                     tempSettDetailsDis = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "VAT");
                     if (tempSettDetailsDis != null) vat = tempSettDetailsDis.Amount;
 
                     
 
-                    double? balance = 0;
+                    decimal? balance = 0;
                     if (netTotal < 0)
                     {
                         balance = netTotal + model.CashAmount;
@@ -1250,7 +1252,7 @@ namespace Inspire.Erp.Application.Master
                         balance=netTotal - model.CashAmount;
                     } 
 
-                    double? cash = model.CashAmount;
+                    decimal? cash = model.CashAmount;
 
                     var cashResult = await (from ir in settDetailsTempRepo.GetAsQueryable()
                                       join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode equals ud.Trans_code
@@ -1261,7 +1263,7 @@ namespace Inspire.Erp.Application.Master
                                           CardAmount = og.Sum(item => item.Amount)
                                       }).ToListAsync();
 
-                    double? lastBalance = 0;
+                    decimal? lastBalance = 0;
                     if (cashResult.Count() > 0)
                     {
                         if (netTotal < 0)
@@ -1534,7 +1536,7 @@ namespace Inspire.Erp.Application.Master
                         settDetailsRepo.Insert(alloModelOth);
                     }
 
-                    Double? netTotal = 0;
+                    decimal? netTotal = 0;
                     if (model.VAT > 0)
                     {
                         netTotal = (model.BillAmount - model.ItemDiscount) - model.BillDiscount + model.DiscountVAT;
@@ -1643,15 +1645,15 @@ namespace Inspire.Erp.Application.Master
                     var tempSalesTrRepo = posSalesTranDetailsRepo.GetAll().FirstOrDefault(o => o.InvoiceNo == model.VoucherNo);
                     if (tempSalesTrRepo != null) posSalesTranDetailsRepo.Delete(tempSalesTrRepo);
 
-                    double? netTotal = 0;
+                    decimal? netTotal = 0;
                     var settDetTemp = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "BIL");
                     if (settDetTemp != null) netTotal = settDetTemp.Amount;
 
-                    double? disc = 0;
+                    decimal? disc = 0;
                     settDetTemp = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "BIL");
                     if (settDetTemp != null) disc = settDetTemp.Amount;
 
-                    double? vat = 0;
+                    decimal? vat = 0;
                     settDetTemp = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "BIL");
                     if (settDetTemp != null) vat = settDetTemp.Amount;
 
@@ -1667,11 +1669,11 @@ namespace Inspire.Erp.Application.Master
                                           CardAmount = og.Sum(item => item.Amount)
                                       });
 
-                    Double? cardAmount = cashResult.Count() > 0 ? cashResult.First().CardAmount : 0;
+                    decimal? cardAmount = cashResult.Count() > 0 ? cashResult.First().CardAmount : 0;
 
-                    double? payAmount = 0;
-                    double? cashAmount = 0;
-                    double? cashAmount1 = 0;
+                    decimal? payAmount = 0;
+                    decimal? cashAmount = 0;
+                    decimal? cashAmount1 = 0;
                     
                     if(model.NetTotal<0)
                     {
@@ -1950,7 +1952,7 @@ namespace Inspire.Erp.Application.Master
                 var tempAccTrans = accTransRepo.GetAll().FirstOrDefault(o => o.AccountsTransactionsVoucherNo == model.VoucherNo);
                 if (tempAccTrans != null) accTransRepo.Delete(tempAccTrans);
 
-                double? vatAmount = 0;
+                decimal? vatAmount = 0;
                 var tempVatD = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "VAT");
                 if (tempVatD != null)
                 {
@@ -1964,7 +1966,7 @@ namespace Inspire.Erp.Application.Master
                     }
                 }
 
-                double? discount = 0;
+                decimal? discount = 0;
                 var tempVatDis = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "DIS");
                 if (tempVatDis != null)
                 {
