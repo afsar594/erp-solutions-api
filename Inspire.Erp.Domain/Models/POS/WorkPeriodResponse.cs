@@ -31,23 +31,17 @@ namespace Inspire.Erp.Domain.Modals
     public class SettlementDetailsRequest
     {
         public int Quantity { get; set; }
-        public double Total { get; set; }
-
+        public double BillAmount { get; set; }
         public double? ItemDiscount { get; set; }
-
         public double? VAT { get; set; }
-        public double? BillAmount { get; set; }
         public double? CashAmount { get; set; }
-        
         public double? BillDiscount { get; set; }
-      
-
+        public double? BillDiscountPerc { get; set; }
+        public double? SalesTax { get; set; }
         public int VATRound { get; set; }
         public double? VATRoundAmount { get; set; }
         public double? DiscountVAT { get; set; }
         public string VATRoundSign { get; set; }
-        public double? SalesTax { get; set; }
-
         public int UserId { get; set; }
 
 

@@ -69,7 +69,7 @@ namespace Inspire.Erp.Application.Master
             , IRepository<StockRegister> _stockRegisterRepo
             , IRepository<AccountsTransactions> _accTransRepo
             , IRepository<Inspire.Erp.Domain.Entities.GeneralSettings> _gSettingRepo
-            ,, IRepository<UnitMaster> unitMasterRepo
+            , IRepository<UnitMaster> unitMasterRepo
             )
         {
             itemrepository = _itemrepository;
@@ -799,7 +799,6 @@ namespace Inspire.Erp.Application.Master
         {
             try
             {
-
                 var result = await (from ir in itemrepository.GetAsQueryable()
                                     join ud in _unitDetailsRepo.GetAsQueryable() on ir.ItemMasterItemId equals ud.UnitDetailsItemId
                                     join um in _unitMasterRepo.GetAsQueryable() on ud.UnitDetailsUnitId equals um.UnitMasterUnitId into umJoin
@@ -817,8 +816,8 @@ namespace Inspire.Erp.Application.Master
                                         ItemwiseInclusive = ir.ItemMasterVatInclues ?? false,
                                         OfferPrice = ud.UnitDetailsWrate,
                                         UnitName=umd.UnitMasterUnitShortName
-
                                     }).FirstOrDefaultAsync();
+
                 var happyH = await (from hh in happyHourRepo.GetAsQueryable()
                                     join hhd in happyHourDetailsRepo.GetAsQueryable() on hh.HappyHourId equals hhd.HappyHourDeatilsHappyHourId
                                     where hhd.HappyHourDeatilsItemId == result.ItemId
@@ -856,10 +855,7 @@ namespace Inspire.Erp.Application.Master
                     result.UnitPrice = (double)Math.Round((decimal)result.UnitPriceTaxIncl, 2);
                     result.VATValue = (double)Math.Round(0.0, 2);
                 }
-
-
                 result.Quantity = 1;
-
                 return Response<ItemMasterResponse>.Success(result, "Data found");
             }
             catch (Exception ex)
