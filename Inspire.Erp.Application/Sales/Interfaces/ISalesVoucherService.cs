@@ -61,5 +61,15 @@ namespace Inspire.Erp.Application.Sales.Interfaces
         public IEnumerable<POS_Sales_Voucher> GetPosSalesVoucher();
         #endregion
 
+
+        #region POS Sales Hold
+
+        public VouchersNumbers GeneratePosSaleHoldVoucherNo(DateTime? VoucherGenDate);
+        public SalesHold InsertPosSalesHold(SalesHold salesHold, List<SalesHoldDetails> salesHoldDetails);
+        public int DeletePosSaleHold(SalesHold salesHold, List<SalesHoldDetails> salesHoldDetails);
+
+
+        #endregion
+
     }
 }

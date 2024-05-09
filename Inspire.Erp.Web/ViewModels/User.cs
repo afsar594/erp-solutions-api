@@ -21,4 +21,11 @@ namespace Inspire.Erp.Web.ViewModels
 
     }
 
+    public class PosUser
+    {
+        public string Password { get; set; }
+        public string Username { get; set; }
+        public DateTime ApplicationDate { get; set; }
+    }
+
 }
