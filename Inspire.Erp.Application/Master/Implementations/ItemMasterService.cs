@@ -1202,8 +1202,9 @@ namespace Inspire.Erp.Application.Master
                                             Status = ir.Status,
                                             SettlementDate = ir.Date,
                                             SortOrder = ud.Sort_order,
-                                            ShowinInvoice = ud.show_in_inv
-
+                                            ShowinInvoice = ud.show_in_inv,
+                                            TransactionCode=ud.Trans_code,
+                                            UserId=ir.UserId
                                         }).OrderBy(x=>x.SortOrder).ToListAsync();
 
                    
@@ -1338,11 +1339,9 @@ namespace Inspire.Erp.Application.Master
                         Date = DateTime.Now,//to be changed
                         UserId = model.UserId,
                         TransactionCode = "CAS"
-
                     };
+
                     settDetailsTempRepo.Insert(alloModelCash);
-
-
 
                     double? vat = 0;
                     var tempSettDetailsList = settDetailsTempRepo.GetAll().Where(o => o.UserId == model.UserId).ToList();
