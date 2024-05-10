@@ -82,7 +82,7 @@ namespace Inspire.Erp.Web.Controllers.POS
 
 
         [HttpPost("CalcualteCardAmount")]
-        public async Task<IActionResult> CalcualteCardAmount(SettlementDetailsRequest model)
+        public async Task<IActionResult> CalcualteCardAmount(CardAmountRequest model)
         {
             try
             {
@@ -97,7 +97,7 @@ namespace Inspire.Erp.Web.Controllers.POS
 
 
         [HttpPost("ProcessCard")]
-        public async Task<IActionResult> ProcessCard(CardAmountResponse model)
+        public async Task<IActionResult> ProcessCard(CardRequest model)
         {
             try
             {
@@ -109,6 +109,8 @@ namespace Inspire.Erp.Web.Controllers.POS
             }
 
         }
+
+
 
 
         [HttpPost]

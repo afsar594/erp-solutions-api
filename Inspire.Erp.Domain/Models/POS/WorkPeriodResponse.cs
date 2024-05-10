@@ -46,6 +46,15 @@ namespace Inspire.Erp.Domain.Modals
 
 
     }
+    public class CardAmountRequest
+    {
+        
+        public decimal? Cash { get; set; }
+        
+        public int UserId { get; set; }
+
+
+    }
 
     public class SettlementDetailsResponse
     {
@@ -61,13 +70,25 @@ namespace Inspire.Erp.Domain.Modals
 
         public string Status { get; set; }
     }
-
-
     public class CardAmountResponse
+    {
+        
+        public decimal? NetTotal { get; set; }
+        public decimal? CashAmount { get; set; }
+        public decimal? Balance { get; set; }
+        public decimal? LastBalance { get; set; }
+    }
+
+
+    public class CardRequest
     {
         public decimal? CardAmount { get; set; }
         public decimal? NetTotal { get; set; }
         public decimal? CashAmount { get; set; }
+
+        public decimal? Cash { get; set; }
+
+        public decimal? GrandTotal { get; set; }
         public string RefereceNo { get; set; }
         public string VoucherNo { get; set; }
         public string CardType { get; set; }
@@ -90,7 +111,5 @@ namespace Inspire.Erp.Domain.Modals
         public string CreditCardNumber { get; set; }
         public int? CustomerId { get; set; }
     }
-
-
 
 }

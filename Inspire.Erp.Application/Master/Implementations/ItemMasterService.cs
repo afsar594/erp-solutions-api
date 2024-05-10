@@ -1222,7 +1222,7 @@ namespace Inspire.Erp.Application.Master
         }
 
 
-        public async Task<Response<CardAmountResponse>> CalcualteCardAmount(SettlementDetailsRequest model)
+        public async Task<Response<CardAmountResponse>> CalcualteCardAmount(CardAmountRequest model)
         {
             using (var trans = new TransactionScope())
             {
@@ -1246,14 +1246,14 @@ namespace Inspire.Erp.Application.Master
                     decimal? balance = 0;
                     if (netTotal < 0)
                     {
-                        balance = netTotal + model.CashAmount;
+                        balance = netTotal + model.Cash;
                     }
                     else
                     { 
-                        balance=netTotal - model.CashAmount;
+                        balance=netTotal - model.Cash;
                     } 
 
-                    decimal? cash = model.CashAmount;
+                    decimal? cash = model.Cash;
 
                     var cashResult = await (from ir in settDetailsTempRepo.GetAsQueryable()
                                       join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode equals ud.Trans_code
@@ -1269,30 +1269,33 @@ namespace Inspire.Erp.Application.Master
                     {
                         if (netTotal < 0)
                         {
-                            lastBalance = netTotal + model.CashAmount;
+                            lastBalance = netTotal + model.Cash;
                         }
                         else
                         {
-                            lastBalance = netTotal - model.CashAmount;
+                            lastBalance = netTotal - model.Cash;
                         }
                     }
                     else
                     {
                         if (netTotal < 0)
                         {
-                            lastBalance = netTotal + cashResult.First().CardAmount + model.CashAmount;
+                            lastBalance = netTotal + cashResult.First().CardAmount + model.Cash;
                         }
                         else
                         {
-                            lastBalance = netTotal  - cashResult.First().CardAmount - model.CashAmount;
+                            lastBalance = netTotal  - cashResult.First().CardAmount - model.Cash;
                         }
                     }
 
-                    cardAmountResponse.CardAmount = lastBalance;
-                    cardAmountResponse.CashAmount = model.CashAmount;
+                   
+                    cardAmountResponse.CashAmount = model.Cash;
                     cardAmountResponse.NetTotal = netTotal;
+                    cardAmountResponse.Balance = balance;
+                    cardAmountResponse.LastBalance = lastBalance;
 
                     trans.Complete();
+                    trans.Dispose();
                     return Response<CardAmountResponse>.Success(cardAmountResponse, "Settlement Details inserted Successfully.");
 
                 }
@@ -1304,7 +1307,7 @@ namespace Inspire.Erp.Application.Master
             }
         }
 
-        public async Task<Response<bool>> ProcessCard(CardAmountResponse model)
+        public async Task<Response<bool>> ProcessCard(CardRequest model)
         {
             using (var trans = new TransactionScope())
             {
@@ -1320,7 +1323,6 @@ namespace Inspire.Erp.Application.Master
                     var tempSalesTrRepo = posSalesTranDetailsRepo.GetAll().FirstOrDefault(o => o.InvoiceNo == model.VoucherNo);
                     if (tempSalesTrRepo != null) posSalesTranDetailsRepo.Delete(tempSalesTrRepo);
 
-
                     var tempTransCodes = transCodesRepo.GetAll().FirstOrDefault(o => o.InHouse == true && o.Trans_Description == model.CardType);
                     string transCode = "";
                     string transDesc = "";
@@ -1328,6 +1330,18 @@ namespace Inspire.Erp.Application.Master
                     {
                         transCode = tempTransCodes.Trans_code;
                         transDesc = tempTransCodes.Trans_Description;
+                    }
+
+                    if(model.Cash>=model.GrandTotal)
+                    {
+                        if(model.Cash<=0)
+                        {
+                            model.CashAmount=-1 * model.Cash;
+                        }
+                        else
+                        {
+                            model.CashAmount = model.GrandTotal;
+                        }
                     }
 
                     var alloModelCash = new POS_SettlementDetTemp()
@@ -1340,9 +1354,9 @@ namespace Inspire.Erp.Application.Master
                         UserId = model.UserId,
                         TransactionCode = "CAS"
                     };
-
                     settDetailsTempRepo.Insert(alloModelCash);
 
+                    //TRANSACTION
                     double? vat = 0;
                     var tempSettDetailsList = settDetailsTempRepo.GetAll().Where(o => o.UserId == model.UserId).ToList();
                     foreach (var item in tempSettDetailsList)
@@ -1514,7 +1528,6 @@ namespace Inspire.Erp.Application.Master
                             Date = DateTime.Now,//to be changed
                             UserId = model.UserId,
                             TransactionCode = "VAT"
-
                         };
                         settDetailsRepo.Insert(alloModelVat);
                     }
@@ -1616,8 +1629,8 @@ namespace Inspire.Erp.Application.Master
                     }
 
                     trans.Complete();
+                    trans.Dispose();
                     return Response<bool>.Success(true, "Card processed Successfully.");
-
                 }
                 catch (Exception ex)
                 {
@@ -1627,7 +1640,7 @@ namespace Inspire.Erp.Application.Master
             }
         }
 
-        public async Task<Response<bool>> ProcessCash(CardAmountResponse model)
+        public async Task<Response<bool>> ProcessCash(CardRequest model)
         {
             using (var trans = new TransactionScope())
             {
@@ -1928,7 +1941,7 @@ namespace Inspire.Erp.Application.Master
 
 
 
-        public void SaveVoucher(CardAmountResponse model,string transType)
+        public void SaveVoucher(CardRequest model,string transType)
         //  public void SaveVoucher(string voucherNo, int workPeriodId, decimal amount,
         //string stationName, string payMode, int userId, string desc,
         //      string customerName, int customerId
@@ -2002,10 +2015,8 @@ namespace Inspire.Erp.Application.Master
                     Voucher_Type=transType,
                     CustomerName= custDetails.CustomerMasterCustomerName,
                     Customer_ID=model.CustomerId,
-                   
-
                 };
-               // posSalesTranDetailsRepo.Insert(saleTr);
+                posSalesVoucherRepo.Insert(salesVC);
             }
             catch (Exception ex)
             {
