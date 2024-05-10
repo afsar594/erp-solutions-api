@@ -203,7 +203,7 @@ namespace Inspire.Erp.Domain.Enums
 
     }
 
-    
+
 
     public static class IssueVoucherMessage
     {
@@ -336,6 +336,15 @@ namespace Inspire.Erp.Domain.Enums
         public static string DeleteVoucher { get { return "Stock Requisition updated successfully"; } }
         public static string VoucherAlreadyExist { get { return "Stock Requisition is already exist"; } }
         public static string VoucherNumberExist { get { return "Voucher Number is exist"; } }
+
+    }
+
+    public static class UserFileMessage
+    {
+        public static String SaveUser { get { return "User  saved successfully"; } }
+        public static string UpdateUser { get { return "User updated successfully"; } }
+        public static string DeleteUser { get { return "User deleted successfully"; } }
+
 
     }
 

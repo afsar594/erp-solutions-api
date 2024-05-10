@@ -6,6 +6,7 @@ namespace Inspire.Erp.Domain.DTO.WorkGropPermission
 {
     public class WorkGroupPermissionsDto
     {
+        public int? WorkGroupPermissionsSno { get; set; }
         public string WorkGroupPermissionsMenuName { get; set; }
         public int? WorkGroupPermissionsMenuId { get; set; }
         public int? WorkGroupPermissionsWorkGroupId { get; set; }

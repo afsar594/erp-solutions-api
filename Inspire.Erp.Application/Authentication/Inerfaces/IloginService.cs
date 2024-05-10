@@ -14,5 +14,13 @@ namespace Inspire.Erp.Application.Authentication.Inerfaces
         UserFile RefreshToken(UserFile userData);
         UserFile RevokeToken(UserFile userData);
         ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
+        UserFile InserUser(UserFile userData);
+        UserFile UpdateUser(UserFile userData);
+        UserFile DeleteUser(UserFile userData);
+
+        UserFile GetUserById (long a);
+
+
+
     }
 }

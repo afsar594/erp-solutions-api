@@ -24,23 +24,23 @@ namespace Inspire.Erp.Web.Controllers
             return Ok(await _menuService.GetMenusByWorkgroupId(id));
         }
 
-        [HttpPost("GetAllMenuList")]
+        [HttpGet("GetAllMenuList")]
         public async Task<IActionResult> MenuList()
         {
             return Ok(await _menuService.MenuList());
         }
 
-        [HttpPost("GetSavedMenuById/{id}")]
+        [HttpGet("GetSavedMenuById")]
         public async Task<IActionResult> GetSavedMenuById(int Id)
         {
-            return Ok(  _menuService.GetMenuById(Id));
+            return Ok(_menuService.GetMenuById(Id));
         }
         [HttpPost("InsertMenu")]
         public async Task<IActionResult> SaveMenu([FromBody] Menu menu)
         {
             return Ok(await _menuService.SaveMenu(menu));
         }
-        [HttpPost("UpdateMenu")]
+        [HttpPut("UpdateMenu")]
         public async Task<IActionResult> UpdateMenu([FromBody] Menu menu)
         {
             return Ok(await _menuService.UpdateMenu(menu));

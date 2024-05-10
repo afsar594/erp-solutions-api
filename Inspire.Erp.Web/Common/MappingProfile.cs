@@ -241,6 +241,8 @@ namespace Inspire.Erp.Web.Common
             CreateMap<CustomerPurchaseOrderDetailsViewModel, CustomerPurchaseOrderDetails>();
 
 
+            CreateMap<UserFile, UserFileViewModel>();
+            CreateMap<UserFileViewModel, UserFile>();
 
             // ********************* Accounts ending *************
             // ********************* Procurement *****************
