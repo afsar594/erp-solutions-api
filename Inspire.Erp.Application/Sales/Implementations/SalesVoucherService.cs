@@ -831,17 +831,17 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                 //UnitPrice = svd.SalesVoucherDetailsCostPrice,
                                 UnitDes = unitMaster.UnitMasterUnitShortName,
                                 MatDes = itemmaster.ItemMasterItemName,
-                                PartNo = itemmaster.ItemMasterPartNo,
+                                //PartNo = itemmaster.ItemMasterPartNo,
                                 VoucherDate = salesVou.SalesVoucherDate,
                                 VoucherNo = salesVou.SalesVoucherNo,
                                 QuantitySold = svd.SalesVoucherDetailsQuantity ?? 0,
-                                unitPrice = itemmaster.ItemMasterUnitPrice ?? 0,
-                                baseUnit = svd.SalesVoucherDetailsQuantity * (decimal)unitDetail.UnitDetailsConversionType ?? 1   //SD.Sold_Qty * ISNULL(UD.ConversionType, 1)
+                                //unitPrice = itemmaster.ItemMasterUnitPrice ?? 0,
+                                baseUnit = svd.SalesVoucherDetailsQuantity * (decimal)(unitDetail==null?1:unitDetail.UnitDetailsConversionType ?? 1)   //SD.Sold_Qty * ISNULL(UD.ConversionType, 1)
                                 // ItemGroup = 
                             }).AsQueryable();
                 return data;
             }
-            catch (System.Exception)
+            catch (System.Exception ex)
             {
                 throw;
             }
