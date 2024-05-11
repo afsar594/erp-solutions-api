@@ -1319,7 +1319,7 @@ namespace Inspire.Erp.Application.Master
 
                     trans.Complete();
                     trans.Dispose();
-                    return Response<CardAmountResponse>.Success(cardAmountResponse, "Settlement Details inserted Successfully.");
+                    return Response<CardAmountResponse>.Success(cardAmountResponse, "Amount Returned Successfully.");
 
                 }
                 catch (Exception ex)
