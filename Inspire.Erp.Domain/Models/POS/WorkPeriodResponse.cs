@@ -85,9 +85,7 @@ namespace Inspire.Erp.Domain.Modals
         public decimal? CardAmount { get; set; }
         public decimal? NetTotal { get; set; }
         public decimal? CashAmount { get; set; }
-
         public decimal? Cash { get; set; }
-
         public decimal? GrandTotal { get; set; }
         public string RefereceNo { get; set; }
         public string VoucherNo { get; set; }
@@ -110,6 +108,16 @@ namespace Inspire.Erp.Domain.Modals
         public string StationName { get; set; }
         public string CreditCardNumber { get; set; }
         public int? CustomerId { get; set; }
+    }
+
+
+    public class CardType
+    {
+        public int Id { get; set; }
+        public string TransactionCode { get; set; }
+        public string TransactionDescription { get; set; }
+        public bool? InHouse { get; set; }
+       
     }
 
 }

@@ -763,6 +763,29 @@ namespace Inspire.Erp.Application.Master
         }
 
 
+        public async Task<Response<List<CardType>>> GetCardTypes()
+        {
+            try
+            {
+                var result = await (from ir in transCodesRepo.GetAsQueryable().Where(x => x.InHouse == true && x.Trans_group == 3)
+
+                                    select new CardType
+                                    {
+                                        Id = ir.Id,
+                                        TransactionCode = ir.Trans_code,
+                                        TransactionDescription = ir.Trans_Description,
+                                        InHouse = ir.InHouse
+                                    }).ToListAsync();
+                return Response<List<CardType>>.Success(result, "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<List<CardType>>.Fail(new List<CardType>(), ex.Message);
+            }
+        }
+
+
+
         public async Task<Response<List<ItemMasterResponse>>> GetItems(string? barCode)
         {
             try
@@ -1342,6 +1365,10 @@ namespace Inspire.Erp.Application.Master
                         {
                             model.CashAmount = model.GrandTotal;
                         }
+                    }
+                    else if(model.Cash < model.GrandTotal)
+                    {
+                        model.CashAmount = model.Cash;
                     }
 
                     var alloModelCash = new POS_SettlementDetTemp()

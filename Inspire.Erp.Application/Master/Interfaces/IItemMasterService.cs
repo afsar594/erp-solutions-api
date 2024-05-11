@@ -36,6 +36,8 @@ namespace Inspire.Erp.Application.Master
         public Task<Response<ItemMasterResponse>> SearchItemByBarcode(ItemBarCodeSearchFilter model);
         public Task<Response<POS_WorkPeriod>> GetWorkPeriod(WorkPeriodFilter model);
         public Task<Response<List<ItemMasterResponse>>> GetItems(string? barCode);
+
+        public Task<Response<List<CardType>>> GetCardTypes();
         public Task<Response<ItemMasterResponse>> SearchItemByUnitDetailsId(ItemBarCodeSearchFilter model);
         public  Task<Response<List<SettlementDetailsResponse>>> AddSettlementDetails(SettlementDetailsRequest model);
         public Task<Response<CardAmountResponse>> CalcualteCardAmount(CardAmountRequest model);

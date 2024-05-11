@@ -58,6 +58,13 @@ namespace Inspire.Erp.Web.Controllers.POS
             return Ok(await itemMasterService.GetItems(barCode));
         }
 
+        [HttpGet]
+        [Route("GetCardTypes")]
+        public async Task<IActionResult> GetCardTypes()
+        {
+            return Ok(await itemMasterService.GetCardTypes());
+        }
+
         [HttpPost]
         [Route("SearchItemByItemLink")]
         public async Task<IActionResult> SearchItemByItemLink(ItemBarCodeSearchFilter model)
