@@ -35,12 +35,12 @@ namespace Inspire.Erp.Application.Master
                 foreach (var menu in menulist)
                 {
                     // Insert menu detail for the workgroup
-                    WorkGroupMenuDetail detail = new WorkGroupMenuDetail
-                    {
-                        MenuId = menu,
-                        WorkgroupId = workGroupMaster.WorkGroupMasterWorkGroupId
-                    };
-                    _menuDetail.Insert(detail);
+                    //WorkGroupMenuDetail detail = new WorkGroupMenuDetail
+                    //{
+                    //    MenuId = menu,
+                    //    WorkgroupId = workGroupMaster.WorkGroupMasterWorkGroupId
+                    //};
+                    //_menuDetail.Insert(detail);
 
                     // Insert permissions for the workgroup
                     WorkGroupPermissions perm = new WorkGroupPermissions
@@ -123,7 +123,7 @@ namespace Inspire.Erp.Application.Master
             IEnumerable<WorkGroupMaster> workGroupMasters;
             try
             {
-                workGroupMasters = workGrouprepository.GetAll();
+                workGroupMasters = workGrouprepository.GetAll().Where(a => a.WorkGroupMasterWorkGroupDelStatus != true);
 
             }
             catch (Exception ex)

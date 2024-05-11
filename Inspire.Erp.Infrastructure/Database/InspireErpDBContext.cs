@@ -7148,12 +7148,9 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.GeneralPurchaseOrderDetailsPodId).HasColumnName("General_Purchase_Order_Details_POD_ID");
 
-                //entity.Property(e => e.GeneralPurchaseOrderDetailsPoid).HasColumnName("General_Purchase_Order_Details_POID");
-
                 entity.Property(e => e.GeneralPurchaseOrderDetailsPreqId).HasColumnName("General_Purchase_Order_Details_PReq_ID");
 
                 entity.Property(e => e.GeneralPurchaseOrderDetailsQuantity).HasColumnName("General_Purchase_Order_Details_Quantity");
-                //entity.Property(e => e.GeneralPurchaseOrderDetailsQuantity).HasColumnName("Purchase_Order_Details_DelQty");
 
                 entity.Property(e => e.GeneralPurchaseOrderDetailsRate).HasColumnName("General_Purchase_Order_Details_Rate");
 
@@ -15088,7 +15085,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.StockRequisitionNo)
                     .HasColumnName("StockRequisitionNo")
                     .HasMaxLength(20)
-                    .IsRequired();                    
+                    .IsRequired();
 
                 entity.Property(e => e.StockRequisitionDate)
                     .HasColumnName("StockRequisitionDate")
@@ -23511,11 +23508,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.WorkGroupPermissionsFormType).HasColumnName("WorkGroup_Permissions_FormType");
 
-                // entity.Property(e => e.WorkGroupPermissionsFormId).HasColumnName("WorkGroup_Permissions_Form_ID");
-
                 entity.Property(e => e.WorkGroupPermissionsMenuId).HasColumnName("WorkGroup_Permissions_Menu_ID");
-
-
 
                 entity.Property(e => e.WorkGroupPermissionsUadd).HasColumnName("WorkGroup_Permissions_UAdd");
 
@@ -23530,6 +23523,22 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.WorkGroupPermissionsUview).HasColumnName("WorkGroup_Permissions_UView");
 
                 entity.Property(e => e.WorkGroupPermissionsWorkGroupId).HasColumnName("WorkGroup_Permissions_Work_Group_ID");
+
+
+                //entity.HasOne(d => d.GeneralPurchaseOrder)
+                //.WithMany(p => p.GeneralPurchaseOrderDetails)
+                //.HasForeignKey(d => d.GeneralPurchaseOrderId)
+                //.HasConstraintName("FK_Generalpurchaseorderdetails_Generalpurchaseorder");
+
+                entity.HasOne(d => d.WorkGroupMaster)
+                    .WithMany(a => a.WorkGroupPermissions)
+                    .HasForeignKey(d => d.WorkGroupPermissionsWorkGroupId)
+                    .HasConstraintName("FK_WorkGroup_Master_Permissions");
+
+                entity.HasOne(d => d.Menu)
+                    .WithMany(p => p.WorkGroupPermissions)
+                    .HasForeignKey(d => d.WorkGroupPermissionsMenuId)
+                    .HasConstraintName("FK_Menus_Permissions");
             });
 
             modelBuilder.Entity<WorkPeriods>(entity =>

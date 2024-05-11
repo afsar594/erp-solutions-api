@@ -56,8 +56,11 @@ namespace Inspire.Erp.Application.Settings.Implementations
                 List<GetMenusResponse> model = new List<GetMenusResponse>();
                 List<GetPrimeMenusResponse> menus = new List<GetPrimeMenusResponse>();
 
-                var MenuList = await _menu.GetAsQueryable().//Where(x=>x.ParentId==id).ToListAsync();
-                Include(x => x.MenusWorkgroupDetails).Where(x => x.MenusWorkgroupDetails.Where(c => c.WorkgroupId == id).Count() > 0).ToListAsync();
+                var MenuList =await _menu.GetAsQueryable()
+                    .Include(x => x.WorkGroupPermissions)
+                    .Where(a => a.WorkGroupPermissions.Any(wp => wp.WorkGroupPermissionsWorkGroupId == id && wp.WorkGroupPermissionsUview == true))
+                    .ToListAsync();
+                //Include(x => x.MenuWorkGroupPermissions).Where(x => x.MenuWorkGroupPermissions.Where(c => c.WorkGroupPermissionsWorkGroupId == id).Count() > 0).ToListAsync();
 
                 if (MenuList.Count > 0)
                 {
@@ -91,7 +94,7 @@ namespace Inspire.Erp.Application.Settings.Implementations
                         Order = x.Order,
                     }).OrderBy(x => x.Order).ToList();
 
-                    
+
                     foreach (var pageItem in topMenu)
                     {
                         var item = new GetPrimeMenusResponse()
@@ -111,8 +114,8 @@ namespace Inspire.Erp.Application.Settings.Implementations
                     }
                 }
 
-                    return Response<List<GetPrimeMenusResponse>>.Success(menus, "Records FOund.");
-               
+                return Response<List<GetPrimeMenusResponse>>.Success(menus, "Records FOund.");
+
 
             }
             catch (Exception ex)
