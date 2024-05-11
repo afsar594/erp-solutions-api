@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Inspire.Erp.Application.Authentication.Inerfaces;
 using Inspire.Erp.Application.Master;
 using Inspire.Erp.Application.Sales.Interfaces;
 using Inspire.Erp.Domain.Entities;
@@ -9,6 +10,7 @@ using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Web.Common;
 using Inspire.Erp.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -26,12 +28,14 @@ namespace Inspire.Erp.Web.Controllers.POS
         private readonly IMapper _mapper;
         private IItemMasterService itemMasterService;
         private ISalesVoucherService _salesVoucherService;
-        public POSController(IItemMasterService _itemMasterService, IMapper mapper, ISalesVoucherService salesVoucherService)
+        private readonly IloginService _loginsvc;
+        public POSController(IItemMasterService _itemMasterService, IMapper mapper, ISalesVoucherService salesVoucherService, IloginService loginsvc)
         {
 
             itemMasterService = _itemMasterService;
             _mapper = mapper;
             _salesVoucherService = salesVoucherService;
+            _loginsvc = loginsvc;
         }
         
 
@@ -166,6 +170,82 @@ namespace Inspire.Erp.Web.Controllers.POS
             return apiResponse;
 
         }
+
+
+
+
+
+        #region  Sale Hold
+
+        [HttpPost]
+        [Route("InsertPosSalesHold")]
+        public ApiResponse<SalesHold> InsertPosSalesVoucher([FromBody] SalesHold voucherCompositeView)
+        {
+            ApiResponse<SalesHold> apiResponse = new ApiResponse<SalesHold>();
+            var param1 = _mapper.Map<SalesHold>(voucherCompositeView);
+            var param2 = _mapper.Map<List<SalesHoldDetails>>(voucherCompositeView.salesHoldDetails);
+            var xs = _salesVoucherService.InsertPosSalesHold(param1, param2);
+            apiResponse = new ApiResponse<SalesHold>
+            {
+                Valid = true,
+                Result = _mapper.Map<SalesHold>(xs),
+                Message = SalesVoucherMessage.SaveVoucher
+            };
+            return apiResponse;
+        }
+
+
+        [HttpPost]
+        [Route("DeleteCreditNote")]
+        public ApiResponse<int> DeleteCreditNote([FromBody] SalesHold voucherCompositeView)
+        {
+            var param1 = _mapper.Map<SalesHold>(voucherCompositeView);
+            var param2 = _mapper.Map<List<SalesHoldDetails>>(voucherCompositeView.salesHoldDetails);
+            var xs = _salesVoucherService.DeletePosSaleHold(param1, param2);
+            ApiResponse<int> apiResponse = new ApiResponse<int>
+            {
+                Valid = true,
+                Result = 0,
+                Message = CreditNoteMessage.DeleteVoucher
+            };
+            return apiResponse;
+        }
+
+        #endregion
+
+
+
+        #region Authenticate Service
+
+        [AllowAnonymous]
+        [HttpPost("authenticate")]
+        public IActionResult Authenticate([FromBody] PosUser user)
+        {
+            var response = _loginsvc.PosAuthenticate(new UserFile
+            {
+                UserName = user.Username,
+                Password = user.Password
+            });
+
+            if (response == null)
+                return BadRequest(new { message = "Username or password is incorrect" });
+
+            setTokenCookie(response.RefreshToken);
+            return Ok(ApiResponse<UserFile>.Success(response));
+        }
+
+       
+        private void setTokenCookie(string token)
+        {
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = DateTime.UtcNow.AddDays(7)
+            };
+            Response.Cookies.Append("refreshToken", token, cookieOptions);
+        }
+        #endregion
+
 
 
 
