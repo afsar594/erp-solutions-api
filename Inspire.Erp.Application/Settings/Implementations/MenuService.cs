@@ -58,7 +58,7 @@ namespace Inspire.Erp.Application.Settings.Implementations
 
                 var MenuList =await _menu.GetAsQueryable()
                     .Include(x => x.WorkGroupPermissions)
-                    .Where(a => a.WorkGroupPermissions.Any(wp => wp.WorkGroupPermissionsWorkGroupId == id && wp.WorkGroupPermissionsUview == true))
+                    .Where(a => a.WorkGroupPermissions.Any(wp => wp.WorkGroupPermissionsWorkGroupId == id && wp.WorkGroupPermissionsUallow == true))
                     .ToListAsync();
                 //Include(x => x.MenuWorkGroupPermissions).Where(x => x.MenuWorkGroupPermissions.Where(c => c.WorkGroupPermissionsWorkGroupId == id).Count() > 0).ToListAsync();
 
