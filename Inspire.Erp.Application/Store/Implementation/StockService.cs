@@ -57,6 +57,7 @@ namespace Inspire.Erp.Application.Store.Implementation
         {
             try
             {
+            
                 List<StockReportBaseUnitResponse> response = new List<StockReportBaseUnitResponse>();
 
                 var subrq = (from s in _context.UnitDetails
@@ -93,10 +94,6 @@ namespace Inspire.Erp.Application.Store.Implementation
                                          AverageRate = y.StockRegisterRate,
                                          Amount = y.StockRegisterAmount
                                      }).ToListAsync();
-
-
-
-
                 return Response<List<StockReportBaseUnitResponse>>.Success(results, "Data found");
             }
             catch (Exception ex)

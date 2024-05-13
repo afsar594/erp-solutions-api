@@ -17,6 +17,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Spire.Pdf.Exporting.XPS.Schema;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using Inspire.Erp.Infrastructure.Database;
 
 namespace Inspire.Erp.Application.Account.Implementations
 {
@@ -25,6 +27,7 @@ namespace Inspire.Erp.Application.Account.Implementations
 
 
 
+        private InspireErpDBContext _context;
 
         private readonly ILogger<PaymentVoucherService> _logger;
 
@@ -58,9 +61,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                    IRepository<ViewAccountsTransactionsVoucherType> viewAccountsTransactionsVoucherTypeRepository,
                    IRepository<TempReportAccStatement> tempReportAccStatementRepository,
                    IRepository<ReportPurchaseRequisition> reportPurchaseRequisitionRepository,
-                   IRepository<ReportPurchaseOrder> reportPurchaseOderRepository
-
-                  )
+                   IRepository<ReportPurchaseOrder> reportPurchaseOderRepository,
+                   InspireErpDBContext context)
         {
 
             _itemMasterRepository = itemMasterRepository;
@@ -78,6 +80,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             _viewAccountsTransactionsVoucherTypeRepository = viewAccountsTransactionsVoucherTypeRepository;
             _reportPurchaseRequisitionRepository = reportPurchaseRequisitionRepository;
             _reportPurchaseOrderRepository = reportPurchaseOderRepository;
+            _context = context;
         }
         public IEnumerable<ReportAccountsTransactions> MainReport_GetReportAccountsTransactions(string AccNo, int Location, int Job, int CostCenter)
         {
@@ -655,7 +658,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
 
         public IEnumerable<ReportStockBaseUnit> MainReport_GetReportStockLedger_PARAM_CLASS(StockLedgerParameters stockLedgerParameters, List<ViewStockTransferType> viewStockTransferType)
         {
-            //return _reportStockBaseUnitRepository.GetAll();
+            return _reportStockBaseUnitRepository.GetAll();
 
             //           List<ReportStockBaseUnit> reportStockLedger_ALL = _reportStockBaseUnitRepository.GetAsQueryable().Where(k =>
             //       (
@@ -675,39 +678,76 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
             //)).OrderBy(x => x.ItemMasterItemName).ToList();
 
 
-            List<ReportStockBaseUnit> reportStockLedger_ALL = (from k in _reportStockBaseUnitRepository.GetAsQueryable()
-                    where ((stockLedgerParameters.rptLocation == -1 ? true : (k.StockRegisterLocationID == stockLedgerParameters.rptLocation))
-                    && (stockLedgerParameters.rptItemGroup == -1 ? true : (k.ItemGroupNo == stockLedgerParameters.rptItemGroup))
-                    && (stockLedgerParameters.rptItem == -1 ? true : (k.StockRegisterMaterialId == stockLedgerParameters.rptItem))
-                    && (stockLedgerParameters.rptHideZero == false ? true : (k.Stock != 0))
-                    && (stockLedgerParameters.rptPartNo.Trim() == "" ? true : (k.ItemMasterPartNo.Trim() == stockLedgerParameters.rptPartNo.Trim()))
-                    ) group k by new
-                    {
-                        k.StockRegisterMaterialId,
-                        k.ItemMasterPartNo,
-                        k.ItemMasterItemName,
-                        k.ItemGroupName,
-                        k.ItemGroupNo,
-                        k.StockRegisterUnitId,
-                        k.UnitMasterUnitShortName
-                    } into grp select new ReportStockBaseUnit
-                    {
+//List<ReportStockBaseUnit> RpttockLedgerAll=(from I in _context.ItemMaster
+//                        join S in _context.StockRegister on I.ItemMasterItemId 
+//                        equals (long)S.StockRegisterMaterialID into StockRegisterGroup
+//                        from S in StockRegisterGroup.DefaultIfEmpty()
+//                        join UD in (
+//                                    from ud in _context.UnitDetails
+//                                    where ud.UnitDetailsConversionType == 1
+//                                    select new { ud.UnitDetailsId, ud.UnitDetailsItemId }
+//                                    )
+//                        on (int)S.StockRegisterMaterialID equals (int)UD.UnitDetailsItemId into UnitDetailsGroup
+//                        from UD in UnitDetailsGroup.DefaultIfEmpty()
 
-                        StockRegisterMaterialId=  grp.Key.StockRegisterMaterialId,
-                        ItemMasterPartNo=  grp.Key.ItemMasterPartNo,
-                        ItemMasterItemName=    grp.Key.ItemMasterItemName,
-                        ItemGroupName=  grp.Key.ItemGroupName,
-                        ItemGroupNo=  grp.Key.ItemGroupNo,
-                        StockRegisterUnitId=   grp.Key.StockRegisterUnitId,
-                        UnitMasterUnitShortName= grp.Key.UnitMasterUnitShortName,
-                        Stock = grp.Sum(x => x.Stock),
-                        StockRegisterRate = grp.Average(x => x.StockRegisterRate),
-                        StockRegisterAmount = grp.Sum(x => x.StockRegisterAmount),
-                        LocationMasterLocationName = "",
-                        StockRegisterLocationID = 0,
-                    }).ToList();
+//                        join UM in _context.UnitMaster on UD.UnitDetailsId equals (int)UM.UnitMasterUnitId into UnitMasterGroup
+//                        from UM in UnitMasterGroup.DefaultIfEmpty()
 
-            return reportStockLedger_ALL;
+//                        where I.ItemMasterItemType == "A" && I.ItemMasterDelStatus == null
+//                        group new { I, S } by new
+//                        {
+//                            I.ItemMasterItemId,
+//                            I.ItemMasterPartNo,
+//                            S.StockRegisterFcRate,
+//                            S.StockRegisterAmount,
+//                            I.ItemMasterItemName,
+//                            I.ItemMasterAccountNo,
+//                            UD.UnitDetailsId,
+//                            UM.UnitMasterUnitShortName,
+//                            S.StockRegisterLocationID
+//                        } into g
+//                        select new 
+//                        {
+//                            ItemId = g.Key.ItemMasterItemId,
+//                            PartNo = g.Key.ItemMasterPartNo,
+//                            Stock = g.Sum(x => x.S.StockRegisterSIN - x.S.StockRegisterSout) ?? 0,
+//                            Rate = g.Key.StockRegisterFcRate ?? 0,
+//                            Amount = g.Key.StockRegisterAmount ?? 0,
+//                            ItemName = g.Key.ItemMasterItemName ?? "",
+//                            RelativeNO = g.Key.ItemMasterAccountNo ?? 0,
+//                            UnitId = Convert.ToInt32(g.Key.UnitDetailsId),
+//                            UnitShortName = g.Key.UnitMasterUnitShortName ?? "",
+//                            Location = g.Key.StockRegisterLocationID ?? 0
+//                        }).Union(
+//                        from I in _context.ItemMaster
+//                        join UD in (
+//                                    from ud in _context.UnitDetails
+//                                    where ud.UnitDetailsConversionType == 1
+//                                    select new { ud.UnitDetailsId, ud.UnitDetailsItemId }
+//                                   ) 
+//                        on I.ItemMasterItemId equals UD.UnitDetailsItemId into UnitDetailsGroup
+//                        from UD in UnitDetailsGroup.DefaultIfEmpty()
+
+//                        join UM in _context.UnitMaster on UD.UnitDetailsId 
+//                        equals UM.UnitMasterUnitId into UnitMasterGroup
+//                        from UM in UnitMasterGroup.DefaultIfEmpty()
+
+//                        where !_context.StockRegister.Select(sr => sr.StockRegisterStoreID).Distinct().Contains(I.ItemMasterItemId)
+//                              && I.ItemMasterItemType == "A"
+//                        select new 
+//                        {
+//                            ItemId = I.ItemMasterItemId,
+//                            PartNo = I.ItemMasterPartNo,
+//                            Stock = 0,
+//                            Rate = 0,
+//                            Amount = 0,
+//                            ItemName = I.ItemMasterItemName ?? "",
+//                            RelativeNO =Convert.ToInt64I.ItemMasterAccountNo,
+//                            UnitId = Convert.ToInt32(I.ItemMasterUnitId),
+//                            UnitShortName = UM.UnitMasterUnitShortName ?? "",
+//                            Location = 0
+//                        });
+//                    return RpttockLedgerAll;
 
  
     }
