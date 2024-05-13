@@ -31,19 +31,26 @@ namespace Inspire.Erp.Domain.Modals
     public class SettlementDetailsRequest
     {
         public int Quantity { get; set; }
-        public double Total { get; set; }
-        public double? BillAmount { get; set; }
-        public double? CashAmount { get; set; }
-        public double? ItemDiscount { get; set; }
-        public double? BillDiscount { get; set; }
-        public double? VAT { get; set; }
-
-        public int VATRound { get; set; }
-        public double? VATRoundAmount { get; set; }
-        public double? DiscountVAT { get; set; }
+        public decimal BillAmount { get; set; }
+        public decimal? ItemDiscount { get; set; }
+        public decimal? VAT { get; set; }
+        public decimal? CashAmount { get; set; }
+        public decimal? BillDiscount { get; set; }
+        public decimal? BillDiscountPerc { get; set; }
+        public decimal? SalesTax { get; set; }
+        public int? VATRound { get; set; }
+        public decimal? VATRoundAmount { get; set; }
+        public decimal? DiscountVAT { get; set; }
         public string VATRoundSign { get; set; }
-        public double? SalesTax { get; set; }
+        public int UserId { get; set; }
 
+
+    }
+    public class CardAmountRequest
+    {
+        
+        public decimal? Cash { get; set; }
+        
         public int UserId { get; set; }
 
 
@@ -53,7 +60,7 @@ namespace Inspire.Erp.Domain.Modals
     {
         public string TransactionDesc { get; set; }
         public int SettlementDetailsId { get; set; }
-        public double? Amount { get; set; }
+        public decimal? Amount { get; set; }
         public long? SalesVoucherId { get; set; }
         public DateTime? SettlementDate { get; set; }
         public int? UserId { get; set; }
@@ -63,14 +70,23 @@ namespace Inspire.Erp.Domain.Modals
 
         public string Status { get; set; }
     }
-
-
     public class CardAmountResponse
     {
         
-        public double? CardAmount { get; set; }
-        public double? NetTotal { get; set; }
-        public double? CashAmount { get; set; }
+        public decimal? NetTotal { get; set; }
+        public decimal? CashAmount { get; set; }
+        public decimal? Balance { get; set; }
+        public decimal? LastBalance { get; set; }
+    }
+
+
+    public class CardRequest
+    {
+        public decimal? CardAmount { get; set; }
+        public decimal? NetTotal { get; set; }
+        public decimal? CashAmount { get; set; }
+        public decimal? Cash { get; set; }
+        public decimal? GrandTotal { get; set; }
         public string RefereceNo { get; set; }
         public string VoucherNo { get; set; }
         public string CardType { get; set; }
@@ -78,23 +94,30 @@ namespace Inspire.Erp.Domain.Modals
         public int WorkPeriodId { get; set; }
         public int BillNoSetDet { get; set; }
         public long? BillnoLoad { get; set; }
-
-        public double? BillAmount { get; set; }
-        public double? ItemDiscount { get; set; }
-        public double? BillDiscount { get; set; }
-        public double? VAT { get; set; }
-
+        public decimal? BillAmount { get; set; }
+        public decimal? ItemDiscount { get; set; }
+        public decimal? BillDiscount { get; set; }
+        public decimal? VAT { get; set; }
         public int VATRound { get; set; }
-        public double? VATRoundAmount { get; set; }
-        public double? DiscountVAT { get; set; }
+        public decimal? VATRoundAmount { get; set; }
+        public decimal? DiscountVAT { get; set; }
         public string VATRoundSign { get; set; }
-        public double? SalesTax { get; set; }
-
+        public string PayMode { get; set; }
+        public decimal? SalesTax { get; set; }
         public bool? SalesRet { get; set; }
         public string StationName { get; set; }
         public string CreditCardNumber { get; set; }
+        public int? CustomerId { get; set; }
     }
 
 
+    public class CardType
+    {
+        public int Id { get; set; }
+        public string TransactionCode { get; set; }
+        public string TransactionDescription { get; set; }
+        public bool? InHouse { get; set; }
+       
+    }
 
 }

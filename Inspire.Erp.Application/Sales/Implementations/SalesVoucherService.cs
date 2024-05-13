@@ -62,6 +62,16 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<POS_Sales_Voucher_Details> _posSalesVoucherDetailsRepository;
 
 
+
+        private IRepository<SalesHold> _salesHoldRepository;
+        private IRepository<SalesHoldDetails> _salesHoldDetailsRepository;
+
+
+
+
+
+
+
         //private IRepository<ReportSalesVoucher> _reportSalesVoucherRepository;
         public SalesVoucherService(
             //IRepository<ReportSalesVoucher> reportSalesVoucherRepository,
@@ -73,8 +83,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
-
-            IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository, IRepository<CurrencyMaster> currencyMasterRepository, IRepository<UnitDetails> unitDetailsRepository, IRepository<MasterAccountsTable> accMaster, IRepository<SalesReturn> salesReturn, IRepository<SalesReturnDetails> salesReturnDtls, IRepository<OptionsMaster> optionMaster, IRepository<POS_Sales_Voucher> posSalesVoucherRepository, IRepository<POS_Sales_Voucher_Details> posSalesVoucherDetailsRepository)
+  
+            IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository, IRepository<CurrencyMaster> currencyMasterRepository, IRepository<UnitDetails> unitDetailsRepository, IRepository<MasterAccountsTable> accMaster, IRepository<SalesReturn> salesReturn, IRepository<SalesReturnDetails> salesReturnDtls, IRepository<OptionsMaster> optionMaster, IRepository<POS_Sales_Voucher> posSalesVoucherRepository, IRepository<POS_Sales_Voucher_Details> posSalesVoucherDetailsRepository, IRepository<SalesHold> salesHoldRepository, IRepository<SalesHoldDetails> salesHoldDetailsRepository)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository;
@@ -101,6 +111,9 @@ namespace Inspire.Erp.Application.Sales.Implementations
             _optionMaster = optionMaster;
             _posSalesVoucherDetailsRepository = posSalesVoucherDetailsRepository;
             _posSalesVoucherRepository = posSalesVoucherRepository;
+
+            _salesHoldRepository = salesHoldRepository;
+            _salesHoldDetailsRepository = salesHoldDetailsRepository;
             
 
             //_reportSalesVoucherRepository = reportSalesVoucherRepository;
@@ -217,7 +230,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
 
 
-
                 _salesVoucherRepository.TransactionCommit();
 
 
@@ -230,6 +242,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
             return this.GetSavedSalesVoucherDetails(salesVoucher.SalesVoucherNo);
         }
+
 
         public int DeleteSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions,
             List<SalesVoucherDetails> salesVoucherDetails
@@ -831,17 +844,17 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                 //UnitPrice = svd.SalesVoucherDetailsCostPrice,
                                 UnitDes = unitMaster.UnitMasterUnitShortName,
                                 MatDes = itemmaster.ItemMasterItemName,
-                                PartNo = itemmaster.ItemMasterPartNo,
+                                //PartNo = itemmaster.ItemMasterPartNo,
                                 VoucherDate = salesVou.SalesVoucherDate,
                                 VoucherNo = salesVou.SalesVoucherNo,
                                 QuantitySold = svd.SalesVoucherDetailsQuantity ?? 0,
-                                unitPrice = itemmaster.ItemMasterUnitPrice ?? 0,
-                                baseUnit = svd.SalesVoucherDetailsQuantity * (decimal)unitDetail.UnitDetailsConversionType ?? 1   //SD.Sold_Qty * ISNULL(UD.ConversionType, 1)
+                                //unitPrice = itemmaster.ItemMasterUnitPrice ?? 0,
+                                baseUnit = svd.SalesVoucherDetailsQuantity * (decimal)(unitDetail==null?1:unitDetail.UnitDetailsConversionType ?? 1)   //SD.Sold_Qty * ISNULL(UD.ConversionType, 1)
                                 // ItemGroup = 
                             }).AsQueryable();
                 return data;
             }
-            catch (System.Exception)
+            catch (System.Exception ex)
             {
                 throw;
             }
@@ -1021,6 +1034,93 @@ namespace Inspire.Erp.Application.Sales.Implementations
      
             return salV;
         }
+
+        #region Pos Sales Hold
+        public VouchersNumbers GeneratePosSaleHoldVoucherNo(DateTime? VoucherGenDate)
+        {
+            try
+            {
+                // var prefix = this._programsettingsRepository.GetAsQueryable().Where(k => k.ProgramSettingsKeyValue == Prefix.SalesVoucher_Prefix).FirstOrDefault().ProgramSettingsTextValue;
+                int vnoMaxVal = Convert.ToInt32(_voucherNumbersRepository.GetAsQueryable()
+                                                        .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == VoucherType.PosSalesVoucher_TYPE)
+                                                        .DefaultIfEmpty()
+                                                        .Max(o => o == null ? 0 : o.VouchersNumbersVNoNu)) + 1;
+
+
+
+                VouchersNumbers vouchersNumbers = new VouchersNumbers
+                {
+                    VouchersNumbersVNo = "POSSH" + vnoMaxVal,
+                    VouchersNumbersVNoNu = vnoMaxVal,
+                    VouchersNumbersVType = VoucherType.PosSalesVoucher_TYPE,
+                    VouchersNumbersFsno = 1,
+                    VouchersNumbersStatus = AccountStatus.Pending,
+                    VouchersNumbersVoucherDate = VoucherGenDate
+
+                };
+                _voucherNumbersRepository.Insert(vouchersNumbers);
+                return vouchersNumbers;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+
+        public SalesHold InsertPosSalesHold(SalesHold salesHold, List<SalesHoldDetails> salesHoldDetails)
+        {
+            try
+            {
+                _salesHoldRepository.BeginTransaction();
+
+                string salesVoucherNumber = this.GeneratePosSaleHoldVoucherNo(salesHold.VoucherDate).VouchersNumbersVNo;
+                salesHold.VoucherNo = salesVoucherNumber;
+
+
+                int maxcount = 0;
+                maxcount = Convert.ToInt32(
+                    _salesHoldRepository.GetAsQueryable()
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.V_Id) + 1);
+
+                salesHoldDetails = salesHoldDetails.Select((x) =>
+                {
+                    x.SNO = maxcount;
+                    x.VoucherNo = salesVoucherNumber;
+                    return x;
+                }).ToList();
+                _salesHoldRepository.Insert(salesHold);
+                _salesHoldDetailsRepository.InsertList(salesHoldDetails);
+                
+
+                
+                _salesHoldRepository.TransactionCommit();
+
+                return salesHold;
+            }
+            catch (Exception ex)
+            {
+                _salesHoldRepository.TransactionRollback();
+                throw;
+            }
+        }
+
+        public int DeletePosSaleHold(SalesHold salesHold, List<SalesHoldDetails> salesHoldDetails)
+        {
+            try
+            {
+                int a = 0;
+
+                return a;
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+        #endregion
 
     }
 }

@@ -143,6 +143,24 @@ namespace Inspire.Erp.Application.Authentication.Implementations
               
             
         }
+
+        #region POS
+        public UserFile PosAuthenticate(UserFile userData)
+        {
+            var user = userFileRepository.GetAsQueryable().Where(x => x.UserName == userData.UserName && x.Password == userData.Password).SingleOrDefault();
+            if (user == null) return null;
+
+            // authentication successful so generate jwt and refresh tokens
+            var jwtToken = generateJwtToken(user);
+            var refreshToken = generateRefreshToken(user);
+
+            user.Token = jwtToken;
+            user.RefreshToken = refreshToken.Token;
+            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+            userFileRepository.Update(user);
+            return user;
+        }
+        #endregion
     }
 
 
