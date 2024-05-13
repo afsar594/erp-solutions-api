@@ -144,7 +144,7 @@ namespace Inspire.Erp.Web.Controllers
 
             var param1 = _mapper.Map<UserFile>(user);
 
-            var xs = loginsvc.InserUser(param1);
+            var xs = loginsvc.InsertUser(param1);
 
             UserFileViewModel userdata = new UserFileViewModel();
             userdata = _mapper.Map<UserFileViewModel>(xs);

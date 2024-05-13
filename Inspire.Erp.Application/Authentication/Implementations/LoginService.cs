@@ -145,7 +145,7 @@ namespace Inspire.Erp.Application.Authentication.Implementations
 
         }
 
-        public UserFile InserUser(UserFile user)
+        public UserFile InsertUser(UserFile user)
         {
 
             try
@@ -170,7 +170,7 @@ namespace Inspire.Erp.Application.Authentication.Implementations
 
                 userFileRepository.Insert(user);
 
-                userFileRepository.Commit();
+                userFileRepository.TransactionCommit();
 
                 return this.GetUserById(user.UserId);
 
