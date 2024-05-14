@@ -143,9 +143,10 @@ namespace Inspire.Erp.Application.Account.Implementations
             //               StockRegisterMaterialId = grp.Key.ItemMasterItemId, // Needs to be int
             //              StockRegisterAmount= grp.Key.imsr==null?0:grp.Key.imsr.StockRegisterAmount
             //           }).ToList();
-
-            var data = (from im in _itemMasterRepository.GetAll().Where(x=>x.ItemMasterItemType=="A" &&  x.ItemMasterDelStatus !=null)
-                        join sr in _stockRegisterRepository.GetAll().Where(x=>x.StockRegisterMaterialID!=null) on im.ItemMasterItemId equals (long?)sr.StockRegisterMaterialID into ims
+            //.Where(x => x.StockRegisterMaterialID != null)
+            // &&  x.ItemMasterDelStatus ==null
+            var data = (from im in _itemMasterRepository.GetAll().Where(x=>x.ItemMasterItemType=="A")
+                        join sr in _stockRegisterRepository.GetAll() on im.ItemMasterItemId equals (long?)sr.StockRegisterMaterialID into ims
                         from imsr in ims.DefaultIfEmpty()
                         join ud in (from unitD in _unitDetailsRepository.GetAll().Where(x => x.UnitDetailsConversionType == (double)1)
                                     select new { unitD.UnitDetailsUnitId, unitD.UnitDetailsItemId })
@@ -161,9 +162,9 @@ namespace Inspire.Erp.Application.Account.Implementations
                             ItemMasterPartNo = im.ItemMasterPartNo,
                             RelativeNo = im.ItemMasterAccountNo,
                             StockRegisterRate = imsr == null ? 0 : imsr.StockRegisterRate,
-                            UnitMasterUnitShortName = umud.UnitMasterUnitShortName,
+                            UnitMasterUnitShortName = umud == null ? "" : umud.UnitMasterUnitShortName,
                             StockRegisterLocationID = imsr == null ? 0 : imsr.StockRegisterLocationID,
-                            StockRegisterUnitId = umud.UnitMasterUnitId,
+                            StockRegisterUnitId = umud == null ? 0 : umud.UnitMasterUnitId,
                             StockRegisterSIN = imsr == null ? 0 : imsr.StockRegisterSIN,
                             StockRegisterSout = imsr == null ? 0 : imsr.StockRegisterSout
                         }).GroupBy(
