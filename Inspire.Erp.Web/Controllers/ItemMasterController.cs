@@ -169,7 +169,7 @@ namespace Inspire.Erp.Web.Controllers
         [Route("SearchItemByBarcodeLink/{barCode}")]
         public async Task<IActionResult> SearchItemByBarcodeLink(ItemBarCodeSearchFilter model)
         {
-            return Ok(await itemMasterService.SearchItemByBarcodeLink(model));
+            return Ok(await itemMasterService.SearchItemByBarcode(model));
 
         }
         [HttpGet("GetItemsBySearch")]

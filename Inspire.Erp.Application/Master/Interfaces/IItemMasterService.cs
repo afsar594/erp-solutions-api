@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Inspire.Erp.Domain.Entities.POS;
 
 namespace Inspire.Erp.Application.Master
 {
@@ -22,15 +23,15 @@ namespace Inspire.Erp.Application.Master
         public IEnumerable<ItemStockType> GetAllStockType();
         public IEnumerable<ItemMaster> GetItemMastersByName(string name);
         public IEnumerable<ItemMaster> GetAllItemSearchFilter(string group, string name);
-
         public ItemMaster GetAllItemMasterById(int id);
         public ItemMaster GetAllItemMasterByBarCode(string  barCode);
         //   public IEnumerable<ItemMaster> GetAllItemSearchFilter(string group, string name);
         public IEnumerable<ItemMaster> GetAllItemGroupAndSubGroup();
         public int ItemMasterIdMax();
-
         Task<Response<List<ItemResponse>>> GetItemsBySearch(string filter);
 
-        public Task<Response<ItemMasterResponse>> SearchItemByBarcodeLink(ItemBarCodeSearchFilter model);
+        //POS
+        public Task<Response<ItemMasterResponse>> SearchItemByBarcode(ItemBarCodeSearchFilter model);
+        public Task<Response<POS_WorkPeriod>> GetWorkPeriod(WorkPeriodFilter model);
     }
 }

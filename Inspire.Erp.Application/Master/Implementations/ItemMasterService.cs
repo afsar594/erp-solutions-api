@@ -13,6 +13,7 @@ using SendGrid.Helpers.Mail;
 using System.Runtime.CompilerServices;
 using Inspire.Erp.Domain.Modals.AccountStatement;
 using System.Security.Cryptography;
+using Inspire.Erp.Domain.Entities.POS;
 
 namespace Inspire.Erp.Application.Master
 {
@@ -29,6 +30,7 @@ namespace Inspire.Erp.Application.Master
         private IRepository<HappyHour> happyHourRepo;
         private IRepository<HappyHourDeatils> happyHourDetailsRepo;
         private IRepository<BarcodeScale> barCodeRepo;
+        private IRepository<POS_WorkPeriod> workPeriodRepo;
         public ItemMasterService(IRepository<ItemMaster> _itemrepository, IRepository<ItemStockType> _itemStockRepository, IRepository<UnitDetails> unitDetailsRepo
             , IRepository<VendorMaster> _vendorrepository
             , IRepository<PurchaseVoucherDetails> _purchVouchDetailsRepo
@@ -37,7 +39,8 @@ namespace Inspire.Erp.Application.Master
             , IRepository<SalesVoucher> _saleVouchRepo
             , IRepository<HappyHour> _happyHourRepo
             , IRepository<HappyHourDeatils> _happyHourDetailsRepo
-            , IRepository<BarcodeScale> _barCodeRepo)
+            , IRepository<BarcodeScale> _barCodeRepo
+            , IRepository<POS_WorkPeriod> _workPeriodRepo)
         {
             itemrepository = _itemrepository;
             vendorrepository = _vendorrepository;
@@ -50,6 +53,7 @@ namespace Inspire.Erp.Application.Master
             happyHourRepo = _happyHourRepo;
             happyHourDetailsRepo = _happyHourDetailsRepo;
             barCodeRepo = _barCodeRepo;
+            workPeriodRepo = _workPeriodRepo;
         }
         public IEnumerable<ItemMaster> InsertItem(ItemMaster itemMaster)
         {
@@ -61,7 +65,7 @@ namespace Inspire.Erp.Application.Master
                                              .Where(x => x.ItemMasterItemId > 0)
                                              .DefaultIfEmpty()
                                              .Max(o => o == null ? 0 : o.ItemMasterItemId)) + 1;
-                itemMaster.ItemMasterMaterialCode = itemMaster.ItemMasterItemId.ToString();
+
                 itemrepository.Insert(itemMaster);
                 return this.GetAllItem();
             }
@@ -77,6 +81,7 @@ namespace Inspire.Erp.Application.Master
             }
 
         }
+
         public ItemMaster NewItem(ItemMaster itemMaster)
         {
             bool valid = false;
@@ -109,6 +114,7 @@ namespace Inspire.Erp.Application.Master
             }
 
         }
+
         public ItemMaster UpdateNewItem(ItemMaster itemMaster)
         {
             bool valid = false;
@@ -160,6 +166,7 @@ namespace Inspire.Erp.Application.Master
             }
             return this.GetAllItem();
         }
+
         public IEnumerable<ItemStockType> GetAllStockType()
         {
             return itemStockRepository.GetAll();
@@ -185,6 +192,7 @@ namespace Inspire.Erp.Application.Master
             }
             return this.GetAllItem();
         }
+
         public List<ItemMaster> GetAllItem()
         {
             List<ItemMaster> itemMaster;
@@ -211,6 +219,7 @@ namespace Inspire.Erp.Application.Master
             }
             return itemMaster;
         }
+
         public List<ItemMaster> GetAllItemNotGroup()
         {
             List<ItemMaster> itemMaster;
@@ -247,6 +256,7 @@ namespace Inspire.Erp.Application.Master
             }
             return itemMaster;
         }
+
         public IEnumerable<ItemMaster> GetAllItemById(int id)
         {
             IEnumerable<ItemMaster> itemMaster;
@@ -270,6 +280,9 @@ namespace Inspire.Erp.Application.Master
             return itemMaster;
 
         }
+
+
+        //GetAllItemMasterById
         public ItemMaster GetAllItemMasterById(int id)
         {
             ItemMaster itemMaster;
@@ -293,6 +306,8 @@ namespace Inspire.Erp.Application.Master
             return itemMaster;
 
         }
+
+
         public async Task<Response<List<ItemResponse>>> GetItemsBySearch(string query)
         {
             try
@@ -403,6 +418,8 @@ namespace Inspire.Erp.Application.Master
             return itemMaster;
 
         }
+
+
         public IEnumerable<ItemMaster> GetItemMastersByName(string name)
         {
             IEnumerable<ItemMaster> itemMasters = itemrepository.GetAsQueryable().Where(k => k.ItemMasterItemName.Contains(name)
@@ -411,6 +428,7 @@ namespace Inspire.Erp.Application.Master
 
             return itemMasters;
         }
+
         public IEnumerable<ItemMaster> GetAllItemSearchFilter(string group, string name)
         {
             IEnumerable<ItemMaster> itemMasters = itemrepository.GetAsQueryable().Where(k => (((name != null && name.Trim() != "")
@@ -425,6 +443,7 @@ namespace Inspire.Erp.Application.Master
 
             return itemMasters;
         }
+
         public int ItemMasterIdMax()
         {
             return Convert.ToInt32(itemrepository.GetAsQueryable()
@@ -432,19 +451,39 @@ namespace Inspire.Erp.Application.Master
                                                         .DefaultIfEmpty()
                                                         .Max(o => o == null ? 0 : o.ItemMasterItemId)) + 1;
         }
+
         public IEnumerable<ItemMaster> GetAllItemGroupAndSubGroup()
         {
             throw new NotImplementedException();
         }
+
         public IEnumerable<ItemMaster> GetAllItemMaster()
         {
             throw new NotImplementedException();
         }
-        public async Task<Response<ItemMasterResponse>> SearchItemByBarcodeLink(ItemBarCodeSearchFilter model)
+
+        #region POS
+
+        public async Task<Response<POS_WorkPeriod>> GetWorkPeriod(WorkPeriodFilter model)
         {
             try
             {
-                string barqtys;
+                var workPeriod = await workPeriodRepo.GetAsQueryable().Where(x => x.StationId == model.StationId
+                && x.Status==model.Status
+                && x.UserId==model.UserId).FirstOrDefaultAsync();
+
+                return Response<POS_WorkPeriod>.Success(workPeriod, "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<POS_WorkPeriod>.Fail(new POS_WorkPeriod(), ex.Message);
+            }
+        }
+        public async Task<Response<ItemMasterResponse>> SearchItemByBarcode(ItemBarCodeSearchFilter model)
+        {
+            try
+            {
+
                 string prefix = "";
                 string br = "";
                 string barqty = "0";
@@ -457,7 +496,6 @@ namespace Inspire.Erp.Application.Master
                     {
                         prefix = model.BarCode.Substring(0, 2);
                     }
-
                 }
                 else
                 {
@@ -532,70 +570,15 @@ namespace Inspire.Erp.Application.Master
                     barqty = "1";
                 }
 
-
-                if (model.BarCode.Substring(3, 1) == "990" && model.BarCode.Length == 13)
+                var result = new ItemMasterResponse();
+                if (br != null)
                 {
-                    barqtys = model.BarCode.Substring(7, 5);
-                    barqty = String.Format("{0:000}", Convert.ToDouble(barqtys) / (double)1000);
-                    model.BarCode = model.BarCode.Substring(4, 4);
+                    result = await SeachItemByBarcodeLinkScaleNew(model.BarCode.ToUpper(), (double)realRate, Convert.ToDouble(barqty), model.DisableVat);
                 }
-
-                var result = await (from ir in itemrepository.GetAsQueryable()
-                                    join ud in _unitDetailsRepo.GetAsQueryable() on ir.ItemMasterItemId equals ud.UnitDetailsItemId
-                                    where ud.UnitDetailsBarcode == model.BarCode
-                                    select new ItemMasterResponse
-                                    {
-                                        BarCode = ud.UnitDetailsBarcode,
-                                        ItemName = ir.ItemMasterItemName,
-                                        UnitPriceTaxIncl = ud.UnitDetailsUnitPrice,
-                                        ItemId = ir.ItemMasterItemId,
-                                        SalesTax = ir.ItemMasterVatPercentage ?? 0,
-                                        ItemwiseInclusive = ir.ItemMasterVatInclues ?? false,
-                                        UnitDetailsId = ud.UnitDetailsId,
-                                        OfferPrice = ud.UnitDetailsWrate
-
-                                    }).FirstOrDefaultAsync();
-
-                var happyH = await (from hh in happyHourRepo.GetAsQueryable()
-                                    join hhd in happyHourDetailsRepo.GetAsQueryable() on hh.HappyHourId equals hhd.HappyHourDeatilsHappyHourId
-                                    where hhd.HappyHourDeatilsItemId == result.ItemId
-                                    select new
-                                    {
-                                        FromDate = hh.HappyHourFromDate,
-                                        ToDate = hh.HappyHourToDate
-                                    }).FirstOrDefaultAsync();
-
-                if (happyH != null)
-                    if (happyH.FromDate <= DateTime.Now && happyH.ToDate >= DateTime.Now)
-                    {
-                        result.UnitPriceTaxIncl = result.OfferPrice;
-                    }
-
-
-                if (model.DisableVat)
+                else
                 {
-                    result.SalesTax = 0;
+                    result = await SearchItemByBarcodeLink(model.BarCode.ToUpper(), model.DisableVat);
                 }
-
-                if (result.ItemwiseInclusive && result.SalesTax != 0)
-                {
-                    result.SalesTax1 = (100 + result.SalesTax);
-                    result.SalesTax1 = (result.SalesTax1 / (decimal)100);
-                    result.UnitPrice = (double)Math.Round((decimal)result.UnitPriceTaxIncl / result.SalesTax1, 2);
-                    // 'Unitprice = Math.Round(Val(Val(UpriceTaxIncl) / 1.05), 2)
-                    result.VATValue = (double)Math.Round((decimal)result.UnitPriceTaxIncl - (decimal)result.UnitPrice, 2);
-                }
-                else if (result.SalesTax != 0)
-                {
-                    result.VATValue = (double)Math.Round(((decimal)result.UnitPriceTaxIncl * result.SalesTax) / 100, 2);
-                }
-                else if (result.SalesTax == 0)
-                {
-                    result.UnitPrice = (double)Math.Round((decimal)result.UnitPriceTaxIncl, 2);
-                    result.VATValue = (double)Math.Round(0.0, 2);
-                }
-
-
                 return Response<ItemMasterResponse>.Success(result, "Data found");
             }
             catch (Exception ex)
@@ -603,5 +586,144 @@ namespace Inspire.Erp.Application.Master
                 return Response<ItemMasterResponse>.Fail(new ItemMasterResponse(), ex.Message);
             }
         }
+
+
+        public async Task<ItemMasterResponse> SearchItemByBarcodeLink(string barCode, bool disableVat)
+        {
+            string barqtys;
+            string barqty = "0";
+            if (barCode.Substring(3, 1) == "990" && barCode.Length == 13)
+            {
+                barqtys = barCode.Substring(7, 5);
+                barqty = String.Format("{0:000}", Convert.ToDouble(barqtys) / (double)1000);
+                barCode = barCode.Substring(4, 4);
+            }
+
+            var result = await (from ir in itemrepository.GetAsQueryable()
+                                join ud in _unitDetailsRepo.GetAsQueryable() on ir.ItemMasterItemId equals ud.UnitDetailsItemId
+                                where ud.UnitDetailsBarcode == barCode
+                                select new ItemMasterResponse
+                                {
+                                    BarCode = ud.UnitDetailsBarcode,
+                                    ItemName = ir.ItemMasterItemName,
+                                    UnitPriceTaxIncl = ud.UnitDetailsUnitPrice,
+                                    ItemId = ir.ItemMasterItemId,
+                                    SalesTax = ir.ItemMasterVatPercentage ?? 0,
+                                    ItemwiseInclusive = ir.ItemMasterVatInclues ?? false,
+                                    UnitDetailsId = ud.UnitDetailsId,
+                                    OfferPrice = ud.UnitDetailsWrate
+
+                                }).FirstOrDefaultAsync();
+
+            var happyH = await (from hh in happyHourRepo.GetAsQueryable()
+                                join hhd in happyHourDetailsRepo.GetAsQueryable() on hh.HappyHourId equals hhd.HappyHourDeatilsHappyHourId
+                                where hhd.HappyHourDeatilsItemId == result.ItemId
+                                select new
+                                {
+                                    FromDate = hh.HappyHourFromDate,
+                                    ToDate = hh.HappyHourToDate
+                                }).FirstOrDefaultAsync();
+
+            if (happyH != null)
+                if (happyH.FromDate <= DateTime.Now && happyH.ToDate >= DateTime.Now)
+                {
+                    result.UnitPriceTaxIncl = result.OfferPrice;
+                }
+
+
+            if (disableVat)
+            {
+                result.SalesTax = 0;
+            }
+
+            if (result.ItemwiseInclusive && result.SalesTax != 0)
+            {
+                result.SalesTax1 = (100 + result.SalesTax);
+                result.SalesTax1 = (result.SalesTax1 / (decimal)100);
+                result.UnitPrice = (double)Math.Round((decimal)result.UnitPriceTaxIncl / result.SalesTax1, 2);
+                // 'Unitprice = Math.Round(Val(Val(UpriceTaxIncl) / 1.05), 2)
+                result.VATValue = (double)Math.Round((decimal)result.UnitPriceTaxIncl - (decimal)result.UnitPrice, 2);
+            }
+            else if (result.SalesTax != 0)
+            {
+                result.VATValue = (double)Math.Round(((decimal)result.UnitPriceTaxIncl * result.SalesTax) / 100, 2);
+            }
+            else if (result.SalesTax == 0)
+            {
+                result.UnitPrice = (double)Math.Round((decimal)result.UnitPriceTaxIncl, 2);
+                result.VATValue = (double)Math.Round(0.0, 2);
+            }
+            return result;
+        }
+
+        public async Task<ItemMasterResponse> SeachItemByBarcodeLinkScaleNew(string barCode, double rate, double barQty, bool disableVat)
+        {
+            var result = await (from ir in itemrepository.GetAsQueryable()
+                                join ud in _unitDetailsRepo.GetAsQueryable() on ir.ItemMasterItemId equals ud.UnitDetailsItemId
+                                where ir.ItemMasterItemId == Convert.ToInt64(barCode)
+                                select new ItemMasterResponse
+                                {
+                                    UnitDetailsId = ud.UnitDetailsId,
+                                    //BarCode = ud.UnitDetailsBarcode,
+                                    ItemName = ir.ItemMasterItemName,
+                                    UnitPriceTaxIncl = rate,
+                                    ItemId = ir.ItemMasterItemId,
+                                    SalesTax = ir.ItemMasterVatPercentage ?? 0,
+                                    ItemwiseInclusive = ir.ItemMasterVatInclues ?? false,
+                                    OfferPrice = ud.UnitDetailsWrate
+
+                                }).FirstOrDefaultAsync();
+
+            var happyH = await (from hh in happyHourRepo.GetAsQueryable()
+                                join hhd in happyHourDetailsRepo.GetAsQueryable() on hh.HappyHourId equals hhd.HappyHourDeatilsHappyHourId
+                                where hhd.HappyHourDeatilsItemId == result.ItemId
+                                select new
+                                {
+                                    FromDate = hh.HappyHourFromDate,
+                                    ToDate = hh.HappyHourToDate
+                                }).FirstOrDefaultAsync();
+
+            if (happyH != null)
+                if (happyH.FromDate <= DateTime.Now && happyH.ToDate >= DateTime.Now)
+                {
+                    result.UnitPriceTaxIncl = result.OfferPrice;
+                }
+                else
+                {
+                    result.UnitPriceTaxIncl = rate;
+                }
+
+            if (disableVat)
+            {
+                result.SalesTax = 0;
+            }
+
+
+            if (result.ItemwiseInclusive && result.SalesTax != 0)
+            {
+                result.SalesTax1 = (100 + result.SalesTax);
+                result.SalesTax1 = (result.SalesTax1 / (decimal)100);
+                result.UnitPrice = (double)Math.Round((decimal)result.UnitPriceTaxIncl / result.SalesTax1, 2);
+                // 'Unitprice = Math.Round(Val(Val(UpriceTaxIncl) / 1.05), 2)
+                result.VATValue = (double)Math.Round((decimal)result.UnitPriceTaxIncl - (decimal)result.UnitPrice, 2);
+            }
+            else if (result.SalesTax != 0)
+            {
+                result.VATValue = (double)Math.Round(((decimal)result.UnitPriceTaxIncl * result.SalesTax) / 100, 2);
+            }
+            else if (result.SalesTax == 0)
+            {
+                result.UnitPrice = (double)Math.Round((decimal)result.UnitPriceTaxIncl, 2);
+                result.VATValue = (double)Math.Round(0.0, 2);
+            }
+            return result;
+
+        }
+
+
+
+
+        #endregion 
+
     }
 }
