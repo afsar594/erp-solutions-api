@@ -1638,7 +1638,7 @@ namespace Inspire.Erp.Application.Master
 
                 int cardId = 0;
                 var groupMaster = posTranGroupMasterRepo.GetAll().FirstOrDefault(o => o.Trans_GroupName == "CREDIT CARD");
-                if (tempSettDetailsCash != null) cardId = groupMaster.Id;
+                //if (tempSettDetailsCash != null) cardId = groupMaster.Id;
                 settDetailsIdCash = getMaxSettlementDetails();
 
                 var tempRepResult = (from ir in settDetailsTempRepo.GetAsQueryable()
