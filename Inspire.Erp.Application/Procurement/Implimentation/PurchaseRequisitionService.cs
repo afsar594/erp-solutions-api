@@ -34,7 +34,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private readonly IRepository<PermissionApproval> _permissionApprovalRepo;
         private readonly IRepository<Approval> _approvalRepo;
         private readonly IRepository<ApprovalDetail> _approvalDetailRepo;
-         public readonly InspireErpDBContext dbContext;
+        public readonly InspireErpDBContext dbContext;
         private IRepository<IPurchaseOrderService> _purchaseOrderService;
         private IRepository<AvIssueVoucherDetails> _AvIssueVoucherDetails;
         private IRepository<AvIssueVoucher> _AvIssueVoucher;
@@ -52,7 +52,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<PermissionApproval> permissionApprovalRepo, IRepository<Approval> approvalRepo, IRepository<ApprovalDetail> approvalDetailRepo,
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
             IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
-           
+
 
         IRepository<PurchaseRequisition> purchaseRequisitionRepository, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository)
         {
@@ -64,13 +64,13 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _voucherNumbersRepository = voucherNumbers;
             _approvalDetailRepo = approvalDetailRepo;
             _permissionApprovalRepo = permissionApprovalRepo;
-            _approvalRepo= approvalRepo;          
+            _approvalRepo = approvalRepo;
 
             _itemMasterRepository = itemMasterRepository;
             _unitMasterRepository = unitMasterRepository;
             _suppliersMasterRepository = suppliersMasterRepository;
             _locationMasterRepository = locationMasterRepository;
-           
+
 
             ////_reportPurchaseRequisitionRepository = reportPurchaseRequisitionRepository;
         }
@@ -81,7 +81,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         ////}
 
 
-        public PurchaseRequisitionModel UpdatePurchaseRequisition(PurchaseRequisition purchaseRequisition, List<AccountsTransactions> accountsTransactions, 
+        public PurchaseRequisitionModel UpdatePurchaseRequisition(PurchaseRequisition purchaseRequisition, List<AccountsTransactions> accountsTransactions,
             List<PurchaseRequisitionDetails> purchaseRequisitionDetails
             //, List<StockRegister> stockRegister
             )
@@ -91,7 +91,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             {
                 _purchaseRequisitionRepository.BeginTransaction();
 
-               this.deleteAccountTractionByVoucherId(purchaseRequisition.PurchaseRequisitionNo, VoucherType.PurchaseRequisition_TYPE);
+                this.deleteAccountTractionByVoucherId(purchaseRequisition.PurchaseRequisitionNo, VoucherType.PurchaseRequisition_TYPE);
                 purchaseRequisition.PurchaseRequisitionDetails = purchaseRequisitionDetails.Select((k) =>
                 {
                     //if (k.PurchaseRequisitionDetailsId == 0)
@@ -221,22 +221,22 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         }
 
 
-       public void deleteAccountTractionByVoucherId(string AccountsTransactionsVoucherNo,string AccountsTransactionsVoucherType)
+        public void deleteAccountTractionByVoucherId(string AccountsTransactionsVoucherNo, string AccountsTransactionsVoucherType)
         {
             List<AccountsTransactions> accttrans = this._accountTransactionRepository.GetAsQueryable()
-                 .Where(k => k.AccountsTransactionsVoucherNo == AccountsTransactionsVoucherNo &&   k.AccountsTransactionsVoucherType == AccountsTransactionsVoucherType && k.AccountstransactionsDelStatus != true).Select((l) => new AccountsTransactions
+                 .Where(k => k.AccountsTransactionsVoucherNo == AccountsTransactionsVoucherNo && k.AccountsTransactionsVoucherType == AccountsTransactionsVoucherType && k.AccountstransactionsDelStatus != true).Select((l) => new AccountsTransactions
                  {
-                      AccountsTransactionsTransSno = l.AccountsTransactionsTransSno,
-                      AccountstransactionsDelStatus = true,
+                     AccountsTransactionsTransSno = l.AccountsTransactionsTransSno,
+                     AccountstransactionsDelStatus = true,
 
                      AccountsTransactionsAccNo = l.AccountsTransactionsAccNo,
                      AccountsTransactionsTransDate = l.AccountsTransactionsTransDate,
                      AccountsTransactionsParticulars = l.AccountsTransactionsParticulars,
 
                      AccountsTransactionsDebit = l.AccountsTransactionsDebit,
-       
 
-     AccountsTransactionsCredit = l.AccountsTransactionsCredit,
+
+                     AccountsTransactionsCredit = l.AccountsTransactionsCredit,
                      AccountsTransactionsFcDebit = l.AccountsTransactionsFcDebit,
                      AccountsTransactionsFcCredit = l.AccountsTransactionsFcCredit,
 
@@ -245,63 +245,63 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
 
 
-       
 
 
-    AccountsTransactionsVoucherNo = l.AccountsTransactionsVoucherNo,
+
+                     AccountsTransactionsVoucherNo = l.AccountsTransactionsVoucherNo,
                      AccountsTransactionsDescription = l.AccountsTransactionsDescription,
                      AccountsTransactionsUserId = l.AccountsTransactionsUserId,
 
                      AccountsTransactionsStatus = l.AccountsTransactionsStatus,
 
 
-       
 
 
 
 
-      AccountsTransactionsTstamp = l.AccountsTransactionsTstamp,
+
+                     AccountsTransactionsTstamp = l.AccountsTransactionsTstamp,
                      RefNo = l.RefNo,
                      AccountsTransactionsFsno = l.AccountsTransactionsFsno,
 
                      AccountsTransactionsAllocDebit = l.AccountsTransactionsAllocDebit,
-      
 
 
-    AccountsTransactionsAllocCredit = l.AccountsTransactionsAllocCredit,
+
+                     AccountsTransactionsAllocCredit = l.AccountsTransactionsAllocCredit,
                      AccountsTransactionsAllocBalance = l.AccountsTransactionsAllocBalance,
                      AccountsTransactionsFcAllocDebit = l.AccountsTransactionsFcAllocDebit,
 
                      AccountsTransactionsFcAllocCredit = l.AccountsTransactionsFcAllocCredit,
 
-        
 
 
-    AccountsTransactionsFcAllocBalance = l.AccountsTransactionsFcAllocBalance,
+
+                     AccountsTransactionsFcAllocBalance = l.AccountsTransactionsFcAllocBalance,
                      AccountsTransactionsLocation = l.AccountsTransactionsLocation,
                      AccountsTransactionsJobNo = l.AccountsTransactionsJobNo,
 
                      AccountsTransactionsCostCenterId = l.AccountsTransactionsCostCenterId,
 
 
-        
 
 
 
-     AccountsTransactionsApprovalDt = l.AccountsTransactionsApprovalDt,
+
+                     AccountsTransactionsApprovalDt = l.AccountsTransactionsApprovalDt,
                      AccountsTransactionsDepartment = l.AccountsTransactionsDepartment,
                      AccountsTransactionsFcRate = l.AccountsTransactionsFcRate,
 
                      AccountsTransactionsCompanyId = l.AccountsTransactionsCompanyId,
-        
-    AccountsTransactionsCurrencyId = l.AccountsTransactionsCurrencyId,
+
+                     AccountsTransactionsCurrencyId = l.AccountsTransactionsCurrencyId,
                      AccountsTransactionsDrGram = l.AccountsTransactionsDrGram,
                      AccountsTransactionsCrGram = l.AccountsTransactionsCrGram,
 
                      AccountsTransactionsCheqNo = l.AccountsTransactionsCheqNo,
 
-       
-    AccountsTransactionsLpoNo = l.AccountsTransactionsLpoNo,
+
+                     AccountsTransactionsLpoNo = l.AccountsTransactionsLpoNo,
                      AccountsTransactionsCheqDate = l.AccountsTransactionsCheqDate,
                      AccountsTransactionsOpposEntryDesc = l.AccountsTransactionsOpposEntryDesc,
 
@@ -309,21 +309,21 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
 
 
-         
 
 
-    AccountsTransactionsDeptId = l.AccountsTransactionsDeptId,
+
+                     AccountsTransactionsDeptId = l.AccountsTransactionsDeptId,
                      AccountsTransactionsVatno = l.AccountsTransactionsVatno,
                      AccountsTransactionsVatableAmount = l.AccountsTransactionsVatableAmount,
 
-                     
-         
 
 
 
 
 
-    }).ToList() ;
+
+
+                 }).ToList();
 
             this._accountTransactionRepository.UpdateList(accttrans);
         }
@@ -489,8 +489,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             }
 
         }
-        
-       public async Task<Response<List<PurChaseRequisitionStatus>>> GetPurchaseRequisitionStatus(PurChaseRequisitionStatusFilterReport model)
+
+        public async Task<Response<List<PurChaseRequisitionStatus>>> GetPurchaseRequisitionStatus(PurChaseRequisitionStatusFilterReport model)
         {
             List<PurChaseRequisitionStatus> data = new List<PurChaseRequisitionStatus>();
             try
@@ -518,51 +518,51 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 }
 
                 var subqueryRDI = (from pod in dbContext.PurchaseOrderDetails
-                                    join po in dbContext.GeneralPurchaseOrder on pod.PurchaseOrderDetailsPoId equals po.GeneralPurchaseOrderId
-                                    group new { pod, po } by new
-                                    {
-                                        pod.PurchaseOrderDetailsId,
-                                        pod.PurchaseOrderDetailsPrdId,
-                                        po.GeneralPurchaseOrderStatus
-                                    } into grp
-                                    select new
-                                    {
-                                        grp.Key.PurchaseOrderDetailsId,
-                                        grp.Key.PurchaseOrderDetailsPrdId,
-                                        grp.Key.GeneralPurchaseOrderStatus,
-                                        Quantity = grp.Sum(x => x.pod.PurchaseOrderDetailsQuantity)
-                                    });
+                                   join po in dbContext.GeneralPurchaseOrder on pod.PurchaseOrderDetailsPoId equals (int?)po.GeneralPurchaseOrderId
+                                   group new { pod, po } by new
+                                   {
+                                       pod.PurchaseOrderDetailsId,
+                                       pod.PurchaseOrderDetailsPrdId,
+                                       po.GeneralPurchaseOrderStatus
+                                   } into grp
+                                   select new
+                                   {
+                                       grp.Key.PurchaseOrderDetailsId,
+                                       grp.Key.PurchaseOrderDetailsPrdId,
+                                       grp.Key.GeneralPurchaseOrderStatus,
+                                       Quantity = grp.Sum(x => x.pod.PurchaseOrderDetailsQuantity)
+                                   });
                 var subqueryIMT = (from d in dbContext.AvIssueVoucherDetails
-                                 join i in dbContext.AvIssueVoucher on d.AvIssueVoucherDetailsAvSvNo equals i.AvIssueVoucherAccNo
-                                 group d by d.AvIssueVoucherDetailsMaterialId into grp
-                                 select new
-                                 {
-                                     grp.Key,
-                                     issueQty = grp.Sum(x => x.AvIssueVoucherDetailsSoldQuantity),
-                                     stock = grp.Sum(x => x.AvIssueVoucherDetailsStock),
-                                     BalToIssue = grp.Sum(x => x.AvIssueVoucherDetailsStock) - grp.Sum(x => x.AvIssueVoucherDetailsSoldAmount)
-                                 });
+                                   join i in dbContext.AvIssueVoucher on d.AvIssueVoucherDetailsAvSvNo equals i.AvIssueVoucherAccNo
+                                   group d by d.AvIssueVoucherDetailsMaterialId into grp
+                                   select new
+                                   {
+                                       grp.Key,
+                                       issueQty = grp.Sum(x => x.AvIssueVoucherDetailsSoldQuantity),
+                                       stock = grp.Sum(x => x.AvIssueVoucherDetailsStock),
+                                       BalToIssue = grp.Sum(x => x.AvIssueVoucherDetailsStock) - grp.Sum(x => x.AvIssueVoucherDetailsSoldAmount)
+                                   });
                 var subquerySEI = (from d in dbContext.AvIssueVoucherDetails
-                            join i in dbContext.AvIssueVoucher on d.AvIssueVoucherDetailsAvSvNo equals i.AvIssueVoucherAccNo
-                            join s in dbContext.StockRegister on d.AvIssueVoucherDetailsMaterialId equals s.StockRegisterMaterialID
-                            group new { d, s } by d.AvIssueVoucherDetailsMaterialId into grp
-                            select new
-                            {
-                                grp.Key,
-                                issueQty = grp.Sum(x => x.d.AvIssueVoucherDetailsSoldQuantity),
-                                stock = grp.Sum(x => x.s.StockRegisterSIN - x.s.StockRegisterSout),
-                                BalToIssue = grp.Sum(x => (x.s.StockRegisterSIN - x.s.StockRegisterSout) - Convert.ToDecimal(x.d.AvIssueVoucherDetailsSoldQuantity))
-                            });
-              var results = (from pd in _purchaseRequisitionDetailsRepository.GetAsQueryable().Where($"1 == 1  {filteredValue}")
+                                   join i in dbContext.AvIssueVoucher on d.AvIssueVoucherDetailsAvSvNo equals i.AvIssueVoucherAccNo
+                                   join s in dbContext.StockRegister on d.AvIssueVoucherDetailsMaterialId equals s.StockRegisterMaterialID
+                                   group new { d, s } by d.AvIssueVoucherDetailsMaterialId into grp
+                                   select new
+                                   {
+                                       grp.Key,
+                                       issueQty = grp.Sum(x => x.d.AvIssueVoucherDetailsSoldQuantity),
+                                       stock = grp.Sum(x => x.s.StockRegisterSIN - x.s.StockRegisterSout),
+                                       BalToIssue = grp.Sum(x => (x.s.StockRegisterSIN - x.s.StockRegisterSout) - Convert.ToDecimal(x.d.AvIssueVoucherDetailsSoldQuantity))
+                                   });
+                var results = (from pd in _purchaseRequisitionDetailsRepository.GetAsQueryable().Where($"1 == 1  {filteredValue}")
 
-                                join pm in dbContext.PurchaseRequisition on (decimal?)pd.PurchaseRequisitionId equals pm.PurchaseRequisitionId
+                               join pm in dbContext.PurchaseRequisition on (decimal?)pd.PurchaseRequisitionId equals pm.PurchaseRequisitionId
                                join im in dbContext.ItemMaster on (long)pd.PurchaseRequisitionDetailsMatId equals im.ItemMasterItemId into imJoin
                                from im in imJoin.DefaultIfEmpty()
 
                                join um in dbContext.UnitMaster on pd.PurchaseRequisitionDetailsUnitId equals um.UnitMasterUnitId into umJoin
                                from um in umJoin.DefaultIfEmpty()
 
-                               join pods in subqueryRDI on pd.PurchaseRequisitionDetailsMatId equals  pods.PurchaseOrderDetailsPrdId into podJoin
+                               join pods in subqueryRDI on pd.PurchaseRequisitionDetailsMatId equals pods.PurchaseOrderDetailsPrdId into podJoin
                                from pod in podJoin.DefaultIfEmpty()
 
                                join vd in subqueryIMT on im.ItemMasterItemId equals Convert.ToInt64(vd.Key) into vdJoin
@@ -570,7 +570,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                join vda in subquerySEI on im.ItemMasterItemId equals Convert.ToInt64(vda.Key) into vdaJoin
                                from vda in vdaJoin.DefaultIfEmpty()
 
-                              // where pd.PurchaseRequisitionDetailsReqStatus == "OPEN" && "$ {filteredValue}"
+                                   // where pd.PurchaseRequisitionDetailsReqStatus == "OPEN" && "$ {filteredValue}"
 
                                select new PurChaseRequisitionStatus
                                {
@@ -584,17 +584,17 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                    RequisitionDate = Convert.ToDateTime(pm.PurchaseRequisitionDate)
 
                                }).ToListAsync();
-                            return new Response<List<PurChaseRequisitionStatus>>()
-                           {
-                                Valid = true,
-                                Message = "Data Found",
-                                Result = data
-                            };
-                }
-                catch (Exception ex)
+                return new Response<List<PurChaseRequisitionStatus>>()
                 {
-                    return Response<List<PurChaseRequisitionStatus>>.Fail(new List<PurChaseRequisitionStatus>(), ex.Message);
-                }
+                    Valid = true,
+                    Message = "Data Found",
+                    Result = data
+                };
+            }
+            catch (Exception ex)
+            {
+                return Response<List<PurChaseRequisitionStatus>>.Fail(new List<PurChaseRequisitionStatus>(), ex.Message);
+            }
         }
     }
 }

@@ -15,7 +15,7 @@ namespace Inspire.Erp.Application.Procurement.Interfaces
         public IEnumerable<UnitMaster> PurchaseOrder_GetAllUnitMaster();
         public IEnumerable<SuppliersMaster> PurchaseOrder_GetAllSuppliersMaster();
         public IEnumerable<LocationMaster> PurchaseOrder_GetAllLocationMaster();
-        public PurchaseOrderModel InsertPurchaseOrder(PurchaseOrder purchaseOrder, List<AccountsTransactions> accountsTransactions, List<PurchaseOrderDetails> purchaseOrderDetails            );
+        public PurchaseOrderModel InsertPurchaseOrder(PurchaseOrder purchaseOrder, List<AccountsTransactions> accountsTransactions, List<PurchaseOrderDetails> purchaseOrderDetails);
         public PurchaseOrderModel UpdatePurchaseOrder(PurchaseOrder purchaseOrder, List<AccountsTransactions> accountsTransactions, List<PurchaseOrderDetails> purchaseOrderDetails );
         public int DeletePurchaseOrder(PurchaseOrder purchaseOrder, List<AccountsTransactions> accountsTransactions, List<PurchaseOrderDetails> purchaseOrderDetails);
         public IEnumerable<AccountsTransactions> GetAllTransaction();

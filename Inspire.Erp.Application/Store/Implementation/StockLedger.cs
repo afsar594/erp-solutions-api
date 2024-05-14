@@ -45,7 +45,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 if (sFilter.IsDateChecked == true)
                 {
 
-                    var items = _iMster.GetAsQueryable().Where(i => i.ItemMasterItemType == "A").Where($"1==1 {itemQry}").ToList();
+                    var items = _iMster.GetAsQueryable().Where(i => i.ItemMasterItemType == "A" && i.ItemMasterDelStatus == null).Where($"1==1 {itemQry}").ToList();
 
                     //qry += $" and StockRegisterAssignedDate.Value.Date > DateTime({ sFilter.fromDate.Year},{ sFilter.fromDate.Month},{ sFilter.fromDate.Day})";
                     //var openValues = _sRegister.GetAsQueryable().Where($"1==1 {qry}")
@@ -57,7 +57,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                     //                }).ToList();
 
-                    qry += $" and (StockRegisterAssignedDate.Value.Date >  DateTime({ sFilter.fromDate.Year},{ sFilter.fromDate.Month},{ sFilter.fromDate.Day}) and StockRegisterAssignedDate <=  DateTime({ sFilter.toDate.Year},{ sFilter.toDate.Month},{ sFilter.toDate.Day}))";
+                    qry += $" and (StockRegisterAssignedDate.Value.Date >  DateTime({sFilter.fromDate.Year},{sFilter.fromDate.Month},{sFilter.fromDate.Day}) and StockRegisterAssignedDate <=  DateTime({sFilter.toDate.Year},{sFilter.toDate.Month},{sFilter.toDate.Day}))";
                     var otherValues = (from s in _sRegister.GetAsQueryable().Where($"1==1 {itemQry}")
                                        join im in _iMster.GetAsQueryable() on s.StockRegisterMaterialID equals (int)im.ItemMasterItemId
                                        group s by s.StockRegisterMaterialID into g
@@ -71,8 +71,8 @@ namespace Inspire.Erp.Application.Store.Implementation
                                            TOTSaledAmt = g.Sum(x => x.StockRegisterSout * x.StockRegisterRate - (x.StockRegisterTransType == "SR" ? x.StockRegisterSIN * x.StockRegisterRate : 0)),
 
 
-                                           TolSin = g.Sum(x=>x.StockRegisterSIN),
-                                           TolSOut = g.Sum(x=>x.StockRegisterSout),
+                                           TolSin = g.Sum(x => x.StockRegisterSIN),
+                                           TolSOut = g.Sum(x => x.StockRegisterSout),
 
                                            StockRate = g.Max(x => x.StockRegisterRate)
                                        }
@@ -98,7 +98,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                       TOTSaledAmt = sr.TOTSaledAmt,
 
                                       BalaTot = sr.TolSin - sr.TolSOut,
-                                      BalaTotamt = (sr.TolSin - sr.TolSOut)*sr.StockRate,
+                                      BalaTotamt = (sr.TolSin - sr.TolSOut) * sr.StockRate,
 
                                       RelativeNo = im.ItemMasterAccountNo,
                                       StockRate = sr.StockRate
@@ -160,10 +160,10 @@ namespace Inspire.Erp.Application.Store.Implementation
                 {
                     var minFDate = _fP.GetAsQueryable().Select(x => x.FinancialPeriodsStartDate).SingleOrDefault();
 
-                    var items = _iMster.GetAsQueryable().Where(i => i.ItemMasterItemType == "A").Where($"1==1 {itemQry}").ToList();
+                    var items = _iMster.GetAsQueryable().Where(i => i.ItemMasterItemType == "A" && i.ItemMasterDelStatus == null).Where($"1==1 {itemQry}").ToList();
 
-                    qry += $" and StockRegisterAssignedDate.Value.Date > DateTime({ minFDate.Value.Year},{ minFDate.Value.Month},{ minFDate.Value.Day})";
-                    
+                    qry += $" and StockRegisterAssignedDate.Value.Date > DateTime({minFDate.Value.Year},{minFDate.Value.Month},{minFDate.Value.Day})";
+
 
                     var otherValues = (from s in _sRegister.GetAsQueryable().Where($"1==1 {itemQry}")
                                        join im in _iMster.GetAsQueryable() on s.StockRegisterMaterialID equals (int?)im.ItemMasterItemId
@@ -188,53 +188,53 @@ namespace Inspire.Erp.Application.Store.Implementation
 
 
                     var result = (from im in items
-                                 join sr in otherValues on im.ItemMasterItemId equals sr.ItemId
-                                 group new
-                                 {
-                                     Mat_ID = sr.ItemId,
-                                     PartNo = im.ItemMasterPartNo,
-                                     ItemName = im.ItemMasterItemName,
+                                  join sr in otherValues on im.ItemMasterItemId equals sr.ItemId
+                                  group new
+                                  {
+                                      Mat_ID = sr.ItemId,
+                                      PartNo = im.ItemMasterPartNo,
+                                      ItemName = im.ItemMasterItemName,
 
-                                     OpenQty = 0,
-                                     OpenQtyAmt = 0,
+                                      OpenQty = 0,
+                                      OpenQtyAmt = 0,
 
-                                     TotRevd = sr.TotRevd,
-                                     TotRevdAmt = sr.TotRevdAmt,
+                                      TotRevd = sr.TotRevd,
+                                      TotRevdAmt = sr.TotRevdAmt,
 
-                                     TOTSaled = sr.TOTSaled,
-                                     TOTSaledAmt = sr.TOTSaledAmt,
+                                      TOTSaled = sr.TOTSaled,
+                                      TOTSaledAmt = sr.TOTSaledAmt,
 
-                                     BalaTot = sr.TolSin - sr.TolSOut,
-                                     BalaTotamt = (sr.TolSin - sr.TolSOut) * sr.StockRate,
+                                      BalaTot = sr.TolSin - sr.TolSOut,
+                                      BalaTotamt = (sr.TolSin - sr.TolSOut) * sr.StockRate,
 
 
-                                     RelativeNo = im.ItemMasterAccountNo,
-                                     StockRate = sr.StockRate
-                                 } by im.ItemMasterItemId into g
-                                 select new StockLedgerResponse()
-                                 {
-                                     ItemId = g.Key.ToString(),
-                                     OpenQuantity = (decimal)g.Sum(x => x.OpenQty),
-                                     OpenValue = (decimal)g.Sum(x => x.OpenQtyAmt),
-                                     ReceivedQuantity = (decimal)g.Sum(x => x.TotRevd),
-                                     ReceivedValue = (decimal)g.Sum(x => x.TotRevdAmt),
-                                     SaledQuantity = (decimal)g.Sum(x => x.TOTSaled),
-                                     SaledValue = (decimal)g.Sum(x => x.TOTSaledAmt),
-                                     ClosingQuantity = (decimal)g.Sum(x => x.BalaTot),
-                                     ClosingValue = (decimal)g.Sum(x => x.BalaTotamt),
-                                     RelativeNo = g.Max(x => x.RelativeNo).ToString(),
-                                     PartNo = g.Max(x => x.PartNo),
-                                     ItemName = g.Max(x => x.ItemName),
-                                     StockRate = (decimal)g.Max(x => x.StockRate)
-                                 }).ToList();
+                                      RelativeNo = im.ItemMasterAccountNo,
+                                      StockRate = sr.StockRate
+                                  } by im.ItemMasterItemId into g
+                                  select new StockLedgerResponse()
+                                  {
+                                      ItemId = g.Key.ToString(),
+                                      OpenQuantity = (decimal)g.Sum(x => x.OpenQty),
+                                      OpenValue = (decimal)g.Sum(x => x.OpenQtyAmt),
+                                      ReceivedQuantity = (decimal)g.Sum(x => x.TotRevd),
+                                      ReceivedValue = (decimal)g.Sum(x => x.TotRevdAmt),
+                                      SaledQuantity = (decimal)g.Sum(x => x.TOTSaled),
+                                      SaledValue = (decimal)g.Sum(x => x.TOTSaledAmt),
+                                      ClosingQuantity = (decimal)g.Sum(x => x.BalaTot),
+                                      ClosingValue = (decimal)g.Sum(x => x.BalaTotamt),
+                                      RelativeNo = g.Max(x => x.RelativeNo).ToString(),
+                                      PartNo = g.Max(x => x.PartNo),
+                                      ItemName = g.Max(x => x.ItemName),
+                                      StockRate = (decimal)g.Max(x => x.StockRate)
+                                  }).ToList();
                     var openValues = getOpenValues(qry);
-                    if(openValues.Count >0)
+                    if (openValues.Count > 0)
                     {
-                        for (int i = 0; i < result.Count -1; i++)
+                        for (int i = 0; i < result.Count - 1; i++)
                         {
                             try
                             {
-                                if(result[i].ItemId == openValues[i].ItemId.ToString())
+                                if (result[i].ItemId == openValues[i].ItemId.ToString())
                                 {
                                     result[i].OpenQuantity = (decimal)openValues[i].OpenQty;
                                     result[i].OpenValue = (decimal)openValues[i].OpenValue;
@@ -244,7 +244,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                     result[i].OpenQuantity = 0;
                                     result[i].OpenValue = 0;
                                 }
-                               
+
                             }
                             catch
                             {
@@ -276,7 +276,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                             .Select(x => new OpenValues()
                             {
                                 ItemId = x.StockRegisterMaterialID,
-                                OpenQty =  x.StockRegisterSIN - x.StockRegisterSout,
+                                OpenQty = x.StockRegisterSIN - x.StockRegisterSout,
                                 OpenValue = x.StockRegisterSIN * x.StockRegisterRate - x.StockRegisterSout * x.StockRegisterRate,
 
                             }).ToList();

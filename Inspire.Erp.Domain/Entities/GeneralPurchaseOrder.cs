@@ -1,14 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inspire.Erp.Domain.Entities
 {
     public partial class GeneralPurchaseOrder
     {
-        public int? GeneralPurchaseOrderId { get; set; }
+
+        public GeneralPurchaseOrder()
+        {
+            GeneralPurchaseOrderDetails = new HashSet<GeneralPurchaseOrderDetails>();
+
+        }
+        public decimal GeneralPurchaseOrderId { get; set; }
         public string GeneralPurchaseOrderPono { get; set; }
         public int? GeneralPurchaseOrderSupplierId { get; set; }
-        public DateTime? GeneralPurchaseOrderPoDate { get; set; }
+        public DateTime GeneralPurchaseOrderPoDate { get; set; }
         public string GeneralPurchaseOrderDescription { get; set; }
         public string GeneralPurchaseOrderLpoNo { get; set; }
         public DateTime? GeneralPurchaseOrderLpoDate { get; set; }
@@ -33,5 +41,6 @@ namespace Inspire.Erp.Domain.Entities
         public string GeneralPurchaseOrderDelivery { get; set; }
         public string GeneralPurchaseOrderIndentNo { get; set; }
         public bool? GeneralPurchaseOrderDelStatus { get; set; }
+        public virtual ICollection<GeneralPurchaseOrderDetails> GeneralPurchaseOrderDetails { get; set; }
     }
 }

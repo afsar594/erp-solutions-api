@@ -51,21 +51,21 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             return _mapper.Map<List<UserFile>>(_purchaseOrderService.GetAllUserFile());
         }
 
-         [HttpPost]
+        [HttpPost]
         [Route("InsertPurchaseOrder")]
         public ApiResponse<PurchaseOrderViewModel> InsertPurchaseOrder([FromBody] PurchaseOrderViewModel voucherCompositeView)
-        { 
+        {
 
             ApiResponse<PurchaseOrderViewModel> apiResponse = new ApiResponse<PurchaseOrderViewModel>();
             //if (_purchaseOrderService.GetVouchersNumbers(voucherCompositeView.PurchaseOrderNo) == null)
             //{
-                var param1 = _mapper.Map<PurchaseOrder>(voucherCompositeView);
-                var param2 = _mapper.Map<List<PurchaseOrderDetails>>(voucherCompositeView.PurchaseOrderDetails);
-                var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-                //var param4 = _mapper.Map<List<StockRegister>>(voucherCompositeView.StockRegister);
-                var xs = _purchaseOrderService.InsertPurchaseOrder(param1, param3, param2
-                    //, param4
-                    );
+            var param1 = _mapper.Map<PurchaseOrder>(voucherCompositeView);
+            var param2 = _mapper.Map<List<PurchaseOrderDetails>>(voucherCompositeView.PurchaseOrderDetails);
+            var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
+            //var param4 = _mapper.Map<List<StockRegister>>(voucherCompositeView.StockRegister);
+            var xs = _purchaseOrderService.InsertPurchaseOrder(param1, param3, param2
+                //, param4
+                );
             //PurchaseOrderViewModel purchaseOrderViewModel = new PurchaseOrderViewModel
             //{
 
@@ -153,13 +153,13 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             purchaseOrderViewModel = _mapper.Map<PurchaseOrderViewModel>(xs.purchaseOrder);
 
             //purchaseOrderViewModel.PurchaseOrderDetails = _mapper.Map<List<PurchaseOrderDetailsViewModel>>(xs.purchaseOrderDetails);
-                purchaseOrderViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
-                apiResponse = new ApiResponse<PurchaseOrderViewModel>
-                {
-                    Valid = true,
-                    Result = purchaseOrderViewModel, //_mapper.Map<PurchaseOrderViewModel>(purchaseOrderViewModel),
-                    Message = PurchaseOrderMessage.SaveVoucher
-                };
+            purchaseOrderViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
+            apiResponse = new ApiResponse<PurchaseOrderViewModel>
+            {
+                Valid = true,
+                Result = purchaseOrderViewModel, //_mapper.Map<PurchaseOrderViewModel>(purchaseOrderViewModel),
+                Message = PurchaseOrderMessage.SaveVoucher
+            };
             //}
             //else
             //{
@@ -270,7 +270,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             PurchaseOrderViewModel purchaseOrderViewModel = new PurchaseOrderViewModel();
 
             purchaseOrderViewModel = _mapper.Map<PurchaseOrderViewModel>(xs.purchaseOrder);
-           // purchaseOrderViewModel.PurchaseOrderDetails = _mapper.Map<List<PurchaseOrderDetailsViewModel>>(xs.purchaseOrderDetails);
+            // purchaseOrderViewModel.PurchaseOrderDetails = _mapper.Map<List<PurchaseOrderDetailsViewModel>>(xs.purchaseOrderDetails);
             purchaseOrderViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
 
             ApiResponse<PurchaseOrderViewModel> apiResponse = new ApiResponse<PurchaseOrderViewModel>
@@ -292,7 +292,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             var param2 = _mapper.Map<List<PurchaseOrderDetails>>(voucherCompositeView.PurchaseOrderDetails);
             var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
             //var param4 = _mapper.Map<List<StockRegister>>(voucherCompositeView.StockRegister);
-            var xs = _purchaseOrderService.DeletePurchaseOrder(  param1,    param3, param2
+            var xs = _purchaseOrderService.DeletePurchaseOrder(param1, param3, param2
                 //, param4
                 );
             ApiResponse<int> apiResponse = new ApiResponse<int>
@@ -456,8 +456,8 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                 var item = _purchaseOrderService.GetPODetailsForGRN();
                 return Ok(item);
             }
-           catch(Exception ex)
-            { 
+            catch (Exception ex)
+            {
                 return StatusCode(500, ex.Message.ToString());
             }
         }

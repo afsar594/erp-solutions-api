@@ -161,6 +161,97 @@ namespace Inspire.Erp.Application.Authentication.Implementations
             return user;
         }
         #endregion
+        public UserFile UpdateUser(UserFile user)
+        {
+
+            try
+            {
+                userFileRepository.BeginTransaction();
+
+                user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+
+                userFileRepository.Update(user);
+
+                userFileRepository.TransactionCommit();
+
+                return this.GetUserById(user.UserId);
+
+            }
+            catch (Exception ex)
+            {
+                userFileRepository.TransactionRollback();
+                throw ex;
+            }
+
+        }
+
+        public UserFile DeleteUser(UserFile user)
+        {
+
+            try
+            {
+                userFileRepository.BeginTransaction();
+                user.Deleted = true;
+
+                userFileRepository.Update(user);
+
+                userFileRepository.TransactionCommit();
+
+
+            }
+            catch (Exception ex)
+            {
+                userFileRepository.TransactionRollback();
+                throw ex;
+            }
+
+            return user;
+        }
+
+        public UserFile GetUserById(long id)
+        {
+            var user = userFileRepository.GetAsQueryable().Where(x => x.UserId == id).SingleOrDefault();
+            return user;
+        }
+        public UserFile InsertUser(UserFile user)
+        {
+
+            try
+            {
+                userFileRepository.BeginTransaction();
+                if (user.UserId == 0)
+                {
+                    long maxcount = 0;
+                    maxcount =
+                        userFileRepository.GetAsQueryable()
+                        .DefaultIfEmpty().Max(o => o == null ? 0 : (long)o.UserId) + 1;
+
+                    user.UserId = maxcount;
+                    user.LogInId = maxcount.ToString();
+                }
+                var jwtToken = generateJwtToken(user);
+                var refreshToken = generateRefreshToken(user);
+
+                user.Token = jwtToken;
+                user.RefreshToken = refreshToken.Token;
+                user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+
+                userFileRepository.Insert(user);
+
+                userFileRepository.TransactionCommit();
+
+                return this.GetUserById(user.UserId);
+
+            }
+            catch (Exception ex)
+            {
+                userFileRepository.TransactionRollback();
+                throw ex;
+            }
+
+        }
+
+
     }
 
 

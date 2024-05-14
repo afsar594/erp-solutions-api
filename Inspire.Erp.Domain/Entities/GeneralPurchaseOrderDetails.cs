@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inspire.Erp.Domain.Entities
 {
     public partial class GeneralPurchaseOrderDetails
     {
-        public int? GeneralPurchaseOrderDetailsPoid { get; set; }
+        public decimal GeneralPurchaseOrderDetailsPoid { get; set; }
         public int? GeneralPurchaseOrderDetailsSno { get; set; }
         public string GeneralPurchaseOrderDetailsDescription { get; set; }
         public string GeneralPurchaseOrderDetailsMaterialDescription { get; set; }
@@ -21,5 +22,14 @@ namespace Inspire.Erp.Domain.Entities
         public int? GeneralPurchaseOrderDetailsPodId { get; set; }
         public int? GeneralPurchaseOrderDetailsSrdId { get; set; }
         public bool? GeneralPurchaseOrderDetailsDelStatus { get; set; }
+        public decimal GeneralPurchaseOrderId { get; set; }
+        public string GeneralPurchaseOrderPono { get; set; }
+        public virtual GeneralPurchaseOrder GeneralPurchaseOrder { get; set; }
+
+        [NotMapped]
+        public decimal? GeneralPurchaseOrderNetStock { get; set; }
+
+        [NotMapped]
+        public decimal? GeneralPurchaseOrderTillNowQTY { get; set; }
     }
 }

@@ -11,32 +11,61 @@ namespace Inspire.Erp.Application.Master
     public class WorkGroupMasterService : IWorkGroupMasterService
     {
         private IRepository<WorkGroupMaster> workGrouprepository;
-        public WorkGroupMasterService(IRepository<WorkGroupMaster> _workGrouprepository)
+        private readonly IRepository<Menu> _menu;
+        private IRepository<WorkGroupPermissions> _groupPermissions;
+        private IRepository<WorkGroupMenuDetail> _menuDetail;
+        public WorkGroupMasterService(IRepository<WorkGroupMaster> _workGrouprepository, IRepository<Menu> menu, IRepository<WorkGroupPermissions> groupPermissions, IRepository<WorkGroupMenuDetail> menuDetail)
         {
             workGrouprepository = _workGrouprepository;
+            _menu = menu;
+            _groupPermissions = groupPermissions;
+            _menuDetail = menuDetail;
         }
         public IEnumerable<WorkGroupMaster> InsertWorkGroup(WorkGroupMaster workGroupMaster)
         {
             bool valid = false;
             try
             {
-                valid = true;
-                ////int mxc = 0;
-                ////mxc = (int)workGrouprepository.GetAsQueryable().Where(k => k.WorkGroupMasterWorkGroupId != null).Select(x => x.WorkGroupMasterWorkGroupId).Max();
-
-                //int mxc = Convert.ToInt32(workGrouprepository.GetAsQueryable()
-                //                                        .Where(x => x.WorkGroupMasterWorkGroupId > 0)
-                //                                        .DefaultIfEmpty()
-                //                                        .Max(o => o == null ? 0 : o.WorkGroupMasterWorkGroupId)) + 1;
-
-                //////if (mxc == null) { mxc = 1; } else { mxc = mxc + 1; }
-
-                //workGroupMaster.WorkGroupMasterWorkGroupId = mxc;
+                workGrouprepository.BeginTransaction();
+                // Insert the new workgroup
                 workGrouprepository.Insert(workGroupMaster);
+                var menulist = _menu.GetAll().Where(a => a.IsDeleted == false).Select(c => c.Id).ToList();
+
+                // Iterate over each menu in the menu list
+                foreach (var menu in menulist)
+                {
+                    // Insert menu detail for the workgroup
+                    //WorkGroupMenuDetail detail = new WorkGroupMenuDetail
+                    //{
+                    //    MenuId = menu,
+                    //    WorkgroupId = workGroupMaster.WorkGroupMasterWorkGroupId
+                    //};
+                    //_menuDetail.Insert(detail);
+
+                    // Insert permissions for the workgroup
+                    WorkGroupPermissions perm = new WorkGroupPermissions
+                    {
+                        WorkGroupPermissionsMenuId = menu,
+                        WorkGroupPermissionsWorkGroupId = workGroupMaster.WorkGroupMasterWorkGroupId,
+                        WorkGroupPermissionsUadd = true,
+                        WorkGroupPermissionsUallow = true,
+                        WorkGroupPermissionsUedit = true,
+                        WorkGroupPermissionsDelStatus = false,
+                        WorkGroupPermissionsUdelete = true,
+                        WorkGroupPermissionsUview = true,
+                        WorkGroupPermissionsUprint = true,
+                        WorkGroupPermissionsFormType = ""
+                    };
+                    _groupPermissions.Insert(perm);
+                }
+
+                // Commit the transaction
+                workGrouprepository.TransactionCommit();
             }
             catch (Exception ex)
             {
                 valid = false;
+                workGrouprepository.TransactionRollback();
                 throw ex;
 
             }
@@ -44,7 +73,7 @@ namespace Inspire.Erp.Application.Master
             {
                 //workGrouprepository.Dispose();
             }
-            return this.GetAllWorkGroup();
+            return this.GetAllWorkGroupById(workGroupMaster.WorkGroupMasterWorkGroupId);
         }
         public IEnumerable<WorkGroupMaster> UpdateWorkGroup(WorkGroupMaster workGroupMaster)
         {
@@ -65,7 +94,7 @@ namespace Inspire.Erp.Application.Master
             {
                 //WorkGrouprepository.Dispose();
             }
-            return this.GetAllWorkGroup();
+            return this.GetAllWorkGroupById(workGroupMaster.WorkGroupMasterWorkGroupId);
         }
         public IEnumerable<WorkGroupMaster> DeleteWorkGroup(WorkGroupMaster workGroupMaster)
         {
@@ -94,7 +123,7 @@ namespace Inspire.Erp.Application.Master
             IEnumerable<WorkGroupMaster> workGroupMasters;
             try
             {
-                workGroupMasters = workGrouprepository.GetAll();
+                workGroupMasters = workGrouprepository.GetAll().Where(a => a.WorkGroupMasterWorkGroupDelStatus != true);
 
             }
             catch (Exception ex)
