@@ -30,11 +30,6 @@ namespace Inspire.Erp.Web.Controllers
             return Ok(await _menuService.MenuList());
         }
 
-        [HttpGet("GetSavedMenuById")]
-        public async Task<IActionResult> GetSavedMenuById(int Id)
-        {
-            return Ok(_menuService.GetMenuById(Id));
-        }
         [HttpPost("InsertMenu")]
         public async Task<IActionResult> SaveMenu([FromBody] Menu menu)
         {

@@ -49,74 +49,78 @@ namespace Inspire.Erp.Application.Settings.Implementations
             }
             return subChilds;
         }
-        public async Task<Response<List<GetPrimeMenusResponse>>> GetMenusByWorkgroupId(int id)
+        public async Task<Response<List<GetPrimeMenusResponse>>> GetMenusByWorkgroupId(int id = 0)
         {
             try
             {
                 List<GetMenusResponse> model = new List<GetMenusResponse>();
-                List<GetPrimeMenusResponse> menus = new List<GetPrimeMenusResponse>();
 
-                var MenuList =await _menu.GetAsQueryable()
-                    .Include(x => x.WorkGroupPermissions)
-                    .Where(a => a.WorkGroupPermissions.Any(wp => wp.WorkGroupPermissionsWorkGroupId == id && wp.WorkGroupPermissionsUallow == true))
-                    .ToListAsync();
-                //Include(x => x.MenuWorkGroupPermissions).Where(x => x.MenuWorkGroupPermissions.Where(c => c.WorkGroupPermissionsWorkGroupId == id).Count() > 0).ToListAsync();
+                // var topMenu = await _menu.GetAsQueryable().Where(x=>x.ParentId==id).ToListAsync();
+                //Include(x=>x.MenusWorkgroupDetails).Where(x => x.MenusWorkgroupDetails.Where(c => c.WorkgroupId == id).Count() > 0).ToListAsync();
 
-                if (MenuList.Count > 0)
+                var topMenu = await _menu.GetAsQueryable().Where(x => x.ParentId == id).Select(x => new GetMenusResponse()
                 {
-                    var topMenu = MenuList.Where(x => x.ParentId == 0).Select(x => new GetMenusResponse()
+                    Action = x.Action,
+                    Controller = x.Controller,
+                    CreatedAt = x.CreatedAt,
+                    IconClass = x.IconClass,
+                    Id = x.Id,
+                    IsDeleted = x.IsDeleted,
+                    ParentId = x.ParentId,
+                    RouteUrl = x.RouteUrl,
+                    Title = x.Title,
+                    Page = x.Page,
+                    Order = x.Order,
+                }).OrderBy(x => x.Order).ToListAsync();
+
+                var allItems = await _menu.GetAsQueryable().Where(x => x.ParentId != id).Select(x => new GetMenusResponse()
+                {
+                    Action = x.Action,
+                    Controller = x.Controller,
+                    CreatedAt = x.CreatedAt,
+                    IconClass = x.IconClass,
+                    Id = x.Id,
+                    IsDeleted = x.IsDeleted,
+                    ParentId = x.ParentId,
+                    RouteUrl = x.RouteUrl,
+                    Title = x.Title,
+                    Page = x.Page,
+                    Order = x.Order,
+                }).OrderBy(x => x.Order).ToListAsync();
+
+                List<GetPrimeMenusResponse> menus = new List<GetPrimeMenusResponse>();
+                foreach (var pageItem in topMenu)
+                {
+                    var item = new GetPrimeMenusResponse()
                     {
-                        Action = x.Action,
-                        Controller = x.Controller,
-                        CreatedAt = x.CreatedAt,
-                        IconClass = x.IconClass,
-                        Id = x.Id,
-                        IsDeleted = x.IsDeleted,
-                        ParentId = x.ParentId,
-                        RouteUrl = x.RouteUrl,
-                        Title = x.Title,
-                        Page = x.Page,
-                        Order = x.Order,
-                    }).OrderBy(x => x.Order).ToList();
-
-                    var allItems = MenuList.Where(x => x.ParentId != 0).Select(x => new GetMenusResponse()
-                    {
-                        Action = x.Action,
-                        Controller = x.Controller,
-                        CreatedAt = x.CreatedAt,
-                        IconClass = x.IconClass,
-                        Id = x.Id,
-                        IsDeleted = x.IsDeleted,
-                        ParentId = x.ParentId,
-                        RouteUrl = x.RouteUrl,
-                        Title = x.Title,
-                        Page = x.Page,
-                        Order = x.Order,
-                    }).OrderBy(x => x.Order).ToList();
+                        Target = pageItem.Action,
+                        Icon = pageItem.IconClass,
+                        Id = pageItem.Id,
+                        Url = pageItem.RouteUrl,
+                        Title = pageItem.Title,
+                        Label = pageItem.Title,
+                    };
 
 
-                    foreach (var pageItem in topMenu)
-                    {
-                        var item = new GetPrimeMenusResponse()
-                        {
-                            Target = pageItem.Action,
-                            Icon = pageItem.IconClass,
-                            Id = pageItem.Id,
-                            Url = pageItem.RouteUrl,
-                            Title = pageItem.Title,
-                            Label = pageItem.Title,
-                        };
 
+                    //var parent = allItems.Where(pi => pi.Id == item.ParentId).SingleOrDefault();
+                    //if (parent == null)
+                    //{
+                    //    pageItems.Add(item);
+                    //}
+                    //else
+                    //{
+                    //    if (parent.Items == null)
+                    //        parent.Items = new List<GetMenusResponse>();
+                    //    parent.Items.Add(item);
+                    //}
 
-                        item.Items = new List<GetPrimeMenusResponse>();
-                        item.Items = this.AddChildMenuItems(allItems, pageItem);
-                        menus.Add(item);
-                    }
+                    item.Items = new List<GetPrimeMenusResponse>();
+                    item.Items = this.AddChildMenuItems(allItems, pageItem);
+                    menus.Add(item);
                 }
 
                 return Response<List<GetPrimeMenusResponse>>.Success(menus, "Records FOund.");
-
-
             }
             catch (Exception ex)
             {
@@ -139,16 +143,23 @@ namespace Inspire.Erp.Application.Settings.Implementations
             _menu.Insert(menu);
             return new Response<Menu>
             {
-                Result = this.GetMenuById(menu.Id),
+                //Result = this.GetMenuById(menu.Id),
+                Result = menu,
                 Message = "Menu Save Successfuly",
                 Valid = true,
 
             };
         }
 
-        public Menu GetMenuById(int id)
+        public async Task<Response<Menu>> GetMenuById(int id)
         {
-            return _menu.GetAsQueryable().Where(m => m.Id == id).FirstOrDefault();
+            var menu = _menu.GetAsQueryable().Where(m => m.Id == id).FirstOrDefault();
+            return new Response<Menu>
+            {
+                Result = menu,
+                Message = "",
+                Valid = true,
+            };
         }
 
         public async Task<Response<Menu>> DeleteMenu(int id)
@@ -158,7 +169,7 @@ namespace Inspire.Erp.Application.Settings.Implementations
             _menu.Update(menu);
             return new Response<Menu>
             {
-                Result = this.GetMenuById(menu.Id),
+                Result = menu,
                 Message = "Menu Delete Successfuly",
                 Valid = true,
             };
@@ -169,7 +180,8 @@ namespace Inspire.Erp.Application.Settings.Implementations
             _menu.Update(menu);
             return new Response<Menu>
             {
-                Result = this.GetMenuById(menu.Id),
+                // Result = this.GetMenuById(menu.Id),
+                Result = menu,
                 Message = "Menu Update Successfuly",
                 Valid = true,
             };
