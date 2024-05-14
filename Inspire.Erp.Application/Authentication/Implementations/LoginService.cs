@@ -194,7 +194,7 @@ namespace Inspire.Erp.Application.Authentication.Implementations
 
                 userFileRepository.Update(user);
 
-                userFileRepository.Commit();
+                userFileRepository.TransactionCommit();
 
                 return this.GetUserById(user.UserId);
 
@@ -217,7 +217,7 @@ namespace Inspire.Erp.Application.Authentication.Implementations
 
                 userFileRepository.Update(user);
 
-                userFileRepository.Commit();
+                userFileRepository.TransactionCommit();
 
 
             }
