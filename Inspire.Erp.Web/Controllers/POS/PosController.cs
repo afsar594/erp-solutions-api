@@ -37,7 +37,7 @@ namespace Inspire.Erp.Web.Controllers.POS
             _salesVoucherService = salesVoucherService;
             _loginsvc = loginsvc;
         }
-        
+
 
         [HttpPost]
         [Route("SearchItemByBarcodeLink")]
@@ -234,7 +234,7 @@ namespace Inspire.Erp.Web.Controllers.POS
             return Ok(ApiResponse<UserFile>.Success(response));
         }
 
-       
+
         private void setTokenCookie(string token)
         {
             var cookieOptions = new CookieOptions

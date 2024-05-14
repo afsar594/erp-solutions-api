@@ -20,5 +20,11 @@ namespace Inspire.Erp.Application.Authentication.Inerfaces
         #region POS
         UserFile PosAuthenticate(UserFile userData);
         #endregion
+        UserFile InsertUser(UserFile userData);
+        UserFile UpdateUser(UserFile userData);
+        UserFile DeleteUser(UserFile userData);
+
+        UserFile GetUserById(long a);
+
     }
 }

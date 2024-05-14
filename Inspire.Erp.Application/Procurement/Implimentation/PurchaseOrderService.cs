@@ -87,20 +87,14 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         {
             return _userFileRepository.GetAll();
         }
-
-
         public IEnumerable<LocationMaster> PurchaseOrder_GetAllLocationMaster()
         {
             return _locationMasterRepository.GetAll();
         }
-
-
         public IEnumerable<SuppliersMaster> PurchaseOrder_GetAllSuppliersMaster()
         {
             return _suppliersMasterRepository.GetAll();
         }
-
-
         public IEnumerable<UnitMaster> PurchaseOrder_GetAllUnitMaster()
         {
             return _unitMasterRepository.GetAll();
@@ -308,7 +302,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
             return i;
         }
-        public  PurchaseOrderModel InsertPurchaseOrder(PurchaseOrder purchaseOrder, List<AccountsTransactions> accountsTransactions,
+        public PurchaseOrderModel InsertPurchaseOrder(PurchaseOrder purchaseOrder, List<AccountsTransactions> accountsTransactions,
             List<PurchaseOrderDetails> purchaseOrderDetails
             //, List<StockRegister> stockRegister
             )
@@ -326,8 +320,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     .DefaultIfEmpty().Max(o => o == null ? 0 : o.PurchaseOrderId) + 1);
 
                 purchaseOrder.PurchaseOrderId = maxcount;
-
-
 
                 purchaseOrder.PurchaseOrderDetails = purchaseOrder.PurchaseOrderDetails.Select((x) =>
                 {
@@ -367,7 +359,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 //}).ToList();
                 //_stockRegisterRepository.InsertList(stockRegister);
 
-                
+
                 _purchaseOrderRepository.Insert(purchaseOrder);
 
                 //insert tracking register
@@ -416,7 +408,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 _trackingRegisterRepository.InsertList(listTrackRegs);
                 _purOrderRegisterRepository.InsertList(listTrackPurchOrderReg);
-                var permsionApproval = _permissionApprovalRepo.GetAsQueryable().Where(x => x.VoucherType == "Purchase Order").OrderBy(x=>x.LevelOrder).ToList();
+                var permsionApproval = _permissionApprovalRepo.GetAsQueryable().Where(x => x.VoucherType == "Purchase Order").OrderBy(x => x.LevelOrder).ToList();
                 var approvals = new Approval()
                 {
                     CreatedBy = 0,
@@ -427,11 +419,11 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 _approvalRepo.Insert(approvals);
                 _approvalDetailRepo.InsertList(permsionApproval.Select(x => new ApprovalDetail()
                 {
-                    ApprovalId=approvals.Id,
-                    Status=false,
-                    UserId=x.UserId,
+                    ApprovalId = approvals.Id,
+                    Status = false,
+                    UserId = x.UserId,
                     LevelOrder = x.LevelOrder,
-                    ApprovedAt=DateTime.Now,
+                    ApprovedAt = DateTime.Now,
                 }).ToList());
                 _purchaseOrderRepository.TransactionCommit();
                 return this.GetSavedPurchaseOrderDetails(purchaseOrder.PurchaseOrderNo);
@@ -488,7 +480,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             return purchaseOrderModel;
 
         }
-
         private decimal? GetTillNowQTY(string pvno)
         {
             try
@@ -544,7 +535,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 throw;
             }
         }
-
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
         {
             try
@@ -578,7 +568,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             }
 
         }
-
         //using Microsoft.Extensions.Logging;
         //private readonly ILogger<PaymentVoucherService> _logger;
         //IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
@@ -614,7 +603,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             }
 
         }
-
         public IQueryable GetPODetailsForGRN()
         {
             try

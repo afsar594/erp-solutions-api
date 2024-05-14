@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Inspire.Erp.Application.Authentication.Inerfaces;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
@@ -19,9 +20,11 @@ namespace Inspire.Erp.Web.Controllers
     public class LoginController : ControllerBase
     {
         private readonly IloginService loginsvc;
-        public LoginController(IloginService _loginsvc)
+        private readonly IMapper _mapper;
+        public LoginController(IloginService _loginsvc, IMapper mapper)
         {
             loginsvc = _loginsvc;
+            _mapper = mapper;
         }
         [HttpPost]
         [Route("login")]
@@ -132,6 +135,82 @@ namespace Inspire.Erp.Web.Controllers
                 return Request.Headers["X-Forwarded-For"];
             else
                 return HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
+        }
+        [HttpPost]
+        [Route("InsertUser")]
+        public ApiResponse<UserFileViewModel> InserUser([FromBody] UserFileViewModel user)
+        {
+            ApiResponse<UserFileViewModel> apiResponse = new ApiResponse<UserFileViewModel>();
+
+            var param1 = _mapper.Map<UserFile>(user);
+
+            var xs = loginsvc.InsertUser(param1);
+
+            UserFileViewModel userdata = new UserFileViewModel();
+            userdata = _mapper.Map<UserFileViewModel>(xs);
+
+            apiResponse = new ApiResponse<UserFileViewModel>
+            {
+                Valid = true,
+                Result = userdata,
+                Message = UserFileMessage.SaveUser
+            };
+            return apiResponse;
+        }
+
+
+        [HttpPost]
+        [Route("UpdateUser")]
+        public ApiResponse<UserFileViewModel> UpdateUser([FromBody] UserFileViewModel user)
+        {
+            ApiResponse<UserFileViewModel> apiResponse = new ApiResponse<UserFileViewModel>();
+
+            var param1 = _mapper.Map<UserFile>(user);
+
+            var xs = loginsvc.UpdateUser(param1);
+
+            UserFileViewModel userdata = new UserFileViewModel();
+            userdata = _mapper.Map<UserFileViewModel>(xs);
+
+            apiResponse = new ApiResponse<UserFileViewModel>
+            {
+                Valid = true,
+                Result = userdata,
+                Message = UserFileMessage.UpdateUser
+            };
+            return apiResponse;
+        }
+
+        [HttpPost]
+        [Route("DeleteUser")]
+        public ApiResponse<UserFileViewModel> DeleteUser([FromBody] UserFileViewModel user)
+        {
+            ApiResponse<UserFileViewModel> apiResponse = new ApiResponse<UserFileViewModel>();
+
+            var param1 = _mapper.Map<UserFile>(user);
+
+            var xs = loginsvc.DeleteUser(param1);
+
+            UserFileViewModel userdata = new UserFileViewModel();
+            userdata = _mapper.Map<UserFileViewModel>(xs);
+
+            apiResponse = new ApiResponse<UserFileViewModel>
+            {
+                Valid = true,
+                Result = userdata,
+                Message = UserFileMessage.DeleteUser
+            };
+            return apiResponse;
+        }
+
+        [HttpGet]
+        [Route("GetUserById")]
+
+        public UserFile GetUserById(long id)
+        {
+            var user = loginsvc.GetUserById(id);
+
+            return user;
         }
     }
 }

@@ -5,10 +5,10 @@ namespace Inspire.Erp.Domain.Entities
 {
     public partial class WorkGroupPermissions
     {
-        public int WorkGroupPermissionsSno { get; set; }
-       // public int? WorkGroupPermissionsFormId { get; set; }
-        public int? WorkGroupPermissionsMenuId { get; set; }
 
+      
+        public int WorkGroupPermissionsSno { get; set; }
+        public int? WorkGroupPermissionsMenuId { get; set; }
         public int? WorkGroupPermissionsWorkGroupId { get; set; }
         public bool? WorkGroupPermissionsUallow { get; set; }
         public bool? WorkGroupPermissionsUadd { get; set; }
@@ -18,5 +18,8 @@ namespace Inspire.Erp.Domain.Entities
         public bool? WorkGroupPermissionsUprint { get; set; }
         public bool? WorkGroupPermissionsDelStatus { get; set; }
         public string WorkGroupPermissionsFormType { get; set; }
+
+        public virtual WorkGroupMaster WorkGroupMaster { get; set; }
+        public virtual Menu Menu { get; set; }
     }
 }

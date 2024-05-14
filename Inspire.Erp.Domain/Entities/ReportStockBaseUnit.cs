@@ -17,5 +17,9 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? Stock { get; set; }
         public decimal? StockRegisterRate { get; set; }
         public decimal? StockRegisterAmount { get; set; }
+        public long? UnitDetailsItemId { get; set; }
+        public long? RelativeNo { get; set; }
+        public long? ItemMasterItemId { get; set; }
+        
     }
 }

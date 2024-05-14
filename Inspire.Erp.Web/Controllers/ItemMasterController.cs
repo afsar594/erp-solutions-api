@@ -61,7 +61,6 @@ namespace Inspire.Erp.Web.Controllers
 
             return apiResponse;
         }
-
         [HttpGet]
         [Route("GetAllItemGroupAndSubGroup")]
         public ApiResponse<List<ItemMasterViewModel>> GetAllItemGroupAndSubGroup()
@@ -76,7 +75,6 @@ namespace Inspire.Erp.Web.Controllers
             };
             return apiResponse;
         }
-
         [HttpGet]
         [Route("itemmax")]
         public ApiResponse<int> ItemMax()
@@ -91,7 +89,6 @@ namespace Inspire.Erp.Web.Controllers
 
             return apiResponse;
         }
-
         [HttpGet]
         [Route("GetAllItemNotGroup")]
         public ApiResponse<List<ItemMasterViewModel>> GetAllItemNotGroup()
@@ -106,7 +103,6 @@ namespace Inspire.Erp.Web.Controllers
             };
             return apiResponse;
         }
-
         [HttpGet]
         [Route("GetAllItemStockType")]
         public ApiResponse<List<ItemStockTypeViewModel>> GetAllItemStockType()
@@ -121,15 +117,12 @@ namespace Inspire.Erp.Web.Controllers
             };
             return apiResponse;
         }
-
-        //[HttpGet("{id}", Name= "GetAllItemById")]
         [HttpGet]
         [Route("GetAllItemById/{id}")]
         public ApiResponse<List<ItemMasterViewModel>> GetAllItemById(int id)
         {
             IEnumerable<ItemMaster> listItemnater = itemMasterService.GetAllItemById(id);
 
-            
             var x = _mapper.Map<List<ItemMasterViewModel>>(listItemnater);
             ApiResponse<List<ItemMasterViewModel>> apiResponse = new ApiResponse<List<ItemMasterViewModel>>
             {
@@ -141,8 +134,6 @@ namespace Inspire.Erp.Web.Controllers
             return apiResponse;
 
         }
-
-        //[HttpGet("{id}", Name = "GetAllItemMasterById")]
         [HttpGet]
         [Route("GetAllItemMasterById/{id}")]
         public ApiResponse<ItemMasterViewModel> GetAllItemMasterById(int id)
@@ -160,9 +151,6 @@ namespace Inspire.Erp.Web.Controllers
             return apiResponse;
 
         }
-
-         
-
         [HttpGet]
         [Route("GetAllItemMasterByBarCode/{barCode}")]
         public ApiResponse<ItemMasterViewModel> GetAllItemMasterByBarCode(string barCode)
@@ -177,8 +165,6 @@ namespace Inspire.Erp.Web.Controllers
             };
             return apiResponse;
         }
-
-
         [HttpGet]
         [Route("SearchItemByBarcodeLink/{barCode}")]
         public async Task<IActionResult> SearchItemByBarcodeLink(ItemBarCodeSearchFilter model)
@@ -186,16 +172,12 @@ namespace Inspire.Erp.Web.Controllers
             return Ok(await itemMasterService.SearchItemByBarcode(model));
 
         }
-
         [HttpGet("GetItemsBySearch")]
         public async Task<IActionResult> GetItemsBySearch(string query)
         {
             return Ok(await itemMasterService.GetItemsBySearch(query));
 
         }
-
-
-        //[HttpGet("{id}", Name = "GetAllItemByName")]
         [HttpGet]
         [Route("GetAllItemByName/{id}")]
         public ApiResponse<List<ItemMasterViewModel>> GetAllItemByName(string id)
@@ -213,7 +195,6 @@ namespace Inspire.Erp.Web.Controllers
             return apiResponse;
 
         }
-
         [HttpPost]
         [Route("GetAllItemSearchFilter")]
         public ApiResponse<List<ItemMasterViewModel>> GetAllItemSearchFilter(ItemFilterViewModel data)
@@ -231,7 +212,6 @@ namespace Inspire.Erp.Web.Controllers
             return apiResponse;
 
         }
-
         [HttpPost]
         [Route("InsertItem")]
         public ApiResponse<List<ItemMasterViewModel>> InsertItem([FromBody] ItemMasterViewModel itemMaster)
@@ -255,7 +235,6 @@ namespace Inspire.Erp.Web.Controllers
             };
             return apiResponse;
         }
-
         [HttpPost]
         [Route("NewItem")]
         public ApiResponse<ItemMasterViewModel> NewItem([FromBody] ItemMasterViewModel itemMaster)
@@ -280,7 +259,6 @@ namespace Inspire.Erp.Web.Controllers
             };
             return apiResponse;
         }
-
         [HttpPost]
         [Route("DeleteNewItem")]
         public ApiResponse<ItemMasterViewModel> DeleteNewItem([FromBody] ItemMasterViewModel itemMaster)
@@ -313,7 +291,6 @@ namespace Inspire.Erp.Web.Controllers
 
             return apiResponse;
         }
-
         [HttpPost]
         [Route("UpdateItem")]
         public ApiResponse<List<ItemMasterViewModel>> UpdateBrand([FromBody] ItemMasterViewModel itemMaster)
@@ -338,7 +315,6 @@ namespace Inspire.Erp.Web.Controllers
             };
             return apiResponse;
         }
-
         [HttpPost]
         [Route("DeleteItem")]
         public ApiResponse<List<ItemMasterViewModel>> DeleteItem([FromBody] ItemMasterViewModel itemMaster)

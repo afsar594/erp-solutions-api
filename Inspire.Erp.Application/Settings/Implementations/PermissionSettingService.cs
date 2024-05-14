@@ -36,6 +36,7 @@ namespace Inspire.Erp.Application.Settings.Implementations
                               from me in meGroup.DefaultIfEmpty()
                               select new WorkGroupPermissionsDto
                               {
+                                  WorkGroupPermissionsSno=wgp.WorkGroupPermissionsSno,
                                   WorkGroupPermissionsMenuName = me.Title,
                                   WorkGroupPermissionsUadd = wgp.WorkGroupPermissionsUadd,
                                   WorkGroupPermissionsUallow = wgp.WorkGroupPermissionsUallow,
@@ -60,7 +61,7 @@ namespace Inspire.Erp.Application.Settings.Implementations
         public async Task<Response<List<WorkGroupPermissionsDto>>> UpdatePermissionSetting(List<WorkGroupPermissions> permissionSetting)
         {
             
-            _groupPermissions.UpdateList(permissionSetting);
+             _groupPermissions.UpdateList(permissionSetting);
            
             return new Response<List<WorkGroupPermissionsDto>>
             {
