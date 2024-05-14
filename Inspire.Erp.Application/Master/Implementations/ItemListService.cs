@@ -178,7 +178,7 @@ namespace Inspire.Erp.Application.Master
                         {
                             if (ItemDetails.ItemMasterItemSize != null)
                             {
-                                ItemDetails.ItemMasterItemSize = Convert.ToString(ItemDetails.ItemMasterItemSize);
+                                ItemDetails.ItemMasterItemSize = Convert.ToString(detail.ItemSize);
                                 ItemDetails.ItemMasterStatus = true;
                                 itemrepository.Update(ItemDetails);
                             }

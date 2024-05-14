@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Inspire.Erp.Domain.Entities.POS;
 
 namespace Inspire.Erp.Application.Sales.Interfaces
 {
@@ -50,6 +51,25 @@ namespace Inspire.Erp.Application.Sales.Interfaces
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
         public VouchersNumbers GetVouchersNumbers(string pvno);
         public IQueryable GetSalesVoucherDetailsByMasterNo(string SalesVoucherNo);
+
+
+        #region POS sales voucher
+        public VouchersNumbers GeneratePosVoucherNo(DateTime? VoucherGenDate);
+        public POS_Sales_Voucher InsertPosSalesVoucher(POS_Sales_Voucher salesVoucher, List<POS_Sales_Voucher_Details> PosSalesVoucherDetails);
+        public POS_Sales_Voucher UpdatePosSalesVoucher(POS_Sales_Voucher salesVoucher, List<POS_Sales_Voucher_Details> PosSalesVoucherDetails);
+        public POS_Sales_Voucher GetSavedPosSalesVoucherDetails(string pvno);
+        public IEnumerable<POS_Sales_Voucher> GetPosSalesVoucher();
+        #endregion
+
+
+        #region POS Sales Hold
+
+        public VouchersNumbers GeneratePosSaleHoldVoucherNo(DateTime? VoucherGenDate);
+        public SalesHold InsertPosSalesHold(SalesHold salesHold, List<SalesHoldDetails> salesHoldDetails);
+        public int DeletePosSaleHold(SalesHold salesHold, List<SalesHoldDetails> salesHoldDetails);
+
+
+        #endregion
 
     }
 }

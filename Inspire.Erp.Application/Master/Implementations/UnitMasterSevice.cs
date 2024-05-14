@@ -94,7 +94,7 @@ namespace Inspire.Erp.Application.Master
             IEnumerable<UnitMaster> unitMasters;
             try
             {
-                unitMasters = unitrepository.GetAll();
+                unitMasters = unitrepository.GetAsQueryable().Include(x=>x.UnitDetails);
             }
             catch (Exception ex)
             {
