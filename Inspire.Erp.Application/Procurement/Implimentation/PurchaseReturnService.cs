@@ -38,6 +38,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private readonly IRepository<PurchaseOrderDetails> _purchaseOrderDetailsRepo;
 
         private readonly IUtilityService _utilityService;
+        private IRepository<UnitDetails> _UnitDetailsRepository;
+
 
         private IRepository<ProgramSettings> _programsettingsRepository;
         public PurchaseReturnService(IRepository<PurchaseReturnVoucher> purchaseReturn, IUtilityService utilityService,
@@ -49,7 +51,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<CurrencyMaster> currencyMasterRepository, IRepository<ProgramSettings> programsettingsRepository,
             IRepository<VouchersNumbers> voucherNumber,
             IRepository<PurchaseOrder> purchaseOrderRepo,
-            IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepo)
+            IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepo, IRepository<UnitDetails> unitDetailsRepository)
         {
             _purchaseReturn = purchaseReturn;
             _purchaseReturnDetail = purchaseReturnDetail;
@@ -68,6 +70,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _voucherNumber = voucherNumber;
             _purchaseOrderRepo = purchaseOrderRepo;
             _purchaseOrderDetailsRepo = purchaseOrderDetailsRepo;
+            _UnitDetailsRepository = unitDetailsRepository;
         }
         public async Task<Response<List<DropdownResponse>>> GetLocationMasterDropdown()
         {
@@ -902,7 +905,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         k.StockRegisterVoucherDate = purchaseReturn.PurchaseReturnDate;
                         k.StockRegisterRefVoucherNo = purchaseReturn.PurchaseReturnNo;
                         k.StockRegisterTransType = VoucherType.PurchaseReturn_TYPE;
-
                         k.StockRegisterStatus = AccountStatus.Approved;
                     }
 
@@ -940,6 +942,18 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 throw ex;
             }
         }
+        private decimal getConverionTypebyUnitId(int? unitDetailsid)
+        {
+            try
+            {
+                return (decimal)this._UnitDetailsRepository.GetAsQueryable().FirstOrDefault(x => x.UnitDetailsUnitId == unitDetailsid).UnitDetailsConversionType;
+            }
+            catch
+            {
+                return 1;
+            }
+        }
+
 
         public PurchaseReturnModel InsertPurchaseReturn(PurchaseReturn purchaseReturn,
                                                         List<AccountsTransactions> accountsTransactions,
@@ -982,6 +996,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 foreach (var item in purchaseReturnDetails)
                 {
+                    var converontype = this.getConverionTypebyUnitId(item.PurchaseReturnDetailsUnitId);
+
                     sr.Add(new StockRegister()
                     {
                         StockRegisterRefVoucherNo = purchaseReturnNumber,
@@ -994,7 +1010,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         StockRegisterLocationID = purchaseReturn.PurchaseReturnLocationId,
                         StockRegisterFSNO = null,
                         StockRegisterVoucherDate = purchaseReturn.PurchaseReturnDate,
-                        StockRegisterSout = item.PurchaseReturnDetailsQuantity,
+                        StockRegisterSout = item.PurchaseReturnDetailsQuantity * (converontype) ?? 0,
                         StockRegisterRate = item.PurchaseReturnDetailsRate,
                         StockRegisterAmount = item.PurchaseReturnDetailsGrossAmount,
                         StockRegisterMaterialID = item.PurchaseReturnDetailsMatId,
