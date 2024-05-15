@@ -6,7 +6,7 @@ namespace Inspire.Erp.Domain.Modals
 {
     public class WorkPeriodResponse
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public string WorkPeriodName { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? Enddate { get; set; }

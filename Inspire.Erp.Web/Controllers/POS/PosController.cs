@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Inspire.Erp.Application.Authentication.Inerfaces;
+using Inspire.Erp.Application.Common;
 using Inspire.Erp.Application.Master;
 using Inspire.Erp.Application.Sales.Interfaces;
 using Inspire.Erp.Domain.Entities;
@@ -9,6 +10,7 @@ using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Web.Common;
 using Inspire.Erp.Web.ViewModels;
+using Inspire.Erp.Web.ViewModels.Procurement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -179,38 +181,82 @@ namespace Inspire.Erp.Web.Controllers.POS
 
         [HttpPost]
         [Route("InsertPosSalesHold")]
-        public ApiResponse<SalesHold> InsertPosSalesVoucher([FromBody] SalesHold voucherCompositeView)
+        public ApiResponse<SalesHoldViewModel> InsertPosSalesVoucher([FromBody] SalesHoldViewModel voucherCompositeView)
         {
-            ApiResponse<SalesHold> apiResponse = new ApiResponse<SalesHold>();
+            ApiResponse<SalesHoldViewModel> apiResponse = new ApiResponse<SalesHoldViewModel>();
             var param1 = _mapper.Map<SalesHold>(voucherCompositeView);
-            var param2 = _mapper.Map<List<SalesHoldDetails>>(voucherCompositeView.salesHoldDetails);
+            var param2 = _mapper.Map<List<SalesHoldDetails>>(voucherCompositeView.SalesHoldDetailsViewModel);
             var xs = _salesVoucherService.InsertPosSalesHold(param1, param2);
-            apiResponse = new ApiResponse<SalesHold>
+            apiResponse = new ApiResponse<SalesHoldViewModel>
             {
                 Valid = true,
-                Result = _mapper.Map<SalesHold>(xs),
+                Result = _mapper.Map<SalesHoldViewModel>(xs),
                 Message = SalesVoucherMessage.SaveVoucher
             };
             return apiResponse;
         }
 
 
-        [HttpPost]
-        [Route("DeleteCreditNote")]
-        public ApiResponse<int> DeleteCreditNote([FromBody] SalesHold voucherCompositeView)
+        [HttpDelete]
+        [Route("DeletePosSalesHold/{id}")]
+        public ApiResponse<SalesHoldViewModel> DeletePosSalesHold(decimal id)
         {
-            var param1 = _mapper.Map<SalesHold>(voucherCompositeView);
-            var param2 = _mapper.Map<List<SalesHoldDetails>>(voucherCompositeView.salesHoldDetails);
-            var xs = _salesVoucherService.DeletePosSaleHold(param1, param2);
-            ApiResponse<int> apiResponse = new ApiResponse<int>
+
+            var xs = _salesVoucherService.DeletePosSalesHold(id);
+            if (xs != null)
+            {
+
+                SalesHoldViewModel SalesHoldViewModel = new SalesHoldViewModel();
+                SalesHoldViewModel = _mapper.Map<SalesHoldViewModel>(xs);
+                SalesHoldViewModel.SalesHoldDetailsViewModel = _mapper.Map<List<SalesHoldDetailsViewModel>>(xs.SalesHoldDetails);
+
+                ApiResponse<SalesHoldViewModel> apiResponse = new ApiResponse<SalesHoldViewModel>
+                {
+                    Valid = true,
+                    Result = SalesHoldViewModel,
+                    Message = "Deleted"
+                };
+                return apiResponse;
+            }
+            return null;
+        }
+
+        [HttpGet]
+        [Route("GetPosSalesHold/{id}")]
+        public ApiResponse<SalesHoldViewModel> GetPosSalesHold(decimal id)
+        {
+            SalesHold xs = _salesVoucherService.GetPosSalesHold(id);
+            if (xs != null)
+            {
+
+                SalesHoldViewModel SalesHoldViewModel = new SalesHoldViewModel();
+                SalesHoldViewModel = _mapper.Map<SalesHoldViewModel>(xs);
+                SalesHoldViewModel.SalesHoldDetailsViewModel = _mapper.Map<List<SalesHoldDetailsViewModel>>(xs.SalesHoldDetails);
+
+                ApiResponse<SalesHoldViewModel> apiResponse = new ApiResponse<SalesHoldViewModel>
+                {
+                    Valid = true,
+                    Result = SalesHoldViewModel,
+                    Message = ""
+                };
+                return apiResponse;
+            }
+            return null;
+        }
+
+        [HttpGet]
+        [Route("GetPosSalesHoldList")]
+        public ApiResponse<List<SalesHold>> GetPosSalesHoldList()
+        {
+
+            ApiResponse<List<SalesHold>> apiResponse = new ApiResponse<List<SalesHold>>
             {
                 Valid = true,
-                Result = 0,
-                Message = CreditNoteMessage.DeleteVoucher
+                Result = _salesVoucherService.GetPosSalesHoldList().ToList(),
+                Message = ""
             };
             return apiResponse;
         }
-
         #endregion
 
 
@@ -247,6 +293,43 @@ namespace Inspire.Erp.Web.Controllers.POS
         #endregion
 
 
+        #region  WP
+
+        [HttpPost]
+        [Route("StartPosWP")]
+        public ApiResponse<WorkPeriodResponse> StartPosWP([FromBody] WorkPeriodResponse voucherCompositeView)
+        {
+            ApiResponse<WorkPeriodResponse> apiResponse = new ApiResponse<WorkPeriodResponse>();
+            var param1 = _mapper.Map<POS_WorkPeriod>(voucherCompositeView);
+
+            var xs = _salesVoucherService.StartPosWP(param1);
+            apiResponse = new ApiResponse<WorkPeriodResponse>
+            {
+                Valid = true,
+                Result = _mapper.Map<WorkPeriodResponse>(xs),
+                Message = WorkPeriodsMessage.StartWP,
+            };
+            return apiResponse;
+        }
+
+
+        [HttpPost]
+        [Route("EndPosWP")]
+        public ApiResponse<WorkPeriodResponse> EndPosWP([FromBody] WorkPeriodResponse voucherCompositeView)
+        {
+            ApiResponse<WorkPeriodResponse> apiResponse = new ApiResponse<WorkPeriodResponse>();
+            var param1 = _mapper.Map<POS_WorkPeriod>(voucherCompositeView);
+            var xs = _salesVoucherService.EndPosWP(param1);
+            apiResponse = new ApiResponse<WorkPeriodResponse>
+            {
+                Valid = true,
+                Result = _mapper.Map<WorkPeriodResponse>(xs),
+                Message = WorkPeriodsMessage.EndWP,
+            };
+            return apiResponse;
+        }
+
+        #endregion
 
 
 

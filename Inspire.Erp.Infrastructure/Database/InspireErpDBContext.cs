@@ -468,7 +468,7 @@ namespace Inspire.Erp.Infrastructure.Database
             modelBuilder.Entity<GetAccountTransactionProfitLossResponse>().HasNoKey();
             modelBuilder.Entity<GetATFinancialClosingResponse>().HasNoKey();
             modelBuilder.Entity<SingleValueSPResult>().HasNoKey();
-           // modelBuilder.Entity<POS_Sales_Voucher>().HasNoKey();
+            // modelBuilder.Entity<POS_Sales_Voucher>().HasNoKey();
 
 
             //modelBuilder.Query<IssueWithStockTransfer>().ToView("VW_ISSUE_WITH_STOCK_TRANSFER");
@@ -23530,12 +23530,6 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.WorkGroupPermissionsWorkGroupId).HasColumnName("WorkGroup_Permissions_Work_Group_ID");
 
-
-                //entity.HasOne(d => d.GeneralPurchaseOrder)
-                //.WithMany(p => p.GeneralPurchaseOrderDetails)
-                //.HasForeignKey(d => d.GeneralPurchaseOrderId)
-                //.HasConstraintName("FK_Generalpurchaseorderdetails_Generalpurchaseorder");
-
                 entity.HasOne(d => d.WorkGroupMaster)
                     .WithMany(a => a.WorkGroupPermissions)
                     .HasForeignKey(d => d.WorkGroupPermissionsWorkGroupId)
@@ -24315,7 +24309,7 @@ namespace Inspire.Erp.Infrastructure.Database
             //POS
             modelBuilder.Entity<POS_WorkPeriod>(e =>
             {
-                e.ToTable("POS_WorkPeriod");
+                e.ToTable("POS_WorkPeriods");
                 e.HasKey(x => x.Id);
             });
 
@@ -24335,20 +24329,6 @@ namespace Inspire.Erp.Infrastructure.Database
                 e.HasKey(x => x.Id);
             });
 
-            //modelBuilder.Entity<POS_SalesVoucher>(e =>
-            //{
-            //    e.ToTable("POS_Sales_Voucher");
-            //    e.HasKey(x => x.V_ID);
-            //});
-
-            //modelBuilder.Entity<POS_SalesVoucherDetails>(e =>
-            //{
-            //    e.ToTable("POS_Sales_Voucher_Details");
-            //    e.HasKey(x => x.SDet_ID);
-            //});
-
-           
-            
             modelBuilder.Entity<POS_Sales_Voucher>(e =>
             {
                 e.HasNoKey();
@@ -24373,6 +24353,102 @@ namespace Inspire.Erp.Infrastructure.Database
             {
                 e.ToTable("POS_Trans_Group_Master");
                 e.HasKey(x => x.Id);
+            });
+            modelBuilder.Entity<SalesHold>(entity =>
+            {
+                entity.ToTable("TEMP_SALES_VOUCHER");
+
+                entity.HasKey(e => e.V_ID);
+
+                // Configure column mappings and constraints
+                entity.Property(e => e.VoucherNo).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.ShortNo).IsRequired();
+                entity.Property(e => e.VoucherDate).HasColumnType("datetime");
+                entity.Property(e => e.Voucher_Type).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.CustomerName).HasMaxLength(250);
+                entity.Property(e => e.Customer_ID).HasColumnType("numeric(18, 0)");
+                entity.Property(e => e.Location).HasColumnType("bigint");
+                entity.Property(e => e.Salesman).HasColumnType("bigint");
+                entity.Property(e => e.Discount).HasColumnType("numeric(18, 4)");
+                entity.Property(e => e.GrossAmount).HasColumnType("numeric(18, 4)");
+                entity.Property(e => e.NetAmount).HasColumnType("numeric(18, 4)");
+                entity.Property(e => e.Remarks).HasColumnType("text");
+                entity.Property(e => e.UserId).HasColumnType("bigint");
+                entity.Property(e => e.CurrencyId).HasColumnType("bigint");
+                entity.Property(e => e.FSNO).HasColumnType("numeric(18, 0)");
+                entity.Property(e => e.Description).HasMaxLength(250);
+                entity.Property(e => e.CONO).HasMaxLength(50);
+                entity.Property(e => e.DeliveryNote).HasMaxLength(100);
+                entity.Property(e => e.Cust_PONo).HasMaxLength(50);
+                entity.Property(e => e.Fc_Rate).HasColumnType("numeric(18, 4)");
+                entity.Property(e => e.CompanyId).HasColumnType("int");
+                entity.Property(e => e.Refrence).HasMaxLength(250);
+                entity.Property(e => e.JobId).HasColumnType("bigint");
+                entity.Property(e => e.Currency_ID).HasColumnType("bigint");
+                entity.Property(e => e.Cust_PODate).HasColumnType("datetime");
+                entity.Property(e => e.NetDiscount).HasColumnType("numeric(18, 4)");
+                entity.Property(e => e.CashCustName).HasMaxLength(250);
+                entity.Property(e => e.DiscountPer).HasColumnType("numeric(18, 4)");
+                entity.Property(e => e.Shipping_Address).HasMaxLength(200);
+                entity.Property(e => e.PaymentTerms_V).HasMaxLength(100);
+                entity.Property(e => e.TermsAndConditions_V).HasMaxLength(1000);
+                entity.Property(e => e.InvoiceType).HasMaxLength(50);
+                entity.Property(e => e.ContractId).HasColumnType("bigint");
+                entity.Property(e => e.InvoiceStatus).HasMaxLength(50);
+                entity.Property(e => e.SV_QtnID_N).HasColumnType("int");
+                entity.Property(e => e.SV_EqpmentID_N).HasColumnType("int");
+                entity.Property(e => e.VatAmount).HasColumnType("money");
+                entity.Property(e => e.StationID).HasColumnType("bigint");
+                entity.Property(e => e.WorkPeriodID).HasColumnType("bigint");
+                entity.Property(e => e.PaymentMode).HasMaxLength(50);
+                entity.Property(e => e.Vat_AMT).HasColumnType("numeric(18, 4)");
+                entity.Property(e => e.Vat_Per).HasColumnType("numeric(18, 4)");
+                entity.Property(e => e.Vat_RoundSign).HasMaxLength(50);
+                entity.Property(e => e.Vat_RountAmt).HasColumnType("numeric(18, 4)");
+                entity.Property(e => e.DeptID).HasColumnType("bigint");
+                entity.Property(e => e.Vatable_TotAmt).HasColumnType("float");
+                entity.Property(e => e.refno).HasMaxLength(50);
+                entity.Property(e => e.Currency_Rate).HasColumnType("numeric(18, 4)");
+
+
+            });
+            modelBuilder.Entity<SalesHoldDetails>(entity =>
+            {
+                entity.ToTable("TEMP_SALES_VOUCHER_DETAILS");
+                entity.HasKey(x => x.SDet_ID);
+
+                entity.Property(e => e.VoucherNo).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.ItemId).HasColumnType("numeric(18, 0)").IsRequired();
+                entity.Property(e => e.Description).HasMaxLength(1000);
+                entity.Property(e => e.BatchCode).HasMaxLength(50);
+                entity.Property(e => e.UnitId).HasColumnType("numeric(18, 0)");
+                entity.Property(e => e.Sold_Qty).HasColumnType("numeric(18, 2)").IsRequired();
+                entity.Property(e => e.UnitPrice).HasColumnType("numeric(18, 4)");
+                entity.Property(e => e.CostPrice).HasColumnType("numeric(18, 4)");
+                entity.Property(e => e.GrossAmt).HasColumnType("numeric(18, 4)");
+                entity.Property(e => e.Discount).HasColumnType("numeric(18, 4)");
+                entity.Property(e => e.NetAmount).HasColumnType("numeric(18, 4)");
+                entity.Property(e => e.FSNO).HasColumnType("numeric(18, 0)").IsRequired();
+                entity.Property(e => e.SNO).HasColumnType("numeric(18, 0)");
+                entity.Property(e => e.DeliveryNote).HasColumnType("bigint");
+                entity.Property(e => e.LocationID).HasColumnType("int");
+                entity.Property(e => e.CompanyId).HasColumnType("int");
+                entity.Property(e => e.POD_ID).HasColumnType("bigint");
+                entity.Property(e => e.Del_DetId).HasColumnType("bigint");
+                entity.Property(e => e.Del_Id).HasColumnType("bigint");
+                entity.Property(e => e.Delv_id).HasColumnType("bigint");
+                entity.Property(e => e.SerialNo_V).HasMaxLength(2000);
+                entity.Property(e => e.VatAmount).HasColumnType("money");
+                entity.Property(e => e.StationID).HasColumnType("bigint");
+                entity.Property(e => e.WorkPeriodID).HasColumnType("bigint");
+                entity.Property(e => e.VatableAmt).HasColumnType("float");
+                entity.Property(e => e.udid).HasColumnType("int");
+
+                entity.HasOne(d => d.SalesHold)
+               .WithMany(p => p.SalesHoldDetails)
+               .HasForeignKey(d => d.SNO)
+               .HasConstraintName("FK_TEMP_SALES_VOUCHER_DETAILS_TEMP_SALES_VOUCHER");
+
             });
 
             OnModelCreatingPartial(modelBuilder);

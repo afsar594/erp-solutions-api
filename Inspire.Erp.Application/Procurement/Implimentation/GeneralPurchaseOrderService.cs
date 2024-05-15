@@ -268,8 +268,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         }
         public GeneralPurchaseOrderModel GetSavedGeneralPurchaseOrderDetails(string pvno)
         {
-            GeneralPurchaseOrderModel generalpurchaseOrderModel = new GeneralPurchaseOrderModel();
-            //            generalpurchaseOrderModel.GeneralpurchaseOrder = _GeneralpurchaseOrderRepository.GetAsQueryable().Where(k => k.GeneralPurchaseOrderPono == pvno && k.GeneralPurchaseOrderDelStatus == false).SingleOrDefault();
+            GeneralPurchaseOrderModel generalpurchaseOrderModel = new GeneralPurchaseOrderModel();            
 
             generalpurchaseOrderModel.GeneralpurchaseOrder = _GeneralpurchaseOrderRepository.GetAsQueryable().Where(k => k.GeneralPurchaseOrderPono == pvno).SingleOrDefault();
 
