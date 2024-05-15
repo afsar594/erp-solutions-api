@@ -1547,9 +1547,13 @@ namespace Inspire.Erp.Application.Master
                 settDetailsRepo.Insert(alloModelDis);
             }
 
+            decimal? disvat = 0;
+            decimal? vat  = 0;
             //Bill Discount
             if (model.BillDiscount > 0)
             {
+                disvat = (model.BillAmount - model.BillDiscount) * (model.SalesTax / 100);
+
                 settDetailsId = getMaxSettlementDetails();
                 var alloModelDis = new POS_SettlementDet()
                 {
@@ -1569,7 +1573,7 @@ namespace Inspire.Erp.Application.Master
                 {
                     SettlementDetId = settDetailsId,
                     OrderId = salesVoucherNo,
-                    Amount = model.BillDiscount,
+                    Amount = disvat,
                     Status = "Y",
                     Date = DateTime.Now,//to be changed
                     UserId = model.UserId,
@@ -1614,13 +1618,11 @@ namespace Inspire.Erp.Application.Master
                 Date = DateTime.Now,//to be changed
                 UserId = model.UserId,
                 TransactionCode = "NET"
-
             };
             settDetailsRepo.Insert(alloModelNet);
 
-
             //Cash
-            if (model.CashAmount > 0)
+            if (model.Cash > 0)
             {
                 var settDetailsIdCash = getMaxSettlementDetails();
                 var alloModelDCash = new POS_SettlementDet()
@@ -1638,7 +1640,8 @@ namespace Inspire.Erp.Application.Master
 
                 int cardId = 0;
                 var groupMaster = posTranGroupMasterRepo.GetAll().FirstOrDefault(o => o.Trans_GroupName == "CREDIT CARD");
-                //if (tempSettDetailsCash != null) cardId = groupMaster.Id;
+                if (groupMaster != null) cardId = groupMaster.Id;
+
                 settDetailsIdCash = getMaxSettlementDetails();
 
                 var tempRepResult = (from ir in settDetailsTempRepo.GetAsQueryable()
@@ -1649,6 +1652,7 @@ namespace Inspire.Erp.Application.Master
                                      {
                                          Id = ir.SettlementDetId
                                      });
+
                 if (tempRepResult.Count() <= 0)
                 {
                     var settDetId = getMaxSettlementDetails();
@@ -1656,7 +1660,7 @@ namespace Inspire.Erp.Application.Master
                     {
                         SettlementDetId = settDetId,
                         OrderId = salesVoucherNo,
-                        Amount = netTotal - model.CashAmount,
+                        Amount = netTotal - model.Cash,
                         Status = "Y",
                         Date = DateTime.Now,//to be changed
                         UserId = model.UserId,
