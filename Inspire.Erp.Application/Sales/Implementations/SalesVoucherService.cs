@@ -1212,15 +1212,11 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     wp.LoginSystemIP = null;
                 }
 
-                wp.OpeningCash = 0;
+                wp.OpeningCash = 0;//query
                 wp.OpeningCashUser = 0;
-                wp.UserOpeningBal = 0;
+                wp.UserOpeningBal = 0; //text box
 
-                wp.ClosingCash = 0;
-                wp.ClosingCashUser = 0;
-                wp.UserClosebal = 0;
-
-                wp.DifferenceAmount = 0;
+                
 
                 _POSWorkPeriodRepository.Insert(wp);
                 _POSWorkPeriodRepository.TransactionCommit();
@@ -1257,6 +1253,13 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 {
                     wp.LoginSystemIP = null;
                 }
+
+
+                wp.ClosingCash = 0;  //query + POS_SalesTransaction_Details.amount
+                wp.ClosingCashUser = 0;
+                wp.UserClosebal = 0; //text box
+
+                wp.DifferenceAmount = 0; //query + POS_SalesTransaction_Details.amount-text box
 
                 _POSWorkPeriodRepository.Insert(wp);
                 _POSWorkPeriodRepository.TransactionCommit();
