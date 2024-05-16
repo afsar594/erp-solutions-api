@@ -293,7 +293,7 @@ namespace Inspire.Erp.Web.Controllers.POS
         #endregion
 
 
-        #region  WP
+        #region  Work Periods
 
         [HttpPost]
         [Route("StartPosWP")]

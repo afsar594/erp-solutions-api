@@ -1133,7 +1133,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 SalesHold SalesHold = new SalesHold();
                 SalesHold = this.GetPosSalesHold(id);
 
-
                 _salesHoldDetailsRepository.DeleteList(SalesHold.SalesHoldDetails.ToList());
 
 
@@ -1177,22 +1176,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
             {
 
                 IEnumerable<SalesHold> SalesHold = _salesHoldRepository.GetAll();
-                //var salesHoldsWithDetails = SalesHold
-                //        .GroupJoin(
-                //            _salesHoldDetailsRepository.GetAll(),
-                //            salesHold => salesHold.V_ID,
-                //            detail => detail.SNO,
-                //            (salesHold, details) => new { SalesHold = salesHold, Details = details.ToList() } 
-                //        )
-                //        .SelectMany(result =>
-                //            result.Details.Select(detail =>
-                //            {
-                                
-                //                result.SalesHold.SalesHoldDetails = result.Details;
-                //                return result.SalesHold;
-                //            })
-                //        );
-
                 return SalesHold;
             }
             catch (Exception ex)
@@ -1201,6 +1184,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 throw ex;
             }
         }
+
         #endregion
 
 
@@ -1227,6 +1211,16 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 {
                     wp.LoginSystemIP = null;
                 }
+
+                wp.OpeningCash = 0;
+                wp.OpeningCashUser = 0;
+                wp.UserOpeningBal = 0;
+
+                wp.ClosingCash = 0;
+                wp.ClosingCashUser = 0;
+                wp.UserClosebal = 0;
+
+                wp.DifferenceAmount = 0;
 
                 _POSWorkPeriodRepository.Insert(wp);
                 _POSWorkPeriodRepository.TransactionCommit();
