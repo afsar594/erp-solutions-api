@@ -94,12 +94,12 @@ namespace Inspire.Erp.Web.Controllers.POS
         }
 
 
-        [HttpPost("CalcualteCardAmount")]
-        public async Task<IActionResult> CalcualteCardAmount(CardAmountRequest model)
+        [HttpPost("CalculateCardAmount")]
+        public async Task<IActionResult> CalculateCardAmount(CardAmountRequest model)
         {
             try
             {
-                return Ok(await itemMasterService.CalcualteCardAmount(model));
+                return Ok(await itemMasterService.CalculateCardAmount(model));
             }
             catch (System.Exception ex)
             {
@@ -123,6 +123,21 @@ namespace Inspire.Erp.Web.Controllers.POS
 
         }
 
+
+
+        [HttpPost("ProcessCash")]
+        public async Task<IActionResult> ProcessCash(CardRequest model)
+        {
+            try
+            {
+                return Ok(await itemMasterService.ProcessCashTransaction(model));
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
+
+        }
 
 
 
