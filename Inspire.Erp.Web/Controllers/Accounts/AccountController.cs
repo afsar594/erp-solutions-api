@@ -110,7 +110,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         //{
         //    return Ok(await _multiAccountService.GetAccountTransactionsForeignCurrencySummary(model));
         //}
-
+        
         [HttpPost("GetAccountTransactionsForeignCurrencySummary")]
         public async Task<IActionResult> GetAccountTransactionsForeignCurrencySummary(GenericGridViewModel model)
         {
