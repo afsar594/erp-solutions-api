@@ -14,6 +14,7 @@ namespace Inspire.Erp.Web.ViewModels
         public bool? UnitMasterUnitStatus { get; set; }
         public bool? UnitMasterUnitDelStatus { get; set; }
         public double? UnitDetailsConversionType { get; set; }
+        public double? UnitDetailsUnitPrice { get; set; }
 
     }
 }
