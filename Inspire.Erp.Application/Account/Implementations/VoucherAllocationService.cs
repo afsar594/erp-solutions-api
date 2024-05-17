@@ -616,8 +616,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                         _voucherAllocationDetails.DeleteList(allocationDetailsList);
                     }
                     _voucherAllocation.Delete(allocationDetails);
-
-
+                   
                     /**UPDATE AccountsTransactions SET
                       * Alloc_Credit=0,Alloc_Debit=0,
                       * Fc_Alloc_Credit=0, Fc_Alloc_Debit=0 ,
