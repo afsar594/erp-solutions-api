@@ -345,8 +345,15 @@ namespace Inspire.Erp.Domain.Enums
         public static string UpdateUser { get { return "User updated successfully"; } }
         public static string DeleteUser { get { return "User deleted successfully"; } }
 
+    }
+    public static class WorkPeriodsMessage
+    {
+        public static String StartWP { get { return "Work Period   Starts successfully"; } }
+        public static string EndWP { get { return "Work Period Ends successfully"; } }
+
 
     }
+
 
 
 

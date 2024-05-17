@@ -19,11 +19,13 @@ namespace Inspire.Erp.Web.Controllers.Administration
     {
         private readonly IMapper _mapper;
         private IStationMasterServices stationMasterService;
-        public StationMasterController(IStationMasterServices _stationMasterService, IMapper mapper)
+        private IPosStationSettingsServices PosStationSettingsServices;
+        public StationMasterController(IStationMasterServices _stationMasterService, IMapper mapper, IPosStationSettingsServices posStationSettingsServices)
         {
 
             stationMasterService = _stationMasterService;
             _mapper = mapper;
+            PosStationSettingsServices = posStationSettingsServices;
         }
         [HttpGet]
         [Route("GetAllStation")]
@@ -60,17 +62,17 @@ namespace Inspire.Erp.Web.Controllers.Administration
         {
             return Ok(await stationMasterService.DeleteStationMaster(stationMaster));
         }
-       
+
         [HttpGet]
         [Route("GetStationMaster/{Id}")]
         public async Task<IActionResult> GetStationMaster(int Id)
         {
             return Ok(await stationMasterService.GetStationMaster(Id));
         }
-     
+
         [HttpPost]
         [Route("InsterStationMaster")]
-        public async Task<IActionResult> InsterStationMaster(StationMaster  stationMaster)
+        public async Task<IActionResult> InsterStationMaster(StationMaster stationMaster)
         {
             return Ok(await stationMasterService.InsertStationMaster(stationMaster));
         }
@@ -81,9 +83,43 @@ namespace Inspire.Erp.Web.Controllers.Administration
             return Ok(await stationMasterService.UpdateStationMaster(stationMaster));
         }
 
-      
-      
 
+        //Pos Station Settings  
 
+        [HttpGet]
+        [Route("GetAllCounter")]
+        public List<PosStationSettings> GetAllCounter()
+        {
+
+            return PosStationSettingsServices.GetAllCounter().ToList();
+        }
+
+        [HttpPost]
+        [Route("InsterCounter")]
+        public async Task<IActionResult> InsterCounter(PosStationSettings stationMaster)
+        {
+            return Ok( PosStationSettingsServices.InsterCounter(stationMaster));
+        }
+
+        [HttpPut]
+        [Route("UpdateCounter")]
+        public async Task<IActionResult> UpdateCounter(PosStationSettings stationMaster)
+        {
+            return Ok( PosStationSettingsServices.UpdateCounter(stationMaster));
+        }
+
+        [HttpGet]
+        [Route("GetCounter/{Id}")]
+        public async Task<IActionResult> GetCounter(int Id)
+        {
+            return Ok(await PosStationSettingsServices.GetCounter(Id));
+        }
+
+        [HttpDelete]
+        [Route("DeleteCounter/{Id}")]
+        public async Task<IActionResult> DeleteCounter(int Id)
+        {
+            return Ok(await PosStationSettingsServices.DeleteCounter(Id));
+        }
     }
 }

@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Inspire.Erp.Application.Master
 {
-    public class UnitMasterSevice: IUnitMasterService
+    public class UnitMasterSevice : IUnitMasterService
     {
         private IRepository<UnitMaster> unitrepository;
         public readonly InspireErpDBContext _Context;
@@ -94,7 +94,7 @@ namespace Inspire.Erp.Application.Master
             IEnumerable<UnitMaster> unitMasters;
             try
             {
-                unitMasters = unitrepository.GetAsQueryable().Include(x=>x.UnitDetails);
+                unitMasters = unitrepository.GetAsQueryable().Include(x => x.UnitDetails);
             }
             catch (Exception ex)
             {
@@ -133,8 +133,8 @@ namespace Inspire.Erp.Application.Master
         {
             try
             {
-                     var results = await (from cpod in _Context.UnitDetails
-                                     join cpo in _Context.UnitMaster on cpod.UnitDetailsUnitId equals cpo.UnitMasterUnitId 
+                var results = await (from cpod in _Context.UnitDetails
+                                     join cpo in _Context.UnitMaster on cpod.UnitDetailsUnitId equals cpo.UnitMasterUnitId
                                      where cpod.UnitDetailsItemId == itemId
                                      select new GetUnitDetailsMasterList
                                      {
@@ -144,7 +144,7 @@ namespace Inspire.Erp.Application.Master
                                          UnitMasterUnitDescription = cpo.UnitMasterUnitDescription == null ? "" : cpo.UnitMasterUnitDescription,
                                          UnitMasterUnitStatus = cpo.UnitMasterUnitStatus == null ? false : cpo.UnitMasterUnitStatus,
                                          UnitDetailsConversionType = cpod.UnitDetailsConversionType == null ? 0 : cpod.UnitDetailsConversionType,
-
+                                         UnitDetailsRate = cpod.UnitDetailsRate == null ? 0 : cpod.UnitDetailsRate
                                      }).ToListAsync();
 
                 return Response<List<GetUnitDetailsMasterList>>.Success(results, "Data found");

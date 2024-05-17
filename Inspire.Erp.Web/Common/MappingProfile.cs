@@ -17,6 +17,8 @@ using System.Threading.Tasks;
 using Inspire.Erp.Web.ViewModels.Settings;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Modals.AccountStatement;
+using Inspire.Erp.Domain.Entities.POS;
+using Inspire.Erp.Domain.Modals;
 
 namespace Inspire.Erp.Web.Common
 {
@@ -448,6 +450,16 @@ namespace Inspire.Erp.Web.Common
             CreateMap<ReportFilterViewModel, ReportFilter>();
 
             #endregion
+
+            CreateMap<POS_WorkPeriod, WorkPeriodResponse>();
+            CreateMap<WorkPeriodResponse, POS_WorkPeriod>();
+
+            CreateMap<SalesHold, SalesHoldViewModel>();
+            CreateMap<SalesHoldViewModel, SalesHold>();
+
+            CreateMap<SalesHoldDetails, SalesHoldDetailsViewModel>();
+            CreateMap<SalesHoldDetailsViewModel, SalesHoldDetails>();
+
 
         }
     }
