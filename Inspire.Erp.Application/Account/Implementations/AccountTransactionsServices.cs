@@ -25,7 +25,7 @@ namespace Inspire.Erp.Application.Account.Implementations
         {
             try
             {
-                await Task.Delay(500);
+                await Task.Delay(500);  
                 var result = (from AD in this.allocationVDlts.GetAll()
                               join AT in _accountTransactionRepository.GetAll() on AD.AllocationVoucherDetailsTransSno equals (int)AT.AccountsTransactionsTransSno
                               where AD.AllocationVoucherDetailsAccNo == accNo && AD.AllocationVoucherDetailsVno.ToUpper() == refNo.ToUpper() && AD.AllocationVoucherDetailsRefVtype.ToUpper() == vType.ToUpper()
@@ -44,9 +44,12 @@ namespace Inspire.Erp.Application.Account.Implementations
                                   RefLocation = AD.AllocationVoucherDetailsRefLocationId.ToString()
                               }).ToList();
 
-                var transValues = _accountTransactionRepository.GetAll()
+                
+                  var  transValues = _accountTransactionRepository.GetAll()
                                         .Where(a => a.AccountsTransactionsAccNo.ToUpper() == accNo.ToUpper()
-                                                     && a.AccountsTransactionsAllocBalance > 0 && a.AccountsTransactionsDebit != 0)
+                                          && a.AccountsTransactionsAllocBalance > 0
+                                          && ((vType == "RECEIPT" && a.AccountsTransactionsDebit != 0)
+                                        || (vType == "PAYMENT" && a.AccountsTransactionsCredit != 0)))
                                         .Select(g => new Domain.Models.AllocationDetails()
                                         {
                                             TransNo = g.AccountsTransactionsTransSno,
@@ -60,15 +63,21 @@ namespace Inspire.Erp.Application.Account.Implementations
                                             AllocAmount = g.AccountsTransactionsAllocCredit > 0 ? g.AccountsTransactionsAllocCredit : g.AccountsTransactionsAllocDebit,
                                             RefLocation = g.AccountsTransactionsLocation.ToString()
                                         }).ToList();
+                
+              
+               
                 result.AddRange(transValues);
 
                 return ApiResponse<List<AllocationDetails>>.Success(result, "Data Found");
             }
             catch (Exception ex)
             {
+
                 return ApiResponse<List<AllocationDetails>>.Fail( ex.Message);
             }
         }
+
+
        
 
         private decimal? getNatAllocationAmount(long transNo)
