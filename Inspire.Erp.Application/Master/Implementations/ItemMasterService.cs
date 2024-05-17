@@ -919,7 +919,10 @@ namespace Inspire.Erp.Application.Master
         }
         public async Task<Response<List<SettlementDetailsResponse>>> AddSettlementDetails(SettlementDetailsRequest model)
         {
-            using (var trans = new TransactionScope())
+            using (var trans = new TransactionScope(
+                   TransactionScopeOption.RequiresNew,
+                   TransactionScopeAsyncFlowOption.Enabled))
+            //using (var trans = new TransactionScope())
             {
                 try
                 {
@@ -949,7 +952,7 @@ namespace Inspire.Erp.Application.Master
                     //Bill Discount
                     if (model.BillDiscount > 0)
                     {
-                        if(model.BillDiscountPerc==1)
+                        if (model.BillDiscountPerc == 1)
                         {
                             var tempSettDetDisP = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "DISNT");
                             if (tempSettDetDisP != null) settDetailsTempRepo.Delete(tempSettDetDisP);
@@ -966,8 +969,8 @@ namespace Inspire.Erp.Application.Master
 
                             };
                             settDetailsTempRepo.Insert(dispModel);
-                           
-                            decimal? testTaxable=model.BillAmount-model.BillDiscount;
+
+                            decimal? testTaxable = model.BillAmount - model.BillDiscount;
                             decimal? testvat = (testTaxable * model.SalesTax / 100);
                             model.VAT = testvat;
 
@@ -1016,20 +1019,20 @@ namespace Inspire.Erp.Application.Master
                         }
 
                         var tempSettDetVat = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "VAT");
-                            if (tempSettDetVat != null) settDetailsTempRepo.Delete(tempSettDetVat);
-                            var settDetailsVateId = getMaxSettlementDetails();
-                            var billVatModel = new POS_SettlementDetTemp()
-                            {
-                                SettlementDetId = settDetailsVateId,
-                                OrderId = salesVoucherNo,
-                                Amount = model.VAT,
-                                Status = "Y",
-                                Date = DateTime.Now,//to be changed
-                                UserId = model.UserId,
-                                TransactionCode = "VAT"
+                        if (tempSettDetVat != null) settDetailsTempRepo.Delete(tempSettDetVat);
+                        var settDetailsVateId = getMaxSettlementDetails();
+                        var billVatModel = new POS_SettlementDetTemp()
+                        {
+                            SettlementDetId = settDetailsVateId,
+                            OrderId = salesVoucherNo,
+                            Amount = model.VAT,
+                            Status = "Y",
+                            Date = DateTime.Now,//to be changed
+                            UserId = model.UserId,
+                            TransactionCode = "VAT"
 
-                            };
-                            settDetailsTempRepo.Insert(billVatModel);
+                        };
+                        settDetailsTempRepo.Insert(billVatModel);
                     }
                     else
                     {
@@ -1096,8 +1099,8 @@ namespace Inspire.Erp.Application.Master
                     }
 
 
-                    decimal? netTotal= model.BillAmount - model.BillDiscount + model.VAT;
-     
+                    decimal? netTotal = model.BillAmount - model.BillDiscount + model.VAT;
+
                     var tempSettDetailsNet = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "NET");
                     if (tempSettDetailsNet != null) settDetailsTempRepo.Delete(tempSettDetailsNet);
                     var settDetailsIdNet = getMaxSettlementDetails();
@@ -1114,7 +1117,7 @@ namespace Inspire.Erp.Application.Master
                     };
                     settDetailsTempRepo.Insert(alloModelNet);
 
-              
+
 
 
                     //Cash
@@ -1128,7 +1131,7 @@ namespace Inspire.Erp.Application.Master
                         {
                             SettlementDetId = settDetailsIdCash,
                             OrderId = salesVoucherNo,
-                            Amount =  netTotal < 0 ? model.CashAmount:model.CashAmount,
+                            Amount = netTotal < 0 ? model.CashAmount : model.CashAmount,
                             Status = "Y",
                             Date = DateTime.Now,//to be changed
                             UserId = model.UserId,
@@ -1142,23 +1145,23 @@ namespace Inspire.Erp.Application.Master
                         settDetailsIdCash = getMaxSettlementDetails();
 
                         var cashResult = (from ir in settDetailsTempRepo.GetAsQueryable()
-                                            join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode equals ud.Trans_code
-                                            where ir.UserId == 2 && ir.Card == true
-                                                group ir by 1 into og
-                                            select new 
-                                            {
-                                                CardAmount =og.Sum(item=>item.Amount)
-                                            });
+                                          join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode equals ud.Trans_code
+                                          where ir.UserId == 2 && ir.Card == true
+                                          group ir by 1 into og
+                                          select new
+                                          {
+                                              CardAmount = og.Sum(item => item.Amount)
+                                          });
 
                         decimal? cardAmount = cashResult.Count() > 0 ? cashResult.First().CardAmount : 0;
                         decimal? netData = 0;
-                       tempSettDetailsCash = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "NET");
+                        tempSettDetailsCash = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "NET");
                         if (tempSettDetailsCash != null)
                         {
                             netData = tempSettDetailsCash.Amount;
                         }
 
-                        decimal? totalChange = netData-model.CashAmount-cardAmount;
+                        decimal? totalChange = netData - model.CashAmount - cardAmount;
 
                         if (model.VATRound > 0)
                         {
@@ -1201,7 +1204,7 @@ namespace Inspire.Erp.Application.Master
                         };
                         settDetailsTempRepo.Insert(alloModelCash);
                     }
-                   else
+                    else
                     {
                         var tempSettDetailsCash = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "RCVE");
                         if (tempSettDetailsCash != null) settDetailsTempRepo.Delete(tempSettDetailsCash);
@@ -1215,7 +1218,7 @@ namespace Inspire.Erp.Application.Master
 
                     var result = await (from ir in settDetailsTempRepo.GetAsQueryable()
                                         join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode equals ud.Trans_code
-                                        where ir.UserId == model.UserId && ud.show_in_inv==true && !ir.TransactionCode.Contains("BIL")
+                                        where ir.UserId == model.UserId && ud.show_in_inv == true && !ir.TransactionCode.Contains("BIL")
                                         select new SettlementDetailsResponse
                                         {
                                             TransactionDesc = ud.Trans_Description,
@@ -1226,11 +1229,11 @@ namespace Inspire.Erp.Application.Master
                                             SettlementDate = ir.Date,
                                             SortOrder = ud.Sort_order,
                                             ShowinInvoice = ud.show_in_inv,
-                                            TransactionCode=ud.Trans_code,
-                                            UserId=ir.UserId
-                                        }).OrderBy(x=>x.SortOrder).ToListAsync();
+                                            TransactionCode = ud.Trans_code,
+                                            UserId = ir.UserId
+                                        }).OrderBy(x => x.SortOrder).ToListAsync();
 
-                   
+
                     trans.Complete();
                     //trans.Dispose();
                     return Response<List<SettlementDetailsResponse>>.Success(result, "Settlement Details inserted Successfully.");
@@ -1247,7 +1250,10 @@ namespace Inspire.Erp.Application.Master
 
         public async Task<Response<CardAmountResponse>> CalculateCardAmount(CardAmountRequest model)
         {
-            using (var trans = new TransactionScope())
+            //using (var trans = new TransactionScope())
+            using (var trans = new TransactionScope(
+                  TransactionScopeOption.RequiresNew,
+                  TransactionScopeAsyncFlowOption.Enabled))
             {
                 try
                 {
@@ -1316,8 +1322,7 @@ namespace Inspire.Erp.Application.Master
                     cardAmountResponse.NetTotal = netTotal;
                     cardAmountResponse.Balance = balance;
                     cardAmountResponse.LastBalance = lastBalance;
-
-                    trans.Complete();
+                     trans.Complete();
                     //trans.Dispose();
                     return Response<CardAmountResponse>.Success(cardAmountResponse, "Amount Returned Successfully.");
 
@@ -1332,7 +1337,10 @@ namespace Inspire.Erp.Application.Master
 
         public async Task<Response<bool>> ProcessCard(CardRequest model)
         {
-            using (var trans = new TransactionScope())
+            //using (var trans = new TransactionScope())
+            using (var trans = new TransactionScope(
+                  TransactionScopeOption.RequiresNew,
+                  TransactionScopeAsyncFlowOption.Enabled))
             {
                 try
                 {
@@ -1728,7 +1736,10 @@ namespace Inspire.Erp.Application.Master
 
         public async Task<Response<bool>> ProcessCash(decimal? totalChange,CardRequest model)
         {
-            using (var trans = new TransactionScope())
+            //using (var trans = new TransactionScope())
+            using (var trans = new TransactionScope(
+                  TransactionScopeOption.RequiresNew,
+                  TransactionScopeAsyncFlowOption.Enabled))
             {
                 try
                 {
