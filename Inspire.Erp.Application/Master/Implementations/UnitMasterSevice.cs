@@ -144,7 +144,7 @@ namespace Inspire.Erp.Application.Master
                                          UnitMasterUnitDescription = cpo.UnitMasterUnitDescription == null ? "" : cpo.UnitMasterUnitDescription,
                                          UnitMasterUnitStatus = cpo.UnitMasterUnitStatus == null ? false : cpo.UnitMasterUnitStatus,
                                          UnitDetailsConversionType = cpod.UnitDetailsConversionType == null ? 0 : cpod.UnitDetailsConversionType,
-                                         UnitDetailsUnitPrice = cpod.UnitDetailsUnitPrice == null ? 0 : cpod.UnitDetailsUnitPrice
+                                         UnitDetailsRate = cpod.UnitDetailsRate == null ? 0 : cpod.UnitDetailsRate
                                      }).ToListAsync();
 
                 return Response<List<GetUnitDetailsMasterList>>.Success(results, "Data found");

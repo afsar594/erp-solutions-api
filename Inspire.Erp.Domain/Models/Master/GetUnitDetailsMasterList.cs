@@ -13,7 +13,7 @@ namespace Inspire.Erp.Domain.Modals.AccountStatement
         public bool? UnitMasterUnitStatus { get; set; }
         public bool? UnitMasterUnitDelStatus { get; set; }
         public double? UnitDetailsConversionType { get; set; }
-        public double? UnitDetailsUnitPrice { get; set; }
+        public double? UnitDetailsRate { get; set; }
 
 
 
