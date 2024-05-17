@@ -66,7 +66,7 @@ namespace Inspire.Erp.Application.Sales.Interfaces
 
         public VouchersNumbers GeneratePosSaleHoldVoucherNo(DateTime? VoucherGenDate);
         public SalesHold InsertPosSalesHold(SalesHold salesHold, List<SalesHoldDetails> salesHoldDetails);
-        public SalesHold DeletePosSalesHold(decimal id);
+        public List<SalesHold> DeletePosSalesHold(decimal id);
         public SalesHold GetPosSalesHold(decimal id);
 
         public IEnumerable<SalesHold> GetPosSalesHoldList();

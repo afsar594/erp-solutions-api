@@ -1100,8 +1100,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 long max1count = 0;
                 max1count =
-                    _salesHoldRepository.GetAsQueryable()
-                    .DefaultIfEmpty().Max(o => o == null ? 0 : (long)o.V_ID) + 1;
+                    _salesHoldDetailsRepository.GetAsQueryable()
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : (long)o.SDet_ID) + 1;
                 foreach (var item in salesHoldDetails)
                 {
                     item.SDet_ID = max1count;
@@ -1124,7 +1124,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             }
         }
 
-        public SalesHold DeletePosSalesHold(decimal id)
+        public List<SalesHold> DeletePosSalesHold(decimal id)
         {
             try
             {
@@ -1132,15 +1132,17 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 SalesHold SalesHold = new SalesHold();
                 SalesHold = this.GetPosSalesHold(id);
+                if (SalesHold != null)
+                {
+                    _salesHoldDetailsRepository.DeleteList(SalesHold.SalesHoldDetails.ToList());
 
-                _salesHoldDetailsRepository.DeleteList(SalesHold.SalesHoldDetails.ToList());
 
 
+                    _salesHoldRepository.Delete(SalesHold);
+                    _salesHoldRepository.TransactionCommit();
+                }
 
-                _salesHoldRepository.Delete(SalesHold);
-                _salesHoldRepository.TransactionCommit();
-
-                return SalesHold;
+                return _salesHoldRepository.GetAll().Where(a => a.V_ID > 0).ToList();
             }
             catch (Exception ex)
             {
@@ -1157,9 +1159,10 @@ namespace Inspire.Erp.Application.Sales.Implementations
             {
 
                 SalesHold = _salesHoldRepository.GetAsQueryable().Where(k => k.V_ID == id).FirstOrDefault();
-
-                SalesHold.SalesHoldDetails = _salesHoldDetailsRepository.GetAsQueryable().Where(x => x.SNO == id).ToList();
-
+                if (SalesHold != null)
+                {
+                    SalesHold.SalesHoldDetails = _salesHoldDetailsRepository.GetAsQueryable().Where(x => x.SNO == id).ToList();
+                }
                 return SalesHold;
             }
             catch (Exception ex)
@@ -1216,7 +1219,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 wp.OpeningCashUser = 0;
                 wp.UserOpeningBal = 0; //text box
 
-                
+
 
                 _POSWorkPeriodRepository.Insert(wp);
                 _POSWorkPeriodRepository.TransactionCommit();

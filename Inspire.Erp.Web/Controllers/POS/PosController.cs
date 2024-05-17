@@ -214,21 +214,21 @@ namespace Inspire.Erp.Web.Controllers.POS
 
         [HttpDelete]
         [Route("DeletePosSalesHold/{id}")]
-        public ApiResponse<SalesHoldViewModel> DeletePosSalesHold(decimal id)
+        public ApiResponse<List<SalesHold>> DeletePosSalesHold(decimal id)
         {
 
             var xs = _salesVoucherService.DeletePosSalesHold(id);
             if (xs != null)
             {
 
-                SalesHoldViewModel SalesHoldViewModel = new SalesHoldViewModel();
-                SalesHoldViewModel = _mapper.Map<SalesHoldViewModel>(xs);
-                SalesHoldViewModel.SalesHoldDetailsViewModel = _mapper.Map<List<SalesHoldDetailsViewModel>>(xs.SalesHoldDetails);
+                //SalesHoldViewModel SalesHoldViewModel = new SalesHoldViewModel();
+                //SalesHoldViewModel = _mapper.Map<SalesHoldViewModel>(xs);
+                //SalesHoldViewModel.SalesHoldDetailsViewModel = _mapper.Map<List<SalesHoldDetailsViewModel>>(xs.SalesHoldDetails);
 
-                ApiResponse<SalesHoldViewModel> apiResponse = new ApiResponse<SalesHoldViewModel>
+                ApiResponse<List<SalesHold>> apiResponse = new ApiResponse<List<SalesHold>>
                 {
                     Valid = true,
-                    Result = SalesHoldViewModel,
+                    Result = xs,
                     Message = "Deleted"
                 };
                 return apiResponse;
