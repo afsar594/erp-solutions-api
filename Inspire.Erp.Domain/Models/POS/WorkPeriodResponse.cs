@@ -31,9 +31,10 @@ namespace Inspire.Erp.Domain.Modals
     public class SettlementDetailsRequest
     {
         public int Quantity { get; set; }
-        public decimal BillAmount { get; set; }
-        public decimal? ItemDiscount { get; set; }
+        public decimal Total { get; set; }
+        public decimal? NetAmount { get; set; }
         public decimal? VAT { get; set; }
+        public decimal? ItemDiscount { get; set; }
         public decimal? CashAmount { get; set; }
         public decimal? BillDiscount { get; set; }
         public decimal? BillDiscountPerc { get; set; }
