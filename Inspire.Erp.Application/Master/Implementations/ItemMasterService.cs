@@ -938,7 +938,7 @@ namespace Inspire.Erp.Application.Master
                     {
                         SettlementDetId = settDetailsBId,
                         OrderId = salesVoucherNo,
-                        Amount = model.BillAmount + model.VAT,
+                        Amount = model.Total + model.VAT,
                         Status = "Y",
                         Date = DateTime.Now,//to be changed
                         UserId = model.UserId,
@@ -951,7 +951,7 @@ namespace Inspire.Erp.Application.Master
                     {
 
                     }
-
+                    decimal? vat = 0;
                     //Bill Discount
                     if (model.BillDiscount > 0)
                     {
@@ -973,9 +973,9 @@ namespace Inspire.Erp.Application.Master
                             };
                             settDetailsTempRepo.Insert(dispModel);
 
-                            decimal? testTaxable = model.BillAmount - model.BillDiscount;
+                            decimal? testTaxable = model.Total - model.BillDiscount;
                             decimal? testvat = (testTaxable * model.SalesTax / 100);
-                            model.VAT = testvat;
+                            vat = testvat;
 
                             var tempSettDetBillV = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "BIL").ToList();
                             if (tempSettDetBillV != null) settDetailsTempRepo.DeleteList(tempSettDetBillV);
@@ -985,7 +985,7 @@ namespace Inspire.Erp.Application.Master
                             {
                                 SettlementDetId = settDetailsBVId,
                                 OrderId = salesVoucherNo,
-                                Amount = model.BillAmount,
+                                Amount = model.Total,
                                 Status = "Y",
                                 Date = DateTime.Now,//to be changed
                                 UserId = model.UserId,
@@ -1018,9 +1018,9 @@ namespace Inspire.Erp.Application.Master
 
                         if (model.BillDiscountPerc == 0)
                         {
-                            decimal? testTaxable = model.BillAmount - model.BillDiscount;
+                            decimal? testTaxable = model.Total - model.BillDiscount;
                             decimal? testvat = (testTaxable * model.SalesTax / 100);
-                            model.VAT = testvat;
+                            vat = testvat;
                         }
 
                         var tempSettDetVat = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "VAT").ToList();
@@ -1031,7 +1031,7 @@ namespace Inspire.Erp.Application.Master
                         {
                             SettlementDetId = settDetailsVateId,
                             OrderId = salesVoucherNo,
-                            Amount = model.VAT,
+                            Amount = vat,
                             Status = "Y",
                             Date = DateTime.Now,//to be changed
                             UserId = model.UserId,
@@ -1072,7 +1072,7 @@ namespace Inspire.Erp.Application.Master
                     {
                         SettlementDetId = settDetailsIdVat,
                         OrderId = salesVoucherNo,
-                        Amount = model.BillAmount - model.BillDiscount,
+                        Amount = model.Total - model.BillDiscount,
                         Status = "Y",
                         Date = DateTime.Now,//to be changed
                         UserId = model.UserId,
@@ -1113,7 +1113,7 @@ namespace Inspire.Erp.Application.Master
                     }
 
 
-                    decimal? netTotal = model.BillAmount - model.BillDiscount + model.VAT;
+                    decimal? netTotal = model.Total - model.BillDiscount + model.VAT;
 
 
                     var tempSettDetailsNet = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "NET").ToList();
@@ -1153,7 +1153,7 @@ namespace Inspire.Erp.Application.Master
                         {
                             SettlementDetId = settDetailsIdCash,
                             OrderId = salesVoucherNo,
-                            Amount = netTotal < 0 ? model.CashAmount : model.CashAmount,
+                            Amount = netTotal < 0 ? -1 * model.CashAmount : model.CashAmount,
                             Status = "Y",
                             Date = DateTime.Now,//to be changed
                             UserId = model.UserId,
@@ -1171,7 +1171,7 @@ namespace Inspire.Erp.Application.Master
 
                         var cashResult = (from ir in settDetailsTempRepo.GetAsQueryable()
                                           join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode equals ud.Trans_code
-                                          where ir.UserId == 2 && ir.Card == true
+                                          where ir.UserId == model.UserId && ir.Card == true
                                           group ir by 1 into og
                                           select new
                                           {
@@ -1320,7 +1320,7 @@ namespace Inspire.Erp.Application.Master
 
                     var cashResult = await (from ir in settDetailsTempRepo.GetAsQueryable()
                                       join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode equals ud.Trans_code
-                                      where ir.UserId == 2 && ir.Card == true
+                                      where ir.UserId == model.UserId && ir.Card == true
                                       group ir by 1 into og
                                       select new
                                       {
