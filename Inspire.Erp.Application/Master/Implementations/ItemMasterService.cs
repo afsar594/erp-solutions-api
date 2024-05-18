@@ -928,8 +928,11 @@ namespace Inspire.Erp.Application.Master
                 {
                     var salesVoucherNo = getMaxSalesVoucher();
 
-                    var tempSettDetBill = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "BIL");
-                    if (tempSettDetBill != null) settDetailsTempRepo.Delete(tempSettDetBill);
+                    var tempSettDetBill = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "BIL").ToList();
+                    if (tempSettDetBill != null) settDetailsTempRepo.DeleteList(tempSettDetBill);
+                   // settDetailsTempRepo.SaveChangesAsync();
+                    //  var tempSettDetBill = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "BIL");
+
                     var settDetailsBId = getMaxSettlementDetails();
                     var billModel = new POS_SettlementDetTemp()
                     {
@@ -954,8 +957,8 @@ namespace Inspire.Erp.Application.Master
                     {
                         if (model.BillDiscountPerc == 1)
                         {
-                            var tempSettDetDisP = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "DISNT");
-                            if (tempSettDetDisP != null) settDetailsTempRepo.Delete(tempSettDetDisP);
+                            var tempSettDetDisP = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "DISNT").ToList();
+                            if (tempSettDetDisP != null) settDetailsTempRepo.DeleteList(tempSettDetDisP);
                             var settDetailsDisPId = getMaxSettlementDetails();
                             var dispModel = new POS_SettlementDetTemp()
                             {
@@ -974,9 +977,9 @@ namespace Inspire.Erp.Application.Master
                             decimal? testvat = (testTaxable * model.SalesTax / 100);
                             model.VAT = testvat;
 
+                            var tempSettDetBillV = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "BIL").ToList();
+                            if (tempSettDetBillV != null) settDetailsTempRepo.DeleteList(tempSettDetBillV);
 
-                            var tempSettDetBillV = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "BIL");
-                            if (tempSettDetBillV != null) settDetailsTempRepo.Delete(tempSettDetBillV);
                             var settDetailsBVId = getMaxSettlementDetails();
                             var billVModel = new POS_SettlementDetTemp()
                             {
@@ -994,8 +997,10 @@ namespace Inspire.Erp.Application.Master
                         else
                         {
 
-                            var tempSettDetailsDis = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "DIS");
-                            if (tempSettDetailsDis != null) settDetailsTempRepo.Delete(tempSettDetailsDis);
+         
+                            var tempSettDetailsDis = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "DIS").ToList();
+                            if (tempSettDetailsDis != null) settDetailsTempRepo.DeleteList(tempSettDetailsDis);
+
                             var settDetailsIdDis = getMaxSettlementDetails();
                             var alloModelDis = new POS_SettlementDetTemp()
                             {
@@ -1018,8 +1023,9 @@ namespace Inspire.Erp.Application.Master
                             model.VAT = testvat;
                         }
 
-                        var tempSettDetVat = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "VAT");
-                        if (tempSettDetVat != null) settDetailsTempRepo.Delete(tempSettDetVat);
+                        var tempSettDetVat = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "VAT").ToList();
+                        if (tempSettDetVat != null) settDetailsTempRepo.DeleteList(tempSettDetVat);
+
                         var settDetailsVateId = getMaxSettlementDetails();
                         var billVatModel = new POS_SettlementDetTemp()
                         {
@@ -1036,8 +1042,11 @@ namespace Inspire.Erp.Application.Master
                     }
                     else
                     {
-                        var tempSettDetailsV = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "VAT");
-                        if (tempSettDetailsV != null) settDetailsTempRepo.Delete(tempSettDetailsV);
+                
+                        var tempSettDetailsV = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "VAT").ToList();
+                        if (tempSettDetailsV != null) settDetailsTempRepo.DeleteList(tempSettDetailsV);
+
+
                         var settDetailsVId = getMaxSettlementDetails();
                         var alloModelOth = new POS_SettlementDetTemp()
                         {
@@ -1054,8 +1063,10 @@ namespace Inspire.Erp.Application.Master
                     }
 
 
-                    var tempSettDetailsVat = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "VAMT");
-                    if (tempSettDetailsVat != null) settDetailsTempRepo.Delete(tempSettDetailsVat);
+                    var tempSettDetailsVat = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "VAMT").ToList();
+                    if (tempSettDetailsVat != null) settDetailsTempRepo.DeleteList(tempSettDetailsVat);
+
+
                     var settDetailsIdVat = getMaxSettlementDetails();
                     var alloModelVat = new POS_SettlementDetTemp()
                     {
@@ -1081,8 +1092,11 @@ namespace Inspire.Erp.Application.Master
                         {
                             VATDAmt = model.VATRoundAmount;
                         }
-                        var tempSettDetailsCASR = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "CASR");
-                        if (tempSettDetailsCASR != null) settDetailsTempRepo.Delete(tempSettDetailsCASR);
+                  
+
+                        var tempSettDetailsCASR = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "CASR").ToList();
+                        if (tempSettDetailsCASR != null) settDetailsTempRepo.DeleteList(tempSettDetailsCASR);
+
                         var settDetailsIdCASR = getMaxSettlementDetails();
                         var alloModelCASR = new POS_SettlementDetTemp()
                         {
@@ -1101,8 +1115,11 @@ namespace Inspire.Erp.Application.Master
 
                     decimal? netTotal = model.BillAmount - model.BillDiscount + model.VAT;
 
-                    var tempSettDetailsNet = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "NET");
-                    if (tempSettDetailsNet != null) settDetailsTempRepo.Delete(tempSettDetailsNet);
+
+                    var tempSettDetailsNet = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "NET").ToList();
+                    if (tempSettDetailsNet != null) settDetailsTempRepo.DeleteList(tempSettDetailsNet);
+
+
                     var settDetailsIdNet = getMaxSettlementDetails();
                     var alloModelNet = new POS_SettlementDetTemp()
                     {
@@ -1123,8 +1140,13 @@ namespace Inspire.Erp.Application.Master
                     //Cash
                     if (model.CashAmount > 0)
                     {
-                        var tempSettDetailsCash = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "RCVE");
-                        if (tempSettDetailsCash != null) settDetailsTempRepo.Delete(tempSettDetailsCash);
+    
+
+                        var tempSettDetailsCash = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "RCVE").ToList();
+                        if (tempSettDetailsCash != null) settDetailsTempRepo.DeleteList(tempSettDetailsCash);
+
+
+
                         var settDetailsIdCash = getMaxSettlementDetails();
 
                         var alloModelCash = new POS_SettlementDetTemp()
@@ -1140,8 +1162,11 @@ namespace Inspire.Erp.Application.Master
                         };
                         settDetailsTempRepo.Insert(alloModelCash);
 
-                        tempSettDetailsCash = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "CHNG");
-                        if (tempSettDetailsCash != null) settDetailsTempRepo.Delete(tempSettDetailsCash);
+                     
+                        var tempSettDetailsChng = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "CHNG").ToList();
+                        if (tempSettDetailsChng != null) settDetailsTempRepo.DeleteList(tempSettDetailsChng);
+
+
                         settDetailsIdCash = getMaxSettlementDetails();
 
                         var cashResult = (from ir in settDetailsTempRepo.GetAsQueryable()
@@ -1155,10 +1180,10 @@ namespace Inspire.Erp.Application.Master
 
                         decimal? cardAmount = cashResult.Count() > 0 ? cashResult.First().CardAmount : 0;
                         decimal? netData = 0;
-                        tempSettDetailsCash = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "NET");
-                        if (tempSettDetailsCash != null)
+                        var tempSettDetailsN = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "NET");
+                        if (tempSettDetailsN != null)
                         {
-                            netData = tempSettDetailsCash.Amount;
+                            netData = tempSettDetailsN.Amount;
                         }
 
                         decimal? totalChange = netData - model.CashAmount - cardAmount;
@@ -1174,8 +1199,13 @@ namespace Inspire.Erp.Application.Master
                             {
                                 VATDAmt = model.VATRoundAmount;
                             }
-                            var tempSettDetailsRF = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "RF");
-                            if (tempSettDetailsRF != null) settDetailsTempRepo.Delete(tempSettDetailsRF);
+                         
+
+                            var tempSettDetailsRF = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "RF").ToList();
+                            if (tempSettDetailsRF != null) settDetailsTempRepo.DeleteList(tempSettDetailsRF);
+
+
+
                             var settDetailsIdRF = getMaxSettlementDetails();
                             var alloModelRF = new POS_SettlementDetTemp()
                             {
@@ -1206,14 +1236,18 @@ namespace Inspire.Erp.Application.Master
                     }
                     else
                     {
-                        var tempSettDetailsCash = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "RCVE");
-                        if (tempSettDetailsCash != null) settDetailsTempRepo.Delete(tempSettDetailsCash);
 
-                        tempSettDetailsCash = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "CHNG");
-                        if (tempSettDetailsCash != null) settDetailsTempRepo.Delete(tempSettDetailsCash);
+                        var tempSettDetailsCash = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "RCVE").ToList();
+                        if (tempSettDetailsCash != null) settDetailsTempRepo.DeleteList(tempSettDetailsCash);
 
-                        tempSettDetailsCash = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "RF");
-                        if (tempSettDetailsCash != null) settDetailsTempRepo.Delete(tempSettDetailsCash);
+                        tempSettDetailsCash = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "CHNG").ToList();
+                        if (tempSettDetailsCash != null) settDetailsTempRepo.DeleteList(tempSettDetailsCash);
+
+
+                        tempSettDetailsCash = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "RF").ToList();
+                        if (tempSettDetailsCash != null) settDetailsTempRepo.DeleteList(tempSettDetailsCash);
+
+
                     }
 
                     var result = await (from ir in settDetailsTempRepo.GetAsQueryable()
