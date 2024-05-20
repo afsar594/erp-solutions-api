@@ -946,11 +946,6 @@ namespace Inspire.Erp.Application.Master
                     };
                     settDetailsTempRepo.Insert(billModel);
 
-                    //Item Discount
-                    if (model.ItemDiscount > 0)
-                    {
-
-                    }
                     decimal? vat = 0;
                     //Bill Discount
                     if (model.BillDiscount > 0)
@@ -1247,7 +1242,6 @@ namespace Inspire.Erp.Application.Master
                         tempSettDetailsCash = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "RF").ToList();
                         if (tempSettDetailsCash != null) settDetailsTempRepo.DeleteList(tempSettDetailsCash);
 
-
                     }
 
                     var result = await (from ir in settDetailsTempRepo.GetAsQueryable()
@@ -1297,11 +1291,11 @@ namespace Inspire.Erp.Application.Master
                     string voucherNo = billPOSCode + salesVoucherNo;
 
                     decimal? netTotal = 0;
-                    var tempSettDetailsDis = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "NET");
+                    var tempSettDetailsDis = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "NET");
                     if (tempSettDetailsDis != null) netTotal=tempSettDetailsDis.Amount;
 
                     decimal? vat = 0;
-                    tempSettDetailsDis = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "VAT");
+                    tempSettDetailsDis = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "VAT");
                     if (tempSettDetailsDis != null) vat = tempSettDetailsDis.Amount;
 
                     
@@ -1319,8 +1313,8 @@ namespace Inspire.Erp.Application.Master
                     decimal? cash = model.Cash;
 
                     var cashResult = await (from ir in settDetailsTempRepo.GetAsQueryable()
-                                      join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode equals ud.Trans_code
-                                      where ir.UserId == model.UserId && ir.Card == true
+                                      join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode.Trim().ToUpper() equals ud.Trans_code.Trim().ToUpper()
+                                            where ir.UserId == model.UserId && ir.Card == true
                                       group ir by 1 into og
                                       select new
                                       {
