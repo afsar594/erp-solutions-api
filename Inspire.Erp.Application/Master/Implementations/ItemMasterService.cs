@@ -1175,7 +1175,7 @@ namespace Inspire.Erp.Application.Master
 
                         decimal? cardAmount = cashResult.Count() > 0 ? cashResult.First().CardAmount : 0;
                         decimal? netData = 0;
-                        var tempSettDetailsN = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "NET");
+                        var tempSettDetailsN = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "NET");
                         if (tempSettDetailsN != null)
                         {
                             netData = tempSettDetailsN.Amount;
@@ -1707,7 +1707,7 @@ namespace Inspire.Erp.Application.Master
                 }
                 else
                 {
-                    var tempSettDetails = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "NET");
+                    var tempSettDetails = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "NET");
                     if (tempSettDetails != null) settDetailsTempRepo.Delete(tempSettDetails);
                 }
 
@@ -1736,7 +1736,7 @@ namespace Inspire.Erp.Application.Master
                                       });
                     decimal? chngAmount = cashResult.Count() > 0 ? cashResult.First().CardAmount : 0;
 
-                    var tempSettDetailsNet = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "NET");
+                    var tempSettDetailsNet = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "NET");
                     decimal? netData = 0;
                     decimal? totalChange = 0;
                     if (tempSettDetailsNet != null)
@@ -1784,22 +1784,22 @@ namespace Inspire.Erp.Application.Master
                     if (tempSalesTrRepo != null) posSalesTranDetailsRepo.Delete(tempSalesTrRepo);
 
                     decimal? netTotal = 0;
-                    var settDetTemp = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "BIL");
+                    var settDetTemp = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "BIL");
                     if (settDetTemp != null) netTotal = settDetTemp.Amount;
 
                     decimal? disc = 0;
-                    settDetTemp = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "BIL");
+                    settDetTemp = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "BIL");
                     if (settDetTemp != null) disc = settDetTemp.Amount;
 
                     decimal? vat = 0;
-                    settDetTemp = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "BIL");
+                    settDetTemp = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "BIL");
                     if (settDetTemp != null) vat = settDetTemp.Amount;
 
                     netTotal = netTotal - disc;
 
 
                     var cashResult = (from ir in settDetailsTempRepo.GetAsQueryable()
-                                      join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode equals ud.Trans_code
+                                      join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode.Trim().ToUpper() equals ud.Trans_code.Trim().ToUpper()
                                       where ir.UserId == model.UserId && ud.InHouse == true
                                       && ud.CRDR == "D" && ud.Trans_code != "DIS"
                                       group ir by 1 into og
@@ -1854,7 +1854,7 @@ namespace Inspire.Erp.Application.Master
                     //{
 
                     //}
-                    var tempSettDetails = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "CAS");
+                    var tempSettDetails = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "CAS");
                     if (tempSettDetails != null) settDetailsTempRepo.Delete(tempSettDetails);
 
                     if (cashAmount1 < 0 && model.SalesRet == true)
@@ -2015,8 +2015,8 @@ namespace Inspire.Erp.Application.Master
 
                     //Card Transactions
                     var settDetailsCard = await (from ir in settDetailsTempRepo.GetAsQueryable()
-                                             join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode equals ud.Trans_code
-                                             where ir.UserId == model.UserId && ir.Card == true
+                                             join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode.Trim().ToUpper() equals ud.Trans_code.Trim().ToUpper()
+                                                 where ir.UserId == model.UserId && ir.Card == true
                                              select new
                                              {
                                                  Amount = ir.Amount,
@@ -2052,7 +2052,7 @@ namespace Inspire.Erp.Application.Master
                     if (groupMaster != null) cardId = groupMaster.Id;
 
                     var tempRepResult = (from ir in settDetailsTempRepo.GetAsQueryable()
-                                         join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode equals ud.Trans_code
+                                         join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode.Trim().ToUpper() equals ud.Trans_code.Trim().ToUpper()
                                          join tg in posTranGroupMasterRepo.GetAsQueryable() on ud.Trans_group equals tg.Id
                                          where tg.Id == cardId
                                          select new
@@ -2107,7 +2107,7 @@ namespace Inspire.Erp.Application.Master
                 if (tempAccTrans != null) accTransRepo.Delete(tempAccTrans);
 
                 decimal? vatAmount = 0;
-                var tempVatD = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "VAT");
+                var tempVatD = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "VAT");
                 if (tempVatD != null)
                 {
                     if(tempVatD.Amount==null)
@@ -2121,7 +2121,7 @@ namespace Inspire.Erp.Application.Master
                 }
 
                 decimal? discount = 0;
-                var tempVatDis = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode == "DIS");
+                var tempVatDis = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "DIS");
                 if (tempVatDis != null)
                 {
                     if (tempVatDis.Amount == null)
