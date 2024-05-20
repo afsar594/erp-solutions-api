@@ -73,7 +73,6 @@ namespace Inspire.Erp.Domain.Modals
     }
     public class CardAmountResponse
     {
-        
         public decimal? NetTotal { get; set; }
         public decimal? CashAmount { get; set; }
         public decimal? Balance { get; set; }
