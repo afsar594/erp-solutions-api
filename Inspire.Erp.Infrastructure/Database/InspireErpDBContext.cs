@@ -415,10 +415,11 @@ namespace Inspire.Erp.Infrastructure.Database
 
         //POS Tables
 
-        public DbSet<POS_Sales_Voucher> POS_Sales_Voucher { get; set; }
-        public DbSet<POS_Sales_Voucher_Details> POS_Sales_Voucher_Details { get; set; }
+        //public DbSet<POS_Sales_Voucher> POS_Sales_Voucher { get; set; }
+        //public DbSet<POS_Sales_Voucher_Details> POS_Sales_Voucher_Details { get; set; }
 
-
+        public DbSet<POS_SalesVoucher> POS_SalesVoucher { get; set; }
+        public DbSet<POS_SalesVoucherDetails> POS_SalesVoucherDetails { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -7226,44 +7227,56 @@ namespace Inspire.Erp.Infrastructure.Database
             modelBuilder.Entity<GeneralSettings>(entity =>
             {
                 entity.ToTable("General_Settings");
+                entity.HasKey(e => e.Id);
 
-                entity.Property(e => e.GeneralSettingsId).HasColumnName("General_Settings_ID");
 
-                entity.Property(e => e.GeneralSettingsBoolValue).HasColumnName("General_Settings_Bool_Value");
+                //    entity.Property(e => e.Id).HasColumnName("GenID");
 
-                entity.Property(e => e.GeneralSettingsCategory)
-                    .HasColumnName("General_Settings_Category")
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
+                //    entity.Property(e => e.KeyValue)
+                //       .HasColumnName("Key_Value")
+                //       .HasMaxLength(50)
+                //       .IsFixedLength();
 
-                entity.Property(e => e.GeneralSettingsDelStatus).HasColumnName("General_Settings_DelStatus");
+                //    entity.Property(e => e.GeneralSettingsCategory)
+                //        .HasColumnName("Category")
+                //        .HasMaxLength(50)
+                //        .IsUnicode(false);
 
-                entity.Property(e => e.GeneralSettingsDescription)
-                    .HasColumnName("General_Settings_Description")
-                    .HasMaxLength(150)
-                    .IsUnicode(false);
+                //    entity.Property(e => e.GeneralSettingsDescription)
+                //  .HasColumnName("Description")
+                //  .HasMaxLength(250)
+                //  .IsUnicode(false);
 
-                entity.Property(e => e.GeneralSettingsKeyValue)
-                    .HasColumnName("General_Settings_Key_Value")
-                    .HasMaxLength(50)
-                    .IsFixedLength();
+                //    entity.Property(e => e.GeneralSettingsValueType)
+                //.HasColumnName("ValueType")
+                //.HasMaxLength(50)
+                //.IsUnicode(false);
 
-                entity.Property(e => e.GeneralSettingsNumValue).HasColumnName("General_Settings_Num_Value");
+                //    entity.Property(e => e.GeneralSettingsBoolValue).HasColumnName("BoolValue");
 
-                entity.Property(e => e.GeneralSettingsTableName)
-                    .HasColumnName("General_Settings_Table_Name")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
 
-                entity.Property(e => e.GeneralSettingsTextValue)
-                    .HasColumnName("General_Settings_Text_Value")
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
+                //    entity.Property(e => e.GeneralSettingsNumValue).HasColumnName("NumValue");
 
-                entity.Property(e => e.GeneralSettingsValueType)
-                    .HasColumnName("General_Settings_Value_Type")
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
+
+                //    entity.Property(e => e.GeneralSettingsTextValue)
+                //        .HasColumnName(TextValue")
+                //        .HasMaxLength(50)
+                //        .IsUnicode(false);
+
+                //    entity.Property(e => e.GeneralSettingsDelStatus).HasColumnName("General_Settings_DelStatus");
+
+
+
+
+
+
+                //    entity.Property(e => e.GeneralSettingsTableName)
+                //        .HasColumnName("General_Settings_Table_Name")
+                //        .HasMaxLength(100)
+                //        .IsUnicode(false);
+
+
+
             });
 
 
@@ -24329,23 +24342,37 @@ namespace Inspire.Erp.Infrastructure.Database
                 e.HasKey(x => x.Id);
             });
 
-            modelBuilder.Entity<POS_Sales_Voucher>(e =>
-            {
-                e.HasNoKey();
+            //modelBuilder.Entity<POS_Sales_Voucher>(e =>
+            //{
+            //    e.HasNoKey();
 
+            //    e.ToTable("POS_Sales_Voucher");
+            //});
+
+            //modelBuilder.Entity<POS_Sales_Voucher_Details>(e =>
+            //{
+            //    e.HasNoKey();
+
+            //    e.ToTable("POS_Sales_Voucher_Details");
+            //});
+
+
+            modelBuilder.Entity<POS_SalesVoucher>(e =>
+            {
                 e.ToTable("POS_Sales_Voucher");
+                e.HasKey(x => x.V_ID);
             });
 
-            modelBuilder.Entity<POS_Sales_Voucher_Details>(e =>
+            modelBuilder.Entity<POS_SalesVoucherDetails>(e =>
             {
-                e.HasNoKey();
+                e.HasKey(x => x.SDet_ID);
 
                 e.ToTable("POS_Sales_Voucher_Details");
             });
 
             modelBuilder.Entity<POS_SalesTransactionDetails>(e =>
             {
-                e.ToTable("POS_SalesTransactionDetails");
+                e.ToTable("POS_SalesTransaction_Details");
                 e.HasKey(x => x.Id);
             });
 

@@ -71,6 +71,7 @@ namespace Inspire.Erp.Application.Master
             , IRepository<Inspire.Erp.Domain.Entities.GeneralSettings> _gSettingRepo
             , IRepository<UnitMaster> unitMasterRepo
             , IRepository<POS_SalesVoucher> _posSalesVoucherRepo
+             , IRepository<POS_SalesVoucherDetails> _posSalesVoucherDetailsRepo
 
             )
         {
@@ -95,8 +96,9 @@ namespace Inspire.Erp.Application.Master
             customerMasterRepo = _customerMasterRepo;
             stockRegisterRepo = _stockRegisterRepo;
             accTransRepo = _accTransRepo;
-            _gSettingRepo = gSettingRepo;
+            gSettingRepo = _gSettingRepo;
             posSalesVoucherRepo = _posSalesVoucherRepo;
+            posSalesVoucherDetailsRepo = _posSalesVoucherDetailsRepo;
         }
         public IEnumerable<ItemMaster> InsertItem(ItemMaster itemMaster)
         {
@@ -1102,7 +1104,6 @@ namespace Inspire.Erp.Application.Master
                             Date = DateTime.Now,//to be changed
                             UserId = model.UserId,
                             TransactionCode = "CASR"
-
                         };
                         settDetailsTempRepo.Insert(alloModelCASR);
                     }
@@ -1125,12 +1126,8 @@ namespace Inspire.Erp.Application.Master
                         Date = DateTime.Now,//to be changed
                         UserId = model.UserId,
                         TransactionCode = "NET"
-
                     };
                     settDetailsTempRepo.Insert(alloModelNet);
-
-
-
 
                     //Cash
                     if (model.CashAmount > 0)
@@ -1140,10 +1137,7 @@ namespace Inspire.Erp.Application.Master
                         var tempSettDetailsCash = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "RCVE").ToList();
                         if (tempSettDetailsCash != null) settDetailsTempRepo.DeleteList(tempSettDetailsCash);
 
-
-
                         var settDetailsIdCash = getMaxSettlementDetails();
-
                         var alloModelCash = new POS_SettlementDetTemp()
                         {
                             SettlementDetId = settDetailsIdCash,
@@ -1198,8 +1192,6 @@ namespace Inspire.Erp.Application.Master
 
                             var tempSettDetailsRF = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "RF").ToList();
                             if (tempSettDetailsRF != null) settDetailsTempRepo.DeleteList(tempSettDetailsRF);
-
-
 
                             var settDetailsIdRF = getMaxSettlementDetails();
                             var alloModelRF = new POS_SettlementDetTemp()
@@ -1260,7 +1252,6 @@ namespace Inspire.Erp.Application.Master
                                             TransactionCode = ud.Trans_code,
                                             UserId = ir.UserId
                                         }).OrderBy(x => x.SortOrder).ToListAsync();
-
 
                     trans.Complete();
                     //trans.Dispose();
@@ -1375,6 +1366,7 @@ namespace Inspire.Erp.Application.Master
                     string billPOSCode = "LA";
                     var salesVoucherNo = getMaxSalesVoucher();
                     string voucherNo = billPOSCode + salesVoucherNo;
+                    model.VoucherNo = voucherNo;
 
                     var tempSettDetailsCash = settDetailsRepo.GetAll().FirstOrDefault(o => o.OrderId == Convert.ToInt64(model.VoucherNo));
                     if (tempSettDetailsCash != null) settDetailsRepo.Delete(tempSettDetailsCash);
@@ -1382,7 +1374,7 @@ namespace Inspire.Erp.Application.Master
                     var tempSalesTrRepo = posSalesTranDetailsRepo.GetAll().FirstOrDefault(o => o.InvoiceNo == model.VoucherNo);
                     if (tempSalesTrRepo != null) posSalesTranDetailsRepo.Delete(tempSalesTrRepo);
 
-                    var tempTransCodes = transCodesRepo.GetAll().FirstOrDefault(o => o.InHouse == true && o.Trans_Description == model.CardType);
+                    var tempTransCodes = transCodesRepo.GetAsQueryable().FirstOrDefault(o => o.InHouse == true && o.Trans_Description.Trim().ToUpper() == model.CardType.ToUpper());
                     string transCode = "";
                     string transDesc = "";
                     if (tempTransCodes != null)
@@ -1406,11 +1398,11 @@ namespace Inspire.Erp.Application.Master
                     {
                         model.CashAmount = model.Cash;
                     }
-
+                    var settDetailsId = getMaxSettlementDetails();
                     var alloModelCash = new POS_SettlementDetTemp()
                     {
-                        SettlementDetId = model.BillNoSetDet,
-                        OrderId = model.BillnoLoad,
+                        SettlementDetId = settDetailsId,
+                        OrderId = salesVoucherNo,
                         Amount = model.CashAmount,
                         Status = "Y",
                         Date = DateTime.Now,//to be changed
@@ -1424,19 +1416,19 @@ namespace Inspire.Erp.Application.Master
                     var tempSettDetailsList = settDetailsTempRepo.GetAll().Where(o => o.UserId == model.UserId).ToList();
                     foreach (var item in tempSettDetailsList)
                     {
-                        if (item.TransactionCode == "BIL")
+                        if (item.TransactionCode.Trim().ToUpper() == "BIL")
                         {
                             SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)model.CardAmount
                                 , model.StationName, "BIL", (int)model.UserId, "BILL AMOUNT");
                         }
 
-                        if (item.TransactionCode == "DIS")
+                        if (item.TransactionCode.Trim().ToUpper() == "DIS")
                         {
                             SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)model.CardAmount
                                 , model.StationName, "DIS", (int)model.UserId, "DISCOUNT");
                         }
 
-                        if (item.TransactionCode == "VAT")
+                        if (item.TransactionCode.Trim().ToUpper() == "VAT")
                         {
                             if (item.Amount < 0)
                             {
@@ -1450,7 +1442,7 @@ namespace Inspire.Erp.Application.Master
                             }
                         }
 
-                        if (item.TransactionCode == "VAMT")
+                        if (item.TransactionCode.Trim().ToUpper() == "VAMT")
                         {
                             if (item.Amount < 0)
                             {
@@ -1464,19 +1456,19 @@ namespace Inspire.Erp.Application.Master
                             }
                         }
 
-                        if (item.TransactionCode == "NET")
+                        if (item.TransactionCode.Trim().ToUpper() == "NET")
                         {
                             SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)model.CardAmount
                                 , model.StationName, "NET", (int)model.UserId, "NET AMOUNT");
                         }
 
-                        if (item.TransactionCode == "RCVE")
+                        if (item.TransactionCode.Trim().ToUpper() == "RCVE")
                         {
                             SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)model.CardAmount
                                 , model.StationName, "RCVE", (int)model.UserId, "RECEIVED AMOUNT");
                         }
 
-                        if (item.TransactionCode == "CAS")
+                        if (item.TransactionCode.Trim().ToUpper() == "CAS")
                         {
                             if (item.Amount < 0)
                             {
@@ -1492,7 +1484,7 @@ namespace Inspire.Erp.Application.Master
                     }
 
                     var settDetails = await (from ir in settDetailsTempRepo.GetAsQueryable()
-                                             join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode equals ud.Trans_code
+                                             join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode.Trim().ToUpper() equals ud.Trans_code.Trim().ToUpper()
                                              where ir.UserId == model.UserId && ir.Card == true
                                              select new
                                              {
@@ -1514,10 +1506,10 @@ namespace Inspire.Erp.Application.Master
                         }
                     }
 
-                    var settDetailsId = getMaxSettlementDetails();
+                    var settDetailsIdCard = getMaxSettlementDetails();
                     var alloModel = new POS_SettlementDetTemp()
                     {
-                        SettlementDetId = settDetailsId,
+                        SettlementDetId = settDetailsIdCard,
                         OrderId = salesVoucherNo,
                         Amount = model.CardAmount,
                         Status = "Y",
@@ -1527,7 +1519,7 @@ namespace Inspire.Erp.Application.Master
                         Card = true,
                         CreditCardNumber = model.CreditCardNumber
                     };
-                    settDetailsTempRepo.Insert(alloModelCash);
+                    settDetailsTempRepo.Insert(alloModel);
 
                     SaveVoucher(model, transtype, transDesc, paymentmode, "CARD CUSTOMER");
 
@@ -1801,7 +1793,7 @@ namespace Inspire.Erp.Application.Master
                     var cashResult = (from ir in settDetailsTempRepo.GetAsQueryable()
                                       join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode.Trim().ToUpper() equals ud.Trans_code.Trim().ToUpper()
                                       where ir.UserId == model.UserId && ud.InHouse == true
-                                      && ud.CRDR == "D" && ud.Trans_code != "DIS"
+                                      && ud.CRDR == "D" && ud.Trans_code.Trim().ToUpper() != "DIS"
                                       group ir by 1 into og
                                       select new
                                       {
@@ -2091,8 +2083,9 @@ namespace Inspire.Erp.Application.Master
         {
             try
             {
-                var custDetails = customerMasterRepo.GetAll().FirstOrDefault(o => o.CustomerMasterCustomerNo == model.CustomerId);
-                string ustomerAccountNo = custDetails.CustomerMasterCustomerReffAcNo;
+                string customerAccountNo = null;
+               var custDetails = customerMasterRepo.GetAll().FirstOrDefault(o => o.CustomerMasterCustomerNo == model.CustomerId);
+                if (custDetails != null) customerAccountNo = custDetails.CustomerMasterCustomerReffAcNo;
 
                 var tempSalesV = posSalesVoucherRepo.GetAll().FirstOrDefault(o => o.VoucherNo == model.VoucherNo);
                 if (tempSalesV != null) posSalesVoucherRepo.Delete(tempSalesV);
@@ -2135,30 +2128,88 @@ namespace Inspire.Erp.Application.Master
                 }
 
 
-                var currency=gSettingRepo.GetAll().FirstOrDefault(o => o.GeneralSettingsKeyValue == "DEFAULTCURRENCY");
-                string defCurr = currency.GeneralSettingsTextValue;
+                var currency=gSettingRepo.GetAll().FirstOrDefault(o => o.KeyValue.Trim().ToUpper() == "DEFAULTCURRENCY");
+                string defCurr = currency.TextValue;
 
                 int indexPOS=defCurr.IndexOf("::");
-                string defaultCur = "";
+                string defaultCur = "";//UAE Dirham :: 5
+                int le = defCurr.Length;
                 if (indexPOS>0)
                 {
-                    defaultCur= defaultCur.Substring(indexPOS+2, defaultCur.Length);
+                    defaultCur= defCurr.Substring(indexPOS+2).Trim();
                 }
                 else
                 {
                     defaultCur = null;
                 }
 
+
                 var salesVC = new POS_SalesVoucher()
                 {
                     VoucherNo = model.VoucherNo,
                     ShortNo=model.BillNoSetDet,
-                    VoucherDate = DateTime.Now,
-                    Voucher_Type=transType,
+                    VoucherDate = DateTime.Now,//Format(AppLogDates, "dd/MMM/yyyy hh:mm:ss")
+                    Voucher_Type =transType,
                     CustomerName= custDetails.CustomerMasterCustomerName,
                     Customer_ID=model.CustomerId,
+                    Location=model.LocationId,
+                    Salesman=model.SalesManId,
+                    Discount=discount,
+                    GrossAmount=model.NetTotal,
+                    Vatable_TotAmt=(double)model.NetTotal,
+                    VatAmount=vatAmount,
+                    NetAmount= model.NetTotal + (vatAmount ) - model.BillDiscount,
+                    Remarks=model.StationName,
+                    UserId=model.UserId,
+                    CurrencyId=Convert.ToInt64(defaultCur),
+                    FSNO=1,
+                    Description= "POS SALES",
+                    CompanyId=1,
+                    Refrence="POS",
+                    JobId=0,
+                    Currency_ID=Convert.ToInt64(defaultCur),
+                    Cust_PODate= DateTime.Now,//Format(AppLogDates, "dd/MMM/yyyy hh:mm:ss"),
+                    NetDiscount =model.BillDiscount,
+                    CashCustName= custDetails.CustomerMasterCustomerName,
+                    Shipping_Address ="",
+                    InvoiceType= "POS",
+                    InvoiceStatus="",
+                    WorkPeriodID=model.WorkPeriodId,
+                    StationID=model.StationId,
+                    PaymentMode=paymentMode,
+                    refno= model.RefereceNo,
+                    DiscountPer=model.BillDiscountPerc
                 };
+
                 posSalesVoucherRepo.Insert(salesVC);
+
+                foreach(var item in model.ItemDetails)
+                {
+                    var salesVDetails = new POS_SalesVoucherDetails()
+                    {
+                        VoucherNo = model.VoucherNo,
+                        ItemId =item.ItemId,
+                        UnitId =item.UnitId,
+                        Sold_Qty = item.Quantity,
+                        UnitPrice =item.Price,
+                        VatableAmt = item.Total,
+                        CostPrice = item.Price,//needs to change
+                        GrossAmt = item.Total,
+                        Discount = item.Discount,
+                        NetAmount = item.NetTotal,
+                        FSNO = 1,
+                        SNO=1,
+                        LocationID = model.LocationId,
+                        CompanyId = 1,
+                        WorkPeriodID = model.WorkPeriodId,
+                        StationID = model.StationId
+                    };
+
+                    posSalesVoucherDetailsRepo.Insert(salesVDetails);
+                }
+
+
+
             }
             catch (Exception ex)
             {

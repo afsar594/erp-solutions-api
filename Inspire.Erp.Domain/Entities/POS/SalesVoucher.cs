@@ -56,7 +56,7 @@ namespace Inspire.Erp.Domain.Entities
         public string? Vat_RoundSign { get; set; }
         public decimal? Vat_RountAmt { get; set; }
         public long? DeptID { get; set; }
-        public float? Vatable_TotAmt { get; set; }
+        public double? Vatable_TotAmt { get; set; }
         public string? refno { get; set; }
         public decimal? Currency_Rate { get; set; }
         public int? SV_VesselId { get; set; }

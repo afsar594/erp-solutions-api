@@ -8,7 +8,7 @@ namespace Inspire.Erp.Domain.Entities.POS
         public int Id { get; set; }
         public string Trans_code { get; set; }
         public string Trans_Description { get; set; }
-        public int? Trans_group { get; set; }
+        public int Trans_group { get; set; }
         public string Main_Group { get; set; }
         public string CRDR { get; set; }
         public bool? Taxable { get; set; }
@@ -21,9 +21,9 @@ namespace Inspire.Erp.Domain.Entities.POS
         public bool? Printvoucher { get; set; }
         public bool? ManualTransaction { get; set; }
         public bool? PosttoAccounts { get; set; }
-        public float? taxsvc { get; set; }
-        public float? tax { get; set; }
-        public float? svc { get; set; }
+        public double? taxsvc { get; set; }
+        public double? tax { get; set; }
+        public double? svc { get; set; }
         public int? guestledger { get; set; }
         public int? dailysummary { get; set; }
         public bool? InHouse { get; set; }

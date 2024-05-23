@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Inspire.Erp.Domain.Modals.AccountStatement;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -97,6 +98,7 @@ namespace Inspire.Erp.Domain.Modals
         public decimal? BillAmount { get; set; }
         public decimal? ItemDiscount { get; set; }
         public decimal? BillDiscount { get; set; }
+        public decimal? BillDiscountPerc { get; set; }
         public decimal? VAT { get; set; }
         public int VATRound { get; set; }
         public decimal? VATRoundAmount { get; set; }
@@ -108,6 +110,12 @@ namespace Inspire.Erp.Domain.Modals
         public string StationName { get; set; }
         public string CreditCardNumber { get; set; }
         public int? CustomerId { get; set; }
+
+        public int? SalesManId { get; set; }
+        public int? LocationId { get; set; }
+        public int? StationId { get; set; }
+
+        public List<ItemDetail> ItemDetails { get; set; }
     }
 
 
@@ -118,6 +126,25 @@ namespace Inspire.Erp.Domain.Modals
         public string TransactionDescription { get; set; }
         public bool? InHouse { get; set; }
        
+    }
+
+    public class ItemDetail
+    {
+        public int ItemId { get; set; }
+        public string BarCode { get; set; }
+        public string ItemName { get; set; }
+        public string UnitName{ get; set; }
+        public int UnitId { get; set; }
+        public decimal? Quantity { get; set; }
+        public decimal? Price { get; set; }
+
+        public decimal? VatAmount { get; set; }
+        public decimal? Discount { get; set; }
+        public decimal? Total { get; set; }
+        public decimal? NetTotal { get; set; }
+
+        public int UnitDetailId { get; set; }
+
     }
 
 }

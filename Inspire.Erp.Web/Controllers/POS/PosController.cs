@@ -141,52 +141,52 @@ namespace Inspire.Erp.Web.Controllers.POS
 
 
 
-        [HttpPost]
-        [Route("InsertPosSalesVoucher")]
-        public ApiResponse<POS_Sales_Voucher> InsertPosSalesVoucher([FromBody] POS_Sales_Voucher voucherCompositeView)
-        {
-            ApiResponse<POS_Sales_Voucher> apiResponse = new ApiResponse<POS_Sales_Voucher>();
-            var param1 = _mapper.Map<POS_Sales_Voucher>(voucherCompositeView);
-            var param2 = _mapper.Map<List<POS_Sales_Voucher_Details>>(voucherCompositeView.posSalesVoucherDetails);
-            var xs = _salesVoucherService.InsertPosSalesVoucher(param1, param2);
-            apiResponse = new ApiResponse<POS_Sales_Voucher>
-            {
-                Valid = true,
-                Result = _mapper.Map<POS_Sales_Voucher>(xs),
-                Message = SalesVoucherMessage.SaveVoucher
-            };
-            return apiResponse;
-        }
-        [HttpPost]
-        [Route("UpdatePosSalesVoucher")]
-        public ApiResponse<POS_Sales_Voucher> UpdatePosSalesVoucher([FromBody] POS_Sales_Voucher voucherCompositeView)
-        {
-            ApiResponse<POS_Sales_Voucher> apiResponse = new ApiResponse<POS_Sales_Voucher>();
-            var param1 = _mapper.Map<POS_Sales_Voucher>(voucherCompositeView);
-            var param2 = _mapper.Map<List<POS_Sales_Voucher_Details>>(voucherCompositeView.posSalesVoucherDetails);
-            var xs = _salesVoucherService.UpdatePosSalesVoucher(param1, param2);
-            apiResponse = new ApiResponse<POS_Sales_Voucher>
-            {
-                Valid = true,
-                Result = _mapper.Map<POS_Sales_Voucher>(xs),
-                Message = SalesVoucherMessage.SaveVoucher
-            };
-            return apiResponse;
-        }
+        //[HttpPost]
+        //[Route("InsertPosSalesVoucher")]
+        //public ApiResponse<POS_Sales_Voucher> InsertPosSalesVoucher([FromBody] POS_Sales_Voucher voucherCompositeView)
+        //{
+        //    ApiResponse<POS_Sales_Voucher> apiResponse = new ApiResponse<POS_Sales_Voucher>();
+        //    var param1 = _mapper.Map<POS_Sales_Voucher>(voucherCompositeView);
+        //    var param2 = _mapper.Map<List<POS_Sales_Voucher_Details>>(voucherCompositeView.posSalesVoucherDetails);
+        //    var xs = _salesVoucherService.InsertPosSalesVoucher(param1, param2);
+        //    apiResponse = new ApiResponse<POS_Sales_Voucher>
+        //    {
+        //        Valid = true,
+        //        Result = _mapper.Map<POS_Sales_Voucher>(xs),
+        //        Message = SalesVoucherMessage.SaveVoucher
+        //    };
+        //    return apiResponse;
+        //}
+        //[HttpPost]
+        //[Route("UpdatePosSalesVoucher")]
+        //public ApiResponse<POS_Sales_Voucher> UpdatePosSalesVoucher([FromBody] POS_Sales_Voucher voucherCompositeView)
+        //{
+        //    ApiResponse<POS_Sales_Voucher> apiResponse = new ApiResponse<POS_Sales_Voucher>();
+        //    var param1 = _mapper.Map<POS_Sales_Voucher>(voucherCompositeView);
+        //    var param2 = _mapper.Map<List<POS_Sales_Voucher_Details>>(voucherCompositeView.posSalesVoucherDetails);
+        //    var xs = _salesVoucherService.UpdatePosSalesVoucher(param1, param2);
+        //    apiResponse = new ApiResponse<POS_Sales_Voucher>
+        //    {
+        //        Valid = true,
+        //        Result = _mapper.Map<POS_Sales_Voucher>(xs),
+        //        Message = SalesVoucherMessage.SaveVoucher
+        //    };
+        //    return apiResponse;
+        //}
 
-        [HttpGet]
-        [Route("GetPosSalesVoucher")]
-        public ApiResponse<IEnumerable<POS_Sales_Voucher>> GetAllSalesVoucher()
-        {
-            ApiResponse<IEnumerable<POS_Sales_Voucher>> apiResponse = new ApiResponse<IEnumerable<POS_Sales_Voucher>>
-            {
-                Valid = true,
-                Result = _mapper.Map<IEnumerable<POS_Sales_Voucher>>(_salesVoucherService.GetPosSalesVoucher()),
-                Message = ""
-            };
-            return apiResponse;
+        //[HttpGet]
+        //[Route("GetPosSalesVoucher")]
+        //public ApiResponse<IEnumerable<POS_Sales_Voucher>> GetAllSalesVoucher()
+        //{
+        //    ApiResponse<IEnumerable<POS_Sales_Voucher>> apiResponse = new ApiResponse<IEnumerable<POS_Sales_Voucher>>
+        //    {
+        //        Valid = true,
+        //        Result = _mapper.Map<IEnumerable<POS_Sales_Voucher>>(_salesVoucherService.GetPosSalesVoucher()),
+        //        Message = ""
+        //    };
+        //    return apiResponse;
 
-        }
+        //}
 
 
 
