@@ -418,6 +418,8 @@ namespace Inspire.Erp.Infrastructure.Database
         public DbSet<POS_Sales_Voucher> POS_Sales_Voucher { get; set; }
         public DbSet<POS_Sales_Voucher_Details> POS_Sales_Voucher_Details { get; set; }
 
+        public DbSet<POS_SalesTransactionDetails> POS_SalesTransactionDetails { get; set; }
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -24345,7 +24347,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<POS_SalesTransactionDetails>(e =>
             {
-                e.ToTable("POS_SalesTransactionDetails");
+                e.ToTable("POS_SalesTransaction_Details");
                 e.HasKey(x => x.Id);
             });
 

@@ -202,12 +202,20 @@ namespace Inspire.Erp.Web.Controllers.POS
             var param1 = _mapper.Map<SalesHold>(voucherCompositeView);
             var param2 = _mapper.Map<List<SalesHoldDetails>>(voucherCompositeView.SalesHoldDetailsViewModel);
             var xs = _salesVoucherService.InsertPosSalesHold(param1, param2);
-            apiResponse = new ApiResponse<SalesHoldViewModel>
+            if (xs != null)
             {
-                Valid = true,
-                Result = _mapper.Map<SalesHoldViewModel>(xs),
-                Message = SalesVoucherMessage.SaveVoucher
-            };
+                SalesHoldViewModel SalesHoldViewModel = new SalesHoldViewModel();
+                SalesHoldViewModel = _mapper.Map<SalesHoldViewModel>(xs);
+                SalesHoldViewModel.SalesHoldDetailsViewModel = _mapper.Map<List<SalesHoldDetailsViewModel>>(xs.SalesHoldDetails);
+
+
+                apiResponse = new ApiResponse<SalesHoldViewModel>
+                {
+                    Valid = true,
+                    Result = SalesHoldViewModel,
+                    Message = SalesVoucherMessage.SaveVoucher
+                };
+            }
             return apiResponse;
         }
 
@@ -248,6 +256,7 @@ namespace Inspire.Erp.Web.Controllers.POS
                 SalesHoldViewModel = _mapper.Map<SalesHoldViewModel>(xs);
                 SalesHoldViewModel.SalesHoldDetailsViewModel = _mapper.Map<List<SalesHoldDetailsViewModel>>(xs.SalesHoldDetails);
 
+
                 ApiResponse<SalesHoldViewModel> apiResponse = new ApiResponse<SalesHoldViewModel>
                 {
                     Valid = true,
@@ -261,13 +270,25 @@ namespace Inspire.Erp.Web.Controllers.POS
 
         [HttpGet]
         [Route("GetPosSalesHoldList")]
-        public ApiResponse<List<SalesHold>> GetPosSalesHoldList()
+        public ApiResponse<List<SalesHoldList>> GetPosSalesHoldList()
         {
 
-            ApiResponse<List<SalesHold>> apiResponse = new ApiResponse<List<SalesHold>>
+            var result = _salesVoucherService.GetPosSalesHoldList().Select(x => new SalesHoldList
+            {
+
+                VoucherNo = x.VoucherNo,
+                V_ID = x.V_ID,
+                StationID = x.StationID,
+                CustomerName = x.CustomerName,
+                GrossAmount = x.GrossAmount,
+                Discount = x.Discount,
+                VatAmount = x.VatAmount,
+                NetAmount = x.NetAmount
+            }).ToList();
+            ApiResponse<List<SalesHoldList>> apiResponse = new ApiResponse<List<SalesHoldList>>
             {
                 Valid = true,
-                Result = _salesVoucherService.GetPosSalesHoldList().ToList(),
+                Result = result,
                 Message = ""
             };
             return apiResponse;

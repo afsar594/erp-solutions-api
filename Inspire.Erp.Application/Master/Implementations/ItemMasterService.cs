@@ -2192,7 +2192,7 @@ namespace Inspire.Erp.Application.Master
                 }
                 catch (Exception ex)
                 {
-                   
+                throw ex;
                     
                 }
           

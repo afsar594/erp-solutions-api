@@ -18,16 +18,16 @@ namespace Inspire.Erp.Domain.Modals
         public decimal? GrossAmt { get; set; }
         public decimal? Discount { get; set; }
         public decimal? NetAmount { get; set; }
-        public decimal FSNO { get; set; }
+        //public decimal FSNO { get; set; }
         public decimal? SNO { get; set; }
-        public long? DeliveryNote { get; set; }
+        //public long? DeliveryNote { get; set; }
         public int? LocationID { get; set; }
         public int? CompanyId { get; set; }
-        public long? POD_ID { get; set; }
-        public long? Del_DetId { get; set; }
-        public long? Del_Id { get; set; }
-        public long? Delv_id { get; set; }
-        public string SerialNo_V { get; set; }
+        //public long? POD_ID { get; set; }
+        //public long? Del_DetId { get; set; }
+        //public long? Del_Id { get; set; }
+        //public long? Delv_id { get; set; }
+        //public string SerialNo_V { get; set; }
         public decimal? VatAmount { get; set; }
         public long? StationID { get; set; }
         public long? WorkPeriodID { get; set; }
