@@ -772,7 +772,7 @@ namespace Inspire.Erp.Application.Master
                                     select new CardType
                                     {
                                         Id = ir.Id,
-                                        TransactionCode = ir.Trans_code,
+                                        TransactionCode = ir.Trans_code.Trim(),
                                         TransactionDescription = ir.Trans_Description,
                                         InHouse = ir.InHouse
                                     }).ToListAsync();
