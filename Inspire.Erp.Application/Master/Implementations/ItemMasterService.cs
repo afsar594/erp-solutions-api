@@ -2128,8 +2128,8 @@ namespace Inspire.Erp.Application.Master
                 }
 
 
-                var currency=gSettingRepo.GetAll().FirstOrDefault(o => o.KeyValue.Trim().ToUpper() == "DEFAULTCURRENCY");
-                string defCurr = currency.TextValue;
+                var currency=gSettingRepo.GetAll().FirstOrDefault(o => o.GeneralSettingsKeyValue.Trim().ToUpper() == "DEFAULTCURRENCY");
+                string defCurr = currency.GeneralSettingsTextValue;
 
                 int indexPOS=defCurr.IndexOf("::");
                 string defaultCur = "";//UAE Dirham :: 5

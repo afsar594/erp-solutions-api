@@ -5,15 +5,15 @@ namespace Inspire.Erp.Domain.Entities
 {
     public partial class GeneralSettings
     {
-        public int Id { get; set; }
-        public string KeyValue { get; set; }
-        public string Category { get; set; }
-        public string Description { get; set; }
-        public string ValueType { get; set; }
-        public bool? BoolValue { get; set; }
-        public double? NumValue { get; set; }
-        public string TextValue { get; set; }
-        public string TableName { get; set; }
-         public bool? DelStatus { get; set; }
+        public int GeneralSettingsId { get; set; }
+        public string GeneralSettingsKeyValue { get; set; }
+        public string GeneralSettingsCategory { get; set; }
+        public string GeneralSettingsDescription { get; set; }
+        public string GeneralSettingsValueType { get; set; }
+        public bool? GeneralSettingsBoolValue { get; set; }
+        public double? GeneralSettingsNumValue { get; set; }
+        public string GeneralSettingsTextValue { get; set; }
+        public string GeneralSettingsTableName { get; set; }
+        public bool? GeneralSettingsDelStatus { get; set; }
     }
 }

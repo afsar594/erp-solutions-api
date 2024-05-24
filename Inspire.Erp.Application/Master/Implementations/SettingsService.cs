@@ -55,7 +55,7 @@ namespace Inspire.Erp.Application.Master.Implementations
             IEnumerable<GeneralSettings> generalSettings;
             try
             {
-                generalSettings = _generalSettingsRepo.GetAll().Where(k => k.KeyValue.Trim() == key);
+                generalSettings = _generalSettingsRepo.GetAll().Where(k => k.GeneralSettingsKeyValue.Trim() == key);
             }
             catch (Exception ex)
             {

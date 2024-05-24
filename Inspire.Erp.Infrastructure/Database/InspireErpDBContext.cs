@@ -7227,10 +7227,18 @@ namespace Inspire.Erp.Infrastructure.Database
             modelBuilder.Entity<GeneralSettings>(entity =>
             {
                 entity.ToTable("General_Settings");
-                entity.HasKey(e => e.Id);
+                entity.HasKey(e => e.GeneralSettingsId);
 
-
-                //    entity.Property(e => e.Id).HasColumnName("GenID");
+                entity.Property(e => e.GeneralSettingsId).HasColumnName("Id");
+                entity.Property(e => e.GeneralSettingsKeyValue).HasColumnName("KeyValue");
+                entity.Property(e => e.GeneralSettingsCategory).HasColumnName("Category");
+                entity.Property(e => e.GeneralSettingsDescription).HasColumnName("Description");
+                entity.Property(e => e.GeneralSettingsValueType).HasColumnName("ValueType");
+                entity.Property(e => e.GeneralSettingsBoolValue).HasColumnName("BoolValue");
+                entity.Property(e => e.GeneralSettingsNumValue).HasColumnName("NumValue");
+                entity.Property(e => e.GeneralSettingsTextValue).HasColumnName("TextValue");
+                entity.Property(e => e.GeneralSettingsTableName).HasColumnName("TableName");
+                entity.Property(e => e.GeneralSettingsDelStatus).HasColumnName("DelStatus");
 
                 //    entity.Property(e => e.KeyValue)
                 //       .HasColumnName("Key_Value")
