@@ -41,7 +41,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
         {
             try
             {
-                var ab = await (from c in _dbContext.POS_Sales_Voucher
+                var ab = await (from c in _dbContext.POS_SalesVoucher
                                 join d in _dbContext.POS_SalesTransactionDetails on c.VoucherNo equals d.InvoiceNo
                                 where d.Amount != 0 && d.PaymentMode == "CAS" && c.WorkPeriodID == wpId
                                 && c.StationID == stationId && c.VoucherDate >= fromDate && c.VoucherDate <= toDate
@@ -56,7 +56,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                     VatAmount = c.VatAmount ?? 0m
                                 }).ToListAsync();
 
-                var ac = await (from c in _dbContext.POS_Sales_Voucher
+                var ac = await (from c in _dbContext.POS_SalesVoucher
                                 join d in _dbContext.POS_SalesTransactionDetails on c.VoucherNo equals d.InvoiceNo
                                 where d.PaymentMode == "CAS" && d.Amount == 0
                                 && c.WorkPeriodID == wpId && c.StationID == stationId
@@ -86,7 +86,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             try
             {
                 fromDate = fromDate.Date; toDate = toDate.Date;
-                var ab = await (from c in _dbContext.POS_Sales_Voucher
+                var ab = await (from c in _dbContext.POS_SalesVoucher
                                 join d in _dbContext.POS_SalesTransactionDetails on c.VoucherNo equals d.InvoiceNo
                                 where d.Amount != 0 && d.PaymentMode == "CARD" && c.WorkPeriodID == wpId
                                 && c.StationID == stationId && c.VoucherDate >= fromDate && c.VoucherDate <= toDate
@@ -100,7 +100,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                     VatAmount = c.VatAmount ?? 0m
                                 }).ToListAsync();
 
-                var ac = await (from c in _dbContext.POS_Sales_Voucher
+                var ac = await (from c in _dbContext.POS_SalesVoucher
                                 join d in _dbContext.POS_SalesTransactionDetails on c.VoucherNo equals d.InvoiceNo
                                 where d.PaymentMode == "CARD" && d.Amount == 0 && c.WorkPeriodID == wpId
                                 && c.StationID == stationId && c.VoucherDate >= fromDate && c.VoucherDate <= toDate
@@ -130,7 +130,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             {
                 fromDate = fromDate.Date; toDate = toDate.Date;
 
-                var result = await (from c in _dbContext.POS_Sales_Voucher
+                var result = await (from c in _dbContext.POS_SalesVoucher
                                     join d in _dbContext.POS_SalesTransactionDetails on c.VoucherNo equals d.InvoiceNo
                                     where c.WorkPeriodID == wpId && c.StationID == stationId
                                     && c.VoucherDate >= fromDate && c.VoucherDate <= toDate
