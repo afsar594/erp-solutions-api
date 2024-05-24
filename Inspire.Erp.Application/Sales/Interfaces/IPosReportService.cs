@@ -15,9 +15,12 @@ namespace Inspire.Erp.Application.Sales.Interfaces
     public interface IPosReportService
     {
 
-        Task<List<POS_SummaryDateWiseReport>> GetSalesTransactionCash(int wpId, int stationId);
+        Task<List<POS_SummaryDateWiseReport>> GetSalesTransactionCash(int wpId, int stationId, DateTime fromDate, DateTime toDate);
         //Task<List<POS_SummaryDateWiseReport>> GetSalesTransactionCashDiscount(int wpId, int stationId);
-        Task<List<POS_SummaryDateWiseReport>> GetSalesTransactionCard(int wpId, int stationId);
+        Task<List<POS_SummaryDateWiseReport>> GetSalesTransactionCard(int wpId, int stationId, DateTime fromDate, DateTime toDate);
+
+        Task<List<POS_todaySalesByDate>> GetTodaySalesByDate(int wpId, int stationId, DateTime fromDate, DateTime toDate);
+
         //Task<List<POS_SummaryDateWiseReport>> GetSalesTransactionCardDiscount(int wpId, int stationId);
 
 

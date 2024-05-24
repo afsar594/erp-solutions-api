@@ -23,6 +23,7 @@ using Inspire.Erp.Domain.Entities.POS;
 using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Inspire.Erp.Application.Sales.Implementations
 {
@@ -36,14 +37,14 @@ namespace Inspire.Erp.Application.Sales.Implementations
         }
 
 
-        public async Task<List<POS_SummaryDateWiseReport>> GetSalesTransactionCash(int wpId, int stationId)
+        public async Task<List<POS_SummaryDateWiseReport>> GetSalesTransactionCash(int wpId, int stationId, DateTime fromDate, DateTime toDate)
         {
             try
             {
                 var ab = await (from c in _dbContext.POS_Sales_Voucher
                                 join d in _dbContext.POS_SalesTransactionDetails on c.VoucherNo equals d.InvoiceNo
                                 where d.Amount != 0 && d.PaymentMode == "CAS" && c.WorkPeriodID == wpId
-                                && c.StationID == stationId //&& c.VoucherDate == DateTime.Now
+                                && c.StationID == stationId && c.VoucherDate >= fromDate && c.VoucherDate <= toDate
                                 orderby d.Id
                                 select new POS_SummaryDateWiseReport
                                 {
@@ -58,7 +59,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 var ac = await (from c in _dbContext.POS_Sales_Voucher
                                 join d in _dbContext.POS_SalesTransactionDetails on c.VoucherNo equals d.InvoiceNo
                                 where d.PaymentMode == "CAS" && d.Amount == 0
-                                && c.WorkPeriodID == wpId && c.StationID == stationId //&& c.VoucherDate == DateTime.Now
+                                && c.WorkPeriodID == wpId && c.StationID == stationId
+                                  && c.VoucherDate >= fromDate && c.VoucherDate <= toDate
                                 orderby d.Id
                                 select new POS_SummaryDateWiseReport
                                 {
@@ -79,14 +81,15 @@ namespace Inspire.Erp.Application.Sales.Implementations
             }
         }
 
-        public async Task<List<POS_SummaryDateWiseReport>> GetSalesTransactionCard(int wpId, int stationId)
+        public async Task<List<POS_SummaryDateWiseReport>> GetSalesTransactionCard(int wpId, int stationId, DateTime fromDate, DateTime toDate)
         {
             try
             {
+                fromDate = fromDate.Date; toDate = toDate.Date;
                 var ab = await (from c in _dbContext.POS_Sales_Voucher
                                 join d in _dbContext.POS_SalesTransactionDetails on c.VoucherNo equals d.InvoiceNo
                                 where d.Amount != 0 && d.PaymentMode == "CARD" && c.WorkPeriodID == wpId
-                                && c.StationID == stationId //&& c.VoucherDate == DateTime.Now
+                                && c.StationID == stationId && c.VoucherDate >= fromDate && c.VoucherDate <= toDate
                                 select new POS_SummaryDateWiseReport
                                 {
                                     VoucherNo = c.VoucherNo,
@@ -100,7 +103,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 var ac = await (from c in _dbContext.POS_Sales_Voucher
                                 join d in _dbContext.POS_SalesTransactionDetails on c.VoucherNo equals d.InvoiceNo
                                 where d.PaymentMode == "CARD" && d.Amount == 0 && c.WorkPeriodID == wpId
-                                && c.StationID == stationId //&& c.VoucherDate == DateTime.Now
+                                && c.StationID == stationId && c.VoucherDate >= fromDate && c.VoucherDate <= toDate
                                 orderby d.Id
                                 select new POS_SummaryDateWiseReport
                                 {
@@ -113,6 +116,36 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                 }).ToListAsync();
 
                 var result = ab.Union(ac).OrderBy(a => a.VoucherNo).ToList();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<List<POS_todaySalesByDate>> GetTodaySalesByDate(int wpId, int stationId, DateTime fromDate, DateTime toDate)
+        {
+            try
+            {
+                fromDate = fromDate.Date; toDate = toDate.Date;
+
+                var result = await (from c in _dbContext.POS_Sales_Voucher
+                                    join d in _dbContext.POS_SalesTransactionDetails on c.VoucherNo equals d.InvoiceNo
+                                    where c.WorkPeriodID == wpId && c.StationID == stationId
+                                    && c.VoucherDate >= fromDate && c.VoucherDate <= toDate
+                                    select new POS_todaySalesByDate
+                                    {
+                                        VoucherNo = c.VoucherNo,
+                                        CustomerName = c.CustomerName,
+                                        PaymentMode = c.Voucher_Type,
+                                        Discount = (d.PaymentMode.Equals("DIS") ? (decimal)d.Amount : 0m),
+                                        NetAmount = (d.PaymentMode.Equals("NET") ? (decimal)d.Amount : 0m),
+                                        GrossAmount = (d.PaymentMode.Equals("CAS") ? (decimal)d.Amount : d.PaymentMode.Equals("CARD") ? (decimal)d.Amount : 0m),
+                                        VatAmount = (d.PaymentMode.Equals("VAT") ? (decimal)d.Amount : 0m),
+                                        VoucherDate = c.VoucherDate
+                                    }).ToListAsync();
+
                 return result;
             }
             catch (Exception ex)

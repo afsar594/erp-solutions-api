@@ -333,6 +333,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 purchaseOrder.PurchaseOrderDetails.Clear();
                 foreach (var item in purchaseOrderDetails)
                 {
+                    item.PurchaseOrderId = maxcount;
+                    item.PurchaseOrderDetailsNo = purchaseOrderNumber;// purchaseOrder.PurchaseOrderNo;
                     purchaseOrder.PurchaseOrderDetails.Add(item);
                 }
 
@@ -368,7 +370,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 foreach (var purOrderDet in purchaseOrder.PurchaseOrderDetails)
                 {
 
-                   // var converontype = this.getConverionTypebyUnitId(Convert.ToInt32(purOrderDet.PurchaseOrderDetailsUnitId));
+                    // var converontype = this.getConverionTypebyUnitId(Convert.ToInt32(purOrderDet.PurchaseOrderDetailsUnitId));
 
 
                     var tr = new TrackingRegister
@@ -377,7 +379,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         TrackingRegisterVoucherNo = purOrderDet.PurchaseOrderDetailsNo,
                         TrackingRegisterMaterialId = (int)purOrderDet.PurchaseOrderDetailsMatId,
                         TrackingRegisterVoucherType = purchaseOrder.PurchaseOrderType,
-                        TrackingRegisterQty = (int)purOrderDet.PurchaseOrderDetailsQuantity ,
+                        TrackingRegisterQty = (int)purOrderDet.PurchaseOrderDetailsQuantity,
                         TrackingRegisterQtyin = (int)purOrderDet.PurchaseOrderDetailsQuantity,
                         TrackingRegisterQtyout = 0,
                         TrackingRegisterRate = purOrderDet.PurchaseOrderDetailsRate,

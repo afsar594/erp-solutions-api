@@ -30,8 +30,20 @@ namespace Inspire.Erp.Domain.Entities
         public decimal GrossAmount { get; set; }
         public decimal VatAmount { get; set; }
 
+    }
+    public partial class POS_todaySalesByDate
+    {
 
+        public string VoucherNo { get; set; }
+        public string CustomerName { get; set; }
+        public string PaymentMode { get; set; }
+        public decimal Discount { get; set; }
+        public decimal NetAmount { get; set; }
+        public decimal GrossAmount { get; set; }
+        public decimal VatAmount { get; set; }
+        public  DateTime? VoucherDate { get; set; }
 
     }
+
 }
 
