@@ -420,6 +420,8 @@ namespace Inspire.Erp.Infrastructure.Database
 
         public DbSet<POS_SalesVoucher> POS_SalesVoucher { get; set; }
         public DbSet<POS_SalesVoucherDetails> POS_SalesVoucherDetails { get; set; }
+
+        public DbSet<POS_SalesTransactionDetails> POS_SalesTransactionDetails { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
