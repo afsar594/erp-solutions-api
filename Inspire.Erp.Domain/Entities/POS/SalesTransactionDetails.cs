@@ -20,4 +20,30 @@ namespace Inspire.Erp.Domain.Entities
         public string CreditAccountNo { get; set; }
 
     }
+    public partial class POS_SummaryDateWiseReport
+    {
+
+        public string VoucherNo { get; set; }
+        public string PaymentMode { get; set; }
+        public decimal Discount { get; set; }
+        public decimal Amount { get; set; }
+        public decimal GrossAmount { get; set; }
+        public decimal VatAmount { get; set; }
+
+    }
+    public partial class POS_todaySalesByDate
+    {
+
+        public string VoucherNo { get; set; }
+        public string CustomerName { get; set; }
+        public string PaymentMode { get; set; }
+        public decimal Discount { get; set; }
+        public decimal NetAmount { get; set; }
+        public decimal GrossAmount { get; set; }
+        public decimal VatAmount { get; set; }
+        public  DateTime? VoucherDate { get; set; }
+
+    }
+
 }
+
