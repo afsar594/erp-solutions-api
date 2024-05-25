@@ -49,10 +49,19 @@ namespace Inspire.Erp.Web.Controllers.POS
 
         [HttpGet]
         [Route("GetTodaySalesByDate")]
-        public async Task<List<POS_todaySalesByDate>> GetTodaySalesByDate(int workPeriodId, int stationId, DateTime fromDate, DateTime toDate)
+        public async Task<POS_MaintodaySales> GetTodaySalesByDate(int workPeriodId, int stationId, DateTime fromDate, DateTime toDate)
         {
             return await _posReportService.GetTodaySalesByDate(workPeriodId, stationId, fromDate, toDate);
 
         }
+
+        [HttpGet]
+        [Route("GetTodaySalesByCounterWise")]
+        public async Task<List<TodaySalesByCounterWise>> GetTodaySalesByCounterWise(DateTime fromDate, DateTime toDate)
+        {
+            return await _posReportService.GetTodaySalesByCounterWise(fromDate, toDate);
+
+        }
+
     }
 }

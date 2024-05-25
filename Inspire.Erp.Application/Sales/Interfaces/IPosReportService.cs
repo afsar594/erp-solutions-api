@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Inspire.Erp.Domain.Entities.POS;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Inspire.Erp.Application.Sales.Interfaces
 {
@@ -16,12 +17,15 @@ namespace Inspire.Erp.Application.Sales.Interfaces
     {
 
         Task<List<POS_SummaryDateWiseReport>> GetSalesTransactionCash(int wpId, int stationId, DateTime fromDate, DateTime toDate);
-        //Task<List<POS_SummaryDateWiseReport>> GetSalesTransactionCashDiscount(int wpId, int stationId);
+
         Task<List<POS_SummaryDateWiseReport>> GetSalesTransactionCard(int wpId, int stationId, DateTime fromDate, DateTime toDate);
 
-        Task<List<POS_todaySalesByDate>> GetTodaySalesByDate(int wpId, int stationId, DateTime fromDate, DateTime toDate);
 
-        //Task<List<POS_SummaryDateWiseReport>> GetSalesTransactionCardDiscount(int wpId, int stationId);
+        Task<POS_MaintodaySales> GetTodaySalesByDate(int wpId, int stationId, DateTime fromDate, DateTime toDate);
+
+        Task<List<TodaySalesByCounterWise>> GetTodaySalesByCounterWise(DateTime fromDate, DateTime toDate);
+
+
 
 
 

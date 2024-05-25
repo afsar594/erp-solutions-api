@@ -24,6 +24,7 @@ using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System.Security.Policy;
 
 namespace Inspire.Erp.Application.Sales.Implementations
 {
@@ -124,7 +125,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             }
         }
 
-        public async Task<List<POS_todaySalesByDate>> GetTodaySalesByDate(int wpId, int stationId, DateTime fromDate, DateTime toDate)
+        public async Task<POS_MaintodaySales> GetTodaySalesByDate(int wpId, int stationId, DateTime fromDate, DateTime toDate)
         {
             try
             {
@@ -145,6 +146,134 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                         VatAmount = (d.PaymentMode.Equals("VAT") ? (decimal)d.Amount : 0m),
                                         VoucherDate = c.VoucherDate
                                     }).ToListAsync();
+
+                var result1 = await (from c in _dbContext.POS_SalesVoucher
+                                     join d in _dbContext.POS_SalesVoucherDetails on c.VoucherNo equals d.VoucherNo
+                                     join z in _dbContext.ItemMaster on d.ItemId equals z.ItemMasterItemId
+                                     join u in _dbContext.UnitMaster on d.UnitId equals u.UnitMasterUnitId
+                                     where c.WorkPeriodID == wpId && c.StationID == stationId
+                                     && c.VoucherDate >= fromDate && c.VoucherDate <= toDate
+                                     group new { d, z, u } by new { z.ItemMasterItemName, u.UnitMasterUnitShortName } into g
+                                     select new POS_todaySalesDetailByDate
+                                     {
+                                         ItemMasterItemName = g.Key.ItemMasterItemName,
+                                         Unit = g.Key.UnitMasterUnitShortName,
+                                         TotalSoldQty = g.Sum(x => x.d.Sold_Qty ?? 0m),
+                                         TotalAmount = g.Sum(x => x.d.NetAmount ?? 0m)
+                                     }).ToListAsync();
+
+                var response = new POS_MaintodaySales
+                {
+                    POS_todaySalesByDate = result,
+                    POS_todaySalesDetailByDate = result1,
+                };
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<List<TodaySalesByCounterWise>> GetTodaySalesByCounterWise(DateTime fromDate, DateTime toDate)
+        {
+            try
+            {
+                fromDate = fromDate.Date; toDate = toDate.Date;
+
+
+                var Cashtotal = await _dbContext.POS_SalesTransactionDetails
+                    .Where(a => a.PaymentMode == "CAS" && a.Amount > 0 && a.InvoiceDate >= fromDate && a.InvoiceDate <= toDate)
+                    .GroupBy(c => c.CounterName).Select(x => new TodaySalesByCounterWise
+                    {
+                        CounterName = x.Key,
+                        Cash = x.Sum(c => c.Amount ?? 0m)
+                    }).ToListAsync();
+
+
+                var Cardtotal = await (from d in _dbContext.POS_SalesTransactionDetails
+                                       join c in _dbContext.POS_TransactionCodes on d.PaymentMode equals c.TransCode
+                                       join m in _dbContext.POS_Trans_Group_Master on c.TransGroup equals m.Id
+                                       where d.PaymentMode == "CRD" && d.Amount > 0 && d.InvoiceDate >= fromDate && d.InvoiceDate <= toDate && c.TransGroup == 3
+                                       group d by d.CounterName into g
+                                       select new TodaySalesByCounterWise
+                                       {
+                                           CounterName = g.Key,
+                                           Card = g.Sum(d => d.Amount ?? 0m)
+                                       }).ToListAsync();
+
+                var Credittotal = await _dbContext.POS_SalesTransactionDetails
+                                         .Where(a => a.PaymentMode == "CREDIT" && a.Amount > 0 && a.InvoiceDate >= fromDate && a.InvoiceDate <= toDate)
+                                         .GroupBy(c => c.CounterName).Select(x => new TodaySalesByCounterWise
+                                         {
+                                             CounterName = x.Key,
+                                             Credit = x.Sum(c => c.Amount ?? 0m)
+                                         }).ToListAsync();
+
+                var Returntotal = await (from c in _dbContext.POS_SalesTransactionDetails
+                                         join r in _dbContext.POS_SalesRet_Master on c.InvoiceNo equals r.Narration
+                                         where c.Amount < 0 && c.InvoiceDate >= fromDate && c.InvoiceDate <= toDate
+                                         group c by c.CounterName into g
+                                         select new TodaySalesByCounterWise
+                                         {
+                                             CounterName = g.Key,
+                                             Return = g.Sum(c => c.Amount ?? 0m)
+                                         }).ToListAsync();
+
+                var CreditReturntotal = await _dbContext.POS_SalesTransactionDetails
+                                         .Where(a => a.PaymentMode == "CREDIT" && a.Amount < 0 && a.InvoiceDate >= fromDate && a.InvoiceDate <= toDate)
+                                         .GroupBy(c => c.CounterName).Select(x => new TodaySalesByCounterWise
+                                         {
+                                             CounterName = x.Key,
+                                             Credit = x.Sum(c => c.Amount ?? 0m)
+                                         }).ToListAsync();
+
+
+                var salesTotal = await _dbContext.POS_SalesTransactionDetails
+                  .Where(a => a.PaymentMode == "BIL" && a.InvoiceDate >= fromDate && a.InvoiceDate <= toDate)
+                  .GroupBy(c => c.CounterName).Select(g => new TodaySalesByCounterWise
+                  {
+                      CounterName = g.Key,
+                      Sales = g.Sum(x => x.Amount ?? 0m)
+                  }).ToListAsync();
+
+
+                var DiscountTotal = await _dbContext.POS_SalesTransactionDetails
+                  .Where(a => a.PaymentMode == "DISNT" && a.InvoiceDate >= fromDate && a.InvoiceDate <= toDate)
+                  .GroupBy(c => c.CounterName).Select(x => new TodaySalesByCounterWise
+                  {
+                      CounterName = x.Key,
+                      Vat = x.Sum(c => c.Amount ?? 0m)
+                  }).ToListAsync();
+
+
+                var VatTotal = await _dbContext.POS_SalesTransactionDetails
+                   .Where(a => a.PaymentMode == "VAT" && a.InvoiceDate >= fromDate && a.InvoiceDate <= toDate)
+                   .GroupBy(c => c.CounterName).Select(x => new TodaySalesByCounterWise
+                   {
+                       CounterName = x.Key,
+                       Vat = x.Sum(c => c.Amount ?? 0m)
+                   }).ToListAsync();
+
+                var result = Cashtotal.Union(Cardtotal)
+                    .Union(Credittotal).Union(Returntotal)
+                    .Union(CreditReturntotal).Union(salesTotal)
+                    .Union(DiscountTotal).Union(VatTotal)
+                    .GroupBy(x => x.CounterName)
+                    .Select(g => new TodaySalesByCounterWise
+                    {
+                        CounterName = g.Key,
+                        Cash = g.Sum(x => x.Cash),
+                        Card = g.Sum(x => x.Card),
+                        Credit = g.Sum(x => x.Credit),
+                        Return = g.Sum(x => x.Return),
+                        ReturnCredit = g.Sum(x => x.ReturnCredit),
+                        Discount = g.Sum(x => x.Discount),
+                        Sales = g.Sum(x => x.Sales),
+                        Vat = g.Sum(x => x.Vat)
+
+                    }).ToList();
 
                 return result;
             }

@@ -422,6 +422,14 @@ namespace Inspire.Erp.Infrastructure.Database
         public DbSet<POS_SalesVoucherDetails> POS_SalesVoucherDetails { get; set; }
 
         public DbSet<POS_SalesTransactionDetails> POS_SalesTransactionDetails { get; set; }
+        public DbSet<POS_TransactionCodes> POS_TransactionCodes { get; set; }
+        public DbSet<POS_Trans_Group_Master> POS_Trans_Group_Master { get; set; }
+
+        public DbSet<SalesRet_Master> POS_SalesRet_Master { get; set; }
+
+
+
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -24390,6 +24398,124 @@ namespace Inspire.Erp.Infrastructure.Database
             {
                 e.ToTable("POS_Trans_Group_Master");
                 e.HasKey(x => x.Id);
+            });
+            modelBuilder.Entity<SalesRet_Master>(entity =>
+            {
+                entity.HasNoKey();
+                entity.ToTable("POS_SalesRet_Master");
+
+                entity.Property(e => e.SR_NO)
+               .HasMaxLength(50)
+               .IsUnicode(false);
+
+                entity.Property(e => e.SR_NO_NUM)
+                    .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.SR_Dt)
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.SReturn_Type)
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Ref_SV_NO)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Ref_SV_Date)
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.Ref_SV_FSNO)
+                    .HasColumnType("bigint");
+
+                entity.Property(e => e.SV_VoucherType)
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Cust_No)
+                    .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.Cust_Name)
+                    .HasMaxLength(200)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Loca_ID)
+                    .HasColumnType("bigint");
+
+                entity.Property(e => e.GrossAmount)
+                    .HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.Discount)
+                    .HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.NetAmount)
+                    .HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.Fc_NetAmount)
+                    .HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.Narration)
+                    .HasMaxLength(150)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Status)
+                    .HasMaxLength(2)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.FSNO)
+                    .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.User_ID)
+                    .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.Fc_Rate)
+                    .HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.Currency_ID)
+                    .HasColumnType("bigint");
+
+                entity.Property(e => e.SR_ItemDisc)
+                    .HasColumnType("numeric(18, 4)");
+
+                entity.Property(e => e.SR_NetDisc)
+                    .HasColumnType("numeric(18, 4)");
+
+                entity.Property(e => e.WorkPeriodID)
+                    .HasColumnType("int");
+
+                entity.Property(e => e.VAT_AMT)
+                    .HasColumnType("float");
+            });
+            modelBuilder.Entity<POS_TransactionCodes>(entity =>
+            {
+                entity.ToTable("POS_TransactionCodes");
+                entity.HasKey(x => x.Id);
+
+                entity.Property(e => e.Id).HasColumnName("Id");
+                entity.Property(e => e.TransCode).HasColumnName("Trans_code").HasMaxLength(10).IsFixedLength();
+                entity.Property(e => e.TransDescription).HasColumnName("Trans_Description").HasMaxLength(100);
+                entity.Property(e => e.TransGroup).HasColumnName("Trans_group");
+                entity.Property(e => e.MainGroup).HasColumnName("Main_Group").HasMaxLength(50);
+                entity.Property(e => e.CRDR).HasColumnName("CRDR").HasMaxLength(10).IsFixedLength();
+                entity.Property(e => e.Taxable).HasColumnName("Taxable");
+                entity.Property(e => e.ManualTransaction).HasColumnName("Manual_transaction");
+                entity.Property(e => e.AccCode).HasColumnName("Acc_Code").HasMaxLength(50).IsFixedLength();
+                entity.Property(e => e.InvCode).HasColumnName("Inv_Code").HasMaxLength(100);
+                entity.Property(e => e.PrefixCode).HasColumnName("PrefixCode").HasMaxLength(10);
+                entity.Property(e => e.Refcodefield).HasColumnName("Refcodefield").HasMaxLength(50);
+                entity.Property(e => e.Reportfilename).HasColumnName("Reportfilename").HasMaxLength(50);
+                entity.Property(e => e.Printvoucher).HasColumnName("Printvoucher");
+                entity.Property(e => e.PosttoAccounts).HasColumnName("PosttoAccounts");
+                entity.Property(e => e.Taxsvc).HasColumnName("taxsvc");
+                entity.Property(e => e.Tax).HasColumnName("tax");
+                entity.Property(e => e.Svc).HasColumnName("svc");
+                entity.Property(e => e.Guestledger).HasColumnName("guestledger");
+                entity.Property(e => e.Dailysummary).HasColumnName("dailysummary");
+                entity.Property(e => e.InHouse).HasColumnName("InHouse");
+                entity.Property(e => e.DeptId).HasColumnName("Dept_id");
+                entity.Property(e => e.SortOrder).HasColumnName("Sort_order");
+                entity.Property(e => e.ShowInInv).HasColumnName("show_in_inv");
+                entity.Property(e => e.FilterBillSummHead).HasColumnName("FilterBillSummHead");
             });
             modelBuilder.Entity<SalesHold>(entity =>
             {
