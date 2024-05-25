@@ -89,7 +89,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 fromDate = fromDate.Date; toDate = toDate.Date;
                 var ab = await (from c in _dbContext.POS_SalesVoucher
                                 join d in _dbContext.POS_SalesTransactionDetails on c.VoucherNo equals d.InvoiceNo
-                                where d.Amount != 0 && d.PaymentMode == "CARD" && c.WorkPeriodID == wpId
+                                where d.Amount != 0 && d.PaymentMode == "CRD" && c.WorkPeriodID == wpId
                                 && c.StationID == stationId && c.VoucherDate >= fromDate && c.VoucherDate <= toDate
                                 select new POS_SummaryDateWiseReport
                                 {
@@ -103,7 +103,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 var ac = await (from c in _dbContext.POS_SalesVoucher
                                 join d in _dbContext.POS_SalesTransactionDetails on c.VoucherNo equals d.InvoiceNo
-                                where d.PaymentMode == "CARD" && d.Amount == 0 && c.WorkPeriodID == wpId
+                                where d.PaymentMode == "CRD" && d.Amount == 0 && c.WorkPeriodID == wpId
                                 && c.StationID == stationId && c.VoucherDate >= fromDate && c.VoucherDate <= toDate
                                 orderby d.Id
                                 select new POS_SummaryDateWiseReport
@@ -140,7 +140,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                         VoucherNo = c.VoucherNo,
                                         CustomerName = c.CustomerName,
                                         PaymentMode = c.Voucher_Type,
-                                        Discount = (d.PaymentMode.Equals("DIS") ? (decimal)d.Amount : 0m),
+                                        Discount = (d.PaymentMode.Equals("DISNT") ? (decimal)d.Amount : 0m),
                                         NetAmount = (d.PaymentMode.Equals("NET") ? (decimal)d.Amount : 0m),
                                         GrossAmount = (d.PaymentMode.Equals("CAS") ? (decimal)d.Amount : d.PaymentMode.Equals("CARD") ? (decimal)d.Amount : 0m),
                                         VatAmount = (d.PaymentMode.Equals("VAT") ? (decimal)d.Amount : 0m),
