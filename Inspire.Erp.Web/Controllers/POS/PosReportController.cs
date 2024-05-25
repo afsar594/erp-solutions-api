@@ -28,8 +28,8 @@ namespace Inspire.Erp.Web.Controllers.POS
             _posReportService = posReportService;
         }
 
-
-        [HttpGet]
+        [HttpPost]
+        //[HttpGet]
         [Route("GetSalesTransactionCash")]
         public async Task<List<POS_SummaryDateWiseReport>> GetSalesTransactionCash(int workPeriodId, int stationId, DateTime fromDate, DateTime toDate)
         {
@@ -37,8 +37,8 @@ namespace Inspire.Erp.Web.Controllers.POS
 
         }
 
-
-        [HttpGet]
+        [HttpPost]
+        //[HttpGet]
         [Route("GetSalesTransactionCard")]
         public async Task<List<POS_SummaryDateWiseReport>> GetSalesTransactionCard(int workPeriodId, int stationId, DateTime fromDate, DateTime toDate)
         {
@@ -46,16 +46,16 @@ namespace Inspire.Erp.Web.Controllers.POS
 
         }
 
-
-        [HttpGet]
+        [HttpPost]
+        //[HttpGet]
         [Route("GetTodaySalesByDate")]
         public async Task<POS_MaintodaySales> GetTodaySalesByDate(int workPeriodId, int stationId, DateTime fromDate, DateTime toDate)
         {
             return await _posReportService.GetTodaySalesByDate(workPeriodId, stationId, fromDate, toDate);
 
         }
-
-        [HttpGet]
+        [HttpPost]
+        //[HttpGet]
         [Route("GetTodaySalesByCounterWise")]
         public async Task<List<TodaySalesByCounterWise>> GetTodaySalesByCounterWise(DateTime fromDate, DateTime toDate)
         {
