@@ -31,7 +31,6 @@ namespace Inspire.Erp.Domain.Entities
         public decimal VatAmount { get; set; }
 
     }
-
     public class POS_MaintodaySales
     {
         public List<POS_todaySalesByDate> POS_todaySalesByDate { get; set; }
@@ -73,6 +72,14 @@ namespace Inspire.Erp.Domain.Entities
         public decimal Discount { get; set; }
         public decimal Vat { get; set; }
 
+    }
+
+    public class PosReportFilterModel
+    {
+        public int workPeriodId { get; set; }
+        public int stationId { get; set; }
+        public DateTime fromDate { get; set; }
+        public DateTime toDate { get; set; }
     }
 }
 

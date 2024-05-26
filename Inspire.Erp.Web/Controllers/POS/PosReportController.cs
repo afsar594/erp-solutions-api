@@ -31,35 +31,35 @@ namespace Inspire.Erp.Web.Controllers.POS
         [HttpPost]
         //[HttpGet]
         [Route("GetSalesTransactionCash")]
-        public async Task<List<POS_SummaryDateWiseReport>> GetSalesTransactionCash(int workPeriodId, int stationId, DateTime fromDate, DateTime toDate)
+        public async Task<List<POS_SummaryDateWiseReport>> GetSalesTransactionCash(PosReportFilterModel model)
         {
-            return await _posReportService.GetSalesTransactionCash(workPeriodId, stationId, fromDate, toDate);
+            return await _posReportService.GetSalesTransactionCash(model.workPeriodId, model.stationId, model.fromDate, model.toDate);
 
         }
 
         [HttpPost]
         //[HttpGet]
         [Route("GetSalesTransactionCard")]
-        public async Task<List<POS_SummaryDateWiseReport>> GetSalesTransactionCard(int workPeriodId, int stationId, DateTime fromDate, DateTime toDate)
+        public async Task<List<POS_SummaryDateWiseReport>> GetSalesTransactionCard(PosReportFilterModel model)
         {
-            return await _posReportService.GetSalesTransactionCard(workPeriodId, stationId, fromDate, toDate);
+            return await _posReportService.GetSalesTransactionCard(model.workPeriodId, model.stationId, model.fromDate, model.toDate);
 
         }
 
         [HttpPost]
         //[HttpGet]
         [Route("GetTodaySalesByDate")]
-        public async Task<POS_MaintodaySales> GetTodaySalesByDate(int workPeriodId, int stationId, DateTime fromDate, DateTime toDate)
+        public async Task<POS_MaintodaySales> GetTodaySalesByDate(PosReportFilterModel model)
         {
-            return await _posReportService.GetTodaySalesByDate(workPeriodId, stationId, fromDate, toDate);
+            return await _posReportService.GetTodaySalesByDate(model.workPeriodId, model.stationId, model.fromDate, model.toDate);
 
         }
         [HttpPost]
         //[HttpGet]
         [Route("GetTodaySalesByCounterWise")]
-        public async Task<List<TodaySalesByCounterWise>> GetTodaySalesByCounterWise(DateTime fromDate, DateTime toDate)
+        public async Task<List<TodaySalesByCounterWise>> GetTodaySalesByCounterWise(PosReportFilterModel model)
         {
-            return await _posReportService.GetTodaySalesByCounterWise(fromDate, toDate);
+            return await _posReportService.GetTodaySalesByCounterWise(model.fromDate, model.toDate);
 
         }
 
