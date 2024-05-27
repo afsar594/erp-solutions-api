@@ -822,6 +822,19 @@ namespace Inspire.Erp.Application.Master
             }
         }
 
+        public async Task<string> PrintReciept(string voucherNo)
+        {
+            try
+            {
+                string print = "Rana";
+                return print;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
 
         public async Task<Response<ItemMasterResponse>> SearchItemByUnitDetailsId(ItemBarCodeSearchFilter model)
         {

@@ -65,6 +65,13 @@ namespace Inspire.Erp.Web.Controllers.POS
         }
 
         [HttpGet]
+        [Route("PrintReciept")]
+        public async Task<IActionResult> PrintReciept(string voucherNo)
+        {
+            return Ok(await itemMasterService.PrintReciept(voucherNo));
+        }
+
+        [HttpGet]
         [Route("GetCardTypes")]
         public async Task<IActionResult> GetCardTypes()
         {
