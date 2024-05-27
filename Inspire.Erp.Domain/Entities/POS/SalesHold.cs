@@ -62,9 +62,21 @@ namespace Inspire.Erp.Domain.Entities.POS
         public float? Vatable_TotAmt { get; set; }
         public string refno { get; set; }
         public decimal? Currency_Rate { get; set; }
-      
+
         public virtual ICollection<SalesHoldDetails> SalesHoldDetails { get; set; }
 
 
     }
+    public class SalesHoldList
+    {
+        public decimal V_ID { get; set; }
+        public string VoucherNo { get; set; }
+        public long? StationID { get; set; }
+        public string CustomerName { get; set; }
+        public decimal? GrossAmount { get; set; }
+        public decimal? Discount { get; set; }
+        public decimal? VatAmount { get; set; }
+        public decimal? NetAmount { get; set; }
+    }
+
 }
