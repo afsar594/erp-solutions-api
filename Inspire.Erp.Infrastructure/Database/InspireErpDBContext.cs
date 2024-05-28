@@ -7229,16 +7229,16 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.ToTable("General_Settings");
                 entity.HasKey(e => e.GeneralSettingsId);
 
-                entity.Property(e => e.GeneralSettingsId).HasColumnName("Id");
-                entity.Property(e => e.GeneralSettingsKeyValue).HasColumnName("KeyValue");
-                entity.Property(e => e.GeneralSettingsCategory).HasColumnName("Category");
-                entity.Property(e => e.GeneralSettingsDescription).HasColumnName("Description");
-                entity.Property(e => e.GeneralSettingsValueType).HasColumnName("ValueType");
-                entity.Property(e => e.GeneralSettingsBoolValue).HasColumnName("BoolValue");
-                entity.Property(e => e.GeneralSettingsNumValue).HasColumnName("NumValue");
-                entity.Property(e => e.GeneralSettingsTextValue).HasColumnName("TextValue");
-                entity.Property(e => e.GeneralSettingsTableName).HasColumnName("TableName");
-                entity.Property(e => e.GeneralSettingsDelStatus).HasColumnName("DelStatus");
+                entity.Property(e => e.GeneralSettingsId).HasColumnName("General_Settings_ID");
+                entity.Property(e => e.GeneralSettingsKeyValue).HasColumnName("General_Settings_Key_Value");
+                entity.Property(e => e.GeneralSettingsCategory).HasColumnName("General_Settings_Category");
+                entity.Property(e => e.GeneralSettingsDescription).HasColumnName("General_Settings_Description");
+                entity.Property(e => e.GeneralSettingsValueType).HasColumnName("General_Settings_Value_Type");
+                entity.Property(e => e.GeneralSettingsBoolValue).HasColumnName("General_Settings_Bool_Value");
+                entity.Property(e => e.GeneralSettingsNumValue).HasColumnName("General_Settings_Num_Value");
+                entity.Property(e => e.GeneralSettingsTextValue).HasColumnName("General_Settings_Text_Value");
+                entity.Property(e => e.GeneralSettingsTableName).HasColumnName("General_Settings_Table_Name");
+                entity.Property(e => e.GeneralSettingsDelStatus).HasColumnName("General_Settings_DelStatus");
 
                 //    entity.Property(e => e.KeyValue)
                 //       .HasColumnName("Key_Value")
