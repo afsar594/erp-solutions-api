@@ -1929,7 +1929,6 @@ namespace Inspire.Erp.Application.Master
                         settDetailsTempRepo.Insert(settDetailModel);
                     }
 
-
                     //TRANSACTION
                     var tempSettDetailsList = settDetailsTempRepo.GetAll().Where(o => o.UserId == model.UserId).ToList();
                     foreach (var item in tempSettDetailsList)
@@ -2068,6 +2067,7 @@ namespace Inspire.Erp.Application.Master
                     string paymentmode = "CASH";
                     string transDesc = "CASH SALES";
                     string transtype = "CASH";
+
                     if (tempRepResult.Count() <= 0)
                     {
                         paymentmode = "CASH AND CARD";
@@ -2221,8 +2221,6 @@ namespace Inspire.Erp.Application.Master
                     posSalesVoucherDetailsRepo.Insert(salesVDetails);
                 }
 
-
-
             }
             catch (Exception ex)
             {
@@ -2252,8 +2250,8 @@ namespace Inspire.Erp.Application.Master
 
                     };
                     posSalesTranDetailsRepo.Insert(saleTr);
-
-                }
+                    posSalesTranDetailsRepo.SaveChangesAsync();
+            }
                 catch (Exception ex)
                 {
                 throw ex;

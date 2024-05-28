@@ -100,12 +100,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
             _unitMasterRepository = unitMasterRepository;
             _suppliersMasterRepository = suppliersMasterRepository;
             _locationMasterRepository = locationMasterRepository;
-
-
             _customerMasterRepository = customerMasterRepository;
-
             _salesManMasterRepository = salesManMasterRepository;
-
             _departmentMasterRepository = departmentMasterRepository;
             _currencyMasterRepository = currencyMasterRepository;
             _UnitDetailsRepository = unitDetailsRepository;
@@ -118,10 +114,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
             _salesHoldRepository = salesHoldRepository;
             _salesHoldDetailsRepository = salesHoldDetailsRepository;
-
             _POSWorkPeriodRepository = POSWorkPeriodRepository;
-
-
             //_reportSalesVoucherRepository = reportSalesVoucherRepository;
         }
 
