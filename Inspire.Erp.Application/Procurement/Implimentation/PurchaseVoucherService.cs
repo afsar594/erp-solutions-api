@@ -57,28 +57,9 @@ namespace Inspire.Erp.Application.Master.Implementations
         }
         public IEnumerable<PurchaseVoucher> GetPurchaseVoucher()
         {
-            //try
-            //{
-            //    IEnumerable<PurchaseVoucher> _PurchaseVoucherList = _PurchaseVoucher.GetAll().Where(c => c.PurchaseVoucherDelStatus == false || c.PurchaseVoucherDelStatus == null).ToList();
-            //    IEnumerable<CurrencyMaster> _currencyMaster = _currencyMasterRepository.GetAll().ToList();
-
-
-            //    foreach (var purchaseVoucher in _PurchaseVoucherList)
-            //    {
-            //        purchaseVoucher.CurrencyMasterCurrencyName = _currencyMaster
-            //                                                     .Where(c => c.CurrencyMasterCurrencyId == purchaseVoucher.PurchaseVoucherCurrencyId)
-            //                                                     .FirstOrDefault().CurrencyMasterCurrencyName;
-            //    }
-            //    return _PurchaseVoucherList;
-            //}
-            //catch (System.Exception ex)
-            //{
-            //    throw ex;
-            //}
-
+            
             IEnumerable<PurchaseVoucher> purchaseVouchers = _PurchaseVoucher.GetAll().Where(k => k.PurchaseVoucherDelStatus == false || k.PurchaseVoucherDelStatus == null);
             return purchaseVouchers;
-
         }
 
         public IEnumerable<PurchaseVoucherDetails> GetPurchaseVoucherDetails()
