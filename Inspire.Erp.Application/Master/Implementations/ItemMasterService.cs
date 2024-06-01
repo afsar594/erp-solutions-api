@@ -822,7 +822,7 @@ namespace Inspire.Erp.Application.Master
                 return Response<List<ItemMasterResponse>>.Fail(new List<ItemMasterResponse>(), ex.Message);
             }
         }
-        public async Task<string> PrintReciept(string voucherNo)
+        public async Task<PrintData> PrintReciept(string voucherNo)
         {
             try
             {
@@ -898,138 +898,145 @@ namespace Inspire.Erp.Application.Master
 
                 }
 
-                var saleV = posSalesVoucherRepo.GetAsQueryable().FirstOrDefault(o => o.VoucherNo == voucherNo);
+                var saleV = posSalesVoucherRepo.GetAsQueryable().FirstOrDefault(o => o.VoucherNo.Trim().ToUpper() == voucherNo.ToUpper());
 
-                StrRen.AppendLine(eBigCharOff + "------------------------------------------------");
-                StrRen.AppendLine(eBigCharOn2 + eLeft + "Bill No: " + voucherNo);
-                StrRen.AppendLine(eCentre + eBigCharOff + "------------------------------------------------");
-                StrRen.AppendLine(eBigCharOff + eLeft + "Cashier   : " + "uname");//to be changd
-                StrRen.AppendLine(eLeft + "Date      : " + strDate);
-                StrRen.AppendLine(eLeft + "Mode      : " + saleV.PaymentMode);
-                StrRen.AppendLine("------------------------------------------------");
-
-                var cust = customerMasterRepo.GetAsQueryable().FirstOrDefault(o => o.CustomerMasterCustomerNo == saleV.Customer_ID);
-                bool showCustomer = false;
-                if (showCustomer == true)
+                if(saleV!=null)
                 {
-                    StrRen.AppendLine(eLeft + "Customer  : " + cust.CustomerMasterCustomerName);
+                    StrRen.AppendLine(eBigCharOff + "------------------------------------------------");
+                    StrRen.AppendLine(eBigCharOn2 + eLeft + "Bill No: " + voucherNo);
+                    StrRen.AppendLine(eCentre + eBigCharOff + "------------------------------------------------");
+                    StrRen.AppendLine(eBigCharOff + eLeft + "Cashier   : " + "uname");//to be changd
+                    StrRen.AppendLine(eLeft + "Date      : " + strDate);
+                    StrRen.AppendLine(eLeft + "Mode      : " + saleV.PaymentMode);
                     StrRen.AppendLine("------------------------------------------------");
-                }
-                else
-                {
 
-                }
-
-
-                StrRen.AppendLine(eLeft + eBigCharOff + Iname.PadRight(1) + Qtys.PadLeft(15 - Strings.Len(Iname)) + Price_Hd.PadLeft(15 - Strings.Len(Iname)) + Disc_hd.PadLeft(14 - Strings.Len(Iname)) + Tax_hd.PadLeft(15 - Strings.Len(Iname)) + Total_hd.PadLeft(17 - Strings.Len(Iname)));
-                StrRen.AppendLine("-----------------------------------------------");
-
-
-                var saleVD = posSalesVoucherDetailsRepo.GetAsQueryable().Where(o => o.VoucherNo == voucherNo).ToList();
-              
-                foreach(var vouchD in saleVD)
-                {
-                    string unit = vouchD.UnitId.ToString();
-                    string itemname = vouchD.ItemId.ToString();
-                    string iqty = vouchD.Sold_Qty.ToString();
-                    string iprice = Convert.ToDecimal(vouchD.UnitPrice).ToString("0.00");
-                    string itax = Convert.ToDecimal(vouchD.VatableAmt).ToString("0.00");
-                    string iDisc = Convert.ToDecimal(vouchD.Discount).ToString("0.00");
-                    string itotal = Convert.ToDecimal(vouchD.NetAmount - vouchD.Discount + vouchD.VatableAmt).ToString("0.00");
-                    StrRen.AppendLine(itemname.PadRight(1) + " " + unit);
-                    StrRen.AppendLine(iqty.PadLeft(22 - Strings.Len(Iname)) + iprice.PadLeft(16 - Strings.Len(Iname)) + iDisc.PadLeft(14 - Strings.Len(Iname)) + itax.PadLeft(15 - Strings.Len(Iname)) + itotal.PadLeft(17 - Strings.Len(Iname)));
-                }
-
-                decimal? NetTotal = saleV.NetAmount;
-                string GrandTotal="";
-                string bill;
-                string POS = "NORMAL";
-                if (POS == "TOUCH")
-                {
-                    GrandTotal = Convert.ToDecimal(NetTotal).ToString("0.00");
-                    bill = saleV.ShortNo.ToString();
-                }
-                else if (POS == "NORMAL")
-                {
-                    GrandTotal = Convert.ToDecimal(NetTotal).ToString("0.00");
-                    bill = saleV.ShortNo.ToString();
-                }
-
-                var strPaymode = new List<string> { "CHNG", "CAS", "CUS", "DLRY", "POINTS", "NET", "RCVE", "RF", "STFA", "VAMT", "VAT", "CRD", "DIS", "MAS", "MASRES", "VIS", "POTCD", "b", "DINE", "DINRES", "CASR", "BIL", "DISNT" };
-
-                var result = await (from ir in settDetailsTempRepo.GetAsQueryable()
-                                    join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode equals ud.Trans_code
-                                    where ir.UserId == saleV.UserId && ud.show_in_inv == true 
-                                    && ir.OrderId==saleV.ShortNo && strPaymode.Contains(ud.Trans_code.Trim().ToUpper())
-                                    select new SettlementDetailsResponse
-                                    {
-                                        TransactionDesc = ud.Trans_Description,
-                                        Amount = ir.Amount,
-                                        SettlementDetailsId = ir.SettlementDetId,
-                                        SalesVoucherId = ir.OrderId,
-                                        Status = ir.Status,
-                                        SettlementDate = ir.Date,
-                                        SortOrder = ud.Sort_order,
-                                        ShowinInvoice = ud.show_in_inv,
-                                        TransactionCode = ud.Trans_code,
-                                        UserId = ir.UserId
-                                    }).OrderBy(x => x.SortOrder).ToListAsync();
-
-                foreach(var settD in result)
-                {
-                    if (settD.TransactionDesc.Trim().ToUpper() == "BILL WISE DISCOUNT" || settD.TransactionDesc.Trim().ToUpper() == "ROUND OFF")
-                        pTOption = 1;
-                }
-                StrRen.AppendLine("-----------------------------------------------");
-                foreach (var settD in result)
-                {
-                    if (settD.TransactionDesc.Trim().ToUpper() == "CHANGE" && settD.Amount == 0)
-                    { }
+                    var cust = customerMasterRepo.GetAsQueryable().FirstOrDefault(o => o.CustomerMasterCustomerNo == saleV.Customer_ID);
+                    bool showCustomer = false;
+                    if (showCustomer == true)
+                    {
+                        StrRen.AppendLine(eLeft + "Customer  : " + cust.CustomerMasterCustomerName);
+                        StrRen.AppendLine("------------------------------------------------");
+                    }
                     else
                     {
-                        if(pTOption==0 && settD.TransactionDesc.Trim().ToUpper() == "BILL AMOUNT")
-                        {
 
-                        }
+                    }
+
+
+                    StrRen.AppendLine(eLeft + eBigCharOff + Iname.PadRight(1) + Qtys.PadLeft(15 - Strings.Len(Iname)) + Price_Hd.PadLeft(15 - Strings.Len(Iname)) + Disc_hd.PadLeft(14 - Strings.Len(Iname)) + Tax_hd.PadLeft(15 - Strings.Len(Iname)) + Total_hd.PadLeft(17 - Strings.Len(Iname)));
+                    StrRen.AppendLine("-----------------------------------------------");
+
+
+                    var saleVD = posSalesVoucherDetailsRepo.GetAsQueryable().Where(o => o.VoucherNo.Trim().ToUpper() == voucherNo.ToUpper()).ToList();
+
+                    foreach (var vouchD in saleVD)
+                    {
+                        string unit = vouchD.UnitId.ToString();
+                        string itemname = vouchD.ItemId.ToString();
+                        string iqty = vouchD.Sold_Qty.ToString();
+                        string iprice = Convert.ToDecimal(vouchD.UnitPrice).ToString("0.00");
+                        string itax = Convert.ToDecimal(vouchD.VatableAmt).ToString("0.00");
+                        string iDisc = Convert.ToDecimal(vouchD.Discount).ToString("0.00");
+                        string itotal = Convert.ToDecimal(vouchD.NetAmount - vouchD.Discount + vouchD.VatableAmt).ToString("0.00");
+                        StrRen.AppendLine(itemname.PadRight(1) + " " + unit);
+                        StrRen.AppendLine(iqty.PadLeft(22 - Strings.Len(Iname)) + iprice.PadLeft(16 - Strings.Len(Iname)) + iDisc.PadLeft(14 - Strings.Len(Iname)) + itax.PadLeft(15 - Strings.Len(Iname)) + itotal.PadLeft(17 - Strings.Len(Iname)));
+                    }
+
+                    decimal? NetTotal = saleV.NetAmount;
+                    string GrandTotal = "";
+                    string bill;
+                    string POS = "NORMAL";
+                    if (POS == "TOUCH")
+                    {
+                        GrandTotal = Convert.ToDecimal(NetTotal).ToString("0.00");
+                        bill = saleV.ShortNo.ToString();
+                    }
+                    else if (POS == "NORMAL")
+                    {
+                        GrandTotal = Convert.ToDecimal(NetTotal).ToString("0.00");
+                        bill = saleV.ShortNo.ToString();
+                    }
+
+                    var strPaymode = new List<string> { "CHNG", "CAS", "CUS", "DLRY", "POINTS", "NET", "RCVE", "RF", "STFA", "VAMT", "VAT", "CRD", "DIS", "MAS", "MASRES", "VIS", "POTCD", "b", "DINE", "DINRES", "CASR", "BIL", "DISNT" };
+
+                    var result = await (from ir in settDetailsTempRepo.GetAsQueryable()
+                                        join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode equals ud.Trans_code
+                                        where ir.UserId == saleV.UserId && ud.show_in_inv == true
+                                        && ir.OrderId == saleV.ShortNo && strPaymode.Contains(ud.Trans_code.Trim().ToUpper())
+                                        select new SettlementDetailsResponse
+                                        {
+                                            TransactionDesc = ud.Trans_Description,
+                                            Amount = ir.Amount,
+                                            SettlementDetailsId = ir.SettlementDetId,
+                                            SalesVoucherId = ir.OrderId,
+                                            Status = ir.Status,
+                                            SettlementDate = ir.Date,
+                                            SortOrder = ud.Sort_order,
+                                            ShowinInvoice = ud.show_in_inv,
+                                            TransactionCode = ud.Trans_code,
+                                            UserId = ir.UserId
+                                        }).OrderBy(x => x.SortOrder).ToListAsync();
+
+                    foreach (var settD in result)
+                    {
+                        if (settD.TransactionDesc.Trim().ToUpper() == "BILL WISE DISCOUNT" || settD.TransactionDesc.Trim().ToUpper() == "ROUND OFF")
+                            pTOption = 1;
+                    }
+                    StrRen.AppendLine("-----------------------------------------------");
+                    foreach (var settD in result)
+                    {
+                        if (settD.TransactionDesc.Trim().ToUpper() == "CHANGE" && settD.Amount == 0)
+                        { }
                         else
                         {
-                            StrRen.AppendLine(eBigCharOff + eLeft + settD.TransactionDesc.PadRight(20) + settD.Amount.ToString().PadLeft(24));
-                        }
-                    }
-                       
-                }
+                            if (pTOption == 0 && settD.TransactionDesc.Trim().ToUpper() == "BILL AMOUNT")
+                            {
 
-                StrRen.AppendLine("-----------------------------------------------");
-               
+                            }
+                            else
+                            {
+                                StrRen.AppendLine(eBigCharOff + eLeft + settD.TransactionDesc.PadRight(20) + settD.Amount.ToString().PadLeft(24));
+                            }
+                        }
+
+                    }
+
+                    StrRen.AppendLine("-----------------------------------------------");
+
                     string label = "Grand Total: ";
                     string Gtotal = Convert.ToDecimal(GrandTotal).ToString("0.00");
                     StrRen.AppendLine(eBigCharOn2 + eLeft + label.PadRight(13) + Gtotal.PadLeft(9));
                     StrRen.AppendLine(eBigCharOff + "-----------------------------------------------");
 
-                if (stationSett.PosStationSettingsFooter1 != "")
-                {
-                    StrRen.AppendLine(eCentre + eBigCharOff + stationSett.PosStationSettingsFooter1);
+                    if (stationSett.PosStationSettingsFooter1 != "")
+                    {
+                        StrRen.AppendLine(eCentre + eBigCharOff + stationSett.PosStationSettingsFooter1);
+                    }
+                    if (stationSett.PosStationSettingsFooter2 != "")
+                    {
+                        StrRen.AppendLine(eCentre + eBigCharOff + stationSett.PosStationSettingsFooter2);
+                    }
+                    if (stationSett.PosStationSettingsFooter3 != "")
+                    {
+                        StrRen.AppendLine(eCentre + eBigCharOff + stationSett.PosStationSettingsFooter3);
+                    }
+                    if (stationSett.PosStationSettingsFooter4 != "")
+                    {
+                        StrRen.AppendLine(eCentre + eBigCharOff + stationSett.PosStationSettingsFooter4);
+                    }
+                    StrRen.AppendLine("");
+                    StrRen.AppendLine("");
+                    StrRen.AppendLine("");
+                    StrRen.AppendLine("");
+                    StrRen.AppendLine("");
+                    StrRen.AppendLine(eCut);
                 }
-                if (stationSett.PosStationSettingsFooter2 != "")
-                {
-                    StrRen.AppendLine(eCentre + eBigCharOff + stationSett.PosStationSettingsFooter2);
-                }
-                if (stationSett.PosStationSettingsFooter3 != "")
-                {
-                    StrRen.AppendLine(eCentre + eBigCharOff + stationSett.PosStationSettingsFooter3);
-                }
-                if (stationSett.PosStationSettingsFooter4 != "")
-                {
-                    StrRen.AppendLine(eCentre + eBigCharOff + stationSett.PosStationSettingsFooter4);
-                }
-                StrRen.AppendLine("");
-                StrRen.AppendLine("");
-                StrRen.AppendLine("");
-                StrRen.AppendLine("");
-                StrRen.AppendLine("");
-                StrRen.AppendLine(eCut);
+               
 
-                return print;
+                return new PrintData { 
+                    PrinterName=stationSett.PosStationSettingsPrinterName,
+                    Data=StrRen.ToString()
+                };
 
             }
             catch (Exception ex)
