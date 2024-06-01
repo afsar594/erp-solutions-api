@@ -18,7 +18,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
 namespace Inspire.Erp.Web.Controllers.POS
 {
     [Route("api/pos/item")]
@@ -55,7 +54,6 @@ namespace Inspire.Erp.Web.Controllers.POS
             return Ok(await itemMasterService.GetWorkPeriod(model));
 
         }
-
 
         [HttpGet]
         [Route("GetItems")]
