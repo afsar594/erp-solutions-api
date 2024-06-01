@@ -41,37 +41,29 @@ namespace Inspire.Erp.Web.Controllers.Sales
 
 
             ApiResponse<CustomerDeliveryNoteViewModel> apiResponse = new ApiResponse<CustomerDeliveryNoteViewModel>();
-            // if (_deliveryNoteService.GetVouchersNumbers(voucherCompositeView.CustomerDeliveryNoteDeliveryId) == null)
             {
                 var param1 = _mapper.Map<CustomerDeliveryNote>(voucherCompositeView);
                 var param2 = _mapper.Map<List<CustomerDeliveryNoteDetails>>(voucherCompositeView.CustomerDeliveryNoteDetails);
-                
-                //==============
-                // param3 = new List<AccountsTransactions>();
-                //// List<StockRegister> param4 = new List<StockRegister>();
-                ////clsAccountAndStock.SalesVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4);
 
                 var xs = _deliveryNoteService.InsertDeliveryNote(param1, param2);
-
-                //========================
 
 
                 CustomerDeliveryNoteViewModel deliveryNoteViewModel = new CustomerDeliveryNoteViewModel
                 {
 
-                    CustomerDeliveryNoteDeliveryId = xs.deliveryNote.CustomerDeliveryNoteDeliveryId,
+                    CustomerDeliveryNoteDeliveryId = xs.deliveryNote.CustomerDeliveryNoteDeliveryID,
                     CustomerDeliveryNoteDeliveryDate = xs.deliveryNote.CustomerDeliveryNoteDeliveryDate,
-                    CustomerDeliveryNoteCpoId = xs.deliveryNote.CustomerDeliveryNoteCpoId,
-                    CustomerDeliveryNoteCpoDate = xs.deliveryNote.CustomerDeliveryNoteCpoDate,
-                    CustomerDeliveryNoteLocationId = xs.deliveryNote.CustomerDeliveryNoteLocationId,
+                    CustomerDeliveryNoteCpoId = xs.deliveryNote.CustomerDeliveryNoteCPOID,
+                    CustomerDeliveryNoteCpoDate = xs.deliveryNote.CustomerDeliveryNoteCPODate,
+                    CustomerDeliveryNoteLocationId = xs.deliveryNote.CustomerDeliveryNoteLocationID,
                     CustomerDeliveryNoteCustomerCode = xs.deliveryNote.CustomerDeliveryNoteCustomerCode,
                     CustomerDeliveryNoteCustomerName = xs.deliveryNote.CustomerDeliveryNoteCustomerName,
-                    CustomerDeliveryNoteSalesManId = xs.deliveryNote.CustomerDeliveryNoteSalesManId,
-                    CustomerDeliveryNoteCurrencyId = xs.deliveryNote.CustomerDeliveryNoteCurrencyId,
+                    CustomerDeliveryNoteSalesManId = xs.deliveryNote.CustomerDeliveryNoteSalesManID,
+                    CustomerDeliveryNoteCurrencyId = xs.deliveryNote.CustomerDeliveryNoteCurrencyID,
                     CustomerDeliveryNoteDeliveryAddress = xs.deliveryNote.CustomerDeliveryNoteDeliveryAddress,
                     CustomerDeliveryNoteRemarks = xs.deliveryNote.CustomerDeliveryNoteRemarks,
-                    CustomerDeliveryNoteFsno = xs.deliveryNote.CustomerDeliveryNoteFsno,
-                    CustomerDeliveryNoteUserId = xs.deliveryNote.CustomerDeliveryNoteUserId,
+                    CustomerDeliveryNoteFsno = xs.deliveryNote.CustomerDeliveryNoteFSNO,
+                    CustomerDeliveryNoteUserId = xs.deliveryNote.CustomerDeliveryNoteUserID,
                     CustomerDeliveryNoteNote = xs.deliveryNote.CustomerDeliveryNoteNote,
                     CustomerDeliveryNoteWarranty = xs.deliveryNote.CustomerDeliveryNoteWarranty,
                     CustomerDeliveryNoteTraining = xs.deliveryNote.CustomerDeliveryNoteTraining,
@@ -81,9 +73,9 @@ namespace Inspire.Erp.Web.Controllers.Sales
                     CustomerDeliveryNoteQuality = xs.deliveryNote.CustomerDeliveryNoteQuality,
                     CustomerDeliveryNoteIssuedStatus = xs.deliveryNote.CustomerDeliveryNoteIssuedStatus,
                     CustomerDeliveryNoteAttention = xs.deliveryNote.CustomerDeliveryNoteAttention,
-                    CustomerDeliveryNotePodId = xs.deliveryNote.CustomerDeliveryNotePodId,
-                    CustomerDeliveryNoteDelDetId = xs.deliveryNote.CustomerDeliveryNoteDelDetId,
-                    CustomerDeliveryNoteManuelPo = xs.deliveryNote.CustomerDeliveryNoteManuelPo,
+                    CustomerDeliveryNotePodId = xs.deliveryNote.CustomerDeliveryNotePODID,
+                    CustomerDeliveryNoteDelDetId = xs.deliveryNote.CustomerDeliveryNoteDelDetID,
+                    CustomerDeliveryNoteManuelPo = xs.deliveryNote.CustomerDeliveryNoteManuelPO,
                     CustomerDeliveryNoteDeliveryStatus = xs.deliveryNote.CustomerDeliveryNoteDeliveryStatus,
                     CustomerDeliveryNoteDelStatus = xs.deliveryNote.CustomerDeliveryNoteDelStatus,
 
@@ -98,42 +90,11 @@ namespace Inspire.Erp.Web.Controllers.Sales
                     Message = SalesVoucherMessage.SaveVoucher
                 };
             }
-            ////else
-            ////{
-            ////    apiResponse = new ApiResponse<CustomerDeliveryNoteViewModel>
-            ////    {
-            ////        Valid = false,
-            ////        Error = true,
-            ////        Exception = null,
-            ////        Message = SalesVoucherMessage.VoucherAlreadyExist
-            ////    };
-
-            ////}
-
 
             return apiResponse;
 
 
         }
-
-
-        //[HttpPost]
-        //[Route("InsertDeliveryNote")]
-        //public ApiResponse<CustomerDeliveryNote> InsertSalesVoucher([FromBody] CustomerDeliveryNote voucherCompositeView)
-        //{
-        //    ApiResponse<CustomerDeliveryNote> apiResponse = new ApiResponse<CustomerDeliveryNote>();
-        //    var param1 = _mapper.Map<CustomerDeliveryNote>(voucherCompositeView);
-        //    var param2 = _mapper.Map<List<CustomerDeliveryNoteDetails>>(voucherCompositeView.CustomerDeliveryNoteDetails);
-   
-        //    var xs = _deliveryNoteService.InsertCustomerDeliveryNote(param1,param2);
-        //    apiResponse = new ApiResponse<CustomerDeliveryNote>
-        //    {
-        //        Valid = true,
-        //        Result = _mapper.Map<CustomerDeliveryNote>(xs),
-        //        Message = DebitNoteMessage.SaveVoucher
-        //    };
-        //    return apiResponse;
-        //}
 
         [HttpPost]
         [Route("UpdateDeliveryNote")]
@@ -141,16 +102,6 @@ namespace Inspire.Erp.Web.Controllers.Sales
         {
             var param1 = _mapper.Map<CustomerDeliveryNote>(voucherCompositeView);
             var param2 = _mapper.Map<List<CustomerDeliveryNoteDetails>>(voucherCompositeView.CustomerDeliveryNoteDetails);
-           // var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-            //var param4 = _mapper.Map<List<StockRegister>>(voucherCompositeView.StockRegister);
-            //var xs = _deliveryNoteService.UpdateSalesVoucher(param1, param3, param2
-            //    //, param4
-            //    );
-
-            //==============
-           // param3 = new List<AccountsTransactions>();
-            ////List<StockRegister> param4 = new List<StockRegister>();
-            ////clsAccountAndStock.SalesVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
 
             var xs = _deliveryNoteService.UpdateDeliveryNote(param1, param2);
             //========================
@@ -158,19 +109,20 @@ namespace Inspire.Erp.Web.Controllers.Sales
 
             CustomerDeliveryNoteViewModel deliveryNoteViewModel = new CustomerDeliveryNoteViewModel
             {
-                CustomerDeliveryNoteDeliveryId = xs.deliveryNote.CustomerDeliveryNoteDeliveryId,
+
+                CustomerDeliveryNoteDeliveryId = xs.deliveryNote.CustomerDeliveryNoteDeliveryID,
                 CustomerDeliveryNoteDeliveryDate = xs.deliveryNote.CustomerDeliveryNoteDeliveryDate,
-                CustomerDeliveryNoteCpoId = xs.deliveryNote.CustomerDeliveryNoteCpoId,
-                CustomerDeliveryNoteCpoDate = xs.deliveryNote.CustomerDeliveryNoteCpoDate,
-                CustomerDeliveryNoteLocationId = xs.deliveryNote.CustomerDeliveryNoteLocationId,
+                CustomerDeliveryNoteCpoId = xs.deliveryNote.CustomerDeliveryNoteCPOID,
+                CustomerDeliveryNoteCpoDate = xs.deliveryNote.CustomerDeliveryNoteCPODate,
+                CustomerDeliveryNoteLocationId = xs.deliveryNote.CustomerDeliveryNoteLocationID,
                 CustomerDeliveryNoteCustomerCode = xs.deliveryNote.CustomerDeliveryNoteCustomerCode,
                 CustomerDeliveryNoteCustomerName = xs.deliveryNote.CustomerDeliveryNoteCustomerName,
-                CustomerDeliveryNoteSalesManId = xs.deliveryNote.CustomerDeliveryNoteSalesManId,
-                CustomerDeliveryNoteCurrencyId = xs.deliveryNote.CustomerDeliveryNoteCurrencyId,
+                CustomerDeliveryNoteSalesManId = xs.deliveryNote.CustomerDeliveryNoteSalesManID,
+                CustomerDeliveryNoteCurrencyId = xs.deliveryNote.CustomerDeliveryNoteCurrencyID,
                 CustomerDeliveryNoteDeliveryAddress = xs.deliveryNote.CustomerDeliveryNoteDeliveryAddress,
                 CustomerDeliveryNoteRemarks = xs.deliveryNote.CustomerDeliveryNoteRemarks,
-                CustomerDeliveryNoteFsno = xs.deliveryNote.CustomerDeliveryNoteFsno,
-                CustomerDeliveryNoteUserId = xs.deliveryNote.CustomerDeliveryNoteUserId,
+                CustomerDeliveryNoteFsno = xs.deliveryNote.CustomerDeliveryNoteFSNO,
+                CustomerDeliveryNoteUserId = xs.deliveryNote.CustomerDeliveryNoteUserID,
                 CustomerDeliveryNoteNote = xs.deliveryNote.CustomerDeliveryNoteNote,
                 CustomerDeliveryNoteWarranty = xs.deliveryNote.CustomerDeliveryNoteWarranty,
                 CustomerDeliveryNoteTraining = xs.deliveryNote.CustomerDeliveryNoteTraining,
@@ -180,9 +132,9 @@ namespace Inspire.Erp.Web.Controllers.Sales
                 CustomerDeliveryNoteQuality = xs.deliveryNote.CustomerDeliveryNoteQuality,
                 CustomerDeliveryNoteIssuedStatus = xs.deliveryNote.CustomerDeliveryNoteIssuedStatus,
                 CustomerDeliveryNoteAttention = xs.deliveryNote.CustomerDeliveryNoteAttention,
-                CustomerDeliveryNotePodId = xs.deliveryNote.CustomerDeliveryNotePodId,
-                CustomerDeliveryNoteDelDetId = xs.deliveryNote.CustomerDeliveryNoteDelDetId,
-                CustomerDeliveryNoteManuelPo = xs.deliveryNote.CustomerDeliveryNoteManuelPo,
+                CustomerDeliveryNotePodId = xs.deliveryNote.CustomerDeliveryNotePODID,
+                CustomerDeliveryNoteDelDetId = xs.deliveryNote.CustomerDeliveryNoteDelDetID,
+                CustomerDeliveryNoteManuelPo = xs.deliveryNote.CustomerDeliveryNoteManuelPO,
                 CustomerDeliveryNoteDeliveryStatus = xs.deliveryNote.CustomerDeliveryNoteDeliveryStatus,
                 CustomerDeliveryNoteDelStatus = xs.deliveryNote.CustomerDeliveryNoteDelStatus,
             };
@@ -207,20 +159,7 @@ namespace Inspire.Erp.Web.Controllers.Sales
         {
             var param1 = _mapper.Map<CustomerDeliveryNote>(voucherCompositeView);
             var param2 = _mapper.Map<List<CustomerDeliveryNoteDetails>>(voucherCompositeView.CustomerDeliveryNoteDetails);
-           // var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-            //var param4 = _mapper.Map<List<StockRegister>>(voucherCompositeView.StockRegister);
-            //var xs = _deliveryNoteService.DeleteSalesVoucher(  param1,    param3, param2
-            //    //, param4
-            //    );
-
-            //==============
-           /// param3 = new List<AccountsTransactions>();
-            ////List<StockRegister> param4 = new List<StockRegister>();
-            //clsAccountAndStock.SalesVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
-
             var xs = _deliveryNoteService.DeleteDeliveryNote(param1, param2);
-            //========================
-
 
             ApiResponse<int> apiResponse = new ApiResponse<int>
             {
@@ -258,20 +197,19 @@ namespace Inspire.Erp.Web.Controllers.Sales
                 CustomerDeliveryNoteViewModel deliveryNoteViewModel = new CustomerDeliveryNoteViewModel
                 {
 
-                    CustomerDeliveryNoteDeliveryId = deliveryNote.deliveryNote.CustomerDeliveryNoteDeliveryId,
-
+                    CustomerDeliveryNoteDeliveryId = deliveryNote.deliveryNote.CustomerDeliveryNoteDeliveryID,
                     CustomerDeliveryNoteDeliveryDate = deliveryNote.deliveryNote.CustomerDeliveryNoteDeliveryDate,
-                    CustomerDeliveryNoteCpoId = deliveryNote.deliveryNote.CustomerDeliveryNoteCpoId,
-                    CustomerDeliveryNoteCpoDate = deliveryNote.deliveryNote.CustomerDeliveryNoteCpoDate,
-                    CustomerDeliveryNoteLocationId = deliveryNote.deliveryNote.CustomerDeliveryNoteLocationId,
+                    CustomerDeliveryNoteCpoId = deliveryNote.deliveryNote.CustomerDeliveryNoteCPOID,
+                    CustomerDeliveryNoteCpoDate = deliveryNote.deliveryNote.CustomerDeliveryNoteCPODate,
+                    CustomerDeliveryNoteLocationId = deliveryNote.deliveryNote.CustomerDeliveryNoteLocationID,
                     CustomerDeliveryNoteCustomerCode = deliveryNote.deliveryNote.CustomerDeliveryNoteCustomerCode,
                     CustomerDeliveryNoteCustomerName = deliveryNote.deliveryNote.CustomerDeliveryNoteCustomerName,
-                    CustomerDeliveryNoteSalesManId = deliveryNote.deliveryNote.CustomerDeliveryNoteSalesManId,
-                    CustomerDeliveryNoteCurrencyId = deliveryNote.deliveryNote.CustomerDeliveryNoteCurrencyId,
+                    CustomerDeliveryNoteSalesManId = deliveryNote.deliveryNote.CustomerDeliveryNoteSalesManID,
+                    CustomerDeliveryNoteCurrencyId = deliveryNote.deliveryNote.CustomerDeliveryNoteCurrencyID,
                     CustomerDeliveryNoteDeliveryAddress = deliveryNote.deliveryNote.CustomerDeliveryNoteDeliveryAddress,
                     CustomerDeliveryNoteRemarks = deliveryNote.deliveryNote.CustomerDeliveryNoteRemarks,
-                    CustomerDeliveryNoteFsno = deliveryNote.deliveryNote.CustomerDeliveryNoteFsno,
-                    CustomerDeliveryNoteUserId = deliveryNote.deliveryNote.CustomerDeliveryNoteUserId,
+                    CustomerDeliveryNoteFsno = deliveryNote.deliveryNote.CustomerDeliveryNoteFSNO,
+                    CustomerDeliveryNoteUserId = deliveryNote.deliveryNote.CustomerDeliveryNoteUserID,
                     CustomerDeliveryNoteNote = deliveryNote.deliveryNote.CustomerDeliveryNoteNote,
                     CustomerDeliveryNoteWarranty = deliveryNote.deliveryNote.CustomerDeliveryNoteWarranty,
                     CustomerDeliveryNoteTraining = deliveryNote.deliveryNote.CustomerDeliveryNoteTraining,
@@ -281,9 +219,9 @@ namespace Inspire.Erp.Web.Controllers.Sales
                     CustomerDeliveryNoteQuality = deliveryNote.deliveryNote.CustomerDeliveryNoteQuality,
                     CustomerDeliveryNoteIssuedStatus = deliveryNote.deliveryNote.CustomerDeliveryNoteIssuedStatus,
                     CustomerDeliveryNoteAttention = deliveryNote.deliveryNote.CustomerDeliveryNoteAttention,
-                    CustomerDeliveryNotePodId = deliveryNote.deliveryNote.CustomerDeliveryNotePodId,
-                    CustomerDeliveryNoteDelDetId = deliveryNote.deliveryNote.CustomerDeliveryNoteDelDetId,
-                    CustomerDeliveryNoteManuelPo = deliveryNote.deliveryNote.CustomerDeliveryNoteManuelPo,
+                    CustomerDeliveryNotePodId = deliveryNote.deliveryNote.CustomerDeliveryNotePODID,
+                    CustomerDeliveryNoteDelDetId = deliveryNote.deliveryNote.CustomerDeliveryNoteDelDetID,
+                    CustomerDeliveryNoteManuelPo = deliveryNote.deliveryNote.CustomerDeliveryNoteManuelPO,
                     CustomerDeliveryNoteDeliveryStatus = deliveryNote.deliveryNote.CustomerDeliveryNoteDeliveryStatus,
                     CustomerDeliveryNoteDelStatus = deliveryNote.deliveryNote.CustomerDeliveryNoteDelStatus,
 
@@ -316,7 +254,6 @@ namespace Inspire.Erp.Web.Controllers.Sales
 
 
             };
-            // var x = _deliveryNoteService.GetVouchersNumbers(id);
             var x = 0;
             if (x == null)
             {

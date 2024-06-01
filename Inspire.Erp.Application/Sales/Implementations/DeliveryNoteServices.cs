@@ -60,7 +60,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
 
             IRepository<CustomerDeliveryNote> deliveryNoteRepository, IRepository<CustomerDeliveryNoteDetails> deliveryNoteDetailsRepository
-            ,IRepository<LocationMaster> locationMasterRepo)
+            , IRepository<LocationMaster> locationMasterRepo)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository;
@@ -68,129 +68,31 @@ namespace Inspire.Erp.Application.Sales.Implementations
             this._deliveryNoteDetailsRepository = deliveryNoteDetailsRepository;
             _programsettingsRepository = programsettingsRepository;
             _voucherNumbersRepository = voucherNumbers;
-
-
             _itemMasterRepository = itemMasterRepository;
             _unitMasterRepository = unitMasterRepository;
             _suppliersMasterRepository = suppliersMasterRepository;
             _locationMasterRepository = locationMasterRepository;
-
             _customerMasterRepository = customerMasterRepository;
-
             _salesManMasterRepository = salesManMasterRepository;
-
             _departmentMasterRepository = departmentMasterRepository;
             _locationMasterRepo = locationMasterRepo;
 
-            //_reportSalesVoucherRepository = reportSalesVoucherRepository;
         }
 
-        //public IEnumerable<ReportSalesVoucher> SalesVoucher_GetReportSalesVoucher()
-        //{
-        //    return _reportSalesVoucherRepository.GetAll();
-        //}
-
-
-
-        ////////public IEnumerable<LocationMaster> SalesVoucher_GetAllLocationMaster()
-        ////////{
-        ////////    return _locationMasterRepository.GetAll();
-        ////////}
-
-
-
-        ////////public IEnumerable<SuppliersMaster> SalesVoucher_GetAllSuppliersMaster()
-        ////////{
-        ////////    return _suppliersMasterRepository.GetAll();
-        ////////}
-
-
-        ////////public IEnumerable<DepartmentMaster> SalesVoucher_GetAllDepartmentMaster()
-        ////////{
-        ////////    return _departmentMasterRepository.GetAll();
-        ////////}
-
-
-
-
-        ////////public IEnumerable<CustomerMaster> SalesVoucher_GetAllCustomerMaster()
-        ////////{
-        ////////    return _customerMasterRepository.GetAll();
-        ////////}
-
-
-
-        ////////public IEnumerable<CustomerMaster> SalesVoucher_GetAllSalesManMaster()
-        ////////{
-        ////////    return _salesManMasterRepository.GetAll();
-        ////////}
-
-
-        ////////public IEnumerable<UnitMaster> SalesVoucher_GetAllUnitMaster()
-        ////////{
-        ////////    return _unitMasterRepository.GetAll();
-        ////////}
-        ////////public IEnumerable<ItemMaster> SalesVoucher_GetAllItemMaster()
-        ////////{
-        ////////    return _itemMasterRepository.GetAll();
-        ////////}
-
-        public DeliveryNoteModel UpdateDeliveryNote(CustomerDeliveryNote deliveryNote,List<CustomerDeliveryNoteDetails> deliveryNoteDetails
+        public DeliveryNoteModel UpdateDeliveryNote(CustomerDeliveryNote deliveryNote, List<CustomerDeliveryNoteDetails> deliveryNoteDetails
             )
         {
             try
             {
                 _deliveryNoteRepository.BeginTransaction();
 
-                //////=================================
-                ////clsCommonFunctions.Delete_OldEntry_StockRegister(deliveryNote.CustomerDeliveryNoteDeliveryId, VoucherType.SalesVoucher_TYPE, _stockRegisterRepository);
-                ////clsCommonFunctions.Delete_OldEntry_AccountsTransactions(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _accountTransactionRepository);
-                //////=================================
                 deliveryNote.CustomerDeliveryNoteDetails = deliveryNote.CustomerDeliveryNoteDetails.Select((k) =>
                 {
-                    
-                    if(k.CustomerDeliveryNoteDetailsDetId == 0)
-                    {
-                      k.CustomerDeliveryNoteDetailsDeliveryDetailId = (int)deliveryNote.CustomerDeliveryNoteDeliveryId;
-                    }
-
+                    k.CustomerDeliveryNoteDetailsDeliveryNo = deliveryNote.CustomerDeliveryNoteDeliveryID;
                     return k;
                 }).ToList();
-               // _deliveryNoteDetailsRepository.UpdateList(deliveryNoteDetails);
+
                 _deliveryNoteRepository.Update(deliveryNote);
-
-
-               ///_salesVoucherRepository.Update(salesVoucher);
-               ////// accountsTransactions = accountsTransactions.Select((k) =>
-               //// {
-               ////     if (k.AccountsTransactionsTransSno == 0)
-               ////     {
-               ////         k.AccountsTransactionsTransDate = salesVoucher.SalesVoucherDate;
-               ////         k.AccountsTransactionsVoucherNo = salesVoucher.SalesVoucherNo;
-               ////         k.AccountsTransactionsVoucherType = VoucherType.SalesVoucher_TYPE;
-               ////         k.AccountsTransactionsStatus = AccountStatus.Approved;
-               ////     }
-
-               ////     return k;
-               //// }).ToList();
-               //// _accountTransactionRepository.UpdateList(accountsTransactions);
-
-
-               //// stockRegister = stockRegister.Select((k) =>
-               //// {
-               ////     if (k.StockRegisterStoreID == 0)
-               ////     {
-               ////         k.StockRegisterVoucherDate = salesVoucher.SalesVoucherDate;
-               ////         k.StockRegisterRefVoucherNo = salesVoucher.SalesVoucherNo;
-               ////         k.StockRegisterTransType = VoucherType.SalesVoucher_TYPE;
-
-               ////         k.StockRegisterStatus = AccountStatus.Approved;
-               ////     }
-
-               ////     return k;
-               //// }).ToList();
-               //// _stockRegisterRepository.UpdateList(stockRegister);
-
 
                 _deliveryNoteRepository.TransactionCommit();
 
@@ -201,22 +103,16 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 throw ex;
             }
 
-            return this.GetSavedDeliveryNoteDetails(deliveryNote.CustomerDeliveryNoteDeliveryId);
+            return this.GetSavedDeliveryNoteDetails(deliveryNote.CustomerDeliveryNoteDeliveryID);
         }
 
-        public int DeleteDeliveryNote(CustomerDeliveryNote deliveryNote,List<CustomerDeliveryNoteDetails> deliveryNoteDetails
+        public int DeleteDeliveryNote(CustomerDeliveryNote deliveryNote, List<CustomerDeliveryNoteDetails> deliveryNoteDetails
             )
         {
             int i = 0;
             try
             {
                 _deliveryNoteRepository.BeginTransaction();
-
-                ////=================================
-                //clsCommonFunctions.Delete_OldEntry_StockRegister(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _stockRegisterRepository);
-                //clsCommonFunctions.Delete_OldEntry_AccountsTransactions(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _accountTransactionRepository);
-                ////=================================
-
 
                 deliveryNote.CustomerDeliveryNoteDelStatus = true;
 
@@ -226,29 +122,9 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     return k;
                 }).ToList();
 
-                //_salesVoucherDetailsRepository.UpdateList(salesVoucherDetails);
-
-                ////accountsTransactions = accountsTransactions.Select((k) =>
-                ////{
-                ////    k.AccountstransactionsDelStatus = true;
-                ////    return k;
-                ////}).ToList();
-                ////_accountTransactionRepository.UpdateList(accountsTransactions);
-
-                ////stockRegister = stockRegister.Select((k) =>
-                ////{
-                ////    k.StockRegisterDelStatus = true;
-                ////    return k;
-                ////}).ToList();
-                ////_stockRegisterRepository.UpdateList(stockRegister);
-
                 deliveryNote.CustomerDeliveryNoteDetails = deliveryNoteDetails;
 
                 _deliveryNoteRepository.Update(deliveryNote);
-
-                ////var vchrnumer = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == deliveryNote.CustomerDeliveryNoteDeliveryId).FirstOrDefault();
-
-                ////_voucherNumbersRepository.Update(vchrnumer);
 
                 _deliveryNoteRepository.TransactionCommit();
                 i = 1;
@@ -267,43 +143,48 @@ namespace Inspire.Erp.Application.Sales.Implementations
             try
             {
                 _deliveryNoteRepository.BeginTransaction();
-                ////string salesVoucherNumber = this.GenerateVoucherNo(deliveryNote.CustomerDeliveryNoteDeliveryDate).VouchersNumbersVNo;
-                // deliveryNote.CustomerDeliveryNoteDeliveryId = salesVoucherNumber;
-    
+
                 int maxcount = 0;
                 maxcount = Convert.ToInt32(
                     _deliveryNoteRepository.GetAsQueryable()
-                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.CustomerDeliveryNoteDeliveryId) + 1);
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.CustomerDeliveryNoteDeliveryID) + 1);
 
-                deliveryNote.CustomerDeliveryNoteDeliveryId = maxcount;
+                deliveryNote.CustomerDeliveryNoteDeliveryID = maxcount;
 
-                deliveryNote.CustomerDeliveryNoteDetails = deliveryNote.CustomerDeliveryNoteDetails.Select((x) =>
+                deliveryNote.CustomerDeliveryNoteDetails.Clear();
+
+                int max1count = 0;
+                max1count =
+                    _deliveryNoteDetailsRepository.GetAsQueryable()
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : (int)o.CustomerDeliveryNoteDetailsDetId) + 1;
+                foreach (var item in deliveryNoteDetails)
                 {
-                    x.CustomerDeliveryNoteDetailsDeliveryNo = maxcount;
-                    return x;
-                }).ToList();
-                //_deliveryNoteDetailsRepository.InsertList(deliveryNoteDetails);
+                    item.CustomerDeliveryNoteDetailsDetId = max1count;
+                    item.CustomerDeliveryNoteDetailsDeliveryNo = maxcount;
+                    deliveryNote.CustomerDeliveryNoteDetails.Add(item);
+                    max1count++;
+                }
+
                 _deliveryNoteRepository.Insert(deliveryNote);
 
-              
                 List<StockRegister> stockRegister = new List<StockRegister>();
                 foreach (var item in deliveryNoteDetails)
                 {
                     stockRegister.Add(new StockRegister
                     {
-                        StockRegisterMaterialID =(int)item.CustomerDeliveryNoteDetailsItemId,
+                        StockRegisterMaterialID = (int)item.CustomerDeliveryNoteDetailsItemId,
                         StockRegisterQuantity = item.CustomerDeliveryNoteDetailsQty,
                         StockRegisterSIN = item.CustomerDeliveryNoteDetailsQty,
                         StockRegisterVoucherDate = deliveryNote.CustomerDeliveryNoteDeliveryDate,
                         StockRegisterTransType = VoucherType.DebitNote_TYPE,
                         StockRegisterStatus = AccountStatus.Approved,
-                    }); 
+                    });
                 }
                 _stockRegisterRepository.InsertList(stockRegister);
-              
+
                 _deliveryNoteRepository.TransactionCommit();
 
-                return this.GetSavedDeliveryNoteDetails(deliveryNote.CustomerDeliveryNoteDeliveryId);
+                return this.GetSavedDeliveryNoteDetails(deliveryNote.CustomerDeliveryNoteDeliveryID);
 
             }
             catch (Exception ex)
@@ -313,42 +194,30 @@ namespace Inspire.Erp.Application.Sales.Implementations
             }
 
         }
-        ////public IEnumerable<AccountsTransactions> GetAllTransaction()
-        ////{
-        ////    return _accountTransactionRepository.GetAll();
-        ////}
-        ////public IEnumerable<SalesVoucher> GetSalesVoucher()
-        ////{
-        ////    IEnumerable<SalesVoucher> salesVoucher_ALL = _salesVoucherRepository.GetAll().Where(k => k.SalesVoucherDelStatus == false || k.SalesVoucherDelStatus == null);
-        ////    return salesVoucher_ALL;
-        ////}
         public DeliveryNoteModel GetSavedDeliveryNoteDetails(long pvno)
         {
             DeliveryNoteModel deliveryNoteModel = new DeliveryNoteModel();
-           
-            deliveryNoteModel.deliveryNote = _deliveryNoteRepository.GetAsQueryable().Where(k => k.CustomerDeliveryNoteDeliveryId == pvno).SingleOrDefault();
 
-
-         
-            deliveryNoteModel.deliveryNoteDetails = _deliveryNoteDetailsRepository.GetAsQueryable().Where(x => x.CustomerDeliveryNoteDetailsDetId == pvno && (x.CustomerDeliveryNoteDetailsDelStatus == false || x.CustomerDeliveryNoteDetailsDelStatus == null)).ToList();
+            deliveryNoteModel.deliveryNote = _deliveryNoteRepository.GetAsQueryable().Where(k => k.CustomerDeliveryNoteDeliveryID == pvno).SingleOrDefault();
+            deliveryNoteModel.deliveryNoteDetails = _deliveryNoteDetailsRepository.GetAsQueryable().Where(x => x.CustomerDeliveryNoteDetailsDeliveryNo == pvno && (x.CustomerDeliveryNoteDetailsDelStatus == false || x.CustomerDeliveryNoteDetailsDelStatus == null)).ToList();
             return deliveryNoteModel;
         }
 
         public CustomerDeliveryNote GetSavedDeliveryNoteDetailsV2(long pvno)
         {
             CustomerDeliveryNote deliveryNote = new CustomerDeliveryNote();
-            deliveryNote =  _deliveryNoteRepository.GetAsQueryable().Where(k => k.CustomerDeliveryNoteDeliveryId == pvno).SingleOrDefault();
-            deliveryNote.CustomerDeliveryNoteDetails = _deliveryNoteDetailsRepository.GetAsQueryable().Where(x => x.CustomerDeliveryNoteDetailsDetId == pvno && (x.CustomerDeliveryNoteDetailsDelStatus == false || x.CustomerDeliveryNoteDetailsDelStatus == null)).ToList();
+            deliveryNote = _deliveryNoteRepository.GetAsQueryable().Where(k => k.CustomerDeliveryNoteDeliveryID == pvno).SingleOrDefault();
+            deliveryNote.CustomerDeliveryNoteDetails = _deliveryNoteDetailsRepository.GetAsQueryable().Where(x => x.CustomerDeliveryNoteDetailsDeliveryNo == pvno && (x.CustomerDeliveryNoteDetailsDelStatus == false || x.CustomerDeliveryNoteDetailsDelStatus == null)).ToList();
             return deliveryNote;
         }
         public IEnumerable<CustomerDeliveryNote> GetDeliveryNote()
         {
-            
-            var customerDeliveryNotes = _deliveryNoteRepository.GetAll();
+
+            var customerDeliveryNotes = _deliveryNoteRepository.GetAll().Where(a => a.CustomerDeliveryNoteDelStatus == false || a.CustomerDeliveryNoteDelStatus == null).ToList();
             return customerDeliveryNotes;
         }
 
-        public async  Task<Response<List<DNReportDetails>>> DeliveryNoteReportDetails(DeliveryNoteReportFilter filter)
+        public async Task<Response<List<DNReportDetails>>> DeliveryNoteReportDetails(DeliveryNoteReportFilter filter)
         {
             List<DNReportDetails> reportDetails = new List<DNReportDetails>();
             string filteredValue = " && 1 == 1";
@@ -360,31 +229,27 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 {
                     filteredValue += $" && CustomerDeliveryNoteLocationID == {filter.LocationId} ";
                 }
-                if(filter.CustomerId > 0)
+                if (filter.CustomerId > 0)
                 {
-                    filteredValue += $" && CustomerDeliveryNoteCustomerCode == {filter.CustomerId} "; 
+                    filteredValue += $" && CustomerDeliveryNoteCustomerCode == {filter.CustomerId} ";
                 }
                 if (!string.IsNullOrEmpty(filter.fromDate) && !string.IsNullOrEmpty(filter.toDate))
                 {
                     filteredValue += $" && CustomerDeliveryNoteDeliveryDate >= {Convert.ToDateTime(filter.fromDate)} && CustomerDeliveryNoteDeliveryDate <= {Convert.ToDateTime(filter.toDate)} ";
                 }
-                //if(!string.IsNullOrEmpty(filter.InvioceStatus))
-                //{
-                //    filteredValue += $" && CustomerDeliveryNoteDeliveryStatus == {filter.InvioceStatus} ";
-                //}
-                reportDetails = await (from dn in _deliveryNoteRepository.GetAsQueryable().Where($"1 == 1  { filteredValue }")
-                                    join lm in _locationMasterRepo.GetAsQueryable() on dn.CustomerDeliveryNoteLocationId equals (long)lm.LocationMasterLocationId into lmGroup
-                                    from lm in lmGroup.DefaultIfEmpty()
-                                    join dnd in _deliveryNoteDetailsRepository.GetAsQueryable() on dn.CustomerDeliveryNoteDeliveryId equals (long)dnd.CustomerDeliveryNoteDetailsDeliveryDetailId into dndGroup
-                                    from dnd in dndGroup.DefaultIfEmpty()
-                                    select new DNReportDetails()
-                                    {
-                                        DaliveryDate = dn.CustomerDeliveryNoteCpoDate,
-                                        CustomerName = dn.CustomerDeliveryNoteCustomerName,
-                                        DeliverySatus = dn.CustomerDeliveryNoteDeliveryStatus,
-                                        DelId = dn.CustomerDeliveryNoteDeliveryId,
-                                        Location = lm.LocationMasterLocationName,
-                                        ItemList = new List<DNItemList>
+                reportDetails = await (from dn in _deliveryNoteRepository.GetAsQueryable().Where($"1 == 1  {filteredValue}")
+                                       join lm in _locationMasterRepo.GetAsQueryable() on dn.CustomerDeliveryNoteLocationID equals (long)lm.LocationMasterLocationId into lmGroup
+                                       from lm in lmGroup.DefaultIfEmpty()
+                                       join dnd in _deliveryNoteDetailsRepository.GetAsQueryable() on dn.CustomerDeliveryNoteDeliveryID equals (long)dnd.CustomerDeliveryNoteDetailsDeliveryDetailId into dndGroup
+                                       from dnd in dndGroup.DefaultIfEmpty()
+                                       select new DNReportDetails()
+                                       {
+                                           DaliveryDate = dn.CustomerDeliveryNoteDeliveryDate,
+                                           CustomerName = dn.CustomerDeliveryNoteCustomerName,
+                                           DeliverySatus = dn.CustomerDeliveryNoteDeliveryStatus,
+                                           DelId = dn.CustomerDeliveryNoteDeliveryID,
+                                           Location = lm.LocationMasterLocationName,
+                                           ItemList = new List<DNItemList>
                                         {
                                             new DNItemList
                                             {
@@ -396,9 +261,9 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                         },
 
 
-                                    }).OrderBy(x => x.DaliveryDate).ToListAsync();
+                                       }).OrderBy(x => x.DaliveryDate).ToListAsync();
 
-        
+
                 return new Response<List<DNReportDetails>>
                 {
                     Valid = true,
@@ -409,9 +274,9 @@ namespace Inspire.Erp.Application.Sales.Implementations
             catch (Exception ex)
             {
 
-                throw;
+                throw ex;
             }
-           
+
         }
 
         public CustomerDeliveryNote InsertCustomerDeliveryNote(CustomerDeliveryNote deliveryNote, List<CustomerDeliveryNoteDetails> deliveryNoteDetails)
@@ -423,9 +288,9 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 int maxcount = 0;
                 maxcount = Convert.ToInt32(
                     _deliveryNoteRepository.GetAsQueryable()
-                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.CustomerDeliveryNoteDeliveryId) + 1);
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.CustomerDeliveryNoteDeliveryID) + 1);
 
-                deliveryNote.CustomerDeliveryNoteDeliveryId = maxcount;
+                deliveryNote.CustomerDeliveryNoteDeliveryID = maxcount;
 
                 deliveryNoteDetails = deliveryNoteDetails.Select((x) =>
                 {
@@ -453,7 +318,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 _deliveryNoteRepository.TransactionCommit();
 
-                return this.GetSavedDeliveryNoteDetailsV2(deliveryNote.CustomerDeliveryNoteDeliveryId);
+                return this.GetSavedDeliveryNoteDetailsV2(deliveryNote.CustomerDeliveryNoteDeliveryID);
 
             }
             catch (Exception ex)
@@ -468,59 +333,5 @@ namespace Inspire.Erp.Application.Sales.Implementations
         {
             throw new NotImplementedException();
         }
-
-        ////public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
-        ////{
-        ////    try
-        ////    {
-
-        ////        var prefix = this._programsettingsRepository.GetAsQueryable().Where(k => k.ProgramSettingsKeyValue == Prefix.SalesVoucher_Prefix).FirstOrDefault().ProgramSettingsTextValue;
-        ////        int vnoMaxVal = Convert.ToInt32(_voucherNumbersRepository.GetAsQueryable()
-        ////                                                .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == VoucherType.SalesVoucher_TYPE)
-        ////                                                .DefaultIfEmpty()
-        ////                                                .Max(o => o == null ? 0 : o.VouchersNumbersVNoNu)) + 1;
-
-
-        ////        //var prefix = "CN";
-        ////        //int vnoMaxVal = 1;
-
-        ////        VouchersNumbers vouchersNumbers = new VouchersNumbers
-        ////        {
-        ////            VouchersNumbersVNo = prefix + vnoMaxVal,
-        ////            VouchersNumbersVNoNu = vnoMaxVal,
-        ////            VouchersNumbersVType = VoucherType.SalesVoucher_TYPE,
-        ////            VouchersNumbersFsno = 1,
-        ////            VouchersNumbersStatus = AccountStatus.Pending,
-        ////            VouchersNumbersVoucherDate = VoucherGenDate
-
-        ////        };
-        ////        _voucherNumbersRepository.Insert(vouchersNumbers);
-        ////        return vouchersNumbers;
-        ////    }
-        ////    catch (Exception ex)
-        ////    {
-        ////        throw ex;
-        ////    }
-
-        ////}
-
-        //using Microsoft.Extensions.Logging;
-        //private readonly ILogger<PaymentVoucherService> _logger;
-        //IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
-        ////public VouchersNumbers GetVouchersNumbers(string pvno)
-        ////{
-        ////    try
-        ////    {
-        ////        VouchersNumbers vouchersNumbers = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == pvno).SingleOrDefault();
-        ////        return vouchersNumbers;
-        ////    }
-        ////    catch (Exception ex)
-        ////    {
-        ////        _logger.LogError(ex.Message);
-        ////        throw ex;
-        ////    }
-
-        ////}
-
     }
 }
