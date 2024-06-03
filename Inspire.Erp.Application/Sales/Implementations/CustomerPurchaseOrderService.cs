@@ -589,11 +589,11 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 List<GetCustomerPurchaseOrderTrackingResponse> response = new List<GetCustomerPurchaseOrderTrackingResponse>();
 
                 var subqueryDRQ = (from s in _Context.CustomerDeliveryNote
-                             group s by new { s.CustomerDeliveryNoteDeliveryId, s.CustomerDeliveryNoteCpoId,s.CustomerDeliveryNoteDeliveryDate } into g
+                             group s by new { s.CustomerDeliveryNoteDeliveryID, s.CustomerDeliveryNoteCPOID,s.CustomerDeliveryNoteDeliveryDate } into g
                              select new
                              {
-                                 CustomerDeliveryNoteDeliveryId = g.Key.CustomerDeliveryNoteDeliveryId,
-                                 CustomerDeliveryNoteCpoId = g.Key.CustomerDeliveryNoteCpoId,
+                                 CustomerDeliveryNoteDeliveryId = g.Key.CustomerDeliveryNoteDeliveryID,
+                                 CustomerDeliveryNoteCpoId = g.Key.CustomerDeliveryNoteCPOID,
                                  CustomerDeliveryNoteDeliveryDate = g.Key.CustomerDeliveryNoteDeliveryDate
                              });
 
