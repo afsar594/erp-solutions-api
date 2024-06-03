@@ -1762,8 +1762,6 @@ namespace Inspire.Erp.Application.Master
                                                  TransactionCode = ir.TransactionCode
                                              }).ToListAsync();
 
-
-
                     string paymentmode = "CARD";
                     string transtype = "CARD";
                     transDesc = "CARD SALES";
@@ -1795,7 +1793,6 @@ namespace Inspire.Erp.Application.Master
 
                     InsertSettlementDetails(model, salesVoucherNo);
 
-
                     var settDetails = await (from ir in settDetailsTempRepo.GetAsQueryable()
                                              join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode.Trim().ToUpper() equals ud.Trans_code.Trim().ToUpper()
                                              where ir.UserId == model.UserId && ir.Card == true
@@ -1806,15 +1803,12 @@ namespace Inspire.Erp.Application.Master
                                              }).ToListAsync();
 
                     // settDetailsTempRepo.SaveChangesAsync();
-
-                    
                     SaveVoucher(model,salesVoucherNo, transtype, transDesc, paymentmode, "CARD CUSTOMER");
-
                     SavesettlementTrans(model,salesVoucherNo);
 
-                  
 
-
+                    var tempSettDet = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId).ToList();
+                    if (tempSettDet != null) settDetailsTempRepo.DeleteList(tempSettDet);
 
                     trans.Complete();
                     //trans.Dispose();
