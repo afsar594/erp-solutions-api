@@ -239,6 +239,11 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 if (filter.IsDateChecked)
                 {
                     reportDetails = await (from ce in _customerEnquiryRepository.GetAsQueryable()
+                        .Where(a => (filter.CustomerId == null || a.EnquiryMasterSalesManId == filter.CustomerId)
+                                   && (filter.StatusId == null || a.EnquiryMasterEnquiryStatusId == filter.StatusId)
+                                   && (filter.Enquiry_No == null || a.EnquiryMasterEnquiryId == filter.Enquiry_No)
+                                   && (filter.fromDate == null || a.EnquiryMasterEnquiryDate >= filter.fromDate)
+                                   && (filter.toDate == null || a.EnquiryMasterEnquiryDate < filter.toDate))
                                            join lm in _locationMasterRepository.GetAsQueryable() on ce.EnquiryMasterLocationId equals (long)lm.LocationMasterLocationId into lmGroup
                                            from lm in lmGroup.DefaultIfEmpty()
                                            join cm in _customerMasterRepository.GetAsQueryable() on ce.EnquiryMasterSalesManId equals cm.CustomerMasterCustomerNo into cmGroup
@@ -251,11 +256,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                            from abt in abtGroup.DefaultIfEmpty()
                                            join es in _enquiryStatusRepository.GetAsQueryable() on ce.EnquiryMasterEnquiryStatusId equals es.EnquiryStatusEnquiryStatusId into esGroup
                                            from es in esGroup.DefaultIfEmpty()
-                                           where filter.CustomerId == 0 || filter.CustomerId == ce.EnquiryMasterSalesManId
-                                           && filter.Enquiry_No == null || filter.Enquiry_No == ce.EnquiryMasterEnquiryId
-                                           && filter.StatusId == 0 || filter.StatusId == ce.EnquiryMasterEnquiryStatusId
-                                           && filter.fromDate == null || filter.fromDate.Value.Date >= ce.EnquiryMasterEnquiryDate &&
-                                           filter.toDate == null || filter.toDate.Value.Date <= ce.EnquiryMasterEnquiryDate
+
                                            select new CustomerEnquiryReportResponse()
                                            {
                                                Enquiry_Master_Enquiry_ID = ce.EnquiryMasterEnquiryId,
@@ -268,13 +269,17 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                                Business_Type_Master_Business_Type_Name = bt.BusinessTypeMasterBusinessTypeName,
                                                Enquiry_Master_Contact_Email = ce.EnquiryMasterContactEmail,
                                                Enquiry_Status_Enquiry_Status = es.EnquiryStatusEnquiryStatus,
-                                               Enquiry_Master_Status_ID = es.EnquiryStatusEnquiryStatusId
+                                               Enquiry_Master_Status_ID = es.EnquiryStatusEnquiryStatusId,
+                                               Enquiry_Master_SaleMan_ID = ce.EnquiryMasterSalesManId
 
                                            }).ToListAsync();
                 }
                 else
                 {
                     reportDetails = await (from ce in _customerEnquiryRepository.GetAsQueryable()
+                        .Where(a => (filter.CustomerId == null || a.EnquiryMasterSalesManId == filter.CustomerId)
+                                   && (filter.StatusId == null || a.EnquiryMasterEnquiryStatusId == filter.StatusId)
+                                   && (filter.Enquiry_No == null || a.EnquiryMasterEnquiryId == filter.Enquiry_No))
                                            join lm in _locationMasterRepository.GetAsQueryable() on ce.EnquiryMasterLocationId equals (long)lm.LocationMasterLocationId into lmGroup
                                            from lm in lmGroup.DefaultIfEmpty()
                                            join cm in _customerMasterRepository.GetAsQueryable() on ce.EnquiryMasterSalesManId equals cm.CustomerMasterCustomerNo into cmGroup
@@ -287,9 +292,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                            from abt in abtGroup.DefaultIfEmpty()
                                            join es in _enquiryStatusRepository.GetAsQueryable() on ce.EnquiryMasterEnquiryStatusId equals es.EnquiryStatusEnquiryStatusId into esGroup
                                            from es in esGroup.DefaultIfEmpty()
-                                           where filter.CustomerId == 0 || filter.CustomerId == ce.EnquiryMasterSalesManId
-                                           && filter.StatusId == 0 || filter.StatusId == ce.EnquiryMasterEnquiryStatusId
-                                           && filter.Enquiry_No == null || filter.Enquiry_No == ce.EnquiryMasterEnquiryId
                                            select new CustomerEnquiryReportResponse()
                                            {
                                                Enquiry_Master_Enquiry_ID = ce.EnquiryMasterEnquiryId,
@@ -302,7 +304,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                                Business_Type_Master_Business_Type_Name = bt.BusinessTypeMasterBusinessTypeName,
                                                Enquiry_Master_Contact_Email = ce.EnquiryMasterContactEmail,
                                                Enquiry_Status_Enquiry_Status = es.EnquiryStatusEnquiryStatus,
-                                               Enquiry_Master_Status_ID = es.EnquiryStatusEnquiryStatusId
+                                               Enquiry_Master_Status_ID = es.EnquiryStatusEnquiryStatusId,
+                                               Enquiry_Master_SaleMan_ID = ce.EnquiryMasterSalesManId
                                            }).ToListAsync();
                 }
 

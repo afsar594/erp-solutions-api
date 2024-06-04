@@ -18,5 +18,6 @@ namespace Inspire.Erp.Domain.Modals
         public string Enquiry_Master_Contact_Email { get; set; }
 
         public long? Enquiry_Master_Status_ID { get; set; }
+        public long? Enquiry_Master_SaleMan_ID { get; set; }
     }
 }
