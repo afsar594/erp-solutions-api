@@ -803,8 +803,6 @@ namespace Inspire.Erp.Application.Master
                                         ItemName = ir.ItemMasterItemName,
                                         UnitPrice = ud.UnitDetailsUnitPrice,
                                         ItemId = ir.ItemMasterItemId,
-                                        
-
                                     }).GroupBy(
                                     m => new { m.ItemId, m.ItemName, m.UnitDetailsId, m.UnitPrice,m.BarCode }
                                 ).Select(am => new ItemMasterResponse
