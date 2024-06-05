@@ -169,7 +169,7 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpGet]
         [Route("GetSavedCustQuotationDetails/{id}")]
-        public ApiResponse<CustomerQuotation> GetSavedCustQuotationDetails(string id)
+        public ApiResponse<CustomerQuotation> GetSavedCustQuotationDetails(int id)
         {
             CustomerQuotation custQuotation = _customerQuotationService.GetSavedCustQuotationDetails(id);
 

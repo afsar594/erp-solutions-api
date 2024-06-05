@@ -18,7 +18,7 @@ namespace Inspire.Erp.Application.Sales.Interfaces
         public CustomerQuotation InsertCustomerQuotation(CustomerQuotation customerQuotation, List<CustomerQuotationDetails> customerQuotationDetails );
         public CustomerQuotation UpdateCustomerQuotation(CustomerQuotation customerQuotation, List<CustomerQuotationDetails> customerQuotationDetails);
         public int DeleteCustomerQuotation(CustomerQuotation customerQuotation);
-        public CustomerQuotation GetSavedCustQuotationDetails(string Qtno); 
+        public CustomerQuotation GetSavedCustQuotationDetails(int id); 
         public IEnumerable<CustomerQuotation> GetCustomerQuotation();
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
 

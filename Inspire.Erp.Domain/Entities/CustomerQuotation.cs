@@ -7,10 +7,11 @@ namespace Inspire.Erp.Domain.Entities
 {
     public partial class CustomerQuotation
     {
-        //public CustomerQuotation()
-        //{
-        //    CustomerQuotationDetails = new HashSet<CustomerQuotationDetails>();
-        //}
+        public CustomerQuotation()
+        {
+            CustomerQuotationDetails = new HashSet<CustomerQuotationDetails>();
+        }
+
         public long CustomerQuotationQid { get; set; }
         public string CustomerQuotationVoucherNo { get; set; }
         public long? CustomerQuotationQuotationAddition { get; set; }
@@ -54,14 +55,11 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? CustomerQuotationVatAmount { get; set; }
         public int? CustomerQuotationQuotationEnquiryN { get; set; }
         public bool? CustomerQuotationDelStatus { get; set; }
+        public string CustomerQuotationProjectName { get; set; }
         public string CustomerQuotationProjectRef { get; set; }
-        public string CustomerQuotationProjectN { get; set; }
         public bool? CustomerQuotationReviseQuotation { get; set; }
         public decimal? CustomerQuotationGrossProfitTotal { get; set; }
 
-        [NotMapped]
-        [JsonIgnore]
-        public virtual VouchersNumbers CustomerQuotationVoucherNoNavigation { get; set; }
         [NotMapped]
         public virtual ICollection<CustomerQuotationDetails> CustomerQuotationDetails { get; set; }
     }
