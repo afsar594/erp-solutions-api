@@ -32,9 +32,7 @@ namespace Inspire.Erp.Application.Sales.Interfaces
 
         public IEnumerable<SuppliersMaster> SalesVoucher_GetAllSuppliersMaster();
         public IEnumerable<LocationMaster> SalesVoucher_GetAllLocationMaster();
-
-        //public SalesVoucher InsertSalesVoucher(SalesVoucher salesVoucher,
-        //  List<SalesVoucherDetails> salesVoucherDetails);
+        
 
         public SalesVoucherModel InsertSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions, List<SalesVoucherDetails> salesVoucherDetails
             , List<StockRegister> stockRegister

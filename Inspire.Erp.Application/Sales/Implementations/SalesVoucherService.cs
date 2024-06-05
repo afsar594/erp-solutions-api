@@ -86,7 +86,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
 
-            IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository, IRepository<CurrencyMaster> currencyMasterRepository, IRepository<UnitDetails> unitDetailsRepository, IRepository<MasterAccountsTable> accMaster, IRepository<SalesReturn> salesReturn, IRepository<SalesReturnDetails> salesReturnDtls, IRepository<OptionsMaster> optionMaster 
+            IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository, IRepository<CurrencyMaster> currencyMasterRepository, IRepository<UnitDetails> unitDetailsRepository, IRepository<MasterAccountsTable> accMaster, IRepository<SalesReturn> salesReturn, IRepository<SalesReturnDetails> salesReturnDtls, IRepository<OptionsMaster> optionMaster
             //IRepository<POS_Sales_Voucher> posSalesVoucherRepository, IRepository<POS_Sales_Voucher_Details> posSalesVoucherDetailsRepository
             , IRepository<SalesHold> salesHoldRepository, IRepository<SalesHoldDetails> salesHoldDetailsRepository, IRepository<POS_WorkPeriod> POSWorkPeriodRepository)
         {
@@ -179,23 +179,16 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 //=================================
                 salesVoucher.SalesVoucherDetails = salesVoucherDetails.Select((k) =>
                 {
-                    //if (k.SalesVoucherDetailsId == 0)
-                    //{
+
                     k.SalesVoucherId = salesVoucher.SalesVoucherId;
                     k.SalesVoucherDetailsNo = salesVoucher.SalesVoucherNo;
-                    //k.SalesVoucherDetailsId = 0;
-                    //}
+
 
                     return k;
                 }).ToList();
 
                 _salesVoucherRepository.Update(salesVoucher);
 
-
-
-
-
-                //_salesVoucherRepository.Update(salesVoucher);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     if (k.AccountsTransactionsTransSno == 0)
@@ -224,10 +217,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     return k;
                 }).ToList();
                 _stockRegisterRepository.UpdateList(stockRegister);
-
-
-
-
 
                 _salesVoucherRepository.TransactionCommit();
 
@@ -334,29 +323,20 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 salesVoucher.SalesVoucherNo = salesVoucherNumber;
 
 
-                int maxcount = 0;
-                maxcount = Convert.ToInt32(
+                decimal? maxcount = 0;
+                maxcount =
                     _salesVoucherRepository.GetAsQueryable()
-                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.SalesVoucherId) + 1);
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.SalesVoucherId) + 1;
 
                 salesVoucher.SalesVoucherId = maxcount;
-
-                // var currencyMaster = _currencyMasterRepository.GetAsQueryable().Where(c => c.CurrencyMasterCurrencyId == salesVoucher.SalesVoucherCurrencyId).FirstOrDefault();
-                //foreach (var saleVoucherDetail in salesVoucherDetails)
-                //{
-                //    saleVoucherDetail.SalesVoucherDetailsRate = saleVoucherDetail.SalesVoucherDetailsRate * Convert.ToDecimal(currencyMaster.CurrencyMasterCurrencyRate);
-                //}
-                // salesVoucher.SalesVoucherFcRate = salesVoucher.SalesVoucherFcRate * Convert.ToDecimal(currencyMaster.CurrencyMasterCurrencyRate);
+                salesVoucher.SalesVoucherDetails.Clear();
                 salesVoucherDetails = salesVoucherDetails.Select((x) =>
                 {
                     x.SalesVoucherId = maxcount;
                     x.SalesVoucherDetailsNo = salesVoucherNumber;
+                    salesVoucher.SalesVoucherDetails.Add(x);
                     return x;
                 }).ToList();
-                //_salesVoucherDetailsRepository.InsertList(salesVoucherDetails);
-
-                //accunt transaction entries for sales
-                //createAccountTransactionEntries(salesVoucher, accountsTransactions);
 
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
@@ -395,8 +375,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         StockRegisterSIN = 0,
                         StockRegisterSout = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
                         StockRegisterRate = item.SalesVoucherDetailsRate,
-                        StockRegisterAmount = item.SalesVoucherDetailsActualAmount ?? 0,
-                        StockRegisterFCAmount = item.SalesVoucherDetailsActualAmount ?? 0 * this.getCurrencyRate(salesVoucher.SalesVoucherCurrencyId),
+                        StockRegisterAmount = item.SalesVoucherDetailsNetAmt ?? 0,
+                        StockRegisterFCAmount = item.SalesVoucherDetailsNetAmt ?? 0 * this.getCurrencyRate(salesVoucher.SalesVoucherCurrencyId),
                         StockRegisterAssignedDate = DateTime.Now.Date,
                         StockRegisterStatus = "A",
                         StockRegisterTransType = salesVoucher.SalesVoucherType,
@@ -412,7 +392,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
 
                 _salesVoucherRepository.Insert(salesVoucher);
-                //_salesVoucherDetailsRepository.InsertList(salesVoucherDetails);
                 _salesVoucherRepository.TransactionCommit();
                 return this.GetSavedSalesVoucherDetails(salesVoucher.SalesVoucherNo);
 
@@ -424,24 +403,13 @@ namespace Inspire.Erp.Application.Sales.Implementations
             }
 
         }
-        /// <summary>
-        /// Name : createAccountTransactionEntries
-        /// Desc : this is used to create transaction entries again sales customer 
-        ///  not to change/ remove OR replace any field in below method, may leads to an unexpected errors/
-        ///  may be create a wrong entry in account transaction table
-        /// </summary>
-        /// <param name="salesVoucher"></param>
-        /// <param name="accountsTransactions"></param>
-        /// <param name="salesVoucherNumber"></param>
+
         private void createAccountTransactionEntries(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions)
         {
             decimal currencyRate = getCurrencyRate(salesVoucher.SalesVoucherCurrencyId);
 
-            //Credit Entry
+            if (salesVoucher.SalesVoucherType == "Credit")
 
-            //Debit Entry
-            if (salesVoucher.SalesVoucherType == "Credit")//here there are two entries for invoice type
-                                                          //need to replace SalesVoucherType by invoice type
             {
 
             }
@@ -492,7 +460,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 string maAcc = this.accMaster.GetAsQueryable().Where(x => x.MaAccName.ToUpper().Equals(partyName.ToUpper())).Select(x => x.MaAccNo).FirstOrDefault();
 
                 return maAcc == null ? "" : maAcc;
-                //return this.accMaster.GetAsQueryable().FirstOrDefault(x => x.MaAccName.ToUpper().Equals(partyName.ToUpper())).MaAccNo??"";
             }
             catch
             {

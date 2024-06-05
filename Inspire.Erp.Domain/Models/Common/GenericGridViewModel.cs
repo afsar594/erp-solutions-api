@@ -14,7 +14,7 @@ namespace Inspire.Erp.Domain.Modals.Common
         public string Filter { get; set; }
         public int Total { get; set; } = 0;
         public string Extension { get; set; }
-        public string  FormatType { get; set; }
+        public string FormatType { get; set; }
 
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
@@ -33,9 +33,9 @@ namespace Inspire.Erp.Domain.Modals.Common
         public string PrintGroupWise { get; set; }
         public string FinancialMindate { get; set; }
         public int SupplierId { get; set; }
-        public int  JobId { get; set; }
+        public int JobId { get; set; }
         public string Status { get; set; }
-        public int  LocationId { get; set; }
+        public int LocationId { get; set; }
         public int ItemId { get; set; }
         public string PONO { get; set; }
 
@@ -60,10 +60,12 @@ namespace Inspire.Erp.Domain.Modals.Common
 
     public class CustomerEnquirySearchFilter
     {
+        public bool IsDateChecked { get; set; }
         public string Enquiry_No { get; set; }
-        public long CustomerId { get; set; }
-        public string fromDate { get; set; }
-        public string toDate { get; set; }
+        public long? CustomerId { get; set; }
+        public long? StatusId { get; set; }
+        public DateTime? fromDate { get; set; }
+        public DateTime? toDate { get; set; }
     }
     public class PurChaseRequisitionStatusFilterReport
     {
@@ -73,12 +75,12 @@ namespace Inspire.Erp.Domain.Modals.Common
         public string PRNO { get; set; }
         public bool ByDate { get; set; }
         public string fromDate { get; set; }
-        public string toDate { get; set; }       
+        public string toDate { get; set; }
     }
 
     public class AccountTransactionsFilterReport
     {
-       public List<string> accountNos { get; set; }
+        public List<string> accountNos { get; set; }
         public DateTime FromDate { get; set; }
         public DateTime ToDate { get; set; }
     }
@@ -119,7 +121,7 @@ namespace Inspire.Erp.Domain.Modals.Common
     }
     public class WorkPeriodFilter
     {
-        public int?  StationId { get; set; }
+        public int? StationId { get; set; }
         public string? Status { get; set; }
         public int? UserId { get; set; }
     }

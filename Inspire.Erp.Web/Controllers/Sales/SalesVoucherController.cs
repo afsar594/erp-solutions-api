@@ -36,44 +36,6 @@ namespace Inspire.Erp.Web.Controllers
             _UnitDetailsRepository = unitDetailsRepository;
         }
 
-        //[HttpGet]
-        //[Route("SalesVoucher_GetReportSalesVoucher")]
-
-        //public List<ReportSalesVoucher> SalesVoucher_GetReportSalesVoucher()
-        //{
-        //    return _mapper.Map<List<ReportSalesVoucher>>(_salesVoucherService.SalesVoucher_GetReportSalesVoucher());
-
-
-        //}
-
-
-
-
-
-
-
-        //[HttpGet]
-        //[Route("SalesVoucher_GetReportSalesVoucher")]
-        //public ApiResponse<List<ReportSalesVoucher>> SalesVoucher_GetReportSalesVoucher()
-        //{
-
-
-
-        //    ApiResponse<List<ReportSalesVoucher>> apiResponse = new ApiResponse<List<ReportSalesVoucher>>
-        //    {
-        //        Valid = true,
-        //        Result = _mapper.Map<List<ReportSalesVoucher>>(_salesVoucherService.SalesVoucher_GetReportSalesVoucher()),
-        //        Message = ""
-        //    };
-        //    return apiResponse;
-
-
-
-
-        //}
-
-
-
         [HttpGet]
         [Route("SalesVoucher_GetAllLocationMaster")]
 
@@ -189,26 +151,10 @@ namespace Inspire.Erp.Web.Controllers
             {
                 var param1 = _mapper.Map<SalesVoucher>(voucherCompositeView);
                 var param2 = _mapper.Map<List<SalesVoucherDetails>>(voucherCompositeView.SalesVoucherDetails);
-                var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-                //var param4 = _mapper.Map<List<StockRegister>>(voucherCompositeView.StockRegister);
-                //var xs = _salesVoucherService.InsertSalesVoucher(param1, param3, param2
-                //    //, param4
-                //    );
-                //var allUnits = new List<UnitDetails>();
-                //var unitDetails = new UnitDetails();
-                //foreach (var item in param1.SalesVoucherDetails)
-                //{
-                //     unitDetails = _UnitDetailsRepository.GetAsQueryable().Where(c => c.UnitDetailsUnitId == item.SalesVoucherDetailsUnitId).FirstOrDefault();
-                //    allUnits.Add(unitDetails);
-                //}   
-               
-                //==============
-                //param3 = new List<AccountsTransactions>();
-                List<StockRegister> param4 = new List<StockRegister>();
-                //clsAccountAndStock.SalesVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3, allUnits);
+                var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);                
+                List<StockRegister> param4 = new List<StockRegister>();                
 
-                var xs = _salesVoucherService.InsertSalesVoucher(param1, param3, param2, param4);
-                //========================
+                var xs = _salesVoucherService.InsertSalesVoucher(param1, param3, param2, param4);              
 
 
                 SalesVoucherViewModel salesVoucherViewModel = new SalesVoucherViewModel
