@@ -29,5 +29,11 @@ namespace Inspire.Erp.Web.Controllers.Sales
         {
             return Ok(await _customerEnquiryRepository.GetAllEnquiryNo());
         }
+        [HttpPost]
+        [Route("GetCustomerEnquirybyStatuss")]
+        public async Task<IActionResult> getCustomerEnquirybyStatuss(CustomerEnquirySearchFilterStatus filter)
+        {
+            return Ok(await _customerEnquiryRepository.getCustomerEnquirybyStatuss(filter));
+        }
     }
 }

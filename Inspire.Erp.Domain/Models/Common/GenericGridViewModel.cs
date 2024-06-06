@@ -65,6 +65,14 @@ namespace Inspire.Erp.Domain.Modals.Common
         public string fromDate { get; set; }
         public string toDate { get; set; }
     }
+    public class CustomerEnquirySearchFilterStatus
+    {
+        public bool IsDateChecked { get; set; }
+        public long? CustomerId { get; set; }
+        public long? StatusId { get; set; }
+        public DateTime? fromDate { get; set; }
+        public DateTime? toDate { get; set; }
+    }
     public class PurChaseRequisitionStatusFilterReport
     {
         public int JobId { get; set; }
