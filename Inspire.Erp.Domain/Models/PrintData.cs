@@ -6,9 +6,7 @@ namespace Inspire.Erp.Domain.Models
 {
     public class PrintData
     {
-     
         public string PrinterName { get; set; }
-       
         public string Data { get; set; }
         
     }
