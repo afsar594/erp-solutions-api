@@ -31,9 +31,9 @@ namespace Inspire.Erp.Domain.Modals
 
     public class SettlementDetailsRequest
     {
-        public int Quantity { get; set; }
+       // public int Quantity { get; set; }
         public decimal Total { get; set; }
-        public decimal? NetAmount { get; set; }
+        //public decimal? NetAmount { get; set; }
         public decimal? VAT { get; set; }
         public decimal? ItemDiscount { get; set; }
         public decimal? CashAmount { get; set; }
@@ -69,7 +69,6 @@ namespace Inspire.Erp.Domain.Modals
         public string  TransactionCode { get; set; }
         public int? SortOrder { get; set; }
         public bool? ShowinInvoice { get; set; }
-
         public string Status { get; set; }
     }
     public class CardAmountResponse
