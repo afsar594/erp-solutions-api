@@ -109,7 +109,6 @@ namespace Inspire.Erp.Domain.Modals
         public string StationName { get; set; }
         public string CreditCardNumber { get; set; }
         public int? CustomerId { get; set; }
-
         public int? SalesManId { get; set; }
         public int? LocationId { get; set; }
         public int? StationId { get; set; }

@@ -12845,147 +12845,147 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<PosStationSettings>(entity =>
             {
-                entity.HasKey(e => e.PosStationSettingsId);
+                entity.HasKey(e => e.Id);
 
-                entity.ToTable("POS_Station_Settings");
+                entity.ToTable("POS_StationSettings");
 
-                entity.Property(e => e.PosStationSettingsBaudRate).HasColumnName("POS_Station_Settings_BaudRate");
+                //entity.Property(e => e.PosStationSettingsBaudRate).HasColumnName("POS_Station_Settings_BaudRate");
 
-                entity.Property(e => e.PosStationSettingsBillClosing)
-                    .HasColumnName("POS_Station_Settings_BillClosing")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsBillClosing)
+                //    .HasColumnName("POS_Station_Settings_BillClosing")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsClubGrid).HasColumnName("POS_Station_Settings_Club_Grid");
+                //entity.Property(e => e.PosStationSettingsClubGrid).HasColumnName("POS_Station_Settings_Club_Grid");
 
-                entity.Property(e => e.PosStationSettingsCrBcopy).HasColumnName("POS_Station_Settings_CrBCopy");
+                //entity.Property(e => e.PosStationSettingsCrBcopy).HasColumnName("POS_Station_Settings_CrBCopy");
 
-                entity.Property(e => e.PosStationSettingsCsBcopy).HasColumnName("POS_Station_Settings_CsBCopy");
+                //entity.Property(e => e.PosStationSettingsCsBcopy).HasColumnName("POS_Station_Settings_CsBCopy");
 
-                entity.Property(e => e.PosStationSettingsDelStatus).HasColumnName("POS_Station_Settings_DelStatus");
+                //entity.Property(e => e.PosStationSettingsDelStatus).HasColumnName("POS_Station_Settings_DelStatus");
 
-                entity.Property(e => e.PosStationSettingsDisableVat).HasColumnName("POS_Station_Settings_DisableVAT");
+                //entity.Property(e => e.PosStationSettingsDisableVat).HasColumnName("POS_Station_Settings_DisableVAT");
 
-                entity.Property(e => e.PosStationSettingsDisplayLines).HasColumnName("POS_Station_Settings_DisplayLines");
+                //entity.Property(e => e.PosStationSettingsDisplayLines).HasColumnName("POS_Station_Settings_DisplayLines");
 
-                entity.Property(e => e.PosStationSettingsEmulation)
-                    .HasColumnName("POS_Station_Settings_Emulation")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsEmulation)
+                //    .HasColumnName("POS_Station_Settings_Emulation")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsEnablePrinter).HasColumnName("POS_Station_Settings_EnablePrinter");
+                //entity.Property(e => e.PosStationSettingsEnablePrinter).HasColumnName("POS_Station_Settings_EnablePrinter");
 
-                entity.Property(e => e.PosStationSettingsEnableVfd).HasColumnName("POS_Station_Settings_EnableVFD");
+                //entity.Property(e => e.PosStationSettingsEnableVfd).HasColumnName("POS_Station_Settings_EnableVFD");
 
-                entity.Property(e => e.PosStationSettingsFooter1)
-                    .HasColumnName("POS_Station_Settings_Footer1")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsFooter1)
+                //    .HasColumnName("POS_Station_Settings_Footer1")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsFooter2)
-                    .HasColumnName("POS_Station_Settings_Footer2")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsFooter2)
+                //    .HasColumnName("POS_Station_Settings_Footer2")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsFooter3)
-                    .HasColumnName("POS_Station_Settings_Footer3")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsFooter3)
+                //    .HasColumnName("POS_Station_Settings_Footer3")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsFooter4)
-                    .HasColumnName("POS_Station_Settings_Footer4")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsFooter4)
+                //    .HasColumnName("POS_Station_Settings_Footer4")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsHeader1)
-                    .HasColumnName("POS_Station_Settings_Header1")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsHeader1)
+                //    .HasColumnName("POS_Station_Settings_Header1")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsHeader2)
-                    .HasColumnName("POS_Station_Settings_Header2")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsHeader2)
+                //    .HasColumnName("POS_Station_Settings_Header2")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsHeader3)
-                    .HasColumnName("POS_Station_Settings_Header3")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsHeader3)
+                //    .HasColumnName("POS_Station_Settings_Header3")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsHeader4)
-                    .HasColumnName("POS_Station_Settings_Header4")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsHeader4)
+                //    .HasColumnName("POS_Station_Settings_Header4")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsId)
-                    .HasColumnName("POS_Station_Settings_ID")
-                    .ValueGeneratedOnAdd();
+                //entity.Property(e => e.PosStationSettingsId)
+                //    .HasColumnName("POS_Station_Settings_ID")
+                //    .ValueGeneratedOnAdd();
 
-                entity.Property(e => e.PosStationSettingsParity)
-                    .HasColumnName("POS_Station_Settings_Parity")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsParity)
+                //    .HasColumnName("POS_Station_Settings_Parity")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsPrinterName)
-                    .HasColumnName("POS_Station_Settings_PrinterName")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsPrinterName)
+                //    .HasColumnName("POS_Station_Settings_PrinterName")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsPrinterPort)
-                    .HasColumnName("POS_Station_Settings_PrinterPort")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsPrinterPort)
+                //    .HasColumnName("POS_Station_Settings_PrinterPort")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsPrinterType)
-                    .HasColumnName("POS_Station_Settings_PrinterType")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsPrinterType)
+                //    .HasColumnName("POS_Station_Settings_PrinterType")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsReorderCheck).HasColumnName("POS_Station_Settings_Reorder_Check");
+                //entity.Property(e => e.PosStationSettingsReorderCheck).HasColumnName("POS_Station_Settings_Reorder_Check");
 
-                entity.Property(e => e.PosStationSettingsReportCardSale).HasColumnName("POS_Station_Settings_ReportCardSale");
+                //entity.Property(e => e.PosStationSettingsReportCardSale).HasColumnName("POS_Station_Settings_ReportCardSale");
 
-                entity.Property(e => e.PosStationSettingsReportCashSale).HasColumnName("POS_Station_Settings_ReportCashSale");
+                //entity.Property(e => e.PosStationSettingsReportCashSale).HasColumnName("POS_Station_Settings_ReportCashSale");
 
-                entity.Property(e => e.PosStationSettingsReportCreditSales).HasColumnName("POS_Station_Settings_ReportCreditSales");
+                //entity.Property(e => e.PosStationSettingsReportCreditSales).HasColumnName("POS_Station_Settings_ReportCreditSales");
 
-                entity.Property(e => e.PosStationSettingsReportGroupTotal).HasColumnName("POS_Station_Settings_ReportGroup_Total");
+                //entity.Property(e => e.PosStationSettingsReportGroupTotal).HasColumnName("POS_Station_Settings_ReportGroup_Total");
 
-                entity.Property(e => e.PosStationSettingsReportItemTotal).HasColumnName("POS_Station_Settings_ReportItem_Total");
+                //entity.Property(e => e.PosStationSettingsReportItemTotal).HasColumnName("POS_Station_Settings_ReportItem_Total");
 
-                entity.Property(e => e.PosStationSettingsScanner)
-                    .HasColumnName("POS_Station_Settings_Scanner")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsScanner)
+                //    .HasColumnName("POS_Station_Settings_Scanner")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsShowBarCode).HasColumnName("POS_Station_Settings_ShowBarCode");
+                //entity.Property(e => e.PosStationSettingsShowBarCode).HasColumnName("POS_Station_Settings_ShowBarCode");
 
-                entity.Property(e => e.PosStationSettingsShowDiscountColumn).HasColumnName("POS_Station_Settings_ShowDiscountColumn");
+                //entity.Property(e => e.PosStationSettingsShowDiscountColumn).HasColumnName("POS_Station_Settings_ShowDiscountColumn");
 
-                entity.Property(e => e.PosStationSettingsShowUnit).HasColumnName("POS_Station_Settings_ShowUnit");
+                //entity.Property(e => e.PosStationSettingsShowUnit).HasColumnName("POS_Station_Settings_ShowUnit");
 
-                entity.Property(e => e.PosStationSettingsShowVatcolumn).HasColumnName("POS_Station_Settings_ShowVATColumn");
+                //entity.Property(e => e.PosStationSettingsShowVatcolumn).HasColumnName("POS_Station_Settings_ShowVATColumn");
 
-                entity.Property(e => e.PosStationSettingsShowVattotal).HasColumnName("POS_Station_Settings_ShowVATTotal");
+                //entity.Property(e => e.PosStationSettingsShowVattotal).HasColumnName("POS_Station_Settings_ShowVATTotal");
 
-                entity.Property(e => e.PosStationSettingsStationName)
-                    .HasColumnName("POS_Station_Settings_StationName")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsStationName)
+                //    .HasColumnName("POS_Station_Settings_StationName")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsVatInclusive).HasColumnName("POS_Station_Settings_VAT_Inclusive");
+                //entity.Property(e => e.PosStationSettingsVatInclusive).HasColumnName("POS_Station_Settings_VAT_Inclusive");
 
-                entity.Property(e => e.PosStationSettingsVatPercentage).HasColumnName("POS_Station_Settings_VAT_Percentage");
+                //entity.Property(e => e.PosStationSettingsVatPercentage).HasColumnName("POS_Station_Settings_VAT_Percentage");
 
-                entity.Property(e => e.PosStationSettingsVfdDriver)
-                    .HasColumnName("POS_Station_Settings_VFD_Driver")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsVfdDriver)
+                //    .HasColumnName("POS_Station_Settings_VFD_Driver")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsWelcomeMessage)
-                    .HasColumnName("POS_Station_Settings_Welcome_Message")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsWelcomeMessage)
+                //    .HasColumnName("POS_Station_Settings_Welcome_Message")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
             });
 
             modelBuilder.Entity<PrApprovalDetails>(entity =>
