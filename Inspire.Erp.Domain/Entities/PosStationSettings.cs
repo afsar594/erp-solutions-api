@@ -19,8 +19,8 @@ namespace Inspire.Erp.Domain.Entities
         public string PrintFooter3 { get; set; }
         public string PrintFooter4 { get; set; }
         public string VFDDriver { get; set; }
-        public int? DisplayLines { get; set; }
-        public int? BaudRate { get; set; }
+        public long? DisplayLines { get; set; }
+        public long? BaudRate { get; set; }
         public string WelcomeMessage { get; set; }
         public string BillClosing { get; set; }
         public string Scanner { get; set; }
@@ -40,9 +40,9 @@ namespace Inspire.Erp.Domain.Entities
         public bool? ReportCreditSales { get; set; }
         public bool? ReportItemTotal { get; set; }
         public bool? ReportGroupTotal { get; set; }
-        public int? CSBCopy { get; set; }
-        public int? CRBCopy { get; set; }
-        public double? VatPercentage { get; set; }
+        public long? CSBCopy { get; set; }
+        public long? CRBCopy { get; set; }
+        public decimal? VatPercentage { get; set; }
         public bool? VATInclusive { get; set; }
         public bool? ReorderCheck { get; set; }
 
@@ -54,7 +54,7 @@ namespace Inspire.Erp.Domain.Entities
         public bool? CardNoMandetory { get; set; }
         public bool? CardCommision { get; set; }
         public bool? CrystalInvoice { get; set; }
-        public decimal? CardCommisionPer { get; set; }
+        public double? CardCommisionPer { get; set; }
         public bool? FilterBillSummHead { get; set; }
         public bool? OptionForCashCustomer { get; set; }
         public int? RoundOff { get; set; }
