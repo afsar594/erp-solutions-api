@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Inspire.Erp.Web.ViewModels.Accounts;
 using Inspire.Erp.Domain.Modals.Sales;
+using Inspire.Erp.Web.ViewModels.Procurement;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -31,11 +32,10 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpPost]
         [Route("InsertCustomerQuotation")]
-        public ApiResponse<CustomerQuotation> InsertCustomerQuotation([FromBody] CustomerQuotationViewModel customerQuotationCompositeView)
+        public ApiResponse<CustomerQuotationViewModel> InsertCustomerQuotation([FromBody] CustomerQuotationViewModel customerQuotationCompositeView)
         {
-            ApiResponse<CustomerQuotation> apiResponse = new ApiResponse<CustomerQuotation>();
+            ApiResponse<CustomerQuotationViewModel> apiResponse = new ApiResponse<CustomerQuotationViewModel>();
 
-            // if (_customerQuotationService.GetVouchersNumbers(customerQuotationCompositeView.CustomerQuotationQuotationId) == null)
             try
             {
                 var param1 = _mapper.Map<CustomerQuotation>(customerQuotationCompositeView);
@@ -96,17 +96,29 @@ namespace Inspire.Erp.Web.Controllers
 
                 //};
 
-                //customerQuotationViewModel.CustomerQuotationDetails = _mapper.Map<List<CustomerQuotationDetailsViewModel>>(xs.customerQuotationDetails);
-                apiResponse = new ApiResponse<CustomerQuotation>
+
+                CustomerQuotationViewModel CustomerQuotationViewModel = new CustomerQuotationViewModel();
+
+                if (xs != null)
                 {
-                    Valid = true,
-                    Result = xs,// _mapper.Map<CustomerQuotationViewModel>(customerQuotationViewModel),
-                    Message = CustomerQuotationMessage.SaveCustomerQuotation
-                };
+                    CustomerQuotationViewModel = _mapper.Map<CustomerQuotationViewModel>(xs);
+                    CustomerQuotationViewModel.CustomerQuotationDetails = _mapper.Map<List<CustomerQuotationDetailsViewModel>>(xs.CustomerQuotationDetails);
+
+                    apiResponse = new ApiResponse<CustomerQuotationViewModel>
+                    {
+                        Valid = true,
+                        Result = CustomerQuotationViewModel,
+                        Message = CustomerQuotationMessage.SaveCustomerQuotation
+                    };
+                }
+                else
+                {
+                    return null;
+                }
             }
             catch (Exception ex)
             {
-                apiResponse = new ApiResponse<CustomerQuotation>
+                apiResponse = new ApiResponse<CustomerQuotationViewModel>
                 {
                     Valid = false,
                     Error = true,
@@ -122,21 +134,29 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpPost]
         [Route("UpdateCustomerQuotation")]
-        public ApiResponse<CustomerQuotation> UpdateCustomerQuotation([FromBody] CustomerQuotationViewModel customerQuotationCompositeView)
+        public ApiResponse<CustomerQuotationViewModel> UpdateCustomerQuotation([FromBody] CustomerQuotationViewModel customerQuotationCompositeView)
         {
             var param1 = _mapper.Map<CustomerQuotation>(customerQuotationCompositeView);
             var param2 = _mapper.Map<List<CustomerQuotationDetails>>(customerQuotationCompositeView.CustomerQuotationDetails);
             var xs = _customerQuotationService.UpdateCustomerQuotation(param1, param2);
-
-
-            ApiResponse<CustomerQuotation> apiResponse = new ApiResponse<CustomerQuotation>
+            if (xs != null)
             {
-                Valid = true,
-                Result = xs,
-                Message = CustomerQuotationMessage.UpdateCustomerQuotation
-            };
+                CustomerQuotationViewModel CustomerQuotationViewModel = new CustomerQuotationViewModel();
+                CustomerQuotationViewModel = _mapper.Map<CustomerQuotationViewModel>(xs);
+                CustomerQuotationViewModel.CustomerQuotationDetails = _mapper.Map<List<CustomerQuotationDetailsViewModel>>(xs.CustomerQuotationDetails);
 
-            return apiResponse;
+                ApiResponse<CustomerQuotationViewModel> apiResponse = new ApiResponse<CustomerQuotationViewModel>
+                {
+                    Valid = true,
+                    Result = CustomerQuotationViewModel,
+                    Message = CustomerQuotationMessage.UpdateCustomerQuotation
+                };
+                return apiResponse;
+            }
+            else
+            {
+                return null;
+            }
         }
         [HttpPost]
         [Route("DeleteCustomerQuotation")]
@@ -157,26 +177,26 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpGet]
         [Route("GetCustomerQuotation")]
-        public ApiResponse<List<CustomerQuotation>> GetAllCustomerQuotations()
+        public ApiResponse<List<CustomerQuotationViewModel>> GetAllCustomerQuotations()
         {
-            ApiResponse<List<CustomerQuotation>> apiResponse = new ApiResponse<List<CustomerQuotation>>
+            ApiResponse<List<CustomerQuotationViewModel>> apiResponse = new ApiResponse<List<CustomerQuotationViewModel>>
             {
                 Valid = true,
-                Result = _mapper.Map<List<CustomerQuotation>>(_customerQuotationService.GetCustomerQuotation()),
+                Result = _mapper.Map<List<CustomerQuotationViewModel>>(_customerQuotationService.GetCustomerQuotation()),
                 Message = ""
             };
             return apiResponse;
         }
         [HttpGet]
         [Route("GetSavedCustQuotationDetails/{id}")]
-        public ApiResponse<CustomerQuotation> GetSavedCustQuotationDetails(int id)
+        public ApiResponse<CustomerQuotationViewModel> GetSavedCustQuotationDetails(int id)
         {
-            CustomerQuotation custQuotation = _customerQuotationService.GetSavedCustQuotationDetails(id);
+            //CustomerQuotation custQuotation = _customerQuotationService.GetSavedCustQuotationDetails(id);
 
-            ApiResponse<CustomerQuotation> apiResponse = new ApiResponse<CustomerQuotation>
+            ApiResponse<CustomerQuotationViewModel> apiResponse = new ApiResponse<CustomerQuotationViewModel>
             {
                 Valid = true,
-                Result = custQuotation,
+                Result = _mapper.Map<CustomerQuotationViewModel>(_customerQuotationService.GetSavedCustQuotationDetails(id)),
                 Message = ""
             };
             return apiResponse;

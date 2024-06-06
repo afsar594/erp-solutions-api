@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Inspire.Erp.Domain.Entities;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -50,8 +52,8 @@ namespace Inspire.Erp.Web.ViewModels
         public decimal? CustomerQuotationVatAmount { get; set; }
         public int? CustomerQuotationQuotationEnquiryN { get; set; }
         public bool? CustomerQuotationDelStatus { get; set; }
+        public string CustomerQuotationProjectName { get; set; }
         public string CustomerQuotationProjectRef { get; set; }
-        public string CustomerQuotationProjectN { get; set; }
         public bool? CustomerQuotationReviseQuotation { get; set; }
         public decimal? CustomerQuotationGrossProfitTotal { get; set; }
         public List<CustomerQuotationDetailsViewModel> CustomerQuotationDetails { get; set; }
