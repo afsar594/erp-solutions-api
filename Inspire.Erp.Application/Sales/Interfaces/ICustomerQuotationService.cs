@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Domain.Modals.Stock;
 
 namespace Inspire.Erp.Application.Sales.Interfaces
 {
@@ -25,7 +26,9 @@ namespace Inspire.Erp.Application.Sales.Interfaces
         public VouchersNumbers GetVouchersNumbers(string Qtno);
 
         public Task<Response<List<GetCustQuotationForSaleOrderResponse>>> GetCustomerQuotationForSaleOrder();
-      
+
+        public Task<Response<List<GetCustomerQuotationDetail>>> GetCustomerQuotationDetail(QuotationFilterModel FilterModel);
+
 
 
 

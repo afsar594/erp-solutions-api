@@ -19,6 +19,10 @@ using System.Threading.Tasks;
 using Inspire.Erp.Infrastructure.Database;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Models.Sales.DeliveryNoteReport;
+using System.Security.Cryptography;
+using Inspire.Erp.Domain.Modals.Stock;
+using Microsoft.AspNetCore.Mvc;
+using Inspire.Erp.Domain.Models;
 
 namespace Inspire.Erp.Application.Sales.Implementations
 {
@@ -27,7 +31,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<CustomerQuotation> _customerQuotationRepository;
         private IRepository<CustomerQuotationDetails> _customerQuotationDetailsRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
-        private IRepository<ProgramSettings> _programsettingsRepository;
+        private IRepository<Domain.Entities.ProgramSettings> _programsettingsRepository;
         private IRepository<UserTracking> _userTrackingRepository;
         private readonly ILogger<CustomerQuotationService> _logger;
         public readonly InspireErpDBContext _Context;
@@ -38,7 +42,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
         public CustomerQuotationService(ILogger<CustomerQuotationService> logger, IRepository<PermissionApproval> permissionApprovalRepo,
             IRepository<Approval> approvalRepo, IRepository<ApprovalDetail> approvalDetailRepo,
-            IRepository<CustomerQuotation> customerQuotationRepository, IRepository<VouchersNumbers> voucherNumbersRepository, IRepository<ProgramSettings> programsettingsRepository,
+            IRepository<CustomerQuotation> customerQuotationRepository, IRepository<VouchersNumbers> voucherNumbersRepository, IRepository<Domain.Entities.ProgramSettings> programsettingsRepository,
             IRepository<CustomerQuotationDetails> customerQuotationDetailsRepository,
             IRepository<UserTracking> userTrackingRepository,
             InspireErpDBContext Context)
@@ -339,7 +343,53 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 return Response<List<GetCustQuotationForSaleOrderResponse>>.Fail(new List<GetCustQuotationForSaleOrderResponse>(), ex.Message);
             }
         }
+        public async Task<Response<List<GetCustomerQuotationDetail>>> GetCustomerQuotationDetail(QuotationFilterModel FilterModel)
+        {
 
+            if (FilterModel.IsDateChecked)
+            {
+                var result = await (from s in _Context.CustomerQuotation.AsQueryable()
+                                    join c in _Context.CustomerMaster.AsQueryable() on s.CustomerQuotationCustomerId equals c.CustomerMasterCustomerNo
+                                    where s.CustomerQuotationDelStatus != true && (FilterModel.CustomerId == null || s.CustomerQuotationCustomerId == FilterModel.CustomerId)
+                                    && (FilterModel.Status == null || s.CustomerQuotationIsClose == FilterModel.Status)
+                                    && (s.CustomerQuotationQuotationDate >= FilterModel.fromDate && s.CustomerQuotationQuotationDate <= FilterModel.toDate)
+                                    select new GetCustomerQuotationDetail
+                                    {
+                                        QuotationId = s.CustomerQuotationQid,
+                                        VoucherNo = s.CustomerQuotationVoucherNo,
+                                        VoucherType = s.CustomerQuotationVoucherType,
+                                        QuotationDate = s.CustomerQuotationQuotationDate,
+                                        CustomerName = c.CustomerMasterCustomerName,
+                                        CustomerId = s.CustomerQuotationCustomerId,
+                                        NetAmount = s.CustomerQuotationNetTotal,
+                                        Status = s.CustomerQuotationIsClose
+                                    }
+                                    ).ToListAsync();
+                return Response<List<GetCustomerQuotationDetail>>.Success(result, "Data Found");
+            }
+            else
+            {
+                var result = await (from s in _Context.CustomerQuotation.AsQueryable()
+                                    join c in _Context.CustomerMaster.AsQueryable() on s.CustomerQuotationCustomerId equals c.CustomerMasterCustomerNo
+                                    where (FilterModel.CustomerId == null || s.CustomerQuotationCustomerId == FilterModel.CustomerId)
+                                    && (FilterModel.Status == null || s.CustomerQuotationIsClose == FilterModel.Status)
+                                    select new GetCustomerQuotationDetail
+                                    {
+                                        QuotationId = s.CustomerQuotationQid,
+                                        VoucherNo = s.CustomerQuotationVoucherNo,
+                                        VoucherType = s.CustomerQuotationVoucherType,
+                                        QuotationDate = s.CustomerQuotationQuotationDate,
+                                        CustomerName = c.CustomerMasterCustomerName,
+                                        CustomerId = s.CustomerQuotationCustomerId,
+                                        NetAmount = s.CustomerQuotationNetTotal,
+                                        Status = s.CustomerQuotationIsClose
+                                    }
+                                       ).ToListAsync();
+                return Response<List<GetCustomerQuotationDetail>>.Success(result, "Data Found");
+            }
+
+
+        }
     }
 }
 

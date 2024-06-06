@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Inspire.Erp.Web.ViewModels.Accounts;
 using Inspire.Erp.Domain.Modals.Sales;
 using Inspire.Erp.Web.ViewModels.Procurement;
+using Inspire.Erp.Application.Store.Implementation;
+using Inspire.Erp.Domain.Modals.Stock;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -215,6 +217,18 @@ namespace Inspire.Erp.Web.Controllers
             };
             return Ok(apiResponse);
 
+
+        }
+
+
+        [HttpPost]
+        [Route("GetCustomerQuotationDetail")]
+        public async Task<IActionResult> GetCustomerQuotationDetail(QuotationFilterModel FilterModel)
+        {
+
+            
+                return Ok(await _customerQuotationService.GetCustomerQuotationDetail(FilterModel));
+           
 
         }
     }
