@@ -228,10 +228,10 @@ namespace Inspire.Erp.Application.Sales.Implementations
         {
 
             CustomerQuotation voucherdata = new CustomerQuotation();
-            voucherdata = _customerQuotationRepository.GetAsQueryable().Where(k => k.CustomerQuotationQid == (long)id).FirstOrDefault();
+            voucherdata = _customerQuotationRepository.GetAsQueryable().Where(k => k.CustomerQuotationQid == id && k.CustomerQuotationDelStatus != true).FirstOrDefault();
             if (voucherdata != null)
             {
-                voucherdata.CustomerQuotationDetails = _customerQuotationDetailsRepository.GetAsQueryable().Where(qd => qd.CustomerQuotationDetailsQuotationId == (long)id).ToList();
+                voucherdata.CustomerQuotationDetails = _customerQuotationDetailsRepository.GetAsQueryable().Where(qd => qd.CustomerQuotationDetailsQuotationId == id).ToList();
                 return voucherdata;
 
             }
