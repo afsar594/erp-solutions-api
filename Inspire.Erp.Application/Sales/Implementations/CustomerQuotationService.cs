@@ -113,7 +113,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 throw ex;
             }
 
-            return this.GetSavedCustQuotationDetails((int)customerQuotation.CustomerQuotationQid);
+            return customerQuotation;
         }
         public int DeleteCustomerQuotation(CustomerQuotation customerQuotation)
         {
@@ -210,7 +210,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 }).ToList());
 
                 _customerQuotationRepository.TransactionCommit();
-                return this.GetSavedCustQuotationDetails((int)customerQuotation.CustomerQuotationQid);
+                return customerQuotation;
 
             }
             catch (Exception ex)
