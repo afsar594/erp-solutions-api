@@ -847,7 +847,7 @@ namespace Inspire.Erp.Application.Master
                 string Tax_hd = "Tax";
                 string Disc_hd = "Disc";
                 string Total_hd = "Total";
-                var stationSett = stationSettingsRepo.GetAsQueryable().FirstOrDefault(o => o.PosStationSettingsId == 1);
+                var stationSett = stationSettingsRepo.GetAsQueryable().FirstOrDefault(o => o.Id == 1);
               
                  System.Diagnostics.Process OSK;
                  string eClear = Strings.Chr(27) + "@";
@@ -867,21 +867,21 @@ namespace Inspire.Erp.Application.Master
                   string eBigCharOn3 = Strings.Chr(27) + "!" + Strings.Chr(33);
                 var StrRen = new StringBuilder();
 
-                if (stationSett.PosStationSettingsHeader1 != null)
+                if (stationSett.PrintHeader1 != null)
                     {
-                        StrRen.AppendLine(eCentre + eBigCharOn2 + stationSett.PosStationSettingsHeader1);
+                        StrRen.AppendLine(eCentre + eBigCharOn2 + stationSett.PrintHeader1);
                     }
-                    if (stationSett.PosStationSettingsHeader2 != default)
+                    if (stationSett.PrintHeader2 != default)
                     {
-                        StrRen.AppendLine(eCentre + eBigCharOn3 + stationSett.PosStationSettingsHeader2);
+                        StrRen.AppendLine(eCentre + eBigCharOn3 + stationSett.PrintHeader2);
                     }
-                    if (stationSett.PosStationSettingsHeader3 != default)
+                    if (stationSett.PrintHeader3 != default)
                     {
-                        StrRen.AppendLine(eCentre + eBigCharOff + stationSett.PosStationSettingsHeader3);
+                        StrRen.AppendLine(eCentre + eBigCharOff + stationSett.PrintHeader3);
                     }
-                    if (stationSett.PosStationSettingsHeader4 != default)
+                    if (stationSett.PrintHeader4 != default)
                     {
-                        StrRen.AppendLine(eCentre + eBigCharOff + stationSett.PosStationSettingsHeader4);
+                        StrRen.AppendLine(eCentre + eBigCharOff + stationSett.PrintHeader4);
                     }
 
                 StrRen.AppendLine(eBigCharOff + "------------------------------------------------");
@@ -1006,21 +1006,21 @@ namespace Inspire.Erp.Application.Master
                     StrRen.AppendLine(eBigCharOn2 + eLeft + label.PadRight(13) + Gtotal.PadLeft(9));
                     StrRen.AppendLine(eBigCharOff + "-----------------------------------------------");
 
-                    if (stationSett.PosStationSettingsFooter1 != "")
+                    if (stationSett.PrintFooter1 != "")
                     {
-                        StrRen.AppendLine(eCentre + eBigCharOff + stationSett.PosStationSettingsFooter1);
+                        StrRen.AppendLine(eCentre + eBigCharOff + stationSett.PrintFooter1);
                     }
-                    if (stationSett.PosStationSettingsFooter2 != "")
+                    if (stationSett.PrintFooter2 != "")
                     {
-                        StrRen.AppendLine(eCentre + eBigCharOff + stationSett.PosStationSettingsFooter2);
+                        StrRen.AppendLine(eCentre + eBigCharOff + stationSett.PrintFooter2);
                     }
-                    if (stationSett.PosStationSettingsFooter3 != "")
+                    if (stationSett.PrintFooter3 != "")
                     {
-                        StrRen.AppendLine(eCentre + eBigCharOff + stationSett.PosStationSettingsFooter3);
+                        StrRen.AppendLine(eCentre + eBigCharOff + stationSett.PrintFooter3);
                     }
-                    if (stationSett.PosStationSettingsFooter4 != "")
+                    if (stationSett.PrintFooter4 != "")
                     {
-                        StrRen.AppendLine(eCentre + eBigCharOff + stationSett.PosStationSettingsFooter4);
+                        StrRen.AppendLine(eCentre + eBigCharOff + stationSett.PrintFooter4);
                     }
                     StrRen.AppendLine("");
                     StrRen.AppendLine("");
@@ -1032,7 +1032,7 @@ namespace Inspire.Erp.Application.Master
                
 
                 return new PrintData { 
-                    PrinterName=stationSett.PosStationSettingsPrinterName,
+                    PrinterName=stationSett.PrinterName,
                     Data=StrRen.ToString()
                 };
 
@@ -1629,12 +1629,20 @@ namespace Inspire.Erp.Application.Master
             {
                 try
                 {
-                    string billPOSCode = "LA";
-                    var salesVoucherNo = getMaxBillNo();
-                    string voucherNo = billPOSCode + salesVoucherNo;
-                    model.VoucherNo = voucherNo;
+                    //string billPOSCode = "LA";
+                    //var salesVoucherNo = getMaxBillNo();
+                    //string voucherNo = billPOSCode + salesVoucherNo;
+                    //model.VoucherNo = voucherNo;
+                    var stationSett = stationSettingsRepo.GetAsQueryable().FirstOrDefault(o => o.Id == 1);//model.StationId
+                    string billPOSCode = stationSett.POSStationCode;
 
-                    var tempSettDetailsCash = settDetailsRepo.GetAll().FirstOrDefault(o => o.OrderId == Convert.ToInt64(salesVoucherNo));
+                    if (model.VoucherNo == "" || model.VoucherNo == null)
+                    {
+                        model.BillnoLoad = getMaxBillNo();
+                        model.VoucherNo = billPOSCode + model.BillnoLoad;
+                    }
+
+                    var tempSettDetailsCash = settDetailsRepo.GetAll().FirstOrDefault(o => o.OrderId == Convert.ToInt64(model.BillnoLoad));
                     if (tempSettDetailsCash != null) settDetailsRepo.Delete(tempSettDetailsCash);
 
                     var tempSalesTrRepo = posSalesTranDetailsRepo.GetAll().FirstOrDefault(o => o.InvoiceNo == model.VoucherNo);
@@ -1668,7 +1676,7 @@ namespace Inspire.Erp.Application.Master
                     var alloModelCash = new POS_SettlementDetTemp()
                     {
                         SettlementDetId = settDetailsId,
-                        OrderId = salesVoucherNo,
+                        OrderId = model.BillnoLoad,
                         Amount = model.CashAmount,
                         Status = "Y",
                         Date = DateTime.Now,//to be changed
@@ -1778,7 +1786,7 @@ namespace Inspire.Erp.Application.Master
                     var alloModel = new POS_SettlementDetTemp()
                     {
                         SettlementDetId = settDetailsIdCard,
-                        OrderId = salesVoucherNo,
+                        OrderId = model.BillnoLoad,
                         Amount = model.CardAmount,
                         Status = "Y",
                         Date = DateTime.Now,//to be changed
@@ -1789,7 +1797,7 @@ namespace Inspire.Erp.Application.Master
                     };
                     settDetailsTempRepo.Insert(alloModel);
 
-                    InsertSettlementDetails(model, salesVoucherNo);
+                    InsertSettlementDetails(model, (long)model.BillnoLoad);
 
                     var settDetails = await (from ir in settDetailsTempRepo.GetAsQueryable()
                                              join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode.Trim().ToUpper() equals ud.Trans_code.Trim().ToUpper()
@@ -1801,8 +1809,8 @@ namespace Inspire.Erp.Application.Master
                                              }).ToListAsync();
 
                     // settDetailsTempRepo.SaveChangesAsync();
-                    SaveVoucher(model,salesVoucherNo, transtype, transDesc, paymentmode, "CARD CUSTOMER");
-                    SavesettlementTrans(model,salesVoucherNo);
+                    SaveVoucher(model, (long)model.BillnoLoad, transtype, transDesc, paymentmode, "CARD CUSTOMER");
+                    SavesettlementTrans(model, (long)model.BillnoLoad);
 
 
                     var tempSettDet = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId).ToList();
@@ -2075,11 +2083,19 @@ namespace Inspire.Erp.Application.Master
            
                 try
                 {
-                    string payModeCode = "CAS";
-                    string billPOSCode = "LA";
-                    var salesVoucherNo = getMaxBillNo();
-                    string voucherNo = billPOSCode + salesVoucherNo;
-                  
+
+                var stationSett = stationSettingsRepo.GetAsQueryable().FirstOrDefault(o => o.Id == 1);//model.StationId
+                string payModeCode = "CAS";
+                   
+                string billPOSCode = stationSett.POSStationCode;
+
+                   if (model.VoucherNo =="" || model.VoucherNo==null)
+                    {
+                        model.BillnoLoad= getMaxBillNo();
+                        model.VoucherNo=billPOSCode + model.BillnoLoad;
+                    }
+                 
+                    
                     var cashResult = (from ir in settDetailsTempRepo.GetAsQueryable()
                                       join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode equals ud.Trans_code
                                       where ir.UserId == model.UserId && ud.InHouse == true
@@ -2103,7 +2119,10 @@ namespace Inspire.Erp.Application.Master
                     if(totalChange<=0)
                     {
                          var pc=await ProcessCash(totalChange,model);
-                    }
+
+                        var tempSettDet = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId).ToList();
+                        if (tempSettDet != null) settDetailsTempRepo.DeleteList(tempSettDet);
+                     }
                     
                   
                     return Response<bool>.Success(true, "Card processed Successfully.");
@@ -2126,17 +2145,19 @@ namespace Inspire.Erp.Application.Master
             {
                 try
                 {
-                    string payModeCode = "CAS";
-                    string billPOSCode = "LA";
-                    var salesVoucherNo = getMaxBillNo();
-                    string voucherNo = billPOSCode + salesVoucherNo;
+                    //string payModeCode = "CAS";
+                    //string billPOSCode = "LA";
+                    //var salesVoucherNo = getMaxBillNo();
+                    //string voucherNo = billPOSCode + salesVoucherNo;
 
-               
-                    var settDetails = settDetailsRepo.GetAll().FirstOrDefault(o => o.OrderId == Convert.ToInt64(model.VoucherNo));
-                    if (settDetails != null) settDetailsRepo.Delete(settDetails);
 
-                    var tempSalesTrRepo = posSalesTranDetailsRepo.GetAll().FirstOrDefault(o => o.InvoiceNo == model.VoucherNo);
-                    if (tempSalesTrRepo != null) posSalesTranDetailsRepo.Delete(tempSalesTrRepo);
+                    var settDetails = settDetailsRepo.GetAsQueryable().Where(o => o.OrderId == model.BillnoLoad).ToList();
+                    if (settDetails != null) settDetailsRepo.DeleteList(settDetails);
+
+                    var tempSalesTrRepo = posSalesTranDetailsRepo.GetAsQueryable().Where(o => o.InvoiceNo == model.VoucherNo).ToList();
+                    if (tempSalesTrRepo != null) posSalesTranDetailsRepo.DeleteList(tempSalesTrRepo);
+
+
 
                     decimal? netTotal = 0;
                     var settDetTemp = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "BIL");
@@ -2209,8 +2230,10 @@ namespace Inspire.Erp.Application.Master
                     //{
 
                     //}
-                    var tempSettDetails = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "CAS");
-                    if (tempSettDetails != null) settDetailsTempRepo.Delete(tempSettDetails);
+           
+
+                    var tempSettDetails = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "CAS").ToList();
+                    if (tempSettDetails != null) settDetailsTempRepo.DeleteList(tempSettDetails);
 
                     if (cashAmount1 < 0 && model.SalesRet == true)
                     {
@@ -2222,7 +2245,7 @@ namespace Inspire.Erp.Application.Master
                                 var settDetailModel = new POS_SettlementDetTemp()
                                 {
                                     SettlementDetId = settDetailId,
-                                    OrderId = salesVoucherNo,
+                                    OrderId = model.BillnoLoad,
                                     Amount = cashAmount,
                                     Status = "Y",
                                     Date = DateTime.Now,//to be changed
@@ -2237,7 +2260,7 @@ namespace Inspire.Erp.Application.Master
                                 var settDetailModel = new POS_SettlementDetTemp()
                                 {
                                     SettlementDetId = settDetailId,
-                                    OrderId = salesVoucherNo,
+                                    OrderId = model.BillnoLoad,
                                     Amount = model.Cash,
                                     Status = "Y",
                                     Date = DateTime.Now,//to be changed
@@ -2253,7 +2276,7 @@ namespace Inspire.Erp.Application.Master
                             var settDetailModel = new POS_SettlementDetTemp()
                             {
                                 SettlementDetId = settDetailId,
-                                OrderId = salesVoucherNo,
+                                OrderId = model.BillnoLoad,
                                 Amount = cashAmount1,
                                 Status = "Y",
                                 Date = DateTime.Now,//to be changed
@@ -2269,7 +2292,7 @@ namespace Inspire.Erp.Application.Master
                         var settDetailModel = new POS_SettlementDetTemp()
                         {
                             SettlementDetId = settDetailId,
-                            OrderId = salesVoucherNo,
+                            OrderId = model.BillnoLoad,
                             Amount = cashAmount,
                             Status = "Y",
                             Date = DateTime.Now,//to be changed
@@ -2386,7 +2409,7 @@ namespace Inspire.Erp.Application.Master
                         var settDetail = new POS_SettlementDet()
                         {
                             SettlementDetId = settDetailsId,
-                            OrderId = salesVoucherNo,
+                            OrderId = model.BillnoLoad,
                             Amount = item.Amount,
                             Status = "Y",
                             Date = DateTime.Now,//to be changed
@@ -2424,7 +2447,7 @@ namespace Inspire.Erp.Application.Master
                         transDesc = "CASH AND CARD SALES";
                         transtype = "SPLIT";
                     }
-                    SaveVoucher(model,salesVoucherNo,transtype,transDesc, paymentmode, "CASH CUSTOMER");
+                    SaveVoucher(model,(long)model.BillnoLoad,transtype,transDesc, paymentmode, "CASH CUSTOMER");
                     trans.Complete();
                     return Response<bool>.Success(true, "Card processed Successfully.");
                 }
