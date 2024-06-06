@@ -54,7 +54,7 @@ namespace Inspire.Erp.Domain.Modals
         public decimal? Cash { get; set; }
         
         public int UserId { get; set; }
-
+        public int? StationId { get; set; }
 
     }
 

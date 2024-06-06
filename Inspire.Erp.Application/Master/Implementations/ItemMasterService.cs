@@ -1525,9 +1525,14 @@ namespace Inspire.Erp.Application.Master
                 try
                 {
                     var cardAmountResponse = new  CardAmountResponse();
-                    string billPOSCode = "LA";
+                    //string billPOSCode = "LA";
+
+                    var stationSett = stationSettingsRepo.GetAsQueryable().FirstOrDefault(o => o.Id == (long)model.StationId);//model.StationId
+                    string billPOSCode = stationSett.POSStationCode;
+
                     var salesVoucherNo = getMaxBillNo();
                     string voucherNo = billPOSCode + salesVoucherNo;
+
 
                     decimal? netTotal = 0;
                     var tempSettDetailsDis = settDetailsTempRepo.GetAll().FirstOrDefault(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "NET");
@@ -1633,7 +1638,7 @@ namespace Inspire.Erp.Application.Master
                     //var salesVoucherNo = getMaxBillNo();
                     //string voucherNo = billPOSCode + salesVoucherNo;
                     //model.VoucherNo = voucherNo;
-                    var stationSett = stationSettingsRepo.GetAsQueryable().FirstOrDefault(o => o.Id == 1);//model.StationId
+                    var stationSett = stationSettingsRepo.GetAsQueryable().FirstOrDefault(o => o.Id == (long)model.StationId);//model.StationId
                     string billPOSCode = stationSett.POSStationCode;
 
                     if (model.VoucherNo == "" || model.VoucherNo == null)
@@ -2084,7 +2089,10 @@ namespace Inspire.Erp.Application.Master
                 try
                 {
 
-                var stationSett = stationSettingsRepo.GetAsQueryable().FirstOrDefault(o => o.Id == 1);//model.StationId
+              
+
+
+                var stationSett = stationSettingsRepo.GetAsQueryable().FirstOrDefault(o => o.Id == (long)model.StationId);//model.StationId
                 string payModeCode = "CAS";
                    
                 string billPOSCode = stationSett.POSStationCode;
