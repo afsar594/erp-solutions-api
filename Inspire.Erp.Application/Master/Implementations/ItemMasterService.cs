@@ -1770,13 +1770,17 @@ namespace Inspire.Erp.Application.Master
 
                     foreach (var item in settDetailsTr)
                     {
-                        if (item.TransactionCode.Trim() == "CAS")
-                        {
-                            paymentmode = "CASH AND CARD";
-                            transtype = "SPLIT";
-                            transDesc = "CASH AND CARD SALES";
+                        if (item.TransactionCode.Trim().ToUpper() == "CAS")
+                        { 
+                            if (item.Amount > 0)
+                            {
+                                paymentmode = "CASH AND CARD";
+                                transtype = "SPLIT";
+                                transDesc = "CASH AND CARD SALES";
+                            } 
+                          }
                         }
-                    }
+                    
 
                     var settDetailsIdCard = getMaxSettlementDetails();
                     var alloModel = new POS_SettlementDetTemp()
@@ -2328,19 +2332,19 @@ namespace Inspire.Erp.Application.Master
                     var tempSettDetailsList = settDetailsTempRepo.GetAll().Where(o => o.UserId == model.UserId).ToList();
                     foreach (var item in tempSettDetailsList)
                     {
-                        if (item.TransactionCode == "BIL")
+                        if (item.TransactionCode.Trim().ToUpper() == "BIL")
                         {
                             SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)item.Amount
                                 , model.StationName, "BIL", (int)model.UserId, "BILL AMOUNT");
                         }
 
-                        if (item.TransactionCode == "DIS")
+                        if (item.TransactionCode.Trim().ToUpper() == "DIS")
                         {
                             SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)item.Amount
                                 , model.StationName, "DIS", (int)model.UserId, "DISCOUNT");
                         }
 
-                        if (item.TransactionCode == "VAT")
+                        if (item.TransactionCode.Trim().ToUpper() == "VAT")
                         {
                             if (item.Amount < 0)
                             {
@@ -2354,7 +2358,7 @@ namespace Inspire.Erp.Application.Master
                             }
                         }
 
-                        if (item.TransactionCode == "VAMT")
+                        if (item.TransactionCode.Trim().ToUpper() == "VAMT")
                         {
                             if (item.Amount < 0)
                             {
@@ -2368,19 +2372,19 @@ namespace Inspire.Erp.Application.Master
                             }
                         }
 
-                        if (item.TransactionCode == "NET")
+                        if (item.TransactionCode.Trim().ToUpper() == "NET")
                         {
                             SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)item.Amount
                                 , model.StationName, "NET", (int)model.UserId, "NET AMOUNT");
                         }
 
-                        if (item.TransactionCode == "RCVE")
+                        if (item.TransactionCode.Trim().ToUpper() == "RCVE")
                         {
                             SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)item.Amount
                                 , model.StationName, "RCVE", (int)model.UserId, "RECEIVED AMOUNT");
                         }
 
-                        if (item.TransactionCode == "CAS")
+                        if (item.TransactionCode.Trim().ToUpper() == "CAS")
                         {
                             if (item.Amount < 0 && model.SalesRet == true)
                             {
@@ -2405,7 +2409,7 @@ namespace Inspire.Erp.Application.Master
                         }
 
 
-                        if (item.TransactionCode == "RF")
+                        if (item.TransactionCode.Trim().ToUpper() == "RF")
                         {
                             SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)item.Amount
                                 , model.StationName, "RF", (int)model.UserId, "Round OFF");
@@ -2463,7 +2467,7 @@ namespace Inspire.Erp.Application.Master
                     string transDesc = "CASH SALES";
                     string transtype = "CASH";
 
-                    if (tempRepResult.Count() <= 0)
+                    if (tempRepResult.Count() > 0)
                     {
                         paymentmode = "CASH AND CARD";
                         transDesc = "CASH AND CARD SALES";
