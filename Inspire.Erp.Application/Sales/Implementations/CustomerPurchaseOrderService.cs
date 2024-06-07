@@ -590,6 +590,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 List<GetCustomerPurchaseOrderTrackingResponse> response = new List<GetCustomerPurchaseOrderTrackingResponse>();
 
                 var subqueryDRQ = (from s in _Context.CustomerDeliveryNote
+                                   where s.CustomerDeliveryNoteDelStatus != true
                                    group s by new { s.CustomerDeliveryNoteDeliveryID, s.CustomerDeliveryNoteCPOID, s.CustomerDeliveryNoteDeliveryDate } into g
                                    select new
                                    {
@@ -599,47 +600,17 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                    });
 
                 var subqueryDRQD = (from s in _Context.CustomerDeliveryNoteDetails
+                                    where s.CustomerDeliveryNoteDetailsDelStatus != true
                                     group s by new { s.CustomerDeliveryNoteDetailsPodId } into g
                                     select new
                                     {
                                         CustomerDeliveryNoteDetailsPodId = g.Key.CustomerDeliveryNoteDetailsPodId,
                                         CustomerDeliveryNoteDetailsQty = g.Sum(s => s.CustomerDeliveryNoteDetailsQty)
                                     });
-
-
-                //var results = await (from cpod in _Context.CustomerPurchaseOrderDetails
-                //                     join cpo in _Context.CustomerPurchaseOrder on cpod.CustomerPurchaseOrderId equals cpo.CustomerPurchaseOrderId into gim
-                //                     from cpog in gim.DefaultIfEmpty()
-                //                     join cm in _Context.CustomerMaster on Convert.ToInt32(cpog.CustomerPurchaseOrderCustomerId) equals cm.CustomerMasterCustomerNo into gum
-                //                     from cmg in gum.DefaultIfEmpty()
-                //                     join im in _Context.ItemMaster on cpod.CustomerPurchaseOrderDetailsItemId equals im.ItemMasterItemId into iminto
-                //                     from img in iminto.DefaultIfEmpty()
-                //                     join um in _Context.UnitMaster on cpod.CustomerPurchaseOrderDetailsUnitId equals um.UnitMasterUnitId into uminto
-                //                     from umg in uminto.DefaultIfEmpty()
-                //                     join srq in subqueryDRQD on cpod.CustomerPurchaseOrderDetailsPodId equals srq.CustomerDeliveryNoteDetailsPodId
-                //                     join drq in subqueryDRQ on cpod.CustomerPurchaseOrderDetailsPodId equals drq.CustomerDeliveryNoteCpoId into gdrq
-                //                     from q in gdrq.DefaultIfEmpty()
-                //                     where cpog.CustomerPurchaseOrderCustomerId != null
-                //                     select new GetCustomerPurchaseOrderTrackingResponse
-                //                     {
-                //                         CPOId = cpog.CustomerPurchaseOrderId,
-                //                         CPODate=cpog.CustomerPurchaseOrderDate,
-                //                         LPONo = cpog.CustomerPurchaseOrderLpoNo == null ? "" : cpog.CustomerPurchaseOrderLpoNo,
-                //                         CustomerName = cpog.CustomerPurchaseOrderCustomerName,
-                //                         PartNo = img.ItemMasterPartNo == null ? "" : img.ItemMasterPartNo,
-                //                         MatDes = cpod.CustomerPurchaseOrderDetailsDescription == null ? img.ItemMasterItemName : cpod.CustomerPurchaseOrderDetailsDescription,
-                //                         UnitDes = umg.UnitMasterUnitDescription,
-                //                         Quantity = cpod.CustomerPurchaseOrderDetailsQty,
-                //                         UnitPrice = cpod.CustomerPurchaseOrderDetailsUnitPrice,
-                //                         DeliveredQuantity = srq.CustomerDeliveryNoteDetailsQty ?? 0,
-                //                         BalancedQuantity = cpod.CustomerPurchaseOrderDetailsQty - srq.CustomerDeliveryNoteDetailsQty ?? 0,
-                //                         DeliveryDate = q.CustomerDeliveryNoteDeliveryDate,
-                //                         DeliveredId = q.CustomerDeliveryNoteDeliveryId
-                //                     }).ToListAsync();
-
                 if (model.isDataChecked)
                 {
                     var results = await (from cpod in _Context.CustomerPurchaseOrderDetails
+                                         where cpod.CustomerPurchaseOrderDetailsDelStatus != true
                                          join cpo in _Context.CustomerPurchaseOrder
                                          on cpod.CustomerPurchaseOrderId equals cpo.CustomerPurchaseOrderId into gim
                                          from cpog in gim.DefaultIfEmpty()
