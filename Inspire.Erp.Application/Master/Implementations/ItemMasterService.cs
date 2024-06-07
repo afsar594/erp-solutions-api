@@ -1697,13 +1697,13 @@ namespace Inspire.Erp.Application.Master
                     {
                         if (item.TransactionCode.Trim().ToUpper() == "BIL")
                         {
-                            SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)model.CardAmount
+                            SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)item.Amount
                                 , model.StationName, "BIL", (int)model.UserId, "BILL AMOUNT");
                         }
 
                         if (item.TransactionCode.Trim().ToUpper() == "DIS")
                         {
-                            SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)model.CardAmount
+                            SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)item.Amount
                                 , model.StationName, "DIS", (int)model.UserId, "DISCOUNT");
                         }
 
@@ -1711,12 +1711,12 @@ namespace Inspire.Erp.Application.Master
                         {
                             if (item.Amount < 0)
                             {
-                                SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)model.CardAmount
+                                SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)item.Amount
                                                            , model.StationName, "VAT", (int)model.UserId, "VAT RETURN");
                             }
                             else
                             {
-                                SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)model.CardAmount
+                                SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)item.Amount
                                                           , model.StationName, "VAT", (int)model.UserId, "VAT");
                             }
                         }
@@ -1725,25 +1725,25 @@ namespace Inspire.Erp.Application.Master
                         {
                             if (item.Amount < 0)
                             {
-                                SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)model.CardAmount
+                                SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)item.Amount
                                                            , model.StationName, "VAMTRET", (int)model.UserId, "VATABLE AMOUNT RETURNED");
                             }
                             else
                             {
-                                SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)model.CardAmount
+                                SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)item.Amount
                                                           , model.StationName, "VAMT", (int)model.UserId, "VATABLE AMOUNT");
                             }
                         }
 
                         if (item.TransactionCode.Trim().ToUpper() == "NET")
                         {
-                            SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)model.CardAmount
+                            SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)item.Amount
                                 , model.StationName, "NET", (int)model.UserId, "NET AMOUNT");
                         }
 
                         if (item.TransactionCode.Trim().ToUpper() == "RCVE")
                         {
-                            SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)model.CardAmount
+                            SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)item.Amount
                                 , model.StationName, "RCVE", (int)model.UserId, "RECEIVED AMOUNT");
                         }
 
@@ -1751,12 +1751,12 @@ namespace Inspire.Erp.Application.Master
                         {
                             if (item.Amount < 0)
                             {
-                                SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)model.CardAmount
+                                SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)item.Amount
                                                            , model.StationName, "POTCS", (int)model.UserId, "CASH PAID OUT");
                             }
                             else
                             {
-                                SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)model.CardAmount
+                                SaveTransaction(model.VoucherNo, model.WorkPeriodId, (decimal)item.Amount
                                                           , model.StationName, "CAS", (int)model.UserId, "CASH");
                             }
                         }
@@ -2089,9 +2089,6 @@ namespace Inspire.Erp.Application.Master
                 try
                 {
 
-              
-
-
                 var stationSett = stationSettingsRepo.GetAsQueryable().FirstOrDefault(o => o.Id == (long)model.StationId);//model.StationId
                 string payModeCode = "CAS";
                    
@@ -2131,9 +2128,27 @@ namespace Inspire.Erp.Application.Master
                         var tempSettDet = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId).ToList();
                         if (tempSettDet != null) settDetailsTempRepo.DeleteList(tempSettDet);
                      }
-                    
-                  
-                    return Response<bool>.Success(true, "Card processed Successfully.");
+                else if (totalChange >0 && model.Cash==0)
+                {
+
+                    var cardAmountResult = (from ir in settDetailsTempRepo.GetAsQueryable()
+                                      join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode equals ud.Trans_code
+                                      where ir.UserId == model.UserId && ir.Card == true
+                                      group ir by 1 into og
+                                      select new
+                                      {
+                                          CardAmount = og.Sum(item => item.Amount)
+                                      });
+
+                    model.Cash = model.NetTotal - cardAmountResult.FirstOrDefault().CardAmount;
+                    var pc = await ProcessCash(totalChange, model);
+
+                    var tempSettDet = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId).ToList();
+                    if (tempSettDet != null) settDetailsTempRepo.DeleteList(tempSettDet);
+                }
+
+
+                return Response<bool>.Success(true, "Card processed Successfully.");
                 }
                 catch (Exception ex)
                 {
