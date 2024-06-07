@@ -1618,16 +1618,7 @@ namespace Inspire.Erp.Application.Master
                 Timeout = TimeSpan.FromSeconds(300),
                 
             };
-            //using (var trans = new TransactionScope(
-            //      TransactionScopeOption.RequiresNew,
-            //      option
-
-            //      )
-            //    )
-            //      using (var trans = new TransactionScope(
-            //TransactionScopeOption.RequiresNew,
-            //TransactionScopeAsyncFlowOption.Enabled))
-            using (var trans = new TransactionScope(
+              using (var trans = new TransactionScope(
           TransactionScopeOption.Required,
           new TransactionOptions { IsolationLevel = IsolationLevel.ReadUncommitted, Timeout = TimeSpan.FromSeconds(300) },
           TransactionScopeAsyncFlowOption.Enabled))
@@ -2148,7 +2139,7 @@ namespace Inspire.Erp.Application.Master
                 }
 
 
-                return Response<bool>.Success(true, "Card processed Successfully.");
+                return Response<bool>.Success(true, "Cash processed Successfully.");
                 }
                 catch (Exception ex)
                 {
@@ -2162,9 +2153,17 @@ namespace Inspire.Erp.Application.Master
         public async Task<Response<bool>> ProcessCash(decimal? totalChange,CardRequest model)
         {
             //using (var trans = new TransactionScope())
+            var option = new TransactionOptions
+            {
+                IsolationLevel = IsolationLevel.ReadCommitted,
+
+                Timeout = TimeSpan.FromSeconds(300),
+
+            };
             using (var trans = new TransactionScope(
-                  TransactionScopeOption.RequiresNew,
-                  TransactionScopeAsyncFlowOption.Enabled))
+        TransactionScopeOption.Required,
+        new TransactionOptions { IsolationLevel = IsolationLevel.ReadUncommitted, Timeout = TimeSpan.FromSeconds(300) },
+        TransactionScopeAsyncFlowOption.Enabled))
             {
                 try
                 {
@@ -2428,7 +2427,7 @@ namespace Inspire.Erp.Application.Master
                     foreach (var item in settDetailsCard)
                     {
                         //Settlementdet
-                        var settDetailsId = getMaxSettlementDetails();
+                        var settDetailsId = getMaxSettDetails();
                         var settDetail = new POS_SettlementDet()
                         {
                             SettlementDetId = settDetailsId,
@@ -2471,8 +2470,9 @@ namespace Inspire.Erp.Application.Master
                         transtype = "SPLIT";
                     }
                     SaveVoucher(model,(long)model.BillnoLoad,transtype,transDesc, paymentmode, "CASH CUSTOMER");
+                    SavesettlementTrans(model, (long)model.BillnoLoad);
                     trans.Complete();
-                    return Response<bool>.Success(true, "Card processed Successfully.");
+                    return Response<bool>.Success(true, "Cash processed Successfully.");
                 }
                 catch (Exception ex)
                 {
