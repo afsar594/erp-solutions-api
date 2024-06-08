@@ -45,7 +45,7 @@ namespace Inspire.Erp.Application.Master
         public  Task<Response<List<SettlementDetailsResponse>>> AddSettlementDetails(SettlementDetailsRequest model);
         public Task<Response<CardAmountResponse>> CalculateCardAmount(CardAmountRequest model);
         public Task<Response<bool>> ProcessCard(CardRequest model);
-        public Task<Response<bool>> ProcessCashTransaction(CardRequest model);
+        public Task<Response<CardAmountResponse>> ProcessCashTransaction(CardRequest model);
 
     }
 }

@@ -12734,7 +12734,6 @@ namespace Inspire.Erp.Infrastructure.Database
             modelBuilder.Entity<PosStationSettings>(entity =>
             {
                 entity.HasKey(e => e.Id);
-
                 entity.ToTable("POS_StationSettings");
 
                 //entity.Property(e => e.PosStationSettingsBaudRate).HasColumnName("POS_Station_Settings_BaudRate");

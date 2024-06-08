@@ -77,6 +77,12 @@ namespace Inspire.Erp.Domain.Modals
         public decimal? CashAmount { get; set; }
         public decimal? Balance { get; set; }
         public decimal? LastBalance { get; set; }
+
+        public string CardMessage { get; set; }
+
+        public bool IsFromCash { get; set; }
+
+        public bool IsProcessed { get; set; }
     }
 
 
