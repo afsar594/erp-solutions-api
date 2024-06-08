@@ -627,11 +627,11 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                          on cpod.CustomerPurchaseOrderDetailsUnitId equals um.UnitMasterUnitId into uminto
                                          from umg in uminto.DefaultIfEmpty()
 
-                                             //join srq in subqueryDRQD
-                                             //on cpod.CustomerPurchaseOrderDetailsPodId equals srq.CustomerDeliveryNoteDetailsPodId
+                                         join srq in subqueryDRQD
+                                         on cpod.CustomerPurchaseOrderId equals srq.CustomerDeliveryNoteDetailsPodId
 
                                          join drq in subqueryDRQ
-                                         on cpod.CustomerPurchaseOrderDetailsPodId equals drq.CustomerDeliveryNoteCpoId into gdrq
+                                         on cpod.CustomerPurchaseOrderId equals drq.CustomerDeliveryNoteCpoId into gdrq
                                          from q in gdrq.DefaultIfEmpty()
 
                                          where cpog.CustomerPurchaseOrderCustomerId != null
@@ -650,8 +650,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                              UnitDes = umg.UnitMasterUnitShortName,
                                              Quantity = cpod.CustomerPurchaseOrderDetailsQty,
                                              UnitPrice = cpod.CustomerPurchaseOrderDetailsUnitPrice,
-                                             //DeliveredQuantity = srq.CustomerDeliveryNoteDetailsQty ?? 0,
-                                             //BalancedQuantity = (cpod.CustomerPurchaseOrderDetailsQty - (srq.CustomerDeliveryNoteDetailsQty ?? 0)),
+                                             DeliveredQuantity = srq.CustomerDeliveryNoteDetailsQty ?? 0,
+                                             BalancedQuantity = (cpod.CustomerPurchaseOrderDetailsQty - (srq.CustomerDeliveryNoteDetailsQty ?? 0)),
                                              DeliveryDate = q.CustomerDeliveryNoteDeliveryDate,
                                              DeliveredId = q.CustomerDeliveryNoteDeliveryId
                                          }).ToListAsync();
@@ -676,11 +676,11 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                          on cpod.CustomerPurchaseOrderDetailsUnitId equals um.UnitMasterUnitId into uminto
                                          from umg in uminto.DefaultIfEmpty()
 
-                                             //join srq in subqueryDRQD
-                                             //on cpod.CustomerPurchaseOrderDetailsPodId equals srq.CustomerDeliveryNoteDetailsPodId
+                                         join srq in subqueryDRQD
+                                         on cpod.CustomerPurchaseOrderId equals srq.CustomerDeliveryNoteDetailsPodId
 
                                          join drq in subqueryDRQ
-                                         on cpod.CustomerPurchaseOrderDetailsPodId equals drq.CustomerDeliveryNoteCpoId into gdrq
+                                         on cpod.CustomerPurchaseOrderId equals drq.CustomerDeliveryNoteCpoId into gdrq
                                          from q in gdrq.DefaultIfEmpty()
 
                                          where cpog.CustomerPurchaseOrderCustomerId != null
@@ -698,18 +698,13 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                              UnitDes = umg.UnitMasterUnitShortName,
                                              Quantity = cpod.CustomerPurchaseOrderDetailsQty,
                                              UnitPrice = cpod.CustomerPurchaseOrderDetailsUnitPrice,
-                                             //DeliveredQuantity = srq.CustomerDeliveryNoteDetailsQty ?? 0,
-                                             //BalancedQuantity = (cpod.CustomerPurchaseOrderDetailsQty - (srq.CustomerDeliveryNoteDetailsQty ?? 0)),
+                                             DeliveredQuantity = srq.CustomerDeliveryNoteDetailsQty ?? 0,
+                                             BalancedQuantity = (cpod.CustomerPurchaseOrderDetailsQty - (srq.CustomerDeliveryNoteDetailsQty ?? 0)),
                                              DeliveryDate = q.CustomerDeliveryNoteDeliveryDate,
                                              DeliveredId = q.CustomerDeliveryNoteDeliveryId
                                          }).ToListAsync();
                     return Response<List<GetCustomerPurchaseOrderTrackingResponse>>.Success(results, "Data found");
                 }
-
-
-
-
-
             }
             catch (Exception ex)
             {
