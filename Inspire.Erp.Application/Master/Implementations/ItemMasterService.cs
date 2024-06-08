@@ -1594,6 +1594,7 @@ namespace Inspire.Erp.Application.Master
                     cardAmountResponse.NetTotal = netTotal;
                     cardAmountResponse.Balance = balance;
                     cardAmountResponse.LastBalance = lastBalance;
+                    cardAmountResponse.IsFromCash = false;
                      trans.Complete();
                     //trans.Dispose();
                     return Response<CardAmountResponse>.Success(cardAmountResponse, "Amount Returned Successfully.");
@@ -2078,11 +2079,19 @@ namespace Inspire.Erp.Application.Master
             //settDetailsTempRepo.SaveChangesAsync();
         }
 
-        public async Task<Response<bool>> ProcessCashTransaction(CardRequest model)
+        public async Task<Response<CardAmountResponse>> ProcessCashTransaction(CardRequest model)
         {
            
                 try
                 {
+
+                var cardAmountResponse = new CardAmountResponse();
+
+                cardAmountResponse.IsProcessed = true;
+                cardAmountResponse.NetTotal = 0;
+
+                cardAmountResponse.IsFromCash = true;
+                cardAmountResponse.CardMessage = "";
 
                 var stationSett = stationSettingsRepo.GetAsQueryable().FirstOrDefault(o => o.Id == (long)model.StationId);//model.StationId
                 string payModeCode = "CAS";
@@ -2141,14 +2150,20 @@ namespace Inspire.Erp.Application.Master
                     var tempSettDet = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId).ToList();
                     if (tempSettDet != null) settDetailsTempRepo.DeleteList(tempSettDet);
                 }
+                else
+                {
+                    cardAmountResponse.NetTotal = totalChange;
+                    cardAmountResponse.IsProcessed = false;
+                    cardAmountResponse.CardMessage = "Collect the Balance through Card Payment";
+                }
 
 
-                return Response<bool>.Success(true, "Cash processed Successfully.");
+                return Response<CardAmountResponse>.Success(cardAmountResponse, "Cash processed Successfully.");
                 }
                 catch (Exception ex)
                 {
                    
-                    return Response<bool>.Fail(false, ex.Message);
+                    return Response<CardAmountResponse>.Fail(new CardAmountResponse(), ex.Message);
                 }
           
         }
