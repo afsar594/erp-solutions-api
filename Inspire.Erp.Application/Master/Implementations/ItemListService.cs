@@ -53,7 +53,7 @@ namespace Inspire.Erp.Application.Master
 
                              join S in _dbcontext.Suppliers on IM.ItemMasterSuplierCode equals S.SuppliersGroupNo into SJoin
                              from S in SJoin.DefaultIfEmpty()
-                             where IM.ItemMasterItemType == "A"
+                             where IM.ItemMasterItemType == "A" && IM.ItemMasterDelStatus != true && IG.ItemMasterDelStatus != true
 
                              select new ItemListViewModel
                              {
@@ -79,7 +79,7 @@ namespace Inspire.Erp.Application.Master
                                  SupplierName = Convert.ToString(S.SuppliersInsName) ?? null,
                                  ItemMasterAccountNo = IM.ItemMasterAccountNo ?? 0,
                                  ItemSize = Convert.ToString(IM.ItemMasterItemSize) ?? "",
-                                 isUpdated=false
+                                 isUpdated = false
                              }).ToList();
                 if (filteModle == null)
                 {
@@ -161,7 +161,7 @@ namespace Inspire.Erp.Application.Master
                     if (detail.isUpdated == true)
                     {
                         var detailData = _unitDetailsRepo.GetAsQueryable().Where(o => o.UnitDetailsId == Convert.ToInt32(detail.id)).FirstOrDefault();
-                      
+
 
                         if (detailData != null)
                         {
@@ -186,7 +186,7 @@ namespace Inspire.Erp.Application.Master
                     }
                 }
                 _unitDetailsRepo.TransactionCommit();
-               return this.GetAllItemListSearch(null);
+                return this.GetAllItemListSearch(null);
 
             }
             catch (Exception ex)

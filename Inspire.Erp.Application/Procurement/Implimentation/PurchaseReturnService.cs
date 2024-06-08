@@ -708,10 +708,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 try
                 {
                     if (purchaseReturn.PurchaseReturnCurrencyId == null) continue;
-                    purchaseReturn.CurrencyMasterCurrencyName = _currencyMaster
-                                                                 .Where(c => c.CurrencyMasterCurrencyId == purchaseReturn.PurchaseReturnCurrencyId)
-                                                                 .FirstOrDefault().CurrencyMasterCurrencyName;
-
+                    var currency = _currencyMaster
+                       .FirstOrDefault(c => c.CurrencyMasterCurrencyId == purchaseReturn.PurchaseReturnCurrencyId);
+                    purchaseReturn.CurrencyMasterCurrencyName = currency?.CurrencyMasterCurrencyName ?? "";
                 }
                 catch { }
 
@@ -750,7 +749,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     var rslt = _purchaseReturnDetailsRepo.GetAll().Where(c => c.PurchaseReturnDetailsNo == prdetail.PurchaseReturnNo).FirstOrDefault();
                     if (rslt != null)
                     {
-                        qty += rslt.PurchaseReturnDetailsQuantity??0;
+                        qty += rslt.PurchaseReturnDetailsQuantity ?? 0;
                     }
                     // qty += rslt;
                 }
@@ -1014,7 +1013,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         StockRegisterRate = item.PurchaseReturnDetailsRate,
                         StockRegisterAmount = item.PurchaseReturnDetailsGrossAmount,
                         StockRegisterMaterialID = item.PurchaseReturnDetailsMatId,
-                       
+
                     });
                 }
                 _stockRegister.InsertList(sr);
