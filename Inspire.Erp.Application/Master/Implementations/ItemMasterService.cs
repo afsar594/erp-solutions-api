@@ -1946,8 +1946,8 @@ namespace Inspire.Erp.Application.Master
                     ShortNo = voucherId,
                     VoucherDate = DateTime.Now,//Format(AppLogDates, "dd/MMM/yyyy hh:mm:ss")
                     Voucher_Type = transType,
-                    CustomerName = custDetails.CustomerMasterCustomerName,
-                    Customer_ID = model.CustomerId,
+                    CustomerName = "HOLD CUSTOMER",
+                    Customer_ID = 1,
                     Location = model.LocationId,
                     Salesman = model.SalesManId,
                     Discount = model.ItemDiscount,
