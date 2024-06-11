@@ -69,6 +69,14 @@ namespace Inspire.Erp.Web.Controllers.POS
             return Ok(await itemMasterService.PrintReciept(voucherNo));
         }
 
+
+        [HttpGet]
+        [Route("SearchHoldBill")]
+        public async Task<IActionResult> SearchHoldBill(string voucherNo)
+        {
+            return Ok(await itemMasterService.SearchHoldBill(voucherNo));
+        }
+
         [HttpGet]
         [Route("GetCardTypes")]
         public async Task<IActionResult> GetCardTypes()
@@ -120,6 +128,21 @@ namespace Inspire.Erp.Web.Controllers.POS
             try
             {
                 return Ok(await itemMasterService.ProcessCard(model));
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
+
+        }
+
+
+        [HttpPost("Hold")]
+        public async Task<IActionResult> Hold(CardRequest model)
+        {
+            try
+            {
+                return Ok(await itemMasterService.Hold(model));
             }
             catch (System.Exception ex)
             {

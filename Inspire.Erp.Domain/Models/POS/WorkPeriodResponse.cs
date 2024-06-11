@@ -151,4 +151,32 @@ namespace Inspire.Erp.Domain.Modals
 
     }
 
+
+    //public class HoldRequest
+    //{
+       
+    //    public decimal? NetTotal { get; set; }
+
+    //    public decimal? VAT { get; set; }
+
+    //    public decimal? Cash { get; set; }
+
+    //    public decimal? ItemDiscount { get; set; }
+    //    public decimal? BillDiscount { get; set; }
+    //    public int? UserId { get; set; }
+    //    public int WorkPeriodId { get; set; }
+    //    public string StationName { get; set; }
+    //    public string CreditCardNumber { get; set; }
+    //    public int? CustomerId { get; set; }
+    //    public int? SalesManId { get; set; }
+    //    public int? LocationId { get; set; }
+    //    public int? StationId { get; set; }
+    //    public string VoucherNo { get; set; }
+    //    public string RefereceNo { get; set; }
+    //    public long? BillnoLoad { get; set; }
+
+    //    public decimal? BillDiscountPerc { get; set; }
+    //    public List<ItemDetail> ItemDetails { get; set; }
+    //}
+
 }
