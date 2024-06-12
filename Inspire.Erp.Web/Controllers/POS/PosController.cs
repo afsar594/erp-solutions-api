@@ -78,6 +78,13 @@ namespace Inspire.Erp.Web.Controllers.POS
         }
 
         [HttpGet]
+        [Route("LoadHoldBills")]
+        public async Task<IActionResult> LoadHoldBills(int workPeriodId)
+        {
+            return Ok(await itemMasterService.LoadHoldBills(workPeriodId));
+        }
+
+        [HttpGet]
         [Route("GetCardTypes")]
         public async Task<IActionResult> GetCardTypes()
         {

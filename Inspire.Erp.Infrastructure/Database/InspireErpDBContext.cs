@@ -24271,7 +24271,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<POS_Temp_SalesVoucher>(e =>
             {
-                e.ToTable("POS_Temp_SalesVoucher");
+                e.ToTable("POS_Temp_Sales_Voucher");
                 e.HasKey(x => x.V_ID);
             });
 
@@ -24279,7 +24279,7 @@ namespace Inspire.Erp.Infrastructure.Database
             {
                 e.HasKey(x => x.SDet_ID);
 
-                e.ToTable("POS_Temp_SalesVoucherDetails");
+                e.ToTable("POS_Temp_Sales_Voucher_Details");
             });
 
             modelBuilder.Entity<POS_SalesTransactionDetails>(e =>
