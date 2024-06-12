@@ -57,7 +57,7 @@ namespace Inspire.Erp.Application.Store.Implementation
         {
             try
             {
-            
+
                 List<StockReportBaseUnitResponse> response = new List<StockReportBaseUnitResponse>();
 
                 var subrq = (from s in _context.UnitDetails
@@ -406,7 +406,7 @@ namespace Inspire.Erp.Application.Store.Implementation
             {
                 string query = $" ItemId > 0 {model.Filter}";
                 var data = await (from vw in this._context.VWStockBaseUnitWithValue.Where(query)
-                                  join i in this._context.ItemMaster on vw.ItemId equals i.ItemMasterItemId
+                                  join i in this._context.ItemMaster.Where(a => a.ItemMasterDelStatus != true) on vw.ItemId equals i.ItemMasterItemId
                                   select new VWStockBaseUnitWithValue()
                                   {
                                       ItemId = vw.ItemId,
