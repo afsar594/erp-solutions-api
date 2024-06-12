@@ -123,6 +123,30 @@ namespace Inspire.Erp.Domain.Modals
     }
 
 
+    public class SaleVoucherTempResponse
+    {
+        public string VoucherNo { get; set; }
+        public string CustomerName { get; set; }
+        public decimal? GrossAmount { get; set; }
+        public decimal? Discount { get; set; }
+        public decimal? VAT { get; set; }
+        public decimal? NetAmount { get; set; }
+        public List<SaleVoucherDetailsTempResponse> SaleVoucherDetails { get; set; }
+    }
+
+    public class SaleVoucherDetailsTempResponse
+    {
+        public string VoucherNo { get; set; }
+        public string Description { get; set; }
+        public string UnitName { get; set; }
+        public decimal? Discount { get; set; }
+        public int Quantity { get; set; }
+        public decimal? UnitPrice { get; set; }
+        public decimal? VAT { get; set; }
+        public decimal? NetAmount { get; set; }
+        public int? UnitDetailId { get; set; }
+
+    }
     public class CardType
     {
         public int Id { get; set; }

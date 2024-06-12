@@ -1078,6 +1078,49 @@ namespace Inspire.Erp.Application.Master
                 return Response<ItemMasterResponse>.Fail(new ItemMasterResponse(), ex.Message);
             }
         }
+
+
+        public async Task<Response<List<SaleVoucherTempResponse>>> LoadHoldBills(int workPeriodId)
+        {
+            try
+            {
+                var result = await (from ir in posTempSalesVoucherRepo.GetAsQueryable().Where(x=>x.WorkPeriodID==workPeriodId)
+                                    select new SaleVoucherTempResponse
+                                    {
+
+                                        VoucherNo = ir.VoucherNo,
+                                        CustomerName = ir.Description,
+                                        GrossAmount = ir.GrossAmount,
+                                        Discount = ir.Discount,
+                                        VAT = ir.VatAmount,
+                                        NetAmount =ir.NetAmount,
+                                        SaleVoucherDetails=  (from vd in posTempSalesVoucherDetailsRepo.GetAsQueryable()
+                                                                   join ud in _unitMasterRepo.GetAsQueryable() on vd.UnitId equals ud.UnitMasterUnitId into umJoin
+                                                                   from umd in umJoin.DefaultIfEmpty()
+                                                                   where vd.V_ID == ir.V_ID
+                                                                   select new SaleVoucherDetailsTempResponse
+                                                                   {
+
+                                                                       VoucherNo = vd.VoucherNo,
+                                                                       Description = vd.Description,
+                                                                       UnitName = umd.UnitMasterUnitShortName,
+                                                                       Discount = vd.Discount,
+                                                                       Quantity = (int)vd.Sold_Qty,
+                                                                       UnitPrice = vd.UnitPrice,
+                                                                       VAT = vd.VatAmount,
+                                                                       NetAmount=vd.NetAmount,
+                                                                       UnitDetailId=vd.UnitDetailsId
+                                                                      
+                                                                   }).ToList()
+            }).ToListAsync();
+
+                return Response<List<SaleVoucherTempResponse>>.Success(result, "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<List<SaleVoucherTempResponse>>.Fail(new List<SaleVoucherTempResponse>(), ex.Message);
+            }
+        }
         public async Task<Response<ItemMasterResponse>> SearchItemByUnitDetailsId(ItemBarCodeSearchFilter model)
         {
             try
