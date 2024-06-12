@@ -47,7 +47,7 @@ namespace Inspire.Erp.Web.Controllers.POS
             return Ok(await itemMasterService.SearchItemByBarcode(model));
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("GetWorkPeriods")]
         public async Task<IActionResult> GetWorkPeriods(WorkPeriodFilter model)
         {
