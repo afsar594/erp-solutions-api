@@ -29,7 +29,6 @@ namespace Inspire.Erp.Web.Controllers.POS
         }
 
         [HttpPost]
-        //[HttpGet]
         [Route("GetSalesTransactionCash")]
         public async Task<List<POS_SummaryDateWiseReport>> GetSalesTransactionCash(PosReportFilterModel model)
         {
@@ -38,7 +37,6 @@ namespace Inspire.Erp.Web.Controllers.POS
         }
 
         [HttpPost]
-        //[HttpGet]
         [Route("GetSalesTransactionCard")]
         public async Task<List<POS_SummaryDateWiseReport>> GetSalesTransactionCard(PosReportFilterModel model)
         {
@@ -47,7 +45,6 @@ namespace Inspire.Erp.Web.Controllers.POS
         }
 
         [HttpPost]
-        //[HttpGet]
         [Route("GetTodaySalesByDate")]
         public async Task<POS_MaintodaySales> GetTodaySalesByDate(PosReportFilterModel model)
         {
@@ -55,7 +52,6 @@ namespace Inspire.Erp.Web.Controllers.POS
 
         }
         [HttpPost]
-        //[HttpGet]
         [Route("GetTodaySalesByCounterWise")]
         public async Task<List<TodaySalesByCounterWise>> GetTodaySalesByCounterWise(PosReportFilterModel model)
         {
