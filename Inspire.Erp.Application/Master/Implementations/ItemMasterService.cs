@@ -1100,7 +1100,6 @@ namespace Inspire.Erp.Application.Master
                                                                    where vd.V_ID == ir.V_ID
                                                                    select new SaleVoucherDetailsTempResponse
                                                                    {
-
                                                                        VoucherNo = vd.VoucherNo,
                                                                        Description = vd.Description,
                                                                        UnitName = umd.UnitMasterUnitShortName,
@@ -1974,13 +1973,15 @@ namespace Inspire.Erp.Application.Master
                 var custDetails = customerMasterRepo.GetAll().FirstOrDefault(o => o.CustomerMasterCustomerNo == 1);
                 if (custDetails != null) customerAccountNo = custDetails.CustomerMasterCustomerReffAcNo;
 
-                var tempSalesV = posTempSalesVoucherRepo.GetAll().FirstOrDefault(o => o.VoucherNo == model.VoucherNo);
-                if (tempSalesV != null) posTempSalesVoucherRepo.Delete(tempSalesV);
-
                 var tempSalesVD = posTempSalesVoucherDetailsRepo.GetAll().FirstOrDefault(o => o.VoucherNo == model.VoucherNo);
                 if (tempSalesVD != null) posTempSalesVoucherDetailsRepo.Delete(tempSalesVD);
 
 
+
+                var tempSalesV = posTempSalesVoucherRepo.GetAll().FirstOrDefault(o => o.VoucherNo == model.VoucherNo);
+                if (tempSalesV != null) posTempSalesVoucherRepo.Delete(tempSalesV);
+
+           
 
                 var salesVC = new POS_Temp_SalesVoucher()
                 {

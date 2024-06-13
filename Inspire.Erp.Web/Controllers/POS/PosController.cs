@@ -155,10 +155,7 @@ namespace Inspire.Erp.Web.Controllers.POS
             {
                 return StatusCode(500, ex.Message.ToString());
             }
-
         }
-
-
 
         [HttpPost("ProcessCash")]
         public async Task<IActionResult> ProcessCash(CardRequest model)
