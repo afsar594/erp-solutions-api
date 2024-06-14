@@ -134,7 +134,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 var result = await (from c in _dbContext.POS_SalesVoucher
                                     join d in _dbContext.POS_SalesTransactionDetails on c.VoucherNo equals d.InvoiceNo
                                     where c.WorkPeriodID == wpId && c.StationID == stationId
-                                    && c.VoucherDate >= fromDate && c.VoucherDate <= toDate
+                                    && c.VoucherDate.Value.Date >= fromDate && c.VoucherDate.Value.Date <= toDate
                                     select new POS_todaySalesByDate
                                     {
                                         VoucherNo = c.VoucherNo,
