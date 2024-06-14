@@ -31,9 +31,9 @@ namespace Inspire.Erp.Domain.Modals
 
     public class SettlementDetailsRequest
     {
-        public int Quantity { get; set; }
+       // public int Quantity { get; set; }
         public decimal Total { get; set; }
-        public decimal? NetAmount { get; set; }
+        //public decimal? NetAmount { get; set; }
         public decimal? VAT { get; set; }
         public decimal? ItemDiscount { get; set; }
         public decimal? CashAmount { get; set; }
@@ -54,7 +54,7 @@ namespace Inspire.Erp.Domain.Modals
         public decimal? Cash { get; set; }
         
         public int UserId { get; set; }
-
+        public int? StationId { get; set; }
 
     }
 
@@ -69,7 +69,6 @@ namespace Inspire.Erp.Domain.Modals
         public string  TransactionCode { get; set; }
         public int? SortOrder { get; set; }
         public bool? ShowinInvoice { get; set; }
-
         public string Status { get; set; }
     }
     public class CardAmountResponse
@@ -78,6 +77,12 @@ namespace Inspire.Erp.Domain.Modals
         public decimal? CashAmount { get; set; }
         public decimal? Balance { get; set; }
         public decimal? LastBalance { get; set; }
+
+        public string CardMessage { get; set; }
+
+        public bool IsFromCash { get; set; }
+
+        public bool IsProcessed { get; set; }
     }
 
 
@@ -110,7 +115,6 @@ namespace Inspire.Erp.Domain.Modals
         public string StationName { get; set; }
         public string CreditCardNumber { get; set; }
         public int? CustomerId { get; set; }
-
         public int? SalesManId { get; set; }
         public int? LocationId { get; set; }
         public int? StationId { get; set; }
@@ -119,6 +123,30 @@ namespace Inspire.Erp.Domain.Modals
     }
 
 
+    public class SaleVoucherTempResponse
+    {
+        public string VoucherNo { get; set; }
+        public string CustomerName { get; set; }
+        public decimal? GrossAmount { get; set; }
+        public decimal? Discount { get; set; }
+        public decimal? VAT { get; set; }
+        public decimal? NetAmount { get; set; }
+        public List<SaleVoucherDetailsTempResponse> SaleVoucherDetails { get; set; }
+    }
+
+    public class SaleVoucherDetailsTempResponse
+    {
+        public string VoucherNo { get; set; }
+        public string Description { get; set; }
+        public string UnitName { get; set; }
+        public decimal? Discount { get; set; }
+        public int Quantity { get; set; }
+        public decimal? UnitPrice { get; set; }
+        public decimal? VAT { get; set; }
+        public decimal? NetAmount { get; set; }
+        public int? UnitDetailId { get; set; }
+
+    }
     public class CardType
     {
         public int Id { get; set; }
@@ -146,5 +174,33 @@ namespace Inspire.Erp.Domain.Modals
         public int UnitDetailId { get; set; }
 
     }
+
+
+    //public class HoldRequest
+    //{
+       
+    //    public decimal? NetTotal { get; set; }
+
+    //    public decimal? VAT { get; set; }
+
+    //    public decimal? Cash { get; set; }
+
+    //    public decimal? ItemDiscount { get; set; }
+    //    public decimal? BillDiscount { get; set; }
+    //    public int? UserId { get; set; }
+    //    public int WorkPeriodId { get; set; }
+    //    public string StationName { get; set; }
+    //    public string CreditCardNumber { get; set; }
+    //    public int? CustomerId { get; set; }
+    //    public int? SalesManId { get; set; }
+    //    public int? LocationId { get; set; }
+    //    public int? StationId { get; set; }
+    //    public string VoucherNo { get; set; }
+    //    public string RefereceNo { get; set; }
+    //    public long? BillnoLoad { get; set; }
+
+    //    public decimal? BillDiscountPerc { get; set; }
+    //    public List<ItemDetail> ItemDetails { get; set; }
+    //}
 
 }

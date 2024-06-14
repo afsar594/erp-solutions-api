@@ -26,7 +26,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<EnquiryDetails> _customerEnquiryDetailsRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
         private IRepository<ProgramSettings> _programsettingsRepository;
-       
+
         private IRepository<CustomerMaster> _customerMasterRepository;
         private IRepository<LocationMaster> _locationMasterRepository;
         private IRepository<EnquiryAbout> _enquiryAboutRepository;
@@ -232,52 +232,82 @@ namespace Inspire.Erp.Application.Sales.Implementations
         public async Task<Response<List<CustomerEnquiryReportResponse>>> GetCustomerEnquirySearch(CustomerEnquirySearchFilter filter)
         {
             List<CustomerEnquiryReportResponse> reportDetails = new List<CustomerEnquiryReportResponse>();
-            string filteredValue = " && 1 == 1";
 
             try
             {
 
-                if (filter.CustomerId > 0)
+                if (filter.IsDateChecked)
                 {
-                    filteredValue += $" && EnquiryMasterSalesManId == {filter.CustomerId} ";
+                    reportDetails = await (from ce in _customerEnquiryRepository.GetAsQueryable()
+                        .Where(a => (filter.CustomerId == null || a.EnquiryMasterSalesManId == filter.CustomerId)
+                                   && (filter.StatusId == null || a.EnquiryMasterEnquiryStatusId == filter.StatusId)
+                                   && (filter.Enquiry_No == null || a.EnquiryMasterEnquiryId == filter.Enquiry_No)
+                                   && (filter.fromDate == null || a.EnquiryMasterEnquiryDate >= filter.fromDate)
+                                   && (filter.toDate == null || a.EnquiryMasterEnquiryDate < filter.toDate))
+                                           join lm in _locationMasterRepository.GetAsQueryable() on ce.EnquiryMasterLocationId equals (long)lm.LocationMasterLocationId into lmGroup
+                                           from lm in lmGroup.DefaultIfEmpty()
+                                           join cm in _customerMasterRepository.GetAsQueryable() on ce.EnquiryMasterSalesManId equals cm.CustomerMasterCustomerNo into cmGroup
+                                           from cm in cmGroup.DefaultIfEmpty()
+                                           join bt in _businessTypeRepository.GetAsQueryable() on ce.EnquiryMasterBusineesTypeId equals bt.BusinessTypeMasterBusinessTypeId into btGroup
+                                           from bt in btGroup.DefaultIfEmpty()
+                                           join curr in _currenyMasterRepository.GetAsQueryable() on ce.EnquiryMasterCurrencyId equals curr.CurrencyMasterCurrencyId into currGroup
+                                           from curr in currGroup.DefaultIfEmpty()
+                                           join abt in _enquiryAboutRepository.GetAsQueryable() on ce.EnquiryMasterEnquiryAboutId equals abt.EnquiryAboutEnquiryAboutId into abtGroup
+                                           from abt in abtGroup.DefaultIfEmpty()
+                                           join es in _enquiryStatusRepository.GetAsQueryable() on ce.EnquiryMasterEnquiryStatusId equals es.EnquiryStatusEnquiryStatusId into esGroup
+                                           from es in esGroup.DefaultIfEmpty()
+
+                                           select new CustomerEnquiryReportResponse()
+                                           {
+                                               Enquiry_Master_Enquiry_ID = ce.EnquiryMasterEnquiryId,
+                                               Enquiry_Master_Enquiry_Date = ce.EnquiryMasterEnquiryDate,
+                                               Enquiry_Master_Remarks = ce.EnquiryMasterRemarks,
+                                               Customer_Master_Customer_Name = cm.CustomerMasterCustomerName,
+                                               Location_Master_Location_Name = lm.LocationMasterLocationName,
+                                               Currency_Master_Currency_Name = curr.CurrencyMasterCurrencyName,
+                                               Enquiry_About_Enquiry_About = abt.EnquiryAboutEnquiryAbout,
+                                               Business_Type_Master_Business_Type_Name = bt.BusinessTypeMasterBusinessTypeName,
+                                               Enquiry_Master_Contact_Email = ce.EnquiryMasterContactEmail,
+                                               Enquiry_Status_Enquiry_Status = es.EnquiryStatusEnquiryStatus,
+                                               Enquiry_Master_Status_ID = es.EnquiryStatusEnquiryStatusId,
+                                               Enquiry_Master_SaleMan_ID = ce.EnquiryMasterSalesManId
+
+                                           }).ToListAsync();
                 }
-                if (filter.Enquiry_No != null)
+                else
                 {
-                    filteredValue += $" && EnquiryMasterEnquiryId == \"{filter.Enquiry_No}\" ";
-
+                    reportDetails = await (from ce in _customerEnquiryRepository.GetAsQueryable()
+                        .Where(a => (filter.CustomerId == null || a.EnquiryMasterSalesManId == filter.CustomerId)
+                                   && (filter.StatusId == null || a.EnquiryMasterEnquiryStatusId == filter.StatusId)
+                                   && (filter.Enquiry_No == null || a.EnquiryMasterEnquiryId == filter.Enquiry_No))
+                                           join lm in _locationMasterRepository.GetAsQueryable() on ce.EnquiryMasterLocationId equals (long)lm.LocationMasterLocationId into lmGroup
+                                           from lm in lmGroup.DefaultIfEmpty()
+                                           join cm in _customerMasterRepository.GetAsQueryable() on ce.EnquiryMasterSalesManId equals cm.CustomerMasterCustomerNo into cmGroup
+                                           from cm in cmGroup.DefaultIfEmpty()
+                                           join bt in _businessTypeRepository.GetAsQueryable() on ce.EnquiryMasterBusineesTypeId equals bt.BusinessTypeMasterBusinessTypeId into btGroup
+                                           from bt in btGroup.DefaultIfEmpty()
+                                           join curr in _currenyMasterRepository.GetAsQueryable() on ce.EnquiryMasterCurrencyId equals curr.CurrencyMasterCurrencyId into currGroup
+                                           from curr in currGroup.DefaultIfEmpty()
+                                           join abt in _enquiryAboutRepository.GetAsQueryable() on ce.EnquiryMasterEnquiryAboutId equals abt.EnquiryAboutEnquiryAboutId into abtGroup
+                                           from abt in abtGroup.DefaultIfEmpty()
+                                           join es in _enquiryStatusRepository.GetAsQueryable() on ce.EnquiryMasterEnquiryStatusId equals es.EnquiryStatusEnquiryStatusId into esGroup
+                                           from es in esGroup.DefaultIfEmpty()
+                                           select new CustomerEnquiryReportResponse()
+                                           {
+                                               Enquiry_Master_Enquiry_ID = ce.EnquiryMasterEnquiryId,
+                                               Enquiry_Master_Enquiry_Date = ce.EnquiryMasterEnquiryDate,
+                                               Enquiry_Master_Remarks = ce.EnquiryMasterRemarks,
+                                               Customer_Master_Customer_Name = cm.CustomerMasterCustomerName,
+                                               Location_Master_Location_Name = lm.LocationMasterLocationName,
+                                               Currency_Master_Currency_Name = curr.CurrencyMasterCurrencyName,
+                                               Enquiry_About_Enquiry_About = abt.EnquiryAboutEnquiryAbout,
+                                               Business_Type_Master_Business_Type_Name = bt.BusinessTypeMasterBusinessTypeName,
+                                               Enquiry_Master_Contact_Email = ce.EnquiryMasterContactEmail,
+                                               Enquiry_Status_Enquiry_Status = es.EnquiryStatusEnquiryStatus,
+                                               Enquiry_Master_Status_ID = es.EnquiryStatusEnquiryStatusId,
+                                               Enquiry_Master_SaleMan_ID = ce.EnquiryMasterSalesManId
+                                           }).ToListAsync();
                 }
-                if (!string.IsNullOrEmpty(filter.fromDate) && !string.IsNullOrEmpty(filter.toDate))
-                {
-                    filteredValue += $" && EnquiryMasterEnquiryDate >= {Convert.ToDateTime(filter.fromDate)} && EnquiryMasterEnquiryDate <= {Convert.ToDateTime(filter.toDate)} ";
-                }
-
-                reportDetails = await (from ce in _customerEnquiryRepository.GetAsQueryable().Where($"1 == 1  {filteredValue}")
-                                       join lm in _locationMasterRepository.GetAsQueryable() on ce.EnquiryMasterLocationId equals (long)lm.LocationMasterLocationId into lmGroup
-                                       from lm in lmGroup.DefaultIfEmpty()
-                                       join cm in _customerMasterRepository.GetAsQueryable() on ce.EnquiryMasterSalesManId equals cm.CustomerMasterCustomerNo into cmGroup
-                                       from cm in cmGroup.DefaultIfEmpty()
-                                       join bt in _businessTypeRepository.GetAsQueryable() on ce.EnquiryMasterBusineesTypeId equals bt.BusinessTypeMasterBusinessTypeId into btGroup
-                                       from bt in btGroup.DefaultIfEmpty()
-                                       join curr in _currenyMasterRepository.GetAsQueryable() on ce.EnquiryMasterCurrencyId equals curr.CurrencyMasterCurrencyId into currGroup
-                                       from curr in currGroup.DefaultIfEmpty()
-                                       join abt in _enquiryAboutRepository.GetAsQueryable() on ce.EnquiryMasterEnquiryAboutId equals abt.EnquiryAboutEnquiryAboutId into abtGroup
-                                       from abt in abtGroup.DefaultIfEmpty()
-                                       join es in _enquiryStatusRepository.GetAsQueryable() on ce.EnquiryMasterEnquiryStatusId equals es.EnquiryStatusEnquiryStatusId into esGroup
-                                       from es in esGroup.DefaultIfEmpty()
-                                       select new CustomerEnquiryReportResponse()
-                                       {
-                                           Enquiry_Master_Enquiry_ID  = ce.EnquiryMasterEnquiryId,
-                                           Enquiry_Master_Enquiry_Date = ce.EnquiryMasterEnquiryDate, 
-                                           Enquiry_Master_Remarks = ce.EnquiryMasterRemarks,
-                                           Customer_Master_Customer_Name = cm.CustomerMasterCustomerName,
-                                           Location_Master_Location_Name = lm.LocationMasterLocationName,
-                                           Currency_Master_Currency_Name = curr.CurrencyMasterCurrencyName,
-                                           Enquiry_About_Enquiry_About  =  abt.EnquiryAboutEnquiryAbout,
-                                           Business_Type_Master_Business_Type_Name = bt.BusinessTypeMasterBusinessTypeName,
-                                           Enquiry_Master_Contact_Email  = ce.EnquiryMasterContactEmail,
-                                           Enquiry_Status_Enquiry_Status = es.EnquiryStatusEnquiryStatus                                      
-                                       }).ToListAsync();
-
 
                 return new Response<List<CustomerEnquiryReportResponse>>
                 {
@@ -289,7 +319,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             catch (Exception ex)
             {
 
-                throw;
+                throw ex;
             }
         }
         public async Task<Response<List<CustomerEnquiryReportResponse>>> getCustomerEnquirybyStatuss(CustomerEnquirySearchFilterStatus filter)
@@ -392,9 +422,9 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 var allEnquiryIdsStrings = await _customerEnquiryRepository.GetAsQueryable()
                     .Select(ce => new EnquiryNoDto
                     {
-                       EnquiryNO  = ce.EnquiryMasterEnquiryId,
-                       EnquiryNOId = ce.EnquiryMasterEnquiryId
-                    }) 
+                        EnquiryNO = ce.EnquiryMasterEnquiryId,
+                        EnquiryNOId = ce.EnquiryMasterEnquiryId
+                    })
                     .ToListAsync();
 
                 return allEnquiryIdsStrings;

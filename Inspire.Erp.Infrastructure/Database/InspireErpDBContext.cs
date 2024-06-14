@@ -421,6 +421,10 @@ namespace Inspire.Erp.Infrastructure.Database
         public DbSet<POS_SalesVoucher> POS_SalesVoucher { get; set; }
         public DbSet<POS_SalesVoucherDetails> POS_SalesVoucherDetails { get; set; }
 
+        public DbSet<POS_Temp_SalesVoucher> POS_TempSalesVoucher { get; set; }
+        public DbSet<POS_Temp_SalesVoucherDetails> POS_TempSalesVoucherDetails { get; set; }
+
+
         public DbSet<POS_SalesTransactionDetails> POS_SalesTransactionDetails { get; set; }
         public DbSet<POS_TransactionCodes> POS_TransactionCodes { get; set; }
         public DbSet<POS_Trans_Group_Master> POS_Trans_Group_Master { get; set; }
@@ -5919,272 +5923,289 @@ namespace Inspire.Erp.Infrastructure.Database
             {
                 entity.ToTable("Customer_Quotation");
 
-                entity.HasKey(e => e.CustomerQuotationQid);
+                entity.HasKey(e => e.CustomerQuotationQid);                      
 
-
-                entity.Property(e => e.CustomerQuotationQid).
-                HasColumnName("Customer_Quotation_QID");
-
-                entity.Property(e => e.CustomerQuotationCashCustomerName)
-                    .HasColumnName("Customer_Quotation_Cash_Customer_Name")
-                    .HasMaxLength(150)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.CustomerQuotationContactPersonV)
-                    .HasColumnName("Customer_Quotation_Contact_Person_V")
-                    .HasMaxLength(100);
-
-                entity.Property(e => e.CustomerQuotationCurrencyId).HasColumnName("Customer_Quotation_Currency_ID");
-
-                entity.Property(e => e.CustomerQuotationCustomerId).HasColumnName("Customer_Quotation_Customer_ID");
-
-                entity.Property(e => e.CustomerQuotationDelStatus).HasColumnName("Customer_Quotation_DelStatus");
-
-                entity.Property(e => e.CustomerQuotationDeliveryTimeDate)
-                    .HasColumnName("Customer_Quotation_Delivery_Time_Date")
-                    .HasColumnType("datetime");
-
-                entity.Property(e => e.CustomerQuotationDiscountAmount)
-                    .HasColumnName("Customer_Quotation_Discount_Amount")
-                    .HasColumnType("numeric(18, 4)");
-
-                entity.Property(e => e.CustomerQuotationDiscountAmountTotal)
-                    .HasColumnName("Customer_Quotation_Discount_Amount_Total")
-                    .HasColumnType("numeric(18, 4)");
-
-                entity.Property(e => e.CustomerQuotationDiscountPercentage)
-                    .HasColumnName("Customer_Quotation_Discount_Percentage")
-                    .HasColumnType("numeric(18, 4)");
-
-                entity.Property(e => e.CustomerQuotationEnquiryId).HasColumnName("Customer_Quotation_Enquiry_ID");
-
-                entity.Property(e => e.CustomerQuotationEnquiryNo)
-                    .HasColumnName("Customer_Quotation_Enquiry_No")
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.CustomerQuotationFooter)
-                    .HasColumnName("Customer_Quotation_Footer")
-                    .HasMaxLength(200)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.CustomerQuotationFsno).HasColumnName("Customer_Quotation_FSNO");
-
-                entity.Property(e => e.CustomerQuotationGrossTotal)
-                    .HasColumnName("Customer_Quotation_Gross_Total")
-                    .HasColumnType("numeric(18, 4)");
-
-                entity.Property(e => e.CustomerQuotationHeader)
-                    .HasColumnName("Customer_Quotation_Header")
-                    .HasMaxLength(200)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.CustomerQuotationIsClose).HasColumnName("Customer_Quotation_IsClose");
-
-                entity.Property(e => e.CustomerQuotationJobId).HasColumnName("Customer_Quotation_Job_ID");
-
-                entity.Property(e => e.CustomerQuotationLocationId).HasColumnName("Customer_Quotation_Location_ID");
-
-                entity.Property(e => e.CustomerQuotationModelId).HasColumnName("Customer_Quotation_Model_ID");
-
-                entity.Property(e => e.CustomerQuotationNetTotal)
-                    .HasColumnName("Customer_Quotation_Net_Total")
-                    .HasColumnType("numeric(18, 4)");
-
-                entity.Property(e => e.CustomerQuotationNote)
-                    .HasColumnName("Customer_Quotation_Note")
-                    .HasMaxLength(200)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.CustomerQuotationPacking)
-                    .HasColumnName("Customer_Quotation_Packing")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.CustomerQuotationQuality)
-                    .HasColumnName("Customer_Quotation_Quality")
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.CustomerQuotationQuotationAddition).HasColumnName("Customer_Quotation_Quotation_Addition");
-
-                entity.Property(e => e.CustomerQuotationQuotationDate)
-                    .HasColumnName("Customer_Quotation_Quotation_Date")
-                    .HasColumnType("datetime");
-
-                entity.Property(e => e.CustomerQuotationQuotationEnquiryN).HasColumnName("Customer_Quotation_Quotation_Enquiry_N");
+                entity.Property(e => e.CustomerQuotationQid)
+                      .HasColumnName("Customer_Quotation_QID");
 
                 entity.Property(e => e.CustomerQuotationVoucherNo)
-                    .HasColumnName("Customer_Quotation_VoucherNo")
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
+                      .HasColumnName("Customer_Quotation_VoucherNo")
+                      .HasMaxLength(50)
+                      .IsUnicode(false);
 
-                entity.Property(e => e.CustomerQuotationQuotationRoot).HasColumnName("Customer_Quotation_Quotation_Root");
+                entity.Property(e => e.CustomerQuotationQuotationAddition)
+                      .HasColumnName("Customer_Quotation_Quotation_Addition");
 
-                entity.Property(e => e.CustomerQuotationQuotationStatusId).HasColumnName("Customer_Quotation_Quotation_Status_ID");
+                entity.Property(e => e.CustomerQuotationQuotationRoot)
+                      .HasColumnName("Customer_Quotation_Quotation_Root");
+
+                entity.Property(e => e.CustomerQuotationQuotationDate)
+                      .HasColumnName("Customer_Quotation_Quotation_Date");
 
                 entity.Property(e => e.CustomerQuotationQuotationValidDate)
-                    .HasColumnName("Customer_Quotation_Quotation_Valid_Date")
-                    .HasColumnType("datetime");
+                      .HasColumnName("Customer_Quotation_Quotation_Valid_Date");
+
+                entity.Property(e => e.CustomerQuotationCustomerId)
+                      .HasColumnName("Customer_Quotation_Customer_ID");
+
+                entity.Property(e => e.CustomerQuotationEnquiryId)
+                      .HasColumnName("Customer_Quotation_Enquiry_ID");
 
                 entity.Property(e => e.CustomerQuotationRemarks)
-                    .HasColumnName("Customer_Quotation_Remarks")
-                    .HasMaxLength(500)
-                    .IsUnicode(false);
+                      .HasColumnName("Customer_Quotation_Remarks")
+                      .HasMaxLength(500)
+                      .IsUnicode(false);
 
-                entity.Property(e => e.CustomerQuotationSalesManId).HasColumnName("Customer_Quotation_Sales_Man_ID");
+                entity.Property(e => e.CustomerQuotationLocationId)
+                      .HasColumnName("Customer_Quotation_Location_ID");
+
+                entity.Property(e => e.CustomerQuotationDiscountPercentage)
+                      .HasColumnName("Customer_Quotation_Discount_Percentage")
+                      .HasColumnType("numeric(18, 4)");
+
+                entity.Property(e => e.CustomerQuotationDiscountAmount)
+                      .HasColumnName("Customer_Quotation_Discount_Amount")
+                      .HasColumnType("numeric(18, 4)");
+
+                entity.Property(e => e.CustomerQuotationGrossTotal)
+                      .HasColumnName("Customer_Quotation_Gross_Total")
+                      .HasColumnType("numeric(18, 4)");
+
+                entity.Property(e => e.CustomerQuotationNetTotal)
+                      .HasColumnName("Customer_Quotation_Net_Total")
+                      .HasColumnType("numeric(18, 4)");
+
+                entity.Property(e => e.CustomerQuotationSalesManId)
+                      .HasColumnName("Customer_Quotation_Sales_Man_ID");
+
+                entity.Property(e => e.CustomerQuotationCurrencyId)
+                      .HasColumnName("Customer_Quotation_Currency_ID");
+
+                entity.Property(e => e.CustomerQuotationJobId)
+                      .HasColumnName("Customer_Quotation_Job_ID");
 
                 entity.Property(e => e.CustomerQuotationSubject)
-                    .HasColumnName("Customer_Quotation_Subject")
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
+                      .HasColumnName("Customer_Quotation_Subject")
+                      .HasMaxLength(50)
+                      .IsUnicode(false);
 
-                entity.Property(e => e.CustomerQuotationTechnicalDetails)
-                    .HasColumnName("Customer_Quotation_Technical_Details")
-                    .HasMaxLength(200)
-                    .IsUnicode(false);
+                entity.Property(e => e.CustomerQuotationNote)
+                      .HasColumnName("Customer_Quotation_Note")
+                      .HasMaxLength(200)
+                      .IsUnicode(false);
 
-                entity.Property(e => e.CustomerQuotationTerms)
-                    .HasColumnName("Customer_Quotation_Terms")
-                    .HasMaxLength(500)
-                    .IsUnicode(false);
+                entity.Property(e => e.CustomerQuotationWarranty)
+                      .HasColumnName("Customer_Quotation_Warranty")
+                      .HasMaxLength(200)
+                      .IsUnicode(false);
 
                 entity.Property(e => e.CustomerQuotationTraining)
-                    .HasColumnName("Customer_Quotation_Training")
-                    .HasMaxLength(200)
-                    .IsUnicode(false);
+                      .HasColumnName("Customer_Quotation_Training")
+                      .HasMaxLength(200)
+                      .IsUnicode(false);
 
-                entity.Property(e => e.CustomerQuotationTypeId).HasColumnName("Customer_Quotation_Type_ID");
+                entity.Property(e => e.CustomerQuotationTechnicalDetails)
+                      .HasColumnName("Customer_Quotation_Technical_Details")
+                      .HasMaxLength(200)
+                      .IsUnicode(false);
 
-                entity.Property(e => e.CustomerQuotationVatAmount)
-                    .HasColumnName("Customer_Quotation_VAT_Amount")
-                    .HasColumnType("numeric(18, 2)");
+                entity.Property(e => e.CustomerQuotationTerms)
+                      .HasColumnName("Customer_Quotation_Terms")
+                      .HasMaxLength(500)
+                      .IsUnicode(false);
+
+                entity.Property(e => e.CustomerQuotationDeliveryTimeDate)
+                      .HasColumnName("Customer_Quotation_Delivery_Time_Date");
+
+                entity.Property(e => e.CustomerQuotationPacking)
+                      .HasColumnName("Customer_Quotation_Packing")
+                      .HasMaxLength(100)
+                      .IsUnicode(false);
+
+                entity.Property(e => e.CustomerQuotationQuality)
+                      .HasColumnName("Customer_Quotation_Quality")
+                      .HasMaxLength(50)
+                      .IsUnicode(false);
+
+                entity.Property(e => e.CustomerQuotationHeader)
+                      .HasColumnName("Customer_Quotation_Header")
+                      .HasMaxLength(200)
+                      .IsUnicode(false);
+
+                entity.Property(e => e.CustomerQuotationFooter)
+                      .HasColumnName("Customer_Quotation_Footer")
+                      .HasMaxLength(200)
+                      .IsUnicode(false);
+
+                entity.Property(e => e.CustomerQuotationQuotationStatusId)
+                      .HasColumnName("Customer_Quotation_Quotation_Status_ID");
+
+                entity.Property(e => e.CustomerQuotationFsno)
+                      .HasColumnName("Customer_Quotation_FSNO");
+
+                entity.Property(e => e.CustomerQuotationIsClose)
+                      .HasColumnName("Customer_Quotation_IsClose");
+
+                entity.Property(e => e.CustomerQuotationEnquiryNo)
+                      .HasColumnName("Customer_Quotation_Enquiry_No")
+                      .HasMaxLength(50)
+                      .IsUnicode(false);
+
+                entity.Property(e => e.CustomerQuotationVoucherType)
+                      .HasColumnName("Customer_Quotation_Voucher_Type");
+
+                entity.Property(e => e.CustomerQuotationCashCustomerName)
+                      .HasColumnName("Customer_Quotation_Cash_Customer_Name")
+                      .HasMaxLength(150)
+                      .IsUnicode(false);
+
+                entity.Property(e => e.CustomerQuotationContactPersonV)
+                      .HasColumnName("Customer_Quotation_Contact_Person_V")
+                      .HasMaxLength(100)
+                      .IsUnicode(true);
+
+                entity.Property(e => e.CustomerQuotationDiscountAmountTotal)
+                      .HasColumnName("Customer_Quotation_Discount_Amount_Total")
+                      .HasColumnType("numeric(18, 4)");
+
+                entity.Property(e => e.CustomerQuotationVendorId)
+                      .HasColumnName("Customer_Quotation_Vendor_ID");
+
+                entity.Property(e => e.CustomerQuotationTypeId)
+                      .HasColumnName("Customer_Quotation_Type_ID");
+
+                entity.Property(e => e.CustomerQuotationModelId)
+                      .HasColumnName("Customer_Quotation_Model_ID");
 
                 entity.Property(e => e.CustomerQuotationVatPercentage)
-                    .HasColumnName("Customer_Quotation_VAT_Percentage")
-                    .HasColumnType("numeric(18, 2)");
+                      .HasColumnName("Customer_Quotation_VAT_Percentage")
+                      .HasColumnType("numeric(18, 2)");
 
+                entity.Property(e => e.CustomerQuotationVatAmount)
+                      .HasColumnName("Customer_Quotation_VAT_Amount")
+                      .HasColumnType("numeric(18, 2)");
 
+                entity.Property(e => e.CustomerQuotationQuotationEnquiryN)
+                      .HasColumnName("Customer_Quotation_Quotation_Enquiry_N");
+
+                entity.Property(e => e.CustomerQuotationDelStatus)
+                      .HasColumnName("Customer_Quotation_DelStatus");
+
+                entity.Property(e => e.CustomerQuotationProjectName)
+                      .HasColumnName("Customer_Quotation_Project_Name")
+                      .HasMaxLength(50)
+                      .IsUnicode(false);
+
+                entity.Property(e => e.CustomerQuotationProjectRef)
+                      .HasColumnName("Customer_Quotation_ProjectRef")
+                      .HasMaxLength(50)
+                      .IsUnicode(false);
 
                 entity.Property(e => e.CustomerQuotationReviseQuotation)
                       .HasColumnName("Customer_Quotation_Revise_Quotation");
 
-                entity.Property(e => e.CustomerQuotationProjectRef)
-                      .HasColumnName("Customer_Quotation_ProjectRef");
-
-
-                entity.Property(e => e.CustomerQuotationProjectN)
-                      .HasColumnName("Customer_Quotation_Project_Name");
-
-
                 entity.Property(e => e.CustomerQuotationGrossProfitTotal)
-                .HasColumnName("Customer_Quotation_Gross_Profit_Total")
-                .HasColumnType("numreic(18,2)");
-
-                entity.Property(e => e.CustomerQuotationVendorId).HasColumnName("Customer_Quotation_Vendor_ID");
-
-                entity.Property(e => e.CustomerQuotationVoucherType).HasColumnName("Customer_Quotation_Voucher_Type");
-
-
-
-
-                entity.Property(e => e.CustomerQuotationWarranty)
-                    .HasColumnName("Customer_Quotation_Warranty")
-                    .HasMaxLength(200)
-                    .IsUnicode(false);
-
-
+                      .HasColumnName("Customer_Quotation_Gross_Profit_Total")
+                      .HasColumnType("numeric(18, 2)");
             });
 
             modelBuilder.Entity<CustomerQuotationDetails>(entity =>
             {
                 entity.ToTable("Customer_Quotation_Details");
 
+                entity.HasKey(e => e.CustomerQuotationDetailsId);
+
                 entity.Property(e => e.CustomerQuotationDetailsId)
-                .HasColumnName("Customer_Quotation_Details_ID");
-
-
-                entity.Property(e => e.CustomerQuotationDetailsVoucherNo)
-                .HasColumnName("Customer_Quotation_Details_VoucherNo");
-
-                entity.Property(e => e.CustomerQuotationDetailsCashCustomerName)
-                    .HasColumnName("Customer_Quotation_Details_Cash_Customer_Name")
-                    .HasMaxLength(150)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.CustomerQuotationDetailsDelStatus).HasColumnName("Customer_Quotation_Details_DelStatus");
-
-                entity.Property(e => e.CustomerQuotationDetailsDescription)
-                    .HasColumnName("Customer_Quotation_Details_Description")
-                    .HasMaxLength(1000)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.CustomerQuotationDetailsDiscount)
-                    .HasColumnName("Customer_Quotation_Details_Discount")
-                    .HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.CustomerQuotationDetailsEnquiryDetailsId).HasColumnName("Customer_Quotation_Details_Enquiry_Details_ID");
-                entity.Property(e => e.CustomerQuotationDetailsQuotationId).HasColumnName("Customer_Quotation_Details_QuotationID");
-
-                entity.Property(e => e.CustomerQuotationDetailsFsno).HasColumnName("Customer_Quotation_Details_FSNO");
-
-                entity.Property(e => e.CustomerQuotationDetailsGrossAmount)
-                    .HasColumnName("Customer_Quotation_Details_Gross_Amount")
-                    .HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.CustomerQuotationDetailsIsEdited).HasColumnName("Customer_Quotation_Details_IsEdited");
-
-                entity.Property(e => e.CustomerQuotationDetailsItemId).HasColumnName("Customer_Quotation_Details_Item_ID");
-
-                entity.Property(e => e.CustomerQuotationDetailsNetAmount)
-                    .HasColumnName("Customer_Quotation_Details_Net_Amount")
-                    .HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.CustomerQuotationDetailsPriceType)
-                    .HasColumnName("Customer_Quotation_Details_Price_Type")
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.CustomerQuotationDetailsPurchasePrice).HasColumnName("Customer_Quotation_Details_Purchase_Price");
-
-                entity.Property(e => e.CustomerQuotationDetailsQty)
-                    .HasColumnName("Customer_Quotation_Details_Qty")
-                    .HasColumnType("numeric(18, 2)");
-
-                //entity.Property(e => e.CustomerQuotationDetailsQuotationDetailsId)
-                //.HasColumnName("Customer_Quotation_Details_Quotation_Details_ID");
+                      .HasColumnName("Customer_Quotation_Details_ID");
 
                 entity.Property(e => e.CustomerQuotationDetailsQuotationId)
-                    .HasColumnName("Customer_Quotation_Details_QuotationID")
-                    .HasMaxLength(30)
-                    .IsUnicode(false);
+                      .HasColumnName("Customer_Quotation_Details_QuotationID");
 
-                entity.Property(e => e.CustomerQuotationDetailsSlno).HasColumnName("Customer_Quotation_Details_Slno");
+                entity.Property(e => e.CustomerQuotationDetailsVoucherNo)
+                      .HasColumnName("Customer_Quotation_Details_VoucherNo")
+                      .HasMaxLength(50)
+                      .IsUnicode(false);
 
-                entity.Property(e => e.CustomerQuotationDetailsUnitId).HasColumnName("Customer_Quotation_Details_Unit_ID");
+                entity.Property(e => e.CustomerQuotationDetailsSlno)
+                      .HasColumnName("Customer_Quotation_Details_Slno");
+
+                entity.Property(e => e.CustomerQuotationDetailsItemId)
+                      .HasColumnName("Customer_Quotation_Details_Item_ID");
+
+                entity.Property(e => e.CustomerQuotationDetailsDescription)
+                      .HasColumnName("Customer_Quotation_Details_Description")
+                      .HasMaxLength(1000)
+                      .IsUnicode(false);
+
+                entity.Property(e => e.CustomerQuotationDetailsUnitId)
+                      .HasColumnName("Customer_Quotation_Details_Unit_ID");
+
+                entity.Property(e => e.CustomerQuotationDetailsQty)
+                      .HasColumnName("Customer_Quotation_Details_Qty")
+                      .HasColumnType("numeric(18, 2)");
 
                 entity.Property(e => e.CustomerQuotationDetailsUnitPrice)
-                    .HasColumnName("Customer_Quotation_Details_Unit_Price")
-                    .HasColumnType("numeric(18, 2)");
+                      .HasColumnName("Customer_Quotation_Details_Unit_Price")
+                      .HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.CustomerQuotationDetailsGrossAmount)
+                      .HasColumnName("Customer_Quotation_Details_Gross_Amount")
+                      .HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.CustomerQuotationDetailsDiscount)
+                      .HasColumnName("Customer_Quotation_Details_Discount")
+                      .HasColumnType("numeric(18, 2)");
 
                 entity.Property(e => e.CustomerQuotationDetailsVat)
-                    .HasColumnName("Customer_Quotation_Details_VAT")
-                    .HasColumnType("numeric(18, 2)");
+                      .HasColumnName("Customer_Quotation_Details_VAT")
+                      .HasColumnType("numeric(18, 2)");
 
+                entity.Property(e => e.CustomerQuotationDetailsNetAmount)
+                      .HasColumnName("Customer_Quotation_Details_Net_Amount")
+                      .HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.CustomerQuotationDetailsFsno)
+                      .HasColumnName("Customer_Quotation_Details_FSNO");
+
+                entity.Property(e => e.CustomerQuotationDetailsIsEdited)
+                      .HasColumnName("Customer_Quotation_Details_IsEdited");
+
+                entity.Property(e => e.CustomerQuotationDetailsPurchasePrice)
+                      .HasColumnName("Customer_Quotation_Details_Purchase_Price");
+
+                entity.Property(e => e.CustomerQuotationDetailsPriceType)
+                      .HasColumnName("Customer_Quotation_Details_Price_Type")
+                      .HasMaxLength(50)
+                      .IsUnicode(false);
+
+                entity.Property(e => e.CustomerQuotationDetailsVoucherType)
+                      .HasColumnName("Customer_Quotation_Details_Voucher_Type");
+
+                entity.Property(e => e.CustomerQuotationDetailsCashCustomerName)
+                      .HasColumnName("Customer_Quotation_Details_Cash_Customer_Name")
+                      .HasMaxLength(150)
+                      .IsUnicode(false);
+
+                entity.Property(e => e.CustomerQuotationDetailsEnquiryDetailsId)
+                      .HasColumnName("Customer_Quotation_Details_Enquiry_Details_ID");
+
+                entity.Property(e => e.CustomerQuotationDetailsDelStatus)
+                      .HasColumnName("Customer_Quotation_Details_DelStatus");
 
                 entity.Property(e => e.CustomerQuotationDetailsGrossProfit)
-                    .HasColumnName("Customer_Quotation_Details_Gross_Profit")
-                    .HasColumnType("numeric(18, 2)");
+                      .HasColumnName("Customer_Quotation_Details_Gross_Profit")
+                      .HasColumnType("numeric(18, 2)");
 
-                entity.Property(e => e.CustomerQuotationDetailsVoucherType).HasColumnName("Customer_Quotation_Details_Voucher_Type");
+                // Configure foreign key if there's a relationship with Customer_Quotation
+                entity.HasOne(d => d.CustomerQuotation)
+                    .WithMany(a => a.CustomerQuotationDetails)
+                    .HasForeignKey(d => d.CustomerQuotationDetailsQuotationId)
+                    .HasConstraintName("FK_Customer_Quotation_Details_QuotationID");
 
-                //entity.HasOne(d => d.CustomerQuotationDetailsNoNavigation)
-                //    .WithMany(p => p.CustomerQuotation)
-                //    .HasPrincipalKey(p => p.VouchersNumbersVNo)
-                //    .HasForeignKey(d => d.CustomerQuotationDetailsQuotationId)
-                //    .HasConstraintName("FK_Customer_Quotation_Details_Vouchers_Numbers");
-
-
+                //entity.HasOne<CustomerQuotation>()
+                //.WithMany()
+                //.HasForeignKey(e => e.CustomerQuotationDetailsQuotationId)
+                //.HasConstraintName("FK_Customer_Quotation_Details_QuotationID");
             });
 
             modelBuilder.Entity<CustomerType>(entity =>
@@ -12716,147 +12737,146 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<PosStationSettings>(entity =>
             {
-                entity.HasKey(e => e.PosStationSettingsId);
+                entity.HasKey(e => e.Id);
+                entity.ToTable("POS_StationSettings");
 
-                entity.ToTable("POS_Station_Settings");
+                //entity.Property(e => e.PosStationSettingsBaudRate).HasColumnName("POS_Station_Settings_BaudRate");
 
-                entity.Property(e => e.PosStationSettingsBaudRate).HasColumnName("POS_Station_Settings_BaudRate");
+                //entity.Property(e => e.PosStationSettingsBillClosing)
+                //    .HasColumnName("POS_Station_Settings_BillClosing")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsBillClosing)
-                    .HasColumnName("POS_Station_Settings_BillClosing")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsClubGrid).HasColumnName("POS_Station_Settings_Club_Grid");
 
-                entity.Property(e => e.PosStationSettingsClubGrid).HasColumnName("POS_Station_Settings_Club_Grid");
+                //entity.Property(e => e.PosStationSettingsCrBcopy).HasColumnName("POS_Station_Settings_CrBCopy");
 
-                entity.Property(e => e.PosStationSettingsCrBcopy).HasColumnName("POS_Station_Settings_CrBCopy");
+                //entity.Property(e => e.PosStationSettingsCsBcopy).HasColumnName("POS_Station_Settings_CsBCopy");
 
-                entity.Property(e => e.PosStationSettingsCsBcopy).HasColumnName("POS_Station_Settings_CsBCopy");
+                //entity.Property(e => e.PosStationSettingsDelStatus).HasColumnName("POS_Station_Settings_DelStatus");
 
-                entity.Property(e => e.PosStationSettingsDelStatus).HasColumnName("POS_Station_Settings_DelStatus");
+                //entity.Property(e => e.PosStationSettingsDisableVat).HasColumnName("POS_Station_Settings_DisableVAT");
 
-                entity.Property(e => e.PosStationSettingsDisableVat).HasColumnName("POS_Station_Settings_DisableVAT");
+                //entity.Property(e => e.PosStationSettingsDisplayLines).HasColumnName("POS_Station_Settings_DisplayLines");
 
-                entity.Property(e => e.PosStationSettingsDisplayLines).HasColumnName("POS_Station_Settings_DisplayLines");
+                //entity.Property(e => e.PosStationSettingsEmulation)
+                //    .HasColumnName("POS_Station_Settings_Emulation")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsEmulation)
-                    .HasColumnName("POS_Station_Settings_Emulation")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsEnablePrinter).HasColumnName("POS_Station_Settings_EnablePrinter");
 
-                entity.Property(e => e.PosStationSettingsEnablePrinter).HasColumnName("POS_Station_Settings_EnablePrinter");
+                //entity.Property(e => e.PosStationSettingsEnableVfd).HasColumnName("POS_Station_Settings_EnableVFD");
 
-                entity.Property(e => e.PosStationSettingsEnableVfd).HasColumnName("POS_Station_Settings_EnableVFD");
+                //entity.Property(e => e.PosStationSettingsFooter1)
+                //    .HasColumnName("POS_Station_Settings_Footer1")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsFooter1)
-                    .HasColumnName("POS_Station_Settings_Footer1")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsFooter2)
+                //    .HasColumnName("POS_Station_Settings_Footer2")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsFooter2)
-                    .HasColumnName("POS_Station_Settings_Footer2")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsFooter3)
+                //    .HasColumnName("POS_Station_Settings_Footer3")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsFooter3)
-                    .HasColumnName("POS_Station_Settings_Footer3")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsFooter4)
+                //    .HasColumnName("POS_Station_Settings_Footer4")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsFooter4)
-                    .HasColumnName("POS_Station_Settings_Footer4")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsHeader1)
+                //    .HasColumnName("POS_Station_Settings_Header1")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsHeader1)
-                    .HasColumnName("POS_Station_Settings_Header1")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsHeader2)
+                //    .HasColumnName("POS_Station_Settings_Header2")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsHeader2)
-                    .HasColumnName("POS_Station_Settings_Header2")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsHeader3)
+                //    .HasColumnName("POS_Station_Settings_Header3")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsHeader3)
-                    .HasColumnName("POS_Station_Settings_Header3")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsHeader4)
+                //    .HasColumnName("POS_Station_Settings_Header4")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsHeader4)
-                    .HasColumnName("POS_Station_Settings_Header4")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsId)
+                //    .HasColumnName("POS_Station_Settings_ID")
+                //    .ValueGeneratedOnAdd();
 
-                entity.Property(e => e.PosStationSettingsId)
-                    .HasColumnName("POS_Station_Settings_ID")
-                    .ValueGeneratedOnAdd();
+                //entity.Property(e => e.PosStationSettingsParity)
+                //    .HasColumnName("POS_Station_Settings_Parity")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsParity)
-                    .HasColumnName("POS_Station_Settings_Parity")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsPrinterName)
+                //    .HasColumnName("POS_Station_Settings_PrinterName")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsPrinterName)
-                    .HasColumnName("POS_Station_Settings_PrinterName")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsPrinterPort)
+                //    .HasColumnName("POS_Station_Settings_PrinterPort")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsPrinterPort)
-                    .HasColumnName("POS_Station_Settings_PrinterPort")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsPrinterType)
+                //    .HasColumnName("POS_Station_Settings_PrinterType")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsPrinterType)
-                    .HasColumnName("POS_Station_Settings_PrinterType")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsReorderCheck).HasColumnName("POS_Station_Settings_Reorder_Check");
 
-                entity.Property(e => e.PosStationSettingsReorderCheck).HasColumnName("POS_Station_Settings_Reorder_Check");
+                //entity.Property(e => e.PosStationSettingsReportCardSale).HasColumnName("POS_Station_Settings_ReportCardSale");
 
-                entity.Property(e => e.PosStationSettingsReportCardSale).HasColumnName("POS_Station_Settings_ReportCardSale");
+                //entity.Property(e => e.PosStationSettingsReportCashSale).HasColumnName("POS_Station_Settings_ReportCashSale");
 
-                entity.Property(e => e.PosStationSettingsReportCashSale).HasColumnName("POS_Station_Settings_ReportCashSale");
+                //entity.Property(e => e.PosStationSettingsReportCreditSales).HasColumnName("POS_Station_Settings_ReportCreditSales");
 
-                entity.Property(e => e.PosStationSettingsReportCreditSales).HasColumnName("POS_Station_Settings_ReportCreditSales");
+                //entity.Property(e => e.PosStationSettingsReportGroupTotal).HasColumnName("POS_Station_Settings_ReportGroup_Total");
 
-                entity.Property(e => e.PosStationSettingsReportGroupTotal).HasColumnName("POS_Station_Settings_ReportGroup_Total");
+                //entity.Property(e => e.PosStationSettingsReportItemTotal).HasColumnName("POS_Station_Settings_ReportItem_Total");
 
-                entity.Property(e => e.PosStationSettingsReportItemTotal).HasColumnName("POS_Station_Settings_ReportItem_Total");
+                //entity.Property(e => e.PosStationSettingsScanner)
+                //    .HasColumnName("POS_Station_Settings_Scanner")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsScanner)
-                    .HasColumnName("POS_Station_Settings_Scanner")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsShowBarCode).HasColumnName("POS_Station_Settings_ShowBarCode");
 
-                entity.Property(e => e.PosStationSettingsShowBarCode).HasColumnName("POS_Station_Settings_ShowBarCode");
+                //entity.Property(e => e.PosStationSettingsShowDiscountColumn).HasColumnName("POS_Station_Settings_ShowDiscountColumn");
 
-                entity.Property(e => e.PosStationSettingsShowDiscountColumn).HasColumnName("POS_Station_Settings_ShowDiscountColumn");
+                //entity.Property(e => e.PosStationSettingsShowUnit).HasColumnName("POS_Station_Settings_ShowUnit");
 
-                entity.Property(e => e.PosStationSettingsShowUnit).HasColumnName("POS_Station_Settings_ShowUnit");
+                //entity.Property(e => e.PosStationSettingsShowVatcolumn).HasColumnName("POS_Station_Settings_ShowVATColumn");
 
-                entity.Property(e => e.PosStationSettingsShowVatcolumn).HasColumnName("POS_Station_Settings_ShowVATColumn");
+                //entity.Property(e => e.PosStationSettingsShowVattotal).HasColumnName("POS_Station_Settings_ShowVATTotal");
 
-                entity.Property(e => e.PosStationSettingsShowVattotal).HasColumnName("POS_Station_Settings_ShowVATTotal");
+                //entity.Property(e => e.PosStationSettingsStationName)
+                //    .HasColumnName("POS_Station_Settings_StationName")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsStationName)
-                    .HasColumnName("POS_Station_Settings_StationName")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsVatInclusive).HasColumnName("POS_Station_Settings_VAT_Inclusive");
 
-                entity.Property(e => e.PosStationSettingsVatInclusive).HasColumnName("POS_Station_Settings_VAT_Inclusive");
+                //entity.Property(e => e.PosStationSettingsVatPercentage).HasColumnName("POS_Station_Settings_VAT_Percentage");
 
-                entity.Property(e => e.PosStationSettingsVatPercentage).HasColumnName("POS_Station_Settings_VAT_Percentage");
+                //entity.Property(e => e.PosStationSettingsVfdDriver)
+                //    .HasColumnName("POS_Station_Settings_VFD_Driver")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
 
-                entity.Property(e => e.PosStationSettingsVfdDriver)
-                    .HasColumnName("POS_Station_Settings_VFD_Driver")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.PosStationSettingsWelcomeMessage)
-                    .HasColumnName("POS_Station_Settings_Welcome_Message")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                //entity.Property(e => e.PosStationSettingsWelcomeMessage)
+                //    .HasColumnName("POS_Station_Settings_Welcome_Message")
+                //    .HasMaxLength(100)
+                //    .IsUnicode(false);
             });
 
             modelBuilder.Entity<PrApprovalDetails>(entity =>
@@ -24247,6 +24267,19 @@ namespace Inspire.Erp.Infrastructure.Database
                 e.HasKey(x => x.SDet_ID);
 
                 e.ToTable("POS_Sales_Voucher_Details");
+            });
+
+            modelBuilder.Entity<POS_Temp_SalesVoucher>(e =>
+            {
+                e.ToTable("POS_Temp_Sales_Voucher");
+                e.HasKey(x => x.V_ID);
+            });
+
+            modelBuilder.Entity<POS_Temp_SalesVoucherDetails>(e =>
+            {
+                e.HasKey(x => x.SDet_ID);
+
+                e.ToTable("POS_Temp_Sales_Voucher_Details");
             });
 
             modelBuilder.Entity<POS_SalesTransactionDetails>(e =>

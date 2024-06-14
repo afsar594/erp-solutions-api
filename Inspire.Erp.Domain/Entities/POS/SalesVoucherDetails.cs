@@ -42,6 +42,8 @@ namespace Inspire.Erp.Domain.Entities
         public int? EditBit { get; set; }
         public string SV_SERIAL_NO_ALL { get; set; }
 
+        public int? UnitDetailsId { get; set; }
+
         [NotMapped]
         public virtual POS_SalesVoucher SalesVoucherDetailsNoNavigation { get; set; }
     }
