@@ -186,7 +186,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
 
                 var Cashtotal = await _dbContext.POS_SalesTransactionDetails
-                    .Where(a => a.PaymentMode == "CAS" && a.Amount > 0 && a.InvoiceDate >= fromDate && a.InvoiceDate <= toDate)
+                    .Where(a => a.PaymentMode == "CAS" && a.Amount > 0 &&  a.InvoiceDate.Value.Date >= fromDate &&  a.InvoiceDate.Value.Date <= toDate)
                     .GroupBy(c => c.CounterName).Select(x => new TodaySalesByCounterWise
                     {
                         CounterName = x.Key,
@@ -197,7 +197,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 var Cardtotal = await (from d in _dbContext.POS_SalesTransactionDetails
                                        join c in _dbContext.POS_TransactionCodes on d.PaymentMode equals c.TransCode
                                        join m in _dbContext.POS_Trans_Group_Master on c.TransGroup equals m.Id
-                                       where d.PaymentMode == "CRD" && d.Amount > 0 && d.InvoiceDate >= fromDate && d.InvoiceDate <= toDate && c.TransGroup == 3
+                                       where d.PaymentMode == "CRD" && d.Amount > 0 && d.InvoiceDate.Value.Date >= fromDate && d.InvoiceDate.Value.Date <= toDate && c.TransGroup == 3
                                        group d by d.CounterName into g
                                        select new TodaySalesByCounterWise
                                        {
@@ -206,7 +206,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                        }).ToListAsync();
 
                 var Credittotal = await _dbContext.POS_SalesTransactionDetails
-                                         .Where(a => a.PaymentMode == "CREDIT" && a.Amount > 0 && a.InvoiceDate >= fromDate && a.InvoiceDate <= toDate)
+                                         .Where(a => a.PaymentMode == "CREDIT" && a.Amount > 0 && a.InvoiceDate.Value.Date >= fromDate && a.InvoiceDate <= toDate)
                                          .GroupBy(c => c.CounterName).Select(x => new TodaySalesByCounterWise
                                          {
                                              CounterName = x.Key,
@@ -215,7 +215,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 var Returntotal = await (from c in _dbContext.POS_SalesTransactionDetails
                                          join r in _dbContext.POS_SalesRet_Master on c.InvoiceNo equals r.Narration
-                                         where c.Amount < 0 && c.InvoiceDate >= fromDate && c.InvoiceDate <= toDate
+                                         where c.Amount < 0 && c.InvoiceDate.Value.Date >= fromDate && c.InvoiceDate.Value.Date <= toDate
                                          group c by c.CounterName into g
                                          select new TodaySalesByCounterWise
                                          {
@@ -224,7 +224,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                          }).ToListAsync();
 
                 var CreditReturntotal = await _dbContext.POS_SalesTransactionDetails
-                                         .Where(a => a.PaymentMode == "CREDIT" && a.Amount < 0 && a.InvoiceDate >= fromDate && a.InvoiceDate <= toDate)
+                                         .Where(a => a.PaymentMode == "CREDIT" && a.Amount < 0 &&  a.InvoiceDate.Value.Date >= fromDate &&  a.InvoiceDate.Value.Date <= toDate)
                                          .GroupBy(c => c.CounterName).Select(x => new TodaySalesByCounterWise
                                          {
                                              CounterName = x.Key,
@@ -233,7 +233,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
 
                 var salesTotal = await _dbContext.POS_SalesTransactionDetails
-                  .Where(a => a.PaymentMode == "BIL" && a.InvoiceDate >= fromDate && a.InvoiceDate <= toDate)
+                  .Where(a => a.PaymentMode == "BIL" &&  a.InvoiceDate.Value.Date >= fromDate &&  a.InvoiceDate.Value.Date <= toDate)
                   .GroupBy(c => c.CounterName).Select(g => new TodaySalesByCounterWise
                   {
                       CounterName = g.Key,
@@ -242,7 +242,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
 
                 var DiscountTotal = await _dbContext.POS_SalesTransactionDetails
-                  .Where(a => a.PaymentMode == "DISNT" && a.InvoiceDate >= fromDate && a.InvoiceDate <= toDate)
+                  .Where(a => a.PaymentMode == "DISNT" &&  a.InvoiceDate.Value.Date >= fromDate &&  a.InvoiceDate.Value.Date <= toDate)
                   .GroupBy(c => c.CounterName).Select(x => new TodaySalesByCounterWise
                   {
                       CounterName = x.Key,
@@ -251,7 +251,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
 
                 var VatTotal = await _dbContext.POS_SalesTransactionDetails
-                   .Where(a => a.PaymentMode == "VAT" && a.InvoiceDate >= fromDate && a.InvoiceDate <= toDate)
+                   .Where(a => a.PaymentMode == "VAT" &&  a.InvoiceDate.Value.Date >= fromDate &&  a.InvoiceDate.Value.Date <= toDate)
                    .GroupBy(c => c.CounterName).Select(x => new TodaySalesByCounterWise
                    {
                        CounterName = x.Key,
