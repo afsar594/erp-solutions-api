@@ -42,10 +42,12 @@ namespace Inspire.Erp.Application.Sales.Implementations
         {
             try
             {
+                fromDate = fromDate.Date; toDate = toDate.Date;
+
                 var ab = await (from c in _dbContext.POS_SalesVoucher
                                 join d in _dbContext.POS_SalesTransactionDetails on c.VoucherNo equals d.InvoiceNo
                                 where d.Amount != 0 && d.PaymentMode == "CAS" && c.WorkPeriodID == wpId
-                                && c.StationID == stationId && c.VoucherDate >= fromDate && c.VoucherDate <= toDate
+                                && c.StationID == stationId && c.VoucherDate.Value.Date >= fromDate && c.VoucherDate.Value.Date <= toDate
                                 orderby d.Id
                                 select new POS_SummaryDateWiseReport
                                 {
@@ -61,7 +63,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                 join d in _dbContext.POS_SalesTransactionDetails on c.VoucherNo equals d.InvoiceNo
                                 where d.PaymentMode == "CAS" && d.Amount == 0
                                 && c.WorkPeriodID == wpId && c.StationID == stationId
-                                  && c.VoucherDate >= fromDate && c.VoucherDate <= toDate
+                                  && c.VoucherDate.Value.Date >= fromDate && c.VoucherDate.Value.Date <= toDate
                                 orderby d.Id
                                 select new POS_SummaryDateWiseReport
                                 {
@@ -90,7 +92,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 var ab = await (from c in _dbContext.POS_SalesVoucher
                                 join d in _dbContext.POS_SalesTransactionDetails on c.VoucherNo equals d.InvoiceNo
                                 where d.Amount != 0 && d.PaymentMode == "CRD" && c.WorkPeriodID == wpId
-                                && c.StationID == stationId && c.VoucherDate >= fromDate && c.VoucherDate <= toDate
+                                && c.StationID == stationId && c.VoucherDate.Value.Date >= fromDate && c.VoucherDate.Value.Date <= toDate
                                 select new POS_SummaryDateWiseReport
                                 {
                                     VoucherNo = c.VoucherNo,
@@ -104,7 +106,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 var ac = await (from c in _dbContext.POS_SalesVoucher
                                 join d in _dbContext.POS_SalesTransactionDetails on c.VoucherNo equals d.InvoiceNo
                                 where d.PaymentMode == "CRD" && d.Amount == 0 && c.WorkPeriodID == wpId
-                                && c.StationID == stationId && c.VoucherDate >= fromDate && c.VoucherDate <= toDate
+                                && c.StationID == stationId && c.VoucherDate.Value.Date >= fromDate && c.VoucherDate.Value.Date <= toDate
                                 orderby d.Id
                                 select new POS_SummaryDateWiseReport
                                 {
@@ -152,7 +154,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                      join z in _dbContext.ItemMaster on d.ItemId equals z.ItemMasterItemId
                                      join u in _dbContext.UnitMaster on d.UnitId equals u.UnitMasterUnitId
                                      where c.WorkPeriodID == wpId && c.StationID == stationId
-                                     && c.VoucherDate >= fromDate && c.VoucherDate <= toDate
+                                     && c.VoucherDate.Value.Date >= fromDate && c.VoucherDate.Value.Date <= toDate
                                      group new { d, z, u } by new { z.ItemMasterItemName, u.UnitMasterUnitShortName } into g
                                      select new POS_todaySalesDetailByDate
                                      {
