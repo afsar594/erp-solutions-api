@@ -421,6 +421,10 @@ namespace Inspire.Erp.Infrastructure.Database
         public DbSet<POS_SalesVoucher> POS_SalesVoucher { get; set; }
         public DbSet<POS_SalesVoucherDetails> POS_SalesVoucherDetails { get; set; }
 
+        public DbSet<POS_Temp_SalesVoucher> POS_TempSalesVoucher { get; set; }
+        public DbSet<POS_Temp_SalesVoucherDetails> POS_TempSalesVoucherDetails { get; set; }
+
+
         public DbSet<POS_SalesTransactionDetails> POS_SalesTransactionDetails { get; set; }
         public DbSet<POS_TransactionCodes> POS_TransactionCodes { get; set; }
         public DbSet<POS_Trans_Group_Master> POS_Trans_Group_Master { get; set; }
@@ -24263,6 +24267,19 @@ namespace Inspire.Erp.Infrastructure.Database
                 e.HasKey(x => x.SDet_ID);
 
                 e.ToTable("POS_Sales_Voucher_Details");
+            });
+
+            modelBuilder.Entity<POS_Temp_SalesVoucher>(e =>
+            {
+                e.ToTable("POS_Temp_Sales_Voucher");
+                e.HasKey(x => x.V_ID);
+            });
+
+            modelBuilder.Entity<POS_Temp_SalesVoucherDetails>(e =>
+            {
+                e.HasKey(x => x.SDet_ID);
+
+                e.ToTable("POS_Temp_Sales_Voucher_Details");
             });
 
             modelBuilder.Entity<POS_SalesTransactionDetails>(e =>
