@@ -27,11 +27,11 @@ namespace Inspire.Erp.Application.Administration.Implementations
             {
                 _StationSettingsService.BeginTransaction();
                 await Task.Delay(1000);
-                var counter = _StationSettingsService.GetAll().FirstOrDefault(x => x.PosStationSettingsId == id);
+                var counter = _StationSettingsService.GetAll().FirstOrDefault(x => x.Id == id);
 
                 if (counter != null)
                 {
-                    counter.PosStationSettingsDelStatus = true;
+                    counter.DelStatus = true;
                 }
 
 
@@ -53,7 +53,7 @@ namespace Inspire.Erp.Application.Administration.Implementations
             {
 
                 await Task.Delay(1000);
-                var station = _StationSettingsService.GetAll().FirstOrDefault(x => x.PosStationSettingsId == code);
+                var station = _StationSettingsService.GetAll().FirstOrDefault(x => x.Id == code);
                 return Response<PosStationSettings>.Success(station, "Data found");
             }
             catch (Exception ex)
@@ -67,7 +67,7 @@ namespace Inspire.Erp.Application.Administration.Implementations
             {
                 await Task.Delay(1000);
                 return Response<List<PosStationSettings>>.Success(
-                    _StationSettingsService.GetAll().Where(x => x.PosStationSettingsDelStatus == false).ToList(),
+                    _StationSettingsService.GetAll().Where(x => x.DelStatus == false).ToList(),
                     "Data found"
                     );
             }
@@ -86,8 +86,8 @@ namespace Inspire.Erp.Application.Administration.Implementations
                 int maxcount = 0;
                 maxcount = (
                 _StationSettingsService.GetAsQueryable()
-                .DefaultIfEmpty().Max(o => o == null ? 0 : (int)o.PosStationSettingsId) + 1);
-                counter.PosStationSettingsId = maxcount;
+                .DefaultIfEmpty().Max(o => o == null ? 0 : (int)o.Id) + 1);
+                counter.Id = maxcount;
 
                 _StationSettingsService.Insert(counter);
 
@@ -123,7 +123,7 @@ namespace Inspire.Erp.Application.Administration.Implementations
             IEnumerable<PosStationSettings> stationMasters;
             try
             {
-                stationMasters = _StationSettingsService.GetAll().Where(x => x.PosStationSettingsDelStatus == false).ToList();
+                stationMasters = _StationSettingsService.GetAll().Where(x => x.DelStatus == false).ToList();
 
             }
             catch (Exception ex)

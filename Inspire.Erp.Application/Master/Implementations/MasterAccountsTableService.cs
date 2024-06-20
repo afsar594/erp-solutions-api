@@ -336,7 +336,8 @@ namespace Inspire.Erp.Application.Master
             try
             {
                 MasterAccountsTable = masteraccountstablerepository.GetAsQueryable().Where(k => k.MaAccNo != "" && (k.MaDelStatus == false || k.MaDelStatus == null)
-                && k.MaAccType == AccountMasterStatus.Group).Select(k => k);
+                && k.MaAccType == AccountMasterStatus.Group
+                ).Select(k => k);
                 //|| k.MasterAccountsTableAccType == AccountMasterStatus.   ,
             }
             catch (Exception ex)

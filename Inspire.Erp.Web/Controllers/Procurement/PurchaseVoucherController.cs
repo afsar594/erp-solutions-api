@@ -487,12 +487,39 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("GetPurchaseVoucher")]
-        public ApiResponse<List<PurchaseVoucher>> GetPurchaseVoucher()
+        public ApiResponse<List<PurchaseVoucherListView>> GetPurchaseVoucher()
         {
-            ApiResponse<List<PurchaseVoucher>> apiResponse = new ApiResponse<List<PurchaseVoucher>>
+            var rst = _mapper.Map<List<PurchaseVoucher>>(_service.GetPurchaseVoucher());
+
+            List<PurchaseVoucherListView> result = (List<PurchaseVoucherListView>)rst.Select(a => new PurchaseVoucherListView
+            {
+                PurchaseVoucherPurId = a.PurchaseVoucherPurID,
+                PurchaseVoucherVoucherNo = a.PurchaseVoucherVoucherNo,
+                PurchaseVoucherPurchaseType = a.PurchaseVoucherPurchaseType,
+                PurchaseVoucherGrNo = a.PurchaseVoucherGRNo,
+                PurchaseVoucherPurchaseDate = a.PurchaseVoucherPurchaseDate,
+                PurchaseVoucherNetAmount = a.PurchaseVoucherNetAmount,
+                PurchaseVoucherUserId = a.PurchaseVoucherUserID,
+                PurchaseVoucherLocationId = a.PurchaseVoucherLocationID,
+                PurchaseVoucherPoNo = a.PurchaseVoucherPONo,
+                PurchaseVoucherCurrencyId = a.PurchaseVoucherCurrencyID,
+                PurchaseVoucherJobId = a.PurchaseVoucherJobID,
+                PurchaseVoucherCashSupplierName = a.PurchaseVoucherCashSupplierName,
+                PurchaseVoucherVatAmount = a.PurchaseVoucherVATAmount,
+                PurchaseVoucherVatRoundSign = a.PurchaseVoucherVATRoundSign,
+                PurchaseVoucherVatRoundAmount = a.PurchaseVoucherVATRoundAmount,
+                PurchaseVoucherVatNo = a.PurchaseVoucherVATNo,
+                PurchaseVoucherPartyId = a.PurchaseVoucherPartyID,
+                PurchaseVoucherPartyName = a.PurchaseVoucherPartyName,
+                PurchaseVoucherTotalGrossAmt = a.PurchaseVoucherTotalGrossAmt,
+                PurchaseVoucherTotalItemDisAmount = a.PurchaseVoucherTotalItemDisAmount,
+                PurchaseVoucherTotalDiscountAmt = a.PurchaseVoucherTotalDiscountAmt
+
+            }).ToList();
+            ApiResponse<List<PurchaseVoucherListView>> apiResponse = new ApiResponse<List<PurchaseVoucherListView>>
             {
                 Valid = true,
-                Result = _mapper.Map<List<PurchaseVoucher>>(_service.GetPurchaseVoucher()),
+                Result = result,
                 Message = ""
             };
             return apiResponse;

@@ -19,6 +19,10 @@ using System.Threading.Tasks;
 using Inspire.Erp.Infrastructure.Database;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Models.Sales.DeliveryNoteReport;
+using System.Security.Cryptography;
+using Inspire.Erp.Domain.Modals.Stock;
+using Microsoft.AspNetCore.Mvc;
+using Inspire.Erp.Domain.Models;
 
 namespace Inspire.Erp.Application.Sales.Implementations
 {
@@ -27,7 +31,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<CustomerQuotation> _customerQuotationRepository;
         private IRepository<CustomerQuotationDetails> _customerQuotationDetailsRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
-        private IRepository<ProgramSettings> _programsettingsRepository;
+        private IRepository<Domain.Entities.ProgramSettings> _programsettingsRepository;
         private IRepository<UserTracking> _userTrackingRepository;
         private readonly ILogger<CustomerQuotationService> _logger;
         public readonly InspireErpDBContext _Context;
@@ -38,7 +42,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
         public CustomerQuotationService(ILogger<CustomerQuotationService> logger, IRepository<PermissionApproval> permissionApprovalRepo,
             IRepository<Approval> approvalRepo, IRepository<ApprovalDetail> approvalDetailRepo,
-            IRepository<CustomerQuotation> customerQuotationRepository, IRepository<VouchersNumbers> voucherNumbersRepository, IRepository<ProgramSettings> programsettingsRepository,
+            IRepository<CustomerQuotation> customerQuotationRepository, IRepository<VouchersNumbers> voucherNumbersRepository, IRepository<Domain.Entities.ProgramSettings> programsettingsRepository,
             IRepository<CustomerQuotationDetails> customerQuotationDetailsRepository,
             IRepository<UserTracking> userTrackingRepository,
             InspireErpDBContext Context)
@@ -64,18 +68,37 @@ namespace Inspire.Erp.Application.Sales.Implementations
             try
             {
                 _customerQuotationRepository.BeginTransaction();
+                customerQuotation.CustomerQuotationDetails.Clear();
 
-                _customerQuotationRepository.Update(customerQuotation);
-                customerQuotationDetails = customerQuotationDetails.Select((x) =>
+                long maxcount1 = 0;
+                maxcount1 = _customerQuotationDetailsRepository.GetAsQueryable()
+                    .DefaultIfEmpty()
+                    .Max(o => o == null ? 0 : o.CustomerQuotationDetailsId) + 1;
+
+
+                foreach (var x in customerQuotationDetails)
                 {
+
                     if (x.CustomerQuotationDetailsId == 0)
+                    {
+                        x.CustomerQuotationDetailsId = maxcount1;
+                        x.CustomerQuotationDetailsQuotationId = customerQuotation.CustomerQuotationQid;
+                        x.CustomerQuotationDetailsVoucherNo = customerQuotation.CustomerQuotationVoucherNo;
+                        customerQuotation.CustomerQuotationDetails.Add(x);
+                        maxcount1++;
+                    }
+                    else
                     {
                         x.CustomerQuotationDetailsQuotationId = customerQuotation.CustomerQuotationQid;
                         x.CustomerQuotationDetailsVoucherNo = customerQuotation.CustomerQuotationVoucherNo;
+                        customerQuotation.CustomerQuotationDetails.Add(x);
                     }
-                    return x;
-                }).ToList();
-                _customerQuotationDetailsRepository.UpdateList(customerQuotationDetails);
+                }
+
+
+                //_customerQuotationDetailsRepository.UpdateList(customerQuotationDetails);
+                //customerQuotation.CustomerQuotationDetails = customerQuotationDetails;
+                _customerQuotationRepository.Update(customerQuotation);
 
                 UserTracking trackingData = new UserTracking();
                 trackingData.UserTrackingUserUserId = 1;
@@ -94,7 +117,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 throw ex;
             }
 
-            return this.GetSavedCustQuotationDetails(customerQuotation.CustomerQuotationVoucherNo);
+            return customerQuotation;
         }
         public int DeleteCustomerQuotation(CustomerQuotation customerQuotation)
         {
@@ -105,6 +128,12 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 customerQuotation.CustomerQuotationDelStatus = true;
 
+                customerQuotation.CustomerQuotationDetails.Select(x =>
+              {
+                  x.CustomerQuotationDetailsDelStatus = true;
+                  return x;
+              }).ToList();
+                //_customerQuotationDetailsRepository.UpdateList();
                 _customerQuotationRepository.Update(customerQuotation);
 
                 _customerQuotationRepository.TransactionCommit();
@@ -132,21 +161,30 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 customerQuotation.CustomerQuotationVoucherNo = customerQuotationNumber;
 
-                int maxcount = 0;
-                maxcount = Convert.ToInt32(
+                customerQuotation.CustomerQuotationDetails.Clear();
+                long maxcount = 0;
+                maxcount = (
                     _customerQuotationRepository.GetAsQueryable()
                     .DefaultIfEmpty().Max(o => o == null ? 0 : o.CustomerQuotationQid) + 1);
 
                 customerQuotation.CustomerQuotationQid = maxcount;
-                customerQuotationDetails = customerQuotationDetails.Select((x) =>
+
+                long maxCount1 = 0;
+                maxCount1 = _customerQuotationDetailsRepository.GetAsQueryable()
+                     .DefaultIfEmpty()
+                     .Max(o => o == null ? 0 : o.CustomerQuotationDetailsId) + 1;
+                foreach (var x in customerQuotationDetails)
                 {
+
+                    x.CustomerQuotationDetailsId = maxCount1;
                     x.CustomerQuotationDetailsQuotationId = maxcount;
                     x.CustomerQuotationDetailsVoucherNo = customerQuotationNumber;
-                    return x;
-                }).ToList();
+                    customerQuotation.CustomerQuotationDetails.Add(x);
+                    maxCount1++;
+                }
 
                 _customerQuotationRepository.Insert(customerQuotation);
-                _customerQuotationDetailsRepository.InsertList(customerQuotationDetails);
+                //_customerQuotationDetailsRepository.InsertList(customerQuotationDetails);
 
 
                 UserTracking trackingData = new UserTracking();
@@ -176,7 +214,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 }).ToList());
 
                 _customerQuotationRepository.TransactionCommit();
-                return this.GetSavedCustQuotationDetails(customerQuotation.CustomerQuotationVoucherNo);
+                return customerQuotation;
 
             }
             catch (Exception ex)
@@ -190,16 +228,21 @@ namespace Inspire.Erp.Application.Sales.Implementations
             IEnumerable<CustomerQuotation> customerQuotation = _customerQuotationRepository.GetAll().Where(k => k.CustomerQuotationDelStatus == false || k.CustomerQuotationDelStatus == null);
             return customerQuotation;
         }
-        public CustomerQuotation GetSavedCustQuotationDetails(string Qtno)
+        public CustomerQuotation GetSavedCustQuotationDetails(int id)
         {
-            if (_voucherNumbersRepository.GetAsQueryable().Any(x => x.VouchersNumbersVNo == Qtno))
+
+            CustomerQuotation voucherdata = new CustomerQuotation();
+            voucherdata = _customerQuotationRepository.GetAsQueryable().Where(k => k.CustomerQuotationQid == id && k.CustomerQuotationDelStatus != true).FirstOrDefault();
+            if (voucherdata != null)
             {
-                CustomerQuotation voucherdata = new CustomerQuotation();
-                voucherdata = _customerQuotationRepository.GetAsQueryable().Where(k => k.CustomerQuotationVoucherNo == Qtno).FirstOrDefault();
-                voucherdata.CustomerQuotationDetails = _customerQuotationDetailsRepository.GetAsQueryable().Where(qd => qd.CustomerQuotationDetailsVoucherNo == Qtno).ToList();
+                voucherdata.CustomerQuotationDetails = _customerQuotationDetailsRepository.GetAsQueryable().Where(qd => qd.CustomerQuotationDetailsQuotationId == id).ToList();
                 return voucherdata;
+
             }
-            return null;
+            else
+            {
+                return null;
+            }
 
         }
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
@@ -300,7 +343,53 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 return Response<List<GetCustQuotationForSaleOrderResponse>>.Fail(new List<GetCustQuotationForSaleOrderResponse>(), ex.Message);
             }
         }
+        public async Task<Response<List<GetCustomerQuotationDetail>>> GetCustomerQuotationDetail(QuotationFilterModel FilterModel)
+        {
 
+            if (FilterModel.IsDateChecked)
+            {
+                var result = await (from s in _Context.CustomerQuotation.AsQueryable()
+                                    join c in _Context.CustomerMaster.AsQueryable() on s.CustomerQuotationCustomerId equals c.CustomerMasterCustomerNo
+                                    where s.CustomerQuotationDelStatus != true && (FilterModel.CustomerId == null || s.CustomerQuotationCustomerId == FilterModel.CustomerId)
+                                    && (FilterModel.Status == null || s.CustomerQuotationIsClose == FilterModel.Status)
+                                    && (s.CustomerQuotationQuotationDate >= FilterModel.fromDate && s.CustomerQuotationQuotationDate <= FilterModel.toDate)
+                                    select new GetCustomerQuotationDetail
+                                    {
+                                        QuotationId = s.CustomerQuotationQid,
+                                        VoucherNo = s.CustomerQuotationVoucherNo,
+                                        VoucherType = s.CustomerQuotationVoucherType,
+                                        QuotationDate = s.CustomerQuotationQuotationDate,
+                                        CustomerName = c.CustomerMasterCustomerName,
+                                        CustomerId = s.CustomerQuotationCustomerId,
+                                        NetAmount = s.CustomerQuotationNetTotal,
+                                        Status = s.CustomerQuotationIsClose
+                                    }
+                                    ).ToListAsync();
+                return Response<List<GetCustomerQuotationDetail>>.Success(result, "Data Found");
+            }
+            else
+            {
+                var result = await (from s in _Context.CustomerQuotation.AsQueryable()
+                                    join c in _Context.CustomerMaster.AsQueryable() on s.CustomerQuotationCustomerId equals c.CustomerMasterCustomerNo
+                                    where (FilterModel.CustomerId == null || s.CustomerQuotationCustomerId == FilterModel.CustomerId)
+                                    && (FilterModel.Status == null || s.CustomerQuotationIsClose == FilterModel.Status)
+                                    select new GetCustomerQuotationDetail
+                                    {
+                                        QuotationId = s.CustomerQuotationQid,
+                                        VoucherNo = s.CustomerQuotationVoucherNo,
+                                        VoucherType = s.CustomerQuotationVoucherType,
+                                        QuotationDate = s.CustomerQuotationQuotationDate,
+                                        CustomerName = c.CustomerMasterCustomerName,
+                                        CustomerId = s.CustomerQuotationCustomerId,
+                                        NetAmount = s.CustomerQuotationNetTotal,
+                                        Status = s.CustomerQuotationIsClose
+                                    }
+                                       ).ToListAsync();
+                return Response<List<GetCustomerQuotationDetail>>.Success(result, "Data Found");
+            }
+
+
+        }
     }
 }
 

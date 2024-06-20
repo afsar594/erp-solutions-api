@@ -20,6 +20,7 @@ using Inspire.Erp.Domain.Modals.Common;
 
 using Inspire.Erp.Infrastructure.Database;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
 
 
 namespace Inspire.Erp.Application.Sales.Implementations
@@ -44,7 +45,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<TrackingRegister> _trackingRegisterRepository;
         private IRepository<PurOrderRegister> _purOrderRegisterRepository;
         private IRepository<CustomerOrderRegister> _custOrderRegRepository;
-     
+
         public CustomerPurchaseOrderService(
             //IRepository<ReportSalesVoucher> reportSalesVoucherRepository,
             IRepository<CustomerMaster> customerMasterRepository,
@@ -415,7 +416,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 //    k.StockRegisterSout = 
                 //   return k;
                 //}).ToList();
-               // _stockRegisterRepository.InsertList(sr);
+                // _stockRegisterRepository.InsertList(sr);
 
 
 
@@ -589,57 +590,121 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 List<GetCustomerPurchaseOrderTrackingResponse> response = new List<GetCustomerPurchaseOrderTrackingResponse>();
 
                 var subqueryDRQ = (from s in _Context.CustomerDeliveryNote
-                             group s by new { s.CustomerDeliveryNoteDeliveryId, s.CustomerDeliveryNoteCpoId,s.CustomerDeliveryNoteDeliveryDate } into g
-                             select new
-                             {
-                                 CustomerDeliveryNoteDeliveryId = g.Key.CustomerDeliveryNoteDeliveryId,
-                                 CustomerDeliveryNoteCpoId = g.Key.CustomerDeliveryNoteCpoId,
-                                 CustomerDeliveryNoteDeliveryDate = g.Key.CustomerDeliveryNoteDeliveryDate
-                             });
-
-                var subqueryDRQD = (from s in _Context.CustomerDeliveryNoteDetails
-                                    group s by new { s.CustomerDeliveryNoteDetailsPodId } into g
+                                   where s.CustomerDeliveryNoteDelStatus != true
+                                   group s by new { s.CustomerDeliveryNoteDeliveryID, s.CustomerDeliveryNoteCPOID, s.CustomerDeliveryNoteDeliveryDate } into g
                                    select new
                                    {
-                                       CustomerDeliveryNoteDetailsPodId = g.Key.CustomerDeliveryNoteDetailsPodId,
-                                       CustomerDeliveryNoteDetailsQty = g.Sum(s => s.CustomerDeliveryNoteDetailsQty)
+                                       CustomerDeliveryNoteDeliveryId = g.Key.CustomerDeliveryNoteDeliveryID,
+                                       CustomerDeliveryNoteCpoId = g.Key.CustomerDeliveryNoteCPOID,
+                                       CustomerDeliveryNoteDeliveryDate = g.Key.CustomerDeliveryNoteDeliveryDate
                                    });
 
+                var subqueryDRQD = (from s in _Context.CustomerDeliveryNoteDetails
+                                    where s.CustomerDeliveryNoteDetailsDelStatus != true
+                                    group s by new { s.CustomerDeliveryNoteDetailsPodId } into g
+                                    select new
+                                    {
+                                        CustomerDeliveryNoteDetailsPodId = g.Key.CustomerDeliveryNoteDetailsPodId,
+                                        CustomerDeliveryNoteDetailsQty = g.Sum(s => s.CustomerDeliveryNoteDetailsQty)
+                                    });
+                if (model.isDataChecked)
+                {
+                    var results = await (from cpod in _Context.CustomerPurchaseOrderDetails
+                                         where cpod.CustomerPurchaseOrderDetailsDelStatus != true
+                                         join cpo in _Context.CustomerPurchaseOrder
+                                         on cpod.CustomerPurchaseOrderId equals cpo.CustomerPurchaseOrderId into gim
+                                         from cpog in gim.DefaultIfEmpty()
 
-                var results = await (from cpod in _Context.CustomerPurchaseOrderDetails
-                                     join cpo in _Context.CustomerPurchaseOrder on cpod.CustomerPurchaseOrderId equals cpo.CustomerPurchaseOrderId into gim
-                                     from cpog in gim.DefaultIfEmpty()
-                                     join cm in _Context.CustomerMaster on Convert.ToInt32(cpog.CustomerPurchaseOrderCustomerId) equals cm.CustomerMasterCustomerNo into gum
-                                     from cmg in gum.DefaultIfEmpty()
-                                     join im in _Context.ItemMaster on cpod.CustomerPurchaseOrderDetailsItemId equals im.ItemMasterItemId into iminto
-                                     from img in iminto.DefaultIfEmpty()
-                                     join um in _Context.UnitMaster on cpod.CustomerPurchaseOrderDetailsUnitId equals um.UnitMasterUnitId into uminto
-                                     from umg in uminto.DefaultIfEmpty()
-                                     join srq in subqueryDRQD on cpod.CustomerPurchaseOrderDetailsPodId equals srq.CustomerDeliveryNoteDetailsPodId
-                                     join drq in subqueryDRQ on cpod.CustomerPurchaseOrderDetailsPodId equals drq.CustomerDeliveryNoteCpoId into gdrq
-                                     from q in gdrq.DefaultIfEmpty()
-                                     where cpog.CustomerPurchaseOrderCustomerId != null
-                                     select new GetCustomerPurchaseOrderTrackingResponse
-                                     {
-                                         CPOId = cpog.CustomerPurchaseOrderId,
-                                         CPODate=cpog.CustomerPurchaseOrderDate,
-                                         LPONo = cpog.CustomerPurchaseOrderLpoNo == null ? "" : cpog.CustomerPurchaseOrderLpoNo,
-                                         CustomerName = cpog.CustomerPurchaseOrderCustomerName,
-                                         PartNo = img.ItemMasterPartNo == null ? "" : img.ItemMasterPartNo,
-                                         MatDes = cpod.CustomerPurchaseOrderDetailsDescription == null ? img.ItemMasterItemName : cpod.CustomerPurchaseOrderDetailsDescription,
-                                         UnitDes = umg.UnitMasterUnitDescription,
-                                         Quantity = cpod.CustomerPurchaseOrderDetailsQty,
-                                         UnitPrice = cpod.CustomerPurchaseOrderDetailsUnitPrice,
-                                         DeliveredQuantity = srq.CustomerDeliveryNoteDetailsQty ?? 0,
-                                         BalancedQuantity = cpod.CustomerPurchaseOrderDetailsQty - srq.CustomerDeliveryNoteDetailsQty ?? 0,
-                                         DeliveryDate = q.CustomerDeliveryNoteDeliveryDate,
-                                         DeliveredId = q.CustomerDeliveryNoteDeliveryId
-                                     }).ToListAsync();
+                                         join cm in _Context.CustomerMaster
+                                         on cpog.CustomerPurchaseOrderCustomerId equals cm.CustomerMasterCustomerNo into gum
+                                         from cmg in gum.DefaultIfEmpty()
 
+                                         join im in _Context.ItemMaster
+                                         on cpod.CustomerPurchaseOrderDetailsItemId equals im.ItemMasterItemId into iminto
+                                         from img in iminto.DefaultIfEmpty()
 
+                                         join um in _Context.UnitMaster
+                                         on cpod.CustomerPurchaseOrderDetailsUnitId equals um.UnitMasterUnitId into uminto
+                                         from umg in uminto.DefaultIfEmpty()
 
+                                         join srq in subqueryDRQD
+                                         on cpod.CustomerPurchaseOrderId equals srq.CustomerDeliveryNoteDetailsPodId
 
-                return Response<List<GetCustomerPurchaseOrderTrackingResponse>>.Success(results, "Data found");
+                                         join drq in subqueryDRQ
+                                         on cpod.CustomerPurchaseOrderId equals drq.CustomerDeliveryNoteCpoId into gdrq
+                                         from q in gdrq.DefaultIfEmpty()
+
+                                         where cpog.CustomerPurchaseOrderCustomerId != null
+                                         && (model.CustomerId == null || cpod.CustomerPurchaseOrderId == model.CustomerId)
+                                         && (model.LocacationId == null || cpog.CustomerPurchaseOrderLocationId == model.LocacationId)
+                                         && (model.LPO == null || cpog.CustomerPurchaseOrderLpoNo == model.LPO)
+                                         && (cpog.CustomerPurchaseOrderDate >= model.DateFrom && cpog.CustomerPurchaseOrderDate <= model.DateTo)
+                                         select new GetCustomerPurchaseOrderTrackingResponse
+                                         {
+                                             CPOId = cpog.CustomerPurchaseOrderId,
+                                             CPODate = cpog.CustomerPurchaseOrderDate,
+                                             LPONo = cpog.CustomerPurchaseOrderLpoNo ?? "",
+                                             CustomerName = cpog.CustomerPurchaseOrderCustomerName,
+                                             PartNo = img.ItemMasterPartNo ?? "",
+                                             MatDes = cpod.CustomerPurchaseOrderDetailsDescription ?? img.ItemMasterItemName,
+                                             UnitDes = umg.UnitMasterUnitShortName,
+                                             Quantity = cpod.CustomerPurchaseOrderDetailsQty,
+                                             UnitPrice = cpod.CustomerPurchaseOrderDetailsUnitPrice,
+                                             DeliveredQuantity = srq.CustomerDeliveryNoteDetailsQty ?? 0,
+                                             BalancedQuantity = (cpod.CustomerPurchaseOrderDetailsQty - (srq.CustomerDeliveryNoteDetailsQty ?? 0)),
+                                             DeliveryDate = q.CustomerDeliveryNoteDeliveryDate,
+                                             DeliveredId = q.CustomerDeliveryNoteDeliveryId
+                                         }).ToListAsync();
+                    return Response<List<GetCustomerPurchaseOrderTrackingResponse>>.Success(results, "Data found");
+                }
+                else
+                {
+                    var results = await (from cpod in _Context.CustomerPurchaseOrderDetails
+                                         join cpo in _Context.CustomerPurchaseOrder
+                                         on cpod.CustomerPurchaseOrderId equals cpo.CustomerPurchaseOrderId into gim
+                                         from cpog in gim.DefaultIfEmpty()
+
+                                         join cm in _Context.CustomerMaster
+                                         on cpog.CustomerPurchaseOrderCustomerId equals cm.CustomerMasterCustomerNo into gum
+                                         from cmg in gum.DefaultIfEmpty()
+
+                                         join im in _Context.ItemMaster
+                                         on cpod.CustomerPurchaseOrderDetailsItemId equals im.ItemMasterItemId into iminto
+                                         from img in iminto.DefaultIfEmpty()
+
+                                         join um in _Context.UnitMaster
+                                         on cpod.CustomerPurchaseOrderDetailsUnitId equals um.UnitMasterUnitId into uminto
+                                         from umg in uminto.DefaultIfEmpty()
+
+                                         join srq in subqueryDRQD
+                                         on cpod.CustomerPurchaseOrderId equals srq.CustomerDeliveryNoteDetailsPodId
+
+                                         join drq in subqueryDRQ
+                                         on cpod.CustomerPurchaseOrderId equals drq.CustomerDeliveryNoteCpoId into gdrq
+                                         from q in gdrq.DefaultIfEmpty()
+
+                                         where cpog.CustomerPurchaseOrderCustomerId != null
+                                         && (model.CustomerId == null || cpod.CustomerPurchaseOrderId == model.CustomerId)
+                                         && (model.LocacationId == null || cpog.CustomerPurchaseOrderLocationId == model.LocacationId)
+                                         && (model.LPO == null || cpog.CustomerPurchaseOrderLpoNo == model.LPO)
+                                         select new GetCustomerPurchaseOrderTrackingResponse
+                                         {
+                                             CPOId = cpog.CustomerPurchaseOrderId,
+                                             CPODate = cpog.CustomerPurchaseOrderDate,
+                                             LPONo = cpog.CustomerPurchaseOrderLpoNo ?? "",
+                                             CustomerName = cpog.CustomerPurchaseOrderCustomerName,
+                                             PartNo = img.ItemMasterPartNo ?? "",
+                                             MatDes = cpod.CustomerPurchaseOrderDetailsDescription ?? img.ItemMasterItemName,
+                                             UnitDes = umg.UnitMasterUnitShortName,
+                                             Quantity = cpod.CustomerPurchaseOrderDetailsQty,
+                                             UnitPrice = cpod.CustomerPurchaseOrderDetailsUnitPrice,
+                                             DeliveredQuantity = srq.CustomerDeliveryNoteDetailsQty ?? 0,
+                                             BalancedQuantity = (cpod.CustomerPurchaseOrderDetailsQty - (srq.CustomerDeliveryNoteDetailsQty ?? 0)),
+                                             DeliveryDate = q.CustomerDeliveryNoteDeliveryDate,
+                                             DeliveredId = q.CustomerDeliveryNoteDeliveryId
+                                         }).ToListAsync();
+                    return Response<List<GetCustomerPurchaseOrderTrackingResponse>>.Success(results, "Data found");
+                }
             }
             catch (Exception ex)
             {
@@ -662,7 +727,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                         CustomerDeliveryNoteDetailsQty = g.Sum(s => s.CustomerDeliveryNoteDetailsQty)
                                     });
 
-                 var results = await (from cpo in _Context.CustomerPurchaseOrder
+                var results = await (from cpo in _Context.CustomerPurchaseOrder
                                      join cpod in _Context.CustomerPurchaseOrderDetails on cpo.CustomerPurchaseOrderId equals cpod.CustomerPurchaseOrderId
                                      join im in _Context.ItemMaster on cpod.CustomerPurchaseOrderDetailsItemId equals im.ItemMasterItemId
                                      join um in _Context.UnitMaster on cpod.CustomerPurchaseOrderDetailsUnitId equals um.UnitMasterUnitId
@@ -670,11 +735,11 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                      join drq in subqueryDRQD on cpod.CustomerPurchaseOrderDetailsPodId equals drq.CustomerDeliveryNoteDetailsPodId into gdrq
                                      from q in gdrq.DefaultIfEmpty()
                                      where (model.CustomerId == 0 || model.CustomerId == null || cpo.CustomerPurchaseOrderCustomerId == model.CustomerId)
-                                     &&  (model.ItemId == 0 || model.ItemId == null ||im.ItemMasterItemId == model.ItemId)
-                                
-                                     &&  ((model.DateFrom == null || model.DateTo == null) || (cpo.CustomerPurchaseOrderDate.Value.Date >= model.DateFrom && cpo.CustomerPurchaseOrderDate.Value.Date <= model.DateTo))
-                                    
-                                      select new GetCustomerPurchaseOrderTrackingResponse
+                                     && (model.ItemId == 0 || model.ItemId == null || im.ItemMasterItemId == model.ItemId)
+
+                                     && ((model.DateFrom == null || model.DateTo == null) || (cpo.CustomerPurchaseOrderDate.Value.Date >= model.DateFrom && cpo.CustomerPurchaseOrderDate.Value.Date <= model.DateTo))
+
+                                     select new GetCustomerPurchaseOrderTrackingResponse
                                      {
                                          CPOId = cpo.CustomerPurchaseOrderId,
                                          CPODate = cpo.CustomerPurchaseOrderDate,
@@ -689,16 +754,16 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                          DeliveredQuantity = q.CustomerDeliveryNoteDetailsQty ?? 0,
                                          BalancedQuantity = cpod.CustomerPurchaseOrderDetailsQty - q.CustomerDeliveryNoteDetailsQty ?? 0,
                                          UnitPrice = cpod.CustomerPurchaseOrderDetailsUnitPrice,
-                                         StockQuantity = _Context.StockRegister.Sum(y=>y.StockRegisterSIN??0-y.StockRegisterSout??0)/ (decimal)umd.UnitDetailsConversionType
+                                         StockQuantity = _Context.StockRegister.Sum(y => y.StockRegisterSIN ?? 0 - y.StockRegisterSout ?? 0) / (decimal)umd.UnitDetailsConversionType
                                      }).ToListAsync();
-                  return Response<List<GetCustomerPurchaseOrderTrackingResponse>>.Success(results, "Data found");
+                return Response<List<GetCustomerPurchaseOrderTrackingResponse>>.Success(results, "Data found");
             }
             catch (Exception ex)
             {
                 return Response<List<GetCustomerPurchaseOrderTrackingResponse>>.Fail(new List<GetCustomerPurchaseOrderTrackingResponse>(), ex.Message);
             }
         }
-    
+
         public async Task<Response<List<CustomerSalesQuotation>>> GetCustomerQuotationStatuses(CustQuotationFilterModel model)
         {
             try
@@ -715,23 +780,23 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                      from q in gdrq.DefaultIfEmpty()
                                      where (model.CustomerId == 0 || model.CustomerId == null || cpo.CustomerQuotationCustomerId == model.CustomerId)
                                      && (model.LocacationId == 0 || model.LocacationId == null || cpo.CustomerQuotationLocationId == model.LocacationId)
-                                  
-                                     
-                                     && (model.ItemId == 0 || model.ItemId == null || cpods.CustomerQuotationDetailsItemId == model.ItemId) 
+
+
+                                     && (model.ItemId == 0 || model.ItemId == null || cpods.CustomerQuotationDetailsItemId == model.ItemId)
                                    && ((model.DateFrom == null || model.DateTo == null) || (cpo.CustomerQuotationQuotationDate.Value.Date >= model.DateFrom && cpo.CustomerQuotationQuotationDate.Value.Date <= model.DateTo))
                                      select new CustomerSalesQuotation
                                      {
                                          CustomerQuotationQid = cpo.CustomerQuotationQid,
                                          CustomerQuotationVoucherNo = cpo.CustomerQuotationVoucherNo,
                                          CustomerQuotationDetailsCashCustomerName = cpo.CustomerQuotationCustomerId,
-                                         customerQuotationQuotationdate = cpo.CustomerQuotationQuotationDate,                                        
+                                         customerQuotationQuotationdate = cpo.CustomerQuotationQuotationDate,
                                          CustomerQuotationDetailsQty = cpods.CustomerQuotationDetailsQty,
                                          CustomerQuotationDetailsUnitPrice = cpods.CustomerQuotationDetailsUnitPrice,
                                          CustomerQuotationDetailsItemId = cpods.CustomerQuotationDetailsItemId,
-                                         CustomerQuotationDetailsDesription=cpods.CustomerQuotationDetailsDescription,
-                                          CustomerQuotationDetailsAmount=cpods.CustomerQuotationDetailsNetAmount,
-                                         CustomerQuotationDetailsUnits=cpods.CustomerQuotationDetailsUnitId,
-                                         CustomerQuotationDetailsRemarks=cpo.CustomerQuotationRemarks,
+                                         CustomerQuotationDetailsDesription = cpods.CustomerQuotationDetailsDescription,
+                                         CustomerQuotationDetailsAmount = cpods.CustomerQuotationDetailsNetAmount,
+                                         CustomerQuotationDetailsUnits = cpods.CustomerQuotationDetailsUnitId,
+                                         CustomerQuotationDetailsRemarks = cpo.CustomerQuotationRemarks,
 
                                      }).ToListAsync();
                 return Response<List<CustomerSalesQuotation>>.Success(results, "Data found");

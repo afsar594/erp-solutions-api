@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Inspire.Erp.Domain.Entities.POS;
 using System.Linq;
 using System.Transactions;
+using Inspire.Erp.Domain.Models;
 
 namespace Inspire.Erp.Application.Master
 {
@@ -37,14 +38,19 @@ namespace Inspire.Erp.Application.Master
         public Task<Response<POS_WorkPeriod>> GetWorkPeriod(WorkPeriodFilter model);
         public Task<Response<List<ItemMasterResponse>>> GetItems(string? barCode);
 
-        public Task<string> PrintReciept(string voucherNo);
+        public Task<PrintData> PrintReciept(string voucherNo);
 
         public Task<Response<List<CardType>>> GetCardTypes();
         public Task<Response<ItemMasterResponse>> SearchItemByUnitDetailsId(ItemBarCodeSearchFilter model);
+        public Task<Response<ItemMasterResponse>> SearchHoldBill(string voucherNo);
+
+        public Task<Response<List<SaleVoucherTempResponse>>> LoadHoldBills(int workPeriodId);
+
         public  Task<Response<List<SettlementDetailsResponse>>> AddSettlementDetails(SettlementDetailsRequest model);
         public Task<Response<CardAmountResponse>> CalculateCardAmount(CardAmountRequest model);
         public Task<Response<bool>> ProcessCard(CardRequest model);
-        public Task<Response<bool>> ProcessCashTransaction(CardRequest model);
+        public Task<Response<bool>> Hold(CardRequest model);
+        public Task<Response<CardAmountResponse>> ProcessCashTransaction(CardRequest model);
 
     }
 }

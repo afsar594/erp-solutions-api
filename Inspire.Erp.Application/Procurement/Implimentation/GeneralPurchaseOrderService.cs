@@ -145,19 +145,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 }).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
-
-
-
-                //stockRegister = stockRegister.Select((k) =>
-                //{
-                //    k.StockRegisterDelStatus = true;
-                //    return k;
-                //}).ToList();
-                //_stockRegisterRepository.UpdateList(stockRegister);
-
-
-
-                //  purchaseOrder.PurchaseOrderDetails = purchaseOrderDetails;
                 GeneralpurchaseOrder.GeneralPurchaseOrderDetails = GeneralpurchaseOrderDetails;
                 _GeneralpurchaseOrderRepository.Update(GeneralpurchaseOrder);
 
