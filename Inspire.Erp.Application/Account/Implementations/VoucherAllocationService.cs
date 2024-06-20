@@ -602,21 +602,66 @@ namespace Inspire.Erp.Application.Account.Implementations
                 return 0; // or throw an exception, return a default value, etc.
             }
         }
-        public Response<AllocationVoucher> DeleteAllocationVoucher(string id)
+        public Response<AllocationVoucher> DeleteAllocationVoucher(string id,string type)
         {
             using (var trans = new TransactionScope())
             {
                 try
                 {
-                    var alloId = ExtractInteger(id);
-                    var allocationDetails = _voucherAllocation.GetAll().FirstOrDefault(o => o.AllocationVoucherId == alloId);
-                    var allocationDetailsList = _voucherAllocationDetails.GetAll().Where(o => o.AllocationVoucherDetailsSno == alloId).ToList();
+                    int Sno = 0;
+                    switch (type)
+                    {
+                        case "Allocation":
+                            Sno = _voucherAllocation.GetAsQueryable().Where(o => o.AllocationVoucherVoucherNo == id).FirstOrDefault().AllocationVoucherId;
+                            break;
+
+                        case "Other":
+                            Sno = _voucherAllocationDetails.GetAsQueryable().Where(c => c.AllocationVoucherDetailsVno == id).FirstOrDefault().AllocationVoucherDetailsSno;
+                            break;
+
+                    }
+                    int? getTransId = 0;
+                    var allocationDetailsList = _voucherAllocationDetails.GetAsQueryable().Where(o => o.AllocationVoucherDetailsSno == Sno).ToList();
                     if (allocationDetailsList != null && allocationDetailsList.Count() > 0)
                     {
                         _voucherAllocationDetails.DeleteList(allocationDetailsList);
                     }
-                    _voucherAllocation.Delete(allocationDetails);
-                   
+                    foreach (var item in allocationDetailsList)
+                    {
+                        getTransId = item.AllocationVoucherDetailsTransSno;
+                        var allocationDetails = _voucherAllocation.GetAsQueryable().Where(o => o.AllocationVoucherId == item.AllocationVoucherDetailsSno).FirstOrDefault();
+                        if (allocationDetails != null)
+                        _voucherAllocation.Delete(allocationDetails);
+
+                        var accTrans = _accountTransaction.GetAsQueryable().Where(x => x.AccountsTransactionsTransSno == getTransId).FirstOrDefault();
+
+                        if (accTrans != null)
+                        {
+                            if (accTrans.AccountsTransactionsCredit > 0)
+                            {
+                                accTrans.AccountsTransactionsAllocBalance += accTrans.AccountsTransactionsAllocCredit;
+
+                            }
+                            else
+                            {
+                                accTrans.AccountsTransactionsAllocBalance += accTrans.AccountsTransactionsAllocDebit;
+                            }
+
+                            accTrans.AccountsTransactionsAllocCredit = 0;
+                            accTrans.AccountsTransactionsAllocDebit = 0;
+                            accTrans.AccountsTransactionsFcAllocCredit = 0;
+                            accTrans.AccountsTransactionsFcAllocDebit = 0;
+
+
+
+                            _accountTransaction.Update(accTrans);
+                        }
+
+                     
+                    }
+                       
+
+
                     /**UPDATE AccountsTransactions SET
                       * Alloc_Credit=0,Alloc_Debit=0,
                       * Fc_Alloc_Credit=0, Fc_Alloc_Debit=0 ,
@@ -625,25 +670,24 @@ namespace Inspire.Erp.Application.Account.Implementations
                       * WHERE AccNo='LB7574' AND transsno 
                       * NOT IN(SELECT Distinct transsno FROM Allocation_Voucher_Details  WHERE Acc_No='LB7574')**/
 
-                    var accTrans = _accountTransaction.GetAsQueryable().Where(x => x.AccountsTransactionsAccNo == allocationDetails.AllocationVoucherVoucherAccNo).ToList();
-                    var filteredTransactionIds = allocationDetailsList
-                                                                .Where(detail => detail.AllocationVoucherDetailsAccNo == allocationDetails.AllocationVoucherVoucherAccNo)
-                                                                .Select(detail => detail.AccountsTransactionsTransSno)
-                                                                .Distinct();
 
-                    var updatedTransactions = accTrans
-                        .Where(transaction => transaction.AccountsTransactionsAccNo == allocationDetails.AllocationVoucherVoucherAccNo && !filteredTransactionIds.Contains(transaction.AccountsTransactionsTransSno))
-                        .Select(transaction =>
-                        {
-                            transaction.AccountsTransactionsAllocCredit = 0;
-                            transaction.AccountsTransactionsAllocDebit = 0;
-                            transaction.AccountsTransactionsFcAllocCredit = 0;
-                            transaction.AccountsTransactionsFcAllocDebit = 0;
-                            transaction.AccountsTransactionsAllocBalance = transaction.AccountsTransactionsDebit > 0 ? transaction.AccountsTransactionsDebit : (transaction.AccountsTransactionsCredit > 0 ? transaction.AccountsTransactionsCredit : 0);
-                            transaction.AccountsTransactionsFcAllocBalance = transaction.AccountsTransactionsDebit > 0 ? transaction.AccountsTransactionsDebit : (transaction.AccountsTransactionsCredit > 0 ? transaction.AccountsTransactionsCredit : 0);
-                            return transaction;
-                        }).ToList();
-                    _accountTransaction.UpdateList(updatedTransactions);
+                    //var filteredTransactionIds = allocationDetailsList
+                    //                                            .Where(detail => detail.AllocationVoucherDetailsAccNo == allocationDetails.AllocationVoucherVoucherAccNo)
+                    //                                            .Select(detail => detail.AccountsTransactionsTransSno)
+                    //                                            .Distinct();
+
+                    //var updatedTransactions = accTrans
+                    //    .Where(transaction => transaction.AccountsTransactionsAccNo == allocationDetails.AllocationVoucherVoucherAccNo && !filteredTransactionIds.Contains(transaction.AccountsTransactionsTransSno))
+                    //    .Select(transaction =>
+                    //    {
+                    //        transaction.AccountsTransactionsAllocCredit = 0;
+                    //        transaction.AccountsTransactionsAllocDebit = 0;
+                    //        transaction.AccountsTransactionsFcAllocCredit = 0;
+                    //        transaction.AccountsTransactionsFcAllocDebit = 0;
+                    //        transaction.AccountsTransactionsAllocBalance = transaction.AccountsTransactionsDebit > 0 ? transaction.AccountsTransactionsDebit : (transaction.AccountsTransactionsCredit > 0 ? transaction.AccountsTransactionsCredit : 0);
+                    //        transaction.AccountsTransactionsFcAllocBalance = transaction.AccountsTransactionsDebit > 0 ? transaction.AccountsTransactionsDebit : (transaction.AccountsTransactionsCredit > 0 ? transaction.AccountsTransactionsCredit : 0);
+                    //        return transaction;
+                    //    }).ToList();
                     trans.Complete();
                     return Response<AllocationVoucher>.Success(new AllocationVoucher(), "Data Deleted");
                 }

@@ -238,11 +238,11 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         }
 
         [HttpDelete("DeleteAllocationVoucher")]
-        public IActionResult DeleteAllocationVoucher(string id)
+        public IActionResult DeleteAllocationVoucher(string id, string type)
         {
             try
             {
-                return Ok(_voucherAllocation.DeleteAllocationVoucher(id));
+                return Ok(_voucherAllocation.DeleteAllocationVoucher(id,type));
             }
             catch (System.Exception ex)
             {
