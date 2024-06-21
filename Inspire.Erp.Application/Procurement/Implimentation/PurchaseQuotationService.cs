@@ -13,6 +13,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Microsoft.Extensions.Logging;
+using Inspire.Erp.Domain.Entities.POS;
 
 namespace Inspire.Erp.Application.Procurement.Implementation
 {

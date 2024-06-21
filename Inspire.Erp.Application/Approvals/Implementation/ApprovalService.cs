@@ -1,5 +1,6 @@
 ﻿using Inspire.Erp.Application.Approvals.Interface;
 using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Entities.POS;
 using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Models.Approvals;
