@@ -62,12 +62,6 @@ namespace Inspire.Erp.Web.Controllers.POS
             return Ok(await itemMasterService.GetItems(barCode));
         }
 
-        [HttpGet]
-        [Route("PrintReciept")]
-        public async Task<IActionResult> PrintReciept(string voucherNo)
-        {
-            return Ok(await itemMasterService.PrintReciept(voucherNo));
-        }
 
 
         [HttpGet]
@@ -398,7 +392,29 @@ namespace Inspire.Erp.Web.Controllers.POS
         }
 
         #endregion
+        #region  "Text Print Reports"
 
+        [HttpGet]
+        [Route("PrintReciept")]
+        public async Task<IActionResult> PrintReciept(string voucherNo)
+        {
+            return Ok(await itemMasterService.PrintReciept(voucherNo));
+        }
+
+        [HttpGet]
+        [Route("TodaySaleBills")]
+        public async Task<IActionResult> TodaySaleBills(DateTime fromDate, DateTime toDate, int wpId, int stationId)
+        {
+            return Ok(await itemMasterService.TodaySaleBills(fromDate, toDate, wpId, stationId));
+        }
+
+        [HttpGet]
+        [Route("zReport")]
+        public async Task<IActionResult> zReport(DateTime fromDate, DateTime toDate, int wpId, int stationId)
+        {
+            return Ok(await itemMasterService.ZReport(fromDate, toDate, wpId, stationId));
+        }
+        #endregion
 
 
     }

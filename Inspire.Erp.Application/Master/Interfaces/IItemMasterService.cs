@@ -38,7 +38,6 @@ namespace Inspire.Erp.Application.Master
         public Task<Response<POS_WorkPeriod>> GetWorkPeriod(WorkPeriodFilter model);
         public Task<Response<List<ItemMasterResponse>>> GetItems(string? barCode);
 
-        public Task<PrintData> PrintReciept(string voucherNo);
 
         public Task<Response<List<CardType>>> GetCardTypes();
         public Task<Response<ItemMasterResponse>> SearchItemByUnitDetailsId(ItemBarCodeSearchFilter model);
@@ -51,6 +50,14 @@ namespace Inspire.Erp.Application.Master
         public Task<Response<bool>> ProcessCard(CardRequest model);
         public Task<Response<bool>> Hold(CardRequest model);
         public Task<Response<CardAmountResponse>> ProcessCashTransaction(CardRequest model);
+
+        public Task<PrintData> PrintReciept(string voucherNo);
+
+        public Task<PrintData> TodaySaleBills(DateTime fromDate, DateTime toDate, int wpId, int stationId);
+
+
+        public Task<PrintData> ZReport(DateTime fromDate, DateTime toDate, int wpId, int stationId);
+
 
     }
 }

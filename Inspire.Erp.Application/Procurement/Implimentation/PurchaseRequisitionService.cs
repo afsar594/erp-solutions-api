@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using Inspire.Erp.Infrastructure.Database;
 using SendGrid.Helpers.Mail;
 using System.Linq.Dynamic.Core;
+using Inspire.Erp.Domain.Entities.POS;
 
 namespace Inspire.Erp.Application.Procurement.Implementation
 {
