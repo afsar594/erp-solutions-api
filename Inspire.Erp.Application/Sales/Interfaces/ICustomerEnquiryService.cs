@@ -24,6 +24,8 @@ namespace Inspire.Erp.Application.Sales.Interfaces
          
         public VouchersNumbers GetVouchersNumbers(string Qtno);
         public Task<Response<List<CustomerEnquiryReportResponse>>> GetCustomerEnquirySearch(CustomerEnquirySearchFilter filter);
+        public Task<Response<List<CustomerEnquiryReportResponse>>> getCustomerEnquirybyStatuss(CustomerEnquirySearchFilterStatus filter);
+
         public Task<IEnumerable<EnquiryNoDto>> GetAllEnquiryNo();
 
 

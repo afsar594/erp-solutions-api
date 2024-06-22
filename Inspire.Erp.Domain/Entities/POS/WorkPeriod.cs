@@ -6,6 +6,7 @@ namespace Inspire.Erp.Domain.Entities.POS
     public partial class POS_WorkPeriod
     {
         public long Id { get; set; }
+        public int PeriodId { get; set; }
         public string WorkPeriodName { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? Enddate { get; set; }

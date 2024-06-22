@@ -8,6 +8,7 @@ namespace Inspire.Erp.Domain.Modals
     public class WorkPeriodResponse
     {
         public long Id { get; set; }
+        public int PeriodId { get; set; }
         public string WorkPeriodName { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? Enddate { get; set; }
@@ -31,7 +32,7 @@ namespace Inspire.Erp.Domain.Modals
 
     public class SettlementDetailsRequest
     {
-       // public int Quantity { get; set; }
+        // public int Quantity { get; set; }
         public decimal Total { get; set; }
         //public decimal? NetAmount { get; set; }
         public decimal? VAT { get; set; }
@@ -50,9 +51,9 @@ namespace Inspire.Erp.Domain.Modals
     }
     public class CardAmountRequest
     {
-        
+
         public decimal? Cash { get; set; }
-        
+
         public int UserId { get; set; }
         public int? StationId { get; set; }
 
@@ -66,7 +67,7 @@ namespace Inspire.Erp.Domain.Modals
         public long? SalesVoucherId { get; set; }
         public DateTime? SettlementDate { get; set; }
         public int? UserId { get; set; }
-        public string  TransactionCode { get; set; }
+        public string TransactionCode { get; set; }
         public int? SortOrder { get; set; }
         public bool? ShowinInvoice { get; set; }
         public string Status { get; set; }
@@ -153,7 +154,7 @@ namespace Inspire.Erp.Domain.Modals
         public string TransactionCode { get; set; }
         public string TransactionDescription { get; set; }
         public bool? InHouse { get; set; }
-       
+
     }
 
     public class ItemDetail
@@ -161,7 +162,7 @@ namespace Inspire.Erp.Domain.Modals
         public int ItemId { get; set; }
         public string BarCode { get; set; }
         public string ItemName { get; set; }
-        public string UnitName{ get; set; }
+        public string UnitName { get; set; }
         public int UnitId { get; set; }
         public decimal? Quantity { get; set; }
         public decimal? Price { get; set; }
@@ -178,7 +179,7 @@ namespace Inspire.Erp.Domain.Modals
 
     //public class HoldRequest
     //{
-       
+
     //    public decimal? NetTotal { get; set; }
 
     //    public decimal? VAT { get; set; }
