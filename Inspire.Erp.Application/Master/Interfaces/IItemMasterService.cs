@@ -53,8 +53,12 @@ namespace Inspire.Erp.Application.Master
 
         public Task<PrintData> PrintReciept(string voucherNo);
 
-        public Task<PrintData> TodaySaleBills(DateTime fromDate, DateTime toDate, int wpId, int stationId);
+        public Task<PrintData> SummaryDateWise(DateTime fromDate, DateTime toDate, int wpId, int stationId);
+        public Task<PrintData> SummaryReport( int wpId, int stationId);
+        public Task<PrintData> DayEndReport(DateTime fromDate, DateTime toDate,int wpId, int stationId);
 
+        public Task<PrintData> TodayItemSales(DateTime fromDate, DateTime toDate, int wpId, int stationId);
+        public Task<PrintData> TransactionDateWise(DateTime fromDate, DateTime toDate, int wpId, int stationId);
 
         public Task<PrintData> ZReport(DateTime fromDate, DateTime toDate, int wpId, int stationId);
 

@@ -24299,6 +24299,19 @@ namespace Inspire.Erp.Infrastructure.Database
                 e.ToTable("POS_CashCardAmounts");
                 e.HasKey(x => x.Id);
             });
+
+            modelBuilder.Entity<POS_SalesReturn>(e =>
+            {
+                e.ToTable("POS_SalesReturn");
+                e.HasKey(x => x.Id);
+            });
+
+            modelBuilder.Entity<POS_SalesReturnDetails>(e =>
+            {
+                e.ToTable("POS_SalesReturnDetails");
+                e.HasKey(x => x.Id);
+            });
+
             modelBuilder.Entity<SalesRet_Master>(entity =>
             {
                 entity.HasNoKey();
