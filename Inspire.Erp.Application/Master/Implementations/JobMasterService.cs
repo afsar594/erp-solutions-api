@@ -1,5 +1,6 @@
 ﻿using Inspire.Erp.Domain.DTO.Job_Master;
 using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Infrastructure.Database;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,8 @@ namespace Inspire.Erp.Application.Master
         private IRepository<JobMasterJobDetails> jobdetailsRepository;
         private IRepository<JobMasterJobWiseBankGuarantees> jobBankGuaruRepository;
         private IRepository<JobDocuments> jobDocumentsRepository;
+        private IRepository<ProgramSettings> programsettingsRepository;
+        private IRepository<VouchersNumbers> voucherNumbersRepository;
 
         private IRepository<AccountsTransactions> accountsTransactionsRepository;
         private readonly InspireErpDBContext context;
@@ -27,7 +30,8 @@ namespace Inspire.Erp.Application.Master
             IRepository<JobMasterJobDetails> _jobdetailsRepository,
             IRepository<JobMasterJobWiseBankGuarantees> _jobBankGuaruRepository,
             IRepository<AccountsTransactions> _accountsTransactionsRepository,
-            InspireErpDBContext _context)
+            InspireErpDBContext _context,IRepository<ProgramSettings> _programsettingsRepository,
+            IRepository<VouchersNumbers> _voucherNumbersRepository)
         {
             jobrepository = _jobrepository;
             jobbudgetRepository = _jobbudgetRepository;
@@ -35,6 +39,9 @@ namespace Inspire.Erp.Application.Master
             jobBankGuaruRepository = _jobBankGuaruRepository;
             accountsTransactionsRepository = _accountsTransactionsRepository;
             context = _context;
+            programsettingsRepository = _programsettingsRepository;
+            voucherNumbersRepository = _voucherNumbersRepository;
+            
         }
         //public IEnumerable<JobMaster> InsertJob(JobMaster jobMaster)
         //{
@@ -147,39 +154,51 @@ namespace Inspire.Erp.Application.Master
         {
             try
             {
-               int jobId = (int)jobrepository.GetAsQueryable().Where(k => k.JobMasterJobId != null).Select(x => x.JobMasterJobId).Max();
+                jobrepository.BeginTransaction();
+                int jobId = (int)jobrepository.GetAsQueryable().Where(k => k.JobMasterJobId != null).Select(x => x.JobMasterJobId).Max();
                 if (jobId == null) { jobId = 1; } else { jobId = jobId + 1; }
-
                 jobMaster.JobMasterJobId = jobId;
+
+
+                string vNumber = this.GenerateVoucherNo(jobMaster.JobMasterJobDate).VouchersNumbersVNo;
+                jobMaster.JobMasterJobNo = vNumber;
+
               
-                jobMasterBudgetDetails.Select((x) =>
+             
+
+                jobMaster.JobMasterBudgetDetails.Select((x) =>
                 {
                     x.JobMasterBudgetDetailsJobId = jobId;
+                    x.JobMasterNo = vNumber;
                     return x;
                 }).ToList();
-                jobbudgetRepository.InsertList(jobMasterBudgetDetails);
+                //jobbudgetRepository.InsertList(jobMasterBudgetDetails);
 
-                jobMasterJobDetails.Select((x) =>
+                jobMaster.JobMasterJobDetails.Select((x) =>
                 {
                     x.JobMasterJobDetailsJobId = jobId;
+                    x.JobMasterNo = vNumber;
                     return x;
                 }).ToList();
-                jobdetailsRepository.InsertList(jobMasterJobDetails);
+                //jobdetailsRepository.InsertList(jobMasterJobDetails);
 
-                jobMasterJobWiseBankGuarantees.Select((x) =>
+                jobMaster.JobMasterJobWiseBankGuarantees.Select((x) =>
                 {
                     x.JobMasterJobWiseBankGuaranteesJobId = jobId;
+                    x.JobMasterNo = vNumber;
                     return x;
                 }).ToList();
 
-                jobBankGuaruRepository.InsertList(jobMasterJobWiseBankGuarantees);
+                // jobBankGuaruRepository.InsertList(jobMasterJobWiseBankGuarantees);
+
                 jobrepository.Insert(jobMaster);
+                jobrepository.TransactionCommit();
 
                 return this.GetSavedJobMasterDetails(jobMaster.JobMasterJobNo);
             }
             catch (Exception ex)
             {
-
+                jobrepository.TransactionRollback();
                 throw;
             }
         }
@@ -238,5 +257,34 @@ namespace Inspire.Erp.Application.Master
         {
             jobDocumentsRepository.Insert(jobDocumnet);
         }
+
+        public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
+        {
+            try
+            {
+                //var prefix = this.programsettingsRepository.GetAsQueryable().Where(k => k.ProgramSettingsKeyValue == Prefix.ContraVoucher_Prefix).FirstOrDefault().ProgramSettingsTextValue;
+                int vnoMaxVal = Convert.ToInt32(voucherNumbersRepository.GetAsQueryable()
+                                                        .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == VoucherType.JobMasterVoucher_TYPE)
+                                                        .DefaultIfEmpty()
+                                                        .Max(o => o == null ? 0 : o.VouchersNumbersVNoNu)) + 1;
+                VouchersNumbers vouchersNumbers = new VouchersNumbers
+                {
+                    VouchersNumbersVNo = "JM" + vnoMaxVal,
+                    VouchersNumbersVNoNu = vnoMaxVal,
+                    VouchersNumbersVType = VoucherType.JobMasterVoucher_TYPE,
+                    VouchersNumbersFsno = 1,
+                    VouchersNumbersStatus = AccountStatus.Pending,
+                    VouchersNumbersVoucherDate = VoucherGenDate
+
+                };
+                voucherNumbersRepository.Insert(vouchersNumbers);
+                return vouchersNumbers;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 }

@@ -27,6 +27,9 @@ using System.Globalization;
 using Spire.Pdf.Exporting.XPS.Schema;
 using Microsoft.VisualBasic.FileIO;
 using System.Diagnostics.Eventing.Reader;
+using System.Collections;
+using System.Xml.Linq;
+using Microsoft.AspNetCore.Http;
 
 namespace Inspire.Erp.Application.Master
 {
@@ -59,6 +62,12 @@ namespace Inspire.Erp.Application.Master
         private IRepository<AccountsTransactions> accTransRepo;
         private IRepository<Inspire.Erp.Domain.Entities.GeneralSettings> gSettingRepo;
         private IRepository<PosStationSettings> stationSettingsRepo;
+        private IRepository<POS_CashCardAmounts> posCashCardAmountRepo;
+        private readonly IRepository<UserFile> _userFile;
+        private readonly IRepository<SalesManMaster> _saleMan;
+
+        private readonly IRepository<POS_SalesReturn> _saleReturnRepo;
+        private readonly IRepository<POS_SalesReturnDetails> _saleReturnDetailsRepo;
         public ItemMasterService(IRepository<ItemMaster> _itemrepository, IRepository<ItemStockType> _itemStockRepository, IRepository<UnitDetails> unitDetailsRepo
             , IRepository<VendorMaster> _vendorrepository
             , IRepository<PurchaseVoucherDetails> _purchVouchDetailsRepo
@@ -84,7 +93,11 @@ namespace Inspire.Erp.Application.Master
              , IRepository<POS_Temp_SalesVoucher> _posTempSalesVoucherRepo
              , IRepository<POS_Temp_SalesVoucherDetails> _posTempSalesVoucherDetailsRepo
             , IRepository<PosStationSettings> _stationSettingsRepo
-
+            , IRepository<POS_CashCardAmounts> _posCashCardAmountRepo
+            , IRepository<UserFile> userFile
+            , IRepository<SalesManMaster> saleMan
+            , IRepository<POS_SalesReturn> saleReturnRepo
+        , IRepository<POS_SalesReturnDetails> saleReturnDetailsRepo
             )
         {
             itemrepository = _itemrepository;
@@ -114,6 +127,11 @@ namespace Inspire.Erp.Application.Master
             posTempSalesVoucherRepo = _posTempSalesVoucherRepo;
             posTempSalesVoucherDetailsRepo = _posTempSalesVoucherDetailsRepo;
             stationSettingsRepo = _stationSettingsRepo;
+            posCashCardAmountRepo = _posCashCardAmountRepo;
+            _userFile = userFile;
+            _saleMan = saleMan;
+            _saleReturnRepo = saleReturnRepo;
+            _saleReturnDetailsRepo = saleReturnDetailsRepo;
         }
         public IEnumerable<ItemMaster> InsertItem(ItemMaster itemMaster)
         {
@@ -339,36 +357,6 @@ namespace Inspire.Erp.Application.Master
             }
             return itemMaster;
 
-        }
-
-        public async Task<Response<itemAvgPrice>> GetAveragePrice(int id)
-        {
-            try
-            {
-                var stockData = await stockRegisterRepo.GetAsQueryable()
-                    .Where(a => a.StockRegisterMaterialID == id)
-                    .ToListAsync();
-                var itemAvgPrice = stockData
-                    .GroupBy(c => c.StockRegisterMaterialID)
-                    .Select(x => new itemAvgPrice
-                    {
-                        ItemMasterItemId = (int)x.Key,
-                        stockIn = x.Sum(a => a.StockRegisterSIN ?? 0),
-                        InAmount = x.Where(a => a.StockRegisterSIN > 0).Sum(a => a.StockRegisterAmount ?? 0),
-                        stockout = x.Sum(a => Math.Abs(a.StockRegisterSout ?? 0)),
-                    }).FirstOrDefault();
-                 
-                if (itemAvgPrice == null)
-                {
-                    return new Response<itemAvgPrice> { Message = "No record found for material ID: " + id };
-                }
-
-                return new Response<itemAvgPrice> { Result = itemAvgPrice };
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
         }
 
 
@@ -1081,6 +1069,1672 @@ namespace Inspire.Erp.Application.Master
             }
         }
 
+        public async Task<PrintData> TransactionDateWise(DateTime fromDate, DateTime toDate, int wpId, int stationId)
+        {
+            try
+            {
+                DateTime dateTime = new DateTime();
+                DateTimeFormatInfo dateFormat = new DateTimeFormatInfo();
+                dateFormat.MonthDayPattern = "MMMM";
+                string fDate = fromDate.ToString("MMMM:dd:yyyy", dateFormat);
+                string EDate = toDate.ToString("MMMM:dd:yyyy", dateFormat);
+
+                string strDate = dateTime.ToString("MMMM,dd,yyyy,  HH:mm", dateFormat);
+
+                var stationSett = stationSettingsRepo.GetAsQueryable().FirstOrDefault(o => o.Id == stationId);
+
+
+                StringBuilder StrRen = new StringBuilder();
+
+                string eClear = Strings.Chr(27) + "@";
+                string eCentre = Strings.Chr(27) + Strings.Chr(97) + "1";
+                string eLeft = Strings.Chr(27) + Strings.Chr(97) + "0";
+                string eRight = Strings.Chr(27) + Strings.Chr(97) + "2";
+                string eDrawer = eClear + Strings.Chr(27) + "p" + Strings.Chr(0) + ".}";
+                string eCut = Strings.Chr(27) + "i" + Constants.vbCrLf;
+                string eSmlText = Strings.Chr(27) + "!" + Strings.Chr(1);
+                string eNmlText = Strings.Chr(27) + "!" + Strings.Chr(0);
+                string eInit = eNmlText + Strings.Chr(13) + Strings.Chr(27) + "c6" + Strings.Chr(1) + Strings.Chr(27) + "R3" + Constants.vbCrLf;
+                string eBigCharOn = Strings.Chr(27) + "!" + Strings.Chr(56);
+                string eBigCharOff = Strings.Chr(27) + "!" + Strings.Chr(0);
+                string CreateNewLine;
+                string eBigCharOn1 = Strings.Chr(27) + "!" + Strings.Chr(50);
+                string eBigCharOn2 = Strings.Chr(27) + "!" + Strings.Chr(40);
+                string eBigCharOn3 = Strings.Chr(27) + "!" + Strings.Chr(33);
+
+                string g_Total_hd = "G.Total";
+                string paymentMode = "Description";
+
+                StrRen.AppendLine(eCentre + eBigCharOn3 + strDate);
+                StrRen.AppendLine(eBigCharOff + "------------------------------------------");
+                StrRen.AppendLine(eCentre + eBigCharOn2 + stationSett.StationName.Replace("'", "''"));
+                StrRen.AppendLine(eCentre + eBigCharOn3 + stationSett.PrintHeader1);
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+                StrRen.AppendLine(eCentre + eBigCharOn + "DAY END REPORT");
+                StrRen.AppendLine(eBigCharOff + "------------------------------------------");
+                StrRen.AppendLine(eLeft + eBigCharOn2  + paymentMode.PadRight(1) +  g_Total_hd.PadLeft(23 - paymentMode.Length) );
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+
+                var cashSales = (from sv in posSalesTranDetailsRepo.GetAsQueryable()
+                                 where sv.PaymentMode.Trim().ToUpper() == "CAS"
+                                   && (sv.InvoiceDate <= toDate && sv.InvoiceDate >= fromDate)
+                                 group sv by 1 into og
+                                 select new
+                                 {
+                                     Total = og.Sum(item => item.Amount),
+                                 }).FirstOrDefault().Total;
+
+                StrRen.AppendLine(eBigCharOff + eLeft + "Total Cash".PadRight(20) + Convert.ToDecimal(cashSales).ToString("0.00").PadLeft(25));
+
+
+                var cardSales = (from pst in posSalesTranDetailsRepo.GetAsQueryable()
+                                 join tc in transCodesRepo.GetAsQueryable() on pst.PaymentMode.Trim().ToUpper() equals tc.Trans_code.Trim().ToUpper()
+                                 join tgm in posTranGroupMasterRepo.GetAsQueryable() on tc.Trans_group equals tgm.Id
+                                 where tc.Trans_group == 3
+                                && (pst.InvoiceDate <= toDate && pst.InvoiceDate >= fromDate)
+                                 group pst by 1 into og
+                                 select new
+                                 {
+                                     Total = og.Sum(item => item.Amount)
+                                 }).FirstOrDefault().Total;
+
+                StrRen.AppendLine(eBigCharOff + eLeft + "Total Card".PadRight(20) + Convert.ToDecimal(cardSales).ToString("0.00").PadLeft(25));
+
+                var creditSales = (from sv in posSalesTranDetailsRepo.GetAsQueryable()
+                                 where sv.PaymentMode.Trim().ToUpper() == "CREDIT"
+                                   && (sv.InvoiceDate <= toDate && sv.InvoiceDate >= fromDate)
+                                 group sv by 1 into og
+                                 select new
+                                 {
+                                     Total = og.Sum(item => item.Amount),
+                                 }).FirstOrDefault().Total;
+
+                StrRen.AppendLine(eBigCharOff + eLeft + "Total Credit".PadRight(20) + Convert.ToDecimal(creditSales).ToString("0.00").PadLeft(25));
+
+                var saleReturnCashTotal = (from sv in _saleReturnRepo.GetAsQueryable()
+                                   where sv.VoucherType.Trim().ToUpper() == "CASH"
+                                     && (sv.ReturnDate <= toDate && sv.ReturnDate >= fromDate)
+                                   group sv by 1 into og
+                                   select new
+                                   {
+                                       Total = og.Sum(item => item.NetAmount),
+                                   }).FirstOrDefault().Total;
+
+                StrRen.AppendLine(eBigCharOff + eLeft + "Sales Return".PadRight(20) + Convert.ToDecimal(saleReturnCashTotal).ToString("0.00").PadLeft(25));
+                var saleReturnCreditTotal = (from sv in _saleReturnRepo.GetAsQueryable()
+                                           where sv.VoucherType.Trim().ToUpper() == "CREDIT"
+                                             && (sv.ReturnDate <= toDate && sv.ReturnDate >= fromDate)
+                                           group sv by 1 into og
+                                           select new
+                                           {
+                                               Total = og.Sum(item => item.NetAmount),
+                                           }).FirstOrDefault().Total;
+                StrRen.AppendLine(eBigCharOff + eLeft + "Sales Return-Credit".PadRight(20) + Convert.ToDecimal(saleReturnCreditTotal).ToString("0.00").PadLeft(25));
+
+                var discount = (from sv in posSalesVoucherRepo.GetAsQueryable()
+                                             where (sv.VoucherDate <= toDate && sv.VoucherDate >= fromDate)
+                                             group sv by 1 into og
+                                             select new
+                                             {
+                                                 Total = og.Sum(item => item.Discount),
+                                             }).FirstOrDefault().Total;
+
+                var dayTotal = (from sv in posSalesVoucherRepo.GetAsQueryable()
+                                where (sv.VoucherDate <= toDate && sv.VoucherDate >= fromDate)
+                                group sv by 1 into og
+                                select new
+                                {
+                                    Total = og.Sum(item => item.NetAmount) - og.Sum(item=>item.VatAmount),
+                                }).FirstOrDefault().Total;
+                StrRen.AppendLine(eBigCharOff + eLeft + "Total Sales".PadRight(20) + Convert.ToDecimal(dayTotal).ToString("0.00").PadLeft(25));
+                StrRen.AppendLine(eBigCharOff + eLeft + "Counter Cash".PadRight(20) + Convert.ToDecimal(cashSales).ToString("0.00").PadLeft(25));//may be extra
+                StrRen.AppendLine(eBigCharOff + eLeft + "Discount".PadRight(20) + Convert.ToDecimal(discount).ToString("0.00").PadLeft(25));
+               
+                var vatTotal = (from sv in posSalesTranDetailsRepo.GetAsQueryable()
+                                   where sv.PaymentMode.Trim().ToUpper() == "VAT"
+                                     && (sv.InvoiceDate <= toDate && sv.InvoiceDate >= fromDate)
+                                   group sv by 1 into og
+                                   select new
+                                   {
+                                       Total = og.Sum(item => item.Amount),
+                                   }).FirstOrDefault().Total;
+                StrRen.AppendLine(eBigCharOff + eLeft + "Vat Payable".PadRight(20) + Convert.ToDecimal(vatTotal).ToString("0.00").PadLeft(25));
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+                StrRen.AppendLine(eBigCharOn2 + eLeft + "Grand Total : ".PadRight(13) + Convert.ToDecimal(cashSales + cardSales).ToString("0.00").PadLeft(8));
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+                StrRen.AppendLine(eCentre + eBigCharOff + "END");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+
+               
+                StrRen.AppendLine(eCut);
+
+                return new PrintData
+                {
+                    PrinterName = stationSett.PrinterName,
+                    Data = StrRen.ToString()
+                };
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+
+        public async Task<PrintData> SummaryDateWise(DateTime fromDate, DateTime toDate, int wpId,int stationId)
+        {
+            try
+            {
+               
+                DateTimeFormatInfo dateFormat = new DateTimeFormatInfo();
+                dateFormat.MonthDayPattern = "MMMM";
+                string fDate = fromDate.ToString("MMMM:dd:yyyy", dateFormat);
+                string EDate = toDate.ToString("MMMM:dd:yyyy", dateFormat);
+
+                var stationSett = stationSettingsRepo.GetAsQueryable().FirstOrDefault(o => o.Id == stationId);
+
+
+                StringBuilder StrRen = new StringBuilder();
+
+                string eClear = Strings.Chr(27) + "@";
+                string eCentre = Strings.Chr(27) + Strings.Chr(97) + "1";
+                string eLeft = Strings.Chr(27) + Strings.Chr(97) + "0";
+                string eRight = Strings.Chr(27) + Strings.Chr(97) + "2";
+                string eDrawer = eClear + Strings.Chr(27) + "p" + Strings.Chr(0) + ".}";
+                string eCut = Strings.Chr(27) + "i" + Constants.vbCrLf;
+                string eSmlText = Strings.Chr(27) + "!" + Strings.Chr(1);
+                string eNmlText = Strings.Chr(27) + "!" + Strings.Chr(0);
+                string eInit = eNmlText + Strings.Chr(13) + Strings.Chr(27) + "c6" + Strings.Chr(1) + Strings.Chr(27) + "R3" + Constants.vbCrLf;
+                string eBigCharOn = Strings.Chr(27) + "!" + Strings.Chr(56);
+                string eBigCharOff = Strings.Chr(27) + "!" + Strings.Chr(0);
+                string CreateNewLine;
+                string eBigCharOn1 = Strings.Chr(27) + "!" + Strings.Chr(50);
+                string eBigCharOn2 = Strings.Chr(27) + "!" + Strings.Chr(40);
+                string eBigCharOn3 = Strings.Chr(27) + "!" + Strings.Chr(33);
+
+                StrRen.AppendLine(eBigCharOff + "------------------------------------------");
+                StrRen.AppendLine(eCentre + eBigCharOn3 + "SUMMARY REPORT");
+                StrRen.AppendLine(eBigCharOff + "------------------------------------------");
+
+                StrRen.AppendLine(eCentre + eBigCharOn3 + stationSett.StationName.Replace("'", "''"));
+
+                StrRen.AppendLine(eCentre + eBigCharOn3 + fDate);
+                StrRen.AppendLine(eCentre + eBigCharOn3 + toDate);
+
+                StrRen.AppendLine(eCentre + eBigCharOn3 + stationSett.PrintHeader1);
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+
+                StrRen.AppendLine(eCentre + eBigCharOn2 + "CASH PAYMENT");
+                StrRen.AppendLine(eBigCharOff + "------------------------------------------");
+
+                string billNo = "BillNo";
+                string paymentMode = "Payment";
+                string discount = "Discount";
+                string total = "Total";
+
+                StrRen.AppendLine(eLeft + eBigCharOff + billNo.PadRight(1) + paymentMode.PadLeft(21 - billNo.Length) + total.PadLeft(29 - billNo.Length));
+
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+
+                    string voucherNo;
+                    string mode="";
+                    string disc;
+                    string netAmount;
+                    double netTotal;
+                    double sumDisc=0;
+                    double sumNet=0;
+                var stVD = (from pst in posSalesTranDetailsRepo.GetAsQueryable()
+                            join sv in posSalesVoucherRepo.GetAsQueryable() on pst.InvoiceNo.Trim().ToUpper() equals sv.VoucherNo.Trim().ToUpper()
+                           where pst.Amount != 0 && sv.PaymentMode.Trim().ToUpper()=="CAS" && sv.StationID == stationId
+                             && (sv.VoucherDate <= toDate && sv.VoucherDate >= fromDate)
+                           select new
+                           {
+                               InvoiceNo = pst.InvoiceNo,
+                               PayMode = sv.PaymentMode,
+                               Discount = sv.Discount,
+                               Amount = pst.Amount,
+                               Id = pst.Id
+                           }).OrderBy(x => x.Id).AsQueryable();
+
+                var stVDOth = (from pst in posSalesTranDetailsRepo.GetAsQueryable()
+                            join sv in posSalesVoucherRepo.GetAsQueryable() on pst.InvoiceNo.Trim().ToUpper() equals sv.VoucherNo.Trim().ToUpper()
+                            where sv.Discount != 0 && pst.Amount == 0 && sv.PaymentMode.Trim().ToUpper() == "CAS" && sv.Voucher_Type.Trim().ToUpper() == "CASH" && sv.StationID == stationId
+                              && (sv.VoucherDate <= toDate && sv.VoucherDate >= fromDate)
+                            select new
+                            {
+                                InvoiceNo = pst.InvoiceNo,
+                                PayMode = sv.PaymentMode,
+                                Discount = sv.Discount,
+                                Amount = pst.Amount,
+                                Id = pst.Id
+                            }).OrderBy(x => x.Id).AsQueryable();
+
+                var stVFinal = stVD.Union(stVDOth);
+
+                foreach(var stV in stVFinal.ToList())
+                {
+                    voucherNo = stV.InvoiceNo;
+                    mode = "CASH";
+                    disc = Convert.ToDecimal(stV.Discount).ToString("0.00"); 
+                    netTotal = Convert.ToDouble(stV.Amount); 
+                    if(netTotal!=0)
+                    {
+                        netAmount = Convert.ToDecimal((netTotal)).ToString("0.00");
+                    }
+                    else
+                    {
+                        netAmount = "0.00";
+                    }
+                    StrRen.AppendLine(eLeft + eBigCharOff + voucherNo.PadRight(1) + mode.PadLeft(18 - voucherNo.Length) + netAmount.PadLeft(30 - mode.Length));
+                    sumDisc += Convert.ToDouble(stV.Discount);
+                    sumNet += Convert.ToDouble(netAmount);
+                }
+
+                StrRen.AppendLine(eBigCharOff + "-----------------------------------------------");
+                string sumDisc1 = Convert.ToDecimal(sumDisc).ToString("0.00");
+                string sumNet1 = Convert.ToDecimal(sumNet).ToString("0.00");
+                StrRen.AppendLine(eLeft + eBigCharOn3 + sumNet1.PadLeft(34 - mode.Length));
+                StrRen.AppendLine(eBigCharOff + "-----------------------------------------------");
+                StrRen.AppendLine(eCentre + eBigCharOn2 + "CARD PAYMENT");
+                StrRen.AppendLine(eBigCharOff + "------------------------------------------");
+                StrRen.AppendLine(eLeft + eBigCharOff + billNo.PadRight(1) + paymentMode.PadLeft(21 - billNo.Length) + total.PadLeft(29 - billNo.Length));
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+
+
+
+                var stD = (from pst in posSalesTranDetailsRepo.GetAsQueryable()
+                                  join tc in transCodesRepo.GetAsQueryable() on pst.PaymentMode.Trim().ToUpper() equals tc.Trans_code.Trim().ToUpper()
+                                  join sv in posSalesVoucherRepo.GetAsQueryable() on pst.InvoiceNo.Trim().ToUpper() equals sv.VoucherNo.Trim().ToUpper()
+                                  where pst.Amount != 0 && tc.Trans_group == 3 && sv.StationID == stationId
+                                    && (sv.VoucherDate <= toDate && sv.VoucherDate >=fromDate)
+                                  select new 
+                                  {
+                                      InvoiceNo = pst.InvoiceNo,
+                                      TransDiscription = tc.Trans_Description,
+                                      Discount = sv.Discount,
+                                      Amount = pst.Amount,
+                                      TransId=pst.Id
+                                  }).OrderBy(x => x.TransId).AsQueryable();
+
+                var stDOth = (from pst in posSalesTranDetailsRepo.GetAsQueryable()
+                           join tc in transCodesRepo.GetAsQueryable() on pst.PaymentMode.Trim().ToUpper() equals tc.Trans_code.Trim().ToUpper()
+                           join sv in posSalesVoucherRepo.GetAsQueryable() on pst.InvoiceNo.Trim().ToUpper() equals sv.VoucherNo.Trim().ToUpper()
+                           where sv.Discount!=0 && pst.Amount == 0 && sv.Voucher_Type=="CARD" && tc.Trans_group == 3 && sv.StationID == stationId
+                             && (sv.VoucherDate <= toDate && sv.VoucherDate >= fromDate)
+                           select new
+                           {
+                               InvoiceNo = pst.InvoiceNo,
+                               TransDiscription = tc.Trans_Description,
+                               Discount = sv.Discount,
+                               Amount = pst.Amount,
+                               TransId = pst.Id
+                           }).OrderBy(x => x.TransId).AsQueryable();
+
+                var stDFinal = stD.Union(stDOth);
+                string line = "12345678";
+                double sumCDisc=0;
+                double sumCNet=0;
+                foreach (var stV in stDFinal.ToList())
+                {
+                    voucherNo = stV.InvoiceNo;
+                    mode = stV.TransDiscription;
+                    disc = Convert.ToDecimal(stV.Discount).ToString("0.00");
+                    netTotal = Convert.ToDouble(stV.Amount);
+                    if (netTotal != 0)
+                    {
+                        netAmount = Convert.ToDecimal((netTotal)).ToString("0.00");
+                    }
+                    else
+                    {
+                        netAmount = "0.00";
+                    }
+                    StrRen.AppendLine(eLeft + eBigCharOff + voucherNo.PadRight(1) + mode.PadLeft(18 - voucherNo.Length) + netAmount.PadLeft(30 - mode.Length));
+                    sumCDisc += Convert.ToDouble(stV.Discount);
+                    sumCNet += Convert.ToDouble(netAmount);
+                }
+
+                StrRen.AppendLine(eBigCharOff + "-----------------------------------------------");
+                string sumCDisc1 = Convert.ToDecimal(sumCDisc).ToString("0.00");
+                string sumCNet1 = Convert.ToDecimal(sumCNet).ToString("0.00");
+                StrRen.AppendLine(eLeft + eBigCharOn3 + sumCNet1.PadLeft(41 -mode.Length));
+                StrRen.AppendLine(eBigCharOff + "-----------------------------------------------");
+
+                var stSV = (from  sv in posSalesVoucherRepo.GetAsQueryable() 
+                              where  sv.StationID == stationId
+                                && (sv.VoucherDate <= toDate && sv.VoucherDate >= fromDate)
+                            group sv by 1 into og
+                            select new
+                              {
+                                  Total = og.Sum(item => item.NetAmount),
+                                Excluded = og.Sum(item => item.NetAmount) - og.Sum(item => item.VatAmount) + og.Sum(item => item.Discount),
+                                VAT = og.Sum(item => item.VatAmount),
+                                Discount = og.Sum(item => item.Discount)
+                            }).FirstOrDefault();
+
+                string totalSales = "Total        : ";
+                string vatExcluded = "Gross Amount : ";
+                string vat = "Vat 5%       : ";
+                string disct = "Discount     : ";
+                string daytotal = Convert.ToDecimal(stSV.Total).ToString("0.00");
+                string excluded = Convert.ToDecimal(stSV.Excluded).ToString("0.00");
+                string vatTotal = Convert.ToDecimal(stSV.VAT).ToString("0.00");
+                string discTotal = Convert.ToDecimal(stSV.Discount).ToString("0.00");
+
+                StrRen.AppendLine(eBigCharOn3 + eLeft + vatExcluded.PadRight(13) + excluded.PadLeft(15));
+                StrRen.AppendLine(eBigCharOn3 + eLeft + vat.PadRight(13) + vatTotal.PadLeft(15));
+                StrRen.AppendLine(eBigCharOn3 + eLeft + disct.PadRight(13) + discTotal.PadLeft(15));
+                StrRen.AppendLine(eBigCharOn3 + eLeft + totalSales.PadRight(13) + daytotal.PadLeft(15));
+
+                StrRen.AppendLine(eCentre + eBigCharOff + "END");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine(eCut);
+
+                return new PrintData
+                {
+                    PrinterName = stationSett.PrinterName,
+                    Data = StrRen.ToString()
+                };
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        public async Task<PrintData> SummaryReport(
+            //DateTime fromDate, DateTime toDate,
+            int wpId, int stationId)
+        {
+            try
+            {
+
+                DateTimeFormatInfo dateFormat = new DateTimeFormatInfo();
+                dateFormat.MonthDayPattern = "MMMM";
+                DateTime dateTime = new DateTime();
+                dateTime = DateTime.Now;
+                string strDate = dateTime.ToString("MMMM,dd,yyyy,  HH:mm", dateFormat);
+
+                //string fDate = fromDate.ToString("MMMM:dd:yyyy", dateFormat);
+                //string EDate = toDate.ToString("MMMM:dd:yyyy", dateFormat);
+
+                var stationSett = stationSettingsRepo.GetAsQueryable().FirstOrDefault(o => o.Id == stationId);
+
+
+                StringBuilder StrRen = new StringBuilder();
+
+                string eClear = Strings.Chr(27) + "@";
+                string eCentre = Strings.Chr(27) + Strings.Chr(97) + "1";
+                string eLeft = Strings.Chr(27) + Strings.Chr(97) + "0";
+                string eRight = Strings.Chr(27) + Strings.Chr(97) + "2";
+                string eDrawer = eClear + Strings.Chr(27) + "p" + Strings.Chr(0) + ".}";
+                string eCut = Strings.Chr(27) + "i" + Constants.vbCrLf;
+                string eSmlText = Strings.Chr(27) + "!" + Strings.Chr(1);
+                string eNmlText = Strings.Chr(27) + "!" + Strings.Chr(0);
+                string eInit = eNmlText + Strings.Chr(13) + Strings.Chr(27) + "c6" + Strings.Chr(1) + Strings.Chr(27) + "R3" + Constants.vbCrLf;
+                string eBigCharOn = Strings.Chr(27) + "!" + Strings.Chr(56);
+                string eBigCharOff = Strings.Chr(27) + "!" + Strings.Chr(0);
+                string CreateNewLine;
+                string eBigCharOn1 = Strings.Chr(27) + "!" + Strings.Chr(50);
+                string eBigCharOn2 = Strings.Chr(27) + "!" + Strings.Chr(40);
+                string eBigCharOn3 = Strings.Chr(27) + "!" + Strings.Chr(33);
+
+                StrRen.AppendLine(eBigCharOff + "------------------------------------------");
+                StrRen.AppendLine(eCentre + eBigCharOn3 + "SUMMARY REPORT");
+                StrRen.AppendLine(eCentre + eBigCharOn3 + strDate);
+                StrRen.AppendLine(eBigCharOff + "-----------------------------------------------");
+
+                if (stationSett.PrintHeader1 != null)
+                {
+                    StrRen.AppendLine(eCentre + eBigCharOn2 + stationSett.PrintHeader1);
+                }
+                if (stationSett.PrintHeader2 != null)
+                {
+                    StrRen.AppendLine(eCentre + eBigCharOn3 + stationSett.PrintHeader2);
+                }
+                if (stationSett.PrintHeader3 != null)
+                {
+                    StrRen.AppendLine(eCentre + eBigCharOff + stationSett.PrintHeader3);
+                }
+                if (stationSett.PrintHeader4 != null)
+                {
+                    StrRen.AppendLine(eCentre + eBigCharOff + stationSett.PrintHeader4);
+                }
+
+                StrRen.AppendLine(eBigCharOff + "------------------------------------------------");
+                StrRen.AppendLine(eCentre + eBigCharOn2 + "CASH PAYMENT");
+                StrRen.AppendLine(eBigCharOff + "------------------------------------------");
+
+                string billNo = "BillNo";
+                string paymentMode = "Payment";
+                string discount = "Discount";
+                string total = "Total";
+
+                StrRen.AppendLine(eLeft + eBigCharOff + billNo.PadRight(1) + paymentMode.PadLeft(21 - billNo.Length) + total.PadLeft(29 - billNo.Length));
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+
+                string voucherNo;
+                string mode = "";
+                string disc;
+                string netAmount;
+                double netTotal;
+                double sumDisc = 0;
+                double sumNet = 0;
+                var stVD = (from pst in posSalesTranDetailsRepo.GetAsQueryable()
+                            join sv in posSalesVoucherRepo.GetAsQueryable() on pst.InvoiceNo.Trim().ToUpper() equals sv.VoucherNo.Trim().ToUpper()
+                            where pst.Amount != 0 && sv.PaymentMode.Trim().ToUpper() == "CAS" && sv.StationID == stationId
+                              //&& (sv.VoucherDate <= toDate && sv.VoucherDate >= fromDate)
+                            select new
+                            {
+                                InvoiceNo = pst.InvoiceNo,
+                                PayMode = sv.PaymentMode,
+                                Discount = sv.Discount,
+                                Amount = pst.Amount,
+                                Id = pst.Id
+                            }).OrderBy(x => x.Id).AsQueryable();
+
+                var stVDOth = (from pst in posSalesTranDetailsRepo.GetAsQueryable()
+                               join sv in posSalesVoucherRepo.GetAsQueryable() on pst.InvoiceNo.Trim().ToUpper() equals sv.VoucherNo.Trim().ToUpper()
+                               where sv.Discount != 0 && pst.Amount == 0 && sv.PaymentMode.Trim().ToUpper() == "CAS" && sv.Voucher_Type.Trim().ToUpper() == "CASH" && sv.StationID == stationId
+                                 //&& (sv.VoucherDate <= toDate && sv.VoucherDate >= fromDate)
+                               select new
+                               {
+                                   InvoiceNo = pst.InvoiceNo,
+                                   PayMode = sv.PaymentMode,
+                                   Discount = sv.Discount,
+                                   Amount = pst.Amount,
+                                   Id = pst.Id
+                               }).OrderBy(x => x.Id).AsQueryable();
+
+                var stVFinal = stVD.Union(stVDOth);
+
+                foreach (var stV in stVFinal.OrderBy(x=>x.InvoiceNo).ToList())
+                {
+                    voucherNo = stV.InvoiceNo;
+                    mode = "CASH";
+                    disc = Convert.ToDecimal(stV.Discount).ToString("0.00");
+                    netTotal = Convert.ToDouble(stV.Amount);
+                    if (netTotal != 0)
+                    {
+                        netAmount = Convert.ToDecimal((netTotal)).ToString("0.00");
+                    }
+                    else
+                    {
+                        netAmount = "0.00";
+                    }
+                    StrRen.AppendLine(eLeft + eBigCharOff + voucherNo.PadRight(1) + mode.PadLeft(18 - voucherNo.Length) + netAmount.PadLeft(30 - mode.Length));
+                    sumDisc += Convert.ToDouble(stV.Discount);
+                    sumNet += Convert.ToDouble(netAmount);
+                }
+
+                StrRen.AppendLine(eBigCharOff + "-----------------------------------------------");
+                string sumDisc1 = Convert.ToDecimal(sumDisc).ToString("0.00");
+                string sumNet1 = Convert.ToDecimal(sumNet).ToString("0.00");
+                StrRen.AppendLine(eLeft + eBigCharOn3 + sumNet1.PadLeft(34 - mode.Length));
+                StrRen.AppendLine(eBigCharOff + "-----------------------------------------------");
+                StrRen.AppendLine(eCentre + eBigCharOn2 + "CARD PAYMENT");
+                StrRen.AppendLine(eBigCharOff + "------------------------------------------");
+                StrRen.AppendLine(eLeft + eBigCharOff + billNo.PadRight(1) + paymentMode.PadLeft(21 - billNo.Length) + total.PadLeft(29 - billNo.Length));
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+
+
+
+                var stD = (from pst in posSalesTranDetailsRepo.GetAsQueryable()
+                           join tc in transCodesRepo.GetAsQueryable() on pst.PaymentMode.Trim().ToUpper() equals tc.Trans_code.Trim().ToUpper()
+                           join sv in posSalesVoucherRepo.GetAsQueryable() on pst.InvoiceNo.Trim().ToUpper() equals sv.VoucherNo.Trim().ToUpper()
+                           where pst.Amount != 0 && tc.Trans_group == 3 && sv.StationID == stationId
+                             //&& (sv.VoucherDate <= toDate && sv.VoucherDate >= fromDate)
+                           select new
+                           {
+                               InvoiceNo = pst.InvoiceNo,
+                               TransDiscription = tc.Trans_Description,
+                               Discount = sv.Discount,
+                               Amount = pst.Amount,
+                               TransId = pst.Id
+                           }).OrderBy(x => x.TransId).AsQueryable();
+
+                var stDOth = (from pst in posSalesTranDetailsRepo.GetAsQueryable()
+                              join tc in transCodesRepo.GetAsQueryable() on pst.PaymentMode.Trim().ToUpper() equals tc.Trans_code.Trim().ToUpper()
+                              join sv in posSalesVoucherRepo.GetAsQueryable() on pst.InvoiceNo.Trim().ToUpper() equals sv.VoucherNo.Trim().ToUpper()
+                              where sv.Discount != 0 && pst.Amount == 0 && sv.Voucher_Type == "CARD" && tc.Trans_group == 3 && sv.StationID == stationId
+                                //&& (sv.VoucherDate <= toDate && sv.VoucherDate >= fromDate)
+                              select new
+                              {
+                                  InvoiceNo = pst.InvoiceNo,
+                                  TransDiscription = tc.Trans_Description,
+                                  Discount = sv.Discount,
+                                  Amount = pst.Amount,
+                                  TransId = pst.Id
+                              }).OrderBy(x => x.TransId).AsQueryable();
+
+                var stDFinal = stD.Union(stDOth);
+                string line = "12345678";
+                double sumCDisc = 0;
+                double sumCNet = 0;
+                foreach (var stV in stDFinal.OrderBy(x => x.InvoiceNo).ToList())
+                {
+                    voucherNo = stV.InvoiceNo;
+                    mode = stV.TransDiscription;
+                    disc = Convert.ToDecimal(stV.Discount).ToString("0.00");
+                    netTotal = Convert.ToDouble(stV.Amount);
+                    if (netTotal != 0)
+                    {
+                        netAmount = Convert.ToDecimal((netTotal)).ToString("0.00");
+                    }
+                    else
+                    {
+                        netAmount = "0.00";
+                    }
+                    StrRen.AppendLine(eLeft + eBigCharOff + voucherNo.PadRight(1) + mode.PadLeft(18 - voucherNo.Length) + netAmount.PadLeft(30 - mode.Length));
+                    sumCDisc += Convert.ToDouble(stV.Discount);
+                    sumCNet += Convert.ToDouble(netAmount);
+                }
+
+                StrRen.AppendLine(eBigCharOff + "-----------------------------------------------");
+                string sumCDisc1 = Convert.ToDecimal(sumCDisc).ToString("0.00");
+                string sumCNet1 = Convert.ToDecimal(sumCNet).ToString("0.00");
+                StrRen.AppendLine(eLeft + eBigCharOn3 + sumCNet1.PadLeft(41 - mode.Length));
+                StrRen.AppendLine(eBigCharOff + "-----------------------------------------------");
+
+                var stSV = (from sv in posSalesVoucherRepo.GetAsQueryable()
+                            where sv.StationID == stationId
+                              //&& (sv.VoucherDate <= toDate && sv.VoucherDate >= fromDate)
+                            group sv by 1 into og
+                            select new
+                            {
+                                Total = og.Sum(item => item.NetAmount),
+                                Excluded = og.Sum(item => item.NetAmount) - og.Sum(item => item.VatAmount) + og.Sum(item => item.Discount),
+                                VAT = og.Sum(item => item.VatAmount),
+                                Discount = og.Sum(item => item.Discount)
+                            }).FirstOrDefault();
+
+                string totalSales = "Total        : ";
+                string vatExcluded = "Gross Amount : ";
+                string vat = "Vat 5%       : ";
+                string disct = "Discount     : ";
+                string daytotal = Convert.ToDecimal(stSV.Total).ToString("0.00");
+                string excluded = Convert.ToDecimal(stSV.Excluded).ToString("0.00");
+                string vatTotal = Convert.ToDecimal(stSV.VAT).ToString("0.00");
+                string discTotal = Convert.ToDecimal(stSV.Discount).ToString("0.00");
+
+                StrRen.AppendLine(eBigCharOn3 + eLeft + vatExcluded.PadRight(13) + excluded.PadLeft(15));
+                StrRen.AppendLine(eBigCharOn3 + eLeft + vat.PadRight(13) + vatTotal.PadLeft(15));
+                StrRen.AppendLine(eBigCharOn3 + eLeft + disct.PadRight(13) + discTotal.PadLeft(15));
+                StrRen.AppendLine(eBigCharOn3 + eLeft + totalSales.PadRight(13) + daytotal.PadLeft(15));
+
+                StrRen.AppendLine(eCentre + eBigCharOff + "END");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine(eCut);
+
+                return new PrintData
+                {
+                    PrinterName = stationSett.PrinterName,
+                    Data = StrRen.ToString()
+                };
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+
+
+
+        public async Task<PrintData> DayEndReport(DateTime fromDate, DateTime toDate,
+          int wpId, int stationId)
+        {
+            try
+            {
+
+                DateTimeFormatInfo dateFormat = new DateTimeFormatInfo();
+                dateFormat.MonthDayPattern = "MMMM";
+                DateTime dateTime = new DateTime();
+                dateTime = DateTime.Now;
+                string strDate = dateTime.ToString("MMMM,dd,yyyy,  HH:mm", dateFormat);
+
+                //string fDate = fromDate.ToString("MMMM:dd:yyyy", dateFormat);
+                //string EDate = toDate.ToString("MMMM:dd:yyyy", dateFormat);
+
+                var stationSett = stationSettingsRepo.GetAsQueryable().FirstOrDefault(o => o.Id == stationId);
+
+
+                StringBuilder StrRen = new StringBuilder();
+
+                string eClear = Strings.Chr(27) + "@";
+                string eCentre = Strings.Chr(27) + Strings.Chr(97) + "1";
+                string eLeft = Strings.Chr(27) + Strings.Chr(97) + "0";
+                string eRight = Strings.Chr(27) + Strings.Chr(97) + "2";
+                string eDrawer = eClear + Strings.Chr(27) + "p" + Strings.Chr(0) + ".}";
+                string eCut = Strings.Chr(27) + "i" + Constants.vbCrLf;
+                string eSmlText = Strings.Chr(27) + "!" + Strings.Chr(1);
+                string eNmlText = Strings.Chr(27) + "!" + Strings.Chr(0);
+                string eInit = eNmlText + Strings.Chr(13) + Strings.Chr(27) + "c6" + Strings.Chr(1) + Strings.Chr(27) + "R3" + Constants.vbCrLf;
+                string eBigCharOn = Strings.Chr(27) + "!" + Strings.Chr(56);
+                string eBigCharOff = Strings.Chr(27) + "!" + Strings.Chr(0);
+                string CreateNewLine;
+                string eBigCharOn1 = Strings.Chr(27) + "!" + Strings.Chr(50);
+                string eBigCharOn2 = Strings.Chr(27) + "!" + Strings.Chr(40);
+                string eBigCharOn3 = Strings.Chr(27) + "!" + Strings.Chr(33);
+
+                string paymentMode = "Description";
+                string cusName_hd = "Cust.Name";
+                string discnt_hd = "Nos.";
+                string g_Total_hd = "G.Total";
+
+                StrRen.AppendLine(eBigCharOff + "------------------------------------------");
+                StrRen.AppendLine(eCentre + eBigCharOn3 + "DAY END REPORT");
+                StrRen.AppendLine(eCentre + eBigCharOn3 + strDate);
+                StrRen.AppendLine(eBigCharOff + "-----------------------------------------------");
+
+                if (stationSett.PrintHeader1 != null)
+                {
+                    StrRen.AppendLine(eCentre + eBigCharOn2 + stationSett.PrintHeader1);
+                }
+                if (stationSett.PrintHeader2 != null)
+                {
+                    StrRen.AppendLine(eCentre + eBigCharOn3 + stationSett.PrintHeader2);
+                }
+                if (stationSett.PrintHeader3 != null)
+                {
+                    StrRen.AppendLine(eCentre + eBigCharOff + stationSett.PrintHeader3);
+                }
+                if (stationSett.PrintHeader4 != null)
+                {
+                    StrRen.AppendLine(eCentre + eBigCharOff + stationSett.PrintHeader4);
+                }
+
+                StrRen.AppendLine(eBigCharOff + "------------------------------------------------");
+
+                StrRen.AppendLine(eLeft + eBigCharOn2 + paymentMode.PadRight(1) + g_Total_hd.PadLeft(23 - paymentMode.Length));
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+
+          
+
+
+        
+
+                var cashSales = (from sv in posSalesTranDetailsRepo.GetAsQueryable()
+                                 where sv.PaymentMode.Trim().ToUpper() == "CAS"
+                                   && sv.WorkPeriodId == wpId
+                                 group sv by 1 into og
+                                 select new
+                                 {
+                                     Total = og.Sum(item => item.Amount),
+                                 }).FirstOrDefault().Total;
+
+                StrRen.AppendLine(eBigCharOff + eLeft + "Total Cash".PadRight(20) + Convert.ToDecimal(cashSales).ToString("0.00").PadLeft(25));
+
+
+                var cardSales = (from pst in posSalesTranDetailsRepo.GetAsQueryable()
+                                 join tc in transCodesRepo.GetAsQueryable() on pst.PaymentMode.Trim().ToUpper() equals tc.Trans_code.Trim().ToUpper()
+                                 join tgm in posTranGroupMasterRepo.GetAsQueryable() on tc.Trans_group equals tgm.Id
+                                 where tc.Trans_group == 3
+                                && (pst.WorkPeriodId == wpId)
+                                 group pst by 1 into og
+                                 select new
+                                 {
+                                     Total = og.Sum(item => item.Amount)
+                                 }).FirstOrDefault().Total;
+
+                StrRen.AppendLine(eBigCharOff + eLeft + "Total Card".PadRight(20) + Convert.ToDecimal(cardSales).ToString("0.00").PadLeft(25));
+
+                var creditSales = (from sv in posSalesTranDetailsRepo.GetAsQueryable()
+                                   where sv.PaymentMode.Trim().ToUpper() == "CREDIT"
+                                    && (sv.WorkPeriodId == wpId)
+                                   group sv by 1 into og
+                                   select new
+                                   {
+                                       Total = og.Sum(item => item.Amount),
+                                   }).FirstOrDefault().Total;
+
+                StrRen.AppendLine(eBigCharOff + eLeft + "Total Credit".PadRight(20) + Convert.ToDecimal(creditSales).ToString("0.00").PadLeft(25));
+
+                var saleReturnCashTotal = (from sv in _saleReturnRepo.GetAsQueryable()
+                                           where sv.VoucherType.Trim().ToUpper() == "CASH"
+                                             && (sv.WorkPeriodID == wpId)
+                                           group sv by 1 into og
+                                           select new
+                                           {
+                                               Total = og.Sum(item => item.NetAmount),
+                                           }).FirstOrDefault().Total;
+
+                StrRen.AppendLine(eBigCharOff + eLeft + "Sales Return".PadRight(20) + Convert.ToDecimal(saleReturnCashTotal).ToString("0.00").PadLeft(25));
+                var saleReturnCreditTotal = (from sv in _saleReturnRepo.GetAsQueryable()
+                                             where sv.VoucherType.Trim().ToUpper() == "CREDIT"
+                                               && (sv.WorkPeriodID == wpId)
+                                             group sv by 1 into og
+                                             select new
+                                             {
+                                                 Total = og.Sum(item => item.NetAmount),
+                                             }).FirstOrDefault().Total;
+                StrRen.AppendLine(eBigCharOff + eLeft + "Sales Return-Credit".PadRight(20) + Convert.ToDecimal(saleReturnCreditTotal).ToString("0.00").PadLeft(25));
+
+
+
+                var dayTotal = (from sv in posSalesVoucherRepo.GetAsQueryable()
+                                where (sv.WorkPeriodID == wpId)
+                                group sv by 1 into og
+                                select new
+                                {
+                                    Total = og.Sum(item => item.NetAmount) - og.Sum(item => item.VatAmount),
+                                }).FirstOrDefault().Total;
+                StrRen.AppendLine(eBigCharOff + eLeft + "Total Sales".PadRight(20) + Convert.ToDecimal(dayTotal).ToString("0.00").PadLeft(25));
+                StrRen.AppendLine(eBigCharOff + eLeft + "Counter Cash".PadRight(20) + Convert.ToDecimal(cashSales).ToString("0.00").PadLeft(25));
+
+                var receipts = (from sv in posSalesTranDetailsRepo.GetAsQueryable()
+                                where sv.PaymentMode.Trim().ToUpper() == "CAS"
+                                   && sv.WorkPeriodId == wpId
+                                   && sv.InvoiceNo.Trim().ToUpper().StartsWith("RV")
+                                group sv by 1 into og
+                                select new
+                                {
+                                    Total = og.Sum(item => item.Amount),
+                                }).FirstOrDefault().Total;
+
+                StrRen.AppendLine(eBigCharOff + eLeft + "Receipt Collection".PadRight(20) + Convert.ToDecimal(receipts).ToString("0.00").PadLeft(25));//may be extra
+
+                var discount = (from sv in posSalesVoucherRepo.GetAsQueryable()
+                                where sv.WorkPeriodID == wpId
+                                group sv by 1 into og
+                                select new
+                                {
+                                    Total = og.Sum(item => item.Discount),
+                                }).FirstOrDefault().Total;
+
+                StrRen.AppendLine(eBigCharOff + eLeft + "Discount".PadRight(20) + Convert.ToDecimal(discount).ToString("0.00").PadLeft(25));
+
+                var posVNs = (from sv in posSalesVoucherRepo.GetAsQueryable()
+                              where sv.Voucher_Type.Trim().ToUpper() == "CASH"
+                             && (sv.VoucherDate <= toDate && sv.VoucherDate >= fromDate)
+                              select sv.VoucherNo.Trim().ToUpper()).ToList();
+
+                var backOfficeCard = (from cra in posCashCardAmountRepo.GetAsQueryable()
+                                      where cra.VoucherType.Trim().ToUpper() == "SALES" &&
+                                      cra.EntryType.Trim().ToUpper() == "CARD"
+                                     && posVNs.Contains(cra.VoucherNumber.Trim().ToUpper())
+                                      group cra by 1 into og
+                                      select new
+                                      {
+                                          Total = og.Sum(item => item.RecievedAmount)
+                                      }).FirstOrDefault().Total;
+
+                var backOfficeCash = (from cra in posCashCardAmountRepo.GetAsQueryable()
+
+                                      where cra.VoucherType.Trim().ToUpper() == "SALES" &&
+                                      cra.EntryType.Trim().ToUpper() == "CASH"
+                                     && posVNs.Contains(cra.VoucherNumber.Trim().ToUpper())
+                                      group cra by 1 into og
+                                      select new
+                                      {
+                                          Total = og.Sum(item => item.RecievedAmount)
+                                      }).FirstOrDefault().Total;
+
+                var backofficeVatAmt = (from sv in posSalesVoucherRepo.GetAsQueryable()
+                                        where
+                                           (sv.VoucherDate <= toDate && sv.VoucherDate >= fromDate)
+                                        group sv by 1 into og
+                                        select new
+                                        {
+                                            VATTotal = og.Sum(item => item.VatAmount),
+                                        }).FirstOrDefault().VATTotal;
+
+
+                var vatTotal = (from sv in posSalesTranDetailsRepo.GetAsQueryable()
+                                where sv.PaymentMode.Trim().ToUpper() == "VAT"
+                                  && sv.WorkPeriodId == wpId
+                                group sv by 1 into og
+                                select new
+                                {
+                                    Total = og.Sum(item => item.Amount),
+                                }).FirstOrDefault().Total;
+
+          
+
+
+                if (backOfficeCash > 0)
+                    StrRen.AppendLine(eBigCharOff + eLeft + "Back Office Net Cash".PadRight(20) + Convert.ToDecimal(backOfficeCash).ToString("0.00").PadLeft(25));
+                if (backOfficeCard > 0)
+                    StrRen.AppendLine(eBigCharOff + eLeft + "Back Office Net Card".PadRight(20) + Convert.ToDecimal(backOfficeCard).ToString("0.00").PadLeft(25));
+
+                if (backofficeVatAmt > 0)
+                {
+                    vatTotal = vatTotal + backofficeVatAmt;
+                }
+
+
+                StrRen.AppendLine(eBigCharOff + eLeft + "Vat Payable".PadRight(20) + Convert.ToDecimal(vatTotal).ToString("0.00").PadLeft(25));
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+                StrRen.AppendLine(eBigCharOn2 + eLeft + "Grand Total : ".PadRight(13) + Convert.ToDecimal(cashSales + cardSales).ToString("0.00").PadLeft(9));
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+                StrRen.AppendLine(eCentre + eBigCharOff + "END");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine(eCut);
+
+                return new PrintData
+                {
+                    PrinterName = stationSett.PrinterName,
+                    Data = StrRen.ToString()
+                };
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        public async Task<PrintData> ZReport(DateTime fromDate, DateTime toDate, int wpId, int stationId)
+        {
+            try
+            {
+                DateTime dateTime = new DateTime();
+                dateTime = DateTime.Now;
+                DateTimeFormatInfo dateFormat = new DateTimeFormatInfo();
+                dateFormat.MonthDayPattern = "MMMM";
+                string fDate = fromDate.ToString("MMMM:dd:yyyy", dateFormat);
+                string EDate = toDate.ToString("MMMM:dd:yyyy", dateFormat);
+
+                string strDate = dateTime.ToString("MMMM,dd,yyyy,  HH:mm", dateFormat);
+                string cCreateStringitename = "";
+                string[] getItemName = new string[1];
+                string createstringqty="";
+                string billNo = "";
+                string cBillno = "";
+                string billNoC = "";
+                double GrandSaleTotal = 0;
+                double GrandSaleTotal_return = 0;
+                double GrandSaleDisc = 0;
+                double GrandCredit = 0;
+                double GrandCreditDisc = 0;
+                double GrandCard = 0;
+               
+                DateTime filesWritten = System.DateTime.Now;
+                int rptWidth_hd = 56;
+                string paymentMode = "Description";
+                string cusName_hd = "Cust.Name";
+                string discnt_hd = "Nos.";
+                string g_Total_hd = "G.Total";
+
+
+                var stationSett = stationSettingsRepo.GetAsQueryable().FirstOrDefault(o => o.Id == stationId);
+
+
+                StringBuilder StrRen = new StringBuilder();
+
+                string eClear = Strings.Chr(27) + "@";
+                string eCentre = Strings.Chr(27) + Strings.Chr(97) + "1";
+                string eLeft = Strings.Chr(27) + Strings.Chr(97) + "0";
+                string eRight = Strings.Chr(27) + Strings.Chr(97) + "2";
+                string eDrawer = eClear + Strings.Chr(27) + "p" + Strings.Chr(0) + ".}";
+                string eCut = Strings.Chr(27) + "i" + Constants.vbCrLf;
+                string eSmlText = Strings.Chr(27) + "!" + Strings.Chr(1);
+                string eNmlText = Strings.Chr(27) + "!" + Strings.Chr(0);
+                string eInit = eNmlText + Strings.Chr(13) + Strings.Chr(27) + "c6" + Strings.Chr(1) + Strings.Chr(27) + "R3" + Constants.vbCrLf;
+                string eBigCharOn = Strings.Chr(27) + "!" + Strings.Chr(56);
+                string eBigCharOff = Strings.Chr(27) + "!" + Strings.Chr(0);
+                string createNewLine;
+                string eBigCharOn1 = Strings.Chr(27) + "!" + Strings.Chr(50);
+                string eBigCharOn2 = Strings.Chr(27) + "!" + Strings.Chr(40);
+                string eBigCharOn3 = Strings.Chr(27) + "!" + Strings.Chr(33);
+
+                StrRen.AppendLine(eCentre + eBigCharOn2 + "Z REPORT");
+                StrRen.AppendLine(eCentre + eBigCharOn3 + strDate);
+                StrRen.AppendLine(eBigCharOff + "-----------------------------------------------");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+
+                StrRen.AppendLine(eCentre + eBigCharOn2 + stationSett.StationName.Replace("'", "''"));
+                StrRen.AppendLine(eCentre + eBigCharOn3 + stationSett.PrintHeader1);
+                StrRen.AppendLine(eBigCharOff + "------------------------------------------");
+                StrRen.AppendLine(eCentre + eBigCharOn2 + "DAY TRANSACTION REPORT");
+                StrRen.AppendLine(eCentre + eBigCharOn3 + strDate);
+                StrRen.AppendLine(eBigCharOff + "-----------------------------------------------");
+
+                if (stationSett.PrintHeader1 != null)
+                {
+                    StrRen.AppendLine(eCentre + eBigCharOn2 + stationSett.PrintHeader1);
+                }
+                if (stationSett.PrintHeader2 != default)
+                {
+                    StrRen.AppendLine(eCentre + eBigCharOn3 + stationSett.PrintHeader2);
+                }
+                if (stationSett.PrintHeader3 != default)
+                {
+                    StrRen.AppendLine(eCentre + eBigCharOff + stationSett.PrintHeader3);
+                }
+                if (stationSett.PrintHeader4 != default)
+                {
+                    StrRen.AppendLine(eCentre + eBigCharOff + stationSett.PrintHeader4);
+                }
+
+                StrRen.AppendLine(eBigCharOff + "------------------------------------------------");
+
+                StrRen.AppendLine(eLeft + eBigCharOn2 + paymentMode.PadRight(1) + g_Total_hd.PadLeft(23 - paymentMode.Length));
+                StrRen.AppendLine(eBigCharOff + "------------------------------------------------");
+
+                var cashSales = (from sv in posSalesTranDetailsRepo.GetAsQueryable()
+                            where sv.PaymentMode.Trim().ToUpper() == "CAS"
+                              && (sv.InvoiceDate <= toDate && sv.InvoiceDate >= fromDate)
+                            group sv by 1 into og
+                            select new
+                            {
+                                Total = og.Sum(item => item.Amount),
+                             }).FirstOrDefault().Total;
+
+                var creditSales = (from sv in posSalesTranDetailsRepo.GetAsQueryable()
+                                  where sv.PaymentMode.Trim().ToUpper() == "CUS"
+                                    && (sv.InvoiceDate <= toDate && sv.InvoiceDate >= fromDate)
+                                  group sv by 1 into og
+                                  select new
+                                  {
+                                      Total = og.Sum(item => item.Amount),
+                                  }).FirstOrDefault().Total;
+
+
+                var cardSales = (from pst in posSalesTranDetailsRepo.GetAsQueryable()
+                               join tc in transCodesRepo.GetAsQueryable() on pst.PaymentMode.Trim().ToUpper() equals tc.Trans_code.Trim().ToUpper()
+                               join tgm in posTranGroupMasterRepo.GetAsQueryable() on tc.Trans_group equals tgm.Id
+                               where tc.Trans_group == 3 
+                              && (pst.InvoiceDate <= toDate && pst.InvoiceDate >= fromDate)
+                               group pst by 1 into og
+                               select new
+                               {
+                                   Total = og.Sum(item => item.Amount)
+                               }).FirstOrDefault().Total;
+
+                        var posVNs = (from sv in posSalesVoucherRepo.GetAsQueryable()
+                              where sv.Voucher_Type.Trim().ToUpper() == "CASH"
+                             && (sv.VoucherDate <= toDate && sv.VoucherDate >= fromDate)
+                              select sv.VoucherNo.Trim().ToUpper()).ToList();
+
+                var backOfficeCard = (from cra in posCashCardAmountRepo.GetAsQueryable()
+                               
+                               where cra.VoucherType.Trim().ToUpper() == "SALES" &&
+                               cra.EntryType.Trim().ToUpper() == "CARD"
+                              && posVNs.Contains(cra.VoucherNumber.Trim().ToUpper())
+                               group cra by 1 into og
+                               select new
+                               {
+                                   Total = og.Sum(item => item.RecievedAmount)
+                               }).FirstOrDefault().Total;
+
+                var backOfficeCash = (from cra in posCashCardAmountRepo.GetAsQueryable()
+
+                                    where cra.VoucherType.Trim().ToUpper() == "SALES" &&
+                                    cra.EntryType.Trim().ToUpper() == "CASH"
+                                   && posVNs.Contains(cra.VoucherNumber.Trim().ToUpper())
+                                    group cra by 1 into og
+                                    select new
+                                    {
+                                        Total = og.Sum(item => item.RecievedAmount)
+                                    }).FirstOrDefault().Total;
+
+                var backofficeVatAmt = (from sv in posSalesVoucherRepo.GetAsQueryable()
+                                 where 
+                                    (sv.VoucherDate <= toDate && sv.VoucherDate >= fromDate)
+                                 group sv by 1 into og
+                                 select new
+                                 {
+                                     VATTotal = og.Sum(item => item.VatAmount),
+                                 }).FirstOrDefault().VATTotal;
+
+                var discount = (from sv in posSalesVoucherRepo.GetAsQueryable()
+                                where
+                                   (sv.VoucherDate <= toDate && sv.VoucherDate >= fromDate)
+                                group sv by 1 into og
+                                select new
+                                {
+                                    Discount = og.Sum(item => item.NetDiscount),
+                                }).FirstOrDefault();
+                //lated add discount in this
+                var dayTotal = (from sv in posSalesVoucherRepo.GetAsQueryable()
+                                where
+                                   (sv.VoucherDate <= toDate && sv.VoucherDate >= fromDate)
+                                group sv by 1 into og
+                                select new
+                                {
+                                    Total = og.Sum(item => item.NetAmount) - og.Sum(item => item.VatAmount),
+                                }).FirstOrDefault();
+
+
+                var vatTotal1 = (from sv in posSalesTranDetailsRepo.GetAsQueryable()
+                                 where sv.PaymentMode.Trim().ToUpper() == "VAT"
+                                   && (sv.InvoiceDate <= toDate && sv.InvoiceDate >= fromDate)
+                                 group sv by 1 into og
+                                 select new
+                                 {
+                                     Total = og.Sum(item => item.Amount),
+                                 }).FirstOrDefault().Total;
+
+                var cashfromCreditCustomer = (from sv in posSalesTranDetailsRepo.GetAsQueryable()
+                                 where sv.PaymentMode.Trim().ToUpper() == "CAS"
+                                   && (sv.InvoiceDate <= toDate && sv.InvoiceDate >= fromDate)
+                                   && sv.InvoiceNo.Trim().ToUpper().StartsWith("RV")
+                                 group sv by 1 into og
+                                 select new
+                                 {
+                                     Total = og.Sum(item => item.Amount),
+                                 }).FirstOrDefault().Total;
+
+                var posSVDVNs = (from sv in posSalesVoucherRepo.GetAsQueryable()
+                              where sv.StationID== stationId
+                             && (sv.VoucherDate <= toDate && sv.VoucherDate >= fromDate)
+                              select sv.VoucherNo.Trim().ToUpper()).ToList();
+
+
+                var itemDiscTotal = (from cra in posSalesVoucherDetailsRepo.GetAsQueryable()
+                                    where posSVDVNs.Contains(cra.VoucherNo.Trim().ToUpper())
+                                    group cra by 1 into og
+                                    select new
+                                    {
+                                        TotalDiscount = og.Sum(item => item.Discount)
+                                    }).FirstOrDefault().TotalDiscount;
+
+               
+
+                var posSVDUnitPQ = (from cra in posSalesVoucherDetailsRepo.GetAsQueryable()
+                              where posSVDVNs.Contains(cra.VoucherNo.Trim().ToUpper())
+                              group cra by 1 into og
+                              select new
+                              {
+                                  Total = og.Sum(item => item.UnitPrice * item.Sold_Qty)
+                              }).FirstOrDefault();
+
+
+                var posAmountCas = (from pst in posSalesTranDetailsRepo.GetAsQueryable()
+                               join sv in posSalesVoucherRepo.GetAsQueryable() on pst.InvoiceNo.Trim().ToUpper() equals sv.VoucherNo.Trim().ToUpper()
+                               where  sv.PaymentMode.Trim().ToUpper() == "CAS"
+                               && sv.StationID == stationId && sv.Description == "POS SALES"
+                                 && (pst.InvoiceDate <= toDate && pst.InvoiceDate >= fromDate)
+                               group pst by 1 into og
+                               select new
+                               {
+                                Amount = og.Sum(item => item.Amount)
+                               }).FirstOrDefault().Amount;
+
+                var posAmountDis = (from pst in posSalesTranDetailsRepo.GetAsQueryable()
+                                    join sv in posSalesVoucherRepo.GetAsQueryable() on pst.InvoiceNo.Trim().ToUpper() equals sv.VoucherNo.Trim().ToUpper()
+                                    where sv.PaymentMode.Trim().ToUpper() == "DIS"
+                                    && sv.StationID == stationId && sv.Description == "POS SALES"
+                                      && (pst.InvoiceDate <= toDate && pst.InvoiceDate >= fromDate)
+                                    group pst by 1 into og
+                                    select new
+                                    {
+                                        Amount = og.Sum(item => item.Amount)
+                                    }).FirstOrDefault().Amount;
+
+                var stdCashAmntGZ = (from pst in posSalesTranDetailsRepo.GetAsQueryable()
+                               join sv in posSalesVoucherRepo.GetAsQueryable() on pst.InvoiceNo.Trim().ToUpper() equals sv.VoucherNo.Trim().ToUpper()
+                               where pst.Amount > 0 && sv.PaymentMode.Trim().ToUpper() == "CAS"
+                               && sv.StationID == stationId && sv.Description == "POS SALES"
+                                 && (pst.InvoiceDate <= toDate && pst.InvoiceDate >= fromDate)
+                               select new
+                               {
+                                   InvoiceNo = pst.InvoiceNo,
+                                   CustomerName = sv.CustomerName,
+                                   Discount = sv.Discount,
+                                   Amount = pst.Amount
+                               }).AsQueryable();
+
+                var stdCashAmntLZ = (from pst in posSalesTranDetailsRepo.GetAsQueryable()
+                                     join sv in posSalesVoucherRepo.GetAsQueryable() on pst.InvoiceNo.Trim().ToUpper() equals sv.VoucherNo.Trim().ToUpper()
+                                     where pst.Amount < 0 && sv.PaymentMode.Trim().ToUpper() == "CAS"
+                                     && sv.StationID == stationId && sv.Description == "POS SALES"
+                                       && (pst.InvoiceDate <= toDate && pst.InvoiceDate >= fromDate)
+                                     select new
+                                     {
+                                         InvoiceNo = pst.InvoiceNo,
+                                         CustomerName = sv.CustomerName,
+                                         Discount = sv.Discount,
+                                         Amount = pst.Amount
+                                     }).ToList();
+
+
+
+                var posPaymentsM = (from sv in transCodesRepo.GetAsQueryable()
+                                 where sv.Trans_group ==3
+                                 select sv.Trans_code).ToList();
+
+                var stdSVWAmnt= (from pst in posSalesTranDetailsRepo.GetAsQueryable()
+                                     join sv in posSalesVoucherRepo.GetAsQueryable() on pst.InvoiceNo.Trim().ToUpper() equals sv.VoucherNo.Trim().ToUpper()
+                                     where pst.Amount > 0 && sv.PaymentMode.Trim().ToUpper() == "CAS"
+                                     && sv.StationID == stationId && sv.Description == "POS SALES"
+                                       && (pst.InvoiceDate <= toDate && pst.InvoiceDate >= fromDate)
+                                       && posPaymentsM.Contains(pst.PaymentMode.Trim().ToUpper())
+                                 select new
+                                     {
+                                         InvoiceNo = pst.InvoiceNo,
+                                         CustomerName = sv.CustomerName,
+                                         Discount = sv.Discount,
+                                         Amount = pst.Amount
+                                     }).AsQueryable();
+
+                var stdSVAmnt = (from pst in posSalesTranDetailsRepo.GetAsQueryable()
+                                  join sv in posSalesVoucherRepo.GetAsQueryable() on pst.InvoiceNo.Trim().ToUpper() equals sv.VoucherNo.Trim().ToUpper()
+                                  where pst.Amount > 0 && sv.PaymentMode.Trim().ToUpper() == "CAS"
+                                  && sv.StationID == stationId && sv.Description == "POS SALES"
+                                    && (pst.InvoiceDate <= toDate && pst.InvoiceDate >= fromDate)
+                                    && posPaymentsM.Contains(pst.PaymentMode.Trim().ToUpper())
+                                 group pst by 1 into og
+                                 select new
+                                 {
+                                     Amount = og.Sum(item => item.Amount)
+                                 }).FirstOrDefault();
+
+
+                var stdSVWAmntCredit = (from pst in posSalesTranDetailsRepo.GetAsQueryable()
+                                  join sv in posSalesVoucherRepo.GetAsQueryable() on pst.InvoiceNo.Trim().ToUpper() equals sv.VoucherNo.Trim().ToUpper()
+                                  where pst.Amount > 0 && sv.PaymentMode.Trim().ToUpper() == "CAS"
+                                  && sv.StationID == stationId && sv.Description == "POS SALES"
+                                    && (pst.InvoiceDate <= toDate && pst.InvoiceDate >= fromDate)
+                                    && pst.PaymentMode.Trim().ToUpper()=="CREDIT"
+                                  select new
+                                  {
+                                      InvoiceNo = pst.InvoiceNo,
+                                      CustomerName = sv.CustomerName,
+                                      Discount = sv.Discount,
+                                      Amount = pst.Amount
+                                  }).ToList();
+
+
+
+
+
+
+
+
+              
+        
+
+                StrRen.AppendLine(eBigCharOff +  eLeft + "Net Cash".PadRight(20) + Convert.ToDecimal(cashSales).ToString("0.00").PadLeft(25));
+                StrRen.AppendLine(eBigCharOff + eLeft + "Card Collection".PadRight(20) + Convert.ToDecimal(cardSales).ToString("0.00").PadLeft(25));
+                StrRen.AppendLine(eBigCharOff + eLeft + "Credit Payment".PadRight(20) + Convert.ToDecimal(creditSales).ToString("0.00").PadLeft(25));
+                StrRen.AppendLine(eBigCharOff + eLeft + "Tot.Item Disc.".PadRight(20) + Convert.ToDecimal(itemDiscTotal).ToString("0.00").PadLeft(25));
+                StrRen.AppendLine(eBigCharOff + eLeft + "Counter Cash".PadRight(20) + Convert.ToDecimal(cashSales).ToString("0.00").PadLeft(25));
+                if(cashfromCreditCustomer > 0)
+                    StrRen.AppendLine(eBigCharOff + eLeft + "Receipt Collection".PadRight(20) + Convert.ToDecimal(cashfromCreditCustomer).ToString("0.00").PadLeft(25));
+                StrRen.AppendLine(eBigCharOff + eLeft + "Discount".PadRight(20) + Convert.ToDecimal(discount).ToString("0.00").PadLeft(25));
+                if (backOfficeCash > 0)
+                    StrRen.AppendLine(eBigCharOff + eLeft + "Back Office Net Cash".PadRight(20) + Convert.ToDecimal(backOfficeCash).ToString("0.00").PadLeft(25));
+                if (backOfficeCard > 0)
+                    StrRen.AppendLine(eBigCharOff + eLeft + "Back Office Net Card".PadRight(20) + Convert.ToDecimal(backOfficeCard).ToString("0.00").PadLeft(25));
+
+                if(backofficeVatAmt > 0)
+                {
+                    vatTotal1 = vatTotal1 + backofficeVatAmt;
+                }
+                StrRen.AppendLine(eBigCharOff + eLeft + "Vat Payable".PadRight(20) + Convert.ToDecimal(vatTotal1).ToString("0.00").PadLeft(25));
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+                StrRen.AppendLine(eBigCharOn2 + eLeft + "Grand Total : ".PadRight(13) + Convert.ToDecimal(cashSales+cardSales).ToString("0.00").PadLeft(9));
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+                StrRen.AppendLine(eCentre + eBigCharOff + "END");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+                StrRen.AppendLine(eBigCharOff + eLeft + "Printed By   :  " + "userName");//to be changed
+                StrRen.AppendLine(eLeft + "Date      : " + strDate);
+                StrRen.AppendLine("------------------------------------------------");
+                StrRen.AppendLine("------------------------------------------------");
+                StrRen.AppendLine(eCentre + eBigCharOn2 + "SALES DETAILS");
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+                StrRen.AppendLine(eCentre + eBigCharOn3 + "CASH SALES");
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+                StrRen.AppendLine( eLeft + eBigCharOn2 + paymentMode.PadRight(1) + g_Total_hd.PadLeft(23-paymentMode.Length));
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+
+                decimal totalCashSales=0;
+                decimal totalDiscount=0;
+                foreach (var creditAmn in stdSVWAmntCredit)
+                {
+                    billNo = creditAmn.InvoiceNo;
+                    string customerName=creditAmn.CustomerName;
+                    totalDiscount = totalDiscount + (decimal)creditAmn.Discount;
+                    totalCashSales = totalCashSales + (decimal)creditAmn.Amount;
+                }
+                StrRen.AppendLine(eLeft  + eBigCharOff  + "Cash Sales    :" + Convert.ToDecimal(totalCashSales).ToString("0.00").PadLeft(36 - billNo.Length));
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+
+                StrRen.AppendLine(eBigCharOff + eLeft + "Discount Total: " + Convert.ToDecimal(posAmountDis).ToString("0.00").PadLeft(35 - billNo.Length));
+                StrRen.AppendLine(eBigCharOff + eLeft + "Cash Total    :  " + Convert.ToDecimal(posAmountCas).ToString("0.00").PadLeft(34 - billNo.Length));
+                StrRen.AppendLine("------------------------------------------------");
+                StrRen.AppendLine(eLeft + eInit + "Return Sales");
+                StrRen.AppendLine("------------------------------------------------");
+
+                decimal totalCashSalesReturn = 0;
+                foreach (var creditAmn in stdCashAmntLZ)
+                {
+                    billNo = creditAmn.InvoiceNo;
+                    string customerName = creditAmn.CustomerName;
+                    //totalDiscount = totalDiscount + creditAmn.Discount;
+                    totalCashSalesReturn = totalCashSalesReturn + (decimal)creditAmn.Amount;
+                }
+                StrRen.AppendLine(eBigCharOff + eLeft + "Sales Return         :  " + Convert.ToDecimal(totalCashSalesReturn).ToString("0.00").PadLeft(27 - billNo.Length));
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+                bool printCardSaleN = true;
+                if (printCardSaleN)
+                {
+                    StrRen.AppendLine(eCentre + eBigCharOff + "CARD SALE");
+                    StrRen.AppendLine(eCentre + eBigCharOff + "-----------------------------------------------");
+                    var stdCreditSales = (from pst in posSalesTranDetailsRepo.GetAsQueryable()
+                                      join sv in posSalesVoucherRepo.GetAsQueryable() on pst.InvoiceNo.Trim().ToUpper() equals sv.VoucherNo.Trim().ToUpper()
+                                      where  sv.StationID == stationId && sv.Description == "POS SALES"
+                                        && (pst.InvoiceDate <= toDate && pst.InvoiceDate >= fromDate)
+                                        && posPaymentsM.Contains(pst.PaymentMode.Trim().ToUpper())
+                                      select new
+                                      {
+                                          InvoiceNo = pst.InvoiceNo,
+                                          CustomerName = sv.CustomerName,
+                                          Discount = sv.Discount,
+                                          Amount = pst.Amount
+                                      }).ToList();
+                    decimal totalCCardSale = 0;
+                    foreach (var creditAmn in stdCreditSales)
+                    {
+                        billNo = creditAmn.InvoiceNo;
+                        string customerName = creditAmn.CustomerName;
+                        //totalDiscount = totalDiscount + creditAmn.Discount;
+                        totalCCardSale = totalCCardSale + (decimal)creditAmn.Amount;
+                    }
+                    StrRen.AppendLine(eLeft + eBigCharOff  +"Card Sales" + Convert.ToDecimal(totalCCardSale).ToString("0.00").PadLeft(41 - billNo.Length));
+                    StrRen.AppendLine(eCentre + eBigCharOff + "----------------------------------------------");
+                }
+
+                
+                var cardAmountSum = (from pst in posSalesTranDetailsRepo.GetAsQueryable()
+                                  join sv in posSalesVoucherRepo.GetAsQueryable() on pst.InvoiceNo.Trim().ToUpper() equals sv.VoucherNo.Trim().ToUpper()
+                                  where  sv.StationID == stationId && sv.Description == "POS SALES"
+                                    && (pst.InvoiceDate <= toDate && pst.InvoiceDate >= fromDate)
+                                    && posPaymentsM.Contains(pst.PaymentMode.Trim().ToUpper())
+                                 group pst by 1 into og
+                                 select new
+                                 {
+                                     Amount = og.Sum(item => item.Amount)
+                                 }).FirstOrDefault().Amount;
+
+                StrRen.AppendLine(eBigCharOff + eLeft + "Card Total   :  " + Convert.ToDecimal(cardAmountSum).ToString("0.00").PadLeft(35 - billNo.Length));
+                StrRen.AppendLine(eCentre + eBigCharOff + "----------------------------------------------");
+                StrRen.AppendLine("*************************************************");
+
+                StrRen.AppendLine(eCentre + eBigCharOn + "CREDIT SALE");
+                StrRen.AppendLine(eCentre + eBigCharOff + "-----------------------------------------------");
+
+                var loadCreditSales = (from pst in posSalesTranDetailsRepo.GetAsQueryable()
+                                        join sv in posSalesVoucherRepo.GetAsQueryable() on pst.InvoiceNo.Trim().ToUpper() equals sv.VoucherNo.Trim().ToUpper()
+                                        where sv.StationID == stationId && sv.Description == "POS SALES"
+                                          && (pst.InvoiceDate <= toDate && pst.InvoiceDate >= fromDate)
+                                          && pst.PaymentMode.Trim().ToUpper() == "CREDIT"
+                                        select new
+                                        {
+                                            InvoiceNo = pst.InvoiceNo,
+                                            CustomerName = sv.CustomerName,
+                                            Discount = sv.Discount,
+                                            Amount = pst.Amount
+                                        }).ToList();
+
+                decimal ccTotal = 0;
+                decimal ccDisc = 0;
+                foreach (var creditAmn in loadCreditSales)
+                {
+                    billNo = creditAmn.InvoiceNo;
+                    string customerName = creditAmn.CustomerName.Substring(0,12);
+
+                    ccDisc = ccDisc + (decimal)creditAmn.Discount;
+                    ccTotal = ccTotal + (decimal)creditAmn.Amount;
+                }
+
+                StrRen.AppendLine(eLeft + eBigCharOff + "Credit Sales" + Convert.ToDecimal(ccTotal).ToString("0.00").PadLeft(39 - billNo.Length));
+                StrRen.AppendLine("-----------------------------------------------");
+               
+
+                StrRen.AppendLine(eLeft + eBigCharOff + "Grand Total   :  " + Convert.ToDecimal(ccTotal).ToString("0.00").PadLeft(39 - billNo.Length));
+
+                StrRen.AppendLine("-----------------------------------------------");
+                StrRen.AppendLine(eCentre + eBigCharOff + "END");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+
+
+
+                string itemDescription = "Description";
+                string itemQty = "Quantity";
+                string itemAmount  = "Total Amount";
+
+                StrRen.AppendLine("------------------------------------------------");
+                StrRen.AppendLine(eBigCharOff + eLeft + "Printed By   :  " + "userName");//to be changed
+                StrRen.AppendLine(eLeft + "Date      : " + strDate);
+                StrRen.AppendLine("------------------------------------------------");
+                StrRen.AppendLine(eCentre + eBigCharOn2 + "ITEM WISE SALES DETAILS");
+                StrRen.AppendLine("------------------------------------------------");
+                StrRen.AppendLine(eBigCharOff + eLeft + itemDescription.PadRight(1) + itemQty.PadRight(30-itemDescription.Length) + itemAmount.PadLeft(29-itemDescription.Length));
+
+                var svdUDSV = (from pst in posSalesVoucherDetailsRepo.GetAsQueryable()
+                               join ud in _unitDetailsRepo.GetAsQueryable() on pst.ItemId equals ud.UnitDetailsItemId
+                               join sv in posSalesVoucherRepo.GetAsQueryable() on pst.VoucherNo.Trim().ToUpper() equals sv.VoucherNo.Trim().ToUpper()
+                               where (sv.VoucherDate <= toDate && sv.VoucherDate >= fromDate)
+                               group pst by new { pst.Description, pst.ItemId } into og
+                               select new
+                               {
+                                   Quantity = og.Sum(item => item.Sold_Qty),
+                                   Description = og.Key.Description,
+                                   Price = og.Sum(item => item.GrossAmt),
+                                   VAT = og.Sum(item => item.VatAmount),
+                               }).OrderByDescending(x=>x.Price).ToList();
+
+                decimal totalItemCash = 0;
+                decimal totVat = 0;
+                foreach (var creditAmn in svdUDSV)
+                {
+                    int pt = 0;
+                    if(creditAmn.Description.Length<20)
+                    {
+                        pt = 20 - creditAmn.Description.Length;
+                    }
+                    StrRen.AppendLine(eBigCharOff + eLeft + creditAmn.Description.Substring(0,20).PadLeft(15-itemDescription.Length) + creditAmn.Quantity.ToString().PadLeft(20 + pt - itemDescription.Length) + Convert.ToDecimal(creditAmn.Price).ToString("0.00").PadLeft(27 - itemDescription.Length));
+                    totalItemCash = totalItemCash + (decimal)creditAmn.Price;
+                    totVat = totVat + (decimal)creditAmn.VAT;
+                }
+
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+                StrRen.AppendLine(eLeft + eBigCharOff + "Total  " + Convert.ToDecimal(totalItemCash).ToString("0.00").PadLeft(49 - itemDescription.Length));
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+                StrRen.AppendLine(eLeft + eBigCharOff + "Total VAT " + Convert.ToDecimal(totVat).ToString("0.00").PadLeft(46 - itemDescription.Length));
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+                StrRen.AppendLine("");
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+                StrRen.AppendLine(eLeft + eBigCharOff + "Grand Total " + Convert.ToDecimal(totalItemCash + totVat).ToString("0.00").PadLeft(44 - itemDescription.Length));
+                StrRen.AppendLine("");
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+
+                StrRen.AppendLine(eCentre + eBigCharOff + "END");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+
+                string uSName = "User Name";
+                string uSShift = "Shift Name";
+                string uSAmount = "Total Amount";
+
+                StrRen.AppendLine("-----------------------------------------------");
+                StrRen.AppendLine(eLeft + eBigCharOff + "Printed By    : " + "uname");
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+                StrRen.AppendLine(eLeft + "Date          : " + strDate);
+                StrRen.AppendLine("----------------------------------------------");
+                StrRen.AppendLine(eCentre + eBigCharOn3 + "USER & SHIFT WISE SALES DETAILS");
+                StrRen.AppendLine(eLeft + eBigCharOff + "-----------------------------------------------");
+                StrRen.AppendLine(eLeft + eBigCharOff + uSName.PadRight(1) + uSShift.PadLeft(25 - uSName.Length) + uSAmount.PadLeft(30 -uSName.Length));
+                StrRen.AppendLine("----------------------------------------------");
+
+
+                var svdUserFile = (from uf in _userFile.GetAsQueryable()
+                                   join wp in workPeriodRepo.GetAsQueryable() on uf.UserId equals (long)wp.UserId
+                                   join sv in posSalesVoucherRepo.GetAsQueryable() on wp.Id equals (long)sv.WorkPeriodID
+                                   where (sv.VoucherDate <= toDate && sv.VoucherDate >= fromDate)
+                                   group sv by new { uf.LogInId, wp.WorkPeriodName } into og
+                                   select new
+                                   {
+                                       Amount = og.Sum(item => item.NetAmount),
+                                       UserName = og.Key.LogInId,
+                                       ShiftName = og.Key.WorkPeriodName
+                                   }).ToList();
+
+                decimal totalUserCash = 0;
+                foreach (var creditAmn in svdUserFile)
+                {
+                    StrRen.AppendLine(eBigCharOff + eLeft + (creditAmn.UserName.Trim()+ "            ").Substring(0, 15) + (creditAmn.ShiftName.Trim() + "            ").Substring(0, 15).PadLeft(22 - uSName.Length) + Convert.ToDecimal(creditAmn.Amount).ToString().PadLeft(24  - uSName.Length));
+                    totalUserCash = totalUserCash + (decimal)creditAmn.Amount;
+                }
+
+                StrRen.AppendLine("-----------------------------------------------");
+                StrRen.AppendLine(eLeft + eBigCharOff + "Total  " + Convert.ToDecimal(totalUserCash).ToString().PadLeft(47 - uSName.Length));
+                StrRen.AppendLine("-----------------------------------------------");
+                StrRen.AppendLine(eCentre + eBigCharOff + "END");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+
+
+                string paymentDesc = "Description";
+                string g_Total_Desc = "G.Total";
+                string payDesc = "Opening Balance";
+                string payDesc1 = "Net Cash";
+                StrRen.AppendLine("-----------------------------------------------");
+                StrRen.AppendLine(eLeft + eBigCharOff + "Printed By    : " + "uname");
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+                StrRen.AppendLine(eLeft + "Date          : " + strDate);
+                StrRen.AppendLine("----------------------------------------------");
+                StrRen.AppendLine(eCentre + eBigCharOn3 + "CASH STATEMENT DETAILS");
+                StrRen.AppendLine(eLeft + eBigCharOff + "-----------------------------------------------");
+                StrRen.AppendLine(eLeft + eBigCharOff + paymentDesc.PadRight(1) + g_Total_Desc.PadLeft(23 - paymentDesc.Length));
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+
+              
+                var oBBal = (from sv in workPeriodRepo.GetAsQueryable()
+                             where (sv.StartDate <= toDate && sv.StartDate >= fromDate)
+                             group sv by 1 into og
+                             select new
+                             {
+                                 OBbal = og.Sum(item => item.OpeningCash),
+                             }).FirstOrDefault().OBbal;
+
+                StrRen.AppendLine(eLeft + eBigCharOff + payDesc.PadRight(20) + Convert.ToDecimal(oBBal).ToString().PadLeft(25));
+                StrRen.AppendLine(eLeft + eBigCharOff + payDesc1.PadRight(20) + Convert.ToDecimal(cashSales).ToString().PadLeft(25));
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+                StrRen.AppendLine(eLeft + eBigCharOff + "Total  " + Convert.ToDecimal(oBBal + cashSales).ToString("0.00").PadLeft(40));
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+                StrRen.AppendLine(eCentre + eBigCharOff + "END");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+
+                string rptDesc = "Description";
+                string rtG_Total_Desc = "Amount";
+                StrRen.AppendLine("-----------------------------------------------");
+                StrRen.AppendLine(eLeft + eBigCharOff + "Printed By    : " + "uname");
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+                StrRen.AppendLine(eLeft + "Date          : " + strDate);
+                StrRen.AppendLine("----------------------------------------------");
+                StrRen.AppendLine(eCentre + eBigCharOn3 + "SALES TYPE REPORT ");
+                StrRen.AppendLine(eLeft + eBigCharOff + "-----------------------------------------------");
+                StrRen.AppendLine(eLeft + eBigCharOff + rptDesc.PadRight(1) + rtG_Total_Desc.PadLeft(23 - rptDesc.Length));
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+
+                var posSaleM = await (from ir in posSalesVoucherRepo.GetAsQueryable()
+                                      join ud in _saleMan.GetAsQueryable() on ir.Salesman equals ud.SalesManMasterSalesManId into umJoin
+                                      from umd in umJoin.DefaultIfEmpty()
+                                      where (ir.VoucherDate <= toDate && ir.VoucherDate >= fromDate)
+                                      group ir by new { umd.SalesManMasterSalesManName } into og
+                                      select new
+                                      {
+                                          Amount = og.Sum(item => item.NetAmount),
+                                          SalesMan = og.Key.SalesManMasterSalesManName
+                                      }).ToListAsync();
+
+                decimal totalSTCash = 0;
+                foreach (var creditAmn in posSaleM)
+                {
+                    StrRen.AppendLine(eBigCharOff + eLeft + creditAmn.SalesMan.Trim() + Convert.ToDecimal(creditAmn.Amount).ToString("0.00").PadLeft(34));
+                    totalSTCash = totalSTCash + (decimal)creditAmn.Amount;
+                }
+
+                StrRen.AppendLine(eBigCharOff + "------------------------------------------------");
+                StrRen.AppendLine(eLeft + eBigCharOff + "Total  " + Convert.ToDecimal(totalSTCash).ToString("0.00").PadLeft(40));
+                StrRen.AppendLine(eBigCharOff + "------------------------------------------------");
+                StrRen.AppendLine(eCentre + eBigCharOff + "END");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+      
+                StrRen.AppendLine(eCut);
+         
+                return new PrintData
+                {
+                    PrinterName = stationSett.PrinterName,
+                    Data = StrRen.ToString()
+                };
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        public async Task<PrintData> TodayItemSales(DateTime fromDate, DateTime toDate, int wpId, int stationId)
+        {
+            try
+            {
+                DateTime dateTime = new DateTime();
+                dateTime = DateTime.Now;
+                DateTimeFormatInfo dateFormat = new DateTimeFormatInfo();
+                dateFormat.MonthDayPattern = "MMMM";
+                string fDate = fromDate.ToString("MMMM:dd:yyyy", dateFormat);
+                string EDate = toDate.ToString("MMMM:dd:yyyy", dateFormat);
+                string strDate = dateTime.ToString("MMMM,dd,yyyy,  HH:mm", dateFormat);
+
+
+                string itemDescription = "Description";
+                string itemQty = "Quantity";
+                string itemAmount = "Total Amount";
+
+
+                var stationSett = stationSettingsRepo.GetAsQueryable().FirstOrDefault(o => o.Id == stationId);
+
+
+                StringBuilder StrRen = new StringBuilder();
+
+                string eClear = Strings.Chr(27) + "@";
+                string eCentre = Strings.Chr(27) + Strings.Chr(97) + "1";
+                string eLeft = Strings.Chr(27) + Strings.Chr(97) + "0";
+                string eRight = Strings.Chr(27) + Strings.Chr(97) + "2";
+                string eDrawer = eClear + Strings.Chr(27) + "p" + Strings.Chr(0) + ".}";
+                string eCut = Strings.Chr(27) + "i" + Constants.vbCrLf;
+                string eSmlText = Strings.Chr(27) + "!" + Strings.Chr(1);
+                string eNmlText = Strings.Chr(27) + "!" + Strings.Chr(0);
+                string eInit = eNmlText + Strings.Chr(13) + Strings.Chr(27) + "c6" + Strings.Chr(1) + Strings.Chr(27) + "R3" + Constants.vbCrLf;
+                string eBigCharOn = Strings.Chr(27) + "!" + Strings.Chr(56);
+                string eBigCharOff = Strings.Chr(27) + "!" + Strings.Chr(0);
+                string createNewLine;
+                string eBigCharOn1 = Strings.Chr(27) + "!" + Strings.Chr(50);
+                string eBigCharOn2 = Strings.Chr(27) + "!" + Strings.Chr(40);
+                string eBigCharOn3 = Strings.Chr(27) + "!" + Strings.Chr(33);
+                
+
+
+                StrRen.AppendLine("------------------------------------------------");
+                StrRen.AppendLine(eBigCharOff + eLeft + "Printed By   :  " + "userName");//to be changed
+                StrRen.AppendLine(eLeft + "Date      : " + strDate);
+                StrRen.AppendLine("------------------------------------------------");
+                StrRen.AppendLine(eCentre + eBigCharOn2 + "ITEM WISE SALES DETAILS");
+                StrRen.AppendLine("------------------------------------------------");
+                StrRen.AppendLine(eBigCharOff + eLeft + itemDescription.PadRight(1) + itemQty.PadRight(30-itemDescription.Length) + itemAmount.PadLeft(25-itemDescription.Length));
+                StrRen.AppendLine("------------------------------------------------");
+
+                var svdUDSV = (from pst in posSalesVoucherDetailsRepo.GetAsQueryable()
+                               join ud in _unitDetailsRepo.GetAsQueryable() on pst.ItemId equals ud.UnitDetailsItemId
+                               join sv in posSalesVoucherRepo.GetAsQueryable() on pst.VoucherNo.Trim().ToUpper() equals sv.VoucherNo.Trim().ToUpper()
+                               where (sv.VoucherDate <= toDate && sv.VoucherDate >= fromDate)
+                               group pst by new { pst.Description, pst.ItemId } into og
+                               select new
+                               {
+                                   Quantity = og.Sum(item => item.Sold_Qty),
+                                   Description = og.Key.Description,
+                                   Price = og.Sum(item => item.GrossAmt),
+                                   VAT = og.Sum(item => item.VatAmount),
+                               }).OrderByDescending(x => x.Price).ToList();
+
+                decimal totalItemCash = 0;
+                decimal totVat = 0;
+                foreach (var creditAmn in svdUDSV)
+                {
+                    int pt = 0;
+                    if(creditAmn.Description.Length<20)
+                    {
+                        pt = 20 - creditAmn.Description.Length;
+                    }
+                    StrRen.AppendLine(eBigCharOff + eLeft + creditAmn.Description.Substring(0,20).PadLeft(15-itemDescription.Length) + creditAmn.Quantity.ToString().PadLeft(20 + pt - itemDescription.Length) + Convert.ToDecimal(creditAmn.Price).ToString("0.00").PadLeft(27 - itemDescription.Length));
+                                    totalItemCash = totalItemCash + (decimal) creditAmn.Price;
+                    totalItemCash = totalItemCash + (decimal)creditAmn.Price;
+                    totVat = totVat + (decimal) creditAmn.VAT;
+                }
+
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+                StrRen.AppendLine(eLeft + eBigCharOff + "Total  " + Convert.ToDecimal(totalItemCash).ToString("0.00").PadLeft(49 - itemDescription.Length));
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+                StrRen.AppendLine(eLeft + eBigCharOff + "Total VAT " + Convert.ToDecimal(totVat).ToString("0.00").PadLeft(46 - itemDescription.Length));
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+                StrRen.AppendLine("");
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+                StrRen.AppendLine(eLeft + eBigCharOff + "Grand Total " + Convert.ToDecimal(totalItemCash + totVat).ToString("0.00").PadLeft(44 - itemDescription.Length));
+                StrRen.AppendLine("");
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+                StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
+
+                StrRen.AppendLine(eCentre + eBigCharOff + "END");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine("");
+                StrRen.AppendLine(eCut);
+                return new PrintData
+                {
+                    PrinterName = stationSett.PrinterName,
+                    Data = StrRen.ToString()
+                };
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
         public async Task<Response<ItemMasterResponse>> SearchHoldBill(string voucherNo)
         {
             try
@@ -1124,25 +2778,25 @@ namespace Inspire.Erp.Application.Master
                                         GrossAmount = ir.GrossAmount,
                                         Discount = ir.Discount,
                                         VAT = ir.VatAmount,
-                                        NetAmount = ir.NetAmount,
-                                        SaleVoucherDetails = (from vd in posTempSalesVoucherDetailsRepo.GetAsQueryable()
-                                                              join ud in _unitMasterRepo.GetAsQueryable() on vd.UnitId equals ud.UnitMasterUnitId into umJoin
-                                                              from umd in umJoin.DefaultIfEmpty()
-                                                              where vd.V_ID == ir.V_ID
-                                                              select new SaleVoucherDetailsTempResponse
-                                                              {
-                                                                  VoucherNo = vd.VoucherNo,
-                                                                  Description = vd.Description,
-                                                                  UnitName = umd.UnitMasterUnitShortName,
-                                                                  Discount = vd.Discount,
-                                                                  Quantity = (int)vd.Sold_Qty,
-                                                                  UnitPrice = vd.UnitPrice,
-                                                                  VAT = vd.VatAmount,
-                                                                  NetAmount = vd.NetAmount,
-                                                                  UnitDetailId = vd.UnitDetailsId
-
-                                                              }).ToList()
-                                    }).ToListAsync();
+                                        NetAmount =ir.NetAmount,
+                                        SaleVoucherDetails=  (from vd in posTempSalesVoucherDetailsRepo.GetAsQueryable()
+                                                                   join ud in _unitMasterRepo.GetAsQueryable() on vd.UnitId equals ud.UnitMasterUnitId into umJoin
+                                                                   from umd in umJoin.DefaultIfEmpty()
+                                                                   where vd.V_ID == ir.V_ID
+                                                                   select new SaleVoucherDetailsTempResponse
+                                                                   {
+                                                                       VoucherNo = vd.VoucherNo,
+                                                                       Description = vd.Description,
+                                                                       UnitName = umd.UnitMasterUnitShortName,
+                                                                       Discount = vd.Discount,
+                                                                       Quantity = (int)vd.Sold_Qty,
+                                                                       UnitPrice = vd.UnitPrice,
+                                                                       VAT = vd.VatAmount,
+                                                                       NetAmount=vd.NetAmount,
+                                                                       UnitDetailId=vd.UnitDetailsId
+                                                                      
+                                                                   }).ToList()
+            }).ToListAsync();
 
                 return Response<List<SaleVoucherTempResponse>>.Success(result, "Data found");
             }
@@ -2007,12 +3661,8 @@ namespace Inspire.Erp.Application.Master
                 var tempSalesVD = posTempSalesVoucherDetailsRepo.GetAll().FirstOrDefault(o => o.VoucherNo == model.VoucherNo);
                 if (tempSalesVD != null) posTempSalesVoucherDetailsRepo.Delete(tempSalesVD);
 
-
-
                 var tempSalesV = posTempSalesVoucherRepo.GetAll().FirstOrDefault(o => o.VoucherNo == model.VoucherNo);
                 if (tempSalesV != null) posTempSalesVoucherRepo.Delete(tempSalesV);
-
-
 
                 var salesVC = new POS_Temp_SalesVoucher()
                 {

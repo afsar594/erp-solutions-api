@@ -169,8 +169,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsVoucherNo = bankReceiptVoucher.BankReceiptVoucherVoucherNo;
                     k.AccountsTransactionsVoucherType = VoucherType.BankReceipt;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
-                    k.AccountsTransactionsAllocCredit = k.AccountsTransactionsCredit;
-                    k.AccountsTransactionsAllocDebit = k.AccountsTransactionsDebit;
+                    k.AccountsTransactionsAllocCredit = 0;
+                    k.AccountsTransactionsAllocDebit = 0;
                     k.AccountsTransactionsAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
                     k.AccountsTransactionsFcAllocDebit = 0;
                     k.AccountsTransactionsFcAllocCredit = 0;
@@ -190,8 +190,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                             PDC_Details_Trans_Date = DateTime.Now,
                             PDC_Details_PDC_Date = DateTime.Now,
                             PDC_Details_Cheque_No = item.BankReceiptVoucherDetailsChequeNo == null ? "" : item.BankReceiptVoucherDetailsChequeNo.ToString(),
-                            PDC_Details_Cheque_Amount = item.BankReceiptVoucherDetailsCrAmount,
-                            PDC_Details_FC_Cheque_Amount = item.BankReceiptVoucherDetailsCrAmount,
+                            PDC_Details_Cheque_Amount = item.BankReceiptVoucherDetailsDrAmount,
+                            PDC_Details_FC_Cheque_Amount = item.BankReceiptVoucherDetailsDrFcAmount,
                             PDC_Details_Bank_Account_No = item.BankReceiptVoucherDetailsAcNo,
                             PDC_Details_Cheque_Bank_Name = "",
                             PDC_Details_Cheque_Status = "NC",

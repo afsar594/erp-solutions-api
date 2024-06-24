@@ -10266,7 +10266,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.HasOne(d => d.JobMasterJobDetailsJob)
                     .WithMany(p => p.JobMasterJobDetails)
                     .HasForeignKey(d => d.JobMasterJobDetailsJobId)
-                    .HasConstraintName("FK_Job_Master_JobDetails_Job_Master");
+                    .HasConstraintName("FK_Job_Master_JobDetails_Jobid");
             });
 
             modelBuilder.Entity<JobMasterJobWiseBankGuarantees>(entity =>
@@ -24293,6 +24293,25 @@ namespace Inspire.Erp.Infrastructure.Database
                 e.ToTable("POS_Trans_Group_Master");
                 e.HasKey(x => x.Id);
             });
+
+            modelBuilder.Entity<POS_CashCardAmounts>(e =>
+            {
+                e.ToTable("POS_CashCardAmounts");
+                e.HasKey(x => x.Id);
+            });
+
+            modelBuilder.Entity<POS_SalesReturn>(e =>
+            {
+                e.ToTable("POS_SalesReturn");
+                e.HasKey(x => x.Id);
+            });
+
+            modelBuilder.Entity<POS_SalesReturnDetails>(e =>
+            {
+                e.ToTable("POS_SalesReturnDetails");
+                e.HasKey(x => x.Id);
+            });
+
             modelBuilder.Entity<SalesRet_Master>(entity =>
             {
                 entity.HasNoKey();
