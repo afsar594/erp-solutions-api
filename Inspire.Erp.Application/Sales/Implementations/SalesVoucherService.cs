@@ -243,7 +243,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 _salesVoucherRepository.BeginTransaction();
 
                 //=================================
-                clsCommonFunctions.Delete_OldEntry_StockRegister(salesVoucher.SalesVoucherNo, salesVoucher.SalesVoucherType, _stockRegisterRepository);
+                clsCommonFunctions.Delete_OldEntry_StockRegister(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _stockRegisterRepository);
                 clsCommonFunctions.Delete_OldEntry_AccountsTransactions(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _accountTransactionRepository);
                 //=================================
 
@@ -379,8 +379,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         StockRegisterFCAmount = item.SalesVoucherDetailsNetAmt ?? 0 * this.getCurrencyRate(salesVoucher.SalesVoucherCurrencyId),
                         StockRegisterAssignedDate = DateTime.Now.Date,
                         StockRegisterStatus = "A",
-                        StockRegisterTransType = salesVoucher.SalesVoucherType,
-                        StockRegisterUnitID = item.SalesVoucherDetailsUnitId,
+                        StockRegisterTransType = VoucherType.SalesVoucher_TYPE,
+                    StockRegisterUnitID = item.SalesVoucherDetailsUnitId,
                         StockRegisterLocationID = salesVoucher.SalesVoucherLocationID,
                         StockRegisterJobID = salesVoucher.SalesVoucherJobId,
                         StockRegisterDepID = salesVoucher.SalesVoucherDptID,

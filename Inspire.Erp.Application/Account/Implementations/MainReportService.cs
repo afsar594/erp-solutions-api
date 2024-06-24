@@ -93,70 +93,138 @@ namespace Inspire.Erp.Application.Account.Implementations
 
         public IEnumerable<ReportStockBaseUnit> MainReport_GetReportStockLedger_PARAM_CLASS(StockLedgerParameters stockLedgerParameters, List<ViewStockTransferType> viewStockTransferType)
         {
-            var data = (from im in _itemMasterRepository.GetAll().Where(x => x.ItemMasterItemType == "A" && x.ItemMasterDelStatus != true)
-                        join sr in _stockRegisterRepository.GetAll() on im.ItemMasterItemId equals (long?)sr.StockRegisterMaterialID into ims
+            //var data = (from im in _itemMasterRepository.GetAll().Where(x => x.ItemMasterItemType == "A" && x.ItemMasterDelStatus != true)
+            //            join sr in _stockRegisterRepository.GetAll() on im.ItemMasterItemId equals (long?)sr.StockRegisterMaterialID into ims
+            //            from imsr in ims.DefaultIfEmpty()
+            //            join ud in (from unitD in _unitDetailsRepository.GetAll().Where(x => x.UnitDetailsConversionType == (double)1)
+            //                        select new { unitD.UnitDetailsUnitId, unitD.UnitDetailsItemId })
+            //            on (long?)im.ItemMasterItemId equals ud.UnitDetailsItemId into uds
+            //            from srud in uds.DefaultIfEmpty()
+            //            join um in _unitMasterRepository.GetAll() on (srud == null ? -1 : srud.UnitDetailsUnitId) equals um.UnitMasterUnitId into umu
+            //            from umud in umu.DefaultIfEmpty()
+            //            select new
+            //            {
+            //                StockRegisterMaterialId = im.ItemMasterItemId,
+            //                StockRegisterAmount = imsr == null ? 0 : imsr.StockRegisterAmount,
+            //                ItemMasterItemName = im.ItemMasterItemName,
+            //                ItemMasterPartNo = im.ItemMasterPartNo,
+            //                RelativeNo = im.ItemMasterAccountNo,
+            //                StockRegisterRate = imsr == null ? 0 : imsr.StockRegisterRate,
+            //                UnitMasterUnitShortName = umud == null ? "" : umud.UnitMasterUnitShortName,
+            //                StockRegisterLocationID = imsr == null ? 0 : imsr.StockRegisterLocationID,
+            //                StockRegisterUnitId = umud == null ? 0 : umud.UnitMasterUnitId,
+            //                StockRegisterSIN = imsr == null ? 0 : imsr.StockRegisterSIN,
+            //                StockRegisterSout = imsr == null ? 0 : imsr.StockRegisterSout
+            //            }).GroupBy(m => new
+            //            {
+            //                m.StockRegisterMaterialId,
+            //                m.StockRegisterAmount,
+            //                m.ItemMasterItemName,
+            //                m.ItemMasterPartNo,
+            //                m.RelativeNo,
+            //                m.StockRegisterRate,
+            //                m.StockRegisterUnitId,
+            //                m.UnitMasterUnitShortName,
+            //                m.StockRegisterLocationID,
+
+            //            }).Select(grp => new ReportStockBaseUnit
+            //            {
+            //                StockRegisterMaterialId = grp.Key.StockRegisterMaterialId,
+            //                ItemMasterPartNo = grp.Key.ItemMasterPartNo,
+            //                ItemMasterItemName = grp.Key.ItemMasterItemName,
+            //                StockRegisterUnitId = grp.Key.StockRegisterUnitId,
+            //                UnitMasterUnitShortName = grp.Key.UnitMasterUnitShortName,
+            //                Stock = grp.Sum(x => x.StockRegisterSIN - x.StockRegisterSout),
+            //                StockRegisterRate = grp.Key.StockRegisterRate,
+            //                StockRegisterAmount = grp.Key.StockRegisterAmount,
+            //                RelativeNo = grp.Key.RelativeNo,
+            //                StockRegisterLocationID = grp.Key.StockRegisterLocationID
+            //            }).ToList();
+
+
+            var data = (from im in _itemMasterRepository.GetAll()
+            .Where(x => x.ItemMasterItemType == "A" && x.ItemMasterDelStatus != true)
+
+                        join sr in _stockRegisterRepository.GetAll()
+                        on im.ItemMasterItemId equals (long?)sr.StockRegisterMaterialID into ims
+
                         from imsr in ims.DefaultIfEmpty()
-                        join ud in (from unitD in _unitDetailsRepository.GetAll().Where(x => x.UnitDetailsConversionType == (double)1)
+
+                        join ud in (from unitD in _unitDetailsRepository.GetAll()
+                                    .Where(x => x.UnitDetailsConversionType == (double)1)
                                     select new { unitD.UnitDetailsUnitId, unitD.UnitDetailsItemId })
                         on (long?)im.ItemMasterItemId equals ud.UnitDetailsItemId into uds
+
                         from srud in uds.DefaultIfEmpty()
-                        join um in _unitMasterRepository.GetAll() on (srud == null ? -1 : srud.UnitDetailsUnitId) equals um.UnitMasterUnitId into umu
+
+                        join um in _unitMasterRepository.GetAll()
+                        on (srud == null ? -1 : srud.UnitDetailsUnitId) equals um.UnitMasterUnitId into umu
+
                         from umud in umu.DefaultIfEmpty()
+
                         select new
                         {
                             StockRegisterMaterialId = im.ItemMasterItemId,
-                            StockRegisterAmount = imsr == null ? 0 : imsr.StockRegisterAmount,
+                            StockRegisterAmount = imsr?.StockRegisterAmount ?? 0,
                             ItemMasterItemName = im.ItemMasterItemName,
                             ItemMasterPartNo = im.ItemMasterPartNo,
                             RelativeNo = im.ItemMasterAccountNo,
-                            StockRegisterRate = imsr == null ? 0 : imsr.StockRegisterRate,
-                            UnitMasterUnitShortName = umud == null ? "" : umud.UnitMasterUnitShortName,
-                            StockRegisterLocationID = imsr == null ? 0 : imsr.StockRegisterLocationID,
-                            StockRegisterUnitId = umud == null ? 0 : umud.UnitMasterUnitId,
-                            StockRegisterSIN = imsr == null ? 0 : imsr.StockRegisterSIN,
-                            StockRegisterSout = imsr == null ? 0 : imsr.StockRegisterSout
-                        }).GroupBy(m => new
-                        {
-                            m.StockRegisterMaterialId,
-                            m.StockRegisterAmount,
-                            m.ItemMasterItemName,
-                            m.ItemMasterPartNo,
-                            m.RelativeNo,
-                            m.StockRegisterRate,
-                            m.StockRegisterUnitId,
-                            m.UnitMasterUnitShortName,
-                            m.StockRegisterLocationID,
+                            StockRegisterRate = imsr?.StockRegisterRate ?? 0,
+                            UnitMasterUnitShortName = umud?.UnitMasterUnitShortName ?? "",
+                            StockRegisterLocationID = imsr?.StockRegisterLocationID ?? 0,
+                            StockRegisterUnitId = umud?.UnitMasterUnitId ?? 0,
+                            StockRegisterSIN = imsr?.StockRegisterSIN ?? 0,
+                            StockRegisterSout = imsr?.StockRegisterSout ?? 0
+                        }).Where(s =>
+                (stockLedgerParameters.rptLocation == -1 || s.StockRegisterLocationID == stockLedgerParameters.rptLocation) &&
+                 (stockLedgerParameters.rptItemGroup == -1 || (s.RelativeNo == stockLedgerParameters.rptItemGroup)) &&
+                (stockLedgerParameters.rptItem == -1 || s.StockRegisterMaterialId == stockLedgerParameters.rptItem) &&
+                (string.IsNullOrEmpty(stockLedgerParameters.rptPartNo) || s.ItemMasterPartNo == stockLedgerParameters.rptPartNo.Trim())
+            )
+            .GroupBy(m => new
+            {
+                m.StockRegisterMaterialId,
+                m.StockRegisterAmount,
+                m.ItemMasterItemName,
+                m.ItemMasterPartNo,
+                m.RelativeNo,
+                m.StockRegisterRate,
+                m.StockRegisterUnitId,
+                m.UnitMasterUnitShortName,
+                m.StockRegisterLocationID
+            })
+            .Select(grp => new ReportStockBaseUnit
+            {
+                StockRegisterMaterialId = grp.Key.StockRegisterMaterialId,
+                ItemMasterPartNo = grp.Key.ItemMasterPartNo,
+                ItemMasterItemName = grp.Key.ItemMasterItemName,
+                StockRegisterUnitId = grp.Key.StockRegisterUnitId,
+                UnitMasterUnitShortName = grp.Key.UnitMasterUnitShortName,
+                Stock = grp.Sum(x => (x.StockRegisterSIN) - (x.StockRegisterSout)),
+                StockRegisterRate = grp.Key.StockRegisterRate,
+                StockRegisterAmount = grp.Key.StockRegisterAmount,
+                RelativeNo = grp.Key.RelativeNo,
+                StockRegisterLocationID = grp.Key.StockRegisterLocationID
+            })
+            .ToList();
 
-                        }).Select(grp => new ReportStockBaseUnit
-                        {
-                            StockRegisterMaterialId = grp.Key.StockRegisterMaterialId,
-                            ItemMasterPartNo = grp.Key.ItemMasterPartNo,
-                            ItemMasterItemName = grp.Key.ItemMasterItemName,
-                            StockRegisterUnitId = grp.Key.StockRegisterUnitId,
-                            UnitMasterUnitShortName = grp.Key.UnitMasterUnitShortName,
-                            Stock = grp.Sum(x => x.StockRegisterSIN - x.StockRegisterSout),
-                            StockRegisterRate = grp.Key.StockRegisterRate,
-                            StockRegisterAmount = grp.Key.StockRegisterAmount,
-                            RelativeNo = grp.Key.RelativeNo,
-                            StockRegisterLocationID = grp.Key.StockRegisterLocationID
-                        }).ToList();
 
-            if (stockLedgerParameters.rptLocation != -1 && stockLedgerParameters.rptLocation != null)
-            {
-                data = data.Where(s => s.StockRegisterLocationID == stockLedgerParameters.rptLocation).ToList();
-            }
-            if (stockLedgerParameters.rptItemGroup != -1)
-            {
-                data = data.Where(s => s.ItemGroupNo == stockLedgerParameters.rptItemGroup).ToList();
-            }
-            if (stockLedgerParameters.rptItem != -1 && stockLedgerParameters.rptItem != null)
-            {
-                data = data.Where(s => s.StockRegisterMaterialId == stockLedgerParameters.rptItem).ToList();
-            }
-            if (stockLedgerParameters.rptPartNo.Trim() != "")
-            {
-                data = data.Where(s => s.ItemMasterPartNo == stockLedgerParameters.rptPartNo).ToList();
-            }
+            //if (stockLedgerParameters.rptLocation != -1 && stockLedgerParameters.rptLocation != null)
+            //{
+            //    data = data.Where(s => s.StockRegisterLocationID == stockLedgerParameters.rptLocation).ToList();
+            //}
+            //if (stockLedgerParameters.rptItemGroup != -1)
+            //{
+            //    data = data.Where(s => s.ItemGroupNo == stockLedgerParameters.rptItemGroup).ToList();
+            //}
+            //if (stockLedgerParameters.rptItem != -1 && stockLedgerParameters.rptItem != null)
+            //{
+            //    data = data.Where(s => s.StockRegisterMaterialId == stockLedgerParameters.rptItem).ToList();
+            //}
+            //if (stockLedgerParameters.rptPartNo.Trim() != "")
+            //{
+            //    data = data.Where(s => s.ItemMasterPartNo == stockLedgerParameters.rptPartNo).ToList();
+            //}
             return data;
         }
         public IEnumerable<ReportAccountsTransactions> MainReport_GetReportAccountsTransactions(string AccNo, int Location, int Job, int CostCenter)
