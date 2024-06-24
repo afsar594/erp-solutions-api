@@ -11149,7 +11149,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<ManufactureItemsMaster>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.MI_Id_N);
 
                 entity.ToTable("ManufactureItems");
 
@@ -11167,7 +11167,8 @@ namespace Inspire.Erp.Infrastructure.Database
             });
             modelBuilder.Entity<ManufactureItemsMasterDetails>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.MID_Id_N);
+
                 entity.ToTable("ManufactureItemsDtls");
                 entity.Property(e => e.MI_Details_VocherNo).HasColumnName("MI_Details_VocherNo");
                 entity.Property(e => e.MID_Id_N).HasColumnName("MID_Id_N");
