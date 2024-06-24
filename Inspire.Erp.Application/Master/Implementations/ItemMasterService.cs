@@ -4596,5 +4596,34 @@ namespace Inspire.Erp.Application.Master
 
         #endregion
 
+        public async Task<Response<itemAvgPrice>> GetAveragePrice(int id)
+        {
+            try
+            {
+                var stockData = await stockRegisterRepo.GetAsQueryable()
+                    .Where(a => a.StockRegisterMaterialID == id)
+                    .ToListAsync();
+                var itemAvgPrice = stockData
+                    .GroupBy(c => c.StockRegisterMaterialID)
+                    .Select(x => new itemAvgPrice
+                    {
+                        ItemMasterItemId = (int)x.Key,
+                        stockIn = x.Sum(a => a.StockRegisterSIN ?? 0),
+                        InAmount = x.Where(a => a.StockRegisterSIN > 0).Sum(a => a.StockRegisterAmount ?? 0),
+                        stockout = x.Sum(a => Math.Abs(a.StockRegisterSout ?? 0)),
+                    }).FirstOrDefault();
+
+                if (itemAvgPrice == null)
+                {
+                    return new Response<itemAvgPrice> { Message = "No record found for material ID: " + id };
+                }
+
+                return new Response<itemAvgPrice> { Result = itemAvgPrice };
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }
