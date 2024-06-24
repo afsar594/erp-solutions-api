@@ -22,6 +22,8 @@ namespace Inspire.Erp.Application.Master
         public IEnumerable<ItemMaster> DeleteItem(ItemMaster itemMaster);
         public List<ItemMaster> GetAllItem();
         public IEnumerable<ItemMaster> GetAllItemById(int id);
+        public Task<Response<itemAvgPrice>> GetAveragePrice(int id);
+        
         public List<ItemMaster> GetAllItemNotGroup();
         public IEnumerable<ItemStockType> GetAllStockType();
         public IEnumerable<ItemMaster> GetItemMastersByName(string name);

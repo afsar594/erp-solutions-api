@@ -348,5 +348,12 @@ namespace Inspire.Erp.Web.Controllers
             return apiResponse;
         }
 
+        [HttpGet]
+        [Route("GetAveragePrice")]
+        public async Task<IActionResult> GetAveragePrice(int id)
+        {
+            return Ok(await itemMasterService.GetAveragePrice(id));
+        }
+        
     }
 }

@@ -341,6 +341,36 @@ namespace Inspire.Erp.Application.Master
 
         }
 
+        public async Task<Response<itemAvgPrice>> GetAveragePrice(int id)
+        {
+            try
+            {
+                var stockData = await stockRegisterRepo.GetAsQueryable()
+                    .Where(a => a.StockRegisterMaterialID == id)
+                    .ToListAsync();
+                var itemAvgPrice = stockData
+                    .GroupBy(c => c.StockRegisterMaterialID)
+                    .Select(x => new itemAvgPrice
+                    {
+                        ItemMasterItemId = (int)x.Key,
+                        stockIn = x.Sum(a => a.StockRegisterSIN ?? 0),
+                        InAmount = x.Where(a => a.StockRegisterSIN > 0).Sum(a => a.StockRegisterAmount ?? 0),
+                        stockout = x.Sum(a => Math.Abs(a.StockRegisterSout ?? 0)),
+                    }).FirstOrDefault();
+                 
+                if (itemAvgPrice == null)
+                {
+                    return new Response<itemAvgPrice> { Message = "No record found for material ID: " + id };
+                }
+
+                return new Response<itemAvgPrice> { Result = itemAvgPrice };
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
 
         //GetAllItemMasterById
         public ItemMaster GetAllItemMasterById(int id)
@@ -1094,25 +1124,25 @@ namespace Inspire.Erp.Application.Master
                                         GrossAmount = ir.GrossAmount,
                                         Discount = ir.Discount,
                                         VAT = ir.VatAmount,
-                                        NetAmount =ir.NetAmount,
-                                        SaleVoucherDetails=  (from vd in posTempSalesVoucherDetailsRepo.GetAsQueryable()
-                                                                   join ud in _unitMasterRepo.GetAsQueryable() on vd.UnitId equals ud.UnitMasterUnitId into umJoin
-                                                                   from umd in umJoin.DefaultIfEmpty()
-                                                                   where vd.V_ID == ir.V_ID
-                                                                   select new SaleVoucherDetailsTempResponse
-                                                                   {
-                                                                       VoucherNo = vd.VoucherNo,
-                                                                       Description = vd.Description,
-                                                                       UnitName = umd.UnitMasterUnitShortName,
-                                                                       Discount = vd.Discount,
-                                                                       Quantity = (int)vd.Sold_Qty,
-                                                                       UnitPrice = vd.UnitPrice,
-                                                                       VAT = vd.VatAmount,
-                                                                       NetAmount=vd.NetAmount,
-                                                                       UnitDetailId=vd.UnitDetailsId
-                                                                      
-                                                                   }).ToList()
-            }).ToListAsync();
+                                        NetAmount = ir.NetAmount,
+                                        SaleVoucherDetails = (from vd in posTempSalesVoucherDetailsRepo.GetAsQueryable()
+                                                              join ud in _unitMasterRepo.GetAsQueryable() on vd.UnitId equals ud.UnitMasterUnitId into umJoin
+                                                              from umd in umJoin.DefaultIfEmpty()
+                                                              where vd.V_ID == ir.V_ID
+                                                              select new SaleVoucherDetailsTempResponse
+                                                              {
+                                                                  VoucherNo = vd.VoucherNo,
+                                                                  Description = vd.Description,
+                                                                  UnitName = umd.UnitMasterUnitShortName,
+                                                                  Discount = vd.Discount,
+                                                                  Quantity = (int)vd.Sold_Qty,
+                                                                  UnitPrice = vd.UnitPrice,
+                                                                  VAT = vd.VatAmount,
+                                                                  NetAmount = vd.NetAmount,
+                                                                  UnitDetailId = vd.UnitDetailsId
+
+                                                              }).ToList()
+                                    }).ToListAsync();
 
                 return Response<List<SaleVoucherTempResponse>>.Success(result, "Data found");
             }
@@ -1982,7 +2012,7 @@ namespace Inspire.Erp.Application.Master
                 var tempSalesV = posTempSalesVoucherRepo.GetAll().FirstOrDefault(o => o.VoucherNo == model.VoucherNo);
                 if (tempSalesV != null) posTempSalesVoucherRepo.Delete(tempSalesV);
 
-           
+
 
                 var salesVC = new POS_Temp_SalesVoucher()
                 {

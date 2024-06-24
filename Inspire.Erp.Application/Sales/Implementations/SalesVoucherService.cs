@@ -243,7 +243,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 _salesVoucherRepository.BeginTransaction();
 
                 //=================================
-                clsCommonFunctions.Delete_OldEntry_StockRegister(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _stockRegisterRepository);
+                clsCommonFunctions.Delete_OldEntry_StockRegister(salesVoucher.SalesVoucherNo, salesVoucher.SalesVoucherType, _stockRegisterRepository);
                 clsCommonFunctions.Delete_OldEntry_AccountsTransactions(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _accountTransactionRepository);
                 //=================================
 
@@ -299,11 +299,11 @@ namespace Inspire.Erp.Application.Sales.Implementations
             return i;
 
         }
-        private decimal getConverionTypebyUnitId(int? unitDetailsid)
+        private decimal getConverionTypebyUnitId(int? itemid, int? unitDetailsid)
         {
             try
             {
-                return (decimal)this._UnitDetailsRepository.GetAsQueryable().FirstOrDefault(x => x.UnitDetailsUnitId == unitDetailsid).UnitDetailsConversionType;
+                return (decimal)_UnitDetailsRepository.GetAsQueryable().FirstOrDefault(x => x.UnitDetailsItemId == itemid && x.UnitDetailsUnitId == unitDetailsid).UnitDetailsConversionType;
             }
             catch
             {
@@ -363,7 +363,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 foreach (var item in salesVoucher.SalesVoucherDetails)
                 {
 
-                    var converontype = this.getConverionTypebyUnitId(item.SalesVoucherDetailsUnitId);
+                    var converontype = this.getConverionTypebyUnitId(item.SalesVoucherDetailsMatId, item.SalesVoucherDetailsUnitId);
 
                     stockReg.Add(new StockRegister()
                     {
@@ -375,7 +375,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         StockRegisterSIN = 0,
                         StockRegisterSout = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
                         StockRegisterRate = item.SalesVoucherDetailsRate,
-                        StockRegisterAmount = item.SalesVoucherDetailsNetAmt ?? 0,
+                        StockRegisterAmount = item.SalesVoucherDetailsQuantity * item.SalesVoucherDetailsRate ?? 0,
                         StockRegisterFCAmount = item.SalesVoucherDetailsNetAmt ?? 0 * this.getCurrencyRate(salesVoucher.SalesVoucherCurrencyId),
                         StockRegisterAssignedDate = DateTime.Now.Date,
                         StockRegisterStatus = "A",
