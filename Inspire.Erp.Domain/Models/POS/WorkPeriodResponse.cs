@@ -81,6 +81,8 @@ namespace Inspire.Erp.Domain.Modals
 
         public string CardMessage { get; set; }
 
+        public string VoucherNo { get; set; }
+
         public bool IsFromCash { get; set; }
 
         public bool IsProcessed { get; set; }
@@ -176,6 +178,12 @@ namespace Inspire.Erp.Domain.Modals
 
     }
 
+
+    public class ProcessCashCardResponse
+    {
+        public string VoucherNo { get; set; }
+     
+    }
 
     //public class HoldRequest
     //{
