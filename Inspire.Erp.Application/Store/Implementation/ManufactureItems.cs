@@ -21,18 +21,18 @@ namespace Inspire.Erp.Application.Store.implementations
                 IRepository<ManufactureItemsMasterDetails> ManufactureItemsMasterDetails
             )
         {
-            
+
             _voucherNumbersRepository = voucherNumbers;
             _programsettingsrepository = programsettingsRepository;
             _ManufactureItemsMastererepo = ManufactureItemsMaster;
             _ManufactureItemsMasterDetailsrepo = ManufactureItemsMasterDetails;
         }
 
-       public ManufactureItemsMaster InsertManufactureItems(ManufactureItemsMaster ManufactureItems)
+        public ManufactureItemsMaster InsertManufactureItems(ManufactureItemsMaster ManufactureItems)
         {
             try
             {
-                
+
 
                 string ManufactureItemsVoucherNumber = this.GenerateVoucherNo(System.DateTime.Now).VouchersNumbersVNo;
                 ManufactureItems.MI_VocherNo = ManufactureItemsVoucherNumber;
@@ -66,7 +66,7 @@ namespace Inspire.Erp.Application.Store.implementations
             {
                 _ManufactureItemsMastererepo.BeginTransaction();
                 _ManufactureItemsMastererepo.Update(ManufactureItems);
-                //_ManufactureItemsMastererepo.UpdateList(ManufactureItems.ManufactureItemsMasterDetails);
+                _ManufactureItemsMasterDetailsrepo.UpdateList(ManufactureItems.ManufactureItemsMasterDetails);
                 _ManufactureItemsMastererepo.TransactionCommit();
                 return this.GetManufactureItemsById(ManufactureItems.MI_Id_N);
             }
@@ -89,14 +89,14 @@ namespace Inspire.Erp.Application.Store.implementations
                 });
                 _ManufactureItemsMastererepo.Update(dataObj);
                 _ManufactureItemsMastererepo.UpdateList(detailData);
-                 return _ManufactureItemsMastererepo.GetAll();                
+                return _ManufactureItemsMastererepo.GetAll();
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
-        
+
         public IEnumerable<ManufactureItemsMaster> GetManufactureItemsMaster()
         {
             try
@@ -134,10 +134,10 @@ namespace Inspire.Erp.Application.Store.implementations
         {
             try
             {
-             
+
                 ManufactureItemsMaster ManufactureItem = new ManufactureItemsMaster();
                 ManufactureItem = _ManufactureItemsMastererepo.GetAsQueryable().Where(k => k.MI_VocherNo == VNo).SingleOrDefault();
-                ManufactureItem.ManufactureItemsMasterDetails =_ManufactureItemsMasterDetailsrepo.GetAsQueryable().Where(x => x.MI_Details_VocherNo == VNo).ToList();
+                ManufactureItem.ManufactureItemsMasterDetails = _ManufactureItemsMasterDetailsrepo.GetAsQueryable().Where(x => x.MI_Details_VocherNo == VNo).ToList();
                 return ManufactureItem;
             }
             catch (Exception ex)
