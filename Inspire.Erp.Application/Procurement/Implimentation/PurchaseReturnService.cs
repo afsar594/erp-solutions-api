@@ -941,11 +941,11 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 throw ex;
             }
         }
-        private decimal getConverionTypebyUnitId(int? unitDetailsid)
+        private decimal getConverionTypebyUnitId(int? itemid, int? unitDetailsid)
         {
             try
             {
-                return (decimal)this._UnitDetailsRepository.GetAsQueryable().FirstOrDefault(x => x.UnitDetailsUnitId == unitDetailsid).UnitDetailsConversionType;
+                return (decimal)_UnitDetailsRepository.GetAsQueryable().FirstOrDefault(x => x.UnitDetailsItemId == itemid && x.UnitDetailsUnitId == unitDetailsid).UnitDetailsConversionType;
             }
             catch
             {
@@ -995,7 +995,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 foreach (var item in purchaseReturnDetails)
                 {
-                    var converontype = this.getConverionTypebyUnitId(item.PurchaseReturnDetailsUnitId);
+                    var converontype = this.getConverionTypebyUnitId(item.PurchaseReturnDetailsMatId, item.PurchaseReturnDetailsUnitId);
 
                     sr.Add(new StockRegister()
                     {
@@ -1011,7 +1011,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         StockRegisterVoucherDate = purchaseReturn.PurchaseReturnDate,
                         StockRegisterSout = item.PurchaseReturnDetailsQuantity * (converontype) ?? 0,
                         StockRegisterRate = item.PurchaseReturnDetailsRate,
-                        StockRegisterAmount = item.PurchaseReturnDetailsGrossAmount,
+                        StockRegisterAmount = item.PurchaseReturnDetailsQuantity * item.PurchaseReturnDetailsQuantity,
                         StockRegisterMaterialID = item.PurchaseReturnDetailsMatId,
 
                     });

@@ -80,6 +80,15 @@ namespace Inspire.Erp.Domain.Entities
         public virtual ICollection<ItemPriceLevelDetails> ItemPriceLevelDetails { get; set; }
         public virtual ICollection<ItemSupplierDetails> ItemSupplierDetails { get; set; }
         public virtual ICollection<UnitDetails> UnitDetails { get; set; }
-     
+
+    }
+    public class itemAvgPrice
+    {
+        public int ItemMasterItemId { get; set; }
+        public decimal stockIn { get; set; }
+        public decimal stockout { get; set; }
+        public decimal InAmount { get; set; }
+        
+
     }
 }
