@@ -3384,10 +3384,10 @@ namespace Inspire.Erp.Application.Master
             }
         }
 
-        public async Task<Response<bool>> ProcessCard(CardRequest model)
+        public async Task<Response<ProcessCashCardResponse>> ProcessCard(CardRequest model)
         {
             //using (var trans = new TransactionScope())
-
+            var cashCardRes = new ProcessCashCardResponse();
             var option = new TransactionOptions
             {
                 IsolationLevel = IsolationLevel.ReadCommitted,
@@ -3592,15 +3592,15 @@ namespace Inspire.Erp.Application.Master
 
                     var tempSettDet = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId).ToList();
                     if (tempSettDet != null) settDetailsTempRepo.DeleteList(tempSettDet);
-
+                    cashCardRes.VoucherNo = model.VoucherNo;
                     trans.Complete();
                     //trans.Dispose();
-                    return Response<bool>.Success(true, "Card processed Successfully.");
+                    return Response<ProcessCashCardResponse>.Success(cashCardRes, "Card processed Successfully.");
                 }
                 catch (Exception ex)
                 {
                     trans.Dispose();
-                    return Response<bool>.Fail(false, ex.Message);
+                    return Response<ProcessCashCardResponse>.Fail(new ProcessCashCardResponse(), ex.Message);
                 }
             }
         }
@@ -4040,7 +4040,7 @@ namespace Inspire.Erp.Application.Master
                 if (totalChange <= 0)
                 {
                     var pc = await ProcessCash(totalChange, model);
-
+                    cardAmountResponse.VoucherNo = model.VoucherNo;
                     var tempSettDet = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId).ToList();
                     if (tempSettDet != null) settDetailsTempRepo.DeleteList(tempSettDet);
                 }
@@ -4058,7 +4058,7 @@ namespace Inspire.Erp.Application.Master
 
                     model.Cash = model.NetTotal - cardAmountResult.FirstOrDefault().CardAmount;
                     var pc = await ProcessCash(totalChange, model);
-
+                    cardAmountResponse.VoucherNo = model.VoucherNo;
                     var tempSettDet = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId).ToList();
                     if (tempSettDet != null) settDetailsTempRepo.DeleteList(tempSettDet);
                 }
@@ -4067,6 +4067,7 @@ namespace Inspire.Erp.Application.Master
                     cardAmountResponse.NetTotal = totalChange;
                     cardAmountResponse.IsProcessed = false;
                     cardAmountResponse.CardMessage = "Collect the Balance through Card Payment";
+                    
                 }
 
 
@@ -4081,7 +4082,7 @@ namespace Inspire.Erp.Application.Master
         }
 
 
-        public async Task<Response<bool>> ProcessCash(decimal? totalChange, CardRequest model)
+        public async Task<Response<string>> ProcessCash(decimal? totalChange, CardRequest model)
         {
             //using (var trans = new TransactionScope())
             var option = new TransactionOptions
@@ -4403,12 +4404,12 @@ namespace Inspire.Erp.Application.Master
                     SaveVoucher(model, (long)model.BillnoLoad, transtype, transDesc, paymentmode, "CASH CUSTOMER");
                     SavesettlementTrans(model, (long)model.BillnoLoad);
                     trans.Complete();
-                    return Response<bool>.Success(true, "Cash processed Successfully.");
+                    return Response<string>.Success(model.VoucherNo, "Cash processed Successfully.");
                 }
                 catch (Exception ex)
                 {
                     trans.Dispose();
-                    return Response<bool>.Fail(false, ex.Message);
+                    return Response<string>.Fail(null, ex.Message);
                 }
             }
         }

@@ -120,7 +120,6 @@ namespace Inspire.Erp.Web.Controllers.POS
             {
                 return StatusCode(500, ex.Message.ToString());
             }
-
         }
 
 
@@ -393,6 +392,7 @@ namespace Inspire.Erp.Web.Controllers.POS
         }
 
         #endregion
+
         #region  "Text Print Reports"
 
         [HttpGet]
