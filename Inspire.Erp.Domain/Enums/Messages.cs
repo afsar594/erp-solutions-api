@@ -312,7 +312,16 @@ namespace Inspire.Erp.Domain.Enums
         public static string UpdateFailed { get { return "Job Invoice update failed"; } }
         public static string DeleteFailed { get { return "Job Invoice delete failed"; } }
     }
+    public static class ManufactureItemMessage
+    {
+        public static String SaveManufactureItem { get { return "Manufacture Items saved successfully"; } }
+        public static string UpdateManufactureItem { get { return "Manufacture Items updated sucessfully"; } }
+        public static string DeleteManufactureItem { get { return "Manufacture Items deleted sucessfully"; } }
 
+        public static String SaveFailed { get { return "Manufacture Items save failed"; } }
+        public static string UpdateFailed { get { return "Manufacture Items update failed"; } }
+        public static string DeleteFailed { get { return "Manufacture Items delete failed"; } }
+    }
     public static class StockeAdjustmentMessage
     {
         public static string SaveStockAdjustmentVoucher { get { return "Stock Adjustment Voucher saved successfully"; } }
