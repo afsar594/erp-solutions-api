@@ -145,6 +145,24 @@ namespace Inspire.Erp.Application.Store.implementations
                 throw ex;
             }
         }
+        public IEnumerable<ManufactureItemsMaster> GetManufactureItems()
+        {
+            try
+            {
+                var detailList = _ManufactureItemsMastererepo.GetAll().ToList();
+                var data = _ManufactureItemsMastererepo.GetAll().Select(o => new
+                {
+                    MI_Id_N = o,
+                    ManufactureItemsMasterDetails = detailList.Where(a => Convert.ToInt32(a.MI_Id_N) == Convert.ToInt32(o.MI_Id_N)).ToList()
+                }).ToList();
+                return _ManufactureItemsMastererepo.GetAll();
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
         {
             try

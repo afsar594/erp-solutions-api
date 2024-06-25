@@ -60,6 +60,18 @@ namespace Inspire.Erp.Web.Controllers
             };
             return apiResponse;
         }
+        [HttpGet]
+        [Route("GetManufactureItems")]
+        public ApiResponse<List<ManufactureItemsMaster>> GetManufactureItems()
+        {
+            ApiResponse<List<ManufactureItemsMaster>> apiResponse = new ApiResponse<List<ManufactureItemsMaster>>
+            {
+                Valid = true,
+                Result = _mapper.Map<List<ManufactureItemsMaster>>(_Manufacture.GetManufactureItems()),
+                Message = ""
+            };
+            return apiResponse;
+        }
         [HttpPost]
         [Route("UpdateManufactureItems")]
         public ApiResponse<ManufactureItemsMaster> UpdateManufactureItems([FromBody] ManufactureItemsMaster ManufactureItems)
