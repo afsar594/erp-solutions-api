@@ -7,6 +7,8 @@ namespace Inspire.Erp.Application.Store.Interfaces
 {
     public interface IManufactureItems
     {
+        public IEnumerable<ManufactureItemsMaster> GetManufactureItems();
+
         public ManufactureItemsMaster GetManufactureItemsById(int? id);
         public ManufactureItemsMaster InsertManufactureItems(ManufactureItemsMaster ManufactureMaster);
         public ManufactureItemsMaster UpdateManufactureItems(ManufactureItemsMaster ManufactureMaster);
