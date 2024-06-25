@@ -119,9 +119,10 @@ namespace Inspire.Erp.Application.Store.implementations
         {
             try
             {
+               
                 var ManufactureItemsMaster = new ManufactureItemsMaster();
                 ManufactureItemsMaster = _ManufactureItemsMastererepo.GetAsQueryable().FirstOrDefault(x => x.MI_Id_N == Convert.ToInt32(id));
-                ManufactureItemsMaster.ManufactureItemsMasterDetails = _ManufactureItemsMasterDetailsrepo.GetAsQueryable().Where(x => x.MID_Id_N == Convert.ToInt32(id)).ToList();
+                ManufactureItemsMaster.ManufactureItemsMasterDetails = _ManufactureItemsMasterDetailsrepo.GetAsQueryable().Where(i => Convert.ToInt32(i.MI_Id_N) == Convert.ToInt32(id)).ToList();
                 return ManufactureItemsMaster;
 
             }
