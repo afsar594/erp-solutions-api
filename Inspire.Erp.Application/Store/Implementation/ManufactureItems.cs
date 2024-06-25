@@ -85,7 +85,7 @@ namespace Inspire.Erp.Application.Store.implementations
                 var detailData = _ManufactureItemsMastererepo.GetAsQueryable().Where(o => o.MI_VocherNo == Id).ToList();
                 detailData.ForEach(elemt =>
                 {
-                    elemt.ManufactureItemsMasterStatus = true;
+                    elemt.ManufactureItemsMasterDeleted = true;
                 });
                 _ManufactureItemsMastererepo.Update(dataObj);
                 _ManufactureItemsMastererepo.UpdateList(detailData);
