@@ -37,7 +37,7 @@ namespace Inspire.Erp.Application.Store.implementations
                 string ManufactureItemsVoucherNumber = this.GenerateVoucherNo(System.DateTime.Now).VouchersNumbersVNo;
                 ManufactureItems.MI_VocherNo = ManufactureItemsVoucherNumber;
 
-                _ManufactureItemsMastererepo.BeginTransaction();
+                //_ManufactureItemsMastererepo.BeginTransaction();
                 int maxcount = 0;
                 maxcount = Convert.ToInt32(
                     _ManufactureItemsMastererepo.GetAsQueryable()
@@ -51,7 +51,7 @@ namespace Inspire.Erp.Application.Store.implementations
                     elemt.MI_Details_VocherNo = ManufactureItems.MI_VocherNo;
                 });
                 _ManufactureItemsMasterDetailsrepo.InsertList(ManufactureItems.ManufactureItemsMasterDetails);
-                _ManufactureItemsMasterDetailsrepo.TransactionCommit();
+               // _ManufactureItemsMasterDetailsrepo.TransactionCommit();
                 return this.GetManufactureItemsById(ManufactureItems.MI_Id_N);
             }
             catch (Exception ex)
@@ -64,10 +64,10 @@ namespace Inspire.Erp.Application.Store.implementations
         {
             try
             {
-                _ManufactureItemsMastererepo.BeginTransaction();
+               // _ManufactureItemsMastererepo.BeginTransaction();
                 _ManufactureItemsMastererepo.Update(ManufactureItems);
                 _ManufactureItemsMasterDetailsrepo.UpdateList(ManufactureItems.ManufactureItemsMasterDetails);
-                _ManufactureItemsMastererepo.TransactionCommit();
+               // _ManufactureItemsMastererepo.TransactionCommit();
                 return this.GetManufactureItemsById(ManufactureItems.MI_Id_N);
             }
             catch (Exception ex)
