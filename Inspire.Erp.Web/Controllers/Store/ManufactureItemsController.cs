@@ -94,7 +94,7 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpDelete]
         [Route("DeleteManufactureItems")]
-        public ApiResponse<List<ManufactureItemsMaster>> DeletePosSalesHold(string Id)
+        public ApiResponse<List<ManufactureItemsMaster>> DeleteManufactureItems(int Id)
         {
 
             var xs = _Manufacture.DeleteManufactureItems(Id);

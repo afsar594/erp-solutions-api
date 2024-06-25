@@ -142,7 +142,6 @@ namespace Inspire.Erp.Application.Store.Implementation
                                   where im.ItemMasterItemType == "A"
                                   && (sFilter.LocationId == null || y.StockRegisterLocationID == sFilter.LocationId)
                                   && (sFilter.PartNo == null || im.ItemMasterPartNo == sFilter.PartNo)
-                                  //&& (y.StockRegisterVoucherDate ) // Include items with no StockRegister or valid StockRegister date
                                   select new
                                   {
                                       im.ItemMasterItemId,
@@ -173,8 +172,8 @@ namespace Inspire.Erp.Application.Store.Implementation
                          (k, g) => new StockLedgerResponse()
                          {
                              ItemId = k.Item_Id.ToString(),
-                             OpenQuantity = 0,//(decimal)g.Sum(x => x.OpenQty),
-                             OpenValue = 0,//(decimal)g.Sum(x => x.OpenQtyAmt),
+                             OpenQuantity = 0,
+                             OpenValue = 0,
                              ReceivedQuantity = (decimal)g.Sum(x => x.StockIn),
                              ReceivedValue = (decimal)g.Sum(x => x.StockInAmount),
                              SaledQuantity = (decimal)g.Sum(x => x.StockOut),
@@ -187,32 +186,25 @@ namespace Inspire.Erp.Application.Store.Implementation
                              StockRate = (decimal)g.Max(x => x.StockInAmount),
                          }).ToList();
 
-                    var openValues = getOpenValues(sFilter.fromDate, sFilter.toDate);
-                    //if (openValues.Count > 0)
-                    //{
-                    //    for (int i = 0; i < result.Count; i++)
-                    //    {
-                    //        try
-                    //        {
-                    //            if (result[i].ItemId == openValues[i].ItemId.ToString())
-                    //            {
-                    //                result[i].OpenQuantity = (decimal)openValues[i].OpenQty;
-                    //                result[i].OpenValue = (decimal)openValues[i].OpenValue;
-                    //            }
-                    //            else
-                    //            {
-                    //                result[i].OpenQuantity = 0;
-                    //                result[i].OpenValue = 0;
-                    //            }
+                    var openValues = getOpenValues(sFilter.fromDate, (int?)sFilter.ItemId);
+                    if (openValues.Count > 0)
+                    {
+                        foreach (var openValue in openValues)
+                        {
+                            if (openValue.ItemId != null && openValue.ItemId != 0)
+                            {
+                                var matchedResult = result.FirstOrDefault(r => r.ItemId.ToString() == openValue.ItemId.ToString());
 
-                    //        }
-                    //        catch
-                    //        {
-                    //            result[i].OpenQuantity = 0;
-                    //            result[i].OpenValue = 0;
-                    //        }
-                    //    }
-                    //}
+                                if (matchedResult != null)
+                                {
+                                    matchedResult.OpenQuantity = openValue.OpenQty.HasValue ? Convert.ToDecimal(openValue.OpenQty.Value) : 0;
+                                    matchedResult.OpenValue = openValue.OpenValue.HasValue ? Convert.ToDecimal(openValue.OpenValue.Value) : 0;
+                                }
+                                
+                            }
+                        }
+                    }
+
                     //if (openValues.Count > 0)
                     //{
                     //    var openValuesDict = openValues.ToDictionary(ov => (int?)ov.ItemId); // Convert to int? if necessary
@@ -316,7 +308,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                   where im.ItemMasterItemType == "A"
                                   && (sFilter.LocationId == null || y.StockRegisterLocationID == sFilter.LocationId)
                                   && (sFilter.PartNo == null || im.ItemMasterPartNo == sFilter.PartNo)
-                                  && (y.StockRegisterVoucherDate >= minFDate) // Include items with no StockRegister or valid StockRegister date
+                                  && (y.StockRegisterVoucherDate >= minFDate)
                                   select new
                                   {
                                       im.ItemMasterItemId,
@@ -347,8 +339,8 @@ namespace Inspire.Erp.Application.Store.Implementation
                         (k, g) => new StockLedgerResponse()
                         {
                             ItemId = k.Item_Id.ToString(),
-                            OpenQuantity = 0,//(decimal)g.Sum(x => x.OpenQty),
-                            OpenValue = 0,//(decimal)g.Sum(x => x.OpenQtyAmt),
+                            OpenQuantity = 0,
+                            OpenValue = 0,
                             ReceivedQuantity = (decimal)g.Sum(x => x.StockIn),
                             ReceivedValue = (decimal)g.Sum(x => x.StockInAmount),
                             SaledQuantity = (decimal)g.Sum(x => x.StockOut),
@@ -362,8 +354,25 @@ namespace Inspire.Erp.Application.Store.Implementation
                         }).ToList();
 
 
-                    var openValues = getOpenValues((DateTime)minFDate, DateTime.Now);
+                    var openValues = getOpenValues((DateTime)minFDate, (int?)sFilter.ItemId);
 
+
+                    if (openValues.Count > 0)
+                    {
+                        foreach (var openValue in openValues)
+                        {
+                            if (openValue.ItemId != null && openValue.ItemId != 0)
+                            {
+                                var matchedResult = result.FirstOrDefault(r => r.ItemId.ToString() == openValue.ItemId.ToString());
+
+                                if (matchedResult != null)
+                                {
+                                    matchedResult.OpenQuantity = openValue.OpenQty.HasValue ? Convert.ToDecimal(openValue.OpenQty.Value) : 0;
+                                    matchedResult.OpenValue = openValue.OpenValue.HasValue ? Convert.ToDecimal(openValue.OpenValue.Value) : 0;
+                                }                                
+                            }
+                        }
+                    }
 
                     //var result = (from im in items
                     //              join sr in otherValues on im.ItemMasterItemId equals sr.ItemId
@@ -463,43 +472,43 @@ namespace Inspire.Erp.Application.Store.Implementation
             }
         }
 
-        private List<OpenValues> getOpenValues(DateTime fromdate, DateTime todate)
-        {
-            return _sRegister.GetAsQueryable().Where(a => a.StockRegisterAssignedDate >= fromdate && a.StockRegisterAssignedDate <= todate && a.StockRegisterAssignedDate != null)
-                            .Select(x => new OpenValues()
-                            {
-                                ItemId = x.StockRegisterMaterialID,
-                                OpenQty = x.StockRegisterSIN - x.StockRegisterSout,
-                                OpenValue = x.StockRegisterSIN * x.StockRegisterRate - x.StockRegisterSout * x.StockRegisterRate,
-
-                            }).ToList();
-
-        }
-        //private List<OpenValues> getOpenValues(DateTime fromDate, DateTime toDate, int? itemId)
+        //private List<OpenValues> getOpenValues(DateTime fromdate, int? itemId)
         //{
-        //    // Query to filter and group by ItemId
-        //    var query = _sRegister.GetAsQueryable()
-        //        .Where(a => a.StockRegisterAssignedDate >= fromDate && a.StockRegisterAssignedDate <= toDate);
+        //    return _sRegister.GetAsQueryable().Where(a => a.StockRegisterVoucherDate >= fromdate && a.StockRegisterVoucherDate != null)
+        //                    .Select(x => new OpenValues()
+        //                    {
+        //                        ItemId = x.StockRegisterMaterialID,
+        //                        OpenQty = x.StockRegisterSIN - x.StockRegisterSout,
+        //                        OpenValue = x.StockRegisterSIN * x.StockRegisterRate - x.StockRegisterSout * x.StockRegisterRate,
 
-        //    // Apply itemId filter only if it's not null
-        //    if (itemId.HasValue)
-        //    {
-        //        query = query.Where(a => a.StockRegisterMaterialID == itemId.Value);
-        //    }
+        //                    }).ToList();
 
-        //    // Group by ItemId and calculate the aggregated values
-        //    var result = query
-        //        .GroupBy(x => x.StockRegisterMaterialID)
-        //        .Select(g => new OpenValues
-        //        {
-        //            ItemId = g.Key,
-        //            OpenQty = g.Sum(x => x.StockRegisterSIN) - g.Sum(x => x.StockRegisterSout),
-        //            OpenValue = g.Sum(x => (x.StockRegisterSIN * x.StockRegisterRate) - (x.StockRegisterSout * x.StockRegisterRate))
-        //        })
-        //        .ToList();
-
-        //    return result;
         //}
+        private List<OpenValues> getOpenValues(DateTime fromDate, int? itemId)
+        {
+            // Query to filter and group by ItemId
+            var query = _sRegister.GetAsQueryable()
+                .Where(a => a.StockRegisterVoucherDate < fromDate);
+
+            // Apply itemId filter only if it's not null
+            if (itemId.HasValue)
+            {
+                query = query.Where(a => a.StockRegisterMaterialID == itemId.Value);
+            }
+
+            // Group by ItemId and calculate the aggregated values
+            var result = query
+                .GroupBy(x => x.StockRegisterMaterialID)
+                .Select(g => new OpenValues
+                {
+                    ItemId = g.Key,
+                    OpenQty = g.Sum(x => x.StockRegisterSIN) - g.Sum(x => x.StockRegisterSout),
+                    OpenValue = g.Sum(x => (x.StockRegisterSIN * x.StockRegisterRate) - (x.StockRegisterSout * x.StockRegisterRate))
+                })
+                .ToList();
+
+            return result;
+        }
 
 
         public List<StockValueResult> GetStockValue(long itemId, long itemGroupId)

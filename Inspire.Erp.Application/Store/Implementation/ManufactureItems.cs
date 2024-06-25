@@ -32,12 +32,9 @@ namespace Inspire.Erp.Application.Store.implementations
         {
             try
             {
-
-
                 string ManufactureItemsVoucherNumber = this.GenerateVoucherNo(System.DateTime.Now).VouchersNumbersVNo;
                 ManufactureItems.MI_VocherNo = ManufactureItemsVoucherNumber;
 
-                //_ManufactureItemsMastererepo.BeginTransaction();
                 int maxcount = 0;
                 maxcount = Convert.ToInt32(
                     _ManufactureItemsMastererepo.GetAsQueryable()
@@ -45,14 +42,23 @@ namespace Inspire.Erp.Application.Store.implementations
                 ManufactureItems.MI_Id_N = maxcount;
 
                 _ManufactureItemsMastererepo.Insert(ManufactureItems);
-                ManufactureItems.ManufactureItemsMasterDetails.ForEach(elemt =>
+
+                int maxcount1 = 0;
+                maxcount1 = Convert.ToInt32(
+                _ManufactureItemsMasterDetailsrepo.GetAsQueryable()
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.MID_Id_N) + 1);
+
+                foreach (var item in ManufactureItems.ManufactureItemsMasterDetails)
                 {
-                    elemt.MI_Id_N = maxcount;
-                    elemt.MI_Details_VocherNo = ManufactureItems.MI_VocherNo;
-                });
+                    item.MID_Id_N = maxcount1;
+                    item.MI_Id_N = maxcount;
+                    item.MI_Details_VocherNo = ManufactureItems.MI_VocherNo;
+                    maxcount1++;
+                }
+
                 _ManufactureItemsMasterDetailsrepo.InsertList(ManufactureItems.ManufactureItemsMasterDetails);
-               // _ManufactureItemsMasterDetailsrepo.TransactionCommit();
-                return this.GetManufactureItemsById(ManufactureItems.MI_Id_N);
+
+                return ManufactureItems;
             }
             catch (Exception ex)
             {
@@ -64,11 +70,17 @@ namespace Inspire.Erp.Application.Store.implementations
         {
             try
             {
-               // _ManufactureItemsMastererepo.BeginTransaction();
-                _ManufactureItemsMastererepo.Update(ManufactureItems);
+                _ManufactureItemsMastererepo.BeginTransaction();
+
+                foreach (var item in ManufactureItems.ManufactureItemsMasterDetails)
+                {
+                    item.MI_Id_N = ManufactureItems.MI_Id_N;
+                    item.MI_Details_VocherNo = ManufactureItems.MI_VocherNo;
+                }
                 _ManufactureItemsMasterDetailsrepo.UpdateList(ManufactureItems.ManufactureItemsMasterDetails);
-               // _ManufactureItemsMastererepo.TransactionCommit();
-                return this.GetManufactureItemsById(ManufactureItems.MI_Id_N);
+                _ManufactureItemsMastererepo.Update(ManufactureItems);
+                _ManufactureItemsMastererepo.TransactionCommit();
+                return ManufactureItems;
             }
             catch (Exception ex)
             {
@@ -76,53 +88,30 @@ namespace Inspire.Erp.Application.Store.implementations
                 throw ex;
             }
         }
-        public IEnumerable<ManufactureItemsMaster> DeleteManufactureItems(string Id)
+        public IEnumerable<ManufactureItemsMaster> DeleteManufactureItems(int Id)
         {
             try
             {
-                var dataObj = _ManufactureItemsMastererepo.GetAsQueryable().Where(o => o.MI_VocherNo == Id).FirstOrDefault();
+                var dataObj = _ManufactureItemsMastererepo.GetAsQueryable().Where(o => o.MI_Id_N == Id).FirstOrDefault();
                 dataObj.ManufactureItemsMasterStatus = true;
-                var detailData = _ManufactureItemsMastererepo.GetAsQueryable().Where(o => o.MI_VocherNo == Id).ToList();
-                detailData.ForEach(elemt =>
-                {
-                    elemt.ManufactureItemsMasterDeleted = true;
-                });
+
+
                 _ManufactureItemsMastererepo.Update(dataObj);
-                _ManufactureItemsMastererepo.UpdateList(detailData);
-                return _ManufactureItemsMastererepo.GetAll();
+                return _ManufactureItemsMastererepo.GetAll().Where(a => a.ManufactureItemsMasterDeleted != true);
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
-
-        public IEnumerable<ManufactureItemsMaster> GetManufactureItemsMaster()
+      
+        public ManufactureItemsMaster GetManufactureItemsById(int id)
         {
             try
             {
-                var detailList = _ManufactureItemsMasterDetailsrepo.GetAll().ToList();
-                var data = _ManufactureItemsMastererepo.GetAll().Select(o => new
-                {
-                    JobInvoice = o,
-                    JobInvoiceDetails = detailList.Where(a => Convert.ToInt32(a.MID_Id_N) == Convert.ToInt32(o.MI_Id_N)).ToList()
-                }).ToList();
-                return _ManufactureItemsMastererepo.GetAll();
-
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        public ManufactureItemsMaster GetManufactureItemsById(int? id)
-        {
-            try
-            {
-               
                 var ManufactureItemsMaster = new ManufactureItemsMaster();
-                ManufactureItemsMaster = _ManufactureItemsMastererepo.GetAsQueryable().FirstOrDefault(x => x.MI_Id_N == Convert.ToInt32(id));
-                ManufactureItemsMaster.ManufactureItemsMasterDetails = _ManufactureItemsMasterDetailsrepo.GetAsQueryable().Where(i => Convert.ToInt32(i.MI_Id_N) == Convert.ToInt32(id)).ToList();
+                ManufactureItemsMaster = _ManufactureItemsMastererepo.GetAsQueryable().FirstOrDefault(x => x.MI_Id_N == id);
+                ManufactureItemsMaster.ManufactureItemsMasterDetails = _ManufactureItemsMasterDetailsrepo.GetAsQueryable().Where(i => i.MI_Id_N == id).ToList();
                 return ManufactureItemsMaster;
 
             }
@@ -150,13 +139,9 @@ namespace Inspire.Erp.Application.Store.implementations
         {
             try
             {
-                var detailList = _ManufactureItemsMastererepo.GetAll().ToList();
-                var data = _ManufactureItemsMastererepo.GetAll().Select(o => new
-                {
-                    MI_Id_N = o,
-                    ManufactureItemsMasterDetails = detailList.Where(a => Convert.ToInt32(a.MI_Id_N) == Convert.ToInt32(o.MI_Id_N)).ToList()
-                }).ToList();
-                return _ManufactureItemsMastererepo.GetAll();
+                //var detailList = _ManufactureItemsMasterDetailsrepo.GetAll().ToList();
+                var data = _ManufactureItemsMastererepo.GetAll().Where(a => a.ManufactureItemsMasterDeleted != true).ToList();
+                return data;
 
             }
             catch (Exception ex)
