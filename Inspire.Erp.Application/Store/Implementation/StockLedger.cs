@@ -45,10 +45,10 @@ namespace Inspire.Erp.Application.Store.Implementation
                 }
                 if (sFilter.IsDateChecked == true)
                 {
-                    var items = _iMster.GetAsQueryable().Where(i => i.ItemMasterItemType == "A" && i.ItemMasterDelStatus == null
-                    && (sFilter.ItemGroupId == null || i.ItemMasterAccountNo == sFilter.ItemGroupId)
-                    && (sFilter.PartNo == null || i.ItemMasterPartNo == sFilter.PartNo)
-                    ).ToList();
+                    //var items = _iMster.GetAsQueryable().Where(i => i.ItemMasterItemType == "A" && i.ItemMasterDelStatus == null
+                    //&& (sFilter.ItemGroupId == null || i.ItemMasterAccountNo == sFilter.ItemGroupId)
+                    //&& (sFilter.PartNo == null || i.ItemMasterPartNo == sFilter.PartNo)
+                    //).ToList();
 
                     var query = _iMster.GetAsQueryable();
 
@@ -140,11 +140,9 @@ namespace Inspire.Erp.Application.Store.Implementation
                                   join sr in stock on im.ItemMasterItemId equals (long)sr.StockRegisterMaterialID.GetValueOrDefault() into gimV1
                                   from y in gimV1.DefaultIfEmpty()
                                   where im.ItemMasterItemType == "A"
-                                  //&& (sFilter.ItemId == null || im.ItemMasterItemId == sFilter.ItemId)
-                                  //&& (sFilter.LocationId == null || y.StockRegisterLocationID == sFilter.LocationId)
-                                  //&& (sFilter.PartNo == null || im.ItemMasterPartNo == sFilter.PartNo)
-                                  //&& (sFilter.ItemGroupId == null || im.ItemMasterAccountNo == sFilter.ItemGroupId)
-                                  //&& (y.StockRegisterAssignedDate > minFDate) // Include items with no StockRegister or valid StockRegister date
+                                  && (sFilter.LocationId == null || y.StockRegisterLocationID == sFilter.LocationId)
+                                  && (sFilter.PartNo == null || im.ItemMasterPartNo == sFilter.PartNo)
+                                  //&& (y.StockRegisterVoucherDate ) // Include items with no StockRegister or valid StockRegister date
                                   select new
                                   {
                                       im.ItemMasterItemId,
@@ -190,31 +188,70 @@ namespace Inspire.Erp.Application.Store.Implementation
                          }).ToList();
 
                     var openValues = getOpenValues(sFilter.fromDate, sFilter.toDate);
-                    if (openValues.Count > 0)
-                    {
-                        for (int i = 0; i < result.Count - 1; i++)
-                        {
-                            try
-                            {
-                                if (result[i].ItemId == openValues[i].ItemId.ToString())
-                                {
-                                    result[i].OpenQuantity = (decimal)openValues[i].OpenQty;
-                                    result[i].OpenValue = (decimal)openValues[i].OpenValue;
-                                }
-                                else
-                                {
-                                    result[i].OpenQuantity = 0;
-                                    result[i].OpenValue = 0;
-                                }
+                    //if (openValues.Count > 0)
+                    //{
+                    //    for (int i = 0; i < result.Count; i++)
+                    //    {
+                    //        try
+                    //        {
+                    //            if (result[i].ItemId == openValues[i].ItemId.ToString())
+                    //            {
+                    //                result[i].OpenQuantity = (decimal)openValues[i].OpenQty;
+                    //                result[i].OpenValue = (decimal)openValues[i].OpenValue;
+                    //            }
+                    //            else
+                    //            {
+                    //                result[i].OpenQuantity = 0;
+                    //                result[i].OpenValue = 0;
+                    //            }
 
-                            }
-                            catch
-                            {
-                                result[i].OpenQuantity = 0;
-                                result[i].OpenValue = 0;
-                            }
-                        }
-                    }
+                    //        }
+                    //        catch
+                    //        {
+                    //            result[i].OpenQuantity = 0;
+                    //            result[i].OpenValue = 0;
+                    //        }
+                    //    }
+                    //}
+                    //if (openValues.Count > 0)
+                    //{
+                    //    var openValuesDict = openValues.ToDictionary(ov => (int?)ov.ItemId); // Convert to int? if necessary
+
+                    //    for (int i = 0; i < result.Count; i++)
+                    //    {
+                    //        try
+                    //        {
+                    //            // Convert the ItemId from string to nullable integer
+                    //            if (int.TryParse(result[i].ItemId, out var itemId))
+                    //            {
+                    //                if (openValuesDict.TryGetValue(itemId, out var openValue))
+                    //                {
+                    //                    result[i].OpenQuantity = openValue.OpenQty ?? 0;
+                    //                    result[i].OpenValue = openValue.OpenValue ?? 0;
+                    //                }
+                    //                else
+                    //                {
+                    //                    result[i].OpenQuantity = 0;
+                    //                    result[i].OpenValue = 0;
+                    //                }
+                    //            }
+                    //            else
+                    //            {
+                    //                // If parsing fails, set default values
+                    //                result[i].OpenQuantity = 0;
+                    //                result[i].OpenValue = 0;
+                    //            }
+                    //        }
+                    //        catch (Exception ex)
+                    //        {
+                    //            // Log the exception if needed
+                    //            Console.WriteLine($"Error processing item {result[i].ItemId}: {ex.Message}");
+                    //            result[i].OpenQuantity = 0;
+                    //            result[i].OpenValue = 0;
+                    //        }
+                    //    }
+                    //}
+
                     if (sFilter.ExcludeZeroBalance == true)
                     {
                         result = result.Where(x => x.ClosingValue > 0).Select(x => x).ToList();
@@ -229,11 +266,6 @@ namespace Inspire.Erp.Application.Store.Implementation
                 else
                 {
                     var minFDate = _fP.GetAsQueryable().Select(x => x.FinancialPeriodsStartDate).SingleOrDefault();
-
-                    var items = _iMster.GetAsQueryable().Where(i => i.ItemMasterItemType == "A" && i.ItemMasterDelStatus == null
-                    && (sFilter.ItemGroupId == null || i.ItemMasterAccountNo == sFilter.ItemGroupId)
-                    && (sFilter.PartNo == null || i.ItemMasterPartNo == sFilter.PartNo)
-                    ).ToList();
 
                     var query = _iMster.GetAsQueryable();
 
@@ -282,11 +314,9 @@ namespace Inspire.Erp.Application.Store.Implementation
                                   join sr in stock on im.ItemMasterItemId equals (long)sr.StockRegisterMaterialID.GetValueOrDefault() into gimV1
                                   from y in gimV1.DefaultIfEmpty()
                                   where im.ItemMasterItemType == "A"
-                                  //&& (sFilter.ItemId == null || im.ItemMasterItemId == sFilter.ItemId)
-                                  //&& (sFilter.LocationId == null || y.StockRegisterLocationID == sFilter.LocationId)
-                                  //&& (sFilter.PartNo == null || im.ItemMasterPartNo == sFilter.PartNo)
-                                  //&& (sFilter.ItemGroupId == null || im.ItemMasterAccountNo == sFilter.ItemGroupId)
-                                  //&& (y.StockRegisterAssignedDate > minFDate) // Include items with no StockRegister or valid StockRegister date
+                                  && (sFilter.LocationId == null || y.StockRegisterLocationID == sFilter.LocationId)
+                                  && (sFilter.PartNo == null || im.ItemMasterPartNo == sFilter.PartNo)
+                                  && (y.StockRegisterVoucherDate >= minFDate) // Include items with no StockRegister or valid StockRegister date
                                   select new
                                   {
                                       im.ItemMasterItemId,
@@ -303,7 +333,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                       Item_Id = x.ItemMasterItemId,
                                       Item_Name = x.ItemMasterItemName,
                                       StockIn = (x.StockRegisterSIN != null && x.StockRegisterSIN > 0) ? x.StockRegisterSIN : 0,
-                                      StockInAmount = (x.StockRegisterSIN != null) ? x.StockRegisterAmount ?? 0 : 0,
+                                      StockInAmount = (x.StockRegisterSIN != null && x.StockRegisterSIN > 0) ? x.StockRegisterAmount ?? 0 : 0,
                                       StockOut = (x.StockRegisterSout != null && x.StockRegisterSout > 0) ? x.StockRegisterSout ?? 0 : 0,
                                       StockOutAmount = (x.StockRegisterSout != null && x.StockRegisterSout > 0) ? x.StockRegisterAmount ?? 0 : 0,
                                       OpenQty = (x.StockRegisterSIN != null && x.StockRegisterSIN > 0) ? (x.StockRegisterSIN ?? 0) - (x.StockRegisterSout ?? 0) : 0,
@@ -377,31 +407,45 @@ namespace Inspire.Erp.Application.Store.Implementation
                     //              }).ToList();
 
 
-                    if (openValues.Count > 0)
-                    {
-                        for (int i = 0; i < result.Count - 1; i++)
-                        {
-                            try
-                            {
-                                if (result[i].ItemId == openValues[i].ItemId.ToString())
-                                {
-                                    result[i].OpenQuantity = (decimal)openValues[i].OpenQty;
-                                    result[i].OpenValue = (decimal)openValues[i].OpenValue;
-                                }
-                                else
-                                {
-                                    result[i].OpenQuantity = 0;
-                                    result[i].OpenValue = 0;
-                                }
+                    //if (openValues.Count > 0)
+                    //{
+                    //    var openValuesDict = openValues.ToDictionary(ov => (int?)ov.ItemId); // Convert to int? if necessary
 
-                            }
-                            catch
-                            {
-                                result[i].OpenQuantity = 0;
-                                result[i].OpenValue = 0;
-                            }
-                        }
-                    }
+                    //    for (int i = 0; i < result.Count; i++)
+                    //    {
+                    //        try
+                    //        {
+                    //            // Convert the ItemId from string to nullable integer
+                    //            if (int.TryParse(result[i].ItemId, out var itemId))
+                    //            {
+                    //                if (openValuesDict.TryGetValue(itemId, out var openValue))
+                    //                {
+                    //                    result[i].OpenQuantity = openValue.OpenQty ?? 0;
+                    //                    result[i].OpenValue = openValue.OpenValue ?? 0;
+                    //                }
+                    //                else
+                    //                {
+                    //                    result[i].OpenQuantity = 0;
+                    //                    result[i].OpenValue = 0;
+                    //                }
+                    //            }
+                    //            else
+                    //            {
+                    //                // If parsing fails, set default values
+                    //                result[i].OpenQuantity = 0;
+                    //                result[i].OpenValue = 0;
+                    //            }
+                    //        }
+                    //        catch (Exception ex)
+                    //        {
+                    //            // Log the exception if needed
+                    //            Console.WriteLine($"Error processing item {result[i].ItemId}: {ex.Message}");
+                    //            result[i].OpenQuantity = 0;
+                    //            result[i].OpenValue = 0;
+                    //        }
+                    //    }
+                    //}
+
                     if (sFilter.ExcludeZeroBalance == true)
                     {
                         result = result.Where(x => x.ClosingValue > 0).Select(x => x).ToList();
@@ -431,6 +475,32 @@ namespace Inspire.Erp.Application.Store.Implementation
                             }).ToList();
 
         }
+        //private List<OpenValues> getOpenValues(DateTime fromDate, DateTime toDate, int? itemId)
+        //{
+        //    // Query to filter and group by ItemId
+        //    var query = _sRegister.GetAsQueryable()
+        //        .Where(a => a.StockRegisterAssignedDate >= fromDate && a.StockRegisterAssignedDate <= toDate);
+
+        //    // Apply itemId filter only if it's not null
+        //    if (itemId.HasValue)
+        //    {
+        //        query = query.Where(a => a.StockRegisterMaterialID == itemId.Value);
+        //    }
+
+        //    // Group by ItemId and calculate the aggregated values
+        //    var result = query
+        //        .GroupBy(x => x.StockRegisterMaterialID)
+        //        .Select(g => new OpenValues
+        //        {
+        //            ItemId = g.Key,
+        //            OpenQty = g.Sum(x => x.StockRegisterSIN) - g.Sum(x => x.StockRegisterSout),
+        //            OpenValue = g.Sum(x => (x.StockRegisterSIN * x.StockRegisterRate) - (x.StockRegisterSout * x.StockRegisterRate))
+        //        })
+        //        .ToList();
+
+        //    return result;
+        //}
+
 
         public List<StockValueResult> GetStockValue(long itemId, long itemGroupId)
         {
