@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Inspire.Erp.Web.MODULE;
 using Inspire.Erp.Application.Store.implementations;
+using Microsoft.VisualStudio.Web.CodeGeneration.Contracts.Messaging;
+using Inspire.Erp.Domain.Entities.POS;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -92,17 +94,23 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpDelete]
         [Route("DeleteManufactureItems")]
-        public IActionResult DeleteManufactureItems(string Id)
+        public ApiResponse<List<ManufactureItemsMaster>> DeletePosSalesHold(string Id)
         {
-            try
+
+            var xs = _Manufacture.DeleteManufactureItems(Id);
+            if (xs != null)
             {
-                return Ok(_Manufacture.DeleteManufactureItems(Id));
+                ApiResponse<List<ManufactureItemsMaster>> apiResponse = new ApiResponse<List<ManufactureItemsMaster>>
+                {
+                    Valid = true,
+                   // Result = '',
+                    Message = ManufactureItemMessage.DeleteManufactureItem
+                };
+                return apiResponse;
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message.ToString());
-            }
+            return null;
         }
+
         [HttpGet]
         [Route("GetManufactureItemVoucherNo/{id}")]
         public ApiResponse<ManufactureItemsMaster> GetManufactureItemVoucherNo(string id)
