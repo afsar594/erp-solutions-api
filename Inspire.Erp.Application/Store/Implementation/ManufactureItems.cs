@@ -72,12 +72,26 @@ namespace Inspire.Erp.Application.Store.implementations
             {
                 _ManufactureItemsMastererepo.BeginTransaction();
 
+                int maxcount = 0;
+                maxcount = Convert.ToInt32(
+                _ManufactureItemsMasterDetailsrepo.GetAsQueryable()
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.MID_Id_N) + 1);
                 foreach (var item in ManufactureItems.ManufactureItemsMasterDetails)
                 {
                     item.MI_Id_N = ManufactureItems.MI_Id_N;
                     item.MI_Details_VocherNo = ManufactureItems.MI_VocherNo;
+                    if (item.MID_Id_N != 0)
+                    {
+                        _ManufactureItemsMasterDetailsrepo.Update(item);
+                    }
+                    else
+                    {
+                        item.MID_Id_N = maxcount;
+                        _ManufactureItemsMasterDetailsrepo.Insert(item);
+                        maxcount++;
+                    }
                 }
-                _ManufactureItemsMasterDetailsrepo.UpdateList(ManufactureItems.ManufactureItemsMasterDetails);
+                //_ManufactureItemsMasterDetailsrepo.UpdateList(ManufactureItems.ManufactureItemsMasterDetails);
                 _ManufactureItemsMastererepo.Update(ManufactureItems);
                 _ManufactureItemsMastererepo.TransactionCommit();
                 return ManufactureItems;
@@ -104,7 +118,7 @@ namespace Inspire.Erp.Application.Store.implementations
                 throw ex;
             }
         }
-      
+
         public ManufactureItemsMaster GetManufactureItemsById(int id)
         {
             try
