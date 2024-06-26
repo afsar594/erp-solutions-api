@@ -58,7 +58,7 @@ namespace Inspire.Erp.Application.Store.implementations
 
                 _ManufactureItemsMasterDetailsrepo.InsertList(ManufactureItems.ManufactureItemsMasterDetails);
 
-                return ManufactureItems;
+                return this.GetManufactureItemsById(ManufactureItems.MI_Id_N);
             }
             catch (Exception ex)
             {
