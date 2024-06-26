@@ -94,7 +94,7 @@ namespace Inspire.Erp.Application.Store.implementations
                 //_ManufactureItemsMasterDetailsrepo.UpdateList(ManufactureItems.ManufactureItemsMasterDetails);
                 _ManufactureItemsMastererepo.Update(ManufactureItems);
                 _ManufactureItemsMastererepo.TransactionCommit();
-                return ManufactureItems;
+                return this.GetManufactureItemsById(ManufactureItems.MI_Id_N);
             }
             catch (Exception ex)
             {
