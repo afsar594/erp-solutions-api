@@ -308,7 +308,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                   where im.ItemMasterItemType == "A"
                                   && (sFilter.LocationId == null || y.StockRegisterLocationID == sFilter.LocationId)
                                   && (sFilter.PartNo == null || im.ItemMasterPartNo == sFilter.PartNo)
-                                  && (y.StockRegisterVoucherDate >= minFDate)
+                                  //&& (y.StockRegisterVoucherDate >= minFDate)
                                   select new
                                   {
                                       im.ItemMasterItemId,
