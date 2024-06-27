@@ -72,6 +72,14 @@ namespace Inspire.Erp.Web.Controllers.POS
             return Ok(await itemMasterService.SearchHoldBill(voucherNo));
         }
 
+
+        [HttpGet]
+        [Route("BillRecall")]
+        public async Task<IActionResult> BillRecall(string voucherNo)
+        {
+            return Ok(await itemMasterService.BillRecall(voucherNo));
+        }
+
         [HttpGet]
         [Route("LoadHoldBills")]
         public async Task<IActionResult> LoadHoldBills(int workPeriodId)
@@ -214,10 +222,6 @@ namespace Inspire.Erp.Web.Controllers.POS
 
         //}
 
-
-
-
-
         #region  Sale Hold
 
         [HttpPost]
@@ -321,8 +325,6 @@ namespace Inspire.Erp.Web.Controllers.POS
         }
         #endregion
 
-
-
         #region Authenticate Service
 
         [AllowAnonymous]
@@ -353,7 +355,6 @@ namespace Inspire.Erp.Web.Controllers.POS
             Response.Cookies.Append("refreshToken", token, cookieOptions);
         }
         #endregion
-
 
         #region  Work Periods
 
@@ -408,7 +409,7 @@ namespace Inspire.Erp.Web.Controllers.POS
         {
             return Ok(await itemMasterService.SummaryDateWise(fromDate, toDate, wpId, stationId));
         }
-
+        
 
         [HttpGet]
         [Route("SummaryReport")]
@@ -446,7 +447,5 @@ namespace Inspire.Erp.Web.Controllers.POS
             return Ok(await itemMasterService.ZReport(fromDate, toDate, wpId, stationId));
         }
         #endregion
-
-
     }
 }
