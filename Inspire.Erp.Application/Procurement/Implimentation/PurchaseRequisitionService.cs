@@ -644,9 +644,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                 Item_Name= im.ItemMasterItemName.ToString(),
                                 Unit = um == null ? null : um.UnitMasterUnitShortName + " :: " + um.UnitMasterUnitId.ToString(),
                                 DelQty =(decimal) srq.DelQty
-                            }).ToListAsync();
+                            }).ToList();
+                data = query.ToList();
 
-               
+
                 return new Response<List<PurChaseReqFields>>()
                 {
                     Valid = true,
