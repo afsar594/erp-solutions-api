@@ -2735,7 +2735,7 @@ namespace Inspire.Erp.Application.Master
                 return null;
             }
         }
-        public async Task<Response<ItemMasterResponse>> SearchHoldBill(string voucherNo)
+        public async Task<Response<List<ItemMasterResponse>>> SearchHoldBill(string voucherNo)
         {
             try
             {
@@ -2754,13 +2754,13 @@ namespace Inspire.Erp.Application.Master
                                         VATValue = ir.VatAmount,
                                         UnitDetailsId = umd.UnitDetailsId,
                                         Discount = ir.Discount
-                                    }).FirstOrDefaultAsync();
+                                    }).ToListAsync();
 
-                return Response<ItemMasterResponse>.Success(result, "Data found");
+                return Response<List<ItemMasterResponse>>.Success(result, "Data found");
             }
             catch (Exception ex)
             {
-                return Response<ItemMasterResponse>.Fail(new ItemMasterResponse(), ex.Message);
+                return Response <List< ItemMasterResponse>>.Fail(new List<ItemMasterResponse>(), ex.Message);
             }
         }
 
