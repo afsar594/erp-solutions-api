@@ -2765,6 +2765,64 @@ namespace Inspire.Erp.Application.Master
         }
 
 
+        public async Task<Response<BillRecallResponse>> BillRecall(string voucherNo)
+        {
+            try
+            {
+                var billRecall = new BillRecallResponse();
+                var itemsDetails = await (from ir in posSalesVoucherDetailsRepo.GetAsQueryable()
+                                    where ir.VoucherNo == voucherNo
+                                    select new BillRecallItemResponse
+                                    {
+
+                                        SDet_ID = ir.SDet_ID,
+                                        VoucherNo=ir.VoucherNo,
+                                        ItemId = ir.ItemId,
+                                          Description =ir.Description,
+                                        UnitId=ir.UnitId,
+                                        Sold_Qty = (int)ir.Sold_Qty,
+                                        UnitPrice = ir.UnitPrice,
+                                        CostPrice=ir.CostPrice,
+                                     GrossAmt=ir.GrossAmt,
+                                     NetAmount=ir.NetAmount,
+                                        Discount = ir.Discount,
+                                        VatAmount = ir.VatAmount,
+                                        VatableAmt=ir.VatableAmt,
+                                        UnitDetailsId = ir.UnitDetailsId
+                                     
+                                    }).ToListAsync();
+
+                var settDetails = await (from sdr in settDetailsRepo.GetAsQueryable()
+                                                      join tcr in transCodesRepo.GetAsQueryable() on sdr.TransactionCode equals tcr.Trans_code
+                                                      where sdr.OrderId==Convert.ToInt64(voucherNo.Remove(0,3)) && tcr.show_in_inv==true
+                                                      select new SettDetailsResponse
+                                                      {
+                                                          TransDesc = tcr.Trans_Description,
+                                                          Amount =sdr.Amount,
+                                                          SettlementDetId = sdr.SettlementDetId,
+                                                          OrderId = sdr.OrderId,
+                                                          Status = sdr.Status,
+                                                          SettlementDate = sdr.Date,
+                                                          UserId = sdr.UserId,
+                                                          TransCode =tcr.Trans_code,
+                                                          SortOrder = sdr.SortOrder,
+                                                          ShowInInvoice = tcr.show_in_inv
+                                                      }).ToListAsync();
+
+                //billRecall.ItemsDetails = new List<BillRecallItemResponse>();
+                //billRecall.SettlementDetails = new List<SettDetailsResponse>();
+
+                billRecall.ItemsDetails = itemsDetails;
+                billRecall.SettlementDetails = settDetails;
+
+                return Response<BillRecallResponse >.Success(billRecall, "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<BillRecallResponse>.Fail(new BillRecallResponse(), ex.Message);
+            }
+        }
+
         public async Task<Response<List<SaleVoucherTempResponse>>> LoadHoldBills(int workPeriodId)
         {
             try

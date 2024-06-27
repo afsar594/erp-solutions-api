@@ -137,6 +137,9 @@ namespace Inspire.Erp.Domain.Modals
         public List<SaleVoucherDetailsTempResponse> SaleVoucherDetails { get; set; }
     }
 
+
+   
+
     public class SaleVoucherDetailsTempResponse
     {
         public string VoucherNo { get; set; }
@@ -148,6 +151,46 @@ namespace Inspire.Erp.Domain.Modals
         public decimal? VAT { get; set; }
         public decimal? NetAmount { get; set; }
         public int? UnitDetailId { get; set; }
+
+    }
+
+    public class BillRecallResponse
+    {
+        public List<SettDetailsResponse> SettlementDetails { get; set; }
+        public List<BillRecallItemResponse> ItemsDetails { get; set; }
+    }
+
+    public class SettDetailsResponse
+    {
+        public decimal SettlementDetId { get; set; }
+        public string TransDesc { get; set; }
+        public decimal? Amount { get; set; }
+        public long? OrderId { get; set; }
+        public string Status { get; set; }
+        public DateTime? SettlementDate { get; set; }
+        public int? UserId { get; set; }
+        public string TransCode { get; set; }
+        public int? SortOrder { get; set; }
+      
+        public bool? ShowInInvoice { get; set; }
+    
+    }
+    public class BillRecallItemResponse
+    {
+        public long SDet_ID { get; set; }
+        public string VoucherNo { get; set; }
+        public long ItemId { get; set; }
+        public string Description { get; set; }
+        public decimal? UnitId { get; set; }
+        public decimal? Sold_Qty { get; set; }
+        public decimal? UnitPrice { get; set; }
+        public decimal? CostPrice { get; set; }
+        public decimal? GrossAmt { get; set; }
+        public decimal? Discount { get; set; }
+        public decimal? NetAmount { get; set; }
+        public decimal? VatAmount { get; set; }
+        public decimal? VatableAmt { get; set; }
+        public int? UnitDetailsId { get; set; }
 
     }
     public class CardType
