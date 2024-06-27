@@ -31,21 +31,13 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private IRepository<PurchaseRequisitionDetails> _purchaseRequisitionDetailsRepository;
         private IRepository<ProgramSettings> _programsettingsRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
-        private readonly ILogger<PaymentVoucherService> _logger;
-        private readonly IRepository<PermissionApproval> _permissionApprovalRepo;
-        private readonly IRepository<Approval> _approvalRepo;
-        private readonly IRepository<ApprovalDetail> _approvalDetailRepo;
-        public readonly InspireErpDBContext dbContext;
+        private readonly ILogger<PaymentVoucherService> _logger; private readonly IRepository<PermissionApproval> _permissionApprovalRepo; private readonly IRepository<Approval> _approvalRepo; private readonly IRepository<ApprovalDetail> _approvalDetailRepo; public readonly InspireErpDBContext dbContext;
         private IRepository<IPurchaseOrderService> _purchaseOrderService;
         private IRepository<AvIssueVoucherDetails> _AvIssueVoucherDetails;
         private IRepository<AvIssueVoucher> _AvIssueVoucher;
         private IRepository<JobMaster> jobrepository;
         private IRepository<LocationMaster> locationrepository;
-        private IRepository<TrackingRegister> _trackingRegisterRepository;
-        private IRepository<ItemMaster> _itemMasterRepository;
-        private IRepository<UnitMaster> _unitMasterRepository;
-        private IRepository<SuppliersMaster> _suppliersMasterRepository;
-        private IRepository<LocationMaster> _locationMasterRepository;
+        private IRepository<TrackingRegister> _trackingRegisterRepository; private IRepository<ItemMaster> _itemMasterRepository; private IRepository<UnitMaster> _unitMasterRepository; private IRepository<SuppliersMaster> _suppliersMasterRepository; private IRepository<LocationMaster> _locationMasterRepository;
 
         ////      private IRepository<ReportPurchaseRequisition> _reportPurchaseRequisitionRepository;
         ////public PurchaseRequisitionService(IRepository<ReportPurchaseRequisition> reportPurchaseRequisitionRepository,
@@ -62,29 +54,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             this._stockRegisterRepository = stockRegisterRepository;
             this._purchaseRequisitionRepository = purchaseRequisitionRepository;
             this._purchaseRequisitionDetailsRepository = purchaseRequisitionDetailsRepository;
-            _programsettingsRepository = programsettingsRepository;
-            _voucherNumbersRepository = voucherNumbers;
-            _approvalDetailRepo = approvalDetailRepo;
-            _permissionApprovalRepo = permissionApprovalRepo;
-            _approvalRepo = approvalRepo;
-            locationrepository = _locationrepository;
-            jobrepository = _jobrepository;
-            _itemMasterRepository = itemMasterRepository;
-            _unitMasterRepository = unitMasterRepository;
-            _suppliersMasterRepository = suppliersMasterRepository;
-            _locationMasterRepository = locationMasterRepository;
-            _trackingRegisterRepository = trackingRegisterRepository;
-
-
-            ////_reportPurchaseRequisitionRepository = reportPurchaseRequisitionRepository;
+            _programsettingsRepository = programsettingsRepository; _voucherNumbersRepository = voucherNumbers; _approvalDetailRepo = approvalDetailRepo; _permissionApprovalRepo = permissionApprovalRepo; _approvalRepo = approvalRepo; locationrepository = _locationrepository;
+            jobrepository = _jobrepository; _itemMasterRepository = itemMasterRepository; _unitMasterRepository = unitMasterRepository; _suppliersMasterRepository = suppliersMasterRepository; _locationMasterRepository = locationMasterRepository; _trackingRegisterRepository = trackingRegisterRepository;
         }
-
-        ////public IEnumerable<ReportPurchaseRequisition> PurchaseRequisition_GetReportPurchaseRequisition()
-        ////{
-        ////    return _reportPurchaseRequisitionRepository.GetAll();
-        ////}
-
-
         public PurchaseRequisitionModel UpdatePurchaseRequisition(PurchaseRequisition purchaseRequisition, List<AccountsTransactions> accountsTransactions,
             List<PurchaseRequisitionDetails> purchaseRequisitionDetails
             //, List<StockRegister> stockRegister
@@ -223,8 +195,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             return i;
 
         }
-
-
         public void deleteAccountTractionByVoucherId(string AccountsTransactionsVoucherNo, string AccountsTransactionsVoucherType)
         {
             List<AccountsTransactions> accttrans = this._accountTransactionRepository.GetAsQueryable()
@@ -432,7 +402,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             return purchaseRequisitionModel;
 
         }
-
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
         {
             try
@@ -473,12 +442,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             }
 
         }
-
-
-
-        //using Microsoft.Extensions.Logging;
-        //private readonly ILogger<PaymentVoucherService> _logger;
-        //IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
         public VouchersNumbers GetVouchersNumbers(string pvno)
         {
             try
@@ -493,7 +456,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             }
 
         }
-
         public async Task<Response<List<PurChaseRequisitionStatus>>> GetPurchaseRequisitionStatus(PurChaseRequisitionStatusFilterReport model)
         {
             List<PurChaseRequisitionStatus> data = new List<PurChaseRequisitionStatus>();
@@ -600,7 +562,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 return Response<List<PurChaseRequisitionStatus>>.Fail(new List<PurChaseRequisitionStatus>(), ex.Message);
             }
         }
-
         public async Task<Response<List<PurChaseReqFields>>> GetPurchaseReqJobId(PurChaseRequisitionFilterReport model)
         {
             List<PurChaseReqFields> data = new List<PurChaseReqFields>();
@@ -612,17 +573,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 if (model.JobId > 0)
                 {
                     query = query.Where(a => a.PurchaseRequisitionJobId == model.JobId).ToList();
-                    //filteredValue += $"  sm.PurchaseRequisitionJobId = {model.JobId} ";
+
                 }
-                //var detail = _purchaseRequisitionDetailsRepository.GetAsQueryable().ToList();
-                //var items = _itemMasterRepository.GetAsQueryable().ToList();
-                //var unit = _unitMasterRepository.GetAsQueryable().ToList();
-                //var job = jobrepository.GetAsQueryable().ToList();
-                //var loc = locationrepository.GetAsQueryable().ToList();
-                //var reg = _trackingRegisterRepository.GetAsQueryable().ToList();
-
-
-
                 data = (from sm in query
                         join sd in _purchaseRequisitionDetailsRepository.GetAsQueryable() on (decimal?)sm.PurchaseRequisitionId equals sd.PurchaseRequisitionId
                         join im in _itemMasterRepository.GetAsQueryable() on (long?)sd.PurchaseRequisitionDetailsMatId equals im.ItemMasterItemId into imGroup
