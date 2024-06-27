@@ -44,6 +44,6 @@ namespace Inspire.Erp.Application.Procurement.Interfaces
         public VouchersNumbers GetVouchersNumbers(string pvno);
 
         public Task<Response<List<PurChaseRequisitionStatus>>> GetPurchaseRequisitionStatus(PurChaseRequisitionStatusFilterReport filter);
-
+        public Task<Response<List<PurChaseReqFields>>> GetPurchaseReqJobId(PurChaseRequisitionFilterReport filter);
     }
 }

@@ -597,5 +597,68 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 return Response<List<PurChaseRequisitionStatus>>.Fail(new List<PurChaseRequisitionStatus>(), ex.Message);
             }
         }
+
+        public async Task<Response<List<PurChaseReqFields>>> GetPurchaseReqJobId(PurChaseRequisitionFilterReport model)
+        {
+            List<PurChaseReqFields> data = new List<PurChaseReqFields>();
+            try
+            {
+                string filteredValue = string.Empty;
+                if (model.JobId > 0)
+                {
+                    filteredValue += $"  sm.PurchaseRequisitionJobId = {model.JobId} ";
+                }
+                var query = (from sm in dbContext.PurchaseRequisition
+                            join sd in dbContext.PurchaseRequisitionDetails on (decimal?)sm.PurchaseRequisitionId equals sd.PurchaseRequisitionId
+                            join im in dbContext.ItemMaster on (long?)sd.PurchaseRequisitionDetailsMatId equals im.ItemMasterItemId into imGroup
+                            from im in imGroup.DefaultIfEmpty()
+
+                            join um in dbContext.UnitMaster on sd.PurchaseRequisitionDetailsUnitId equals um.UnitMasterUnitId into umGroup
+                            from um in umGroup.DefaultIfEmpty()
+
+                            join jm in dbContext.JobMaster on sm.PurchaseRequisitionJobId equals jm.JobMasterJobId into jmGroup
+                            from jm in jmGroup.DefaultIfEmpty()
+
+                            join lm in dbContext.LocationMaster on sm.PurchaseRequisitionLocationId equals lm.LocationMasterLocationId into lmGroup
+                            from lm in lmGroup.DefaultIfEmpty()
+
+                            join srq in (
+                                from tr in dbContext.TrackingRegister
+                                where tr.TrackingRegisterVoucherType == "CustomerPurchaseOrder"
+                                group tr by tr.TrackingRegisterDetailsId into trGroup
+                                select new
+                                {
+                                    Tracking_Register_Details_ID = trGroup.Key,
+                                    DelQty = trGroup.Sum(tr => tr.TrackingRegisterQtyout)
+                                }
+                            ) on sd.PurchaseRequisitionDetailsId equals srq.Tracking_Register_Details_ID into srqGroup
+                            from srq in srqGroup.DefaultIfEmpty()
+
+                            where sd.PurchaseRequisitionDetailsReqStatus == null &&  (sd.PurchaseRequisitionDetailsQuantity - srq.DelQty) > 0
+                            //&& ($"1 == 1  {filteredValue}")
+
+                            select new PurChaseReqFields
+                            {
+                                PurchaseRequisitionPartyName = sm.PurchaseRequisitionPartyName,
+                                purchaseRequisitionType = sm.PurchaseRequisitionType,
+                                Item_Name= im.ItemMasterItemName.ToString(),
+                                Unit = um == null ? null : um.UnitMasterUnitShortName + " :: " + um.UnitMasterUnitId.ToString(),
+                                DelQty =(decimal) srq.DelQty
+                            }).ToListAsync();
+
+               
+                return new Response<List<PurChaseReqFields>>()
+                {
+                    Valid = true,
+                    Message = "Data Found",
+                    Result = data
+                };
+            }
+            catch (Exception ex)
+            {
+                return Response<List<PurChaseReqFields>>.Fail(new List<PurChaseReqFields>(), ex.Message);
+            }
+        }
+       
     }
 }
