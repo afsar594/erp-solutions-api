@@ -41,7 +41,7 @@ namespace Inspire.Erp.Application.Master
 
         public Task<Response<List<CardType>>> GetCardTypes();
         public Task<Response<ItemMasterResponse>> SearchItemByUnitDetailsId(ItemBarCodeSearchFilter model);
-        public Task<Response<ItemMasterResponse>> SearchHoldBill(string voucherNo);
+        public Task<Response<List<ItemMasterResponse>>> SearchHoldBill(string voucherNo);
 
         public Task<Response<BillRecallResponse>> BillRecall(string voucherNo);
         public Task<Response<List<SaleVoucherTempResponse>>> LoadHoldBills(int workPeriodId);
