@@ -166,6 +166,8 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<ManufactureMaster> ManufactureMaster { get; set; }
         public virtual DbSet<MasterAccountsTable> MasterAccountsTable { get; set; }
         public virtual DbSet<MasterAccountsTableDelete> MasterAccountsTableDelete { get; set; }
+        public virtual DbSet<ManufactureItemsMaster> ManufactureItemsMaster { get; set; }
+        public virtual DbSet<ManufactureItemsMasterDetails> ManufactureItemsMasterDetails { get; set; }
         //// public virtual DbSet<MasterAccountsTableold> MasterAccountsTableold { get; set; }
         /////public virtual DbSet<MasterAccountsTableoldstruct> MasterAccountsTableoldstruct { get; set; }
         public virtual DbSet<MaterialsMaster> MaterialsMaster { get; set; }
@@ -11143,6 +11145,46 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.ManufactureMasterStatus).HasColumnName("Manufacture_Master_Status");
 
                 entity.Property(e => e.ManufactureMasterUserId).HasColumnName("Manufacture_Master_User_ID");
+            });
+
+            modelBuilder.Entity<ManufactureItemsMaster>(entity =>
+            {
+                entity.HasKey(e => e.MI_Id_N);
+
+                entity.ToTable("ManufactureItems");
+
+                entity.Property(e => e.ManufactureItemsMasterStatus).HasColumnName("ManufactureItemsMasterStatus");
+
+                entity.Property(e => e.ManufactureItemsMasterDeleted).HasColumnName("ManufactureItemsMasterDeleted");
+                entity.Property(e => e.MI_VocherNo).HasColumnName("MI_VocherNo");
+                entity.Property(e => e.MI_Id_N).HasColumnName("MI_Id_N");
+                entity.Property(e => e.MI_RF_V).HasColumnName("MI_RF_V");
+                entity.Property(e => e.MI_Item_ID).HasColumnName("MI_Item_ID");
+                entity.Property(e => e.MI_Remarks_V).HasColumnName("MI_Remarks_V")
+                .HasMaxLength(500)
+                .IsUnicode(false);
+
+            });
+            modelBuilder.Entity<ManufactureItemsMasterDetails>(entity =>
+            {
+                entity.HasKey(e => e.MID_Id_N);
+
+                entity.ToTable("ManufactureItemsDtls");
+                entity.Property(e => e.MI_Details_VocherNo).HasColumnName("MI_Details_VocherNo");
+                entity.Property(e => e.MID_Id_N).HasColumnName("MID_Id_N");
+                entity.Property(e => e.MI_Id_N).HasColumnName("MI_Id_N");
+                entity.Property(e => e.MID_ItemId_N).HasColumnName("MID_ItemId_N");
+                entity.Property(e => e.MID_Description_V).HasColumnName("MID_Description_V")
+                .HasMaxLength(500)
+                .IsUnicode(false);
+                entity.Property(e => e.MID_UnitId_N).HasColumnName("MID_UnitId_N");
+                entity.Property(e => e.MID_QTY_N).HasColumnName("MID_QTY_N");
+                entity.Property(e => e.MID_Price_N).HasColumnName("MID_Price_N");
+                entity.Property(e => e.MID_DelQty_N).HasColumnName("MID_DelQty_N");
+                entity.Property(e => e.MID_Amt_N).HasColumnName("MID_Amt_N");
+                entity.Property(e => e.MID_Remarks_V).HasColumnName("MID_Remarks_V")
+                .HasMaxLength(500)
+                .IsUnicode(false);
             });
 
             //////modelBuilder.Entity<MasterAccountsTable>(entity =>
