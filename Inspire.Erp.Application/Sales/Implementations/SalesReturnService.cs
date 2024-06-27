@@ -434,15 +434,39 @@ namespace Inspire.Erp.Application.Account.Implementations
         public SalesReturnModel GetSavedSalesReturnDetails(string pvno)
         {
             SalesReturnModel salesReturnModel = new SalesReturnModel();
-            salesReturnModel.salesReturn = _salesReturnRepository.GetAsQueryable().Where(k => k.SalesReturnNo == pvno).SingleOrDefault();
-            salesReturnModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.SalesReturn_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
-            salesReturnModel.salesReturnDetails = _salesReturnDetailsRepository.GetAsQueryable().Where(x => x.SalesReturnDetailsNo == pvno && (x.SalesReturnDetailsDelStatus == false || x.SalesReturnDetailsDelStatus == null)).ToList();
+            salesReturnModel.salesReturn = _salesReturnRepository.GetAsQueryable().Where(k => k.SalesReturnNo == pvno && k.SalesReturnDelStatus != true).FirstOrDefault();
+            if (salesReturnModel.salesReturn != null)
+            {
+                salesReturnModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.SalesReturn_TYPE && (c.AccountstransactionsDelStatus != true)).ToList();
+                salesReturnModel.salesReturnDetails = _salesReturnDetailsRepository.GetAsQueryable().Where(x => x.SalesReturnDetailsNo == pvno && (x.SalesReturnDetailsDelStatus != true)).ToList();
+
+                foreach (var item in salesReturnModel.salesReturnDetails)
+                {
+                    var sumReturnedQty = _stockRegisterRepository
+                        .GetAsQueryable()
+                        .Where(a => a.StockRegisterMaterialID == item.SalesReturnDetailsMatId &&
+                                    a.StockRegisterTransType == "SalesReturn" &&
+                                    a.StockRegisterRefVoucherNo == item.SalesReturnDetailsNo)
+                        .Select(s => (decimal?)s.StockRegisterSIN)
+                        .DefaultIfEmpty(0)
+                        .Sum() ?? 0;
+
+                    if (sumReturnedQty != null)
+                    {
+                        salesReturnModel.returnedQty.Add(sumReturnedQty);
+                    }
+                }
+
+                //var sumReturnedQty = _stockRegisterRepository
+                //    .GetAsQueryable()
+                //    .Where(a => a.StockRegisterTransType == "SalesReturn" &&
+                //                a.StockRegisterRefVoucherNo == salesReturnModel.salesReturn.SalesReturnNo)
+                //    .Select(s => (int?)s.StockRegisterSIN)
+                //    .DefaultIfEmpty(0)
+                //    .Sum();
+
+            }
             return salesReturnModel;
-
-
-
-
-
         }
 
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
