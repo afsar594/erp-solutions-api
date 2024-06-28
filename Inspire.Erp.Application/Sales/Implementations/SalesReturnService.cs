@@ -442,29 +442,22 @@ namespace Inspire.Erp.Application.Account.Implementations
 
                 foreach (var item in salesReturnModel.salesReturnDetails)
                 {
-                    var sumReturnedQty = _stockRegisterRepository
-                        .GetAsQueryable()
-                        .Where(a => a.StockRegisterMaterialID == item.SalesReturnDetailsMatId &&
-                                    a.StockRegisterTransType == "SalesReturn" &&
-                                    a.StockRegisterRefVoucherNo == item.SalesReturnDetailsNo)
-                        .Select(s => (decimal?)s.StockRegisterSIN)
-                        .DefaultIfEmpty(0)
-                        .Sum() ?? 0;
+                    decimal sumReturnedQty = 0;
+                    var stockQuery = _stockRegisterRepository
+                       .GetAsQueryable()
+                       .Where(a => a.StockRegisterMaterialID == item.SalesReturnDetailsMatId &&
+                                   a.StockRegisterTransType == "SalesReturn" &&
+                                   a.StockRegisterRefVoucherNo == item.SalesReturnDetailsNo);
+
+                    sumReturnedQty = stockQuery.Any()
+                                       ? stockQuery.Sum(s => (decimal?)s.StockRegisterSIN) ?? 0
+                                       : 0;
 
                     if (sumReturnedQty != null)
                     {
-                        salesReturnModel.returnedQty.Add(sumReturnedQty);
+                        item.SalesReturnQtyTill = sumReturnedQty;
                     }
                 }
-
-                //var sumReturnedQty = _stockRegisterRepository
-                //    .GetAsQueryable()
-                //    .Where(a => a.StockRegisterTransType == "SalesReturn" &&
-                //                a.StockRegisterRefVoucherNo == salesReturnModel.salesReturn.SalesReturnNo)
-                //    .Select(s => (int?)s.StockRegisterSIN)
-                //    .DefaultIfEmpty(0)
-                //    .Sum();
-
             }
             return salesReturnModel;
         }

@@ -11,7 +11,6 @@ namespace Inspire.Erp.Application.Common
         public List<AccountsTransactions> accountsTransactions { get; set; }
 
         public List<SalesReturnDetails> salesReturnDetails { get; set; }
-        public List<StockRegister> stockRegister { get; set; }
-        public List<decimal> returnedQty { get; set; }
+        public List<StockRegister> stockRegister { get; set; }        
     }
 }

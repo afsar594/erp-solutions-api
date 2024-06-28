@@ -48,7 +48,7 @@ namespace Inspire.Erp.Web.ViewModels.sales
 
         public bool? SalesReturnDetailsDelStatus { get; set; }
 
-
+        public decimal? SalesReturnQtyTill { get; set; }
         //public virtual SalesReturnController SalesReturnDetailsNoNavigation { get; set; }
     }
 }

@@ -711,33 +711,51 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 purchaseReturnModel.accountsTransactions = _accountTransaction.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.PurchaseReturn_TYPE && (c.AccountstransactionsDelStatus != true)).ToList();
                 purchaseReturnModel.purchaseReturnDetails = _purchaseReturnDetailsRepo.GetAsQueryable().Where(x => x.PurchaseReturnDetailsNo == pvno && (x.PurchaseReturnDetailsDelStatus == false || x.PurchaseReturnDetailsDelStatus == null)).ToList();
 
-                foreach (var purchaseReturnDetail in purchaseReturnModel.purchaseReturnDetails)
+                foreach (var item in purchaseReturnModel.purchaseReturnDetails)
                 {
-                    if (_stockRegister.GetAsQueryable().Where(c => c.StockRegisterRefVoucherNo == purchaseReturnDetail.PurchaseReturnDetailsNo).FirstOrDefault() != null)
-                    {
-                        purchaseReturnDetail.PurchaseReturnNetStock = _stockRegister.GetAsQueryable().Where(c => c.StockRegisterRefVoucherNo == purchaseReturnDetail.PurchaseReturnDetailsNo).FirstOrDefault().StockRegisterSIN;
+                    decimal sumReturnedQty = 0;
+                    var stockQuery = _stockRegister
+                    .GetAsQueryable()
+                    .Where(a => a.StockRegisterMaterialID == item.PurchaseReturnDetailsMatId &&
+                                a.StockRegisterTransType == "PurchaseReturn" &&
+                                a.StockRegisterRefVoucherNo == item.PurchaseReturnDetailsNo);
 
-                    }
-                    purchaseReturnDetail.PurchaseOrderPurchaseQTY = GetPurchaseQTY(purchaseReturnModel.purchaseReturn.PurchaseReturnGrno);
-                }
-                var purchaseReturnList = _purchaseReturnRepo.GetAll().Where(c => c.PurchaseReturnGrno == purchaseReturnModel.purchaseReturn.PurchaseReturnGrno);
-                if (purchaseReturnList != null)
-                {
-                    decimal? qty = 0.0M;
-                    foreach (var prdetail in purchaseReturnList)
+                    sumReturnedQty = stockQuery.Any()
+                                       ? stockQuery.Sum(s => (decimal?)s.StockRegisterSout) ?? 0
+                                       : 0;
+
+                    if (sumReturnedQty != null)
                     {
-                        var rslt = _purchaseReturnDetailsRepo.GetAll().Where(c => c.PurchaseReturnDetailsNo == prdetail.PurchaseReturnNo).FirstOrDefault();
-                        if (rslt != null)
-                        {
-                            qty += rslt.PurchaseReturnDetailsQuantity ?? 0;
-                        }
+                        item.PurchaseReturnQtyTill = sumReturnedQty;
                     }
-                    purchaseReturnModel.purchaseReturnDetails = purchaseReturnModel.purchaseReturnDetails.Select((c) =>
-                      {
-                          c.PurchaseReturnQtyTill = qty;
-                          return c;
-                      }).ToList();
                 }
+                //foreach (var purchaseReturnDetail in purchaseReturnModel.purchaseReturnDetails)
+                //{
+                //    if (_stockRegister.GetAsQueryable().Where(c => c.StockRegisterRefVoucherNo == purchaseReturnDetail.PurchaseReturnDetailsNo).FirstOrDefault() != null)
+                //    {
+                //        purchaseReturnDetail.PurchaseReturnNetStock = _stockRegister.GetAsQueryable().Where(c => c.StockRegisterRefVoucherNo == purchaseReturnDetail.PurchaseReturnDetailsNo).FirstOrDefault().StockRegisterSIN;
+
+                //    }
+                //    purchaseReturnDetail.PurchaseOrderPurchaseQTY = GetPurchaseQTY(purchaseReturnModel.purchaseReturn.PurchaseReturnGrno);
+                //}
+                //var purchaseReturnList = _purchaseReturnRepo.GetAll().Where(c => c.PurchaseReturnGrno == purchaseReturnModel.purchaseReturn.PurchaseReturnGrno);
+                //if (purchaseReturnList != null)
+                //{
+                //    decimal? qty = 0.0M;
+                //    foreach (var prdetail in purchaseReturnList)
+                //    {
+                //        var rslt = _purchaseReturnDetailsRepo.GetAll().Where(c => c.PurchaseReturnDetailsNo == prdetail.PurchaseReturnNo).FirstOrDefault();
+                //        if (rslt != null)
+                //        {
+                //            qty += rslt.PurchaseReturnDetailsQuantity ?? 0;
+                //        }
+                //    }
+                //    purchaseReturnModel.purchaseReturnDetails = purchaseReturnModel.purchaseReturnDetails.Select((c) =>
+                //      {
+                //          c.PurchaseReturnQtyTill = qty;
+                //          return c;
+                //      }).ToList();
+                //}
             }
             return purchaseReturnModel;
 
