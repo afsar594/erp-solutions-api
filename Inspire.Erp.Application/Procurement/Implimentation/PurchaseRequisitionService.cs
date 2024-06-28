@@ -607,7 +607,15 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                             purchaseRequisitionType = sm.PurchaseRequisitionType ?? "",
                             Item_Name = im.ItemMasterItemName.ToString() ?? "",
                             Unit = um == null ? null : um.UnitMasterUnitShortName ?? "" + " :: " + um.UnitMasterUnitId.ToString() ?? "",
-                            DelQty = srq?.DelQty ?? 0
+                            DelQty = srq?.DelQty ?? 0,
+                            SRID = sm.PurchaseRequisitionId,
+                            SRNo = sm.PurchaseRequisitionNo ?? "",
+                            Date = sm.PurchaseRequisitionDate,
+                            SRQ = sd.PurchaseRequisitionDetailsQuantity??0,
+                            BalQty = (sd.PurchaseRequisitionDetailsQuantity - srq?.DelQty) ?? 0,
+                            matId = sd.PurchaseRequisitionDetailsMatId ?? 0,
+                            unitid = sd.PurchaseRequisitionDetailsUnitId,
+                            jobid=sm.PurchaseRequisitionJobId 
                         }).ToList();
 
 

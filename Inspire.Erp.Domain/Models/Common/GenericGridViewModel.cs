@@ -144,7 +144,17 @@ namespace Inspire.Erp.Domain.Modals.Common
         public string purchaseRequisitionType { get; set; }
          public string Item_Name { get; set; }
         public string Unit { get; set; }
-        public decimal DelQty { get; set; } 
+        public decimal DelQty { get; set; }
+
+        public decimal? SRID { get; set; }
+        public string SRNo { get; set; }
+        public DateTime Date { get; set; }
+        public decimal? SRQ { get; set; }
+        public decimal? BalQty { get; set; }
+        public decimal? matId { get; set; }
+        public int unitid { get; set; }
+        public long? jobid { get; set; }
+
     }
 
 }
