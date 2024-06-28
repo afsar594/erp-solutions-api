@@ -835,23 +835,14 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 //=================================
                 purchaseReturn.PurchaseReturnDetails = purchaseReturnDetails.Select((k) =>
                 {
-                    //if (k.SalesReturnDetailsId == 0)
-                    //{
+                    
                     k.PurchaseReturnId = purchaseReturn.PurchaseReturnId;
-                    k.PurchaseReturnDetailsNo = purchaseReturn.PurchaseReturnNo;
-                    //k.SalesReturnDetailsId = 0;
-                    //}
-
+                    k.PurchaseReturnDetailsNo = purchaseReturn.PurchaseReturnNo;                   
                     return k;
                 }).ToList();
 
                 _purchaseReturnRepo.Update(purchaseReturn);
 
-
-
-
-
-                //_salesReturnRepository.Update(salesReturn);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     if (k.AccountsTransactionsTransSno == 0)
@@ -861,11 +852,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         k.AccountsTransactionsVoucherType = VoucherType.PurchaseReturn_TYPE;
                         k.AccountsTransactionsStatus = AccountStatus.Approved;
                     }
-
                     return k;
                 }).ToList();
                 _accountTransaction.UpdateList(accountsTransactions);
-
 
                 stockRegister = stockRegister.Select((k) =>
                 {
@@ -876,16 +865,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         k.StockRegisterTransType = VoucherType.PurchaseReturn_TYPE;
                         k.StockRegisterStatus = AccountStatus.Approved;
                     }
-
                     return k;
                 }).ToList();
                 _stockRegister.UpdateList(stockRegister);
-
-
-
-
-
-
                 _purchaseReturnRepo.TransactionCommit();
 
             }
