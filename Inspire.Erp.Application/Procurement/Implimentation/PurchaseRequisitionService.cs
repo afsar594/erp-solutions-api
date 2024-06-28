@@ -596,7 +596,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                             select new
                             {
                                 Tracking_Register_Details_ID = trGroup.Key,
-                                DelQty = trGroup.Sum(tr => tr.TrackingRegisterQtyout ?? 0)
+                                DelQty = trGroup.Sum(tr => tr.TrackingRegisterQtyout ?? 0),
+                                Stock = trGroup.Sum(tr => tr.TrackingRegisterQtyin  ?? 0 - tr.TrackingRegisterQtyout ?? 0)
                             }
                         ) on sd.PurchaseRequisitionDetailsId equals srq.Tracking_Register_Details_ID into srqGroup
                         from srq in srqGroup.DefaultIfEmpty()
@@ -615,7 +616,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                             BalQty = (sd.PurchaseRequisitionDetailsQuantity - srq?.DelQty) ?? 0,
                             matId = sd.PurchaseRequisitionDetailsMatId ?? 0,
                             unitid = sd.PurchaseRequisitionDetailsUnitId,
-                            jobid=sm.PurchaseRequisitionJobId 
+                            jobid=sm.PurchaseRequisitionJobId,
+                            Stock= srq?.Stock ??0
                         }).ToList();
 
 

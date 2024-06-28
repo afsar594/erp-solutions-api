@@ -155,6 +155,9 @@ namespace Inspire.Erp.Domain.Modals.Common
         public int unitid { get; set; }
         public long? jobid { get; set; }
 
-    }
+        public decimal? Stock { get; set; }
+        
+
+        }
 
 }
