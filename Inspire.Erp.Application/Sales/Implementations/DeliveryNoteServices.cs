@@ -86,14 +86,29 @@ namespace Inspire.Erp.Application.Sales.Implementations
             {
                 _deliveryNoteRepository.BeginTransaction();
 
-                deliveryNote.CustomerDeliveryNoteDetails = deliveryNote.CustomerDeliveryNoteDetails.Select((k) =>
-                {
-                    k.CustomerDeliveryNoteDetailsDeliveryNo = deliveryNote.CustomerDeliveryNoteDeliveryID;
-                    return k;
-                }).ToList();
+                int max1count = 0;
+                max1count =
+                    _deliveryNoteDetailsRepository.GetAsQueryable()
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : (int)o.CustomerDeliveryNoteDetailsDetId) + 1;
 
+                deliveryNote.CustomerDeliveryNoteDetails.Clear();
                 _deliveryNoteRepository.Update(deliveryNote);
 
+                foreach (var item in deliveryNoteDetails)
+                {
+                    item.CustomerDeliveryNoteDetailsDeliveryNo = deliveryNote.CustomerDeliveryNoteDeliveryID;
+
+                    if (item.CustomerDeliveryNoteDetailsDetId != 0)
+                    {
+                        _deliveryNoteDetailsRepository.Update(item);
+                    }
+                    else
+                    {
+                        item.CustomerDeliveryNoteDetailsDetId = max1count;
+                        _deliveryNoteDetailsRepository.Insert(item);
+                        max1count++;
+                    }
+                }
                 _deliveryNoteRepository.TransactionCommit();
 
             }

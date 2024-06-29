@@ -85,15 +85,30 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             {
                 _GeneralpurchaseOrderRepository.BeginTransaction();
 
-                GeneralpurchaseOrder.GeneralPurchaseOrderDetails = GeneralpurchaseOrder.GeneralPurchaseOrderDetails.Select((k) =>
-                {
-                    k.GeneralPurchaseOrderId = GeneralpurchaseOrder.GeneralPurchaseOrderId;
-                    k.GeneralPurchaseOrderPono = GeneralpurchaseOrder.GeneralPurchaseOrderPono;
-                    return k;
-                }).ToList();
+                decimal maxcount = 0;
+                maxcount =
+                    _GeneralpurchaseOrderDetailsRepository.GetAsQueryable()
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : (decimal)o.GeneralPurchaseOrderDetailsPoid) + 1;
 
+                GeneralpurchaseOrder.GeneralPurchaseOrderDetails.Clear();
                 _GeneralpurchaseOrderRepository.Update(GeneralpurchaseOrder);
 
+                foreach (var item in GeneralpurchaseOrderDetails)
+                {
+                    item.GeneralPurchaseOrderId = GeneralpurchaseOrder.GeneralPurchaseOrderId;
+                    item.GeneralPurchaseOrderPono = GeneralpurchaseOrder.GeneralPurchaseOrderPono;
+                    if (item.GeneralPurchaseOrderDetailsPoid != 0)
+                    {
+                        _GeneralpurchaseOrderDetailsRepository.Update(item);
+                    }
+                    else
+                    {
+                        item.GeneralPurchaseOrderDetailsPoid = maxcount;
+                        _GeneralpurchaseOrderDetailsRepository.Insert(item);
+                        maxcount++;
+
+                    }
+                }               
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     if (k.AccountsTransactionsTransSno == 0)
@@ -256,7 +271,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         }
         public GeneralPurchaseOrderModel GetSavedGeneralPurchaseOrderDetails(string pvno)
         {
-            GeneralPurchaseOrderModel generalpurchaseOrderModel = new GeneralPurchaseOrderModel();            
+            GeneralPurchaseOrderModel generalpurchaseOrderModel = new GeneralPurchaseOrderModel();
 
             generalpurchaseOrderModel.GeneralpurchaseOrder = _GeneralpurchaseOrderRepository.GetAsQueryable().Where(k => k.GeneralPurchaseOrderPono == pvno).SingleOrDefault();
 
