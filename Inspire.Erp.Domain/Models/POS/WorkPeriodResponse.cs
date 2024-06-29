@@ -125,6 +125,23 @@ namespace Inspire.Erp.Domain.Modals
         public List<ItemDetail> ItemDetails { get; set; }
     }
 
+    public class CardResettlementRequest
+    {
+       
+        public decimal? TotalAmount { get; set; }
+        public decimal? TransCardAmt { get; set; }
+        public string VoucherNo { get; set; }
+        public string CardNo { get; set; }
+        public string CardType { get; set; }
+        public string CardMode { get; set; }
+
+        public string TransCheck { get; set; }
+        public int? UserId { get; set; }
+        public int? LocationId { get; set; }
+        public int? StationId { get; set; }
+        public int WorkPeriodId { get; set; }
+    }
+
 
     public class SaleVoucherTempResponse
     {
@@ -136,9 +153,6 @@ namespace Inspire.Erp.Domain.Modals
         public decimal? NetAmount { get; set; }
         public List<SaleVoucherDetailsTempResponse> SaleVoucherDetails { get; set; }
     }
-
-
-   
 
     public class SaleVoucherDetailsTempResponse
     {
@@ -153,6 +167,41 @@ namespace Inspire.Erp.Domain.Modals
         public int? UnitDetailId { get; set; }
 
     }
+
+    public class SaleVoucherResponse
+    {
+        public string VoucherNo { get; set; }
+        public string CustomerName { get; set; }
+        public decimal? GrossAmount { get; set; }
+        public decimal? Discount { get; set; }
+        public decimal? VAT { get; set; }
+        public decimal? NetAmount { get; set; }
+        public string PaymentMode { get; set; }
+        public string RefNo { get; set; }
+        public DateTime? VoucherDate { get; set; }
+        public string VoucherType { get; set; }
+        public List<SaleVoucherDetailsResponse> SaleVoucherDetails { get; set; }
+    }
+
+    public class SaleVoucherDetailsResponse
+    {
+        public string VoucherNo { get; set; }
+        public string Description { get; set; }
+        public string UnitName { get; set; }
+        public int Quantity { get; set; }
+     //   public decimal? Discount { get; set; }
+      
+        public decimal? UnitPrice { get; set; }
+        public decimal? VAT { get; set; }
+        public decimal? NetAmount { get; set; }
+        //public int? UnitDetailId { get; set; }
+
+    }
+
+
+
+
+
 
     public class BillRecallResponse
     {
