@@ -30,6 +30,7 @@ using System.Diagnostics.Eventing.Reader;
 using System.Collections;
 using System.Xml.Linq;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace Inspire.Erp.Application.Master
 {
@@ -68,6 +69,7 @@ namespace Inspire.Erp.Application.Master
 
         private readonly IRepository<POS_SalesReturn> _saleReturnRepo;
         private readonly IRepository<POS_SalesReturnDetails> _saleReturnDetailsRepo;
+        private readonly IRepository<CardDetails> _cardDetailsRepo;
         public ItemMasterService(IRepository<ItemMaster> _itemrepository, IRepository<ItemStockType> _itemStockRepository, IRepository<UnitDetails> unitDetailsRepo
             , IRepository<VendorMaster> _vendorrepository
             , IRepository<PurchaseVoucherDetails> _purchVouchDetailsRepo
@@ -98,6 +100,7 @@ namespace Inspire.Erp.Application.Master
             , IRepository<SalesManMaster> saleMan
             , IRepository<POS_SalesReturn> saleReturnRepo
         , IRepository<POS_SalesReturnDetails> saleReturnDetailsRepo
+            , IRepository<CardDetails> cardDetailsRepo
             )
         {
             itemrepository = _itemrepository;
@@ -132,6 +135,7 @@ namespace Inspire.Erp.Application.Master
             _saleMan = saleMan;
             _saleReturnRepo = saleReturnRepo;
             _saleReturnDetailsRepo = saleReturnDetailsRepo;
+            _cardDetailsRepo = cardDetailsRepo;
         }
         public IEnumerable<ItemMaster> InsertItem(ItemMaster itemMaster)
         {
@@ -846,6 +850,231 @@ namespace Inspire.Erp.Application.Master
             }
         }
         public async Task<PrintData> PrintReciept(string voucherNo)
+        {
+            try
+            {
+                string print = "Rana";
+                // 
+
+                string createStringitename;
+                string[] getItemName = new string[1];
+                string createstringqty;
+                string ESC = "\u001b";
+                DateTime dateTime = new DateTime();
+                DateTimeFormatInfo dateFormat = new DateTimeFormatInfo();
+                string strDate;
+                int pTOption = 0;
+                dateTime = System.DateTime.Now;
+                dateFormat.MonthDayPattern = "MMMM";
+                strDate = dateTime.ToString("MMMM,dd,yyyy,  HH:mm", dateFormat);
+
+                DateTime filesWritten = System.DateTime.Now;
+                int rptWidth = 56;
+                string Iname = "Itemname";
+                string Qtys = "Qty";
+                string Price_Hd = "Price";
+                string Tax_hd = "Tax";
+                string Disc_hd = "Disc";
+                string Total_hd = "Total";
+                var stationSett = stationSettingsRepo.GetAsQueryable().FirstOrDefault(o => o.Id == 1);
+
+                System.Diagnostics.Process OSK;
+                string eClear = Strings.Chr(27) + "@";
+                string eCentre = Strings.Chr(27) + Strings.Chr(97) + "1";
+                string eLeft = Strings.Chr(27) + Strings.Chr(97) + "0";
+                string eRight = Strings.Chr(27) + Strings.Chr(97) + "2";
+                string eDrawer = eClear + Strings.Chr(27) + "p" + Strings.Chr(0) + ".}";
+                string eCut = Strings.Chr(27) + "i" + Constants.vbCrLf;
+                string eSmlText = Strings.Chr(27) + "!" + Strings.Chr(1);
+                string eNmlText = Strings.Chr(27) + "!" + Strings.Chr(0);
+                string eInit = eNmlText + Strings.Chr(13) + Strings.Chr(27) + "c6" + Strings.Chr(1) + Strings.Chr(27) + "R3" + Constants.vbCrLf;
+                string eBigCharOn = Strings.Chr(27) + "!" + Strings.Chr(56);
+                string eBigCharOff = Strings.Chr(27) + "!" + Strings.Chr(0);
+                string CreateNewLine;
+                string eBigCharOn1 = Strings.Chr(27) + "!" + Strings.Chr(50);
+                string eBigCharOn2 = Strings.Chr(27) + "!" + Strings.Chr(40);
+                string eBigCharOn3 = Strings.Chr(27) + "!" + Strings.Chr(33);
+                var StrRen = new StringBuilder();
+
+                if (stationSett.PrintHeader1 != null)
+                {
+                    StrRen.AppendLine(eCentre + eBigCharOn2 + stationSett.PrintHeader1);
+                }
+                if (stationSett.PrintHeader2 != default)
+                {
+                    StrRen.AppendLine(eCentre + eBigCharOn3 + stationSett.PrintHeader2);
+                }
+                if (stationSett.PrintHeader3 != default)
+                {
+                    StrRen.AppendLine(eCentre + eBigCharOff + stationSett.PrintHeader3);
+                }
+                if (stationSett.PrintHeader4 != default)
+                {
+                    StrRen.AppendLine(eCentre + eBigCharOff + stationSett.PrintHeader4);
+                }
+
+                StrRen.AppendLine(eBigCharOff + "------------------------------------------------");
+                var DisableVat = false;//to be changed
+                if (DisableVat == true)
+                {
+                    StrRen.AppendLine(eCentre + eBigCharOn2 + "Invoice");
+                }
+                else
+                {
+                    StrRen.AppendLine(eCentre + eBigCharOn2 + "Tax Invoice");
+
+                }
+
+                var saleV = posSalesVoucherRepo.GetAsQueryable().FirstOrDefault(o => o.VoucherNo.Trim().ToUpper() == voucherNo.ToUpper());
+
+                if (saleV != null)
+                {
+                    StrRen.AppendLine(eBigCharOff + "------------------------------------------------");
+                    StrRen.AppendLine(eBigCharOn2 + eLeft + "Bill No: " + voucherNo);
+                    StrRen.AppendLine(eCentre + eBigCharOff + "------------------------------------------------");
+                    StrRen.AppendLine(eBigCharOff + eLeft + "Cashier   : " + "uname");//to be changd
+                    StrRen.AppendLine(eLeft + "Date      : " + strDate);
+                    StrRen.AppendLine(eLeft + "Mode      : " + saleV.PaymentMode);
+                    StrRen.AppendLine("------------------------------------------------");
+
+                    var cust = customerMasterRepo.GetAsQueryable().FirstOrDefault(o => o.CustomerMasterCustomerNo == saleV.Customer_ID);
+                    bool showCustomer = false;
+                    if (showCustomer == true)
+                    {
+                        StrRen.AppendLine(eLeft + "Customer  : " + cust.CustomerMasterCustomerName);
+                        StrRen.AppendLine("------------------------------------------------");
+                    }
+                    else
+                    {
+
+                    }
+
+
+                    StrRen.AppendLine(eLeft + eBigCharOff + Iname.PadRight(1) + Qtys.PadLeft(15 - Strings.Len(Iname)) + Price_Hd.PadLeft(15 - Strings.Len(Iname)) + Disc_hd.PadLeft(14 - Strings.Len(Iname)) + Tax_hd.PadLeft(15 - Strings.Len(Iname)) + Total_hd.PadLeft(17 - Strings.Len(Iname)));
+                    StrRen.AppendLine("-----------------------------------------------");
+
+
+                    var saleVD = posSalesVoucherDetailsRepo.GetAsQueryable().Where(o => o.VoucherNo.Trim().ToUpper() == voucherNo.ToUpper()).ToList();
+
+                    foreach (var vouchD in saleVD)
+                    {
+                        string unit = vouchD.UnitId.ToString();
+                        string itemname = vouchD.ItemId.ToString();
+                        string iqty = vouchD.Sold_Qty.ToString();
+                        string iprice = Convert.ToDecimal(vouchD.UnitPrice).ToString("0.00");
+                        string itax = Convert.ToDecimal(vouchD.VatableAmt).ToString("0.00");
+                        string iDisc = Convert.ToDecimal(vouchD.Discount).ToString("0.00");
+                        string itotal = Convert.ToDecimal(vouchD.NetAmount - vouchD.Discount + vouchD.VatableAmt).ToString("0.00");
+                        StrRen.AppendLine(itemname.PadRight(1) + " " + unit);
+                        StrRen.AppendLine(iqty.PadLeft(22 - Strings.Len(Iname)) + iprice.PadLeft(16 - Strings.Len(Iname)) + iDisc.PadLeft(14 - Strings.Len(Iname)) + itax.PadLeft(15 - Strings.Len(Iname)) + itotal.PadLeft(17 - Strings.Len(Iname)));
+                    }
+
+                    decimal? NetTotal = saleV.NetAmount;
+                    string GrandTotal = "";
+                    string bill;
+                    string POS = "NORMAL";
+                    if (POS == "TOUCH")
+                    {
+                        GrandTotal = Convert.ToDecimal(NetTotal).ToString("0.00");
+                        bill = saleV.ShortNo.ToString();
+                    }
+                    else if (POS == "NORMAL")
+                    {
+                        GrandTotal = Convert.ToDecimal(NetTotal).ToString("0.00");
+                        bill = saleV.ShortNo.ToString();
+                    }
+
+                    var strPaymode = new List<string> { "CHNG", "CAS", "CUS", "DLRY", "POINTS", "NET", "RCVE", "RF", "STFA", "VAMT", "VAT", "CRD", "DIS", "MAS", "MASRES", "VIS", "POTCD", "b", "DINE", "DINRES", "CASR", "BIL", "DISNT" };
+
+                    var result = await (from ir in settDetailsTempRepo.GetAsQueryable()
+                                        join ud in transCodesRepo.GetAsQueryable() on ir.TransactionCode equals ud.Trans_code
+                                        where ir.UserId == saleV.UserId && ud.show_in_inv == true
+                                        && ir.OrderId == saleV.ShortNo && strPaymode.Contains(ud.Trans_code.Trim().ToUpper())
+                                        select new SettlementDetailsResponse
+                                        {
+                                            TransactionDesc = ud.Trans_Description,
+                                            Amount = ir.Amount,
+                                            SettlementDetailsId = ir.SettlementDetId,
+                                            SalesVoucherId = ir.OrderId,
+                                            Status = ir.Status,
+                                            SettlementDate = ir.Date,
+                                            SortOrder = ud.Sort_order,
+                                            ShowinInvoice = ud.show_in_inv,
+                                            TransactionCode = ud.Trans_code,
+                                            UserId = ir.UserId
+                                        }).OrderBy(x => x.SortOrder).ToListAsync();
+
+                    foreach (var settD in result)
+                    {
+                        if (settD.TransactionDesc.Trim().ToUpper() == "BILL WISE DISCOUNT" || settD.TransactionDesc.Trim().ToUpper() == "ROUND OFF")
+                            pTOption = 1;
+                    }
+                    StrRen.AppendLine("-----------------------------------------------");
+                    foreach (var settD in result)
+                    {
+                        if (settD.TransactionDesc.Trim().ToUpper() == "CHANGE" && settD.Amount == 0)
+                        { }
+                        else
+                        {
+                            if (pTOption == 0 && settD.TransactionDesc.Trim().ToUpper() == "BILL AMOUNT")
+                            {
+
+                            }
+                            else
+                            {
+                                StrRen.AppendLine(eBigCharOff + eLeft + settD.TransactionDesc.PadRight(20) + settD.Amount.ToString().PadLeft(24));
+                            }
+                        }
+
+                    }
+
+                    StrRen.AppendLine("-----------------------------------------------");
+
+                    string label = "Grand Total: ";
+                    string Gtotal = Convert.ToDecimal(GrandTotal).ToString("0.00");
+                    StrRen.AppendLine(eBigCharOn2 + eLeft + label.PadRight(13) + Gtotal.PadLeft(9));
+                    StrRen.AppendLine(eBigCharOff + "-----------------------------------------------");
+
+                    if (stationSett.PrintFooter1 != "")
+                    {
+                        StrRen.AppendLine(eCentre + eBigCharOff + stationSett.PrintFooter1);
+                    }
+                    if (stationSett.PrintFooter2 != "")
+                    {
+                        StrRen.AppendLine(eCentre + eBigCharOff + stationSett.PrintFooter2);
+                    }
+                    if (stationSett.PrintFooter3 != "")
+                    {
+                        StrRen.AppendLine(eCentre + eBigCharOff + stationSett.PrintFooter3);
+                    }
+                    if (stationSett.PrintFooter4 != "")
+                    {
+                        StrRen.AppendLine(eCentre + eBigCharOff + stationSett.PrintFooter4);
+                    }
+                    StrRen.AppendLine("");
+                    StrRen.AppendLine("");
+                    StrRen.AppendLine("");
+                    StrRen.AppendLine("");
+                    StrRen.AppendLine("");
+                    StrRen.AppendLine(eCut);
+                }
+
+
+                return new PrintData
+                {
+                    PrinterName = stationSett.PrinterName,
+                    Data = StrRen.ToString()
+                };
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+
+        public async Task<PrintData> RePrintReciept(string voucherNo)
         {
             try
             {
@@ -2763,8 +2992,6 @@ namespace Inspire.Erp.Application.Master
                 return Response <List< ItemMasterResponse>>.Fail(new List<ItemMasterResponse>(), ex.Message);
             }
         }
-
-
         public async Task<Response<BillRecallResponse>> BillRecall(string voucherNo)
         {
             try
@@ -2822,7 +3049,6 @@ namespace Inspire.Erp.Application.Master
                 return Response<BillRecallResponse>.Fail(new BillRecallResponse(), ex.Message);
             }
         }
-
         public async Task<Response<List<SaleVoucherTempResponse>>> LoadHoldBills(int workPeriodId)
         {
             try
@@ -2861,6 +3087,51 @@ namespace Inspire.Erp.Application.Master
             catch (Exception ex)
             {
                 return Response<List<SaleVoucherTempResponse>>.Fail(new List<SaleVoucherTempResponse>(), ex.Message);
+            }
+        }
+
+        public async Task<Response<SaleVoucherResponse>> Resettlement(string voucherNo)
+        {
+            try
+            {
+                var result = await (from ir in posSalesVoucherRepo.GetAsQueryable().Where(x => x.VoucherNo == voucherNo)
+                                    select new SaleVoucherResponse
+                                    {
+
+                                        VoucherNo = ir.VoucherNo,
+                                        CustomerName = ir.Description,
+                                        GrossAmount = ir.GrossAmount,
+                                        Discount = ir.Discount,
+                                        VAT = ir.VatAmount,
+                                        NetAmount = ir.NetAmount,
+                                        PaymentMode=ir.PaymentMode,
+                                        RefNo=ir.refno,
+                                        VoucherDate=ir.VoucherDate,
+                                        VoucherType=ir.Voucher_Type,
+                                        SaleVoucherDetails = (from vd in posSalesVoucherDetailsRepo.GetAsQueryable()
+                                                              join ud in _unitMasterRepo.GetAsQueryable() on vd.UnitId equals ud.UnitMasterUnitId into umJoin
+                                                              from umd in umJoin.DefaultIfEmpty()
+                                                              where vd.V_ID == ir.V_ID
+                                                              select new SaleVoucherDetailsResponse
+                                                              {
+                                                                  VoucherNo = vd.VoucherNo,
+                                                                  Description = vd.Description,
+                                                                  UnitName = umd.UnitMasterUnitShortName,
+                                                                  //Discount = vd.Discount,
+                                                                  Quantity = (int)vd.Sold_Qty,
+                                                                  UnitPrice = vd.UnitPrice,
+                                                                  VAT = vd.VatAmount,
+                                                                  NetAmount = vd.NetAmount,
+                                                                  //UnitDetailId = vd.UnitDetailsId
+
+                                                              }).ToList()
+                                    }).FirstOrDefaultAsync();
+
+                return Response<SaleVoucherResponse>.Success(result, "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<SaleVoucherResponse>.Fail(new SaleVoucherResponse(), ex.Message);
             }
         }
         public async Task<Response<ItemMasterResponse>> SearchItemByUnitDetailsId(ItemBarCodeSearchFilter model)
@@ -3664,6 +3935,350 @@ namespace Inspire.Erp.Application.Master
         }
 
 
+        public async Task<Response<ProcessCashCardResponse>> ProcessCardResettlement(CardResettlementRequest model)
+        {
+            //using (var trans = new TransactionScope())
+            var cashCardRes = new ProcessCashCardResponse();
+            var option = new TransactionOptions
+            {
+                IsolationLevel = IsolationLevel.ReadCommitted,
+
+                Timeout = TimeSpan.FromSeconds(300),
+
+            };
+            using (var trans = new TransactionScope(
+        TransactionScopeOption.Required,
+        new TransactionOptions { IsolationLevel = IsolationLevel.ReadUncommitted, Timeout = TimeSpan.FromSeconds(300) },
+        TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                   
+                    var stationSett = stationSettingsRepo.GetAsQueryable().FirstOrDefault(o => o.Id == (long)model.StationId);//model.StationId
+                    string billPOSCode = stationSett.POSStationCode;
+
+           
+                    var salesVoucher = posSalesVoucherRepo.GetAll().FirstOrDefault(o => o.VoucherNo == model.VoucherNo);
+                    if (salesVoucher != null)
+                    {
+                        salesVoucher.Voucher_Type = "CARD";
+                        salesVoucher.CustomerName = "CARD CUSTOMER";
+                        salesVoucher.CashCustName = "CARD CUSTOMER";
+                        salesVoucher.PaymentMode = "CARD";
+                    }
+
+                    var cardM = new CardDetails()
+                    {
+                        CardDetailsBillNo = model.VoucherNo,
+                        CardDetailsCardNo = model.CardNo,
+                        CardDetailsCardType = model.CardType
+                       
+                    };
+                    _cardDetailsRepo.Insert(cardM);
+
+              
+                    var tempTransCodes = transCodesRepo.GetAsQueryable().FirstOrDefault(o =>  o.Trans_Description.Trim().ToUpper() == model.CardType.ToUpper());
+                    string transCode = "";
+                    string transDesc = "";
+                    if (tempTransCodes != null)
+                    {
+                        transCode = tempTransCodes.Trans_code;
+                        transDesc = tempTransCodes.Trans_Description;
+                    }
+
+                    var salesTransDetails = posSalesTranDetailsRepo.GetAll().FirstOrDefault(o => o.InvoiceNo == model.VoucherNo && o.PaymentMode.ToUpper()== "CAS");
+                    decimal? salesTransAmt = 0;
+                    if (salesTransDetails != null)
+                    {
+                        //var salesTransDetailsToSave = posSalesTranDetailsRepo.GetAll().FirstOrDefault(o => 
+                        // o.InvoiceNo.Trim() == model.VoucherNo
+                        //&& o.PaymentMode.Trim().ToUpper() == salesTransDetails.PaymentMode.Trim().ToUpper());
+                        salesTransDetails.PaymentMode = model.CardMode.Trim();
+                        salesTransDetails.Description = "CREDIT CARD";
+                        salesTransAmt = salesTransDetails.Amount;
+                    }
+
+                    var settDetailsIdDis = getMaxSettDetails();
+                    var settDetails = settDetailsRepo.GetAll().FirstOrDefault(o => o.OrderId == Convert.ToInt64(model.VoucherNo.Trim().Substring(4, 6)) && o.TransactionCode.Trim().ToUpper() == "NET");
+                    var alloModelDis = new POS_SettlementDet()
+                    {
+                        SettlementDetId = settDetails.SettlementDetId,
+                        OrderId =Convert.ToInt64(model.VoucherNo.Trim().Substring(4,6)),
+                        Amount = salesTransAmt,
+                        Status = "Y",
+                        Date = DateTime.Now,//to be changed
+                        UserId = model.UserId,
+                        TransactionCode = "CRD"
+
+                    };
+                    settDetailsRepo.Insert(alloModelDis);
+
+                    //ReSettlement_log remaining
+                    cashCardRes.VoucherNo = model.VoucherNo;
+                    trans.Complete();
+                    //trans.Dispose();
+                    return Response<ProcessCashCardResponse>.Success(cashCardRes, "Your Bill Selleted with Card Payment.");
+                }
+                catch (Exception ex)
+                {
+                    trans.Dispose();
+                    return Response<ProcessCashCardResponse>.Fail(new ProcessCashCardResponse(), ex.Message);
+                }
+            }
+        }
+        public async Task<Response<ProcessCashCardResponse>> ProcessCashResettlement(CardResettlementRequest model)
+        {
+            //using (var trans = new TransactionScope())
+            var cashCardRes = new ProcessCashCardResponse();
+            var option = new TransactionOptions
+            {
+                IsolationLevel = IsolationLevel.ReadCommitted,
+
+                Timeout = TimeSpan.FromSeconds(300),
+
+            };
+            using (var trans = new TransactionScope(
+        TransactionScopeOption.Required,
+        new TransactionOptions { IsolationLevel = IsolationLevel.ReadUncommitted, Timeout = TimeSpan.FromSeconds(300) },
+        TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+
+                    var stationSett = stationSettingsRepo.GetAsQueryable().FirstOrDefault(o => o.Id == (long)model.StationId);//model.StationId
+                    string billPOSCode = stationSett.POSStationCode;
+
+
+                    var salesVoucher = posSalesVoucherRepo.GetAll().FirstOrDefault(o => o.VoucherNo == model.VoucherNo);
+                    if (salesVoucher != null)
+                    {
+                        salesVoucher.Voucher_Type = "CASH";
+                        salesVoucher.CustomerName = "CASH CUSTOMER";
+                        salesVoucher.CashCustName = "CASH CUSTOMER";
+                        salesVoucher.PaymentMode = "CASH";
+                    }
+
+                    var cardDetails = _cardDetailsRepo.GetAsQueryable().Where(o => o.CardDetailsBillNo == model.VoucherNo).ToList();
+                    if (cardDetails != null) _cardDetailsRepo.DeleteList(cardDetails);
+                  
+
+                    var tempTransCodes = transCodesRepo.GetAsQueryable().FirstOrDefault(o => o.Trans_Description.Trim().ToUpper() == model.CardType.ToUpper());
+                    string transCode = "";
+                    string transDesc = "";
+                    if (tempTransCodes != null)
+                    {
+                        transCode = tempTransCodes.Trans_code;
+                        transDesc = tempTransCodes.Trans_Description;
+                    }
+
+                    var list = new List<string> { "CRD", "MAS", "VIS" };
+                    var salesTransDetails = posSalesTranDetailsRepo.GetAll().FirstOrDefault(x => x.InvoiceNo == model.VoucherNo
+                    && list.Contains(x.PaymentMode));
+
+                    
+                    decimal? salesTransAmt = 0;
+                    if (salesTransDetails != null)
+                    {
+                       
+                        salesTransDetails.PaymentMode = "CAS";
+                        salesTransDetails.Description = "CASH";
+                        salesTransAmt = salesTransDetails.Amount;
+                    }
+
+                    var settDetails = settDetailsRepo.GetAsQueryable().Where(o => o.OrderId == Convert.ToInt64(model.VoucherNo.Trim().Substring(4, 6)) 
+                    && list.Contains(o.TransactionCode.Trim())).ToList();
+                    if (settDetails != null) settDetailsRepo.DeleteList(settDetails);
+
+     
+
+                    //ReSettlement_log remaining
+                    cashCardRes.VoucherNo = model.VoucherNo;
+                    trans.Complete();
+                    //trans.Dispose();
+                    return Response<ProcessCashCardResponse>.Success(cashCardRes, "Your Bill Settled As Cash Payment.");
+                }
+                catch (Exception ex)
+                {
+                    trans.Dispose();
+                    return Response<ProcessCashCardResponse>.Fail(new ProcessCashCardResponse(), ex.Message);
+                }
+            }
+        }
+
+        public async Task<Response<ProcessCashCardResponse>> ProcessCashCardResettlement(CardResettlementRequest model)
+        {
+            //using (var trans = new TransactionScope())
+            var cashCardRes = new ProcessCashCardResponse();
+            var option = new TransactionOptions
+            {
+                IsolationLevel = IsolationLevel.ReadCommitted,
+
+                Timeout = TimeSpan.FromSeconds(300),
+
+            };
+            using (var trans = new TransactionScope(
+        TransactionScopeOption.Required,
+        new TransactionOptions { IsolationLevel = IsolationLevel.ReadUncommitted, Timeout = TimeSpan.FromSeconds(300) },
+        TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+
+                    var stationSett = stationSettingsRepo.GetAsQueryable().FirstOrDefault(o => o.Id == (long)model.StationId);//model.StationId
+                    string billPOSCode = stationSett.POSStationCode;
+
+
+                    var salesVoucher = posSalesVoucherRepo.GetAll().FirstOrDefault(o => o.VoucherNo == model.VoucherNo);
+                    if (salesVoucher != null)
+                    {
+                        salesVoucher.Voucher_Type = "SPLIT";
+                        salesVoucher.CustomerName = "CARD CUSTOMER";
+                        salesVoucher.CashCustName = "CARD CUSTOMER";
+                        salesVoucher.PaymentMode = "CASH AND CARD";
+                    }
+
+                    if(model.TransCheck.Trim().ToUpper()== "CASH")
+                    {
+                        var cardM = new CardDetails()
+                        {
+                            CardDetailsBillNo = model.VoucherNo,
+                            CardDetailsCardNo = model.CardNo,
+                            CardDetailsCardType = model.CardType
+
+                        };
+                        _cardDetailsRepo.Insert(cardM);
+                    }
+
+
+                    var tempTransCodes = transCodesRepo.GetAsQueryable().FirstOrDefault(o => o.Trans_Description.Trim().ToUpper() == model.CardType.ToUpper());
+                    string transCode = "";
+                    string transDesc = "";
+                    if (tempTransCodes != null)
+                    {
+                        transCode = tempTransCodes.Trans_code;
+                        transDesc = tempTransCodes.Trans_Description;
+                    }
+
+                    decimal? transCahs = 0;
+                    decimal? salesTransAmt = 0;
+                    var list = new List<string> { "CRD", "MAS", "VIS" };
+                    if (model.TransCheck.Trim().ToUpper() == "CASH")
+                    {
+                        var salesTransDetails = posSalesTranDetailsRepo.GetAll().FirstOrDefault(x => x.InvoiceNo == model.VoucherNo
+                          && x.PaymentMode.Trim().ToUpper()== "CAS");
+
+                        if (salesTransDetails != null)
+                        {
+                            salesTransDetails.Amount = salesTransDetails.Amount-model.TransCardAmt;
+                        }
+
+                        var salesTransDetailsRCVE = posSalesTranDetailsRepo.GetAll().FirstOrDefault(x => x.InvoiceNo == model.VoucherNo
+                          && x.PaymentMode.Trim().ToUpper() == "RCVE");
+
+                        if (salesTransDetailsRCVE != null)
+                        {
+                            salesTransDetailsRCVE.Amount = salesTransDetailsRCVE.Amount - model.TransCardAmt;
+                        }
+
+                        var saleTr = new POS_SalesTransactionDetails()
+                        {
+                            InvoiceNo = model.VoucherNo,
+                            InvoiceDate = DateTime.Now,
+                            WorkPeriodId = salesTransDetails.WorkPeriodId,
+                            PaymentMode = "CRD",
+                            Amount = model.TransCardAmt,
+                            CounterName = stationSett.StationName,
+                            Description = "CREDIT CARD",
+                            UserId = model.UserId,
+                            Status = "Y"
+
+                        };
+                        posSalesTranDetailsRepo.Insert(saleTr);
+
+                    }
+
+                    if (model.TransCheck.Trim().ToUpper() == "CARD")
+                    {
+                        transCahs = Math.Abs((decimal)model.TotalAmount - (decimal)model.TransCardAmt);
+                        var salesTransDetails = posSalesTranDetailsRepo.GetAll().FirstOrDefault(x => x.InvoiceNo == model.VoucherNo
+                        && list.Contains(x.PaymentMode));
+                        if (salesTransDetails != null)
+                        {
+                           salesTransDetails.Amount = model.TransCardAmt;
+                        }
+
+                        var salesTransDetailsCas = posSalesTranDetailsRepo.GetAll().FirstOrDefault(x => x.InvoiceNo == model.VoucherNo
+                       && x.PaymentMode.Trim().ToUpper()=="CAS");
+                        if (salesTransDetailsCas != null)
+                        {
+                            salesTransDetailsCas.Amount = transCahs;
+                        }
+
+                        var saleTr = new POS_SalesTransactionDetails()
+                        {
+                            InvoiceNo = model.VoucherNo,
+                            InvoiceDate = DateTime.Now,
+                            WorkPeriodId = salesTransDetails.WorkPeriodId,
+                            PaymentMode = "RCVE",
+                            Amount = transCahs,//to be changed
+                            CounterName = stationSett.StationName,
+                            Description = "RECEIVED AMOUNT",
+                            UserId = model.UserId,
+                            Status = "Y"
+
+                        };
+                        posSalesTranDetailsRepo.Insert(saleTr);
+
+                    }
+
+                    var settDetails = settDetailsRepo.GetAll().FirstOrDefault(o => o.OrderId == Convert.ToInt64(model.VoucherNo.Trim().Substring(4, 6)) && o.TransactionCode.Trim().ToUpper() == "NET");
+                    if (model.TransCheck.Trim().ToUpper() == "CARD")
+                    {
+                        transCahs = Math.Abs((decimal)model.TotalAmount - (decimal)model.TransCardAmt);
+                        var alloModelDis = new POS_SettlementDet()
+                        {
+                            SettlementDetId = settDetails.SettlementDetId,
+                            OrderId = Convert.ToInt64(model.VoucherNo.Trim().Substring(4, 6)),
+                            Amount = transCahs,
+                            Status = "Y",
+                            Date = DateTime.Now,//to be changed
+                            UserId = model.UserId,
+                            TransactionCode = "CAS"
+
+                        };
+                        settDetailsRepo.Insert(alloModelDis);
+
+                        var alloModelRec = new POS_SettlementDet()
+                        {
+                            SettlementDetId = settDetails.SettlementDetId,
+                            OrderId = Convert.ToInt64(model.VoucherNo.Trim().Substring(4, 6)),
+                            Amount = transCahs,
+                            Status = "Y",
+                            Date = DateTime.Now,//to be changed
+                            UserId = model.UserId,
+                            TransactionCode = "RCVE"
+
+                        };
+                        settDetailsRepo.Insert(alloModelRec);
+
+                    }
+
+
+
+
+                    //ReSettlement_log remaining
+                    cashCardRes.VoucherNo = model.VoucherNo;
+                    trans.Complete();
+                    //trans.Dispose();
+                    return Response<ProcessCashCardResponse>.Success(cashCardRes, "Your Bill Settled As Cash Payment.");
+                }
+                catch (Exception ex)
+                {
+                    trans.Dispose();
+                    return Response<ProcessCashCardResponse>.Fail(new ProcessCashCardResponse(), ex.Message);
+                }
+            }
+        }
         public async Task<Response<bool>> Hold(CardRequest model)
         {
 

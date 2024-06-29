@@ -41,14 +41,20 @@ namespace Inspire.Erp.Application.Master
 
         public Task<Response<List<CardType>>> GetCardTypes();
         public Task<Response<ItemMasterResponse>> SearchItemByUnitDetailsId(ItemBarCodeSearchFilter model);
-        public Task<Response<List<ItemMasterResponse>>> SearchHoldBill(string voucherNo);
+        public Task<Response<List<ItemMasterResponse>>>  SearchHoldBill(string voucherNo);
 
         public Task<Response<BillRecallResponse>> BillRecall(string voucherNo);
+
+        public Task<Response<SaleVoucherResponse>> Resettlement(string voucherNo);
         public Task<Response<List<SaleVoucherTempResponse>>> LoadHoldBills(int workPeriodId);
 
         public  Task<Response<List<SettlementDetailsResponse>>> AddSettlementDetails(SettlementDetailsRequest model);
         public Task<Response<CardAmountResponse>> CalculateCardAmount(CardAmountRequest model);
         public Task<Response<ProcessCashCardResponse>> ProcessCard(CardRequest model);
+
+        public Task<Response<ProcessCashCardResponse>> ProcessCardResettlement(CardResettlementRequest model);
+        public Task<Response<ProcessCashCardResponse>> ProcessCashResettlement(CardResettlementRequest model);
+        public Task<Response<ProcessCashCardResponse>> ProcessCashCardResettlement(CardResettlementRequest model);
         public Task<Response<bool>> Hold(CardRequest model);
         public Task<Response<CardAmountResponse>> ProcessCashTransaction(CardRequest model);
 
