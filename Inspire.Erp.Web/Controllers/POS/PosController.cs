@@ -72,6 +72,13 @@ namespace Inspire.Erp.Web.Controllers.POS
             return Ok(await itemMasterService.SearchHoldBill(voucherNo));
         }
 
+        [HttpGet]
+        [Route("Resettlement")]
+        public async Task<IActionResult> Resettlement(string voucherNo)
+        {
+            return Ok(await itemMasterService.Resettlement(voucherNo));
+        }
+
 
         [HttpGet]
         [Route("BillRecall")]
@@ -137,6 +144,48 @@ namespace Inspire.Erp.Web.Controllers.POS
             try
             {
                 return Ok(await itemMasterService.ProcessCard(model));
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
+
+        }
+
+        [HttpPost("ProcessCardResettlement")]
+        public async Task<IActionResult> ProcessCardResettlement(CardResettlementRequest model)
+        {
+            try
+            {
+                return Ok(await itemMasterService.ProcessCardResettlement(model));
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
+
+        }
+
+        [HttpPost("ProcessCashResettlement")]
+        public async Task<IActionResult> ProcessCashResettlement(CardResettlementRequest model)
+        {
+            try
+            {
+                return Ok(await itemMasterService.ProcessCashResettlement(model));
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
+
+        }
+
+        [HttpPost("ProcessCashCardResettlement")]
+        public async Task<IActionResult> ProcessCashCardResettlement(CardResettlementRequest model)
+        {
+            try
+            {
+                return Ok(await itemMasterService.ProcessCashCardResettlement(model));
             }
             catch (System.Exception ex)
             {
