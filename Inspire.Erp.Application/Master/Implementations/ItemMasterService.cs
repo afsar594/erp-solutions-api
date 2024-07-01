@@ -1697,7 +1697,6 @@ namespace Inspire.Erp.Application.Master
 
                 //string fDate = fromDate.ToString("MMMM:dd:yyyy", dateFormat);
                 //string EDate = toDate.ToString("MMMM:dd:yyyy", dateFormat);
-
                 var stationSett = stationSettingsRepo.GetAsQueryable().FirstOrDefault(o => o.Id == stationId);
 
 
@@ -2491,15 +2490,6 @@ namespace Inspire.Erp.Application.Master
                                         }).ToList();
 
 
-
-
-
-
-
-
-
-
-
                 StrRen.AppendLine(eBigCharOff + eLeft + "Net Cash".PadRight(20) + Convert.ToDecimal(cashSales).ToString("0.00").PadLeft(25));
                 StrRen.AppendLine(eBigCharOff + eLeft + "Card Collection".PadRight(20) + Convert.ToDecimal(cardSales).ToString("0.00").PadLeft(25));
                 StrRen.AppendLine(eBigCharOff + eLeft + "Credit Payment".PadRight(20) + Convert.ToDecimal(creditSales).ToString("0.00").PadLeft(25));
@@ -2998,26 +2988,46 @@ namespace Inspire.Erp.Application.Master
             {
                 var billRecall = new BillRecallResponse();
                 var itemsDetails = await (from ir in posSalesVoucherDetailsRepo.GetAsQueryable()
-                                    where ir.VoucherNo == voucherNo
-                                    select new ItemMasterResponse
-                                    {
+                                    where ir.VoucherNo.Trim() == voucherNo
+                                    //select new ItemMasterResponse
+                                    //{
 
-                                        //SDet_ID = ir.SDet_ID,
-                                        VoucherNo=ir.VoucherNo,
-                                        ItemId = ir.ItemId,
-                                          ItemName =ir.Description,
-                                       // UnitId=ir.UnitId,
-                                        Quantity = (int)ir.Sold_Qty,
-                                        UnitPrice = (double)ir.UnitPrice,
-                                     //   CostPrice=ir.CostPrice,
-                                     //GrossAmt=ir.GrossAmt,
-                                     //NetAmount=ir.NetAmount,
-                                        Discount = ir.Discount,
-                                        VATValue = ir.VatAmount,
-                                        //VatableAmt=ir.VatableAmt,
-                                        UnitDetailsId = ir.UnitDetailsId
+                                    //    //SDet_ID = ir.SDet_ID,
+                                    //    VoucherNo=ir.VoucherNo,
+                                    //    ItemId = ir.ItemId,
+                                    //    ItemName =ir.Description,
+                                    //   // UnitId=ir.UnitId,
+                                    //    Quantity = (int)ir.Sold_Qty,
+                                    //    UnitPrice = (double)ir.UnitPrice,
+                                    // //   CostPrice=ir.CostPrice,
+                                    // //GrossAmt=ir.GrossAmt,
+                                    // //NetAmount=ir.NetAmount,
+                                    //    Discount = ir.Discount,
+                                    //    VATValue = ir.VatAmount,
+                                    //    //VatableAmt=ir.VatableAmt,
+                                    //    UnitDetailsId = ir.UnitDetailsId
                                      
-                                    }).ToListAsync();
+                                    //}).ToListAsync();
+
+                select new BillRecallItemResponse
+                {
+
+                    SDet_ID = ir.SDet_ID,
+                    VoucherNo = ir.VoucherNo,
+                    ItemId = ir.ItemId,
+                    Description = ir.Description,
+                    UnitId=ir.UnitId,
+                    Sold_Qty = ir.Sold_Qty,
+                    UnitPrice =ir.UnitPrice,
+                    CostPrice=ir.CostPrice,
+                    GrossAmt=ir.GrossAmt,
+                    NetAmount=ir.NetAmount,
+                    Discount = ir.Discount,
+                    VatAmount = ir.VatAmount,
+                    VatableAmt=ir.VatableAmt,
+                    UnitDetailsId = ir.UnitDetailsId
+
+                }).ToListAsync();
 
                 var settDetails = await (from sdr in settDetailsRepo.GetAsQueryable()
                                                       join tcr in transCodesRepo.GetAsQueryable() on sdr.TransactionCode equals tcr.Trans_code
@@ -5208,6 +5218,7 @@ namespace Inspire.Erp.Application.Master
                         V_ID = salesVC.V_ID,
                         VoucherNo = model.VoucherNo,
                         ItemId = item.ItemId,
+                        Description=item.ItemName,
                         UnitId = item.UnitId,
                         Sold_Qty = item.Quantity,
                         UnitPrice = item.Price,

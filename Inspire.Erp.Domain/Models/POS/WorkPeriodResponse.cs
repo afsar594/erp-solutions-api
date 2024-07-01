@@ -206,7 +206,7 @@ namespace Inspire.Erp.Domain.Modals
     public class BillRecallResponse
     {
         public List<SettDetailsResponse> SettlementDetails { get; set; }
-        public List<ItemMasterResponse> ItemsDetails { get; set; }
+        public List<BillRecallItemResponse> ItemsDetails { get; set; }
     }
 
     public class SettDetailsResponse
