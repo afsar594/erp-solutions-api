@@ -159,5 +159,15 @@ namespace Inspire.Erp.Domain.Modals.Common
         
 
         }
+    public class  UserTrackFilter
+    {
+       
+        public int Userid { get; set; }
+        public string VPAction { get; set; }
+        public string VPType { get; set; }
+        public string fromDate { get; set; }
+        public string toDate { get; set; }
+
+    }
 
 }

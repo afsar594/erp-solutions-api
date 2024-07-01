@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Transactions;
+using Microsoft.AspNetCore.Mvc;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Inspire.Erp.Application.Procurement.Implimentation
 {
@@ -24,8 +26,9 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
         private IRepository<CurrencyMaster> _curreny;
         private IRepository<StockRegister> _stock;
         private IRepository<PurOrderRegister> _poRegister;
-
-        public PurchaseOrdertracking(IRepository<PurchaseOrder> purchaseOrder, IRepository<PurchaseOrderDetails> poDetails, IRepository<Suppliers> supliers, IRepository<JobMaster> jobMaster, IRepository<ItemMaster> itemMaster, IRepository<CurrencyMaster> curreny, IRepository<StockRegister> stock, IRepository<PurOrderRegister> poRegister)
+        private IRepository<UserTracking> _UserTracking;
+        private IRepository<UserFile> _UserFile;
+        public PurchaseOrdertracking(IRepository<UserFile> UserFile, IRepository<UserTracking> UserTracking, IRepository<PurchaseOrder> purchaseOrder, IRepository<PurchaseOrderDetails> poDetails, IRepository<Suppliers> supliers, IRepository<JobMaster> jobMaster, IRepository<ItemMaster> itemMaster, IRepository<CurrencyMaster> curreny, IRepository<StockRegister> stock, IRepository<PurOrderRegister> poRegister)
         {
             _purchaseOrder = purchaseOrder;
             _poDetails = poDetails;
@@ -35,6 +38,8 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
             _curreny = curreny;
             _stock = stock;
             _poRegister = poRegister;
+            _UserFile = UserFile;
+            _UserTracking = UserTracking;
         }
 
         public async Task<Response<List<POTrackingDetails>>> GetPurchaseOrderTrackingDetails(ReportFilter model)
@@ -293,6 +298,58 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
             catch (Exception ex)
             {
                 return Response<List<POTrackingSummary>>.Fail(new List<POTrackingSummary>(), ex.Message);
+            }
+        }
+        public async Task<Response<List<UserTrackingDetails>>> GetUserTrackingDetails(UserTrackFilter model)
+        {
+            try
+            {
+                List<UserTrackingDetails> data = new List<UserTrackingDetails>();                
+                string filteredValue = string.Empty;
+
+
+                if (model.Userid > 0)
+                {
+                    filteredValue += $" and UserTrackingUserUserId = {model.Userid} ";
+                }
+                if (model.VPAction != "string")
+                {
+                    filteredValue += $" and UserTrackingUserVpAction = {model.VPAction} ";
+                }
+                if (model.VPType != "string")
+                {
+                    filteredValue += $" and UserTrackingUserVpType = {model.VPType} ";
+                }
+                if (!string.IsNullOrEmpty(model.fromDate) && !string.IsNullOrEmpty(model.toDate) && model.toDate!= "string")
+                {
+                    filteredValue += $" and (UserTrackingUserChangeDt >= {model.fromDate} and  UserTrackingUserChangeDt <= {model.toDate} )";
+
+                }
+
+                data = (from ut in _UserTracking.GetAsQueryable().Where($"1 == 1 and UserTrackingUserDelStatus != true {filteredValue}")
+                                    join uf in _UserFile.GetAsQueryable()
+                        on (long?)ut.UserTrackingUserUserId equals uf.UserId
+                        
+                              select new UserTrackingDetails
+                             {
+                              VP_Action= ut.UserTrackingUserVpAction,
+                               UserName= uf.UserName,
+                               VP_Type = ut.UserTrackingUserVpType ,
+                               Change_Dt = ut.UserTrackingUserChangeDt,
+                               Change_Time =ut.UserTrackingUserChangeTime,
+                               User_VP_NO= ut.UserTrackingUserVpNo
+                             }).ToList();
+
+                return new Response<List<UserTrackingDetails>>()
+                {
+                    Valid = true,
+                    Message = "Data Found",
+                    Result = data
+                };
+            }
+            catch (Exception ex)
+            {
+                return Response<List<UserTrackingDetails>>.Fail(new List<UserTrackingDetails>(), ex.Message);
             }
         }
     }

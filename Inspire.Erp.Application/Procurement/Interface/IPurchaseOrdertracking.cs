@@ -12,5 +12,6 @@ namespace Inspire.Erp.Application.Procurement.Interface
     {
         public Task<Response<List<POTrackingDetails>>> GetPurchaseOrderTrackingDetails(ReportFilter filter);
         public Task<Response<List<POTrackingSummary>>> GetPurchaseOrderTrackingSummary(ReportFilter filter);
+        public Task<Response<List<UserTrackingDetails>>> GetUserTrackingDetails(UserTrackFilter filter);
     }
 }
