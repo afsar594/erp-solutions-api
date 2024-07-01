@@ -18,4 +18,14 @@ namespace Inspire.Erp.Domain.Models.Procurement.PurchaseOrderTracking
         public decimal? CurrencyRate { get; set; }
 
     }
+  public class UserTrackingDetails
+    {
+        public string? VP_Action { get; set; }
+        public string UserName { get; set; }
+        public string? VP_Type { get; set; }
+        public DateTime? Change_Dt { get; set; }
+        public DateTime? Change_Time { get; set; }
+        public string? User_VP_NO { get; set; }      
+
+    }
 }

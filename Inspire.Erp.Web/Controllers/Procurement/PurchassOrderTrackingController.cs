@@ -55,8 +55,13 @@ namespace Inspire.Erp.Web.Controllers.Procurement
         {
             return Ok(await purchaseOrdertracking.GetPurchaseOrderTrackingSummary(reportFilter));
         }
-       
 
+        [HttpPost]
+        [Route("GetUserTrackingDetails")]
+        public async Task<IActionResult> GetUserTrackingDetails(UserTrackFilter reportFilter)
+        {
+            return Ok(await purchaseOrdertracking.GetUserTrackingDetails(reportFilter));
+        }
 
     }
 }
