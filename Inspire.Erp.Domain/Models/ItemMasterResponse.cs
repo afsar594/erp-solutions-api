@@ -8,6 +8,8 @@ namespace Inspire.Erp.Domain.Modals
     {
         public long ItemId { get; set; }
         public string ItemName { get; set; }
+
+        public string VoucherNo { get; set; }
         public int? UnitDetailsId { get; set; }
         public bool ItemwiseInclusive { get; set; }
         public string BarCode { get; set; }

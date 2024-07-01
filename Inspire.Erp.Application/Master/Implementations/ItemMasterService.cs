@@ -2999,22 +2999,22 @@ namespace Inspire.Erp.Application.Master
                 var billRecall = new BillRecallResponse();
                 var itemsDetails = await (from ir in posSalesVoucherDetailsRepo.GetAsQueryable()
                                     where ir.VoucherNo == voucherNo
-                                    select new BillRecallItemResponse
+                                    select new ItemMasterResponse
                                     {
 
-                                        SDet_ID = ir.SDet_ID,
+                                        //SDet_ID = ir.SDet_ID,
                                         VoucherNo=ir.VoucherNo,
                                         ItemId = ir.ItemId,
-                                          Description =ir.Description,
-                                        UnitId=ir.UnitId,
-                                        Sold_Qty = (int)ir.Sold_Qty,
-                                        UnitPrice = ir.UnitPrice,
-                                        CostPrice=ir.CostPrice,
-                                     GrossAmt=ir.GrossAmt,
-                                     NetAmount=ir.NetAmount,
+                                          ItemName =ir.Description,
+                                       // UnitId=ir.UnitId,
+                                        Quantity = (int)ir.Sold_Qty,
+                                        UnitPrice = (double)ir.UnitPrice,
+                                     //   CostPrice=ir.CostPrice,
+                                     //GrossAmt=ir.GrossAmt,
+                                     //NetAmount=ir.NetAmount,
                                         Discount = ir.Discount,
-                                        VatAmount = ir.VatAmount,
-                                        VatableAmt=ir.VatableAmt,
+                                        VATValue = ir.VatAmount,
+                                        //VatableAmt=ir.VatableAmt,
                                         UnitDetailsId = ir.UnitDetailsId
                                      
                                     }).ToListAsync();
