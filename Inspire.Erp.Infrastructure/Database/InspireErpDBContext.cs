@@ -5925,7 +5925,7 @@ namespace Inspire.Erp.Infrastructure.Database
             {
                 entity.ToTable("Customer_Quotation");
 
-                entity.HasKey(e => e.CustomerQuotationQid);                      
+                entity.HasKey(e => e.CustomerQuotationQid);
 
                 entity.Property(e => e.CustomerQuotationQid)
                       .HasColumnName("Customer_Quotation_QID");
@@ -6234,55 +6234,119 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.CustomerTypeUserId).HasColumnName("Customer_Type_User_ID");
             });
 
+            //modelBuilder.Entity<DamageDetails>(entity =>
+            //{
+            //    entity.HasNoKey();
+
+            //    entity.ToTable("Damage_Details");
+
+            //    entity.Property(e => e.DamageDetailsAmount).HasColumnName("Damage_Details_Amount");
+
+            //    entity.Property(e => e.DamageDetailsDelStatus).HasColumnName("Damage_Details_DelStatus");
+
+            //    entity.Property(e => e.DamageDetailsId).HasColumnName("Damage_Details_ID");
+
+            //    entity.Property(e => e.DamageDetailsMaterialId).HasColumnName("Damage_Details_Material_ID");
+
+            //    entity.Property(e => e.DamageDetailsPrice).HasColumnName("Damage_Details_Price");
+
+            //    entity.Property(e => e.DamageDetailsQty).HasColumnName("Damage_Details_QTY");
+
+            //    entity.Property(e => e.DamageDetailsRemarks)
+            //        .HasColumnName("Damage_Details_Remarks")
+            //        .HasMaxLength(200)
+            //        .IsUnicode(false);
+
+            //    entity.Property(e => e.DamageDetailsSno).HasColumnName("Damage_Details_SNO");
+
+            //    entity.Property(e => e.DamageDetailsUnitId).HasColumnName("Damage_Details_Unit_ID");
+            //});
             modelBuilder.Entity<DamageDetails>(entity =>
             {
-                entity.HasNoKey();
+                entity.ToTable("DamageDetails");
 
-                entity.ToTable("Damage_Details");
+                entity.HasKey(e => e.DamageDetailsId);
 
-                entity.Property(e => e.DamageDetailsAmount).HasColumnName("Damage_Details_Amount");
+                entity.Property(e => e.DamageDetailsId);
 
-                entity.Property(e => e.DamageDetailsDelStatus).HasColumnName("Damage_Details_DelStatus");
+                entity.Property(e => e.DamageDetailsSno);
 
-                entity.Property(e => e.DamageDetailsId).HasColumnName("Damage_Details_ID");
+                entity.Property(e => e.DamageDetailsMaterialId);
 
-                entity.Property(e => e.DamageDetailsMaterialId).HasColumnName("Damage_Details_Material_ID");
+                entity.Property(e => e.DamageDetailsQty)
+                    .HasColumnType("float");
 
-                entity.Property(e => e.DamageDetailsPrice).HasColumnName("Damage_Details_Price");
+                entity.Property(e => e.DamageDetailsPrice)
+                    .HasColumnType("float");
 
-                entity.Property(e => e.DamageDetailsQty).HasColumnName("Damage_Details_QTY");
+                entity.Property(e => e.DamageDetailsAmount)
+                    .HasColumnType("float");
 
                 entity.Property(e => e.DamageDetailsRemarks)
-                    .HasColumnName("Damage_Details_Remarks")
-                    .HasMaxLength(200)
-                    .IsUnicode(false);
+                    .HasColumnType("nvarchar(max)");
 
-                entity.Property(e => e.DamageDetailsSno).HasColumnName("Damage_Details_SNO");
+                entity.Property(e => e.DamageMasterId);
 
-                entity.Property(e => e.DamageDetailsUnitId).HasColumnName("Damage_Details_Unit_ID");
+                entity.Property(e => e.DamageDetailsVoucherNumber)
+                    .HasMaxLength(50)
+                    .HasColumnType("nvarchar(50)");
+
+                entity.Property(e => e.DamageDetailsUnitId);
+
+                entity.Property(e => e.DamageDetailsDelStatus)
+                    .HasColumnType("bit");
+
+                // Configure the foreign key relationship with DamageMaster
+                //entity.HasOne(d => d.DamageMaster)
+                //      .WithMany(p => p.DamageDetails)
+                //      .HasForeignKey(d => d.DamageMasterId)
+                //      .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<DamageMaster>(entity =>
             {
-                entity.HasNoKey();
+                entity.ToTable("DamageMaster");
 
-                entity.ToTable("Damage_Master");
+                entity.HasKey(e => e.DamageMasterId);
 
-                entity.Property(e => e.DamageMasterDelStatus).HasColumnName("Damage_Master_DelStatus");
-
-                entity.Property(e => e.DamageMasterId).HasColumnName("Damage_Master_ID");
-
-                entity.Property(e => e.DamageMasterLocationId).HasColumnName("Damage_Master_Location_ID");
-
-                entity.Property(e => e.DamageMasterNarration)
-                    .HasColumnName("Damage_Master_Narration")
-                    .HasMaxLength(150)
-                    .IsUnicode(false);
+                entity.Property(e => e.DamageMasterId);
 
                 entity.Property(e => e.DamageMasterVdate)
-                    .HasColumnName("Damage_Master_Vdate")
                     .HasColumnType("datetime");
+
+                entity.Property(e => e.DamageMasterNarration)
+                    .HasColumnType("nvarchar(max)");
+
+                entity.Property(e => e.DamageMasterLocationId);
+
+                entity.Property(e => e.DamageMasterDelStatus)
+                    .HasColumnType("bit");
+
+                entity.Property(e => e.DamageMasterVoucherNumber)
+                    .HasMaxLength(50)
+                    .HasColumnType("nvarchar(50)");
             });
+            //modelBuilder.Entity<DamageMaster>(entity =>
+            //{
+            //    entity.HasNoKey();
+
+            //    entity.ToTable("Damage_Master");
+
+            //    entity.Property(e => e.DamageMasterDelStatus).HasColumnName("Damage_Master_DelStatus");
+
+            //    entity.Property(e => e.DamageMasterId).HasColumnName("Damage_Master_ID");
+
+            //    entity.Property(e => e.DamageMasterLocationId).HasColumnName("Damage_Master_Location_ID");
+
+            //    entity.Property(e => e.DamageMasterNarration)
+            //        .HasColumnName("Damage_Master_Narration")
+            //        .HasMaxLength(150)
+            //        .IsUnicode(false);
+
+            //    entity.Property(e => e.DamageMasterVdate)
+            //        .HasColumnName("Damage_Master_Vdate")
+            //        .HasColumnType("datetime");
+            //});
 
             modelBuilder.Entity<DebitNote>(entity =>
                        {

@@ -113,6 +113,7 @@ namespace Inspire.Erp.Domain.Enums
         public static String StockRequisition_Prefix { get { return "StockRequisition_Prefix"; } }
 
         public static String ManufactureItem_Prefix { get { return "ManufactureItem_Prefix"; } }
+        public static String DE_Prefix { get { return "DamageEntry_Prefix"; } }
     }
 
     public static class ItemMasterStatus

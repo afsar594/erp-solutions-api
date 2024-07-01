@@ -12,6 +12,8 @@ namespace Inspire.Erp.Domain.Entities
         public double? DamageDetailsPrice { get; set; }
         public double? DamageDetailsAmount { get; set; }
         public string DamageDetailsRemarks { get; set; }
+        public int? DamageMasterId { get; set; }
+        public string DamageDetailsVoucherNumber { get; set; }
         public int? DamageDetailsUnitId { get; set; }
         public bool? DamageDetailsDelStatus { get; set; }
     }
