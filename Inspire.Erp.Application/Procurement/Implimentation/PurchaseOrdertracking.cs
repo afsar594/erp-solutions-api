@@ -308,26 +308,45 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
                 string filteredValue = string.Empty;
 
 
+                //if (model.Userid > 0)
+                //{
+                //    filteredValue += $" and UserTrackingUserUserId = {model.Userid} ";
+                //}
+                //if (model.VPAction != "string")
+                //{
+                //    filteredValue += $" and UserTrackingUserVpAction = {model.VPAction} ";
+                //}
+                //if (model.VPType != "string")
+                //{
+                //    filteredValue += $" and UserTrackingUserVpType = {model.VPType} ";
+                //}
+                //if (!string.IsNullOrEmpty(model.fromDate) && !string.IsNullOrEmpty(model.toDate) && model.toDate!= "string")
+                //{
+                //    filteredValue += $" and (UserTrackingUserChangeDt >= {model.fromDate} and  UserTrackingUserChangeDt <= {model.toDate} )";
+
+                //}
+                var query = _UserTracking.GetAsQueryable().Where(s => s.UserTrackingUserDelStatus != true).ToList();
                 if (model.Userid > 0)
                 {
-                    filteredValue += $" and UserTrackingUserUserId = {model.Userid} ";
+                    query = query.Where(a => a.UserTrackingUserUserId == model.Userid).ToList();
+
                 }
                 if (model.VPAction != "string")
                 {
-                    filteredValue += $" and UserTrackingUserVpAction = {model.VPAction} ";
+                    query = query.Where(a => a.UserTrackingUserVpAction == model.VPAction).ToList();
+
                 }
                 if (model.VPType != "string")
                 {
-                    filteredValue += $" and UserTrackingUserVpType = {model.VPType} ";
+                    query = query.Where(a => a.UserTrackingUserVpType == model.VPType).ToList();
+
                 }
-                if (!string.IsNullOrEmpty(model.fromDate) && !string.IsNullOrEmpty(model.toDate) && model.toDate!= "string")
+                if (model.fromDate == null && model.toDate == null) 
                 {
-                    filteredValue += $" and (UserTrackingUserChangeDt >= {model.fromDate} and  UserTrackingUserChangeDt <= {model.toDate} )";
-
+                   // query = query.Where(x => x.UserTrackingUserChangeDt >= model.fromDate && x.UserTrackingUserChangeDt <= model.toDate)
                 }
-
-                data = (from ut in _UserTracking.GetAsQueryable().Where($"1 == 1 and UserTrackingUserDelStatus != true {filteredValue}")
-                                    join uf in _UserFile.GetAsQueryable()
+          
+                data = (from ut in query join uf in _UserFile.GetAsQueryable()
                         on (long?)ut.UserTrackingUserUserId equals uf.UserId
                         
                               select new UserTrackingDetails
