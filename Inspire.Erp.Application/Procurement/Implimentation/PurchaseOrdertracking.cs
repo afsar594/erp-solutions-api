@@ -266,7 +266,7 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
 
 
 
-                var detailsQuery = await (from po in _purchaseOrder.GetAsQueryable().Where($"1==1 { filteredValue }")
+                var detailsQuery = await (from po in _purchaseOrder.GetAsQueryable().Where($"1==1 {filteredValue}")
                                           join sp in _supliers.GetAsQueryable() on po.PurchaseOrderSupInvNo equals sp.SuppliersInsId.ToString() into spGroup
                                           from sp in spGroup.DefaultIfEmpty()
                                           join cm in _curreny.GetAsQueryable() on po.PurchaseOrderCurrencyId equals cm.CurrencyMasterCurrencyId into cmGroup
@@ -304,7 +304,7 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
         {
             try
             {
-                List<UserTrackingDetails> data = new List<UserTrackingDetails>();                
+                List<UserTrackingDetails> data = new List<UserTrackingDetails>();
                 string filteredValue = string.Empty;
 
 
@@ -341,23 +341,24 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
                     query = query.Where(a => a.UserTrackingUserVpType == model.VPType).ToList();
 
                 }
-                if (model.fromDate == null && model.toDate == null) 
+                if (model.fromDate == null && model.toDate == null)
                 {
-                   // query = query.Where(x => x.UserTrackingUserChangeDt >= model.fromDate && x.UserTrackingUserChangeDt <= model.toDate)
+                    query = query.Where(x => x.UserTrackingUserChangeDt >= model.fromDate && x.UserTrackingUserChangeDt <= model.toDate).ToList();
                 }
-          
-                data = (from ut in query join uf in _UserFile.GetAsQueryable()
+
+                data = (from ut in query
+                        join uf in _UserFile.GetAsQueryable()
                         on (long?)ut.UserTrackingUserUserId equals uf.UserId
-                        
-                              select new UserTrackingDetails
-                             {
-                              VP_Action= ut.UserTrackingUserVpAction,
-                               UserName= uf.UserName,
-                               VP_Type = ut.UserTrackingUserVpType ,
-                               Change_Dt = ut.UserTrackingUserChangeDt,
-                               Change_Time =ut.UserTrackingUserChangeTime,
-                               User_VP_NO= ut.UserTrackingUserVpNo
-                             }).ToList();
+
+                        select new UserTrackingDetails
+                        {
+                            VP_Action = ut.UserTrackingUserVpAction,
+                            UserName = uf.UserName,
+                            VP_Type = ut.UserTrackingUserVpType,
+                            Change_Dt = ut.UserTrackingUserChangeDt,
+                            Change_Time = ut.UserTrackingUserChangeTime,
+                            User_VP_NO = ut.UserTrackingUserVpNo
+                        }).ToList();
 
                 return new Response<List<UserTrackingDetails>>()
                 {

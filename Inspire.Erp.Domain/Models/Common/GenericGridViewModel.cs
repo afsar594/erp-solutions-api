@@ -136,13 +136,13 @@ namespace Inspire.Erp.Domain.Modals.Common
     public class PurChaseRequisitionFilterReport
     {
         public int? JobId { get; set; }
-       
+
     }
     public class PurChaseReqFields
     {
         public string PurchaseRequisitionPartyName { get; set; }
         public string purchaseRequisitionType { get; set; }
-         public string Item_Name { get; set; }
+        public string Item_Name { get; set; }
         public string Unit { get; set; }
         public decimal DelQty { get; set; }
 
@@ -156,17 +156,17 @@ namespace Inspire.Erp.Domain.Modals.Common
         public long? jobid { get; set; }
 
         public decimal? Stock { get; set; }
-        
 
-        }
-    public class  UserTrackFilter
+
+    }
+    public class UserTrackFilter
     {
-       
+
         public int Userid { get; set; }
         public string VPAction { get; set; }
         public string VPType { get; set; }
-        public string fromDate { get; set; }
-        public string toDate { get; set; }
+        public DateTime? fromDate { get; set; }
+        public DateTime? toDate { get; set; }
 
     }
 
