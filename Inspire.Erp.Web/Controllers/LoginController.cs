@@ -6,6 +6,8 @@ using AutoMapper;
 using Inspire.Erp.Application.Authentication.Inerfaces;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Inspire.Erp.Web.Common;
 using Inspire.Erp.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -21,10 +23,16 @@ namespace Inspire.Erp.Web.Controllers
     {
         private readonly IloginService loginsvc;
         private readonly IMapper _mapper;
-        public LoginController(IloginService _loginsvc, IMapper mapper)
+
+        private IRepository<LocationMaster> locationrepository;
+        private IRepository<FinancialPeriods> financialrepository;
+
+        public LoginController(IloginService _loginsvc, IMapper mapper,
+            IRepository<LocationMaster> _locationrepository, IRepository<FinancialPeriods> _financialrepository)
         {
             loginsvc = _loginsvc;
             _mapper = mapper;
+            locationrepository = _locationrepository; financialrepository = _financialrepository;
         }
         [HttpPost]
         [Route("login")]
@@ -211,6 +219,34 @@ namespace Inspire.Erp.Web.Controllers
             var user = loginsvc.GetUserById(id);
 
             return user;
+        }
+
+        [HttpGet]
+        [Route("LoadDropdown")]
+        public ResponseInfo LoadDropdown()
+        {
+            var objectresponse = new ResponseInfo();
+
+            var LocationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
+            {
+                c.LocationMasterLocationId,
+                c.LocationMasterLocationName
+            }).ToList();
+            var FinancialPeriods = financialrepository.GetAsQueryable().Where(x => x.FinancialPeriodsFsno != null).Select(k => new
+            {
+                k.FinancialPeriodsFsno,
+                k.FinancialPeriodsStartDate,
+                k.FinancialPeriodsEndDate
+            });
+
+            objectresponse.ResultSet = new
+            {
+                LocationMaster = LocationMaster,
+                FinancialPeriods = FinancialPeriods
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
         }
     }
 }
