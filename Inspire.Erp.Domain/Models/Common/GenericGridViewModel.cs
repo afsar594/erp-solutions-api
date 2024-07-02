@@ -167,7 +167,7 @@ namespace Inspire.Erp.Domain.Modals.Common
         public string VPType { get; set; }
         public DateTime? fromDate { get; set; }
         public DateTime? toDate { get; set; }
-
+        public bool? isCheck { get; set; }
     }
 
 }

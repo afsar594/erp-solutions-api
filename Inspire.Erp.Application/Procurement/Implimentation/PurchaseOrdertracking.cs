@@ -307,24 +307,6 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
                 List<UserTrackingDetails> data = new List<UserTrackingDetails>();
                 string filteredValue = string.Empty;
 
-
-                //if (model.Userid > 0)
-                //{
-                //    filteredValue += $" and UserTrackingUserUserId = {model.Userid} ";
-                //}
-                //if (model.VPAction != "string")
-                //{
-                //    filteredValue += $" and UserTrackingUserVpAction = {model.VPAction} ";
-                //}
-                //if (model.VPType != "string")
-                //{
-                //    filteredValue += $" and UserTrackingUserVpType = {model.VPType} ";
-                //}
-                //if (!string.IsNullOrEmpty(model.fromDate) && !string.IsNullOrEmpty(model.toDate) && model.toDate!= "string")
-                //{
-                //    filteredValue += $" and (UserTrackingUserChangeDt >= {model.fromDate} and  UserTrackingUserChangeDt <= {model.toDate} )";
-
-                //}
                 var query = _UserTracking.GetAsQueryable().Where(s => s.UserTrackingUserDelStatus != true).ToList();
                 if (model.Userid > 0)
                 {
@@ -370,6 +352,29 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
             catch (Exception ex)
             {
                 return Response<List<UserTrackingDetails>>.Fail(new List<UserTrackingDetails>(), ex.Message);
+            }
+        }
+
+        public async Task<Response<List<DropdownUserVPType>>> GetTrackingUserVPType()
+        {
+            try
+            {
+                var response = new List<DropdownUserVPType>();
+
+                //response.AddRange(await _UserTracking.ListSelectAsync(x => new DropdownUserVPType
+                //{
+                //    VPType = x.UserTrackingUserVpType
+                //}));
+                response = _UserTracking.GetAsQueryable().Select(ut => new DropdownUserVPType
+                { VPType = ut.UserTrackingUserVpType ?? "" }).
+                Distinct().Union(new[] { new DropdownUserVPType
+                { VPType = " ALL" } }).OrderBy(ut => ut.VPType).ToList();
+
+                return Response<List<DropdownUserVPType>>.Success(response, "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<List<DropdownUserVPType>>.Fail(new List<DropdownUserVPType>(), ex.Message);
             }
         }
     }

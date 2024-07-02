@@ -1,6 +1,13 @@
-﻿using Inspire.Erp.Application.Procurement.Interface;
+﻿using AutoMapper;
+using Inspire.Erp.Application.Procurement.Interface;
+using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Domain.Models;
+using Inspire.Erp.Domain.Models.Procurement.PurchaseOrderTracking;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using NPOI.OpenXmlFormats.Spreadsheet;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,10 +22,15 @@ namespace Inspire.Erp.Web.Controllers.Procurement
     {
 
         private IPurchaseOrdertracking purchaseOrdertracking;
-
-        public PurchassOrderTrackingController(IPurchaseOrdertracking purchaseOrdertracking)
+        private IRepository<UserTracking> _UserTracking;
+        private IRepository<UserFile> _UserFile;
+        private IMapper _mapper;
+        public PurchassOrderTrackingController(IRepository<UserFile> UserFile,IPurchaseOrdertracking purchaseOrdertracking, IRepository<UserTracking> UserTracking, IMapper mapper)
         {
             this.purchaseOrdertracking = purchaseOrdertracking;
+            _mapper = mapper;
+            _UserTracking = UserTracking;
+            _UserFile = UserFile;
         }
 
         //Irfan 08 Dec 2023
@@ -61,6 +73,52 @@ namespace Inspire.Erp.Web.Controllers.Procurement
         public async Task<IActionResult> GetUserTrackingDetails(UserTrackFilter reportFilter)
         {
             return Ok(await purchaseOrdertracking.GetUserTrackingDetails(reportFilter));
+        }
+
+        [HttpGet("GetTrackingUserVPType")]
+        public ResponseInfo GetTrackingUserVPType()
+        {
+            var objectresponse = new ResponseInfo();
+            var response = _UserTracking.GetAsQueryable().Select(ut => new
+            {
+                VpType = ut.UserTrackingUserVpType ?? "",
+            }).Distinct().ToList();            
+            objectresponse.ResultSet = new
+            {
+                response = response
+            };
+            return objectresponse;
+        }
+        [HttpGet("GetTrackingUserVPAction")]
+        public ResponseInfo GetTrackingUserVPAction()
+        {
+            var objectresponse = new ResponseInfo();
+            var response = _UserTracking.GetAsQueryable().Select(ut => new
+            {
+                UserTrackingUserVpAction = ut.UserTrackingUserVpAction ?? ""
+                
+            }).Distinct().ToList();
+            objectresponse.ResultSet = new
+            {
+                response = response
+            };
+            return objectresponse;
+        }
+        [HttpGet("GetTrackingUserUserFile")]
+        public ResponseInfo GetTrackingUserUserFile()
+        {
+            var objectresponse = new ResponseInfo();
+            var response = _UserFile.GetAsQueryable().Select(ut => new
+            {
+                LogInId  = ut.UserId,
+                username = ut.UserName
+
+            }).Distinct().ToList();
+            objectresponse.ResultSet = new
+            {
+                response = response
+            };
+            return objectresponse;
         }
 
     }

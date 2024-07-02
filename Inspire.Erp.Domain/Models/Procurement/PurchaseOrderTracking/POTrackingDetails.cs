@@ -28,4 +28,8 @@ namespace Inspire.Erp.Domain.Models.Procurement.PurchaseOrderTracking
         public string? User_VP_NO { get; set; }      
 
     }
+    public class DropdownUserVPType
+    {
+        public string VPType { get; set; }
+    }
 }
