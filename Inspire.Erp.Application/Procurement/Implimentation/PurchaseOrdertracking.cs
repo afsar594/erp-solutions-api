@@ -313,20 +313,25 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
                     query = query.Where(a => a.UserTrackingUserUserId == model.Userid).ToList();
 
                 }
-                if (model.VPAction != "string")
+                if (model.VPAction != null)
                 {
                     query = query.Where(a => a.UserTrackingUserVpAction == model.VPAction).ToList();
 
                 }
-                if (model.VPType != "string")
+                if (model.VPType != null)
                 {
                     query = query.Where(a => a.UserTrackingUserVpType == model.VPType).ToList();
 
                 }
-                if (model.fromDate == null && model.toDate == null)
+                if (model.fromDate != null && model.toDate != null)
                 {
-                    query = query.Where(x => x.UserTrackingUserChangeDt >= model.fromDate && x.UserTrackingUserChangeDt <= model.toDate).ToList();
+                   
+                    if (model.isCheck==true)
+
+                    query = query.Where(x => x.UserTrackingUserChangeDt.Value.Date >= Convert.ToDateTime(model.fromDate).Date && x.UserTrackingUserChangeDt.Value.Date <= Convert.ToDateTime(model.toDate).Date).ToList();
+
                 }
+
 
                 data = (from ut in query
                         join uf in _UserFile.GetAsQueryable()

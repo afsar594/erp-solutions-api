@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 
 namespace Inspire.Erp.Domain.Modals.Common
@@ -163,11 +164,16 @@ namespace Inspire.Erp.Domain.Modals.Common
     {
 
         public int? Userid { get; set; }
-        public string VPAction { get; set; }
-        public string VPType { get; set; }
-        public DateTime? fromDate { get; set; }
+        [DefaultValue(null)]
+        public string VPAction { get; set; } 
+        [DefaultValue(null)]
+        public string VPType { get; set; } 
+        [DefaultValue(null)]
+        public DateTime? fromDate { get; set; } 
+        [DefaultValue(null)]
         public DateTime? toDate { get; set; }
-        public bool? isCheck { get; set; }
+        [DefaultValue(false)]
+        public bool? isCheck { get; set; } 
     }
 
 }
