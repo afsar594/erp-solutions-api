@@ -461,6 +461,20 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                 return StatusCode(500, ex.Message.ToString());
             }
         }
+        [HttpGet]
+        [Route("GetAllPOForGRN")]
+        public IActionResult GetAllPOForGRN()
+        {
+            try
+            {
+               
+                return Ok(_purchaseOrderService.GetAllPOForGRN());
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
 
     }
 }

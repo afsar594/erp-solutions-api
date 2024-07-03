@@ -630,5 +630,32 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 throw ex;
             }
         }
+        public IQueryable GetAllPOForGRN()
+        {
+            try
+            {
+                var materialList = _itemMasterRepository.GetAll();
+                var unitList = _unitMasterRepository.GetAll().ToList();
+                var detailList = _purchaseOrderDetailsRepository.GetAll().ToList();
+                var data = _purchaseOrderRepository.GetAll().ToList().Select(o => new
+                {
+                    PurchaseOrder = o,
+                    PurchaseOrderDetails = detailList.Where(a => a.PurchaseOrderDetailsNo == o.PurchaseOrderNo).Select(d => new
+                    {
+                        itemId = d.PurchaseOrderDetailsMatId,
+                        itemname = materialList.FirstOrDefault(m => m.ItemMasterItemId == (long?)d.PurchaseOrderDetailsMatId).ItemMasterItemName ??"",
+                        unitId = d.PurchaseOrderDetailsUnitId ?? 0,
+                       // unit = unitList.FirstOrDefault(u => u.UnitMasterUnitId == (int)d.PurchaseOrderDetailsUnitId).UnitMasterUnitFullName ?? "",
+                       // price = materialList.FirstOrDefault(m => m.ItemMasterItemId == (long?)d.PurchaseOrderDetailsMatId).ItemMasterLastPurchasePrice ?? 0,
+                        poQty = d.PurchaseOrderDetailsQuantity??0,
+                    })
+                }).AsQueryable();
+                return data;
+            }
+            catch (System.Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }
