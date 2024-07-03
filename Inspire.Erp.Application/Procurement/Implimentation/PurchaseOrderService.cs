@@ -610,9 +610,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         {
             try
             {
-                var materialList = _itemMasterRepository.GetAll();
+                var materialList = _itemMasterRepository.GetAsQueryable().Where(a => a.ItemMasterDelStatus != true).ToList();
                 //var unitList = _unitMasterRepository.GetAll().ToList();
-                var data = _purchaseOrderDetailsRepository.GetAll().Select(d => new
+                var datalist = _purchaseOrderDetailsRepository.GetAsQueryable().Where(a => a.PurchaseOrderDetailsDelStatus != true).ToList();
+                var data = datalist.Select(d => new
                 {
                     purchaseOrderDetailsNo = d.PurchaseOrderDetailsNo,
                     itemId = d.PurchaseOrderDetailsMatId,
@@ -630,7 +631,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 throw ex;
             }
         }
-        public List<PurchaseOrderDTO> GetAllPOForGRN()
+        public List<PurchaseOrderDTO> GetAllPOForGRN( decimal id)
         {
             try
             {
@@ -647,7 +648,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     c.UnitMasterUnitFullName
                 }).ToList();
                 var detailList = _purchaseOrderDetailsRepository.GetAsQueryable().ToList();
-                var details = _purchaseOrderRepository.GetAsQueryable().Where(a => a.PurchaseOrderDelStatus != true).ToList();
+                var details = _purchaseOrderRepository.GetAsQueryable().Where(a => a.PurchaseOrderDelStatus != true && a.PurchaseOrderPartyId==id).ToList();
                 var data = details.Select(o => new PurchaseOrderDTO
                 {
                     PurchaseOrder = o,

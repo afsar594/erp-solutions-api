@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Mvc;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Web.Common;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
 
 namespace Inspire.Erp.Web.Controllers.Procurement
 {
@@ -23,12 +25,16 @@ namespace Inspire.Erp.Web.Controllers.Procurement
     public class PurchaseOrderController : ControllerBase
     {
         private IPurchaseOrderService _purchaseOrderService;
+        private IRepository<ItemMaster> itemrepository; private IRepository<UnitMaster> unitrepository;
+        private IRepository<PurchaseOrder> _purchaseOrderRepository; private IRepository<PurchaseOrderDetails> _purchaseOrderDetailsRepository;
 
         private readonly IMapper _mapper;
-        public PurchaseOrderController(IPurchaseOrderService purchaseOrderService, IMapper mapper)
+        public PurchaseOrderController(IPurchaseOrderService purchaseOrderService, IMapper mapper, IRepository<ItemMaster> _itemrepository, IRepository<UnitMaster> _unitrepository, IRepository<PurchaseOrder> purchaseOrderRepository, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository)
         {
             _purchaseOrderService = purchaseOrderService;
             _mapper = mapper;
+            itemrepository = _itemrepository; unitrepository = _unitrepository; _purchaseOrderRepository = purchaseOrderRepository;
+            _purchaseOrderDetailsRepository = purchaseOrderDetailsRepository;
         }
 
         //[HttpGet]
@@ -462,17 +468,75 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             }
         }
         [HttpGet]
-        [Route("GetAllPOForGRN")]
-        public IActionResult GetAllPOForGRN()
+        [Route("GetAllPOForGRN/{id}")]
+        public ResponseInfo GetAllPOForGRN(decimal id)
         {
-            try
+
+            var objResponse = new ResponseInfo();
+
+            var materialList = itemrepository.GetAsQueryable().Where(a => a.ItemMasterDelStatus != true).Select(c => new
             {
-               return Ok(_purchaseOrderService.GetAllPOForGRN());
-            }
-            catch (System.Exception ex)
+                c.ItemMasterItemName,
+                c.ItemMasterItemId,
+                c.ItemMasterLastPurchasePrice
+            });
+            var unitList = unitrepository.GetAsQueryable().Where(a => a.UnitMasterUnitDelStatus != true).Select(c => new
             {
-                return StatusCode(500, ex.Message);
-            }
+                c.UnitMasterUnitId,
+                c.UnitMasterUnitShortName,
+                c.UnitMasterUnitFullName
+            }).ToList();
+            var detailList = _purchaseOrderDetailsRepository.GetAsQueryable().ToList();
+            var details = _purchaseOrderRepository.GetAsQueryable().Where(a => a.PurchaseOrderDelStatus != true && a.PurchaseOrderPartyId == id).Select(c => new
+            {
+                c.PurchaseOrderId,
+                c.PurchaseOrderNo
+            }).ToList();
+            //var data = details.Select(o => new PurchaseOrderDTO
+            //{
+            //    PurchaseOrder =,
+            //    PurchaseOrderDetails = detailList.Where(a => a.PurchaseOrderDetailsNo == o.PurchaseOrderNo).Select(d => new PurchaseOrderDetailsDTO
+            //    {
+            //        itemId = d.PurchaseOrderDetailsMatId,
+            //        itemname = materialList.Where(m => m.ItemMasterItemId == (long?)d.PurchaseOrderDetailsMatId).Select(c => c.ItemMasterItemName ?? "").FirstOrDefault() ?? "",
+            //        unitId = d.PurchaseOrderDetailsUnitId ?? 0,
+            //        unit = unitList.Where(u => u.UnitMasterUnitId == (int?)d.PurchaseOrderDetailsUnitId).Select(c => c.UnitMasterUnitFullName ?? "").FirstOrDefault() ?? "",
+            //        price = materialList.Where(m => m.ItemMasterItemId == (long?)d.PurchaseOrderDetailsMatId).Select(c => (decimal?)c.ItemMasterLastPurchasePrice).FirstOrDefault() ?? 0,
+            //        poQty = d.PurchaseOrderDetailsQuantity ?? 0,
+            //    }).ToList()
+            //}).ToList();            
+            var purchaseOrderNos = details.Select(d => d.PurchaseOrderNo).ToList();
+
+            // Filtering detailList based on PurchaseOrderNos
+            var data = detailList
+                .Where(d => purchaseOrderNos.Contains(d.PurchaseOrderDetailsNo))
+                .Select(d => new
+                {
+                    PONO=d.PurchaseOrderDetailsNo,
+                    itemId = d.PurchaseOrderDetailsMatId,
+                    itemname = materialList
+                        .Where(m => m.ItemMasterItemId == (long?)d.PurchaseOrderDetailsMatId)
+                        .Select(c => c.ItemMasterItemName ?? "")
+                        .FirstOrDefault() ?? "",
+                    unitId = d.PurchaseOrderDetailsUnitId ?? 0,
+                    unit = unitList
+                        .Where(u => u.UnitMasterUnitId == (int?)d.PurchaseOrderDetailsUnitId)
+                        .Select(c => c.UnitMasterUnitFullName ?? "")
+                        .FirstOrDefault() ?? "",
+                    price = materialList
+                        .Where(m => m.ItemMasterItemId == (long?)d.PurchaseOrderDetailsMatId)
+                        .Select(c => (decimal?)c.ItemMasterLastPurchasePrice)
+                        .FirstOrDefault() ?? 0,
+                    poQty = d.PurchaseOrderDetailsQuantity ?? 0,
+                })
+                .ToList();
+
+            objResponse.ResultSet = new
+            {
+                result = data
+            };
+            return objResponse;
+
         }
     }
 }
