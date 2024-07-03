@@ -467,14 +467,12 @@ namespace Inspire.Erp.Web.Controllers.Procurement
         {
             try
             {
-               
-                return Ok(_purchaseOrderService.GetAllPOForGRN());
+               return Ok(_purchaseOrderService.GetAllPOForGRN());
             }
             catch (System.Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }
         }
-
     }
 }

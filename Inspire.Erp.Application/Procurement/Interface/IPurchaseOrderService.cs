@@ -25,6 +25,6 @@ namespace Inspire.Erp.Application.Procurement.Interfaces
         public VouchersNumbers GetVouchersNumbers(string pvno);
         public VouchersNumbers GetVouchersNumbers(string pvno,string vType);
         public IQueryable GetPODetailsForGRN();
-        public IQueryable GetAllPOForGRN();
+        public List<PurchaseOrderDTO> GetAllPOForGRN();
     }
 }
