@@ -33,6 +33,7 @@ using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Modals.Stock;
 using NPOI.OpenXmlFormats.Dml;
 using System.Net.Http.Headers;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
 
 namespace Inspire.Erp.Web.Controllers.Store
 {
@@ -43,10 +44,12 @@ namespace Inspire.Erp.Web.Controllers.Store
     {
         private IStockService _openingStockService;
         private readonly IMapper _mapper;
-        public StockReportController(IStockService openingStockService, IMapper mapper)
+        private IRepository<ItemMaster> itemrepository;
+        public StockReportController(IStockService openingStockService, IRepository<ItemMaster> _itemrepository, IMapper mapper)
         {
             _openingStockService = openingStockService;
             _mapper = mapper;
+            itemrepository = _itemrepository;
         }
 
         [HttpPost]
@@ -105,7 +108,7 @@ namespace Inspire.Erp.Web.Controllers.Store
         [Route("GetStockReportBaseUnitWithValue")]
         public async Task<IActionResult> GetStockReportBaseUnitWithValue(GenericGridViewModel model)
         {
-            return Ok( await _openingStockService.GetStockReportBaseUnitWithValue(model));
+            return Ok(await _openingStockService.GetStockReportBaseUnitWithValue(model));
         }
 
         [HttpPost]
@@ -115,7 +118,33 @@ namespace Inspire.Erp.Web.Controllers.Store
 
             var results = await _openingStockService.GetStockMovement(model);
             return Ok(results);
-            
+
+        }
+        [HttpGet]
+        [Route("LoadDropdown")]
+        public ResponseInfo LoadDropdown()
+        {
+            var objectresponse = new ResponseInfo();
+            var itemMasterGroup = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo == 0 && (k.ItemMasterDelStatus != true)
+                     && k.ItemMasterItemType == ItemMasterStatus.Group).Select(k => new
+                     {
+                         k.ItemMasterItemId,
+                         k.ItemMasterItemName
+                     }).ToList();
+            var itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
+             && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
+             {
+                 k.ItemMasterItemId,
+                 k.ItemMasterItemName
+             }).ToList();
+
+            objectresponse.ResultSet = new
+            {
+                itemMaster = itemMaster,
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
         }
 
 

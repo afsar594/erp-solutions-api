@@ -426,5 +426,25 @@ namespace Inspire.Erp.Web.Controllers
             objectresponse.IsSuccess = true;
             return objectresponse;
         }
+
+        [HttpGet]
+        [Route("searchItemByName")]
+        public ResponseInfo searchItemByName(string name)
+        {
+            var objectresponse = new ResponseInfo();
+
+            var itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
+                     && k.ItemMasterItemType != ItemMasterStatus.Group && k.ItemMasterItemName.ToLower().Contains(name.ToLower())).Select(k => new
+                     {
+                         k.ItemMasterItemId,
+                         k.ItemMasterItemName
+                     }).ToList();
+
+            objectresponse.ResultSet = new
+            {
+                itemMaster = itemMaster,
+            };
+            return objectresponse;
+        }
     }
 }
