@@ -1,3 +1,4 @@
+using AutoMapper.Configuration.Annotations;
 using Inspire.Erp.Application.Account.Implementations;
 using Inspire.Erp.Application.StoreWareHouse.Interface;
 using Inspire.Erp.Domain.Entities;
@@ -186,9 +187,15 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 _context.SaveChanges();
                 return this.GetAllGRN();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                var recd = _voucherNumbersRepository.GetAsQueryable().Where(a => a.VouchersNumbersVNo == grn.PurchaseVoucherVoucherNo).FirstOrDefault();
+                if (recd != null)
+                {
+                    recd.VouhersNumbersDelStatus = true;
+                    _voucherNumbersRepository.Update(recd);
+                }
+                throw ex;
             }
         }
 
@@ -201,7 +208,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                                                         .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == VoucherType.PurchaseVoucher_TYPE)
                                                         .DefaultIfEmpty()
                                                         .Max(o => o == null ? 0 : o.VouchersNumbersVNoNu)) + 1;
-                
+
                 VouchersNumbers vouchersNumbers = new VouchersNumbers
                 {
                     VouchersNumbersVNo = prefix + vnoMaxVal,

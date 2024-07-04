@@ -279,7 +279,7 @@ namespace Inspire.Erp.Application.Master.Implementations
 
                 var prefix = this._programsettingsRepository.GetAsQueryable().Where(k => k.ProgramSettingsKeyValue == Prefix.PurchaseVoucher_Prefix).FirstOrDefault().ProgramSettingsTextValue;
                 int vnoMaxVal = Convert.ToInt32(_voucherNumbersRepository.GetAsQueryable()
-                                                        .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == VoucherType.SalesVoucher_TYPE)
+                                                        .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == VoucherType.PurchaseVoucher_TYPE)
                                                         .DefaultIfEmpty()
                                                         .Max(o => o == null ? 0 : o.VouchersNumbersVNoNu)) + 1;
 
@@ -292,7 +292,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                 {
                     VouchersNumbersVNo = prefix + vnoMaxVal,
                     VouchersNumbersVNoNu = vnoMaxVal,
-                    VouchersNumbersVType = VoucherType.SalesVoucher_TYPE,
+                    VouchersNumbersVType = VoucherType.PurchaseVoucher_TYPE,
                     VouchersNumbersFsno = 1,
                     VouchersNumbersStatus = AccountStatus.Pending,
                     VouchersNumbersVoucherDate = VoucherGenDate
