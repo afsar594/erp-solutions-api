@@ -92,17 +92,30 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpPost("saveGRNVoucher")]
         public ApiResponse<PurchaseVoucher> saveGRN([FromBody] PurchaseVoucher obj)
-        {
-            ApiResponse<PurchaseVoucher> apiResponse = new ApiResponse<PurchaseVoucher>();
+        {            
             var x = _grn.saveGRN(obj);
-            
+
+            ApiResponse<PurchaseVoucher> apiResponse = new ApiResponse<PurchaseVoucher>
+            {
+                Valid = true,
+                Result = x,
+                Message = ""
+            };
             return apiResponse;           
         }
 
         [HttpPost("updateGRN")]
-        public IActionResult updateGRN([FromBody] PurchaseVoucher obj)
+        public ApiResponse<PurchaseVoucher> updateGRN([FromBody] PurchaseVoucher obj)
         {
-            return Ok(_grn.updateGRN(obj, obj.AccountsTransactions.ToList()));
+            var x = _grn.updateGRN(obj, obj.AccountsTransactions.ToList());
+            ApiResponse<PurchaseVoucher> apiResponse = new ApiResponse<PurchaseVoucher>
+            {
+                Valid = true,
+                Result = x,
+                Message = ""
+            };
+
+            return apiResponse;
         }
 
         [HttpPost("DeleteGRN")]
