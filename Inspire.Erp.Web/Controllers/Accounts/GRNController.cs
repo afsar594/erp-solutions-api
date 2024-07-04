@@ -91,31 +91,15 @@ namespace Inspire.Erp.Web.Controllers
         }
 
         [HttpPost("saveGRNVoucher")]
-        public ApiResponse<PurchaseVoucher> saveGRN([FromBody] PurchaseVoucher obj)
-        {            
-            var x = _grn.saveGRN(obj);
-
-            ApiResponse<PurchaseVoucher> apiResponse = new ApiResponse<PurchaseVoucher>
-            {
-                Valid = true,
-                Result = x,
-                Message = ""
-            };
-            return apiResponse;           
+        public IActionResult saveGRN([FromBody] PurchaseVoucher obj)
+        {
+            return Ok(_grn.saveGRN(obj));
         }
 
         [HttpPost("updateGRN")]
-        public ApiResponse<PurchaseVoucher> updateGRN([FromBody] PurchaseVoucher obj)
+        public IActionResult updateGRN([FromBody] PurchaseVoucher obj)
         {
-            var x = _grn.updateGRN(obj, obj.AccountsTransactions.ToList());
-            ApiResponse<PurchaseVoucher> apiResponse = new ApiResponse<PurchaseVoucher>
-            {
-                Valid = true,
-                Result = x,
-                Message = ""
-            };
-
-            return apiResponse;
+            return Ok(_grn.updateGRN(obj, obj.AccountsTransactions.ToList()));
         }
 
         [HttpPost("DeleteGRN")]
@@ -147,8 +131,7 @@ namespace Inspire.Erp.Web.Controllers
             {
                 c.SuppliersMasterSupplierId,
                 c.SuppliersMasterSupplierName,
-                c.SuppliersMasterSupplierVatNo,
-                
+                c.SuppliersMasterSupplierVatNo
             }).ToList();
 
             var unitMasters = unitrepository.GetAsQueryable().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new

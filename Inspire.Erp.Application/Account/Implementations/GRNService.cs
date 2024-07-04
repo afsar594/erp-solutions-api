@@ -93,7 +93,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
             }
         }
 
-        public PurchaseVoucher updateGRN(PurchaseVoucher grn, List<AccountsTransactions> accountsTransactions)
+        public IQueryable updateGRN(PurchaseVoucher grn, List<AccountsTransactions> accountsTransactions)
         {
             try
             {
@@ -126,7 +126,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 trackingData.UserTrackingUserVpType = "GRN";
                 _context.UserTracking.Add(trackingData);
                 _context.SaveChanges();
-                return this.GetByID(grn.PurchaseVoucherVoucherNo);
+                return this.GetAllGRN();
             }
             catch (Exception)
             {
@@ -134,7 +134,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
             }
         }
 
-        public PurchaseVoucher saveGRN(PurchaseVoucher grn)
+        public IQueryable saveGRN(PurchaseVoucher grn)
         {
             try
             {
@@ -180,7 +180,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 trackingData.UserTrackingUserVpType = "GRN";
                 _context.UserTracking.Add(trackingData);
                 _context.SaveChanges();
-                return this.GetByID(grn.PurchaseVoucherVoucherNo);
+                return this.GetAllGRN();
             }
             catch (Exception)
             {
