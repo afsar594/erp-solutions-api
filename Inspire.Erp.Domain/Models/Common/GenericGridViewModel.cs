@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 
 namespace Inspire.Erp.Domain.Modals.Common
@@ -136,13 +137,13 @@ namespace Inspire.Erp.Domain.Modals.Common
     public class PurChaseRequisitionFilterReport
     {
         public int? JobId { get; set; }
-       
+
     }
     public class PurChaseReqFields
     {
         public string PurchaseRequisitionPartyName { get; set; }
         public string purchaseRequisitionType { get; set; }
-         public string Item_Name { get; set; }
+        public string Item_Name { get; set; }
         public string Unit { get; set; }
         public decimal DelQty { get; set; }
 
@@ -156,8 +157,23 @@ namespace Inspire.Erp.Domain.Modals.Common
         public long? jobid { get; set; }
 
         public decimal? Stock { get; set; }
-        
 
-        }
+
+    }
+    public class UserTrackFilter
+    {
+
+        public int? Userid { get; set; }
+        [DefaultValue(null)]
+        public string VPAction { get; set; } 
+        [DefaultValue(null)]
+        public string VPType { get; set; } 
+        [DefaultValue(null)]
+        public DateTime? fromDate { get; set; } 
+        [DefaultValue(null)]
+        public DateTime? toDate { get; set; }
+        [DefaultValue(false)]
+        public bool? isCheck { get; set; } 
+    }
 
 }

@@ -610,9 +610,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         {
             try
             {
-                var materialList = _itemMasterRepository.GetAll();
+                var materialList = _itemMasterRepository.GetAsQueryable().Where(a => a.ItemMasterDelStatus != true).ToList();
                 //var unitList = _unitMasterRepository.GetAll().ToList();
-                var data = _purchaseOrderDetailsRepository.GetAll().Select(d => new
+                var datalist = _purchaseOrderDetailsRepository.GetAsQueryable().Where(a => a.PurchaseOrderDetailsDelStatus != true).ToList();
+                var data = datalist.Select(d => new
                 {
                     purchaseOrderDetailsNo = d.PurchaseOrderDetailsNo,
                     itemId = d.PurchaseOrderDetailsMatId,
@@ -623,6 +624,44 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     //price = materialList.FirstOrDefault(m => m.ItemMasterItemId == d.PurchaseOrderDetailsMatId).ItemMasterLastPurchasePrice,
                     poQty = d.PurchaseOrderDetailsQuantity,
                 }).AsQueryable();
+                return data;
+            }
+            catch (System.Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public List<PurchaseOrderDTO> GetAllPOForGRN( decimal id)
+        {
+            try
+            {
+                var materialList = _itemMasterRepository.GetAsQueryable().Where(a => a.ItemMasterDelStatus != true).Select(c => new
+                {
+                    c.ItemMasterItemName,
+                    c.ItemMasterItemId,
+                    c.ItemMasterLastPurchasePrice
+                });
+                var unitList = _unitMasterRepository.GetAsQueryable().Where(a => a.UnitMasterUnitDelStatus != true).Select(c => new
+                {
+                    c.UnitMasterUnitId,
+                    c.UnitMasterUnitShortName,
+                    c.UnitMasterUnitFullName
+                }).ToList();
+                var detailList = _purchaseOrderDetailsRepository.GetAsQueryable().ToList();
+                var details = _purchaseOrderRepository.GetAsQueryable().Where(a => a.PurchaseOrderDelStatus != true && a.PurchaseOrderPartyId==id).ToList();
+                var data = details.Select(o => new PurchaseOrderDTO
+                {
+                    PurchaseOrder = o,
+                    PurchaseOrderDetails = detailList.Where(a => a.PurchaseOrderDetailsNo == o.PurchaseOrderNo).Select(d => new PurchaseOrderDetailsDTO
+                    {
+                        itemId = d.PurchaseOrderDetailsMatId,
+                        itemname = materialList.Where(m => m.ItemMasterItemId == (long?)d.PurchaseOrderDetailsMatId).Select(c => c.ItemMasterItemName ?? "").FirstOrDefault() ?? "",
+                        unitId = d.PurchaseOrderDetailsUnitId ?? 0,
+                        unit = unitList.Where(u => u.UnitMasterUnitId == (int?)d.PurchaseOrderDetailsUnitId).Select(c => c.UnitMasterUnitFullName ?? "").FirstOrDefault() ?? "",
+                        price = materialList.Where(m => m.ItemMasterItemId == (long?)d.PurchaseOrderDetailsMatId).Select(c => (decimal?)c.ItemMasterLastPurchasePrice).FirstOrDefault() ?? 0,
+                        poQty = d.PurchaseOrderDetailsQuantity ?? 0,
+                    }).ToList()
+                }).ToList();
                 return data;
             }
             catch (System.Exception ex)

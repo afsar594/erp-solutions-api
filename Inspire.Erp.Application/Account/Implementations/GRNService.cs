@@ -279,14 +279,14 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                     vs.VouhersNumbersDelStatus = true;
                     _voucherNumbersRepository.Update(vs);
                 }
-        
+
                 PurchaseVoucher pv = _purchaseVoucherRepository.GetAll().FirstOrDefault(k => k.PurchaseVoucherVoucherNo == grn.PurchaseVoucherVoucherNo);
                 if (pv != null)
                 {
                     pv.PurchaseVoucherDelStatus = true;
                     _purchaseVoucherRepository.Update(pv);
                 }
-        
+
                 List<PurchaseVoucherDetails> pvd = _purchaseVoucherDetailsRepository.GetAll().Where(k => k.PurchaseVoucherDetailsVoucherNo == grn.PurchaseVoucherVoucherNo).ToList();
                 foreach (var item in pvd)
                 {
