@@ -11,6 +11,7 @@ using Inspire.Erp.Web.ViewModels;
 using Inspire.Erp.Web.ViewModels.Procurement;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -49,12 +50,12 @@ namespace Inspire.Erp.Web.Controllers
         }
 
         [HttpGet]
-        [Route("GenerateVoucherNo")]
-        public IActionResult GenerateVoucherNo()
+        [Route("GenerateVoucherNo/{VoucherDate}")]
+        public IActionResult GenerateVoucherNo(DateTime? VoucherGenDate)
         {
             try
             {
-                return Ok(_grn.GenerateVoucherNo(null));
+                return Ok(_grn.GenerateVoucherNo(VoucherGenDate));
             }
             catch (System.Exception ex)
             {
