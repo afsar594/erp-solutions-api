@@ -50,12 +50,12 @@ namespace Inspire.Erp.Web.Controllers
         }
 
         [HttpGet]
-        [Route("GenerateVoucherNo/{VoucherDate}")]
-        public IActionResult GenerateVoucherNo(DateTime? VoucherGenDate)
+        [Route("GenerateVoucherNo")]
+        public IActionResult GenerateVoucherNo()
         {
             try
             {
-                return Ok(_grn.GenerateVoucherNo(VoucherGenDate));
+                return Ok(_grn.GenerateVoucherNo(null));
             }
             catch (System.Exception ex)
             {
