@@ -93,7 +93,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
             }
         }
 
-        public IQueryable updateGRN(PurchaseVoucher grn, List<AccountsTransactions> accountsTransactions)
+        public PurchaseVoucher updateGRN(PurchaseVoucher grn, List<AccountsTransactions> accountsTransactions)
         {
             try
             {
@@ -126,7 +126,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 trackingData.UserTrackingUserVpType = "GRN";
                 _context.UserTracking.Add(trackingData);
                 _context.SaveChanges();
-                return this.GetAllGRN();
+                return this.GetByID(grn.PurchaseVoucherVoucherNo);
             }
             catch (Exception)
             {
@@ -134,7 +134,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
             }
         }
 
-        public IQueryable saveGRN(PurchaseVoucher grn)
+        public PurchaseVoucher saveGRN(PurchaseVoucher grn)
         {
             try
             {
@@ -180,7 +180,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 trackingData.UserTrackingUserVpType = "GRN";
                 _context.UserTracking.Add(trackingData);
                 _context.SaveChanges();
-                return this.GetAllGRN();
+                return this.GetByID(grn.PurchaseVoucherVoucherNo);
             }
             catch (Exception)
             {
@@ -246,14 +246,14 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                     vs.VouhersNumbersDelStatus = true;
                     _voucherNumbersRepository.Update(vs);
                 }
-        
+
                 PurchaseVoucher pv = _purchaseVoucherRepository.GetAll().FirstOrDefault(k => k.PurchaseVoucherVoucherNo == grn.PurchaseVoucherVoucherNo);
                 if (pv != null)
                 {
                     pv.PurchaseVoucherDelStatus = true;
                     _purchaseVoucherRepository.Update(pv);
                 }
-        
+
                 List<PurchaseVoucherDetails> pvd = _purchaseVoucherDetailsRepository.GetAll().Where(k => k.PurchaseVoucherDetailsVoucherNo == grn.PurchaseVoucherVoucherNo).ToList();
                 foreach (var item in pvd)
                 {

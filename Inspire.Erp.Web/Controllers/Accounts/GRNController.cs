@@ -91,9 +91,12 @@ namespace Inspire.Erp.Web.Controllers
         }
 
         [HttpPost("saveGRNVoucher")]
-        public IActionResult saveGRN([FromBody] PurchaseVoucher obj)
+        public ApiResponse<PurchaseVoucher> saveGRN([FromBody] PurchaseVoucher obj)
         {
-            return Ok(_grn.saveGRN(obj));
+            ApiResponse<PurchaseVoucher> apiResponse = new ApiResponse<PurchaseVoucher>();
+            var x = _grn.saveGRN(obj);
+            
+            return apiResponse;           
         }
 
         [HttpPost("updateGRN")]
@@ -131,7 +134,8 @@ namespace Inspire.Erp.Web.Controllers
             {
                 c.SuppliersMasterSupplierId,
                 c.SuppliersMasterSupplierName,
-                c.SuppliersMasterSupplierVatNo
+                c.SuppliersMasterSupplierVatNo,
+                
             }).ToList();
 
             var unitMasters = unitrepository.GetAsQueryable().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
