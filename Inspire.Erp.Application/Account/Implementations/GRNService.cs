@@ -94,7 +94,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
             }
         }
 
-        public IQueryable updateGRN(PurchaseVoucher grn, List<AccountsTransactions> accountsTransactions)
+        public PurchaseVoucher updateGRN(PurchaseVoucher grn, List<AccountsTransactions> accountsTransactions)
         {
             try
             {
@@ -112,11 +112,21 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 var existingGrnList = _purchaseVoucherDetailsRepository.GetAll().Where(o => o.PurchaseVoucherDetailsVoucherNo == grn.PurchaseVoucherVoucherNo).ToList();
                 _purchaseVoucherDetailsRepository.DeleteList(existingGrnList);
 
+
                 foreach (var item in grn.PurchaseVoucherDetails)
                 {
                     item.PurchaseVoucherDetailsVoucherNo = grn.PurchaseVoucherVoucherNo;
+                    if (item.PurchaseVoucherDetailsPurcahseDetailsId != 0)
+                    {
+                        _purchaseVoucherDetailsRepository.Update(item);
+
+                    }
+                    else
+                    {
+                        _purchaseVoucherDetailsRepository.Insert(item);
+                    }
                 }
-                _purchaseVoucherDetailsRepository.UpdateList(grn.PurchaseVoucherDetails.ToList());
+                //_purchaseVoucherDetailsRepository.UpdateList(grn.PurchaseVoucherDetails.ToList());
 
                 UserTracking trackingData = new UserTracking();
                 trackingData.UserTrackingUserUserId = 1;
@@ -127,15 +137,15 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 trackingData.UserTrackingUserVpType = "GRN";
                 _context.UserTracking.Add(trackingData);
                 _context.SaveChanges();
-                return this.GetAllGRN();
+                return grn;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
 
-        public IQueryable saveGRN(PurchaseVoucher grn)
+        public PurchaseVoucher saveGRN(PurchaseVoucher grn)
         {
             try
             {
@@ -185,7 +195,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 trackingData.UserTrackingUserVpType = "GRN";
                 _context.UserTracking.Add(trackingData);
                 _context.SaveChanges();
-                return this.GetAllGRN();
+                return grn;
             }
             catch (Exception ex)
             {
