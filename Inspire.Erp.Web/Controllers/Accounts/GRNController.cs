@@ -28,12 +28,12 @@ namespace Inspire.Erp.Web.Controllers
         private readonly IRepository<SuppliersMaster> supplierrepository;
         private IRepository<UnitMaster> unitrepository;
         private IRepository<CostCenterMaster> costcenterrepository;
-        private IRepository<JobMaster> jobrepository;
+        private IRepository<JobMaster> jobrepository; private IRepository<LocationMaster> locationrepository;
         private IRepository<CurrencyMaster> currencyrepository;
         private IChartofAccountsService chartofAccountsService;
         public GRNController(IGRNService grn, IMapper mapper, IRepository<ItemMaster> _itemrepository,
             IRepository<SuppliersMaster> _supplierrepository,
-            IRepository<UnitMaster> _unitrepository
+            IRepository<UnitMaster> _unitrepository, IRepository<LocationMaster> _locationrepository
             , IRepository<CostCenterMaster> _countryrepository
             , IRepository<JobMaster> _jobrepository, IRepository<CurrencyMaster> _currencyrepository, IChartofAccountsService _chartofAccountsService
             )
@@ -44,7 +44,7 @@ namespace Inspire.Erp.Web.Controllers
             supplierrepository = _supplierrepository;
             itemrepository = _itemrepository; unitrepository = _unitrepository;
             costcenterrepository = _countryrepository;
-            jobrepository = _jobrepository;
+            jobrepository = _jobrepository; locationrepository = _locationrepository;
             currencyrepository = _currencyrepository; chartofAccountsService = _chartofAccountsService;
         }
 
@@ -121,8 +121,8 @@ namespace Inspire.Erp.Web.Controllers
         public ResponseInfo LoadDropdown()
         {
             var objectresponse = new ResponseInfo();
-            var itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo == 0 && (k.ItemMasterDelStatus != true)
-                     && k.ItemMasterItemType == ItemMasterStatus.Group).Select(k => new
+            var itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
+                     && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
                      {
                          k.ItemMasterItemId,
                          k.ItemMasterItemName
@@ -130,7 +130,8 @@ namespace Inspire.Erp.Web.Controllers
             var SuppliersMaster = supplierrepository.GetAsQueryable().Where(a => a.SuppliersMasterSupplierDelStatus != true).Select(c => new
             {
                 c.SuppliersMasterSupplierId,
-                c.SuppliersMasterSupplierName
+                c.SuppliersMasterSupplierName,
+                c.SuppliersMasterSupplierVatNo
             }).ToList();
 
             var unitMasters = unitrepository.GetAsQueryable().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
@@ -139,7 +140,7 @@ namespace Inspire.Erp.Web.Controllers
                 x.UnitMasterUnitFullName,
                 x.UnitMasterUnitShortName
             }).ToList();
-           
+
             var jobMasters = jobrepository.GetAsQueryable().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
             {
                 c.JobMasterJobId,
@@ -158,14 +159,28 @@ namespace Inspire.Erp.Web.Controllers
                 c.MaRelativeNo,
                 c.MaSno
             }).ToList();
+            var costcenterMasters = costcenterrepository.GetAsQueryable().Where(a => a.CostCenterMasterCostCenterDelStatus != true).Select(c => new
+            {
+                c.CostCenterMasterCostCenterId,
+                c.CostCenterMasterCostCenterName,
+            }).ToList();
+            var LocationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
+            {
+                c.LocationMasterLocationId,
+                c.LocationMasterLocationName,
+            }).ToList();
+
+
             objectresponse.ResultSet = new
             {
                 itemMaster = itemMaster,
                 SuppliersMaster = SuppliersMaster,
-                unitMasters = unitMasters,                
+                unitMasters = unitMasters,
                 jobMasters = jobMasters,
                 currencyMasters = currencyMasters,
                 masterAccountsTables = masterAccountsTables,
+                costcenterMasters = costcenterMasters,
+                LocationMaster = LocationMaster
             };
 
             objectresponse.IsSuccess = true;
