@@ -274,34 +274,25 @@ namespace Inspire.Erp.Domain.Modals
     public class ProcessCashCardResponse
     {
         public string VoucherNo { get; set; }
-     
     }
 
-    //public class HoldRequest
-    //{
-
-    //    public decimal? NetTotal { get; set; }
-
-    //    public decimal? VAT { get; set; }
-
-    //    public decimal? Cash { get; set; }
-
-    //    public decimal? ItemDiscount { get; set; }
-    //    public decimal? BillDiscount { get; set; }
-    //    public int? UserId { get; set; }
-    //    public int WorkPeriodId { get; set; }
-    //    public string StationName { get; set; }
-    //    public string CreditCardNumber { get; set; }
-    //    public int? CustomerId { get; set; }
-    //    public int? SalesManId { get; set; }
-    //    public int? LocationId { get; set; }
-    //    public int? StationId { get; set; }
-    //    public string VoucherNo { get; set; }
-    //    public string RefereceNo { get; set; }
-    //    public long? BillnoLoad { get; set; }
-
-    //    public decimal? BillDiscountPerc { get; set; }
-    //    public List<ItemDetail> ItemDetails { get; set; }
-    //}
+    public class SalesTransactionWithWP
+    {
+        public string CreditAccountNumber { get; set; }
+        public string PayMode { get; set; }
+        public string InvoiceNo { get; set; }
+        public string TransDescription { get; set; }
+        public string CRDR { get; set; }
+        public string InvoiceCode { get; set; }
+        public string AccountCode { get; set; }
+        public decimal? Amount { get; set; }
+        public DateTime? InvoiceDate { get; set; }
+        public string Status { get; set; }
+        public bool? PosttoAccounts { get; set; }
+        public long WorkPeriodId { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public string WorkIdStatus { get; set; }
+    }
 
 }

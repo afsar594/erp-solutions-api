@@ -139,6 +139,10 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
             try
             {
                 grn.PurchaseVoucherDelStatus = false;
+
+                string contraVoucherNumber = this.GenerateVoucherNo(grn.PurchaseVoucherGRDate).VouchersNumbersVNo;
+                grn.PurchaseVoucherVoucherNo = contraVoucherNumber;
+
                 foreach (var k in grn.AccountsTransactions)
                 {
                     k.AccountsTransactionsVoucherNo = grn.PurchaseVoucherVoucherNo;
@@ -192,49 +196,78 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
         {
             try
             {
+                var prefix = this._programsettingsRepository.GetAsQueryable().Where(k => k.ProgramSettingsKeyValue == Prefix.PurchaseVoucher_Prefix).FirstOrDefault().ProgramSettingsTextValue;
                 int vnoMaxVal = Convert.ToInt32(_voucherNumbersRepository.GetAsQueryable()
-                                                        .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == "PurchaseVoucher")
+                                                        .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == VoucherType.PurchaseVoucher_TYPE)
                                                         .DefaultIfEmpty()
                                                         .Max(o => o == null ? 0 : o.VouchersNumbersVNoNu)) + 1;
-                var voucherNo = "GRN" + vnoMaxVal;
-                var voucherNumber = _context.VouchersNumbers.AsNoTracking().Where(o => o.VouchersNumbersVType == "PurchaseVoucher").ToList().OrderByDescending(o => o.VouchersNumbersVNoNu).FirstOrDefault();
-                if (voucherNumber != null)
+                
+                VouchersNumbers vouchersNumbers = new VouchersNumbers
                 {
-                    vnoMaxVal = (int)voucherNumber.VouchersNumbersVNoNu + 1;
-                    Console.WriteLine(vnoMaxVal);
-                    VouchersNumbers vouchersNumbers = new VouchersNumbers
-                    {
-                        VouchersNumbersVNo = prefix + vnoMaxVal,
-                        VouchersNumbersVNoNu = vnoMaxVal,
-                        VouchersNumbersVType = "PurchaseVoucher",
-                        VouchersNumbersFsno = 1,
-                        VouchersNumbersStatus = AccountStatus.Pending,
-                        VouchersNumbersVoucherDate = DateTime.Now
-                    };
-                    _voucherNumbersRepository.Insert(vouchersNumbers);
-                    return vouchersNumbers;
-                }
-                else
-                {
-                    VouchersNumbers vouchersNumbers = new VouchersNumbers
-                    {
-                        VouchersNumbersVNo = prefix + vnoMaxVal,
-                        VouchersNumbersVNoNu = vnoMaxVal,
-                        VouchersNumbersVType = "PurchaseVoucher",
-                        VouchersNumbersFsno = 1,
-                        VouchersNumbersStatus = AccountStatus.Pending,
-                        VouchersNumbersVoucherDate = DateTime.Now
+                    VouchersNumbersVNo = prefix + vnoMaxVal,
+                    VouchersNumbersVNoNu = vnoMaxVal,
+                    VouchersNumbersVType = VoucherType.PurchaseVoucher_TYPE,
+                    VouchersNumbersFsno = 1,
+                    VouchersNumbersStatus = AccountStatus.Pending,
+                    VouchersNumbersVoucherDate = VoucherGenDate
 
-                    };
-                    _voucherNumbersRepository.Insert(vouchersNumbers);
-                    return vouchersNumbers;
-                }
+                };
+                _voucherNumbersRepository.Insert(vouchersNumbers);
+                return vouchersNumbers;
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
+
+        //public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
+        //{
+        //    try
+        //    {
+        //        int vnoMaxVal = Convert.ToInt32(_voucherNumbersRepository.GetAsQueryable()
+        //                                                .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType ==VoucherType.GRN_TYPE)
+        //                                                .DefaultIfEmpty()
+        //                                                .Max(o => o == null ? 0 : o.VouchersNumbersVNoNu)) + 1;
+        //        var voucherNo = "GRN" + vnoMaxVal;
+        //        var voucherNumber = _context.VouchersNumbers.AsNoTracking().Where(o => o.VouchersNumbersVType == "PurchaseVoucher").ToList().OrderByDescending(o => o.VouchersNumbersVNoNu).FirstOrDefault();
+        //        if (voucherNumber != null)
+        //        {
+        //            vnoMaxVal = (int)voucherNumber.VouchersNumbersVNoNu + 1;
+        //            Console.WriteLine(vnoMaxVal);
+        //            VouchersNumbers vouchersNumbers = new VouchersNumbers
+        //            {
+        //                VouchersNumbersVNo = prefix + vnoMaxVal,
+        //                VouchersNumbersVNoNu = vnoMaxVal,
+        //                VouchersNumbersVType = VoucherType.g,
+        //                VouchersNumbersFsno = 1,
+        //                VouchersNumbersStatus = AccountStatus.Pending,
+        //                VouchersNumbersVoucherDate = DateTime.Now
+        //            };
+        //            _voucherNumbersRepository.Insert(vouchersNumbers);
+        //            return vouchersNumbers;
+        //        }
+        //        else
+        //        {
+        //            VouchersNumbers vouchersNumbers = new VouchersNumbers
+        //            {
+        //                VouchersNumbersVNo = prefix + vnoMaxVal,
+        //                VouchersNumbersVNoNu = vnoMaxVal,
+        //                VouchersNumbersVType = "PurchaseVoucher",
+        //                VouchersNumbersFsno = 1,
+        //                VouchersNumbersStatus = AccountStatus.Pending,
+        //                VouchersNumbersVoucherDate = DateTime.Now
+
+        //            };
+        //            _voucherNumbersRepository.Insert(vouchersNumbers);
+        //            return vouchersNumbers;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
 
         public IQueryable DeleteGRN(PurchaseVoucher grn)
         {

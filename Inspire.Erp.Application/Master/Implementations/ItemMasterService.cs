@@ -31,6 +31,8 @@ using System.Collections;
 using System.Xml.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Inspire.Erp.Domain.DTO;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Inspire.Erp.Application.Master
 {
@@ -70,6 +72,7 @@ namespace Inspire.Erp.Application.Master
         private readonly IRepository<POS_SalesReturn> _saleReturnRepo;
         private readonly IRepository<POS_SalesReturnDetails> _saleReturnDetailsRepo;
         private readonly IRepository<CardDetails> _cardDetailsRepo;
+        private readonly IRepository<MasterAccountsTable> _masterAccRepo;
         public ItemMasterService(IRepository<ItemMaster> _itemrepository, IRepository<ItemStockType> _itemStockRepository, IRepository<UnitDetails> unitDetailsRepo
             , IRepository<VendorMaster> _vendorrepository
             , IRepository<PurchaseVoucherDetails> _purchVouchDetailsRepo
@@ -101,6 +104,7 @@ namespace Inspire.Erp.Application.Master
             , IRepository<POS_SalesReturn> saleReturnRepo
         , IRepository<POS_SalesReturnDetails> saleReturnDetailsRepo
             , IRepository<CardDetails> cardDetailsRepo
+              , IRepository<MasterAccountsTable> masterAccRepo
             )
         {
             itemrepository = _itemrepository;
@@ -136,6 +140,7 @@ namespace Inspire.Erp.Application.Master
             _saleReturnRepo = saleReturnRepo;
             _saleReturnDetailsRepo = saleReturnDetailsRepo;
             _cardDetailsRepo = cardDetailsRepo;
+            _masterAccRepo = masterAccRepo;
         }
         public IEnumerable<ItemMaster> InsertItem(ItemMaster itemMaster)
         {
@@ -1295,6 +1300,76 @@ namespace Inspire.Erp.Application.Master
             catch (Exception ex)
             {
                 return null;
+            }
+        }
+
+
+        public async Task<bool> Posting(DateTime postDate, int wpId)
+        {
+            try
+            {
+                var salesTransView = (from wpr in workPeriodRepo.GetAsQueryable()
+                                 join stdr in posSalesTranDetailsRepo.GetAsQueryable() on wpr.Id equals (long)stdr.WorkPeriodId
+                                 join tcr in transCodesRepo.GetAsQueryable() on stdr.PaymentMode.Trim().ToUpper() equals tcr.Trans_code.Trim().ToUpper() into tcrJoin
+                                 from tc in tcrJoin.DefaultIfEmpty()
+                                 select new SalesTransactionWithWP()
+                                 {
+                                     CreditAccountNumber =stdr.CreditAccountNo,
+                                     PayMode = stdr.PaymentMode,
+                                     InvoiceNo = stdr.InvoiceNo,
+                                     TransDescription = tc.Trans_Description,
+                                     CRDR = tc.CRDR,
+                                     InvoiceCode = tc.Inv_Code,
+                                     AccountCode = tc.Acc_Code,
+                                     PosttoAccounts= tc.PosttoAccounts,
+                                     WorkPeriodId = wpr.Id,
+                                     Amount = stdr.Amount,
+                                     Status=stdr.Status,
+                                     StartDate=wpr.StartDate,
+                                     EndDate=wpr.Enddate,
+                                     WorkIdStatus=wpr.Status,
+                                     InvoiceDate=stdr.InvoiceDate,
+                                 }).AsQueryable();
+
+                var invoices = (from sv in salesTransView
+                                where sv.InvoiceDate == postDate
+                                select sv.InvoiceNo.Trim()).ToList();
+                var result = (from gtv in salesTransView
+                              join ma in _masterAccRepo.GetAsQueryable() on gtv.AccountCode equals ma.MaAccNo into maJoin
+                              from mac in maJoin.DefaultIfEmpty()
+                              join maa in _masterAccRepo.GetAsQueryable() on gtv.InvoiceCode equals maa.MaAccNo into maaJoin
+                              from mic in maaJoin.DefaultIfEmpty()
+                              where gtv.InvoiceDate == postDate && !invoices.Contains(gtv.InvoiceNo.Trim())
+                              && gtv.Status.Trim().ToUpper()=="Y" && gtv.PosttoAccounts==true && gtv.CRDR != "CD"
+                              group gtv by new { gtv.PayMode, gtv.TransDescription,gtv.InvoiceDate,gtv.CRDR,gtv.AccountCode,
+                              mac.MaTotalDebit,mac.MaTotalCredit,gtv.InvoiceCode,mic.MaAccName,gtv.CreditAccountNumber} into og
+                              select new
+                               {
+                                   Total = og.Sum(item => item.Amount),
+                                   PaymentMode = og.Key.PayMode,
+                                   TransDesc=og.Key.TransDescription,
+                                   InvoiceDate=og.Key.InvoiceDate,
+                                   CRDR=og.Key.CRDR,
+                                   AccountCode=og.Key.AccountCode,
+                                   AccountCodeName=og.Key.MaAccName,
+                                   TotalDebit=og.Key.MaTotalDebit,
+                                   TotalCredit=og.Key.MaTotalCredit,
+                                   InvoiceCode=og.Key.InvoiceCode,
+                                   InvoiceCodeName=og.Key.MaAccName,
+                                   CreditAccountNumber=og.Key.CreditAccountNumber
+                                 }).ToList();
+                if(result.Count>0)
+                {
+
+                }
+
+
+
+                return true; 
+            }
+            catch (Exception ex)
+            {
+                return false;
             }
         }
 

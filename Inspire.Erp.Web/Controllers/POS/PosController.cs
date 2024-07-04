@@ -191,10 +191,8 @@ namespace Inspire.Erp.Web.Controllers.POS
             {
                 return StatusCode(500, ex.Message.ToString());
             }
-
         }
-
-
+        
         [HttpPost("Hold")]
         public async Task<IActionResult> Hold(CardRequest model)
         {
