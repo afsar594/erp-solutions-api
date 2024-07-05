@@ -483,7 +483,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             var unitList = unitrepository.GetAsQueryable().Where(a => a.UnitMasterUnitDelStatus != true).Select(c => new
             {
                 c.UnitMasterUnitId,
-                c.UnitMasterUnitShortName,
+                UnitMasterUnitShortName = c.UnitMasterUnitShortName.Trim(),
                 c.UnitMasterUnitFullName
             }).ToList();
             var detailList = _purchaseOrderDetailsRepository.GetAsQueryable().ToList();

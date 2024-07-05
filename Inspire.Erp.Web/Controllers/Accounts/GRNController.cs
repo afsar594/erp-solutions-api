@@ -165,7 +165,7 @@ namespace Inspire.Erp.Web.Controllers
             {
                 x.UnitMasterUnitId,
                 x.UnitMasterUnitFullName,
-                x.UnitMasterUnitShortName
+                UnitMasterUnitShortName=x.UnitMasterUnitShortName.Trim(),
             }).ToList();
 
             var jobMasters = jobrepository.GetAsQueryable().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
