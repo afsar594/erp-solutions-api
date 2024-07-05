@@ -492,19 +492,6 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                 c.PurchaseOrderId,
                 c.PurchaseOrderNo
             }).ToList();
-            //var data = details.Select(o => new PurchaseOrderDTO
-            //{
-            //    PurchaseOrder =,
-            //    PurchaseOrderDetails = detailList.Where(a => a.PurchaseOrderDetailsNo == o.PurchaseOrderNo).Select(d => new PurchaseOrderDetailsDTO
-            //    {
-            //        itemId = d.PurchaseOrderDetailsMatId,
-            //        itemname = materialList.Where(m => m.ItemMasterItemId == (long?)d.PurchaseOrderDetailsMatId).Select(c => c.ItemMasterItemName ?? "").FirstOrDefault() ?? "",
-            //        unitId = d.PurchaseOrderDetailsUnitId ?? 0,
-            //        unit = unitList.Where(u => u.UnitMasterUnitId == (int?)d.PurchaseOrderDetailsUnitId).Select(c => c.UnitMasterUnitFullName ?? "").FirstOrDefault() ?? "",
-            //        price = materialList.Where(m => m.ItemMasterItemId == (long?)d.PurchaseOrderDetailsMatId).Select(c => (decimal?)c.ItemMasterLastPurchasePrice).FirstOrDefault() ?? 0,
-            //        poQty = d.PurchaseOrderDetailsQuantity ?? 0,
-            //    }).ToList()
-            //}).ToList();            
             var purchaseOrderNos = details.Select(d => d.PurchaseOrderNo).ToList();
 
             // Filtering detailList based on PurchaseOrderNos
@@ -512,7 +499,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                 .Where(d => purchaseOrderNos.Contains(d.PurchaseOrderDetailsNo))
                 .Select(d => new
                 {
-                    PONO=d.PurchaseOrderDetailsNo,
+                    PONO = d.PurchaseOrderDetailsNo,
                     itemId = d.PurchaseOrderDetailsMatId,
                     itemname = materialList
                         .Where(m => m.ItemMasterItemId == (long?)d.PurchaseOrderDetailsMatId)
@@ -523,10 +510,11 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                         .Where(u => u.UnitMasterUnitId == (int?)d.PurchaseOrderDetailsUnitId)
                         .Select(c => c.UnitMasterUnitFullName ?? "")
                         .FirstOrDefault() ?? "",
-                    price = materialList
-                        .Where(m => m.ItemMasterItemId == (long?)d.PurchaseOrderDetailsMatId)
-                        .Select(c => (decimal?)c.ItemMasterLastPurchasePrice)
-                        .FirstOrDefault() ?? 0,
+                    price = d.PurchaseOrderDetailsRate ?? 0,
+                    //price = materialList
+                    //    .Where(m => m.ItemMasterItemId == (long?)d.PurchaseOrderDetailsMatId)
+                    //    .Select(c => (decimal?)c.ItemMasterLastPurchasePrice)
+                    //    .FirstOrDefault() ?? 0,
                     poQty = d.PurchaseOrderDetailsQuantity ?? 0,
                 })
                 .ToList();

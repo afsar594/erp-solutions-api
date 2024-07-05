@@ -8,6 +8,9 @@ using AutoMapper;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Inspire.Erp.Application.Account;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
 
 namespace Inspire.Erp.Web.Controllers.Settings
 {
@@ -18,10 +21,12 @@ namespace Inspire.Erp.Web.Controllers.Settings
     {
         private readonly IMapper _mapper;
         private IErpSettings _settingSvc;
-        public SettingsController(IErpSettings settingSvc, IMapper mapper)
+        private IRepository<GeneralSettings> _generalSettingsRepo;
+        public SettingsController(IErpSettings settingSvc, IMapper mapper, IRepository<GeneralSettings> generalSettingsRepo)
         {
             _settingSvc = settingSvc;
             _mapper = mapper;
+            _generalSettingsRepo = generalSettingsRepo;
         }
         [HttpGet]
         [Route("general")]
@@ -108,6 +113,36 @@ namespace Inspire.Erp.Web.Controllers.Settings
                 Message = ""
             };
             return apiResponse;
+        }
+        [HttpGet]
+        [Route("LoadDropdown")]
+        public ResponseInfo LoadDropdown()
+        {
+            var objectresponse = new ResponseInfo();
+
+            var DEFAULTCURRENCY = _generalSettingsRepo.GetAsQueryable().Where(k => k.GeneralSettingsKeyValue.Trim() == "DEFAULTCURRENCY").Select(c => new
+            {
+                c.GeneralSettingsId,
+                c.GeneralSettingsTextValue
+            }).ToList();
+            var DEFAULTLOCATION = _generalSettingsRepo.GetAsQueryable().Where(k => k.GeneralSettingsKeyValue.Trim() == "DEFAULTCURRENCY").Select(c => new
+            {
+                c.GeneralSettingsId,
+                c.GeneralSettingsTextValue
+            }).ToList();
+
+            var DEFAULTINTIALACCOUNT = _generalSettingsRepo.GetAsQueryable().Where(k => k.GeneralSettingsKeyValue.Trim() == "DEFAULT_LOCATION").Select(c => new
+            {
+                c.GeneralSettingsId,
+                c.GeneralSettingsTextValue
+            }).ToList();
+            objectresponse.ResultSet = new
+            {                
+                DEFAULTCURRENCY = DEFAULTCURRENCY,
+                DEFAULTLOCATION = DEFAULTLOCATION,
+                DEFAULTINTIALACCOUNT= DEFAULTINTIALACCOUNT
+            };
+            return objectresponse;
         }
     }
 }
