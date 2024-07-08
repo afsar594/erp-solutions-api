@@ -352,7 +352,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                         {
                             PDC_Details_V_No = bankPaymentVoucher.BankPaymentVoucherVoucherNo,
                             PDC_Details_V_Type = "BANK PAYMENT",
-                            PDC_Details_Trans_Type = "RECEIVED",
+                            PDC_Details_Trans_Type = "ISSUED",
                             PDC_Details_Trans_Date = DateTime.Now,
                             PDC_Details_PDC_Date = DateTime.Now,
                             PDC_Details_Cheque_No = item.BankPaymentVoucherDetailsChequeNo == null ? "" : item.BankPaymentVoucherDetailsChequeNo.ToString(),

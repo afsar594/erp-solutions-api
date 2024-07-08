@@ -21,11 +21,11 @@ namespace Inspire.Erp.Application.Account.Implementations
             _accountTransactionRepository = accountTransactionRepository;
         }
 
-        public async Task<ApiResponse<List<AllocationDetails>>> GetReceiptVoucherAllocations(string accNo, string refNo, string vType )
+        public async Task<ApiResponse<List<AllocationDetails>>> GetReceiptVoucherAllocations(string accNo, string refNo, string vType)
         {
             try
             {
-                await Task.Delay(500);  
+                await Task.Delay(500);
                 var result = (from AD in this.allocationVDlts.GetAll()
                               join AT in _accountTransactionRepository.GetAll() on AD.AllocationVoucherDetailsTransSno equals (int)AT.AccountsTransactionsTransSno
                               where AD.AllocationVoucherDetailsAccNo == accNo && AD.AllocationVoucherDetailsVno.ToUpper() == refNo.ToUpper() && AD.AllocationVoucherDetailsRefVtype.ToUpper() == vType.ToUpper()
@@ -44,12 +44,12 @@ namespace Inspire.Erp.Application.Account.Implementations
                                   RefLocation = AD.AllocationVoucherDetailsRefLocationId.ToString()
                               }).ToList();
 
-                
-                  var  transValues = _accountTransactionRepository.GetAll()
-                                        .Where(a => a.AccountsTransactionsAccNo.ToUpper() == accNo.ToUpper()
-                                          && a.AccountsTransactionsAllocBalance > 0
-                                          && ((vType == "RECEIPT" && a.AccountsTransactionsDebit != 0)
-                                        || (vType == "PAYMENT" && a.AccountsTransactionsCredit != 0)))
+
+                var transValues = _accountTransactionRepository.GetAll()
+                                      .Where(a => a.AccountsTransactionsAccNo.ToUpper() == accNo.ToUpper()
+                                        && a.AccountsTransactionsAllocBalance > 0
+                                        && ((vType == "RECEIPT" && a.AccountsTransactionsDebit != 0)
+                                      || (vType == "PAYMENT" && a.AccountsTransactionsCredit != 0 && (a.AccountsTransactionsVoucherType == "PurchaseVoucher" || a.AccountsTransactionsVoucherType == "PAYMENT"))))
                                         .Select(g => new Domain.Models.AllocationDetails()
                                         {
                                             TransNo = g.AccountsTransactionsTransSno,

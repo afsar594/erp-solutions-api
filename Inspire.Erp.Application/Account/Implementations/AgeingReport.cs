@@ -36,7 +36,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     AccountsTransactionsAllocBalance = x.AccountsTransactionsAllocBalance,
                   //  AccountsTransactionsVoucherNo = x.AccountsTransactionsVoucherNo,
                     AccountsTransactionsVoucherType = x.AccountsTransactionsVoucherType,
-                   // AccountsTransactionsDescription = x.AccountsTransactionsDescription,
+                    AccountsTransactionsDescription = x.AccountsTransactionsDescription,
                     AccountsTransactionsTransDate = Convert.ToDateTime(x.AccountsTransactionsTransDate),
                   //  AccountsTransactionsParticulars = x.AccountsTransactionsParticulars,
                     RefNo = x.RefNo,
@@ -75,7 +75,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                         CrLimit += 0;
                         accName = accounts.AccountsTransactionsAccName;
                         accNo = accounts.AccountsTransactionsAccNo;
-                        
+                        Remarks = accounts.AccountsTransactionsDescription;
+
                         //decimal totalDebit = accounts.AccountsTransactionsDebit;
                         //decimal totalCredit = accounts.AccountsTransactionsCredit;
                         //runningBalance = (totalDebit - totalCredit) + (runningBalance);

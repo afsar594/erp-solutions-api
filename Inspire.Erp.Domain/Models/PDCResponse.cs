@@ -35,6 +35,7 @@ namespace Inspire.Erp.Domain.Modals
             public string? AccName { get; set; }
             public int? PID { get; set; }
             public string Narration { get; set; }
+            public  string Type { get; set; }
         }
     }
 }
