@@ -449,18 +449,19 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("GetItemMasterById/{id}")]
-        public ApiResponse<ItemMasterDTModel> GetItemMasterById(int id)
+        public ResponseInfo GetItemMasterById(int id)
         {
+            var objectresponse = new ResponseInfo();
             var listItemnater = itemrepository.GetAsQueryable().Where(a => a.ItemMasterItemId == id && a.ItemMasterDelStatus != true).ToList();
             var unitlist = _unitDetailsRepo.GetAsQueryable().Where(a => a.UnitDetailsItemId == id && a.UnitDetailsDelStatus != true).ToList();
 
-            var data = listItemnater.Select(a => new ItemMasterDTModel
+            var data = listItemnater.Select(a => new
             {
                 ItemMasterItemId = a.ItemMasterItemId,
                 ItemMasterItemName = a.ItemMasterItemName,
                 ItemMasterPartNo = a.ItemMasterPartNo,
                 ItemMasterUnitPrice = a.ItemMasterUnitPrice,
-                UnitDetails = unitlist.Select(c => new UnitDetailsDTModel
+                UnitDetails = unitlist.Select(c => new
                 {
                     UnitDetailsId = c.UnitDetailsId,
                     UnitDetailsUnitId = c.UnitDetailsUnitId,
@@ -471,14 +472,11 @@ namespace Inspire.Erp.Web.Controllers
                 }).FirstOrDefault(),
             }).FirstOrDefault();
 
-            ApiResponse<ItemMasterDTModel> apiResponse = new ApiResponse<ItemMasterDTModel>
+            objectresponse.ResultSet = new
             {
-                Valid = true,
-                Result = data,
-                Message = ""
+                itemMaster = data,
             };
-
-            return apiResponse;
+            return objectresponse;
 
         }
     }
