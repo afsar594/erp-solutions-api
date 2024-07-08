@@ -12,5 +12,6 @@ namespace Inspire.Erp.Application.Common
 
         public List<PurchaseReturnDetails> purchaseReturnDetails { get; set; }
         public List<StockRegister> stockRegister { get; set; }
+        
     }
 }

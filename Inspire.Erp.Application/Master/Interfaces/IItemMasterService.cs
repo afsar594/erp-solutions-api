@@ -22,6 +22,8 @@ namespace Inspire.Erp.Application.Master
         public IEnumerable<ItemMaster> DeleteItem(ItemMaster itemMaster);
         public List<ItemMaster> GetAllItem();
         public IEnumerable<ItemMaster> GetAllItemById(int id);
+        public Task<Response<itemAvgPrice>> GetAveragePrice(int id);
+        
         public List<ItemMaster> GetAllItemNotGroup();
         public IEnumerable<ItemStockType> GetAllStockType();
         public IEnumerable<ItemMaster> GetItemMastersByName(string name);
@@ -38,19 +40,38 @@ namespace Inspire.Erp.Application.Master
         public Task<Response<POS_WorkPeriod>> GetWorkPeriod(WorkPeriodFilter model);
         public Task<Response<List<ItemMasterResponse>>> GetItems(string? barCode);
 
-        public Task<PrintData> PrintReciept(string voucherNo);
 
         public Task<Response<List<CardType>>> GetCardTypes();
         public Task<Response<ItemMasterResponse>> SearchItemByUnitDetailsId(ItemBarCodeSearchFilter model);
-        public Task<Response<ItemMasterResponse>> SearchHoldBill(string voucherNo);
+        public Task<Response<List<ItemMasterResponse>>>  SearchHoldBill(string voucherNo);
 
+        public Task<Response<BillRecallResponse>> BillRecall(string voucherNo);
+
+        public Task<Response<SaleVoucherResponse>> Resettlement(string voucherNo);
         public Task<Response<List<SaleVoucherTempResponse>>> LoadHoldBills(int workPeriodId);
+
 
         public  Task<Response<List<SettlementDetailsResponse>>> AddSettlementDetails(SettlementDetailsRequest model);
         public Task<Response<CardAmountResponse>> CalculateCardAmount(CardAmountRequest model);
-        public Task<Response<bool>> ProcessCard(CardRequest model);
+        public Task<Response<ProcessCashCardResponse>> ProcessCard(CardRequest model);
+
+        public Task<Response<ProcessCashCardResponse>> ProcessCardResettlement(CardResettlementRequest model);
+        public Task<Response<ProcessCashCardResponse>> ProcessCashResettlement(CardResettlementRequest model);
+        public Task<Response<ProcessCashCardResponse>> ProcessCashCardResettlement(CardResettlementRequest model);
         public Task<Response<bool>> Hold(CardRequest model);
         public Task<Response<CardAmountResponse>> ProcessCashTransaction(CardRequest model);
+
+        public Task<PrintData> PrintReciept(string voucherNo);
+
+        public Task<PrintData> SummaryDateWise(DateTime fromDate, DateTime toDate, int wpId, int stationId);
+        public Task<PrintData> SummaryReport( int wpId, int stationId);
+        public Task<PrintData> DayEndReport(DateTime fromDate, DateTime toDate,int wpId, int stationId);
+
+        public Task<PrintData> TodayItemSales(DateTime fromDate, DateTime toDate, int wpId, int stationId);
+        public Task<PrintData> TransactionDateWise(DateTime fromDate, DateTime toDate, int wpId, int stationId);
+
+        public Task<PrintData> ZReport(DateTime fromDate, DateTime toDate, int wpId, int stationId);
+
 
     }
 }

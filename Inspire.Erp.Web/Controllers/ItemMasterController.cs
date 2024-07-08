@@ -4,10 +4,12 @@ using Inspire.Erp.Application.Master.Interfaces;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Inspire.Erp.Web.Common;
 using Inspire.Erp.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,12 +26,22 @@ namespace Inspire.Erp.Web.Controllers
         private readonly IMapper _mapper;
         private IItemMasterService itemMasterService;
         private ILocationMasterService locationMasterService;
-        public ItemMasterController(IItemMasterService _itemMasterService, ILocationMasterService _locationMasterService, IMapper mapper)
-        {
 
+
+        private IRepository<ItemMaster> itemrepository; private IRepository<VendorMaster> Brandrepository; private IRepository<ItemStockType> itemStockRepository;
+        private readonly IRepository<SuppliersMaster> supplierrepository; private IRepository<TaxMaster> taxrepository; private IRepository<PriceLevelMaster> priceLevelrepository;
+        private IRepository<UnitMaster> unitrepository; private IRepository<UnitDetails> _unitDetailsRepo;
+
+        public ItemMasterController(IRepository<ItemMaster> _itemrepository, IRepository<VendorMaster> _Brandrepository, IRepository<ItemStockType> _itemStockRepository,
+            IRepository<SuppliersMaster> _supplierrepository, IRepository<TaxMaster> _Taxrepository, IRepository<PriceLevelMaster> _priceLevelrepository,
+            IRepository<UnitMaster> _unitrepository, IRepository<UnitDetails> unitDetailsRepo,
+            IItemMasterService _itemMasterService, ILocationMasterService _locationMasterService, IMapper mapper)
+        {
             itemMasterService = _itemMasterService;
             locationMasterService = _locationMasterService;
-            _mapper = mapper;
+            _mapper = mapper; _unitDetailsRepo = unitDetailsRepo;
+            Brandrepository = _Brandrepository; itemStockRepository = _itemStockRepository; supplierrepository = _supplierrepository;
+            itemrepository = _itemrepository; taxrepository = _Taxrepository; priceLevelrepository = _priceLevelrepository; unitrepository = _unitrepository;
         }
         [HttpGet]
         [Route("GetAllItem")]
@@ -348,5 +360,126 @@ namespace Inspire.Erp.Web.Controllers
             return apiResponse;
         }
 
+        [HttpGet]
+        [Route("GetAveragePrice")]
+        public async Task<IActionResult> GetAveragePrice(int id)
+        {
+            return Ok(await itemMasterService.GetAveragePrice(id));
+        }
+
+
+        [HttpGet]
+        [Route("LoadDropdown")]
+        public ResponseInfo LoadDropdown()
+        {
+            var objectresponse = new ResponseInfo();
+            var itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo == 0 && (k.ItemMasterDelStatus != true)
+                     && k.ItemMasterItemType == ItemMasterStatus.Group).Select(k => new
+                     {
+                         k.ItemMasterItemId,
+                         k.ItemMasterItemName
+                     }).ToList();
+
+            var VendorMasters = Brandrepository.GetAsQueryable().Where(c => c.VendorMasterVendorDelStatus != true).Select(a => new
+            {
+                a.VendorMasterVendorId,
+                a.VendorMasterVendorName
+            }).ToList();
+            var Stocktype = itemStockRepository.GetAsQueryable().Where(c => c.ItemStockTypeDelStatus != 1).Select(a => new
+            {
+                a.ItemStockTypeId,
+                a.ItemStockTypeDescription
+            }).ToList();
+            var SuppliersMaster = supplierrepository.GetAsQueryable().Where(a => a.SuppliersMasterSupplierDelStatus != true).Select(c => new
+            {
+                c.SuppliersMasterSupplierId,
+                c.SuppliersMasterSupplierName
+            }).ToList();
+            var taxMasters = taxrepository.GetAsQueryable().Where(a => a.TmDelStatus != true).Select(c => new
+            {
+                c.TmId,
+                c.TmName,
+                c.TmPercentage
+            }).ToList();
+            var priceLevelMasters = priceLevelrepository.GetAsQueryable().Where(a => a.PriveLevelMasterPriceLevelDelStatus != true).Select(c => new
+            {
+                c.PriceLevelMasterPriceLevelId,
+                c.PriceLevelMasterPriceLevelName
+            }).ToList();
+            var unitMasters = unitrepository.GetAsQueryable().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
+            {
+                x.UnitMasterUnitId,
+                x.UnitMasterUnitFullName,
+                x.UnitMasterUnitShortName
+            }).ToList();
+            objectresponse.ResultSet = new
+            {
+                itemMaster = itemMaster,
+                VendorMasters = VendorMasters,
+                StockTypes = Stocktype,
+                SuppliersMaster = SuppliersMaster,
+                taxMasters = taxMasters,
+                priceLevelMasters = priceLevelMasters,
+                unitMasters = unitMasters
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
+
+        [HttpGet]
+        [Route("searchItemByName")]
+        public ResponseInfo searchItemByName(string name)
+        {
+            var objectresponse = new ResponseInfo();
+
+            var itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
+                     && k.ItemMasterItemType != ItemMasterStatus.Group && k.ItemMasterItemName.ToLower().Contains(name.ToLower())).Select(k => new
+                     {
+                         k.ItemMasterItemId,
+                         k.ItemMasterItemName
+                     }).ToList();
+
+            objectresponse.ResultSet = new
+            {
+                itemMaster = itemMaster,
+            };
+            return objectresponse;
+        }
+
+        [HttpGet]
+        [Route("GetItemMasterById/{id}")]
+        public ApiResponse<ItemMasterDTModel> GetItemMasterById(int id)
+        {
+            var listItemnater = itemrepository.GetAsQueryable().Where(a => a.ItemMasterItemId == id && a.ItemMasterDelStatus != true).ToList();
+            var unitlist = _unitDetailsRepo.GetAsQueryable().Where(a => a.UnitDetailsItemId == id && a.UnitDetailsDelStatus != true).ToList();
+
+            var data = listItemnater.Select(a => new ItemMasterDTModel
+            {
+                ItemMasterItemId = a.ItemMasterItemId,
+                ItemMasterItemName = a.ItemMasterItemName,
+                ItemMasterPartNo = a.ItemMasterPartNo,
+                ItemMasterUnitPrice = a.ItemMasterUnitPrice,
+                UnitDetails = unitlist.Select(c => new UnitDetailsDTModel
+                {
+                    UnitDetailsId = c.UnitDetailsId,
+                    UnitDetailsUnitId = c.UnitDetailsUnitId,
+                    UnitDetailsConversionType = c.UnitDetailsConversionType,
+                    UnitDetailsRate = c.UnitDetailsRate,
+                    UnitDetailsUnitPrice = c.UnitDetailsUnitPrice,
+                    UnitDetailsUnitCost = c.UnitDetailsUnitCost,
+                }).FirstOrDefault(),
+            }).FirstOrDefault();
+
+            ApiResponse<ItemMasterDTModel> apiResponse = new ApiResponse<ItemMasterDTModel>
+            {
+                Valid = true,
+                Result = data,
+                Message = ""
+            };
+
+            return apiResponse;
+
+        }
     }
 }

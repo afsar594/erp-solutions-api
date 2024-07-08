@@ -30,6 +30,7 @@ namespace Inspire.Erp.Application.Account.Implementations
         private IRepository<UnitMaster> _unitMasterRepository;
         private IRepository<SuppliersMaster> _suppliersMasterRepository;
         private IRepository<LocationMaster> _locationMasterRepository;
+        private IRepository<UnitDetails> _UnitDetailsRepository;
 
 
 
@@ -47,7 +48,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             IRepository<DepartmentMaster> departmentMasterRepository,
             IRepository<ItemMaster> itemMasterRepository, IRepository<UnitMaster> unitMasterRepository,
             IRepository<SuppliersMaster> suppliersMasterRepository, IRepository<LocationMaster> locationMasterRepository,
-
+            IRepository<UnitDetails> unitDetailsRepository,
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
 
@@ -60,7 +61,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             _programsettingsRepository = programsettingsRepository;
             _voucherNumbersRepository = voucherNumbers;
 
-
+            _UnitDetailsRepository = unitDetailsRepository;
             _itemMasterRepository = itemMasterRepository;
             _unitMasterRepository = unitMasterRepository;
             _suppliersMasterRepository = suppliersMasterRepository;
@@ -250,6 +251,17 @@ namespace Inspire.Erp.Application.Account.Implementations
             return this.GetSavedSalesReturnDetails(salesReturn.SalesReturnNo);
         }
 
+        private decimal getConverionTypebyUnitId(int? itemid, int? unitDetailsid)
+        {
+            try
+            {
+                return (decimal)_UnitDetailsRepository.GetAsQueryable().FirstOrDefault(x => x.UnitDetailsItemId == itemid && x.UnitDetailsUnitId == unitDetailsid).UnitDetailsConversionType;
+            }
+            catch
+            {
+                return 1;
+            }
+        }
         public int DeleteSalesReturn(SalesReturn salesReturn, List<AccountsTransactions> accountsTransactions,
             List<SalesReturnDetails> salesReturnDetails
             , List<StockRegister> stockRegister
@@ -327,8 +339,6 @@ namespace Inspire.Erp.Application.Account.Implementations
                 string openingstockVoucherNumber = this.GenerateVoucherNo(salesReturn.SalesReturnDate.Value).VouchersNumbersVNo;
                 salesReturn.SalesReturnNo = openingstockVoucherNumber;
 
-
-             
                 salesReturn.SalesReturnNo = salesReturn.SalesReturnNo;
                 _Context.SalesReturn.Add(salesReturn);
                 _Context.SaveChanges();
@@ -354,7 +364,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 //_Context.SaveChanges(true);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
-                    k.AccountsTransactionsAccNo = k.AccountsTransactionsAccNo??"12345" ;
+                    k.AccountsTransactionsAccNo = k.AccountsTransactionsAccNo ?? "12345";
                     k.AccountsTransactionsUserId = salesReturn.SalesReturnUserID == null ? -1 : salesReturn.SalesReturnUserID;
                     k.AccountsTransactionsVoucherNo = salesReturn.SalesReturnNo;
                     k.AccountsTransactionsVoucherType = VoucherType.SalesReturn_TYPE;
@@ -368,19 +378,14 @@ namespace Inspire.Erp.Application.Account.Implementations
                     return k;
                 }).ToList();
 
-
-
-
                 _Context.AccountsTransactions.AddRange(accountsTransactions);
                 _Context.SaveChanges();
-
-
-
 
                 List<StockRegister> sr = new List<StockRegister>();
 
                 foreach (var item in salesReturnDetails)
                 {
+                    var converontype = this.getConverionTypebyUnitId(item.SalesReturnDetailsMatId, item.SalesReturnDetailsUnitId);
                     sr.Add(new StockRegister()
                     {
                         StockRegisterRefVoucherNo = salesReturn.SalesReturnNo,
@@ -393,11 +398,12 @@ namespace Inspire.Erp.Application.Account.Implementations
                         StockRegisterLocationID = salesReturn.SalesReturnLocationID,
                         StockRegisterFSNO = null,
                         StockRegisterVoucherDate = salesReturn.SalesReturnDate,
-                        StockRegisterSIN = item.SalesReturnDetailsQuantity,
+                        StockRegisterSIN = item.SalesReturnDetailsQuantity * (decimal)(converontype) ?? 0,
                         StockRegisterRate = item.SalesReturnDetailsRate,
-                        StockRegisterAmount = item.SalesReturnDetailsGrossAmount,
+                        StockRegisterAmount = item.SalesReturnDetailsRate * item.SalesReturnDetailsQuantity,
                         StockRegisterMaterialID = item.SalesReturnDetailsMatId,
-                        
+                        StockRegisterQuantity = item.SalesReturnDetailsQuantity * (decimal)(converontype) ?? 0,
+
                     });
                 }
 
@@ -428,15 +434,32 @@ namespace Inspire.Erp.Application.Account.Implementations
         public SalesReturnModel GetSavedSalesReturnDetails(string pvno)
         {
             SalesReturnModel salesReturnModel = new SalesReturnModel();
-            salesReturnModel.salesReturn = _salesReturnRepository.GetAsQueryable().Where(k => k.SalesReturnNo == pvno).SingleOrDefault();
-            salesReturnModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.SalesReturn_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
-            salesReturnModel.salesReturnDetails = _salesReturnDetailsRepository.GetAsQueryable().Where(x => x.SalesReturnDetailsNo == pvno && (x.SalesReturnDetailsDelStatus == false || x.SalesReturnDetailsDelStatus == null)).ToList();
+            salesReturnModel.salesReturn = _salesReturnRepository.GetAsQueryable().Where(k => k.SalesReturnNo == pvno && k.SalesReturnDelStatus != true).FirstOrDefault();
+            if (salesReturnModel.salesReturn != null)
+            {
+                salesReturnModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.SalesReturn_TYPE && (c.AccountstransactionsDelStatus != true)).ToList();
+                salesReturnModel.salesReturnDetails = _salesReturnDetailsRepository.GetAsQueryable().Where(x => x.SalesReturnDetailsNo == pvno && (x.SalesReturnDetailsDelStatus != true)).ToList();
+
+                foreach (var item in salesReturnModel.salesReturnDetails)
+                {
+                    decimal sumReturnedQty = 0;
+                    var stockQuery = _stockRegisterRepository
+                       .GetAsQueryable()
+                       .Where(a => a.StockRegisterMaterialID == item.SalesReturnDetailsMatId &&
+                                   a.StockRegisterTransType == "SalesReturn" &&
+                                   a.StockRegisterRefVoucherNo == item.SalesReturnDetailsNo);
+
+                    sumReturnedQty = stockQuery.Any()
+                                       ? stockQuery.Sum(s => (decimal?)s.StockRegisterSIN) ?? 0
+                                       : 0;
+
+                    if (sumReturnedQty != null)
+                    {
+                        item.SalesReturnQtyTill = sumReturnedQty;
+                    }
+                }
+            }
             return salesReturnModel;
-
-
-
-
-
         }
 
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)

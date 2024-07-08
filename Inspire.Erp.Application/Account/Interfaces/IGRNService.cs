@@ -10,9 +10,9 @@ namespace Inspire.Erp.Application.StoreWareHouse.Interface
 {
     public interface IGRNService
     {
-        IQueryable saveGRN(PurchaseVoucher grn);
+        PurchaseVoucher saveGRN(PurchaseVoucher grn);
         IQueryable DeleteGRN(PurchaseVoucher grn);
-        IQueryable updateGRN(PurchaseVoucher grn, List<AccountsTransactions> accountsTransactions);
+        PurchaseVoucher updateGRN(PurchaseVoucher grn, List<AccountsTransactions> accountsTransactions);
         public IEnumerable<GRNResponse> loadPo(GRNRequest obj);
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
         public PurchaseVoucher GetByID(string voucherNo);

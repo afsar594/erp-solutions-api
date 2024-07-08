@@ -8,7 +8,8 @@ using Inspire.Erp.Domain.Entities.POS;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.Common;
-using Inspire.Erp.Web.Common;
+using Inspire.Erp.Domain.Models;
+//using Inspire.Erp.Web.Common;
 using Inspire.Erp.Web.ViewModels;
 using Inspire.Erp.Web.ViewModels.Procurement;
 using Microsoft.AspNetCore.Authorization;
@@ -62,12 +63,6 @@ namespace Inspire.Erp.Web.Controllers.POS
             return Ok(await itemMasterService.GetItems(barCode));
         }
 
-        [HttpGet]
-        [Route("PrintReciept")]
-        public async Task<IActionResult> PrintReciept(string voucherNo)
-        {
-            return Ok(await itemMasterService.PrintReciept(voucherNo));
-        }
 
 
         [HttpGet]
@@ -75,6 +70,21 @@ namespace Inspire.Erp.Web.Controllers.POS
         public async Task<IActionResult> SearchHoldBill(string voucherNo)
         {
             return Ok(await itemMasterService.SearchHoldBill(voucherNo));
+        }
+
+        [HttpGet]
+        [Route("Resettlement")]
+        public async Task<IActionResult> Resettlement(string voucherNo)
+        {
+            return Ok(await itemMasterService.Resettlement(voucherNo));
+        }
+
+
+        [HttpGet]
+        [Route("BillRecall")]
+        public async Task<IActionResult> BillRecall(string voucherNo)
+        {
+            return Ok(await itemMasterService.BillRecall(voucherNo));
         }
 
         [HttpGet]
@@ -125,7 +135,6 @@ namespace Inspire.Erp.Web.Controllers.POS
             {
                 return StatusCode(500, ex.Message.ToString());
             }
-
         }
 
 
@@ -143,7 +152,47 @@ namespace Inspire.Erp.Web.Controllers.POS
 
         }
 
+        [HttpPost("ProcessCardResettlement")]
+        public async Task<IActionResult> ProcessCardResettlement(CardResettlementRequest model)
+        {
+            try
+            {
+                return Ok(await itemMasterService.ProcessCardResettlement(model));
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
 
+        }
+
+        [HttpPost("ProcessCashResettlement")]
+        public async Task<IActionResult> ProcessCashResettlement(CardResettlementRequest model)
+        {
+            try
+            {
+                return Ok(await itemMasterService.ProcessCashResettlement(model));
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
+
+        }
+
+        [HttpPost("ProcessCashCardResettlement")]
+        public async Task<IActionResult> ProcessCashCardResettlement(CardResettlementRequest model)
+        {
+            try
+            {
+                return Ok(await itemMasterService.ProcessCashCardResettlement(model));
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
+        }
+        
         [HttpPost("Hold")]
         public async Task<IActionResult> Hold(CardRequest model)
         {
@@ -219,10 +268,6 @@ namespace Inspire.Erp.Web.Controllers.POS
         //    return apiResponse;
 
         //}
-
-
-
-
 
         #region  Sale Hold
 
@@ -327,8 +372,6 @@ namespace Inspire.Erp.Web.Controllers.POS
         }
         #endregion
 
-
-
         #region Authenticate Service
 
         [AllowAnonymous]
@@ -359,7 +402,6 @@ namespace Inspire.Erp.Web.Controllers.POS
             Response.Cookies.Append("refreshToken", token, cookieOptions);
         }
         #endregion
-
 
         #region  Work Periods
 
@@ -399,7 +441,58 @@ namespace Inspire.Erp.Web.Controllers.POS
 
         #endregion
 
+        #region  "Text Print Reports"
+
+        [HttpGet]
+        [Route("PrintReciept")]
+        public async Task<IActionResult> PrintReciept(string voucherNo)
+        {
+            return Ok(await itemMasterService.PrintReciept(voucherNo));
+        }
+
+        [HttpGet]
+        [Route("SummaryDateWise")]
+        public async Task<IActionResult> SummaryDateWise(DateTime fromDate, DateTime toDate, int wpId, int stationId)
+        {
+            return Ok(await itemMasterService.SummaryDateWise(fromDate, toDate, wpId, stationId));
+        }
+        
+
+        [HttpGet]
+        [Route("SummaryReport")]
+        public async Task<IActionResult> SummaryReport( int wpId, int stationId)
+        {
+            return Ok(await itemMasterService.SummaryReport( wpId, stationId));
+        }
 
 
+        [HttpGet]
+        [Route("DayEndReport")]
+        public async Task<IActionResult> DayEndReport(DateTime fromDate, DateTime toDate,int wpId, int stationId)
+        {
+            return Ok(await itemMasterService.DayEndReport(fromDate,toDate,wpId, stationId));
+        }
+
+        [HttpGet]
+        [Route("TodayItemSales")]
+        public async Task<IActionResult> TodayItemSales(DateTime fromDate, DateTime toDate, int wpId, int stationId)
+        {
+            return Ok(await itemMasterService.TodayItemSales(fromDate, toDate, wpId, stationId));
+        }
+
+        [HttpGet]
+        [Route("TransactionDateWise")]
+        public async Task<IActionResult> TransactionDateWise(DateTime fromDate, DateTime toDate, int wpId, int stationId)
+        {
+            return Ok(await itemMasterService.TransactionDateWise(fromDate, toDate, wpId, stationId));
+        }
+
+        [HttpGet]
+        [Route("zReport")]
+        public async Task<IActionResult> zReport(DateTime fromDate, DateTime toDate, int wpId, int stationId)
+        {
+            return Ok(await itemMasterService.ZReport(fromDate, toDate, wpId, stationId));
+        }
+        #endregion
     }
 }

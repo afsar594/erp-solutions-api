@@ -23,6 +23,7 @@ using System.Security.Cryptography;
 using Inspire.Erp.Domain.Modals.Stock;
 using Microsoft.AspNetCore.Mvc;
 using Inspire.Erp.Domain.Models;
+using Inspire.Erp.Domain.Entities.POS;
 
 namespace Inspire.Erp.Application.Sales.Implementations
 {
@@ -70,6 +71,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 _customerQuotationRepository.BeginTransaction();
                 customerQuotation.CustomerQuotationDetails.Clear();
 
+                _customerQuotationRepository.Update(customerQuotation);
+
                 long maxcount1 = 0;
                 maxcount1 = _customerQuotationDetailsRepository.GetAsQueryable()
                     .DefaultIfEmpty()
@@ -78,27 +81,24 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 foreach (var x in customerQuotationDetails)
                 {
+                    x.CustomerQuotationDetailsQuotationId = customerQuotation.CustomerQuotationQid;
+                    x.CustomerQuotationDetailsVoucherNo = customerQuotation.CustomerQuotationVoucherNo;
 
                     if (x.CustomerQuotationDetailsId == 0)
                     {
                         x.CustomerQuotationDetailsId = maxcount1;
-                        x.CustomerQuotationDetailsQuotationId = customerQuotation.CustomerQuotationQid;
-                        x.CustomerQuotationDetailsVoucherNo = customerQuotation.CustomerQuotationVoucherNo;
-                        customerQuotation.CustomerQuotationDetails.Add(x);
+                        _customerQuotationDetailsRepository.Insert(x);
                         maxcount1++;
                     }
                     else
                     {
-                        x.CustomerQuotationDetailsQuotationId = customerQuotation.CustomerQuotationQid;
-                        x.CustomerQuotationDetailsVoucherNo = customerQuotation.CustomerQuotationVoucherNo;
-                        customerQuotation.CustomerQuotationDetails.Add(x);
+                        _customerQuotationDetailsRepository.Update(x);
                     }
                 }
 
 
                 //_customerQuotationDetailsRepository.UpdateList(customerQuotationDetails);
-                //customerQuotation.CustomerQuotationDetails = customerQuotationDetails;
-                _customerQuotationRepository.Update(customerQuotation);
+                //customerQuotation.CustomerQuotationDetails = customerQuotationDetails;                
 
                 UserTracking trackingData = new UserTracking();
                 trackingData.UserTrackingUserUserId = 1;

@@ -17,6 +17,8 @@ using Inspire.Erp.Web.MODULE;
 
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Inspire.Erp.Application.Account;
+using Inspire.Erp.Domain.Modals.Common;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -27,13 +29,32 @@ namespace Inspire.Erp.Web.Controllers
     {
         private ISalesVoucherService _salesVoucherService;
         private readonly IMapper _mapper;
+        private IRepository<ItemMaster> itemrepository;
+        private readonly IRepository<SuppliersMaster> supplierrepository;
+        private IRepository<UnitMaster> unitrepository; private IRepository<VendorMaster> Brandrepository;
+        private IRepository<CostCenterMaster> costcenterrepository;
+        private IRepository<JobMaster> jobrepository; private IRepository<LocationMaster> locationrepository;
+        private IRepository<CurrencyMaster> currencyrepository; private IRepository<CustomerMaster> _customerMasterRepository;
+        private IChartofAccountsService chartofAccountsService; private IRepository<SalesManMaster> salesmanrepository;
+        private IRepository<DepartmentMaster> departmentrepository;
+
 
         private IRepository<UnitDetails> _UnitDetailsRepository;
-        public SalesVoucherController(ISalesVoucherService salesVoucherService, IMapper mapper, IRepository<UnitDetails> unitDetailsRepository)
+        public SalesVoucherController(ISalesVoucherService salesVoucherService, IMapper mapper, IRepository<UnitDetails> unitDetailsRepository,
+             IRepository<ItemMaster> _itemrepository,
+            IRepository<SuppliersMaster> _supplierrepository, IRepository<VendorMaster> _Brandrepository,
+            IRepository<UnitMaster> _unitrepository, IRepository<LocationMaster> _locationrepository, IRepository<SalesManMaster> _salesmanrepository
+            , IRepository<CostCenterMaster> _countryrepository, IRepository<DepartmentMaster> _departmentrepository, IRepository<CustomerMaster> customerMasterRepository
+            , IRepository<JobMaster> _jobrepository, IRepository<CurrencyMaster> _currencyrepository, IChartofAccountsService _chartofAccountsService)
         {
             _salesVoucherService = salesVoucherService;
             _mapper = mapper;
-            _UnitDetailsRepository = unitDetailsRepository;
+            _UnitDetailsRepository = unitDetailsRepository; salesmanrepository = _salesmanrepository;
+            supplierrepository = _supplierrepository; _customerMasterRepository = customerMasterRepository;
+            itemrepository = _itemrepository; unitrepository = _unitrepository; Brandrepository = _Brandrepository;
+            costcenterrepository = _countryrepository; departmentrepository = _departmentrepository;
+            jobrepository = _jobrepository; locationrepository = _locationrepository;
+            currencyrepository = _currencyrepository; chartofAccountsService = _chartofAccountsService;
         }
 
         [HttpGet]
@@ -61,13 +82,8 @@ namespace Inspire.Erp.Web.Controllers
             }
         }
 
-
-
-
         [HttpGet]
         [Route("SalesVoucher_GetAllSalesManMaster")]
-
-
         public List<CustomerMaster> SalesVoucher_GetAllSalesManMaster()
         {
             return _mapper.Map<List<CustomerMaster>>(_salesVoucherService.SalesVoucher_GetAllSalesManMaster());
@@ -78,8 +94,6 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("SalesVoucher_GetAllCustomerMaster")]
-
-
         public List<CustomerMaster> SalesVoucher_GetAllCustomerMaster()
         {
             return _mapper.Map<List<CustomerMaster>>(_salesVoucherService.SalesVoucher_GetAllCustomerMaster());
@@ -87,12 +101,8 @@ namespace Inspire.Erp.Web.Controllers
 
         }
 
-
-
         [HttpGet]
         [Route("SalesVoucher_GetAllDepartmentMaster")]
-
-
         public List<DepartmentMaster> SalesVoucher_GetAllDepartmentMaster()
         {
             return _mapper.Map<List<DepartmentMaster>>(_salesVoucherService.SalesVoucher_GetAllDepartmentMaster());
@@ -100,14 +110,8 @@ namespace Inspire.Erp.Web.Controllers
 
         }
 
-
-
-
-
         [HttpGet]
         [Route("SalesVoucher_GetAllSuppliersMaster")]
-
-
         public List<SuppliersMaster> SalesVoucher_GetAllSuppliersMaster()
         {
             return _mapper.Map<List<SuppliersMaster>>(_salesVoucherService.SalesVoucher_GetAllSuppliersMaster());
@@ -118,7 +122,6 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("SalesVoucher_GetAllUnitMaster")]
-
         public List<UnitMaster> SalesVoucher_GetAllUnitMaster()
         {
             return _mapper.Map<List<UnitMaster>>(_salesVoucherService.SalesVoucher_GetAllUnitMaster());
@@ -126,21 +129,14 @@ namespace Inspire.Erp.Web.Controllers
 
         }
 
-
-
-
-
         [HttpGet]
         [Route("SalesVoucher_GetAllItemMaster")]
-
         public List<ItemMaster> SalesVoucher_GetAllItemMaster()
         {
             return _mapper.Map<List<ItemMaster>>(_salesVoucherService.SalesVoucher_GetAllItemMaster());
 
 
         }
-
-
 
         [HttpPost]
         [Route("InsertSalesVoucher")]
@@ -151,16 +147,16 @@ namespace Inspire.Erp.Web.Controllers
             {
                 var param1 = _mapper.Map<SalesVoucher>(voucherCompositeView);
                 var param2 = _mapper.Map<List<SalesVoucherDetails>>(voucherCompositeView.SalesVoucherDetails);
-                var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);                
-                List<StockRegister> param4 = new List<StockRegister>();                
+                var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
+                List<StockRegister> param4 = new List<StockRegister>();
 
-                var xs = _salesVoucherService.InsertSalesVoucher(param1, param3, param2, param4);              
+                var xs = _salesVoucherService.InsertSalesVoucher(param1, param3, param2, param4);
 
 
                 SalesVoucherViewModel salesVoucherViewModel = new SalesVoucherViewModel
                 {
 
-                        
+
                     SalesVoucherId = xs.salesVoucher.SalesVoucherId,
                     SalesVoucherNo = xs.salesVoucher.SalesVoucherNo,
                     SalesVoucherDate = xs.salesVoucher.SalesVoucherDate,
@@ -412,7 +408,7 @@ namespace Inspire.Erp.Web.Controllers
                 Result = _mapper.Map<IEnumerable<SalesVoucher>>(_salesVoucherService.GetSalesVoucher()),
                 Message = ""
             };
-             return  apiResponse;
+            return apiResponse;
         }
 
         [HttpGet]
@@ -548,7 +544,101 @@ namespace Inspire.Erp.Web.Controllers
         }
 
 
+        [HttpGet]
+        [Route("LoadDropdown")]
+        public ResponseInfo LoadDropdown()
+        {
+            var objectresponse = new ResponseInfo();
+            var itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
+                     && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
+                     {
+                         k.ItemMasterItemId,
+                         k.ItemMasterItemName
+                     }).Take(50).ToList();
+            //var SuppliersMaster = supplierrepository.GetAsQueryable().Where(a => a.SuppliersMasterSupplierDelStatus != true).Select(c => new
+            //{
+            //    c.SuppliersMasterSupplierId,
+            //    c.SuppliersMasterSupplierName,
+            //    c.SuppliersMasterSupplierVatNo
+            //}).ToList();
+            var customerMasters = _customerMasterRepository.GetAsQueryable().Where(k => k.CustomerMasterCustomerDelStatus != true).Select(a => new
+            {
+                a.CustomerMasterCustomerNo,
+                a.CustomerMasterCustomerName,
+                a.CustomerMasterCustomerVatNo,
+                a.CustomerMasterCustomerContactPerson,
+                a.CustomerMasterCustomerAddress,
+                a.CustomerMasterCustomerReffAcNo
+            });
 
+            var unitMasters = unitrepository.GetAsQueryable().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
+            {
+                x.UnitMasterUnitId,
+                x.UnitMasterUnitFullName,
+                UnitMasterUnitShortName=x.UnitMasterUnitShortName.Trim()
+            }).ToList();
+
+            var jobMasters = jobrepository.GetAsQueryable().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
+            {
+                c.JobMasterJobId,
+                c.JobMasterJobName,
+            }).ToList();
+            var currencyMasters = currencyrepository.GetAsQueryable().Where(a => a.CurrencyMasterCurrencyDelStatus != true).Select(c => new
+            {
+                c.CurrencyMasterCurrencyId,
+                c.CurrencyMasterCurrencyName,
+                c.CurrencyMasterCurrencyRate
+            }).ToList();
+            //var masterAccountsTables = chartofAccountsService.GetAllAccounts().Where(a => a.MaDelStatus != true).Select(c => new
+            //{
+            //    c.MaAccNo,
+            //    c.MaAccName,
+            //    c.MaRelativeNo,
+            //    c.MaSno
+            //}).ToList();
+            var costcenterMasters = costcenterrepository.GetAsQueryable().Where(a => a.CostCenterMasterCostCenterDelStatus != true).Select(c => new
+            {
+                c.CostCenterMasterCostCenterId,
+                c.CostCenterMasterCostCenterName,
+            }).ToList();
+            var LocationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
+            {
+                c.LocationMasterLocationId,
+                c.LocationMasterLocationName,
+            }).ToList();
+            var BrandMasters = Brandrepository.GetAsQueryable().Where(a => a.VendorMasterVendorDelStatus != true).Select(c => new
+            {
+                c.VendorMasterVendorId,
+                c.VendorMasterVendorName,
+            });
+            var DepartmentsList = departmentrepository.GetAsQueryable().Where(a => a.DepartmentMasterDepartmentDelStatus != true).Select(k => new
+            {
+                k.DepartmentMasterDepartmentId,
+                k.DepartmentMasterDepartmentName,
+
+            }).ToList();
+            var SaleManList = salesmanrepository.GetAsQueryable().Where(a => a.SalesManMasterSalesManDelStatus != true).Select(c => new
+            {
+                c.SalesManMasterSalesManId,
+                c.SalesManMasterSalesManName,
+            }).ToList();
+            objectresponse.ResultSet = new
+            {
+                itemMaster = itemMaster,
+                //SuppliersMaster = SuppliersMaster,
+                unitMasters = unitMasters,
+                jobMasters = jobMasters,
+                currencyMasters = currencyMasters,
+                //masterAccountsTables = masterAccountsTables,
+                costcenterMasters = costcenterMasters,
+                LocationMaster = LocationMaster,
+                DepartmentsList = DepartmentsList,
+                BrandMasters = BrandMasters
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
     }
 }
 

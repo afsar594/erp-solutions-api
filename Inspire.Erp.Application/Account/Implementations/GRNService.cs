@@ -1,3 +1,4 @@
+using AutoMapper.Configuration.Annotations;
 using Inspire.Erp.Application.Account.Implementations;
 using Inspire.Erp.Application.StoreWareHouse.Interface;
 using Inspire.Erp.Domain.Entities;
@@ -93,7 +94,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
             }
         }
 
-        public IQueryable updateGRN(PurchaseVoucher grn, List<AccountsTransactions> accountsTransactions)
+        public PurchaseVoucher updateGRN(PurchaseVoucher grn, List<AccountsTransactions> accountsTransactions)
         {
             try
             {
@@ -111,11 +112,21 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 var existingGrnList = _purchaseVoucherDetailsRepository.GetAll().Where(o => o.PurchaseVoucherDetailsVoucherNo == grn.PurchaseVoucherVoucherNo).ToList();
                 _purchaseVoucherDetailsRepository.DeleteList(existingGrnList);
 
+
                 foreach (var item in grn.PurchaseVoucherDetails)
                 {
                     item.PurchaseVoucherDetailsVoucherNo = grn.PurchaseVoucherVoucherNo;
+                    if (item.PurchaseVoucherDetailsPurcahseDetailsId != 0)
+                    {
+                        _purchaseVoucherDetailsRepository.Update(item);
+
+                    }
+                    else
+                    {
+                        _purchaseVoucherDetailsRepository.Insert(item);
+                    }
                 }
-                _purchaseVoucherDetailsRepository.UpdateList(grn.PurchaseVoucherDetails.ToList());
+                //_purchaseVoucherDetailsRepository.UpdateList(grn.PurchaseVoucherDetails.ToList());
 
                 UserTracking trackingData = new UserTracking();
                 trackingData.UserTrackingUserUserId = 1;
@@ -126,19 +137,23 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 trackingData.UserTrackingUserVpType = "GRN";
                 _context.UserTracking.Add(trackingData);
                 _context.SaveChanges();
-                return this.GetAllGRN();
+                return grn;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
 
-        public IQueryable saveGRN(PurchaseVoucher grn)
+        public PurchaseVoucher saveGRN(PurchaseVoucher grn)
         {
             try
             {
                 grn.PurchaseVoucherDelStatus = false;
+
+                string contraVoucherNumber = this.GenerateVoucherNo(grn.PurchaseVoucherGRDate).VouchersNumbersVNo;
+                grn.PurchaseVoucherVoucherNo = contraVoucherNumber;
+
                 foreach (var k in grn.AccountsTransactions)
                 {
                     k.AccountsTransactionsVoucherNo = grn.PurchaseVoucherVoucherNo;
@@ -180,11 +195,17 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 trackingData.UserTrackingUserVpType = "GRN";
                 _context.UserTracking.Add(trackingData);
                 _context.SaveChanges();
-                return this.GetAllGRN();
+                return grn;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                var recd = _voucherNumbersRepository.GetAsQueryable().Where(a => a.VouchersNumbersVNo == grn.PurchaseVoucherVoucherNo).FirstOrDefault();
+                if (recd != null)
+                {
+                    recd.VouhersNumbersDelStatus = true;
+                    _voucherNumbersRepository.Update(recd);
+                }
+                throw ex;
             }
         }
 
@@ -192,49 +213,78 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
         {
             try
             {
+                var prefix = this._programsettingsRepository.GetAsQueryable().Where(k => k.ProgramSettingsKeyValue == Prefix.PurchaseVoucher_Prefix).FirstOrDefault().ProgramSettingsTextValue;
                 int vnoMaxVal = Convert.ToInt32(_voucherNumbersRepository.GetAsQueryable()
-                                                        .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == "PurchaseVoucher")
+                                                        .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == VoucherType.PurchaseVoucher_TYPE)
                                                         .DefaultIfEmpty()
                                                         .Max(o => o == null ? 0 : o.VouchersNumbersVNoNu)) + 1;
-                var voucherNo = "GRN" + vnoMaxVal;
-                var voucherNumber = _context.VouchersNumbers.AsNoTracking().Where(o => o.VouchersNumbersVType == "PurchaseVoucher").ToList().OrderByDescending(o => o.VouchersNumbersVNoNu).FirstOrDefault();
-                if (voucherNumber != null)
-                {
-                    vnoMaxVal = (int)voucherNumber.VouchersNumbersVNoNu + 1;
-                    Console.WriteLine(vnoMaxVal);
-                    VouchersNumbers vouchersNumbers = new VouchersNumbers
-                    {
-                        VouchersNumbersVNo = prefix + vnoMaxVal,
-                        VouchersNumbersVNoNu = vnoMaxVal,
-                        VouchersNumbersVType = "PurchaseVoucher",
-                        VouchersNumbersFsno = 1,
-                        VouchersNumbersStatus = AccountStatus.Pending,
-                        VouchersNumbersVoucherDate = DateTime.Now
-                    };
-                    _voucherNumbersRepository.Insert(vouchersNumbers);
-                    return vouchersNumbers;
-                }
-                else
-                {
-                    VouchersNumbers vouchersNumbers = new VouchersNumbers
-                    {
-                        VouchersNumbersVNo = prefix + vnoMaxVal,
-                        VouchersNumbersVNoNu = vnoMaxVal,
-                        VouchersNumbersVType = "PurchaseVoucher",
-                        VouchersNumbersFsno = 1,
-                        VouchersNumbersStatus = AccountStatus.Pending,
-                        VouchersNumbersVoucherDate = DateTime.Now
 
-                    };
-                    _voucherNumbersRepository.Insert(vouchersNumbers);
-                    return vouchersNumbers;
-                }
+                VouchersNumbers vouchersNumbers = new VouchersNumbers
+                {
+                    VouchersNumbersVNo = prefix + vnoMaxVal,
+                    VouchersNumbersVNoNu = vnoMaxVal,
+                    VouchersNumbersVType = VoucherType.PurchaseVoucher_TYPE,
+                    VouchersNumbersFsno = 1,
+                    VouchersNumbersStatus = AccountStatus.Pending,
+                    VouchersNumbersVoucherDate = VoucherGenDate
+
+                };
+                _voucherNumbersRepository.Insert(vouchersNumbers);
+                return vouchersNumbers;
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
+
+        //public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
+        //{
+        //    try
+        //    {
+        //        int vnoMaxVal = Convert.ToInt32(_voucherNumbersRepository.GetAsQueryable()
+        //                                                .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType ==VoucherType.GRN_TYPE)
+        //                                                .DefaultIfEmpty()
+        //                                                .Max(o => o == null ? 0 : o.VouchersNumbersVNoNu)) + 1;
+        //        var voucherNo = "GRN" + vnoMaxVal;
+        //        var voucherNumber = _context.VouchersNumbers.AsNoTracking().Where(o => o.VouchersNumbersVType == "PurchaseVoucher").ToList().OrderByDescending(o => o.VouchersNumbersVNoNu).FirstOrDefault();
+        //        if (voucherNumber != null)
+        //        {
+        //            vnoMaxVal = (int)voucherNumber.VouchersNumbersVNoNu + 1;
+        //            Console.WriteLine(vnoMaxVal);
+        //            VouchersNumbers vouchersNumbers = new VouchersNumbers
+        //            {
+        //                VouchersNumbersVNo = prefix + vnoMaxVal,
+        //                VouchersNumbersVNoNu = vnoMaxVal,
+        //                VouchersNumbersVType = VoucherType.g,
+        //                VouchersNumbersFsno = 1,
+        //                VouchersNumbersStatus = AccountStatus.Pending,
+        //                VouchersNumbersVoucherDate = DateTime.Now
+        //            };
+        //            _voucherNumbersRepository.Insert(vouchersNumbers);
+        //            return vouchersNumbers;
+        //        }
+        //        else
+        //        {
+        //            VouchersNumbers vouchersNumbers = new VouchersNumbers
+        //            {
+        //                VouchersNumbersVNo = prefix + vnoMaxVal,
+        //                VouchersNumbersVNoNu = vnoMaxVal,
+        //                VouchersNumbersVType = "PurchaseVoucher",
+        //                VouchersNumbersFsno = 1,
+        //                VouchersNumbersStatus = AccountStatus.Pending,
+        //                VouchersNumbersVoucherDate = DateTime.Now
+
+        //            };
+        //            _voucherNumbersRepository.Insert(vouchersNumbers);
+        //            return vouchersNumbers;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
 
         public IQueryable DeleteGRN(PurchaseVoucher grn)
         {
@@ -246,14 +296,14 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                     vs.VouhersNumbersDelStatus = true;
                     _voucherNumbersRepository.Update(vs);
                 }
-        
+
                 PurchaseVoucher pv = _purchaseVoucherRepository.GetAll().FirstOrDefault(k => k.PurchaseVoucherVoucherNo == grn.PurchaseVoucherVoucherNo);
                 if (pv != null)
                 {
                     pv.PurchaseVoucherDelStatus = true;
                     _purchaseVoucherRepository.Update(pv);
                 }
-        
+
                 List<PurchaseVoucherDetails> pvd = _purchaseVoucherDetailsRepository.GetAll().Where(k => k.PurchaseVoucherDetailsVoucherNo == grn.PurchaseVoucherVoucherNo).ToList();
                 foreach (var item in pvd)
                 {

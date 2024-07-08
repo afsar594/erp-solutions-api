@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Transactions;
+using Microsoft.AspNetCore.Mvc;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Inspire.Erp.Application.Procurement.Implimentation
 {
@@ -24,8 +26,9 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
         private IRepository<CurrencyMaster> _curreny;
         private IRepository<StockRegister> _stock;
         private IRepository<PurOrderRegister> _poRegister;
-
-        public PurchaseOrdertracking(IRepository<PurchaseOrder> purchaseOrder, IRepository<PurchaseOrderDetails> poDetails, IRepository<Suppliers> supliers, IRepository<JobMaster> jobMaster, IRepository<ItemMaster> itemMaster, IRepository<CurrencyMaster> curreny, IRepository<StockRegister> stock, IRepository<PurOrderRegister> poRegister)
+        private IRepository<UserTracking> _UserTracking;
+        private IRepository<UserFile> _UserFile;
+        public PurchaseOrdertracking(IRepository<UserFile> UserFile, IRepository<UserTracking> UserTracking, IRepository<PurchaseOrder> purchaseOrder, IRepository<PurchaseOrderDetails> poDetails, IRepository<Suppliers> supliers, IRepository<JobMaster> jobMaster, IRepository<ItemMaster> itemMaster, IRepository<CurrencyMaster> curreny, IRepository<StockRegister> stock, IRepository<PurOrderRegister> poRegister)
         {
             _purchaseOrder = purchaseOrder;
             _poDetails = poDetails;
@@ -35,6 +38,8 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
             _curreny = curreny;
             _stock = stock;
             _poRegister = poRegister;
+            _UserFile = UserFile;
+            _UserTracking = UserTracking;
         }
 
         public async Task<Response<List<POTrackingDetails>>> GetPurchaseOrderTrackingDetails(ReportFilter model)
@@ -261,7 +266,7 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
 
 
 
-                var detailsQuery = await (from po in _purchaseOrder.GetAsQueryable().Where($"1==1 { filteredValue }")
+                var detailsQuery = await (from po in _purchaseOrder.GetAsQueryable().Where($"1==1 {filteredValue}")
                                           join sp in _supliers.GetAsQueryable() on po.PurchaseOrderSupInvNo equals sp.SuppliersInsId.ToString() into spGroup
                                           from sp in spGroup.DefaultIfEmpty()
                                           join cm in _curreny.GetAsQueryable() on po.PurchaseOrderCurrencyId equals cm.CurrencyMasterCurrencyId into cmGroup
@@ -293,6 +298,88 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
             catch (Exception ex)
             {
                 return Response<List<POTrackingSummary>>.Fail(new List<POTrackingSummary>(), ex.Message);
+            }
+        }
+        public async Task<Response<List<UserTrackingDetails>>> GetUserTrackingDetails(UserTrackFilter model)
+        {
+            try
+            {
+                List<UserTrackingDetails> data = new List<UserTrackingDetails>();
+                string filteredValue = string.Empty;
+
+                var query = _UserTracking.GetAsQueryable().Where(s => s.UserTrackingUserDelStatus != true).ToList();
+                if (model.Userid > 0)
+                {
+                    query = query.Where(a => a.UserTrackingUserUserId == model.Userid).ToList();
+
+                }
+                if (model.VPAction != null)
+                {
+                    query = query.Where(a => a.UserTrackingUserVpAction == model.VPAction).ToList();
+
+                }
+                if (model.VPType != null)
+                {
+                    query = query.Where(a => a.UserTrackingUserVpType == model.VPType).ToList();
+
+                }
+                if (model.fromDate != null && model.toDate != null)
+                {
+                   
+                    if (model.isCheck==true)
+
+                    query = query.Where(x => x.UserTrackingUserChangeDt.Value.Date >= Convert.ToDateTime(model.fromDate).Date && x.UserTrackingUserChangeDt.Value.Date <= Convert.ToDateTime(model.toDate).Date).ToList();
+
+                }
+
+
+                data = (from ut in query
+                        join uf in _UserFile.GetAsQueryable()
+                        on (long?)ut.UserTrackingUserUserId equals uf.UserId
+
+                        select new UserTrackingDetails
+                        {
+                            VP_Action = ut.UserTrackingUserVpAction,
+                            UserName = uf.UserName,
+                            VP_Type = ut.UserTrackingUserVpType,
+                            Change_Dt = ut.UserTrackingUserChangeDt,
+                            Change_Time = ut.UserTrackingUserChangeTime,
+                            User_VP_NO = ut.UserTrackingUserVpNo
+                        }).ToList();
+
+                return new Response<List<UserTrackingDetails>>()
+                {
+                    Valid = true,
+                    Message = "Data Found",
+                    Result = data
+                };
+            }
+            catch (Exception ex)
+            {
+                return Response<List<UserTrackingDetails>>.Fail(new List<UserTrackingDetails>(), ex.Message);
+            }
+        }
+
+        public async Task<Response<List<DropdownUserVPType>>> GetTrackingUserVPType()
+        {
+            try
+            {
+                var response = new List<DropdownUserVPType>();
+
+                //response.AddRange(await _UserTracking.ListSelectAsync(x => new DropdownUserVPType
+                //{
+                //    VPType = x.UserTrackingUserVpType
+                //}));
+                response = _UserTracking.GetAsQueryable().Select(ut => new DropdownUserVPType
+                { VPType = ut.UserTrackingUserVpType ?? "" }).
+                Distinct().Union(new[] { new DropdownUserVPType
+                { VPType = " ALL" } }).OrderBy(ut => ut.VPType).ToList();
+
+                return Response<List<DropdownUserVPType>>.Success(response, "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<List<DropdownUserVPType>>.Fail(new List<DropdownUserVPType>(), ex.Message);
             }
         }
     }

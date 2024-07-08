@@ -26,15 +26,12 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<EnquiryDetails> _customerEnquiryDetailsRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
         private IRepository<ProgramSettings> _programsettingsRepository;
-
         private IRepository<CustomerMaster> _customerMasterRepository;
         private IRepository<LocationMaster> _locationMasterRepository;
         private IRepository<EnquiryAbout> _enquiryAboutRepository;
         private IRepository<EnquiryStatus> _enquiryStatusRepository;
         private IRepository<BusinessTypeMaster> _businessTypeRepository;
         private IRepository<CurrencyMaster> _currenyMasterRepository;
-
-
         private readonly ILogger<CustomerEnquiryService> _logger;
 
         public CustomerEnquiryService(ILogger<CustomerEnquiryService> logger,
@@ -69,9 +66,23 @@ namespace Inspire.Erp.Application.Sales.Implementations
             try
             {
                 _customerEnquiryRepository.BeginTransaction();
-
                 _customerEnquiryRepository.Update(customerEnquiry);
-                _customerEnquiryDetailsRepository.UpdateList(customerEnquiryDetails);
+
+                foreach (var item in customerEnquiryDetails)
+                {
+                    item.EnquiryDetailsEnquiryDetailsEquiryId = customerEnquiry.EnquiryMasterEnquiryId;
+
+                    if (item.EnquiryDetailsEnquiryDetailsId != 0)
+                    {
+                        _customerEnquiryDetailsRepository.Update(item);
+                    }
+                    else
+                    {
+                        _customerEnquiryDetailsRepository.Insert(item);
+                    }
+
+                }
+                //_customerEnquiryDetailsRepository.UpdateList(customerEnquiryDetails);
                 _customerEnquiryRepository.TransactionCommit();
 
             }
@@ -132,7 +143,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 {
                     x.EnquiryDetailsEnquiryDetailsId = 0;
                     x.EnquiryDetailsEnquiryDetailsEquiryId = customerEnquiryNumber;
-                    ////x.EnquiryDetailsEnquiryDetailsId = Convert.ToInt32(customerEnquiryNumber);
                     return x;
                 }).ToList();
                 _customerEnquiryDetailsRepository.InsertList(customerEnquiryDetails);
