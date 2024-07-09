@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -34,16 +35,22 @@ namespace Inspire.Erp.Domain.Entities
         //public virtual BankPaymentVoucher BankPaymentVoucher { get; set; }
         //public virtual BankReceiptVoucher BankReceiptVoucher { get; set; }
         //public int CustomerPurchaseOrderId { get; set; }        
+        [JsonIgnore]
         public virtual CustomerPurchaseOrder CustomerPurchaseOrder { get; set; }
         public virtual PaymentVoucher PaymentVoucher { get; set; }
         public virtual ICollection<AccountsTransactions> AccountsTransactions { get; set; }
         public virtual ICollection<BankPaymentVoucherDetails> BankPaymentVoucherDetails { get; set; }
         public virtual ICollection<BankReceiptVoucherDetails> BankReceiptVoucherDetails { get; set; }
         //public virtual ICollection<CustomerQuotationDetails> CustomerQuotationDetails { get; set; }
+        [JsonIgnore]
         public virtual ICollection<EnquiryDetails> EnquiryDetails { get; set; }
+        [JsonIgnore]
         public virtual ICollection<JournalInvoiceDetails> JournalInvoiceDetails { get; set; }
+        [JsonIgnore]
         public virtual ICollection<OpeningVoucherDetails> OpeningVoucherDetails { get; set; }
+        [JsonIgnore]
         public virtual ICollection<PaymentVoucherDetails> PaymentVoucherDetails { get; set; }
+        [JsonIgnore]
         public virtual ICollection<ReceiptVoucherDetails> ReceiptVoucherDetails { get; set; }
         //public virtual ICollection<StockRegister> StockRegisters { get; set; }
     }

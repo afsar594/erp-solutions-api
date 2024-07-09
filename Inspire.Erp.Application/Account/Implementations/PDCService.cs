@@ -238,35 +238,40 @@ namespace Inspire.Erp.Application.Account.Implementation
                            
                         });
 
+                        var pd = _pdcDetails.GetAsQueryable().Where(x => x.PDC_Details_ID == item.PID).FirstOrDefault();
+                        if(pd != null)
+                        {
+                            if (item.Type == "Post")
+                                pd.PDC_Details_Cheque_Status = "C";
+                            else
+                                pd.PDC_Details_Cheque_Status = "R";
+                        }
+                        _pdcDetails.Update(pd);
 
-                        pdcDetails.Add(new PdcDetails()
-                        {  
-                            PDC_Details_Cheque_Status = "C",
-                        });
+
+
 
 
                         pdcVoucherDetails.Add(new PdcVoucherDetails()
                         {
                             PdcVoucherDetailsAccno = item.BAccNo,
                             PdcVoucherDetailsAmount = item.CAmount,
-                            PdcVoucherDetailsNarration = item.Narration
+                            PdcVoucherDetailsFcAmount = item.CAmount,
+                            PdcVoucherDetailsNarration = item.Narration,
+                            PdcVoucherDetailsDelStatus = false,
                         });
 
 
 
                     }
                 }
-                if(accountsTransactions.Count > 0)
-                {
-                    _accountTransactionRepository.InsertList(accountsTransactions);
-                }
+                //if(accountsTransactions.Count > 0)
+                //{
+                //    _accountTransactionRepository.InsertList(accountsTransactions);
+                //}
                 if(pdcVouchers.Count > 0)
                 {
                     _pdcVoucherRepository.InsertList(pdcVouchers);
-                }
-                if(pdcDetails.Count > 0)
-                {
-                    _pdcDetails.UpdateList(pdcDetails);
                 }
                 if (pdcVoucherDetails.Count > 0)
                 {
@@ -311,5 +316,31 @@ namespace Inspire.Erp.Application.Account.Implementation
             }
         }
 
+        public async Task<IEnumerable<PDCPostedList>> PDCReturnLists()
+        {
+            try
+            {
+                //R
+                var result = await _pdcDetails.GetAsQueryable().Where(x => x.PDC_Details_Cheque_Status == "R").Select(x => new PDCPostedList
+                {
+                    BAccNo = x.PDC_Details_Bank_Account_No,
+                    CAmount = x.PDC_Details_Cheque_Amount,
+                    CBName = x.PDC_Details_Cheque_Bank_Name,
+                    CNO = x.PDC_Details_Cheque_No,
+                    PartyName = x.PDC_Details_PartyAccNo,
+                    PDate = x.PDC_Details_PDC_Date,
+                    PID = x.PDC_Details_ID,
+                    POSTDt = x.PDC_Details_PDC_Voucher_Date,
+                    TDate = x.PDC_Details_Trans_Date,
+                    VNO = x.PDC_Details_V_No,
+                    VType = x.PDC_Details_V_Type,
+                }).ToListAsync();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

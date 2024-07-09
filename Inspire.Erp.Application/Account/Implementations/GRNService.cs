@@ -1,3 +1,4 @@
+using AutoMapper.Configuration.Annotations;
 using Inspire.Erp.Application.Account.Implementations;
 using Inspire.Erp.Application.StoreWareHouse.Interface;
 using Inspire.Erp.Domain.Entities;
@@ -93,7 +94,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
             }
         }
 
-        public IQueryable updateGRN(PurchaseVoucher grn, List<AccountsTransactions> accountsTransactions)
+        public PurchaseVoucher updateGRN(PurchaseVoucher grn, List<AccountsTransactions> accountsTransactions)
         {
             try
             {
@@ -111,11 +112,21 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 var existingGrnList = _purchaseVoucherDetailsRepository.GetAll().Where(o => o.PurchaseVoucherDetailsVoucherNo == grn.PurchaseVoucherVoucherNo).ToList();
                 _purchaseVoucherDetailsRepository.DeleteList(existingGrnList);
 
+
                 foreach (var item in grn.PurchaseVoucherDetails)
                 {
                     item.PurchaseVoucherDetailsVoucherNo = grn.PurchaseVoucherVoucherNo;
+                    if (item.PurchaseVoucherDetailsPurcahseDetailsId != 0)
+                    {
+                        _purchaseVoucherDetailsRepository.Update(item);
+
+                    }
+                    else
+                    {
+                        _purchaseVoucherDetailsRepository.Insert(item);
+                    }
                 }
-                _purchaseVoucherDetailsRepository.UpdateList(grn.PurchaseVoucherDetails.ToList());
+                //_purchaseVoucherDetailsRepository.UpdateList(grn.PurchaseVoucherDetails.ToList());
 
                 UserTracking trackingData = new UserTracking();
                 trackingData.UserTrackingUserUserId = 1;
@@ -126,15 +137,15 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 trackingData.UserTrackingUserVpType = "GRN";
                 _context.UserTracking.Add(trackingData);
                 _context.SaveChanges();
-                return this.GetAllGRN();
+                return grn;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
 
-        public IQueryable saveGRN(PurchaseVoucher grn)
+        public PurchaseVoucher saveGRN(PurchaseVoucher grn)
         {
             try
             {
@@ -184,11 +195,17 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 trackingData.UserTrackingUserVpType = "GRN";
                 _context.UserTracking.Add(trackingData);
                 _context.SaveChanges();
-                return this.GetAllGRN();
+                return grn;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                var recd = _voucherNumbersRepository.GetAsQueryable().Where(a => a.VouchersNumbersVNo == grn.PurchaseVoucherVoucherNo).FirstOrDefault();
+                if (recd != null)
+                {
+                    recd.VouhersNumbersDelStatus = true;
+                    _voucherNumbersRepository.Update(recd);
+                }
+                throw ex;
             }
         }
 
@@ -201,7 +218,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                                                         .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == VoucherType.PurchaseVoucher_TYPE)
                                                         .DefaultIfEmpty()
                                                         .Max(o => o == null ? 0 : o.VouchersNumbersVNoNu)) + 1;
-                
+
                 VouchersNumbers vouchersNumbers = new VouchersNumbers
                 {
                     VouchersNumbersVNo = prefix + vnoMaxVal,

@@ -33,6 +33,19 @@ namespace Inspire.Erp.Web.Controllers
                 throw ex;
             }
         }
+
+        [HttpGet("PDCReturnList")]
+        public async Task<IEnumerable<PDCPostedList>> PDCReturnList()
+        {
+            try
+            {
+                return await _pdc.PDCReturnLists();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         [HttpGet("PDCGetList")]
         public async Task<IEnumerable<PDCGetList>> PDCGetList()
         {

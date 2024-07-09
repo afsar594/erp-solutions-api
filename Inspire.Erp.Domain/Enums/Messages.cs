@@ -362,6 +362,15 @@ namespace Inspire.Erp.Domain.Enums
 
 
     }
+    public static class GRNMessage
+    {
+        public static String SaveVoucher { get { return "GRN saved successfully"; } }
+        public static string UpdateVoucher { get { return "GRN updated successfully"; } }
+        public static string DeleteVoucher { get { return "GRN updated successfully"; } }
+        public static string VoucherAlreadyExist { get { return "GRN is already exist"; } }
+        public static string VoucherNumberExist { get { return "Voucher Number is exist"; } }
+
+    }
 
 
 

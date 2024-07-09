@@ -64,7 +64,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     Value = " 1 == 1",
                     Name = " All "
                 }); ;
-                response.AddRange(await _masterAccountsTable.ListSelectAsync(x => x.MaAccType == "G" && x.MaStatus == "R", x => new DropdownResponse
+                response.AddRange(await _masterAccountsTable.ListSelectAsync(x => x.MaAccType == "S" && x.MaStatus == "R", x => new DropdownResponse
                 {
                     Value = @$" MaRelativeNo == ""{x.MaAccNo}"" ",
                     Name = x.MaAccName

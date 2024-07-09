@@ -61,7 +61,7 @@ namespace Inspire.Erp.Domain.Modals.AccountStatement
        // public decimal? AccountsTransactionsFcCredit { get; set; }
         public string? AccountsTransactionsVoucherType { get; set; }
         //public string? AccountsTransactionsVoucherNo { get; set; }
-       // public string? AccountsTransactionsDescription { get; set; }
+        public string? AccountsTransactionsDescription { get; set; }
         //public long? AccountsTransactionsUserId { get; set; }
         //public string? AccountsTransactionsStatus { get; set; }
         //public DateTime? AccountsTransactionsTstamp { get; set; }

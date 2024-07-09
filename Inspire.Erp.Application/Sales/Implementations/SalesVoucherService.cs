@@ -69,6 +69,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<SalesHoldDetails> _salesHoldDetailsRepository;
 
         private IRepository<POS_WorkPeriod> _POSWorkPeriodRepository;
+        private IRepository<UserTracking> _UserTracking;
 
 
 
@@ -76,6 +77,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
         //private IRepository<ReportSalesVoucher> _reportSalesVoucherRepository;
         public SalesVoucherService(
+            IRepository<UserTracking> UserTracking,
             //IRepository<ReportSalesVoucher> reportSalesVoucherRepository,
             IRepository<CustomerMaster> customerMasterRepository,
             IRepository<SalesManMaster> salesManMasterRepository,
@@ -115,6 +117,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             _salesHoldRepository = salesHoldRepository;
             _salesHoldDetailsRepository = salesHoldDetailsRepository;
             _POSWorkPeriodRepository = POSWorkPeriodRepository;
+            _UserTracking = UserTracking;
             //_reportSalesVoucherRepository = reportSalesVoucherRepository;
         }
 
@@ -218,6 +221,17 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 }).ToList();
                 _stockRegisterRepository.UpdateList(stockRegister);
 
+
+
+                UserTracking trackingData = new UserTracking();
+                trackingData.UserTrackingUserUserId = 1;
+                trackingData.UserTrackingUserVpAction = "Update";
+                trackingData.UserTrackingUserVpNo = salesVoucher.SalesVoucherNo;
+                trackingData.UserTrackingUserChangeDt = DateTime.Now;
+                trackingData.UserTrackingUserChangeTime = DateTime.Now;
+                trackingData.UserTrackingUserVpType = VoucherType.SalesVoucher_TYPE;
+                _UserTracking.Insert(trackingData);
+
                 _salesVoucherRepository.TransactionCommit();
 
 
@@ -285,6 +299,20 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 var vchrnumer = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == salesVoucher.SalesVoucherNo).FirstOrDefault();
 
                 _voucherNumbersRepository.Update(vchrnumer);
+
+
+
+
+
+                UserTracking trackingData = new UserTracking();
+                trackingData.UserTrackingUserUserId = 1;
+                trackingData.UserTrackingUserVpAction = "Delete";
+                trackingData.UserTrackingUserVpNo = salesVoucher.SalesVoucherNo;
+                trackingData.UserTrackingUserChangeDt = DateTime.Now;
+                trackingData.UserTrackingUserChangeTime = DateTime.Now;
+                trackingData.UserTrackingUserVpType = VoucherType.SalesVoucher_TYPE;
+                _UserTracking.Insert(trackingData);
+
 
                 _salesVoucherRepository.TransactionCommit();
                 i = 1;
@@ -392,7 +420,25 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
 
                 _salesVoucherRepository.Insert(salesVoucher);
+
+                UserTracking trackingData = new UserTracking();
+                trackingData.UserTrackingUserUserId = 1;
+                trackingData.UserTrackingUserVpAction = "Insert";
+                trackingData.UserTrackingUserVpNo = salesVoucher.SalesVoucherNo;
+                trackingData.UserTrackingUserChangeDt = DateTime.Now;
+                trackingData.UserTrackingUserChangeTime = DateTime.Now;
+                trackingData.UserTrackingUserVpType = VoucherType.SalesVoucher_TYPE;
+                _UserTracking.Insert(trackingData);
+
                 _salesVoucherRepository.TransactionCommit();
+
+
+
+
+
+
+
+
                 return this.GetSavedSalesVoucherDetails(salesVoucher.SalesVoucherNo);
 
             }
