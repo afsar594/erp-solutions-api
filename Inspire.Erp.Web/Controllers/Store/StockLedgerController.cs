@@ -44,8 +44,9 @@ namespace Inspire.Erp.Web.Controllers.Store
                      k.ItemMasterItemName,
                      k.ItemMasterBarcode,
                      k.ItemMasterPartNo,
-                     k.ItemMasterCurrentStock
-                 }).Take(50).ToList();
+                     k.ItemMasterCurrentStock,
+                     k.ItemMasterAccountNo
+                 }).ToList();
             var LocationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
             {
                 c.LocationMasterLocationId,
