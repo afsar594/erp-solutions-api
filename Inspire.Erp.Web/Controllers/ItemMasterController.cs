@@ -457,18 +457,19 @@ namespace Inspire.Erp.Web.Controllers
 
             var data = listItemnater.Select(a => new
             {
-                ItemMasterItemId = a.ItemMasterItemId,
-                ItemMasterItemName = a.ItemMasterItemName,
-                ItemMasterPartNo = a.ItemMasterPartNo,
-                ItemMasterUnitPrice = a.ItemMasterUnitPrice,
+                a.ItemMasterItemId,
+                a.ItemMasterItemName,
+                a.ItemMasterPartNo,
+                a.ItemMasterUnitPrice,
+                a.ItemMasterLastPurchasePrice,
                 UnitDetails = unitlist.Select(c => new
                 {
-                    UnitDetailsId = c.UnitDetailsId,
-                    UnitDetailsUnitId = c.UnitDetailsUnitId,
-                    UnitDetailsConversionType = c.UnitDetailsConversionType,
-                    UnitDetailsRate = c.UnitDetailsRate,
-                    UnitDetailsUnitPrice = c.UnitDetailsUnitPrice,
-                    UnitDetailsUnitCost = c.UnitDetailsUnitCost,
+                    c.UnitDetailsId,
+                    c.UnitDetailsUnitId,
+                    c.UnitDetailsConversionType,
+                    c.UnitDetailsRate,
+                    c.UnitDetailsUnitPrice,
+                    c.UnitDetailsUnitCost,
                 }).FirstOrDefault(),
             }).FirstOrDefault();
 
