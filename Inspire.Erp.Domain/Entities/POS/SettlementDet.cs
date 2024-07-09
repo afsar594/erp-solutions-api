@@ -5,7 +5,7 @@ namespace Inspire.Erp.Domain.Entities.POS
 {
     public partial class POS_SettlementDet
     {
-        public decimal SettlementDetId { get; set; }
+        public int SettlementDetId { get; set; }
         public long? OrderId { get; set; }
         public int PaymentmethodId { get; set; }
         public decimal? Amount { get; set; }
