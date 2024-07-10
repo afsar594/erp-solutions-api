@@ -16,6 +16,9 @@ namespace Inspire.Erp.Domain.Models.Procurement.PurchaseOrderTracking
         public decimal? IssuedQty{ get; set; }
         public decimal? ItemRate { get; set; }
         public decimal? CurrencyRate { get; set; }
+        public string? PurchaseOrderPartyId { get; set; }
+
+
 
     }
   public class UserTrackingDetails

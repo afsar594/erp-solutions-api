@@ -28,7 +28,8 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
         private IRepository<PurOrderRegister> _poRegister;
         private IRepository<UserTracking> _UserTracking;
         private IRepository<UserFile> _UserFile;
-        public PurchaseOrdertracking(IRepository<UserFile> UserFile, IRepository<UserTracking> UserTracking, IRepository<PurchaseOrder> purchaseOrder, IRepository<PurchaseOrderDetails> poDetails, IRepository<Suppliers> supliers, IRepository<JobMaster> jobMaster, IRepository<ItemMaster> itemMaster, IRepository<CurrencyMaster> curreny, IRepository<StockRegister> stock, IRepository<PurOrderRegister> poRegister)
+        private IRepository<SuppliersMaster> _supliersMaster;
+        public PurchaseOrdertracking(IRepository<UserFile> UserFile, IRepository<UserTracking> UserTracking, IRepository<PurchaseOrder> purchaseOrder, IRepository<PurchaseOrderDetails> poDetails, IRepository<Suppliers> supliers, IRepository<JobMaster> jobMaster, IRepository<ItemMaster> itemMaster, IRepository<CurrencyMaster> curreny, IRepository<StockRegister> stock, IRepository<PurOrderRegister> poRegister, IRepository<SuppliersMaster> supliersMaster)
         {
             _purchaseOrder = purchaseOrder;
             _poDetails = poDetails;
@@ -40,6 +41,7 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
             _poRegister = poRegister;
             _UserFile = UserFile;
             _UserTracking = UserTracking;
+            _supliersMaster = supliersMaster;
         }
 
         public async Task<Response<List<POTrackingDetails>>> GetPurchaseOrderTrackingDetails(ReportFilter model)
@@ -77,7 +79,9 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
                     filteredValue += $" and po.PurchaseOrderStatus = {model.Status} ";
                 }
                 var result = await (from po in _purchaseOrder.GetAsQueryable().Where($"1 == 1 {filteredValue}")
-                                    join sp in _supliers.GetAsQueryable() on po.PurchaseOrderSupInvNo equals sp.SuppliersInsId.ToString() into spGroup
+                                        //    join sp in _supliers.GetAsQueryable() on po.PurchaseOrderSupInvNo equals sp.SuppliersInsId.ToString() into spGroup
+                                    join sp in _supliersMaster.GetAsQueryable() on (int?)po.PurchaseOrderPartyId equals sp.SuppliersMasterSupplierId into spGroup
+
                                     from sp in spGroup.DefaultIfEmpty()
                                     join pod in _poDetails.GetAsQueryable() on po.PurchaseOrderId equals pod.PurchaseOrderId into podGroup
                                     from pod in podGroup.DefaultIfEmpty()
@@ -89,16 +93,17 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
                                     from jm in jmGroup.DefaultIfEmpty()
                                     select new POTrackingDetails()
                                     {
-                                        PONO = po.PurchaseOrderPono,
+                                        PONO = po.PurchaseOrderNo,
                                         PODate = po.PurchaseOrderDate,
-                                        Supplier = sp.SuppliersInsName,
+                                        //Supplier = sp.SuppliersInsName,
+                                        Supplier = sp.SuppliersMasterSupplierName ?? "",
                                         POQuantity = pod.PurchaseOrderDetailsQuantity,
                                         PartNO = (i != null) ? i.ItemMasterPartNo : "",
                                         ItemName = pod.PurchaseOrderDetailsItemName,
                                         ItemRate = pod.PurchaseOrderDetailsRate,
                                         PODetailsId = pod.PurchaseOrderDetailsPodId,
                                         ItemId = pod.PurchaseOrderDetailsMatId.ToString(),
-                                        POStatus = po.PurchaseOrderStatus,
+                                        POStatus = po.PurchaseOrderDelivStatus,
                                         CurrencyRate = (cm != null) ? (decimal?)cm.CurrencyMasterCurrencyRate : 1,
                                         DiscountPerc = po.PurchaseOrderTotalDisPer,
                                         VATPerc = po.PurchaseOrderVatPer,
@@ -191,8 +196,8 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
                 {
                     //var po = from p in _purchaseOrder.GetAsQueryable().Where(x => x.PurchaseOrderId == item.PurchaseOrderId) select p;
                     var po = _purchaseOrder.GetAsQueryable().FirstOrDefault(x => x.PurchaseOrderId == item.PurchaseOrderId);
-                    po.PurchaseOrderStatus = "P";
-                    _purchaseOrder.Update(po);
+                   // po.PurchaseOrderStatus = "P";
+                   // _purchaseOrder.Update(po);
                 }
                 #endregion
 
@@ -267,17 +272,20 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
 
 
                 var detailsQuery = await (from po in _purchaseOrder.GetAsQueryable().Where($"1==1 {filteredValue}")
-                                          join sp in _supliers.GetAsQueryable() on po.PurchaseOrderSupInvNo equals sp.SuppliersInsId.ToString() into spGroup
+                                              // join sp in _supliers.GetAsQueryable() on po.PurchaseOrderSupInvNo equals sp.SuppliersInsId.ToString() into spGroup
+                                          join sp in _supliersMaster.GetAsQueryable() on (int?)po.PurchaseOrderPartyId equals sp.SuppliersMasterSupplierId into spGroup
                                           from sp in spGroup.DefaultIfEmpty()
                                           join cm in _curreny.GetAsQueryable() on po.PurchaseOrderCurrencyId equals cm.CurrencyMasterCurrencyId into cmGroup
                                           from cm in cmGroup.DefaultIfEmpty()
                                           join jm in _jobMaster.GetAsQueryable() on po.PurchaseOrderJobId equals jm.JobMasterJobId into jmGroup
                                           from jm in jmGroup.DefaultIfEmpty()
+
                                           select new POTrackingSummary()
                                           {
                                               PONO = po.PurchaseOrderPono,
                                               PODate = po.PurchaseOrderDate,
-                                              Supplier = sp != null ? sp.SuppliersInsName : "",
+                                              //Supplier = sp != null ? sp.SuppliersInsName : "",
+                                              Supplier = sp.SuppliersMasterSupplierName ??  "",
                                               Amount = po.PurchaseOrderNetAmount,
                                               POStatus = po.PurchaseOrderStatus,
                                               DeliveryFrom = po.PurchaseOrderDelivFromDate,
