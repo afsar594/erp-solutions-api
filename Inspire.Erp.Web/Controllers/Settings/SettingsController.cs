@@ -106,7 +106,7 @@ namespace Inspire.Erp.Web.Controllers.Settings
         public ApiResponse<List<GeneralSettings>> UpdateGeneralSetting([FromBody] List<GeneralSettings> generalSettings)
         {
             bool result = _settingSvc.updateGeneralSettings(generalSettings);
-            ApiResponse <List<GeneralSettings>> apiResponse = new ApiResponse<List<GeneralSettings>>
+            ApiResponse<List<GeneralSettings>> apiResponse = new ApiResponse<List<GeneralSettings>>
             {
                 Valid = result,
                 Result = _settingSvc.GetGeneralSettings().ToList(),
@@ -120,27 +120,18 @@ namespace Inspire.Erp.Web.Controllers.Settings
         {
             var objectresponse = new ResponseInfo();
 
-            var DEFAULTCURRENCY = _generalSettingsRepo.GetAsQueryable().Where(k => k.GeneralSettingsKeyValue.Trim() == "DEFAULTCURRENCY").Select(c => new
+            var GeneralSettings = _generalSettingsRepo.GetAsQueryable().Where(k => k.GeneralSettingsKeyValue.Trim() == "DEFAULTCURRENCY" ||
+            k.GeneralSettingsKeyValue.Trim() == "DEFAULT_LOCATION" || k.GeneralSettingsKeyValue.Trim() == "DEFAULT_COST_CENTER" || k.GeneralSettingsKeyValue.Trim() == "DEFAULTINTIALACCOUNT"
+            ).Select(c => new
             {
                 c.GeneralSettingsId,
-                c.GeneralSettingsTextValue
-            }).ToList();
-            var DEFAULTLOCATION = _generalSettingsRepo.GetAsQueryable().Where(k => k.GeneralSettingsKeyValue.Trim() == "DEFAULTCURRENCY").Select(c => new
-            {
-                c.GeneralSettingsId,
-                c.GeneralSettingsTextValue
+                c.GeneralSettingsTextValue,
+                GeneralSettingsKeyValue = c.GeneralSettingsKeyValue.Trim()
             }).ToList();
 
-            var DEFAULTINTIALACCOUNT = _generalSettingsRepo.GetAsQueryable().Where(k => k.GeneralSettingsKeyValue.Trim() == "DEFAULT_LOCATION").Select(c => new
-            {
-                c.GeneralSettingsId,
-                c.GeneralSettingsTextValue
-            }).ToList();
             objectresponse.ResultSet = new
-            {                
-                DEFAULTCURRENCY = DEFAULTCURRENCY,
-                DEFAULTLOCATION = DEFAULTLOCATION,
-                DEFAULTINTIALACCOUNT= DEFAULTINTIALACCOUNT
+            {
+                GeneralSettings = GeneralSettings,
             };
             return objectresponse;
         }

@@ -480,6 +480,12 @@ namespace Inspire.Erp.Web.Controllers.Store
                 c.CurrencyMasterCurrencyName,
                 c.CurrencyMasterCurrencyRate
             }).ToList();
+            var unitMasters = unitrepository.GetAsQueryable().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
+            {
+                x.UnitMasterUnitId,
+                x.UnitMasterUnitFullName,
+                UnitMasterUnitShortName = x.UnitMasterUnitShortName.Trim()
+            }).ToList();
             var costcenterMasters = costcenterrepository.GetAsQueryable().Where(a => a.CostCenterMasterCostCenterDelStatus != true).Select(c => new
             {
                 c.CostCenterMasterCostCenterId,
@@ -505,6 +511,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 costcenterMasters = costcenterMasters,
                 LocationMaster = LocationMaster,
                 DepartmentsList = DepartmentsList,
+                unitMasters = unitMasters
             };
 
             objectresponse.IsSuccess = true;
