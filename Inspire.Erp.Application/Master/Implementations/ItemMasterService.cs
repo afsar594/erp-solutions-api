@@ -3031,20 +3031,26 @@ namespace Inspire.Erp.Application.Master
         {
             try
             {
+           
+
+
                 var result = await (from ir in posTempSalesVoucherDetailsRepo.GetAsQueryable()
-                                    join ud in _unitDetailsRepo.GetAsQueryable() on ir.UnitDetailsId equals ud.UnitDetailsId into umJoin
+                                    join ud in _unitDetailsRepo.GetAsQueryable() on ir.UnitDetailsId equals ud.UnitDetailsId 
+                                    join um in _unitMasterRepo.GetAsQueryable() on ud.UnitDetailsUnitId equals um.UnitMasterUnitId into umJoin
                                     from umd in umJoin.DefaultIfEmpty()
+                                    
                                     where ir.VoucherNo == voucherNo
                                     select new ItemMasterResponse
                                     {
 
-                                        BarCode = umd.UnitDetailsBarcode,
+                                        BarCode = ud.UnitDetailsBarcode,
                                         ItemName = ir.Description,
-                                        UnitPrice = umd.UnitDetailsUnitPrice,
+                                        UnitPrice = ud.UnitDetailsUnitPrice,
                                         ItemId = ir.ItemId,
+                                        UnitName=umd.UnitMasterUnitShortName,
                                         Quantity = (int)ir.Sold_Qty,
-                                        VATValue = ir.VatAmount,
-                                        UnitDetailsId = umd.UnitDetailsId,
+                                        VATValue = ir.VatAmount??0,
+                                        UnitDetailsId = ud.UnitDetailsId,
                                         Discount = ir.Discount
                                     }).ToListAsync();
 
@@ -3435,8 +3441,6 @@ namespace Inspire.Erp.Application.Master
                         }
                         else
                         {
-
-
                             var tempSettDetailsDis = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId && o.TransactionCode.Trim().ToUpper() == "DIS").ToList();
                             if (tempSettDetailsDis != null) settDetailsTempRepo.DeleteList(tempSettDetailsDis);
 
@@ -4479,6 +4483,7 @@ namespace Inspire.Erp.Application.Master
                         V_ID = salesVC.V_ID,
                         VoucherNo = model.VoucherNo,
                         ItemId = item.ItemId,
+                        Description=item.ItemName,
                         UnitId = item.UnitId,
                         Sold_Qty = item.Quantity,
                         UnitPrice = item.Price,

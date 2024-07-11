@@ -130,7 +130,6 @@ namespace Inspire.Erp.Domain.Modals
         public int? SalesManId { get; set; }
         public int? LocationId { get; set; }
         public int? StationId { get; set; }
-
         public List<ItemDetail> ItemDetails { get; set; }
     }
 
