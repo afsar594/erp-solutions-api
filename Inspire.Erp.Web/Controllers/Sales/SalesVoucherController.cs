@@ -633,7 +633,8 @@ namespace Inspire.Erp.Web.Controllers
                 costcenterMasters = costcenterMasters,
                 LocationMaster = LocationMaster,
                 DepartmentsList = DepartmentsList,
-                BrandMasters = BrandMasters
+                BrandMasters = BrandMasters,
+                SaleManList= SaleManList
             };
 
             objectresponse.IsSuccess = true;

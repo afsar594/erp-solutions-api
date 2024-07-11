@@ -230,24 +230,25 @@ namespace Inspire.Erp.Web.Controllers
                 c.MaRelativeNo,
                 c.MaSno
             }).ToList();
-            var DEFAULTCURRENCY = _generalSettingsRepo.GetAsQueryable().Where(k => k.GeneralSettingsKeyValue.Trim() == "DEFAULTCURRENCY").Select(c => new
-            {
-                c.GeneralSettingsId,
-                c.GeneralSettingsTextValue
-            }).ToList();
-            var DEFAULTINTIALACCOUNT = _generalSettingsRepo.GetAsQueryable().Where(k => k.GeneralSettingsKeyValue.Trim() == "DEFAULTINTIALACCOUNT").Select(c => new
-            {
-                c.GeneralSettingsId,
-                c.GeneralSettingsTextValue
-            }).ToList();
+
+            //var DEFAULTCURRENCY = _generalSettingsRepo.GetAsQueryable().Where(k => k.GeneralSettingsKeyValue.Trim() == "DEFAULTCURRENCY").Select(c => new
+            //{
+            //    c.GeneralSettingsId,
+            //    c.GeneralSettingsTextValue
+            //}).ToList();
+            //var DEFAULTINTIALACCOUNT = _generalSettingsRepo.GetAsQueryable().Where(k => k.GeneralSettingsKeyValue.Trim() == "DEFAULTINTIALACCOUNT").Select(c => new
+            //{
+            //    c.GeneralSettingsId,
+            //    c.GeneralSettingsTextValue
+            //}).ToList();
             objectresponse.ResultSet = new
             {
                 costcenterMasters = costcenterMasters,
                 masterAccountsTables = masterAccountsTables,
                 jobMasters = jobMasters,
                 currencyMasters = currencyMasters,
-                DEFAULTCURRENCY = DEFAULTCURRENCY,
-                DEFAULTINTIALACCOUNT = DEFAULTINTIALACCOUNT
+               // DEFAULTCURRENCY = DEFAULTCURRENCY,
+                //DEFAULTINTIALACCOUNT = DEFAULTINTIALACCOUNT
 
             };
             return objectresponse;

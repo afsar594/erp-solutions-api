@@ -449,36 +449,35 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("GetItemMasterById/{id}")]
-        public ApiResponse<ItemMasterDTModel> GetItemMasterById(int id)
+        public ResponseInfo GetItemMasterById(int id)
         {
+            var objectresponse = new ResponseInfo();
             var listItemnater = itemrepository.GetAsQueryable().Where(a => a.ItemMasterItemId == id && a.ItemMasterDelStatus != true).ToList();
             var unitlist = _unitDetailsRepo.GetAsQueryable().Where(a => a.UnitDetailsItemId == id && a.UnitDetailsDelStatus != true).ToList();
 
-            var data = listItemnater.Select(a => new ItemMasterDTModel
+            var data = listItemnater.Select(a => new
             {
-                ItemMasterItemId = a.ItemMasterItemId,
-                ItemMasterItemName = a.ItemMasterItemName,
-                ItemMasterPartNo = a.ItemMasterPartNo,
-                ItemMasterUnitPrice = a.ItemMasterUnitPrice,
-                UnitDetails = unitlist.Select(c => new UnitDetailsDTModel
+                a.ItemMasterItemId,
+                a.ItemMasterItemName,
+                a.ItemMasterPartNo,
+                a.ItemMasterUnitPrice,
+                a.ItemMasterLastPurchasePrice,
+                UnitDetails = unitlist.Select(c => new
                 {
-                    UnitDetailsId = c.UnitDetailsId,
-                    UnitDetailsUnitId = c.UnitDetailsUnitId,
-                    UnitDetailsConversionType = c.UnitDetailsConversionType,
-                    UnitDetailsRate = c.UnitDetailsRate,
-                    UnitDetailsUnitPrice = c.UnitDetailsUnitPrice,
-                    UnitDetailsUnitCost = c.UnitDetailsUnitCost,
+                    c.UnitDetailsId,
+                    c.UnitDetailsUnitId,
+                    c.UnitDetailsConversionType,
+                    c.UnitDetailsRate,
+                    c.UnitDetailsUnitPrice,
+                    c.UnitDetailsUnitCost,
                 }).FirstOrDefault(),
             }).FirstOrDefault();
 
-            ApiResponse<ItemMasterDTModel> apiResponse = new ApiResponse<ItemMasterDTModel>
+            objectresponse.ResultSet = new
             {
-                Valid = true,
-                Result = data,
-                Message = ""
+                itemMaster = data,
             };
-
-            return apiResponse;
+            return objectresponse;
 
         }
     }

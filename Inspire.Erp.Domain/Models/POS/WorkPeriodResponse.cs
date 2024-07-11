@@ -33,6 +33,8 @@ namespace Inspire.Erp.Domain.Modals
     public class SettlementDetailsRequest
     {
         // public int Quantity { get; set; }
+
+        public int? StationId { get; set; }
         public decimal Total { get; set; }
         //public decimal? NetAmount { get; set; }
         public decimal? VAT { get; set; }
@@ -54,6 +56,8 @@ namespace Inspire.Erp.Domain.Modals
 
         public decimal? Cash { get; set; }
 
+        public long? BillnoLoad { get; set; }
+        public string VoucherNo { get; set; }
         public int UserId { get; set; }
         public int? StationId { get; set; }
 
@@ -71,6 +75,9 @@ namespace Inspire.Erp.Domain.Modals
         public int? SortOrder { get; set; }
         public bool? ShowinInvoice { get; set; }
         public string Status { get; set; }
+
+        public long? BillnoLoad { get; set; }
+        public string VoucherNo { get; set; }
     }
     public class CardAmountResponse
     {
@@ -97,12 +104,14 @@ namespace Inspire.Erp.Domain.Modals
         public decimal? Cash { get; set; }
         public decimal? GrandTotal { get; set; }
         public string RefereceNo { get; set; }
+
+        public long? BillnoLoad { get; set; }
         public string VoucherNo { get; set; }
         public string CardType { get; set; }
         public int? UserId { get; set; }
         public int WorkPeriodId { get; set; }
         public int BillNoSetDet { get; set; }
-        public long? BillnoLoad { get; set; }
+        
         public decimal? BillAmount { get; set; }
         public decimal? ItemDiscount { get; set; }
         public decimal? BillDiscount { get; set; }
@@ -121,7 +130,6 @@ namespace Inspire.Erp.Domain.Modals
         public int? SalesManId { get; set; }
         public int? LocationId { get; set; }
         public int? StationId { get; set; }
-
         public List<ItemDetail> ItemDetails { get; set; }
     }
 

@@ -10,7 +10,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Interface
 {
     public interface IDamageEntry
     {
-        public Task<string> DamageEntryPrefix();
+        public VouchersNumbers DamageEntryPrefix();
         public IEnumerable<DamageEntryModel> DamageEntryResponse();
         public Task<bool> deleteDamageEntry(DamageMaster obj);
         public Task<bool> updateDamageEntry(DamageEntryResponse Obj);

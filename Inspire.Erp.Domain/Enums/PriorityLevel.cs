@@ -36,6 +36,7 @@ namespace Inspire.Erp.Domain.Enums
         public static String PurchaseReturn_TYPE { get { return "PurchaseReturn"; } }
         public static String OBVoucher { get { return "OPENING BALANCE VOUCHER"; } }
         public static String PurchaseVoucher_TYPE { get { return "PurchaseVoucher"; } }
+        public static String DamageEntry_TYPE { get { return "DamageEntry"; } }
         public static String SalesVoucher_TYPE { get { return "SalesVoucher"; } }
         public static String SalesReturn_TYPE { get { return "SalesReturn"; } }
         public static String PurchaseOrder_TYPE { get { return "PurchaseOrder"; } }
