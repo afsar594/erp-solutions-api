@@ -40,12 +40,33 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
             _itemMasterRepository = itemMasterRepository;
             _locationMasterRepository = locationMasterRepository;
         }
-        public async Task<string> DamageEntryPrefix()
+        public VouchersNumbers DamageEntryPrefix()
         {
             try
             {
                 prefix = _programsettingsRepository.GetAsQueryable().Where(k => k.ProgramSettingsKeyValue == Prefix.DE_Prefix).FirstOrDefault().ProgramSettingsTextValue;
-                return prefix;
+                int vnoMaxVal = Convert.ToInt32(_VouchersNumbersRepo.GetAsQueryable()
+                                                        .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == VoucherType.DamageEntry_TYPE)
+                                                        .DefaultIfEmpty()
+                                                        .Max(o => o == null ? 0 : o.VouchersNumbersVNoNu)) + 1;
+
+
+                //var prefix = "DE";
+                //int vnoMaxVal = 1;
+
+
+                VouchersNumbers vouchersNumbers = new VouchersNumbers
+                {
+                    VouchersNumbersVNo = prefix + vnoMaxVal,
+                    VouchersNumbersVNoNu = vnoMaxVal,
+                    VouchersNumbersVType = VoucherType.DamageEntry_TYPE,
+                    VouchersNumbersFsno = 1,
+                    VouchersNumbersStatus = AccountStatus.Pending,
+                    VouchersNumbersVoucherDate = DateTime.Now,
+
+                };
+                _VouchersNumbersRepo.Insert(vouchersNumbers);
+                return vouchersNumbers;
             }
             catch (Exception ex)
             {

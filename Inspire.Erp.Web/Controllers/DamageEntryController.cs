@@ -118,12 +118,12 @@ namespace Inspire.Erp.Web.Controllers
             }
         }
         [HttpGet("DamageEntryPrefix")]
-        public async Task<ApiResponse<string>> DamageEntryPrefix()
+        public async Task<ApiResponse<VouchersNumbers>> DamageEntryPrefix()
         {
             try
             {
-                string prefix = await de.DamageEntryPrefix();
-                ApiResponse<string> apiResponse = new ApiResponse<string>
+                var prefix =  de.DamageEntryPrefix();
+                ApiResponse<VouchersNumbers> apiResponse = new ApiResponse<VouchersNumbers>
                 {
                     Valid = true,
                     Result = prefix,
