@@ -65,12 +65,7 @@ namespace Inspire.Erp.Web.Controllers.POS
 
 
 
-        [HttpGet]
-        [Route("SearchHoldBill")]
-        public async Task<IActionResult> SearchHoldBill(string voucherNo)
-        {
-            return Ok(await itemMasterService.SearchHoldBill(voucherNo));
-        }
+ 
 
         [HttpGet]
         [Route("Resettlement")]
@@ -92,6 +87,26 @@ namespace Inspire.Erp.Web.Controllers.POS
         public async Task<IActionResult> LoadHoldBills(int workPeriodId)
         {
             return Ok(await itemMasterService.LoadHoldBills(workPeriodId));
+        }
+
+        [HttpGet]
+        [Route("SearchHoldBill")]
+        public async Task<IActionResult> SearchHoldBill(string voucherNo)
+        {
+            return Ok(await itemMasterService.SearchHoldBill(voucherNo));
+        }
+
+        [HttpPost("Hold")]
+        public async Task<IActionResult> Hold(CardRequest model)
+        {
+            try
+            {
+                return Ok(await itemMasterService.Hold(model));
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
         }
 
         [HttpGet]
@@ -149,7 +164,6 @@ namespace Inspire.Erp.Web.Controllers.POS
             {
                 return StatusCode(500, ex.Message.ToString());
             }
-
         }
 
         [HttpPost("ProcessCardResettlement")]
@@ -193,18 +207,7 @@ namespace Inspire.Erp.Web.Controllers.POS
             }
         }
         
-        [HttpPost("Hold")]
-        public async Task<IActionResult> Hold(CardRequest model)
-        {
-            try
-            {
-                return Ok(await itemMasterService.Hold(model));
-            }
-            catch (System.Exception ex)
-            {
-                return StatusCode(500, ex.Message.ToString());
-            }
-        }
+  
 
         [HttpPost("ProcessCash")]
         public async Task<IActionResult> ProcessCash(CardRequest model)
