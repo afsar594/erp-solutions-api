@@ -12,6 +12,8 @@ using Inspire.Erp.Web.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -21,11 +23,21 @@ namespace Inspire.Erp.Web.Controllers
     public class CustomerEnquiryController : ControllerBase
     {
         private ICustomerEnquiryService _customerEnquiryService;
-        private readonly IMapper _mapper;
-        public CustomerEnquiryController(ICustomerEnquiryService customerEnquiryService, IMapper mapper)
+        private readonly IMapper _mapper; private IRepository<EnquiryStatus> enquiryStatusrepository; private IRepository<BusinessTypeMaster> businesstyperepository;
+        private IRepository<ItemMaster> itemrepository; private IRepository<UnitMaster> unitrepository; private IRepository<LocationMaster> locationrepository; private IRepository<EnquiryAbout> enquiryAboutrepository;
+        private IRepository<CurrencyMaster> currencyrepository; private IRepository<CustomerMaster> _customerMasterRepository; private IRepository<SalesManMaster> salesmanrepository;
+        public CustomerEnquiryController(ICustomerEnquiryService customerEnquiryService, IMapper mapper,
+             IRepository<ItemMaster> _itemrepository, IRepository<BusinessTypeMaster> _countryrepository,
+            IRepository<UnitMaster> _unitrepository, IRepository<LocationMaster> _locationrepository, IRepository<SalesManMaster> _salesmanrepository,
+            IRepository<CustomerMaster> customerMasterRepository, IRepository<EnquiryAbout> _EnquiryAboutrepository
+            , IRepository<JobMaster> _jobrepository, IRepository<CurrencyMaster> _currencyrepository, IRepository<EnquiryStatus> _enquiryStatusrepository)
         {
             _customerEnquiryService = customerEnquiryService;
             _mapper = mapper;
+            salesmanrepository = _salesmanrepository; enquiryAboutrepository = _EnquiryAboutrepository;
+            _customerMasterRepository = customerMasterRepository; enquiryStatusrepository = _enquiryStatusrepository;
+            itemrepository = _itemrepository; unitrepository = _unitrepository; businesstyperepository = _countryrepository;
+            locationrepository = _locationrepository; currencyrepository = _currencyrepository;
         }
 
 
@@ -172,7 +184,7 @@ namespace Inspire.Erp.Web.Controllers
             return apiResponse;
         }
 
-        
+
         [HttpGet]
         [Route("GetSavedCustEnquiryDetails/{id}")]
         public ApiResponse<EnquiryMasterViewModel> GetSavedCustEnquiryDetails(string id)
@@ -215,13 +227,87 @@ namespace Inspire.Erp.Web.Controllers
                     Result = customerEnquiryViewModel,
                     Message = ""
                 };
-               
+
                 return apiResponse;
             }
             return null;
 
         }
 
+        [HttpGet]
+        [Route("CustomerEnquiry/LoadDropdown")]
+        public ResponseInfo LoadDropdown()
+        {
+            var objectresponse = new ResponseInfo();
+            var itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
+                     && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
+                     {
+                         k.ItemMasterItemId,
+                         k.ItemMasterItemName
+                     }).ToList();
 
+            var customerMasters = _customerMasterRepository.GetAsQueryable().Where(k => k.CustomerMasterCustomerDelStatus != true).Select(a => new
+            {
+                a.CustomerMasterCustomerNo,
+                a.CustomerMasterCustomerName,
+                a.CustomerMasterCustomerVatNo,
+                a.CustomerMasterCustomerContactPerson,
+                a.CustomerMasterCustomerAddress,
+                a.CustomerMasterCustomerReffAcNo
+            }).ToList();
+
+            var unitMasters = unitrepository.GetAsQueryable().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
+            {
+                x.UnitMasterUnitId,
+                x.UnitMasterUnitFullName,
+                UnitMasterUnitShortName = x.UnitMasterUnitShortName.Trim()
+            }).ToList();
+            var currencyMasters = currencyrepository.GetAsQueryable().Where(a => a.CurrencyMasterCurrencyDelStatus != true).Select(c => new
+            {
+                c.CurrencyMasterCurrencyId,
+                c.CurrencyMasterCurrencyName,
+                c.CurrencyMasterCurrencyRate
+            }).ToList();
+            var LocationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
+            {
+                c.LocationMasterLocationId,
+                c.LocationMasterLocationName,
+            }).ToList();
+            var SaleManList = salesmanrepository.GetAsQueryable().Where(a => a.SalesManMasterSalesManDelStatus != true).Select(c => new
+            {
+                c.SalesManMasterSalesManId,
+                c.SalesManMasterSalesManName,
+            }).ToList();
+            var enquiryAbout = enquiryAboutrepository.GetAsQueryable().Where(a => a.EnquiryAboutEnquiryAbountDelStatus != true).Select(c => new
+            {
+                c.EnquiryAboutEnquiryAboutId,
+                c.EnquiryAboutEnquiryAbout,
+            }).ToList();
+            var enquiryStatus = enquiryStatusrepository.GetAsQueryable().Where(a => a.EnquiryStatusEnquiryStatusDelStatus != true).Select(c => new
+            {
+                c.EnquiryStatusEnquiryStatusId,
+                c.EnquiryStatusEnquiryStatus,
+            }).ToList();
+            var businesstypeMasters = businesstyperepository.GetAsQueryable().Where(a => a.BusinessTypeMasterBusinessTypeDelStatus != true).Select(c => new
+            {
+                c.BusinessTypeMasterBusinessTypeId,
+                c.BusinessTypeMasterBusinessTypeName
+            }).ToList();
+            objectresponse.ResultSet = new
+            {
+                itemMaster = itemMaster,
+                unitMasters = unitMasters,
+                currencyMasters = currencyMasters,
+                LocationMaster = LocationMaster,
+                SaleManList = SaleManList,
+                customerMasters= customerMasters,
+                enquiryAbout = enquiryAbout,
+                enquiryStatus = enquiryStatus,
+                businesstypeMasters= businesstypeMasters
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
     }
 }

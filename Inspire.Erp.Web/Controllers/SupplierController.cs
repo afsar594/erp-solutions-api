@@ -6,6 +6,8 @@ using AutoMapper;
 using Inspire.Erp.Application.Common;
 using Inspire.Erp.Application.Master;
 using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Inspire.Erp.Web.Common;
 using Inspire.Erp.Web.ViewModels;
 using Microsoft.AspNetCore.Http;
@@ -20,11 +22,15 @@ namespace Inspire.Erp.Web.Controllers
     {
         private readonly IMapper _mapper;
         private ISupplierMasterService supplierMasterService;
-        public SupplierController(ISupplierMasterService _SupplierMasterService, IMapper mapper)
+        private IRepository<CurrencyMaster> currencyrepository; private IRepository<CountryMaster> countryrepository;
+        private IRepository<CityMaster> cityrepository; private IRepository<LocationMaster> locationrepository;
+        public SupplierController(ISupplierMasterService _SupplierMasterService, IMapper mapper, IRepository<CurrencyMaster> _currencyrepository, IRepository<CountryMaster> _countryrepository
+            , IRepository<LocationMaster> _locationrepository, IRepository<CityMaster> _Cityrepository)
         {
 
             supplierMasterService = _SupplierMasterService;
-            _mapper = mapper;
+            _mapper = mapper; locationrepository = _locationrepository;
+            currencyrepository = _currencyrepository; countryrepository = _countryrepository; cityrepository = _Cityrepository;
         }
         [HttpGet]
         [Route("GetAllSupplier")]
@@ -45,7 +51,7 @@ namespace Inspire.Erp.Web.Controllers
                 SuppliersMasterSupplierMobile = k.SuppliersMasterSupplierMobile,
                 SuppliersMasterSupplierEmail = k.SuppliersMasterSupplierEmail,
                 SuppliersMasterSupplierWebSite = k.SuppliersMasterSupplierWebSite,
-                SuppliersMasterSupplierLocationId = k.SuppliersMasterSupplierLocationId??-1,
+                SuppliersMasterSupplierLocationId = k.SuppliersMasterSupplierLocationId ?? -1,
                 SuppliersMasterSupplierAddress = k.SuppliersMasterSupplierAddress,
                 SuppliersMasterSupplierWhatsAppNo = k.SuppliersMasterSupplierWhatsAppNo,
                 SuppliersMasterSupplierRemarks = k.SuppliersMasterSupplierRemarks,
@@ -62,7 +68,7 @@ namespace Inspire.Erp.Web.Controllers
                 SuppliersMasterSupplierCreditDays = k.SuppliersMasterSupplierCreditDays,
                 SuppliersMasterSupplierCreditLimit = k.SuppliersMasterSupplierCreditLimit,
                 SuppliersMasterSupplierVatNo = k.SuppliersMasterSupplierVatNo,
-                SuppliersMasterSupplierDelStatus=k.SuppliersMasterSupplierDelStatus
+                SuppliersMasterSupplierDelStatus = k.SuppliersMasterSupplierDelStatus
             }).ToList();
         }
 
@@ -250,6 +256,43 @@ namespace Inspire.Erp.Web.Controllers
         public async Task<IActionResult> GetSupplierFilteredList(string supplierName)
         {
             return Ok(await this.supplierMasterService.GetSupplierFilteredList(supplierName));
+        }
+
+        [HttpGet]
+        [Route("Supplier/LoadDropdown")]
+        public ResponseInfo LoadDropdown()
+        {
+            var objresponse = new ResponseInfo();
+
+            var currencyMasters = currencyrepository.GetAsQueryable().Where(a => a.CurrencyMasterCurrencyDelStatus != true).Select(c => new
+            {
+                c.CurrencyMasterCurrencyId,
+                c.CurrencyMasterCurrencyName,
+                c.CurrencyMasterCurrencyRate
+            }).ToList();
+            var countryMasters = countryrepository.GetAsQueryable().Where(a => a.CountryMasterCountryDelStatus != true).Select(c => new
+            {
+                c.CountryMasterCountryId,
+                c.CountryMasterCountryName
+            }).ToList();
+            var cityMasters = cityrepository.GetAsQueryable().Where(a => a.CityMasterCityDelStatus != true).Select(c => new
+            {
+                c.CityMasterCityId,
+                c.CityMasterCityName
+            }).ToList();
+            var locationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
+            {
+                c.LocationMasterLocationId,
+                c.LocationMasterLocationName,
+            }).ToList();
+            objresponse.ResultSet = new
+            {
+                currencyMasters = currencyMasters,
+                countryMasters = countryMasters,
+                cityMasters = cityMasters,
+                locationMaster = locationMaster
+            };
+            return objresponse;
         }
     }
 }
