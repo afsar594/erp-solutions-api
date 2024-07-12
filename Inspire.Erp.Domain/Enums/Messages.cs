@@ -371,7 +371,13 @@ namespace Inspire.Erp.Domain.Enums
         public static string VoucherNumberExist { get { return "Voucher Number is exist"; } }
 
     }
+    public static class DamageMessage
+    {
+        public static String SaveDamage { get { return "Damage saved successfully"; } }
+        public static string UpdateDamage { get { return "Damage updated successfully"; } }
+        public static string DeleteDamage { get { return "Damage Delete successfully"; } }
 
+    }
 
 
 
