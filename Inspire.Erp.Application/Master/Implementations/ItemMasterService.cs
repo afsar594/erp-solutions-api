@@ -2928,18 +2928,12 @@ namespace Inspire.Erp.Application.Master
                 string fDate = fromDate.ToString("MMMM:dd:yyyy", dateFormat);
                 string EDate = toDate.ToString("MMMM:dd:yyyy", dateFormat);
                 string strDate = dateTime.ToString("MMMM,dd,yyyy,  HH:mm", dateFormat);
-
-
                 string itemDescription = "Description";
                 string itemQty = "Quantity";
                 string itemAmount = "Total Amount";
 
-
                 var stationSett = stationSettingsRepo.GetAsQueryable().FirstOrDefault(o => o.Id == stationId);
-
-
                 StringBuilder StrRen = new StringBuilder();
-
                 string eClear = Strings.Chr(27) + "@";
                 string eCentre = Strings.Chr(27) + Strings.Chr(97) + "1";
                 string eLeft = Strings.Chr(27) + Strings.Chr(97) + "0";
@@ -2955,9 +2949,6 @@ namespace Inspire.Erp.Application.Master
                 string eBigCharOn1 = Strings.Chr(27) + "!" + Strings.Chr(50);
                 string eBigCharOn2 = Strings.Chr(27) + "!" + Strings.Chr(40);
                 string eBigCharOn3 = Strings.Chr(27) + "!" + Strings.Chr(33);
-
-
-
                 StrRen.AppendLine("------------------------------------------------");
                 StrRen.AppendLine(eBigCharOff + eLeft + "Printed By   :  " + "userName");//to be changed
                 StrRen.AppendLine(eLeft + "Date      : " + strDate);
@@ -2994,7 +2985,6 @@ namespace Inspire.Erp.Application.Master
                     totalItemCash = totalItemCash + (decimal)creditAmn.Price;
                     totVat = totVat + (decimal)creditAmn.VAT;
                 }
-
                 StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
                 StrRen.AppendLine(eLeft + eBigCharOff + "Total  " + Convert.ToDecimal(totalItemCash).ToString("0.00").PadLeft(49 - itemDescription.Length));
                 StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
@@ -3006,7 +2996,6 @@ namespace Inspire.Erp.Application.Master
                 StrRen.AppendLine("");
                 StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
                 StrRen.AppendLine(eBigCharOff + "----------------------------------------------");
-
                 StrRen.AppendLine(eCentre + eBigCharOff + "END");
                 StrRen.AppendLine("");
                 StrRen.AppendLine("");
@@ -3031,18 +3020,13 @@ namespace Inspire.Erp.Application.Master
         {
             try
             {
-           
-
-
-                var result = await (from ir in posTempSalesVoucherDetailsRepo.GetAsQueryable()
+                       var result = await (from ir in posTempSalesVoucherDetailsRepo.GetAsQueryable()
                                     join ud in _unitDetailsRepo.GetAsQueryable() on ir.UnitDetailsId equals ud.UnitDetailsId 
                                     join um in _unitMasterRepo.GetAsQueryable() on ud.UnitDetailsUnitId equals um.UnitMasterUnitId into umJoin
                                     from umd in umJoin.DefaultIfEmpty()
-                                    
                                     where ir.VoucherNo == voucherNo
                                     select new ItemMasterResponse
                                     {
-
                                         BarCode = ud.UnitDetailsBarcode,
                                         ItemName = ir.Description,
                                         UnitPrice = ud.UnitDetailsUnitPrice,
@@ -3053,7 +3037,6 @@ namespace Inspire.Erp.Application.Master
                                         UnitDetailsId = ud.UnitDetailsId,
                                         Discount = ir.Discount
                                     }).ToListAsync();
-
                 return Response<List<ItemMasterResponse>>.Success(result, "Data found");
             }
             catch (Exception ex)
@@ -4187,8 +4170,6 @@ namespace Inspire.Erp.Application.Master
                     && list.Contains(o.TransactionCode.Trim())).ToList();
                     if (settDetails != null) settDetailsRepo.DeleteList(settDetails);
 
-     
-
                     //ReSettlement_log remaining
                     cashCardRes.VoucherNo = model.VoucherNo;
                     trans.Complete();
@@ -4409,7 +4390,7 @@ namespace Inspire.Erp.Application.Master
 
                     trans.Complete();
                     //trans.Dispose();
-                    return Response<bool>.Success(true, "Card processed Successfully.");
+                    return Response<bool>.Success(true, "Holded Successfully.");
                 }
                 catch (Exception ex)
                 {
