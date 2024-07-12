@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using static Inspire.Erp.Domain.Modals.PDCResponse;
 using Microsoft.EntityFrameworkCore;
 using Inspire.Erp.Domain.Enums;
+using System.Security.Cryptography.Xml;
 
 namespace Inspire.Erp.Application.Account.Implementation
 {
@@ -69,6 +70,7 @@ namespace Inspire.Erp.Application.Account.Implementation
                     VNO=x.PDC_Details_V_No,
                     VType=x.PDC_Details_V_Type,
                     PDCVNO=x.PDC_Details_V_No,
+                    Tran_Type = x.PDC_Details_Trans_Type,
                 }).ToListAsync();
                 return result;
             }
@@ -95,7 +97,8 @@ namespace Inspire.Erp.Application.Account.Implementation
                     TDate = x.PDC_Details_Trans_Date,
                     VNO = x.PDC_Details_V_No,
                     VType = x.PDC_Details_V_Type,
-                    Narration = x.PDC_Details_PDC_Voucher_Narration
+                    Narration = x.PDC_Details_PDC_Voucher_Narration,
+                    Tran_Type = x.PDC_Details_Trans_Type,
                 }).ToListAsync();
                 return result;
             }
@@ -148,8 +151,8 @@ namespace Inspire.Erp.Application.Account.Implementation
      "" + obj.keyWords[0] + "',@searchType='" + obj.searchType + "'";
                
                  var result = await _pdcDetails.GetAsQueryable()
-                    .Where(x => /*(obj.postDate != null?x.PDC_Details_Trans_Date== obj.postDate:true)
-                                 * && (x.PDC_Details_PDC_Date>=obj.dateFrom  && x.PDC_Details_PDC_Date <= obj.dateFrom) &&*/
+                    .Where(x => 
+                                  (x.PDC_Details_PDC_Date>=obj.dateFrom  && x.PDC_Details_PDC_Date <= obj.dateTo) &&
                     //(obj.keyWords != null && obj.keyWords.Count >0 && !string.IsNullOrEmpty(obj.keyWords[0]) ? x.PDC_Details_Bank_Account_No.Contains(obj.keyWords[0]):true) && 
                     (!string.IsNullOrEmpty(obj.pdcType) ? x.PDC_Details_Trans_Type== obj.pdcType :true) && x.PDC_Details_Cheque_Status == "NC")
                     .Select(x => new PDCGetList
@@ -204,13 +207,9 @@ namespace Inspire.Erp.Application.Account.Implementation
                 List<PdcVoucherDetails> pdcVoucherDetails = new List<PdcVoucherDetails>(); 
                 foreach (var item in list)
                 {
-                    if (item.Pdc)
-                    {
+                    
                         string pdcVoucherNumber = this.GenerateVoucherNo(item.PDate).VouchersNumbersVNo;
-                        //int maxcount = 0;
-                        //maxcount = Convert.ToInt32(
-                        //    _pdcVoucherRepository.GetAsQueryable()
-                        //    .DefaultIfEmpty().Max(o => o == null ? 0 : o.PdcVoucherSno) + 1);
+                        
                         pdcVouchers.Add(new PdcVoucher()
                         {
                             PdcVoucherVid = pdcVoucherNumber,
@@ -223,22 +222,88 @@ namespace Inspire.Erp.Application.Account.Implementation
                             
                         });
 
+                        
+                      
+                            if(item.Tran_Type == "ISSUED")
+                            {
+                                //Credit
+                                accountsTransactions.Add(new AccountsTransactions()
+                                {
+                                    AccountsTransactionsAccNo = item.BAccNo,
+                                    AccountsTransactionsCheqNo = item.CNO,
+                                    AccountsTransactionsDebit = (decimal)item.CAmount,
+                                    AccountsTransactionsFcDebit = (decimal)item.CAmount,
+                                    AccountsTransactionsVoucherNo = pdcVoucherNumber,
+                                    AccountsTransactionsVoucherType = VoucherType.PDC_TYPE,
+                                    AccountsTransactionsStatus = AccountStatus.Approved,
+                                    AccountsTransactionsTransDate = DateTime.Now,
+                                    AccountsTransactionsParticulars = item.Narration,
+                                    AccountsTransactionsTstamp = DateTime.Now,
+                                    AccountsTransactionsUserId = 1,
 
-                        accountsTransactions.Add(new AccountsTransactions()
-                        {
-                            AccountsTransactionsAccNo = item.BAccNo,
-                            AccountsTransactionsCheqNo = item.CNO,
-                            AccountsTransactionsCredit = (decimal)item.CAmount,
-                            AccountsTransactionsFcCredit = (decimal)item.CAmount,
-                            AccountsTransactionsVoucherNo = pdcVoucherNumber,
-                            AccountsTransactionsVoucherType = VoucherType.PDC_TYPE,
-                            AccountsTransactionsStatus = AccountStatus.Approved,
-                            AccountsTransactionsTransDate = DateTime.Now,
-                            AccountsTransactionsParticulars = item.Narration
-                           
-                        });
+                                });
 
-                        var pd = _pdcDetails.GetAsQueryable().Where(x => x.PDC_Details_ID == item.PID).FirstOrDefault();
+                                // Debit
+
+                                accountsTransactions.Add(new AccountsTransactions()
+                                {
+
+                                    AccountsTransactionsAccNo = _MasterAccountsTableRepo.GetAsQueryable().FirstOrDefault(c => c.MaAccName == item.postingBank).MaAccNo,
+                                    AccountsTransactionsCheqNo = item.CNO,
+                                    AccountsTransactionsCredit = (decimal)item.CAmount,
+                                    AccountsTransactionsFcCredit = (decimal)item.CAmount,
+                                    AccountsTransactionsVoucherNo = pdcVoucherNumber,
+                                    AccountsTransactionsVoucherType = VoucherType.PDC_TYPE,
+                                    AccountsTransactionsStatus = AccountStatus.Approved,
+                                    AccountsTransactionsTransDate = DateTime.Now,
+                                    AccountsTransactionsParticulars = item.Narration,
+                                    AccountsTransactionsTstamp = DateTime.Now,
+                                    AccountsTransactionsUserId = 1,
+                                });
+
+                            }
+                            else
+                            {
+                                //Credit
+                                accountsTransactions.Add(new AccountsTransactions()
+                                {
+                                    AccountsTransactionsAccNo = item.BAccNo,
+                                    AccountsTransactionsCheqNo = item.CNO,
+                                    AccountsTransactionsCredit = (decimal)item.CAmount,
+                                    AccountsTransactionsFcCredit = (decimal)item.CAmount,
+                                    AccountsTransactionsVoucherNo = pdcVoucherNumber,
+                                    AccountsTransactionsVoucherType = VoucherType.PDC_TYPE,
+                                    AccountsTransactionsStatus = AccountStatus.Approved,
+                                    AccountsTransactionsTransDate = DateTime.Now,
+                                    AccountsTransactionsParticulars = item.Narration,
+                                    AccountsTransactionsTstamp = DateTime.Now,
+                                    AccountsTransactionsUserId = 1,
+
+                                });
+
+                                // Debit
+
+                                accountsTransactions.Add(new AccountsTransactions()
+                                {
+
+                                    AccountsTransactionsAccNo = _MasterAccountsTableRepo.GetAsQueryable().FirstOrDefault(c => c.MaAccName == item.postingBank).MaAccNo,
+                                    AccountsTransactionsCheqNo = item.CNO,
+                                    AccountsTransactionsDebit = (decimal)item.CAmount,
+                                    AccountsTransactionsFcDebit = (decimal)item.CAmount,
+                                    AccountsTransactionsVoucherNo = pdcVoucherNumber,
+                                    AccountsTransactionsVoucherType = VoucherType.PDC_TYPE,
+                                    AccountsTransactionsStatus = AccountStatus.Approved,
+                                    AccountsTransactionsTransDate = DateTime.Now,
+                                    AccountsTransactionsParticulars = item.Narration,
+                                    AccountsTransactionsTstamp = DateTime.Now,
+                                    AccountsTransactionsUserId = 1,
+                                });
+
+                            }
+                        
+                       
+
+                    var pd = _pdcDetails.GetAsQueryable().Where(x => x.PDC_Details_ID == item.PID).FirstOrDefault();
                         if(pd != null)
                         {
                             if (item.Type == "Post")
@@ -264,12 +329,12 @@ namespace Inspire.Erp.Application.Account.Implementation
 
 
                     }
+                
+                if (accountsTransactions.Count > 0)
+                {
+                    _accountTransactionRepository.InsertList(accountsTransactions);
                 }
-                //if(accountsTransactions.Count > 0)
-                //{
-                //    _accountTransactionRepository.InsertList(accountsTransactions);
-                //}
-                if(pdcVouchers.Count > 0)
+                if (pdcVouchers.Count > 0)
                 {
                     _pdcVoucherRepository.InsertList(pdcVouchers);
                 }
@@ -334,6 +399,7 @@ namespace Inspire.Erp.Application.Account.Implementation
                     TDate = x.PDC_Details_Trans_Date,
                     VNO = x.PDC_Details_V_No,
                     VType = x.PDC_Details_V_Type,
+                    Tran_Type = x.PDC_Details_Trans_Type,
                 }).ToListAsync();
                 return result;
             }

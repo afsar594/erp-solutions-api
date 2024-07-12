@@ -19,6 +19,7 @@ namespace Inspire.Erp.Domain.Modals
             public string? PDCVNO { get; set; }
             public DateTime? POSTDt { get; set; }
             public int? PID { get; set; }
+            public string Tran_Type { get; set; }
         }
 
         public class PDCGetList {
@@ -36,6 +37,8 @@ namespace Inspire.Erp.Domain.Modals
             public int? PID { get; set; }
             public string Narration { get; set; }
             public  string Type { get; set; }
+            public string postingBank { get; set; }
+            public string Tran_Type { get; set; }
         }
     }
 }
