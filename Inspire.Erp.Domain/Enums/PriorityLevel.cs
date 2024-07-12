@@ -64,6 +64,7 @@ namespace Inspire.Erp.Domain.Enums
         public static String PosSalesVoucher_TYPE { get { return "PosSalesVoucher"; } }
         public static String JobMasterVoucher_TYPE { get { return "JobMasterVoucher"; } }
         public static String ManufactureItem_TYPE { get { return "ManufactureItem"; } }
+        public static String DamageVoucher_TYPE { get { return "DamageVoucher"; } }
     }
 
     public static class AccountStatus
