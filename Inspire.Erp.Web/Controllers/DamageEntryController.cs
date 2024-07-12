@@ -84,98 +84,43 @@ namespace Inspire.Erp.Web.Controllers
                 return StatusCode(500, ex.Message.ToString());
             }
         }
-        //[HttpPost("deleteDamageEntry")]
-        //public async Task<ApiResponse<bool>> deleteDamageEntry(DamageMaster obj)
-        //{
-        //    try
-        //    {
-        //        de.deleteDamageEntry(obj);
-        //        ApiResponse<bool> apiResponse = new ApiResponse<bool>
-        //        {
-        //            Valid = true,
-        //            Result = true,
-        //            Message = "true"
-        //        };
-        //        return apiResponse;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //}
-        //[HttpPost("UpdateDamageEntry")]
-        //public async Task<ApiResponse<bool>> UpdateDamageEntry(DamageEntryResponse obj)
-        //{
-        //    try
-        //    {
-        //        de.updateDamageEntry(obj);
-        //        ApiResponse<bool> apiResponse = new ApiResponse<bool>
-        //        {
-        //            Valid = true,
-        //            Result = true,
-        //            Message = "true"
-        //        };
-        //        return apiResponse;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //}
-        //[HttpGet("DamageEntryResponse")]
-        //public ApiResponse<List<DamageEntryViewModal>> DamageEntryResponse()
-        //{
-        //    try
-        //    {
-        //        List<DamageEntryViewModal> list = de.DamageEntryResponse().Select(k => new DamageEntryViewModal
-        //        {
-        //            Damage_Details_Amount = k.DamageDetailsAmount,
-        //            Item_Master_Item_ID = k.ItemMasterItemId,
-        //            Item_Master_Item_Name = k.ItemMasterItemName,
-        //            Damage_Details_Price = k.DamageDetailsPrice,
-        //            Damage_Details_QTY = k.DamageDetailsQTY,
-        //            Damage_Details_Remarks = k.DamageDetailsRemarks,
-        //            Damage_Details_Unit_ID = k.DamageDetailsUnitID,
-        //            Damage_Details_Material_ID = k.DamageDetailsMaterialID,
-        //            Damage_Master_ID = k.DamageMasterID,
-        //            Damage_Master_Location_ID = k.DamageMasterLocationID,
-        //            Damage_Master_Narration = k.DamageMasterNarration,
-        //            Damage_Master_Vdate = k.DamageMasterVdat,
-        //            Location_Master_Location_Name = k.LocationMasterLocationName,
-        //            Damage_Details_Voucher_Number = k.DamageDetailsVoucherNumber
-        //        }).ToList();
-        //        ApiResponse<List<DamageEntryViewModal>> apiResponse = new ApiResponse<List<DamageEntryViewModal>>
-        //        {
-        //            Valid = true,
-        //            Result = list,
-        //            Message = ""
-        //        };
-        //        return apiResponse;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //}
-        //[HttpGet("DamageEntryPrefix")]
-        //public async Task<ApiResponse<VouchersNumbers>> DamageEntryPrefix()
-        //{
-        //    try
-        //    {
-        //        var prefix =  de.DamageEntryPrefix();
-        //        ApiResponse<VouchersNumbers> apiResponse = new ApiResponse<VouchersNumbers>
-        //        {
-        //            Valid = true,
-        //            Result = prefix,
-        //            Message = ""
-        //        };
-        //        return apiResponse;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //}
+        [HttpPost]
+        [Route("UpdateDamageEntry")]       
+        public ApiResponse<DamageMaster> UpdateDamageEntry([FromBody] DamageMaster DamageViewModel)
+        {
+            var param1 = _mapper.Map<DamageMaster>(DamageViewModel);
+            var UpdateDamageViewModel = DamageEntry.UpdateDamageEntry(param1);
+
+
+            ApiResponse<DamageMaster> apiResponse = new ApiResponse<DamageMaster>
+            {
+                Valid = true,
+                Result = _mapper.Map<DamageMaster>(UpdateDamageViewModel),
+                Message = DamageMessage.UpdateDamage
+
+            };
+            return apiResponse;
+
+        }
+        [HttpGet]
+        [Route("GetDamageEntryVoucherNo/{id}")]
+        public ApiResponse<DamageMaster> GetDamageEntryVoucherNo(string id)
+        {
+            DamageMaster salesJournal = DamageEntry.GetDamageEntryVoucherNo(id);
+
+            if (salesJournal != null)
+            {
+                ApiResponse<DamageMaster> apiResponse = new ApiResponse<DamageMaster>
+                {
+                    Valid = true,
+                    Result = salesJournal,
+                    Message = ""
+                };
+                return apiResponse;
+            }
+            return null;
+        }
+
 
     }
 }

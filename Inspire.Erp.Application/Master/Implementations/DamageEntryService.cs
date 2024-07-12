@@ -166,6 +166,22 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 throw ex;
             }
         }
+        public DamageMaster UpdateDamageEntry(DamageMaster DamageMaster)
+        {
+            try
+            {
+                _DamageMasterRepo.BeginTransaction();
+                _DamageMasterRepo.Update(DamageMaster);
+                _DamageDetailsRepo.UpdateList(DamageMaster.DamageDetails);
+                _DamageMasterRepo.TransactionCommit();
+                return this.GetDamageById(DamageMaster.DamageMasterId);
+            }
+            catch (Exception ex)
+            {
+                _DamageMasterRepo.TransactionRollback();
+                throw ex;
+            }
+        }
         public DamageMaster GetDamageById(int? id)
         {
             try
@@ -250,61 +266,20 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
             }
 
         }
-        //public async Task<bool> deleteDamageEntry(DamageMaster DamageMaster)
-        //{
-        //    try
-        //    {
-        //        DamageMaster dm = _DamageMasterRepo.GetAsQueryable().Where(k => k.DamageMasterVoucherNumber == DamageMaster.DamageMasterVoucherNumber).FirstOrDefault();
-        //        dm.DamageMasterDelStatus = true;
-        //        _DamageMasterRepo.Update(dm);
-        //        return true;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return false;
-        //        throw ex;
-        //    }
-        //}
-        //public async Task<bool> updateDamageEntry(DamageEntryResponse Obj)
-        //{
-        //    try
-        //    {
-        //        DamageMaster damageMaster = _DamageMasterRepo.GetAsQueryable().Where(k => k.DamageMasterVoucherNumber == Obj.Damage_Details_Voucher_Number).FirstOrDefault();
-        //        if (damageMaster == null)
-        //        {
-        //            return false;
-        //        }
-        //        damageMaster.DamageMasterNarration = Obj.Damage_Master_Narration;
-        //        _DamageMasterRepo.Update(damageMaster);
+        public DamageMaster GetDamageEntryVoucherNo(string VNo)
+        {
+            try
+            {
 
-        //        DamageDetails damageDetails = _DamageDetailsRepo.GetAsQueryable().Where(k => k.DamageDetailsVoucherNumber == Obj.Damage_Details_Voucher_Number).FirstOrDefault();
-        //        if (damageDetails == null)
-        //        {
-        //            return false;
-        //        }
-        //        damageDetails.DamageDetailsQty = Obj.Damage_Details_QTY;
-        //        damageDetails.DamageDetailsAmount = Obj.Damage_Details_Amount;
-        //        damageDetails.DamageDetailsRemarks = Obj.Damage_Details_Remarks;
-        //        _DamageDetailsRepo.Update(damageDetails);
-
-        //        StockRegister stockRegister = _StockRegisterRepo.GetAsQueryable().Where(k => k.StockRegisterRefVoucherNo == Obj.Damage_Details_Voucher_Number).FirstOrDefault();
-        //        if (stockRegister == null)
-        //        {
-        //            return false;
-        //        }
-        //        stockRegister.StockRegisterUsedQTY = decimal.Parse(Obj.Damage_Details_QTY.ToString());
-        //        stockRegister.StockRegisterSout = decimal.Parse(Obj.Damage_Details_QTY.ToString());
-        //        stockRegister.StockRegisterAmount = decimal.Parse(Obj.Damage_Details_Amount.ToString());
-        //        stockRegister.StockRegisterFCAmount = decimal.Parse(Obj.Damage_Details_Amount.ToString());
-        //        stockRegister.StockRegisterRemarks = Obj.Damage_Details_Remarks;
-        //        _StockRegisterRepo.Update(stockRegister);
-        //        return true;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw;
-        //        return false;
-        //    }
-        //}
+                DamageMaster Damageentry = new DamageMaster();
+                Damageentry = _DamageMasterRepo.GetAsQueryable().Where(k => k.DamageMasterVoucherNumber == VNo).SingleOrDefault();
+                Damageentry.DamageDetails = _DamageDetailsRepo.GetAsQueryable().Where(x => x.DamageDetailsVoucherNumber == VNo && (x.DamageDetailsDelStatus == false || x.DamageDetailsDelStatus == null)).ToList();
+                return Damageentry;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }
