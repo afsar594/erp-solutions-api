@@ -195,6 +195,26 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 trackingData.UserTrackingUserVpType = "GRN";
                 _context.UserTracking.Add(trackingData);
                 _context.SaveChanges();
+
+               // PurOrderRegister
+
+                   //PurOrderRegister poReg = new PurOrderRegister();
+                   //poReg.PurOrderRegisterOrderNo = purOrderDet.CustomerPurchaseOrderDetailsId.ToString(),
+                   //poReg.PurOrderRegisterRefVoucherNo = purOrderDet.CustomerPurchaseOrderDetailsVoucherNo,
+                   //poReg.PurOrderRegisterMaterialId = (int)purOrderDet.CustomerPurchaseOrderDetailsItemId,
+                   //poReg.PurOrderRegisterTransType = VoucherType.CustomerPurchaseOrder_TYPE,
+                   //poReg.PurOrderRegisterQtyOrder = purOrderDet.CustomerPurchaseOrderDetailsQty,
+                   //poReg.PurOrderRegisterQtyIssued = 0,
+                   //poReg.PurOrderRegisterRate = purOrderDet.CustomerPurchaseOrderDetailsAmount,
+                   //poReg.PurOrderRegisterAmount = purOrderDet.CustomerPurchaseOrderDetailsAmount,
+                   //poReg.PurOrderRegisterFcAmount = purOrderDet.CustomerPurchaseOrderDetailsFcAmount,
+                   //poReg.PurOrderRegisterAssignedDate = DateTime.Now,
+                   //poReg.PurOrderRegisterFsno = purOrderDet.CustomerPurchaseOrderDetailsFsno,//to be alloted,
+                   //poReg.PurOrderRegisterSupplierId = (int)0,
+                   //poReg.PurOrderRegisterStatus = "A"
+                   // _context.PurOrderRegister.Add(poReg);
+                   // _context.SaveChanges();
+
                 return grn;
             }
             catch (Exception ex)
