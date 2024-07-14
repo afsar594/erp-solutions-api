@@ -281,6 +281,32 @@ namespace Inspire.Erp.Web.Controllers
         }
 
         [HttpGet]
+        [Route("GetAllBankAccounts")]
+        public ApiResponse<List<ChartofAccountsViewModel>> GetAllBankAccounts()
+        {
+            try
+            {
+                IEnumerable<MasterAccountsTable> masterAccountsTables = chartofAccountsService.GetAllBankAccounts();
+                ApiResponse<List<ChartofAccountsViewModel>> apiResponse = new ApiResponse<List<ChartofAccountsViewModel>>
+                {
+                    Valid = true,
+                    Result = _mapper.Map<List<ChartofAccountsViewModel>>(masterAccountsTables),
+                    Message = ""
+                };
+                return apiResponse;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+
+
+        }
+
+
+        [HttpGet]
         [Route("GetDefaultCreditDebitAccounts")]
         public ApiResponse<DrCrAccounts> GetDefaultCreditDebitAccounts()
         {

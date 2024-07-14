@@ -14,6 +14,8 @@ namespace Inspire.Erp.Application.Account
         IEnumerable<MasterAccountsTable> DeleteAccounts(MasterAccountsTable masterAccountsTable);
 
         IEnumerable<MasterAccountsTable> GetAllAccounts();
+        IEnumerable<MasterAccountsTable> GetAllBankAccounts();
+
         IEnumerable<MasterAccountsTable> GetAllAccountsById(int id);
 
         DrCrAccounts GetDefaultCreditDebitAccounts();

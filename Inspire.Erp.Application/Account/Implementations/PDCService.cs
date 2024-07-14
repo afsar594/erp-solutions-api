@@ -183,7 +183,7 @@ namespace Inspire.Erp.Application.Account.Implementation
             {
                 List<BankNamesModel> l = new List<BankNamesModel>();
                  l = (from an in _MasterAccountsTableRepo.GetAsQueryable()
-                            where (an.MaStatus ?? "R") == "R" && an.MaAccNo == "01001002"
+                            where (an.MaStatus ?? "R") == "R" && an.MaRelativeNo == "01001002"
                       select new BankNamesModel
                             {
                                 AccName = an.MaAccName
