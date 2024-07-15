@@ -322,7 +322,8 @@ namespace Inspire.Erp.Web.Controllers
             var cityMasters = cityrepository.GetAsQueryable().Where(a => a.CityMasterCityDelStatus != true).Select(c => new
             {
                 c.CityMasterCityId,
-                c.CityMasterCityName
+                c.CityMasterCityName,
+                c.CityMasterCityCountryId
             }).ToList();
             var locationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
             {

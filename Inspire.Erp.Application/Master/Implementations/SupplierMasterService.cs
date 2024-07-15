@@ -87,7 +87,7 @@ namespace Inspire.Erp.Application.Master
                 await _utilityService.AddUserTrackingLog(log);
                 #endregion
 
-                 _masterAccountTable.SaveChangesAsync();
+                _masterAccountTable.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -149,7 +149,7 @@ namespace Inspire.Erp.Application.Master
             IEnumerable<SuppliersMaster> SuppliersMaster;
             try
             {
-                SuppliersMaster = supplierrepository.GetAll();
+                SuppliersMaster = supplierrepository.GetAll().Where(a => a.SuppliersMasterSupplierDelStatus != true).Select(k => k);
 
             }
             catch (Exception ex)

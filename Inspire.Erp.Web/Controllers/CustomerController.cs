@@ -8,9 +8,11 @@ using Inspire.Erp.Application.Master;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Inspire.Erp.Web.Common;
 using Inspire.Erp.Web.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NPOI.POIFS.Crypt.Dsig;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -139,114 +141,131 @@ namespace Inspire.Erp.Web.Controllers
         }
         //[HttpGet("{id}")]
         [HttpGet("GetAllCustomerById/{id}")]
-        public List<CustomerMasterViewModel> GetAllCustomerById(int id)
+        public ApiResponse<CustomerMasterViewModel> GetAllCustomerById(int id)
         {
-            return customerMasterService.GetAllCustomerById(id).Select(k => new CustomerMasterViewModel
-            {
+            ApiResponse<CustomerMasterViewModel> apiResponse = new ApiResponse<CustomerMasterViewModel>();
+            var data = customerMasterService.GetAllCustomerById(id);
+            //    .Select(k => new CustomerMasterViewModel
+            //{
 
-                CustomerMasterCustomerNo = k.CustomerMasterCustomerNo,
-                CustomerMasterCustomerTitle = k.CustomerMasterCustomerTitle,
-                CustomerMasterCustomerName = k.CustomerMasterCustomerName,
-                CustomerMasterCustomerType = k.CustomerMasterCustomerType,
-                CustomerMasterCustomerContactPerson = k.CustomerMasterCustomerContactPerson,
-                CustomerMasterCustomerCountryId = k.CustomerMasterCustomerCountryId,
-                CustomerMasterCustomerCityId = k.CustomerMasterCustomerCityId,
-                CustomerMasterCustomerPoBox = k.CustomerMasterCustomerPoBox,
-                CustomerMasterCustomerTel1 = k.CustomerMasterCustomerTel1,
-                CustomerMasterCustomerTel2 = k.CustomerMasterCustomerTel2,
-                CustomerMasterCustomerMobile = k.CustomerMasterCustomerMobile,
-                CustomerMasterCustomerFax = k.CustomerMasterCustomerFax,
-                CustomerMasterCustomerEmail = k.CustomerMasterCustomerEmail,
-                CustomerMasterCustomerWebSite = k.CustomerMasterCustomerWebSite,
-                CustomerMasterCustomerLocation = k.CustomerMasterCustomerLocation,
-                CustomerMasterCustomerAddress = k.CustomerMasterCustomerAddress,
-                CustomerMasterCustomerWhatsAppNo = k.CustomerMasterCustomerWhatsAppNo,
-                CustomerMasterCustomerRemarks = k.CustomerMasterCustomerRemarks,
-                CustomerMasterCustomerReffAcNo = k.CustomerMasterCustomerReffAcNo,
-                CustomerMasterCustomerUserId = k.CustomerMasterCustomerUserId,
-                CustomerMasterCustomerCurrencyId = k.CustomerMasterCustomerCurrencyId,
-                CustomerMasterCustomerCreditLimit = k.CustomerMasterCustomerCreditLimit,
-                CustomerMasterCustomerCreditDays = k.CustomerMasterCustomerCreditDays,
-                CustomerMasterCustomerBlackList = k.CustomerMasterCustomerBlackList,
-                CustomerMasterCustomerStatus = k.CustomerMasterCustomerStatus,
-                CustomerMasterCustomerDeleteStatus = k.CustomerMasterCustomerDeleteStatus,
-                CustomerMasterCustomerJoinDate = k.CustomerMasterCustomerJoinDate,
-                CustomerMasterCustomerStatusValue = k.CustomerMasterCustomerStatusValue,
-                CustomerMasterCustomerCreateAccount = k.CustomerMasterCustomerCreateAccount,
-                CustomerMasterCustomerPriceLevel = k.CustomerMasterCustomerPriceLevel,
-                CustomerMasterCustomerPriceLevelId = k.CustomerMasterCustomerPriceLevelId,
-                CustomerMasterCustomerCustType = k.CustomerMasterCustomerCustType,
-                CustomerMasterCustomerContactPerson2 = k.CustomerMasterCustomerContactPerson2,
-                CustomerMasterCustomerContactPerson3 = k.CustomerMasterCustomerContactPerson3,
-                CustomerMasterCustomerVatNo = k.CustomerMasterCustomerVatNo,
-                CustomerMasterCustomerLoyaltyId = k.CustomerMasterCustomerLoyaltyId,
-                CustomerMasterCustomerEarnPoints = k.CustomerMasterCustomerEarnPoints,
-                CustomerMasterCustomerTotalPoints = k.CustomerMasterCustomerTotalPoints,
-                CustomerMasterCustomerTotalValue = k.CustomerMasterCustomerTotalValue,
-                CustomerMasterCustomerRedeemEarnPoints = k.CustomerMasterCustomerRedeemEarnPoints,
-                CustomerMasterCustomerArabicName = k.CustomerMasterCustomerArabicName,
-                CustomerMasterCustomerGroupAccNo = k.CustomerMasterCustomerGroupAccNo,
-                CustomerMasterCustomerCtTypeId = k.CustomerMasterCustomerCtTypeId,
-                CustomerMasterCustomerDelStatus = k.CustomerMasterCustomerDelStatus
-            }).ToList();
+            //    CustomerMasterCustomerNo = k.CustomerMasterCustomerNo,
+            //    CustomerMasterCustomerTitle = k.CustomerMasterCustomerTitle,
+            //    CustomerMasterCustomerName = k.CustomerMasterCustomerName,
+            //    CustomerMasterCustomerType = k.CustomerMasterCustomerType,
+            //    CustomerMasterCustomerContactPerson = k.CustomerMasterCustomerContactPerson,
+            //    CustomerMasterCustomerCountryId = k.CustomerMasterCustomerCountryId,
+            //    CustomerMasterCustomerCityId = k.CustomerMasterCustomerCityId,
+            //    CustomerMasterCustomerPoBox = k.CustomerMasterCustomerPoBox,
+            //    CustomerMasterCustomerTel1 = k.CustomerMasterCustomerTel1,
+            //    CustomerMasterCustomerTel2 = k.CustomerMasterCustomerTel2,
+            //    CustomerMasterCustomerMobile = k.CustomerMasterCustomerMobile,
+            //    CustomerMasterCustomerFax = k.CustomerMasterCustomerFax,
+            //    CustomerMasterCustomerEmail = k.CustomerMasterCustomerEmail,
+            //    CustomerMasterCustomerWebSite = k.CustomerMasterCustomerWebSite,
+            //    CustomerMasterCustomerLocation = k.CustomerMasterCustomerLocation,
+            //    CustomerMasterCustomerAddress = k.CustomerMasterCustomerAddress,
+            //    CustomerMasterCustomerWhatsAppNo = k.CustomerMasterCustomerWhatsAppNo,
+            //    CustomerMasterCustomerRemarks = k.CustomerMasterCustomerRemarks,
+            //    CustomerMasterCustomerReffAcNo = k.CustomerMasterCustomerReffAcNo,
+            //    CustomerMasterCustomerUserId = k.CustomerMasterCustomerUserId,
+            //    CustomerMasterCustomerCurrencyId = k.CustomerMasterCustomerCurrencyId,
+            //    CustomerMasterCustomerCreditLimit = k.CustomerMasterCustomerCreditLimit,
+            //    CustomerMasterCustomerCreditDays = k.CustomerMasterCustomerCreditDays,
+            //    CustomerMasterCustomerBlackList = k.CustomerMasterCustomerBlackList,
+            //    CustomerMasterCustomerStatus = k.CustomerMasterCustomerStatus,
+            //    CustomerMasterCustomerDeleteStatus = k.CustomerMasterCustomerDeleteStatus,
+            //    CustomerMasterCustomerJoinDate = k.CustomerMasterCustomerJoinDate,
+            //    CustomerMasterCustomerStatusValue = k.CustomerMasterCustomerStatusValue,
+            //    CustomerMasterCustomerCreateAccount = k.CustomerMasterCustomerCreateAccount,
+            //    CustomerMasterCustomerPriceLevel = k.CustomerMasterCustomerPriceLevel,
+            //    CustomerMasterCustomerPriceLevelId = k.CustomerMasterCustomerPriceLevelId,
+            //    CustomerMasterCustomerCustType = k.CustomerMasterCustomerCustType,
+            //    CustomerMasterCustomerContactPerson2 = k.CustomerMasterCustomerContactPerson2,
+            //    CustomerMasterCustomerContactPerson3 = k.CustomerMasterCustomerContactPerson3,
+            //    CustomerMasterCustomerVatNo = k.CustomerMasterCustomerVatNo,
+            //    CustomerMasterCustomerLoyaltyId = k.CustomerMasterCustomerLoyaltyId,
+            //    CustomerMasterCustomerEarnPoints = k.CustomerMasterCustomerEarnPoints,
+            //    CustomerMasterCustomerTotalPoints = k.CustomerMasterCustomerTotalPoints,
+            //    CustomerMasterCustomerTotalValue = k.CustomerMasterCustomerTotalValue,
+            //    CustomerMasterCustomerRedeemEarnPoints = k.CustomerMasterCustomerRedeemEarnPoints,
+            //    CustomerMasterCustomerArabicName = k.CustomerMasterCustomerArabicName,
+            //    CustomerMasterCustomerGroupAccNo = k.CustomerMasterCustomerGroupAccNo,
+            //    CustomerMasterCustomerCtTypeId = k.CustomerMasterCustomerCtTypeId,
+            //    CustomerMasterCustomerDelStatus = k.CustomerMasterCustomerDelStatus
+            //}).ToList();
+            apiResponse = new ApiResponse<CustomerMasterViewModel>
+            {
+                Valid = true,
+                Result = _mapper.Map<CustomerMasterViewModel>(data),
+                Message = "data found",
+            };
+            return apiResponse;
         }
 
 
 
         [HttpPost("InsertCustomer")]
-        public async Task<List<CustomerMasterViewModel>> InsertCustomer([FromBody] CustomerMasterViewModel customerMaster)
+        public async Task<ApiResponse<CustomerMasterViewModel>> InsertCustomer([FromBody] CustomerMasterViewModel customerMaster)
         {
             try
             {
+                ApiResponse<CustomerMasterViewModel> apiResponse = new ApiResponse<CustomerMasterViewModel>();
                 var result = _mapper.Map<CustomerMaster>(customerMaster);
-                var data = (await customerMasterService.InsertCustomer(result)).Select(k => new CustomerMasterViewModel
+                var data = await customerMasterService.InsertCustomer(result);
+                //    .Select(k => new CustomerMasterViewModel
+                //{
+                //    CustomerMasterCustomerNo = k.CustomerMasterCustomerNo,
+                //    CustomerMasterCustomerTitle = k.CustomerMasterCustomerTitle,
+                //    CustomerMasterCustomerName = k.CustomerMasterCustomerName,
+                //    CustomerMasterCustomerType = k.CustomerMasterCustomerType,
+                //    CustomerMasterCustomerContactPerson = k.CustomerMasterCustomerContactPerson,
+                //    CustomerMasterCustomerCountryId = k.CustomerMasterCustomerCountryId,
+                //    CustomerMasterCustomerCityId = k.CustomerMasterCustomerCityId,
+                //    CustomerMasterCustomerPoBox = k.CustomerMasterCustomerPoBox,
+                //    CustomerMasterCustomerTel1 = k.CustomerMasterCustomerTel1,
+                //    CustomerMasterCustomerTel2 = k.CustomerMasterCustomerTel2,
+                //    CustomerMasterCustomerMobile = k.CustomerMasterCustomerMobile,
+                //    CustomerMasterCustomerFax = k.CustomerMasterCustomerFax,
+                //    CustomerMasterCustomerEmail = k.CustomerMasterCustomerEmail,
+                //    CustomerMasterCustomerWebSite = k.CustomerMasterCustomerWebSite,
+                //    CustomerMasterCustomerLocation = k.CustomerMasterCustomerLocation,
+                //    CustomerMasterCustomerAddress = k.CustomerMasterCustomerAddress,
+                //    CustomerMasterCustomerWhatsAppNo = k.CustomerMasterCustomerWhatsAppNo,
+                //    CustomerMasterCustomerRemarks = k.CustomerMasterCustomerRemarks,
+                //    CustomerMasterCustomerReffAcNo = k.CustomerMasterCustomerReffAcNo,
+                //    CustomerMasterCustomerUserId = k.CustomerMasterCustomerUserId,
+                //    CustomerMasterCustomerCurrencyId = k.CustomerMasterCustomerCurrencyId,
+                //    CustomerMasterCustomerCreditLimit = k.CustomerMasterCustomerCreditLimit,
+                //    CustomerMasterCustomerCreditDays = k.CustomerMasterCustomerCreditDays,
+                //    CustomerMasterCustomerBlackList = k.CustomerMasterCustomerBlackList,
+                //    CustomerMasterCustomerStatus = k.CustomerMasterCustomerStatus,
+                //    CustomerMasterCustomerDeleteStatus = k.CustomerMasterCustomerDeleteStatus,
+                //    CustomerMasterCustomerJoinDate = k.CustomerMasterCustomerJoinDate,
+                //    CustomerMasterCustomerStatusValue = k.CustomerMasterCustomerStatusValue,
+                //    CustomerMasterCustomerCreateAccount = k.CustomerMasterCustomerCreateAccount,
+                //    CustomerMasterCustomerPriceLevel = k.CustomerMasterCustomerPriceLevel,
+                //    CustomerMasterCustomerPriceLevelId = k.CustomerMasterCustomerPriceLevelId,
+                //    CustomerMasterCustomerCustType = k.CustomerMasterCustomerCustType,
+                //    CustomerMasterCustomerContactPerson2 = k.CustomerMasterCustomerContactPerson2,
+                //    CustomerMasterCustomerContactPerson3 = k.CustomerMasterCustomerContactPerson3,
+                //    CustomerMasterCustomerVatNo = k.CustomerMasterCustomerVatNo,
+                //    CustomerMasterCustomerLoyaltyId = k.CustomerMasterCustomerLoyaltyId,
+                //    CustomerMasterCustomerEarnPoints = k.CustomerMasterCustomerEarnPoints,
+                //    CustomerMasterCustomerTotalPoints = k.CustomerMasterCustomerTotalPoints,
+                //    CustomerMasterCustomerTotalValue = k.CustomerMasterCustomerTotalValue,
+                //    CustomerMasterCustomerRedeemEarnPoints = k.CustomerMasterCustomerRedeemEarnPoints,
+                //    CustomerMasterCustomerArabicName = k.CustomerMasterCustomerArabicName,
+                //    CustomerMasterCustomerGroupAccNo = k.CustomerMasterCustomerGroupAccNo,
+                //    CustomerMasterCustomerCtTypeId = k.CustomerMasterCustomerCtTypeId,
+                //    CustomerMasterCustomerDelStatus = k.CustomerMasterCustomerDelStatus
+                //}).ToList();
+                apiResponse = new ApiResponse<CustomerMasterViewModel>
                 {
-                    CustomerMasterCustomerNo = k.CustomerMasterCustomerNo,
-                    CustomerMasterCustomerTitle = k.CustomerMasterCustomerTitle,
-                    CustomerMasterCustomerName = k.CustomerMasterCustomerName,
-                    CustomerMasterCustomerType = k.CustomerMasterCustomerType,
-                    CustomerMasterCustomerContactPerson = k.CustomerMasterCustomerContactPerson,
-                    CustomerMasterCustomerCountryId = k.CustomerMasterCustomerCountryId,
-                    CustomerMasterCustomerCityId = k.CustomerMasterCustomerCityId,
-                    CustomerMasterCustomerPoBox = k.CustomerMasterCustomerPoBox,
-                    CustomerMasterCustomerTel1 = k.CustomerMasterCustomerTel1,
-                    CustomerMasterCustomerTel2 = k.CustomerMasterCustomerTel2,
-                    CustomerMasterCustomerMobile = k.CustomerMasterCustomerMobile,
-                    CustomerMasterCustomerFax = k.CustomerMasterCustomerFax,
-                    CustomerMasterCustomerEmail = k.CustomerMasterCustomerEmail,
-                    CustomerMasterCustomerWebSite = k.CustomerMasterCustomerWebSite,
-                    CustomerMasterCustomerLocation = k.CustomerMasterCustomerLocation,
-                    CustomerMasterCustomerAddress = k.CustomerMasterCustomerAddress,
-                    CustomerMasterCustomerWhatsAppNo = k.CustomerMasterCustomerWhatsAppNo,
-                    CustomerMasterCustomerRemarks = k.CustomerMasterCustomerRemarks,
-                    CustomerMasterCustomerReffAcNo = k.CustomerMasterCustomerReffAcNo,
-                    CustomerMasterCustomerUserId = k.CustomerMasterCustomerUserId,
-                    CustomerMasterCustomerCurrencyId = k.CustomerMasterCustomerCurrencyId,
-                    CustomerMasterCustomerCreditLimit = k.CustomerMasterCustomerCreditLimit,
-                    CustomerMasterCustomerCreditDays = k.CustomerMasterCustomerCreditDays,
-                    CustomerMasterCustomerBlackList = k.CustomerMasterCustomerBlackList,
-                    CustomerMasterCustomerStatus = k.CustomerMasterCustomerStatus,
-                    CustomerMasterCustomerDeleteStatus = k.CustomerMasterCustomerDeleteStatus,
-                    CustomerMasterCustomerJoinDate = k.CustomerMasterCustomerJoinDate,
-                    CustomerMasterCustomerStatusValue = k.CustomerMasterCustomerStatusValue,
-                    CustomerMasterCustomerCreateAccount = k.CustomerMasterCustomerCreateAccount,
-                    CustomerMasterCustomerPriceLevel = k.CustomerMasterCustomerPriceLevel,
-                    CustomerMasterCustomerPriceLevelId = k.CustomerMasterCustomerPriceLevelId,
-                    CustomerMasterCustomerCustType = k.CustomerMasterCustomerCustType,
-                    CustomerMasterCustomerContactPerson2 = k.CustomerMasterCustomerContactPerson2,
-                    CustomerMasterCustomerContactPerson3 = k.CustomerMasterCustomerContactPerson3,
-                    CustomerMasterCustomerVatNo = k.CustomerMasterCustomerVatNo,
-                    CustomerMasterCustomerLoyaltyId = k.CustomerMasterCustomerLoyaltyId,
-                    CustomerMasterCustomerEarnPoints = k.CustomerMasterCustomerEarnPoints,
-                    CustomerMasterCustomerTotalPoints = k.CustomerMasterCustomerTotalPoints,
-                    CustomerMasterCustomerTotalValue = k.CustomerMasterCustomerTotalValue,
-                    CustomerMasterCustomerRedeemEarnPoints = k.CustomerMasterCustomerRedeemEarnPoints,
-                    CustomerMasterCustomerArabicName = k.CustomerMasterCustomerArabicName,
-                    CustomerMasterCustomerGroupAccNo = k.CustomerMasterCustomerGroupAccNo,
-                    CustomerMasterCustomerCtTypeId = k.CustomerMasterCustomerCtTypeId,
-                    CustomerMasterCustomerDelStatus = k.CustomerMasterCustomerDelStatus
-                }).ToList();
-                return data;
+                    Valid = true,
+                    Result = _mapper.Map<CustomerMasterViewModel>(data),
+                    Message = "data saved",
+                };
+                return apiResponse;
             }
             catch (Exception ex)
             {
@@ -258,113 +277,129 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpPost]
         [Route("UpdateCustomer")]
-        public async Task<List<CustomerMasterViewModel>> UpdateCustomer([FromBody] CustomerMasterViewModel customerMaster)
+        public  ApiResponse<CustomerMasterViewModel> UpdateCustomer([FromBody] CustomerMasterViewModel customerMaster)
         {
+            ApiResponse<CustomerMasterViewModel> apiResponse = new ApiResponse<CustomerMasterViewModel>();
             var result = _mapper.Map<CustomerMaster>(customerMaster);
-            var data = (await customerMasterService.UpdateCustomer(result)).Select(k => new CustomerMasterViewModel
+            var data =  customerMasterService.UpdateCustomer(result);
+            //    .Select(k => new CustomerMasterViewModel
+            //{
+            //    CustomerMasterCustomerNo = k.CustomerMasterCustomerNo,
+            //    CustomerMasterCustomerTitle = k.CustomerMasterCustomerTitle,
+            //    CustomerMasterCustomerName = k.CustomerMasterCustomerName,
+            //    CustomerMasterCustomerType = k.CustomerMasterCustomerType,
+            //    CustomerMasterCustomerContactPerson = k.CustomerMasterCustomerContactPerson,
+            //    CustomerMasterCustomerCountryId = k.CustomerMasterCustomerCountryId,
+            //    CustomerMasterCustomerCityId = k.CustomerMasterCustomerCityId,
+            //    CustomerMasterCustomerPoBox = k.CustomerMasterCustomerPoBox,
+            //    CustomerMasterCustomerTel1 = k.CustomerMasterCustomerTel1,
+            //    CustomerMasterCustomerTel2 = k.CustomerMasterCustomerTel2,
+            //    CustomerMasterCustomerMobile = k.CustomerMasterCustomerMobile,
+            //    CustomerMasterCustomerFax = k.CustomerMasterCustomerFax,
+            //    CustomerMasterCustomerEmail = k.CustomerMasterCustomerEmail,
+            //    CustomerMasterCustomerWebSite = k.CustomerMasterCustomerWebSite,
+            //    CustomerMasterCustomerLocation = k.CustomerMasterCustomerLocation,
+            //    CustomerMasterCustomerAddress = k.CustomerMasterCustomerAddress,
+            //    CustomerMasterCustomerWhatsAppNo = k.CustomerMasterCustomerWhatsAppNo,
+            //    CustomerMasterCustomerRemarks = k.CustomerMasterCustomerRemarks,
+            //    CustomerMasterCustomerReffAcNo = k.CustomerMasterCustomerReffAcNo,
+            //    CustomerMasterCustomerUserId = k.CustomerMasterCustomerUserId,
+            //    CustomerMasterCustomerCurrencyId = k.CustomerMasterCustomerCurrencyId,
+            //    CustomerMasterCustomerCreditLimit = k.CustomerMasterCustomerCreditLimit,
+            //    CustomerMasterCustomerCreditDays = k.CustomerMasterCustomerCreditDays,
+            //    CustomerMasterCustomerBlackList = k.CustomerMasterCustomerBlackList,
+            //    CustomerMasterCustomerStatus = k.CustomerMasterCustomerStatus,
+            //    CustomerMasterCustomerDeleteStatus = k.CustomerMasterCustomerDeleteStatus,
+            //    CustomerMasterCustomerJoinDate = k.CustomerMasterCustomerJoinDate,
+            //    CustomerMasterCustomerStatusValue = k.CustomerMasterCustomerStatusValue,
+            //    CustomerMasterCustomerCreateAccount = k.CustomerMasterCustomerCreateAccount,
+            //    CustomerMasterCustomerPriceLevel = k.CustomerMasterCustomerPriceLevel,
+            //    CustomerMasterCustomerPriceLevelId = k.CustomerMasterCustomerPriceLevelId,
+            //    CustomerMasterCustomerCustType = k.CustomerMasterCustomerCustType,
+            //    CustomerMasterCustomerContactPerson2 = k.CustomerMasterCustomerContactPerson2,
+            //    CustomerMasterCustomerContactPerson3 = k.CustomerMasterCustomerContactPerson3,
+            //    CustomerMasterCustomerVatNo = k.CustomerMasterCustomerVatNo,
+            //    CustomerMasterCustomerLoyaltyId = k.CustomerMasterCustomerLoyaltyId,
+            //    CustomerMasterCustomerEarnPoints = k.CustomerMasterCustomerEarnPoints,
+            //    CustomerMasterCustomerTotalPoints = k.CustomerMasterCustomerTotalPoints,
+            //    CustomerMasterCustomerTotalValue = k.CustomerMasterCustomerTotalValue,
+            //    CustomerMasterCustomerRedeemEarnPoints = k.CustomerMasterCustomerRedeemEarnPoints,
+            //    CustomerMasterCustomerArabicName = k.CustomerMasterCustomerArabicName,
+            //    CustomerMasterCustomerGroupAccNo = k.CustomerMasterCustomerGroupAccNo,
+            //    CustomerMasterCustomerCtTypeId = k.CustomerMasterCustomerCtTypeId,
+            //    CustomerMasterCustomerDelStatus = k.CustomerMasterCustomerDelStatus
+            //}).ToList();
+            apiResponse = new ApiResponse<CustomerMasterViewModel>
             {
-                CustomerMasterCustomerNo = k.CustomerMasterCustomerNo,
-                CustomerMasterCustomerTitle = k.CustomerMasterCustomerTitle,
-                CustomerMasterCustomerName = k.CustomerMasterCustomerName,
-                CustomerMasterCustomerType = k.CustomerMasterCustomerType,
-                CustomerMasterCustomerContactPerson = k.CustomerMasterCustomerContactPerson,
-                CustomerMasterCustomerCountryId = k.CustomerMasterCustomerCountryId,
-                CustomerMasterCustomerCityId = k.CustomerMasterCustomerCityId,
-                CustomerMasterCustomerPoBox = k.CustomerMasterCustomerPoBox,
-                CustomerMasterCustomerTel1 = k.CustomerMasterCustomerTel1,
-                CustomerMasterCustomerTel2 = k.CustomerMasterCustomerTel2,
-                CustomerMasterCustomerMobile = k.CustomerMasterCustomerMobile,
-                CustomerMasterCustomerFax = k.CustomerMasterCustomerFax,
-                CustomerMasterCustomerEmail = k.CustomerMasterCustomerEmail,
-                CustomerMasterCustomerWebSite = k.CustomerMasterCustomerWebSite,
-                CustomerMasterCustomerLocation = k.CustomerMasterCustomerLocation,
-                CustomerMasterCustomerAddress = k.CustomerMasterCustomerAddress,
-                CustomerMasterCustomerWhatsAppNo = k.CustomerMasterCustomerWhatsAppNo,
-                CustomerMasterCustomerRemarks = k.CustomerMasterCustomerRemarks,
-                CustomerMasterCustomerReffAcNo = k.CustomerMasterCustomerReffAcNo,
-                CustomerMasterCustomerUserId = k.CustomerMasterCustomerUserId,
-                CustomerMasterCustomerCurrencyId = k.CustomerMasterCustomerCurrencyId,
-                CustomerMasterCustomerCreditLimit = k.CustomerMasterCustomerCreditLimit,
-                CustomerMasterCustomerCreditDays = k.CustomerMasterCustomerCreditDays,
-                CustomerMasterCustomerBlackList = k.CustomerMasterCustomerBlackList,
-                CustomerMasterCustomerStatus = k.CustomerMasterCustomerStatus,
-                CustomerMasterCustomerDeleteStatus = k.CustomerMasterCustomerDeleteStatus,
-                CustomerMasterCustomerJoinDate = k.CustomerMasterCustomerJoinDate,
-                CustomerMasterCustomerStatusValue = k.CustomerMasterCustomerStatusValue,
-                CustomerMasterCustomerCreateAccount = k.CustomerMasterCustomerCreateAccount,
-                CustomerMasterCustomerPriceLevel = k.CustomerMasterCustomerPriceLevel,
-                CustomerMasterCustomerPriceLevelId = k.CustomerMasterCustomerPriceLevelId,
-                CustomerMasterCustomerCustType = k.CustomerMasterCustomerCustType,
-                CustomerMasterCustomerContactPerson2 = k.CustomerMasterCustomerContactPerson2,
-                CustomerMasterCustomerContactPerson3 = k.CustomerMasterCustomerContactPerson3,
-                CustomerMasterCustomerVatNo = k.CustomerMasterCustomerVatNo,
-                CustomerMasterCustomerLoyaltyId = k.CustomerMasterCustomerLoyaltyId,
-                CustomerMasterCustomerEarnPoints = k.CustomerMasterCustomerEarnPoints,
-                CustomerMasterCustomerTotalPoints = k.CustomerMasterCustomerTotalPoints,
-                CustomerMasterCustomerTotalValue = k.CustomerMasterCustomerTotalValue,
-                CustomerMasterCustomerRedeemEarnPoints = k.CustomerMasterCustomerRedeemEarnPoints,
-                CustomerMasterCustomerArabicName = k.CustomerMasterCustomerArabicName,
-                CustomerMasterCustomerGroupAccNo = k.CustomerMasterCustomerGroupAccNo,
-                CustomerMasterCustomerCtTypeId = k.CustomerMasterCustomerCtTypeId,
-                CustomerMasterCustomerDelStatus = k.CustomerMasterCustomerDelStatus
-            }).ToList();
-
-            return data;
+                Valid = true,
+                Result = _mapper.Map<CustomerMasterViewModel>(data),
+                Message = "data update",
+            };
+            return apiResponse;
 
         }
 
         [HttpPost]
         [Route("DeleteCustomer")]
-        public List<CustomerMasterViewModel> DeleteCustomer([FromBody] CustomerMasterViewModel customerMaster)
+        public ApiResponse<CustomerMasterViewModel> DeleteCustomer([FromBody] CustomerMasterViewModel customerMaster)
         {
+            ApiResponse<CustomerMasterViewModel> apiResponse = new ApiResponse<CustomerMasterViewModel>();
             var result = _mapper.Map<CustomerMaster>(customerMaster);
-            return customerMasterService.DeleteCustomer(result).Select(k => new CustomerMasterViewModel
+            var data= customerMasterService.DeleteCustomer(result);
+            //    .Select(k => new CustomerMasterViewModel
+            //{
+            //    CustomerMasterCustomerNo = k.CustomerMasterCustomerNo,
+            //    CustomerMasterCustomerTitle = k.CustomerMasterCustomerTitle,
+            //    CustomerMasterCustomerName = k.CustomerMasterCustomerName,
+            //    CustomerMasterCustomerType = k.CustomerMasterCustomerType,
+            //    CustomerMasterCustomerContactPerson = k.CustomerMasterCustomerContactPerson,
+            //    CustomerMasterCustomerCountryId = k.CustomerMasterCustomerCountryId,
+            //    CustomerMasterCustomerCityId = k.CustomerMasterCustomerCityId,
+            //    CustomerMasterCustomerPoBox = k.CustomerMasterCustomerPoBox,
+            //    CustomerMasterCustomerTel1 = k.CustomerMasterCustomerTel1,
+            //    CustomerMasterCustomerTel2 = k.CustomerMasterCustomerTel2,
+            //    CustomerMasterCustomerMobile = k.CustomerMasterCustomerMobile,
+            //    CustomerMasterCustomerFax = k.CustomerMasterCustomerFax,
+            //    CustomerMasterCustomerEmail = k.CustomerMasterCustomerEmail,
+            //    CustomerMasterCustomerWebSite = k.CustomerMasterCustomerWebSite,
+            //    CustomerMasterCustomerLocation = k.CustomerMasterCustomerLocation,
+            //    CustomerMasterCustomerAddress = k.CustomerMasterCustomerAddress,
+            //    CustomerMasterCustomerWhatsAppNo = k.CustomerMasterCustomerWhatsAppNo,
+            //    CustomerMasterCustomerRemarks = k.CustomerMasterCustomerRemarks,
+            //    CustomerMasterCustomerReffAcNo = k.CustomerMasterCustomerReffAcNo,
+            //    CustomerMasterCustomerUserId = k.CustomerMasterCustomerUserId,
+            //    CustomerMasterCustomerCurrencyId = k.CustomerMasterCustomerCurrencyId,
+            //    CustomerMasterCustomerCreditLimit = k.CustomerMasterCustomerCreditLimit,
+            //    CustomerMasterCustomerCreditDays = k.CustomerMasterCustomerCreditDays,
+            //    CustomerMasterCustomerBlackList = k.CustomerMasterCustomerBlackList,
+            //    CustomerMasterCustomerStatus = k.CustomerMasterCustomerStatus,
+            //    CustomerMasterCustomerDeleteStatus = k.CustomerMasterCustomerDeleteStatus,
+            //    CustomerMasterCustomerJoinDate = k.CustomerMasterCustomerJoinDate,
+            //    CustomerMasterCustomerStatusValue = k.CustomerMasterCustomerStatusValue,
+            //    CustomerMasterCustomerCreateAccount = k.CustomerMasterCustomerCreateAccount,
+            //    CustomerMasterCustomerPriceLevel = k.CustomerMasterCustomerPriceLevel,
+            //    CustomerMasterCustomerPriceLevelId = k.CustomerMasterCustomerPriceLevelId,
+            //    CustomerMasterCustomerCustType = k.CustomerMasterCustomerCustType,
+            //    CustomerMasterCustomerContactPerson2 = k.CustomerMasterCustomerContactPerson2,
+            //    CustomerMasterCustomerContactPerson3 = k.CustomerMasterCustomerContactPerson3,
+            //    CustomerMasterCustomerVatNo = k.CustomerMasterCustomerVatNo,
+            //    CustomerMasterCustomerLoyaltyId = k.CustomerMasterCustomerLoyaltyId,
+            //    CustomerMasterCustomerEarnPoints = k.CustomerMasterCustomerEarnPoints,
+            //    CustomerMasterCustomerTotalPoints = k.CustomerMasterCustomerTotalPoints,
+            //    CustomerMasterCustomerTotalValue = k.CustomerMasterCustomerTotalValue,
+            //    CustomerMasterCustomerRedeemEarnPoints = k.CustomerMasterCustomerRedeemEarnPoints,
+            //    CustomerMasterCustomerArabicName = k.CustomerMasterCustomerArabicName,
+            //    CustomerMasterCustomerGroupAccNo = k.CustomerMasterCustomerGroupAccNo,
+            //    CustomerMasterCustomerCtTypeId = k.CustomerMasterCustomerCtTypeId,
+            //    CustomerMasterCustomerDelStatus = k.CustomerMasterCustomerDelStatus
+            //}).ToList();
+            apiResponse = new ApiResponse<CustomerMasterViewModel>
             {
-                CustomerMasterCustomerNo = k.CustomerMasterCustomerNo,
-                CustomerMasterCustomerTitle = k.CustomerMasterCustomerTitle,
-                CustomerMasterCustomerName = k.CustomerMasterCustomerName,
-                CustomerMasterCustomerType = k.CustomerMasterCustomerType,
-                CustomerMasterCustomerContactPerson = k.CustomerMasterCustomerContactPerson,
-                CustomerMasterCustomerCountryId = k.CustomerMasterCustomerCountryId,
-                CustomerMasterCustomerCityId = k.CustomerMasterCustomerCityId,
-                CustomerMasterCustomerPoBox = k.CustomerMasterCustomerPoBox,
-                CustomerMasterCustomerTel1 = k.CustomerMasterCustomerTel1,
-                CustomerMasterCustomerTel2 = k.CustomerMasterCustomerTel2,
-                CustomerMasterCustomerMobile = k.CustomerMasterCustomerMobile,
-                CustomerMasterCustomerFax = k.CustomerMasterCustomerFax,
-                CustomerMasterCustomerEmail = k.CustomerMasterCustomerEmail,
-                CustomerMasterCustomerWebSite = k.CustomerMasterCustomerWebSite,
-                CustomerMasterCustomerLocation = k.CustomerMasterCustomerLocation,
-                CustomerMasterCustomerAddress = k.CustomerMasterCustomerAddress,
-                CustomerMasterCustomerWhatsAppNo = k.CustomerMasterCustomerWhatsAppNo,
-                CustomerMasterCustomerRemarks = k.CustomerMasterCustomerRemarks,
-                CustomerMasterCustomerReffAcNo = k.CustomerMasterCustomerReffAcNo,
-                CustomerMasterCustomerUserId = k.CustomerMasterCustomerUserId,
-                CustomerMasterCustomerCurrencyId = k.CustomerMasterCustomerCurrencyId,
-                CustomerMasterCustomerCreditLimit = k.CustomerMasterCustomerCreditLimit,
-                CustomerMasterCustomerCreditDays = k.CustomerMasterCustomerCreditDays,
-                CustomerMasterCustomerBlackList = k.CustomerMasterCustomerBlackList,
-                CustomerMasterCustomerStatus = k.CustomerMasterCustomerStatus,
-                CustomerMasterCustomerDeleteStatus = k.CustomerMasterCustomerDeleteStatus,
-                CustomerMasterCustomerJoinDate = k.CustomerMasterCustomerJoinDate,
-                CustomerMasterCustomerStatusValue = k.CustomerMasterCustomerStatusValue,
-                CustomerMasterCustomerCreateAccount = k.CustomerMasterCustomerCreateAccount,
-                CustomerMasterCustomerPriceLevel = k.CustomerMasterCustomerPriceLevel,
-                CustomerMasterCustomerPriceLevelId = k.CustomerMasterCustomerPriceLevelId,
-                CustomerMasterCustomerCustType = k.CustomerMasterCustomerCustType,
-                CustomerMasterCustomerContactPerson2 = k.CustomerMasterCustomerContactPerson2,
-                CustomerMasterCustomerContactPerson3 = k.CustomerMasterCustomerContactPerson3,
-                CustomerMasterCustomerVatNo = k.CustomerMasterCustomerVatNo,
-                CustomerMasterCustomerLoyaltyId = k.CustomerMasterCustomerLoyaltyId,
-                CustomerMasterCustomerEarnPoints = k.CustomerMasterCustomerEarnPoints,
-                CustomerMasterCustomerTotalPoints = k.CustomerMasterCustomerTotalPoints,
-                CustomerMasterCustomerTotalValue = k.CustomerMasterCustomerTotalValue,
-                CustomerMasterCustomerRedeemEarnPoints = k.CustomerMasterCustomerRedeemEarnPoints,
-                CustomerMasterCustomerArabicName = k.CustomerMasterCustomerArabicName,
-                CustomerMasterCustomerGroupAccNo = k.CustomerMasterCustomerGroupAccNo,
-                CustomerMasterCustomerCtTypeId = k.CustomerMasterCustomerCtTypeId,
-                CustomerMasterCustomerDelStatus = k.CustomerMasterCustomerDelStatus
-            }).ToList();
+                Valid = true,
+                Result = _mapper.Map<CustomerMasterViewModel>(data),
+                Message = "data deleted Successfully",
+            };
+            return apiResponse;
 
         }
 
@@ -388,7 +423,8 @@ namespace Inspire.Erp.Web.Controllers
             var cityMasters = cityrepository.GetAsQueryable().Where(a => a.CityMasterCityDelStatus != true).Select(c => new
             {
                 c.CityMasterCityId,
-                c.CityMasterCityName
+                c.CityMasterCityName,
+                c.CityMasterCityCountryId
             }).ToList();
             var locationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
             {
@@ -408,7 +444,7 @@ namespace Inspire.Erp.Web.Controllers
                 c.PriceLevelMasterPriceLevelId,
                 c.PriceLevelMasterPriceLevelName
             }).ToList();
-            var customerType = CustomerTyperepository.GetAsQueryable().Where(a=>a.CustomerTypeDelStatus!=true).Select(c=> new
+            var customerType = CustomerTyperepository.GetAsQueryable().Where(a => a.CustomerTypeDelStatus != true).Select(c => new
             {
                 c.CustomerTypeId,
                 c.CustomerTypeName
@@ -421,7 +457,7 @@ namespace Inspire.Erp.Web.Controllers
                 locationMaster = locationMaster,
                 masterAccountsTables = masterAccountsTables,
                 priceLevelMasters = priceLevelMasters,
-                customerType= customerType
+                customerType = customerType
             };
             return objresponse;
         }
