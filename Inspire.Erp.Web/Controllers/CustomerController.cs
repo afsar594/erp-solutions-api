@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Inspire.Erp.Application.Account;
 using Inspire.Erp.Application.Master;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Inspire.Erp.Web.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,10 +20,17 @@ namespace Inspire.Erp.Web.Controllers
     {
         private readonly IMapper _mapper;
         private ICustomerMasterService customerMasterService;
-        public CustomerController(ICustomerMasterService _customerMasterService, IMapper mapper)
+        private IRepository<CurrencyMaster> currencyrepository; private IRepository<CountryMaster> countryrepository;
+        private IRepository<CityMaster> cityrepository; private IRepository<LocationMaster> locationrepository; private IChartofAccountsService chartofAccountsService;
+        private IRepository<PriceLevelMaster> priceLevelrepository; private IRepository<CustomerType> CustomerTyperepository;
+        public CustomerController(ICustomerMasterService _customerMasterService, IMapper mapper,
+             IRepository<CurrencyMaster> _currencyrepository, IRepository<CountryMaster> _countryrepository, IRepository<PriceLevelMaster> _priceLevelrepository
+            , IRepository<LocationMaster> _locationrepository, IRepository<CityMaster> _Cityrepository, IChartofAccountsService _chartofAccountsService, IRepository<CustomerType> _CustomerTyperepository)
         {
             customerMasterService = _customerMasterService;
             _mapper = mapper;
+            locationrepository = _locationrepository; chartofAccountsService = _chartofAccountsService; priceLevelrepository = _priceLevelrepository;
+            currencyrepository = _currencyrepository; countryrepository = _countryrepository; cityrepository = _Cityrepository; CustomerTyperepository = _CustomerTyperepository;
         }
         [HttpGet]
         [Route("GetAllCustomer")]
@@ -185,7 +194,7 @@ namespace Inspire.Erp.Web.Controllers
 
 
         [HttpPost("InsertCustomer")]
-        public async Task <List<CustomerMasterViewModel>> InsertCustomer([FromBody] CustomerMasterViewModel customerMaster)
+        public async Task<List<CustomerMasterViewModel>> InsertCustomer([FromBody] CustomerMasterViewModel customerMaster)
         {
             try
             {
@@ -357,6 +366,64 @@ namespace Inspire.Erp.Web.Controllers
                 CustomerMasterCustomerDelStatus = k.CustomerMasterCustomerDelStatus
             }).ToList();
 
-        }  
+        }
+
+        [HttpGet]
+        [Route("LoadDropdown")]
+        public ResponseInfo LoadDropdown()
+        {
+            var objresponse = new ResponseInfo();
+
+            var currencyMasters = currencyrepository.GetAsQueryable().Where(a => a.CurrencyMasterCurrencyDelStatus != true).Select(c => new
+            {
+                c.CurrencyMasterCurrencyId,
+                c.CurrencyMasterCurrencyName,
+                c.CurrencyMasterCurrencyRate
+            }).ToList();
+            var countryMasters = countryrepository.GetAsQueryable().Where(a => a.CountryMasterCountryDelStatus != true).Select(c => new
+            {
+                c.CountryMasterCountryId,
+                c.CountryMasterCountryName
+            }).ToList();
+            var cityMasters = cityrepository.GetAsQueryable().Where(a => a.CityMasterCityDelStatus != true).Select(c => new
+            {
+                c.CityMasterCityId,
+                c.CityMasterCityName
+            }).ToList();
+            var locationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
+            {
+                c.LocationMasterLocationId,
+                c.LocationMasterLocationName,
+            }).ToList();
+
+            var masterAccountsTables = chartofAccountsService.GetAllAccounts().Where(a => a.MaDelStatus != true).Select(c => new
+            {
+                c.MaAccNo,
+                c.MaAccName,
+                c.MaRelativeNo,
+                c.MaSno
+            }).ToList();
+            var priceLevelMasters = priceLevelrepository.GetAsQueryable().Where(a => a.PriveLevelMasterPriceLevelDelStatus != true).Select(c => new
+            {
+                c.PriceLevelMasterPriceLevelId,
+                c.PriceLevelMasterPriceLevelName
+            }).ToList();
+            var customerType = CustomerTyperepository.GetAsQueryable().Where(a=>a.CustomerTypeDelStatus!=true).Select(c=> new
+            {
+                c.CustomerTypeId,
+                c.CustomerTypeName
+            }).ToList();
+            objresponse.ResultSet = new
+            {
+                currencyMasters = currencyMasters,
+                countryMasters = countryMasters,
+                cityMasters = cityMasters,
+                locationMaster = locationMaster,
+                masterAccountsTables = masterAccountsTables,
+                priceLevelMasters = priceLevelMasters,
+                customerType= customerType
+            };
+            return objresponse;
+        }
     }
 }
