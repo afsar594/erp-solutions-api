@@ -21,7 +21,7 @@ namespace Inspire.Erp.Application.Store.Interfaces
         Task<Response<List<VWStockBaseUnitWithValue>>> GetStockReportBaseUnitWithValue(GenericGridViewModel model);
         Task<Response<StockMovementResponse>> GetStockMovement(StockFilterModel model);
 
-
+        Task<Response<decimal>> GetAveragePurchasePrice(int itemId, int? locationId);
 
     }
 }

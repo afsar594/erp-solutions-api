@@ -37,6 +37,8 @@ using System.Linq.Dynamic.Core;
 using System.Collections;
 using System.Runtime.CompilerServices;
 using DinkToPdf;
+using EllipticCurve.Utils;
+using Inspire.Erp.Domain.Models;
 
 namespace Inspire.Erp.Application.Store.Implementation
 {
@@ -191,6 +193,77 @@ namespace Inspire.Erp.Application.Store.Implementation
                 return Response<List<StockReportBaseUnitResponse>>.Fail(new List<StockReportBaseUnitResponse>(), ex.Message);
             }
         }
+
+
+        public async Task<Response<decimal>> GetAveragePurchasePrice(int itemId,int? locationId)
+        {
+            try
+            {
+                   var totalQuantity = (from sr in _context.StockRegister
+                            where (locationId == null || sr.StockRegisterLocationID == locationId)
+                            && sr.StockRegisterMaterialID==itemId
+                            group sr by 1 into og
+                            select new
+                            {
+                                Total = og.Sum(item => (int)(item.StockRegisterSIN??0-item.StockRegisterSout??0)),
+                            }).FirstOrDefault().Total;
+
+                var PurchaseVoucherIds = await _context.PurchaseVoucher.Where(x=>x.PurchaseVoucherStatus=="P").Select(o => o.PurchaseVoucherPurID).ToListAsync();
+
+                var purchseVouchers =await (from pvd in _context.PurchaseVoucherDetails
+                                      join pv in _context.PurchaseVoucher on (long)pvd.PurchaseVoucherDetailsPrId equals pv.PurchaseVoucherPurID
+                                      where pvd.PurchaseVoucherDetailsMaterialId == itemId
+                                     && PurchaseVoucherIds.Contains((long)pvd.PurchaseVoucherDetailsPrId)
+                                      select new PurVoucherRateQuantityModel
+                                      {
+                                          Rate = (long)(pvd.PurchaseVoucherDetailsRate??0),
+                                          Quantity = pvd.PurchaseVoucherDetailsQuantity??0,
+                                          PurchaseDate = pv.PurchaseVoucherPurchaseDate
+                                         
+                                      }).OrderByDescending(y => y.PurchaseDate).ToListAsync();
+
+                decimal actualQuantity = 0;
+                decimal actualRate = 0;
+                decimal quantity= 0;
+                decimal rate = 0;
+                actualQuantity = totalQuantity;
+
+                if(purchseVouchers.Count()>0)
+                {
+                    foreach (var pvd in purchseVouchers)
+                    {
+                        rate = pvd.Rate;
+                        quantity = pvd.Quantity;
+                        if (actualQuantity > 0)
+                        {
+                            if (pvd.Quantity > actualQuantity)
+                            {
+                                quantity = actualQuantity;
+                                actualRate = actualRate + (rate * quantity);
+                                actualQuantity = actualQuantity - quantity;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    //get from item master
+
+                }
+                decimal returnAvgPrice = 0;
+                if (totalQuantity<=0)
+                {
+                    totalQuantity = 1;
+                }
+                returnAvgPrice = actualRate / totalQuantity;
+                return Response<decimal>.Success(returnAvgPrice, "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<decimal>.Fail(0, ex.Message);
+            }
+        }
+
         public async Task<Response<StockMovementReportResponse>> GetStockMovementReport(StockFilterModel model)
         {
             try
