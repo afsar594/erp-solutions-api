@@ -239,8 +239,8 @@ namespace Inspire.Erp.Application.Account
             try
             {
                 masterAccountsTable = chartofAccountsrepository.GetAll();
-               //// masterAccountsTable = chartofAccountsrepository.GetAsQueryable().Where(k => k.MaAccNo != "" && (k.MaDelStatus == false || k.MaDelStatus == null)
-               ////&& k.MaAccType == AccountMasterStatus.Account ).Select(k => k);
+                //// masterAccountsTable = chartofAccountsrepository.GetAsQueryable().Where(k => k.MaAccNo != "" && (k.MaDelStatus == false || k.MaDelStatus == null)
+                ////&& k.MaAccType == AccountMasterStatus.Account ).Select(k => k);
 
             }
             catch (Exception ex)
@@ -300,8 +300,13 @@ namespace Inspire.Erp.Application.Account
             return drCrAccounts;
         }
 
+        public IEnumerable<MasterAccountsTable> GetAllBankAccounts()
+        {
+            var masterAccountsTable = chartofAccountsrepository.GetAsQueryable().Where(k => k.MaRelativeNo == "01001002" && (k.MaDelStatus == false || k.MaDelStatus == null)
+             ).Select(k => k);
 
-
+            return masterAccountsTable;
+        }
     }
 }
 

@@ -120,13 +120,14 @@ namespace Inspire.Erp.Web.Controllers.Settings
         {
             var objectresponse = new ResponseInfo();
 
-            var GeneralSettings = _generalSettingsRepo.GetAsQueryable().Where(k => k.GeneralSettingsKeyValue.Trim() == "DEFAULTCURRENCY" ||
-            k.GeneralSettingsKeyValue.Trim() == "DEFAULT_LOCATION" || k.GeneralSettingsKeyValue.Trim() == "DEFAULT_COST_CENTER" || k.GeneralSettingsKeyValue.Trim() == "DEFAULTINTIALACCOUNT"
+            var GeneralSettings = _generalSettingsRepo.GetAsQueryable().Where(k => k.GeneralSettingsKeyValue.Trim() == "DEFAULTCURRENCY" || k.GeneralSettingsKeyValue.Trim() == "VAT_Calculation" ||
+            k.GeneralSettingsKeyValue.Trim() == "DEFAULT_LOCATION" || k.GeneralSettingsKeyValue.Trim() == "DEFAULT_COST_CENTER" || k.GeneralSettingsKeyValue.Trim() == "DEFAULTINTIALACCOUNT" || k.GeneralSettingsKeyValue.Trim() == "DEFAULT_Type"
             ).Select(c => new
             {
                 c.GeneralSettingsId,
                 c.GeneralSettingsTextValue,
-                GeneralSettingsKeyValue = c.GeneralSettingsKeyValue.Trim()
+                GeneralSettingsKeyValue = c.GeneralSettingsKeyValue.Trim(),
+                c.GeneralSettingsBoolValue
             }).ToList();
 
             objectresponse.ResultSet = new

@@ -25,15 +25,15 @@ namespace Inspire.Erp.Web.Controllers.Procurement
     public class PurchaseOrderController : ControllerBase
     {
         private IPurchaseOrderService _purchaseOrderService;
-        private IRepository<ItemMaster> itemrepository; private IRepository<UnitMaster> unitrepository;
+        private IRepository<ItemMaster> itemrepository; private IRepository<UnitMaster> unitrepository; private IRepository<PurOrderRegister> _purOrderRegisterRepository;
         private IRepository<PurchaseOrder> _purchaseOrderRepository; private IRepository<PurchaseOrderDetails> _purchaseOrderDetailsRepository;
 
         private readonly IMapper _mapper;
-        public PurchaseOrderController(IPurchaseOrderService purchaseOrderService, IMapper mapper, IRepository<ItemMaster> _itemrepository, IRepository<UnitMaster> _unitrepository, IRepository<PurchaseOrder> purchaseOrderRepository, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository)
+        public PurchaseOrderController(IPurchaseOrderService purchaseOrderService, IMapper mapper, IRepository<ItemMaster> _itemrepository, IRepository<UnitMaster> _unitrepository, IRepository<PurchaseOrder> purchaseOrderRepository, IRepository<PurOrderRegister> purOrderRegisterRepository, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository)
         {
             _purchaseOrderService = purchaseOrderService;
             _mapper = mapper;
-            itemrepository = _itemrepository; unitrepository = _unitrepository; _purchaseOrderRepository = purchaseOrderRepository;
+            itemrepository = _itemrepository; unitrepository = _unitrepository; _purchaseOrderRepository = purchaseOrderRepository; _purOrderRegisterRepository = purOrderRegisterRepository;
             _purchaseOrderDetailsRepository = purchaseOrderDetailsRepository;
         }
 
@@ -486,6 +486,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                 UnitMasterUnitShortName = c.UnitMasterUnitShortName.Trim(),
                 c.UnitMasterUnitFullName
             }).ToList();
+            var tracking = _purOrderRegisterRepository.GetAsQueryable().Where(a => a.PurOrderRegisterDelStatus != true).ToList();
             var detailList = _purchaseOrderDetailsRepository.GetAsQueryable().ToList();
             var details = _purchaseOrderRepository.GetAsQueryable().Where(a => a.PurchaseOrderDelStatus != true && a.PurchaseOrderPartyId == id).Select(c => new
             {
@@ -499,6 +500,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                 .Where(d => purchaseOrderNos.Contains(d.PurchaseOrderDetailsNo))
                 .Select(d => new
                 {
+                    POID = d.PurchaseOrderDetailsId,
                     PONO = d.PurchaseOrderDetailsNo,
                     itemId = d.PurchaseOrderDetailsMatId,
                     itemname = materialList
@@ -508,14 +510,12 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                     unitId = d.PurchaseOrderDetailsUnitId ?? 0,
                     unit = unitList
                         .Where(u => u.UnitMasterUnitId == (int?)d.PurchaseOrderDetailsUnitId)
-                        .Select(c => c.UnitMasterUnitFullName ?? "")
+                        .Select(c => c.UnitMasterUnitFullName.Trim() ?? "")
                         .FirstOrDefault() ?? "",
                     price = d.PurchaseOrderDetailsRate ?? 0,
-                    //price = materialList
-                    //    .Where(m => m.ItemMasterItemId == (long?)d.PurchaseOrderDetailsMatId)
-                    //    .Select(c => (decimal?)c.ItemMasterLastPurchasePrice)
-                    //    .FirstOrDefault() ?? 0,
                     poQty = d.PurchaseOrderDetailsQuantity ?? 0,
+                    QtyIUssued = tracking.Where(a => a.PurOrderRegisterOrderNo == d.PurchaseOrderDetailsNo)
+                    .Sum(c => c.PurOrderRegisterQtyIssued ?? 0),
                 })
                 .ToList();
 

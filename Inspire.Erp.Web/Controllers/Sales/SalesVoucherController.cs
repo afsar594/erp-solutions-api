@@ -554,13 +554,7 @@ namespace Inspire.Erp.Web.Controllers
                      {
                          k.ItemMasterItemId,
                          k.ItemMasterItemName
-                     }).Take(50).ToList();
-            //var SuppliersMaster = supplierrepository.GetAsQueryable().Where(a => a.SuppliersMasterSupplierDelStatus != true).Select(c => new
-            //{
-            //    c.SuppliersMasterSupplierId,
-            //    c.SuppliersMasterSupplierName,
-            //    c.SuppliersMasterSupplierVatNo
-            //}).ToList();
+                     }).ToList();            
             var customerMasters = _customerMasterRepository.GetAsQueryable().Where(k => k.CustomerMasterCustomerDelStatus != true).Select(a => new
             {
                 a.CustomerMasterCustomerNo,
@@ -569,7 +563,7 @@ namespace Inspire.Erp.Web.Controllers
                 a.CustomerMasterCustomerContactPerson,
                 a.CustomerMasterCustomerAddress,
                 a.CustomerMasterCustomerReffAcNo
-            });
+            }).ToList();
 
             var unitMasters = unitrepository.GetAsQueryable().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
             {
@@ -588,19 +582,12 @@ namespace Inspire.Erp.Web.Controllers
                 c.CurrencyMasterCurrencyId,
                 c.CurrencyMasterCurrencyName,
                 c.CurrencyMasterCurrencyRate
-            }).ToList();
-            //var masterAccountsTables = chartofAccountsService.GetAllAccounts().Where(a => a.MaDelStatus != true).Select(c => new
+            }).ToList();           
+            //var costcenterMasters = costcenterrepository.GetAsQueryable().Where(a => a.CostCenterMasterCostCenterDelStatus != true).Select(c => new
             //{
-            //    c.MaAccNo,
-            //    c.MaAccName,
-            //    c.MaRelativeNo,
-            //    c.MaSno
+            //    c.CostCenterMasterCostCenterId,
+            //    c.CostCenterMasterCostCenterName,
             //}).ToList();
-            var costcenterMasters = costcenterrepository.GetAsQueryable().Where(a => a.CostCenterMasterCostCenterDelStatus != true).Select(c => new
-            {
-                c.CostCenterMasterCostCenterId,
-                c.CostCenterMasterCostCenterName,
-            }).ToList();
             var LocationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
             {
                 c.LocationMasterLocationId,
@@ -624,17 +611,16 @@ namespace Inspire.Erp.Web.Controllers
             }).ToList();
             objectresponse.ResultSet = new
             {
-                itemMaster = itemMaster,
-                //SuppliersMaster = SuppliersMaster,
+                itemMaster = itemMaster,             
                 unitMasters = unitMasters,
                 jobMasters = jobMasters,
-                currencyMasters = currencyMasters,
-                //masterAccountsTables = masterAccountsTables,
-                costcenterMasters = costcenterMasters,
+                currencyMasters = currencyMasters,                
+               // costcenterMasters = costcenterMasters,
                 LocationMaster = LocationMaster,
                 DepartmentsList = DepartmentsList,
                 BrandMasters = BrandMasters,
-                SaleManList= SaleManList
+                SaleManList= SaleManList,
+                customerMasters= customerMasters
             };
 
             objectresponse.IsSuccess = true;

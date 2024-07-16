@@ -42,7 +42,7 @@ namespace Inspire.Erp.Application.Master
             _cityMasterrepository = cityMasterrepository;
             _counrtyMasterrepository = counrtyMasterrepository;
         }
-        public async Task<IEnumerable<SuppliersMaster>> InsertSupplier(SuppliersMaster SuppliersMaster)
+        public async Task<SuppliersMaster> InsertSupplier(SuppliersMaster SuppliersMaster)
         {
             bool valid = false;
             try
@@ -51,7 +51,7 @@ namespace Inspire.Erp.Application.Master
                 valid = true;
                 int mxc = 0;
                 var maxId = _masterAccountTable.GetAsQueryable().Max(x => x.MaSno);
-                string accNo = "LB" +( maxId + 1);
+                string accNo = "LB" + (maxId + 1);
                 mxc = (int)supplierrepository.GetAsQueryable().Where(k => k.SuppliersMasterSupplierId != null).Select(x => x.SuppliersMasterSupplierId).Max();
                 if (mxc == null) { mxc = 1; } else { mxc = mxc + 1; }
 
@@ -73,7 +73,7 @@ namespace Inspire.Erp.Application.Master
                     MaUserId = 0,
                     MaDateCreated = DateTime.Now,
                     MaStatus = "R",
-                    MaSno= (maxId + 1)
+                    MaSno = (maxId + 1)
                 };
                 await _utilityService.SaveMasterAccountTable(masterAccountsTable);
                 #region ADD ACTIVITY LOGS
@@ -99,9 +99,9 @@ namespace Inspire.Erp.Application.Master
             {
                 //currencyrepository.Dispose();
             }
-            return this.GetAllSupplier();
+            return this.GetAllSupplierById(SuppliersMaster.SuppliersMasterSupplierId);
         }
-        public IEnumerable<SuppliersMaster> UpdateSupplier(SuppliersMaster SuppliersMaster)
+        public SuppliersMaster UpdateSupplier(SuppliersMaster SuppliersMaster)
         {
             bool valid = false;
             try
@@ -120,9 +120,9 @@ namespace Inspire.Erp.Application.Master
             {
                 //currencyrepository.Dispose();
             }
-            return this.GetAllSupplier();
+            return this.GetAllSupplierById(SuppliersMaster.SuppliersMasterSupplierId);
         }
-        public IEnumerable<SuppliersMaster> DeleteSupplier(SuppliersMaster SuppliersMaster)
+        public SuppliersMaster DeleteSupplier(SuppliersMaster SuppliersMaster)
         {
             bool valid = false;
             try
@@ -141,7 +141,7 @@ namespace Inspire.Erp.Application.Master
             {
                 //currencyrepository.Dispose();
             }
-            return this.GetAllSupplier();
+            return SuppliersMaster;
         }
 
         public IEnumerable<SuppliersMaster> GetAllSupplier()
@@ -149,7 +149,7 @@ namespace Inspire.Erp.Application.Master
             IEnumerable<SuppliersMaster> SuppliersMaster;
             try
             {
-                SuppliersMaster = supplierrepository.GetAll();
+                SuppliersMaster = supplierrepository.GetAll().Where(a => a.SuppliersMasterSupplierDelStatus != true).Select(k => k);
 
             }
             catch (Exception ex)
@@ -163,12 +163,12 @@ namespace Inspire.Erp.Application.Master
             }
             return SuppliersMaster;
         }
-        public IEnumerable<SuppliersMaster> GetAllSupplierById(int id)
+        public SuppliersMaster GetAllSupplierById(int id)
         {
-            IEnumerable<SuppliersMaster> SuppliersMaster;
+            SuppliersMaster SuppliersMaster;
             try
             {
-                SuppliersMaster = supplierrepository.GetAsQueryable().Where(k => k.SuppliersMasterSupplierId == id).Select(k => k);
+                SuppliersMaster = supplierrepository.GetAsQueryable().Where(k => k.SuppliersMasterSupplierId == id).FirstOrDefault();
 
             }
             catch (Exception ex)
@@ -190,29 +190,29 @@ namespace Inspire.Erp.Application.Master
             //Purchase_Voucher P ON P.purchaseid = PD.purchaseid INNER JOIN Suppliers S ON P.Sp_Id = S.INS_ID Where mat_id = (Selectiing Items ItemID)
 
             IEnumerable<ItemMasterSupplierDetais> supplierDetails = (from PD in pVoucherDetailsrepo.GetAsQueryable()
-                    join P in pVoucherrepo.GetAsQueryable()
-                    on PD.PurchaseVoucherDetailsGrnNo equals P.PurchaseVoucherDayBookno
-                    join S in supplierrepository.GetAsQueryable()
-                    //on P.PurchaseVoucherSPID equals S.SuppliersMasterSupplierId
-                    on P.PurchaseVoucherSPID equals S.SuppliersMasterSupplierId
-                    where PD.PurchaseVoucherDetailsMaterialId == itemId
-                    select new
-                    {
-                        Supplier = S.SuppliersMasterSupplierName,
-                        SupplierId = S.SuppliersMasterSupplierId,
-                        PurchaseDate = P.PurchaseVoucherPurchaseDate,
-                        Rate = PD.PurchaseVoucherDetailsRate
-                    }).GroupBy(arg => new
-                    {
-                        arg.Supplier,
-                        arg.SupplierId
-                    }).Select(grouping => new ItemMasterSupplierDetais
-                    {
-                        Supplier = grouping.Key.Supplier,
-                        SupplierId=  (int) grouping.Key.SupplierId,
-                        PurchaseDate = Convert.ToDateTime(grouping.Max(arg => arg.PurchaseDate)),
-                        Rate = (float)grouping.Max(arg => arg.Rate)
-                    });
+                                                                     join P in pVoucherrepo.GetAsQueryable()
+                                                                     on PD.PurchaseVoucherDetailsGrnNo equals P.PurchaseVoucherDayBookno
+                                                                     join S in supplierrepository.GetAsQueryable()
+                                                                     //on P.PurchaseVoucherSPID equals S.SuppliersMasterSupplierId
+                                                                     on P.PurchaseVoucherSPID equals S.SuppliersMasterSupplierId
+                                                                     where PD.PurchaseVoucherDetailsMaterialId == itemId
+                                                                     select new
+                                                                     {
+                                                                         Supplier = S.SuppliersMasterSupplierName,
+                                                                         SupplierId = S.SuppliersMasterSupplierId,
+                                                                         PurchaseDate = P.PurchaseVoucherPurchaseDate,
+                                                                         Rate = PD.PurchaseVoucherDetailsRate
+                                                                     }).GroupBy(arg => new
+                                                                     {
+                                                                         arg.Supplier,
+                                                                         arg.SupplierId
+                                                                     }).Select(grouping => new ItemMasterSupplierDetais
+                                                                     {
+                                                                         Supplier = grouping.Key.Supplier,
+                                                                         SupplierId = (int)grouping.Key.SupplierId,
+                                                                         PurchaseDate = Convert.ToDateTime(grouping.Max(arg => arg.PurchaseDate)),
+                                                                         Rate = (float)grouping.Max(arg => arg.Rate)
+                                                                     });
 
 
             return supplierDetails;
@@ -229,22 +229,22 @@ namespace Inspire.Erp.Application.Master
                 {
                     filteredValue += $" && SuppliersMasterSupplierName == \"{supplierName}\" ";
                 }
-                
+
                 reportDetails = await (from s in supplierrepository.GetAsQueryable().Where($"1 == 1  {filteredValue}")
-                                      join c in _cityMasterrepository.GetAsQueryable() on s.SuppliersMasterSupplierCityId equals c.CityMasterCityId into scGroup
-                                      from c in scGroup.DefaultIfEmpty()
-                                      join cntry in _counrtyMasterrepository.GetAsQueryable() on s.SuppliersMasterSupplierCountryId equals cntry.CountryMasterCountryId into scntryGroup
-                                      from cntry in scntryGroup.DefaultIfEmpty()
-                                          select new SupplierSearchListDto()
-                                      {
-                                          ContactPerson = s.SuppliersMasterSupplierContactPerson,
-                                          SupplierName = s.SuppliersMasterSupplierName,
-                                          VatNo = s.SuppliersMasterSupplierVatNo,
-                                          MobileNo = s.SuppliersMasterSupplierMobile,
-                                          Telephone = s.SuppliersMasterSupplierTel1,
-                                          CityName = c.CityMasterCityName,
-                                          CountryName = cntry.CountryMasterCountryName
-                                      }).ToListAsync();
+                                       join c in _cityMasterrepository.GetAsQueryable() on s.SuppliersMasterSupplierCityId equals c.CityMasterCityId into scGroup
+                                       from c in scGroup.DefaultIfEmpty()
+                                       join cntry in _counrtyMasterrepository.GetAsQueryable() on s.SuppliersMasterSupplierCountryId equals cntry.CountryMasterCountryId into scntryGroup
+                                       from cntry in scntryGroup.DefaultIfEmpty()
+                                       select new SupplierSearchListDto()
+                                       {
+                                           ContactPerson = s.SuppliersMasterSupplierContactPerson,
+                                           SupplierName = s.SuppliersMasterSupplierName,
+                                           VatNo = s.SuppliersMasterSupplierVatNo,
+                                           MobileNo = s.SuppliersMasterSupplierMobile,
+                                           Telephone = s.SuppliersMasterSupplierTel1,
+                                           CityName = c.CityMasterCityName,
+                                           CountryName = cntry.CountryMasterCountryName
+                                       }).ToListAsync();
 
                 return new Response<List<SupplierSearchListDto>>
                 {
