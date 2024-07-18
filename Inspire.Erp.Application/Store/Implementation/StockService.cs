@@ -206,7 +206,20 @@ namespace Inspire.Erp.Application.Store.Implementation
                             select new
                             {
                                 Total = og.Sum(item => (int)(item.StockRegisterSIN??0-item.StockRegisterSout??0)),
+
                             }).FirstOrDefault().Total;
+
+                //var rateQuantiyFromStock = (from sr in _context.StockRegister
+                //                     where (locationId == null || sr.StockRegisterLocationID == locationId)
+                //                     && sr.StockRegisterMaterialID == itemId
+                                    
+                //                     select new
+                //                     {
+                //                         Quantity=sr.StockRegisterQuantity,
+                //                         Rate = og.Sum(item => (int)(item.StockRegisterRate)
+                //                     });
+
+
 
                 var PurchaseVoucherIds = await _context.PurchaseVoucher.Where(x=>x.PurchaseVoucherStatus=="P").Select(o => o.PurchaseVoucherPurID).ToListAsync();
 
@@ -248,7 +261,8 @@ namespace Inspire.Erp.Application.Store.Implementation
                 else
                 {
                     //get from item master
-
+                    var im=  _context.ItemMaster.Where(k => k.ItemMasterItemId == itemId).FirstOrDefault();
+                    
                 }
                 decimal returnAvgPrice = 0;
                 if (totalQuantity<=0)
