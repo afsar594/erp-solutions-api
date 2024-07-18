@@ -33,6 +33,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Inspire.Erp.Domain.DTO;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.Extensions.Configuration;
+using Inspire.Erp.Application.Common;
 
 namespace Inspire.Erp.Application.Master
 {
@@ -73,6 +75,9 @@ namespace Inspire.Erp.Application.Master
         private readonly IRepository<POS_SalesReturnDetails> _saleReturnDetailsRepo;
         private readonly IRepository<CardDetails> _cardDetailsRepo;
         private readonly IRepository<MasterAccountsTable> _masterAccRepo;
+
+        private string ItemRelativeNo = "";
+        private readonly IUtilityService _utilityService;
         public ItemMasterService(IRepository<ItemMaster> _itemrepository, IRepository<ItemStockType> _itemStockRepository, IRepository<UnitDetails> unitDetailsRepo
             , IRepository<VendorMaster> _vendorrepository
             , IRepository<PurchaseVoucherDetails> _purchVouchDetailsRepo
@@ -105,6 +110,8 @@ namespace Inspire.Erp.Application.Master
         , IRepository<POS_SalesReturnDetails> saleReturnDetailsRepo
             , IRepository<CardDetails> cardDetailsRepo
               , IRepository<MasterAccountsTable> masterAccRepo
+            , IUtilityService utilityService
+            , IConfiguration config
             )
         {
             itemrepository = _itemrepository;
@@ -141,17 +148,44 @@ namespace Inspire.Erp.Application.Master
             _saleReturnDetailsRepo = saleReturnDetailsRepo;
             _cardDetailsRepo = cardDetailsRepo;
             _masterAccRepo = masterAccRepo;
+            _utilityService = utilityService;
+            ItemRelativeNo = config["ApplicationSettings:ItemRelativeNo"];
         }
-        public IEnumerable<ItemMaster> InsertItem(ItemMaster itemMaster)
+        public async Task<IEnumerable<ItemMaster>> InsertItem(ItemMaster itemMaster)
         {
             bool valid = false;
             try
             {
                 valid = true;
+                var fs = await _utilityService.GetFinancialPeriods();
+                var maxId = await _masterAccRepo.GetAsQueryable().MaxAsync(x => x.MaSno);
+                string accNo = "IT" + (maxId + 1);
+
                 itemMaster.ItemMasterItemId = Convert.ToInt32(itemrepository.GetAsQueryable()
                                              .Where(x => x.ItemMasterItemId > 0)
                                              .DefaultIfEmpty()
                                              .Max(o => o == null ? 0 : o.ItemMasterItemId)) + 1;
+
+                itemMaster.ItemMasterReffAcNo = accNo;
+
+                var masterAccount = _masterAccRepo.GetAsQueryable().Where(x => x.MaAccNo == ItemRelativeNo).FirstOrDefault();
+                MasterAccountsTable masterAccountsTable = new MasterAccountsTable()
+                {
+                    MaAccName = itemMaster.ItemMasterItemName,
+                    MaAccNo = accNo,
+                    MaAccType = "A",
+                    MaImageKey = masterAccount.MaImageKey,
+                    MaAssetDate = DateTime.Now,
+                    MaFsno = fs.Result.FinancialPeriodsFsno,
+                    MaMainHead = masterAccount.MaMainHead,
+                    MaRelativeNo = masterAccount.MaAccNo,
+                    MaSubHead = masterAccount.MaSubHead,
+                    MaUserId = 0,
+                    MaDateCreated = DateTime.Now,
+                    MaStatus = "A",
+                    MaSno = (maxId + 1)
+                };
+                await _utilityService.SaveMasterAccountTable(masterAccountsTable);
 
                 itemrepository.Insert(itemMaster);
                 return this.GetAllItem();
@@ -169,16 +203,22 @@ namespace Inspire.Erp.Application.Master
 
         }
 
-        public ItemMaster NewItem(ItemMaster itemMaster)
+        public async Task<ItemMaster> NewItem(ItemMaster itemMaster)
         {
             bool valid = false;
             try
             {
                 valid = true;
+                var fs = await _utilityService.GetFinancialPeriods();
+
+                var maxId = await _masterAccRepo.GetAsQueryable().MaxAsync(x => x.MaSno);
+                string accNo = "IT" + (maxId + 1);
+
                 itemMaster.ItemMasterItemId = Convert.ToInt32(itemrepository.GetAsQueryable()
                                              .Where(x => x.ItemMasterItemId > 0)
                                              .DefaultIfEmpty()
                                              .Max(o => o == null ? 0 : o.ItemMasterItemId)) + 1;
+
                 itemMaster.ItemMasterMaterialCode = itemMaster.ItemMasterItemId.ToString();
 
                 itemMaster.ItemImages = itemMaster.ItemImages.AsEnumerable().Select(k =>
@@ -186,6 +226,27 @@ namespace Inspire.Erp.Application.Master
                     k.ItemImagesItemImageId = null;
                     return k;
                 }).ToList();
+
+                itemMaster.ItemMasterReffAcNo = accNo;
+
+                var masterAccount = _masterAccRepo.GetAsQueryable().Where(x => x.MaAccNo == ItemRelativeNo).FirstOrDefault();
+                MasterAccountsTable masterAccountsTable = new MasterAccountsTable()
+                {
+                    MaAccName = itemMaster.ItemMasterItemName,
+                    MaAccNo = accNo,
+                    MaAccType = "A",
+                    MaImageKey = masterAccount.MaImageKey,
+                    MaAssetDate = DateTime.Now,
+                    MaFsno = fs.Result.FinancialPeriodsFsno,
+                    MaMainHead = masterAccount.MaMainHead,
+                    MaRelativeNo = masterAccount.MaAccNo,
+                    MaSubHead = masterAccount.MaSubHead,
+                    MaUserId = 0,
+                    MaDateCreated = DateTime.Now,
+                    MaStatus = "A",
+                    MaSno = (maxId + 1)
+                };
+                await _utilityService.SaveMasterAccountTable(masterAccountsTable);
                 itemrepository.Insert(itemMaster);
                 return itemMaster;
             }
