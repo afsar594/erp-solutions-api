@@ -4527,7 +4527,7 @@ namespace Inspire.Erp.Application.Master
                     var settDetail = new POS_SettlementDet()
                     {
                       //  SettlementDetId = settDetailsId,
-                        OrderId = orderId,
+                        OrderId = salesVoucherNo,
                         Amount = saleTD.Amount,
                         Status = "Y",
                         Date = DateTime.Now,//to be changed
@@ -5255,7 +5255,7 @@ namespace Inspire.Erp.Application.Master
                     ShortNo = voucherId,
                     VoucherDate = DateTime.Now,//Format(AppLogDates, "dd/MMM/yyyy hh:mm:ss")
                     Voucher_Type = transType,
-                    CustomerName = custDetails.CustomerMasterCustomerName,
+                    CustomerName = custDetails == null ? null : custDetails.CustomerMasterCustomerName,
                     Customer_ID = model.CustomerId,
                     Location = model.LocationId,
                     Salesman = model.SalesManId,
@@ -5275,7 +5275,7 @@ namespace Inspire.Erp.Application.Master
                     Currency_ID = Convert.ToInt64(defaultCur),
                     Cust_PODate = DateTime.Now,//Format(AppLogDates, "dd/MMM/yyyy hh:mm:ss"),
                     NetDiscount = model.BillDiscount,
-                    CashCustName = custDetails.CustomerMasterCustomerName,
+                    CashCustName = custDetails==null?null: custDetails.CustomerMasterCustomerName,
                     Shipping_Address = "",
                     InvoiceType = "POS",
                     InvoiceStatus = "",
