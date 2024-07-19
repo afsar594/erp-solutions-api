@@ -8994,10 +8994,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.ItemMasterWeightN).HasColumnName("Item_Master_Weight_N");
 
-                entity.Property(e => e.ItemMasterReffAcNo)
-                 .HasColumnName("Item_Master_Reff_AC_NO")
-                 .HasMaxLength(50)
-                 .IsUnicode(false);
+            
             });
             ///================================================================================
 

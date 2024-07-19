@@ -149,7 +149,7 @@ namespace Inspire.Erp.Application.Master
             _cardDetailsRepo = cardDetailsRepo;
             _masterAccRepo = masterAccRepo;
             _utilityService = utilityService;
-            ItemRelativeNo = config["ApplicationSettings:ItemRelativeNo"];
+          
         }
         public async Task<IEnumerable<ItemMaster>> InsertItem(ItemMaster itemMaster)
         {
@@ -157,35 +157,10 @@ namespace Inspire.Erp.Application.Master
             try
             {
                 valid = true;
-                var fs = await _utilityService.GetFinancialPeriods();
-                var maxId = await _masterAccRepo.GetAsQueryable().MaxAsync(x => x.MaSno);
-                string accNo = "IT" + (maxId + 1);
-
-                itemMaster.ItemMasterItemId = Convert.ToInt32(itemrepository.GetAsQueryable()
+                itemMaster.ItemMasterItemId = Convert.ToInt32(await itemrepository.GetAsQueryable()
                                              .Where(x => x.ItemMasterItemId > 0)
                                              .DefaultIfEmpty()
-                                             .Max(o => o == null ? 0 : o.ItemMasterItemId)) + 1;
-
-                itemMaster.ItemMasterReffAcNo = accNo;
-
-                var masterAccount = _masterAccRepo.GetAsQueryable().Where(x => x.MaAccNo == ItemRelativeNo).FirstOrDefault();
-                MasterAccountsTable masterAccountsTable = new MasterAccountsTable()
-                {
-                    MaAccName = itemMaster.ItemMasterItemName,
-                    MaAccNo = accNo,
-                    MaAccType = "A",
-                    MaImageKey = masterAccount.MaImageKey,
-                    MaAssetDate = DateTime.Now,
-                    MaFsno = fs.Result.FinancialPeriodsFsno,
-                    MaMainHead = masterAccount.MaMainHead,
-                    MaRelativeNo = masterAccount.MaAccNo,
-                    MaSubHead = masterAccount.MaSubHead,
-                    MaUserId = 0,
-                    MaDateCreated = DateTime.Now,
-                    MaStatus = "A",
-                    MaSno = (maxId + 1)
-                };
-                await _utilityService.SaveMasterAccountTable(masterAccountsTable);
+                                             .MaxAsync(o => o == null ? 0 : o.ItemMasterItemId)) + 1;
 
                 itemrepository.Insert(itemMaster);
                 return this.GetAllItem();
@@ -209,16 +184,10 @@ namespace Inspire.Erp.Application.Master
             try
             {
                 valid = true;
-                var fs = await _utilityService.GetFinancialPeriods();
-
-                var maxId = await _masterAccRepo.GetAsQueryable().MaxAsync(x => x.MaSno);
-                string accNo = "IT" + (maxId + 1);
-
-                itemMaster.ItemMasterItemId = Convert.ToInt32(itemrepository.GetAsQueryable()
-                                             .Where(x => x.ItemMasterItemId > 0)
-                                             .DefaultIfEmpty()
-                                             .Max(o => o == null ? 0 : o.ItemMasterItemId)) + 1;
-
+                itemMaster.ItemMasterItemId = Convert.ToInt32(await itemrepository.GetAsQueryable()
+                                              .Where(x => x.ItemMasterItemId > 0)
+                                              .DefaultIfEmpty()
+                                              .MaxAsync(o => o == null ? 0 : o.ItemMasterItemId)) + 1;
                 itemMaster.ItemMasterMaterialCode = itemMaster.ItemMasterItemId.ToString();
 
                 itemMaster.ItemImages = itemMaster.ItemImages.AsEnumerable().Select(k =>
@@ -226,27 +195,6 @@ namespace Inspire.Erp.Application.Master
                     k.ItemImagesItemImageId = null;
                     return k;
                 }).ToList();
-
-                itemMaster.ItemMasterReffAcNo = accNo;
-
-                var masterAccount = _masterAccRepo.GetAsQueryable().Where(x => x.MaAccNo == ItemRelativeNo).FirstOrDefault();
-                MasterAccountsTable masterAccountsTable = new MasterAccountsTable()
-                {
-                    MaAccName = itemMaster.ItemMasterItemName,
-                    MaAccNo = accNo,
-                    MaAccType = "A",
-                    MaImageKey = masterAccount.MaImageKey,
-                    MaAssetDate = DateTime.Now,
-                    MaFsno = fs.Result.FinancialPeriodsFsno,
-                    MaMainHead = masterAccount.MaMainHead,
-                    MaRelativeNo = masterAccount.MaAccNo,
-                    MaSubHead = masterAccount.MaSubHead,
-                    MaUserId = 0,
-                    MaDateCreated = DateTime.Now,
-                    MaStatus = "A",
-                    MaSno = (maxId + 1)
-                };
-                await _utilityService.SaveMasterAccountTable(masterAccountsTable);
                 itemrepository.Insert(itemMaster);
                 return itemMaster;
             }
