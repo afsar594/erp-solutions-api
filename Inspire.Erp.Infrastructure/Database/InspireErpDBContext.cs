@@ -4041,7 +4041,9 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<CardDetails>(entity =>
             {
-                entity.HasNoKey();
+                //entity.HasNoKey();
+
+                entity.HasKey(e => e.CardDetailsId);
 
                 entity.ToTable("Card_Details");
 
