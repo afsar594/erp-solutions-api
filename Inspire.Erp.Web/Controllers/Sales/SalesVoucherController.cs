@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Web.Common;
-using Inspire.Erp.Web.MODULE;
 
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
@@ -32,7 +31,7 @@ namespace Inspire.Erp.Web.Controllers
         private IRepository<ItemMaster> itemrepository;
         private readonly IRepository<SuppliersMaster> supplierrepository;
         private IRepository<UnitMaster> unitrepository; private IRepository<VendorMaster> Brandrepository;
-        private IRepository<CostCenterMaster> costcenterrepository;
+        private IRepository<CostCenterMaster> costcenterrepository; private IRepository<AccountSettings> _accountsSettingsRepo;
         private IRepository<JobMaster> jobrepository; private IRepository<LocationMaster> locationrepository;
         private IRepository<CurrencyMaster> currencyrepository; private IRepository<CustomerMaster> _customerMasterRepository;
         private IChartofAccountsService chartofAccountsService; private IRepository<SalesManMaster> salesmanrepository;
@@ -42,7 +41,7 @@ namespace Inspire.Erp.Web.Controllers
         private IRepository<UnitDetails> _UnitDetailsRepository;
         public SalesVoucherController(ISalesVoucherService salesVoucherService, IMapper mapper, IRepository<UnitDetails> unitDetailsRepository,
              IRepository<ItemMaster> _itemrepository,
-            IRepository<SuppliersMaster> _supplierrepository, IRepository<VendorMaster> _Brandrepository,
+            IRepository<SuppliersMaster> _supplierrepository, IRepository<VendorMaster> _Brandrepository, IRepository<AccountSettings> accountsSettingsRepo,
             IRepository<UnitMaster> _unitrepository, IRepository<LocationMaster> _locationrepository, IRepository<SalesManMaster> _salesmanrepository
             , IRepository<CostCenterMaster> _countryrepository, IRepository<DepartmentMaster> _departmentrepository, IRepository<CustomerMaster> customerMasterRepository
             , IRepository<JobMaster> _jobrepository, IRepository<CurrencyMaster> _currencyrepository, IChartofAccountsService _chartofAccountsService)
@@ -53,7 +52,7 @@ namespace Inspire.Erp.Web.Controllers
             supplierrepository = _supplierrepository; _customerMasterRepository = customerMasterRepository;
             itemrepository = _itemrepository; unitrepository = _unitrepository; Brandrepository = _Brandrepository;
             costcenterrepository = _countryrepository; departmentrepository = _departmentrepository;
-            jobrepository = _jobrepository; locationrepository = _locationrepository;
+            jobrepository = _jobrepository; locationrepository = _locationrepository; _accountsSettingsRepo = accountsSettingsRepo;
             currencyrepository = _currencyrepository; chartofAccountsService = _chartofAccountsService;
         }
 
@@ -554,7 +553,7 @@ namespace Inspire.Erp.Web.Controllers
                      {
                          k.ItemMasterItemId,
                          k.ItemMasterItemName
-                     }).ToList();            
+                     }).ToList();
             var customerMasters = _customerMasterRepository.GetAsQueryable().Where(k => k.CustomerMasterCustomerDelStatus != true).Select(a => new
             {
                 a.CustomerMasterCustomerNo,
@@ -569,7 +568,7 @@ namespace Inspire.Erp.Web.Controllers
             {
                 x.UnitMasterUnitId,
                 x.UnitMasterUnitFullName,
-                UnitMasterUnitShortName=x.UnitMasterUnitShortName.Trim()
+                UnitMasterUnitShortName = x.UnitMasterUnitShortName.Trim()
             }).ToList();
 
             var jobMasters = jobrepository.GetAsQueryable().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
@@ -582,7 +581,7 @@ namespace Inspire.Erp.Web.Controllers
                 c.CurrencyMasterCurrencyId,
                 c.CurrencyMasterCurrencyName,
                 c.CurrencyMasterCurrencyRate
-            }).ToList();           
+            }).ToList();
             //var costcenterMasters = costcenterrepository.GetAsQueryable().Where(a => a.CostCenterMasterCostCenterDelStatus != true).Select(c => new
             //{
             //    c.CostCenterMasterCostCenterId,
@@ -609,18 +608,26 @@ namespace Inspire.Erp.Web.Controllers
                 c.SalesManMasterSalesManId,
                 c.SalesManMasterSalesManName,
             }).ToList();
+
+            var accountsSettings = _accountsSettingsRepo.GetAsQueryable().Where(a => a.AccountSettingsAccountDelStatus != true).Select(c => new
+            {
+                c.AccountSettingsAccountId,
+                c.AccountSettingsAccountDescription,
+                c.AccountSettingsAccountTextValue
+            }).ToList();
             objectresponse.ResultSet = new
             {
-                itemMaster = itemMaster,             
+                itemMaster = itemMaster,
                 unitMasters = unitMasters,
                 jobMasters = jobMasters,
-                currencyMasters = currencyMasters,                
-               // costcenterMasters = costcenterMasters,
+                currencyMasters = currencyMasters,
+                // costcenterMasters = costcenterMasters,
                 LocationMaster = LocationMaster,
                 DepartmentsList = DepartmentsList,
                 BrandMasters = BrandMasters,
-                SaleManList= SaleManList,
-                customerMasters= customerMasters
+                SaleManList = SaleManList,
+                customerMasters = customerMasters,
+                accountsSettings = accountsSettings
             };
 
             objectresponse.IsSuccess = true;
