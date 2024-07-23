@@ -5532,7 +5532,8 @@ namespace Inspire.Erp.Application.Master
                         LocationID = model.LocationId,
                         CompanyId = 1,
                         WorkPeriodID = model.WorkPeriodId,
-                        StationID = model.StationId
+                        StationID = model.StationId,
+                        //UnitDetailsId=model.unit
                     };
 
                     posSalesVoucherDetailsRepo.Insert(salesVDetails);

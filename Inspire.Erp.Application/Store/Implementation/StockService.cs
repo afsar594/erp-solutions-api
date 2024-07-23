@@ -209,6 +209,9 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                             }).FirstOrDefault().Total;
 
+
+
+
                 var rateQuantiyFromStock = await (from sr in _context.StockRegister
                                             where (locationId == null || sr.StockRegisterLocationID == locationId)
                                             && sr.StockRegisterMaterialID == itemId
@@ -242,34 +245,15 @@ namespace Inspire.Erp.Application.Store.Implementation
                 decimal rate = 0;
                 actualQuantity = totalQuantity;
 
-                if(purchseVouchers.Count()>0)
+                if(rateQuantiyFromStock.Count()>0)
                 {
-                    foreach (var pvd in purchseVouchers)
-                    {
-                        rate = pvd.Rate??0;
-                        quantity = pvd.Quantity??0;
-                        if (actualQuantity > 0)
-                        {
-                            if (pvd.Quantity > actualQuantity)
-                            {
-                                quantity = actualQuantity;
-                                actualRate = actualRate + (rate * quantity);
-                                actualQuantity = actualQuantity - quantity;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    //get from item master
-                    var im=  _context.ItemMaster.Where(k => k.ItemMasterItemId == itemId).FirstOrDefault();
                     foreach (var pvd in rateQuantiyFromStock)
                     {
                         rate = pvd.Rate ?? 0;
                         quantity = pvd.Quantity ?? 0;
                         if (actualQuantity > 0)
                         {
-                            if (pvd.Quantity > actualQuantity)
+                            if (pvd.Quantity >= actualQuantity)
                             {
                                 quantity = actualQuantity;
                                 actualRate = actualRate + (rate * quantity);
@@ -278,6 +262,30 @@ namespace Inspire.Erp.Application.Store.Implementation
                         }
                     }
                 }
+                else if (purchseVouchers.Count() > 0)
+                {
+                    foreach (var pvd in purchseVouchers)
+                    {
+                        rate = pvd.Rate ?? 0;
+                        quantity = pvd.Quantity ?? 0;
+                        if (actualQuantity > 0)
+                        {
+                            if (pvd.Quantity >= actualQuantity)
+                            {
+                                quantity = actualQuantity;
+                                actualRate = actualRate + (rate * quantity);
+                                actualQuantity = actualQuantity - quantity;
+                            }
+                        }
+                    }
+                   
+                }
+                else
+                {
+                    //get from item master
+                    var im = _context.ItemMaster.Where(k => k.ItemMasterItemId == itemId).FirstOrDefault();
+                }
+
                 decimal returnAvgPrice = 0;
                 if (totalQuantity<=0)
                 {
