@@ -500,7 +500,8 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                 .Where(d => purchaseOrderNos.Contains(d.PurchaseOrderDetailsNo))
                 .Select(d => new
                 {
-                    POID = d.PurchaseOrderDetailsId,
+                    PODID = d.PurchaseOrderDetailsId,
+                    POID = d.PurchaseOrderId,
                     PONO = d.PurchaseOrderDetailsNo,
                     itemId = d.PurchaseOrderDetailsMatId,
                     itemname = materialList
