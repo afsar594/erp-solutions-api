@@ -213,6 +213,25 @@ namespace Inspire.Erp.Application.Authentication.Implementations
             var user = userFileRepository.GetAsQueryable().Where(x => x.UserId == id).SingleOrDefault();
             return user;
         }
+        public IEnumerable<UserFile> GetAllUserFile()
+        {
+            IEnumerable<UserFile> UserFile;
+            try
+            {
+                UserFile = userFileRepository.GetAll();
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+            finally
+            {
+                //userFileRepository.Dispose();
+            }
+            return UserFile;
+        }
         public UserFile InsertUser(UserFile user)
         {
 
