@@ -62,6 +62,5 @@ namespace Inspire.Erp.Web.ViewModels.Store
 
         //public List<StockRegisterViewModel> StockRegister { get; set; }
 
-
     }
 }
