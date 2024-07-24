@@ -51,6 +51,13 @@ namespace Inspire.Erp.Domain.Modals
 
 
     }
+
+    public class VoidRequest
+    {
+        public decimal? ItemDiscount { get; set; }
+        public bool BillDisp { get; set; }
+        public int UserId { get; set; }
+    }
     public class CardAmountRequest
     {
 
@@ -231,6 +238,14 @@ namespace Inspire.Erp.Domain.Modals
       
         public bool? ShowInInvoice { get; set; }
     
+    }
+
+    public class VoidResponse
+    {
+    
+        public string Message { get; set; }
+      
+
     }
     public class BillRecallItemResponse
     {
