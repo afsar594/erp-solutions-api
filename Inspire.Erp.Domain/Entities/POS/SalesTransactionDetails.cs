@@ -76,7 +76,7 @@ namespace Inspire.Erp.Domain.Entities
 
     public class PosReportFilterModel
     {
-        public int workPeriodId { get; set; }
+        public int wpId { get; set; }
         public int stationId { get; set; }
         public DateTime fromDate { get; set; }
         public DateTime toDate { get; set; }

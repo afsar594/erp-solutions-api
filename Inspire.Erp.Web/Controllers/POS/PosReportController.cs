@@ -196,7 +196,7 @@ namespace Inspire.Erp.Web.Controllers.POS
         [Route("GetSalesTransactionCash")]
         public async Task<List<POS_SummaryDateWiseReport>> GetSalesTransactionCash(PosReportFilterModel model)
         {
-            return await _posReportService.GetSalesTransactionCash(model.workPeriodId, model.stationId, model.fromDate, model.toDate);
+            return await _posReportService.GetSalesTransactionCash(model.wpId, model.stationId, model.fromDate, model.toDate);
 
         }
 
@@ -204,7 +204,7 @@ namespace Inspire.Erp.Web.Controllers.POS
         [Route("GetSalesTransactionCard")]
         public async Task<List<POS_SummaryDateWiseReport>> GetSalesTransactionCard(PosReportFilterModel model)
         {
-            return await _posReportService.GetSalesTransactionCard(model.workPeriodId, model.stationId, model.fromDate, model.toDate);
+            return await _posReportService.GetSalesTransactionCard(model.wpId, model.stationId, model.fromDate, model.toDate);
 
         }
 
@@ -212,7 +212,7 @@ namespace Inspire.Erp.Web.Controllers.POS
         [Route("GetTodaySalesByDate")]
         public async Task<POS_MaintodaySales> GetTodaySalesByDate(PosReportFilterModel model)
         {
-            return await _posReportService.GetTodaySalesByDate(model.workPeriodId, model.stationId, model.fromDate, model.toDate);
+            return await _posReportService.GetTodaySalesByDate(model.wpId, model.stationId, model.fromDate, model.toDate);
 
         }
         [HttpPost]
