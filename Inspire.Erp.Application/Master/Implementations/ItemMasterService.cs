@@ -733,7 +733,7 @@ namespace Inspire.Erp.Application.Master
             {
                 result.SalesTax1 = (100 + result.SalesTax);
                 result.SalesTax1 = (result.SalesTax1 / (decimal)100);
-                result.UnitPrice = (double)Math.Round((decimal)result.UnitPriceTaxIncl / result.SalesTax1, 2);
+                result.UnitPrice =Math.Round((decimal)result.UnitPriceTaxIncl / result.SalesTax1, 2);
                 // 'Unitprice = Math.Round(Val(Val(UpriceTaxIncl) / 1.05), 2)
                 result.VATValue = (decimal)Math.Round((decimal)result.UnitPriceTaxIncl - (decimal)result.UnitPrice, 2);
             }
@@ -743,7 +743,7 @@ namespace Inspire.Erp.Application.Master
             }
             else if (result.SalesTax == 0)
             {
-                result.UnitPrice = (double)Math.Round((decimal)result.UnitPriceTaxIncl, 2);
+                result.UnitPrice =Math.Round((decimal)result.UnitPriceTaxIncl, 2);
                 result.VATValue = (decimal)Math.Round(0.0, 2);
             }
             return result;
@@ -795,7 +795,7 @@ namespace Inspire.Erp.Application.Master
             {
                 result.SalesTax1 = (100 + result.SalesTax);
                 result.SalesTax1 = (result.SalesTax1 / (decimal)100);
-                result.UnitPrice = (double)Math.Round((decimal)result.UnitPriceTaxIncl / result.SalesTax1, 2);
+                result.UnitPrice = Math.Round((decimal)result.UnitPriceTaxIncl / result.SalesTax1, 2);
                 // 'Unitprice = Math.Round(Val(Val(UpriceTaxIncl) / 1.05), 2)
                 result.VATValue = (decimal)Math.Round((decimal)result.UnitPriceTaxIncl - (decimal)result.UnitPrice, 2);
             }
@@ -805,7 +805,7 @@ namespace Inspire.Erp.Application.Master
             }
             else if (result.SalesTax == 0)
             {
-                result.UnitPrice = (double)Math.Round((decimal)result.UnitPriceTaxIncl, 2);
+                result.UnitPrice = Math.Round((decimal)result.UnitPriceTaxIncl, 2);
                 result.VATValue = (decimal)Math.Round(0.0, 2);
             }
             return result;
@@ -843,7 +843,7 @@ namespace Inspire.Erp.Application.Master
                                         UnitDetailsId = ud.UnitDetailsId,
                                         BarCode = ud.UnitDetailsBarcode,
                                         ItemName = ir.ItemMasterItemName,
-                                        UnitPrice = ud.UnitDetailsUnitPrice,
+                                        UnitPrice = (decimal)ud.UnitDetailsUnitPrice,
                                         ItemId = ir.ItemMasterItemId,
                                     }).GroupBy(
                                     m => new { m.ItemId, m.ItemName, m.UnitDetailsId, m.UnitPrice, m.BarCode }
@@ -3037,7 +3037,7 @@ namespace Inspire.Erp.Application.Master
                                     {
                                         BarCode = ud.UnitDetailsBarcode,
                                         ItemName = ir.Description,
-                                        UnitPrice = ud.UnitDetailsUnitPrice,
+                                        UnitPrice = ir.UnitPrice,
                                         ItemId = ir.ItemId,
                                         UnitName=umd.UnitMasterUnitShortName,
                                         Quantity = (int)ir.Sold_Qty,
@@ -3058,7 +3058,10 @@ namespace Inspire.Erp.Application.Master
             {
                 var billRecall = new BillRecallResponse();
                 var itemsDetails = await (from ir in posSalesVoucherDetailsRepo.GetAsQueryable()
-                                    where ir.VoucherNo.Trim() == voucherNo
+                                          join ud in _unitDetailsRepo.GetAsQueryable() on ir.ItemId equals ud.UnitDetailsItemId
+                                          join um in _unitMasterRepo.GetAsQueryable() on ud.UnitDetailsUnitId equals um.UnitMasterUnitId into umJoin
+                                          from umd in umJoin.DefaultIfEmpty()
+                                          where ir.VoucherNo.Trim() == voucherNo
                                     //select new ItemMasterResponse
                                     //{
 
@@ -3095,8 +3098,9 @@ namespace Inspire.Erp.Application.Master
                     Discount = ir.Discount,
                     VatAmount = ir.VatAmount,
                     VatableAmt=ir.VatableAmt,
-                    UnitDetailsId = ir.UnitDetailsId
-
+                    UnitDetailsId = ud.UnitDetailsId,
+                    BarCode=ud.UnitDetailsBarcode,
+                    UnitName = umd.UnitMasterUnitShortName.Trim(),
                 }).ToListAsync();
 
                 var settDetails = await (from sdr in settDetailsRepo.GetAsQueryable()
@@ -3228,7 +3232,7 @@ namespace Inspire.Erp.Application.Master
                                         UnitDetailsId = ud.UnitDetailsId,
                                         BarCode = ud.UnitDetailsBarcode,
                                         ItemName = ir.ItemMasterItemName,
-                                        UnitPrice = ud.UnitDetailsUnitPrice,
+                                        UnitPrice = (decimal)ud.UnitDetailsUnitPrice,
                                         ItemId = ir.ItemMasterItemId,
                                         UnitPriceTaxIncl = ud.UnitDetailsUnitPrice,
                                         SalesTax = ir.ItemMasterVatPercentage ?? 0,
@@ -3261,7 +3265,7 @@ namespace Inspire.Erp.Application.Master
                 {
                     result.SalesTax1 = (100 + result.SalesTax);
                     result.SalesTax1 = (result.SalesTax1 / (decimal)100);
-                    result.UnitPrice = (double)Math.Round((decimal)result.UnitPriceTaxIncl / result.SalesTax1, 2);
+                    result.UnitPrice = Math.Round((decimal)result.UnitPriceTaxIncl / result.SalesTax1, 2);
                     // 'Unitprice = Math.Round(Val(Val(UpriceTaxIncl) / 1.05), 2)
                     result.VATValue = (decimal)Math.Round((decimal)result.UnitPriceTaxIncl - (decimal)result.UnitPrice, 2);
                 }
@@ -3271,7 +3275,7 @@ namespace Inspire.Erp.Application.Master
                 }
                 else if (result.SalesTax == 0)
                 {
-                    result.UnitPrice = (double)Math.Round((decimal)result.UnitPriceTaxIncl, 2);
+                    result.UnitPrice = Math.Round((decimal)result.UnitPriceTaxIncl, 2);
                     result.VATValue = (decimal)Math.Round(0.0, 2);
                 }
                 result.Quantity = 1;
@@ -5532,7 +5536,8 @@ namespace Inspire.Erp.Application.Master
                         LocationID = model.LocationId,
                         CompanyId = 1,
                         WorkPeriodID = model.WorkPeriodId,
-                        StationID = model.StationId
+                        StationID = model.StationId,
+                        //UnitDetailsId=model.unit
                     };
 
                     posSalesVoucherDetailsRepo.Insert(salesVDetails);

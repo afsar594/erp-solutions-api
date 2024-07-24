@@ -14,7 +14,7 @@ namespace Inspire.Erp.Domain.Modals
         public bool ItemwiseInclusive { get; set; }
         public string BarCode { get; set; }
         public string UnitName { get; set; }
-        public double? UnitPrice { get; set; }
+        public decimal? UnitPrice { get; set; }
         public double? UnitPriceTaxIncl { get; set; }
         public decimal? VATValue { get; set; }
         public double? OfferPrice { get; set; }
