@@ -164,7 +164,7 @@ namespace Inspire.Erp.Web.Controllers
             var unitMasters = unitrepository.GetAsQueryable().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
             {
                 x.UnitMasterUnitId,
-                x.UnitMasterUnitFullName,
+                UnitMasterUnitFullName = x.UnitMasterUnitFullName.Trim(),
                 UnitMasterUnitShortName = x.UnitMasterUnitShortName.Trim(),
             }).ToList();
 

@@ -70,12 +70,18 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 this.deleteAccountTractionByVoucherId(purchaseRequisition.PurchaseRequisitionNo, VoucherType.PurchaseRequisition_TYPE);
                 purchaseRequisition.PurchaseRequisitionDetails = purchaseRequisitionDetails.Select((k) =>
                 {
-                    //if (k.PurchaseRequisitionDetailsId == 0)
-                    //{
-                    k.PurchaseRequisitionId = purchaseRequisition.PurchaseRequisitionId;
-                    k.PurchaseRequisitionDetailsNo = purchaseRequisition.PurchaseRequisitionNo;
-                    //k.PurchaseRequisitionDetailsId = 0;
-                    //}
+                    if (k.PurchaseRequisitionDetailsId == 0)
+                    {
+                        k.PurchaseRequisitionId = purchaseRequisition.PurchaseRequisitionId;
+                        k.PurchaseRequisitionDetailsNo = purchaseRequisition.PurchaseRequisitionNo;
+                        k.PurchaseRequisitionDetailsId = null;
+                    }
+                    else
+                    {
+                        k.PurchaseRequisitionId = purchaseRequisition.PurchaseRequisitionId;
+                        k.PurchaseRequisitionDetailsNo = purchaseRequisition.PurchaseRequisitionNo;
+
+                    }
 
                     return k;
                 }).ToList();
@@ -597,7 +603,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                             {
                                 Tracking_Register_Details_ID = trGroup.Key,
                                 DelQty = trGroup.Sum(tr => tr.TrackingRegisterQtyout ?? 0),
-                                Stock = trGroup.Sum(tr => tr.TrackingRegisterQtyin  ?? 0 - tr.TrackingRegisterQtyout ?? 0)
+                                Stock = trGroup.Sum(tr => tr.TrackingRegisterQtyin ?? 0 - tr.TrackingRegisterQtyout ?? 0)
                             }
                         ) on sd.PurchaseRequisitionDetailsId equals srq.Tracking_Register_Details_ID into srqGroup
                         from srq in srqGroup.DefaultIfEmpty()
@@ -612,12 +618,12 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                             SRID = sm.PurchaseRequisitionId,
                             SRNo = sm.PurchaseRequisitionNo ?? "",
                             Date = sm.PurchaseRequisitionDate,
-                            SRQ = sd.PurchaseRequisitionDetailsQuantity??0,
+                            SRQ = sd.PurchaseRequisitionDetailsQuantity ?? 0,
                             BalQty = (sd.PurchaseRequisitionDetailsQuantity - srq?.DelQty) ?? 0,
                             matId = sd.PurchaseRequisitionDetailsMatId ?? 0,
                             unitid = sd.PurchaseRequisitionDetailsUnitId,
-                            jobid=sm.PurchaseRequisitionJobId,
-                            Stock= srq?.Stock ??0
+                            jobid = sm.PurchaseRequisitionJobId,
+                            Stock = srq?.Stock ?? 0
                         }).ToList();
 
 

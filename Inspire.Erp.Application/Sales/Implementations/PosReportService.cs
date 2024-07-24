@@ -133,21 +133,51 @@ namespace Inspire.Erp.Application.Sales.Implementations
             {
                 fromDate = fromDate.Date; toDate = toDate.Date;
 
-                var result = await (from c in _dbContext.POS_SalesVoucher
-                                    join d in _dbContext.POS_SalesTransactionDetails on c.VoucherNo equals d.InvoiceNo
-                                    where c.WorkPeriodID == wpId && c.StationID == stationId
-                                    && c.VoucherDate.Value.Date >= fromDate && c.VoucherDate.Value.Date <= toDate
-                                    select new POS_todaySalesByDate
-                                    {
-                                        VoucherNo = c.VoucherNo,
-                                        CustomerName = c.CustomerName,
-                                        PaymentMode = c.Voucher_Type,
-                                        Discount = (d.PaymentMode.Equals("DISNT") ? (decimal)d.Amount : 0m),
-                                        NetAmount = (d.PaymentMode.Equals("NET") ? (decimal)d.Amount : 0m),
-                                        GrossAmount = (d.PaymentMode.Equals("CAS") ? (decimal)d.Amount : d.PaymentMode.Equals("CARD") ? (decimal)d.Amount : 0m),
-                                        VatAmount = (d.PaymentMode.Equals("VAT") ? (decimal)d.Amount : 0m),
-                                        VoucherDate = c.VoucherDate
-                                    }).ToListAsync();
+                //var result = await (from c in _dbContext.POS_SalesVoucher
+                //                    join d in _dbContext.POS_SalesTransactionDetails on c.VoucherNo equals d.InvoiceNo
+                //                    where c.WorkPeriodID == wpId && c.StationID == stationId
+                //                    && c.VoucherDate.Value.Date >= fromDate && c.VoucherDate.Value.Date <= toDate
+                //                    select new POS_todaySalesByDate
+                //                    {
+                //                        VoucherNo = c.VoucherNo,
+                //                        CustomerName = c.CustomerName,
+                //                        PaymentMode = c.Voucher_Type,
+                //                        Discount = (d.PaymentMode.Equals("DISNT") ? (decimal)d.Amount : 0m),
+                //                        NetAmount = (d.PaymentMode.Equals("NET") ? (decimal)d.Amount : 0m),
+                //                        GrossAmount = (d.PaymentMode.Equals("CASH") ? (decimal)d.Amount : d.PaymentMode.Equals("CARD") ? (decimal)d.Amount : 0m),
+                //                        VatAmount = (d.PaymentMode.Equals("VAT") ? (decimal)d.Amount : 0m),
+                //                        VoucherDate = c.VoucherDate
+                //                    }).Distinct().ToListAsync();
+                
+                var rawData = await (from c in _dbContext.POS_SalesVoucher
+                                     join d in _dbContext.POS_SalesTransactionDetails on c.VoucherNo equals d.InvoiceNo
+                                     where c.WorkPeriodID == wpId && c.StationID == stationId
+                                     && c.VoucherDate.Value.Date >= fromDate && c.VoucherDate.Value.Date <= toDate
+                                     select new
+                                     {
+                                         c.VoucherNo,
+                                         c.CustomerName,
+                                         c.Voucher_Type,
+                                         d.PaymentMode,
+                                         d.Amount,
+                                         c.VoucherDate
+                                     }).ToListAsync();
+
+               
+                var result = rawData.GroupBy(
+                    x => new { x.VoucherNo, x.CustomerName, x.Voucher_Type, x.VoucherDate })
+                    .Select(g => new POS_todaySalesByDate
+                    {
+                        VoucherNo = g.Key.VoucherNo,
+                        CustomerName = g.Key.CustomerName,
+                        PaymentMode = g.Key.Voucher_Type,
+                        Discount = g.Where(x => x.PaymentMode == "DISNT").Sum(x => (decimal?)x.Amount) ?? 0m,
+                        NetAmount = g.Where(x => x.PaymentMode == "NET").Sum(x => (decimal?)x.Amount) ?? 0m,
+                        GrossAmount = g.Where(x => x.PaymentMode == "CASH" || x.PaymentMode == "CARD").Sum(x => (decimal?)x.Amount) ?? 0m,
+                        VatAmount = g.Where(x => x.PaymentMode == "VAT").Sum(x => (decimal?)x.Amount) ?? 0m,
+                        VoucherDate = g.Key.VoucherDate
+                    }).ToList();
+
 
                 var result1 = await (from c in _dbContext.POS_SalesVoucher
                                      join d in _dbContext.POS_SalesVoucherDetails on c.VoucherNo equals d.VoucherNo
@@ -186,7 +216,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
 
                 var Cashtotal = await _dbContext.POS_SalesTransactionDetails
-                    .Where(a => a.PaymentMode == "CAS" && a.Amount > 0 &&  a.InvoiceDate.Value.Date >= fromDate &&  a.InvoiceDate.Value.Date <= toDate)
+                    .Where(a => a.PaymentMode == "CAS" && a.Amount > 0 && a.InvoiceDate.Value.Date >= fromDate && a.InvoiceDate.Value.Date <= toDate)
                     .GroupBy(c => c.CounterName).Select(x => new TodaySalesByCounterWise
                     {
                         CounterName = x.Key,
@@ -224,7 +254,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                          }).ToListAsync();
 
                 var CreditReturntotal = await _dbContext.POS_SalesTransactionDetails
-                                         .Where(a => a.PaymentMode == "CREDIT" && a.Amount < 0 &&  a.InvoiceDate.Value.Date >= fromDate &&  a.InvoiceDate.Value.Date <= toDate)
+                                         .Where(a => a.PaymentMode == "CREDIT" && a.Amount < 0 && a.InvoiceDate.Value.Date >= fromDate && a.InvoiceDate.Value.Date <= toDate)
                                          .GroupBy(c => c.CounterName).Select(x => new TodaySalesByCounterWise
                                          {
                                              CounterName = x.Key,
@@ -233,7 +263,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
 
                 var salesTotal = await _dbContext.POS_SalesTransactionDetails
-                  .Where(a => a.PaymentMode == "BIL" &&  a.InvoiceDate.Value.Date >= fromDate &&  a.InvoiceDate.Value.Date <= toDate)
+                  .Where(a => a.PaymentMode == "BIL" && a.InvoiceDate.Value.Date >= fromDate && a.InvoiceDate.Value.Date <= toDate)
                   .GroupBy(c => c.CounterName).Select(g => new TodaySalesByCounterWise
                   {
                       CounterName = g.Key,
@@ -242,7 +272,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
 
                 var DiscountTotal = await _dbContext.POS_SalesTransactionDetails
-                  .Where(a => a.PaymentMode == "DISNT" &&  a.InvoiceDate.Value.Date >= fromDate &&  a.InvoiceDate.Value.Date <= toDate)
+                  .Where(a => a.PaymentMode == "DISNT" && a.InvoiceDate.Value.Date >= fromDate && a.InvoiceDate.Value.Date <= toDate)
                   .GroupBy(c => c.CounterName).Select(x => new TodaySalesByCounterWise
                   {
                       CounterName = x.Key,
@@ -251,7 +281,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
 
                 var VatTotal = await _dbContext.POS_SalesTransactionDetails
-                   .Where(a => a.PaymentMode == "VAT" &&  a.InvoiceDate.Value.Date >= fromDate &&  a.InvoiceDate.Value.Date <= toDate)
+                   .Where(a => a.PaymentMode == "VAT" && a.InvoiceDate.Value.Date >= fromDate && a.InvoiceDate.Value.Date <= toDate)
                    .GroupBy(c => c.CounterName).Select(x => new TodaySalesByCounterWise
                    {
                        CounterName = x.Key,
