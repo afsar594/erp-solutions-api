@@ -35,6 +35,7 @@ using Inspire.Erp.Domain.DTO;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Configuration;
 using Inspire.Erp.Application.Common;
+using System.Net;
 
 namespace Inspire.Erp.Application.Master
 {
@@ -3133,6 +3134,35 @@ namespace Inspire.Erp.Application.Master
                 return Response<BillRecallResponse>.Fail(new BillRecallResponse(), ex.Message);
             }
         }
+
+        public async Task<Response<VoidResponse>> VoidBill(VoidRequest model)
+        {
+            try
+            {
+                    var vr = new VoidResponse();
+                     
+                    var tempSettDetails = await settDetailsTempRepo.GetAsQueryable().FirstOrDefaultAsync(o => o.UserId ==model.UserId
+                    && o.TransactionCode.Trim().ToUpper()== "DIS"
+                    );
+                    if (tempSettDetails != null) settDetailsTempRepo.Delete(tempSettDetails);
+
+                 if(model.BillDisp)
+                {
+                    var tempSettDetailsDisnt = await settDetailsTempRepo.GetAsQueryable().FirstOrDefaultAsync(o => o.UserId == model.UserId
+                                                    && o.TransactionCode.Trim().ToUpper() == "DISNT"
+                                                    );
+                    if (tempSettDetailsDisnt != null) settDetailsTempRepo.Delete(tempSettDetailsDisnt);
+                }
+
+
+                return Response<VoidResponse>.Success(vr, "Bill void successfully");
+            }
+            catch (Exception ex)
+            {
+                return Response<VoidResponse>.Fail(new VoidResponse(), ex.Message);
+            }
+        }
+
         public async Task<Response<List<SaleVoucherTempResponse>>> LoadHoldBills(int workPeriodId)
         {
             try

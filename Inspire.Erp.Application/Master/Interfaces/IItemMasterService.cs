@@ -50,8 +50,9 @@ namespace Inspire.Erp.Application.Master
         public Task<Response<SaleVoucherResponse>> Resettlement(string voucherNo);
         public Task<Response<List<SaleVoucherTempResponse>>> LoadHoldBills(int workPeriodId);
 
+        public Task<Response<VoidResponse>> VoidBill(VoidRequest model);
 
-        public  Task<Response<List<SettlementDetailsResponse>>> AddSettlementDetails(SettlementDetailsRequest model);
+        public Task<Response<List<SettlementDetailsResponse>>> AddSettlementDetails(SettlementDetailsRequest model);
         public Task<Response<CardAmountResponse>> CalculateCardAmount(CardAmountRequest model);
         public Task<Response<ProcessCashCardResponse>> ProcessCard(CardRequest model);
 

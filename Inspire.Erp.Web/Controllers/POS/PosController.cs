@@ -89,6 +89,14 @@ namespace Inspire.Erp.Web.Controllers.POS
             return Ok(await itemMasterService.LoadHoldBills(workPeriodId));
         }
 
+
+        [HttpGet]
+        [Route("VoidDiscount")]
+        public async Task<IActionResult> VoidDiscount(VoidRequest voidr)
+        {
+            return Ok(await itemMasterService.VoidBill(voidr));
+        }
+
         [HttpGet]
         [Route("SearchHoldBill")]
         public async Task<IActionResult> SearchHoldBill(string voucherNo)
