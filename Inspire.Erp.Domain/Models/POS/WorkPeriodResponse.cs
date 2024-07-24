@@ -249,6 +249,9 @@ namespace Inspire.Erp.Domain.Modals
         public decimal? VatableAmt { get; set; }
         public int? UnitDetailsId { get; set; }
 
+        public string BarCode { get; set; }
+
+        public string UnitName { get; set; }
     }
     public class CardType
     {
