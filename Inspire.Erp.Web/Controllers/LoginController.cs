@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Inspire.Erp.Application.Authentication.Inerfaces;
+using Inspire.Erp.Application.Master;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Domain.Modals.Common;
@@ -207,6 +208,20 @@ namespace Inspire.Erp.Web.Controllers
                 Valid = true,
                 Result = userdata,
                 Message = UserFileMessage.DeleteUser
+            };
+            return apiResponse;
+        }
+
+
+        [HttpGet]
+        [Route("GetAllUserFile")]
+        public ApiResponse<List<UserFile>> GetAllUserFile()
+        {
+            ApiResponse<List<UserFile>> apiResponse = new ApiResponse<List<UserFile>>
+            {
+                Valid = true,
+                Result = _mapper.Map<List<UserFile>>(loginsvc.GetAllUserFile()),
+                Message = ""
             };
             return apiResponse;
         }
