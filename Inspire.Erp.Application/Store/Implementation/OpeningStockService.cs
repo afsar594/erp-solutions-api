@@ -293,6 +293,17 @@ namespace Inspire.Erp.Application.Store.Implementation
             }
 
         }
+        private decimal getConverionTypebyUnitId(int? itemid, int? unitDetailsid)
+        {
+            try
+            {
+                return (decimal)_openingstockVoucherDetailsRepository.GetAsQueryable().FirstOrDefault(x => x.OpeningStockVoucherDetailsUnitId == itemid && x.OpeningStockVoucherDetailsUnitId == unitDetailsid).OpeningStockVoucherDetailsConversionType;
+            }
+            catch
+            {
+                return 1;
+            }
+        }
 
         public VouchersNumbers GetVouchersNumbers(string pvno)
         {
@@ -359,17 +370,47 @@ namespace Inspire.Erp.Application.Store.Implementation
                 }).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
+                //stockRegister = stockRegister.Select((k) =>
+                //{
+                //    k.StockRegisterVoucherDate = openstockVoucher.OpeningStockVoucherDate;
+                //    k.StockRegisterRefVoucherNo = openingstockVoucherNumber;
+                //    k.StockRegisterTransType = VoucherType.OpeningStockVoucher_TYPE;
+                //    k.StockRegisterStatus = AccountStatus.Approved;
 
 
-                stockRegister = stockRegister.Select((k) =>
+                //    return k;
+                //}).ToList();
+                //_stockRegisterRepository.InsertList(stockRegister);
+
+                var stockReg = new List<StockRegister>();
+                foreach (var item in openstockVoucher.OpeningStockVoucherDetails)
                 {
-                    k.StockRegisterVoucherDate = openstockVoucher.OpeningStockVoucherDate;
-                    k.StockRegisterRefVoucherNo = openingstockVoucherNumber;
-                    k.StockRegisterTransType = VoucherType.OpeningStockVoucher_TYPE;
-                    k.StockRegisterStatus = AccountStatus.Approved;
-                    return k;
-                }).ToList();
-                _stockRegisterRepository.InsertList(stockRegister);
+                    var converontype = this.getConverionTypebyUnitId(item.OpeningStockVoucherDetailsMatId, item.OpeningStockVoucherDetailsUnitId);
+                    var CostPriceBaseUnit = item.OpeningStockVoucherDetailsAmount / converontype;
+                    stockReg.Add(new StockRegister()
+                    {
+                        StockRegisterPurchaseID = openstockVoucher.OpeningStockVoucherNo,
+                        StockRegisterRefVoucherNo = openstockVoucher.OpeningStockVoucherNo,
+                        StockRegisterVoucherDate = openstockVoucher.OpeningStockVoucherDate,
+                        StockRegisterMaterialID = item.OpeningStockVoucherDetailsMatId,
+                        StockRegisterQuantity = item.OpeningStockVoucherDetailsManualQty ?? 0,
+                        StockRegisterSIN = 0,
+                        StockRegisterSout = item.OpeningStockVoucherDetailsManualQty * (converontype) ?? 0,
+                        StockRegisterRate = 0,
+                        StockRegisterAmount =  CostPriceBaseUnit ?? 0,
+                        StockRegisterFCAmount = (CostPriceBaseUnit * item.OpeningStockVoucherDetailsManualQty * converontype) ?? 0,
+                        StockRegisterAssignedDate = DateTime.Now.Date,
+                        StockRegisterStatus = AccountStatus.Approved,
+                        StockRegisterTransType = VoucherType.OpeningStockVoucher_TYPE,
+                        StockRegisterUnitID = item.OpeningStockVoucherDetailsUnitId,
+                        StockRegisterLocationID = openstockVoucher.OpeningStockVoucherLocationId,
+                        StockRegisterJobID = (int)item.OpeningStockVoucherDetailsJob_Id,
+                        StockRegisterExpDate = DateTime.Now.Date,
+                        StockRegisterDepID =1,
+                        StockRegisterDelStatus = false
+                    });
+                }
+                _stockRegisterRepository.InsertList(stockReg);
 
                 _openingstockVoucherRepository.Insert(openstockVoucher);
 
