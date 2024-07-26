@@ -706,7 +706,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                         Quantity = (int)pod.PurchaseOrderDetailsQuantity,
                                         BalanceQuantity = (int)pod.PurchaseOrderDetailsQuantity - (_purchaseVoucherDetailsRepo.GetAsQueryable().Where(pr => 
                                         (pr.PurchaseVoucherDetailsPodId == pod.PurchaseOrderDetailsId
-                                          // && pr.PurchaseVoucherDetailsMaterialId == pod.PurchaseOrderDetailsMatId
+                                           && pr.PurchaseVoucherDetailsMaterialId == pod.PurchaseOrderDetailsMatId
                                            )
                                         )
                                                                        .Sum(prdq => (int)((prdq.PurchaseVoucherDetailsQuantity) ?? 0))),
