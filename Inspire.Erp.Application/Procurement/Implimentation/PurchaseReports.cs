@@ -124,7 +124,7 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
                              from supplier in supplierGroup.DefaultIfEmpty()
                              join j in _jobMaster.GetAsQueryable() on p.PurchaseOrderJobId equals j.JobMasterJobId into jobGroup
                              from job in jobGroup.DefaultIfEmpty()
-                             join im in _itemMaster.GetAsQueryable() on pd.PurchaseOrderDetailsMatId equals im.ItemMasterItemId into itemGroup
+                             join im in _itemMaster.GetAsQueryable() on (long)pd.PurchaseOrderDetailsMatId equals im.ItemMasterItemId into itemGroup
                              from item in itemGroup.DefaultIfEmpty()
                              where p.PurchaseOrderStatus == "OPEN" && !_grnPODetails.GetAsQueryable().Any(g => g.GrnPoDetailsPoId == p.PurchaseOrderId)
                              select new PurchaseOrderList()

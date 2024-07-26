@@ -28,4 +28,19 @@ namespace Inspire.Erp.Application.Common
         public decimal? price { get; set; }
         public decimal? poQty { get; set; }
     }
+
+    public class PODetailsViewModel
+    {
+        public int ItemId { get; set; }
+        public string ItemName { get; set; }
+        public int POId { get; set; }
+
+        public int PODId { get; set; }
+        public string PONo { get; set; }
+        public DateTime PODate { get; set; }
+        public string SupplierName { get; set; }
+        public decimal? Rate { get; set; }
+        public int Quantity { get; set; }
+        public int BalanceQuantity { get; set; }
+    }
 }

@@ -3146,7 +3146,7 @@ namespace Inspire.Erp.Application.Master
                     );
                     if (tempSettDetails != null) settDetailsTempRepo.Delete(tempSettDetails);
 
-                 if(model.BillDisp)
+                if(model.BillDisp)
                 {
                     var tempSettDetailsDisnt = await settDetailsTempRepo.GetAsQueryable().FirstOrDefaultAsync(o => o.UserId == model.UserId
                                                     && o.TransactionCode.Trim().ToUpper() == "DISNT"
