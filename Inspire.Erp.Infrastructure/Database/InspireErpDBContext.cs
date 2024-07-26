@@ -14292,9 +14292,9 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.PurchaseOrderDetailsManfDate).HasColumnType("datetime");
 
-                entity.Property(e => e.PurchaseOrderDetailsMatId)
-                    .HasColumnName("PurchaseOrderDetailsMatID")
-                    .HasColumnType("numeric(18, 0)");
+                entity.Property(e => e.PurchaseOrderDetailsMatId);
+                    //.HasColumnName("PurchaseOrderDetailsMatID")
+                    //.HasColumnType("numeric(18, 0)");
 
                 entity.Property(e => e.PurchaseOrderDetailsNetAmt).HasColumnType("numeric(18, 4)");
 

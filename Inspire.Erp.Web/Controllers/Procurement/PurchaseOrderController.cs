@@ -467,6 +467,21 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                 return StatusCode(500, ex.Message.ToString());
             }
         }
+
+        [HttpGet]
+        [Route("GetGRMPOs/{supplierId}")]
+        public async Task<IActionResult> GetGRMPOs(int supplierId)
+        {
+            try
+            {
+                var item = await _purchaseOrderService.GetGRMPOs(supplierId);
+                return Ok(item);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
+        }
         [HttpGet]
         [Route("GetAllPOForGRN/{id}")]
         public ResponseInfo GetAllPOForGRN(decimal id)
