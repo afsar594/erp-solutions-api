@@ -385,9 +385,9 @@ namespace Inspire.Erp.Application.Store.Implementation
                 var stockReg = new List<StockRegister>();
                 foreach (var item in openstockVoucher.OpeningStockVoucherDetails)
                 {
-                    var converontype = this.getConverionTypebyUnitId(item.OpeningStockVoucherDetailsMatId, item.OpeningStockVoucherDetailsUnitId);
+                    //var converontype = this.getConverionTypebyUnitId(item.OpeningStockVoucherDetailsMatId, item.OpeningStockVoucherDetailsUnitId);
 
-                    var CostPriceBaseUnit = item.OpeningStockVoucherDetailsAmount / converontype;
+                    var CostPriceBaseUnit = item.OpeningStockVoucherDetailsAmount; /// converontype;
                     stockReg.Add(new StockRegister()
                     {
                         StockRegisterPurchaseID = openstockVoucher.OpeningStockVoucherNo,
