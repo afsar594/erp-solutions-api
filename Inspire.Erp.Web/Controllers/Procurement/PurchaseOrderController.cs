@@ -506,33 +506,36 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             var details = _purchaseOrderRepository.GetAsQueryable().Where(a => a.PurchaseOrderDelStatus != true && a.PurchaseOrderPartyId == id).Select(c => new
             {
                 c.PurchaseOrderId,
-                c.PurchaseOrderNo
+                c.PurchaseOrderNo,
+                c.PurchaseOrderDate
             }).ToList();
             var purchaseOrderNos = details.Select(d => d.PurchaseOrderNo).ToList();
 
             // Filtering detailList based on PurchaseOrderNos
-            var data = detailList
-                .Where(d => purchaseOrderNos.Contains(d.PurchaseOrderDetailsNo))
-                .Select(d => new
-                {
-                    PODID = d.PurchaseOrderDetailsId,
-                    POID = d.PurchaseOrderId,
-                    PONO = d.PurchaseOrderDetailsNo,
-                    itemId = d.PurchaseOrderDetailsMatId,
-                    itemname = materialList
+            var data = (from d in detailList
+                        join c in details on d.PurchaseOrderId equals c.PurchaseOrderId
+                        where purchaseOrderNos.Contains(d.PurchaseOrderDetailsNo)
+                        select new
+                        {
+                            PODID = d.PurchaseOrderDetailsId,
+                            POID = d.PurchaseOrderId,
+                            date = c.PurchaseOrderDate.Date,
+                            PONO = d.PurchaseOrderDetailsNo,
+                            itemId = d.PurchaseOrderDetailsMatId,
+                            itemname = materialList
                         .Where(m => m.ItemMasterItemId == (long?)d.PurchaseOrderDetailsMatId)
                         .Select(c => c.ItemMasterItemName ?? "")
                         .FirstOrDefault() ?? "",
-                    unitId = d.PurchaseOrderDetailsUnitId ?? 0,
-                    unit = unitList
+                            unitId = d.PurchaseOrderDetailsUnitId ?? 0,
+                            unit = unitList
                         .Where(u => u.UnitMasterUnitId == (int?)d.PurchaseOrderDetailsUnitId)
                         .Select(c => c.UnitMasterUnitFullName.Trim() ?? "")
                         .FirstOrDefault() ?? "",
-                    price = d.PurchaseOrderDetailsRate ?? 0,
-                    poQty = d.PurchaseOrderDetailsQuantity ?? 0,
-                    QtyIUssued = tracking.Where(a => a.PurOrderRegisterOrderNo == d.PurchaseOrderDetailsNo)
+                            price = d.PurchaseOrderDetailsRate ?? 0,
+                            poQty = d.PurchaseOrderDetailsQuantity ?? 0,
+                            QtyIUssued = tracking.Where(a => a.PurOrderRegisterOrderNo == d.PurchaseOrderDetailsNo)
                     .Sum(c => c.PurOrderRegisterQtyIssued ?? 0),
-                })
+                        })
                 .ToList();
 
             objResponse.ResultSet = new
