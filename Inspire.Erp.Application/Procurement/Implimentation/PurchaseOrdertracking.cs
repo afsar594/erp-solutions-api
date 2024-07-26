@@ -85,7 +85,7 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
                                     from sp in spGroup.DefaultIfEmpty()
                                     join pod in _poDetails.GetAsQueryable() on po.PurchaseOrderId equals pod.PurchaseOrderId into podGroup
                                     from pod in podGroup.DefaultIfEmpty()
-                                    join i in _itemMaster.GetAsQueryable() on pod.PurchaseOrderDetailsMatId equals i.ItemMasterItemId into iGroup
+                                    join i in _itemMaster.GetAsQueryable() on (long)pod.PurchaseOrderDetailsMatId equals i.ItemMasterItemId into iGroup
                                     from i in iGroup.DefaultIfEmpty()
                                     join cm in _curreny.GetAsQueryable() on po.PurchaseOrderCurrencyId equals cm.CurrencyMasterCurrencyId into cmGroup
                                     from cm in cmGroup.DefaultIfEmpty()
