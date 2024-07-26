@@ -704,19 +704,24 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                         SupplierName = sm.SuppliersMasterSupplierName,
                                         Rate = pod.PurchaseOrderDetailsRate,
                                         Quantity = (int)pod.PurchaseOrderDetailsQuantity,
+
                                         BalanceQuantity = (int)pod.PurchaseOrderDetailsQuantity - (_purchaseVoucherDetailsRepo.GetAsQueryable().Where(pr => 
                                         (pr.PurchaseVoucherDetailsPodId == pod.PurchaseOrderDetailsId
                                            && pr.PurchaseVoucherDetailsMaterialId == pod.PurchaseOrderDetailsMatId
                                            )
                                         )
                                                                        .Sum(prdq => (int)((prdq.PurchaseVoucherDetailsQuantity) ?? 0))),
+
+                                        DeliveredQuantity = (_purchaseVoucherDetailsRepo.GetAsQueryable().Where(pr =>
+                                     (pr.PurchaseVoucherDetailsPodId == pod.PurchaseOrderDetailsId
+                                        && pr.PurchaseVoucherDetailsMaterialId == pod.PurchaseOrderDetailsMatId
+                                        )
+                                        )
+                                                                       .Sum(prdq => (int)((prdq.PurchaseVoucherDetailsQuantity) ?? 0))),
                                         //(int)pod.PurchaseOrderDetailsQuantity - 
                                     })
                                     .OrderBy(x => x.PODate).ThenBy(x => x.PONo)
                                     .ToListAsync();
-
-              
-
                 return Response<List<PODetailsViewModel>>.Success(result, "Data found");
             }
             catch (System.Exception ex)

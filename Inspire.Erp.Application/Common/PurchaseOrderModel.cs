@@ -34,7 +34,8 @@ namespace Inspire.Erp.Application.Common
         public int ItemId { get; set; }
         public string ItemName { get; set; }
         public int POId { get; set; }
-
+        public decimal? UnitId { get; set; }
+        public string UnitName { get; set; }
         public int PODId { get; set; }
         public string PONo { get; set; }
         public DateTime PODate { get; set; }
@@ -42,5 +43,7 @@ namespace Inspire.Erp.Application.Common
         public decimal? Rate { get; set; }
         public int Quantity { get; set; }
         public int BalanceQuantity { get; set; }
+
+        public int DeliveredQuantity { get; set; }
     }
 }
