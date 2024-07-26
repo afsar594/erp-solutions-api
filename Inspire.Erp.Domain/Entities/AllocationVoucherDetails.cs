@@ -23,6 +23,8 @@ namespace Inspire.Erp.Domain.Entities
         public int? AllocationVoucherDetailsRefLocationId { get; set; }
         public int? AllocationVoucherDetailsRefFsno { get; set; }
         public bool? AllocationVoucherDetailsDelStatus { get; set; }
+        public string RefSPAccountNo { get; set; }
+        public DateTime? RefSPDate { get; set; }    
         [NotMapped]
         public double AllocationVoucherDetailsNetAllocation { get; set; }
         [NotMapped]
