@@ -76,6 +76,7 @@ namespace Inspire.Erp.Domain.Entities
         public int? ItemMasterVATID { get; set; }
         public bool? ItemMasterDelStatus { get; set; }
 
+ 
         public virtual ICollection<ItemImages> ItemImages { get; set; }
         public virtual ICollection<ItemPriceLevelDetails> ItemPriceLevelDetails { get; set; }
         public virtual ICollection<ItemSupplierDetails> ItemSupplierDetails { get; set; }

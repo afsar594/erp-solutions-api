@@ -30,12 +30,12 @@ namespace Inspire.Erp.Web.Controllers
         private IRepository<UnitMaster> unitrepository;
         private IRepository<CostCenterMaster> costcenterrepository;
         private IRepository<JobMaster> jobrepository; private IRepository<LocationMaster> locationrepository;
-        private IRepository<CurrencyMaster> currencyrepository;
+        private IRepository<CurrencyMaster> currencyrepository; private IRepository<AccountSettings> _accountsSettingsRepo;
         private IChartofAccountsService chartofAccountsService;
         public GRNController(IGRNService grn, IMapper mapper, IRepository<ItemMaster> _itemrepository,
             IRepository<SuppliersMaster> _supplierrepository,
             IRepository<UnitMaster> _unitrepository, IRepository<LocationMaster> _locationrepository
-            , IRepository<CostCenterMaster> _countryrepository
+            , IRepository<CostCenterMaster> _countryrepository, IRepository<AccountSettings> accountsSettingsRepo
             , IRepository<JobMaster> _jobrepository, IRepository<CurrencyMaster> _currencyrepository, IChartofAccountsService _chartofAccountsService
             )
         {
@@ -44,7 +44,7 @@ namespace Inspire.Erp.Web.Controllers
 
             supplierrepository = _supplierrepository;
             itemrepository = _itemrepository; unitrepository = _unitrepository;
-            costcenterrepository = _countryrepository;
+            costcenterrepository = _countryrepository; _accountsSettingsRepo = accountsSettingsRepo;
             jobrepository = _jobrepository; locationrepository = _locationrepository;
             currencyrepository = _currencyrepository; chartofAccountsService = _chartofAccountsService;
         }
@@ -164,8 +164,8 @@ namespace Inspire.Erp.Web.Controllers
             var unitMasters = unitrepository.GetAsQueryable().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
             {
                 x.UnitMasterUnitId,
-                x.UnitMasterUnitFullName,
-                UnitMasterUnitShortName=x.UnitMasterUnitShortName.Trim(),
+                UnitMasterUnitFullName = x.UnitMasterUnitFullName.Trim(),
+                UnitMasterUnitShortName = x.UnitMasterUnitShortName.Trim(),
             }).ToList();
 
             var jobMasters = jobrepository.GetAsQueryable().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
@@ -196,7 +196,12 @@ namespace Inspire.Erp.Web.Controllers
                 c.LocationMasterLocationId,
                 c.LocationMasterLocationName,
             }).ToList();
-
+            var accountsSettings = _accountsSettingsRepo.GetAsQueryable().Where(a => a.AccountSettingsAccountDelStatus != true).Select(c => new
+            {
+                c.AccountSettingsAccountId,
+                c.AccountSettingsAccountDescription,
+                c.AccountSettingsAccountTextValue
+            }).ToList();
 
             objectresponse.ResultSet = new
             {
@@ -207,7 +212,8 @@ namespace Inspire.Erp.Web.Controllers
                 currencyMasters = currencyMasters,
                 masterAccountsTables = masterAccountsTables,
                 costcenterMasters = costcenterMasters,
-                LocationMaster = LocationMaster
+                LocationMaster = LocationMaster,
+                accountsSettings = accountsSettings
             };
 
             objectresponse.IsSuccess = true;

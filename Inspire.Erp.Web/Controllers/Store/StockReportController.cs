@@ -59,13 +59,17 @@ namespace Inspire.Erp.Web.Controllers.Store
 
             var results = await _openingStockService.GetStockReportBaseUnit(model);
             return Ok(results);
-            //ApiResponse<List<StockReportBaseUnitResponse>> apiResponse = new ApiResponse<List<StockReportBaseUnitResponse>>
-            //{
-            //    Valid = true,
-            //    Result = _mapper.Map<List<StockReportBaseUnitResponse>>(_openingStockService.GetStockReportBaseUnitList()),
-            //    Message = ""
-            //};
-            //return apiResponse;
+
+        }
+
+        [HttpPost]
+        [Route("GetAveragePurchasePrice")]
+        public async Task<IActionResult> GetAveragePurchasePrice(int itemId)
+        {
+
+            var results = await _openingStockService.GetAveragePurchasePrice(itemId,null);
+            return Ok(results);
+
         }
         [HttpGet]
         [Route("GetStockReportBaseUnitByItemId/{id}")]

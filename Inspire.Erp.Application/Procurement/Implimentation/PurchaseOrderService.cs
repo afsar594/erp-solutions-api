@@ -13,6 +13,9 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using Inspire.Erp.Domain.Entities.POS;
+using Inspire.Erp.Domain.Modals;
+using System.Threading.Tasks;
+using Inspire.Erp.Infrastructure.Database;
 
 namespace Inspire.Erp.Application.Procurement.Implementation
 {
@@ -33,7 +36,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private readonly IRepository<Approval> _approvalRepo;
         private readonly IRepository<ApprovalDetail> _approvalDetailRepo;
 
-
+        private readonly IRepository<PurchaseVoucherDetails> _purchaseVoucherDetailsRepo;
 
         private IRepository<ItemMaster> _itemMasterRepository;
         private IRepository<UnitMaster> _unitMasterRepository;
@@ -42,6 +45,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private IRepository<UserFile> _userFileRepository;
         private IRepository<UnitDetails> _UnitDetailsRepository;
 
+
+       // private readonly InspireErpDBContext _dbContext;
         //private IRepository<ReportPurchaseOrder> _reportPurchaseOrderRepository;
         public PurchaseOrderService(
             IRepository<UserFile> userFileRepository, IRepository<PermissionApproval> permissionApprovalRepo,
@@ -53,7 +58,13 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
 
-            IRepository<PurchaseOrder> purchaseOrderRepository, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository, IRepository<PurchaseReturn> purchaseReturnRepository, IRepository<PurchaseReturnDetails> purchaseReturnDetailsRepository, IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PurOrderRegister> purOrderRegisterRepository, IRepository<UnitDetails> unitDetailsRepository)
+            IRepository<PurchaseOrder> purchaseOrderRepository, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository, 
+            IRepository<PurchaseReturn> purchaseReturnRepository, IRepository<PurchaseReturnDetails> purchaseReturnDetailsRepository,
+            IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PurOrderRegister> purOrderRegisterRepository, 
+            IRepository<UnitDetails> unitDetailsRepository,
+            IRepository<PurchaseVoucherDetails> purchaseVoucherDetailsRepo
+           // InspireErpDBContext dbContext
+            )
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository;
@@ -76,7 +87,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _approvalDetailRepo = approvalDetailRepo;
             //_reportPurchaseOrderRepository = reportPurchaseOrderRepository;
             _UnitDetailsRepository = unitDetailsRepository;
-
+            _purchaseVoucherDetailsRepo = purchaseVoucherDetailsRepo;
+           // _dbContext = dbContext;
         }
 
         //public IEnumerable<ReportPurchaseOrder> PurchaseOrder_GetReportPurchaseOrder()
@@ -667,6 +679,55 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             catch (System.Exception ex)
             {
                 throw ex;
+            }
+        }
+
+        //saleem
+        public async Task<Response<List<PODetailsViewModel>>> GetGRMPOs(int supplierId)
+        {
+            try
+            {
+                var result = await (from po in _purchaseOrderRepository.GetAsQueryable()
+                                    join pod in _purchaseOrderDetailsRepository.GetAsQueryable() on po.PurchaseOrderId equals pod.PurchaseOrderId
+                                    join sm in _suppliersMasterRepository.GetAsQueryable() on po.PurchaseOrderPartyId equals sm.SuppliersMasterSupplierId
+                                    join im in _itemMasterRepository.GetAsQueryable() on (long)pod.PurchaseOrderDetailsMatId equals im.ItemMasterItemId
+                                    where sm.SuppliersMasterSupplierId == supplierId
+                                   && po.PurchaseOrderStatus.Trim().ToUpper() == "OPEN"
+                                    select new PODetailsViewModel
+                                    {
+                                        ItemId = (int)pod.PurchaseOrderDetailsMatId,
+                                        ItemName = im.ItemMasterItemName,
+                                        POId = (int)po.PurchaseOrderId,
+                                        PODId = (int)pod.PurchaseOrderDetailsId,
+                                        PONo = po.PurchaseOrderNo,
+                                        PODate = po.PurchaseOrderDate,
+                                        SupplierName = sm.SuppliersMasterSupplierName,
+                                        Rate = pod.PurchaseOrderDetailsRate,
+                                        Quantity = (int)pod.PurchaseOrderDetailsQuantity,
+                                        UnitId=pod.PurchaseOrderDetailsUnitId,
+                                        UnitName=_unitMasterRepository.GetAsQueryable().Where(x=>x.UnitMasterUnitId==pod.PurchaseOrderDetailsUnitId).FirstOrDefault().UnitMasterUnitFullName.Trim(),
+                                        BalanceQuantity = (int)pod.PurchaseOrderDetailsQuantity - (_purchaseVoucherDetailsRepo.GetAsQueryable().Where(pr =>
+                                        (pr.PurchaseVoucherDetailsPodId == pod.PurchaseOrderDetailsId
+                                           && pr.PurchaseVoucherDetailsMaterialId == pod.PurchaseOrderDetailsMatId
+                                           )
+                                        )
+                                                                       .Sum(prdq => (int)((prdq.PurchaseVoucherDetailsQuantity) ?? 0))),
+
+                                        DeliveredQuantity = (_purchaseVoucherDetailsRepo.GetAsQueryable().Where(pr =>
+                                     (pr.PurchaseVoucherDetailsPodId == pod.PurchaseOrderDetailsId
+                                        && pr.PurchaseVoucherDetailsMaterialId == pod.PurchaseOrderDetailsMatId
+                                        )
+                                        )
+                                                                       .Sum(prdq => (int)((prdq.PurchaseVoucherDetailsQuantity) ?? 0))),
+
+                                    })
+                                    .OrderBy(x => x.PODate).ThenBy(x => x.PONo)
+                                    .ToListAsync();
+                return Response<List<PODetailsViewModel>>.Success(result, "Data found");
+            }
+            catch (System.Exception ex)
+            {
+                return Response<List<PODetailsViewModel>>.Fail(new List<PODetailsViewModel>(), ex.Message);
             }
         }
     }

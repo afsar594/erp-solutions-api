@@ -78,14 +78,14 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
                 {
                     filteredValue += $" and po.PurchaseOrderStatus = {model.Status} ";
                 }
+
                 var result = await (from po in _purchaseOrder.GetAsQueryable().Where($"1 == 1 {filteredValue}")
                                         //    join sp in _supliers.GetAsQueryable() on po.PurchaseOrderSupInvNo equals sp.SuppliersInsId.ToString() into spGroup
                                     join sp in _supliersMaster.GetAsQueryable() on (int?)po.PurchaseOrderPartyId equals sp.SuppliersMasterSupplierId into spGroup
-
                                     from sp in spGroup.DefaultIfEmpty()
                                     join pod in _poDetails.GetAsQueryable() on po.PurchaseOrderId equals pod.PurchaseOrderId into podGroup
                                     from pod in podGroup.DefaultIfEmpty()
-                                    join i in _itemMaster.GetAsQueryable() on pod.PurchaseOrderDetailsMatId equals i.ItemMasterItemId into iGroup
+                                    join i in _itemMaster.GetAsQueryable() on (long)pod.PurchaseOrderDetailsMatId equals i.ItemMasterItemId into iGroup
                                     from i in iGroup.DefaultIfEmpty()
                                     join cm in _curreny.GetAsQueryable() on po.PurchaseOrderCurrencyId equals cm.CurrencyMasterCurrencyId into cmGroup
                                     from cm in cmGroup.DefaultIfEmpty()
@@ -95,7 +95,6 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
                                     {
                                         PONO = po.PurchaseOrderNo,
                                         PODate = po.PurchaseOrderDate,
-                                        //Supplier = sp.SuppliersInsName,
                                         Supplier = sp.SuppliersMasterSupplierName ?? "",
                                         POQuantity = pod.PurchaseOrderDetailsQuantity,
                                         PartNO = (i != null) ? i.ItemMasterPartNo : "",

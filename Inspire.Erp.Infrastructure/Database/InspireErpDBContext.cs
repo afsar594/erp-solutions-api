@@ -4041,7 +4041,9 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<CardDetails>(entity =>
             {
-                entity.HasNoKey();
+                //entity.HasNoKey();
+
+                entity.HasKey(e => e.CardDetailsId);
 
                 entity.ToTable("Card_Details");
 
@@ -8993,6 +8995,8 @@ namespace Inspire.Erp.Infrastructure.Database
                     .IsUnicode(false);
 
                 entity.Property(e => e.ItemMasterWeightN).HasColumnName("Item_Master_Weight_N");
+
+            
             });
             ///================================================================================
 
@@ -14288,9 +14292,9 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.PurchaseOrderDetailsManfDate).HasColumnType("datetime");
 
-                entity.Property(e => e.PurchaseOrderDetailsMatId)
-                    .HasColumnName("PurchaseOrderDetailsMatID")
-                    .HasColumnType("numeric(18, 0)");
+                entity.Property(e => e.PurchaseOrderDetailsMatId);
+                    //.HasColumnName("PurchaseOrderDetailsMatID")
+                    //.HasColumnType("numeric(18, 0)");
 
                 entity.Property(e => e.PurchaseOrderDetailsNetAmt).HasColumnType("numeric(18, 4)");
 

@@ -280,8 +280,30 @@ namespace Inspire.Erp.Application.Master
             bool valid = false;
             try
             {
+                var child = masteraccountstablerepository.GetAsQueryable().Where(a => a.MaRelativeNo == masterAccountsTable.MaAccNo).Select(k => k).ToList();
+                masteraccountstablerepository.Delete(masterAccountsTable);
+                if (masterAccountsTable.MaRelativeNo == null)
+                {
+                    masterAccountsTable.MaRelativeNo = "0";
+                    masterAccountsTable.MaMainHead = masterAccountsTable.MaAccName ?? "";
+                    masterAccountsTable.MaSubHead = masterAccountsTable.MaAccName ?? "";
+                    masterAccountsTable.MaAccType = "G";
+                }
+                var AccNo = masteraccountstablerepository.GetAsQueryable()
+                                             .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == masterAccountsTable.MaRelativeNo)
+                                             .DefaultIfEmpty()
+                                             .Max(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length - 3, 3))) + 1;
                 //masterAccountsTable.MasterAccountsTableSno = null;
-                masteraccountstablerepository.Update(masterAccountsTable);
+                masterAccountsTable.MaAccNo = masterAccountsTable.MaRelativeNo + String.Format("{0:000}", AccNo);
+                masteraccountstablerepository.Insert(masterAccountsTable);
+                if (child.Count > 0)
+                {
+                    foreach (var item in child)
+                    {
+                        item.MaRelativeNo = masterAccountsTable.MaAccNo;
+                        masteraccountstablerepository.Update(item);
+                    }
+                }
                 //masteraccountstablerepository.Update(new MasterAccountsTable { 
                 //    MasterAccountsTableAccNo=masterAccountsTable.MasterAccountsTableAccNo,
                 //    MasterAccountsTableAccType = masterAccountsTable.MasterAccountsTableAccType,
@@ -467,13 +489,22 @@ namespace Inspire.Erp.Application.Master
                                              .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == masterAccountsTable.MaRelativeNo)
                                              .DefaultIfEmpty()
                                              .Max(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length - 3, 3))) + 1;
+                if (masterAccountsTable.MaRelativeNo != null && masterAccountsTable.MaRelativeNo != "0")
+                {
+                    var mainHead = masteraccountstablerepository.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == masterAccountsTable.MaRelativeNo).MaMainHead;
+                    var subHead = masteraccountstablerepository.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == masterAccountsTable.MaRelativeNo).MaSubHead;
 
-
-                var mainHead = masteraccountstablerepository.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == masterAccountsTable.MaRelativeNo).MaMainHead;
-                var subHead = masteraccountstablerepository.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == masterAccountsTable.MaRelativeNo).MaSubHead;
-
-                masterAccountsTable.MaMainHead = mainHead ?? "";
-                masterAccountsTable.MaSubHead = subHead ?? "";
+                    masterAccountsTable.MaMainHead = mainHead ?? "";
+                    masterAccountsTable.MaSubHead = subHead ?? "";
+                    masterAccountsTable.MaAccType = "S";
+                }
+                else
+                {
+                    masterAccountsTable.MaRelativeNo = "0";
+                    masterAccountsTable.MaMainHead = masterAccountsTable.MaAccName ?? "";
+                    masterAccountsTable.MaSubHead = masterAccountsTable.MaAccName ?? "";
+                    masterAccountsTable.MaAccType = "G";
+                }
                 masterAccountsTable.MaStatus = AccountStatus.AccStatus;
 
                 if (masterAccountsTable.MaAccType == ItemMasterStatus.Group || masterAccountsTable.MaAccType == AccountMasterStatus.SubItem)
@@ -521,6 +552,11 @@ namespace Inspire.Erp.Application.Master
 
 
                 masterAccountsTable.MaAccNo = masterAccountsTable.MaRelativeNo + String.Format("{0:000}", AccNo);
+                var exist = masteraccountstablerepository.GetAsQueryable().Where(a => a.MaAccNo == masterAccountsTable.MaAccNo).ToList();
+                if (exist.Count > 0)
+                {
+                    masterAccountsTable.MaAccNo = masterAccountsTable.MaRelativeNo + String.Format("{0:000}", AccNo + 1);
+                }
                 if (masterAccountsTable.MaAccType == ItemMasterStatus.Group)
                 {
 
@@ -537,7 +573,7 @@ namespace Inspire.Erp.Application.Master
             }
             catch (Exception ex)
             {
-                return null;
+                return new MasterAccountsTable();
             }
         }
     }

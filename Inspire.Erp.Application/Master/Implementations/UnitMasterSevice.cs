@@ -139,8 +139,8 @@ namespace Inspire.Erp.Application.Master
                                      select new GetUnitDetailsMasterList
                                      {
                                          UnitMasterUnitId = cpod.UnitDetailsUnitId,
-                                         UnitMasterUnitShortName = cpo.UnitMasterUnitShortName,
-                                         UnitMasterUnitFullName = cpo.UnitMasterUnitFullName == null ? "" : cpo.UnitMasterUnitFullName,
+                                         UnitMasterUnitShortName = cpo.UnitMasterUnitShortName.Trim(),
+                                         UnitMasterUnitFullName = cpo.UnitMasterUnitFullName == null ? "" : cpo.UnitMasterUnitFullName.Trim(),
                                          UnitMasterUnitDescription = cpo.UnitMasterUnitDescription == null ? "" : cpo.UnitMasterUnitDescription,
                                          UnitMasterUnitStatus = cpo.UnitMasterUnitStatus == null ? false : cpo.UnitMasterUnitStatus,
                                          UnitDetailsConversionType = cpod.UnitDetailsConversionType == null ? 0 : cpod.UnitDetailsConversionType,

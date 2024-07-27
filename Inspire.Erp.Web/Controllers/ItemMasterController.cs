@@ -226,7 +226,7 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpPost]
         [Route("InsertItem")]
-        public ApiResponse<List<ItemMasterViewModel>> InsertItem([FromBody] ItemMasterViewModel itemMaster)
+        public async Task<ApiResponse<List<ItemMasterViewModel>>> InsertItem([FromBody] ItemMasterViewModel itemMaster)
         {
             if (itemMaster.ItemMasterImageBase64 != null && (itemMaster.ItemMasterItemId == null || itemMaster.ItemMasterItemId == 0))
             {
@@ -237,7 +237,7 @@ namespace Inspire.Erp.Web.Controllers
             }
 
             var model = _mapper.Map<ItemMaster>(itemMaster);
-            var data = (itemMaster.ItemMasterItemId == null || itemMaster.ItemMasterItemId == 0) ? itemMasterService.InsertItem(model) : itemMasterService.UpdateItem(model);
+            var data = (itemMaster.ItemMasterItemId == null || itemMaster.ItemMasterItemId == 0) ? await itemMasterService.InsertItem(model) : itemMasterService.UpdateItem(model);
             List<ItemMasterViewModel> result = _mapper.Map<List<ItemMasterViewModel>>(data);
             ApiResponse<List<ItemMasterViewModel>> apiResponse = new ApiResponse<List<ItemMasterViewModel>>
             {
@@ -247,9 +247,10 @@ namespace Inspire.Erp.Web.Controllers
             };
             return apiResponse;
         }
+
         [HttpPost]
         [Route("NewItem")]
-        public ApiResponse<ItemMasterViewModel> NewItem([FromBody] ItemMasterViewModel itemMaster)
+        public async Task<ApiResponse<ItemMasterViewModel>> NewItem([FromBody] ItemMasterViewModel itemMaster)
         {
             if (itemMaster.ItemMasterImageBase64 != null && (itemMaster.ItemMasterItemId == null || itemMaster.ItemMasterItemId == 0))
             {
@@ -261,7 +262,7 @@ namespace Inspire.Erp.Web.Controllers
 
             var model = _mapper.Map<ItemMaster>(itemMaster);
 
-            var data = (itemMaster.ItemMasterItemId == null || itemMaster.ItemMasterItemId == 0) ? itemMasterService.NewItem(model) : itemMasterService.UpdateNewItem(model);
+            var data = (itemMaster.ItemMasterItemId == null || itemMaster.ItemMasterItemId == 0) ? await itemMasterService.NewItem(model) : itemMasterService.UpdateNewItem(model);
             ItemMasterViewModel result = _mapper.Map<ItemMasterViewModel>(data);
             ApiResponse<ItemMasterViewModel> apiResponse = new ApiResponse<ItemMasterViewModel>
             {

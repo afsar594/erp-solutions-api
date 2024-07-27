@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using Inspire.Erp.Domain.Modals;
+using System.Threading.Tasks;
 
 namespace Inspire.Erp.Application.Procurement.Interfaces
 {
@@ -26,5 +28,8 @@ namespace Inspire.Erp.Application.Procurement.Interfaces
         public VouchersNumbers GetVouchersNumbers(string pvno,string vType);
         public IQueryable GetPODetailsForGRN();
         public List<PurchaseOrderDTO> GetAllPOForGRN(decimal id);
+
+
+        public Task<Response<List<PODetailsViewModel>>> GetGRMPOs(int supplierId);
     }
 }

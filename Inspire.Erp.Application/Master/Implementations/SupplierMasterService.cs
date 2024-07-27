@@ -51,18 +51,17 @@ namespace Inspire.Erp.Application.Master
                 valid = true;
                 int mxc = 0;
                 var maxId = _masterAccountTable.GetAsQueryable().Max(x => x.MaSno);
-                string accNo = "LB" + (maxId + 1);
-                mxc = (int)supplierrepository.GetAsQueryable().Where(k => k.SuppliersMasterSupplierId != null).Select(x => x.SuppliersMasterSupplierId).Max();
-                if (mxc == null) { mxc = 1; } else { mxc = mxc + 1; }
 
-                SuppliersMaster.SuppliersMasterSupplierId = mxc;
-                SuppliersMaster.SuppliersMasterSupplierReffAcNo = accNo;
-                supplierrepository.Insert(SuppliersMaster);
                 var masterAccount = _masterAccountTable.GetAsQueryable().Where(x => x.MaAccNo == SupplierRelativeNo).FirstOrDefault();
-                MasterAccountsTable masterAccountsTable = new MasterAccountsTable()
+                var suppAccNo = string.Empty;
+                MasterAccountsTable masterAccountsTable = null;
+                var count = _masterAccountTable.GetAsQueryable().AsNoTracking().Where(x => x.MaRelativeNo == SupplierRelativeNo).ToList().Count() + 1;
+                suppAccNo = count.ToString().Length == 1 ? "00" + count : count.ToString().Length == 2 ? "0" + count : count.ToString();
+                suppAccNo = masterAccount.MaAccNo + suppAccNo;
+                masterAccountsTable = new MasterAccountsTable()
                 {
                     MaAccName = SuppliersMaster.SuppliersMasterSupplierName,
-                    MaAccNo = accNo,
+                    MaAccNo = suppAccNo,
                     MaAccType = "A",
                     MaImageKey = masterAccount.MaImageKey,
                     MaAssetDate = DateTime.Now,
@@ -71,11 +70,26 @@ namespace Inspire.Erp.Application.Master
                     MaRelativeNo = masterAccount.MaAccNo,
                     MaSubHead = masterAccount.MaSubHead,
                     MaUserId = 0,
+                    MaSno = maxId + 1,
                     MaDateCreated = DateTime.Now,
                     MaStatus = "R",
-                    MaSno = (maxId + 1)
                 };
-                await _utilityService.SaveMasterAccountTable(masterAccountsTable);
+
+                if (masterAccountsTable != null)
+                {
+                    await _utilityService.SaveMasterAccountTable(masterAccountsTable);
+                }
+
+               
+                mxc = (int)supplierrepository.GetAsQueryable().Where(k => k.SuppliersMasterSupplierId != null).Select(x => x.SuppliersMasterSupplierId).Max();
+                if (mxc == null) { mxc = 1; } else { mxc = mxc + 1; }
+
+                SuppliersMaster.SuppliersMasterSupplierId = mxc;
+                SuppliersMaster.SuppliersMasterSupplierReffAcNo = suppAccNo;
+                supplierrepository.Insert(SuppliersMaster);
+
+
+             
                 #region ADD ACTIVITY LOGS
                 AddActivityLogViewModel log = new AddActivityLogViewModel()
                 {
@@ -87,7 +101,7 @@ namespace Inspire.Erp.Application.Master
                 await _utilityService.AddUserTrackingLog(log);
                 #endregion
 
-                 _masterAccountTable.SaveChangesAsync();
+                _masterAccountTable.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -149,7 +163,7 @@ namespace Inspire.Erp.Application.Master
             IEnumerable<SuppliersMaster> SuppliersMaster;
             try
             {
-                SuppliersMaster = supplierrepository.GetAll();
+                SuppliersMaster = supplierrepository.GetAll().Where(a => a.SuppliersMasterSupplierDelStatus != true).Select(k => k);
 
             }
             catch (Exception ex)

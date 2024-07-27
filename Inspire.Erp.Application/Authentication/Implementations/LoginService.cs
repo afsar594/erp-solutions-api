@@ -14,7 +14,7 @@ using System.Text;
 
 namespace Inspire.Erp.Application.Authentication.Implementations
 {
-   public class LoginService : IloginService
+    public class LoginService : IloginService
     {
         private IRepository<UserFile> userFileRepository;
         private IConfiguration Configuration;
@@ -55,7 +55,7 @@ namespace Inspire.Erp.Application.Authentication.Implementations
                 };
             }
             var principal = GetPrincipalFromExpiredToken(userData.Token);
-            var username = principal.Identity.Name; 
+            var username = principal.Identity.Name;
             var user = userFileRepository.GetAsQueryable().Where(x => x.UserName == username).SingleOrDefault();
             if (user is null || user.RefreshToken != userData.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.Now)
             {
@@ -72,18 +72,18 @@ namespace Inspire.Erp.Application.Authentication.Implementations
             userFileRepository.Update(user);
             return user;
         }
-           
+
 
         public UserFile RevokeToken(UserFile userData)
         {
-          
+
             var user = userFileRepository.GetAsQueryable().Where(x => x.UserName == userData.UserName).SingleOrDefault();
-            if (user == null) 
+            if (user == null)
                 return new UserFile
-            {
-                IsValid = false,
-                Message = "Invalid client request"
-            };
+                {
+                    IsValid = false,
+                    Message = "Invalid client request"
+                };
             user.RefreshToken = null;
             userFileRepository.Update(user);
             return user;
@@ -130,7 +130,8 @@ namespace Inspire.Erp.Application.Authentication.Implementations
 
         private RefreshToken generateRefreshToken(UserFile user)
         {
-            using (var rngCryptoServiceProvider = System.Security.Cryptography.RandomNumberGenerator.Create()) {
+            using (var rngCryptoServiceProvider = System.Security.Cryptography.RandomNumberGenerator.Create())
+            {
                 var randomBytes = new byte[64];
                 rngCryptoServiceProvider.GetBytes(randomBytes);
                 return new RefreshToken
@@ -140,8 +141,8 @@ namespace Inspire.Erp.Application.Authentication.Implementations
                     Created = DateTime.UtcNow
                 };
             }
-              
-            
+
+
         }
 
         #region POS
@@ -212,6 +213,25 @@ namespace Inspire.Erp.Application.Authentication.Implementations
         {
             var user = userFileRepository.GetAsQueryable().Where(x => x.UserId == id).SingleOrDefault();
             return user;
+        }
+        public IEnumerable<UserFile> GetAllUserFile()
+        {
+            IEnumerable<UserFile> UserFile;
+            try
+            {
+                UserFile = userFileRepository.GetAll().Where(a => a.Deleted != true).Select(k=>k);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+            finally
+            {
+                //userFileRepository.Dispose();
+            }
+            return UserFile;
         }
         public UserFile InsertUser(UserFile user)
         {

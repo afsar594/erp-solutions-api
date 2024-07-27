@@ -23,7 +23,7 @@ namespace Inspire.Erp.Application.Authentication.Inerfaces
         UserFile InsertUser(UserFile userData);
         UserFile UpdateUser(UserFile userData);
         UserFile DeleteUser(UserFile userData);
-
+        public IEnumerable<UserFile> GetAllUserFile();
         UserFile GetUserById(long a);
 
     }
