@@ -224,10 +224,10 @@ namespace Inspire.Erp.Application.Master
             if (jobrepository.GetAsQueryable().Any(x => x.JobMasterJobNo == jbno))
             {
                 jobMasterData = jobrepository.GetAsQueryable().Where(k => k.JobMasterJobNo == jbno).FirstOrDefault();
-                jobMasterData.JobMasterBudgetDetails = jobbudgetRepository.GetAll().Where(x => x.JobMasterNo == jbno && x.JobMasterBudgetDetailsDelStatus == false).ToList();
-                jobMasterData.JobMasterJobDetails = jobdetailsRepository.GetAll().Where(x => x.JobMasterNo == jbno && x.JobMasterJobDetailsDelStatus == false).ToList();
-                jobMasterData.JobMasterJobWiseBankGuarantees = jobBankGuaruRepository.GetAll().Where(x => x.JobMasterNo == jbno && x.JobMasterJobWiseBankGuaranteesDelStatus == false).ToList();
-                jobMasterData.AccountsTransactions = accountsTransactionsRepository.GetAll().Where(x => x.AccountsTransactionsJobNo == jobMasterData.JobMasterJobId).ToList();
+                jobMasterData.JobMasterBudgetDetails = jobbudgetRepository.GetAsQueryable().Where(x => x.JobMasterNo == jbno && x.JobMasterBudgetDetailsDelStatus == false).ToList();
+                jobMasterData.JobMasterJobDetails = jobdetailsRepository.GetAsQueryable().Where(x => x.JobMasterNo == jbno && x.JobMasterJobDetailsDelStatus == false).ToList();
+                jobMasterData.JobMasterJobWiseBankGuarantees = jobBankGuaruRepository.GetAsQueryable().Where(x => x.JobMasterNo == jbno && x.JobMasterJobWiseBankGuaranteesDelStatus == false).ToList();
+                jobMasterData.AccountsTransactions = accountsTransactionsRepository.GetAsQueryable().Where(x => x.AccountsTransactionsJobNo == jobMasterData.JobMasterJobId).ToList();
                 
                 jobMasterData.JobMasterExpenses =
                                        (from at in context.AccountsTransactions
