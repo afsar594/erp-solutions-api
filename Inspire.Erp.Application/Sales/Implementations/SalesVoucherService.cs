@@ -223,14 +223,14 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
 
 
-                UserTracking trackingData = new UserTracking();
-                trackingData.UserTrackingUserUserId = 1;
-                trackingData.UserTrackingUserVpAction = "Update";
-                trackingData.UserTrackingUserVpNo = salesVoucher.SalesVoucherNo;
-                trackingData.UserTrackingUserChangeDt = DateTime.Now;
-                trackingData.UserTrackingUserChangeTime = DateTime.Now;
-                trackingData.UserTrackingUserVpType = VoucherType.SalesVoucher_TYPE;
-                _UserTracking.Insert(trackingData);
+                //UserTracking trackingData = new UserTracking();
+                //trackingData.UserTrackingUserUserId = 1;
+                //trackingData.UserTrackingUserVpAction = "Update";
+                //trackingData.UserTrackingUserVpNo = salesVoucher.SalesVoucherNo;
+                //trackingData.UserTrackingUserChangeDt = DateTime.Now;
+                //trackingData.UserTrackingUserChangeTime = DateTime.Now;
+                //trackingData.UserTrackingUserVpType = VoucherType.SalesVoucher_TYPE;
+                //_UserTracking.Insert(trackingData);
 
                 _salesVoucherRepository.TransactionCommit();
 
@@ -304,14 +304,14 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
 
 
-                UserTracking trackingData = new UserTracking();
-                trackingData.UserTrackingUserUserId = 1;
-                trackingData.UserTrackingUserVpAction = "Delete";
-                trackingData.UserTrackingUserVpNo = salesVoucher.SalesVoucherNo;
-                trackingData.UserTrackingUserChangeDt = DateTime.Now;
-                trackingData.UserTrackingUserChangeTime = DateTime.Now;
-                trackingData.UserTrackingUserVpType = VoucherType.SalesVoucher_TYPE;
-                _UserTracking.Insert(trackingData);
+                //UserTracking trackingData = new UserTracking();
+                //trackingData.UserTrackingUserUserId = 1;
+                //trackingData.UserTrackingUserVpAction = "Delete";
+                //trackingData.UserTrackingUserVpNo = salesVoucher.SalesVoucherNo;
+                //trackingData.UserTrackingUserChangeDt = DateTime.Now;
+                //trackingData.UserTrackingUserChangeTime = DateTime.Now;
+                //trackingData.UserTrackingUserVpType = VoucherType.SalesVoucher_TYPE;
+                //_UserTracking.Insert(trackingData);
 
 
                 _salesVoucherRepository.TransactionCommit();
@@ -421,14 +421,14 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 _salesVoucherRepository.Insert(salesVoucher);
 
-                UserTracking trackingData = new UserTracking();
-                trackingData.UserTrackingUserUserId = 1;
-                trackingData.UserTrackingUserVpAction = "Insert";
-                trackingData.UserTrackingUserVpNo = salesVoucher.SalesVoucherNo;
-                trackingData.UserTrackingUserChangeDt = DateTime.Now;
-                trackingData.UserTrackingUserChangeTime = DateTime.Now;
-                trackingData.UserTrackingUserVpType = VoucherType.SalesVoucher_TYPE;
-                _UserTracking.Insert(trackingData);
+                //UserTracking trackingData = new UserTracking();
+                //trackingData.UserTrackingUserUserId = 1;
+                //trackingData.UserTrackingUserVpAction = "Insert";
+                //trackingData.UserTrackingUserVpNo = salesVoucher.SalesVoucherNo;
+                //trackingData.UserTrackingUserChangeDt = DateTime.Now;
+                //trackingData.UserTrackingUserChangeTime = DateTime.Now;
+                //trackingData.UserTrackingUserVpType = VoucherType.SalesVoucher_TYPE;
+                //_UserTracking.Insert(trackingData);
 
                 _salesVoucherRepository.TransactionCommit();
 
