@@ -48,8 +48,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                 var transValues = _accountTransactionRepository.GetAll()
                                       .Where(a => a.AccountsTransactionsAccNo.ToUpper() == accNo.ToUpper()
                                         && a.AccountsTransactionsAllocBalance > 0
-                                        && ((vType == "RECEIPT" && a.AccountsTransactionsDebit != 0)
-                                      || (vType == "PAYMENT" && a.AccountsTransactionsCredit != 0 && (a.AccountsTransactionsVoucherType == "PurchaseVoucher" || a.AccountsTransactionsVoucherType == "PAYMENT"))))
+                                        && ((vType == "RECEIPT" && a.AccountsTransactionsDebit != 0 && a.AccountsTransactionsVoucherType == "SalesVoucher")
+                                      || (vType == "PAYMENT" && a.AccountsTransactionsCredit != 0 && a.AccountsTransactionsVoucherType == "PurchaseVoucher")))
                                         .Select(g => new Domain.Models.AllocationDetails()
                                         {
                                             TransNo = g.AccountsTransactionsTransSno,
