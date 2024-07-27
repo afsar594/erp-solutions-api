@@ -209,9 +209,6 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                             }).FirstOrDefault().Total;
 
-
-
-
                 var rateQuantiyFromStock = await (from sr in _context.StockRegister
                                             where (locationId == null || sr.StockRegisterLocationID == locationId)
                                             && sr.StockRegisterMaterialID == itemId
@@ -284,6 +281,8 @@ namespace Inspire.Erp.Application.Store.Implementation
                 {
                     //get from item master
                     var im = _context.ItemMaster.Where(k => k.ItemMasterItemId == itemId).FirstOrDefault();
+
+                    actualRate= im.ItemMasterLastPurchasePrice ?? 0;
                 }
 
                 decimal returnAvgPrice = 0;

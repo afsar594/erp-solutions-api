@@ -704,8 +704,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                         SupplierName = sm.SuppliersMasterSupplierName,
                                         Rate = pod.PurchaseOrderDetailsRate,
                                         Quantity = (int)pod.PurchaseOrderDetailsQuantity,
-
-                                        BalanceQuantity = (int)pod.PurchaseOrderDetailsQuantity - (_purchaseVoucherDetailsRepo.GetAsQueryable().Where(pr => 
+                                        UnitId=pod.PurchaseOrderDetailsUnitId,
+                                        UnitName=_unitMasterRepository.GetAsQueryable().Where(x=>x.UnitMasterUnitId==pod.PurchaseOrderDetailsUnitId).FirstOrDefault().UnitMasterUnitFullName.Trim(),
+                                        BalanceQuantity = (int)pod.PurchaseOrderDetailsQuantity - (_purchaseVoucherDetailsRepo.GetAsQueryable().Where(pr =>
                                         (pr.PurchaseVoucherDetailsPodId == pod.PurchaseOrderDetailsId
                                            && pr.PurchaseVoucherDetailsMaterialId == pod.PurchaseOrderDetailsMatId
                                            )
@@ -718,7 +719,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                         )
                                         )
                                                                        .Sum(prdq => (int)((prdq.PurchaseVoucherDetailsQuantity) ?? 0))),
-                                        //(int)pod.PurchaseOrderDetailsQuantity - 
+
                                     })
                                     .OrderBy(x => x.PODate).ThenBy(x => x.PONo)
                                     .ToListAsync();
