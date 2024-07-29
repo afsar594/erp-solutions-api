@@ -22,15 +22,17 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
         private readonly IRepository<ItemMaster> _itemMasterRepository;
         private readonly IRepository<LocationMaster> _locationMasterRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
+        private IRepository<StockRegister> _stockRegisterRepository;
         private static string prefix;
-        public DamageEntry(IRepository<DamageDetails> _DetailsRepo,           
+        public DamageEntry(IRepository<DamageDetails> _DetailsRepo,
             IRepository<VouchersNumbers> _VNrepo,
             IRepository<StockRegister> _SRrepo,
             IRepository<DamageMaster> _rep,
             IRepository<ProgramSettings> programsettingsRepository,
               IRepository<ItemMaster> itemMasterRepository,
             IRepository<LocationMaster> locationMasterRepository,
-            IRepository<VouchersNumbers> voucherNumbersRepository)
+            IRepository<VouchersNumbers> voucherNumbersRepository,
+            IRepository<StockRegister> stockRegisterRepository)
         {
             _programsettingsRepository = programsettingsRepository;
             _VouchersNumbersRepo = _VNrepo;
@@ -40,6 +42,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
             _itemMasterRepository = itemMasterRepository;
             _locationMasterRepository = locationMasterRepository;
             _voucherNumbersRepository = voucherNumbersRepository;
+            _stockRegisterRepository = stockRegisterRepository;
         }
         //public VouchersNumbers DamageEntryPrefix()
         //{
@@ -157,6 +160,36 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                     elemt.DamageDetailsVoucherNumber = DamageMaster.DamageMasterVoucherNumber;
                 });
                 _DamageDetailsRepo.InsertList(DamageMaster.DamageDetails);
+
+                var stockReg = new List<StockRegister>();
+                foreach (var item in DamageMaster.DamageDetails)
+                {
+
+                    stockReg.Add(new StockRegister()
+                    {
+                        StockRegisterPurchaseID = DamageMaster.DamageMasterVoucherNumber,
+                        StockRegisterRefVoucherNo = DamageMaster.DamageMasterVoucherNumber,
+                        StockRegisterVoucherDate = DamageMaster.DamageMasterVdate,
+                        StockRegisterMaterialID = item.DamageDetailsMaterialId,
+                        StockRegisterQuantity = (decimal)item.DamageDetailsQty,
+                        StockRegisterSIN = (decimal)item.DamageDetailsQty,
+                        StockRegisterSout = (decimal)item.DamageDetailsQty,
+                        StockRegisterRate = 0,
+                        StockRegisterAmount = (decimal)item.DamageDetailsPrice,
+                        StockRegisterFCAmount = 0,
+                        StockRegisterAssignedDate = DamageMaster.DamageMasterVdate,
+                        StockRegisterStatus = AccountStatus.Approved,
+                        StockRegisterTransType = VoucherType.DamageEntry_TYPE,
+                        StockRegisterUnitID = item.DamageDetailsUnitId,
+                        StockRegisterLocationID = DamageMaster.DamageMasterLocationId,
+                        StockRegisterExpDate = null,
+                        StockRegisterDepID = 1,
+                        StockRegisterDelStatus = false
+                    });
+                }
+                _stockRegisterRepository.InsertList(stockReg);
+
+
                 _DamageMasterRepo.TransactionCommit();
                 return this.GetDamageById(DamageMaster.DamageMasterId);
             }

@@ -29,8 +29,8 @@ namespace Inspire.Erp.Application.Store.Implementation
         private IRepository<UnitMaster> _unitMasterRepository;
         private IRepository<SuppliersMaster> _suppliersMasterRepository;
         private IRepository<LocationMaster> _locationMasterRepository;
-        
-              //private IRepository<ReportIssueReturn> _reportIssueReturnRepository;
+
+        //private IRepository<ReportIssueReturn> _reportIssueReturnRepository;
         public IssueReturnService(
             //IRepository<ReportIssueReturn> reportIssueReturnRepository,
             IRepository<ItemMaster> itemMasterRepository, IRepository<UnitMaster> unitMasterRepository,
@@ -64,8 +64,8 @@ namespace Inspire.Erp.Application.Store.Implementation
 
 
 
-      
-        public IssueReturnModel UpdateIssueReturn(IssueReturn issueReturn, List<AccountsTransactions> accountsTransactions, 
+
+        public IssueReturnModel UpdateIssueReturn(IssueReturn issueReturn, List<AccountsTransactions> accountsTransactions,
             List<IssueReturnDetails> issueReturnDetails
             , List<StockRegister> stockRegister
             )
@@ -254,18 +254,30 @@ namespace Inspire.Erp.Application.Store.Implementation
                 }).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
-
-
-                stockRegister = stockRegister.Select((k) =>
+                foreach (var item in issueReturnDetails)
                 {
-                    k.StockRegisterVoucherDate = issueReturn.IssueReturnDate;
-                    k.StockRegisterRefVoucherNo = issueReturnNumber;
-                    k.StockRegisterTransType = VoucherType.IssueReturn_TYPE;
-                    k.StockRegisterStatus = AccountStatus.Approved;
-                    return k;
-                }).ToList();
+                    stockRegister.Add(new StockRegister
+                    {
+                        StockRegisterMaterialID = item.IssueReturnDetailsMatId,
+                        StockRegisterPurchaseID = issueReturnNumber,
+                        StockRegisterRefVoucherNo = issueReturnNumber,
+                        StockRegisterQuantity = item.IssueReturnDetailsQuantity,
+                        StockRegisterRate = item.IssueReturnDetailsRate,
+                        StockRegisterSIN = item.IssueReturnDetailsQuantity,
+                        StockRegisterSout = 0,
+                        StockRegisterAmount = item.IssueReturnDetailsActualAmount,
+                        StockRegisterVoucherDate = issueReturn.IssueReturnDate,
+                        StockRegisterTransType = VoucherType.IssueReturn_TYPE,
+                        StockRegisterStatus = AccountStatus.Approved,
+                        StockRegisterAssignedDate = issueReturn.IssueReturnDate,
+                        StockRegisterExpDate = null,
+                        StockRegisterDepID = 1,
+                        StockRegisterDelStatus = false,
+                        StockRegisterUnitID = item.IssueReturnDetailsUnitId,
+                        StockRegisterLocationID = issueReturn.IssueReturnLocationId
+                    });
+                }
                 _stockRegisterRepository.InsertList(stockRegister);
-
 
                 _issueReturnRepository.Insert(issueReturn);
                 _issueReturnRepository.TransactionCommit();
