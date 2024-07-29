@@ -53,12 +53,12 @@ namespace Inspire.Erp.Application.Store.Implementation
             _programsettingsRepository = programsettingsRepository;
             _voucherNumbersRepository = voucherNumbers;
             _logger = logger;
-            _utilityService= utilityService;
+            _utilityService = utilityService;
             _openingstockVoucherRepository = openingstockVoucherRepository;
             _openingstockVoucherDetailsRepository = openingstockVoucherDetailsRepository;
 
         }
-       
+
         public OpeningStockModel UpdateOpeningStock(OpeningStock openingStock, List<AccountsTransactions> accountsTransactions,
                                                         List<StockRegister> stockregister)
         {
@@ -142,7 +142,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 _openingStockRepository.BeginTransaction();
                 string openingSNumber = (openingStock.OpeningStockPurchaseId == null || openingStock.OpeningStockPurchaseId.Trim() == "") ?
                                               this.GenerateVoucherNo(openingStock.OpeningStockExpDate.Value).VouchersNumbersVNo : openingStock.OpeningStockPurchaseId;
-                openingStock.OpeningStockPurchaseId= openingSNumber;
+                openingStock.OpeningStockPurchaseId = openingSNumber;
 
                 StockRegister stockRegster = new StockRegister
                 {
@@ -158,7 +158,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     StockRegisterSout = 0,
                     StockRegisterRate = Convert.ToDecimal(openingStock.OpeningStockUnitRate),
                     StockRegisterAmount = Convert.ToDecimal(openingStock.OpeningStockAmount),
-                    StockRegisterFCAmount = Convert.ToDecimal(openingStock.OpeningStockFcAmount), 
+                    StockRegisterFCAmount = Convert.ToDecimal(openingStock.OpeningStockFcAmount),
                     StockRegisterRemarks = openingStock.OpeningStockRemakrs,
                     StockRegisterUnitID = openingStock.OpeningStockUnitId,
                     StockRegisterLocationID = openingStock.OpeningStockLocationId,
@@ -206,7 +206,7 @@ namespace Inspire.Erp.Application.Store.Implementation
         }
 
 
-    
+
         public OpeningStockModel GetSavedOPStockDetails(string pvno)
         {
             if (_voucherNumbersRepository.GetAsQueryable().Any(x => x.VouchersNumbersVNo == pvno))
@@ -217,7 +217,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                                 .Select((k) => new OpeningStockModel
                                                 {
                                                     AccountsTransactions = k.AccountsTransactions.Where(x => x.AccountstransactionsDelStatus == false).ToList(),
-                                                   // stockRegister = k.StockRegisters.Where(x => x.StockRegisterDelStatus == false).ToList()
+                                                    // stockRegister = k.StockRegisters.Where(x => x.StockRegisterDelStatus == false).ToList()
                                                 })
                                                 .SingleOrDefault();
                 voucherdata.openingStock = _openingStockRepository.GetAsQueryable().Where(k => k.OpeningStockPurchaseId == pvno).FirstOrDefault();
@@ -242,7 +242,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                                         .Max(o => o == null ? 0 : o.VouchersNumbersVNoNu)) + 1;
 
 
-               
+
                 VouchersNumbers vouchersNumbers = new VouchersNumbers
                 {
                     VouchersNumbersVNo = prefix + vnoMaxVal,
@@ -335,7 +335,6 @@ namespace Inspire.Erp.Application.Store.Implementation
                     .DefaultIfEmpty().Max(o => o == null ? 0 : o.OpeningStockVoucherId) + 1);
 
 
-               
 
                 openstockVoucher.OpeningStockVoucherId = maxcount;
 
@@ -343,7 +342,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 openstockVoucher.OpeningStockVoucherDetails = openstockVoucherDetails.Select((x) =>
                 {
                     x.OpeningStockVoucherId = maxcount;
-                    x.OpeningStockVoucherDetailsNo =openingstockVoucherNumber;           
+                    x.OpeningStockVoucherDetailsNo = openingstockVoucherNumber;
                     return x;
                 }).ToList();
 
@@ -351,12 +350,12 @@ namespace Inspire.Erp.Application.Store.Implementation
                 openstockVoucher.OpeningStockVoucherDetails = await Task.WhenAll(openstockVoucher.OpeningStockVoucherDetails.Select(async (osvd) =>
                 {
                     osvd.OpeningStockVoucherDetailsId = null;
-                    osvd.OpeningStockVoucherDetailsConversionType =  await _utilityService.GetBasicUnitConversion(osvd.OpeningStockVoucherDetailsMatId, osvd.OpeningStockVoucherDetailsUnitId);
+                    osvd.OpeningStockVoucherDetailsConversionType = await _utilityService.GetBasicUnitConversion(osvd.OpeningStockVoucherDetailsMatId, osvd.OpeningStockVoucherDetailsUnitId);
                     return osvd;
                 }));
 
-               // openstockVoucher.OpeningStockVoucherDetails = osVDetails;
-    
+                // openstockVoucher.OpeningStockVoucherDetails = osVDetails;
+
 
                 //_openstockVoucherDetailsRepository.InsertList(issueVoucherDetails);
 
@@ -396,10 +395,10 @@ namespace Inspire.Erp.Application.Store.Implementation
                         StockRegisterMaterialID = item.OpeningStockVoucherDetailsMatId,
                         StockRegisterQuantity = item.OpeningStockVoucherDetailsManualQty ?? 0,
                         StockRegisterSIN = item.OpeningStockVoucherDetailsManualQty ?? 0,
-                        StockRegisterSout =  0,
+                        StockRegisterSout = 0,
                         StockRegisterRate = 0,
-                        StockRegisterAmount =  CostPriceBaseUnit ?? 0,
-                        StockRegisterFCAmount =  0,
+                        StockRegisterAmount = CostPriceBaseUnit ?? 0,
+                        StockRegisterFCAmount = 0,
                         StockRegisterAssignedDate = openstockVoucher.OpeningStockVoucherDate,
                         StockRegisterStatus = AccountStatus.Approved,
                         StockRegisterTransType = VoucherType.OpeningStockVoucher_TYPE,
@@ -407,7 +406,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                         StockRegisterLocationID = openstockVoucher.OpeningStockVoucherLocationId,
                         StockRegisterJobID = (int)item.OpeningStockVoucherDetailsJob_Id,
                         StockRegisterExpDate = null,
-                        StockRegisterDepID =1,
+                        StockRegisterDepID = 1,
                         StockRegisterDelStatus = false
                     });
                 }
@@ -577,7 +576,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
 
 
-             //   openingstockVoucher.OpeningStockVoucherDetails = openingstockVoucherDetails;
+                //   openingstockVoucher.OpeningStockVoucherDetails = openingstockVoucherDetails;
 
 
 

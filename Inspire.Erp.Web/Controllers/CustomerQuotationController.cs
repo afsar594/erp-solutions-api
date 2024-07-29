@@ -17,6 +17,9 @@ using Inspire.Erp.Domain.Modals.Sales;
 using Inspire.Erp.Web.ViewModels.Procurement;
 using Inspire.Erp.Application.Store.Implementation;
 using Inspire.Erp.Domain.Modals.Stock;
+using Inspire.Erp.Application.Account;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -27,10 +30,20 @@ namespace Inspire.Erp.Web.Controllers
     {
         private ICustomerQuotationService _customerQuotationService;
         private readonly IMapper _mapper;
-        public CustomerQuotationController(ICustomerQuotationService customerQuotationService, IMapper mapper)
+        private IRepository<EnquiryStatus> enquiryStatusrepository; private IRepository<JobMaster> jobrepository;
+        private IRepository<LocationMaster> locationrepository; private IRepository<CurrencyMaster> currencyrepository;
+        private IRepository<CustomerMaster> _customerMasterRepository; private IRepository<SalesManMaster> salesmanrepository;
+        private IRepository<ItemMaster> itemrepository; private IRepository<UnitMaster> unitrepository;
+        public CustomerQuotationController(ICustomerQuotationService customerQuotationService, IMapper mapper
+            , IRepository<EnquiryStatus> _enquiryStatusrepository, IRepository<JobMaster> _jobrepository, IRepository<LocationMaster> _locationrepository
+            , IRepository<CurrencyMaster> _currencyrepository, IRepository<CustomerMaster> customerMasterRepository, IRepository<SalesManMaster> _salesmanrepository
+            , IRepository<ItemMaster> _itemrepository, IRepository<UnitMaster> _unitrepository)
         {
             _customerQuotationService = customerQuotationService;
             _mapper = mapper;
+            enquiryStatusrepository = _enquiryStatusrepository; jobrepository = _jobrepository; locationrepository = _locationrepository;
+            salesmanrepository = _salesmanrepository; _customerMasterRepository = customerMasterRepository; currencyrepository = _currencyrepository;
+            itemrepository = _itemrepository; unitrepository = _unitrepository;
         }
         [HttpPost]
         [Route("InsertCustomerQuotation")]
@@ -219,17 +232,83 @@ namespace Inspire.Erp.Web.Controllers
 
 
         }
-
-
         [HttpPost]
         [Route("GetCustomerQuotationDetail")]
         public async Task<IActionResult> GetCustomerQuotationDetail(QuotationFilterModel FilterModel)
         {
 
-            
-                return Ok(await _customerQuotationService.GetCustomerQuotationDetail(FilterModel));
-           
+
+            return Ok(await _customerQuotationService.GetCustomerQuotationDetail(FilterModel));
+
 
         }
+
+        [HttpGet]
+        [Route("QuotationLoadDropdown")]
+        public ResponseInfo QuotationLoadDropdown()
+        {
+            var objresponse = new ResponseInfo();
+
+            var enquiryStatus = enquiryStatusrepository.GetAsQueryable().Where(a => a.EnquiryStatusEnquiryStatusDelStatus != true).Select(c => new
+            {
+                c.EnquiryStatusEnquiryStatusId,
+                EnquiryStatusEnquiryStatus = c.EnquiryStatusEnquiryStatus.Trim(),
+            }).ToList();
+            var jobMasters = jobrepository.GetAsQueryable().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
+            {
+                c.JobMasterJobId,
+                JobMasterJobName = c.JobMasterJobName.Trim(),
+            }).ToList();
+            var LocationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
+            {
+                c.LocationMasterLocationId,
+                LocationMasterLocationName = c.LocationMasterLocationName.Trim(),
+            }).ToList();
+            var SaleManList = salesmanrepository.GetAsQueryable().Where(a => a.SalesManMasterSalesManDelStatus != true).Select(c => new
+            {
+                c.SalesManMasterSalesManId,
+                SalesManMasterSalesManName = c.SalesManMasterSalesManName.Trim(),
+            }).ToList();
+            var currencyMasters = currencyrepository.GetAsQueryable().Where(a => a.CurrencyMasterCurrencyDelStatus != true).Select(c => new
+            {
+                c.CurrencyMasterCurrencyId,
+                CurrencyMasterCurrencyName = c.CurrencyMasterCurrencyName.Trim(),
+                c.CurrencyMasterCurrencyRate
+            }).ToList();
+            var customerMasters = _customerMasterRepository.GetAsQueryable().Where(k => k.CustomerMasterCustomerDelStatus != true).Select(a => new
+            {
+                a.CustomerMasterCustomerNo,
+                CustomerMasterCustomerName = a.CustomerMasterCustomerName.Trim(),
+                a.CustomerMasterCustomerContactPerson,
+                a.CustomerMasterCustomerAddress,
+                a.CustomerMasterCustomerReffAcNo
+            }).ToList();
+            var itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
+                    && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
+                    {
+                        k.ItemMasterItemId,
+                        k.ItemMasterPartNo,
+                        ItemMasterItemName = k.ItemMasterItemName.Trim()
+                    }).ToList();
+            var unitMasters = unitrepository.GetAsQueryable().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
+            {
+                x.UnitMasterUnitId,
+                UnitMasterUnitFullName = x.UnitMasterUnitFullName.Trim(),
+                UnitMasterUnitShortName = x.UnitMasterUnitShortName.Trim()
+            }).ToList();
+            objresponse.ResultSet = new
+            {
+                enquiryStatus = enquiryStatus,
+                jobMasters = jobMasters,
+                LocationMaster = LocationMaster,
+                SaleManList = SaleManList,
+                currencyMasters = currencyMasters,
+                customerMasters = customerMasters,
+                itemMaster = itemMaster,
+                unitMasters = unitMasters,
+            };
+            return objresponse;
+        }
+
     }
 }

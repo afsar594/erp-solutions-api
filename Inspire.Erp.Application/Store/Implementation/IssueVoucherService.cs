@@ -81,7 +81,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 ////=================================
                 issueVoucher.IssueVoucherDetails.Clear();
                 _issueVoucherRepository.Update(issueVoucher);
-                
+
                 foreach (var item in issueVoucherDetails)
                 {
                     item.IssueVoucherId = issueVoucher.IssueVoucherId;
@@ -93,10 +93,10 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                     }
                     else
-                    {                        
+                    {
                         _issueVoucherDetailsRepository.Insert(item);
                     }
-                }               
+                }
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     if (k.AccountsTransactionsTransSno == 0)
@@ -191,6 +191,18 @@ namespace Inspire.Erp.Application.Store.Implementation
             return i;
 
         }
+        //private decimal getConverionTypebyUnitId(int? itemid, int? unitDetailsid)
+        //{
+        //    try
+        //    {
+        //        return (decimal)_issueVoucherDetailsRepository.GetAsQueryable().FirstOrDefault(x => x.ite == itemid && x.UnitDetailsUnitId == unitDetailsid).UnitDetailsConversionType;
+        //    }
+        //    catch
+        //    {
+        //        return 1;
+        //    }
+        //}
+
         public IssueVoucherModel InsertIssueVoucher(IssueVoucher issueVoucher, List<AccountsTransactions> accountsTransactions,
             List<IssueVoucherDetails> issueVoucherDetails
             , List<StockRegister> stockRegister
@@ -226,6 +238,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                 foreach (var item in issueVoucherDetails)
                 {
+
                     stockRegister.Add(new StockRegister
                     {
                         StockRegisterMaterialID = item.IssueVoucherDetailsMatId,
@@ -233,15 +246,21 @@ namespace Inspire.Erp.Application.Store.Implementation
                         StockRegisterRefVoucherNo = issueVoucherNumber,
                         StockRegisterQuantity = item.IssueVoucherDetailsQuantity,
                         StockRegisterRate = item.IssueVoucherDetailsRate,
-                        StockRegisterSIN = item.IssueVoucherDetailsRate,
+                        StockRegisterSIN = item.IssueVoucherDetailsCurrentStockQty,
                         StockRegisterAmount = item.IssueVoucherDetailsNetAmt,
                         StockRegisterVoucherDate = issueVoucher.IssueVoucherDate,
                         StockRegisterTransType = VoucherType.IssueVoucher_TYPE,
                         StockRegisterStatus = AccountStatus.Approved,
+                        StockRegisterAssignedDate = issueVoucher.IssueVoucherDate,
+                        StockRegisterExpDate = null,
+                        StockRegisterDepID = 1,
+                        StockRegisterDelStatus = false,
+                        StockRegisterUnitID = item.IssueVoucherDetailsUnitId,
+                        StockRegisterLocationID = issueVoucher.IssueVoucherLocationId
                     });
                 }
-
                 _stockRegisterRepository.InsertList(stockRegister);
+
                 _issueVoucherRepository.TransactionCommit();
                 return this.GetSavedIssueVoucherDetails(issueVoucher.IssueVoucherNo);
 
