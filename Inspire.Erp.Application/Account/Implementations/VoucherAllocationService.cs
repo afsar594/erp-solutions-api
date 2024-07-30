@@ -197,13 +197,15 @@ namespace Inspire.Erp.Application.Account.Implementations
                                     AllocationVoucherDetailsVFsno = model.AllocationVoucherVoucherFsno,
                                     AllocationVoucherDetailsVLocationId = model.AllocationVoucherLocationId,
                                     AllocationVoucherDetailsTransSno = (int)x.AccountsTransactionsTransSno,
-                                    AllocationVoucherDetailsAccNo = model.AllocationVoucherVoucherAccNo,
+                                    AllocationVoucherDetailsAccNo = x.AllocationVoucherDetailsAccNo,
                                     AllocationVoucherDetailsFcAllocDebit = x.AllocationVoucherDetailsAllocDebit > 0 ? x.AllocationVoucherDetailsNetAllocation * 1 : 0.0, //==>currency rate
                                     AllocationVoucherDetailsFcAllocCredit = x.AllocationVoucherDetailsAllocCredit > 0 ? x.AllocationVoucherDetailsNetAllocation * 1 : 0.0,
                                     AllocationVoucherDetailsRefVno = model.AllocationVoucherRefVno,
                                     AllocationVoucherDetailsRefVtype = x.AllocationVoucherDetailsRefVtype,
                                     AllocationVoucherDetailsRefLocationId = x.AllocationVoucherDetailsRefLocationId,
                                     AllocationVoucherDetailsRefFsno = x.AllocationVoucherDetailsRefFsno,
+                                    RefSPAccountNo = x.AllocationVoucherDetailsAccNo,
+                                    RefSPDate = x.RefSPDate
                                     //AllocationVoucherDetailsId = getMaxVoucherAllocationDetails()
                                 });
                             }
@@ -304,6 +306,9 @@ namespace Inspire.Erp.Application.Account.Implementations
                             AllocationVoucherDetailsVtype = x.AllocationVoucherDetailsVtype,
                             AllocationVoucherDetailsDelStatus = false,
                             AllocationVoucherDetailsSno = Convert.ToInt32(model.AllocationVoucherId),
+                            AllocationVoucherDetailsAccNo = x.AllocationVoucherDetailsAccNo,
+                            RefSPAccountNo = x.AllocationVoucherDetailsAccNo,
+                            RefSPDate = x.RefSPDate
                         }));
                         _voucherAllocationDetails.InsertList(orderDetails);
                         _voucherAllocationDetails.SaveChangesAsync();
