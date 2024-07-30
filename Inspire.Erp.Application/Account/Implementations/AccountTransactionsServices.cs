@@ -1,7 +1,9 @@
 ﻿using Inspire.Erp.Application.Account.Interfaces;
 using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Models;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -63,9 +65,9 @@ namespace Inspire.Erp.Application.Account.Implementations
                                             AllocAmount = g.AccountsTransactionsAllocCredit > 0 ? g.AccountsTransactionsAllocCredit : g.AccountsTransactionsAllocDebit,
                                             RefLocation = g.AccountsTransactionsLocation.ToString()
                                         }).ToList();
-                
-              
-               
+
+
+
                 result.AddRange(transValues);
 
                 return ApiResponse<List<AllocationDetails>>.Success(result, "Data Found");
@@ -73,12 +75,12 @@ namespace Inspire.Erp.Application.Account.Implementations
             catch (Exception ex)
             {
 
-                return ApiResponse<List<AllocationDetails>>.Fail( ex.Message);
+                return ApiResponse<List<AllocationDetails>>.Fail(ex.Message);
             }
         }
 
 
-       
+
 
         private decimal? getNatAllocationAmount(long transNo)
         {
@@ -98,6 +100,45 @@ namespace Inspire.Erp.Application.Account.Implementations
                 return diff;
             }
             catch (Exception) { return 0; }
+        }
+
+        //public async Task<ResponseInfo> getAllocationforPrint(string accNo, DateTime date, string vType)
+        //{
+        //    var objresponse = new ResponseInfo();
+        //    var dt = date.Date;
+        //    var details = await this.allocationVDlts.GetAsQueryable().Where(a => a.RefSPDate.Value.Date == dt && a.RefSPAccountNo == accNo && a.AllocationVoucherDetailsRefVtype == vType).Select(c => new
+        //    {
+        //        c.AllocationVoucherDetailsVno,
+        //        c.AllocationVoucherDetailsRefVtype,
+        //        c.RefSPAccountNo,
+        //        c.AllocationVoucherDetailsAllocCredit,
+        //        c.AllocationVoucherDetailsAllocDebit,
+        //        c.RefSPDate
+        //    }).ToListAsync();
+        //    objresponse.ResultSet = new
+        //    {
+        //        details = details,
+        //    };
+        //    return objresponse;
+        //}
+
+        public async Task<ResponseInfo> getAllocationforPrint(int? Id)
+        {
+            var objresponse = new ResponseInfo();            
+            var details = await this.allocationVDlts.GetAsQueryable().Where(a => a.AllocationVoucherDetailsSno== Id).Select(c => new
+            {
+                c.AllocationVoucherDetailsVno,
+                c.AllocationVoucherDetailsRefVtype,
+                c.RefSPAccountNo,
+                c.AllocationVoucherDetailsAllocCredit,
+                c.AllocationVoucherDetailsAllocDebit,
+                c.RefSPDate.Value.Date
+            }).ToListAsync();
+            objresponse.ResultSet = new
+            {
+                details = details,
+            };
+            return objresponse;
         }
 
     }
