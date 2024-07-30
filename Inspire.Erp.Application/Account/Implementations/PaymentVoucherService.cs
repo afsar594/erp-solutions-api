@@ -78,16 +78,16 @@ namespace Inspire.Erp.Application.Account.Implementations
                     _accountTransactionRepository.UpdateList(accountsTransactions);
                     _paymentVoucherDetailsRepository.UpdateList(paymentVoucherDetails);
 
-                    UserTracking trackingData = new UserTracking();
-                    trackingData.UserTrackingUserUserId = 1;
-                    trackingData.UserTrackingUserVpAction = "Update";
-                    trackingData.UserTrackingUserVpNo = paymentVoucher.PaymentVoucherVoucherNo;
-                    trackingData.UserTrackingUserChangeDt = DateTime.Now;
-                    trackingData.UserTrackingUserChangeTime = DateTime.Now;
-                    trackingData.UserTrackingUserVpType = "PAYMENTVOUCHER";
-                    UserTracking.Insert(trackingData);
-                    //voucher allocation details
-                    insertAllocations(paymentVoucher, payAllo);
+                    //UserTracking trackingData = new UserTracking();
+                    //trackingData.UserTrackingUserUserId = 1;
+                    //trackingData.UserTrackingUserVpAction = "Update";
+                    //trackingData.UserTrackingUserVpNo = paymentVoucher.PaymentVoucherVoucherNo;
+                    //trackingData.UserTrackingUserChangeDt = DateTime.Now;
+                    //trackingData.UserTrackingUserChangeTime = DateTime.Now;
+                    //trackingData.UserTrackingUserVpType = "PAYMENTVOUCHER";
+                    //UserTracking.Insert(trackingData);
+                    ////voucher allocation details
+                    //insertAllocations(paymentVoucher, payAllo);
 
                     scope.Complete();
                     //_paymentVoucherRepository.TransactionCommit();
@@ -278,14 +278,14 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _paymentVoucherRepository.Update(paymentVoucher);
                 var vchrnumer = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == paymentVoucher.PaymentVoucherVoucherNo).FirstOrDefault();
                 _voucherNumbersRepository.Update(vchrnumer);
-                UserTracking trackingData = new UserTracking();
-                trackingData.UserTrackingUserUserId = 1;
-                trackingData.UserTrackingUserVpAction = "Delete";
-                trackingData.UserTrackingUserVpNo = paymentVoucher.PaymentVoucherVoucherNo;
-                trackingData.UserTrackingUserChangeDt = DateTime.Now;
-                trackingData.UserTrackingUserChangeTime = DateTime.Now;
-                trackingData.UserTrackingUserVpType = "PAYMENTVOUCHER";
-                UserTracking.Insert(trackingData);
+                //UserTracking trackingData = new UserTracking();
+                //trackingData.UserTrackingUserUserId = 1;
+                //trackingData.UserTrackingUserVpAction = "Delete";
+                //trackingData.UserTrackingUserVpNo = paymentVoucher.PaymentVoucherVoucherNo;
+                //trackingData.UserTrackingUserChangeDt = DateTime.Now;
+                //trackingData.UserTrackingUserChangeTime = DateTime.Now;
+                //trackingData.UserTrackingUserVpType = "PAYMENTVOUCHER";
+                //UserTracking.Insert(trackingData);
 
                 _paymentVoucherRepository.TransactionCommit();
                 i = 1;
@@ -334,14 +334,14 @@ namespace Inspire.Erp.Application.Account.Implementations
                 }).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
                 _paymentVoucherRepository.Insert(paymentVoucher);
-                UserTracking trackingData = new UserTracking();
-                trackingData.UserTrackingUserUserId = 1;
-                trackingData.UserTrackingUserVpAction = "Insert";
-                trackingData.UserTrackingUserVpNo = paymentVoucher.PaymentVoucherVoucherNo;
-                trackingData.UserTrackingUserChangeDt = DateTime.Now;
-                trackingData.UserTrackingUserChangeTime = DateTime.Now;
-                trackingData.UserTrackingUserVpType = "PAYMENTVOUCHER";
-                UserTracking.Insert(trackingData);
+                //UserTracking trackingData = new UserTracking();
+                //trackingData.UserTrackingUserUserId = 1;
+                //trackingData.UserTrackingUserVpAction = "Insert";
+                //trackingData.UserTrackingUserVpNo = paymentVoucher.PaymentVoucherVoucherNo;
+                //trackingData.UserTrackingUserChangeDt = DateTime.Now;
+                //trackingData.UserTrackingUserChangeTime = DateTime.Now;
+                //trackingData.UserTrackingUserVpType = "PAYMENTVOUCHER";
+                //UserTracking.Insert(trackingData);
 
                 if(paymentAllocation.Count > 0)
                     insertAllocations(paymentVoucher, paymentAllocation);
