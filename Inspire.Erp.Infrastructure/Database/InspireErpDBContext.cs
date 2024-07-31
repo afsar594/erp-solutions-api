@@ -207,7 +207,6 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<PurchaseJournalDetails> PurchaseJournalDetails { get; set; }
         public virtual DbSet<PurchaseJournalVoucher> PurchaseJournalVoucher { get; set; }
         public virtual DbSet<PurchaseJournalVoucherDetails> PurchaseJournalVoucherDetails { get; set; }
-
         public virtual DbSet<PurchaseQuotation> PurchaseQuotation { get; set; }
         public virtual DbSet<PurchaseQuotationDetails> PurchaseQuotationDetails { get; set; }
 
@@ -14051,9 +14050,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.HasIndex(e => e.PurchaseOrderNo)
                     .HasName("UQ__PurchaseOrder__7620E1441D4655FB")
                     .IsUnique();
-
                 entity.Property(e => e.PurchaseOrderId).HasColumnType("numeric(18, 0)");
-
                 entity.Property(e => e.PurchaseOrderContPerson)
                     .HasMaxLength(50)
                     .IsUnicode(false);

@@ -108,6 +108,8 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             };
             return objectresponse;
         }
+
+
         [HttpGet("GetTrackingUserVPAction")]
         public ResponseInfo GetTrackingUserVPAction()
         {
@@ -151,6 +153,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                          k.ItemMasterItemId,
                          k.ItemMasterItemName
                      }).ToList();
+
             var SuppliersMaster = supplierrepository.GetAsQueryable().Where(a => a.SuppliersMasterSupplierDelStatus != true).Select(c => new
             {
                 c.SuppliersMasterSupplierId,
