@@ -143,7 +143,6 @@ namespace Inspire.Erp.Web.Controllers.POS
             {
                 return StatusCode(500, ex.Message.ToString());
             }
-
         }
 
 

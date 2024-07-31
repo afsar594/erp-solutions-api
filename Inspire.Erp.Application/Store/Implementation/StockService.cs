@@ -193,8 +193,6 @@ namespace Inspire.Erp.Application.Store.Implementation
                 return Response<List<StockReportBaseUnitResponse>>.Fail(new List<StockReportBaseUnitResponse>(), ex.Message);
             }
         }
-
-
         public async Task<Response<decimal>> GetAveragePurchasePrice(int itemId,int? locationId)
         {
             try
@@ -209,7 +207,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                             }).FirstOrDefault().Total;
 
-                var rateQuantiyFromStock = await (from sr in _context.StockRegister
+                    var rateQuantiyFromStock = await (from sr in _context.StockRegister
                                             where (locationId == null || sr.StockRegisterLocationID == locationId)
                                             && sr.StockRegisterMaterialID == itemId
 
@@ -219,8 +217,6 @@ namespace Inspire.Erp.Application.Store.Implementation
                                                 Rate = sr.StockRegisterRate,
                                                 PurchaseDate = sr.StockRegisterVoucherDate
                                             }).OrderByDescending(y => y.PurchaseDate).ToListAsync();
-
-
 
                 var PurchaseVoucherIds = await _context.PurchaseVoucher.Where(x=>x.PurchaseVoucherStatus=="P").Select(o => o.PurchaseVoucherPurID).ToListAsync();
 
@@ -275,13 +271,11 @@ namespace Inspire.Erp.Application.Store.Implementation
                             }
                         }
                     }
-                   
                 }
                 else
                 {
                     //get from item master
                     var im = _context.ItemMaster.Where(k => k.ItemMasterItemId == itemId).FirstOrDefault();
-
                     actualRate= im.ItemMasterLastPurchasePrice ?? 0;
                 }
 
@@ -298,7 +292,6 @@ namespace Inspire.Erp.Application.Store.Implementation
                 return Response<decimal>.Fail(0, ex.Message);
             }
         }
-
         public async Task<Response<StockMovementReportResponse>> GetStockMovementReport(StockFilterModel model)
         {
             try
@@ -507,7 +500,6 @@ namespace Inspire.Erp.Application.Store.Implementation
                        }).ToList().Sum(x => x.SIN * x.Rate);
             return res;
         }
-
         public async Task<Response<List<VWStockBaseUnitWithValue>>> GetStockReportBaseUnitWithValue(GenericGridViewModel model)
         {
             try
