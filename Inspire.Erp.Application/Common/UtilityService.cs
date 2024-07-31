@@ -116,13 +116,18 @@ namespace Inspire.Erp.Application.Common
                         UserTrackingField = model.OtherType,
                         UserTrackingUserChangeDt = DateTime.Now,
                         UserTrackingUserChangeTime = DateTime.Now,
-                        UserTrackingNewValue = "",
-                        UserTrackingOldValue = "",
                         // UserName = user.ReturnObject.FullName,
                         UserTrackingPage = model.Page,
                         UserTrackingUserVpAction = model.OtherType,
                         UserTrackingEntity = model.Entity,
-                        UserTrackingSection = model.Section
+                        UserTrackingSection = model.Section,
+                        UserTrackingUserVpNo=model.VpNo,
+                        UserTrackingUserVpType = model.VpType,
+                        UserTrackingUserUserId=model.VpUserId,
+                        UserTrackingOldValue=model.Oldvalue,
+                        UserTrackingNewValue=model.Newvalue,
+                        
+
                     });
                     _activityLog.InsertList(logs);
                     return Response<bool>.Success(true, "Data found");

@@ -81,14 +81,14 @@ namespace Inspire.Erp.Application.Account.Implementations
                 }).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 _receiptVoucherDetailsRepository.UpdateList(receiptVoucherDetails);
-                UserTracking trackingData = new UserTracking();
-                trackingData.UserTrackingUserUserId = 1;
-                trackingData.UserTrackingUserVpAction = "Update";
-                trackingData.UserTrackingUserVpNo = receiptVoucher.ReceiptVoucherMasterVoucherNo;
-                trackingData.UserTrackingUserChangeDt = DateTime.Now;
-                trackingData.UserTrackingUserChangeTime = DateTime.Now;
-                trackingData.UserTrackingUserVpType = "RECEIPTVOUCHER";
-                UserTracking.Insert(trackingData);
+                //UserTracking trackingData = new UserTracking();
+                //trackingData.UserTrackingUserUserId = 1;
+                //trackingData.UserTrackingUserVpAction = "Update";
+                //trackingData.UserTrackingUserVpNo = receiptVoucher.ReceiptVoucherMasterVoucherNo;
+                //trackingData.UserTrackingUserChangeDt = DateTime.Now;
+                //trackingData.UserTrackingUserChangeTime = DateTime.Now;
+                //trackingData.UserTrackingUserVpType = "RECEIPTVOUCHER";
+                //UserTracking.Insert(trackingData);
 
                 if (alloDetails.Count > 0)
                 {
@@ -126,14 +126,14 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _receiptVoucherRepository.Update(receiptVoucher);
                 var vchrnumer = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == receiptVoucher.ReceiptVoucherMasterVoucherNo).FirstOrDefault();
                 _voucherNumbersRepository.Update(vchrnumer);
-                UserTracking trackingData = new UserTracking();
-                trackingData.UserTrackingUserUserId = 1;
-                trackingData.UserTrackingUserVpAction = "Delete";
-                trackingData.UserTrackingUserVpNo = receiptVoucher.ReceiptVoucherMasterVoucherNo;
-                trackingData.UserTrackingUserChangeDt = DateTime.Now;
-                trackingData.UserTrackingUserChangeTime = DateTime.Now;
-                trackingData.UserTrackingUserVpType = "RECEIPTVOUCHER";
-                UserTracking.Insert(trackingData);
+                //UserTracking trackingData = new UserTracking();
+                //trackingData.UserTrackingUserUserId = 1;
+                //trackingData.UserTrackingUserVpAction = "Delete";
+                //trackingData.UserTrackingUserVpNo = receiptVoucher.ReceiptVoucherMasterVoucherNo;
+                //trackingData.UserTrackingUserChangeDt = DateTime.Now;
+                //trackingData.UserTrackingUserChangeTime = DateTime.Now;
+                //trackingData.UserTrackingUserVpType = "RECEIPTVOUCHER";
+                //UserTracking.Insert(trackingData);
                 _receiptVoucherRepository.TransactionCommit();
                 i = 1;
             }
@@ -182,14 +182,14 @@ namespace Inspire.Erp.Application.Account.Implementations
                 // Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(accountsTransactions));
                 _accountTransactionRepository.InsertList(accountsTransactions);
                 _receiptVoucherRepository.Insert(receiptVoucher);
-                UserTracking trackingData = new UserTracking();
-                trackingData.UserTrackingUserUserId = 1;
-                trackingData.UserTrackingUserVpAction = "Insert";
-                trackingData.UserTrackingUserVpNo = receiptVoucher.ReceiptVoucherMasterVoucherNo;
-                trackingData.UserTrackingUserChangeDt = DateTime.Now;
-                trackingData.UserTrackingUserChangeTime = DateTime.Now;
-                trackingData.UserTrackingUserVpType = "RECEIPTVOUCHER";
-                UserTracking.Insert(trackingData);
+                //UserTracking trackingData = new UserTracking();
+                //trackingData.UserTrackingUserUserId = 1;
+                //trackingData.UserTrackingUserVpAction = "Insert";
+                //trackingData.UserTrackingUserVpNo = receiptVoucher.ReceiptVoucherMasterVoucherNo;
+                //trackingData.UserTrackingUserChangeDt = DateTime.Now;
+                //trackingData.UserTrackingUserChangeTime = DateTime.Now;
+                //trackingData.UserTrackingUserVpType = "RECEIPTVOUCHER";
+                //UserTracking.Insert(trackingData);
 
                 if (alloDetails.Count > 0)
                 {
@@ -410,7 +410,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 voucherdata.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(o => o.AccountsTransactionsVoucherNo == Rvno && o.AccountstransactionsDelStatus == false).ToList();
                 voucherdata.ReceiptVoucherDetails = _receiptVoucherDetailsRepository.GetAsQueryable().Where(o => o.ReceiptVoucherDetailsVoucherNo == Rvno && o.ReceiptVoucherDetailsDelStatus == false).ToList();
                 voucherdata.TrackingData = userTrackngData;
-                voucherdata.rvAllocationDetails = getAllocationDetails(voucherdata.ReceiptVoucherMasterDrAcNo, voucherdata.ReceiptVoucherMasterVoucherNo); //_IPaymentVoucherService.GetAllocationDetails(voucherdata.ReceiptVoucherMasterDrAcNo, voucherdata.ReceiptVoucherMasterVoucherNo).Result   ;
+               // voucherdata.rvAllocationDetails = getAllocationDetails(voucherdata.ReceiptVoucherMasterDrAcNo, voucherdata.ReceiptVoucherMasterVoucherNo); //_IPaymentVoucherService.GetAllocationDetails(voucherdata.ReceiptVoucherMasterDrAcNo, voucherdata.ReceiptVoucherMasterVoucherNo).Result   ;
                 return voucherdata;
             }
             return null;

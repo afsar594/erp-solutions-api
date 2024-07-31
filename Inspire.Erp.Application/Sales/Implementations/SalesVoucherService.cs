@@ -207,20 +207,49 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
 
-                stockRegister = stockRegister.Select((k) =>
+                //stockRegister = stockRegister.Select((k) =>
+                //{
+                //    if (k.StockRegisterStoreID == 0)
+                //    {
+                //        k.StockRegisterVoucherDate = salesVoucher.SalesVoucherDate;
+                //        k.StockRegisterRefVoucherNo = salesVoucher.SalesVoucherNo;
+                //        k.StockRegisterTransType = VoucherType.SalesVoucher_TYPE;
+                //        k.StockRegisterStatus = AccountStatus.Approved;
+                //    }
+
+                //    return k;
+                //}).ToList();
+                //_stockRegisterRepository.UpdateList(stockRegister);
+
+                var stockReg = new List<StockRegister>();
+                foreach (var item in salesVoucher.SalesVoucherDetails)
                 {
-                    if (k.StockRegisterStoreID == 0)
+
+                    var converontype = this.getConverionTypebyUnitId(item.SalesVoucherDetailsMatId, item.SalesVoucherDetailsUnitId);
+
+                    stockReg.Add(new StockRegister()
                     {
-                        k.StockRegisterVoucherDate = salesVoucher.SalesVoucherDate;
-                        k.StockRegisterRefVoucherNo = salesVoucher.SalesVoucherNo;
-                        k.StockRegisterTransType = VoucherType.SalesVoucher_TYPE;
-                        k.StockRegisterStatus = AccountStatus.Approved;
-                    }
-
-                    return k;
-                }).ToList();
-                _stockRegisterRepository.UpdateList(stockRegister);
-
+                        StockRegisterPurchaseID = salesVoucher.SalesVoucherNo,
+                        StockRegisterRefVoucherNo = salesVoucher.SalesVoucherNo,
+                        StockRegisterVoucherDate = DateTime.Now.Date,
+                        StockRegisterMaterialID = item.SalesVoucherDetailsMatId,
+                        StockRegisterQuantity = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
+                        StockRegisterSIN = 0,
+                        StockRegisterSout = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
+                        StockRegisterRate = item.SalesVoucherDetailsRate,
+                        StockRegisterAmount = item.SalesVoucherDetailsQuantity * item.SalesVoucherDetailsRate ?? 0,
+                        StockRegisterFCAmount = item.SalesVoucherDetailsNetAmt ?? 0 * this.getCurrencyRate(salesVoucher.SalesVoucherCurrencyId),
+                        StockRegisterAssignedDate = DateTime.Now.Date,
+                        StockRegisterStatus = "A",
+                        StockRegisterTransType = VoucherType.SalesVoucher_TYPE,
+                        StockRegisterUnitID = item.SalesVoucherDetailsUnitId,
+                        StockRegisterLocationID = salesVoucher.SalesVoucherLocationID,
+                        StockRegisterJobID = salesVoucher.SalesVoucherJobId,
+                        StockRegisterDepID = salesVoucher.SalesVoucherDptID,
+                        StockRegisterDelStatus = false
+                    });
+                }
+                _stockRegisterRepository.UpdateList(stockReg);
 
 
                 UserTracking trackingData = new UserTracking();
@@ -376,14 +405,14 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 }).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
-                stockRegister = stockRegister.Select((k) =>
-                {
-                    k.StockRegisterVoucherDate = salesVoucher.SalesVoucherDate;
-                    k.StockRegisterRefVoucherNo = salesVoucherNumber;
-                    k.StockRegisterTransType = VoucherType.SalesVoucher_TYPE;
-                    k.StockRegisterStatus = AccountStatus.Approved;
-                    return k;
-                }).ToList();
+                //stockRegister = stockRegister.Select((k) =>
+                //{
+                //    k.StockRegisterVoucherDate = salesVoucher.SalesVoucherDate;
+                //    k.StockRegisterRefVoucherNo = salesVoucherNumber;
+                //    k.StockRegisterTransType = VoucherType.SalesVoucher_TYPE;
+                //    k.StockRegisterStatus = AccountStatus.Approved;
+                //    return k;
+                //}).ToList();
 
 
 
@@ -408,7 +437,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         StockRegisterAssignedDate = DateTime.Now.Date,
                         StockRegisterStatus = "A",
                         StockRegisterTransType = VoucherType.SalesVoucher_TYPE,
-                    StockRegisterUnitID = item.SalesVoucherDetailsUnitId,
+                        StockRegisterUnitID = item.SalesVoucherDetailsUnitId,
                         StockRegisterLocationID = salesVoucher.SalesVoucherLocationID,
                         StockRegisterJobID = salesVoucher.SalesVoucherJobId,
                         StockRegisterDepID = salesVoucher.SalesVoucherDptID,
@@ -1285,3 +1314,4 @@ namespace Inspire.Erp.Application.Sales.Implementations
         }
     }
 }
+

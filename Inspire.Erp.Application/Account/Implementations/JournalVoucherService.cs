@@ -60,14 +60,14 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 _journalVoucherDetailsRepository.UpdateList(journalVoucherDetails);
                 _journalVoucherRepository.Update(journalVoucher);
-                UserTracking trackingData = new UserTracking();
-                trackingData.UserTrackingUserUserId = 1;
-                trackingData.UserTrackingUserVpAction = "Update";
-                trackingData.UserTrackingUserVpNo = journalVoucher.JournalVoucherVrefNo;
-                trackingData.UserTrackingUserChangeDt = DateTime.Now;
-                trackingData.UserTrackingUserChangeTime = DateTime.Now;
-                trackingData.UserTrackingUserVpType = "JOURNALVOUCHER";
-                _UserTracking.Insert(trackingData);
+                //UserTracking trackingData = new UserTracking();
+                //trackingData.UserTrackingUserUserId = 1;
+                //trackingData.UserTrackingUserVpAction = "Update";
+                //trackingData.UserTrackingUserVpNo = journalVoucher.JournalVoucherVrefNo;
+                //trackingData.UserTrackingUserChangeDt = DateTime.Now;
+                //trackingData.UserTrackingUserChangeTime = DateTime.Now;
+                //trackingData.UserTrackingUserVpType = "JOURNALVOUCHER";
+                //_UserTracking.Insert(trackingData);
                 _journalVoucherRepository.TransactionCommit();
             }
             catch (Exception ex)
@@ -100,14 +100,14 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _journalVoucherRepository.Update(journalVoucher);
                 var vchrnumer = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == journalVoucher.JournalVoucherVrefNo).FirstOrDefault();
                 _voucherNumbersRepository.Update(vchrnumer);
-                UserTracking trackingData = new UserTracking();
-                trackingData.UserTrackingUserUserId = 1;
-                trackingData.UserTrackingUserVpAction = "Delete";
-                trackingData.UserTrackingUserVpNo = journalVoucher.JournalVoucherVrefNo;
-                trackingData.UserTrackingUserChangeDt = DateTime.Now;
-                trackingData.UserTrackingUserChangeTime = DateTime.Now;
-                trackingData.UserTrackingUserVpType = "JOURNALVOUCHER";
-                _UserTracking.Insert(trackingData);
+                //UserTracking trackingData = new UserTracking();
+                //trackingData.UserTrackingUserUserId = 1;
+                //trackingData.UserTrackingUserVpAction = "Delete";
+                //trackingData.UserTrackingUserVpNo = journalVoucher.JournalVoucherVrefNo;
+                //trackingData.UserTrackingUserChangeDt = DateTime.Now;
+                //trackingData.UserTrackingUserChangeTime = DateTime.Now;
+                //trackingData.UserTrackingUserVpType = "JOURNALVOUCHER";
+                //_UserTracking.Insert(trackingData);
                 _journalVoucherRepository.TransactionCommit();
                 i = 1;
             }
@@ -150,14 +150,14 @@ namespace Inspire.Erp.Application.Account.Implementations
                 }).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
                 
-                UserTracking trackingData = new UserTracking();
-                trackingData.UserTrackingUserUserId = 1;
-                trackingData.UserTrackingUserVpAction = "Insert";
-                trackingData.UserTrackingUserVpNo = journalVoucher.JournalVoucherVrefNo;
-                trackingData.UserTrackingUserChangeDt = DateTime.Now;
-                trackingData.UserTrackingUserChangeTime = DateTime.Now;
-                trackingData.UserTrackingUserVpType = "JOVOUCHER";
-                _UserTracking.Insert(trackingData);
+                //UserTracking trackingData = new UserTracking();
+                //trackingData.UserTrackingUserUserId = 1;
+                //trackingData.UserTrackingUserVpAction = "Insert";
+                //trackingData.UserTrackingUserVpNo = journalVoucher.JournalVoucherVrefNo;
+                //trackingData.UserTrackingUserChangeDt = DateTime.Now;
+                //trackingData.UserTrackingUserChangeTime = DateTime.Now;
+                //trackingData.UserTrackingUserVpType = "JOVOUCHER";
+                //_UserTracking.Insert(trackingData);
                 _journalVoucherRepository.TransactionCommit();
                 return this.GetSavedJournalVoucherDetails(journalVoucher.JournalVoucherVrefNo);
 
