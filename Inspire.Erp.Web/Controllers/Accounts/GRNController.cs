@@ -27,23 +27,22 @@ namespace Inspire.Erp.Web.Controllers
 
         private IRepository<ItemMaster> itemrepository;
         private readonly IRepository<SuppliersMaster> supplierrepository;
-        private IRepository<UnitMaster> unitrepository;
-        private IRepository<CostCenterMaster> costcenterrepository;
+        private IRepository<UnitMaster> unitrepository; IRepository<UnitDetails> unitDetailRepository;
+        private IRepository<CostCenterMaster> costcenterrepository; private IRepository<VendorMaster> Brandrepository;
         private IRepository<JobMaster> jobrepository; private IRepository<LocationMaster> locationrepository;
         private IRepository<CurrencyMaster> currencyrepository; private IRepository<AccountSettings> _accountsSettingsRepo;
         private IChartofAccountsService chartofAccountsService;
         public GRNController(IGRNService grn, IMapper mapper, IRepository<ItemMaster> _itemrepository,
-            IRepository<SuppliersMaster> _supplierrepository,
-            IRepository<UnitMaster> _unitrepository, IRepository<LocationMaster> _locationrepository
+            IRepository<SuppliersMaster> _supplierrepository, IRepository<VendorMaster> _Brandrepository,
+            IRepository<UnitMaster> _unitrepository, IRepository<UnitDetails> _unitDetailRepository, IRepository<LocationMaster> _locationrepository
             , IRepository<CostCenterMaster> _countryrepository, IRepository<AccountSettings> accountsSettingsRepo
             , IRepository<JobMaster> _jobrepository, IRepository<CurrencyMaster> _currencyrepository, IChartofAccountsService _chartofAccountsService
             )
         {
             _grn = grn;
             _mapper = mapper;
-
-            supplierrepository = _supplierrepository;
-            itemrepository = _itemrepository; unitrepository = _unitrepository;
+            supplierrepository = _supplierrepository; Brandrepository = _Brandrepository;
+            itemrepository = _itemrepository; unitrepository = _unitrepository; unitDetailRepository = _unitDetailRepository;
             costcenterrepository = _countryrepository; _accountsSettingsRepo = accountsSettingsRepo;
             jobrepository = _jobrepository; locationrepository = _locationrepository;
             currencyrepository = _currencyrepository; chartofAccountsService = _chartofAccountsService;
@@ -148,17 +147,29 @@ namespace Inspire.Erp.Web.Controllers
         public ResponseInfo LoadDropdown()
         {
             var objectresponse = new ResponseInfo();
-            var itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
-                     && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
-                     {
-                         k.ItemMasterItemId,
-                         k.ItemMasterItemName
-                     }).ToList();
+            var itemMaster = (from item in itemrepository.GetAsQueryable()
+                              join unit in unitDetailRepository.GetAsQueryable()
+                              on item.ItemMasterItemId equals unit.UnitDetailsItemId
+                              where item.ItemMasterAccountNo != 0
+                              && item.ItemMasterDelStatus != true
+                              && item.ItemMasterItemType != ItemMasterStatus.Group
+                              select new
+                              {
+                                  item.ItemMasterItemId,
+                                  item.ItemMasterItemName,
+                                  item.ItemMasterVenderId,
+                                  item.ItemMasterItemSize,
+                                  itemMasterBarcode = unit.UnitDetailsBarcode
+                              }).ToList();
+
             var SuppliersMaster = supplierrepository.GetAsQueryable().Where(a => a.SuppliersMasterSupplierDelStatus != true).Select(c => new
             {
                 c.SuppliersMasterSupplierId,
                 c.SuppliersMasterSupplierName,
-                c.SuppliersMasterSupplierVatNo
+                c.SuppliersMasterSupplierVatNo,
+                c.SuppliersMasterSupplierReffAcNo,
+                c.SuppliersMasterSupplierAddress,
+                c.SuppliersMasterSupplierContactPerson,
             }).ToList();
 
             var unitMasters = unitrepository.GetAsQueryable().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
@@ -196,10 +207,15 @@ namespace Inspire.Erp.Web.Controllers
                 c.LocationMasterLocationId,
                 c.LocationMasterLocationName,
             }).ToList();
+            var BrandMasters = Brandrepository.GetAsQueryable().Where(a => a.VendorMasterVendorDelStatus != true).Select(c => new
+            {
+                c.VendorMasterVendorId,
+                c.VendorMasterVendorName,
+            }).ToList();
             var accountsSettings = _accountsSettingsRepo.GetAsQueryable().Where(a => a.AccountSettingsAccountDelStatus != true).Select(c => new
             {
                 c.AccountSettingsAccountId,
-                c.AccountSettingsAccountDescription,
+                AccountSettingsAccountDescription=c.AccountSettingsAccountDescription.Trim(),
                 c.AccountSettingsAccountTextValue
             }).ToList();
 
@@ -213,7 +229,8 @@ namespace Inspire.Erp.Web.Controllers
                 masterAccountsTables = masterAccountsTables,
                 costcenterMasters = costcenterMasters,
                 LocationMaster = LocationMaster,
-                accountsSettings = accountsSettings
+                accountsSettings = accountsSettings,
+                BrandMasters = BrandMasters
             };
 
             objectresponse.IsSuccess = true;

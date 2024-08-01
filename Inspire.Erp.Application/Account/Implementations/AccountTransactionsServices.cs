@@ -129,7 +129,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             {
                 c.AllocationVoucherDetailsVno,
                 c.AllocationVoucherDetailsRefVtype,
-                c.RefSPAccountNo,
+                //c.RefSPAccountNo,
                 c.AllocationVoucherDetailsAllocCredit,
                 c.AllocationVoucherDetailsAllocDebit,
                 c.RefSPDate.Value.Date

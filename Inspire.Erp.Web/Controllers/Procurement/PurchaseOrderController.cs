@@ -27,14 +27,21 @@ namespace Inspire.Erp.Web.Controllers.Procurement
         private IPurchaseOrderService _purchaseOrderService;
         private IRepository<ItemMaster> itemrepository; private IRepository<UnitMaster> unitrepository; private IRepository<PurOrderRegister> _purOrderRegisterRepository;
         private IRepository<PurchaseOrder> _purchaseOrderRepository; private IRepository<PurchaseOrderDetails> _purchaseOrderDetailsRepository;
+        private IRepository<JobMaster> jobrepository; private readonly IRepository<SuppliersMaster> supplierrepository;
+        private IRepository<LocationMaster> locationrepository; private IRepository<CurrencyMaster> currencyrepository;
+        private IRepository<ViewAccountsTransactionsVoucherType> _viewAccountsTransactionsVoucherTypeRepository;
 
         private readonly IMapper _mapper;
-        public PurchaseOrderController(IPurchaseOrderService purchaseOrderService, IMapper mapper, IRepository<ItemMaster> _itemrepository, IRepository<UnitMaster> _unitrepository, IRepository<PurchaseOrder> purchaseOrderRepository, IRepository<PurOrderRegister> purOrderRegisterRepository, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository)
+        public PurchaseOrderController(IPurchaseOrderService purchaseOrderService, IMapper mapper, IRepository<ItemMaster> _itemrepository, IRepository<UnitMaster> _unitrepository,
+            IRepository<PurchaseOrder> purchaseOrderRepository, IRepository<PurOrderRegister> purOrderRegisterRepository, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository,
+            IRepository<JobMaster> _jobrepository, IRepository<LocationMaster> _locationrepository
+            , IRepository<CurrencyMaster> _currencyrepository, IRepository<SuppliersMaster> _supplierrepository,
+            IRepository<ViewAccountsTransactionsVoucherType> viewAccountsTransactionsVoucherTypeRepository)
         {
             _purchaseOrderService = purchaseOrderService;
-            _mapper = mapper;
+            _mapper = mapper; supplierrepository = _supplierrepository; _viewAccountsTransactionsVoucherTypeRepository = viewAccountsTransactionsVoucherTypeRepository;
             itemrepository = _itemrepository; unitrepository = _unitrepository; _purchaseOrderRepository = purchaseOrderRepository; _purOrderRegisterRepository = purOrderRegisterRepository;
-            _purchaseOrderDetailsRepository = purchaseOrderDetailsRepository;
+            _purchaseOrderDetailsRepository = purchaseOrderDetailsRepository; jobrepository = _jobrepository; locationrepository = _locationrepository; currencyrepository = _currencyrepository;
         }
 
         //[HttpGet]
@@ -544,6 +551,71 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             };
             return objResponse;
 
+        }
+
+        [HttpGet]
+        [Route("PurchaseLoadDropdown")]
+        public ResponseInfo PurchaseLoadDropdown()
+        {
+            var objresponse = new ResponseInfo();
+          
+            var jobMasters = jobrepository.GetAsQueryable().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
+            {
+                c.JobMasterJobId,
+                JobMasterJobName = c.JobMasterJobName.Trim(),
+            }).ToList();
+            var LocationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
+            {
+                c.LocationMasterLocationId,
+                LocationMasterLocationName = c.LocationMasterLocationName.Trim(),
+            }).ToList();
+          
+            var currencyMasters = currencyrepository.GetAsQueryable().Where(a => a.CurrencyMasterCurrencyDelStatus != true).Select(c => new
+            {
+                c.CurrencyMasterCurrencyId,
+                CurrencyMasterCurrencyName = c.CurrencyMasterCurrencyName.Trim(),
+                c.CurrencyMasterCurrencyRate
+            }).ToList();
+            var SuppliersMaster = supplierrepository.GetAsQueryable().Where(a => a.SuppliersMasterSupplierDelStatus != true).Select(c => new
+            {
+                c.SuppliersMasterSupplierId,
+                c.SuppliersMasterSupplierName,
+                c.SuppliersMasterSupplierVatNo
+            }).ToList();
+            var itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
+                    && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
+                    {
+                        k.ItemMasterItemId,
+                        k.ItemMasterPartNo,
+                        k.ItemMasterAccountNo,
+                        ItemMasterItemName = k.ItemMasterItemName.Trim()
+                    }).ToList();
+            var unitMasters = unitrepository.GetAsQueryable().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
+            {
+                x.UnitMasterUnitId,
+                UnitMasterUnitFullName = x.UnitMasterUnitFullName.Trim(),
+                UnitMasterUnitShortName = x.UnitMasterUnitShortName.Trim()
+            }).ToList();
+            var itemMasterGroup = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo == 0 && (k.ItemMasterDelStatus != true)
+                && k.ItemMasterItemType == ItemMasterStatus.Group).Select(k => new
+                {
+                    k.ItemMasterItemId,
+                    k.ItemMasterItemName,
+                }).ToList();
+
+            var vouchers = _viewAccountsTransactionsVoucherTypeRepository.GetAsQueryable().ToList();
+            objresponse.ResultSet = new
+            {                
+                jobMasters = jobMasters,
+                LocationMaster = LocationMaster,               
+                currencyMasters = currencyMasters,               
+                itemMaster = itemMaster,
+                unitMasters = unitMasters,
+                itemMasterGroup= itemMasterGroup,
+                SuppliersMaster= SuppliersMaster,
+                vouchers= vouchers
+            };
+            return objresponse;
         }
     }
 }
