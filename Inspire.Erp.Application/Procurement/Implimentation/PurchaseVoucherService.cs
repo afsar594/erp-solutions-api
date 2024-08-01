@@ -611,7 +611,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                 }).ToList();
                 _PurchaseVoucher.Update(purchaseVoucher);
                 _PurchaseVoucherDetails.UpdateList(purchaseVoucherDetails);
-
+                _accountTransactionRepository.UpdateList(accountsTransactions);
                 _accountTransactionRepository.TransactionCommit();
                 return this.GetSavedPurchaseVoucherDetailsV2(purchaseVoucher.PurchaseVoucherVoucherNo);
 

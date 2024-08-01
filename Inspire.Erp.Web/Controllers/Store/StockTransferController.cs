@@ -5,7 +5,8 @@ using Inspire.Erp.Application.StoreWareHouse.Interface;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Domain.Modals;
-
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Inspire.Erp.Web.Common;
 using Inspire.Erp.Web.MODULE;
 using Inspire.Erp.Web.ViewModels;
@@ -25,10 +26,16 @@ namespace Inspire.Erp.Web.Controllers.Store
     {
         private IStockTransferService _st;
         private readonly IMapper _mapper;
-        public StockTransferController(IStockTransferService st, IMapper mapper)
+        private IRepository<JobMaster> jobrepository; private IRepository<CustomerMaster> _customerMasterRepository; private IRepository<DepartmentMaster> departmentrepository;
+        private IRepository<LocationMaster> locationrepository; private IRepository<ItemMaster> itemrepository; private IRepository<UnitMaster> unitrepository;
+        public StockTransferController(IStockTransferService st, IMapper mapper, IRepository<JobMaster> _jobrepository, IRepository<LocationMaster> _locationrepository
+            , IRepository<CustomerMaster> customerMasterRepository, IRepository<DepartmentMaster> _departmentrepository
+            , IRepository<ItemMaster> _itemrepository, IRepository<UnitMaster> _unitrepository)
         {
             _st = st;
             _mapper = mapper;
+            jobrepository = _jobrepository; locationrepository = _locationrepository; _customerMasterRepository = customerMasterRepository;
+            itemrepository = _itemrepository; unitrepository = _unitrepository; departmentrepository = _departmentrepository;
         }
         /// <summary>
         /// Need to replace SP getStockItemsList by LINQ see from the vb.code and load it according to the reposnse 
@@ -39,7 +46,7 @@ namespace Inspire.Erp.Web.Controllers.Store
         {
             try
             {
-                List<StockItemResponse> list =await _st.getStockItemResponse();
+                List<StockItemResponse> list = await _st.getStockItemResponse();
                 ApiResponse<List<StockItemResponse>> response = new ApiResponse<List<StockItemResponse>>()
                 {
                     Result = list,
@@ -98,29 +105,29 @@ namespace Inspire.Erp.Web.Controllers.Store
 
                 var param1 = _mapper.Map<StockTransfer>(stockTranfermodel);
                 var param2 = _mapper.Map<List<StockTransferDetails>>(stockTranfermodel.StockTransferDetails);
-                var  param3 = new List<AccountsTransactions>();
+                var param3 = new List<AccountsTransactions>();
                 List<StockRegister> param4 = new List<StockRegister>();
-               // clsAccountAndStock.StockTransfer_Accounts_STOCK_Transactions("", "", param1, param2, ref param4);
-                var xs = await _st.InsertStockTransfer(param1,param2, param4);
+                // clsAccountAndStock.StockTransfer_Accounts_STOCK_Transactions("", "", param1, param2, ref param4);
+                var xs = await _st.InsertStockTransfer(param1, param2, param4);
                 StockTransferViewModel openingStockVoucherViewModel = new StockTransferViewModel
                 {
 
                     StockTransferId = xs.stockTransfer.StockTransferId,
                     StockTransferVoucherNo = xs.stockTransfer.StockTransferVoucherNo,
                     StockTransferStDate = xs.stockTransfer.StockTransferStDate,
-                     StockTransferLocationIdFrom= xs.stockTransfer.StockTransferLocationIdFrom,
-                     StockTransferLocationIdTo= xs.stockTransfer.StockTransferLocationIdTo,
-                     StockTransferFSNo= xs.stockTransfer.StockTransferFSNo,
-                        StockTransferStatus= xs.stockTransfer.StockTransferStatus,
-                     StockTransferUserId= xs.stockTransfer.StockTransferUserId,
-                        StockTransferNarration= xs.stockTransfer.StockTransferNarration,
-                     StockTransferJobId= xs.stockTransfer.StockTransferJobId,
-                       StockTransferApproved= xs.stockTransfer.StockTransferApproved,
-                        StockTransferApprovedBy= xs.stockTransfer.StockTransferApprovedBy,
-                       StockTransferApprovedDate= xs.stockTransfer.StockTransferApprovedDate,
-                       StockTransferDelStatus= xs.stockTransfer.StockTransferDelStatus,
+                    StockTransferLocationIdFrom = xs.stockTransfer.StockTransferLocationIdFrom,
+                    StockTransferLocationIdTo = xs.stockTransfer.StockTransferLocationIdTo,
+                    StockTransferFSNo = xs.stockTransfer.StockTransferFSNo,
+                    StockTransferStatus = xs.stockTransfer.StockTransferStatus,
+                    StockTransferUserId = xs.stockTransfer.StockTransferUserId,
+                    StockTransferNarration = xs.stockTransfer.StockTransferNarration,
+                    StockTransferJobId = xs.stockTransfer.StockTransferJobId,
+                    StockTransferApproved = xs.stockTransfer.StockTransferApproved,
+                    StockTransferApprovedBy = xs.stockTransfer.StockTransferApprovedBy,
+                    StockTransferApprovedDate = xs.stockTransfer.StockTransferApprovedDate,
+                    StockTransferDelStatus = xs.stockTransfer.StockTransferDelStatus,
 
-                 };
+                };
 
                 openingStockVoucherViewModel.StockTransferDetails = _mapper.Map<List<StockTransferDetailsViewModel>>(xs.stockTransferDetails);
                 //openingStockVoucherViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
@@ -146,7 +153,7 @@ namespace Inspire.Erp.Web.Controllers.Store
         [HttpDelete]
         [Route("DeleteStockTransfers")]
         public IActionResult DeleteStockTransfers(string Id)
-        {     
+        {
             return Ok(_st.DeleteStockTransfers(Id));
         }
 
@@ -269,7 +276,7 @@ namespace Inspire.Erp.Web.Controllers.Store
         }
 
 
-        
+
         [HttpGet]
         [Route("GetSavedStockTransferDetails/{id}")]
         public ApiResponse<StockTransferViewModel> GetSavedStockTransferDetails(string id)
@@ -310,5 +317,60 @@ namespace Inspire.Erp.Web.Controllers.Store
             return null;
         }
 
+        [HttpGet]
+        [Route("TransferLoadDropdown")]
+        public ResponseInfo TransferLoadDropdown()
+        {
+            var objresponse = new ResponseInfo();
+
+
+            var jobMasters = jobrepository.GetAsQueryable().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
+            {
+                c.JobMasterJobId,
+                JobMasterJobName = c.JobMasterJobName.Trim(),
+            }).ToList();
+            var LocationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
+            {
+                c.LocationMasterLocationId,
+                LocationMasterLocationName = c.LocationMasterLocationName.Trim(),
+            }).ToList();
+
+            var customerMasters = _customerMasterRepository.GetAsQueryable().Where(k => k.CustomerMasterCustomerDelStatus != true).Select(a => new
+            {
+                a.CustomerMasterCustomerNo,
+                CustomerMasterCustomerName = a.CustomerMasterCustomerName.Trim(),
+                a.CustomerMasterCustomerContactPerson,
+                a.CustomerMasterCustomerAddress,
+                a.CustomerMasterCustomerReffAcNo
+            }).ToList();
+            var itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
+                    && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
+                    {
+                        k.ItemMasterItemId,
+                        k.ItemMasterPartNo,
+                        ItemMasterItemName = k.ItemMasterItemName.Trim()
+                    }).ToList();
+            var unitMasters = unitrepository.GetAsQueryable().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
+            {
+                x.UnitMasterUnitId,
+                UnitMasterUnitFullName = x.UnitMasterUnitFullName.Trim(),
+                UnitMasterUnitShortName = x.UnitMasterUnitShortName.Trim()
+            }).ToList();
+            var departmentMasters = departmentrepository.GetAsQueryable().Where(a => a.DepartmentMasterDepartmentDelStatus != true).Select(c => new
+            {
+                c.DepartmentMasterDepartmentId,
+                DepartmentMasterDepartmentName = c.DepartmentMasterDepartmentName.Trim()
+            }).ToList();
+            objresponse.ResultSet = new
+            {
+                jobMasters = jobMasters,
+                LocationMaster = LocationMaster,
+                customerMasters = customerMasters,
+                itemMaster = itemMaster,
+                unitMasters = unitMasters,
+                departmentMasters= departmentMasters
+            };
+            return objresponse;
+        }
     }
 }
