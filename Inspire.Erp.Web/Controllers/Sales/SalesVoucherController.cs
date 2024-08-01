@@ -613,6 +613,11 @@ namespace Inspire.Erp.Web.Controllers
                 k.DepartmentMasterDepartmentName,
 
             }).ToList();
+            var costcenterMasters = costcenterrepository.GetAsQueryable().Where(a => a.CostCenterMasterCostCenterDelStatus != true).Select(c => new
+            {
+                c.CostCenterMasterCostCenterId,
+                c.CostCenterMasterCostCenterName,
+            }).ToList();
             var SaleManList = salesmanrepository.GetAsQueryable().Where(a => a.SalesManMasterSalesManDelStatus != true).Select(c => new
             {
                 c.SalesManMasterSalesManId,
@@ -636,6 +641,7 @@ namespace Inspire.Erp.Web.Controllers
                 DepartmentsList = DepartmentsList,
                 BrandMasters = BrandMasters,
                 SaleManList = SaleManList,
+                costcenterrepository= costcenterrepository,
                 customerMasters = customerMasters,
                 accountsSettings = accountsSettings
             };
