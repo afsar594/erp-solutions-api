@@ -30,10 +30,18 @@ namespace Inspire.Erp.Application.Account.Implementations
         private readonly IRepository<AllocationVoucherDetails> _voucherAllocationDetails;
         private readonly IUtilityService _utilityService;
         private readonly IRepository<CurrencyMaster> _currencyMaster;
+        private IRepository<BankReceiptVoucher> _bankReceiptVoucherRepository;
+        private IRepository<ReceiptVoucherMaster> _receiptVoucherMasterRepository;
+        private IRepository<PaymentVoucher> _paymentVoucherRepository;
+        private IRepository<BankPaymentVoucher> _bankPaymentVoucherRepository;
+
+
 
         public VoucherAllocationService(IRepository<CustomerMaster> customerMaster, IRepository<AccountsTransactions> accountTransaction,
             IRepository<SuppliersMaster> supplierMaster, IRepository<AllocationVoucherDetails> voucherAllocationDetails,
-            IRepository<MasterAccountsTable> masterAccountTable, IRepository<AllocationVoucher> voucherAllocation, IUtilityService utilityService, IRepository<CurrencyMaster> currencyMaster)
+            IRepository<MasterAccountsTable> masterAccountTable, IRepository<AllocationVoucher> voucherAllocation, IUtilityService utilityService, IRepository<CurrencyMaster> currencyMaster,
+            IRepository<BankReceiptVoucher> bankReceiptVoucherRepository, IRepository<ReceiptVoucherMaster> receiptVoucherMasterRepository,
+            IRepository<PaymentVoucher> paymentVoucherRepository, IRepository<BankPaymentVoucher> bankPaymentVoucherRepository)
         {
             _customerMaster = customerMaster;
             _supplierMaster = supplierMaster;
@@ -43,6 +51,10 @@ namespace Inspire.Erp.Application.Account.Implementations
             _voucherAllocationDetails = voucherAllocationDetails;
             _utilityService = utilityService;
             _currencyMaster = currencyMaster;
+            _bankPaymentVoucherRepository =  bankPaymentVoucherRepository;
+            _bankReceiptVoucherRepository = bankReceiptVoucherRepository;
+            _paymentVoucherRepository = paymentVoucherRepository;
+            _receiptVoucherMasterRepository = receiptVoucherMasterRepository;
         }
         public async Task<Response<List<DropdownResponse>>> GetCustomerMasterDropdown()
         {
@@ -165,6 +177,39 @@ namespace Inspire.Erp.Application.Account.Implementations
                         };
 
                         _voucherAllocation.Insert(alloModel);
+
+                        foreach (var item in model.VoucherAllocationDetails)
+                        {
+                            switch (item.AllocationVoucherDetailsRefVtype)
+                            {
+                                case "RECEIPT":
+                                 var receiptVoucher =  _receiptVoucherMasterRepository.GetAsQueryable().Where(r => r.ReceiptVoucherMasterVoucherNo == item.AllocationVoucherDetailsVno).FirstOrDefault();
+                                    receiptVoucher.ReceiptVoucherMasterAllocId = avID;
+                                    _receiptVoucherMasterRepository.Update(receiptVoucher);
+                                    _receiptVoucherMasterRepository.SaveChangesAsync();
+                                    break;
+                                case "PAYMENT":
+                                    var paymentVoucher = _paymentVoucherRepository.GetAsQueryable().Where(r => r.PaymentVoucherVoucherNo == item.AllocationVoucherDetailsVno).FirstOrDefault();
+                                    paymentVoucher.PaymentVoucherAllocationId = avID;
+                                    _paymentVoucherRepository.Update(paymentVoucher);
+                                    _paymentVoucherRepository.SaveChangesAsync();
+                                    break;
+                                case "BANKRECEIPT":
+                                    var bankReceiptVoucher = _bankReceiptVoucherRepository.GetAsQueryable().Where(r => r.BankReceiptVoucherVoucherNo == item.AllocationVoucherDetailsVno).FirstOrDefault();
+                                    bankReceiptVoucher.BankReceiptVoucherAllocId = avID;
+                                    _bankReceiptVoucherRepository.Update(bankReceiptVoucher);
+                                    _bankReceiptVoucherRepository.SaveChangesAsync();
+                                    break;
+                                case "BANKPAYMENT":
+                                    var bankPaymentVoucher = _bankPaymentVoucherRepository.GetAsQueryable().Where(r => r.BankPaymentVoucherVoucherNo == item.AllocationVoucherDetailsVno).FirstOrDefault();
+                                    bankPaymentVoucher.BankPaymentVoucherAllocId = avID;
+                                    _bankPaymentVoucherRepository.Update(bankPaymentVoucher);
+                                    _bankPaymentVoucherRepository.SaveChangesAsync();
+                                    break;
+                            }
+                        }
+                        
+
                         #region ADD ACTIVITY LOGS
                         AddActivityLogViewModel log = new AddActivityLogViewModel()
                         {
