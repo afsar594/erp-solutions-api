@@ -498,16 +498,16 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
             {
                 List<ReportAccountsTransactions> reportAccountsTransactions_ALL = _reportAccountsTransactionsRepository.GetAsQueryable().Where(k =>
                      ((k.AccountsTransactionsAccNo == accountStatementParameters.rptAccount)
-                     && (accountStatementParameters.rptLocation == -1 ? true : (k.AccountsTransactionsLocation == accountStatementParameters.rptLocation))
-                     && (accountStatementParameters.rptJob == -1 ? true : (k.AccountsTransactionsJobNo == accountStatementParameters.rptJob))
-                     && (accountStatementParameters.rptCostCenter == -1 ? true : (k.AccountsTransactionsCostCenterId == accountStatementParameters.rptCostCenter))
-                     && (accountStatementParameters.rptAsOnDate == false ? true : k.AccountsTransactionsTransDate.Date <= accountStatementParameters.rptDtpAson.Value.Date)
-                     && (accountStatementParameters.rptDateRange == false ? true : (k.AccountsTransactionsTransDate.Date >= accountStatementParameters.rptDtpFrom.Value.Date)
-                          && (k.AccountsTransactionsTransDate.Date <= accountStatementParameters.rptDtpTo.Value.Date))
-                     && (accountStatementParameters.rptNarration.Trim() == "" ? true : (k.AccountsTransactionsOpposEntryDesc.Trim() == accountStatementParameters.rptNarration.Trim()))
-                     && (accountStatementParameters.rptDescription.Trim() == "" ? true : (k.AccountsTransactionsDescription.Trim() == accountStatementParameters.rptDescription.Trim()))
-                    && (k.AccountstransactionsDelStatus == false || k.AccountstransactionsDelStatus == null)
-                     && (voucherTypes.Count > 0 ? voucherTypes.Contains(k.AccountsTransactionsVoucherType) : true)
+                    && (accountStatementParameters.rptLocation == -1 ? true : (k.AccountsTransactionsLocation == accountStatementParameters.rptLocation))
+                    && (accountStatementParameters.rptJob == -1 ? true : (k.AccountsTransactionsJobNo == accountStatementParameters.rptJob))
+                    && (accountStatementParameters.rptCostCenter == -1 ? true : (k.AccountsTransactionsCostCenterId == accountStatementParameters.rptCostCenter))
+                    && (accountStatementParameters.rptAsOnDate == false ? true : k.AccountsTransactionsTransDate.Date <= accountStatementParameters.rptDtpAson.Value.Date)
+                   && (accountStatementParameters.rptDateRange == false ? true : (k.AccountsTransactionsTransDate.Date >= accountStatementParameters.rptDtpFrom.Value.Date)
+                   && (k.AccountsTransactionsTransDate.Date <= accountStatementParameters.rptDtpTo.Value.Date))
+                   && (accountStatementParameters.rptNarration.Trim() == "" ? true : (k.AccountsTransactionsOpposEntryDesc.Trim() == accountStatementParameters.rptNarration.Trim()))
+                   && (accountStatementParameters.rptDescription.Trim() == "" ? true : (k.AccountsTransactionsDescription.Trim() == accountStatementParameters.rptDescription.Trim()))
+                   && (k.AccountstransactionsDelStatus == false || k.AccountstransactionsDelStatus == null)
+                    && (voucherTypes.Count > 0 ? voucherTypes.Contains(k.AccountsTransactionsVoucherType.Trim()) : true)
                     )
 
                     ).OrderBy(x => x.AccountsTransactionsTransDate).ToList();
