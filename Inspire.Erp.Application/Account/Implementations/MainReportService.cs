@@ -479,15 +479,8 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
             };
             return tempReportAccStatement;
         }
-        public List<ReportAccountsTransactions> MainReport_GetReportAccountsTransactions_PARAM_CLASS(AccountStatementParameters accountStatementParameters
-            //, List<ViewAccountsTransactionsVoucherType> viewAccountsTransactionsVoucherType
-            )
+        public List<ReportAccountsTransactions> MainReport_GetReportAccountsTransactions_PARAM_CLASS(AccountStatementParameters accountStatementParameters)
         {
-            //viewAccountsTransactionsVoucherType = viewAccountsTransactionsVoucherType.Select((k) =>
-            //           {
-            //               return k;
-            //           }).ToList();
-
             var voucherTypes = accountStatementParameters.ViewAccountsTransactionsVoucherType.Select((k) =>
             {
                 return k;
