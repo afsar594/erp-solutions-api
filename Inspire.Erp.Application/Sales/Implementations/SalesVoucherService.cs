@@ -418,7 +418,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                     var converontype = this.getConverionTypebyUnitId(item.SalesVoucherDetailsMatId, item.SalesVoucherDetailsUnitId);
                     // get Price by Item Id.
-                    decimal Price = Convert.ToDecimal(GetAveragePurchasePrice(Convert.ToInt32(item.SalesVoucherDetailsMatId), null));
+                   // var Price = Convert.ToDecimal(GetAveragePurchasePrice(Convert.ToInt32(item.SalesVoucherDetailsMatId), null));
 
                     stockReg.Add(new StockRegister()
                     {
@@ -429,8 +429,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         StockRegisterQuantity = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
                         StockRegisterSIN = 0,
                         StockRegisterSout = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
-                        StockRegisterRate = Price,
-                        StockRegisterAmount = item.SalesVoucherDetailsQuantity * Price ?? 0,
+                        StockRegisterRate = item.SalesVoucherDetailsRate,
+                        StockRegisterAmount = item.SalesVoucherDetailsQuantity * item.SalesVoucherDetailsQuantity ?? 0,
                         StockRegisterFCAmount = item.SalesVoucherDetailsNetAmt ?? 0 * this.getCurrencyRate(salesVoucher.SalesVoucherCurrencyId),
                         StockRegisterAssignedDate = DateTime.Now.Date,
                         StockRegisterStatus = "A",
