@@ -58,14 +58,14 @@ namespace Inspire.Erp.Application.Account.Implementations
                 }).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 _contraVoucherDetailsRepository.UpdateList(contraVoucherDetails);
-                UserTracking trackingData = new UserTracking();
-                trackingData.UserTrackingUserUserId = 1;
-                trackingData.UserTrackingUserVpAction = "Update";
-                trackingData.UserTrackingUserVpNo = contraVoucher.ContraVoucherVno;
-                trackingData.UserTrackingUserChangeDt = DateTime.Now;
-                trackingData.UserTrackingUserChangeTime = DateTime.Now;
-                trackingData.UserTrackingUserVpType = "CONTRAVOUCHER";
-                _UserTracking.Insert(trackingData);
+                //UserTracking trackingData = new UserTracking();
+                //trackingData.UserTrackingUserUserId = 1;
+                //trackingData.UserTrackingUserVpAction = "Update";
+                //trackingData.UserTrackingUserVpNo = contraVoucher.ContraVoucherVno;
+                //trackingData.UserTrackingUserChangeDt = DateTime.Now;
+                //trackingData.UserTrackingUserChangeTime = DateTime.Now;
+                //trackingData.UserTrackingUserVpType = "CONTRAVOUCHER";
+                //_UserTracking.Insert(trackingData);
                 _contraVoucherRepository.TransactionCommit();
             }
             catch (Exception ex)
@@ -98,14 +98,14 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _contraVoucherRepository.Update(contraVoucher);
                 var vchrnumer = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == contraVoucher.ContraVoucherVno).FirstOrDefault();
                 _voucherNumbersRepository.Update(vchrnumer);
-                UserTracking trackingData = new UserTracking();
-                trackingData.UserTrackingUserUserId = 1;
-                trackingData.UserTrackingUserVpAction = "Delete";
-                trackingData.UserTrackingUserVpNo = contraVoucher.ContraVoucherVno;
-                trackingData.UserTrackingUserChangeDt = DateTime.Now;
-                trackingData.UserTrackingUserChangeTime = DateTime.Now;
-                trackingData.UserTrackingUserVpType = "CONTRAVOUCHER";
-                _UserTracking.Insert(trackingData);
+                //UserTracking trackingData = new UserTracking();
+                //trackingData.UserTrackingUserUserId = 1;
+                //trackingData.UserTrackingUserVpAction = "Delete";
+                //trackingData.UserTrackingUserVpNo = contraVoucher.ContraVoucherVno;
+                //trackingData.UserTrackingUserChangeDt = DateTime.Now;
+                //trackingData.UserTrackingUserChangeTime = DateTime.Now;
+                //trackingData.UserTrackingUserVpType = "CONTRAVOUCHER";
+                //_UserTracking.Insert(trackingData);
                 _contraVoucherRepository.TransactionCommit();
                 i = 1;
             }
@@ -151,14 +151,14 @@ namespace Inspire.Erp.Application.Account.Implementations
                 }).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
                 _contraVoucherRepository.Insert(contraVoucher);
-                UserTracking trackingData = new UserTracking();
-                trackingData.UserTrackingUserUserId = 1;
-                trackingData.UserTrackingUserVpAction = "Insert";
-                trackingData.UserTrackingUserVpNo = contraVoucher.ContraVoucherVno;
-                trackingData.UserTrackingUserChangeDt = DateTime.Now;
-                trackingData.UserTrackingUserChangeTime = DateTime.Now;
-                trackingData.UserTrackingUserVpType = "CONTRAVOUCHER";
-                _UserTracking.Insert(trackingData);
+                //UserTracking trackingData = new UserTracking();
+                //trackingData.UserTrackingUserUserId = 1;
+                //trackingData.UserTrackingUserVpAction = "Insert";
+                //trackingData.UserTrackingUserVpNo = contraVoucher.ContraVoucherVno;
+                //trackingData.UserTrackingUserChangeDt = DateTime.Now;
+                //trackingData.UserTrackingUserChangeTime = DateTime.Now;
+                //trackingData.UserTrackingUserVpType = "CONTRAVOUCHER";
+                //_UserTracking.Insert(trackingData);
                 _contraVoucherRepository.TransactionCommit();
                 return this.GetSavedContraVoucherDetails(contraVoucher.ContraVoucherVno);
             }

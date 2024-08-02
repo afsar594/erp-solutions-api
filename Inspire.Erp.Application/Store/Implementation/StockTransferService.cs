@@ -60,7 +60,7 @@ namespace Inspire.Erp.Application.Store.Implementation
             try
             {
 
-                var results = await (from im in _context.ItemMaster
+                var results = await (from im in _context.ItemMaster.Where(a=> a.ItemMasterDelStatus!=true)
                                           join sr in _context.StockRegister on im.ItemMasterItemId equals sr.StockRegisterMaterialID.GetValueOrDefault() into gim
                                      from y in gim.DefaultIfEmpty()
                                      

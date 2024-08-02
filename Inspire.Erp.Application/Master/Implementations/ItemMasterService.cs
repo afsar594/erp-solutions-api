@@ -3059,7 +3059,7 @@ namespace Inspire.Erp.Application.Master
             {
                 var billRecall = new BillRecallResponse();
                 var itemsDetails = await (from ir in posSalesVoucherDetailsRepo.GetAsQueryable()
-                                          join ud in _unitDetailsRepo.GetAsQueryable() on ir.ItemId equals ud.UnitDetailsItemId
+                                          join ud in _unitDetailsRepo.GetAsQueryable() on ir.UnitDetailsId equals ud.UnitDetailsId
                                           join um in _unitMasterRepo.GetAsQueryable() on ud.UnitDetailsUnitId equals um.UnitMasterUnitId into umJoin
                                           from umd in umJoin.DefaultIfEmpty()
                                           where ir.VoucherNo.Trim() == voucherNo
@@ -3102,6 +3102,15 @@ namespace Inspire.Erp.Application.Master
                     UnitDetailsId = ud.UnitDetailsId,
                     BarCode=ud.UnitDetailsBarcode,
                     UnitName = umd.UnitMasterUnitShortName.Trim(),
+
+
+                    //UnitDetailsId = (from ud in _unitDetailsRepo.GetAsQueryable()
+                    //                 where ud.UnitDetailsItemId == ir.ItemId
+                    //                 select ud).FirstOrDefault().UnitDetailsId,
+
+                    //BarCode = (from ud in _unitDetailsRepo.GetAsQueryable()
+                    //           where ud.UnitDetailsItemId == ir.ItemId
+                    //           select ud).FirstOrDefault().UnitDetailsBarcode,
                 }).ToListAsync();
 
                 var settDetails = await (from sdr in settDetailsRepo.GetAsQueryable()
@@ -5567,7 +5576,7 @@ namespace Inspire.Erp.Application.Master
                         CompanyId = 1,
                         WorkPeriodID = model.WorkPeriodId,
                         StationID = model.StationId,
-                        //UnitDetailsId=model.unit
+                        UnitDetailsId=item.UnitDetailId
                     };
 
                     posSalesVoucherDetailsRepo.Insert(salesVDetails);

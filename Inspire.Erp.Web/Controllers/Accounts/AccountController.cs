@@ -110,7 +110,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         //{
         //    return Ok(await _multiAccountService.GetAccountTransactionsForeignCurrencySummary(model));
         //}
-        
+
         [HttpPost("GetAccountTransactionsForeignCurrencySummary")]
         public async Task<IActionResult> GetAccountTransactionsForeignCurrencySummary(GenericGridViewModel model)
         {
@@ -179,12 +179,18 @@ namespace Inspire.Erp.Web.Controllers.Accounts
 
         [HttpPost]
         [Route("GetAllocationDetailsByAccNoRefNo")]
-        public async Task<IActionResult> GetAllocationDetailsByAccNoRefNo(string accNo,string refNO, string vType)
+        public async Task<IActionResult> GetAllocationDetailsByAccNoRefNo(string accNo, string refNO, string vType)
         {
-            return Ok(await _accountTransactionsServices.GetReceiptVoucherAllocations(accNo, refNO,vType));
+            return Ok(await _accountTransactionsServices.GetReceiptVoucherAllocations(accNo, refNO, vType));
         }
 
-
+        [HttpGet]
+        [Route("getAllocationforPrint")]
+        public async Task<ResponseInfo> getAllocationforPrint(int? Id)
+        {
+            //return await _accountTransactionsServices.getAllocationforPrint(accNo, date,vType);
+            return await _accountTransactionsServices.getAllocationforPrint(Id);
+        }
 
         [HttpGet("GetCustomerMasterDropdown")]
         public async Task<IActionResult> GetCustomerMasterDropdown()
@@ -242,7 +248,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         {
             try
             {
-                return Ok(_voucherAllocation.DeleteAllocationVoucher(id,type));
+                return Ok(_voucherAllocation.DeleteAllocationVoucher(id, type));
             }
             catch (System.Exception ex)
             {

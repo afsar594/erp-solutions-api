@@ -23,6 +23,9 @@ using Inspire.Erp.Domain.Entities.POS;
 using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections;
+using Inspire.Erp.Domain.Models;
+using System.Diagnostics;
+using System.IO.Pipelines;
 
 namespace Inspire.Erp.Application.Sales.Implementations
 {
@@ -33,7 +36,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<AccountsTransactions> _accountTransactionRepository;
         private IRepository<SalesVoucher> _salesVoucherRepository;
         private IRepository<SalesVoucherDetails> _salesVoucherDetailsRepository;
-        private IRepository<ProgramSettings> _programsettingsRepository;
+        private IRepository<Domain.Entities.ProgramSettings> _programsettingsRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
         private readonly ILogger<PaymentVoucherService> _logger;
 
@@ -53,6 +56,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<SalesReturn> _salesReturn;
         private IRepository<SalesReturnDetails> _salesReturnDtls;
         private IRepository<OptionsMaster> _optionMaster;
+        private InspireErpDBContext _context;
 
 
         /// <summary>
@@ -85,12 +89,12 @@ namespace Inspire.Erp.Application.Sales.Implementations
             IRepository<ItemMaster> itemMasterRepository, IRepository<UnitMaster> unitMasterRepository,
             IRepository<SuppliersMaster> suppliersMasterRepository, IRepository<LocationMaster> locationMasterRepository,
 
-            IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
+            IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<Domain.Entities.ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
 
             IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository, IRepository<CurrencyMaster> currencyMasterRepository, IRepository<UnitDetails> unitDetailsRepository, IRepository<MasterAccountsTable> accMaster, IRepository<SalesReturn> salesReturn, IRepository<SalesReturnDetails> salesReturnDtls, IRepository<OptionsMaster> optionMaster
             //IRepository<POS_Sales_Voucher> posSalesVoucherRepository, IRepository<POS_Sales_Voucher_Details> posSalesVoucherDetailsRepository
-            , IRepository<SalesHold> salesHoldRepository, IRepository<SalesHoldDetails> salesHoldDetailsRepository, IRepository<POS_WorkPeriod> POSWorkPeriodRepository)
+            , IRepository<SalesHold> salesHoldRepository, IRepository<SalesHoldDetails> salesHoldDetailsRepository, IRepository<POS_WorkPeriod> POSWorkPeriodRepository, InspireErpDBContext context)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository;
@@ -118,6 +122,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             _salesHoldDetailsRepository = salesHoldDetailsRepository;
             _POSWorkPeriodRepository = POSWorkPeriodRepository;
             _UserTracking = UserTracking;
+            _context = context;
             //_reportSalesVoucherRepository = reportSalesVoucherRepository;
         }
 
@@ -405,22 +410,15 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 }).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
-                //stockRegister = stockRegister.Select((k) =>
-                //{
-                //    k.StockRegisterVoucherDate = salesVoucher.SalesVoucherDate;
-                //    k.StockRegisterRefVoucherNo = salesVoucherNumber;
-                //    k.StockRegisterTransType = VoucherType.SalesVoucher_TYPE;
-                //    k.StockRegisterStatus = AccountStatus.Approved;
-                //    return k;
-                //}).ToList();
-
-
+                
 
                 var stockReg = new List<StockRegister>();
                 foreach (var item in salesVoucher.SalesVoucherDetails)
                 {
 
                     var converontype = this.getConverionTypebyUnitId(item.SalesVoucherDetailsMatId, item.SalesVoucherDetailsUnitId);
+                    // get Price by Item Id.
+                   // var Price = Convert.ToDecimal(GetAveragePurchasePrice(Convert.ToInt32(item.SalesVoucherDetailsMatId), null));
 
                     stockReg.Add(new StockRegister()
                     {
@@ -432,7 +430,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         StockRegisterSIN = 0,
                         StockRegisterSout = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
                         StockRegisterRate = item.SalesVoucherDetailsRate,
-                        StockRegisterAmount = item.SalesVoucherDetailsQuantity * item.SalesVoucherDetailsRate ?? 0,
+                        StockRegisterAmount = item.SalesVoucherDetailsQuantity * item.SalesVoucherDetailsQuantity ?? 0,
                         StockRegisterFCAmount = item.SalesVoucherDetailsNetAmt ?? 0 * this.getCurrencyRate(salesVoucher.SalesVoucherCurrencyId),
                         StockRegisterAssignedDate = DateTime.Now.Date,
                         StockRegisterStatus = "A",
@@ -477,6 +475,104 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 throw ex;
             }
 
+        }
+        public async Task<Response<decimal>> GetAveragePurchasePrice(int itemId, int? locationId)
+        {
+            try
+            {
+                var totalQuantity = (from sr in _context.StockRegister
+                                     where (locationId == null || sr.StockRegisterLocationID == locationId)
+                                     && sr.StockRegisterMaterialID == itemId
+                                     group sr by 1 into og
+                                     select new
+                                     {
+                                         Total = og.Sum(item => (int)(item.StockRegisterSIN ?? 0 - item.StockRegisterSout ?? 0)),
+
+                                     }).FirstOrDefault().Total;
+
+                var rateQuantiyFromStock = await (from sr in _context.StockRegister
+                                                  where (locationId == null || sr.StockRegisterLocationID == locationId)
+                                                  && sr.StockRegisterMaterialID == itemId
+
+                                                  select new PurVoucherRateQuantityModel
+                                                  {
+                                                      Quantity = sr.StockRegisterQuantity,
+                                                      Rate = sr.StockRegisterRate,
+                                                      PurchaseDate = sr.StockRegisterVoucherDate
+                                                  }).OrderByDescending(y => y.PurchaseDate).ToListAsync();
+
+                var PurchaseVoucherIds = await _context.PurchaseVoucher.Where(x => x.PurchaseVoucherStatus == "P").Select(o => o.PurchaseVoucherPurID).ToListAsync();
+                var purchseVouchers = await (from pvd in _context.PurchaseVoucherDetails
+                                             join pv in _context.PurchaseVoucher on (long)pvd.PurchaseVoucherDetailsPrId equals pv.PurchaseVoucherPurID
+                                             where pvd.PurchaseVoucherDetailsMaterialId == itemId
+                                            && PurchaseVoucherIds.Contains((long)pvd.PurchaseVoucherDetailsPrId)
+                                             select new PurVoucherRateQuantityModel
+                                             {
+                                                 Rate = (long)(pvd.PurchaseVoucherDetailsRate ?? 0),
+                                                 Quantity = pvd.PurchaseVoucherDetailsQuantity ?? 0,
+                                                 PurchaseDate = pv.PurchaseVoucherPurchaseDate
+
+                                             }).OrderByDescending(y => y.PurchaseDate).ToListAsync();
+
+                decimal actualQuantity = 0;
+                decimal actualRate = 0;
+                decimal quantity = 0;
+                decimal rate = 0;
+                actualQuantity = totalQuantity;
+
+                if (rateQuantiyFromStock.Count() > 0)
+                {
+                    foreach (var pvd in rateQuantiyFromStock)
+                    {
+                        rate = pvd.Rate ?? 0;
+                        quantity = pvd.Quantity ?? 0;
+                        if (actualQuantity > 0)
+                        {
+                            if (pvd.Quantity >= actualQuantity)
+                            {
+                                quantity = actualQuantity;
+                                actualRate = actualRate + (rate * quantity);
+                                actualQuantity = actualQuantity - quantity;
+                            }
+                        }
+                    }
+                }
+                else if (purchseVouchers.Count() > 0)
+                {
+                    foreach (var pvd in purchseVouchers)
+                    {
+                        rate = pvd.Rate ?? 0;
+                        quantity = pvd.Quantity ?? 0;
+                        if (actualQuantity > 0)
+                        {
+                            if (pvd.Quantity >= actualQuantity)
+                            {
+                                quantity = actualQuantity;
+                                actualRate = actualRate + (rate * quantity);
+                                actualQuantity = actualQuantity - quantity;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    //get from item master
+                    var im = _context.ItemMaster.Where(k => k.ItemMasterItemId == itemId).FirstOrDefault();
+                    actualRate = im.ItemMasterLastPurchasePrice ?? 0;
+                }
+
+                decimal returnAvgPrice = 0;
+                if (totalQuantity <= 0)
+                {
+                    totalQuantity = 1;
+                }
+                returnAvgPrice = actualRate / totalQuantity;
+                return Response<decimal>.Success(returnAvgPrice, "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<decimal>.Fail(0, ex.Message);
+            }
         }
 
         private void createAccountTransactionEntries(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions)
