@@ -69,7 +69,7 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
                                         where (model.SupplierId == 0 || po.PurchaseOrderPartyId == model.SupplierId) &&
                                         (model.JobId == 0 || po.PurchaseOrderJobId == model.JobId) &&
                                         (model.LocationId == 0 || po.PurchaseOrderLocationId == model.LocationId) &&
-                                        (model.PONO == "" || po.PurchaseOrderPono == model.PONO) &&
+                                        (model.PONO == "" || po.PurchaseOrderNo == model.PONO) &&
                                         (model.Status == "" || po.PurchaseOrderStatus == model.Status) &&
                                         (model.ItemId == 0 || pod.PurchaseOrderDetailsMatId == model.ItemId) &&
                                         (po.PurchaseOrderDate >= model.fromDate && po.PurchaseOrderDate <= model.toDate)
@@ -131,7 +131,7 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
                                         where (model.SupplierId == 0 || po.PurchaseOrderPartyId == model.SupplierId) &&
                                         (model.JobId == 0 || po.PurchaseOrderJobId == model.JobId) &&
                                         (model.LocationId == 0 || po.PurchaseOrderLocationId == model.LocationId) &&
-                                        (model.PONO == "" || po.PurchaseOrderPono == model.PONO) &&
+                                        (model.PONO == "" || po.PurchaseOrderNo == model.PONO.Trim()) &&
                                         (model.Status == "" || po.PurchaseOrderStatus == model.Status) &&
                                         (model.ItemId == 0 || pod.PurchaseOrderDetailsMatId == model.ItemId)
                                         select new POTrackingDetails()
