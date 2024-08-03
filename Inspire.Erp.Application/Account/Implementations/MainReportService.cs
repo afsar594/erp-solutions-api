@@ -501,9 +501,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                    && (accountStatementParameters.rptDescription.Trim() == "" ? true : (k.AccountsTransactionsDescription.Trim() == accountStatementParameters.rptDescription.Trim()))
                    && (k.AccountstransactionsDelStatus == false || k.AccountstransactionsDelStatus == null)
                     && (voucherTypes.Count > 0 ? voucherTypes.Contains(k.AccountsTransactionsVoucherType.Trim()) : true)
-                    )
-
-                    ).OrderBy(x => x.AccountsTransactionsTransDate).ToList();
+                    )).OrderBy(x => x.AccountsTransactionsTransDate).ToList();
 
                 if (accountStatementParameters.rptDateRange == true)
                 {
@@ -618,12 +616,10 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                        && (accountStatementParameters.rptDescription.Trim() == "" ? true : (k.AccountsTransactionsDescription.Trim() == accountStatementParameters.rptDescription.Trim()))
                             && (k.AccountstransactionsDelStatus == false || k.AccountstransactionsDelStatus == null)
                             && (voucherTypes.Count > 0 ? voucherTypes.Contains(k.AccountsTransactionsVoucherType) : true)
-                            )
-
-
-                            ).Select(c =>
+                            )).Select(c =>
                             new { difference = c.AccountsTransactionsDebit }))
                                   .Sum(b => b.difference);
+
                 var Credit = (_reportAccountsTransactionsRepository.GetAsQueryable().Where(k =>
                            ((k.AccountsTransactionsAccNo == accountStatementParameters.rptAccount)
                       && (accountStatementParameters.rptLocation == -1 ? true : (k.AccountsTransactionsLocation == accountStatementParameters.rptLocation))
@@ -639,6 +635,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                            )).Select(c =>
                            new { difference = c.AccountsTransactionsCredit }))
                                  .Sum(b => b.difference);
+
                 ReportAccountsTransactions Summ_ReportAccountsTransactions = new ReportAccountsTransactions
                 {
                     AccName = null,
