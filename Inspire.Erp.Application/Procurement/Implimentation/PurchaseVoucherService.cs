@@ -66,7 +66,7 @@ namespace Inspire.Erp.Application.Master.Implementations
         {
             try
             {
-                IEnumerable<PurchaseVoucherDetails> _PurchaseVoucherList = _PurchaseVoucherDetails.GetAll().ToList();
+                IEnumerable<PurchaseVoucherDetails> _PurchaseVoucherList = _PurchaseVoucherDetails.GetAll().Where(a => a.PurchaseVoucherDetailsDelStatus != true).ToList();
                 return _PurchaseVoucherList;
             }
             catch (System.Exception ex)
@@ -79,7 +79,7 @@ namespace Inspire.Erp.Application.Master.Implementations
         {
             try
             {
-                var grnList = _context.PurchaseVoucher.Where(o => o.PurchaseVoucherVoucherNo.Contains("GRN")).AsQueryable();
+                var grnList = _context.PurchaseVoucher.Where(o => o.PurchaseVoucherDelStatus != true && o.PurchaseVoucherVoucherNo.Contains("GRN")).AsQueryable();
                 return grnList;
             }
             catch (System.Exception ex)
@@ -241,9 +241,33 @@ namespace Inspire.Erp.Application.Master.Implementations
             PurchaseVoucherModel voucherModel = new PurchaseVoucherModel();
             voucherModel.purchaseVoucher = _PurchaseVoucher.GetAsQueryable().Where(k => k.PurchaseVoucherVoucherNo == pvno).SingleOrDefault();
 
+            if (voucherModel.purchaseVoucher != null)
+            {
+                voucherModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.PurchaseVoucher_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
+                voucherModel.purchaseVoucherDetails = _PurchaseVoucherDetails.GetAsQueryable().Where(x => x.PurchaseVoucherDetailsVoucherNo == pvno && (x.PurchaseVoucherDetailsDelStatus == false || x.PurchaseVoucherDetailsDelStatus == null)).ToList();
 
-            voucherModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.PurchaseVoucher_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
-            voucherModel.purchaseVoucherDetails = _PurchaseVoucherDetails.GetAsQueryable().Where(x => x.PurchaseVoucherDetailsVoucherNo == pvno && (x.PurchaseVoucherDetailsDelStatus == false || x.PurchaseVoucherDetailsDelStatus == null)).ToList();
+                if (voucherModel.purchaseVoucherDetails.Count > 0)
+                {
+                    foreach (var item in voucherModel.purchaseVoucherDetails)
+                    {
+                        decimal sumReturnedQty = 0;
+                        var stockQuery = _stockRegisterRepository.GetAsQueryable()
+                        .Where(a => a.StockRegisterMaterialID == item.PurchaseVoucherDetailsMaterialId &&
+                                    a.StockRegisterTransType == "PurchaseReturn" &&
+                                    a.StockRegisterRefVoucherNo == item.PurchaseVoucherDetailsVoucherNo);
+
+                        sumReturnedQty = stockQuery.Any()
+                                           ? stockQuery.Sum(s => (decimal?)s.StockRegisterSout) ?? 0
+                                           : 0;
+
+                        if (sumReturnedQty != null)
+                        {
+                            item.PurchaseReturnQtyTill = sumReturnedQty;
+                        }
+
+                    }
+                }
+            }
             return voucherModel;
 
             // throw new NotImplementedException();
@@ -255,6 +279,28 @@ namespace Inspire.Erp.Application.Master.Implementations
             voucherModel = _PurchaseVoucher.GetAsQueryable().Where(k => k.PurchaseVoucherVoucherNo == pvno).SingleOrDefault();
             voucherModel.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.PurchaseVoucher_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
             voucherModel.PurchaseVoucherDetails = _PurchaseVoucherDetails.GetAsQueryable().Where(x => x.PurchaseVoucherDetailsVoucherNo == pvno && (x.PurchaseVoucherDetailsDelStatus == false || x.PurchaseVoucherDetailsDelStatus == null)).ToList();
+
+            if (voucherModel.PurchaseVoucherDetails.Count > 0)
+            {
+                foreach (var item in voucherModel.PurchaseVoucherDetails)
+                {
+                    decimal sumReturnedQty = 0;
+                    var stockQuery = _stockRegisterRepository.GetAsQueryable()
+                    .Where(a => a.StockRegisterMaterialID == item.PurchaseVoucherDetailsMaterialId &&
+                                a.StockRegisterTransType == "PurchaseReturn" &&
+                                a.StockRegisterRefVoucherNo == item.PurchaseVoucherDetailsVoucherNo);
+
+                    sumReturnedQty = stockQuery.Any()
+                                       ? stockQuery.Sum(s => (decimal?)s.StockRegisterSout) ?? 0
+                                       : 0;
+
+                    if (sumReturnedQty != null)
+                    {
+                        item.PurchaseReturnQtyTill = sumReturnedQty;
+                    }
+
+                }
+            }
             return voucherModel;
         }
 

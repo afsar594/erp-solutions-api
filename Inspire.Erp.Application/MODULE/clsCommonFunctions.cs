@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Inspire.Erp.Application.MODULE
 {
-   public static class clsCommonFunctions
+    public static class clsCommonFunctions
     {
 
         //private static IRepository<StockRegister> _stockRegisterRepository;
@@ -129,10 +129,10 @@ namespace Inspire.Erp.Application.MODULE
 
                  }).ToList();
             _accountTransactionRepository.DeleteList(accttrans);
-           //_accountTransactionRepository.UpdateList(accttrans);
+            //_accountTransactionRepository.UpdateList(accttrans);
         }
 
-          public static  void Delete_OldEntry_StockRegister(string StockRegisterVoucherNo, string StockRegisterTransType, IRepository<StockRegister> _stockRegisterRepository)
+        public static void Delete_OldEntry_StockRegister(string StockRegisterVoucherNo, string StockRegisterTransType, IRepository<StockRegister> _stockRegisterRepository)
         {
             List<StockRegister> stockTrans = _stockRegisterRepository.GetAsQueryable()
                  .Where(k => k.StockRegisterRefVoucherNo == StockRegisterVoucherNo && k.StockRegisterTransType == StockRegisterTransType && k.StockRegisterDelStatus != true).Select((l) => new StockRegister
@@ -140,33 +140,33 @@ namespace Inspire.Erp.Application.MODULE
                      StockRegisterStoreID = l.StockRegisterStoreID,
 
                      //StockRegisterVoucherDate = l.StockRegisterVoucherDate,
-                     StockRegisterRemarks=  l.StockRegisterRemarks,
-                     StockRegisterSno =  l.StockRegisterSno,
-                     StockRegisterQuantity =  l.StockRegisterQuantity,
-                     StockRegisterSIN =  l.StockRegisterSIN,
-                     StockRegisterSout =  l.StockRegisterSout,
-                     StockRegisterTransType =  l.StockRegisterTransType,
-                     StockRegisterRefVoucherNo =  l.StockRegisterRefVoucherNo,
+                     StockRegisterRemarks = l.StockRegisterRemarks,
+                     StockRegisterSno = l.StockRegisterSno,
+                     StockRegisterQuantity = l.StockRegisterQuantity,
+                     StockRegisterSIN = l.StockRegisterSIN,
+                     StockRegisterSout = l.StockRegisterSout,
+                     StockRegisterTransType = l.StockRegisterTransType,
+                     StockRegisterRefVoucherNo = l.StockRegisterRefVoucherNo,
 
                      //StockRegisterDepID =  l.StockRegisterDepID,
-                     StockRegisterStatus =  l.StockRegisterStatus,
-                     StockRegisterFSNO =  l.StockRegisterFSNO,
-                     StockRegisterBatchCode =  l.StockRegisterBatchCode,
-                     StockRegisterJobID =  l.StockRegisterJobID,
-                     StockRegisterRate =  l.StockRegisterRate,
-                     StockRegisterFCAmount =  l.StockRegisterFCAmount,
+                     StockRegisterStatus = l.StockRegisterStatus,
+                     StockRegisterFSNO = l.StockRegisterFSNO,
+                     StockRegisterBatchCode = l.StockRegisterBatchCode,
+                     StockRegisterJobID = l.StockRegisterJobID,
+                     StockRegisterRate = l.StockRegisterRate,
+                     StockRegisterFCAmount = l.StockRegisterFCAmount,
 
                      //StockRegisterLandingCost =  l.StockRegisterLandingCost,
 
-                     StockRegisterLocationID =  l.StockRegisterLocationID,
+                     StockRegisterLocationID = l.StockRegisterLocationID,
 
-                     StockRegisterAmount =  l.StockRegisterAmount,
+                     StockRegisterAmount = l.StockRegisterAmount,
                      //StockRegisterUnitID =  l.StockRegisterUnitID,
 
-                     StockRegisterExpDate =  l.StockRegisterExpDate,
+                     StockRegisterExpDate = l.StockRegisterExpDate,
 
-                     StockRegisterNetStkBal =  l.StockRegisterNetStkBal,
-                     StockRegisterMaterialID =  l.StockRegisterMaterialID,
+                     StockRegisterNetStkBal = l.StockRegisterNetStkBal,
+                     StockRegisterMaterialID = l.StockRegisterMaterialID,
 
                      //StockRegisterFcRate =  l.StockRegisterFcRate,
                      StockRegisterDelStatus = false
@@ -181,9 +181,16 @@ namespace Inspire.Erp.Application.MODULE
         }
 
 
+        public static void Delete_OldEntryOf_StockRegister(string Vno, IRepository<StockRegister> _stockRegisterRepository)
+        {
+            var data = _stockRegisterRepository.GetAsQueryable().Where(a => a.StockRegisterPurchaseID == Vno && a.StockRegisterTransType.Trim() == "PurchaseReturn").ToList();
+            if (data != null)
+            {
+                _stockRegisterRepository.DeleteList(data);
+            }
+        }
 
-
-        public static  VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate, string voucherType, string voucherPrefix,
+        public static VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate, string voucherType, string voucherPrefix,
                 IRepository<ProgramSettings> _programsettingsRepository,
          IRepository<VouchersNumbers> _voucherNumbersRepository)
         {
