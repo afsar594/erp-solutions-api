@@ -44,7 +44,7 @@ namespace Inspire.Erp.Application.Account.Implementations
 
         }
 
-        public CustomerViewModel UpdateNewCustomer(CustomerMaster customerMaster, List<CustomerContacts> customerContacts,List<CustomerDepartments> customerDepartments)
+        public CustomerViewModel UpdateNewCustomer(CustomerMaster customerMaster, List<CustomerContacts> customerContacts, List<CustomerDepartments> customerDepartments)
         {
 
             try
@@ -74,15 +74,18 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _customerMasterRepository.BeginTransaction();
 
                 customerMaster.CustomerMasterCustomerDeleteStatus = true;
+                customerMaster.CustomerMasterCustomerDelStatus = true;
 
-                customerContacts = customerContacts.Select((k) => {
+                customerContacts = customerContacts.Select((k) =>
+                {
                     k.CustomerContactsDelStatus = true;
                     return k;
                 }).ToList();
 
                 _customerContactsRepository.UpdateList(customerContacts);
 
-                customerDepartments = customerDepartments.Select((k) => {
+                customerDepartments = customerDepartments.Select((k) =>
+                {
                     k.CustomerDepartmentsDelStatus = true;
                     return k;
                 }).ToList();
@@ -172,7 +175,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             }
 
         }
-        
+
         public IEnumerable<CustomerMaster> GetAllCustomers()
         {
             IEnumerable<CustomerMaster> customerMasters = _customerMasterRepository.GetAll().Where(k => k.CustomerMasterCustomerDelStatus == false || k.CustomerMasterCustomerDelStatus == null);

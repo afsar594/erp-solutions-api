@@ -857,7 +857,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                     a.StockRegisterRefVoucherNo == item.SalesVoucherDetailsNo);
 
                         sumReturnedQty = stockQuery.Any()
-                                           ? stockQuery.Sum(s => (decimal?)s.StockRegisterSout) ?? 0
+                                           ? stockQuery.Sum(s => (decimal?)s.StockRegisterSIN) ?? 0
                                            : 0;
 
                         if (sumReturnedQty != null)

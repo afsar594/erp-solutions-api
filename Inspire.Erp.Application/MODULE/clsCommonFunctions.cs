@@ -181,9 +181,9 @@ namespace Inspire.Erp.Application.MODULE
         }
 
 
-        public static void Delete_OldEntryOf_StockRegister(string Vno, IRepository<StockRegister> _stockRegisterRepository)
+        public static void Delete_OldEntryOf_StockRegister(string Vno,string StockRegisterTransType, IRepository<StockRegister> _stockRegisterRepository)
         {
-            var data = _stockRegisterRepository.GetAsQueryable().Where(a => a.StockRegisterPurchaseID == Vno && a.StockRegisterTransType.Trim() == "PurchaseReturn").ToList();
+            var data = _stockRegisterRepository.GetAsQueryable().Where(a => a.StockRegisterPurchaseID == Vno && a.StockRegisterTransType.Trim() == StockRegisterTransType).ToList();
             if (data != null)
             {
                 _stockRegisterRepository.DeleteList(data);

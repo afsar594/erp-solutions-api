@@ -149,7 +149,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                 salesReturn.SalesReturnEnqDate = DateTime.Now;
                 salesReturn.SalesReturnSVDate = DateTime.Now;
                 //=================================
-                clsCommonFunctions.Delete_OldEntry_StockRegister(salesReturn.SalesReturnNo, VoucherType.SalesReturn_TYPE, _stockRegisterRepository);
+                //clsCommonFunctions.Delete_OldEntry_StockRegister(salesReturn.SalesReturnNo, VoucherType.SalesReturn_TYPE, _stockRegisterRepository);
+                clsCommonFunctions.Delete_OldEntryOf_StockRegister(salesReturn.SalesReturnNo, VoucherType.SalesReturn_TYPE, _stockRegisterRepository);
                 clsCommonFunctions.Delete_OldEntry_AccountsTransactions(salesReturn.SalesReturnNo, VoucherType.SalesReturn_TYPE, _accountTransactionRepository);
                 _salesReturnRepository.Update(salesReturn);
                 Console.WriteLine("STEP ONE");
