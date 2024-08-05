@@ -420,8 +420,12 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                     var converontype = this.getConverionTypebyUnitId(item.SalesVoucherDetailsMatId, item.SalesVoucherDetailsUnitId);
                     // get Price by Item Id.
-                    var Price =  _openingStockService.GetAveragePurchasePrice(Convert.ToInt32(item.SalesVoucherDetailsMatId), null);
-
+                    decimal? Price = 0;
+                    var response =  _openingStockService.GetAveragePurchasePrice(Convert.ToInt32(item.SalesVoucherDetailsMatId), null);
+                    if(response != null)
+                    {
+                        Price = Convert.ToDecimal(response);
+                    }
                     stockReg.Add(new StockRegister()
                     {
                         StockRegisterPurchaseID = salesVoucher.SalesVoucherNo,
