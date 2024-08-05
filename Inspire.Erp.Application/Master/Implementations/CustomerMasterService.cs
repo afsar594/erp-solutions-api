@@ -172,7 +172,8 @@ namespace Inspire.Erp.Application.Master
             bool valid = false;
             try
             {
-                customerrepository.Delete(customerMaster);
+                customerMaster.CustomerMasterCustomerDeleteStatus = true;
+                customerrepository.Update(customerMaster);
                 valid = true;
 
             }

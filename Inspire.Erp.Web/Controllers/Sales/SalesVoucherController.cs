@@ -19,6 +19,7 @@ using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Inspire.Erp.Application.Account;
 using Inspire.Erp.Domain.Modals.Common;
 
+
 namespace Inspire.Erp.Web.Controllers
 {
     [Route("api/SalesVoucher")]
@@ -68,19 +69,18 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("GetSalesVoucherDetailsByMasterNo")]
-        public IActionResult GetSalesVoucherDetailsByMasterNo(string SalesVoucherNo)
+        public ApiResponse<SalesVoucher> GetSalesVoucherDetailsByMasterNo(string SalesVoucherNo)
         {
-            try
+            var item = _salesVoucherService.GetSalesVoucherDetailsByMasterNo(SalesVoucherNo);
+            ApiResponse<SalesVoucher> apiResponse = new ApiResponse<SalesVoucher>
             {
-                var item = _salesVoucherService.GetSalesVoucherDetailsByMasterNo(SalesVoucherNo);
-                return Ok(item);
-            }
-            catch (System.Exception ex)
-            {
-                return StatusCode(500, ex.Message.ToString());
-            }
-        }
+                Valid = true,
+                Result = item,
+                Message = ""
+            };
+            return apiResponse;
 
+        }
         [HttpGet]
         [Route("SalesVoucher_GetAllSalesManMaster")]
         public List<CustomerMaster> SalesVoucher_GetAllSalesManMaster()
@@ -560,7 +560,7 @@ namespace Inspire.Erp.Web.Controllers
                                   item.ItemMasterItemName,
                                   item.ItemMasterVenderId,
                                   item.ItemMasterItemSize,
-                                  itemMasterBarcode= unit.UnitDetailsBarcode
+                                  itemMasterBarcode = unit.UnitDetailsBarcode
                               }).ToList();
             var customerMasters = _customerMasterRepository.GetAsQueryable().Where(k => k.CustomerMasterCustomerDelStatus != true).Select(a => new
             {
@@ -627,7 +627,7 @@ namespace Inspire.Erp.Web.Controllers
             var accountsSettings = _accountsSettingsRepo.GetAsQueryable().Where(a => a.AccountSettingsAccountDelStatus != true).Select(c => new
             {
                 c.AccountSettingsAccountId,
-                AccountSettingsAccountDescription=c.AccountSettingsAccountDescription.Trim(),
+                AccountSettingsAccountDescription = c.AccountSettingsAccountDescription.Trim(),
                 c.AccountSettingsAccountTextValue
             }).ToList();
             objectresponse.ResultSet = new
@@ -636,12 +636,12 @@ namespace Inspire.Erp.Web.Controllers
                 unitMasters = unitMasters,
                 jobMasters = jobMasters,
                 currencyMasters = currencyMasters,
-                masterAccountsTables= masterAccountsTables,
+                masterAccountsTables = masterAccountsTables,
                 LocationMaster = LocationMaster,
                 DepartmentsList = DepartmentsList,
                 BrandMasters = BrandMasters,
                 SaleManList = SaleManList,
-                costcenterrepository= costcenterrepository,
+                costcenterrepository = costcenterrepository,
                 customerMasters = customerMasters,
                 accountsSettings = accountsSettings
             };

@@ -525,7 +525,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                         decimal dblOpeningBalDebit = 0;
                         if (DiffCreditDebit < 0)
                         {
-
+                            dblOpeningBalCredit = DiffCreditDebit;
                         }
                         else
                         {

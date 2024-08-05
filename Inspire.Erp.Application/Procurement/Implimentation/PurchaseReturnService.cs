@@ -852,7 +852,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 // clsCommonFunctions.Delete_OldEntry_StockRegister(purchaseReturn.PurchaseReturnGrno, VoucherType.PurchaseReturn_TYPE, _stockRegister);
                 clsCommonFunctions.Delete_OldEntry_AccountsTransactions(purchaseReturn.PurchaseReturnNo, VoucherType.PurchaseReturn_TYPE, _accountTransaction);
 
-                clsCommonFunctions.Delete_OldEntryOf_StockRegister(purchaseReturn.PurchaseReturnNo, _stockRegister);
+                clsCommonFunctions.Delete_OldEntryOf_StockRegister(purchaseReturn.PurchaseReturnNo, VoucherType.PurchaseReturn_TYPE, _stockRegister);
 
                 //=================================
                 purchaseReturn.PurchaseReturnDetails = purchaseReturnDetails.Select((k) =>

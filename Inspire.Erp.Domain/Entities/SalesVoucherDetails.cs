@@ -41,5 +41,7 @@ namespace Inspire.Erp.Domain.Entities
         public bool? SalesVoucherDetailsDelStatus { get; set; }
         [NotMapped]
         public virtual SalesVoucher SalesVoucherDetailsNoNavigation { get; set; }
+        [NotMapped]
+        public decimal? SalesReturnQtyTill { get; set; }
     }
 }
