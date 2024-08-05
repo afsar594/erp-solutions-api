@@ -375,7 +375,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             }
         }
 
-        public async SalesVoucherModel InsertSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions,
+        public  SalesVoucherModel InsertSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions,
             List<SalesVoucherDetails> salesVoucherDetails
             , List<StockRegister> stockRegister
             )
@@ -421,7 +421,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     var converontype = this.getConverionTypebyUnitId(item.SalesVoucherDetailsMatId, item.SalesVoucherDetailsUnitId);
                     // get Price by Item Id.
                     decimal? Price = 0;
-                    var response = await _openingStockService.GetAveragePurchasePrice(Convert.ToInt32(item.SalesVoucherDetailsMatId), null);
+                    var response =  _openingStockService.GetAveragePurchasePrice(Convert.ToInt32(item.SalesVoucherDetailsMatId), null);
                     if(response != null)
                     {
                         Price = Convert.ToDecimal(response);
@@ -478,104 +478,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 throw ex;
             }
 
-        }
-        public async Task<Response<decimal>> GetAveragePurchasePrice(int itemId, int? locationId)
-        {
-            try
-            {
-                var totalQuantity = (from sr in _context.StockRegister
-                                     where (locationId == null || sr.StockRegisterLocationID == locationId)
-                                     && sr.StockRegisterMaterialID == itemId
-                                     group sr by 1 into og
-                                     select new
-                                     {
-                                         Total = og.Sum(item => (int)(item.StockRegisterSIN ?? 0 - item.StockRegisterSout ?? 0)),
-
-                                     }).FirstOrDefault().Total;
-
-                var rateQuantiyFromStock = await (from sr in _context.StockRegister
-                                                  where (locationId == null || sr.StockRegisterLocationID == locationId)
-                                                  && sr.StockRegisterMaterialID == itemId
-
-                                                  select new PurVoucherRateQuantityModel
-                                                  {
-                                                      Quantity = sr.StockRegisterQuantity,
-                                                      Rate = sr.StockRegisterRate,
-                                                      PurchaseDate = sr.StockRegisterVoucherDate
-                                                  }).OrderByDescending(y => y.PurchaseDate).ToListAsync();
-
-                var PurchaseVoucherIds = await _context.PurchaseVoucher.Where(x => x.PurchaseVoucherStatus == "P").Select(o => o.PurchaseVoucherPurID).ToListAsync();
-                var purchseVouchers = await (from pvd in _context.PurchaseVoucherDetails
-                                             join pv in _context.PurchaseVoucher on (long)pvd.PurchaseVoucherDetailsPrId equals pv.PurchaseVoucherPurID
-                                             where pvd.PurchaseVoucherDetailsMaterialId == itemId
-                                            && PurchaseVoucherIds.Contains((long)pvd.PurchaseVoucherDetailsPrId)
-                                             select new PurVoucherRateQuantityModel
-                                             {
-                                                 Rate = (long)(pvd.PurchaseVoucherDetailsRate ?? 0),
-                                                 Quantity = pvd.PurchaseVoucherDetailsQuantity ?? 0,
-                                                 PurchaseDate = pv.PurchaseVoucherPurchaseDate
-
-                                             }).OrderByDescending(y => y.PurchaseDate).ToListAsync();
-
-                decimal actualQuantity = 0;
-                decimal actualRate = 0;
-                decimal quantity = 0;
-                decimal rate = 0;
-                actualQuantity = totalQuantity;
-
-                if (rateQuantiyFromStock.Count() > 0)
-                {
-                    foreach (var pvd in rateQuantiyFromStock)
-                    {
-                        rate = pvd.Rate ?? 0;
-                        quantity = pvd.Quantity ?? 0;
-                        if (actualQuantity > 0)
-                        {
-                            if (pvd.Quantity >= actualQuantity)
-                            {
-                                quantity = actualQuantity;
-                                actualRate = actualRate + (rate * quantity);
-                                actualQuantity = actualQuantity - quantity;
-                            }
-                        }
-                    }
-                }
-                else if (purchseVouchers.Count() > 0)
-                {
-                    foreach (var pvd in purchseVouchers)
-                    {
-                        rate = pvd.Rate ?? 0;
-                        quantity = pvd.Quantity ?? 0;
-                        if (actualQuantity > 0)
-                        {
-                            if (pvd.Quantity >= actualQuantity)
-                            {
-                                quantity = actualQuantity;
-                                actualRate = actualRate + (rate * quantity);
-                                actualQuantity = actualQuantity - quantity;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    //get from item master
-                    var im = _context.ItemMaster.Where(k => k.ItemMasterItemId == itemId).FirstOrDefault();
-                    actualRate = im.ItemMasterLastPurchasePrice ?? 0;
-                }
-
-                decimal returnAvgPrice = 0;
-                if (totalQuantity <= 0)
-                {
-                    totalQuantity = 1;
-                }
-                returnAvgPrice = actualRate / totalQuantity;
-                return Response<decimal>.Success(returnAvgPrice, "Data found");
-            }
-            catch (Exception ex)
-            {
-                return Response<decimal>.Fail(0, ex.Message);
-            }
         }
 
         private void createAccountTransactionEntries(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions)
