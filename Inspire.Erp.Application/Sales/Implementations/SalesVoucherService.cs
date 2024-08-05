@@ -26,6 +26,7 @@ using System.Collections;
 using Inspire.Erp.Domain.Models;
 using System.Diagnostics;
 using System.IO.Pipelines;
+using Inspire.Erp.Application.Store.Interfaces;
 
 namespace Inspire.Erp.Application.Sales.Implementations
 {
@@ -57,7 +58,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<SalesReturnDetails> _salesReturnDtls;
         private IRepository<OptionsMaster> _optionMaster;
         private InspireErpDBContext _context;
-
+        private IStockService _openingStockService; 
 
         /// <summary>
         /// Master accounts
@@ -94,7 +95,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
             IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository, IRepository<CurrencyMaster> currencyMasterRepository, IRepository<UnitDetails> unitDetailsRepository, IRepository<MasterAccountsTable> accMaster, IRepository<SalesReturn> salesReturn, IRepository<SalesReturnDetails> salesReturnDtls, IRepository<OptionsMaster> optionMaster
             //IRepository<POS_Sales_Voucher> posSalesVoucherRepository, IRepository<POS_Sales_Voucher_Details> posSalesVoucherDetailsRepository
-            , IRepository<SalesHold> salesHoldRepository, IRepository<SalesHoldDetails> salesHoldDetailsRepository, IRepository<POS_WorkPeriod> POSWorkPeriodRepository, InspireErpDBContext context)
+            , IRepository<SalesHold> salesHoldRepository, IRepository<SalesHoldDetails> salesHoldDetailsRepository, IRepository<POS_WorkPeriod> POSWorkPeriodRepository, InspireErpDBContext context, IStockService openingStockService)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository;
@@ -123,6 +124,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             _POSWorkPeriodRepository = POSWorkPeriodRepository;
             _UserTracking = UserTracking;
             _context = context;
+            _openingStockService = openingStockService;
             //_reportSalesVoucherRepository = reportSalesVoucherRepository;
         }
 
@@ -418,7 +420,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                     var converontype = this.getConverionTypebyUnitId(item.SalesVoucherDetailsMatId, item.SalesVoucherDetailsUnitId);
                     // get Price by Item Id.
-                   // var Price = Convert.ToDecimal(GetAveragePurchasePrice(Convert.ToInt32(item.SalesVoucherDetailsMatId), null));
+                    var Price =  _openingStockService.GetAveragePurchasePrice(Convert.ToInt32(item.SalesVoucherDetailsMatId), null);
 
                     stockReg.Add(new StockRegister()
                     {
@@ -429,8 +431,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         StockRegisterQuantity = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
                         StockRegisterSIN = 0,
                         StockRegisterSout = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
-                        StockRegisterRate = item.SalesVoucherDetailsRate,
-                        StockRegisterAmount = item.SalesVoucherDetailsQuantity * item.SalesVoucherDetailsQuantity ?? 0,
+                        StockRegisterRate = Convert.ToDecimal(Price),
+                        StockRegisterAmount = Convert.ToDecimal(Price) * item.SalesVoucherDetailsQuantity ?? 0,
                         StockRegisterFCAmount = item.SalesVoucherDetailsNetAmt ?? 0 * this.getCurrencyRate(salesVoucher.SalesVoucherCurrencyId),
                         StockRegisterAssignedDate = DateTime.Now.Date,
                         StockRegisterStatus = "A",
@@ -443,9 +445,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     });
                 }
                 _stockRegisterRepository.InsertList(stockReg);
-
-
-
                 _salesVoucherRepository.Insert(salesVoucher);
 
                 UserTracking trackingData = new UserTracking();
