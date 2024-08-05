@@ -48,7 +48,7 @@ namespace Inspire.Erp.Application.Sales.Interfaces
         public IEnumerable<SalesVoucher> GetSalesVoucher();
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
         public VouchersNumbers GetVouchersNumbers(string pvno);
-        public IQueryable GetSalesVoucherDetailsByMasterNo(string SalesVoucherNo);
+        public SalesVoucher GetSalesVoucherDetailsByMasterNo(string SalesVoucherNo);
 
 
         #region POS sales voucher

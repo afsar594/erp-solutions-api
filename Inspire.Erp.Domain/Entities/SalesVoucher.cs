@@ -35,8 +35,6 @@ namespace Inspire.Erp.Domain.Entities
         public int? SalesVoucherLocationID { get; set; }
         public long? SalesVoucherUserID { get; set; }
         public int? SalesVoucherCurrencyId { get; set; }
-        [NotMapped]
-        public string? CurrencyMasterCurrencyName { get; set; }
         public int? SalesVoucherCompanyId { get; set; }
         public int? SalesVoucherJobId { get; set; }
         public decimal? SalesVoucherFSNO { get; set; }
@@ -67,6 +65,8 @@ namespace Inspire.Erp.Domain.Entities
         public bool? SalesVoucherDelStatus { get; set; }
         public long? SalesVoucherShortNo { get; set; }
         [NotMapped]
-        public virtual ICollection<SalesVoucherDetails> SalesVoucherDetails { get; set; }
+        public string? CurrencyMasterCurrencyName { get; set; }
+        [NotMapped]
+        public List<SalesVoucherDetails> SalesVoucherDetails { get; set; }
     }
 }
