@@ -34,7 +34,7 @@ namespace Inspire.Erp.Application.Sales.Interfaces
         public IEnumerable<LocationMaster> SalesVoucher_GetAllLocationMaster();
         
 
-        public SalesVoucherModel InsertSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions, List<SalesVoucherDetails> salesVoucherDetails
+        public Task<SalesVoucherModel>  InsertSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions, List<SalesVoucherDetails> salesVoucherDetails
             , List<StockRegister> stockRegister
             );
         public SalesVoucherModel UpdateSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions, List<SalesVoucherDetails> salesVoucherDetails

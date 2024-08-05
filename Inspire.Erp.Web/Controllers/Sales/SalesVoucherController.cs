@@ -139,7 +139,7 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpPost]
         [Route("InsertSalesVoucher")]
-        public ApiResponse<SalesVoucherViewModel> InsertSalesVoucher([FromBody] SalesVoucherViewModel voucherCompositeView)
+        public async Task<ApiResponse<SalesVoucherViewModel>> InsertSalesVoucher([FromBody] SalesVoucherViewModel voucherCompositeView)
         {
             ApiResponse<SalesVoucherViewModel> apiResponse = new ApiResponse<SalesVoucherViewModel>();
             if (_salesVoucherService.GetVouchersNumbers(voucherCompositeView.SalesVoucherNo) == null)
@@ -149,7 +149,7 @@ namespace Inspire.Erp.Web.Controllers
                 var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
                 List<StockRegister> param4 = new List<StockRegister>();
 
-                var xs = _salesVoucherService.InsertSalesVoucher(param1, param3, param2, param4);
+                var xs = await _salesVoucherService.InsertSalesVoucher(param1, param3, param2, param4);
 
 
                 SalesVoucherViewModel salesVoucherViewModel = new SalesVoucherViewModel
