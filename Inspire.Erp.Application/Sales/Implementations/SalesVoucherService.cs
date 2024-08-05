@@ -375,7 +375,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             }
         }
 
-        public SalesVoucherModel InsertSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions,
+        public async SalesVoucherModel InsertSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions,
             List<SalesVoucherDetails> salesVoucherDetails
             , List<StockRegister> stockRegister
             )
@@ -421,7 +421,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     var converontype = this.getConverionTypebyUnitId(item.SalesVoucherDetailsMatId, item.SalesVoucherDetailsUnitId);
                     // get Price by Item Id.
                     decimal? Price = 0;
-                    var response =  _openingStockService.GetAveragePurchasePrice(Convert.ToInt32(item.SalesVoucherDetailsMatId), null);
+                    var response = await _openingStockService.GetAveragePurchasePrice(Convert.ToInt32(item.SalesVoucherDetailsMatId), null);
                     if(response != null)
                     {
                         Price = Convert.ToDecimal(response);
