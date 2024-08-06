@@ -149,7 +149,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                 salesReturn.SalesReturnEnqDate = DateTime.Now;
                 salesReturn.SalesReturnSVDate = DateTime.Now;
                 //=================================
-                clsCommonFunctions.Delete_OldEntry_StockRegister(salesReturn.SalesReturnNo, VoucherType.SalesReturn_TYPE, _stockRegisterRepository);
+                //clsCommonFunctions.Delete_OldEntry_StockRegister(salesReturn.SalesReturnNo, VoucherType.SalesReturn_TYPE, _stockRegisterRepository);
+                clsCommonFunctions.Delete_OldEntryOf_StockRegister(salesReturn.SalesReturnNo, VoucherType.SalesReturn_TYPE, _stockRegisterRepository);
                 clsCommonFunctions.Delete_OldEntry_AccountsTransactions(salesReturn.SalesReturnNo, VoucherType.SalesReturn_TYPE, _accountTransactionRepository);
                 _salesReturnRepository.Update(salesReturn);
                 Console.WriteLine("STEP ONE");
@@ -161,13 +162,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.SalesReturnDetailsNo = salesReturn.SalesReturnNo;
                     return k;
                 }).ToList();
-                //var lSv = _Context.AccountsTransactions.FirstOrDefault(x => x.AccountsTransactionsVoucherNo == salesReturn.SalesReturnSVNo);
-                //lSv.AccountsTransactionsAllocCredit = 0;
-                //lSv.AccountsTransactionsAllocDebit = salesReturn.SalesReturnNetAmount == null ? 0 : salesReturn.SalesReturnNetAmount.Value;
-                //lSv.AccountsTransactionsAllocBalance = lSv.AccountsTransactionsDebit - lSv.AccountsTransactionsAllocDebit;
 
-                //_Context.AccountsTransactions.Update(lSv);
-                //_Context.SaveChanges(true);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     k.AccountsTransactionsUserId = salesReturn.SalesReturnUserID == null ? -1 : salesReturn.SalesReturnUserID;
@@ -183,13 +178,6 @@ namespace Inspire.Erp.Application.Account.Implementations
                     return k;
                 }).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
-                //addedSalesReturnist = salesReturnDetails.Select((k) =>
-                //{
-                //    k.SalesReturnDetailsId = 0;
-                //    k.SalesReturnId = salesReturn.SalesReturnId;
-                //    k.SalesReturnDetailsNo = salesReturn.SalesReturnNo;
-                //    return k;
-                //}).ToList();
                 var removedList = _Context.SalesReturnDetails.Where(o => o.SalesReturnId == salesReturn.SalesReturnId).ToList();
                 _Context.SalesReturnDetails.RemoveRange(removedList);
                 _Context.SaveChanges();
@@ -202,40 +190,52 @@ namespace Inspire.Erp.Application.Account.Implementations
 
 
 
+                //stockRegister = stockRegister.Select((k) =>
+                //{
+                //    if (k.StockRegisterStoreID == 0)
+                //    {
+                //        k.StockRegisterVoucherDate = salesReturn.SalesReturnDate;
+                //        k.StockRegisterRefVoucherNo = salesReturn.SalesReturnNo;
+                //        k.StockRegisterTransType = VoucherType.SalesReturn_TYPE;
 
-                //_salesReturnRepository.Update(salesReturn);
-                // accountsTransactions = accountsTransactions.Select((k) =>
-                // {
-                //     if (k.AccountsTransactionsTransSno == 0)
-                //     {
-                //         k.AccountsTransactionsTransDate = salesReturn.SalesReturnDate;
-                //         k.AccountsTransactionsVoucherNo = salesReturn.SalesReturnNo;
-                //         k.AccountsTransactionsVoucherType = VoucherType.SalesReturn_TYPE;
-                //         k.AccountsTransactionsStatus = AccountStatus.Approved;
-                //     }
+                //        k.StockRegisterStatus = AccountStatus.Approved;
+                //    }
 
-                //     return k;
-                // }).ToList();
-                // _accountTransactionRepository.UpdateList(accountsTransactions);
-                Console.WriteLine("STEP THREE");
+                //    return k;
+                //}).ToList();
+                //_stockRegisterRepository.UpdateList(stockRegister);
 
-                stockRegister = stockRegister.Select((k) =>
+
+                List<StockRegister> sr = new List<StockRegister>();
+
+                foreach (var item in salesReturnDetails)
                 {
-                    if (k.StockRegisterStoreID == 0)
+                    var converontype = this.getConverionTypebyUnitId(item.SalesReturnDetailsMatId, item.SalesReturnDetailsUnitId);
+                    sr.Add(new StockRegister()
                     {
-                        k.StockRegisterVoucherDate = salesReturn.SalesReturnDate;
-                        k.StockRegisterRefVoucherNo = salesReturn.SalesReturnNo;
-                        k.StockRegisterTransType = VoucherType.SalesReturn_TYPE;
+                        StockRegisterRefVoucherNo = salesReturn.SalesReturnSVNo,
+                        StockRegisterPurchaseID = salesReturn.SalesReturnNo,
+                        StockRegisterAssignedDate = DateTime.Now,
+                        StockRegisterTransType = VoucherType.SalesReturn_TYPE,
+                        StockRegisterFCAmount = salesReturn.SalesReturnTotalActualAmount,
+                        StockRegisterFcRate = salesReturn.SalesReturnFc_Rate,
+                        StockRegisterStatus = "A",
+                        StockRegisterJobID = salesReturn.SalesReturnJobId,
+                        StockRegisterLocationID = salesReturn.SalesReturnLocationID,
+                        StockRegisterFSNO = null,
+                        StockRegisterVoucherDate = salesReturn.SalesReturnDate,
+                        StockRegisterSIN = item.SalesReturnDetailsQuantity * (decimal)(converontype) ?? 0,
+                        StockRegisterRate = item.SalesReturnDetailsRate,
+                        StockRegisterAmount = item.SalesReturnDetailsRate * item.SalesReturnDetailsQuantity,
+                        StockRegisterMaterialID = item.SalesReturnDetailsMatId,
+                        StockRegisterQuantity = item.SalesReturnDetailsQuantity * (decimal)(converontype) ?? 0,
 
-                        k.StockRegisterStatus = AccountStatus.Approved;
-                    }
+                    });
+                }
+                _Context.StockRegister.AddRange(sr);
+                _Context.SaveChanges();
 
-                    return k;
-                }).ToList();
-                _stockRegisterRepository.UpdateList(stockRegister);
-
-
-                Console.WriteLine("STEP FOUR");
+                Console.WriteLine("STEP THREE");
 
 
 
@@ -388,7 +388,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                     var converontype = this.getConverionTypebyUnitId(item.SalesReturnDetailsMatId, item.SalesReturnDetailsUnitId);
                     sr.Add(new StockRegister()
                     {
-                        StockRegisterRefVoucherNo = salesReturn.SalesReturnNo,
+                        StockRegisterRefVoucherNo = salesReturn.SalesReturnSVNo,
+                        StockRegisterPurchaseID = salesReturn.SalesReturnNo,
                         StockRegisterAssignedDate = DateTime.Now,
                         StockRegisterTransType = VoucherType.SalesReturn_TYPE,
                         StockRegisterFCAmount = salesReturn.SalesReturnTotalActualAmount,
@@ -447,7 +448,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                        .GetAsQueryable()
                        .Where(a => a.StockRegisterMaterialID == item.SalesReturnDetailsMatId &&
                                    a.StockRegisterTransType == "SalesReturn" &&
-                                   a.StockRegisterRefVoucherNo == item.SalesReturnDetailsNo);
+                                    a.StockRegisterRefVoucherNo == salesReturnModel.salesReturn.SalesReturnSVNo
+                                     && a.StockRegisterPurchaseID != item.SalesReturnDetailsNo);
 
                     sumReturnedQty = stockQuery.Any()
                                        ? stockQuery.Sum(s => (decimal?)s.StockRegisterSIN) ?? 0

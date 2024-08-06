@@ -218,7 +218,8 @@ namespace Inspire.Erp.Application.Store.Implementation
                                                 PurchaseDate = sr.StockRegisterVoucherDate
                                             }).OrderByDescending(y => y.PurchaseDate).ToListAsync();
 
-                var PurchaseVoucherIds = await _context.PurchaseVoucher.Where(x=>x.PurchaseVoucherStatus=="P").Select(o => o.PurchaseVoucherPurID).ToListAsync();
+                var PurchaseVoucherIds = await _context.PurchaseVoucher.Where(x=>x.PurchaseVoucherStatus.Trim().ToUpper()=="P")
+                    .Select(o => o.PurchaseVoucherPurID).ToListAsync();
 
                 var purchseVouchers =await (from pvd in _context.PurchaseVoucherDetails
                                       join pv in _context.PurchaseVoucher on (long)pvd.PurchaseVoucherDetailsPrId equals pv.PurchaseVoucherPurID

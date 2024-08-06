@@ -52,5 +52,9 @@ namespace Inspire.Erp.Domain.Entities
         public bool? PurchaseVoucherDetailsDelStatus { get; set; }
         [NotMapped]
         public virtual PurchaseVoucher PurchaseVoucherDetailsPurchase { get; set; }
+
+
+        [NotMapped]
+        public decimal? PurchaseReturnQtyTill { get; set; }
     }
 }

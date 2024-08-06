@@ -423,13 +423,13 @@ namespace Inspire.Erp.Web.Controllers
 
 
                 //==============
-                param3 = new List<AccountsTransactions>();
+                //param3 = new List<AccountsTransactions>();
                 List<StockRegister> param4 = new List<StockRegister>();
-                var currencyConversion = _purchaseReturnService.CurrencyConversion(param1);
-                var currencyRate = _purchaseReturnService.GetCurrencyRate(param1);
+               // var currencyConversion = _purchaseReturnService.CurrencyConversion(param1);
+                //var currencyRate = _purchaseReturnService.GetCurrencyRate(param1);
 
 
-                clsAccountAndStock.PurchaseReturn_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3, currencyConversion, currencyRate);
+                //clsAccountAndStock.PurchaseReturn_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3, currencyConversion, currencyRate);
 
                 var xs = _purchaseReturnService.InsertPurchaseReturn(param1, param3, param2
                , param4
@@ -531,12 +531,12 @@ namespace Inspire.Erp.Web.Controllers
 
             //==============
 
-            var currencyConversion = _purchaseReturnService.CurrencyConversion(param1);
-            var currencyRate = _purchaseReturnService.GetCurrencyRate(param1);
+            //var currencyConversion = _purchaseReturnService.CurrencyConversion(param1);
+            //var currencyRate = _purchaseReturnService.GetCurrencyRate(param1);
 
-            param3 = new List<AccountsTransactions>();
+          //  param3 = new List<AccountsTransactions>();
             List<StockRegister> param4 = new List<StockRegister>();
-            clsAccountAndStock.PurchaseReturn_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3, currencyConversion, currencyRate);
+           // clsAccountAndStock.PurchaseReturn_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3, currencyConversion, currencyRate);
 
             var xs = _purchaseReturnService.UpdatePurchaseReturn(param1, param3, param2
            , param4

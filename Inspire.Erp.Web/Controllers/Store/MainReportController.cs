@@ -279,7 +279,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 c.LocationMasterLocationName,
             }).ToList();
 
-            var masterAccountsTables = chartofAccountsService.GetAllAccounts().Where(a => a.MaDelStatus != true).Select(c => new
+            var masterAccountsTables = chartofAccountsService.GetAllAccounts().Where(a => a.MaAccType == "A" && a.MaDelStatus != true).Select(c => new
             {
                 c.MaAccNo,
                 c.MaAccName,

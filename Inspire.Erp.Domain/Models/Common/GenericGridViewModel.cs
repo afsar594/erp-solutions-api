@@ -23,8 +23,8 @@ namespace Inspire.Erp.Domain.Modals.Common
 
     public class ReportFilter
     {
-        public string fromDate { get; set; }
-        public string toDate { get; set; }
+        public DateTime? fromDate { get; set; }
+        public DateTime? toDate { get; set; }
         public string Formate { get; set; }
         public int TotalCount { get; set; }
         public string Query { get; set; }
@@ -39,6 +39,7 @@ namespace Inspire.Erp.Domain.Modals.Common
         public int LocationId { get; set; }
         public int ItemId { get; set; }
         public string PONO { get; set; }
+        public bool IsDateCheck { get; set; }
 
     }
     public class DeliveryNoteReportFilter

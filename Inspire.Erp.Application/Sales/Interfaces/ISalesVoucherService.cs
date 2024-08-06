@@ -34,7 +34,7 @@ namespace Inspire.Erp.Application.Sales.Interfaces
         public IEnumerable<LocationMaster> SalesVoucher_GetAllLocationMaster();
         
 
-        public SalesVoucherModel InsertSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions, List<SalesVoucherDetails> salesVoucherDetails
+        public Task<SalesVoucherModel>  InsertSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions, List<SalesVoucherDetails> salesVoucherDetails
             , List<StockRegister> stockRegister
             );
         public SalesVoucherModel UpdateSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions, List<SalesVoucherDetails> salesVoucherDetails
@@ -48,7 +48,7 @@ namespace Inspire.Erp.Application.Sales.Interfaces
         public IEnumerable<SalesVoucher> GetSalesVoucher();
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
         public VouchersNumbers GetVouchersNumbers(string pvno);
-        public IQueryable GetSalesVoucherDetailsByMasterNo(string SalesVoucherNo);
+        public SalesVoucher GetSalesVoucherDetailsByMasterNo(string SalesVoucherNo);
 
 
         #region POS sales voucher
