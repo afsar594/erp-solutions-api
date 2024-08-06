@@ -26,6 +26,9 @@ using System.Collections;
 using Inspire.Erp.Domain.Models;
 using System.Diagnostics;
 using System.IO.Pipelines;
+using Inspire.Erp.Application.Master;
+using Inspire.Erp.Application.Store.Implementation;
+using Inspire.Erp.Application.Store.Interfaces;
 
 namespace Inspire.Erp.Application.Sales.Implementations
 {
@@ -76,7 +79,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<UserTracking> _UserTracking;
 
 
-
+        private IStockService _openingStockService;
 
 
         //private IRepository<ReportSalesVoucher> _reportSalesVoucherRepository;
@@ -94,7 +97,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
             IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository, IRepository<CurrencyMaster> currencyMasterRepository, IRepository<UnitDetails> unitDetailsRepository, IRepository<MasterAccountsTable> accMaster, IRepository<SalesReturn> salesReturn, IRepository<SalesReturnDetails> salesReturnDtls, IRepository<OptionsMaster> optionMaster
             //IRepository<POS_Sales_Voucher> posSalesVoucherRepository, IRepository<POS_Sales_Voucher_Details> posSalesVoucherDetailsRepository
-            , IRepository<SalesHold> salesHoldRepository, IRepository<SalesHoldDetails> salesHoldDetailsRepository, IRepository<POS_WorkPeriod> POSWorkPeriodRepository, InspireErpDBContext context)
+            , IRepository<SalesHold> salesHoldRepository, IRepository<SalesHoldDetails> salesHoldDetailsRepository, IRepository<POS_WorkPeriod> POSWorkPeriodRepository, InspireErpDBContext context
+            , IStockService openingStockService)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository;
@@ -123,6 +127,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             _POSWorkPeriodRepository = POSWorkPeriodRepository;
             _UserTracking = UserTracking;
             _context = context;
+            _openingStockService = openingStockService;
             //_reportSalesVoucherRepository = reportSalesVoucherRepository;
         }
 
@@ -373,7 +378,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             }
         }
 
-        public SalesVoucherModel InsertSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions,
+        public async Task<SalesVoucherModel> InsertSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions,
             List<SalesVoucherDetails> salesVoucherDetails
             , List<StockRegister> stockRegister
             )
@@ -419,6 +424,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     var converontype = this.getConverionTypebyUnitId(item.SalesVoucherDetailsMatId, item.SalesVoucherDetailsUnitId);
                     // get Price by Item Id.
                     // var Price = Convert.ToDecimal(GetAveragePurchasePrice(Convert.ToInt32(item.SalesVoucherDetailsMatId), null));
+
+                    var response = await _openingStockService.GetAveragePurchasePrice(Convert.ToInt32(item.SalesVoucherDetailsMatId), null);
 
                     stockReg.Add(new StockRegister()
                     {
