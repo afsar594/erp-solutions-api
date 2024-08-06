@@ -79,6 +79,56 @@ namespace Inspire.Erp.Application.Account.Implementations
                     return k;
                 }).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
+                List<PdcDetails> _pdcDetails = new List<PdcDetails>();
+                foreach (var item in bankReceiptVoucherDetails)
+                {
+                    if (item.BankReceiptVoucherDetailsPdc == true)
+                    {
+                        var pdetails = _pdcDetailsRepository.GetAsQueryable().Where(pd => pd.PDC_Details_V_No == bankReceiptVoucher.BankReceiptVoucherVoucherNo).ToList();
+                        if (pdetails.Count > 0)
+                            _pdcDetailsRepository.UpdateList(pdetails);
+                        else
+                        {
+                            _pdcDetails.Add(new PdcDetails()
+                            {
+                                PDC_Details_V_No = bankReceiptVoucher.BankReceiptVoucherVoucherNo,
+                                PDC_Details_V_Type = "BANK RECEIPT",
+                                PDC_Details_Trans_Type = "RECEIVED",
+                                PDC_Details_Trans_Date = DateTime.Now,
+                                PDC_Details_PDC_Date = DateTime.Now,
+                                PDC_Details_Cheque_No = item.BankReceiptVoucherDetailsChequeNo == null ? "" : item.BankReceiptVoucherDetailsChequeNo.ToString(),
+                                PDC_Details_Cheque_Amount = item.BankReceiptVoucherDetailsDrAmount,
+                                PDC_Details_FC_Cheque_Amount = item.BankReceiptVoucherDetailsDrFcAmount,
+                                PDC_Details_Bank_Account_No = item.BankReceiptVoucherDetailsAcNo,
+                                PDC_Details_Cheque_Bank_Name = "",
+                                PDC_Details_Cheque_Status = "NC",
+                                PDC_Details_PDC_Voucher_ID = null,
+                                PDC_Details_PDC_Voucher_Date = DateTime.Now,
+                                PDC_Details_PDC_Voucher_Narration = bankReceiptVoucher.BankReceiptVoucherNarration,
+                                PDC_Details_FSNO = item.BankReceiptVoucherDetailsFsno,
+                                PDC_Details_User_ID = bankReceiptVoucher.BankReceiptVoucherUserId,
+                                PDC_Details_Flat_ID = null,
+                                PDC_Details_Building_ID = null,
+                                PDC_Details_Contract = null,
+                                PDC_Details_Old_Cheque_Status = null,
+                                PDC_Details_PartyAccNo = item.BankReceiptVoucherDetailsAcNo,
+                                PDC_Details_DelStatus = false,
+                            });
+                        }
+
+                    }
+
+                    else
+                    {
+                        var pdetails = _pdcDetailsRepository.GetAsQueryable().Where(pd => pd.PDC_Details_V_No == bankReceiptVoucher.BankReceiptVoucherVoucherNo).ToList();
+                        if (pdetails.Count > 0)
+                            _pdcDetailsRepository.DeleteList(pdetails);
+                    }
+                }
+                if (_pdcDetails != null && _pdcDetails.Count() > 0)
+                {
+                     _pdcDetailsRepository.InsertList(_pdcDetails);
+                }
                 _bankReceiptVoucherDetailsRepository.UpdateList(bankReceiptVoucherDetails);
                 UserTracking trackingData = new UserTracking();
                 trackingData.UserTrackingUserUserId = 1;
@@ -388,7 +438,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                             acc.AccountsTransactionsFcAllocCredit = fc_alloCredit + (decimal)item.AllocationVoucherDetailsNetAllocation * cRate;
                             acc.AccountsTransactionsFcAllocBalance = fcCredit - (fc_alloCredit + ((decimal)item.AllocationVoucherDetailsNetAllocation) * cRate);
                         }
-                        _accountTransactionRepository.Update(acc);
+                        _accountTransactionRepository.Update(acc); 
 
                     }
                 }
