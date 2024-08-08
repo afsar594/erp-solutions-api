@@ -295,10 +295,26 @@ namespace Inspire.Erp.Application.Store.Implementation
         }
 
 
-        public async Task<Response<decimal>> GetAveragePurchasePriceGPC(int itemId, decimal? issueqty)
+        public async Task<Response<decimal>> GetAveragePurchasePriceGPC(int itemId,int unitDetailId,decimal? quantity )
         {
             try
             {
+                decimal? issueqty = 0;
+
+                decimal basicConversion = 1;
+                 var unitD= await _context.UnitDetails.FirstOrDefaultAsync(x => x.UnitDetailsItemId == itemId && x.UnitDetailsUnitId == unitDetailId);
+                if(unitD!=null)
+                {
+                    basicConversion = Convert.ToDecimal(unitD.UnitDetailsConversionType);
+                }
+
+                if (basicConversion == 0)
+                {
+                    basicConversion = 1;
+                }
+
+                issueqty = quantity * basicConversion;
+
                 var currStock = (from sr in _context.StockRegister
                                      where sr.StockRegisterMaterialID == itemId
                                      group sr by 1 into og

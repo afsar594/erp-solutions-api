@@ -242,7 +242,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         basicConvertion = 1;
                     }
 
-                    var costPriceStock = await _openingStockService.GetAveragePurchasePriceGPC(Convert.ToInt32(item.SalesVoucherDetailsMatId), item.SalesVoucherDetailsQuantity * basicConvertion);
+                    var costPriceStock = await _openingStockService.GetAveragePurchasePriceGPC(Convert.ToInt32(item.SalesVoucherDetailsMatId),(int)item.SalesVoucherDetailsUnitId, item.SalesVoucherDetailsQuantity);
 
                     stockReg.Add(new StockRegister()
                     {
@@ -435,7 +435,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         basicConvertion = 1;
                     }
 
-                    var costPriceStock = await _openingStockService.GetAveragePurchasePriceGPC(Convert.ToInt32(item.SalesVoucherDetailsMatId), item.SalesVoucherDetailsQuantity * basicConvertion);
+                    var costPriceStock = await _openingStockService.GetAveragePurchasePriceGPC(Convert.ToInt32(item.SalesVoucherDetailsMatId),(int)item.SalesVoucherDetailsUnitId, item.SalesVoucherDetailsQuantity);
 
                     stockReg.Add(new StockRegister()
                     {
