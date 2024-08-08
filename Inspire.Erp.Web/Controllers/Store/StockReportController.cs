@@ -74,10 +74,10 @@ namespace Inspire.Erp.Web.Controllers.Store
 
         [HttpPost]
         [Route("GetAveragePurchasePriceGPC")]
-        public async Task<IActionResult> GetAveragePurchasePriceGPC(int itemId)
+        public async Task<IActionResult> GetAveragePurchasePriceGPC(int itemId, int unitDetailId, decimal? quantity)
         {
 
-            var results = await _openingStockService.GetAveragePurchasePriceGPC(itemId, null);
+            var results = await _openingStockService.GetAveragePurchasePriceGPC(itemId, unitDetailId,quantity);
             return Ok(results);
 
         }
