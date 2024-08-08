@@ -293,6 +293,202 @@ namespace Inspire.Erp.Application.Store.Implementation
                 return Response<decimal>.Fail(0, ex.Message);
             }
         }
+
+
+        public async Task<Response<decimal>> GetAveragePurchasePriceGPC(int itemId, decimal? issueqty)
+        {
+            try
+            {
+                var currStock = (from sr in _context.StockRegister
+                                     where sr.StockRegisterMaterialID == itemId
+                                     group sr by 1 into og
+                                     select new
+                                     {
+                                         Total = og.Sum(item => (item.StockRegisterSIN ?? 0 - item.StockRegisterSout ?? 0)),
+
+                                     }).FirstOrDefault().Total;
+
+                //updae stockregister "update stock_register set NETSTKBAL=0 where mat_id=" & itemId
+                var listPrice = await (from sr in _context.StockRegister
+                                                  where sr.StockRegisterMaterialID == itemId && 
+                                                  (new string[] { "ITEM_MANUFACTURE", "P", "OS", "SR", "ISSUE RETURN", "STOCK ADJUSTMENT" }).ToList().Contains(sr.StockRegisterTransType.Trim().ToUpper())
+                                                 && ((int)sr.StockRegisterSIN != 0 && sr.StockRegisterSIN != null)
+                                                  select new StockRegisterModel
+                                                  {
+                                                      SIN = (decimal)sr.StockRegisterSIN,
+                                                      Rate = sr.StockRegisterRate,
+                                                      AssingedDate = sr.StockRegisterAssignedDate,
+                                                      NetStockBalance=sr.StockRegisterNetStkBal,
+                                                     // PurchaseId=sr.StockRegisterPurchaseID,
+                                                      StoreId=sr.StockRegisterStoreID
+                                                     
+                                                  }).OrderByDescending(y => y.AssingedDate).ToListAsync();
+
+
+
+                //var PurchaseVoucherIds = await _context.PurchaseVoucher.Where(x => x.PurchaseVoucherStatus.Trim().ToUpper() == "P")
+                //    .Select(o => o.PurchaseVoucherPurID).ToListAsync();
+
+                //var purchseVouchers = await (from pvd in _context.PurchaseVoucherDetails
+                //                             join pv in _context.PurchaseVoucher on (long)pvd.PurchaseVoucherDetailsPrId equals pv.PurchaseVoucherPurID
+                //                             where pvd.PurchaseVoucherDetailsMaterialId == itemId
+                //                            && PurchaseVoucherIds.Contains((long)pvd.PurchaseVoucherDetailsPrId)
+                //                             select new PurVoucherRateQuantityModel
+                //                             {
+                //                                 Rate = (long)(pvd.PurchaseVoucherDetailsRate ?? 0),
+                //                                 Quantity = pvd.PurchaseVoucherDetailsQuantity ?? 0,
+                //                                 PurchaseDate = pv.PurchaseVoucherPurchaseDate
+                //                             }).OrderByDescending(y => y.PurchaseDate).ToListAsync();
+
+         
+
+                decimal stockUpdate = 0;
+                if (listPrice.Count() > 0)
+                {
+                    foreach (var pvd in listPrice)
+                    {
+                       if (pvd.SIN <= currStock)
+                        {
+                            stockUpdate = pvd.SIN;
+                            currStock=currStock-pvd.SIN;
+
+                            var stockReg = await _context.StockRegister.Where(x => x.StockRegisterStoreID == pvd.StoreId)
+                                                 .ToListAsync();
+
+                            foreach(var sr in stockReg)
+                            {
+                                sr.StockRegisterNetStkBal = stockUpdate;
+                            }
+                        }
+                       else
+                        {
+                            stockUpdate = currStock;
+
+                            var stockReg = await _context.StockRegister.Where(x => x.StockRegisterStoreID == pvd.StoreId)
+                                              .ToListAsync();
+
+                            foreach (var sr in stockReg)
+                            {
+                                sr.StockRegisterNetStkBal = stockUpdate;
+                            }
+                            break;
+                        }
+                    }
+                }
+                decimal? issueBal = 0;
+
+                var avgPrice = await (from sr in _context.StockRegister
+                                       where sr.StockRegisterMaterialID == itemId 
+                                       && (sr.StockRegisterNetStkBal != 0 && sr.StockRegisterNetStkBal != null)
+                                       select new StockRegisterModel
+                                       {
+                                           SIN = (decimal)sr.StockRegisterSIN,
+                                           Rate = sr.StockRegisterRate,
+                                           AssingedDate = sr.StockRegisterAssignedDate,
+                                           NetStockBalance = sr.StockRegisterNetStkBal,
+                                           PurchaseId=sr.StockRegisterPurchaseID,
+                                        
+                                       }).OrderByDescending(y => y.AssingedDate).ToListAsync();
+
+                decimal? totalAmount=0;
+                foreach (var pvd in avgPrice)
+                {
+                    if (issueBal < pvd.NetStockBalance)
+                    {
+                        totalAmount = totalAmount + issueBal * pvd.Rate;
+                        break;
+                    }
+                    else
+                    {
+                        totalAmount = totalAmount + pvd.NetStockBalance * pvd.Rate;
+                        issueBal=issueBal - pvd.NetStockBalance;
+                    }
+                }
+
+                decimal? costPrice = 0;
+                if(issueqty > 0)
+                {
+                    if(issueqty > currStock)
+                    {
+                        
+                        if(totalAmount<=0)
+                        {
+                            costPrice = 0;
+                        }
+                        else
+                        {
+                            costPrice = (decimal)totalAmount / currStock;
+                        }
+                    }
+                    else
+                    {
+                        costPrice = (decimal)totalAmount / (decimal)issueqty;
+                    }
+
+                    if(costPrice==0)
+                    {
+                        
+                        var costPriceL = await (from sr in _context.StockRegister
+                                               where sr.StockRegisterMaterialID == itemId &&
+                                               (new string[] { "ITEM_MANUFACTURE", "P", "OS", "SR", "ISSUE RETURN", "STOCK ADJUSTMENT" }).ToList().Contains(sr.StockRegisterTransType.Trim().ToUpper())
+                                              && ((int)sr.StockRegisterSIN != 0 && sr.StockRegisterSIN != null)
+                                               select new StockRegisterModel
+                                               {
+                                                   SIN = (decimal)sr.StockRegisterSIN,
+                                                   Rate = sr.StockRegisterRate,
+                                                   AssingedDate = sr.StockRegisterAssignedDate,
+                                                   NetStockBalance = sr.StockRegisterNetStkBal,
+                                                   // PurchaseId=sr.StockRegisterPurchaseID,
+                                                   StoreId = sr.StockRegisterStoreID
+
+                                               }).OrderByDescending(y => y.AssingedDate).ToListAsync();
+                        costPrice = costPriceL.FirstOrDefault().Rate;
+                    }
+                    else
+                    {
+                        var im = _context.ItemMaster.Where(k => k.ItemMasterItemId == itemId).FirstOrDefault();
+                        costPrice = im.ItemMasterLastPurchasePrice ?? 0;
+                    }
+
+                }
+
+                //else if (purchseVouchers.Count() > 0)
+                //{
+                //    foreach (var pvd in purchseVouchers)
+                //    {
+                //        rate = pvd.Rate ?? 0;
+                //        quantity = pvd.Quantity ?? 0;
+                //        if (actualQuantity > 0)
+                //        {
+                //            if (pvd.Quantity >= actualQuantity)
+                //            {
+                //                quantity = actualQuantity;
+                //                actualRate = actualRate + (rate * quantity);
+                //                actualQuantity = actualQuantity - quantity;
+                //            }
+                //        }
+                //    }
+                //}
+                //else
+                //{
+                //    //get from item master
+                //    var im = _context.ItemMaster.Where(k => k.ItemMasterItemId == itemId).FirstOrDefault();
+                //    actualRate = im.ItemMasterLastPurchasePrice ?? 0;
+                //}
+
+                //decimal returnAvgPrice = 0;
+                //if (totalQuantity <= 0)
+                //{
+                //    totalQuantity = 1;
+                //}
+                //returnAvgPrice = actualRate / totalQuantity;
+                return Response<decimal>.Success(costPrice??0, "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<decimal>.Fail(0, ex.Message);
+            }
+        }
         public async Task<Response<StockMovementReportResponse>> GetStockMovementReport(StockFilterModel model)
         {
             try

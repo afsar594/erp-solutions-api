@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Inspire.Erp.Application.Account;
 using Inspire.Erp.Domain.Modals.Common;
+using Microsoft.CodeAnalysis.CSharp;
 
 
 namespace Inspire.Erp.Web.Controllers
@@ -151,6 +152,7 @@ namespace Inspire.Erp.Web.Controllers
 
                 var xs = await _salesVoucherService.InsertSalesVoucher(param1, param3, param2, param4);
 
+                //costprice=itemAvgPrice * quantity * Conversion rate
 
                 SalesVoucherViewModel salesVoucherViewModel = new SalesVoucherViewModel
                 {
