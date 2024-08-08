@@ -176,7 +176,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             return _itemMasterRepository.GetAll();
         }
 
-        public async Task<SalesVoucherModel> UpdateSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions,
+        public SalesVoucherModel UpdateSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions,
             List<SalesVoucherDetails> salesVoucherDetails
            , List<StockRegister> stockRegister
             )
@@ -187,7 +187,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 _salesVoucherRepository.BeginTransaction();
 
                 //=================================
-                clsCommonFunctions.Delete_OldEntry_StockRegister(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _stockRegisterRepository);
+                clsCommonFunctions.Delete_OldEntryOf_StockRegister(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _stockRegisterRepository);
                 clsCommonFunctions.Delete_OldEntry_AccountsTransactions(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _accountTransactionRepository);
                 //=================================
                 salesVoucher.SalesVoucherDetails = salesVoucherDetails.Select((k) =>
@@ -231,18 +231,14 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 //}).ToList();
                 //_stockRegisterRepository.UpdateList(stockRegister);
 
+                var currencyRate = clsCommonFunctions.getConverionCurrencyRate(salesVoucher.SalesVoucherCurrencyId, _currencyMasterRepository);
+                var rate = (decimal)currencyRate;
+
                 var stockReg = new List<StockRegister>();
                 foreach (var item in salesVoucher.SalesVoucherDetails)
                 {
 
-                    var basicConvertion = this.getConversionTypebyUnitId(item.SalesVoucherDetailsMatId, item.SalesVoucherDetailsUnitId);
-
-                    if (basicConvertion == 0)
-                    {
-                        basicConvertion = 1;
-                    }
-
-                    var costPriceStock = await _openingStockService.GetAveragePurchasePriceGPC(Convert.ToInt32(item.SalesVoucherDetailsMatId),(int)item.SalesVoucherDetailsUnitId, item.SalesVoucherDetailsQuantity);
+                    var converontype = this.getConverionTypebyUnitId(item.SalesVoucherDetailsMatId, item.SalesVoucherDetailsUnitId);
 
                     stockReg.Add(new StockRegister()
                     {
@@ -250,12 +246,12 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         StockRegisterRefVoucherNo = salesVoucher.SalesVoucherNo,
                         StockRegisterVoucherDate = DateTime.Now.Date,
                         StockRegisterMaterialID = item.SalesVoucherDetailsMatId,
-                        StockRegisterQuantity = item.SalesVoucherDetailsQuantity,//item.SalesVoucherDetailsQuantity * (decimal)(basicConvertion) ?? 0,
+                        StockRegisterQuantity = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
                         StockRegisterSIN = 0,
-                        StockRegisterSout = item.SalesVoucherDetailsQuantity * (decimal)(basicConvertion),//conversiontype
-                        StockRegisterRate = Convert.ToDecimal(costPriceStock),  //item.SalesVoucherDetailsRate,
-                        StockRegisterAmount = Convert.ToDecimal(costPriceStock) * item.SalesVoucherDetailsQuantity * (decimal)(basicConvertion),//amount
-                        StockRegisterFCAmount = Convert.ToDecimal(costPriceStock) * item.SalesVoucherDetailsQuantity * (decimal)(basicConvertion),
+                        StockRegisterSout = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
+                        StockRegisterRate = item.SalesVoucherDetailsRate,
+                        StockRegisterAmount = item.SalesVoucherDetailsQuantity * item.SalesVoucherDetailsRate ?? 0,
+                        StockRegisterFCAmount = item.SalesVoucherDetailsQuantity * item.SalesVoucherDetailsRate * rate,
                         StockRegisterAssignedDate = DateTime.Now.Date,
                         StockRegisterStatus = "A",
                         StockRegisterTransType = VoucherType.SalesVoucher_TYPE,
@@ -373,7 +369,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             return i;
 
         }
-        private decimal getConversionTypebyUnitId(int? itemid, int? unitDetailsid)
+        private decimal getConverionTypebyUnitId(int? itemid, int? unitDetailsid)
         {
             try
             {
@@ -422,20 +418,19 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 }).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
+                var currencyRate = clsCommonFunctions.getConverionCurrencyRate(salesVoucher.SalesVoucherCurrencyId, _currencyMasterRepository);
+                var rate = (decimal)currencyRate;
+
+
                 var stockReg = new List<StockRegister>();
-                decimal tempCostAmt=0;
-                decimal tempCostPrice;
                 foreach (var item in salesVoucher.SalesVoucherDetails)
                 {
 
-                    var basicConvertion = this.getConversionTypebyUnitId(item.SalesVoucherDetailsMatId, item.SalesVoucherDetailsUnitId);
-                    
-                    if(basicConvertion==0)
-                    {
-                        basicConvertion = 1;
-                    }
+                    var converontype = this.getConverionTypebyUnitId(item.SalesVoucherDetailsMatId, item.SalesVoucherDetailsUnitId);
+                    // get Price by Item Id.
+                    // var Price = Convert.ToDecimal(GetAveragePurchasePrice(Convert.ToInt32(item.SalesVoucherDetailsMatId), null));
 
-                    var costPriceStock = await _openingStockService.GetAveragePurchasePriceGPC(Convert.ToInt32(item.SalesVoucherDetailsMatId),(int)item.SalesVoucherDetailsUnitId, item.SalesVoucherDetailsQuantity);
+                    var response = await _openingStockService.GetAveragePurchasePrice(Convert.ToInt32(item.SalesVoucherDetailsMatId), null);
 
                     stockReg.Add(new StockRegister()
                     {
@@ -443,12 +438,12 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         StockRegisterRefVoucherNo = salesVoucher.SalesVoucherNo,
                         StockRegisterVoucherDate = DateTime.Now.Date,
                         StockRegisterMaterialID = item.SalesVoucherDetailsMatId,
-                        StockRegisterQuantity = item.SalesVoucherDetailsQuantity,//item.SalesVoucherDetailsQuantity * (decimal)(basicConvertion) ?? 0,
+                        StockRegisterQuantity = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
                         StockRegisterSIN = 0,
-                        StockRegisterSout = item.SalesVoucherDetailsQuantity * (decimal)(basicConvertion),//conversiontype
-                        StockRegisterRate =Convert.ToDecimal(costPriceStock),  //item.SalesVoucherDetailsRate,
-                        StockRegisterAmount = Convert.ToDecimal(costPriceStock) * item.SalesVoucherDetailsQuantity * (decimal)(basicConvertion),//amount
-                        StockRegisterFCAmount = Convert.ToDecimal(costPriceStock) * item.SalesVoucherDetailsQuantity * (decimal)(basicConvertion),
+                        StockRegisterSout = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
+                        StockRegisterRate = item.SalesVoucherDetailsRate,
+                        StockRegisterAmount = item.SalesVoucherDetailsQuantity * item.SalesVoucherDetailsRate ?? 0,
+                        StockRegisterFCAmount = item.SalesVoucherDetailsQuantity * item.SalesVoucherDetailsRate * rate,
                         StockRegisterAssignedDate = DateTime.Now.Date,
                         StockRegisterStatus = "A",
                         StockRegisterTransType = VoucherType.SalesVoucher_TYPE,
@@ -458,10 +453,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         StockRegisterDepID = salesVoucher.SalesVoucherDptID,
                         StockRegisterDelStatus = false
                     });
-
-                    item.SalesVoucherDetailsCostPrice  = Convert.ToDecimal(costPriceStock) * basicConvertion;
-                    tempCostPrice = Convert.ToDecimal(costPriceStock) * basicConvertion;
-                    tempCostAmt = tempCostAmt + ((decimal)item.SalesVoucherDetailsQuantity * tempCostPrice);
                 }
                 _stockRegisterRepository.InsertList(stockReg);
 
