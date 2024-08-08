@@ -71,6 +71,16 @@ namespace Inspire.Erp.Web.Controllers.Store
             return Ok(results);
 
         }
+
+        [HttpPost]
+        [Route("GetAveragePurchasePriceGPC")]
+        public async Task<IActionResult> GetAveragePurchasePriceGPC(int itemId)
+        {
+
+            var results = await _openingStockService.GetAveragePurchasePriceGPC(itemId, null);
+            return Ok(results);
+
+        }
         [HttpGet]
         [Route("GetStockReportBaseUnitByItemId/{id}")]
         public async Task<IActionResult> GetStockReportBaseUnit(int id)

@@ -422,9 +422,9 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 }).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
-
-
                 var stockReg = new List<StockRegister>();
+                decimal tempCostAmt=0;
+                decimal tempCostPrice;
                 foreach (var item in salesVoucher.SalesVoucherDetails)
                 {
 
@@ -458,6 +458,10 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         StockRegisterDepID = salesVoucher.SalesVoucherDptID,
                         StockRegisterDelStatus = false
                     });
+
+                    item.SalesVoucherDetailsCostPrice  = Convert.ToDecimal(costPriceStock) * basicConvertion;
+                    tempCostPrice = Convert.ToDecimal(costPriceStock) * basicConvertion;
+                    tempCostAmt = tempCostAmt + ((decimal)item.SalesVoucherDetailsQuantity * tempCostPrice);
                 }
                 _stockRegisterRepository.InsertList(stockReg);
 
