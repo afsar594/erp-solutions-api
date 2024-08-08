@@ -73,9 +73,61 @@ namespace Inspire.Erp.Application.Account.Implementations
                    
                 }).ToList();
 
+                List<PdcDetails> _pdcDetails = new List<PdcDetails>();
+                foreach (var item in bankPaymentVoucherDetails)
+                {
+                    if (item.BankPaymentVoucherDetailsPdc == true)
+                    {
+                        var pdetails = _pdcDetailsRepository.GetAsQueryable().Where(pd => pd.PDC_Details_V_No == bankPaymentVoucher.BankPaymentVoucherVoucherNo).ToList();
+                        if (pdetails.Count > 0)
+                            _pdcDetailsRepository.UpdateList(pdetails);
+                       
+                        else
+                        {
+                            _pdcDetails.Add(new PdcDetails()
+                            {
+                                PDC_Details_V_No = bankPaymentVoucher.BankPaymentVoucherVoucherNo,
+                                PDC_Details_V_Type = "BANK PAYMENT",
+                                PDC_Details_Trans_Type = "ISSUED",
+                                PDC_Details_Trans_Date = DateTime.Now,
+                                PDC_Details_PDC_Date = DateTime.Now,
+                                PDC_Details_Cheque_No = item.BankPaymentVoucherDetailsChequeNo == null ? "" : item.BankPaymentVoucherDetailsChequeNo.ToString(),
+                                PDC_Details_Cheque_Amount = item.BankPaymentVoucherDetailsDrAmount,
+                                PDC_Details_FC_Cheque_Amount = item.BankPaymentVoucherDetailsDrAmount,
+                                PDC_Details_Bank_Account_No = item.BankPaymentVoucherDetailsAcNo,
+                                PDC_Details_Cheque_Bank_Name = "",
+                                PDC_Details_Cheque_Status = "NC",
+                                PDC_Details_PDC_Voucher_ID = null,
+                                PDC_Details_PDC_Voucher_Date = DateTime.Now,
+                                PDC_Details_PDC_Voucher_Narration = bankPaymentVoucher.BankPaymentVoucherNarration,
+                                PDC_Details_FSNO = item.BankPaymentVoucherDetailsFsno,
+                                PDC_Details_User_ID = bankPaymentVoucher.BankPaymentVoucherUserId,
+                                PDC_Details_Flat_ID = null,
+                                PDC_Details_Building_ID = null,
+                                PDC_Details_Contract = null,
+                                PDC_Details_Old_Cheque_Status = null,
+                                PDC_Details_PartyAccNo = item.BankPaymentVoucherDetailsAcNo,
+                                PDC_Details_DelStatus = false,
+                            });
+
+                        }
+                    }
+
+                    else
+                    {
+                        var pdetails = _pdcDetailsRepository.GetAsQueryable().Where(pd => pd.PDC_Details_V_No == bankPaymentVoucher.BankPaymentVoucherVoucherNo).ToList();
+                        if (pdetails.Count > 0)
+                            _pdcDetailsRepository.DeleteList(pdetails);
+                    }
+                }
+                if (_pdcDetails != null && _pdcDetails.Count() > 0)
+                {
+                    _pdcDetailsRepository.InsertList(_pdcDetails);
+                }
+
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 _bankPaymentVoucherDetailsRepository.UpdateList(bankPaymentVoucherDetails);
-
+                
                 UserTracking trackingData = new UserTracking();
                 trackingData.UserTrackingUserUserId = 1;
                 trackingData.UserTrackingUserVpAction = "Update";
