@@ -20,20 +20,16 @@ namespace Inspire.Erp.Application.Account.Implementations
     {
         private IRepository<StockRegister> _stockRegisterRepository;
         private IRepository<AccountsTransactions> _accountTransactionRepository;
-        private IRepository<SalesReturn> _salesReturnRepository;
+        private IRepository<SalesReturn> _salesReturnRepository; private IRepository<CurrencyMaster> _currencyMasterRepository;
         private IRepository<SalesReturnDetails> _salesReturnDetailsRepository;
         private IRepository<ProgramSettings> _programsettingsRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
         private readonly ILogger<PaymentVoucherService> _logger;
-
         private IRepository<ItemMaster> _itemMasterRepository;
         private IRepository<UnitMaster> _unitMasterRepository;
         private IRepository<SuppliersMaster> _suppliersMasterRepository;
         private IRepository<LocationMaster> _locationMasterRepository;
         private IRepository<UnitDetails> _UnitDetailsRepository;
-
-
-
         private IRepository<CustomerMaster> _customerMasterRepository;
         private IRepository<CustomerMaster> _salesManMasterRepository;
         private IRepository<DepartmentMaster> _departmentMasterRepository;
@@ -48,7 +44,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             IRepository<DepartmentMaster> departmentMasterRepository,
             IRepository<ItemMaster> itemMasterRepository, IRepository<UnitMaster> unitMasterRepository,
             IRepository<SuppliersMaster> suppliersMasterRepository, IRepository<LocationMaster> locationMasterRepository,
-            IRepository<UnitDetails> unitDetailsRepository,
+            IRepository<UnitDetails> unitDetailsRepository, IRepository<CurrencyMaster> currencyMasterRepository,
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
 
@@ -60,7 +56,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             this._salesReturnDetailsRepository = salesReturnDetailsRepository;
             _programsettingsRepository = programsettingsRepository;
             _voucherNumbersRepository = voucherNumbers;
-
+            _currencyMasterRepository = currencyMasterRepository;
             _UnitDetailsRepository = unitDetailsRepository;
             _itemMasterRepository = itemMasterRepository;
             _unitMasterRepository = unitMasterRepository;
@@ -205,6 +201,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                 //}).ToList();
                 //_stockRegisterRepository.UpdateList(stockRegister);
 
+                var currencyRate = clsCommonFunctions.getConverionCurrencyRate(salesReturn.SalesReturnCurrencyId, _currencyMasterRepository);
+                var rate = (decimal)currencyRate;
 
                 List<StockRegister> sr = new List<StockRegister>();
 
@@ -217,7 +215,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                         StockRegisterPurchaseID = salesReturn.SalesReturnNo,
                         StockRegisterAssignedDate = DateTime.Now,
                         StockRegisterTransType = VoucherType.SalesReturn_TYPE,
-                        StockRegisterFCAmount = salesReturn.SalesReturnTotalActualAmount,
+                        StockRegisterFCAmount = item.SalesReturnDetailsRate * item.SalesReturnDetailsQuantity*rate,
                         StockRegisterFcRate = salesReturn.SalesReturnFc_Rate,
                         StockRegisterStatus = "A",
                         StockRegisterJobID = salesReturn.SalesReturnJobId,
@@ -381,6 +379,10 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _Context.AccountsTransactions.AddRange(accountsTransactions);
                 _Context.SaveChanges();
 
+                var currencyRate = clsCommonFunctions.getConverionCurrencyRate(salesReturn.SalesReturnCurrencyId, _currencyMasterRepository);
+                var rate = (decimal)currencyRate;
+
+
                 List<StockRegister> sr = new List<StockRegister>();
 
                 foreach (var item in salesReturnDetails)
@@ -392,7 +394,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                         StockRegisterPurchaseID = salesReturn.SalesReturnNo,
                         StockRegisterAssignedDate = DateTime.Now,
                         StockRegisterTransType = VoucherType.SalesReturn_TYPE,
-                        StockRegisterFCAmount = salesReturn.SalesReturnTotalActualAmount,
+                        StockRegisterFCAmount = item.SalesReturnDetailsRate * item.SalesReturnDetailsQuantity * rate,
                         StockRegisterFcRate = salesReturn.SalesReturnFc_Rate,
                         StockRegisterStatus = "A",
                         StockRegisterJobID = salesReturn.SalesReturnJobId,

@@ -11,6 +11,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Microsoft.Extensions.Logging;
+using SendGrid.Helpers.Mail;
 
 namespace Inspire.Erp.Application.MODULE
 {
@@ -181,7 +182,7 @@ namespace Inspire.Erp.Application.MODULE
         }
 
 
-        public static void Delete_OldEntryOf_StockRegister(string Vno,string StockRegisterTransType, IRepository<StockRegister> _stockRegisterRepository)
+        public static void Delete_OldEntryOf_StockRegister(string Vno, string StockRegisterTransType, IRepository<StockRegister> _stockRegisterRepository)
         {
             var data = _stockRegisterRepository.GetAsQueryable().Where(a => a.StockRegisterPurchaseID == Vno && a.StockRegisterTransType.Trim() == StockRegisterTransType).ToList();
             if (data != null)
@@ -275,7 +276,17 @@ namespace Inspire.Erp.Application.MODULE
 
         //}
 
-
+        public static double getConverionCurrencyRate(int? itemid, IRepository<CurrencyMaster> _currencyMasterRepository)
+        {
+            try
+            {
+                return (double)_currencyMasterRepository.GetAsQueryable().Where(a => a.CurrencyMasterCurrencyId == itemid).Select(c => c.CurrencyMasterCurrencyRate ?? 0).FirstOrDefault();
+            }
+            catch
+            {
+                return 1;
+            }
+        }
 
 
 
