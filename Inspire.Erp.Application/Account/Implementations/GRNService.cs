@@ -149,7 +149,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                         StockRegisterTransType = VoucherType.PurchaseVoucher_TYPE,
                         StockRegisterStatus = AccountStatus.Approved,
 
-                    });              
+                    });
 
                 }
                 _stockRegisterRepository.InsertList(stockRegisters);
@@ -212,6 +212,8 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
 
                 foreach (var item in grn.PurchaseVoucherDetails)
                 {
+                    item.PurchaseVoucherDetailsVoucherNo = grn.PurchaseVoucherVoucherNo;
+
                     var converontype = this.getConverionTypebyUnitId(item.PurchaseVoucherDetailsMaterialId, item.PurchaseVoucherDetailsUnitId);
                     stockRegisters.Add(new StockRegister
                     {
