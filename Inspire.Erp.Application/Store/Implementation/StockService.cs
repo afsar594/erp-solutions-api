@@ -45,14 +45,34 @@ namespace Inspire.Erp.Application.Store.Implementation
     public class StockService : IStockService
     {
         private InspireErpDBContext _context;
-
+        private IRepository<StockRegister> _stockRegisterRepository;
+        private IRepository<ItemMaster> _itemMasterRepository;
+        private IRepository<UnitMaster> _unitMasterRepository;
+        private IRepository<UnitDetails> _unitDetailsRepository;
+        private IRepository<PurchaseVoucher> _purchaseVoucherRepository;
+        private IRepository<PurchaseVoucherDetails> _purchaseVoucherDRepository;
+        //private IRepository<UnitDetails> _unitDetailsRepository;
         private readonly ILogger<StockService> _logger;
 
-        public StockService(InspireErpDBContext context, ILogger<StockService> logger)
+        public StockService(
+            InspireErpDBContext context,
+            IRepository<ItemMaster> itemMasterRepository,
+            IRepository<UnitMaster> unitMasterRepository,
+            IRepository<UnitDetails> unitDetailsRepository,
+             IRepository<StockRegister> stockRegisterRepository,
+             IRepository<PurchaseVoucher> purchaseVoucherRepository,
+             IRepository<PurchaseVoucherDetails> purchaseVoucherDRepository,
+            ILogger<StockService> logger)
         {
 
             _logger = logger;
-            _context = context;
+          //  _context = context;
+            _itemMasterRepository = itemMasterRepository;
+            _unitMasterRepository = unitMasterRepository;
+            _unitDetailsRepository = unitDetailsRepository;
+            this._stockRegisterRepository = stockRegisterRepository;
+            _purchaseVoucherDRepository= purchaseVoucherDRepository;
+            _purchaseVoucherRepository = purchaseVoucherRepository;
         }
 
         public async Task<Response<List<StockReportBaseUnitResponse>>> GetStockReportBaseUnitList(StockFilterModel model)
@@ -62,7 +82,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                 List<StockReportBaseUnitResponse> response = new List<StockReportBaseUnitResponse>();
 
-                var subrq = (from s in _context.UnitDetails
+                var subrq = (from s in _unitDetailsRepository.GetAsQueryable()
                              group s by new { s.UnitDetailsItemId, s.UnitDetailsId } into g
                              select new
                              {
@@ -72,18 +92,18 @@ namespace Inspire.Erp.Application.Store.Implementation
                              });
 
 
-                var results = await (from im in _context.ItemMaster.Where(x => x.ItemMasterItemName.ToLower().Contains(model.ItemName.ToLower())
+                var results = await (from im in _itemMasterRepository.GetAsQueryable().Where(x => x.ItemMasterItemName.ToLower().Contains(model.ItemName.ToLower())
                                      // && x.ItemMasterDefaultLocationName.ToLower().Contains(model.Location.ToLower()) 
                                      && (model.LocationId == null || x.ItemMasterLocationId == model.LocationId)
                                      && (model.ItemId == null || x.ItemMasterItemId == model.ItemId)
                                      && (model.ItemGroupId == null || x.ItemMasterRef1 == model.ItemGroupId.ToString())
                                      )
 
-                                     join sr in _context.StockRegister on im.ItemMasterItemId equals sr.StockRegisterMaterialID.GetValueOrDefault() into gim
+                                     join sr in _stockRegisterRepository.GetAsQueryable() on im.ItemMasterItemId equals sr.StockRegisterMaterialID.GetValueOrDefault() into gim
                                      from y in gim.DefaultIfEmpty()
                                      join r in subrq on y.StockRegisterMaterialID.GetValueOrDefault() equals r.ItemId into grj
                                      from q in grj.DefaultIfEmpty()
-                                     join um in _context.UnitMaster on q.UnitId equals um.UnitMasterUnitId into gum
+                                     join um in _unitMasterRepository.GetAsQueryable() on q.UnitId equals um.UnitMasterUnitId into gum
                                      from n in gum.DefaultIfEmpty()
                                      where im.ItemMasterItemType == "A"
                                      select new StockReportBaseUnitResponse
@@ -108,7 +128,7 @@ namespace Inspire.Erp.Application.Store.Implementation
             try
             {
                 List<StockReportBaseUnitResponse> response = new List<StockReportBaseUnitResponse>();
-                var query = _context.ItemMaster.AsQueryable();
+                var query = _itemMasterRepository.GetAsQueryable();
                 if (model.ItemId > 0)
                 {
                     query = query.Where(im => im.ItemMasterItemId == model.ItemId);
@@ -125,7 +145,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 }
 
 
-                var subrq = (from s in _context.UnitDetails.Where(x => x.UnitDetailsConversionType == 1)
+                var subrq = (from s in _unitDetailsRepository.GetAsQueryable().Where(x => x.UnitDetailsConversionType == 1)
                              select new
                              {
                                  ItemId = s.UnitDetailsItemId,
@@ -133,11 +153,11 @@ namespace Inspire.Erp.Application.Store.Implementation
                              });
 
                 var stockBaseUnits = (from im in query
-                                      join sr in _context.StockRegister on im.ItemMasterItemId equals sr.StockRegisterMaterialID.GetValueOrDefault() into gim
+                                      join sr in _stockRegisterRepository.GetAsQueryable() on im.ItemMasterItemId equals sr.StockRegisterMaterialID.GetValueOrDefault() into gim
                                       from y in gim.DefaultIfEmpty()
                                       join r in subrq on y.StockRegisterMaterialID.GetValueOrDefault() equals r.ItemId into grj
                                       from q in grj.DefaultIfEmpty()
-                                      join um in _context.UnitMaster on q.UnitId equals um.UnitMasterUnitId into gum
+                                      join um in _unitMasterRepository.GetAsQueryable() on q.UnitId equals um.UnitMasterUnitId into gum
                                       from n in gum.DefaultIfEmpty()
                                       where im.ItemMasterItemType == "A"
                                       select new StockReportBaseUnitResponse
@@ -162,7 +182,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                 // dbo].[GetStockValue]
                 var stockValues = (from ss in query
-                                   join a in _context.StockRegister on ss.ItemMasterItemId equals (long)a.StockRegisterMaterialID.GetValueOrDefault()
+                                   join a in _stockRegisterRepository.GetAsQueryable() on ss.ItemMasterItemId equals (long)a.StockRegisterMaterialID.GetValueOrDefault()
                                    group a by a.StockRegisterMaterialID into g
                                    select new
                                    {
@@ -197,7 +217,7 @@ namespace Inspire.Erp.Application.Store.Implementation
         {
             try
             {
-                   var totalQuantity = (from sr in _context.StockRegister
+                   var totalQuantity = (from sr in _stockRegisterRepository.GetAsQueryable()
                             where (locationId == null || sr.StockRegisterLocationID == locationId)
                             && sr.StockRegisterMaterialID==itemId
                             group sr by 1 into og
@@ -207,7 +227,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                             }).FirstOrDefault().Total;
 
-                    var rateQuantiyFromStock = await (from sr in _context.StockRegister
+                    var rateQuantiyFromStock = await (from sr in _stockRegisterRepository.GetAsQueryable()
                                             where (locationId == null || sr.StockRegisterLocationID == locationId)
                                             && sr.StockRegisterMaterialID == itemId
 
@@ -218,11 +238,11 @@ namespace Inspire.Erp.Application.Store.Implementation
                                                 PurchaseDate = sr.StockRegisterVoucherDate
                                             }).OrderByDescending(y => y.PurchaseDate).ToListAsync();
 
-                var PurchaseVoucherIds = await _context.PurchaseVoucher.Where(x=>x.PurchaseVoucherStatus.Trim().ToUpper()=="P")
+                var PurchaseVoucherIds = await _purchaseVoucherRepository.GetAsQueryable().Where(x=>x.PurchaseVoucherStatus.Trim().ToUpper()=="P")
                     .Select(o => o.PurchaseVoucherPurID).ToListAsync();
 
-                var purchseVouchers =await (from pvd in _context.PurchaseVoucherDetails
-                                      join pv in _context.PurchaseVoucher on (long)pvd.PurchaseVoucherDetailsPrId equals pv.PurchaseVoucherPurID
+                var purchseVouchers =await (from pvd in _purchaseVoucherDRepository.GetAsQueryable()
+                                      join pv in _purchaseVoucherRepository.GetAsQueryable() on (long)pvd.PurchaseVoucherDetailsPrId equals pv.PurchaseVoucherPurID
                                       where pvd.PurchaseVoucherDetailsMaterialId == itemId
                                      && PurchaseVoucherIds.Contains((long)pvd.PurchaseVoucherDetailsPrId)
                                       select new PurVoucherRateQuantityModel
@@ -276,7 +296,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 else
                 {
                     //get from item master
-                    var im = _context.ItemMaster.Where(k => k.ItemMasterItemId == itemId).FirstOrDefault();
+                    var im = _itemMasterRepository.GetAsQueryable().Where(k => k.ItemMasterItemId == itemId).FirstOrDefault();
                     actualRate= im.ItemMasterLastPurchasePrice ?? 0;
                 }
 
@@ -302,7 +322,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 decimal? issueqty = 0;
 
                 decimal basicConversion = 1;
-                 var unitD= await _context.UnitDetails.FirstOrDefaultAsync(x => x.UnitDetailsItemId == itemId && x.UnitDetailsUnitId == unitDetailId);
+                 var unitD= await _unitDetailsRepository.GetAsQueryable().Where(x => x.UnitDetailsItemId == itemId && x.UnitDetailsUnitId == unitDetailId).FirstOrDefaultAsync();
                 if(unitD!=null)
                 {
                     basicConversion = Convert.ToDecimal(unitD.UnitDetailsConversionType);
@@ -315,8 +335,8 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                 issueqty = quantity * basicConversion;
 
-                var currStock = (from sr in _context.StockRegister
-                                     where sr.StockRegisterMaterialID == itemId
+                var currStock = (from sr in _stockRegisterRepository.GetAsQueryable()
+                                 where sr.StockRegisterMaterialID == itemId
                                      group sr by 1 into og
                                      select new
                                      {
@@ -325,9 +345,9 @@ namespace Inspire.Erp.Application.Store.Implementation
                                      }).FirstOrDefault().Total;
 
                 //updae stockregister "update stock_register set NETSTKBAL=0 where mat_id=" & itemId
-                var listPrice = await (from sr in _context.StockRegister
-                                                  where sr.StockRegisterMaterialID == itemId && 
-                                                  (new string[] { "ITEM_MANUFACTURE", "P", "OS", "SR", "ISSUE RETURN", "STOCK ADJUSTMENT" }).ToList().Contains(sr.StockRegisterTransType.Trim().ToUpper())
+                var listPrice = await (from sr in _stockRegisterRepository.GetAsQueryable()
+                                       where sr.StockRegisterMaterialID == itemId && 
+                                                  (new string[] { "ITEM_MANUFACTURE", "PurchaseVoucher", "OpeningStockVoucher", "SalesReturn", "ISSUE RETURN", "STOCK ADJUSTMENT" }).ToList().Contains(sr.StockRegisterTransType.Trim().ToUpper())
                                                  && ((int)sr.StockRegisterSIN != 0 && sr.StockRegisterSIN != null)
                                                   select new StockRegisterModel
                                                   {
@@ -368,33 +388,36 @@ namespace Inspire.Erp.Application.Store.Implementation
                             stockUpdate = pvd.SIN;
                             currStock=currStock-pvd.SIN;
 
-                            var stockReg = await _context.StockRegister.Where(x => x.StockRegisterStoreID == pvd.StoreId)
+                            var stockReg = await _stockRegisterRepository.GetAsQueryable().Where(x => x.StockRegisterStoreID == pvd.StoreId)
                                                  .ToListAsync();
 
                             foreach(var sr in stockReg)
                             {
                                 sr.StockRegisterNetStkBal = stockUpdate;
                             }
+                         
                         }
                        else
                         {
                             stockUpdate = currStock;
 
-                            var stockReg = await _context.StockRegister.Where(x => x.StockRegisterStoreID == pvd.StoreId)
+                            var stockReg = await _stockRegisterRepository.GetAsQueryable().Where(x => x.StockRegisterStoreID == pvd.StoreId)
                                               .ToListAsync();
 
                             foreach (var sr in stockReg)
                             {
                                 sr.StockRegisterNetStkBal = stockUpdate;
                             }
+                            
                             break;
                         }
                     }
                 }
                 decimal? issueBal = 0;
+                _stockRegisterRepository.SaveChangesAsync();
 
-                var avgPrice = await (from sr in _context.StockRegister
-                                       where sr.StockRegisterMaterialID == itemId 
+                var avgPrice = await (from sr in _stockRegisterRepository.GetAsQueryable()
+                                      where sr.StockRegisterMaterialID == itemId 
                                        && (sr.StockRegisterNetStkBal != 0 && sr.StockRegisterNetStkBal != null)
                                        select new StockRegisterModel
                                        {
@@ -444,9 +467,9 @@ namespace Inspire.Erp.Application.Store.Implementation
                     if(costPrice==0)
                     {
                         
-                        var costPriceL = await (from sr in _context.StockRegister
-                                               where sr.StockRegisterMaterialID == itemId &&
-                                               (new string[] { "ITEM_MANUFACTURE", "P", "OS", "SR", "ISSUE RETURN", "STOCK ADJUSTMENT" }).ToList().Contains(sr.StockRegisterTransType.Trim().ToUpper())
+                        var costPriceL = await (from sr in _stockRegisterRepository.GetAsQueryable()
+                                                where sr.StockRegisterMaterialID == itemId &&
+                                               (new string[] { "ITEM_MANUFACTURE", "PurchaseVoucher", "OpeningStockVoucher", "SalesReturn", "ISSUE RETURN", "STOCK ADJUSTMENT" }).ToList().Contains(sr.StockRegisterTransType.Trim().ToUpper())
                                               && ((int)sr.StockRegisterSIN != 0 && sr.StockRegisterSIN != null)
                                                select new StockRegisterModel
                                                {
@@ -458,11 +481,12 @@ namespace Inspire.Erp.Application.Store.Implementation
                                                    StoreId = sr.StockRegisterStoreID
 
                                                }).OrderByDescending(y => y.AssingedDate).ToListAsync();
+                        if(costPriceL.Count()>0)
                         costPrice = costPriceL.FirstOrDefault().Rate;
                     }
                     else
                     {
-                        var im = _context.ItemMaster.Where(k => k.ItemMasterItemId == itemId).FirstOrDefault();
+                        var im = _itemMasterRepository.GetAsQueryable().Where(k => k.ItemMasterItemId == itemId).FirstOrDefault();
                         costPrice = im.ItemMasterLastPurchasePrice ?? 0;
                     }
 
@@ -527,8 +551,8 @@ namespace Inspire.Erp.Application.Store.Implementation
                 }
 
                 var GroupItemIds = await _context.ItemMaster.Where(o => o.ItemMasterAccountNo == (long)model.ItemGroupId).Select(o => o.ItemMasterItemId).ToListAsync();
-                var MatIds = await _context.StockRegister.Select(o => o.StockRegisterMaterialID).ToListAsync();
-                //var subrq = (from s in _context.StockRegister.Where(x => x.StockRegisterMaterialID == model.ItemId
+                var MatIds = await _stockRegisterRepository.GetAsQueryable().Select(o => o.StockRegisterMaterialID).ToListAsync();
+                //var subrq = (from s in _stockRegisterRepository.GetAsQueryable().Where(x => x.StockRegisterMaterialID == model.ItemId
                 //             && GroupItemIds.Contains((long)x.StockRegisterMaterialID)
                 //             )
                 //             select new
@@ -538,7 +562,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 //             });
                 //&& GroupItemIds.Contains((long)y.StockRegisterMaterialID)
                 var stockInOutGW = (from im in query
-                                    join sr in _context.StockRegister on im.ItemMasterItemId equals sr.StockRegisterMaterialID.GetValueOrDefault() into gim
+                                    join sr in _stockRegisterRepository.GetAsQueryable() on im.ItemMasterItemId equals sr.StockRegisterMaterialID.GetValueOrDefault() into gim
                                     from y in gim.DefaultIfEmpty()
                                     join ig in _context.ItemMaster on im.ItemMasterAccountNo equals ig.ItemMasterItemId
                                     where im.ItemMasterItemType == "A"
@@ -623,7 +647,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 //                           pvd.PurchaseVoucherDetailsVoucherNo
                 //                       }).AsQueryable();
 
-                var queryInOut = (from sr in _context.StockRegister
+                var queryInOut = (from sr in _stockRegisterRepository.GetAsQueryable()
                                   join pv in _context.PurchaseVoucher on sr.StockRegisterRefVoucherNo equals pv.PurchaseVoucherVoucherNo into gsr
                                   from srp in gsr.DefaultIfEmpty()
 
@@ -703,7 +727,7 @@ namespace Inspire.Erp.Application.Store.Implementation
         }
         private decimal getQuantityValue(long itemId)
         {
-            var res = (from d in _context.StockRegister
+            var res = (from d in _stockRegisterRepository.GetAsQueryable()
                        where (new string[] { "P", "OS", "OPENING_STOCK_VOUCHER" }).ToList().Contains(d.StockRegisterTransType)
                         && (int)d.StockRegisterMaterialID == itemId
                        select new
@@ -757,7 +781,7 @@ namespace Inspire.Erp.Application.Store.Implementation
         //                                   pvd.PurchaseVoucherDetailsVoucherNo
         //                               }).AsQueryable();
 
-        //        var queryIn = (from sr in _context.StockRegister
+        //        var queryIn = (from sr in _stockRegisterRepository.GetAsQueryable()
         //                        join pv in _context.PurchaseVoucher on sr.StockRegisterRefVoucherNo equals pv.PurchaseVoucherVoucherNo into gsr
         //                        from srp in gsr.DefaultIfEmpty()
 
@@ -850,7 +874,7 @@ namespace Inspire.Erp.Application.Store.Implementation
         //                                   pvd.PurchaseVoucherDetailsVoucherNo
         //                               }).AsQueryable();
 
-        //        var queryOut = (from sr in _context.StockRegister
+        //        var queryOut = (from sr in _stockRegisterRepository.GetAsQueryable()
         //                       join pv in _context.PurchaseVoucher on sr.StockRegisterRefVoucherNo equals pv.PurchaseVoucherVoucherNo into gsr
         //                       from srp in gsr.DefaultIfEmpty()
 
@@ -958,7 +982,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                              });
 
                 var stockValues = (from ss in query
-                                   join a in _context.StockRegister on ss.ItemMasterItemId equals (long)a.StockRegisterMaterialID.GetValueOrDefault()
+                                   join a in _stockRegisterRepository.GetAsQueryable() on ss.ItemMasterItemId equals (long)a.StockRegisterMaterialID.GetValueOrDefault()
                                    where a.StockRegisterVoucherDate >= model.fromDate && a.StockRegisterVoucherDate <= model.toDate
                                    group a by a.StockRegisterMaterialID into g
                                    select new
@@ -970,11 +994,11 @@ namespace Inspire.Erp.Application.Store.Implementation
 
 
                 var results = (from im in query
-                               join sr in _context.StockRegister on im.ItemMasterItemId equals (long)sr.StockRegisterMaterialID.GetValueOrDefault() into gimV1
+                               join sr in _stockRegisterRepository.GetAsQueryable() on im.ItemMasterItemId equals (long)sr.StockRegisterMaterialID.GetValueOrDefault() into gimV1
                                from y in gimV1.DefaultIfEmpty()
                                join r in subrq on y.StockRegisterMaterialID.GetValueOrDefault() equals (int)r.ItemId into grj
                                from q in grj.DefaultIfEmpty()
-                               join um in _context.UnitMaster on q.UnitId equals um.UnitMasterUnitId into gum
+                               join um in _unitMasterRepository.GetAsQueryable() on q.UnitId equals um.UnitMasterUnitId into gum
                                from n in gum.DefaultIfEmpty()
                                where im.ItemMasterItemType == "A" && (model.ItemId == null || im.ItemMasterItemId == model.ItemId)
                                && (model.LocationId == null || y.StockRegisterLocationID == model.LocationId)
@@ -1022,11 +1046,11 @@ namespace Inspire.Erp.Application.Store.Implementation
                .ToList();
 
                 var StockIn = (from im in query
-                               join sr in _context.StockRegister on im.ItemMasterItemId equals (long)sr.StockRegisterMaterialID.GetValueOrDefault() into gimV1
+                               join sr in _stockRegisterRepository.GetAsQueryable() on im.ItemMasterItemId equals (long)sr.StockRegisterMaterialID.GetValueOrDefault() into gimV1
                                from y in gimV1.DefaultIfEmpty()
                                join r in subrq on y.StockRegisterMaterialID.GetValueOrDefault() equals (int)r.ItemId into grj
                                from q in grj.DefaultIfEmpty()
-                               join um in _context.UnitMaster on q.UnitId equals um.UnitMasterUnitId into gum
+                               join um in _unitMasterRepository.GetAsQueryable() on q.UnitId equals um.UnitMasterUnitId into gum
                                from n in gum.DefaultIfEmpty()
                                join lm in _context.LocationMaster on y.StockRegisterLocationID equals lm.LocationMasterLocationId into glm
                                from lms in glm.DefaultIfEmpty()
@@ -1053,11 +1077,11 @@ namespace Inspire.Erp.Application.Store.Implementation
                                      .ToList();
 
                 var StockOut = (from im in query
-                                join sr in _context.StockRegister on im.ItemMasterItemId equals (long)sr.StockRegisterMaterialID.GetValueOrDefault() into gimV1
+                                join sr in _stockRegisterRepository.GetAsQueryable() on im.ItemMasterItemId equals (long)sr.StockRegisterMaterialID.GetValueOrDefault() into gimV1
                                 from y in gimV1.DefaultIfEmpty()
                                 join r in subrq on y.StockRegisterMaterialID.GetValueOrDefault() equals (int)r.ItemId into grj
                                 from q in grj.DefaultIfEmpty()
-                                join um in _context.UnitMaster on q.UnitId equals um.UnitMasterUnitId into gum
+                                join um in _unitMasterRepository.GetAsQueryable() on q.UnitId equals um.UnitMasterUnitId into gum
                                 from n in gum.DefaultIfEmpty()
                                 join lm in _context.LocationMaster on y.StockRegisterLocationID equals lm.LocationMasterLocationId into glm
                                 from lms in glm.DefaultIfEmpty()
