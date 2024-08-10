@@ -194,13 +194,13 @@ namespace Inspire.Erp.Application.Account.Implementations
                                     _paymentVoucherRepository.Update(paymentVoucher);
                                     _paymentVoucherRepository.SaveChangesAsync();
                                     break;
-                                case "BANKRECEIPT":
+                                case "BANK RECEIPT":
                                     var bankReceiptVoucher = _bankReceiptVoucherRepository.GetAsQueryable().Where(r => r.BankReceiptVoucherVoucherNo == item.AllocationVoucherDetailsVno).FirstOrDefault();
                                     bankReceiptVoucher.BankReceiptVoucherAllocId = avID;
                                     _bankReceiptVoucherRepository.Update(bankReceiptVoucher);
                                     _bankReceiptVoucherRepository.SaveChangesAsync();
                                     break;
-                                case "BANKPAYMENT":
+                                case "BANK PAYMENT":
                                     var bankPaymentVoucher = _bankPaymentVoucherRepository.GetAsQueryable().Where(r => r.BankPaymentVoucherVoucherNo == item.AllocationVoucherDetailsVno).FirstOrDefault();
                                     bankPaymentVoucher.BankPaymentVoucherAllocId = avID;
                                     _bankPaymentVoucherRepository.Update(bankPaymentVoucher);

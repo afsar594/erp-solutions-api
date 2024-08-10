@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Inspire.Erp.Application.Common;
 using Inspire.Erp.Domain.Modals;
+using Microsoft.EntityFrameworkCore;
 
 namespace Inspire.Erp.Application.Account.Implementations
 {
@@ -37,36 +38,40 @@ namespace Inspire.Erp.Application.Account.Implementations
 
         }
 
-        public async Task<IEnumerable<BankLedger>> BankLedger()
+        public async Task<IEnumerable<BankLedger>> BankLedger(string bankAccNo)
         {
             try
             {
-                try
-                {
-                    var Res = _BankLedgerRepo.GetBySP($"EXEC BankLedger");
-                    return Res;
-                }
-                catch (Exception ex)
-                {
+               
+                var excludedVouchers = _ReconciliationVoucherDetailsRepo
+                                        .GetAsQueryable()
+                                        .Where(rv => rv.ReconciliationVoucherDetailsVno != null && rv.ReconciliationVoucherDetailsMatched == "Y")
+                                        .Select(rv => rv.ReconciliationVoucherDetailsVno);
 
-                    throw ex;
-                }
-                //var list = (from at in _AccountsTransactionsRepo.GetAsQueryable()
-                //            join bpvd in _BankPaymentVoucherDetailsRepo.GetAsQueryable()
-                //            on at.AccountsTransactionsVoucherNo equals bpvd.BankPaymentVoucherDetailsInvNo
-                //            join rvd in _ReconciliationVoucherDetailsRepo.GetAsQueryable()
-                //            on at.AccountsTransactionsVoucherNo equals rvd.ReconciliationVoucherDetailsVno
-                //            where (rvd.ReconciliationVoucherDetailsVno ?? "") == "Y"
-                //            select new BankLedger
-                //            {
-                //                AccountsTransactions_VoucherNo = at.AccountsTransactionsVoucherNo,
-                //                AccountsTransactions_Debit = at.AccountsTransactionsDebit,
-                //                AccountsTransactions_Credit = at.AccountsTransactionsCredit,
-                //                AccountsTransactions_TransSno = at.AccountsTransactionsTransSno,
-                //                checkNo = at.AccountsTransactionsCheqNo,
-                //                AccountsTransactions_Description = at.AccountsTransactionsDescription,
-                //                AccountsTransactions_TransDate = at.AccountsTransactionsTransDate
-                //            }).ToList();
+                var list = await (from at in _AccountsTransactionsRepo.GetAsQueryable()
+                                  join bpvd in _BankPaymentVoucherDetailsRepo.GetAsQueryable()
+                                  on at.AccountsTransactionsVoucherNo equals bpvd.BankPaymentVoucherDetailsVoucherNo into bpvdGroup
+                                  from bpvd in bpvdGroup.DefaultIfEmpty()
+                                  join rvd in _BankReceiptVoucherDetailsRepo.GetAsQueryable()
+                                  on at.AccountsTransactionsVoucherNo equals rvd.BankReceiptVoucherDetailsVoucherNo into rvdGroup
+                                  from rvd in rvdGroup.DefaultIfEmpty()
+                                  where at.AccountsTransactionsAccNo == bankAccNo
+                                  where bpvd != null || rvd != null
+                                  where !excludedVouchers.Contains(at.AccountsTransactionsVoucherNo)
+                                  orderby at.AccountsTransactionsTransDate
+                                  select new BankLedger
+                                  {
+                                      AccountsTransactions_VoucherNo = at.AccountsTransactionsVoucherNo,
+                                      AccountsTransactions_Debit = at.AccountsTransactionsDebit,
+                                      AccountsTransactions_Credit = at.AccountsTransactionsCredit,
+                                      AccountsTransactions_TransSno = at.AccountsTransactionsTransSno,
+                                      checkNo = at.AccountsTransactionsCheqNo != null ? (int?)Convert.ToInt32(at.AccountsTransactionsCheqNo) : null,
+                                      AccountsTransactions_Description = at.AccountsTransactionsDescription,
+                                      AccountsTransactions_TransDate = at.AccountsTransactionsTransDate
+                                  }).ToListAsync();
+
+
+                return list;
             }
             catch (Exception ex)
             {
@@ -78,7 +83,7 @@ namespace Inspire.Erp.Application.Account.Implementations
         public async Task<List<MasterAccountsTable>> GetAccountListForDropdown()
         {
             var list = (from mat in _MasterAccountsTableRepo.GetAsQueryable()
-                        where (mat.MaStatus ?? "") == "R" && (mat.MaRelativeNo ?? "") == "00"
+                        where (mat.MaStatus ?? "") == "R" && (mat.MaRelativeNo ?? "") == "01001002"
                         select new MasterAccountsTable
                         {
                             MaSno = mat.MaSno,

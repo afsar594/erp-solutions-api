@@ -23,10 +23,10 @@ namespace Inspire.Erp.Web.Controllers
         {
             return await _ibn.GetAccountListForDropdown();
         }
-        [HttpGet("BankLedger")]
-        public async Task<IEnumerable<BankLedger>> BankLedger()
+        [HttpGet("BankLedger/{bankAccNo}")]
+        public async Task<IEnumerable<BankLedger>> BankLedger(string bankAccNo)
         {
-            var res = await _ibn.BankLedger();
+            var res = await _ibn.BankLedger(bankAccNo);
             return res;
         }
     }
