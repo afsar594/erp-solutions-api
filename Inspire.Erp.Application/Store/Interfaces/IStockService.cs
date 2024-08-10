@@ -23,5 +23,7 @@ namespace Inspire.Erp.Application.Store.Interfaces
 
         Task<Response<decimal>> GetAveragePurchasePrice(int itemId, int? locationId);
 
+        Task<Response<decimal>> GetAveragePurchasePriceGPC(int itemId, int unitDetailId, decimal? quantity);
+
     }
 }

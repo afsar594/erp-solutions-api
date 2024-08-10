@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Inspire.Erp.Application.Account;
 using Inspire.Erp.Domain.Modals.Common;
+using Microsoft.CodeAnalysis.CSharp;
 
 
 namespace Inspire.Erp.Web.Controllers
@@ -151,6 +152,7 @@ namespace Inspire.Erp.Web.Controllers
 
                 var xs = await _salesVoucherService.InsertSalesVoucher(param1, param3, param2, param4);
 
+                //costprice=itemAvgPrice * quantity * Conversion rate
 
                 SalesVoucherViewModel salesVoucherViewModel = new SalesVoucherViewModel
                 {
@@ -240,7 +242,7 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpPost]
         [Route("UpdateSalesVoucher")]
-        public ApiResponse<SalesVoucherViewModel> UpdateSalesVoucher([FromBody] SalesVoucherViewModel voucherCompositeView)
+        public async Task<ApiResponse<SalesVoucherViewModel>> UpdateSalesVoucher([FromBody] SalesVoucherViewModel voucherCompositeView)
         {
             var param1 = _mapper.Map<SalesVoucher>(voucherCompositeView);
             var param2 = _mapper.Map<List<SalesVoucherDetails>>(voucherCompositeView.SalesVoucherDetails);
@@ -265,7 +267,7 @@ namespace Inspire.Erp.Web.Controllers
 
             //clsAccountAndStock.SalesVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3, allUnits);
 
-            var xs = _salesVoucherService.UpdateSalesVoucher(param1, param3, param2
+            var xs = await _salesVoucherService.UpdateSalesVoucher(param1, param3, param2
            , param4
            );
             //========================

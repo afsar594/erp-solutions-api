@@ -8,6 +8,7 @@ namespace Inspire.Erp.Web.ViewModels
     public class UnitMasterViewModel
     {
         public int? UnitMasterUnitId { get; set; }
+        public int? UnitDetailsId { get; set; }
         public string UnitMasterUnitShortName { get; set; }
         public string UnitMasterUnitFullName { get; set; }
         public string UnitMasterUnitDescription { get; set; }

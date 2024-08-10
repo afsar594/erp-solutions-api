@@ -28,11 +28,19 @@ namespace Inspire.Erp.Application.MIS.Implementations
 
         private async Task<int> ExecuteSP(ReportFilter query)
         {
-            var spResult = await _spResult.GetBySPWithParameters<SingleValueSPResult>(@$"exec GetAccountTransactionTrialBalance  {query.fromDate},{query.toDate},{0},{query.CostCenter},{query.FinancialMindate},{query.Formate}", x => new SingleValueSPResult()
+            try
             {
-                ReturnValue = x.ReturnValue
-            });
-            return (int)spResult.FirstOrDefault().ReturnValue;
+                var spResult = await _spResult.GetBySPWithParameters<SingleValueSPResult>(@$"exec GetAccountTransactionTrialBalance  {query.fromDate},{query.toDate},{0},{query.CostCenter},{query.FinancialMindate},{query.Formate}", x => new SingleValueSPResult()
+                {
+                    ReturnValue = x.ReturnValue
+                });
+                return (int)spResult.FirstOrDefault().ReturnValue;
+            }
+            catch(Exception ex)
+            {
+                return 0;
+            }
+       
         }
         public async Task<Response<GridWrapperResponse<List<GetTrialBalanceReportModel>>>> TrailBalanceSummary(ReportFilter query)
         {
@@ -128,7 +136,6 @@ namespace Inspire.Erp.Application.MIS.Implementations
                 return Response<GridWrapperResponse<List<GetTrialBalanceReportModel>>>.Fail(aa, "Data not found");
             }
         }
-
 
         public async Task<Response<GridWrapperResponse<List<GetTrialBalanceReportModel>>>> TrailBalanceDetailedView(ReportFilter query)
         {

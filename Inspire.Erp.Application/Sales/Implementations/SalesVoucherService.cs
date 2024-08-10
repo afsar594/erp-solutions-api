@@ -176,7 +176,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             return _itemMasterRepository.GetAll();
         }
 
-        public SalesVoucherModel UpdateSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions,
+        public async Task<SalesVoucherModel> UpdateSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions,
             List<SalesVoucherDetails> salesVoucherDetails
            , List<StockRegister> stockRegister
             )
@@ -187,7 +187,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 _salesVoucherRepository.BeginTransaction();
 
                 //=================================
-                clsCommonFunctions.Delete_OldEntry_StockRegister(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _stockRegisterRepository);
+                clsCommonFunctions.Delete_OldEntryOf_StockRegister(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _stockRegisterRepository);
                 clsCommonFunctions.Delete_OldEntry_AccountsTransactions(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _accountTransactionRepository);
                 //=================================
                 salesVoucher.SalesVoucherDetails = salesVoucherDetails.Select((k) =>
@@ -231,6 +231,9 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 //}).ToList();
                 //_stockRegisterRepository.UpdateList(stockRegister);
 
+                var currencyRate = clsCommonFunctions.getConverionCurrencyRate(salesVoucher.SalesVoucherCurrencyId, _currencyMasterRepository);
+                var rate = (decimal)currencyRate;
+
                 var stockReg = new List<StockRegister>();
                 foreach (var item in salesVoucher.SalesVoucherDetails)
                 {
@@ -248,7 +251,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         StockRegisterSout = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
                         StockRegisterRate = item.SalesVoucherDetailsRate,
                         StockRegisterAmount = item.SalesVoucherDetailsQuantity * item.SalesVoucherDetailsRate ?? 0,
-                        StockRegisterFCAmount = item.SalesVoucherDetailsNetAmt ?? 0 * this.getCurrencyRate(salesVoucher.SalesVoucherCurrencyId),
+                        StockRegisterFCAmount = item.SalesVoucherDetailsQuantity * item.SalesVoucherDetailsRate * rate,
                         StockRegisterAssignedDate = DateTime.Now.Date,
                         StockRegisterStatus = "A",
                         StockRegisterTransType = VoucherType.SalesVoucher_TYPE,
@@ -415,6 +418,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 }).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
+                var currencyRate = clsCommonFunctions.getConverionCurrencyRate(salesVoucher.SalesVoucherCurrencyId, _currencyMasterRepository);
+                var rate = (decimal)currencyRate;
 
 
                 var stockReg = new List<StockRegister>();
@@ -437,8 +442,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         StockRegisterSIN = 0,
                         StockRegisterSout = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
                         StockRegisterRate = item.SalesVoucherDetailsRate,
-                        StockRegisterAmount = item.SalesVoucherDetailsQuantity * item.SalesVoucherDetailsQuantity ?? 0,
-                        StockRegisterFCAmount = item.SalesVoucherDetailsNetAmt ?? 0 * this.getCurrencyRate(salesVoucher.SalesVoucherCurrencyId),
+                        StockRegisterAmount = item.SalesVoucherDetailsQuantity * item.SalesVoucherDetailsRate ?? 0,
+                        StockRegisterFCAmount = item.SalesVoucherDetailsQuantity * item.SalesVoucherDetailsRate * rate,
                         StockRegisterAssignedDate = DateTime.Now.Date,
                         StockRegisterStatus = "A",
                         StockRegisterTransType = VoucherType.SalesVoucher_TYPE,
@@ -753,7 +758,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             salesVoucherModel.salesVoucher = _salesVoucherRepository.GetAsQueryable().Where(k => k.SalesVoucherNo == pvno).SingleOrDefault();
             salesVoucherModel.salesVoucherDetails = _salesVoucherDetailsRepository.GetAsQueryable().Where(x => x.SalesVoucherDetailsNo == pvno && (x.SalesVoucherDetailsDelStatus == false || x.SalesVoucherDetailsDelStatus == null)).ToList();
 
-            salesVoucherModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(x => x.AccountsTransactionsVoucherNo == pvno).ToList();
+            salesVoucherModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(x => x.AccountsTransactionsVoucherNo == pvno && x.AccountstransactionsDelStatus != true).ToList();
 
             if (salesVoucherModel.salesVoucherDetails.Count > 0)
             {

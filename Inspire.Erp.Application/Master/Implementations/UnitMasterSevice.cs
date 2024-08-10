@@ -138,7 +138,8 @@ namespace Inspire.Erp.Application.Master
                                      where cpod.UnitDetailsItemId == itemId
                                      select new GetUnitDetailsMasterList
                                      {
-                                         UnitMasterUnitId = cpod.UnitDetailsUnitId,
+                                         UnitMasterUnitId = cpo.UnitMasterUnitId,
+                                         UnitDetailsId = cpod.UnitDetailsId,
                                          UnitMasterUnitShortName = cpo.UnitMasterUnitShortName.Trim(),
                                          UnitMasterUnitFullName = cpo.UnitMasterUnitFullName == null ? "" : cpo.UnitMasterUnitFullName.Trim(),
                                          UnitMasterUnitDescription = cpo.UnitMasterUnitDescription == null ? "" : cpo.UnitMasterUnitDescription,

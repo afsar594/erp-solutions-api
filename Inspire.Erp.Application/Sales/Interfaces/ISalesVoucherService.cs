@@ -37,7 +37,7 @@ namespace Inspire.Erp.Application.Sales.Interfaces
         public Task<SalesVoucherModel>  InsertSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions, List<SalesVoucherDetails> salesVoucherDetails
             , List<StockRegister> stockRegister
             );
-        public SalesVoucherModel UpdateSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions, List<SalesVoucherDetails> salesVoucherDetails
+        public Task<SalesVoucherModel> UpdateSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions, List<SalesVoucherDetails> salesVoucherDetails
             , List<StockRegister> stockRegister
             );
         public int DeleteSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions, List<SalesVoucherDetails> salesVoucherDetails

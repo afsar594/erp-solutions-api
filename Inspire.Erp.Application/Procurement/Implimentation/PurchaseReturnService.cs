@@ -890,6 +890,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 //_stockRegister.UpdateList(stockRegister);
 
                 List<StockRegister> sr = new List<StockRegister>();
+                var currencyRate = clsCommonFunctions.getConverionCurrencyRate(purchaseReturn.PurchaseReturnCurrencyId, _currencyMasterRepository);
+                var rate = (decimal)currencyRate;
+
 
                 foreach (var item in purchaseReturnDetails)
                 {
@@ -902,7 +905,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         StockRegisterQuantity = item.PurchaseReturnDetailsQuantity * (converontype) ?? 0,
                         StockRegisterAssignedDate = DateTime.Now,
                         StockRegisterTransType = VoucherType.PurchaseReturn_TYPE,
-                        StockRegisterFCAmount = purchaseReturn.PurchaseReturnTotalActualAmount,
+                        StockRegisterFCAmount = item.PurchaseReturnDetailsQuantity * item.PurchaseReturnDetailsRate * rate,
                         StockRegisterFcRate = purchaseReturn.PurchaseReturnFcRate,
                         StockRegisterStatus = "A",
                         StockRegisterJobID = purchaseReturn.PurchaseReturnJobId,
@@ -990,6 +993,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     return k;
                 }).ToList();
                 _accountTransaction.InsertList(accountsTransactions);
+                var currencyRate = clsCommonFunctions.getConverionCurrencyRate(purchaseReturn.PurchaseReturnCurrencyId, _currencyMasterRepository);
+                var rate = (decimal)currencyRate;
 
                 List<StockRegister> sr = new List<StockRegister>();
 
@@ -1004,7 +1009,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         StockRegisterQuantity = item.PurchaseReturnDetailsQuantity * (converontype) ?? 0,
                         StockRegisterAssignedDate = DateTime.Now,
                         StockRegisterTransType = VoucherType.PurchaseReturn_TYPE,
-                        StockRegisterFCAmount = purchaseReturn.PurchaseReturnTotalActualAmount,
                         StockRegisterFcRate = purchaseReturn.PurchaseReturnFcRate,
                         StockRegisterStatus = "A",
                         StockRegisterJobID = purchaseReturn.PurchaseReturnJobId,
@@ -1014,6 +1018,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         StockRegisterSout = item.PurchaseReturnDetailsQuantity * (converontype) ?? 0,
                         StockRegisterRate = item.PurchaseReturnDetailsRate,
                         StockRegisterAmount = item.PurchaseReturnDetailsQuantity * item.PurchaseReturnDetailsRate,
+                        StockRegisterFCAmount = item.PurchaseReturnDetailsQuantity * item.PurchaseReturnDetailsRate * rate,
                         StockRegisterMaterialID = item.PurchaseReturnDetailsMatId,
 
                     });

@@ -235,8 +235,6 @@ namespace Inspire.Erp.Application.Account.Implementations
             int intCostCenter;
 
             double dblOpeningBal;
-
-
             if (Location == -1)
             {
                 intLocation = 0;
