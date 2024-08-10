@@ -26,8 +26,7 @@ namespace Inspire.Erp.Web.Controllers
         [HttpGet("BankLedger/{bankAccNo}")]
         public async Task<IEnumerable<BankLedger>> BankLedger(string bankAccNo)
         {
-            var res = await _ibn.BankLedger(bankAccNo);
-            return res;
+            return await _ibn.BankLedger(bankAccNo);
         }
     }
 }

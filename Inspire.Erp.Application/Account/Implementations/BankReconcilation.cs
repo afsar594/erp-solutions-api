@@ -82,47 +82,7 @@ namespace Inspire.Erp.Application.Account.Implementations
 
         public async Task<List<MasterAccountsTable>> GetAccountListForDropdown()
         {
-            var list = (from mat in _MasterAccountsTableRepo.GetAsQueryable()
-                        where (mat.MaStatus ?? "") == "R" && (mat.MaRelativeNo ?? "") == "01001002"
-                        select new MasterAccountsTable
-                        {
-                            MaSno = mat.MaSno,
-                            MaRelativeNo = mat.MaRelativeNo,
-                            MaAccName = mat.MaAccName,
-                            MaAccType = mat.MaAccType,
-                            MaMainHead = mat.MaMainHead,
-                            MaSubHead = mat.MaSubHead,
-                            MaImageKey = mat.MaImageKey,
-                            MaSystemAcc = mat.MaSystemAcc,
-                            MaFsno = mat.MaFsno,
-                            MaStatus = mat.MaStatus,
-                            MaUserId = mat.MaUserId,
-                            MaDateCreated = mat.MaDateCreated,
-                            MaCurrencyId = mat.MaCurrencyId,
-                            MaGpAcc = mat.MaGpAcc,
-                            MaAcAcc = mat.MaAcAcc,
-                            MaEdAcc = mat.MaEdAcc,
-                            MaOpenBalance = mat.MaOpenBalance,
-                            MaTotalDebit = mat.MaTotalDebit,
-                            MaTotalCredit = mat.MaTotalCredit,
-                            MaManualCode = mat.MaManualCode,
-                            MaIsAirAcc = mat.MaIsAirAcc,
-                            MaIsSeaAcc = mat.MaIsSeaAcc,
-                            MaCostCenterId = mat.MaCostCenterId,
-                            MaShowSuminTb = mat.MaShowSuminTb,
-                            MaCostCenterSub = mat.MaCostCenterSub,
-                            MaSortNo = mat.MaSortNo,
-                            MaAssetValue = mat.MaAssetValue,
-                            MaAssetDepValue = mat.MaAssetDepValue,
-                            MaAssetQty = mat.MaAssetQty,
-                            MaLifeInYrs = mat.MaLifeInYrs,
-                            MaAssetDepMode = mat.MaAssetDepMode,
-                            MaAssetDate = mat.MaAssetDate,
-                            MaIsAsset = mat.MaIsAsset,
-                            MaDelStatus = mat.MaDelStatus
-
-                        }).ToList();
-            return list;
+            return   _MasterAccountsTableRepo.GetAsQueryable().Where(m => m.MaRelativeNo == "01001002" && m.MaStatus == "R").ToList();
         }
     }
 }
