@@ -46,7 +46,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private IRepository<UnitDetails> _UnitDetailsRepository;
 
 
-       // private readonly InspireErpDBContext _dbContext;
+        // private readonly InspireErpDBContext _dbContext;
         //private IRepository<ReportPurchaseOrder> _reportPurchaseOrderRepository;
         public PurchaseOrderService(
             IRepository<UserFile> userFileRepository, IRepository<PermissionApproval> permissionApprovalRepo,
@@ -58,12 +58,12 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
 
-            IRepository<PurchaseOrder> purchaseOrderRepository, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository, 
+            IRepository<PurchaseOrder> purchaseOrderRepository, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository,
             IRepository<PurchaseReturn> purchaseReturnRepository, IRepository<PurchaseReturnDetails> purchaseReturnDetailsRepository,
-            IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PurOrderRegister> purOrderRegisterRepository, 
+            IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PurOrderRegister> purOrderRegisterRepository,
             IRepository<UnitDetails> unitDetailsRepository,
             IRepository<PurchaseVoucherDetails> purchaseVoucherDetailsRepo
-           // InspireErpDBContext dbContext
+            // InspireErpDBContext dbContext
             )
         {
             this._accountTransactionRepository = accountTransactionRepository;
@@ -88,7 +88,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             //_reportPurchaseOrderRepository = reportPurchaseOrderRepository;
             _UnitDetailsRepository = unitDetailsRepository;
             _purchaseVoucherDetailsRepo = purchaseVoucherDetailsRepo;
-           // _dbContext = dbContext;
+            // _dbContext = dbContext;
         }
 
         //public IEnumerable<ReportPurchaseOrder> PurchaseOrder_GetReportPurchaseOrder()
@@ -643,7 +643,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 throw ex;
             }
         }
-        public List<PurchaseOrderDTO> GetAllPOForGRN( decimal id)
+        public List<PurchaseOrderDTO> GetAllPOForGRN(decimal id)
         {
             try
             {
@@ -660,7 +660,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     c.UnitMasterUnitFullName
                 }).ToList();
                 var detailList = _purchaseOrderDetailsRepository.GetAsQueryable().ToList();
-                var details = _purchaseOrderRepository.GetAsQueryable().Where(a => a.PurchaseOrderDelStatus != true && a.PurchaseOrderPartyId==id).ToList();
+                var details = _purchaseOrderRepository.GetAsQueryable().Where(a => a.PurchaseOrderDelStatus != true && a.PurchaseOrderPartyId == id).ToList();
                 var data = details.Select(o => new PurchaseOrderDTO
                 {
                     PurchaseOrder = o,
@@ -704,21 +704,17 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                         SupplierName = sm.SuppliersMasterSupplierName,
                                         Rate = pod.PurchaseOrderDetailsRate,
                                         Quantity = (int)pod.PurchaseOrderDetailsQuantity,
-                                        UnitId=pod.PurchaseOrderDetailsUnitId,
-                                        UnitName=_unitMasterRepository.GetAsQueryable().Where(x=>x.UnitMasterUnitId==pod.PurchaseOrderDetailsUnitId).FirstOrDefault().UnitMasterUnitFullName.Trim(),
+                                        UnitId = pod.PurchaseOrderDetailsUnitId,
+                                        UnitName = _unitMasterRepository.GetAsQueryable().Where(x => x.UnitMasterUnitId == pod.PurchaseOrderDetailsUnitId).FirstOrDefault().UnitMasterUnitFullName.Trim(),
                                         BalanceQuantity = (int)pod.PurchaseOrderDetailsQuantity - (_purchaseVoucherDetailsRepo.GetAsQueryable().Where(pr =>
                                         (pr.PurchaseVoucherDetailsPodId == pod.PurchaseOrderDetailsId
-                                           && pr.PurchaseVoucherDetailsMaterialId == pod.PurchaseOrderDetailsMatId
-                                           )
-                                        )
-                                                                       .Sum(prdq => (int)((prdq.PurchaseVoucherDetailsQuantity) ?? 0))),
+                                           && pr.PurchaseVoucherDetailsMaterialId == pod.PurchaseOrderDetailsMatId))
+                                        .Sum(prdq => (int)((prdq.PurchaseVoucherDetailsQuantity) ?? 0))),
 
                                         DeliveredQuantity = (_purchaseVoucherDetailsRepo.GetAsQueryable().Where(pr =>
-                                     (pr.PurchaseVoucherDetailsPodId == pod.PurchaseOrderDetailsId
-                                        && pr.PurchaseVoucherDetailsMaterialId == pod.PurchaseOrderDetailsMatId
-                                        )
-                                        )
-                                                                       .Sum(prdq => (int)((prdq.PurchaseVoucherDetailsQuantity) ?? 0))),
+                                                (pr.PurchaseVoucherDetailsPodId == pod.PurchaseOrderDetailsId
+                                                 && pr.PurchaseVoucherDetailsMaterialId == pod.PurchaseOrderDetailsMatId))
+                                        .Sum(prdq => (int)((prdq.PurchaseVoucherDetailsQuantity) ?? 0))),
 
                                     })
                                     .OrderBy(x => x.PODate).ThenBy(x => x.PONo)
