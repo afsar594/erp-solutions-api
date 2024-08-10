@@ -85,7 +85,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                                        }).ToList();
                 pv = _purchaseVoucherRepository.GetAll().FirstOrDefault(o => o.PurchaseVoucherVoucherNo == voucherNo);
                 pv.PurchaseVoucherDetails = _purchaseVoucherDetailsRepository.GetAll().Where(o => o.PurchaseVoucherDetailsVoucherNo == voucherNo).ToList();
-                pv.AccountsTransactions = _accountTransactionRepository.GetAll().Where(o => o.AccountsTransactionsVoucherNo == voucherNo).ToList();
+                pv.AccountsTransactions = _accountTransactionRepository.GetAll().Where(o => o.AccountsTransactionsVoucherNo == voucherNo && o.AccountstransactionsDelStatus != true).ToList();
                 pv.UserTrackingData = userTrackngData;
                 return pv;
             }
@@ -149,7 +149,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                         StockRegisterTransType = VoucherType.PurchaseVoucher_TYPE,
                         StockRegisterStatus = AccountStatus.Approved,
 
-                    });              
+                    });
 
                 }
                 _stockRegisterRepository.InsertList(stockRegisters);
@@ -212,6 +212,8 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
 
                 foreach (var item in grn.PurchaseVoucherDetails)
                 {
+                    item.PurchaseVoucherDetailsVoucherNo = grn.PurchaseVoucherVoucherNo;
+
                     var converontype = this.getConverionTypebyUnitId(item.PurchaseVoucherDetailsMaterialId, item.PurchaseVoucherDetailsUnitId);
                     stockRegisters.Add(new StockRegister
                     {
