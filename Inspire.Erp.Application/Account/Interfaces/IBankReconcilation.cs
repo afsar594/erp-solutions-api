@@ -10,6 +10,6 @@ namespace Inspire.Erp.Application.Account.Interfaces
     public interface IBankReconcilation
     {
         public Task<List<MasterAccountsTable>> GetAccountListForDropdown();
-        public Task<IEnumerable<BankLedger>> BankLedger();
+        public Task<IEnumerable<BankLedger>> BankLedger(string bankAccNo);
     }
 }
