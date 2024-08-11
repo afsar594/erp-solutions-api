@@ -66,7 +66,7 @@ namespace Inspire.Erp.Application.Store.Implementation
         {
 
             _logger = logger;
-          //  _context = context;
+            _context = context;
             _itemMasterRepository = itemMasterRepository;
             _unitMasterRepository = unitMasterRepository;
             _unitDetailsRepository = unitDetailsRepository;
