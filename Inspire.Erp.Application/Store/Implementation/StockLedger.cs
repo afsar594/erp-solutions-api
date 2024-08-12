@@ -142,6 +142,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                   where im.ItemMasterItemType == "A"
                                   && (sFilter.LocationId == null || y.StockRegisterLocationID == sFilter.LocationId)
                                   && (sFilter.PartNo == null || im.ItemMasterPartNo == sFilter.PartNo)
+                                  && (y.StockRegisterAssignedDate >= sFilter.fromDate && y.StockRegisterAssignedDate <= sFilter.toDate)
                                   select new
                                   {
                                       im.ItemMasterItemId,
@@ -189,16 +190,16 @@ namespace Inspire.Erp.Application.Store.Implementation
                     var openValues = getOpenValues(sFilter.fromDate, (int?)sFilter.ItemId);
                     if (openValues.Count > 0)
                     {
-                        foreach (var openValue in openValues)
+                        foreach (var opnV in openValues)
                         {
-                            if (openValue.ItemId != null && openValue.ItemId != 0)
+                            if (opnV.ItemId != null && opnV.ItemId != 0)
                             {
-                                var matchedResult = result.FirstOrDefault(r => r.ItemId.ToString() == openValue.ItemId.ToString());
+                                var matchedResult = result.FirstOrDefault(r => r.ItemId.ToString() == opnV.ItemId.ToString());
 
                                 if (matchedResult != null)
                                 {
-                                    matchedResult.OpenQuantity = openValue.OpenQty.HasValue ? Convert.ToDecimal(openValue.OpenQty.Value) : 0;
-                                    matchedResult.OpenValue = openValue.OpenValue.HasValue ? Convert.ToDecimal(openValue.OpenValue.Value) : 0;
+                                    matchedResult.OpenQuantity = opnV.OpenQty.HasValue ? Convert.ToDecimal(opnV.OpenQty.Value) : 0;
+                                    matchedResult.OpenValue = opnV.OpenValue.HasValue ? Convert.ToDecimal(opnV.OpenValue.Value) : 0;
                                 }
                                 
                             }
@@ -354,7 +355,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                         }).ToList();
 
 
-                    var openValues = getOpenValues((DateTime)minFDate, (int?)sFilter.ItemId);
+                    var openValues = getOpenValues(null, (int?)sFilter.ItemId);
 
 
                     if (openValues.Count > 0)
@@ -484,11 +485,12 @@ namespace Inspire.Erp.Application.Store.Implementation
         //                    }).ToList();
 
         //}
-        private List<OpenValues> getOpenValues(DateTime fromDate, int? itemId)
+        private List<OpenValues> getOpenValues(DateTime? fromDate, int? itemId)
         {
             // Query to filter and group by ItemId
             var query = _sRegister.GetAsQueryable()
-                .Where(a => a.StockRegisterVoucherDate < fromDate);
+                       //.Where(a => fromDate==null || a.StockRegisterVoucherDate > fromDate);
+                       .Where(a => fromDate == null || a.StockRegisterAssignedDate >= fromDate);
 
             // Apply itemId filter only if it's not null
             if (itemId.HasValue)
