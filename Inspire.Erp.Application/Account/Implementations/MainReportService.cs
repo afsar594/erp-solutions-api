@@ -929,7 +929,6 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
             }
 
             //return _reportSalesVoucherRepository.GetAll();
-
         }
 
         public IEnumerable<ReportPurchaseVoucher> MainReport_GetReportPurchaseVoucher_PARAM_CLASS(PurchasevoucherreportParameters purchasevoucherreportParameters, List<ViewStockTransferType> viewStockTransferType)
