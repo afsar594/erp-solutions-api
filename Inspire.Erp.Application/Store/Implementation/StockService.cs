@@ -71,7 +71,7 @@ namespace Inspire.Erp.Application.Store.Implementation
             _unitMasterRepository = unitMasterRepository;
             _unitDetailsRepository = unitDetailsRepository;
             this._stockRegisterRepository = stockRegisterRepository;
-            _purchaseVoucherDRepository= purchaseVoucherDRepository;
+            _purchaseVoucherDRepository = purchaseVoucherDRepository;
             _purchaseVoucherRepository = purchaseVoucherRepository;
         }
 
@@ -213,53 +213,53 @@ namespace Inspire.Erp.Application.Store.Implementation
                 return Response<List<StockReportBaseUnitResponse>>.Fail(new List<StockReportBaseUnitResponse>(), ex.Message);
             }
         }
-        public async Task<Response<decimal>> GetAveragePurchasePrice(int itemId,int? locationId)
+        public async Task<Response<decimal>> GetAveragePurchasePrice(int itemId, int? locationId)
         {
             try
             {
-                   var totalQuantity = (from sr in _stockRegisterRepository.GetAsQueryable()
-                            where (locationId == null || sr.StockRegisterLocationID == locationId)
-                            && sr.StockRegisterMaterialID==itemId
-                            group sr by 1 into og
-                            select new
-                            {
-                                Total = og.Sum(item => (int)(item.StockRegisterSIN??0-item.StockRegisterSout??0)),
+                var totalQuantity = (from sr in _stockRegisterRepository.GetAsQueryable()
+                                     where (locationId == null || sr.StockRegisterLocationID == locationId)
+                                     && sr.StockRegisterMaterialID == itemId
+                                     group sr by 1 into og
+                                     select new
+                                     {
+                                         Total = og.Sum(item => (int)(item.StockRegisterSIN ?? 0 - item.StockRegisterSout ?? 0)),
 
-                            }).FirstOrDefault().Total;
+                                     }).FirstOrDefault().Total;
 
-                    var rateQuantiyFromStock = await (from sr in _stockRegisterRepository.GetAsQueryable()
-                                            where (locationId == null || sr.StockRegisterLocationID == locationId)
-                                            && sr.StockRegisterMaterialID == itemId
+                var rateQuantiyFromStock = await (from sr in _stockRegisterRepository.GetAsQueryable()
+                                                  where (locationId == null || sr.StockRegisterLocationID == locationId)
+                                                  && sr.StockRegisterMaterialID == itemId
 
-                                            select new PurVoucherRateQuantityModel
-                                            {
-                                                Quantity = sr.StockRegisterQuantity,
-                                                Rate = sr.StockRegisterRate,
-                                                PurchaseDate = sr.StockRegisterVoucherDate
-                                            }).OrderByDescending(y => y.PurchaseDate).ToListAsync();
+                                                  select new PurVoucherRateQuantityModel
+                                                  {
+                                                      Quantity = sr.StockRegisterQuantity,
+                                                      Rate = sr.StockRegisterRate,
+                                                      PurchaseDate = sr.StockRegisterVoucherDate
+                                                  }).OrderByDescending(y => y.PurchaseDate).ToListAsync();
 
-                var PurchaseVoucherIds = await _purchaseVoucherRepository.GetAsQueryable().Where(x=>x.PurchaseVoucherStatus.Trim().ToUpper()=="P")
+                var PurchaseVoucherIds = await _purchaseVoucherRepository.GetAsQueryable().Where(x => x.PurchaseVoucherStatus.Trim().ToUpper() == "P")
                     .Select(o => o.PurchaseVoucherPurID).ToListAsync();
 
-                var purchseVouchers =await (from pvd in _purchaseVoucherDRepository.GetAsQueryable()
-                                      join pv in _purchaseVoucherRepository.GetAsQueryable() on (long)pvd.PurchaseVoucherDetailsPrId equals pv.PurchaseVoucherPurID
-                                      where pvd.PurchaseVoucherDetailsMaterialId == itemId
-                                     && PurchaseVoucherIds.Contains((long)pvd.PurchaseVoucherDetailsPrId)
-                                      select new PurVoucherRateQuantityModel
-                                      {
-                                          Rate = (long)(pvd.PurchaseVoucherDetailsRate??0),
-                                          Quantity = pvd.PurchaseVoucherDetailsQuantity??0,
-                                          PurchaseDate = pv.PurchaseVoucherPurchaseDate
-                                         
-                                      }).OrderByDescending(y => y.PurchaseDate).ToListAsync();
+                var purchseVouchers = await (from pvd in _purchaseVoucherDRepository.GetAsQueryable()
+                                             join pv in _purchaseVoucherRepository.GetAsQueryable() on (long)pvd.PurchaseVoucherDetailsPrId equals pv.PurchaseVoucherPurID
+                                             where pvd.PurchaseVoucherDetailsMaterialId == itemId
+                                            && PurchaseVoucherIds.Contains((long)pvd.PurchaseVoucherDetailsPrId)
+                                             select new PurVoucherRateQuantityModel
+                                             {
+                                                 Rate = (long)(pvd.PurchaseVoucherDetailsRate ?? 0),
+                                                 Quantity = pvd.PurchaseVoucherDetailsQuantity ?? 0,
+                                                 PurchaseDate = pv.PurchaseVoucherPurchaseDate
+
+                                             }).OrderByDescending(y => y.PurchaseDate).ToListAsync();
 
                 decimal actualQuantity = 0;
                 decimal actualRate = 0;
-                decimal quantity= 0;
+                decimal quantity = 0;
                 decimal rate = 0;
                 actualQuantity = totalQuantity;
 
-                if(rateQuantiyFromStock.Count()>0)
+                if (rateQuantiyFromStock.Count() > 0)
                 {
                     foreach (var pvd in rateQuantiyFromStock)
                     {
@@ -297,11 +297,11 @@ namespace Inspire.Erp.Application.Store.Implementation
                 {
                     //get from item master
                     var im = _itemMasterRepository.GetAsQueryable().Where(k => k.ItemMasterItemId == itemId).FirstOrDefault();
-                    actualRate= im.ItemMasterLastPurchasePrice ?? 0;
+                    actualRate = im.ItemMasterLastPurchasePrice ?? 0;
                 }
 
                 decimal returnAvgPrice = 0;
-                if (totalQuantity<=0)
+                if (totalQuantity <= 0)
                 {
                     totalQuantity = 1;
                 }
@@ -315,15 +315,15 @@ namespace Inspire.Erp.Application.Store.Implementation
         }
 
 
-        public async Task<Response<decimal>> GetAveragePurchasePriceGPC(int itemId,int unitDetailId,decimal? quantity )
+        public async Task<Response<decimal>> GetAveragePurchasePriceGPC(int itemId, int unitDetailId, decimal? quantity)
         {
             try
             {
                 decimal? issueqty = 0;
 
                 decimal basicConversion = 1;
-                 var unitD= await _unitDetailsRepository.GetAsQueryable().Where(x => x.UnitDetailsItemId == itemId && x.UnitDetailsUnitId == unitDetailId).FirstOrDefaultAsync();
-                if(unitD!=null)
+                var unitD = await _unitDetailsRepository.GetAsQueryable().Where(x => x.UnitDetailsItemId == itemId && x.UnitDetailsUnitId == unitDetailId).FirstOrDefaultAsync();
+                if (unitD != null)
                 {
                     basicConversion = Convert.ToDecimal(unitD.UnitDetailsConversionType);
                 }
@@ -337,28 +337,28 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                 var currStock = (from sr in _stockRegisterRepository.GetAsQueryable()
                                  where sr.StockRegisterMaterialID == itemId
-                                     group sr by 1 into og
-                                     select new
-                                     {
-                                         Total = og.Sum(item => (item.StockRegisterSIN ?? 0 - item.StockRegisterSout ?? 0)),
+                                 group sr by 1 into og
+                                 select new
+                                 {
+                                     Total = og.Sum(item => (item.StockRegisterSIN ?? 0 - item.StockRegisterSout ?? 0)),
 
-                                     }).FirstOrDefault().Total;
+                                 }).FirstOrDefault().Total;
 
                 //updae stockregister "update stock_register set NETSTKBAL=0 where mat_id=" & itemId
                 var listPrice = await (from sr in _stockRegisterRepository.GetAsQueryable()
-                                       where sr.StockRegisterMaterialID == itemId && 
+                                       where sr.StockRegisterMaterialID == itemId &&
                                                   (new string[] { "ITEM_MANUFACTURE", "PurchaseVoucher", "OpeningStockVoucher", "SalesReturn", "ISSUE RETURN", "STOCK ADJUSTMENT" }).ToList().Contains(sr.StockRegisterTransType.Trim().ToUpper())
                                                  && ((int)sr.StockRegisterSIN != 0 && sr.StockRegisterSIN != null)
-                                                  select new StockRegisterModel
-                                                  {
-                                                      SIN = (decimal)sr.StockRegisterSIN,
-                                                      Rate = sr.StockRegisterRate,
-                                                      AssingedDate = sr.StockRegisterAssignedDate,
-                                                      NetStockBalance=sr.StockRegisterNetStkBal,
-                                                     // PurchaseId=sr.StockRegisterPurchaseID,
-                                                      StoreId=sr.StockRegisterStoreID
-                                                     
-                                                  }).OrderByDescending(y => y.AssingedDate).ToListAsync();
+                                       select new StockRegisterModel
+                                       {
+                                           SIN = (decimal)sr.StockRegisterSIN,
+                                           Rate = sr.StockRegisterRate,
+                                           AssingedDate = sr.StockRegisterAssignedDate,
+                                           NetStockBalance = sr.StockRegisterNetStkBal,
+                                           // PurchaseId=sr.StockRegisterPurchaseID,
+                                           StoreId = sr.StockRegisterStoreID
+
+                                       }).OrderByDescending(y => y.AssingedDate).ToListAsync();
 
 
 
@@ -376,28 +376,28 @@ namespace Inspire.Erp.Application.Store.Implementation
                 //                                 PurchaseDate = pv.PurchaseVoucherPurchaseDate
                 //                             }).OrderByDescending(y => y.PurchaseDate).ToListAsync();
 
-         
+
 
                 decimal stockUpdate = 0;
                 if (listPrice.Count() > 0)
                 {
                     foreach (var pvd in listPrice)
                     {
-                       if (pvd.SIN <= currStock)
+                        if (pvd.SIN <= currStock)
                         {
                             stockUpdate = pvd.SIN;
-                            currStock=currStock-pvd.SIN;
+                            currStock = currStock - pvd.SIN;
 
                             var stockReg = await _stockRegisterRepository.GetAsQueryable().Where(x => x.StockRegisterStoreID == pvd.StoreId)
                                                  .ToListAsync();
 
-                            foreach(var sr in stockReg)
+                            foreach (var sr in stockReg)
                             {
                                 sr.StockRegisterNetStkBal = stockUpdate;
                             }
-                         
+
                         }
-                       else
+                        else
                         {
                             stockUpdate = currStock;
 
@@ -408,7 +408,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                             {
                                 sr.StockRegisterNetStkBal = stockUpdate;
                             }
-                            
+
                             break;
                         }
                     }
@@ -417,19 +417,19 @@ namespace Inspire.Erp.Application.Store.Implementation
                 _stockRegisterRepository.SaveChangesAsync();
 
                 var avgPrice = await (from sr in _stockRegisterRepository.GetAsQueryable()
-                                      where sr.StockRegisterMaterialID == itemId 
+                                      where sr.StockRegisterMaterialID == itemId
                                        && (sr.StockRegisterNetStkBal != 0 && sr.StockRegisterNetStkBal != null)
-                                       select new StockRegisterModel
-                                       {
-                                           SIN = (decimal)sr.StockRegisterSIN,
-                                           Rate = sr.StockRegisterRate,
-                                           AssingedDate = sr.StockRegisterAssignedDate,
-                                           NetStockBalance = sr.StockRegisterNetStkBal,
-                                           PurchaseId=sr.StockRegisterPurchaseID,
-                                        
-                                       }).OrderByDescending(y => y.AssingedDate).ToListAsync();
+                                      select new StockRegisterModel
+                                      {
+                                          SIN = (decimal)sr.StockRegisterSIN,
+                                          Rate = sr.StockRegisterRate,
+                                          AssingedDate = sr.StockRegisterAssignedDate,
+                                          NetStockBalance = sr.StockRegisterNetStkBal,
+                                          PurchaseId = sr.StockRegisterPurchaseID,
 
-                decimal? totalAmount=0;
+                                      }).OrderByDescending(y => y.AssingedDate).ToListAsync();
+
+                decimal? totalAmount = 0;
                 foreach (var pvd in avgPrice)
                 {
                     if (issueBal < pvd.NetStockBalance)
@@ -440,17 +440,17 @@ namespace Inspire.Erp.Application.Store.Implementation
                     else
                     {
                         totalAmount = totalAmount + pvd.NetStockBalance * pvd.Rate;
-                        issueBal=issueBal - pvd.NetStockBalance;
+                        issueBal = issueBal - pvd.NetStockBalance;
                     }
                 }
 
                 decimal? costPrice = 0;
-                if(issueqty > 0)
+                if (issueqty > 0)
                 {
-                    if(issueqty > currStock)
+                    if (issueqty > currStock)
                     {
-                        
-                        if(totalAmount<=0)
+
+                        if (totalAmount <= 0)
                         {
                             costPrice = 0;
                         }
@@ -464,25 +464,25 @@ namespace Inspire.Erp.Application.Store.Implementation
                         costPrice = (decimal)totalAmount / (decimal)issueqty;
                     }
 
-                    if(costPrice==0)
+                    if (costPrice == 0)
                     {
-                        
+
                         var costPriceL = await (from sr in _stockRegisterRepository.GetAsQueryable()
                                                 where sr.StockRegisterMaterialID == itemId &&
                                                (new string[] { "ITEM_MANUFACTURE", "PurchaseVoucher", "OpeningStockVoucher", "SalesReturn", "ISSUE RETURN", "STOCK ADJUSTMENT" }).ToList().Contains(sr.StockRegisterTransType.Trim().ToUpper())
                                               && ((int)sr.StockRegisterSIN != 0 && sr.StockRegisterSIN != null)
-                                               select new StockRegisterModel
-                                               {
-                                                   SIN = (decimal)sr.StockRegisterSIN,
-                                                   Rate = sr.StockRegisterRate,
-                                                   AssingedDate = sr.StockRegisterAssignedDate,
-                                                   NetStockBalance = sr.StockRegisterNetStkBal,
-                                                   // PurchaseId=sr.StockRegisterPurchaseID,
-                                                   StoreId = sr.StockRegisterStoreID
+                                                select new StockRegisterModel
+                                                {
+                                                    SIN = (decimal)sr.StockRegisterSIN,
+                                                    Rate = sr.StockRegisterRate,
+                                                    AssingedDate = sr.StockRegisterAssignedDate,
+                                                    NetStockBalance = sr.StockRegisterNetStkBal,
+                                                    // PurchaseId=sr.StockRegisterPurchaseID,
+                                                    StoreId = sr.StockRegisterStoreID
 
-                                               }).OrderByDescending(y => y.AssingedDate).ToListAsync();
-                        if(costPriceL.Count()>0)
-                        costPrice = costPriceL.FirstOrDefault().Rate;
+                                                }).OrderByDescending(y => y.AssingedDate).ToListAsync();
+                        if (costPriceL.Count() > 0)
+                            costPrice = costPriceL.FirstOrDefault().Rate;
                     }
                     else
                     {
@@ -522,7 +522,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 //    totalQuantity = 1;
                 //}
                 //returnAvgPrice = actualRate / totalQuantity;
-                return Response<decimal>.Success(costPrice??0, "Data found");
+                return Response<decimal>.Success(costPrice ?? 0, "Data found");
             }
             catch (Exception ex)
             {

@@ -159,8 +159,8 @@ namespace Inspire.Erp.Web.Controllers
                                   item.ItemMasterItemName,
                                   item.ItemMasterVenderId,
                                   item.ItemMasterItemSize,
-                                  itemMasterBarcode = unit.UnitDetailsBarcode
-                              }).ToList();
+                                  itemMasterBarcode = unit.UnitDetailsBarcode ?? ""
+                              }).Distinct().ToList();
 
             var SuppliersMaster = supplierrepository.GetAsQueryable().Where(a => a.SuppliersMasterSupplierDelStatus != true).Select(c => new
             {
@@ -215,7 +215,7 @@ namespace Inspire.Erp.Web.Controllers
             var accountsSettings = _accountsSettingsRepo.GetAsQueryable().Where(a => a.AccountSettingsAccountDelStatus != true).Select(c => new
             {
                 c.AccountSettingsAccountId,
-                AccountSettingsAccountDescription=c.AccountSettingsAccountDescription.Trim(),
+                AccountSettingsAccountDescription = c.AccountSettingsAccountDescription.Trim(),
                 c.AccountSettingsAccountTextValue
             }).ToList();
 
