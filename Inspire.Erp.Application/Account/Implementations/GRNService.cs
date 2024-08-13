@@ -99,7 +99,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
         {
             try
             {
-                clsCommonFunctions.Delete_OldEntry_AccountsTransactions(grn.PurchaseVoucherVoucherNo, grn.PurchaseVoucherPurchaseType, _accountTransactionRepository);
+                clsCommonFunctions.Delete_OldEntry_AccountsTransactions(grn.PurchaseVoucherVoucherNo, VoucherType.PurchaseVoucher_TYPE, _accountTransactionRepository);
                 clsCommonFunctions.Delete_OldEntryOf_StockRegister(grn.PurchaseVoucherVoucherNo, VoucherType.PurchaseVoucher_TYPE, _stockRegisterRepository);
 
                 foreach (var k in accountsTransactions)
