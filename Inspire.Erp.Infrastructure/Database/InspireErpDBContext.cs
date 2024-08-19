@@ -18022,7 +18022,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<ReconciliationVoucher>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(c => c.ReconciliationVoucherSno);
 
                 entity.ToTable("Reconciliation_Voucher");
 
@@ -18066,7 +18066,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<ReconciliationVoucherDetails>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(c => c.ReconciliationVoucherDetailsSno);
 
                 entity.ToTable("Reconciliation_Voucher_Details");
 

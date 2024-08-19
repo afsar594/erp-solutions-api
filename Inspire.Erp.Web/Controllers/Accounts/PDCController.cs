@@ -21,12 +21,12 @@ namespace Inspire.Erp.Web.Controllers
         {
             _pdc = pdc;
         }
-        [HttpGet("PDCPostedList")]
-        public async Task<IEnumerable<PDCPostedList>> PDCPostedList()
+        [HttpGet("PDCPostedReturnList/{chequeStatus}")]
+        public async Task<IEnumerable<PDCPostedList>> PDCPostedReturnList(string chequeStatus)
         {
             try
             {
-                return await _pdc.PDCPostedList();
+                return await _pdc.PDCPostedReturnList(chequeStatus);
             }
             catch (Exception ex)
             {

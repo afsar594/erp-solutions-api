@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using Inspire.Erp.Application.Common;
 using Inspire.Erp.Domain.Modals;
 using Microsoft.EntityFrameworkCore;
+using System.Transactions;
+using Inspire.Erp.Domain.Enums;
 
 namespace Inspire.Erp.Application.Account.Implementations
 {
@@ -20,13 +22,20 @@ namespace Inspire.Erp.Application.Account.Implementations
         public IRepository<ReconciliationVoucherDetails> _ReconciliationVoucherDetailsRepo;
         public IRepository<BankPaymentVoucherDetails> _BankPaymentVoucherDetailsRepo;
         public IRepository<BankLedger> _BankLedgerRepo;
+        public IRepository<VouchersNumbers> _voucherNumbersRepository;
+        public IRepository<ReconciliationVoucher> _ReconciliationVoucherRepo;
+
+
         public BankReconcilation(
             IRepository<MasterAccountsTable> MasterAccountsTable,
             IRepository<AccountsTransactions> AccountsTransactionsRepo,
             IRepository<BankReceiptVoucherDetails> BankReceiptVoucherDetailsRepo,
             IRepository<ReconciliationVoucherDetails> ReconciliationVoucherDetailsRepo,
             IRepository<BankPaymentVoucherDetails> BankPaymentVoucherDetailsRepo,
-            IRepository<BankLedger> bank
+            IRepository<BankLedger> bank,
+            IRepository<VouchersNumbers> voucherNumbersRepository,
+            IRepository<ReconciliationVoucher> ReconciliationVoucherRepo
+
             )
         {
             _BankLedgerRepo = bank;
@@ -35,6 +44,9 @@ namespace Inspire.Erp.Application.Account.Implementations
             _BankReceiptVoucherDetailsRepo = BankReceiptVoucherDetailsRepo;
             _ReconciliationVoucherDetailsRepo = ReconciliationVoucherDetailsRepo;
             _BankPaymentVoucherDetailsRepo = BankPaymentVoucherDetailsRepo;
+            _voucherNumbersRepository = voucherNumbersRepository;
+            _ReconciliationVoucherRepo = ReconciliationVoucherRepo;
+
 
         }
 
@@ -80,9 +92,74 @@ namespace Inspire.Erp.Application.Account.Implementations
             }
         }
 
+        public async Task<Response<bool>> SavebankReconciliation(ReconciliationVoucher reconciliation)
+        {
+            using (var trans = new TransactionScope())
+            {
+                try
+                {
+                    string bankreconciliationVoucherNumber = this.GenerateVoucherNo(reconciliation.ReconciliationVoucherBankStDate.Value).VouchersNumbersVNo;
+                    reconciliation.ReconciliationVoucherId = bankreconciliationVoucherNumber;
+                    int maxcount = 0;
+                    maxcount = Convert.ToInt32(
+                        _ReconciliationVoucherRepo.GetAsQueryable()
+                        .DefaultIfEmpty().Max(o => o == null ? 0 : o.ReconciliationVoucherSno) + 1);
+
+                    reconciliation.ReconciliationVoucherSno = maxcount;
+
+                    _ReconciliationVoucherRepo.Insert(reconciliation);
+                    
+                    reconciliation.ReconciliationVoucherDetails.ForEach((c) =>
+                    {
+                        
+                        c.ReconciliationVoucherDetailsId = bankreconciliationVoucherNumber;
+                    });
+
+                    _ReconciliationVoucherDetailsRepo.InsertList(reconciliation.ReconciliationVoucherDetails);
+                    trans.Complete();
+                    return Response<bool>.Success(true, "Saved Successfully.");
+                }
+                catch (Exception ex)
+                {
+
+                    trans.Dispose();
+                    return Response<bool>.Fail(false, ex.Message);
+                }
+
+
+            }
+        }
+
         public async Task<List<MasterAccountsTable>> GetAccountListForDropdown()
         {
             return   _MasterAccountsTableRepo.GetAsQueryable().Where(m => m.MaRelativeNo == "01001002" && m.MaStatus == "R").ToList();
+        }
+
+        public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
+        {
+            try
+            {
+                //var prefix = this._programsettingsRepository.GetAsQueryable().Where(k => k.ProgramSettingsKeyValue == Prefix.BPV_Prefix).FirstOrDefault().ProgramSettingsTextValue;
+                int vnoMaxVal = Convert.ToInt32(_voucherNumbersRepository.GetAsQueryable()
+                                                        .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == VoucherType.ReconciliationVoucher_TYPE)
+                                                        .DefaultIfEmpty()
+                                                        .Max(o => o == null ? 0 : o.VouchersNumbersVNoNu)) + 1;
+                VouchersNumbers vouchersNumbers = new VouchersNumbers
+                {
+                    VouchersNumbersVNo = "BRE" + vnoMaxVal,
+                    VouchersNumbersVNoNu = vnoMaxVal,
+                    VouchersNumbersVType = VoucherType.ReconciliationVoucher_TYPE,
+                    VouchersNumbersFsno = 1,
+                    VouchersNumbersStatus = AccountStatus.Pending,
+                    VouchersNumbersVoucherDate = VoucherGenDate
+                };
+                _voucherNumbersRepository.Insert(vouchersNumbers);
+                return vouchersNumbers;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

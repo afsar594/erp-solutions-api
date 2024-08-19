@@ -20,6 +20,7 @@ namespace Inspire.Erp.Domain.Modals
             public DateTime? POSTDt { get; set; }
             public int? PID { get; set; }
             public string Tran_Type { get; set; }
+            public string ChequeStatus { get; set; }
         }
 
         public class PDCGetList {

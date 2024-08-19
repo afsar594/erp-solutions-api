@@ -51,35 +51,16 @@ namespace Inspire.Erp.Application.Account.Implementation
             _pdcVoucherDetailsRepository = pdcVoucherDetailsRepository;
         }
 
-        public async Task<IEnumerable<PDCPostedList>> PDCPostedList()
+        public async Task<IEnumerable<PDCPostedList>> PDCPostedReturnList(string chequeStatus)
         {
             try
             {
-                //C
-                //var result =await _pdcDetails.GetAsQueryable().Where(x=>x.PDC_Details_Cheque_Status=="C").Select(x=>new PDCPostedList
-                //{
-                //    BAccNo=x.PDC_Details_Bank_Account_No,
-                //    CAmount=x.PDC_Details_Cheque_Amount,
-                //    CBName=x.PDC_Details_Cheque_Bank_Name,
-                //    CNO=x.PDC_Details_Cheque_No,
-                //    PartyName=x.PDC_Details_PartyAccNo,
-                //    PDate=x.PDC_Details_PDC_Date,
-                //    PID=x.PDC_Details_ID,
-                //    POSTDt=x.PDC_Details_PDC_Voucher_Date,
-                //    TDate=x.PDC_Details_Trans_Date,
-                //    VNO=x.PDC_Details_V_No,
-                //    VType=x.PDC_Details_V_Type,
-                //    PDCVNO=x.PDC_Details_V_No,
-                //    Tran_Type = x.PDC_Details_Trans_Type,
-                //}).ToListAsync();
-
-                
-
-
-var result = await (from pdc in _pdcDetails.GetAsQueryable()
+                //C  or // R
+                 
+             var result = await (from pdc in _pdcDetails.GetAsQueryable()
                     join acc in _MasterAccountsTableRepo.GetAsQueryable()
                     on pdc.PDC_Details_Bank_Account_No equals acc.MaAccNo
-                    where pdc.PDC_Details_Cheque_Status == "C"
+                    where pdc.PDC_Details_Cheque_Status == chequeStatus
                     select new PDCPostedList
                     {
                         BAccNo = acc.MaAccName, // Assuming AccountName is the field in Accounts table
@@ -95,6 +76,7 @@ var result = await (from pdc in _pdcDetails.GetAsQueryable()
                         VType = pdc.PDC_Details_V_Type,
                         PDCVNO = pdc.PDC_Details_V_No,
                         Tran_Type = pdc.PDC_Details_Trans_Type,
+                        ChequeStatus = pdc.PDC_Details_Cheque_Status,
                     }).ToListAsync();
 
                 return result;
@@ -329,22 +311,18 @@ var result = await (from pdc in _pdcDetails.GetAsQueryable()
                        
                        
                     var pd = _pdcDetails.GetAsQueryable().Where(x => x.PDC_Details_ID == item.PID).FirstOrDefault();
-                        if(pd != null)
-                        {
+                    if (pd != null)
+                    {
+                        pd.PDC_Details_Bank_Account_No = bankAccNo;
+                        pd.PDC_Details_PDC_Voucher_Date = DateTime.Now;
+                        
                         if (item.Type == "Post")
-                        {
                             pd.PDC_Details_Cheque_Status = "C";
-                            pd.PDC_Details_Bank_Account_No = bankAccNo;
-                        }
                         else
                             pd.PDC_Details_Cheque_Status = "R";
-                        }
+
                         _pdcDetails.Update(pd);
-
-
-
-
-
+                    }
                         pdcVoucherDetails.Add(new PdcVoucherDetails()
                         {
                             PdcVoucherDetailsAccno = item.BAccNo,
@@ -353,9 +331,6 @@ var result = await (from pdc in _pdcDetails.GetAsQueryable()
                             PdcVoucherDetailsNarration = item.Narration,
                             PdcVoucherDetailsDelStatus = false,
                         });
-
-
-
                     }
                 
                 if (accountsTransactions.Count > 0)
@@ -414,22 +389,29 @@ var result = await (from pdc in _pdcDetails.GetAsQueryable()
             try
             {
                 //R
-                var result = await _pdcDetails.GetAsQueryable().Where(x => x.PDC_Details_Cheque_Status == "R").Select(x => new PDCPostedList
-                {
-                    BAccNo = x.PDC_Details_Bank_Account_No,
-                    CAmount = x.PDC_Details_Cheque_Amount,
-                    CBName = x.PDC_Details_Cheque_Bank_Name,
-                    CNO = x.PDC_Details_Cheque_No,
-                    PartyName = x.PDC_Details_PartyAccNo,
-                    PDate = x.PDC_Details_PDC_Date,
-                    PID = x.PDC_Details_ID,
-                    POSTDt = x.PDC_Details_PDC_Voucher_Date,
-                    TDate = x.PDC_Details_Trans_Date,
-                    VNO = x.PDC_Details_V_No,
-                    VType = x.PDC_Details_V_Type,
-                    Tran_Type = x.PDC_Details_Trans_Type,
-                }).ToListAsync();
+                var result = await (from pdc in _pdcDetails.GetAsQueryable()
+                                    join acc in _MasterAccountsTableRepo.GetAsQueryable()
+                                    on pdc.PDC_Details_Bank_Account_No equals acc.MaAccNo
+                                    where pdc.PDC_Details_Cheque_Status == "R"
+                                    select new PDCPostedList
+                                    {
+                                        BAccNo = acc.MaAccName, // Assuming AccountName is the field in Accounts table
+                                        CAmount = pdc.PDC_Details_Cheque_Amount,
+                                        CBName = pdc.PDC_Details_Cheque_Bank_Name,
+                                        CNO = pdc.PDC_Details_Cheque_No,
+                                        PartyName = pdc.PDC_Details_PartyAccNo,
+                                        PDate = pdc.PDC_Details_PDC_Date,
+                                        PID = pdc.PDC_Details_ID,
+                                        POSTDt = pdc.PDC_Details_PDC_Voucher_Date,
+                                        TDate = pdc.PDC_Details_Trans_Date,
+                                        VNO = pdc.PDC_Details_V_No,
+                                        VType = pdc.PDC_Details_V_Type,
+                                        PDCVNO = pdc.PDC_Details_V_No,
+                                        Tran_Type = pdc.PDC_Details_Trans_Type,
+                                    }).ToListAsync();
+
                 return result;
+
             }
             catch (Exception ex)
             {

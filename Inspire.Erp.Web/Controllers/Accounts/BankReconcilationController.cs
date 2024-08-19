@@ -28,5 +28,10 @@ namespace Inspire.Erp.Web.Controllers
         {
             return await _ibn.BankLedger(bankAccNo);
         }
+        [HttpPost("SaveBankReconciliation")]
+        public async Task<ActionResult> SaveBankReconciliation([FromBody] ReconciliationVoucher reconciliation)
+        {
+            return Ok(await _ibn.SavebankReconciliation(reconciliation));
+        }
     }
 }

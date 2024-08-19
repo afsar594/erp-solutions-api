@@ -11,5 +11,7 @@ namespace Inspire.Erp.Application.Account.Interfaces
     {
         public Task<List<MasterAccountsTable>> GetAccountListForDropdown();
         public Task<IEnumerable<BankLedger>> BankLedger(string bankAccNo);
+        public Task<Response<bool>> SavebankReconciliation(ReconciliationVoucher reconciliation);
+
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Inspire.Erp.Application.Account.Interfaces;
 using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Models;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
@@ -47,11 +48,11 @@ namespace Inspire.Erp.Application.Account.Implementations
                               }).ToList();
 
 
-                var transValues = _accountTransactionRepository.GetAll()
+                var transValues = _accountTransactionRepository.GetAsQueryable()
                                       .Where(a => a.AccountsTransactionsAccNo.ToUpper() == accNo.ToUpper()
                                         && a.AccountsTransactionsAllocBalance > 0
-                                        && ((vType == "RECEIPT" && a.AccountsTransactionsDebit != 0 && a.AccountsTransactionsVoucherType == "SalesVoucher")
-                                      || (vType == "PAYMENT" && a.AccountsTransactionsCredit != 0 && a.AccountsTransactionsVoucherType == "PurchaseVoucher")))
+                                        && ((vType == VoucherType.Receipt && a.AccountsTransactionsDebit != 0 && a.AccountsTransactionsVoucherType == VoucherType.SalesVoucher_TYPE)
+                                      || (vType == VoucherType.Payment && a.AccountsTransactionsCredit != 0 && a.AccountsTransactionsVoucherType == VoucherType.PurchaseVoucher_TYPE)))
                                         .Select(g => new Domain.Models.AllocationDetails()
                                         {
                                             TransNo = g.AccountsTransactionsTransSno,
