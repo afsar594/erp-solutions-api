@@ -54,6 +54,7 @@ namespace Inspire.Erp.Web.Controllers
         #endregion
 
         #region Balance Sheet 
+
         [HttpPost("GetAccountTransactionsBalanceSheetSummary")]
         public async Task<IActionResult> GetAccountTransactionsBalanceSheetSummary(GenericGridViewModel model)
         {

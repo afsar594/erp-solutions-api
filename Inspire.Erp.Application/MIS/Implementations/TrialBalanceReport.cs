@@ -82,7 +82,8 @@ namespace Inspire.Erp.Application.MIS.Implementations
                     GetTrialBalanceReportModel trialBalanceReportModel;
                     foreach (var mainHead in mainHeads)
                     {
-                        if (mainHead == null) continue;
+                        if (mainHead == null || mainHead=="") continue;
+
                         trialBalanceReportModel = new GetTrialBalanceReportModel();
                         trialBalanceReportModel.__children = new List<SubHeadTrialBalance>();
                         trialBalanceReportModel.head = mainHead;
@@ -91,7 +92,8 @@ namespace Inspire.Erp.Application.MIS.Implementations
                         decimal totalCredit = 0;
                         decimal totalAmount = 0;
 
-                        foreach (var subHead in result.Where(x => x.MainHead == mainHead).Distinct().ToList())
+                        var subHeads = result.Where(x => x.MainHead == mainHead).Distinct().ToList();
+                        foreach (var subHead in subHeads)
                         {
                             var t = new SubHeadTrialBalance();
                             t.subHead = subHead.SubHead;
@@ -116,7 +118,7 @@ namespace Inspire.Erp.Application.MIS.Implementations
                         grandTotalCredit += totalCredit;
                         grandTotalDebit += totalDebit;
                         grandTotalBalance += totalAmount;
-                        bb.Add(trialBalanceReportModel);
+                        //bb.Add(trialBalanceReportModel);
                         bb.Add(new GetTrialBalanceReportModel()
                         {
                             head = "Total : ",
