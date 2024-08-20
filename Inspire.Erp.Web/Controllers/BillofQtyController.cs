@@ -30,10 +30,12 @@ namespace Inspire.Erp.Web.Controllers
     {
         private IBillofQtyService _customerQuotationService;
         private readonly IMapper _mapper;
-        public BillofQtyController(IBillofQtyService customerQuotationService, IMapper mapper)
+        private IRepository<JobMaster> jobrepository; private IRepository<ItemMaster> itemrepository; private IRepository<UnitMaster> unitrepository;
+        public BillofQtyController(IBillofQtyService customerQuotationService, IMapper mapper, IRepository<JobMaster> _jobrepository, IRepository<ItemMaster> _itemrepository, IRepository<UnitMaster> _unitrepository)
         {
             _customerQuotationService = customerQuotationService;
             _mapper = mapper;
+            jobrepository = _jobrepository; itemrepository = _itemrepository; unitrepository = _unitrepository;
         }
         [HttpPost]
         [Route("InsertBillofQty")]
@@ -107,7 +109,7 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpPost]
         [Route("DeleteBillofQty")]
-        public ApiResponse<int> DeleteBillofQty( decimal id)
+        public ApiResponse<int> DeleteBillofQty(decimal id)
         {
             ApiResponse<int> apiResponse = new ApiResponse<int>
             {
@@ -115,7 +117,7 @@ namespace Inspire.Erp.Web.Controllers
                 Result = _mapper.Map<int>(_customerQuotationService.DeleteBillofQty(id)),
                 Message = ""
             };
-            return apiResponse;                       
+            return apiResponse;
 
         }
         [HttpGet]
@@ -133,7 +135,7 @@ namespace Inspire.Erp.Web.Controllers
         [HttpGet]
         [Route("GetSavedBillofQty/{id}")]
         public ApiResponse<BillofQtyMasterModel> GetSavedBillofQty(decimal id)
-        {            
+        {
 
             ApiResponse<BillofQtyMasterModel> apiResponse = new ApiResponse<BillofQtyMasterModel>
             {
@@ -144,6 +146,38 @@ namespace Inspire.Erp.Web.Controllers
             return apiResponse;
         }
 
+        [HttpGet]
+        [Route("BOQLoadDropdown")]
+        public ResponseInfo BOQLoadDropdown()
+        {
+            var objresponse = new ResponseInfo();
 
+
+            var jobMasters = jobrepository.GetAsQueryable().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
+            {
+                c.JobMasterJobId,
+                JobMasterJobName = c.JobMasterJobName.Trim(),
+            }).ToList();
+            var itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
+                    && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
+                    {
+                        k.ItemMasterItemId,
+                        k.ItemMasterPartNo,
+                        ItemMasterItemName = k.ItemMasterItemName.Trim()
+                    }).ToList();
+            var unitMasters = unitrepository.GetAsQueryable().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
+            {
+                x.UnitMasterUnitId,
+                UnitMasterUnitFullName = x.UnitMasterUnitFullName.Trim(),
+                UnitMasterUnitShortName = x.UnitMasterUnitShortName.Trim()
+            }).ToList();
+            objresponse.ResultSet = new
+            {
+                jobMasters = jobMasters,
+                itemMaster = itemMaster,
+                unitMasters = unitMasters,
+            };
+            return objresponse;
+        }
     }
 }
