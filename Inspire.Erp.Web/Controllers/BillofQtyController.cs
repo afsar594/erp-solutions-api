@@ -30,12 +30,15 @@ namespace Inspire.Erp.Web.Controllers
     {
         private IBillofQtyService _customerQuotationService;
         private readonly IMapper _mapper;
+        private IRepository<BillofQtyMaster> _BillofQtyMasterRepository; private IRepository<BillOfQTyDetails> _BillOfQTyDetailsRepository;
         private IRepository<JobMaster> jobrepository; private IRepository<ItemMaster> itemrepository; private IRepository<UnitMaster> unitrepository;
-        public BillofQtyController(IBillofQtyService customerQuotationService, IMapper mapper, IRepository<JobMaster> _jobrepository, IRepository<ItemMaster> _itemrepository, IRepository<UnitMaster> _unitrepository)
+        public BillofQtyController(IBillofQtyService customerQuotationService, IMapper mapper, IRepository<JobMaster> _jobrepository, IRepository<ItemMaster> _itemrepository, IRepository<UnitMaster> _unitrepository
+            , IRepository<BillOfQTyDetails> BillOfQTyDetailsRepository, IRepository<BillofQtyMaster> BillofQtyMasterRepository)
         {
             _customerQuotationService = customerQuotationService;
             _mapper = mapper;
             jobrepository = _jobrepository; itemrepository = _itemrepository; unitrepository = _unitrepository;
+            _BillofQtyMasterRepository = BillofQtyMasterRepository; _BillOfQTyDetailsRepository = BillOfQTyDetailsRepository;
         }
         [HttpPost]
         [Route("InsertBillofQty")]
@@ -178,6 +181,37 @@ namespace Inspire.Erp.Web.Controllers
                 unitMasters = unitMasters,
             };
             return objresponse;
+        }
+
+        [HttpGet]
+        [Route("LoadBOQ")]
+        public ResponseInfo LoadBOQ()
+        {
+            var objResponse = new ResponseInfo();
+            var detailList = _BillOfQTyDetailsRepository.GetAsQueryable().ToList();
+            var details = _BillofQtyMasterRepository.GetAsQueryable().ToList();
+
+            // Filtering detailList based on PurchaseOrderNos
+            var data = (from d in detailList
+                        join c in details on d.BillQtyId equals c.Id
+                        select new BoqDetailDto
+                        {
+                            Id = c.Id,
+                            BillofqtyNo = c.BillofqtyNo,
+                            Date = c.Date,
+                            CustomerEnqId = c.CustomerEnqId,
+                            ItemCode = d.ItemCode,
+                            Qty = d.Qty,
+                            UnitCode = d.UnitCode
+                        })
+                .ToList();
+
+            objResponse.ResultSet = new
+            {
+                result = data
+            };
+            return objResponse;
+
         }
     }
 }

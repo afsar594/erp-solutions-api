@@ -29,7 +29,18 @@ namespace Inspire.Erp.Domain.Entities
         public string BillofqtyNo { get; set; }
         public DateTime? Date { get; set; }
         public decimal? CustomerEnqId { get; set; }
-        public string Remarks { get; set; }        
+        public string Remarks { get; set; }
         public virtual List<BillOfQTyDetailsModel> BillOfQTyDetails { get; set; }
     }
+    public class BoqDetailDto
+    {
+        public decimal Id { get; set; }
+        public string BillofqtyNo { get; set; }
+        public DateTime? Date { get; set; }
+        public decimal? CustomerEnqId { get; set; }
+        public decimal? ItemCode { get; set; }
+        public decimal? Qty { get; set; }
+        public decimal? UnitCode { get; set; }
+    }
+
 }
