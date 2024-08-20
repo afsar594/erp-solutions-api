@@ -797,6 +797,10 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                          CustomerQuotationDetailsAmount = cpods.CustomerQuotationDetailsNetAmount,
                                          CustomerQuotationDetailsUnits = cpods.CustomerQuotationDetailsUnitId,
                                          CustomerQuotationDetailsRemarks = cpo.CustomerQuotationRemarks,
+                                         CustomerQuotationVatPercentage = cpo.CustomerQuotationVatPercentage,
+                                         CustomerQuotationDiscountPercentage = cpo.CustomerQuotationDiscountPercentage,
+                                         CustomerQuotationVatAmount=cpo.CustomerQuotationVatAmount,
+                                         CustomerQuotationDiscountAmountTotal = cpo.CustomerQuotationDiscountAmountTotal
 
                                      }).ToListAsync();
                 return Response<List<CustomerSalesQuotation>>.Success(results, "Data found");
