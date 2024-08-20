@@ -1,4 +1,5 @@
 ﻿using Inspire.Erp.Application.Common;
+using Inspire.Erp.Application.MODULE;
 using Inspire.Erp.Application.StoreWareHouse.Interface;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
@@ -23,13 +24,14 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
         private readonly IRepository<LocationMaster> _locationMasterRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
         private IRepository<StockRegister> _stockRegisterRepository;
+        private IRepository<UnitDetails> _UnitDetailsRepository;
         private static string prefix;
         public DamageEntry(IRepository<DamageDetails> _DetailsRepo,
             IRepository<VouchersNumbers> _VNrepo,
             IRepository<StockRegister> _SRrepo,
-            IRepository<DamageMaster> _rep,
+            IRepository<DamageMaster> _rep, IRepository<UnitDetails> unitDetailsRepository,
             IRepository<ProgramSettings> programsettingsRepository,
-              IRepository<ItemMaster> itemMasterRepository,
+            IRepository<ItemMaster> itemMasterRepository,
             IRepository<LocationMaster> locationMasterRepository,
             IRepository<VouchersNumbers> voucherNumbersRepository,
             IRepository<StockRegister> stockRegisterRepository)
@@ -38,7 +40,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
             _VouchersNumbersRepo = _VNrepo;
             _StockRegisterRepo = _SRrepo;
             _DamageMasterRepo = _rep;
-            _DamageDetailsRepo = _DetailsRepo;
+            _DamageDetailsRepo = _DetailsRepo; _UnitDetailsRepository = unitDetailsRepository;
             _itemMasterRepository = itemMasterRepository;
             _locationMasterRepository = locationMasterRepository;
             _voucherNumbersRepository = voucherNumbersRepository;
@@ -154,39 +156,53 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
 
                 _DamageMasterRepo.Insert(DamageMaster);
 
+
+                int maxcount1 = 0;
+                maxcount1 = Convert.ToInt32(
+                    _DamageDetailsRepo.GetAsQueryable()
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.DamageDetailsId) + 1);
                 DamageMaster.DamageDetails.ForEach(elemt =>
                 {
-                    elemt.DamageDetailsId = maxcount;
+                    elemt.DamageDetailsId = maxcount1;
                     elemt.DamageDetailsVoucherNumber = DamageMaster.DamageMasterVoucherNumber;
+                    elemt.DamageMasterId = maxcount;
+                    maxcount1++;
                 });
                 _DamageDetailsRepo.InsertList(DamageMaster.DamageDetails);
 
                 var stockReg = new List<StockRegister>();
                 foreach (var item in DamageMaster.DamageDetails)
                 {
+                    // Retrieve conversion type based on MaterialId and UnitId
+                    var conversionType = this.getConverionTypebyUnitId(item.DamageDetailsMaterialId, item.DamageDetailsUnitId);
 
+                    // Calculate the converted quantity
+                    var convertedQuantity = (decimal)(item.DamageDetailsQty ?? 0) * conversionType;
+
+                    // Create a new StockRegister object and add it to the stockReg list
                     stockReg.Add(new StockRegister()
                     {
                         StockRegisterPurchaseID = DamageMaster.DamageMasterVoucherNumber,
                         StockRegisterRefVoucherNo = DamageMaster.DamageMasterVoucherNumber,
                         StockRegisterVoucherDate = DamageMaster.DamageMasterVdate,
                         StockRegisterMaterialID = item.DamageDetailsMaterialId,
-                        StockRegisterQuantity = (decimal)item.DamageDetailsQty,
-                        StockRegisterSIN = (decimal)item.DamageDetailsQty,
-                        StockRegisterSout = (decimal)item.DamageDetailsQty,
-                        StockRegisterRate = 0,
-                        StockRegisterAmount = (decimal)item.DamageDetailsPrice,
-                        StockRegisterFCAmount = 0,
+                        StockRegisterQuantity = convertedQuantity,
+                        StockRegisterSIN = 0,
+                        StockRegisterSout = convertedQuantity,
+                        StockRegisterRate = (decimal)(item.DamageDetailsPrice ?? 0),
+                        StockRegisterAmount = (decimal)(item.DamageDetailsPrice ?? 0) * convertedQuantity,
+                        StockRegisterFCAmount = (decimal)(item.DamageDetailsPrice ?? 0) * convertedQuantity,
                         StockRegisterAssignedDate = DamageMaster.DamageMasterVdate,
                         StockRegisterStatus = AccountStatus.Approved,
                         StockRegisterTransType = VoucherType.DamageEntry_TYPE,
                         StockRegisterUnitID = item.DamageDetailsUnitId,
                         StockRegisterLocationID = DamageMaster.DamageMasterLocationId,
-                        StockRegisterExpDate = null,
-                        StockRegisterDepID = 1,
+                        StockRegisterExpDate = null,  // Assuming no expiration date is set
+                        StockRegisterDepID = 1,       // Department ID, ensure this is correct for your case
                         StockRegisterDelStatus = false
                     });
                 }
+
                 _stockRegisterRepository.InsertList(stockReg);
 
 
@@ -204,8 +220,68 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
             try
             {
                 _DamageMasterRepo.BeginTransaction();
+
+                clsCommonFunctions.Delete_OldEntryOf_StockRegister(DamageMaster.DamageMasterVoucherNumber, VoucherType.DamageEntry_TYPE, _stockRegisterRepository);
+
                 _DamageMasterRepo.Update(DamageMaster);
-                _DamageDetailsRepo.UpdateList(DamageMaster.DamageDetails);
+
+                int maxcount1 = 0;
+                maxcount1 = Convert.ToInt32(
+                    _DamageDetailsRepo.GetAsQueryable()
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.DamageDetailsId) + 1);
+
+                foreach (var item in DamageMaster.DamageDetails)
+                {
+                    if (item.DamageDetailsId == 0)
+                    {
+                        item.DamageDetailsId = maxcount1;
+                        item.DamageDetailsVoucherNumber = DamageMaster.DamageMasterVoucherNumber;
+                        item.DamageMasterId = DamageMaster.DamageMasterId;
+                        _DamageDetailsRepo.Insert(item);
+                        maxcount1++;
+                    }
+                    else
+                    {
+                        _DamageDetailsRepo.Update(item);
+                    }
+                }
+
+
+
+                var stockReg = new List<StockRegister>();
+                foreach (var item in DamageMaster.DamageDetails)
+                {
+                    // Retrieve conversion type based on MaterialId and UnitId
+                    var conversionType = this.getConverionTypebyUnitId(item.DamageDetailsMaterialId, item.DamageDetailsUnitId);
+
+                    // Calculate the converted quantity
+                    var convertedQuantity = (decimal)(item.DamageDetailsQty ?? 0) * conversionType;
+
+                    // Create a new StockRegister object and add it to the stockReg list
+                    stockReg.Add(new StockRegister()
+                    {
+                        StockRegisterPurchaseID = DamageMaster.DamageMasterVoucherNumber,
+                        StockRegisterRefVoucherNo = DamageMaster.DamageMasterVoucherNumber,
+                        StockRegisterVoucherDate = DamageMaster.DamageMasterVdate,
+                        StockRegisterMaterialID = item.DamageDetailsMaterialId,
+                        StockRegisterQuantity = convertedQuantity,
+                        StockRegisterSIN = 0,
+                        StockRegisterSout = convertedQuantity,
+                        StockRegisterRate = (decimal)(item.DamageDetailsPrice ?? 0),
+                        StockRegisterAmount = (decimal)(item.DamageDetailsPrice ?? 0) * convertedQuantity,
+                        StockRegisterFCAmount = (decimal)(item.DamageDetailsPrice ?? 0) * convertedQuantity,
+                        StockRegisterAssignedDate = DamageMaster.DamageMasterVdate,
+                        StockRegisterStatus = AccountStatus.Approved,
+                        StockRegisterTransType = VoucherType.DamageEntry_TYPE,
+                        StockRegisterUnitID = item.DamageDetailsUnitId,
+                        StockRegisterLocationID = DamageMaster.DamageMasterLocationId,
+                        StockRegisterExpDate = null,  // Assuming no expiration date is set
+                        StockRegisterDepID = 1,       // Department ID, ensure this is correct for your case
+                        StockRegisterDelStatus = false
+                    });
+                }
+                _stockRegisterRepository.InsertList(stockReg);
+                //_DamageDetailsRepo.UpdateList(DamageMaster.DamageDetails);
                 _DamageMasterRepo.TransactionCommit();
                 return this.GetDamageById(DamageMaster.DamageMasterId);
             }
@@ -220,8 +296,11 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
             try
             {
                 var DamageMaster = new DamageMaster();
-                DamageMaster = _DamageMasterRepo.GetAsQueryable().FirstOrDefault(x => x.DamageMasterId == Convert.ToInt32(id));
-                DamageMaster.DamageDetails = _DamageDetailsRepo.GetAsQueryable().Where(x => x.DamageDetailsId == Convert.ToInt32(id)).ToList();
+                DamageMaster = _DamageMasterRepo.GetAsQueryable().Where(x => x.DamageMasterId == id && x.DamageMasterDelStatus != true).FirstOrDefault();
+                if (DamageMaster != null)
+                {
+                    DamageMaster.DamageDetails = _DamageDetailsRepo.GetAsQueryable().Where(x => x.DamageMasterId == id && x.DamageDetailsDelStatus != true).ToList();
+                }
                 return DamageMaster;
 
             }
@@ -268,7 +347,17 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 throw ex;
             }
         }
-
+        private decimal getConverionTypebyUnitId(int? itemid, int? unitDetailsid)
+        {
+            try
+            {
+                return (decimal)_UnitDetailsRepository.GetAsQueryable().FirstOrDefault(x => x.UnitDetailsItemId == itemid && x.UnitDetailsUnitId == unitDetailsid).UnitDetailsConversionType;
+            }
+            catch
+            {
+                return 1;
+            }
+        }
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
         {
             try

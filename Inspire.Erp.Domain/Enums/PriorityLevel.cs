@@ -60,7 +60,7 @@ namespace Inspire.Erp.Domain.Enums
             get { return "StockAdjustmentVoucher"; }
 
         }
-
+        public static string BOQ { get { return "BOQ"; } }
         public static String PosSalesVoucher_TYPE { get { return "PosSalesVoucher"; } }
         public static String JobMasterVoucher_TYPE { get { return "JobMasterVoucher"; } }
         public static String ManufactureItem_TYPE { get { return "ManufactureItem"; } }
@@ -116,6 +116,8 @@ namespace Inspire.Erp.Domain.Enums
 
         public static String ManufactureItem_Prefix { get { return "ManufactureItem_Prefix"; } }
         public static String DE_Prefix { get { return "DamageEntry_Prefix"; } }
+
+        public static String BOQ_Prefix { get { return "BOQ_Prefix"; } }
     }
 
     public static class ItemMasterStatus

@@ -55,6 +55,14 @@ namespace Inspire.Erp.Domain.Enums
         public static string CustomerQuotationError { get { return "Error in Insert/Update/Delete Quotation"; } }
     }
 
+    public static class BillofQtyMessage
+    {
+        public static String SaveBillofQty { get { return "BillofQty saved successfully"; } }
+        public static string UpdateBillofQty { get { return "BillofQty updated successfully"; } }
+        public static string DeleteBillofQty { get { return "BillofQty Deleted successfully"; } }
+        public static string BillofQtyAlreadyExist { get { return "BillofQty is already exist"; } }
+        public static string BillofQtyError { get { return "Error in Insert/Update/Delete BillofQty"; } }
+    }
     public static class CustomerEnquiryMessage
     {
         public static String SaveCustomerEnquiry { get { return "Customer Enquiry saved successfully"; } }

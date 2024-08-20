@@ -460,6 +460,11 @@ namespace Inspire.Erp.Web.Common
             CreateMap<SalesHoldDetails, SalesHoldDetailsViewModel>();
             CreateMap<SalesHoldDetailsViewModel, SalesHoldDetails>();
 
+            CreateMap<BillofQtyMasterModel, BillofQtyMaster>();
+            CreateMap<BillofQtyMaster, BillofQtyMasterModel>();
+
+            CreateMap<BillOfQTyDetailsModel, BillOfQTyDetails>();
+            CreateMap<BillOfQTyDetails, BillOfQTyDetailsModel>();
 
         }
     }

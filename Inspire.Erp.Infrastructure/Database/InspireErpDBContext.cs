@@ -432,8 +432,8 @@ namespace Inspire.Erp.Infrastructure.Database
 
         public DbSet<SalesRet_Master> POS_SalesRet_Master { get; set; }
 
-
-
+        public DbSet<BillofQtyMaster> BillofQtyMaster { get; set; }
+        public DbSet<BillOfQTyDetails> BillOfQTyDetails { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -484,8 +484,7 @@ namespace Inspire.Erp.Infrastructure.Database
             modelBuilder.Entity<GetAccountTransactionProfitLossResponse>().HasNoKey();
             modelBuilder.Entity<GetATFinancialClosingResponse>().HasNoKey();
             modelBuilder.Entity<SingleValueSPResult>().HasNoKey();
-            // modelBuilder.Entity<POS_Sales_Voucher>().HasNoKey();
-
+            // modelBuilder.Entity<POS_Sales_Voucher>().HasNoKey();           
 
             //modelBuilder.Query<IssueWithStockTransfer>().ToView("VW_ISSUE_WITH_STOCK_TRANSFER");
             #endregion
@@ -8995,7 +8994,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.ItemMasterWeightN).HasColumnName("Item_Master_Weight_N");
 
-            
+
             });
             ///================================================================================
 
@@ -14290,8 +14289,8 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.PurchaseOrderDetailsManfDate).HasColumnType("datetime");
 
                 entity.Property(e => e.PurchaseOrderDetailsMatId);
-                    //.HasColumnName("PurchaseOrderDetailsMatID")
-                    //.HasColumnType("numeric(18, 0)");
+                //.HasColumnName("PurchaseOrderDetailsMatID")
+                //.HasColumnType("numeric(18, 0)");
 
                 entity.Property(e => e.PurchaseOrderDetailsNetAmt).HasColumnType("numeric(18, 4)");
 
@@ -24632,6 +24631,65 @@ namespace Inspire.Erp.Infrastructure.Database
                .HasForeignKey(d => d.SNO)
                .HasConstraintName("FK_TEMP_SALES_VOUCHER_DETAILS_TEMP_SALES_VOUCHER");
 
+            });
+
+            modelBuilder.Entity<BillofQtyMaster>(entity =>
+            {
+                entity.ToTable("BillofQty_Master");
+
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Id)
+                      .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.BillofqtyNo)
+                      .HasMaxLength(50)
+                      .IsUnicode(false);
+
+                entity.Property(e => e.Date)
+                      .HasColumnType("datetime");
+
+                entity.Property(e => e.CustomerEnqId)
+                      .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.Remarks)
+                      .HasMaxLength(500)
+                      .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<BillOfQTyDetails>(entity =>
+            {
+                entity.ToTable("BillofQty_Details");
+
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Id)
+                      .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.BillQtyId)
+                      .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.ItemCode)
+                      .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.UnitCode)
+                      .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.Qty)
+                      .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.Remarks)
+                      .HasMaxLength(250)
+                      .IsUnicode(false);
+
+                entity.Property(e => e.IsEdit)
+                      .HasColumnType("bit");
+
+                // Configure the foreign key relationship with BillofQty_Master
+                entity.HasOne(d => d.BillofQtyMaster)
+                      .WithMany(p => p.BillOfQTyDetails)
+                      .HasForeignKey(d => d.BillQtyId)
+                      .HasConstraintName("FK_BillofQty_Details_BillofQty_Master");
             });
 
             OnModelCreatingPartial(modelBuilder);
