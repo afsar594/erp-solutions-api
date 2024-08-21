@@ -154,7 +154,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 decimal maxCount1 = 0;
                 maxCount1 = _BillOfQTyDetailsRepository.GetAsQueryable()
                      .DefaultIfEmpty()
-                     .Max(o => o == null ? 0 : (decimal)o.BillQtyId) + 1;
+                     .Max(o => o == null ? 0 : (decimal)o.Id) + 1;
                 foreach (var x in BillOfQTyDetails)
                 {
 
