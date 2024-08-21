@@ -191,6 +191,9 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<PdcVoucherDetails> PdcVoucherDetails { get; set; }
         public virtual DbSet<PosStationSettings> PosStationSettings { get; set; }
         public virtual DbSet<PrApprovalDetails> PrApprovalDetails { get; set; }
+
+        public virtual DbSet<PermissionApprovalDetail> PermissionApprovalDetail { get; set; }
+
         public virtual DbSet<PrUser> PrUser { get; set; }
         public virtual DbSet<PriceLevelMaster> PriceLevelMaster { get; set; }
         public virtual DbSet<PrinterConnection> PrinterConnection { get; set; }
@@ -239,8 +242,8 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<ReportAccountsTransactions> ReportAccountsTransactions { get; set; }
         public virtual DbSet<ReportSalesVoucher> ReportSalesVoucher { get; set; }
         public virtual DbSet<ReportPurchaseOrder> ReportPurchaseOrder { get; set; }
-
-
+        public virtual DbSet<tbl_approvalforms> tbl_approvalforms { get; set; }
+        
         //*********************************************************
         //===========================================================
         ////public virtual DbSet<PurchaseReturnVoucher> PurchaseReturnVoucher { get; set; }
@@ -13009,32 +13012,86 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.PrApprovalDetailsUserId).HasColumnName("PR_Approval_Details_User_ID");
             });
 
-            modelBuilder.Entity<PrUser>(entity =>
+
+            modelBuilder.Entity<PermissionApprovalDetail>(entity =>
             {
-                entity.HasNoKey();
+                entity.ToTable("permissionapprovaldetail");
 
-                entity.ToTable("PR_User");
+                entity.HasKey(e => e.Id);
 
-                entity.Property(e => e.PrUserDelStatus).HasColumnName("PR_User_DelStatus");
+                entity.Property(e => e.Id)
+                      .HasColumnName("id")
+                      .ValueGeneratedOnAdd();
 
-                entity.Property(e => e.PrUserId)
-                    .HasColumnName("PR_User_ID")
-                    .ValueGeneratedOnAdd();
+                entity.Property(e => e.VoucherType)
+                      .HasColumnName("Voucher_Type")
+                      .HasMaxLength(100)
+                      .IsUnicode(false);
 
-                entity.Property(e => e.PrUserName)
-                    .HasColumnName("PR_User_Name")
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
+                entity.Property(e => e.VoucherId)
+                      .HasColumnName("voucherid")
+                      .HasMaxLength(25)
+                      .IsUnicode(false);
 
-                entity.Property(e => e.PrUserUallow).HasColumnName("PR_User_Uallow");
+                entity.Property(e => e.VoucherDate)
+                      .HasColumnName("voucher_date")
+                      .HasColumnType("date");
 
-                entity.Property(e => e.PrUserUserId).HasColumnName("PR_User_User_ID");
+                entity.Property(e => e.Amount)
+                      .HasColumnName("Amount")
+                      .HasColumnType("float");
 
-                entity.Property(e => e.PrUserVoudType)
-                    .HasColumnName("PR_User_VoudType")
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
+                entity.Property(e => e.CreatedBy)
+                      .HasColumnName("created_by");
+
+                entity.Property(e => e.LevelId)
+                      .HasColumnName("Levelid");
+
+                entity.Property(e => e.Status)
+                      .HasColumnName("Status")
+                      .HasMaxLength(50)
+                      .IsUnicode(false);
+
+                entity.Property(e => e.ApprovedBy)
+                      .HasColumnName("approved_by");
+
+                entity.Property(e => e.ModifiedDate)
+                      .HasColumnName("modified_date")
+                      .HasColumnType("datetime");
+
+                entity.Property(e => e.Remarks)
+                      .HasColumnName("Remarks")
+                      .HasMaxLength(500)
+                      .IsUnicode(true);
             });
+
+
+            modelBuilder.Entity<PrUser>(entity =>
+                {
+                    entity.HasNoKey();
+
+                    entity.ToTable("PR_User");
+
+                    entity.Property(e => e.PrUserDelStatus).HasColumnName("PR_User_DelStatus");
+
+                    entity.Property(e => e.PrUserId)
+                        .HasColumnName("PR_User_ID")
+                        .ValueGeneratedOnAdd();
+
+                    entity.Property(e => e.PrUserName)
+                        .HasColumnName("PR_User_Name")
+                        .HasMaxLength(50)
+                        .IsUnicode(false);
+
+                    entity.Property(e => e.PrUserUallow).HasColumnName("PR_User_Uallow");
+
+                    entity.Property(e => e.PrUserUserId).HasColumnName("PR_User_User_ID");
+
+                    entity.Property(e => e.PrUserVoudType)
+                        .HasColumnName("PR_User_VoudType")
+                        .HasMaxLength(50)
+                        .IsUnicode(false);
+                });
 
             modelBuilder.Entity<PriceLevelMaster>(entity =>
             {

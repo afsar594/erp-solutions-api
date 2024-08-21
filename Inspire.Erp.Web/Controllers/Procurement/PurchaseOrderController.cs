@@ -16,6 +16,9 @@ using Inspire.Erp.Web.Common;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Inspire.Erp.Infrastructure.Database;
+using Microsoft.EntityFrameworkCore;
+using System.Linq.Dynamic.Core;
 
 namespace Inspire.Erp.Web.Controllers.Procurement
 {
@@ -24,7 +27,8 @@ namespace Inspire.Erp.Web.Controllers.Procurement
     [ApiController]
     public class PurchaseOrderController : ControllerBase
     {
-        private IPurchaseOrderService _purchaseOrderService;
+        private InspireErpDBContext _context;
+        private IPurchaseOrderService _purchaseOrderService; private IRepository<PermissionApprovalDetail> _permissionApprovalDetailRepo;
         private IRepository<ItemMaster> itemrepository; private IRepository<UnitMaster> unitrepository; private IRepository<PurOrderRegister> _purOrderRegisterRepository;
         private IRepository<PurchaseOrder> _purchaseOrderRepository; private IRepository<PurchaseOrderDetails> _purchaseOrderDetailsRepository;
         private IRepository<JobMaster> jobrepository; private readonly IRepository<SuppliersMaster> supplierrepository;
@@ -34,11 +38,11 @@ namespace Inspire.Erp.Web.Controllers.Procurement
         private readonly IMapper _mapper;
         public PurchaseOrderController(IPurchaseOrderService purchaseOrderService, IMapper mapper, IRepository<ItemMaster> _itemrepository, IRepository<UnitMaster> _unitrepository,
             IRepository<PurchaseOrder> purchaseOrderRepository, IRepository<PurOrderRegister> purOrderRegisterRepository, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository,
-            IRepository<JobMaster> _jobrepository, IRepository<LocationMaster> _locationrepository
-            , IRepository<CurrencyMaster> _currencyrepository, IRepository<SuppliersMaster> _supplierrepository,
+            IRepository<JobMaster> _jobrepository, IRepository<LocationMaster> _locationrepository, InspireErpDBContext context
+            , IRepository<CurrencyMaster> _currencyrepository, IRepository<SuppliersMaster> _supplierrepository, IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo,
             IRepository<ViewAccountsTransactionsVoucherType> viewAccountsTransactionsVoucherTypeRepository)
         {
-            _purchaseOrderService = purchaseOrderService;
+            _purchaseOrderService = purchaseOrderService; _context = context; _permissionApprovalDetailRepo = permissionApprovalDetailRepo;
             _mapper = mapper; supplierrepository = _supplierrepository; _viewAccountsTransactionsVoucherTypeRepository = viewAccountsTransactionsVoucherTypeRepository;
             itemrepository = _itemrepository; unitrepository = _unitrepository; _purchaseOrderRepository = purchaseOrderRepository; _purOrderRegisterRepository = purOrderRegisterRepository;
             _purchaseOrderDetailsRepository = purchaseOrderDetailsRepository; jobrepository = _jobrepository; locationrepository = _locationrepository; currencyrepository = _currencyrepository;
@@ -555,7 +559,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
         public ResponseInfo PurchaseLoadDropdown()
         {
             var objresponse = new ResponseInfo();
-          
+
             var jobMasters = jobrepository.GetAsQueryable().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
             {
                 c.JobMasterJobId,
@@ -566,7 +570,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                 c.LocationMasterLocationId,
                 LocationMasterLocationName = c.LocationMasterLocationName.Trim(),
             }).ToList();
-          
+
             var currencyMasters = currencyrepository.GetAsQueryable().Where(a => a.CurrencyMasterCurrencyDelStatus != true).Select(c => new
             {
                 c.CurrencyMasterCurrencyId,
@@ -602,16 +606,86 @@ namespace Inspire.Erp.Web.Controllers.Procurement
 
             var vouchers = _viewAccountsTransactionsVoucherTypeRepository.GetAsQueryable().ToList();
             objresponse.ResultSet = new
-            {                
+            {
                 jobMasters = jobMasters,
-                LocationMaster = LocationMaster,               
-                currencyMasters = currencyMasters,               
+                LocationMaster = LocationMaster,
+                currencyMasters = currencyMasters,
                 itemMaster = itemMaster,
                 unitMasters = unitMasters,
-                itemMasterGroup= itemMasterGroup,
-                SuppliersMaster= SuppliersMaster,
-                vouchers= vouchers
+                itemMasterGroup = itemMasterGroup,
+                SuppliersMaster = SuppliersMaster,
+                vouchers = vouchers
             };
+            return objresponse;
+        }
+
+        [HttpGet]
+        [Route("POApprovalDropdown")]
+        public ResponseInfo POApprovalDropdown()
+        {
+            var objresponse = new ResponseInfo();
+
+            var data = _context.tbl_approvalforms.AsQueryable().AsNoTracking().ToList();
+
+            objresponse.ResultSet = new
+            {
+                result = data,
+            };
+            return objresponse;
+        }
+
+        [HttpPost]
+        [Route("POApprovalList")]
+        public ResponseInfo POApprovalList(string status, List<string>? voucherType)
+        {
+            var objresponse = new ResponseInfo();
+
+            var voucherTypes = voucherType.ToList();
+
+            var data = _context.PermissionApprovalDetail
+                .AsQueryable()
+                .Where(a => voucherTypes.Count > 0 ? voucherTypes.Contains(a.VoucherType) : true)
+                .AsNoTracking()
+                .ToList();
+
+            if (status == "Approved")
+            {
+                data = data.Where(a => a.Status == "Approved").ToList();
+            }
+            if (status == "Pending")
+            {
+                data = data.Where(a => a.Status == "Pending").ToList();
+            }
+
+            objresponse.ResultSet = new
+            {
+                result = data,
+            };
+            return objresponse;
+        }
+
+        [HttpPost]
+        [Route("POApprovedList")]
+        public ResponseInfo POApprovedList(List<PermissionApprovalDetail>? model)
+        {
+            var objresponse = new ResponseInfo();
+            try
+            {
+                _permissionApprovalDetailRepo.BeginTransaction();
+                foreach (var voucherType in model)
+                {
+                    voucherType.ModifiedDate = DateTime.Now;
+                    voucherType.Status = "Approved";
+                    _permissionApprovalDetailRepo.Update(voucherType);
+                }
+                objresponse.Message = "Approved Successfully";
+                _permissionApprovalDetailRepo.TransactionCommit();
+            }
+            catch (Exception ex)
+            {
+                objresponse.ErrorMessage = ex.Message;
+                _permissionApprovalDetailRepo.TransactionRollback();
+            }
             return objresponse;
         }
     }
