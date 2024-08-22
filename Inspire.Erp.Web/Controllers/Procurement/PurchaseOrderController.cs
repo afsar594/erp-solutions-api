@@ -19,6 +19,7 @@ using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Inspire.Erp.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Dynamic.Core;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Inspire.Erp.Web.Controllers.Procurement
 {
@@ -625,7 +626,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
         {
             var objresponse = new ResponseInfo();
 
-            var data = _context.tbl_approvalforms.AsQueryable().AsNoTracking().ToList();
+            var data = _context.tbl_approvalforms.AsNoTracking().ToList();
 
             objresponse.ResultSet = new
             {
@@ -640,26 +641,19 @@ namespace Inspire.Erp.Web.Controllers.Procurement
         {
             var objresponse = new ResponseInfo();
 
-            var voucherTypes = voucherType.ToList();
+            var voucherTypes = voucherType ?? new List<string>();
 
-            var data = _context.PermissionApprovalDetail
-                .AsQueryable()
-                .Where(a => voucherTypes.Count > 0 ? voucherTypes.Contains(a.VoucherType) : true)
-                .AsNoTracking()
-                .ToList();
+            var data = _context.PermissionApprovalDetail.AsNoTracking()
+                .Where(a => voucherTypes.Count == 0 || voucherTypes.Contains(a.VoucherType));
 
-            if (status == "Approved")
+            if (!string.IsNullOrEmpty(status) && status != "All")
             {
-                data = data.Where(a => a.Status == "Approved").ToList();
-            }
-            if (status == "Pending")
-            {
-                data = data.Where(a => a.Status == "Pending").ToList();
+                data = data.Where(a => a.Status == status);
             }
 
             objresponse.ResultSet = new
             {
-                result = data,
+                result = data.ToList(),
             };
             return objresponse;
         }
@@ -669,22 +663,29 @@ namespace Inspire.Erp.Web.Controllers.Procurement
         public ResponseInfo POApprovedList(List<PermissionApprovalDetail>? model)
         {
             var objresponse = new ResponseInfo();
+
+            if (model == null || model.Count == 0)
+            {
+                objresponse.ErrorMessage = "No data provided for approval.";
+                return objresponse;
+            }
             try
             {
                 _permissionApprovalDetailRepo.BeginTransaction();
+                var currentDateTime = DateTime.Now;
                 foreach (var voucherType in model)
                 {
-                    voucherType.ModifiedDate = DateTime.Now;
+                    voucherType.ModifiedDate = currentDateTime;
                     voucherType.Status = "Approved";
                     _permissionApprovalDetailRepo.Update(voucherType);
                 }
-                objresponse.Message = "Approved Successfully";
                 _permissionApprovalDetailRepo.TransactionCommit();
+                objresponse.Message = "Approved Successfully";
             }
             catch (Exception ex)
             {
-                objresponse.ErrorMessage = ex.Message;
                 _permissionApprovalDetailRepo.TransactionRollback();
+                objresponse.ErrorMessage = $"An error occurred while approving: {ex.Message}";
             }
             return objresponse;
         }

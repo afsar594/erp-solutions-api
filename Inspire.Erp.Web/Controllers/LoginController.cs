@@ -14,6 +14,7 @@ using Inspire.Erp.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -24,15 +25,15 @@ namespace Inspire.Erp.Web.Controllers
     {
         private readonly IloginService loginsvc;
         private readonly IMapper _mapper;
-
+        private IRepository<UserFile> userFileRepository;
         private IRepository<LocationMaster> locationrepository;
         private IRepository<FinancialPeriods> financialrepository;
 
         public LoginController(IloginService _loginsvc, IMapper mapper,
-            IRepository<LocationMaster> _locationrepository, IRepository<FinancialPeriods> _financialrepository)
+            IRepository<LocationMaster> _locationrepository, IRepository<UserFile> _userFileRepository, IRepository<FinancialPeriods> _financialrepository)
         {
             loginsvc = _loginsvc;
-            _mapper = mapper;
+            _mapper = mapper; userFileRepository = _userFileRepository;
             locationrepository = _locationrepository; financialrepository = _financialrepository;
         }
         [HttpPost]
@@ -260,6 +261,26 @@ namespace Inspire.Erp.Web.Controllers
                 FinancialPeriods = FinancialPeriods
             };
 
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
+
+        [HttpGet]
+        [Route("GetAllUser")]
+
+        public ResponseInfo GetAllUser()
+        {
+            var objectresponse = new ResponseInfo();
+
+            var user = userFileRepository.GetAsQueryable().AsNoTracking().Select(a => new
+            {
+                a.UserId,
+                a.UserName
+            }).ToList();
+            objectresponse.ResultSet = new
+            {
+                result = user,
+            };
             objectresponse.IsSuccess = true;
             return objectresponse;
         }
