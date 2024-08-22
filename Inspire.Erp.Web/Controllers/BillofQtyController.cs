@@ -185,15 +185,16 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("LoadBOQ")]
-        public ResponseInfo LoadBOQ()
+        public ResponseInfo LoadBOQ(int customerEnqId)
         {
             var objResponse = new ResponseInfo();
             var detailList = _BillOfQTyDetailsRepository.GetAsQueryable().ToList();
             var details = _BillofQtyMasterRepository.GetAsQueryable().ToList();
 
-            // Filtering detailList based on PurchaseOrderNos
+            // Filtering detailList based on PurchaseOrderNos and customerEnqId
             var data = (from d in detailList
                         join c in details on d.BillQtyId equals c.Id
+                        where customerEnqId == -1 || c.CustomerEnqId == customerEnqId
                         select new BoqDetailDto
                         {
                             Id = c.Id,
@@ -211,7 +212,7 @@ namespace Inspire.Erp.Web.Controllers
                 result = data
             };
             return objResponse;
-
         }
+
     }
 }
