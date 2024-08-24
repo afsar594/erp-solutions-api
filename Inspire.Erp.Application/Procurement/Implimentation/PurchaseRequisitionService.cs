@@ -607,7 +607,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                             }
                         ) on sd.PurchaseRequisitionDetailsId equals srq.Tracking_Register_Details_ID into srqGroup
                         from srq in srqGroup.DefaultIfEmpty()
-                        where /*sd.PurchaseRequisitionDetailsReqStatus == null &&*/ (sd.PurchaseRequisitionDetailsQuantity - srq?.DelQty) > 0
+                        where (sd.PurchaseRequisitionDetailsQuantity - srq?.DelQty) > 0
                         select new PurChaseReqFields
                         {
                             PurchaseRequisitionPartyName = sm.PurchaseRequisitionPartyName ?? "",
@@ -616,8 +616,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                             Unit = um == null ? null : um.UnitMasterUnitShortName ?? "" + " :: " + um.UnitMasterUnitId.ToString() ?? "",
                             DelQty = srq?.DelQty ?? 0,
                             SRID = sm.PurchaseRequisitionId,
+                            SRDID = sd.PurchaseRequisitionDetailsId,
                             SRNo = sm.PurchaseRequisitionNo ?? "",
                             Date = sm.PurchaseRequisitionDate,
+                            Rate = sd.PurchaseRequisitionDetailsRate ?? 0,
                             SRQ = sd.PurchaseRequisitionDetailsQuantity ?? 0,
                             BalQty = (sd.PurchaseRequisitionDetailsQuantity - srq?.DelQty) ?? 0,
                             matId = sd.PurchaseRequisitionDetailsMatId ?? 0,
