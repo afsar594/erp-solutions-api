@@ -561,30 +561,30 @@ namespace Inspire.Erp.Web.Controllers.Procurement
         {
             var objresponse = new ResponseInfo();
 
-            var jobMasters = jobrepository.GetAsQueryable().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
+            var jobMasters = jobrepository.GetAsQueryable().AsNoTracking().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
             {
                 c.JobMasterJobId,
                 JobMasterJobName = c.JobMasterJobName.Trim(),
             }).ToList();
-            var LocationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
+            var LocationMaster = locationrepository.GetAsQueryable().AsNoTracking().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
             {
                 c.LocationMasterLocationId,
                 LocationMasterLocationName = c.LocationMasterLocationName.Trim(),
             }).ToList();
 
-            var currencyMasters = currencyrepository.GetAsQueryable().Where(a => a.CurrencyMasterCurrencyDelStatus != true).Select(c => new
+            var currencyMasters = currencyrepository.GetAsQueryable().AsNoTracking().Where(a => a.CurrencyMasterCurrencyDelStatus != true).Select(c => new
             {
                 c.CurrencyMasterCurrencyId,
                 CurrencyMasterCurrencyName = c.CurrencyMasterCurrencyName.Trim(),
                 c.CurrencyMasterCurrencyRate
             }).ToList();
-            var SuppliersMaster = supplierrepository.GetAsQueryable().Where(a => a.SuppliersMasterSupplierDelStatus != true).Select(c => new
+            var SuppliersMaster = supplierrepository.GetAsQueryable().AsNoTracking().Where(a => a.SuppliersMasterSupplierDelStatus != true).Select(c => new
             {
                 c.SuppliersMasterSupplierId,
                 c.SuppliersMasterSupplierName,
                 c.SuppliersMasterSupplierVatNo
             }).ToList();
-            var itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
+            var itemMaster = itemrepository.GetAsQueryable().AsNoTracking().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
                     && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
                     {
                         k.ItemMasterItemId,
@@ -592,20 +592,20 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                         k.ItemMasterAccountNo,
                         ItemMasterItemName = k.ItemMasterItemName.Trim()
                     }).ToList();
-            var unitMasters = unitrepository.GetAsQueryable().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
+            var unitMasters = unitrepository.GetAsQueryable().AsNoTracking().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
             {
                 x.UnitMasterUnitId,
                 UnitMasterUnitFullName = x.UnitMasterUnitFullName.Trim(),
                 UnitMasterUnitShortName = x.UnitMasterUnitShortName.Trim()
             }).ToList();
-            var itemMasterGroup = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo == 0 && (k.ItemMasterDelStatus != true)
+            var itemMasterGroup = itemrepository.GetAsQueryable().AsNoTracking().Where(k => k.ItemMasterAccountNo == 0 && (k.ItemMasterDelStatus != true)
                 && k.ItemMasterItemType == ItemMasterStatus.Group).Select(k => new
                 {
                     k.ItemMasterItemId,
                     k.ItemMasterItemName,
                 }).ToList();
 
-            var vouchers = _viewAccountsTransactionsVoucherTypeRepository.GetAsQueryable().ToList();
+            var vouchers = _viewAccountsTransactionsVoucherTypeRepository.GetAsQueryable().AsNoTracking().ToList();
             objresponse.ResultSet = new
             {
                 jobMasters = jobMasters,

@@ -9716,6 +9716,8 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.JobInvoiceDelStatus).HasColumnName("Job_Invoice_DelStatus");
 
                 entity.Property(e => e.JobInvoiceDiscount).HasColumnName("Job_Invoice_Discount");
+                entity.Property(e => e.JobInvoiceVat).HasColumnName("job_invoice_vat");
+                entity.Property(e => e.JobInvoiceVatAmt).HasColumnName("job_invoice_vatAmt");
 
                 entity.Property(e => e.JobInvoiceFcRate).HasColumnName("Job_Invoice_FC_Rate");
 
