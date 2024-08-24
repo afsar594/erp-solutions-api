@@ -20,6 +20,7 @@ using Inspire.Erp.Domain.Modals.Stock;
 using Inspire.Erp.Application.Account;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.EntityFrameworkCore;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -188,8 +189,8 @@ namespace Inspire.Erp.Web.Controllers
         public ResponseInfo LoadBOQ(int customerEnqId)
         {
             var objResponse = new ResponseInfo();
-            var detailList = _BillOfQTyDetailsRepository.GetAsQueryable().ToList();
-            var details = _BillofQtyMasterRepository.GetAsQueryable().ToList();
+            var detailList = _BillOfQTyDetailsRepository.GetAsQueryable().AsNoTracking().ToList();
+            var details = _BillofQtyMasterRepository.GetAsQueryable().AsNoTracking().ToList();
 
             // Filtering detailList based on PurchaseOrderNos and customerEnqId
             var data = (from d in detailList
@@ -198,6 +199,7 @@ namespace Inspire.Erp.Web.Controllers
                         select new BoqDetailDto
                         {
                             Id = c.Id,
+                            dId = d.Id,
                             BillofqtyNo = c.BillofqtyNo,
                             Date = c.Date,
                             CustomerEnqId = c.CustomerEnqId,
