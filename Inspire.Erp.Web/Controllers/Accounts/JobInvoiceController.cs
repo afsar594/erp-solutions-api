@@ -30,14 +30,14 @@ namespace Inspire.Erp.Web.Controllers
         private IMapper _mapper; private IRepository<LocationMaster> locationrepository; private IChartofAccountsService chartofAccountsService;
         private IRepository<UnitMaster> unitrepository; private IRepository<JobMaster> jobrepository; private IRepository<CurrencyMaster> currencyrepository;
         private IRepository<CustomerMaster> _customerMasterRepository; private IRepository<SalesManMaster> salesmanrepository; private IRepository<ItemMaster> itemrepository;
-        private readonly IRepository<JobInvoice> _jobinvoicerepo; private readonly IRepository<JobInvoiceDetails> _jobdetailsrepo;
+        private readonly IRepository<JobInvoice> _jobinvoicerepo; private readonly IRepository<JobInvoiceDetails> _jobdetailsrepo; IRepository<UnitDetails> unitDetailRepository;
         public JobInvoiceController(IJobInvoice invoice, IMapper mapper, IRepository<JobInvoice> jobinvoicerepo, IRepository<UnitMaster> _unitrepository, IRepository<JobMaster> _jobrepository, IRepository<ItemMaster> _itemrepository
-            , IRepository<CurrencyMaster> _currencyrepository, IRepository<JobInvoiceDetails> jobdetailsrepo, IRepository<SalesManMaster> _salesmanrepository, IRepository<CustomerMaster> customerMasterRepository, IRepository<LocationMaster> _locationrepository, IChartofAccountsService _chartofAccountsService)
+            , IRepository<CurrencyMaster> _currencyrepository, IRepository<UnitDetails> _unitDetailRepository, IRepository<JobInvoiceDetails> jobdetailsrepo, IRepository<SalesManMaster> _salesmanrepository, IRepository<CustomerMaster> customerMasterRepository, IRepository<LocationMaster> _locationrepository, IChartofAccountsService _chartofAccountsService)
         {
             _invoice = invoice;
             _mapper = mapper; locationrepository = _locationrepository; chartofAccountsService = _chartofAccountsService; _jobdetailsrepo = jobdetailsrepo;
             unitrepository = _unitrepository; jobrepository = _jobrepository; currencyrepository = _currencyrepository; _jobinvoicerepo = jobinvoicerepo;
-            _customerMasterRepository = customerMasterRepository; salesmanrepository = _salesmanrepository; itemrepository = _itemrepository;
+            _customerMasterRepository = customerMasterRepository; salesmanrepository = _salesmanrepository; itemrepository = _itemrepository; unitDetailRepository = _unitDetailRepository;
         }
         [HttpGet]
         [Route("GetJobInvoice")]
@@ -261,20 +261,24 @@ namespace Inspire.Erp.Web.Controllers
                 })
                 .ToListAsync();
 
-            var itemMasterTask = await itemrepository.GetAsQueryable().AsNoTracking()
-                .Where(a => a.ItemMasterAccountNo != 0
-                            && !a.ItemMasterDelStatus != true
-                            && a.ItemMasterItemType != ItemMasterStatus.Group)
-                .Select(c => new
-                {
-                    c.ItemMasterItemId,
-                    c.ItemMasterItemName,
-                })
-                .ToListAsync();
+            var itemMaster = await (from item in itemrepository.GetAsQueryable().AsNoTracking()
+                                    join unit in unitDetailRepository.GetAsQueryable().AsNoTracking()
+                                    on item.ItemMasterItemId equals unit.UnitDetailsItemId
+                                    where item.ItemMasterAccountNo != 0
+                                    && item.ItemMasterDelStatus != true
+                                    && item.ItemMasterItemType != ItemMasterStatus.Group
+                                    select new
+                                    {
+                                        item.ItemMasterItemId,
+                                        item.ItemMasterItemName,
+                                        item.ItemMasterVenderId,
+                                        item.ItemMasterItemSize,
+                                        itemMasterBarcode = unit.UnitDetailsBarcode
+                                    }).Distinct().ToListAsync();
 
             objresponse.ResultSet = new
             {
-                itemMaster = itemMasterTask,
+                itemMaster = itemMaster,
                 unitMasters = unitMastersTask,
                 jobMasters = jobMastersTask,
                 currencyMasters = currencyMastersTask,
