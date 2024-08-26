@@ -30,14 +30,15 @@ namespace Inspire.Erp.Application.Account.Implementations
         private IRepository<CustomerMaster> _customerMasterRepository;
         private IRepository<CustomerContacts> _customerContactsRepository;
         private IRepository<CustomerDepartments> _customerDepartmentsRepository;
+        private readonly IRepository<MasterAccountsTable> _masterAccountTable;
         ////private IRepository<ProgramSettings> _programsettingsRepository;
         ////private IRepository<VouchersNumbers> _voucherNumbersRepository;
         private readonly ILogger<NewCustomerService> _logger;
 
         public NewCustomerService(IRepository<CustomerMaster> customerMasterRepository, IRepository<CustomerContacts> customerContactsRepository,
-            IRepository<CustomerDepartments> customerDepartmentsRepository, ILogger<NewCustomerService> logger)
+            IRepository<CustomerDepartments> customerDepartmentsRepository, IRepository<MasterAccountsTable> masterAccountTable, ILogger<NewCustomerService> logger)
         {
-            this._customerMasterRepository = customerMasterRepository;
+            this._customerMasterRepository = customerMasterRepository; _masterAccountTable = masterAccountTable;
             this._customerContactsRepository = customerContactsRepository;
             this._customerDepartmentsRepository = customerDepartmentsRepository;
             _logger = logger;
@@ -90,6 +91,12 @@ namespace Inspire.Erp.Application.Account.Implementations
                     return k;
                 }).ToList();
                 _customerDepartmentsRepository.UpdateList(customerDepartments);
+
+                var account = _masterAccountTable.GetAsQueryable().Where(a => a.MaAccNo == customerMaster.CustomerMasterCustomerReffAcNo).FirstOrDefault();
+                if (account != null)
+                {
+                    _masterAccountTable.Delete(account);
+                }
 
                 _customerMasterRepository.Update(customerMaster);
 

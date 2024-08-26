@@ -45,8 +45,23 @@ namespace Inspire.Erp.Application.Master
                 if (customerMaster.IsCreateAccount)
                 {
                     var count = _masterAccountTable.GetAsQueryable().AsNoTracking().Where(x => x.MaRelativeNo == DeptorsRelativeNo).ToList().Count() + 1;
-                    cusAccNo = count.ToString().Length == 1 ? "00" + count : count.ToString().Length == 2 ? "0" + count : count.ToString();
+                    //cusAccNo = count.ToString().Length == 1 ? "00" + count : count.ToString().Length == 2 ? "0" + count : count.ToString();
+                    cusAccNo = count.ToString("D3");
                     cusAccNo = masterAccount.MaAccNo + cusAccNo;
+
+                    var isunique = _masterAccountTable.GetAsQueryable().Where(x => x.MaAccNo == cusAccNo).FirstOrDefault();
+                    while (isunique != null)
+                    {
+                        // Increment the count and regenerate the cusAccNo
+                        count++;
+                        cusAccNo = count.ToString("D3");
+                        cusAccNo = masterAccount.MaAccNo + cusAccNo;
+
+                        // Check if the new cusAccNo is unique
+                        isunique = _masterAccountTable.GetAsQueryable()
+                                                      .Where(x => x.MaAccNo == cusAccNo)
+                                                      .FirstOrDefault();
+                    }
                     masterAccountsTable = new MasterAccountsTable()
                     {
                         MaAccName = customerMaster.CustomerMasterCustomerName,
@@ -172,8 +187,13 @@ namespace Inspire.Erp.Application.Master
             bool valid = false;
             try
             {
+                _masterAccountTable.BeginTransaction();
                 customerMaster.CustomerMasterCustomerDeleteStatus = true;
                 customerrepository.Update(customerMaster);
+                var account = _masterAccountTable.GetAsQueryable().Where(a => a.MaRelativeNo == customerMaster.CustomerMasterCustomerReffAcNo).FirstOrDefault();
+
+                _masterAccountTable.Delete(account);
+                _masterAccountTable.TransactionCommit();
                 valid = true;
 
             }
