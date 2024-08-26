@@ -10264,6 +10264,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.JobMasterBudgetDetailsBudAmount)
                     .HasColumnName("Job_Master_BudgetDetails_BudAmount")
                     .HasColumnType("numeric(18, 4)");
+             
 
                 entity.Property(e => e.JobMasterBudgetDetailsBudId).HasColumnName("Job_Master_BudgetDetails_BudID");
 
@@ -10277,6 +10278,14 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnName("Job_Master_No")
                     .HasMaxLength(20)
                     .IsUnicode(false);
+
+                entity.Property(e => e.JobMasterBudgetDetailsActual)
+                .HasColumnName("Job_Master_BudgetDetails_Actual")
+                .HasColumnType("numeric(18, 4)");
+
+                entity.Property(e => e.JobMasterBudgetDetailsVariance)
+                   .HasColumnName("Job_Master_BudgetDetails_Variance")
+                   .HasColumnType("numeric(18, 4)");
 
                 entity.HasOne(d => d.JobMasterBudgetDetailsJob)
                     .WithMany(p => p.JobMasterBudgetDetails)

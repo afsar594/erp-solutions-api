@@ -225,6 +225,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
             }
 
         }
+       
         [HttpPost("GetVoucherAllocationsList")]
         public async Task<IActionResult> GetVoucherAllocationsList(GenericGridViewModel model)
         {

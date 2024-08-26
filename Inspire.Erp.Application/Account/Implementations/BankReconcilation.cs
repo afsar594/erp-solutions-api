@@ -11,6 +11,8 @@ using Inspire.Erp.Domain.Modals;
 using Microsoft.EntityFrameworkCore;
 using System.Transactions;
 using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Domain.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Inspire.Erp.Application.Account.Implementations
 {
@@ -91,13 +93,9 @@ namespace Inspire.Erp.Application.Account.Implementations
                 throw;
             }
         }
-
-        public async Task<Response<bool>> SavebankReconciliation(ReconciliationVoucher reconciliation)
+        public ReconciliationVoucher SavebankReconciliation(ReconciliationVoucher reconciliation)
         {
-            using (var trans = new TransactionScope())
-            {
-                try
-                {
+            
                     string bankreconciliationVoucherNumber = this.GenerateVoucherNo(reconciliation.ReconciliationVoucherBankStDate.Value).VouchersNumbersVNo;
                     reconciliation.ReconciliationVoucherId = bankreconciliationVoucherNumber;
                     int maxcount = 0;
@@ -111,30 +109,26 @@ namespace Inspire.Erp.Application.Account.Implementations
                     
                     reconciliation.ReconciliationVoucherDetails.ForEach((c) =>
                     {
-                        
                         c.ReconciliationVoucherDetailsId = bankreconciliationVoucherNumber;
                     });
 
                     _ReconciliationVoucherDetailsRepo.InsertList(reconciliation.ReconciliationVoucherDetails);
-                    trans.Complete();
-                    return Response<bool>.Success(true, "Saved Successfully.");
-                }
-                catch (Exception ex)
-                {
-
-                    trans.Dispose();
-                    return Response<bool>.Fail(false, ex.Message);
-                }
-
-
-            }
+                    return this.getbankReconciliationById(bankreconciliationVoucherNumber);
+                
         }
+        public ReconciliationVoucher UpdatebankReconciliation(ReconciliationVoucher reconciliation)
+        {
 
+             _ReconciliationVoucherRepo.Update(reconciliation);
+             _ReconciliationVoucherDetailsRepo.UpdateList(reconciliation.ReconciliationVoucherDetails);
+   
+            return this.getbankReconciliationById(reconciliation.ReconciliationVoucherId);
+               
+        }
         public async Task<List<MasterAccountsTable>> GetAccountListForDropdown()
         {
             return   _MasterAccountsTableRepo.GetAsQueryable().Where(m => m.MaRelativeNo == "01001002" && m.MaStatus == "R").ToList();
         }
-
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
         {
             try
@@ -160,6 +154,30 @@ namespace Inspire.Erp.Application.Account.Implementations
             {
                 throw ex;
             }
+        }
+        public async Task<Response<List<ReconciliationVoucher>>> getbankReconciliationList()
+        {
+            List<ReconciliationVoucher> result = new List<ReconciliationVoucher>();
+
+            try
+            {
+                result = _ReconciliationVoucherRepo.GetAll().ToList();
+                
+                return Response<List<ReconciliationVoucher>>.Success(result,"Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<List<ReconciliationVoucher>>.Fail(result, ex.Message);
+            }
+        }
+        public ReconciliationVoucher getbankReconciliationById(string Id)
+        {
+            ReconciliationVoucher obj = new ReconciliationVoucher();
+
+            obj = _ReconciliationVoucherRepo.GetAsQueryable().Where(c => c.ReconciliationVoucherId == Id).SingleOrDefault();
+            obj.ReconciliationVoucherDetails = _ReconciliationVoucherDetailsRepo.GetAsQueryable().Where(x => x.ReconciliationVoucherDetailsId == Id).ToList();
+
+            return obj;
         }
     }
 }

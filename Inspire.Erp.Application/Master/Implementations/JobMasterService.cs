@@ -163,8 +163,36 @@ namespace Inspire.Erp.Application.Master
                 string vNumber = this.GenerateVoucherNo(jobMaster.JobMasterJobDate).VouchersNumbersVNo;
                 jobMaster.JobMasterJobNo = vNumber;
 
-              
-             
+                foreach (var item in jobMaster.JobMasterBudgetDetails)
+                {
+                    var groupedResults =
+                        from at in context.AccountsTransactions
+                        join mat in context.MasterAccountsTable on at.AccountsTransactionsAccNo equals mat.MaAccNo
+                        join cos in context.CostCenterMaster on at.AccountsTransactionsCostCenterId equals cos.CostCenterMasterCostCenterId
+                        where (mat.MaMainHead == "Expenses" && at.AccountstransactionsDelStatus == false && at.AccountsTransactionsCostCenterId == item.JobMasterBudgetDetailsBudId)
+                        group at by cos.CostCenterMasterCostCenterName into g
+                        select new
+                        {
+                            CostName = g.Key,
+                            TotalDrAmt = g.Sum(x => x.AccountsTransactionsDebit)
+                        };
+
+                    // Now you can iterate over the grouped results if needed
+                    foreach (var result in groupedResults)
+                    {
+                        // Example: print out the CostName and TotalDrAmt
+                        //Console.WriteLine($"Cost Center: {result.CostName}, Total DrAmt: {result.TotalDrAmt}");
+
+                        // Or assign the result to a property of the current item in jobMasterBudgetDetails
+                        // item.TotalDrAmtByCostCenter = result.TotalDrAmt; // Assuming you have such a property
+                        item.JobMasterBudgetDetailsActual = result.TotalDrAmt;
+                        item.JobMasterBudgetDetailsVariance = -result.TotalDrAmt;
+
+                    }
+
+
+                }
+
 
                 jobMaster.JobMasterBudgetDetails.Select((x) =>
                 {
