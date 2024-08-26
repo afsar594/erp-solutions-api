@@ -37,21 +37,21 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private IRepository<AvIssueVoucherDetails> _AvIssueVoucherDetails;
         private IRepository<AvIssueVoucher> _AvIssueVoucher; private IRepository<PermissionApprovalDetail> _permissionApprovalDetailRepo;
         private IRepository<JobMaster> jobrepository;
-        private IRepository<LocationMaster> locationrepository;
+        private IRepository<LocationMaster> locationrepository; private IRepository<BillOfQTyDetails> _BillOfQTyDetailsRepository;
         private IRepository<TrackingRegister> _trackingRegisterRepository; private IRepository<ItemMaster> _itemMasterRepository; private IRepository<UnitMaster> _unitMasterRepository; private IRepository<SuppliersMaster> _suppliersMasterRepository; private IRepository<LocationMaster> _locationMasterRepository;
 
         public PurchaseRequisitionService(IRepository<ItemMaster> itemMasterRepository, IRepository<UnitMaster> unitMasterRepository,
             IRepository<SuppliersMaster> suppliersMasterRepository, IRepository<LocationMaster> _locationrepository, IRepository<LocationMaster> locationMasterRepository,
             IRepository<PermissionApproval> permissionApprovalRepo, IRepository<Approval> approvalRepo, IRepository<ApprovalDetail> approvalDetailRepo,
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
-            IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger, IRepository<JobMaster> _jobrepository,
+            IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger, IRepository<JobMaster> _jobrepository, IRepository<BillOfQTyDetails> BillOfQTyDetailsRepository,
              IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo,
         IRepository<PurchaseRequisition> purchaseRequisitionRepository, InspireErpDBContext context, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository; _context = context;
             this._purchaseRequisitionRepository = purchaseRequisitionRepository; _permissionApprovalDetailRepo = permissionApprovalDetailRepo;
-            this._purchaseRequisitionDetailsRepository = purchaseRequisitionDetailsRepository;
+            this._purchaseRequisitionDetailsRepository = purchaseRequisitionDetailsRepository; _BillOfQTyDetailsRepository = BillOfQTyDetailsRepository;
             _programsettingsRepository = programsettingsRepository; _voucherNumbersRepository = voucherNumbers; _approvalDetailRepo = approvalDetailRepo; _permissionApprovalRepo = permissionApprovalRepo; _approvalRepo = approvalRepo; locationrepository = _locationrepository;
             jobrepository = _jobrepository; _itemMasterRepository = itemMasterRepository; _unitMasterRepository = unitMasterRepository; _suppliersMasterRepository = suppliersMasterRepository; _locationMasterRepository = locationMasterRepository; _trackingRegisterRepository = trackingRegisterRepository;
         }
@@ -121,6 +121,19 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                             POList.Status = "Pending";
                             POList.Remarks = purchaseRequisition.PurchaseRequisitionDescription;
                             _permissionApprovalDetailRepo.Insert(POList);
+                        }
+                    }
+                }
+
+                foreach (var item in purchaseRequisitionDetails)
+                {
+                    if (item.boqdId > 0)
+                    {
+                        var data = _BillOfQTyDetailsRepository.GetAsQueryable().AsNoTracking().Where(a => a.Id == item.boqdId).FirstOrDefault();
+                        if (data != null)
+                        {
+                            data.IsEdit = false;
+                            _BillOfQTyDetailsRepository.Update(data);
                         }
                     }
                 }
@@ -376,6 +389,18 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     }
                 }
 
+                foreach (var item in purchaseRequisitionDetails)
+                {
+                    if (item.boqdId > 0)
+                    {
+                        var data = _BillOfQTyDetailsRepository.GetAsQueryable().AsNoTracking().Where(a => a.Id == item.boqdId).FirstOrDefault();
+                        if (data != null)
+                        {
+                            data.IsEdit = false;
+                            _BillOfQTyDetailsRepository.Update(data);
+                        }
+                    }
+                }
                 _purchaseRequisitionRepository.TransactionCommit();
                 return this.GetSavedPurchaseRequisitionDetails(purchaseRequisition.PurchaseRequisitionNo);
 

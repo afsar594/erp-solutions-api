@@ -56,8 +56,24 @@ namespace Inspire.Erp.Application.Master
                 var suppAccNo = string.Empty;
                 MasterAccountsTable masterAccountsTable = null;
                 var count = _masterAccountTable.GetAsQueryable().AsNoTracking().Where(x => x.MaRelativeNo == SupplierRelativeNo).ToList().Count() + 1;
-                suppAccNo = count.ToString().Length == 1 ? "00" + count : count.ToString().Length == 2 ? "0" + count : count.ToString();
+                // suppAccNo = count.ToString().Length == 1 ? "00" + count : count.ToString().Length == 2 ? "0" + count : count.ToString();
+                suppAccNo = count.ToString("D3");
                 suppAccNo = masterAccount.MaAccNo + suppAccNo;
+
+
+                var isunique = _masterAccountTable.GetAsQueryable().AsNoTracking().Where(x => x.MaAccNo == suppAccNo).FirstOrDefault();
+                while (isunique != null)
+                {
+                    // Increment the count and regenerate the cusAccNo
+                    count++;
+                    suppAccNo = count.ToString("D3");
+                    suppAccNo = masterAccount.MaAccNo + suppAccNo;
+
+                    // Check if the new cusAccNo is unique
+                    isunique = _masterAccountTable.GetAsQueryable().AsNoTracking()
+                                                  .Where(x => x.MaAccNo == suppAccNo)
+                                                  .FirstOrDefault();
+                }
                 masterAccountsTable = new MasterAccountsTable()
                 {
                     MaAccName = SuppliersMaster.SuppliersMasterSupplierName,
@@ -80,7 +96,7 @@ namespace Inspire.Erp.Application.Master
                     await _utilityService.SaveMasterAccountTable(masterAccountsTable);
                 }
 
-               
+
                 mxc = (int)supplierrepository.GetAsQueryable().Where(k => k.SuppliersMasterSupplierId != null).Select(x => x.SuppliersMasterSupplierId).Max();
                 if (mxc == null) { mxc = 1; } else { mxc = mxc + 1; }
 
@@ -89,7 +105,7 @@ namespace Inspire.Erp.Application.Master
                 supplierrepository.Insert(SuppliersMaster);
 
 
-             
+
                 #region ADD ACTIVITY LOGS
                 AddActivityLogViewModel log = new AddActivityLogViewModel()
                 {
@@ -142,6 +158,11 @@ namespace Inspire.Erp.Application.Master
             try
             {
                 supplierrepository.Delete(SuppliersMaster);
+                var account = _masterAccountTable.GetAsQueryable().Where(a => a.MaAccNo == SuppliersMaster.SuppliersMasterSupplierReffAcNo).FirstOrDefault();
+                if(account != null)
+                {
+                    _masterAccountTable.Delete(account);
+                }
                 valid = true;
 
             }

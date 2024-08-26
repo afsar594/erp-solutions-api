@@ -49,7 +49,7 @@ namespace Inspire.Erp.Application.Master
                     cusAccNo = count.ToString("D3");
                     cusAccNo = masterAccount.MaAccNo + cusAccNo;
 
-                    var isunique = _masterAccountTable.GetAsQueryable().Where(x => x.MaAccNo == cusAccNo).FirstOrDefault();
+                    var isunique = _masterAccountTable.GetAsQueryable().AsNoTracking().Where(x => x.MaAccNo == cusAccNo).FirstOrDefault();
                     while (isunique != null)
                     {
                         // Increment the count and regenerate the cusAccNo
@@ -58,7 +58,7 @@ namespace Inspire.Erp.Application.Master
                         cusAccNo = masterAccount.MaAccNo + cusAccNo;
 
                         // Check if the new cusAccNo is unique
-                        isunique = _masterAccountTable.GetAsQueryable()
+                        isunique = _masterAccountTable.GetAsQueryable().AsNoTracking()
                                                       .Where(x => x.MaAccNo == cusAccNo)
                                                       .FirstOrDefault();
                     }
