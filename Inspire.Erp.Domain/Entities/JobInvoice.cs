@@ -15,6 +15,8 @@ namespace Inspire.Erp.Domain.Entities
         public int? JobInvoiceLocationId { get; set; }
         public int? JobInvoiceSalesManId { get; set; }
         public double? JobInvoiceDiscount { get; set; }
+        public double? JobInvoiceVat { get; set; }
+        public double? JobInvoiceVatAmt { get; set; }
         public double? JobInvoiceGrossAmount { get; set; }
         public double? JobInvoiceNetAmount { get; set; }
         public string? JobInvoiceRemarks { get; set; }

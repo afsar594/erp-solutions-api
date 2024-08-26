@@ -147,7 +147,8 @@ namespace Inspire.Erp.Domain.Modals.Common
         public string Item_Name { get; set; }
         public string Unit { get; set; }
         public decimal DelQty { get; set; }
-
+        public decimal? SRDID { get; set; }
+        public decimal? Rate { get; set; }
         public decimal? SRID { get; set; }
         public string SRNo { get; set; }
         public DateTime Date { get; set; }

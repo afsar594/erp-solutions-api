@@ -20,14 +20,14 @@ namespace Inspire.Erp.Application.Templates.Implementation
             this.qtmplts = qtmplts;
         }
 
-     
+
 
         public async Task<Response<List<Qtemplates>>> GetAllActiveTemplates()
         {
             try
             {
                 await Task.Delay(1000);
-                var data = this.qtmplts.GetAsQueryable().Where(x => x.QtemplatesDelStatus == false).ToList();
+                var data = this.qtmplts.GetAsQueryable().AsNoTracking().Where(x => x.QtemplatesDelStatus != true).ToList();
                 return Response<List<Qtemplates>>.Success(data, "Data Found");
             }
             catch (Exception ex)
@@ -55,7 +55,7 @@ namespace Inspire.Erp.Application.Templates.Implementation
             try
             {
                 await Task.Delay(1000);
-                var data = this.qtmplts.GetAsQueryable().ToList();
+                var data = this.qtmplts.GetAsQueryable().AsNoTracking().Where(a => a.QtemplatesDelStatus != true).ToList();
                 return Response<List<Qtemplates>>.Success(data, "Data Found");
             }
             catch (Exception ex)
@@ -69,7 +69,7 @@ namespace Inspire.Erp.Application.Templates.Implementation
             try
             {
                 await Task.Delay(1000);
-                var data = this.qtmplts.GetAsQueryable().Where(x=>x.QtemplatesId == qtemplateId).ToList();
+                var data = this.qtmplts.GetAsQueryable().AsNoTracking().Where(x => x.QtemplatesId == qtemplateId && x.QtemplatesDelStatus != true).ToList();
                 return Response<List<Qtemplates>>.Success(data, "Data Found");
             }
             catch (Exception ex)
@@ -82,8 +82,8 @@ namespace Inspire.Erp.Application.Templates.Implementation
         {
             try
             {
-                await Task.Delay(1000);
-                var data = this.qtmplts.GetAsQueryable().Where(x => x.QtemplatesType.ToUpper() == qtemplateType.ToUpper()).ToList();
+                // await Task.Delay(1000);
+                var data = await this.qtmplts.GetAsQueryable().AsNoTracking().Where(x => x.QtemplatesType.ToUpper() == qtemplateType.ToUpper() && x.QtemplatesDelStatus != true).ToListAsync();
                 return Response<List<Qtemplates>>.Success(data, "Data Found");
             }
             catch (Exception ex)
@@ -112,7 +112,8 @@ namespace Inspire.Erp.Application.Templates.Implementation
             try
             {
                 var qtmp = await this.qtmplts.GetAsQueryable().Where(x => x.QtemplatesId == qtemplateId).FirstOrDefaultAsync();
-                if(qtmp!=null) {
+                if (qtmp != null)
+                {
 
                     qtmp.QtemplatesDelStatus = true;
                     this.qtmplts.UpdateAsync(qtmp);
@@ -133,7 +134,7 @@ namespace Inspire.Erp.Application.Templates.Implementation
             {
                 qtemplate.QtemplatesDelStatus = false;
                 var data = await this.qtmplts.GetAsQueryable().Where(x => x.QtemplatesId == qtemplate.QtemplatesId).FirstOrDefaultAsync();
-                if(data != null)
+                if (data != null)
                 {
                     data.QtemplatesDescription = qtemplate.QtemplatesDescription;
                     data.QtemplatesType = qtemplate.QtemplatesType;
@@ -146,7 +147,7 @@ namespace Inspire.Erp.Application.Templates.Implementation
             }
             catch (Exception ex)
             {
-                  return Response<Qtemplates>.Fail(null, ex.Message);
+                return Response<Qtemplates>.Fail(null, ex.Message);
             }
         }
     }

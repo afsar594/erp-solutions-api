@@ -15,6 +15,10 @@ using Inspire.Erp.Application.Account.Implementations;
 using Inspire.Erp.Domain.Models;
 using Inspire.Erp.Web.ViewModels;
 using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Inspire.Erp.Application.Account;
+using Microsoft.EntityFrameworkCore;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -23,12 +27,18 @@ namespace Inspire.Erp.Web.Controllers
     public class JobInvoiceController : ControllerBase
     {
         private IJobInvoice _invoice;
-        private IMapper _mapper;
-        public JobInvoiceController(IJobInvoice invoice, IMapper mapper)
+        private IMapper _mapper; private IRepository<LocationMaster> locationrepository; private IChartofAccountsService chartofAccountsService;
+        private IRepository<UnitMaster> unitrepository; private IRepository<JobMaster> jobrepository; private IRepository<CurrencyMaster> currencyrepository;
+        private IRepository<CustomerMaster> _customerMasterRepository; private IRepository<SalesManMaster> salesmanrepository; private IRepository<ItemMaster> itemrepository;
+        private readonly IRepository<JobInvoice> _jobinvoicerepo; private readonly IRepository<JobInvoiceDetails> _jobdetailsrepo; IRepository<UnitDetails> unitDetailRepository;
+        public JobInvoiceController(IJobInvoice invoice, IMapper mapper, IRepository<JobInvoice> jobinvoicerepo, IRepository<UnitMaster> _unitrepository, IRepository<JobMaster> _jobrepository, IRepository<ItemMaster> _itemrepository
+            , IRepository<CurrencyMaster> _currencyrepository, IRepository<UnitDetails> _unitDetailRepository, IRepository<JobInvoiceDetails> jobdetailsrepo, IRepository<SalesManMaster> _salesmanrepository, IRepository<CustomerMaster> customerMasterRepository, IRepository<LocationMaster> _locationrepository, IChartofAccountsService _chartofAccountsService)
         {
             _invoice = invoice;
-            _mapper= mapper;
-        }      
+            _mapper = mapper; locationrepository = _locationrepository; chartofAccountsService = _chartofAccountsService; _jobdetailsrepo = jobdetailsrepo;
+            unitrepository = _unitrepository; jobrepository = _jobrepository; currencyrepository = _currencyrepository; _jobinvoicerepo = jobinvoicerepo;
+            _customerMasterRepository = customerMasterRepository; salesmanrepository = _salesmanrepository; itemrepository = _itemrepository; unitDetailRepository = _unitDetailRepository;
+        }
         [HttpGet]
         [Route("GetJobInvoice")]
         public ApiResponse<List<JobInvoice>> Getjobinvoice()
@@ -57,17 +67,6 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpPost]
         [Route("InsertJobInvoice")]
-        //public IActionResult InsertJobInvoice([FromBody] JobInvoice JobInvoiceViewModel)
-        //{
-        //    try
-        //    {
-        //        return Ok(_invoice.InsertJobInvoice(JobInvoiceViewModel));
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, ex.Message.ToString());
-        //    }
-        //}
         public ApiResponse<JobInvoice> InsertJobInvoice([FromBody] JobInvoice JobInvoiceViewModel)
         {
 
@@ -84,17 +83,6 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpPost]
         [Route("UpdateJobInvoice")]
-        //public IActionResult UpdateJobInvoice([FromBody] JobInvoice JobInvoiceViewModel)
-        //{
-        //    try
-        //    {
-        //        return Ok(_invoice.UpdateJobInvoice(JobInvoiceViewModel));
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, ex.Message.ToString());
-        //    }
-        //}
         public ApiResponse<JobInvoice> UpdateJobInvoice([FromBody] JobInvoice JobInvoiceViewModel)
         {
             var param1 = _mapper.Map<JobInvoice>(JobInvoiceViewModel);
@@ -124,21 +112,6 @@ namespace Inspire.Erp.Web.Controllers
                 return StatusCode(500, ex.Message.ToString());
             }
         }
-        //[HttpGet]
-        //[Route("GetJobInvoiceVoucherNo")]
-        //public IActionResult GetJobInvoiceVoucherNo(string VNo)
-        //{
-        //    try
-
-        //    {
-               
-        //        return Ok(_invoice.GetJobInvoiceVoucherNo(VNo));
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, ex.Message.ToString());
-        //    }
-        //}
 
         [HttpGet]
         [Route("GetJobInvoiceVoucherNo/{id}")]
@@ -148,7 +121,7 @@ namespace Inspire.Erp.Web.Controllers
 
             if (salesJournal != null)
             {
-               ApiResponse<JobInvoice> apiResponse = new ApiResponse<JobInvoice>
+                ApiResponse<JobInvoice> apiResponse = new ApiResponse<JobInvoice>
                 {
                     Valid = true,
                     Result = salesJournal,
@@ -171,6 +144,151 @@ namespace Inspire.Erp.Web.Controllers
             {
                 return StatusCode(500, ex.Message.ToString());
             }
+        }
+
+        [HttpPost]
+        [Route("JobInvoiceReport")]
+        public ResponseInfo JobInvoiceReport(JobInvoiceRptModel model)
+        {
+            var objresponse = new ResponseInfo();
+
+
+            var list = _jobinvoicerepo.GetAsQueryable().AsNoTracking()
+                        .Where(a => a.JobInvoiceDelStatus != true
+                            && (model.locationid == null || model.locationid == 0 || a.JobInvoiceLocationId == model.locationid)
+                            && (model.customerId == null || model.customerId == 0 || a.JobInvoiceCustomerId == model.customerId)
+                            && (model.salemanId == null || model.salemanId == 0 || a.JobInvoiceSalesManId == model.salemanId)
+                            && (a.JobInvoiceVoucherDate >= model.fromdate && a.JobInvoiceVoucherDate <= model.todate));
+
+
+            var detail = _jobdetailsrepo.GetAsQueryable().AsNoTracking()
+                                        .Where(a => a.JobInvoiceDetailsDelStatus != true);
+
+            var data = (from p in list
+                        join q in detail on p.JobInvoiceVoucherNo equals q.JobInvoiceDetailsVoucherNo into gimV1
+                        from y in gimV1.DefaultIfEmpty()
+                        select new
+                        {
+                            p.JobInvoiceVoucherNo,
+                            p.JobInvoiceVoucherDate,
+                            p.JobInvoiceCustomerId,
+                            p.JobInvoiceSalesManId,
+                            p.JobInvoiceLocationId,
+                            y.JobInvoiceDetailsGrossAmount,
+                            y.JobInvoiceDetailsDiscount,
+                            y.JobInvoiceDetailsNetAmount
+                        }).ToList();
+
+            objresponse.ResultSet = data;
+            return objresponse;
+        }
+
+
+        [HttpGet]
+        [Route("JobInvoiceLoadDropdown")]
+        public async Task<ResponseInfo> JobInvoiceLoadDropdown()
+        {
+            var objresponse = new ResponseInfo();
+
+            var unitMastersTask = await unitrepository.GetAsQueryable().AsNoTracking()
+                .Where(a => a.UnitMasterUnitDelStatus != true)
+                .Select(x => new
+                {
+                    x.UnitMasterUnitId,
+                    UnitMasterUnitFullName = x.UnitMasterUnitFullName.Trim(),
+                    UnitMasterUnitShortName = x.UnitMasterUnitShortName.Trim(),
+                })
+                .ToListAsync();
+
+            var jobMastersTask = await jobrepository.GetAsQueryable().AsNoTracking()
+                .Where(a => !a.JobMasterJobDelStatus != true)
+                .Select(c => new
+                {
+                    c.JobMasterJobId,
+                    c.JobMasterJobName,
+                })
+                .ToListAsync();
+
+            var currencyMastersTask = await currencyrepository.GetAsQueryable().AsNoTracking()
+                .Where(a => !a.CurrencyMasterCurrencyDelStatus != true)
+                .Select(c => new
+                {
+                    c.CurrencyMasterCurrencyId,
+                    c.CurrencyMasterCurrencyName,
+                    c.CurrencyMasterCurrencyRate
+                })
+                .ToListAsync();
+
+            var masterAccountsTablesTask = chartofAccountsService.GetAllAccounts()
+                .Where(a => !a.MaDelStatus != true)
+                .Select(c => new
+                {
+                    c.MaAccNo,
+                    c.MaAccName,
+                    c.MaRelativeNo,
+                    c.MaSno
+                })
+                .ToList();
+
+            var locationMasterTask = await locationrepository.GetAsQueryable().AsNoTracking()
+                .Where(a => !a.LocationMasterLocationDelStatus != true)
+                .Select(c => new
+                {
+                    c.LocationMasterLocationId,
+                    c.LocationMasterLocationName,
+                })
+                .ToListAsync();
+
+            var customerMastersTask = await _customerMasterRepository.GetAsQueryable().AsNoTracking()
+                .Where(k => !k.CustomerMasterCustomerDelStatus != true)
+                .Select(a => new
+                {
+                    a.CustomerMasterCustomerNo,
+                    a.CustomerMasterCustomerName,
+                    a.CustomerMasterCustomerVatNo,
+                    a.CustomerMasterCustomerContactPerson,
+                    a.CustomerMasterCustomerAddress,
+                    a.CustomerMasterCustomerReffAcNo
+                })
+                .ToListAsync();
+
+            var saleManListTask = await salesmanrepository.GetAsQueryable().AsNoTracking()
+                .Where(a => !a.SalesManMasterSalesManDelStatus != true)
+                .Select(c => new
+                {
+                    c.SalesManMasterSalesManId,
+                    c.SalesManMasterSalesManName,
+                })
+                .ToListAsync();
+
+            var itemMaster = await (from item in itemrepository.GetAsQueryable().AsNoTracking()
+                                    join unit in unitDetailRepository.GetAsQueryable().AsNoTracking()
+                                    on item.ItemMasterItemId equals unit.UnitDetailsItemId
+                                    where item.ItemMasterAccountNo != 0
+                                    && item.ItemMasterDelStatus != true
+                                    && item.ItemMasterItemType != ItemMasterStatus.Group
+                                    select new
+                                    {
+                                        item.ItemMasterItemId,
+                                        item.ItemMasterItemName,
+                                        item.ItemMasterVenderId,
+                                        item.ItemMasterItemSize,
+                                        itemMasterBarcode = unit.UnitDetailsBarcode
+                                    }).Distinct().ToListAsync();
+
+            objresponse.ResultSet = new
+            {
+                itemMaster = itemMaster,
+                unitMasters = unitMastersTask,
+                jobMasters = jobMastersTask,
+                currencyMasters = currencyMastersTask,
+                masterAccountsTables = masterAccountsTablesTask,
+                locationMaster = locationMasterTask,
+                customerMasters = customerMastersTask,
+                SaleManList = saleManListTask
+            };
+
+            return objresponse;
         }
 
     }

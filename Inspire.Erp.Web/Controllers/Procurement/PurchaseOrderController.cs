@@ -16,6 +16,10 @@ using Inspire.Erp.Web.Common;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Inspire.Erp.Infrastructure.Database;
+using Microsoft.EntityFrameworkCore;
+using System.Linq.Dynamic.Core;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Inspire.Erp.Web.Controllers.Procurement
 {
@@ -24,7 +28,8 @@ namespace Inspire.Erp.Web.Controllers.Procurement
     [ApiController]
     public class PurchaseOrderController : ControllerBase
     {
-        private IPurchaseOrderService _purchaseOrderService;
+        private InspireErpDBContext _context;
+        private IPurchaseOrderService _purchaseOrderService; private IRepository<PermissionApprovalDetail> _permissionApprovalDetailRepo;
         private IRepository<ItemMaster> itemrepository; private IRepository<UnitMaster> unitrepository; private IRepository<PurOrderRegister> _purOrderRegisterRepository;
         private IRepository<PurchaseOrder> _purchaseOrderRepository; private IRepository<PurchaseOrderDetails> _purchaseOrderDetailsRepository;
         private IRepository<JobMaster> jobrepository; private readonly IRepository<SuppliersMaster> supplierrepository;
@@ -34,11 +39,11 @@ namespace Inspire.Erp.Web.Controllers.Procurement
         private readonly IMapper _mapper;
         public PurchaseOrderController(IPurchaseOrderService purchaseOrderService, IMapper mapper, IRepository<ItemMaster> _itemrepository, IRepository<UnitMaster> _unitrepository,
             IRepository<PurchaseOrder> purchaseOrderRepository, IRepository<PurOrderRegister> purOrderRegisterRepository, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository,
-            IRepository<JobMaster> _jobrepository, IRepository<LocationMaster> _locationrepository
-            , IRepository<CurrencyMaster> _currencyrepository, IRepository<SuppliersMaster> _supplierrepository,
+            IRepository<JobMaster> _jobrepository, IRepository<LocationMaster> _locationrepository, InspireErpDBContext context
+            , IRepository<CurrencyMaster> _currencyrepository, IRepository<SuppliersMaster> _supplierrepository, IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo,
             IRepository<ViewAccountsTransactionsVoucherType> viewAccountsTransactionsVoucherTypeRepository)
         {
-            _purchaseOrderService = purchaseOrderService;
+            _purchaseOrderService = purchaseOrderService; _context = context; _permissionApprovalDetailRepo = permissionApprovalDetailRepo;
             _mapper = mapper; supplierrepository = _supplierrepository; _viewAccountsTransactionsVoucherTypeRepository = viewAccountsTransactionsVoucherTypeRepository;
             itemrepository = _itemrepository; unitrepository = _unitrepository; _purchaseOrderRepository = purchaseOrderRepository; _purOrderRegisterRepository = purOrderRegisterRepository;
             _purchaseOrderDetailsRepository = purchaseOrderDetailsRepository; jobrepository = _jobrepository; locationrepository = _locationrepository; currencyrepository = _currencyrepository;
@@ -555,31 +560,31 @@ namespace Inspire.Erp.Web.Controllers.Procurement
         public ResponseInfo PurchaseLoadDropdown()
         {
             var objresponse = new ResponseInfo();
-          
-            var jobMasters = jobrepository.GetAsQueryable().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
+
+            var jobMasters = jobrepository.GetAsQueryable().AsNoTracking().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
             {
                 c.JobMasterJobId,
                 JobMasterJobName = c.JobMasterJobName.Trim(),
             }).ToList();
-            var LocationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
+            var LocationMaster = locationrepository.GetAsQueryable().AsNoTracking().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
             {
                 c.LocationMasterLocationId,
                 LocationMasterLocationName = c.LocationMasterLocationName.Trim(),
             }).ToList();
-          
-            var currencyMasters = currencyrepository.GetAsQueryable().Where(a => a.CurrencyMasterCurrencyDelStatus != true).Select(c => new
+
+            var currencyMasters = currencyrepository.GetAsQueryable().AsNoTracking().Where(a => a.CurrencyMasterCurrencyDelStatus != true).Select(c => new
             {
                 c.CurrencyMasterCurrencyId,
                 CurrencyMasterCurrencyName = c.CurrencyMasterCurrencyName.Trim(),
                 c.CurrencyMasterCurrencyRate
             }).ToList();
-            var SuppliersMaster = supplierrepository.GetAsQueryable().Where(a => a.SuppliersMasterSupplierDelStatus != true).Select(c => new
+            var SuppliersMaster = supplierrepository.GetAsQueryable().AsNoTracking().Where(a => a.SuppliersMasterSupplierDelStatus != true).Select(c => new
             {
                 c.SuppliersMasterSupplierId,
                 c.SuppliersMasterSupplierName,
                 c.SuppliersMasterSupplierVatNo
             }).ToList();
-            var itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
+            var itemMaster = itemrepository.GetAsQueryable().AsNoTracking().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
                     && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
                     {
                         k.ItemMasterItemId,
@@ -587,31 +592,101 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                         k.ItemMasterAccountNo,
                         ItemMasterItemName = k.ItemMasterItemName.Trim()
                     }).ToList();
-            var unitMasters = unitrepository.GetAsQueryable().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
+            var unitMasters = unitrepository.GetAsQueryable().AsNoTracking().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
             {
                 x.UnitMasterUnitId,
                 UnitMasterUnitFullName = x.UnitMasterUnitFullName.Trim(),
                 UnitMasterUnitShortName = x.UnitMasterUnitShortName.Trim()
             }).ToList();
-            var itemMasterGroup = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo == 0 && (k.ItemMasterDelStatus != true)
+            var itemMasterGroup = itemrepository.GetAsQueryable().AsNoTracking().Where(k => k.ItemMasterAccountNo == 0 && (k.ItemMasterDelStatus != true)
                 && k.ItemMasterItemType == ItemMasterStatus.Group).Select(k => new
                 {
                     k.ItemMasterItemId,
                     k.ItemMasterItemName,
                 }).ToList();
 
-            var vouchers = _viewAccountsTransactionsVoucherTypeRepository.GetAsQueryable().ToList();
+            var vouchers = _viewAccountsTransactionsVoucherTypeRepository.GetAsQueryable().AsNoTracking().ToList();
             objresponse.ResultSet = new
-            {                
+            {
                 jobMasters = jobMasters,
-                LocationMaster = LocationMaster,               
-                currencyMasters = currencyMasters,               
+                LocationMaster = LocationMaster,
+                currencyMasters = currencyMasters,
                 itemMaster = itemMaster,
                 unitMasters = unitMasters,
-                itemMasterGroup= itemMasterGroup,
-                SuppliersMaster= SuppliersMaster,
-                vouchers= vouchers
+                itemMasterGroup = itemMasterGroup,
+                SuppliersMaster = SuppliersMaster,
+                vouchers = vouchers
             };
+            return objresponse;
+        }
+
+        [HttpGet]
+        [Route("POApprovalDropdown")]
+        public ResponseInfo POApprovalDropdown()
+        {
+            var objresponse = new ResponseInfo();
+
+            var data = _context.tbl_approvalforms.AsNoTracking().ToList();
+
+            objresponse.ResultSet = new
+            {
+                result = data,
+            };
+            return objresponse;
+        }
+
+        [HttpPost]
+        [Route("POApprovalList")]
+        public ResponseInfo POApprovalList(string status, List<string>? voucherType)
+        {
+            var objresponse = new ResponseInfo();
+
+            var voucherTypes = voucherType ?? new List<string>();
+
+            var data = _context.PermissionApprovalDetail.AsNoTracking()
+                .Where(a => voucherTypes.Count == 0 || voucherTypes.Contains(a.VoucherType));
+
+            if (!string.IsNullOrEmpty(status) && status != "All")
+            {
+                data = data.Where(a => a.Status == status);
+            }
+
+            objresponse.ResultSet = new
+            {
+                result = data.ToList(),
+            };
+            return objresponse;
+        }
+
+        [HttpPost]
+        [Route("POApprovedList")]
+        public ResponseInfo POApprovedList(List<PermissionApprovalDetail>? model)
+        {
+            var objresponse = new ResponseInfo();
+
+            if (model == null || model.Count == 0)
+            {
+                objresponse.ErrorMessage = "No data provided for approval.";
+                return objresponse;
+            }
+            try
+            {
+                _permissionApprovalDetailRepo.BeginTransaction();
+                var currentDateTime = DateTime.Now;
+                foreach (var voucherType in model)
+                {
+                    voucherType.ModifiedDate = currentDateTime;
+                    voucherType.Status = "Approved";
+                    _permissionApprovalDetailRepo.Update(voucherType);
+                }
+                _permissionApprovalDetailRepo.TransactionCommit();
+                objresponse.Message = "Approved Successfully";
+            }
+            catch (Exception ex)
+            {
+                _permissionApprovalDetailRepo.TransactionRollback();
+                objresponse.ErrorMessage = $"An error occurred while approving: {ex.Message}";
+            }
             return objresponse;
         }
     }

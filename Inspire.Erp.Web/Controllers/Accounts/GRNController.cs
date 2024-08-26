@@ -11,6 +11,7 @@ using Inspire.Erp.Web.ViewModels;
 using Inspire.Erp.Web.ViewModels.Procurement;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -147,8 +148,8 @@ namespace Inspire.Erp.Web.Controllers
         public ResponseInfo LoadDropdown()
         {
             var objectresponse = new ResponseInfo();
-            var itemMaster = (from item in itemrepository.GetAsQueryable()
-                              join unit in unitDetailRepository.GetAsQueryable()
+            var itemMaster = (from item in itemrepository.GetAsQueryable().AsNoTracking()
+                              join unit in unitDetailRepository.GetAsQueryable().AsNoTracking()
                               on item.ItemMasterItemId equals unit.UnitDetailsItemId
                               where item.ItemMasterAccountNo != 0
                               && item.ItemMasterDelStatus != true
@@ -162,7 +163,7 @@ namespace Inspire.Erp.Web.Controllers
                                   itemMasterBarcode = unit.UnitDetailsBarcode ?? ""
                               }).Distinct().ToList();
 
-            var SuppliersMaster = supplierrepository.GetAsQueryable().Where(a => a.SuppliersMasterSupplierDelStatus != true).Select(c => new
+            var SuppliersMaster = supplierrepository.GetAsQueryable().AsNoTracking().Where(a => a.SuppliersMasterSupplierDelStatus != true).Select(c => new
             {
                 c.SuppliersMasterSupplierId,
                 c.SuppliersMasterSupplierName,
@@ -172,19 +173,19 @@ namespace Inspire.Erp.Web.Controllers
                 c.SuppliersMasterSupplierContactPerson,
             }).ToList();
 
-            var unitMasters = unitrepository.GetAsQueryable().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
+            var unitMasters = unitrepository.GetAsQueryable().AsNoTracking().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
             {
                 x.UnitMasterUnitId,
                 UnitMasterUnitFullName = x.UnitMasterUnitFullName.Trim(),
                 UnitMasterUnitShortName = x.UnitMasterUnitShortName.Trim(),
             }).ToList();
 
-            var jobMasters = jobrepository.GetAsQueryable().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
+            var jobMasters = jobrepository.GetAsQueryable().AsNoTracking().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
             {
                 c.JobMasterJobId,
                 c.JobMasterJobName,
             }).ToList();
-            var currencyMasters = currencyrepository.GetAsQueryable().Where(a => a.CurrencyMasterCurrencyDelStatus != true).Select(c => new
+            var currencyMasters = currencyrepository.GetAsQueryable().AsNoTracking().Where(a => a.CurrencyMasterCurrencyDelStatus != true).Select(c => new
             {
                 c.CurrencyMasterCurrencyId,
                 c.CurrencyMasterCurrencyName,
@@ -197,22 +198,22 @@ namespace Inspire.Erp.Web.Controllers
                 c.MaRelativeNo,
                 c.MaSno
             }).ToList();
-            var costcenterMasters = costcenterrepository.GetAsQueryable().Where(a => a.CostCenterMasterCostCenterDelStatus != true).Select(c => new
+            var costcenterMasters = costcenterrepository.GetAsQueryable().AsNoTracking().Where(a => a.CostCenterMasterCostCenterDelStatus != true).Select(c => new
             {
                 c.CostCenterMasterCostCenterId,
                 c.CostCenterMasterCostCenterName,
             }).ToList();
-            var LocationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
+            var LocationMaster = locationrepository.GetAsQueryable().AsNoTracking().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
             {
                 c.LocationMasterLocationId,
                 c.LocationMasterLocationName,
             }).ToList();
-            var BrandMasters = Brandrepository.GetAsQueryable().Where(a => a.VendorMasterVendorDelStatus != true).Select(c => new
+            var BrandMasters = Brandrepository.GetAsQueryable().AsNoTracking().Where(a => a.VendorMasterVendorDelStatus != true).Select(c => new
             {
                 c.VendorMasterVendorId,
                 c.VendorMasterVendorName,
             }).ToList();
-            var accountsSettings = _accountsSettingsRepo.GetAsQueryable().Where(a => a.AccountSettingsAccountDelStatus != true).Select(c => new
+            var accountsSettings = _accountsSettingsRepo.GetAsQueryable().AsNoTracking().Where(a => a.AccountSettingsAccountDelStatus != true).Select(c => new
             {
                 c.AccountSettingsAccountId,
                 AccountSettingsAccountDescription = c.AccountSettingsAccountDescription.Trim(),

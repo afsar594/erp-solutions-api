@@ -16,11 +16,13 @@ using Inspire.Erp.Domain.Entities.POS;
 using Inspire.Erp.Domain.Modals;
 using System.Threading.Tasks;
 using Inspire.Erp.Infrastructure.Database;
+using Inspire.Erp.Application.MODULE;
 
 namespace Inspire.Erp.Application.Procurement.Implementation
 {
     public class PurchaseOrderService : IPurchaseOrderService
     {
+        private InspireErpDBContext _context;
         private IRepository<StockRegister> _stockRegisterRepository;
         private IRepository<AccountsTransactions> _accountTransactionRepository;
         private IRepository<PurchaseOrder> _purchaseOrderRepository;
@@ -35,35 +37,32 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private readonly IRepository<PermissionApproval> _permissionApprovalRepo;
         private readonly IRepository<Approval> _approvalRepo;
         private readonly IRepository<ApprovalDetail> _approvalDetailRepo;
-
         private readonly IRepository<PurchaseVoucherDetails> _purchaseVoucherDetailsRepo;
-
         private IRepository<ItemMaster> _itemMasterRepository;
         private IRepository<UnitMaster> _unitMasterRepository;
         private IRepository<SuppliersMaster> _suppliersMasterRepository;
         private IRepository<LocationMaster> _locationMasterRepository;
         private IRepository<UserFile> _userFileRepository;
         private IRepository<UnitDetails> _UnitDetailsRepository;
+        private IRepository<PermissionApprovalDetail> _permissionApprovalDetailRepo;
 
 
         // private readonly InspireErpDBContext _dbContext;
         //private IRepository<ReportPurchaseOrder> _reportPurchaseOrderRepository;
         public PurchaseOrderService(
             IRepository<UserFile> userFileRepository, IRepository<PermissionApproval> permissionApprovalRepo,
-            IRepository<Approval> approvalRepo, IRepository<ApprovalDetail> approvalDetailRepo,
-            //IRepository<ReportPurchaseOrder> reportPurchaseOrderRepository,
+            IRepository<Approval> approvalRepo, IRepository<ApprovalDetail> approvalDetailRepo, InspireErpDBContext context,
             IRepository<ItemMaster> itemMasterRepository, IRepository<UnitMaster> unitMasterRepository,
             IRepository<SuppliersMaster> suppliersMasterRepository, IRepository<LocationMaster> locationMasterRepository,
-
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
-
             IRepository<PurchaseOrder> purchaseOrderRepository, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository,
             IRepository<PurchaseReturn> purchaseReturnRepository, IRepository<PurchaseReturnDetails> purchaseReturnDetailsRepository,
             IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PurOrderRegister> purOrderRegisterRepository,
             IRepository<UnitDetails> unitDetailsRepository,
-            IRepository<PurchaseVoucherDetails> purchaseVoucherDetailsRepo
-            // InspireErpDBContext dbContext
+            IRepository<PurchaseVoucherDetails> purchaseVoucherDetailsRepo,
+            IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo
+
             )
         {
             this._accountTransactionRepository = accountTransactionRepository;
@@ -72,7 +71,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             this._purchaseOrderDetailsRepository = purchaseOrderDetailsRepository;
             _programsettingsRepository = programsettingsRepository;
             _voucherNumbersRepository = voucherNumbers;
-            _logger = logger;
+            _logger = logger; _context = context;
             _trackingRegisterRepository = trackingRegisterRepository;
             _itemMasterRepository = itemMasterRepository;
             _unitMasterRepository = unitMasterRepository;
@@ -85,17 +84,11 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _permissionApprovalRepo = permissionApprovalRepo;
             _approvalRepo = approvalRepo;
             _approvalDetailRepo = approvalDetailRepo;
-            //_reportPurchaseOrderRepository = reportPurchaseOrderRepository;
             _UnitDetailsRepository = unitDetailsRepository;
             _purchaseVoucherDetailsRepo = purchaseVoucherDetailsRepo;
-            // _dbContext = dbContext;
+            _permissionApprovalDetailRepo = permissionApprovalDetailRepo;
+
         }
-
-        //public IEnumerable<ReportPurchaseOrder> PurchaseOrder_GetReportPurchaseOrder()
-        //{
-        //    return _reportPurchaseOrderRepository.GetAll();
-        //}
-
         public IEnumerable<UserFile> GetAllUserFile()
         {
             return _userFileRepository.GetAll();
@@ -119,7 +112,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
         public PurchaseOrderModel UpdatePurchaseOrder(PurchaseOrder purchaseOrder, List<AccountsTransactions> accountsTransactions,
             List<PurchaseOrderDetails> purchaseOrderDetails
-            //, List<StockRegister> stockRegister
             )
         {
 
@@ -134,31 +126,21 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     _trackingRegisterRepository.SaveChangesAsync();
                 }
 
-
                 var deletePurOrderRegister = _purOrderRegisterRepository.GetAsQueryable().Where(x => x.PurOrderRegisterTransType == purchaseOrder.PurchaseOrderType && x.PurOrderRegisterRefVoucherNo == purchaseOrder.PurchaseOrderNo).FirstOrDefault();
                 if (deletePurOrderRegister != null)
                 {
                     _purOrderRegisterRepository.Delete(deletePurOrderRegister);
                     _purOrderRegisterRepository.SaveChangesAsync();
-
                 }
 
                 purchaseOrder.PurchaseOrderDetails = purchaseOrder.PurchaseOrderDetails.Select((k) =>
-                ////purchaseOrder.PurchaseOrderDetailsPurchaseOrder = purchaseOrderDetails.Select((k) =>
                 {
-                    //if (k.PurchaseOrderDetailsId == 0)
-                    //{
                     k.PurchaseOrderId = purchaseOrder.PurchaseOrderId;
                     k.PurchaseOrderDetailsNo = purchaseOrder.PurchaseOrderNo;
-                    //k.PurchaseOrderDetailsId = 0;
-                    //}
-
                     return k;
                 }).ToList();
-
                 _purchaseOrderRepository.Update(purchaseOrder);
 
-                //_purchaseOrderRepository.Update(purchaseOrder);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     if (k.AccountsTransactionsTransSno == 0)
@@ -172,22 +154,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     return k;
                 }).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
-
-                //stockRegister = stockRegister.Select((k) =>
-                //{
-                //    if (k.StockRegisterId == 0)
-                //    {
-                //        k.StockRegisterVoucherDate = purchaseOrder.PurchaseOrderDate;
-                //        k.StockRegisterVoucherNo = purchaseOrder.PurchaseOrderNo;
-                //        k.StockRegisterTransType = VoucherType.PurchaseOrder_TYPE;
-
-                //        k.StockRegisterStatus = AccountStatus.Approved;
-                //    }
-
-                //    return k;
-                //}).ToList();
-                //_stockRegisterRepository.UpdateList(stockRegister);
-
 
                 //insert tracking register
                 var listTrackRegs = new List<TrackingRegister>();
@@ -205,7 +171,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         TrackingRegisterQtyout = 0,
                         TrackingRegisterRate = purOrderDet.PurchaseOrderDetailsRate,
                         TrackingRegisterTrackDate = purchaseOrder.PurchaseOrderDate,
-                        TrackingRegisterFsno = null,//to be alloted
+                        TrackingRegisterFsno = null,
 
                     };
                     listTrackRegs.Add(tr);
@@ -220,7 +186,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         PurOrderRegisterQtyIssued = 0,
                         PurOrderRegisterRate = purOrderDet.PurchaseOrderDetailsRate,
                         PurOrderRegisterAssignedDate = DateTime.Now,
-                        PurOrderRegisterFsno = null,//to be alloted,
+                        PurOrderRegisterFsno = null,
                         PurOrderRegisterSupplierId = (int)purchaseOrder.PurchaseOrderPartyId,
                         PurOrderRegisterStatus = "A"
 
@@ -230,6 +196,33 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 }
                 _trackingRegisterRepository.InsertList(listTrackRegs);
                 _purOrderRegisterRepository.InsertList(listTrackPurchOrderReg);
+
+                //PermissionApprovalDetail by zaid
+                var permsionApproval = _permissionApprovalRepo.GetAsQueryable().Where(x => x.VoucherType == "Purchase Order").OrderBy(x => x.LevelOrder).ToList();
+
+                var rights = _context.tbl_approvalforms.Where(a => a.Voucher_Type.Contains("Purchase Order")).AsNoTracking().ToList();
+                if (rights.Count > 0)
+                {
+                    var existdata = _permissionApprovalDetailRepo.GetAsQueryable().Where(a => a.VoucherId == purchaseOrder.PurchaseOrderNo && a.VoucherType == "Purchase Order").ToList();
+
+                    if (existdata.Count > 0)
+                    {
+                        _permissionApprovalDetailRepo.DeleteList(existdata);
+                        foreach (var item in permsionApproval)
+                        {
+                            PermissionApprovalDetail POList = new PermissionApprovalDetail();
+                            POList.VoucherType = "Purchase Order";
+                            POList.VoucherId = purchaseOrder.PurchaseOrderNo;
+                            POList.VoucherDate = purchaseOrder.PurchaseOrderDate;
+                            POList.Amount = (double)purchaseOrder.PurchaseOrderNetAmount;
+                            POList.CreatedBy = item.UserId;
+                            POList.LevelId = item.LevelOrder;
+                            POList.Status = "Pending";
+                            POList.Remarks = purchaseOrder.PurchaseOrderDescription;
+                            _permissionApprovalDetailRepo.Insert(POList);
+                        }
+                    }
+                }
                 _purchaseOrderRepository.TransactionCommit();
             }
             catch (Exception ex)
@@ -251,19 +244,14 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 return 1;
             }
         }
-
-
         public int DeletePurchaseOrder(PurchaseOrder purchaseOrder, List<AccountsTransactions> accountsTransactions,
             List<PurchaseOrderDetails> purchaseOrderDetails
-            //, List<StockRegister> stockRegister
             )
         {
             int i = 0;
             try
             {
                 _purchaseOrderRepository.BeginTransaction();
-
-
                 purchaseOrder.PurchaseOrderDelStatus = true;
 
                 purchaseOrder.PurchaseOrderDetails = purchaseOrder.PurchaseOrderDetails.Select((k) =>
@@ -272,30 +260,12 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     return k;
                 }).ToList();
 
-                //_purchaseOrderDetailsRepository.UpdateList(purchaseOrderDetails);
-
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
                 }).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
-
-
-
-
-                //stockRegister = stockRegister.Select((k) =>
-                //{
-                //    k.StockRegisterDelStatus = true;
-                //    return k;
-                //}).ToList();
-                //_stockRegisterRepository.UpdateList(stockRegister);
-
-
-
-                //  purchaseOrder.PurchaseOrderDetails = purchaseOrderDetails;
-                ////purchaseOrder.PurchaseOrderDetailsPurchaseOrder = purchaseOrderDetails;
-
 
                 _purchaseOrderRepository.Update(purchaseOrder);
 
@@ -317,15 +287,14 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         }
         public PurchaseOrderModel InsertPurchaseOrder(PurchaseOrder purchaseOrder, List<AccountsTransactions> accountsTransactions,
             List<PurchaseOrderDetails> purchaseOrderDetails
-            //, List<StockRegister> stockRegister
             )
         {
             try
             {
                 _purchaseOrderRepository.BeginTransaction();
+
                 string purchaseOrderNumber = this.GenerateVoucherNo(purchaseOrder.PurchaseOrderDate.Date).VouchersNumbersVNo;
                 purchaseOrder.PurchaseOrderNo = purchaseOrderNumber;
-
 
                 int maxcount = 0;
                 maxcount = Convert.ToInt32(
@@ -337,44 +306,27 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 purchaseOrder.PurchaseOrderDetails = purchaseOrder.PurchaseOrderDetails.Select((x) =>
                 {
                     x.PurchaseOrderId = maxcount;
-                    x.PurchaseOrderDetailsNo = purchaseOrderNumber;// purchaseOrder.PurchaseOrderNo;
+                    x.PurchaseOrderDetailsNo = purchaseOrderNumber;
                     return x;
                 }).ToList();
-                //_purchaseOrderDetailsRepository.InsertList(purchaseOrderDetails);
-
 
                 purchaseOrder.PurchaseOrderDetails.Clear();
                 foreach (var item in purchaseOrderDetails)
                 {
                     item.PurchaseOrderId = maxcount;
-                    item.PurchaseOrderDetailsNo = purchaseOrderNumber;// purchaseOrder.PurchaseOrderNo;
+                    item.PurchaseOrderDetailsNo = purchaseOrderNumber;
                     purchaseOrder.PurchaseOrderDetails.Add(item);
                 }
 
 
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
-                    //k.AccountsTransactionsTransDate = purchaseOrder.PurchaseOrderDate;
                     k.AccountsTransactionsVoucherNo = purchaseOrder.PurchaseOrderNo;
                     k.AccountsTransactionsVoucherType = VoucherType.PurchaseOrder_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
                 }).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
-
-
-
-                //stockRegister = stockRegister.Select((k) =>
-                //{
-                //    k.StockRegisterVoucherDate = purchaseOrder.PurchaseOrderDate;
-                //    k.StockRegisterVoucherNo = purchaseOrderNumber;
-                //    k.StockRegisterTransType = VoucherType.PurchaseOrder_TYPE;
-                //    k.StockRegisterStatus = AccountStatus.Approved;
-                //    return k;
-                //}).ToList();
-                //_stockRegisterRepository.InsertList(stockRegister);
-
-
                 _purchaseOrderRepository.Insert(purchaseOrder);
 
                 //insert tracking register
@@ -440,6 +392,25 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     LevelOrder = x.LevelOrder,
                     ApprovedAt = DateTime.Now,
                 }).ToList());
+
+                // PermissionApprovalDetail by zaid
+                var rights = _context.tbl_approvalforms.Where(a => a.Voucher_Type.Contains("Purchase Order")).AsNoTracking().ToList();
+                if (rights.Count > 0)
+                {
+                    foreach (var item in permsionApproval)
+                    {
+                        PermissionApprovalDetail POList = new PermissionApprovalDetail();
+                        POList.VoucherType = "Purchase Order";
+                        POList.VoucherId = purchaseOrder.PurchaseOrderNo;
+                        POList.VoucherDate = purchaseOrder.PurchaseOrderDate;
+                        POList.Amount = (double)purchaseOrder.PurchaseOrderNetAmount;
+                        POList.CreatedBy = item.UserId;
+                        POList.LevelId = item.LevelOrder;
+                        POList.Status = "Pending";
+                        POList.Remarks = purchaseOrder.PurchaseOrderDescription;
+                        _permissionApprovalDetailRepo.Insert(POList);
+                    }
+                }
                 _purchaseOrderRepository.TransactionCommit();
                 return this.GetSavedPurchaseOrderDetails(purchaseOrder.PurchaseOrderNo);
 
@@ -458,20 +429,12 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         public IEnumerable<PurchaseOrder> GetPurchaseOrder()
         {
             IEnumerable<PurchaseOrder> purchaseOrder_ALL = _purchaseOrderRepository.GetAll().Where(k => k.PurchaseOrderDelStatus == false || k.PurchaseOrderDelStatus == null);
-            //foreach (var purchaseOrderDetail in purchaseOrder_ALL)
-            //{
-            //    purchaseOrderDetail.PurchaseOrderDetails = _purchaseOrderDetailsRepository.GetAll().Where(c => c.PurchaseOrderDetailsNo == purchaseOrderDetail.PurchaseOrderNo).ToList();
-            //}
             return purchaseOrder_ALL;
         }
         public PurchaseOrderModel GetSavedPurchaseOrderDetails(string pvno)
         {
             PurchaseOrderModel purchaseOrderModel = new PurchaseOrderModel();
-            //purchaseOrderModel.purchaseOrder = _purchaseOrderRepository.GetAsQueryable().Where(k => k.PurchaseOrderNo == pvno && k.PurchaseOrderDelStatus == false).SingleOrDefault();
-
             purchaseOrderModel.purchaseOrder = _purchaseOrderRepository.GetAsQueryable().Where(k => k.PurchaseOrderNo == pvno).SingleOrDefault();
-
-
             try
             {
                 purchaseOrderModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.PurchaseOrder_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
@@ -499,33 +462,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         {
             try
             {
-                //var pr = _purchaseReturnRepository.GetAll().Where(c => c.PurchaseReturnGrno == pvno).LastOrDefault();
-
-                //if (pr != null)
-                //{
-                //    decimal? qty = 0.0M;
-
-                //        var prDetails = _purchaseReturnDetailsRepository.GetAll().Where(c => c.PurchaseReturnDetailsNo == pr.PurchaseReturnNo);
-                //        if (prDetails != null)
-                //        {
-                //        foreach (var item in prDetails)
-                //        {
-                //            if (item.PurchaseReturnDetailsQuantity !=null)
-                //            {
-                //                qty += item.PurchaseReturnDetailsQuantity;
-                //            }
-                //        }
-                //            //qty += Convert.ToDecimal(_purchaseReturnDetailsRepository.GetAll().Where(c => c.PurchaseReturnDetailsNo == item.PurchaseReturnNo).FirstOrDefault().PurchaseReturnDetailsQuantity);
-
-                //        }
-
-
-                //    return qty;
-                //}
-                //return 0;
-
-
-                //=====================================//
                 var pr = _purchaseReturnRepository.GetAll().Where(c => c.PurchaseReturnGrno == pvno);
                 if (pr != null)
                 {
@@ -537,9 +473,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         {
                             qty += rslt.PurchaseReturnDetailsQuantity;
                         }
-                        // qty += rslt;
                     }
-                    //var prDetails = _purchaseReturnDetailsRepository.GetAll().Where(c => c.PurchaseReturnDetailsNo == pr.PurchaseReturnNo);
                     return qty;
                 }
                 return 0;
@@ -561,9 +495,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                         .DefaultIfEmpty()
                                                         .Max(o => o == null ? 0 : o.VouchersNumbersVNoNu)) + 1;
 
-                //var prefix = "CN";
-                //int vnoMaxVal = 1;
-
                 VouchersNumbers vouchersNumbers = new VouchersNumbers
                 {
                     VouchersNumbersVNo = prefix + vnoMaxVal,
@@ -583,9 +514,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             }
 
         }
-        //using Microsoft.Extensions.Logging;
-        //private readonly ILogger<PaymentVoucherService> _logger;
-        //IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
         public VouchersNumbers GetVouchersNumbers(string pvno)
         {
             try
@@ -623,17 +551,13 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             try
             {
                 var materialList = _itemMasterRepository.GetAsQueryable().Where(a => a.ItemMasterDelStatus != true).ToList();
-                //var unitList = _unitMasterRepository.GetAll().ToList();
                 var datalist = _purchaseOrderDetailsRepository.GetAsQueryable().Where(a => a.PurchaseOrderDetailsDelStatus != true).ToList();
                 var data = datalist.Select(d => new
                 {
                     purchaseOrderDetailsNo = d.PurchaseOrderDetailsNo,
                     itemId = d.PurchaseOrderDetailsMatId,
                     itemObj = materialList.FirstOrDefault(m => m.ItemMasterItemId == d.PurchaseOrderDetailsMatId),
-                    //itemname = materialList.FirstOrDefault(m => m.ItemMasterItemId == d.PurchaseOrderDetailsMatId).ItemMasterItemName,
                     unitId = d.PurchaseOrderDetailsUnitId,
-                    //unit = unitList.FirstOrDefault(u => u.UnitMasterUnitId == d.PurchaseOrderDetailsUnitId).UnitMasterUnitFullName,
-                    //price = materialList.FirstOrDefault(m => m.ItemMasterItemId == d.PurchaseOrderDetailsMatId).ItemMasterLastPurchasePrice,
                     poQty = d.PurchaseOrderDetailsQuantity,
                 }).AsQueryable();
                 return data;
@@ -681,7 +605,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 throw ex;
             }
         }
-
         //saleem
         public async Task<Response<List<PODetailsViewModel>>> GetGRMPOs(int supplierId)
         {
