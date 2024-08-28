@@ -641,7 +641,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                             unitid = sd.PurchaseRequisitionDetailsUnitId,
                             jobid = sm.PurchaseRequisitionJobId,
                             Stock = srq?.Stock ?? 0
-                        }).ToList();
+                        }).OrderBy(x => x.SRDID).ToList();
 
 
                 return new Response<List<PurChaseReqFields>>()
