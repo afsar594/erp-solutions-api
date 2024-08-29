@@ -88,11 +88,11 @@ namespace Inspire.Erp.Application.Store.Implementation
                 var accounts = _accountsSettingssvcs.GetAsQueryable().AsNoTracking().Where(x => x.AccountSettingsAccountDescription.Trim().Contains("Purchase Account") || x.AccountSettingsAccountDescription.Trim().Contains("Cost Of Finished Goods A/C")).ToList();
                 var credit = accounts.Where(a => a.AccountSettingsAccountDescription.Trim() == "Purchase Account").Select(x => x.AccountSettingsAccountTextValue).FirstOrDefault();
                 string[] parts = credit.Split(new string[] { "::" }, StringSplitOptions.None);
-                issueVoucher.IssueVoucherCreditAccNo = parts.Length > 1 ? parts[1].Trim() : string.Empty;
+                issueVoucher.IssueVoucherDebitAccNo = parts.Length > 1 ? parts[1].Trim() : string.Empty;
 
                 var debit = accounts.Where(a => a.AccountSettingsAccountDescription.Trim() == "Cost Of Finished Goods A/C").Select(x => x.AccountSettingsAccountTextValue).FirstOrDefault();
                 string[] parts1 = debit.Split(new string[] { "::" }, StringSplitOptions.None);
-                issueVoucher.IssueVoucherDebitAccNo = parts1.Length > 1 ? parts1[1].Trim() : string.Empty;
+                issueVoucher.IssueVoucherCreditAccNo = parts1.Length > 1 ? parts1[1].Trim() : string.Empty;
 
                 var currencyRate = clsCommonFunctions.getConverionCurrencyRate(issueVoucher.IssueVoucherCurrencyId, _currencyMasterRepository);
                 var rate = (decimal)currencyRate;
@@ -255,11 +255,11 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                 var credit = accounts.Where(a => a.AccountSettingsAccountDescription.Trim() == "Purchase Account").Select(x => x.AccountSettingsAccountTextValue).FirstOrDefault();
                 string[] parts = credit.Split(new string[] { "::" }, StringSplitOptions.None);
-                issueVoucher.IssueVoucherCreditAccNo = parts.Length > 1 ? parts[1].Trim() : string.Empty;
+                issueVoucher.IssueVoucherDebitAccNo = parts.Length > 1 ? parts[1].Trim() : string.Empty;
 
                 var debit = accounts.Where(a => a.AccountSettingsAccountDescription.Trim() == "Cost Of Finished Goods A/C").Select(x => x.AccountSettingsAccountTextValue).FirstOrDefault();
                 string[] parts1 = debit.Split(new string[] { "::" }, StringSplitOptions.None);
-                issueVoucher.IssueVoucherDebitAccNo = parts1.Length > 1 ? parts1[1].Trim() : string.Empty;
+                issueVoucher.IssueVoucherCreditAccNo = parts1.Length > 1 ? parts1[1].Trim() : string.Empty;
 
                 var currencyRate = clsCommonFunctions.getConverionCurrencyRate(issueVoucher.IssueVoucherCurrencyId, _currencyMasterRepository);
                 var rate = (decimal)currencyRate;
