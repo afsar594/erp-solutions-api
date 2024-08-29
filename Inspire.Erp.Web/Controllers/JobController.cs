@@ -29,7 +29,7 @@ namespace Inspire.Erp.Web.Controllers
         private IRepository<CustomerMaster> _customerMasterRepository; private IRepository<ProjectDescriptionMaster> ProjectDescriptionrepository;
         private IRepository<BankGuaranteeMaster> bankGuaranteerepository;
         public JobController(IJobMasterService _jobMasterService, IMapper mapper,
-             IRepository<CurrencyMaster> _currencyrepository,IRepository<ProjectDescriptionMaster> _ProjectDescriptionrepository
+             IRepository<CurrencyMaster> _currencyrepository, IRepository<ProjectDescriptionMaster> _ProjectDescriptionrepository
             , IChartofAccountsService _chartofAccountsService, IRepository<BankGuaranteeMaster> _bankGuaranteerepository, IRepository<SalesManMaster> _salesmanrepository, IRepository<CustomerMaster> customerMasterRepository
             )
         {
@@ -81,8 +81,10 @@ namespace Inspire.Erp.Web.Controllers
             var param2 = _mapper.Map<List<JobMasterBudgetDetails>>(jobMaster.JobMasterBudgetDetails);
             var param3 = _mapper.Map<List<JobMasterJobDetails>>(jobMaster.JobMasterJobDetails);
             var param4 = _mapper.Map<List<JobMasterJobWiseBankGuarantees>>(jobMaster.JobMasterJobWiseBankGuarantees);
-
-            var respone = jobMasterService.InsertJobMaster(param1, param2, param3, param4);
+            var param5 = _mapper.Map<List<JobStaff>>(jobMaster.JobStaff);
+            var param6 = _mapper.Map<List<JobEquipment>>(jobMaster.JobEquipment);
+            var param7 = _mapper.Map<List<JobExcutionDetails>>(jobMaster.JobExcutionDetails);
+            var respone = jobMasterService.InsertJobMaster(param1, param2, param3, param4, param5, param6, param7);
 
             apiResponse = new ApiResponse<JobMaster>
             {

@@ -8,7 +8,7 @@ namespace Inspire.Erp.Application.Master
 {
     public interface IJobMasterService
     {
-        public JobMaster InsertJobMaster(JobMaster jobMaster, List<JobMasterBudgetDetails> jobMasterBudgetDetails, List<JobMasterJobDetails> jobMasterJobDetails , List<JobMasterJobWiseBankGuarantees> jobMasterJobWiseBankGuarantees);
+        public JobMaster InsertJobMaster(JobMaster jobMaster, List<JobMasterBudgetDetails> jobMasterBudgetDetails, List<JobMasterJobDetails> jobMasterJobDetails , List<JobMasterJobWiseBankGuarantees> jobMasterJobWiseBankGuarantees,List<JobStaff> jobStaff, List<JobEquipment> jobEquipment, List<JobExcutionDetails> jobExcutionDetails);
         public JobMaster UpdateJobMaster(JobMaster jobMaster, List<JobMasterBudgetDetails> jobMasterBudgetDetails, List<JobMasterJobDetails> jobMasterJobDetails , List<JobMasterJobWiseBankGuarantees> jobMasterJobWiseBankGuarantees);
         public JobMaster GetSavedJobMasterDetails(string jbno);
 

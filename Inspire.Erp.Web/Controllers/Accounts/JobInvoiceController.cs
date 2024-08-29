@@ -185,6 +185,47 @@ namespace Inspire.Erp.Web.Controllers
 
 
         [HttpGet]
+        [Route("JobInvoiceReportDropdown")]
+        public async Task<ResponseInfo> JobInvoiceReportDropdown()
+        {
+            var objresponse = new ResponseInfo();
+
+
+            var locationMasterTask = await locationrepository.GetAsQueryable().AsNoTracking()
+                .Where(a => !a.LocationMasterLocationDelStatus != true)
+                .Select(c => new
+                {
+                    c.LocationMasterLocationId,
+                    LocationMasterLocationName = c.LocationMasterLocationName.Trim(),
+                }).ToListAsync();
+
+            var customerMastersTask = await _customerMasterRepository.GetAsQueryable().AsNoTracking()
+                .Where(k => !k.CustomerMasterCustomerDelStatus != true)
+                .Select(a => new
+                {
+                    a.CustomerMasterCustomerNo,
+                    CustomerMasterCustomerName = a.CustomerMasterCustomerName.Trim(),
+                }).ToListAsync();
+
+            var saleManListTask = await salesmanrepository.GetAsQueryable().AsNoTracking()
+                .Where(a => !a.SalesManMasterSalesManDelStatus != true)
+                .Select(c => new
+                {
+                    c.SalesManMasterSalesManId,
+                    SalesManMasterSalesManName = c.SalesManMasterSalesManName.Trim(),
+                }).ToListAsync();
+
+            objresponse.ResultSet = new
+            {
+                locationMaster = locationMasterTask,
+                customerMasters = customerMastersTask,
+                SaleManList = saleManListTask
+            };
+            return objresponse;
+        }
+
+
+        [HttpGet]
         [Route("JobInvoiceLoadDropdown")]
         public async Task<ResponseInfo> JobInvoiceLoadDropdown()
         {

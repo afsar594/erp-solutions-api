@@ -91,6 +91,15 @@ namespace Inspire.Erp.Web.Common
             CreateMap<JobMasterJobWiseBankGuarantees, JobMasterJobWiseBankGuaranteesViewModels>();
             CreateMap<JobMasterJobWiseBankGuaranteesViewModels, JobMasterJobWiseBankGuarantees>();
 
+            CreateMap<JobStaff, JobStaffViewModels>();
+            CreateMap<JobStaffViewModels, JobStaff>();
+
+            CreateMap<JobEquipment, JobEquipmentViewModels>();
+            CreateMap<JobEquipmentViewModels, JobEquipment>();
+
+            CreateMap<JobExcutionDetails, JobExcutionDetailsViewModels>();
+            CreateMap<JobExcutionDetailsViewModels, JobExcutionDetails>();
+
             CreateMap<UnitMaster, UnitMasterViewModel>();
             CreateMap<UnitMasterViewModel, UnitMaster>();
 

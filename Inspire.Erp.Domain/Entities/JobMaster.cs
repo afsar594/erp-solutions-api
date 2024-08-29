@@ -90,12 +90,50 @@ namespace Inspire.Erp.Domain.Entities
         public List<JobMasterBudgetDetails> JobMasterBudgetDetails { get; set; }
         [NotMapped]
         public List<JobMasterJobDetails> JobMasterJobDetails { get; set; }
-        
+
         [NotMapped]
         public List<JobMasterJobWiseBankGuarantees> JobMasterJobWiseBankGuarantees { get; set; }
         [NotMapped]
         public List<AccountsTransactions> AccountsTransactions { get; set; }
         [NotMapped]
         public List<JobMasterExpenseDto> JobMasterExpenses { get; set; }
+
+        [NotMapped]
+        public List<JobStaff> JobStaff { get; set; }
+        [NotMapped]
+        public List<JobEquipment> JobEquipment { get; set; }
+        [NotMapped]
+        public List<JobExcutionDetails> JobExcutionDetails { get; set; }
+    }
+
+    public class JobStaff
+    {
+        public int Id { get; set; }
+        public int JobMasterJobId { get; set; }
+        public int? JobMasterStaffId { get; set; }
+        public string JobMasterStaffName { get; set; }
+
+        [JsonIgnore]
+        public virtual JobMaster JobMasterJobJob { get; set; }
+    }
+
+    public class JobEquipment
+    {
+        public int Id { get; set; }
+        public int JobMasterJobId { get; set; }
+        public int? JobMasterEquipId { get; set; }
+        public string JobMasterEquipName { get; set; }
+        [JsonIgnore]
+        public virtual JobMaster JobMasterJobJob { get; set; }
+    }
+
+    public class JobExcutionDetails
+    {
+        public int Id { get; set; }
+        public int JobMasterJobId { get; set; }
+        public DateTime? JobMasterExecDate { get; set; }
+        public string JobMasterExecDescription { get; set; }
+        [JsonIgnore]
+        public virtual JobMaster JobMasterJobJob { get; set; }
     }
 }
