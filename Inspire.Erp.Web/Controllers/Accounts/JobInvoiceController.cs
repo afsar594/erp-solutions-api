@@ -189,7 +189,6 @@ namespace Inspire.Erp.Web.Controllers
             return objresponse;
         }
 
-
         [HttpGet]
         [Route("JobInvoiceReportDropdown")]
         public async Task<ResponseInfo> JobInvoiceReportDropdown()
@@ -229,7 +228,6 @@ namespace Inspire.Erp.Web.Controllers
             };
             return objresponse;
         }
-
 
         [HttpGet]
         [Route("JobInvoiceLoadDropdown")]
