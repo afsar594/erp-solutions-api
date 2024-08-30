@@ -627,10 +627,21 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             var objresponse = new ResponseInfo();
 
             var data = _context.tbl_approvalforms.AsNoTracking().ToList();
-
+            var jobList = _context.JobMaster.AsNoTracking().Where(a => a.JobMasterJobDelStatus != true).Select(x => new
+            {
+                x.JobMasterJobId,
+                JobMasterJobName=x.JobMasterJobName.Trim()
+            }).ToList();
+            var userList = _context.UserFile.AsNoTracking().Where(a => a.Deleted != true).Select(x => new
+            {
+                x.UserId,
+                x.UserName,
+            }).ToList();
             objresponse.ResultSet = new
             {
                 result = data,
+                jobList = jobList,
+                userList = userList
             };
             return objresponse;
         }

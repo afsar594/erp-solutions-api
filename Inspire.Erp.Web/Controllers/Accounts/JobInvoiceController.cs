@@ -19,6 +19,7 @@ using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Inspire.Erp.Application.Account;
 using Microsoft.EntityFrameworkCore;
+using Spire.Pdf.Exporting.XPS.Schema;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -153,13 +154,18 @@ namespace Inspire.Erp.Web.Controllers
             var objresponse = new ResponseInfo();
 
 
-            var list = _jobinvoicerepo.GetAsQueryable().AsNoTracking()
-                        .Where(a => a.JobInvoiceDelStatus != true
-                            && (model.locationid == null || model.locationid == 0 || a.JobInvoiceLocationId == model.locationid)
-                            && (model.customerId == null || model.customerId == 0 || a.JobInvoiceCustomerId == model.customerId)
-                            && (model.salemanId == null || model.salemanId == 0 || a.JobInvoiceSalesManId == model.salemanId)
-                            && (a.JobInvoiceVoucherDate >= model.fromdate && a.JobInvoiceVoucherDate <= model.todate));
+            var query = _jobinvoicerepo.GetAsQueryable().AsNoTracking()
+                      .Where(a => a.JobInvoiceDelStatus != true
+                          && (model.locationid == null || model.locationid == 0 || a.JobInvoiceLocationId == model.locationid)
+                          && (model.customerId == null || model.customerId == 0 || a.JobInvoiceCustomerId == model.customerId)
+                          && (model.salemanId == null || model.salemanId == 0 || a.JobInvoiceSalesManId == model.salemanId));
 
+            if (model.isDateChecked)
+            {
+                query = query.Where(a => a.JobInvoiceVoucherDate >= model.fromdate && a.JobInvoiceVoucherDate <= model.todate);
+            }
+
+            var list = query.ToList();
 
             var detail = _jobdetailsrepo.GetAsQueryable().AsNoTracking()
                                         .Where(a => a.JobInvoiceDetailsDelStatus != true);

@@ -30,5 +30,6 @@ namespace Inspire.Erp.Domain.Modals
         public int? customerId { get; set; }
         public int? salemanId { get; set; }
         public int? locationid { get; set; }
+        public bool isDateChecked { get; set; }
     }
 }
