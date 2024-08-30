@@ -19,6 +19,7 @@ using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Inspire.Erp.Application.Account;
 using Microsoft.EntityFrameworkCore;
+using Spire.Pdf.Exporting.XPS.Schema;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -153,13 +154,18 @@ namespace Inspire.Erp.Web.Controllers
             var objresponse = new ResponseInfo();
 
 
-            var list = _jobinvoicerepo.GetAsQueryable().AsNoTracking()
-                        .Where(a => a.JobInvoiceDelStatus != true
-                            && (model.locationid == null || model.locationid == 0 || a.JobInvoiceLocationId == model.locationid)
-                            && (model.customerId == null || model.customerId == 0 || a.JobInvoiceCustomerId == model.customerId)
-                            && (model.salemanId == null || model.salemanId == 0 || a.JobInvoiceSalesManId == model.salemanId)
-                            && (a.JobInvoiceVoucherDate >= model.fromdate && a.JobInvoiceVoucherDate <= model.todate));
+            var query = _jobinvoicerepo.GetAsQueryable().AsNoTracking()
+                      .Where(a => a.JobInvoiceDelStatus != true
+                          && (model.locationid == null || model.locationid == 0 || a.JobInvoiceLocationId == model.locationid)
+                          && (model.customerId == null || model.customerId == 0 || a.JobInvoiceCustomerId == model.customerId)
+                          && (model.salemanId == null || model.salemanId == 0 || a.JobInvoiceSalesManId == model.salemanId));
 
+            if (model.isDateChecked)
+            {
+                query = query.Where(a => a.JobInvoiceVoucherDate >= model.fromdate && a.JobInvoiceVoucherDate <= model.todate);
+            }
+
+            var list = query.ToList();
 
             var detail = _jobdetailsrepo.GetAsQueryable().AsNoTracking()
                                         .Where(a => a.JobInvoiceDetailsDelStatus != true);
@@ -180,6 +186,47 @@ namespace Inspire.Erp.Web.Controllers
                         }).ToList();
 
             objresponse.ResultSet = data;
+            return objresponse;
+        }
+
+
+        [HttpGet]
+        [Route("JobInvoiceReportDropdown")]
+        public async Task<ResponseInfo> JobInvoiceReportDropdown()
+        {
+            var objresponse = new ResponseInfo();
+
+
+            var locationMasterTask = await locationrepository.GetAsQueryable().AsNoTracking()
+                .Where(a => !a.LocationMasterLocationDelStatus != true)
+                .Select(c => new
+                {
+                    c.LocationMasterLocationId,
+                    LocationMasterLocationName = c.LocationMasterLocationName.Trim(),
+                }).ToListAsync();
+
+            var customerMastersTask = await _customerMasterRepository.GetAsQueryable().AsNoTracking()
+                .Where(k => !k.CustomerMasterCustomerDelStatus != true)
+                .Select(a => new
+                {
+                    a.CustomerMasterCustomerNo,
+                    CustomerMasterCustomerName = a.CustomerMasterCustomerName.Trim(),
+                }).ToListAsync();
+
+            var saleManListTask = await salesmanrepository.GetAsQueryable().AsNoTracking()
+                .Where(a => !a.SalesManMasterSalesManDelStatus != true)
+                .Select(c => new
+                {
+                    c.SalesManMasterSalesManId,
+                    SalesManMasterSalesManName = c.SalesManMasterSalesManName.Trim(),
+                }).ToListAsync();
+
+            objresponse.ResultSet = new
+            {
+                locationMaster = locationMasterTask,
+                customerMasters = customerMastersTask,
+                SaleManList = saleManListTask
+            };
             return objresponse;
         }
 

@@ -147,6 +147,9 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<JobMasterBudgetDetails> JobMasterBudgetDetails { get; set; }
         public virtual DbSet<JobMasterJobDetails> JobMasterJobDetails { get; set; }
         public virtual DbSet<JobMasterJobWiseBankGuarantees> JobMasterJobWiseBankGuarantees { get; set; }
+        public virtual DbSet<JobStaff> JobStaff { get; set; }
+        public virtual DbSet<JobEquipment> JobEquipment { get; set; }
+        public virtual DbSet<JobExcutionDetails> JobExcutionDetails { get; set; }
         public virtual DbSet<JobDocuments> JobDocuments { get; set; }
         public virtual DbSet<JobOrder> JobOrder { get; set; }
         public virtual DbSet<JobOrderDetails> JobOrderDetails { get; set; }
@@ -243,7 +246,7 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<ReportSalesVoucher> ReportSalesVoucher { get; set; }
         public virtual DbSet<ReportPurchaseOrder> ReportPurchaseOrder { get; set; }
         public virtual DbSet<tbl_approvalforms> tbl_approvalforms { get; set; }
-        
+
         //*********************************************************
         //===========================================================
         ////public virtual DbSet<PurchaseReturnVoucher> PurchaseReturnVoucher { get; set; }
@@ -10268,7 +10271,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.JobMasterBudgetDetailsBudAmount)
                     .HasColumnName("Job_Master_BudgetDetails_BudAmount")
                     .HasColumnType("numeric(18, 4)");
-             
+
 
                 entity.Property(e => e.JobMasterBudgetDetailsBudId).HasColumnName("Job_Master_BudgetDetails_BudID");
 
@@ -10383,6 +10386,53 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasConstraintName("FK_Job_Master_JobWiseBankGuarantees_Job_Master");
             });
 
+            modelBuilder.Entity<JobStaff>(entity =>
+            {
+                entity.HasKey(e=>e.Id);
+                entity.ToTable("tblJobPEStaff");
+                entity.Property(e => e.JobMasterJobId).HasColumnName("Job_id");
+                entity.Property(e => e.JobMasterStaffId).HasColumnName("staff_id");
+                entity.Property(e => e.JobMasterStaffName).HasColumnName("Staff_Name")
+                      .HasMaxLength(500)
+                      .IsRequired(false);
+
+                entity.HasOne(d => d.JobMasterJobJob)
+                    .WithMany(p => p.JobStaff)
+                    .HasForeignKey(d => d.JobMasterJobId)
+                    .HasConstraintName("FK_JobStaff_JobMaster");
+            });
+
+            modelBuilder.Entity<JobEquipment>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.ToTable("tblJobPEEqp");
+                entity.Property(e => e.JobMasterJobId).HasColumnName("Job_Id");
+                entity.Property(e => e.JobMasterEquipId).HasColumnName("Eqp_ID");
+                entity.Property(e => e.JobMasterEquipName).HasColumnName("Eqp_Name")
+                      .HasMaxLength(500)
+                      .IsRequired(false);
+
+                entity.HasOne(d => d.JobMasterJobJob)
+                   .WithMany(p => p.JobEquipment)
+                   .HasForeignKey(d => d.JobMasterJobId)
+                   .HasConstraintName("FK_JobEquip_JobMaster");
+            });
+
+            modelBuilder.Entity<JobExcutionDetails>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.ToTable("tblJobPEExcDtl");
+                entity.Property(e => e.JobMasterJobId).HasColumnName("Job_ID");
+                entity.Property(e => e.JobMasterExecDate).HasColumnName("Exec_Date");
+                entity.Property(e => e.JobMasterExecDescription).HasColumnName("Exec_Description")
+                      .HasMaxLength(500)
+                      .IsRequired(false);
+
+                entity.HasOne(d => d.JobMasterJobJob)
+                   .WithMany(p => p.JobExcutionDetails)
+                   .HasForeignKey(d => d.JobMasterJobId)
+                   .HasConstraintName("FK_JobExec_JobMaster");
+            });
 
             modelBuilder.Entity<JobDocuments>(entity =>
             {

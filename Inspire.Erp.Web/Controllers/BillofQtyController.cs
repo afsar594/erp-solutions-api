@@ -207,7 +207,7 @@ namespace Inspire.Erp.Web.Controllers
                             ItemCode = d.ItemCode,
                             Qty = d.Qty,
                             UnitCode = d.UnitCode
-                        })
+                        }).OrderBy(x => x.dId)
                 .ToList();
 
             objResponse.ResultSet = new

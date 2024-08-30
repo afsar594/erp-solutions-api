@@ -21,6 +21,37 @@ namespace Inspire.Erp.Application.NewFolder.Implementations
         {
             _converter = converter;
         }
+
+
+        public async Task<Response<byte[]>>  GeneratePdf(AddPDFResponse model)
+        {
+            var globalSettings = new GlobalSettings
+            {
+                ColorMode = ColorMode.Color,
+                Orientation = Orientation.Portrait,
+                PaperSize = PaperKind.A4,
+                Margins = new MarginSettings { Top = 10 },
+                DocumentTitle = "PDF Report",
+                //Out = model.OutputPath
+            };
+            var objectSettings = new ObjectSettings
+            {
+                PagesCount = true,
+                HtmlContent = model.Html,
+                WebSettings = { DefaultEncoding = "utf-8", UserStyleSheet = model.CssPath },
+                HeaderSettings = { FontName = "Arial", FontSize = 9, Right = "Page [page] of [toPage]", Line = true },
+                FooterSettings = { FontName = "Arial", FontSize = 9, Line = true, Center = "Report Footer" }
+            };
+            var pdf = new HtmlToPdfDocument()
+            {
+                GlobalSettings = globalSettings,
+                Objects = { objectSettings }
+            };
+
+           //var pdfFile= _converter.Convert(pdf);
+
+          return Response < byte[] >.Success(await Task.FromResult(_converter.Convert(pdf)), "Generated Successfully!.");
+        }
         public async Task<Response<string>> CreatePDFFromHtml(AddPDFResponse model)
         {
             try

@@ -388,6 +388,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         _permissionApprovalDetailRepo.Insert(POList);
                     }
                 }
+                //var listTrackRegs = new List<TrackingRegister>();
 
                 foreach (var item in purchaseRequisitionDetails)
                 {
@@ -400,7 +401,24 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                             _BillOfQTyDetailsRepository.Update(data);
                         }
                     }
+
+                    //var tr = new TrackingRegister
+                    //{
+                    //    TrackingRegisterDetailsId = (int)item.PurchaseRequisitionDetailsId,
+                    //    TrackingRegisterVoucherNo = purchaseRequisitionNumber,
+                    //    TrackingRegisterMaterialId = (int)item.PurchaseRequisitionDetailsId,
+                    //    TrackingRegisterVoucherType = "CustomerPurchaseOrder",
+                    //    TrackingRegisterQty = (int)item.PurchaseRequisitionDetailsQuantity,
+                    //    TrackingRegisterQtyin = (int)item.PurchaseRequisitionDetailsQuantity,
+                    //    TrackingRegisterQtyout = 0,
+                    //    TrackingRegisterRate = item.PurchaseRequisitionDetailsRate,
+                    //    TrackingRegisterTrackDate = purchaseRequisition.PurchaseRequisitionDate,
+                    //    TrackingRegisterFsno = null,//to be alloted
+
+                    //};
+                    //listTrackRegs.Add(tr);
                 }
+                //_trackingRegisterRepository.InsertList(listTrackRegs);
                 _purchaseRequisitionRepository.TransactionCommit();
                 return this.GetSavedPurchaseRequisitionDetails(purchaseRequisition.PurchaseRequisitionNo);
 
@@ -641,7 +659,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                             unitid = sd.PurchaseRequisitionDetailsUnitId,
                             jobid = sm.PurchaseRequisitionJobId,
                             Stock = srq?.Stock ?? 0
-                        }).ToList();
+                        }).OrderBy(x => x.SRDID).ToList();
 
 
                 return new Response<List<PurChaseReqFields>>()
