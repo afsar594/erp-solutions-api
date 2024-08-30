@@ -1,6 +1,8 @@
 ﻿using Inspire.Erp.Domain.DTO.Job_Master;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Domain.Modals.File;
+using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Infrastructure.Database;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +12,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using DinkToPdf.Contracts;
 
 namespace Inspire.Erp.Application.Master
 {
@@ -88,6 +91,12 @@ namespace Inspire.Erp.Application.Master
         //    }
         //    return this.GetAllJob();
         //}
+
+
+        public async Task<string> GetJobHTML(int id)
+        {
+            return await Task.FromResult("Great Rana");
+        }
         public IEnumerable<JobMaster> DeleteJob(JobMaster jobMaster)
         {
             bool valid = false;

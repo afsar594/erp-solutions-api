@@ -1,4 +1,6 @@
 ﻿using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Modals.File;
+using Inspire.Erp.Domain.Modals;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -15,6 +17,8 @@ namespace Inspire.Erp.Application.Master
         public IEnumerable<JobMaster> DeleteJob(JobMaster jobMaster);
         public IEnumerable<JobMaster> GetAllJob();
         public IEnumerable<JobMaster> GetAllJobById(int id);
+
+        public Task<string>  GetJobHTML(int id);
 
         public void SaveJobDocument(JobDocuments jobDocumnet);
     }
