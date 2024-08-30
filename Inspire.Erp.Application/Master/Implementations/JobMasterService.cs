@@ -161,10 +161,10 @@ namespace Inspire.Erp.Application.Master
                 {
                     var groupedResults =
                         from at in context.AccountsTransactions
-                        join mat in context.MasterAccountsTable on at.AccountsTransactionsAccNo equals mat.MaAccNo
-                        join cos in context.CostCenterMaster on at.AccountsTransactionsCostCenterId equals cos.CostCenterMasterCostCenterId
-                        where (mat.MaMainHead == "Expenses" && (at.AccountstransactionsDelStatus == false || at.AccountstransactionsDelStatus == null)  && at.AccountsTransactionsCostCenterId == item.JobMasterBudgetDetailsBudId
-                        && at.AccountsTransactionsDebit>0)
+                        join cos in context.CostCenterMaster on
+                        at.AccountsTransactionsCostCenterId equals cos.CostCenterMasterCostCenterId
+                        where at.AccountstransactionsDelStatus == false 
+                        && at.AccountsTransactionsCostCenterId == item.JobMasterBudgetDetailsBudId
                         group at by cos.CostCenterMasterCostCenterName into g
                         select new
                         {
@@ -316,5 +316,9 @@ namespace Inspire.Erp.Application.Master
             }
         }
 
+        public Task<string> GetJobHTML(int id)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
