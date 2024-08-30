@@ -175,7 +175,8 @@ namespace Inspire.Erp.Application.Account.Implementation
                     TDate = x.PDC_Details_Trans_Date,
                     VNO = x.PDC_Details_V_No,
                     VType = x.PDC_Details_V_Type,
-                    Narration = x.PDC_Details_PDC_Voucher_Narration
+                    Narration = x.PDC_Details_PDC_Voucher_Narration,
+                    Tran_Type = x.PDC_Details_Trans_Type,
                     }).ToListAsync();
                 return result;
             }

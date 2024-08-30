@@ -169,7 +169,8 @@ namespace Inspire.Erp.Application.Master
                         from at in context.AccountsTransactions
                         join mat in context.MasterAccountsTable on at.AccountsTransactionsAccNo equals mat.MaAccNo
                         join cos in context.CostCenterMaster on at.AccountsTransactionsCostCenterId equals cos.CostCenterMasterCostCenterId
-                        where (mat.MaMainHead == "Expenses" && at.AccountstransactionsDelStatus == false && at.AccountsTransactionsCostCenterId == item.JobMasterBudgetDetailsBudId)
+                        where (mat.MaMainHead == "Expenses" && (at.AccountstransactionsDelStatus == false || at.AccountstransactionsDelStatus == null)  && at.AccountsTransactionsCostCenterId == item.JobMasterBudgetDetailsBudId
+                        && at.AccountsTransactionsDebit>0)
                         group at by cos.CostCenterMasterCostCenterName into g
                         select new
                         {
