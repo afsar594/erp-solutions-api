@@ -5,10 +5,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Inspire.Erp.Application.Account;
+using Inspire.Erp.Application.Account.Implementation;
 using Inspire.Erp.Application.Master;
+using Inspire.Erp.Application.NewFolder.Interfaces;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Domain.Modals.File;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Inspire.Erp.Web.Common;
 using Inspire.Erp.Web.ViewModels;
@@ -24,6 +27,7 @@ namespace Inspire.Erp.Web.Controllers
     {
         private readonly IMapper _mapper;
         private IJobMasterService jobMasterService;
+        private IFileService fileService;
         private IRepository<CurrencyMaster> currencyrepository; private IRepository<CountryMaster> countryrepository;
         private IChartofAccountsService chartofAccountsService; private IRepository<SalesManMaster> salesmanrepository;
         private IRepository<CustomerMaster> _customerMasterRepository; private IRepository<ProjectDescriptionMaster> ProjectDescriptionrepository;
@@ -31,6 +35,7 @@ namespace Inspire.Erp.Web.Controllers
         public JobController(IJobMasterService _jobMasterService, IMapper mapper,
              IRepository<CurrencyMaster> _currencyrepository, IRepository<ProjectDescriptionMaster> _ProjectDescriptionrepository
             , IChartofAccountsService _chartofAccountsService, IRepository<BankGuaranteeMaster> _bankGuaranteerepository, IRepository<SalesManMaster> _salesmanrepository, IRepository<CustomerMaster> customerMasterRepository
+            ,IFileService _fileService
             )
         {
             jobMasterService = _jobMasterService;
@@ -39,6 +44,7 @@ namespace Inspire.Erp.Web.Controllers
             chartofAccountsService = _chartofAccountsService; salesmanrepository = _salesmanrepository;
             currencyrepository = _currencyrepository; _customerMasterRepository = customerMasterRepository;
             bankGuaranteerepository = _bankGuaranteerepository;
+            fileService = _fileService;
         }
         [HttpGet]
         [Route("GetJobMaster")]
@@ -174,6 +180,20 @@ namespace Inspire.Erp.Web.Controllers
 
 
             }).ToList();
+        }
+
+
+        [HttpGet]
+        [Route("GetJobCost/{id}")]
+        public async Task<IActionResult> GeneratePdf(int id)
+        {
+
+            var html = await jobMasterService.GetJobHTML(id);
+            var pdfRe = new AddPDFResponse();
+            pdfRe.Html = html;
+            var pdfBytes = await fileService.GeneratePdf(pdfRe);
+
+            return File(pdfBytes.Result, "application/pdf", "generated.pdf");
         }
         [HttpPost]
         [Route("readpdffile")]

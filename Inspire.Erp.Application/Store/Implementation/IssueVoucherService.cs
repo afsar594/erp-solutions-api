@@ -281,8 +281,9 @@ namespace Inspire.Erp.Application.Store.Implementation
                     AccountsTransactionsCostCenterId = (int)issueVoucher.IssueVoucherCostCenterId,
                     AccountsTransactionsCurrencyId = issueVoucher.IssueVoucherCurrencyId,
                     AccountsTransactionsUserId = 1,
+                    AccountstransactionsDelStatus = false,
 
-                });
+                }) ;
                 accountsTransactions.Add(new AccountsTransactions
                 {
                     AccountsTransactionsTransDate = issueVoucher.IssueVoucherDate,
@@ -300,6 +301,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     AccountsTransactionsCostCenterId = (int)issueVoucher.IssueVoucherCostCenterId,
                     AccountsTransactionsCurrencyId = issueVoucher.IssueVoucherCurrencyId,
                     AccountsTransactionsUserId = 1,
+                    AccountstransactionsDelStatus = false,
 
                 });
                 _accountTransactionRepository.InsertList(accountsTransactions);

@@ -10,6 +10,8 @@ namespace Inspire.Erp.Application.NewFolder.Interfaces
 {
   public  interface IFileService
     {
+        Task<Response<byte[]>> GeneratePdf(AddPDFResponse model);
+
         Task<Response<string>> CreatePDFFromHtml(AddPDFResponse model);
         Task<Response<string>> CreateFileFromExtension(GetFileFromExtensionResponse model);
         Task<Response<MemoryStream>> DownloadFile(string fileUrl);
