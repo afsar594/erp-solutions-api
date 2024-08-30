@@ -20,6 +20,7 @@ using Inspire.Erp.Domain.Modals.Stock;
 using Inspire.Erp.Application.Account;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.EntityFrameworkCore;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -110,8 +111,8 @@ namespace Inspire.Erp.Web.Controllers
                 return null;
             }
         }
-        [HttpPost]
-        [Route("DeleteBillofQty")]
+        [HttpDelete]
+        [Route("DeleteBillofQty/{id}")]
         public ApiResponse<int> DeleteBillofQty(decimal id)
         {
             ApiResponse<int> apiResponse = new ApiResponse<int>
@@ -185,25 +186,28 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("LoadBOQ")]
-        public ResponseInfo LoadBOQ()
+        public ResponseInfo LoadBOQ(int customerEnqId)
         {
             var objResponse = new ResponseInfo();
-            var detailList = _BillOfQTyDetailsRepository.GetAsQueryable().ToList();
-            var details = _BillofQtyMasterRepository.GetAsQueryable().ToList();
+            var detailList = _BillOfQTyDetailsRepository.GetAsQueryable().AsNoTracking().ToList();
+            var details = _BillofQtyMasterRepository.GetAsQueryable().AsNoTracking().ToList();
 
-            // Filtering detailList based on PurchaseOrderNos
+            // Filtering detailList based on PurchaseOrderNos and customerEnqId
             var data = (from d in detailList
                         join c in details on d.BillQtyId equals c.Id
+                        where (customerEnqId == -1 || c.CustomerEnqId == customerEnqId)
+                        && d.IsEdit == true
                         select new BoqDetailDto
                         {
                             Id = c.Id,
+                            dId = d.Id,
                             BillofqtyNo = c.BillofqtyNo,
                             Date = c.Date,
                             CustomerEnqId = c.CustomerEnqId,
                             ItemCode = d.ItemCode,
                             Qty = d.Qty,
                             UnitCode = d.UnitCode
-                        })
+                        }).OrderBy(x => x.dId)
                 .ToList();
 
             objResponse.ResultSet = new
@@ -211,7 +215,7 @@ namespace Inspire.Erp.Web.Controllers
                 result = data
             };
             return objResponse;
-
         }
+
     }
 }

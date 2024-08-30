@@ -31,7 +31,23 @@ namespace Inspire.Erp.Web.Controllers
         [HttpPost("SaveBankReconciliation")]
         public async Task<ActionResult> SaveBankReconciliation([FromBody] ReconciliationVoucher reconciliation)
         {
-            return Ok(await _ibn.SavebankReconciliation(reconciliation));
+            return Ok(_ibn.SavebankReconciliation(reconciliation));
+        }
+        [HttpPost("UpdateBankReconciliation")]
+        public async Task<ActionResult> UpdateBankReconciliation([FromBody] ReconciliationVoucher reconciliation)
+        {
+            return Ok(_ibn.UpdatebankReconciliation(reconciliation));
+        }
+        [HttpGet("List")]
+        public async Task<ActionResult> getBankReconciliationList()
+        {
+            return Ok(await _ibn.getbankReconciliationList());
+        }
+
+        [HttpGet("List/{Id}")]
+        public async Task<ActionResult> getBankReconciliationList(string Id)
+        {
+            return Ok(_ibn.getbankReconciliationById(Id));
         }
     }
 }

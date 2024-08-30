@@ -147,6 +147,9 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<JobMasterBudgetDetails> JobMasterBudgetDetails { get; set; }
         public virtual DbSet<JobMasterJobDetails> JobMasterJobDetails { get; set; }
         public virtual DbSet<JobMasterJobWiseBankGuarantees> JobMasterJobWiseBankGuarantees { get; set; }
+        public virtual DbSet<JobStaff> JobStaff { get; set; }
+        public virtual DbSet<JobEquipment> JobEquipment { get; set; }
+        public virtual DbSet<JobExcutionDetails> JobExcutionDetails { get; set; }
         public virtual DbSet<JobDocuments> JobDocuments { get; set; }
         public virtual DbSet<JobOrder> JobOrder { get; set; }
         public virtual DbSet<JobOrderDetails> JobOrderDetails { get; set; }
@@ -191,6 +194,9 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<PdcVoucherDetails> PdcVoucherDetails { get; set; }
         public virtual DbSet<PosStationSettings> PosStationSettings { get; set; }
         public virtual DbSet<PrApprovalDetails> PrApprovalDetails { get; set; }
+
+        public virtual DbSet<PermissionApprovalDetail> PermissionApprovalDetail { get; set; }
+
         public virtual DbSet<PrUser> PrUser { get; set; }
         public virtual DbSet<PriceLevelMaster> PriceLevelMaster { get; set; }
         public virtual DbSet<PrinterConnection> PrinterConnection { get; set; }
@@ -239,7 +245,7 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<ReportAccountsTransactions> ReportAccountsTransactions { get; set; }
         public virtual DbSet<ReportSalesVoucher> ReportSalesVoucher { get; set; }
         public virtual DbSet<ReportPurchaseOrder> ReportPurchaseOrder { get; set; }
-
+        public virtual DbSet<tbl_approvalforms> tbl_approvalforms { get; set; }
 
         //*********************************************************
         //===========================================================
@@ -9713,6 +9719,8 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.JobInvoiceDelStatus).HasColumnName("Job_Invoice_DelStatus");
 
                 entity.Property(e => e.JobInvoiceDiscount).HasColumnName("Job_Invoice_Discount");
+                entity.Property(e => e.JobInvoiceVat).HasColumnName("job_invoice_vat");
+                entity.Property(e => e.JobInvoiceVatAmt).HasColumnName("job_invoice_vatAmt");
 
                 entity.Property(e => e.JobInvoiceFcRate).HasColumnName("Job_Invoice_FC_Rate");
 
@@ -10264,6 +10272,7 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnName("Job_Master_BudgetDetails_BudAmount")
                     .HasColumnType("numeric(18, 4)");
 
+
                 entity.Property(e => e.JobMasterBudgetDetailsBudId).HasColumnName("Job_Master_BudgetDetails_BudID");
 
                 entity.Property(e => e.JobMasterBudgetDetailsDelStatus).HasColumnName("Job_Master_BudgetDetails_DelStatus");
@@ -10276,6 +10285,14 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnName("Job_Master_No")
                     .HasMaxLength(20)
                     .IsUnicode(false);
+
+                entity.Property(e => e.JobMasterBudgetDetailsActual)
+                .HasColumnName("Job_Master_BudgetDetails_Actual")
+                .HasColumnType("numeric(18, 4)");
+
+                entity.Property(e => e.JobMasterBudgetDetailsVariance)
+                   .HasColumnName("Job_Master_BudgetDetails_Variance")
+                   .HasColumnType("numeric(18, 4)");
 
                 entity.HasOne(d => d.JobMasterBudgetDetailsJob)
                     .WithMany(p => p.JobMasterBudgetDetails)
@@ -10369,6 +10386,53 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasConstraintName("FK_Job_Master_JobWiseBankGuarantees_Job_Master");
             });
 
+            modelBuilder.Entity<JobStaff>(entity =>
+            {
+                entity.HasKey(e=>e.Id);
+                entity.ToTable("tblJobPEStaff");
+                entity.Property(e => e.JobMasterJobId).HasColumnName("Job_id");
+                entity.Property(e => e.JobMasterStaffId).HasColumnName("staff_id");
+                entity.Property(e => e.JobMasterStaffName).HasColumnName("Staff_Name")
+                      .HasMaxLength(500)
+                      .IsRequired(false);
+
+                entity.HasOne(d => d.JobMasterJobJob)
+                    .WithMany(p => p.JobStaff)
+                    .HasForeignKey(d => d.JobMasterJobId)
+                    .HasConstraintName("FK_JobStaff_JobMaster");
+            });
+
+            modelBuilder.Entity<JobEquipment>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.ToTable("tblJobPEEqp");
+                entity.Property(e => e.JobMasterJobId).HasColumnName("Job_Id");
+                entity.Property(e => e.JobMasterEquipId).HasColumnName("Eqp_ID");
+                entity.Property(e => e.JobMasterEquipName).HasColumnName("Eqp_Name")
+                      .HasMaxLength(500)
+                      .IsRequired(false);
+
+                entity.HasOne(d => d.JobMasterJobJob)
+                   .WithMany(p => p.JobEquipment)
+                   .HasForeignKey(d => d.JobMasterJobId)
+                   .HasConstraintName("FK_JobEquip_JobMaster");
+            });
+
+            modelBuilder.Entity<JobExcutionDetails>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.ToTable("tblJobPEExcDtl");
+                entity.Property(e => e.JobMasterJobId).HasColumnName("Job_ID");
+                entity.Property(e => e.JobMasterExecDate).HasColumnName("Exec_Date");
+                entity.Property(e => e.JobMasterExecDescription).HasColumnName("Exec_Description")
+                      .HasMaxLength(500)
+                      .IsRequired(false);
+
+                entity.HasOne(d => d.JobMasterJobJob)
+                   .WithMany(p => p.JobExcutionDetails)
+                   .HasForeignKey(d => d.JobMasterJobId)
+                   .HasConstraintName("FK_JobExec_JobMaster");
+            });
 
             modelBuilder.Entity<JobDocuments>(entity =>
             {
@@ -13009,32 +13073,86 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.PrApprovalDetailsUserId).HasColumnName("PR_Approval_Details_User_ID");
             });
 
-            modelBuilder.Entity<PrUser>(entity =>
+
+            modelBuilder.Entity<PermissionApprovalDetail>(entity =>
             {
-                entity.HasNoKey();
+                entity.ToTable("permissionapprovaldetail");
 
-                entity.ToTable("PR_User");
+                entity.HasKey(e => e.Id);
 
-                entity.Property(e => e.PrUserDelStatus).HasColumnName("PR_User_DelStatus");
+                entity.Property(e => e.Id)
+                      .HasColumnName("id")
+                      .ValueGeneratedOnAdd();
 
-                entity.Property(e => e.PrUserId)
-                    .HasColumnName("PR_User_ID")
-                    .ValueGeneratedOnAdd();
+                entity.Property(e => e.VoucherType)
+                      .HasColumnName("Voucher_Type")
+                      .HasMaxLength(100)
+                      .IsUnicode(false);
 
-                entity.Property(e => e.PrUserName)
-                    .HasColumnName("PR_User_Name")
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
+                entity.Property(e => e.VoucherId)
+                      .HasColumnName("voucherid")
+                      .HasMaxLength(25)
+                      .IsUnicode(false);
 
-                entity.Property(e => e.PrUserUallow).HasColumnName("PR_User_Uallow");
+                entity.Property(e => e.VoucherDate)
+                      .HasColumnName("voucher_date")
+                      .HasColumnType("date");
 
-                entity.Property(e => e.PrUserUserId).HasColumnName("PR_User_User_ID");
+                entity.Property(e => e.Amount)
+                      .HasColumnName("Amount")
+                      .HasColumnType("float");
 
-                entity.Property(e => e.PrUserVoudType)
-                    .HasColumnName("PR_User_VoudType")
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
+                entity.Property(e => e.CreatedBy)
+                      .HasColumnName("created_by");
+
+                entity.Property(e => e.LevelId)
+                      .HasColumnName("Levelid");
+
+                entity.Property(e => e.Status)
+                      .HasColumnName("Status")
+                      .HasMaxLength(50)
+                      .IsUnicode(false);
+
+                entity.Property(e => e.ApprovedBy)
+                      .HasColumnName("approved_by");
+
+                entity.Property(e => e.ModifiedDate)
+                      .HasColumnName("modified_date")
+                      .HasColumnType("datetime");
+
+                entity.Property(e => e.Remarks)
+                      .HasColumnName("Remarks")
+                      .HasMaxLength(500)
+                      .IsUnicode(true);
             });
+
+
+            modelBuilder.Entity<PrUser>(entity =>
+                {
+                    entity.HasNoKey();
+
+                    entity.ToTable("PR_User");
+
+                    entity.Property(e => e.PrUserDelStatus).HasColumnName("PR_User_DelStatus");
+
+                    entity.Property(e => e.PrUserId)
+                        .HasColumnName("PR_User_ID")
+                        .ValueGeneratedOnAdd();
+
+                    entity.Property(e => e.PrUserName)
+                        .HasColumnName("PR_User_Name")
+                        .HasMaxLength(50)
+                        .IsUnicode(false);
+
+                    entity.Property(e => e.PrUserUallow).HasColumnName("PR_User_Uallow");
+
+                    entity.Property(e => e.PrUserUserId).HasColumnName("PR_User_User_ID");
+
+                    entity.Property(e => e.PrUserVoudType)
+                        .HasColumnName("PR_User_VoudType")
+                        .HasMaxLength(50)
+                        .IsUnicode(false);
+                });
 
             modelBuilder.Entity<PriceLevelMaster>(entity =>
             {

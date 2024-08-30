@@ -35,6 +35,7 @@ namespace Inspire.Erp.Domain.Entities
     public class BoqDetailDto
     {
         public decimal Id { get; set; }
+        public decimal dId { get; set; }
         public string BillofqtyNo { get; set; }
         public DateTime? Date { get; set; }
         public decimal? CustomerEnqId { get; set; }

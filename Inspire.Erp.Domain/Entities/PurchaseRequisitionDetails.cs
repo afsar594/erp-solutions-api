@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -38,7 +39,9 @@ namespace Inspire.Erp.Domain.Entities
         public DateTime? PurchaseRequisitionDetailsReqDate { get; set; }
         public string PurchaseRequisitionDetailsReqStatus { get; set; }
         public bool? PurchaseRequisitionDetailsDelStatus { get; set; }
-     //   public int? PurchaseRequisitionDetailsItemID { get; set; }
+        //   public int? PurchaseRequisitionDetailsItemID { get; set; }
         public virtual PurchaseRequisition PurchaseRequisitionDetailsNoNavigation { get; set; }
+        [NotMapped]
+        public int? boqdId { get; set; }
     }
 }

@@ -25,8 +25,8 @@ namespace Inspire.Erp.Web.ViewModels
         public string JobMasterJobNumber { get; set; }
         public decimal? JobMasterJobCurVal { get; set; }
 
-        public int? JobMasterJobWorkingDays { get; set; }  
-        public DateTime? JobMasterJobCommenceDate { get; set; } 
+        public int? JobMasterJobWorkingDays { get; set; }
+        public DateTime? JobMasterJobCommenceDate { get; set; }
         public DateTime? JobMasterJobOrgCompleteDate { get; set; }
 
         public int? JobMasterJobPayTermDays { get; set; }
@@ -48,65 +48,37 @@ namespace Inspire.Erp.Web.ViewModels
 
         public decimal? JobMasterJobAdvPerc { get; set; }
 
-        public decimal? JobMasterJobAdvAmount { get; set; }   
-
-        //public bool? JobMasterJobStatusVal { get; set; }
-        //public string JobMasterJobType { get; set; }
-        //public int? JobMasterJobRelativeNo { get; set; }
-        //public string JobMasterJobCode { get; set; }
-        //public int? JobMasterJobSupplierId { get; set; }
-
-        //public bool? JobMasterJobIsSubJob { get; set; }
-
-        //public int? JobMasterJobSalesMan { get; set; }
-        //public decimal? JobMasterJobBudgetMaterialCost { get; set; }
-        //public decimal? JobMasterJobMaterialCost { get; set; }
-        //public decimal? JobMasterJobMaterialCostVar { get; set; }
-        //public decimal? JobMasterJobBugetLabourCost { get; set; }
-        //public decimal? JobMasterJobLabourCost { get; set; }
-        //public decimal? JobMasterJobLabourCostVar { get; set; }
-        //public decimal? JobMasterJobBudgetOverHeadCost { get; set; }
-        //public decimal? JobMasterJobOverHeadCost { get; set; }
-        //public decimal? JobMasterJobOverHeadCostVar { get; set; }
-        //public decimal? JobMasterJobMiscCost { get; set; }
-        //public decimal? JobMasterJobTotalCost { get; set; }
-        //public decimal? JobMasterJobProfit { get; set; }
-        //public decimal? JobMasterJobTotalInvValue { get; set; }
-        //public decimal? JobMasterJobTotalPayValue { get; set; }
-        //public decimal? JobMasterJobTotalRecValue { get; set; }
-        //public decimal? JobMasterJobTotalExpValue { get; set; }
-
-
-
-        //public decimal? JobMasterJobAdvanceAmount { get; set; }
-        //public decimal? JobMasterJobNoCostCenter { get; set; }
-        //public decimal? JobMasterJobPendingPo { get; set; }
-        //public int? JobMasterJobHrjobId { get; set; }
-
-
-        //public decimal? JobMasterJobAdvAmountTotal { get; set; }   
-
-        //public string JobMasterJobRetAccName { get; set; }
-        //public string JobMasterJobAdvAccName { get; set; }
-        //public decimal? JobMasterJobCumValue { get; set; }
-        //public decimal? JobMasterJobDirectCost { get; set; }
-        //public decimal? JobMasterJobRetAmount { get; set; }
-        //public decimal? JobMasterJobAdvInvoice { get; set; }
-        //public decimal? JobMasterJobAdvRecovery { get; set; }
-        //public decimal? JobMasterJobDeduction { get; set; }
-        //public decimal? JobMasterJobReceivable { get; set; }
-        //public decimal? JobMasterJobVatamount { get; set; }
-        //public decimal? JobMasterJobReceived { get; set; }
-        //public int? JobMasterJobBuildId { get; set; }
-        //public int? JobMasterJobFlatId { get; set; }
-        //public int? JobMasterJobContractId { get; set; }
-        //public int? JobMasterJobComplientId { get; set; }
-        //public int? JobMasterJobCustQtnId { get; set; }
-        //public bool? JobMasterJobDelStatus { get; set; }
+        public decimal? JobMasterJobAdvAmount { get; set; }
 
         public List<JobMasterBudgetDetailsViewModels> JobMasterBudgetDetails { get; set; }
         public List<JobMasterJobDetailsViewModels> JobMasterJobDetails { get; set; }
         public List<JobMasterJobWiseBankGuaranteesViewModels> JobMasterJobWiseBankGuarantees { get; set; }
 
+        public List<JobStaffViewModels> JobStaff { get; set; }
+        public List<JobEquipmentViewModels> JobEquipment { get; set; }
+        public List<JobExcutionDetailsViewModels> JobExcutionDetails { get; set; }
+    }
+    public class JobStaffViewModels
+    {
+        public int Id { get; set; }
+        public int JobMasterJobId { get; set; }
+        public int? JobMasterStaffId { get; set; }
+        public string JobMasterStaffName { get; set; }
+    }
+
+    public class JobEquipmentViewModels
+    {
+        public int Id { get; set; }
+        public int JobMasterJobId { get; set; }
+        public int? JobMasterEquipId { get; set; }
+        public string JobMasterEquipName { get; set; }
+    }
+
+    public class JobExcutionDetailsViewModels
+    {
+        public int Id { get; set; }
+        public int JobMasterJobId { get; set; }
+        public DateTime? JobMasterExecDate { get; set; }
+        public string JobMasterExecDescription { get; set; }
     }
 }

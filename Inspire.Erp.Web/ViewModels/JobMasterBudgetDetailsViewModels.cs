@@ -14,6 +14,8 @@ namespace Inspire.Erp.Web.ViewModels
         public int? JobMasterBudgetDetailsBudId { get; set; }
         public decimal? JobMasterBudgetDetailsBudAmount { get; set; }
         public bool? JobMasterBudgetDetailsDelStatus { get; set; }
+        public decimal? JobMasterBudgetDetailsActual { get; set; }
+        public decimal? JobMasterBudgetDetailsVariance { get; set; }
 
     }
 }
