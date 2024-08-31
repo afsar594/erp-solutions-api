@@ -24166,6 +24166,10 @@ namespace Inspire.Erp.Infrastructure.Database
             {
                 entity.HasKey(e => e.DetID);
                 entity.Property(e => e.DocID);
+                entity.Property(e => e.ItemID);
+                entity.Property(e => e.UnitID);
+                entity.Property(e => e.AltItemID);
+                entity.Property(e => e.AltItemUnitID);                
                 entity.Property(e => e.Remarks)
                       .HasMaxLength(250)
                       .IsUnicode(false);
