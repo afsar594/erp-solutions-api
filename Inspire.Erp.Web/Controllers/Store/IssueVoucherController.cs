@@ -38,16 +38,16 @@ namespace Inspire.Erp.Web.Controllers.Store
         private IRepository<CurrencyMaster> currencyrepository; private IRepository<CustomerMaster> _customerMasterRepository;
         private IChartofAccountsService chartofAccountsService; private IRepository<SalesManMaster> salesmanrepository;
         private IRepository<DepartmentMaster> departmentrepository;
-        private IRepository<UnitDetails> _UnitDetailsRepository;
+        private IRepository<UnitDetails> _UnitDetailsRepository; private IRepository<IssueVoucher> _issueVoucherRepository;
         public IssueVoucherController(IIssueVoucherService issueVoucherService, IMapper mapper,
              IRepository<ItemMaster> _itemrepository, IRepository<UnitDetails> unitDetailsRepository,
-            IRepository<SuppliersMaster> _supplierrepository, IRepository<VendorMaster> _Brandrepository,
+            IRepository<SuppliersMaster> _supplierrepository, IRepository<VendorMaster> _Brandrepository, IRepository<IssueVoucher> issueVoucherRepository,
             IRepository<UnitMaster> _unitrepository, IRepository<LocationMaster> _locationrepository, IRepository<SalesManMaster> _salesmanrepository
             , IRepository<CostCenterMaster> _countryrepository, IRepository<DepartmentMaster> _departmentrepository, IRepository<CustomerMaster> customerMasterRepository
             , IRepository<JobMaster> _jobrepository, IRepository<CurrencyMaster> _currencyrepository, IChartofAccountsService _chartofAccountsService)
         {
             _issueVoucherService = issueVoucherService;
-            _mapper = mapper;
+            _mapper = mapper; _issueVoucherRepository = issueVoucherRepository;
             _UnitDetailsRepository = unitDetailsRepository; salesmanrepository = _salesmanrepository;
             supplierrepository = _supplierrepository; _customerMasterRepository = customerMasterRepository;
             itemrepository = _itemrepository; unitrepository = _unitrepository; Brandrepository = _Brandrepository;
@@ -55,80 +55,6 @@ namespace Inspire.Erp.Web.Controllers.Store
             jobrepository = _jobrepository; locationrepository = _locationrepository;
             currencyrepository = _currencyrepository; chartofAccountsService = _chartofAccountsService;
         }
-
-
-        //[HttpGet]
-        //[Route("IssueVoucher_GetReportIssueVoucher")]
-        //public ApiResponse<List<ReportIssueVoucher>> IssueVoucher_GetReportIssueVoucher()
-        //{
-
-
-
-        //    ApiResponse<List<ReportIssueVoucher>> apiResponse = new ApiResponse<List<ReportIssueVoucher>>
-        //    {
-        //        Valid = true,
-        //        Result = _mapper.Map<List<ReportIssueVoucher>>(_issueVoucherService.IssueVoucher_GetReportIssueVoucher()),
-        //        Message = ""
-        //    };
-        //    return apiResponse;
-
-
-
-
-        //}
-
-
-
-        ////[HttpGet]
-        ////[Route("IssueVoucher_GetAllLocationMaster")]
-
-        ////public List<LocationMaster> IssueVoucher_GetAllLocationMaster()
-        ////{
-        ////    return _mapper.Map<List<LocationMaster>>(_issueVoucherService.IssueVoucher_GetAllLocationMaster());
-
-
-        ////}
-
-
-
-        ////[HttpGet]
-        ////[Route("IssueVoucher_GetAllSuppliersMaster")]
-
-
-        ////public List<SuppliersMaster> IssueVoucher_GetAllSuppliersMaster()
-        ////{
-        ////    return _mapper.Map<List<SuppliersMaster>>(_issueVoucherService.IssueVoucher_GetAllSuppliersMaster());
-
-
-        ////}
-
-
-
-        ////[HttpGet]
-        ////[Route("IssueVoucher_GetAllUnitMaster")]
-
-        ////public List<UnitMaster> IssueVoucher_GetAllUnitMaster()
-        ////{
-        ////    return _mapper.Map<List<UnitMaster>>(_issueVoucherService.IssueVoucher_GetAllUnitMaster());
-
-
-        ////}
-
-
-
-
-
-        ////[HttpGet]
-        ////[Route("IssueVoucher_GetAllItemMaster")]
-
-        ////public List<ItemMaster> IssueVoucher_GetAllItemMaster()
-        ////{
-        ////    return _mapper.Map<List<ItemMaster>>(_issueVoucherService.IssueVoucher_GetAllItemMaster());
-
-
-        ////}
-
-
 
 
         [HttpPost]
@@ -143,7 +69,6 @@ namespace Inspire.Erp.Web.Controllers.Store
             var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
             param3 = new List<AccountsTransactions>();
             List<StockRegister> param4 = new List<StockRegister>();
-            // clsAccountAndStock.IssueVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
 
             var xs = _issueVoucherService.InsertIssueVoucher(param1, param3, param2
            , param4
@@ -511,6 +436,12 @@ namespace Inspire.Erp.Web.Controllers.Store
                 c.MaRelativeNo,
                 c.MaSno
             }).ToList();
+
+            var issueVoucher = _issueVoucherRepository.GetAsQueryable().AsNoTracking().Where(a => a.IssueVoucherDelStatus != true).Select(x => new
+            {
+                x.IssueVoucherId,
+                x.IssueVoucherNo
+            }).ToList();
             objectresponse.ResultSet = new
             {
                 itemMaster = itemMaster,
@@ -520,7 +451,8 @@ namespace Inspire.Erp.Web.Controllers.Store
                 LocationMaster = LocationMaster,
                 DepartmentsList = DepartmentsList,
                 unitMasters = unitMasters,
-                masterAccountsTables = masterAccountsTables
+                masterAccountsTables = masterAccountsTables,
+                issueVoucher= issueVoucher
             };
 
             objectresponse.IsSuccess = true;
