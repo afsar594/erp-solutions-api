@@ -24165,7 +24165,7 @@ namespace Inspire.Erp.Infrastructure.Database
             modelBuilder.Entity<AltItemDetails>(entity =>
             {
                 entity.HasKey(e => e.DetID);
-                entity.Property(e => e.DocID).HasColumnType(int);
+                entity.Property(e => e.DocID);
                 entity.Property(e => e.Remarks)
                       .HasMaxLength(250)
                       .IsUnicode(false);
