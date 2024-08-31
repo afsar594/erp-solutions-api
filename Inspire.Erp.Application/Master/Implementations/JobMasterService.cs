@@ -267,11 +267,12 @@ namespace Inspire.Erp.Application.Master
                 jobMasterData.JobMasterExpenses =
                                        (from at in context.AccountsTransactions
                                         join mat in context.MasterAccountsTable on at.AccountsTransactionsAccNo equals mat.MaAccNo
-                                        join cos in context.CostCenterMaster on at.AccountsTransactionsCostCenterId equals cos.CostCenterMasterCostCenterId
-                                        where (mat.MaMainHead == "Expenses" && at.AccountsTransactionsJobNo == jobMasterData.JobMasterJobId && at.AccountstransactionsDelStatus == false)
+                                        //join cos in context.CostCenterMaster on at.AccountsTransactionsCostCenterId equals cos.CostCenterMasterCostCenterId
+                                        join cos in context.CostCenterMaster on at.AccountsTransactionsCostCenterId equals cos.CostCenterMasterCostCenterId into cosGroup
+                                        from cos in cosGroup.DefaultIfEmpty()
+                                        where (mat.MaMainHead == "Expenses" && at.AccountsTransactionsJobNo == jobMasterData.JobMasterJobId && at.AccountstransactionsDelStatus != true)
                                         select new JobMasterExpenseDto
                                         {
-
                                             accNo = at.AccountsTransactionsAccNo,
                                             accName = mat.MaAccName,
                                             Description = at.AccountsTransactionsDescription,
