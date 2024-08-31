@@ -22,7 +22,9 @@ namespace Inspire.Erp.Application.Master
         private IRepository<JobDocuments> jobDocumentsRepository;
         private IRepository<ProgramSettings> programsettingsRepository;
         private IRepository<VouchersNumbers> voucherNumbersRepository;
-
+        private IRepository<JobStaff> jobstaffrepository;
+        private IRepository<JobEquipment> jobEquipmentrepository;
+        private IRepository<JobExcutionDetails> jobexecrepository;
         private IRepository<AccountsTransactions> accountsTransactionsRepository;
         private readonly InspireErpDBContext context;
         public JobMasterService(IRepository<JobMaster> _jobrepository,
@@ -31,7 +33,7 @@ namespace Inspire.Erp.Application.Master
             IRepository<JobMasterJobWiseBankGuarantees> _jobBankGuaruRepository,
             IRepository<AccountsTransactions> _accountsTransactionsRepository,
             InspireErpDBContext _context, IRepository<ProgramSettings> _programsettingsRepository,
-            IRepository<VouchersNumbers> _voucherNumbersRepository)
+            IRepository<VouchersNumbers> _voucherNumbersRepository, IRepository<JobStaff> _jobstaffrepository, IRepository<JobEquipment> _jobEquipmentrepository, IRepository<JobExcutionDetails> _jobexecrepository)
         {
             jobrepository = _jobrepository;
             jobbudgetRepository = _jobbudgetRepository;
@@ -41,7 +43,9 @@ namespace Inspire.Erp.Application.Master
             context = _context;
             programsettingsRepository = _programsettingsRepository;
             voucherNumbersRepository = _voucherNumbersRepository;
-
+            jobstaffrepository = _jobstaffrepository;
+            jobEquipmentrepository = _jobEquipmentrepository;
+            jobexecrepository = _jobexecrepository;
         }
 
         public IEnumerable<JobMaster> DeleteJob(JobMaster jobMaster)
@@ -189,7 +193,7 @@ namespace Inspire.Erp.Application.Master
             catch (Exception ex)
             {
                 jobrepository.TransactionRollback();
-                throw;
+                throw ex;
             }
         }
 
@@ -218,7 +222,9 @@ namespace Inspire.Erp.Application.Master
                 jobMasterData.JobMasterJobDetails = jobdetailsRepository.GetAsQueryable().Where(x => x.JobMasterNo == jbno && x.JobMasterJobDetailsDelStatus == false).ToList();
                 jobMasterData.JobMasterJobWiseBankGuarantees = jobBankGuaruRepository.GetAsQueryable().Where(x => x.JobMasterNo == jbno && x.JobMasterJobWiseBankGuaranteesDelStatus == false).ToList();
                 jobMasterData.AccountsTransactions = accountsTransactionsRepository.GetAsQueryable().Where(x => x.AccountsTransactionsJobNo == jobMasterData.JobMasterJobId).ToList();
-
+                jobMasterData.JobStaff = jobstaffrepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterJobId == jobMasterData.JobMasterJobId).ToList();
+                jobMasterData.JobEquipment = jobEquipmentrepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterJobId == jobMasterData.JobMasterJobId).ToList();
+                jobMasterData.JobExcutionDetails = jobexecrepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterJobId == jobMasterData.JobMasterJobId).ToList();
                 jobMasterData.JobMasterExpenses =
                                        (from at in context.AccountsTransactions
                                         join mat in context.MasterAccountsTable on at.AccountsTransactionsAccNo equals mat.MaAccNo
