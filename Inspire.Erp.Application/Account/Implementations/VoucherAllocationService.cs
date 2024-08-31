@@ -1,6 +1,7 @@
 ﻿using Inspire.Erp.Application.Account.Interfaces;
 using Inspire.Erp.Application.Common;
 using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.AccountStatement;
 using Inspire.Erp.Domain.Modals.Common;
@@ -51,7 +52,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             _voucherAllocationDetails = voucherAllocationDetails;
             _utilityService = utilityService;
             _currencyMaster = currencyMaster;
-            _bankPaymentVoucherRepository =  bankPaymentVoucherRepository;
+            _bankPaymentVoucherRepository = bankPaymentVoucherRepository;
             _bankReceiptVoucherRepository = bankReceiptVoucherRepository;
             _paymentVoucherRepository = paymentVoucherRepository;
             _receiptVoucherMasterRepository = receiptVoucherMasterRepository;
@@ -180,35 +181,9 @@ namespace Inspire.Erp.Application.Account.Implementations
 
                         foreach (var item in model.VoucherAllocationDetails)
                         {
-                            switch (item.AllocationVoucherDetailsRefVtype)
-                            {
-                                case "RECEIPT":
-                                 var receiptVoucher =  _receiptVoucherMasterRepository.GetAsQueryable().Where(r => r.ReceiptVoucherMasterVoucherNo == item.AllocationVoucherDetailsVno).FirstOrDefault();
-                                    receiptVoucher.ReceiptVoucherMasterAllocId = avID;
-                                    _receiptVoucherMasterRepository.Update(receiptVoucher);
-                                    _receiptVoucherMasterRepository.SaveChangesAsync();
-                                    break;
-                                case "PAYMENT":
-                                    var paymentVoucher = _paymentVoucherRepository.GetAsQueryable().Where(r => r.PaymentVoucherVoucherNo == item.AllocationVoucherDetailsVno).FirstOrDefault();
-                                    paymentVoucher.PaymentVoucherAllocationId = avID;
-                                    _paymentVoucherRepository.Update(paymentVoucher);
-                                    _paymentVoucherRepository.SaveChangesAsync();
-                                    break;
-                                case "BANK RECEIPT":
-                                    var bankReceiptVoucher = _bankReceiptVoucherRepository.GetAsQueryable().Where(r => r.BankReceiptVoucherVoucherNo == item.AllocationVoucherDetailsVno).FirstOrDefault();
-                                    bankReceiptVoucher.BankReceiptVoucherAllocId = avID;
-                                    _bankReceiptVoucherRepository.Update(bankReceiptVoucher);
-                                    _bankReceiptVoucherRepository.SaveChangesAsync();
-                                    break;
-                                case "BANK PAYMENT":
-                                    var bankPaymentVoucher = _bankPaymentVoucherRepository.GetAsQueryable().Where(r => r.BankPaymentVoucherVoucherNo == item.AllocationVoucherDetailsVno).FirstOrDefault();
-                                    bankPaymentVoucher.BankPaymentVoucherAllocId = avID;
-                                    _bankPaymentVoucherRepository.Update(bankPaymentVoucher);
-                                    _bankPaymentVoucherRepository.SaveChangesAsync();
-                                    break;
-                            }
+                            UpdateVoucherAllocationId(item.AllocationVoucherDetailsRefVtype, item.AllocationVoucherDetailsVno, avID);
                         }
-                        
+
 
                         #region ADD ACTIVITY LOGS
                         AddActivityLogViewModel log = new AddActivityLogViewModel()
@@ -370,7 +345,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             }
         }
 
-      
+
         private int getMaxVoucherAllocationDetails()
         {
             try
@@ -652,7 +627,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 return 0; // or throw an exception, return a default value, etc.
             }
         }
-        public Response<AllocationVoucher> DeleteAllocationVoucher(string id,string type)
+        public Response<AllocationVoucher> DeleteAllocationVoucher(string id, string type)
         {
             using (var trans = new TransactionScope())
             {
@@ -676,14 +651,17 @@ namespace Inspire.Erp.Application.Account.Implementations
                     {
                         _voucherAllocationDetails.DeleteList(allocationDetailsList);
                     }
+                    var allocation = _voucherAllocation.GetAsQueryable().Where(o => o.AllocationVoucherId == Sno).FirstOrDefault();
+                    if (allocation != null)
+                        _voucherAllocation.Delete(allocation);
+
+                    
                     foreach (var item in allocationDetailsList)
                     {
-                        getTransId = item.AllocationVoucherDetailsTransSno;
-                        var allocationDetails = _voucherAllocation.GetAsQueryable().Where(o => o.AllocationVoucherId == item.AllocationVoucherDetailsSno).FirstOrDefault();
-                        if (allocationDetails != null)
-                        _voucherAllocation.Delete(allocationDetails);
+                        UpdateVoucherAllocationId(item.AllocationVoucherDetailsRefVtype, id, 0);
 
-                        var accTrans = _accountTransaction.GetAsQueryable().Where(x => x.AccountsTransactionsTransSno == getTransId).FirstOrDefault();
+                        //getTransId = item.AllocationVoucherDetailsTransSno;
+                        var accTrans = _accountTransaction.GetAsQueryable().Where(x => x.AccountsTransactionsTransSno == item.AllocationVoucherDetailsTransSno).FirstOrDefault();
 
                         if (accTrans != null)
                         {
@@ -707,9 +685,10 @@ namespace Inspire.Erp.Application.Account.Implementations
                             _accountTransaction.Update(accTrans);
                         }
 
-                     
+
                     }
-                       
+
+
 
 
                     /**UPDATE AccountsTransactions SET
@@ -751,7 +730,61 @@ namespace Inspire.Erp.Application.Account.Implementations
         }
 
 
+
+        private void UpdateVoucherAllocationId(string voucherType,string voucherNo ,int AllocationId)
+        {
+            switch (voucherType.ToUpper())
+            {
+                case "RECEIPT":
+                    var receiptVoucher = _receiptVoucherMasterRepository.GetAsQueryable()
+                        .Where(r => r.ReceiptVoucherMasterVoucherNo == voucherNo)
+                        .FirstOrDefault();
+                    if (receiptVoucher != null)
+                    {
+                        receiptVoucher.ReceiptVoucherMasterAllocId = AllocationId;
+                        _receiptVoucherMasterRepository.Update(receiptVoucher);
+                        _receiptVoucherMasterRepository.SaveChangesAsync();
+                    }
+                    break;
+
+                case "PAYMENT":
+                    var paymentVoucher = _paymentVoucherRepository.GetAsQueryable()
+                        .Where(r => r.PaymentVoucherVoucherNo == voucherNo)
+                        .FirstOrDefault();
+                    if (paymentVoucher != null)
+                    {
+                        paymentVoucher.PaymentVoucherAllocationId = AllocationId;
+                        _paymentVoucherRepository.Update(paymentVoucher);
+                        _paymentVoucherRepository.SaveChangesAsync();
+                    }
+                    break;
+
+                case "BANK RECEIPT":
+                    var bankReceiptVoucher = _bankReceiptVoucherRepository.GetAsQueryable()
+                        .Where(r => r.BankReceiptVoucherVoucherNo == voucherNo)
+                        .FirstOrDefault();
+                    if (bankReceiptVoucher != null)
+                    {
+                        bankReceiptVoucher.BankReceiptVoucherAllocId = AllocationId;
+                        _bankReceiptVoucherRepository.Update(bankReceiptVoucher);
+                        _bankReceiptVoucherRepository.SaveChangesAsync();
+                    }
+                    break;
+
+                case "BANK PAYMENT":
+                    var bankPaymentVoucher = _bankPaymentVoucherRepository.GetAsQueryable()
+                        .Where(r => r.BankPaymentVoucherVoucherNo == voucherNo)
+                        .FirstOrDefault();
+                    if (bankPaymentVoucher != null)
+                    {
+                        bankPaymentVoucher.BankPaymentVoucherAllocId = AllocationId;
+                        _bankPaymentVoucherRepository.Update(bankPaymentVoucher);
+                        _bankPaymentVoucherRepository.SaveChangesAsync();
+                    }
+                    break;
+
+            }
+        }
     }
+
 }
-
-

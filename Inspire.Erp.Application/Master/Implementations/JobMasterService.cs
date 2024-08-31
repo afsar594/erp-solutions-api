@@ -1,6 +1,8 @@
 ﻿using Inspire.Erp.Domain.DTO.Job_Master;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Domain.Modals.File;
+using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Infrastructure.Database;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +12,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using DinkToPdf.Contracts;
 
 namespace Inspire.Erp.Application.Master
 {
@@ -48,6 +51,41 @@ namespace Inspire.Erp.Application.Master
             jobexecrepository = _jobexecrepository;
         }
 
+        //        jobMaster.JobMasterJobId = mxc;
+        //        jobrepository.Insert(jobMaster);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        valid = false;
+        //        throw ex;
+        //    }
+        //    finally
+        //    {
+        //        //jobrepository.Dispose();
+        //    }
+        //    return this.GetAllJob();
+        //}
+        //public IEnumerable<JobMaster> UpdateJob(JobMaster jobMaster)
+        //{
+        //    bool valid = false;
+        //    try
+        //    {
+        //       jobrepository.Update(jobMaster);
+        //        valid = true;
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        valid = false;
+        //        throw ex;
+
+        //    }
+        //    finally
+        //    {
+        //        //jobrepository.Dispose();
+        //    }
+        //    return this.GetAllJob();
+        //}
         public IEnumerable<JobMaster> DeleteJob(JobMaster jobMaster)
         {
             bool valid = false;
@@ -127,9 +165,10 @@ namespace Inspire.Erp.Application.Master
                 {
                     var groupedResults =
                         from at in context.AccountsTransactions
-                        join mat in context.MasterAccountsTable on at.AccountsTransactionsAccNo equals mat.MaAccNo
-                        join cos in context.CostCenterMaster on at.AccountsTransactionsCostCenterId equals cos.CostCenterMasterCostCenterId
-                        where (mat.MaMainHead == "Expenses" && at.AccountstransactionsDelStatus == false && at.AccountsTransactionsCostCenterId == item.JobMasterBudgetDetailsBudId)
+                        join cos in context.CostCenterMaster on
+                        at.AccountsTransactionsCostCenterId equals cos.CostCenterMasterCostCenterId
+                        where at.AccountstransactionsDelStatus == false 
+                        && at.AccountsTransactionsCostCenterId == item.JobMasterBudgetDetailsBudId
                         group at by cos.CostCenterMasterCostCenterName into g
                         select new
                         {
@@ -283,5 +322,9 @@ namespace Inspire.Erp.Application.Master
             }
         }
 
+        public Task<string> GetJobHTML(int id)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
