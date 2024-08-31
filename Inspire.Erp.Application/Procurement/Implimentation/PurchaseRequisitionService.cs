@@ -612,13 +612,13 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         from lm in lmGroup.DefaultIfEmpty()
                         join iv in _context.IssueVoucherDetails.AsNoTracking()
                             on sd.PurchaseRequisitionDetailsId equals iv.IssueVoucherDetailsReqDId into ivGroup
-                        from srq in ivGroup.DefaultIfEmpty()
+                        from srq in ivGroup.DefaultIfEmpty()                        
                         select new PurChaseReqFields
                         {
                             PurchaseRequisitionPartyName = sm.PurchaseRequisitionPartyName ?? "",
                             purchaseRequisitionType = sm.PurchaseRequisitionType ?? "",
                             Item_Name = im != null ? im.ItemMasterItemName : "",
-                            Unit = um != null ? (um.UnitMasterUnitShortName ?? "") + " :: " + um.UnitMasterUnitId.ToString() : "",
+                            Unit = um != null ? um.UnitMasterUnitShortName :"",
                             DelQty = srq.IssueVoucherDetailsQuantity ?? 0m,
                             SRID = sm.PurchaseRequisitionId,
                             SRDID = sd.PurchaseRequisitionDetailsId,
@@ -627,7 +627,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                             Rate = sd.PurchaseRequisitionDetailsRate ?? 0,
                             SRQ = sd.PurchaseRequisitionDetailsQuantity ?? 0,
                             BalQty = (sd.PurchaseRequisitionDetailsQuantity - (srq.IssueVoucherDetailsQuantity ?? 0m)) ?? 0,
-                            matId = sd.PurchaseRequisitionDetailsMatId ?? 0,
+                            matId = sd.PurchaseRequisitionDetailsMatId,
                             unitid = sd.PurchaseRequisitionDetailsUnitId,
                             jobid = sm.PurchaseRequisitionJobId,
                             Stock = srq.IssueVoucherDetailsCurrentStockQty ?? 0m
@@ -635,7 +635,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                      .OrderBy(x => x.SRDID)
                      .ToList();
 
-
+                data = data.Where(a => a.BalQty > 0).ToList();
                 return new Response<List<PurChaseReqFields>>()
                 {
                     Valid = true,
