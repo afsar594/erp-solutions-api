@@ -70,7 +70,7 @@ namespace Inspire.Erp.Application.Store.Implementation
             _itemMasterRepository = itemMasterRepository;
             _unitMasterRepository = unitMasterRepository;
             _unitDetailsRepository = unitDetailsRepository;
-            this._stockRegisterRepository = stockRegisterRepository;
+            _stockRegisterRepository = stockRegisterRepository;
             _purchaseVoucherDRepository = purchaseVoucherDRepository;
             _purchaseVoucherRepository = purchaseVoucherRepository;
         }
@@ -395,12 +395,21 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                             break;
                         }
+
+                        
                     }
                 }
-                decimal? issueBal = 0;
-                _stockRegisterRepository.SaveChangesAsync();
 
-                var avgPrice = await (from sr in _stockRegisterRepository.GetAsQueryable()
+
+
+                decimal? issueBal = 0;
+               // _stockRegisterRepository.SaveChangesAsync();
+
+               // await Task.Run(() => _stockRegisterRepository.SaveChangesAsync());
+
+
+
+                var avgPrice = await (from sr in _stockRegisterRepository.GetAsQueryable().AsNoTracking()
                                       where sr.StockRegisterMaterialID == itemId
                                        && (sr.StockRegisterNetStkBal != 0 && sr.StockRegisterNetStkBal != null)
                                       select new StockRegisterModel
@@ -453,7 +462,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                         var costPriceL = await (from sr in _stockRegisterRepository.GetAsQueryable()
                                                 where sr.StockRegisterMaterialID == itemId &&
-                                               (new string[] { "ITEM_MANUFACTURE", "PurchaseVoucher", "OpeningStockVoucher", "SalesReturn", "ISSUE RETURN", "STOCK ADJUSTMENT" }).ToList().Contains(sr.StockRegisterTransType.Trim().ToUpper())
+                                               (new string[] { "ITEM_MANUFACTURE", "PURCHASEVOUCHER", "OPENINGSTOCKVOUCHER", "SALESRETURN", "ISSUE RETURN", "STOCK ADJUSTMENT" }).ToList().Contains(sr.StockRegisterTransType.Trim().ToUpper())
                                               && ((int)sr.StockRegisterSIN != 0 && sr.StockRegisterSIN != null)
                                                 select new StockRegisterModel
                                                 {
@@ -465,6 +474,9 @@ namespace Inspire.Erp.Application.Store.Implementation
                                                     StoreId = sr.StockRegisterStoreID
 
                                                 }).OrderByDescending(y => y.AssingedDate).ToListAsync();
+
+
+
                         if (costPriceL.Count() > 0)
                             costPrice = costPriceL.FirstOrDefault().Rate;
                     }

@@ -131,8 +131,8 @@ namespace Inspire.Erp.Infrastructure.Database
         ////public virtual DbSet<IssueReturnDetails> IssueReturnDetails { get; set; }
         ////public virtual DbSet<IssueVoucher> IssueVoucher { get; set; }
         ////public virtual DbSet<IssueVoucherDetails> IssueVoucherDetails { get; set; }
-        public virtual DbSet<AltItemMaster> AltItemMaster { get; set; }
-        public virtual DbSet<AltItemDetails> AltItemDetails { get; set; }
+        //public virtual DbSet<AltItemMaster> AltItemMaster { get; set; }
+        //public virtual DbSet<AltItemDetails> AltItemDetails { get; set; }
         public virtual DbSet<ItemImages> ItemImages { get; set; }
         public virtual DbSet<ItemMaster> ItemMaster { get; set; }
         public virtual DbSet<ItemPriceLevelDetails> ItemPriceLevelDetails { get; set; }
@@ -20619,6 +20619,41 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnName("Station_Master_WebSite")
                     .HasMaxLength(30)
                     .IsUnicode(false);
+
+                entity.Property(e => e.BankName)
+                   .HasColumnName("BankName")
+                   .HasMaxLength(100)
+                   .IsUnicode(false);
+
+                entity.Property(e => e.AccountName)
+                  .HasColumnName("AccountName")
+                  .HasMaxLength(100)
+                  .IsUnicode(false);
+
+                entity.Property(e => e.AccountNo)
+                 .HasColumnName("AccountNo")
+                 .HasMaxLength(100)
+                 .IsUnicode(false);
+
+                entity.Property(e => e.IBAN)
+                .HasColumnName("IBAN")
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+                entity.Property(e => e.SwiftCode)
+                .HasColumnName("SwiftCode")
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+                entity.Property(e => e.BankBranch)
+               .HasColumnName("BankBranch")
+               .HasMaxLength(100)
+               .IsUnicode(false);
+
+                entity.Property(e => e.BankCurrency)
+               .HasColumnName("BankCurrency")
+               .HasMaxLength(100)
+               .IsUnicode(false);
             });
 
             modelBuilder.Entity<StockAdjustment>(entity =>
@@ -24162,19 +24197,19 @@ namespace Inspire.Erp.Infrastructure.Database
                       .HasMaxLength(250)
                       .IsUnicode(false);
             });
-            modelBuilder.Entity<AltItemDetails>(entity =>
-            {
-                entity.HasKey(e => e.DetID);
-                entity.Property(e => e.DocID);
-                entity.Property(e => e.ItemID);
-                entity.Property(e => e.UnitID);
-                entity.Property(e => e.AltItemID);
-                entity.Property(e => e.AltItemUnitID);                
-                entity.Property(e => e.Remarks)
-                      .HasMaxLength(250)
-                      .IsUnicode(false);
+            //modelBuilder.Entity<AltItemDetails>(entity =>
+            //{
+            //    entity.HasKey(e => e.DetID);
+            //    entity.Property(e => e.DocID);
+            //    entity.Property(e => e.ItemID);
+            //    entity.Property(e => e.UnitID);
+            //    entity.Property(e => e.AltItemID);
+            //    entity.Property(e => e.AltItemUnitID);                
+            //    entity.Property(e => e.Remarks)
+            //          .HasMaxLength(250)
+            //          .IsUnicode(false);
 
-            });
+            //});
             modelBuilder.Entity<ReportStockRegister>(entity =>
         {
             entity.HasNoKey();
