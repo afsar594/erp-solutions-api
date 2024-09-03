@@ -419,7 +419,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
 
                 decimal? issueBal = 0;
-                _stockRegisterRepository.SaveChangesAsync();
+               // _stockRegisterRepository.SaveChangesAsync();
 
                // await Task.Run(() => _stockRegisterRepository.SaveChangesAsync());
 
