@@ -20619,6 +20619,41 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnName("Station_Master_WebSite")
                     .HasMaxLength(30)
                     .IsUnicode(false);
+
+                entity.Property(e => e.BankName)
+                   .HasColumnName("BankName")
+                   .HasMaxLength(100)
+                   .IsUnicode(false);
+
+                entity.Property(e => e.AccountName)
+                  .HasColumnName("AccountName")
+                  .HasMaxLength(100)
+                  .IsUnicode(false);
+
+                entity.Property(e => e.AccountNo)
+                 .HasColumnName("AccountNo")
+                 .HasMaxLength(100)
+                 .IsUnicode(false);
+
+                entity.Property(e => e.IBAN)
+                .HasColumnName("IBAN")
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+                entity.Property(e => e.SwiftCode)
+                .HasColumnName("SwiftCode")
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+                entity.Property(e => e.BankBranch)
+               .HasColumnName("BankBranch")
+               .HasMaxLength(100)
+               .IsUnicode(false);
+
+                entity.Property(e => e.BankCurrency)
+               .HasColumnName("BankCurrency")
+               .HasMaxLength(100)
+               .IsUnicode(false);
             });
 
             modelBuilder.Entity<StockAdjustment>(entity =>
