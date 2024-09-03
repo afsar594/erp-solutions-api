@@ -131,8 +131,8 @@ namespace Inspire.Erp.Infrastructure.Database
         ////public virtual DbSet<IssueReturnDetails> IssueReturnDetails { get; set; }
         ////public virtual DbSet<IssueVoucher> IssueVoucher { get; set; }
         ////public virtual DbSet<IssueVoucherDetails> IssueVoucherDetails { get; set; }
-        public virtual DbSet<AltItemMaster> AltItemMaster { get; set; }
-        public virtual DbSet<AltItemDetails> AltItemDetails { get; set; }
+        //public virtual DbSet<AltItemMaster> AltItemMaster { get; set; }
+        //public virtual DbSet<AltItemDetails> AltItemDetails { get; set; }
         public virtual DbSet<ItemImages> ItemImages { get; set; }
         public virtual DbSet<ItemMaster> ItemMaster { get; set; }
         public virtual DbSet<ItemPriceLevelDetails> ItemPriceLevelDetails { get; set; }
