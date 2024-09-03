@@ -122,7 +122,7 @@ namespace Inspire.Erp.Application.Administration.Implementations
                 station.StationMasterCountry = stationMaster.StationMasterCountry;
                 station.StationMasterLogoPath = stationMaster.StationMasterLogoPath;
                 station.StationMasterSignPath = stationMaster.StationMasterSignPath;
-                sctation.StationMasterLogoImg = stationMaster.StationMasterLogoImg;
+                station.StationMasterLogoImg = stationMaster.StationMasterLogoImg;
                 station.StationMasterSignImg = stationMaster.StationMasterSignImg;
                 station.StationMasterSealImg = stationMaster.StationMasterSealImg;
                 station.StationMasterVatNo = stationMaster.StationMasterVatNo;
