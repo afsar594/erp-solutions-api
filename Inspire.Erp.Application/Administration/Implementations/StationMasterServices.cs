@@ -44,6 +44,13 @@ namespace Inspire.Erp.Application.Administration.Implementations
                 station.StationMasterSealImg = stationMaster.StationMasterSealImg;
                 station.StationMasterVatNo = stationMaster.StationMasterVatNo;
                 station.StationMasterDelStatus = true;
+                station.BankName = stationMaster.BankName;
+                station.AccountName = stationMaster.AccountName;
+                station.AccountNo = stationMaster.AccountNo;
+                station.IBAN = stationMaster.IBAN;
+                station.SwiftCode = stationMaster.SwiftCode;
+                station.BankBranch = stationMaster.BankBranch;
+                station.BankCurrency = stationMaster.BankCurrency;               
                 this.stationMaster.Update(station);
                 return await GetStationMasters();
             }
@@ -115,11 +122,18 @@ namespace Inspire.Erp.Application.Administration.Implementations
                 station.StationMasterCountry = stationMaster.StationMasterCountry;
                 station.StationMasterLogoPath = stationMaster.StationMasterLogoPath;
                 station.StationMasterSignPath = stationMaster.StationMasterSignPath;
-                station.StationMasterLogoImg = stationMaster.StationMasterLogoImg;
+                sctation.StationMasterLogoImg = stationMaster.StationMasterLogoImg;
                 station.StationMasterSignImg = stationMaster.StationMasterSignImg;
                 station.StationMasterSealImg = stationMaster.StationMasterSealImg;
                 station.StationMasterVatNo = stationMaster.StationMasterVatNo;
                 station.StationMasterDelStatus = stationMaster.StationMasterDelStatus;
+                station.BankName = stationMaster.BankName;
+                station.AccountName = stationMaster.AccountName;
+                station.AccountNo = stationMaster.AccountNo;
+                station.IBAN = stationMaster.IBAN;
+                station.SwiftCode = stationMaster.SwiftCode;
+                station.BankBranch = stationMaster.BankBranch;
+                station.BankCurrency = stationMaster.BankCurrency;
                 this.stationMaster.Update(station);
                 return await GetStationMasters();
             }
