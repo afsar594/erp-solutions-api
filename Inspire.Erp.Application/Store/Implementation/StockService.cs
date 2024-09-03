@@ -362,22 +362,6 @@ namespace Inspire.Erp.Application.Store.Implementation
 
 
 
-                //var PurchaseVoucherIds = await _context.PurchaseVoucher.Where(x => x.PurchaseVoucherStatus.Trim().ToUpper() == "P")
-                //    .Select(o => o.PurchaseVoucherPurID).ToListAsync();
-
-                //var purchseVouchers = await (from pvd in _context.PurchaseVoucherDetails
-                //                             join pv in _context.PurchaseVoucher on (long)pvd.PurchaseVoucherDetailsPrId equals pv.PurchaseVoucherPurID
-                //                             where pvd.PurchaseVoucherDetailsMaterialId == itemId
-                //                            && PurchaseVoucherIds.Contains((long)pvd.PurchaseVoucherDetailsPrId)
-                //                             select new PurVoucherRateQuantityModel
-                //                             {
-                //                                 Rate = (long)(pvd.PurchaseVoucherDetailsRate ?? 0),
-                //                                 Quantity = pvd.PurchaseVoucherDetailsQuantity ?? 0,
-                //                                 PurchaseDate = pv.PurchaseVoucherPurchaseDate
-                //                             }).OrderByDescending(y => y.PurchaseDate).ToListAsync();
-
-
-
                 decimal stockUpdate = 0;
                 if (listPrice.Count() > 0)
                 {
@@ -491,37 +475,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     }
 
                 }
-
-                //else if (purchseVouchers.Count() > 0)
-                //{
-                //    foreach (var pvd in purchseVouchers)
-                //    {
-                //        rate = pvd.Rate ?? 0;
-                //        quantity = pvd.Quantity ?? 0;
-                //        if (actualQuantity > 0)
-                //        {
-                //            if (pvd.Quantity >= actualQuantity)
-                //            {
-                //                quantity = actualQuantity;
-                //                actualRate = actualRate + (rate * quantity);
-                //                actualQuantity = actualQuantity - quantity;
-                //            }
-                //        }
-                //    }
-                //}
-                //else
-                //{
-                //    //get from item master
-                //    var im = _context.ItemMaster.Where(k => k.ItemMasterItemId == itemId).FirstOrDefault();
-                //    actualRate = im.ItemMasterLastPurchasePrice ?? 0;
-                //}
-
-                //decimal returnAvgPrice = 0;
-                //if (totalQuantity <= 0)
-                //{
-                //    totalQuantity = 1;
-                //}
-                //returnAvgPrice = actualRate / totalQuantity;
+              
                 return Response<decimal>.Success(costPrice ?? 0, "Data found");
             }
             catch (Exception ex)
