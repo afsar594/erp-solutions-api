@@ -19,7 +19,8 @@ namespace Inspire.Erp.Infrastructure
             //user can able to get appsetting informations using dependency injection-- IOptions<ApplicationSettings>
             //services.Configure<ApplicationSettings>(settingsSection);
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            services.AddDbContext<InspireErpDBContext>(options => options.UseSqlServer(settings.ConnectionString));
+            services.AddDbContext<InspireErpDBContext>(options => options.UseSqlServer(settings.ConnectionString),
+            ServiceLifetime.Transient);
             return services;
         }
         public static IServiceCollection AddTokenAuthentication(this IServiceCollection services, IConfiguration config)
