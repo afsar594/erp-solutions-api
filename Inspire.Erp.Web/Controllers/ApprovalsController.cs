@@ -15,6 +15,8 @@ using AutoMapper;
 using NPOI.SS.Formula.Functions;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Web.ViewModels;
+using Microsoft.EntityFrameworkCore;
+
 namespace Inspire.Erp.Web.Controllers
 {
     [Route("api/[controller]")]
@@ -22,10 +24,13 @@ namespace Inspire.Erp.Web.Controllers
     public class ApprovalsController : ControllerBase
     {
         private readonly IApprovalService _approvalService;
+        private IRepository<UserFile> _userFileRepository;
+        private IRepository<tbl_approvalforms> _approvalforms;
         private readonly IMapper _mapper;
-        public ApprovalsController(IApprovalService approvalService, IMapper mapper )
+        public ApprovalsController(IApprovalService approvalService, IMapper mapper, IRepository<UserFile> userFileRepository, IRepository<tbl_approvalforms> approvalforms)
         {
             _approvalService = approvalService;
+            _userFileRepository = userFileRepository; _approvalforms = approvalforms;
             _mapper = mapper;
         }
         [HttpPost("GetApprovalsRecords")]
@@ -34,30 +39,6 @@ namespace Inspire.Erp.Web.Controllers
             return Ok(await _approvalService.GetApprovalsRecords(model));
         }
 
-        [HttpGet]
-        [Route("GetAllUsers")]
-        public ApiResponse<List<UserFile>> GetAllUsers()
-        {
-            ApiResponse<List<UserFile>> apiResponse = new ApiResponse<List<UserFile>>
-            {
-                Valid = true,
-                Result = _mapper.Map<List<UserFile>>(_approvalService.GetAllUsers()),
-                Message = ""
-            };
-            return apiResponse;
-        }
-        [HttpGet]
-        [Route("GetAllapprovalforms")]
-        public ApiResponse<List<PermissionApproval>> GetAllapprovalforms()
-        {
-            ApiResponse<List<PermissionApproval>> apiResponse = new ApiResponse<List<PermissionApproval>>
-            {
-                Valid = true,
-                Result = _mapper.Map<List<PermissionApproval>>(_approvalService.GetAllapprovalforms()),
-                Message = ""
-            };
-            return apiResponse;
-        }
         [HttpGet]
         [Route("GetPermissionapById")]
 
@@ -83,9 +64,33 @@ namespace Inspire.Erp.Web.Controllers
             {
                 Valid = true,
                 Result = Permission,
-                Message =""
+                Message = ""
             };
             return apiResponse;
+        }
+        [HttpGet]
+        [Route("GetapprovalformsDropdown")]
+        public ResponseInfo GetapprovalformsDropdown()
+        {
+            var objresponse = new ResponseInfo();
+
+            var users = _userFileRepository.GetAsQueryable().AsNoTracking().Where(a => a.Deleted != true).Select(x => new
+            {
+                x.UserId,
+                x.UserName
+            }).ToList();
+            var forms = _approvalforms.GetAsQueryable().AsNoTracking().Where(x => x.is_active == true).Select(a => new
+            {
+                a.id,
+                a.Voucher_Type
+            }).ToList();
+
+            objresponse.ResultSet = new
+            {
+                users = users,
+                forms = forms
+            };
+            return objresponse;
         }
     }
 }

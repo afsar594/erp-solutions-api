@@ -22,10 +22,6 @@ namespace Inspire.Erp.Application.Approvals.Implementation
 {
     public class ApprovalService : IApprovalService
     {
-
-
-
-
         private readonly ILogger<ApprovalService> _logger;
         private readonly IRepository<Approval> _approvalService;
         private readonly IRepository<ApprovalDetail> _approvalDetailService;
@@ -78,46 +74,7 @@ namespace Inspire.Erp.Application.Approvals.Implementation
             {
                 return Response<GridWrapperResponse<List<ApprovalResponse>>>.Fail(new GridWrapperResponse<List<ApprovalResponse>>(), ex.Message);
             }
-        }
-
-        public IEnumerable<UserFile> GetAllUsers()
-        {
-            IEnumerable<UserFile> UserFile;
-            try
-            {
-                UserFile = _userFileRepository.GetAll().Where(a => a.Deleted != true).Select(k => k);
-
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-
-            }
-            finally
-            {
-            }
-            return UserFile;
-        }
-
-        public IEnumerable<tbl_approvalforms> GetAllapprovalforms()
-        {
-            IEnumerable<tbl_approvalforms> approvalforms;
-            try
-            {
-                approvalforms = _approvalforms.GetAll().Where(a => a.is_active != true).Select(k => k);
-
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-
-            }
-            finally
-            {
-            }
-            return approvalforms;
-        }
-
+        }        
         public Permissionapproval GetPermissionapById(long id)
         {
             var GetPermissionapById = _Permissionapproval.GetAll().Where(x => x.ApprovalformId == id).SingleOrDefault();
@@ -158,17 +115,13 @@ namespace Inspire.Erp.Application.Approvals.Implementation
             }
 
         }
-
-        IEnumerable<PermissionApproval> IApprovalService.GetAllapprovalforms()
-        {
-            throw new NotImplementedException();
-        }
-        PermissionApproval IApprovalService.GetPermissionapById(long a)
-        {
-            throw new NotImplementedException();
-        }
-
+             
         public PermissionApproval InsertPermissionApproval(List<PermissionApproval> Perm)
+        {
+            throw new NotImplementedException();
+        }
+
+        PermissionApproval IApprovalService.GetPermissionapById(long a)
         {
             throw new NotImplementedException();
         }

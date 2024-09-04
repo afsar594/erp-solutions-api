@@ -12,10 +12,7 @@ namespace Inspire.Erp.Application.Approvals.Interface
 {
     public interface IApprovalService
     {
-        Task<Response<GridWrapperResponse<List<ApprovalResponse>>>> GetApprovalsRecords(GenericGridViewModel model);
-
-        public IEnumerable<UserFile> GetAllUsers();
-        public IEnumerable<PermissionApproval> GetAllapprovalforms();
+        Task<Response<GridWrapperResponse<List<ApprovalResponse>>>> GetApprovalsRecords(GenericGridViewModel model);                
        public PermissionApproval GetPermissionapById(long a);
        public PermissionApproval InsertPermissionApproval(List<PermissionApproval> Perm);
 
