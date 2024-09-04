@@ -668,7 +668,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                             if (accTrans.AccountsTransactionsCredit > 0)
                             {
                                 accTrans.AccountsTransactionsAllocBalance += accTrans.AccountsTransactionsAllocCredit;
-
+      
                             }
                             else
                             {

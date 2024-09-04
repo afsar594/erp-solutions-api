@@ -237,6 +237,30 @@ namespace Inspire.Erp.Application.Master
         {
             try
             {
+              
+                foreach (var item in jobMaster.JobMasterBudgetDetails)
+                {
+                    var groupedResults =
+                        from at in context.AccountsTransactions
+                        join cos in context.CostCenterMaster on
+                        at.AccountsTransactionsCostCenterId equals cos.CostCenterMasterCostCenterId
+                        where at.AccountstransactionsDelStatus == false
+                        && at.AccountsTransactionsCostCenterId == item.JobMasterBudgetDetailsBudId
+                        group at by cos.CostCenterMasterCostCenterName into g
+                        select new
+                        {
+                            CostName = g.Key,
+                            TotalDrAmt = g.Sum(x => x.AccountsTransactionsDebit)
+                        };
+
+                    foreach (var result in groupedResults)
+                    {
+
+                        item.JobMasterBudgetDetailsActual = result.TotalDrAmt;
+                        item.JobMasterBudgetDetailsVariance = -result.TotalDrAmt;
+
+                    }
+                }
                 jobrepository.Update(jobMaster);
 
                 return this.GetSavedJobMasterDetails(jobMaster.JobMasterJobNo);
