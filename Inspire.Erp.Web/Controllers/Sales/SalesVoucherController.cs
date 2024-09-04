@@ -643,7 +643,7 @@ namespace Inspire.Erp.Web.Controllers
                 DepartmentsList = DepartmentsList,
                 BrandMasters = BrandMasters,
                 SaleManList = SaleManList,
-                costcenterrepository = costcenterrepository,
+                costcenterMasters = costcenterMasters,
                 customerMasters = customerMasters,
                 accountsSettings = accountsSettings
             };

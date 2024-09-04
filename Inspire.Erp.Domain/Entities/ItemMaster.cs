@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -76,7 +78,7 @@ namespace Inspire.Erp.Domain.Entities
         public int? ItemMasterVATID { get; set; }
         public bool? ItemMasterDelStatus { get; set; }
 
- 
+
         public virtual ICollection<ItemImages> ItemImages { get; set; }
         public virtual ICollection<ItemPriceLevelDetails> ItemPriceLevelDetails { get; set; }
         public virtual ICollection<ItemSupplierDetails> ItemSupplierDetails { get; set; }
@@ -89,7 +91,27 @@ namespace Inspire.Erp.Domain.Entities
         public decimal stockIn { get; set; }
         public decimal stockout { get; set; }
         public decimal InAmount { get; set; }
-        
 
+
+    }
+
+    public class AltItemMaster
+    {
+        public int DocID { get; set; }
+        public DateTime? DocDate { get; set; }
+        public string Remarks { get; set; }
+
+        [NotMapped]
+        public virtual List<AltItemDetails> AltItemDetails { get; set; }
+    }
+    public class AltItemDetails
+    {        
+        public int DetID { get; set; }
+        public int DocID { get; set; }
+        public int ItemID { get; set; }
+        public int? UnitID { get; set; }
+        public int AltItemID { get; set; }
+        public int AltItemUnitID { get; set; }       
+        public string Remarks { get; set; }
     }
 }

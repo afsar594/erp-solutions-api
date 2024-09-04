@@ -30,6 +30,6 @@ namespace Inspire.Erp.Application.Procurement.Interfaces
         public List<PurchaseOrderDTO> GetAllPOForGRN(decimal id);
 
 
-        public Task<Response<List<PODetailsViewModel>>> GetGRMPOs(int supplierId);
+        public Task<Response<List<PODetailsViewModel>>> GetGRMPOs(int? supplierId);
     }
 }
