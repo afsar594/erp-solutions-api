@@ -28,7 +28,7 @@ namespace Inspire.Erp.Application.Approvals.Implementation
         private IRepository<UserFile> _userFileRepository;
         private IRepository<tbl_approvalforms> _approvalforms;
         private IRepository<Permissionapproval> _Permissionapproval;
-        
+
         public ApprovalService(ILogger<ApprovalService> logger, IRepository<ApprovalDetail> approvalDetailService, IRepository<Approval> approvalService, IRepository<UserFile> userFileRepository, IRepository<tbl_approvalforms> approvalforms, IRepository<Permissionapproval> Permissionapproval)
         {
             _logger = logger;
@@ -36,7 +36,7 @@ namespace Inspire.Erp.Application.Approvals.Implementation
             _approvalService = approvalService;
             _userFileRepository = userFileRepository;
             _approvalforms = approvalforms;
-            _Permissionapproval= Permissionapproval;
+            _Permissionapproval = Permissionapproval;
 
         }
         public async Task<Response<GridWrapperResponse<List<ApprovalResponse>>>> GetApprovalsRecords(GenericGridViewModel model)
@@ -66,7 +66,7 @@ namespace Inspire.Erp.Application.Approvals.Implementation
                     }).Skip(model.Skip).Take(model.Take).ToListAsync();
                 var gridResult = new GridWrapperResponse<List<ApprovalResponse>>();
                 gridResult.Data = result;
-                gridResult.Total=total;
+                gridResult.Total = total;
 
                 return Response<GridWrapperResponse<List<ApprovalResponse>>>.Success(gridResult, "Record found.");
             }
@@ -74,56 +74,31 @@ namespace Inspire.Erp.Application.Approvals.Implementation
             {
                 return Response<GridWrapperResponse<List<ApprovalResponse>>>.Fail(new GridWrapperResponse<List<ApprovalResponse>>(), ex.Message);
             }
-        }        
-        public Permissionapproval GetPermissionapById(long id)
+        }
+        public List<Permissionapproval> GetPermissionapById(long id)
         {
-            var GetPermissionapById = _Permissionapproval.GetAll().Where(x => x.ApprovalformId == id).SingleOrDefault();
+            var GetPermissionapById = _Permissionapproval.GetAsQueryable().AsNoTracking().Where(x => x.ApprovalformId == id).ToList();
             return GetPermissionapById;
         }
-        public Permissionapproval Permissionapproval(Permissionapproval Permissionapproval)
+        public List<Permissionapproval> InsertPermissionApproval(List<Permissionapproval> Permissionapproval)
         {
             try
             {
                 _Permissionapproval.BeginTransaction();
 
-                //insert Permission approval
-                var Permissionapprovals = new List<Permissionapproval>();
-                foreach (var PA in Permissionapprovals)
+                foreach (var item in Permissionapproval)
                 {
-
-
-                    var tr = new Permissionapproval
-                    {
-                        ApprovalformId = (int)Permissionapproval.ApprovalformId,
-                        LevelId = Permissionapproval.LevelId,
-                        UserId = (int)Permissionapproval.UserId,
-                        Username = Permissionapproval.Username,
-                        CreatedDate = (DateTime)Permissionapproval.CreatedDate,                    
-
-                    };
-                    _Permissionapproval.Insert(tr);
+                    _Permissionapproval.Insert(item);
                 }
-              
                 _Permissionapproval.TransactionCommit();
-                return this.GetPermissionapById(Permissionapproval.ApprovalformId);
-
+                return Permissionapproval;
             }
             catch (Exception ex)
             {
                 _Permissionapproval.TransactionRollback();
                 throw ex;
             }
-
-        }
-             
-        public PermissionApproval InsertPermissionApproval(List<PermissionApproval> Perm)
-        {
-            throw new NotImplementedException();
         }
 
-        PermissionApproval IApprovalService.GetPermissionapById(long a)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

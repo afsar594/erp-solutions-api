@@ -16,6 +16,7 @@ using NPOI.SS.Formula.Functions;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Web.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using Inspire.Erp.Domain.Models.Approvals;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -42,7 +43,7 @@ namespace Inspire.Erp.Web.Controllers
         [HttpGet]
         [Route("GetPermissionapById")]
 
-        public PermissionApproval GetPermissionapById(long id)
+        public List<Permissionapproval> GetPermissionapById(long id)
         {
             var GetPermission = _approvalService.GetPermissionapById(id);
 
@@ -50,17 +51,17 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpPost]
         [Route("InsertPermissionApproval")]
-        public ApiResponse<PermissionApproval> InserUser([FromBody] List<PermissionApproval> Perm)
+        public ApiResponse<List<Permissionapproval>> InsertPermissionApproval([FromBody] List<Permissionapproval> Perm)
         {
-            ApiResponse<PermissionApproval> apiResponse = new ApiResponse<PermissionApproval>();
+            ApiResponse<List<Permissionapproval>> apiResponse = new ApiResponse<List<Permissionapproval>>();
 
-            var param1 = _mapper.Map<List<PermissionApproval>>(Perm);
+            var param1 = _mapper.Map<List<Permissionapproval>>(Perm);
             var xs = _approvalService.InsertPermissionApproval(param1);
 
-            PermissionApproval Permission = new PermissionApproval();
-            Permission = _mapper.Map<PermissionApproval>(xs);
+            List<Permissionapproval> Permission = new List<Permissionapproval>();
+            Permission = _mapper.Map<List<Permissionapproval>>(xs);
 
-            apiResponse = new ApiResponse<PermissionApproval>
+            apiResponse = new ApiResponse<List<Permissionapproval>>
             {
                 Valid = true,
                 Result = Permission,
