@@ -282,7 +282,10 @@ namespace Inspire.Erp.Web.Controllers
                 CustomerMasterCustomerName = a.CustomerMasterCustomerName.Trim(),
                 a.CustomerMasterCustomerContactPerson,
                 a.CustomerMasterCustomerAddress,
-                a.CustomerMasterCustomerReffAcNo
+                a.CustomerMasterCustomerReffAcNo,
+                a.CustomerMasterCustomerMobile,
+                a.CustomerMasterCustomerEmail,
+                a.CustomerMasterCustomerTel1
             }).ToList();
             var itemMaster = itemrepository.GetAsQueryable().AsNoTracking().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
                     && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
