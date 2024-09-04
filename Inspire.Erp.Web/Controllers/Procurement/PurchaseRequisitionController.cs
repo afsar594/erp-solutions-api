@@ -136,7 +136,7 @@ namespace Inspire.Erp.Web.Controllers
             var xs = _purchaseRequisitionService.UpdatePurchaseRequisition(param1, accountsTransactions, param2
                 //, param4
                 );
-
+            
             //var xs = _purchaseRequisitionService.UpdatePurchaseRequisition(param1, param3, param2
             //    //, param4
             //    );

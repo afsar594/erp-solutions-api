@@ -479,7 +479,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
 
         [HttpGet]
         [Route("GetGRMPOs/{supplierId}")]
-        public async Task<IActionResult> GetGRMPOs(int supplierId)
+        public async Task<IActionResult> GetGRMPOs(int? supplierId)
         {
             try
             {

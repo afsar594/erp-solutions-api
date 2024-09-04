@@ -606,7 +606,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             }
         }
         //saleem
-        public async Task<Response<List<PODetailsViewModel>>> GetGRMPOs(int supplierId)
+        public async Task<Response<List<PODetailsViewModel>>> GetGRMPOs(int? supplierId)
         {
             try
             {
@@ -614,7 +614,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                     join pod in _purchaseOrderDetailsRepository.GetAsQueryable() on po.PurchaseOrderId equals pod.PurchaseOrderId
                                     join sm in _suppliersMasterRepository.GetAsQueryable() on po.PurchaseOrderPartyId equals sm.SuppliersMasterSupplierId
                                     join im in _itemMasterRepository.GetAsQueryable() on (long)pod.PurchaseOrderDetailsMatId equals im.ItemMasterItemId
-                                    where sm.SuppliersMasterSupplierId == supplierId
+                                    //where sm.SuppliersMasterSupplierId == supplierId
+                                    where (supplierId == null || supplierId == 0 || sm.SuppliersMasterSupplierId == supplierId)
                                    && po.PurchaseOrderStatus.Trim().ToUpper() == "OPEN"
                                     select new PODetailsViewModel
                                     {

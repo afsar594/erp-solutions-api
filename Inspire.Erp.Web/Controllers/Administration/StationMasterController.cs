@@ -51,9 +51,15 @@ namespace Inspire.Erp.Web.Controllers.Administration
                 StationMasterSignImg = k.StationMasterSignImg,
                 StationMasterSealImg = k.StationMasterSealImg,
                 StationMasterVatNo = k.StationMasterVatNo,
-                StationMasterDelStatus = k.StationMasterDelStatus
-
-            }).ToList();
+                StationMasterDelStatus = k.StationMasterDelStatus,
+                BankName= k.BankName,
+                AccountName=k.AccountName,
+                AccountNo=k.AccountNo,
+                IBAN=k.IBAN,
+                SwiftCode=k.SwiftCode,
+                BankBranch=k.BankBranch,
+                BankCurrency=k.BankCurrency
+                 }).ToList();
         }
 
         [HttpPost]

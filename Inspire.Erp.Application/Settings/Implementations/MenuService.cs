@@ -55,8 +55,8 @@ namespace Inspire.Erp.Application.Settings.Implementations
             {
                 List<GetMenusResponse> model = new List<GetMenusResponse>();
                 List<GetPrimeMenusResponse> menus = new List<GetPrimeMenusResponse>();
-
-                var MenuList = await _menu.GetAsQueryable()
+                
+                var MenuList = await _menu.GetAsQueryable().Where(a => a.IsDeleted != true)
                     .Include(x => x.WorkGroupPermissions)
                     .Where(a => a.WorkGroupPermissions.Any(wp => wp.WorkGroupPermissionsWorkGroupId == id && wp.WorkGroupPermissionsUallow == true))
                     .ToListAsync();
@@ -187,7 +187,7 @@ namespace Inspire.Erp.Application.Settings.Implementations
         {
             return new Response<List<Menu>>
             {
-                Result = _menu.GetAll().ToList(),
+                Result = _menu.GetAll().Where(a => a.IsDeleted != true).ToList(),
                 Valid = true,
                 Message = "Data Found"
             };

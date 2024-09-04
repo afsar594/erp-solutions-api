@@ -25,5 +25,12 @@ namespace Inspire.Erp.Web.ViewModels.Administration
         public byte[] StationMasterSealImg { get; set; }
         public string StationMasterVatNo { get; set; }
         public bool? StationMasterDelStatus { get; set; }
+        public string BankName { get; set; }
+        public string AccountName { get; set; }
+        public string AccountNo { get; set; }
+        public string IBAN { get; set; }
+        public string SwiftCode { get; set; }
+        public string BankBranch { get; set; }
+        public string BankCurrency { get; set; }
     }
 }
