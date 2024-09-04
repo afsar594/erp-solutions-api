@@ -15,6 +15,7 @@ using static Inspire.Erp.Domain.Modals.PDCResponse;
 using Inspire.Erp.Domain.Modals.Settings;
 using Inspire.Erp.Domain.Models.MIS;
 using Inspire.Erp.Domain.Entities.POS;
+using Inspire.Erp.Domain.Models.Approvals;
 
 namespace Inspire.Erp.Infrastructure.Database
 {
@@ -196,7 +197,7 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<PdcVoucherDetails> PdcVoucherDetails { get; set; }
         public virtual DbSet<PosStationSettings> PosStationSettings { get; set; }
         public virtual DbSet<PrApprovalDetails> PrApprovalDetails { get; set; }
-
+        public virtual DbSet<Permissionapproval> Permissionapproval { get; set; }
         public virtual DbSet<PermissionApprovalDetail> PermissionApprovalDetail { get; set; }
 
         public virtual DbSet<PrUser> PrUser { get; set; }
@@ -13128,6 +13129,39 @@ namespace Inspire.Erp.Infrastructure.Database
                       .IsUnicode(true);
             });
 
+
+            modelBuilder.Entity<Permissionapproval>(entity =>
+            {
+                entity.ToTable("tbl_Permissionapproval");
+
+                entity.HasKey(e => e.ApId);
+
+                entity.Property(e => e.ApId)
+                      .HasColumnName("ApId")
+                      .ValueGeneratedOnAdd();
+
+                entity.Property(e => e.ApprovalformId)
+                      .HasColumnName("ApprovalformId")
+                      .HasMaxLength(100)
+                      .IsUnicode(false);
+
+                entity.Property(e => e.UserId)
+                      .HasColumnName("UserId")
+                      .HasMaxLength(25)
+                      .IsUnicode(false);
+
+                entity.Property(e => e.LevelId)
+                      .HasColumnName("LevelId");
+                
+                entity.Property(e => e.Username)
+                      .HasColumnName("Username")
+                        .IsUnicode(false);
+
+
+                entity.Property(e => e.CreatedDate)
+                      .HasColumnName("CreatedDate")
+                      .HasColumnType("datetime");
+            });
 
             modelBuilder.Entity<PrUser>(entity =>
                 {
