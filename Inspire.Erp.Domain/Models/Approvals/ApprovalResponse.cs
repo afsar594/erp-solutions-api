@@ -23,4 +23,15 @@ namespace Inspire.Erp.Domain.Models.Approvals
         public DateTime? ApprovedAt { get; set; }
         public int? ApprovalId { get; set; }
     }
+    public class Permissionapproval
+    {
+        public int ApId { get; set; }
+        public int ApprovalformId { get; set; }
+        public int? UserId { get; set; }
+        public int? LevelId { get; set; }
+
+        public string? Username { get; set; }
+        public DateTime? CreatedDate { get; set; }
+       
+    }
 }

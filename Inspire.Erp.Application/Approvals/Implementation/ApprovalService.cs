@@ -1,12 +1,15 @@
 ﻿using Inspire.Erp.Application.Approvals.Interface;
+using Inspire.Erp.Application.Common;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Entities.POS;
+using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Models.Approvals;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SendGrid.Helpers.Mail;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,11 +25,19 @@ namespace Inspire.Erp.Application.Approvals.Implementation
         private readonly ILogger<ApprovalService> _logger;
         private readonly IRepository<Approval> _approvalService;
         private readonly IRepository<ApprovalDetail> _approvalDetailService;
-        public ApprovalService(ILogger<ApprovalService> logger, IRepository<ApprovalDetail> approvalDetailService, IRepository<Approval> approvalService)
+        private IRepository<UserFile> _userFileRepository;
+        private IRepository<tbl_approvalforms> _approvalforms;
+        private IRepository<Permissionapproval> _Permissionapproval;
+
+        public ApprovalService(ILogger<ApprovalService> logger, IRepository<ApprovalDetail> approvalDetailService, IRepository<Approval> approvalService, IRepository<UserFile> userFileRepository, IRepository<tbl_approvalforms> approvalforms, IRepository<Permissionapproval> Permissionapproval)
         {
             _logger = logger;
             _approvalDetailService = approvalDetailService;
             _approvalService = approvalService;
+            _userFileRepository = userFileRepository;
+            _approvalforms = approvalforms;
+            _Permissionapproval = Permissionapproval;
+
         }
         public async Task<Response<GridWrapperResponse<List<ApprovalResponse>>>> GetApprovalsRecords(GenericGridViewModel model)
         {
@@ -55,7 +66,7 @@ namespace Inspire.Erp.Application.Approvals.Implementation
                     }).Skip(model.Skip).Take(model.Take).ToListAsync();
                 var gridResult = new GridWrapperResponse<List<ApprovalResponse>>();
                 gridResult.Data = result;
-                gridResult.Total=total;
+                gridResult.Total = total;
 
                 return Response<GridWrapperResponse<List<ApprovalResponse>>>.Success(gridResult, "Record found.");
             }
@@ -64,5 +75,37 @@ namespace Inspire.Erp.Application.Approvals.Implementation
                 return Response<GridWrapperResponse<List<ApprovalResponse>>>.Fail(new GridWrapperResponse<List<ApprovalResponse>>(), ex.Message);
             }
         }
+        public List<Permissionapproval> GetPermissionapById(long id)
+        {
+            var GetPermissionapById = _Permissionapproval.GetAsQueryable().AsNoTracking().Where(x => x.ApprovalformId == id).ToList();
+            return GetPermissionapById;
+        }
+        public List<Permissionapproval> InsertPermissionApproval(List<Permissionapproval> Permissionapproval)
+        {
+            try
+            {
+                _Permissionapproval.BeginTransaction();
+
+                foreach (var item in Permissionapproval)
+                {
+                    if (item.ApId == 0)
+                    {
+                        _Permissionapproval.Insert(item);
+                    }
+                    else
+                    {
+                        _Permissionapproval.Update(item);
+                    }
+                }
+                _Permissionapproval.TransactionCommit();
+                return Permissionapproval;
+            }
+            catch (Exception ex)
+            {
+                _Permissionapproval.TransactionRollback();
+                throw ex;
+            }
+        }
+
     }
 }
