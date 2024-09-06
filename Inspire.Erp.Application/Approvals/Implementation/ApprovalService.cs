@@ -88,7 +88,14 @@ namespace Inspire.Erp.Application.Approvals.Implementation
 
                 foreach (var item in Permissionapproval)
                 {
-                    _Permissionapproval.Insert(item);
+                    if (item.ApId == 0)
+                    {
+                        _Permissionapproval.Insert(item);
+                    }
+                    else
+                    {
+                        _Permissionapproval.Update(item);
+                    }
                 }
                 _Permissionapproval.TransactionCommit();
                 return Permissionapproval;
