@@ -13,6 +13,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using Inspire.Erp.Application.MODULE;
+using Microsoft.AspNetCore.Mvc;
 namespace Inspire.Erp.Application.Store.Implementation
 {
     public class IssueVoucherService : IIssueVoucherService
@@ -30,13 +31,16 @@ namespace Inspire.Erp.Application.Store.Implementation
         private IRepository<SuppliersMaster> _suppliersMasterRepository;
         private IRepository<LocationMaster> _locationMasterRepository;
         private IRepository<AccountSettings> _accountsSettingssvcs;
-        
+        private IRepository<JobMasterBudgetDetails> _jobbudgetRepository;
+
+
         public IssueVoucherService(            
             IRepository<ItemMaster> itemMasterRepository, IRepository<UnitMaster> unitMasterRepository,
             IRepository<SuppliersMaster> suppliersMasterRepository, IRepository<LocationMaster> locationMasterRepository,
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger, IRepository<CurrencyMaster> currencyMasterRepository,
-            IRepository<IssueVoucher> issueVoucherRepository, IRepository<IssueVoucherDetails> issueVoucherDetailsRepository, IRepository<AccountSettings> accountsSettingssvcsRepository)
+            IRepository<IssueVoucher> issueVoucherRepository, IRepository<IssueVoucherDetails> issueVoucherDetailsRepository, IRepository<AccountSettings> accountsSettingssvcsRepository,
+            IRepository<JobMasterBudgetDetails> jobbudgetRepository)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository;
@@ -49,7 +53,8 @@ namespace Inspire.Erp.Application.Store.Implementation
             _unitMasterRepository = unitMasterRepository;
             _suppliersMasterRepository = suppliersMasterRepository;
             _locationMasterRepository = locationMasterRepository;
-            _accountsSettingssvcs = accountsSettingssvcsRepository;            
+            _accountsSettingssvcs = accountsSettingssvcsRepository;  
+            _jobbudgetRepository = jobbudgetRepository;
         }
         
 
@@ -329,6 +334,23 @@ namespace Inspire.Erp.Application.Store.Implementation
                     });
                 }
                 _stockRegisterRepository.InsertList(stockRegister);
+
+                var jobbuget = _jobbudgetRepository.GetAsQueryable().Where(s => s.JobMasterBudgetDetailsJobId == issueVoucher.IssueVoucherJobId).FirstOrDefault().JobMasterNo; 
+                var newBudgetDetail = new JobMasterBudgetDetails
+                {
+                    JobMasterNo = jobbuget,
+                    JobMasterBudgetDetailsBudAmount = 0,
+                    JobMasterBudgetDetailsJobId = issueVoucher.IssueVoucherJobId,
+                    JobMasterBudgetDetailsBudId = (int)issueVoucher.IssueVoucherCostCenterId,
+                    JobMasterBudgetDetailsActual = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
+                    JobMasterBudgetDetailsVariance = -(decimal)issueVoucher.IssueVoucherTotalGrossAmount,
+                    JobMasterBudgetDetailsDelStatus = false,
+
+                };
+
+
+                // Add the new record to the repository or context
+                _jobbudgetRepository.Insert(newBudgetDetail);
 
                 _issueVoucherRepository.TransactionCommit();
                 return this.GetSavedIssueVoucherDetails(issueVoucher.IssueVoucherNo);
