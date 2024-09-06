@@ -223,20 +223,20 @@ namespace Inspire.Erp.Web.Controllers
                 c.CurrencyMasterCurrencyName,
                 c.CurrencyMasterCurrencyRate
             }).ToList();
-            var masterAccountsTables = chartofAccountsService.GetAllAccounts().Where(a => a.MaDelStatus != true).Select(c => new
+            var masterAccountsTables = chartofAccountsService.GetAllAccounts().Where(a => a.MaDelStatus != true && a.MaAccType == "A").Select(c => new
             {
                 c.MaAccNo,
                 c.MaAccName,
                 c.MaRelativeNo,
                 c.MaSno
             }).ToList();
-            
+
             objectresponse.ResultSet = new
             {
                 costcenterMasters = costcenterMasters,
                 masterAccountsTables = masterAccountsTables,
                 jobMasters = jobMasters,
-                currencyMasters = currencyMasters,               
+                currencyMasters = currencyMasters,
 
             };
             return objectresponse;
