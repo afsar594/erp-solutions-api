@@ -43,9 +43,9 @@ namespace Inspire.Erp.Web.Controllers
         [HttpGet]
         [Route("GetPermissionapById")]
 
-        public List<Permissionapproval> GetPermissionapById(long id)
+        public List<Permissionapproval> GetPermissionapById(long id, int level)
         {
-            var GetPermission = _approvalService.GetPermissionapById(id);
+            var GetPermission = _approvalService.GetPermissionapById(id, level);
 
             return GetPermission;
         }

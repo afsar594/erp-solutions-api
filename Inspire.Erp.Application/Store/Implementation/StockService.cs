@@ -759,7 +759,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                              {
                                  ItemId = s.UnitDetailsItemId,
                                  UnitId = s.UnitDetailsUnitId
-                             });
+                             }).Take(1);
 
                 var stockValues = (from ss in query
                                    join a in _stockRegisterRepository.GetAsQueryable() on ss.ItemMasterItemId equals (long)a.StockRegisterMaterialID.GetValueOrDefault()

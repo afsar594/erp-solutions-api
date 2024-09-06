@@ -75,9 +75,9 @@ namespace Inspire.Erp.Application.Approvals.Implementation
                 return Response<GridWrapperResponse<List<ApprovalResponse>>>.Fail(new GridWrapperResponse<List<ApprovalResponse>>(), ex.Message);
             }
         }
-        public List<Permissionapproval> GetPermissionapById(long id)
+        public List<Permissionapproval> GetPermissionapById(long id,int level)
         {
-            var GetPermissionapById = _Permissionapproval.GetAsQueryable().AsNoTracking().Where(x => x.ApprovalformId == id).ToList();
+            var GetPermissionapById = _Permissionapproval.GetAsQueryable().AsNoTracking().Where(x => x.ApprovalformId == id && x.LevelId==level).ToList();
             return GetPermissionapById;
         }
         public List<Permissionapproval> InsertPermissionApproval(List<Permissionapproval> Permissionapproval)
