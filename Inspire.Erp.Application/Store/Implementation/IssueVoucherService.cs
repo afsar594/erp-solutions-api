@@ -334,23 +334,24 @@ namespace Inspire.Erp.Application.Store.Implementation
                     });
                 }
                 _stockRegisterRepository.InsertList(stockRegister);
-
-                var jobbuget = _jobbudgetRepository.GetAsQueryable().Where(s => s.JobMasterBudgetDetailsJobId == issueVoucher.IssueVoucherJobId).FirstOrDefault().JobMasterNo; 
-                var newBudgetDetail = new JobMasterBudgetDetails
+                if(issueVoucher.IssueVoucherJobId > 0)
                 {
-                    JobMasterNo = jobbuget,
-                    JobMasterBudgetDetailsBudAmount = 0,
-                    JobMasterBudgetDetailsJobId = issueVoucher.IssueVoucherJobId,
-                    JobMasterBudgetDetailsBudId = (int)issueVoucher.IssueVoucherCostCenterId,
-                    JobMasterBudgetDetailsActual = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
-                    JobMasterBudgetDetailsVariance = -(decimal)issueVoucher.IssueVoucherTotalGrossAmount,
-                    JobMasterBudgetDetailsDelStatus = false,
+                    var jobbuget = _jobbudgetRepository.GetAsQueryable().Where(s => s.JobMasterBudgetDetailsJobId == issueVoucher.IssueVoucherJobId).FirstOrDefault().JobMasterNo;
+                    var newBudgetDetail = new JobMasterBudgetDetails
+                    {
+                        JobMasterNo = jobbuget,
+                        JobMasterBudgetDetailsBudAmount = 0,
+                        JobMasterBudgetDetailsJobId = issueVoucher.IssueVoucherJobId,
+                        JobMasterBudgetDetailsBudId = (int)issueVoucher.IssueVoucherCostCenterId,
+                        JobMasterBudgetDetailsActual = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
+                        JobMasterBudgetDetailsVariance = -(decimal)issueVoucher.IssueVoucherTotalGrossAmount,
+                        JobMasterBudgetDetailsDelStatus = false,
 
-                };
+                    };
+                    // Add the new record to the repository or context
+                    _jobbudgetRepository.Insert(newBudgetDetail);
 
-
-                // Add the new record to the repository or context
-                _jobbudgetRepository.Insert(newBudgetDetail);
+                }
 
                 _issueVoucherRepository.TransactionCommit();
                 return this.GetSavedIssueVoucherDetails(issueVoucher.IssueVoucherNo);
