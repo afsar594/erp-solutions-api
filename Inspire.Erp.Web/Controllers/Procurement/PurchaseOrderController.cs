@@ -20,6 +20,7 @@ using Inspire.Erp.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Dynamic.Core;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using NPOI.SS.UserModel;
 
 namespace Inspire.Erp.Web.Controllers.Procurement
 {
@@ -653,16 +654,25 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             var objresponse = new ResponseInfo();
 
             var voucherTypes = model.type ?? new List<string>();
+            IQueryable<PermissionApprovalDetail> data;
 
             var rights = _context.Permissionapproval.AsQueryable().AsNoTracking().Where(a => a.UserId == model.userId).Select(x => x.LevelId).ToList();
-
-            var data = _context.PermissionApprovalDetail.AsNoTracking()
+            if (model.isDate)
+            {
+                 data = _context.PermissionApprovalDetail.AsNoTracking()
                 .Where(a => a.CreatedBy == model.userId &&
                 a.VoucherDate >= model.fromDate &&
                 a.VoucherDate <= model.toDate &&
                 (!rights.Any() || rights.Contains(a.LevelId)) &&
                 (!voucherTypes.Any() || voucherTypes.Contains(a.VoucherType)));
-
+            }
+            else
+            {
+                 data = _context.PermissionApprovalDetail.AsNoTracking()
+                    .Where(a => a.CreatedBy == model.userId &&
+                    (!rights.Any() || rights.Contains(a.LevelId)) &&
+                    (!voucherTypes.Any() || voucherTypes.Contains(a.VoucherType)));
+            }
 
             if (!string.IsNullOrEmpty(model.status) && model.status != "All")
             {
