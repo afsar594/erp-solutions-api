@@ -630,7 +630,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             var jobList = _context.JobMaster.AsNoTracking().Where(a => a.JobMasterJobDelStatus != true).Select(x => new
             {
                 x.JobMasterJobId,
-                JobMasterJobName=x.JobMasterJobName.Trim()
+                JobMasterJobName = x.JobMasterJobName.Trim()
             }).ToList();
             var userList = _context.UserFile.AsNoTracking().Where(a => a.Deleted != true).Select(x => new
             {
@@ -648,18 +648,25 @@ namespace Inspire.Erp.Web.Controllers.Procurement
 
         [HttpPost]
         [Route("POApprovalList")]
-        public ResponseInfo POApprovalList(string status, List<string>? voucherType)
+        public ResponseInfo POApprovalList(approlvalmodel model)
         {
             var objresponse = new ResponseInfo();
 
-            var voucherTypes = voucherType ?? new List<string>();
+            var voucherTypes = model.type ?? new List<string>();
+
+            var rights = _context.Permissionapproval.AsQueryable().AsNoTracking().Where(a => a.UserId == model.userId).Select(x => x.LevelId).ToList();
 
             var data = _context.PermissionApprovalDetail.AsNoTracking()
-                .Where(a => voucherTypes.Count == 0 || voucherTypes.Contains(a.VoucherType));
+                .Where(a => a.CreatedBy == model.userId &&
+                a.VoucherDate >= model.fromDate &&
+                a.VoucherDate <= model.toDate &&
+                (!rights.Any() || rights.Contains(a.LevelId)) &&
+                (!voucherTypes.Any() || voucherTypes.Contains(a.VoucherType)));
 
-            if (!string.IsNullOrEmpty(status) && status != "All")
+
+            if (!string.IsNullOrEmpty(model.status) && model.status != "All")
             {
-                data = data.Where(a => a.Status == status);
+                data = data.Where(a => a.Status == model.status);
             }
 
             objresponse.ResultSet = new
