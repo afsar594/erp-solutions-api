@@ -34,7 +34,7 @@ namespace Inspire.Erp.Application.Master.Implementations
             _programsettingsRepository = programsettingsRepository;
             _voucherNumbersRepository = voucherNumbersRepository;
         }
-        public ProgressiveInoiceModel InsertProgressInvoice(ProgressiveInvoice progressiveInvoice, List<AccountsTransactions> accountsTransactions)
+        public ProgressiveInvoice InsertProgressInvoice(ProgressiveInvoice progressiveInvoice, List<AccountsTransactions> accountsTransactions)
         {
             try
             {
@@ -70,7 +70,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                 throw ex;
             }
         }
-        public ProgressiveInoiceModel UpdateProgressInvoice(ProgressiveInvoice progressiveInvoice, List<AccountsTransactions> accountsTransactions)
+        public ProgressiveInvoice UpdateProgressInvoice(ProgressiveInvoice progressiveInvoice, List<AccountsTransactions> accountsTransactions)
         {
             try
             {
@@ -133,10 +133,10 @@ namespace Inspire.Erp.Application.Master.Implementations
 
             return i;
         }
-        public ProgressiveInoiceModel GetSavedProgressiveInoices(string pvno)
+        public ProgressiveInvoice GetSavedProgressiveInoices(string pvno)
         {
-            ProgressiveInoiceModel voucherModel = new ProgressiveInoiceModel();
-            voucherModel.progressiveInvoice = _progressiveInvoice.GetAsQueryable().Where(k => k.ProgressiveInvoiceInvNo == pvno).SingleOrDefault();         
+            ProgressiveInvoice voucherModel = new ProgressiveInvoice();
+            voucherModel = _progressiveInvoice.GetAsQueryable().Where(k => k.ProgressiveInvoiceInvNo == pvno).SingleOrDefault();         
             return voucherModel;
         }
         public IQueryable GetProgressInvoiceReport()
@@ -183,30 +183,6 @@ namespace Inspire.Erp.Application.Master.Implementations
             }
 
         }
-
-        ProgressiveInvoice IProgressiveInvoiceService.InsertProgressInvoice(ProgressiveInvoice progressiveInvoice, List<AccountsTransactions> accountsTransactions)
-        {
-            throw new NotImplementedException();
-        }
-
-        ProgressiveInvoice IProgressiveInvoiceService.UpdateProgressInvoice(ProgressiveInvoice progressiveInvoice, List<AccountsTransactions> accountsTransactions)
-        {
-            throw new NotImplementedException();
-        }
-
-        int IProgressiveInvoiceService.DeleteProgressInvoice(ProgressiveInvoice progressiveInvoice, List<AccountsTransactions> accountsTransactions)
-        {
-            throw new NotImplementedException();
-        }
-
-        IQueryable IProgressiveInvoiceService.GetProgressInvoiceReport()
-        {
-            throw new NotImplementedException();
-        }
-
-        ProgressiveInvoice IProgressiveInvoiceService.GetSavedProgressiveInoices(string id)
-        {
-            throw new NotImplementedException();
-        }
+      
     }
 }

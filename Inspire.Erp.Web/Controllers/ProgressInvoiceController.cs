@@ -24,8 +24,7 @@ using Inspire.Erp.Application.Master.Interfaces;
 
 namespace Inspire.Erp.Web.Controllers.Procurement
 {
-    [Route("api/PurchaseOrder")]
-    [Produces("application/json")]
+    [Route("api/[controller]")]
     [ApiController]
     public class ProgressInvoiceController : ControllerBase
     {
