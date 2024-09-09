@@ -26,6 +26,7 @@ namespace Inspire.Erp.Application.Master.Implementations
         private IRepository<AccountsTransactions> _accountTransactionRepository;
         private IRepository<ProgramSettings> _programsettingsRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
+        private IRepository<ProgressiveInvoiceDetails> _progressiveInvoiceDetails;
         public ProgressiveInoiceService(IRepository<ProgressiveInvoice> progressiveInvoice, IRepository<AccountsTransactions> accountTransactionRepository, IRepository<ProgramSettings> programsettingsRepository, IRepository<VouchersNumbers> voucherNumbersRepository)
         {
             _progressiveInvoice = progressiveInvoice;
