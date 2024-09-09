@@ -78,7 +78,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                 _progressiveInvoice.BeginTransaction();
                 clsCommonFunctions.Delete_OldEntry_AccountsTransactions(progressiveInvoice.ProgressiveInvoiceInvNo, progressiveInvoice.ProgressiveInvoiceInvoiceType, _accountTransactionRepository);
                 _progressiveInvoice.Update(progressiveInvoice);
-              
+
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     if (k.AccountsTransactionsTransSno == 0)
@@ -110,7 +110,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                 _progressiveInvoice.BeginTransaction();
 
                 clsCommonFunctions.Delete_OldEntry_AccountsTransactions(progressiveInvoice.ProgressiveInvoiceInvNo, VoucherType.ProgressiveInvoice_TYPE, _accountTransactionRepository);
-          
+
                 progressiveInvoice.ProgressiveInvoiceDelStatus = true;
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
@@ -136,19 +136,19 @@ namespace Inspire.Erp.Application.Master.Implementations
         public ProgressiveInvoice GetSavedProgressiveInoices(string pvno)
         {
             ProgressiveInvoice voucherModel = new ProgressiveInvoice();
-            voucherModel = _progressiveInvoice.GetAsQueryable().Where(k => k.ProgressiveInvoiceInvNo == pvno).SingleOrDefault();         
+            voucherModel = _progressiveInvoice.GetAsQueryable().Where(k => k.ProgressiveInvoiceInvNo == pvno).SingleOrDefault();
             return voucherModel;
         }
         public IQueryable GetProgressInvoiceReport()
         {
             try
             {
-                var detailData = _progressiveInvoice.GetAsQueryable();
+                var detailData = _progressiveInvoice.GetAsQueryable().Where(a => a.ProgressiveInvoiceDelStatus != true);
                 return detailData;
             }
             catch (System.Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
@@ -183,6 +183,6 @@ namespace Inspire.Erp.Application.Master.Implementations
             }
 
         }
-      
+
     }
 }
