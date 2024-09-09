@@ -16,7 +16,7 @@ namespace Inspire.Erp.Domain.Modals.Common
         public int Total { get; set; } = 0;
         public string Extension { get; set; }
         public string FormatType { get; set; }
-
+        public  bool isDate { get; set; }
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
     }

@@ -7,10 +7,7 @@ using System.Text;
 namespace Inspire.Erp.Application.Account.Interfaces
 {
     public interface IPurchaseJournalService
-    {
-        //public PurchaseJournal InsertPurchaseJournal(PurchaseJournal purchaseJournal,
-        //  List<PurchaseJournalDetails> purchaseJournalDetails);
-
+    {        
         public PurchaseJournal InsertPurchaseJournal(PurchaseJournal purchaseJournal, List<AccountsTransactions> accountsTransactions, List<PurchaseJournalDetails> purchaseJournalDetails);
         public PurchaseJournal UpdatePurchaseJournal(PurchaseJournal purchaseJournal, List<AccountsTransactions> accountsTransactions, List<PurchaseJournalDetails> purchaseJournalDetails);
         public int DeletePurchaseJournal(PurchaseJournal purchaseJournal, List<AccountsTransactions> accountsTransactions, List<PurchaseJournalDetails> purchaseJournalDetails);

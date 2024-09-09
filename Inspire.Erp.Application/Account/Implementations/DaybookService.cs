@@ -40,14 +40,23 @@ namespace Inspire.Erp.Application.Account.Implementations
                 string query = @$" 1==1 {model.Filter}";
                 //var a = await _accountTransaction.GetAsQueryable().Where(x =>( x.AccountsTransactionsTransDate >= Convert.ToDateTime("02/21/2022")) && (x.AccountsTransactionsTransDate <= Convert.ToDateTime("02/21/2023")))
                 //    .ToListAsync();
-                var total = await _accountTransaction.GetAsQueryable().CountAsync(x=>x.AccountstransactionsDelStatus != null && x.AccountstransactionsDelStatus != true);
-                var queryData =  _accountTransaction.GetAsQueryable().Where(query).OrderBy(row => row.AccountsTransactionsTransDate ?? DateTime.MaxValue).AsQueryable();
-               var result=await queryData.Skip(model.Skip).Take(model.Take).Select(x => new GetDaybookAccountTransaction
+                var total = await _accountTransaction.GetAsQueryable().AsNoTracking().CountAsync(x => x.AccountstransactionsDelStatus != true);
+
+                IQueryable<AccountsTransactions> queryData;
+                if (model.isDate)
+                {
+                    queryData = _accountTransaction.GetAsQueryable().AsNoTracking().Where(a => a.AccountsTransactionsTransDate >= model.FromDate && a.AccountsTransactionsTransDate <= model.ToDate).OrderBy(row => row.AccountsTransactionsTransDate ?? DateTime.MaxValue);
+                }
+                else
+                {
+                    queryData = _accountTransaction.GetAsQueryable().AsNoTracking().OrderBy(row => row.AccountsTransactionsTransDate ?? DateTime.MaxValue);
+                }
+                var result = await queryData.Skip(model.Skip).Take(model.Take).Select(x => new GetDaybookAccountTransaction
                 {
                     AccountsTransactionsAccNo = x.AccountsTransactionsAccNo,
                     AccountsTransactionsAccName = _masterAccountsTable.GetAsQueryable().FirstOrDefault(c => c.MaAccNo == x.AccountsTransactionsAccNo).MaAccName,
-                    AccountsTransactionsDebit = Convert.ToDecimal(x.AccountsTransactionsDebit),
-                    AccountsTransactionsCredit = Convert.ToDecimal(x.AccountsTransactionsCredit),
+                    AccountsTransactionsDebit = x.AccountsTransactionsDebit,
+                    AccountsTransactionsCredit = x.AccountsTransactionsCredit,
                     AccountsTransactionsAllocBalance = x.AccountsTransactionsAllocBalance,
                     AccountsTransactionsVoucherNo = x.AccountsTransactionsVoucherNo,
                     AccountsTransactionsVoucherType = x.AccountsTransactionsVoucherType,
@@ -61,7 +70,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     AccountsTransactionsAllocCredit = x.AccountsTransactionsAllocCredit
                 }).ToListAsync();
                 var groupResponse = result.GroupBy(x => x.AccountsTransactionsTransDate);
-                gridModel.Details= new List<GetDaybookAccountTransaction>();
+                gridModel.Details = new List<GetDaybookAccountTransaction>();
                 decimal totalDebit = 0;
                 decimal totalCredit = 0;
                 foreach (var item in groupResponse)
@@ -72,14 +81,14 @@ namespace Inspire.Erp.Application.Account.Implementations
                     {
                         gridModel.Details.Add(new GetDaybookAccountTransaction()
                         {
-                            AccountsTransactionsTransDateString=records.AccountsTransactionsTransDateString,
-                            AccountsTransactionsVoucherNo=records.AccountsTransactionsVoucherNo,
-                            RefNo=records.RefNo,
-                            AccountsTransactionsDescription =records.AccountsTransactionsDescription,
-                            AccountsTransactionsParticulars=records.AccountsTransactionsParticulars,
-                            AccountsTransactionsDebit=records.AccountsTransactionsDebit,
-                            AccountsTransactionsCredit=records.AccountsTransactionsCredit,
-                            AccountsTransactionsVoucherType=records.AccountsTransactionsVoucherType
+                            AccountsTransactionsTransDateString = records.AccountsTransactionsTransDateString,
+                            AccountsTransactionsVoucherNo = records.AccountsTransactionsVoucherNo,
+                            RefNo = records.RefNo,
+                            AccountsTransactionsDescription = records.AccountsTransactionsDescription,
+                            AccountsTransactionsParticulars = records.AccountsTransactionsParticulars,
+                            AccountsTransactionsDebit = records.AccountsTransactionsDebit,
+                            AccountsTransactionsCredit = records.AccountsTransactionsCredit,
+                            AccountsTransactionsVoucherType = records.AccountsTransactionsVoucherType
                         });
                         //credit += records.AccountsTransactionsCredit;
                         //debit += records.AccountsTransactionsDebit;
@@ -131,7 +140,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     return Response<ReturnPrintResponse>.Fail(new ReturnPrintResponse(), "No records");
                 }
-                string cssPath = Path.Combine(Directory.GetCurrentDirectory(), "Assets", "Styles","Account", "daybookStyles.css");
+                string cssPath = Path.Combine(Directory.GetCurrentDirectory(), "Assets", "Styles", "Account", "daybookStyles.css");
                 string outPutPath = Path.Combine(Directory.GetCurrentDirectory(), "Assets", "Files", @$"{fileName}.pdf");
                 await _fileService.CheckFileExist(outPutPath);
                 AddPDFResponse pDFResponse = new AddPDFResponse()
