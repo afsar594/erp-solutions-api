@@ -97,8 +97,15 @@ namespace Inspire.Erp.Application.Master
                 }
 
 
-                mxc = (int)supplierrepository.GetAsQueryable().Where(k => k.SuppliersMasterSupplierId != null).Select(x => x.SuppliersMasterSupplierId).Max();
-                if (mxc == null) { mxc = 1; } else { mxc = mxc + 1; }
+                //mxc = (int)supplierrepository.GetAsQueryable().Where(k => k.SuppliersMasterSupplierId != null).Select(x => x.SuppliersMasterSupplierId).Max();
+                //if (mxc == null) { mxc = 1; } else { mxc = mxc + 1; }
+                var query = supplierrepository.GetAsQueryable().AsNoTracking().Where(k => k.SuppliersMasterSupplierId != null)
+                       .Select(x => x.SuppliersMasterSupplierId);
+                if (query.Any())
+                {
+                    mxc = query.Max();
+                }
+                mxc = mxc == null ? 1 : mxc + 1;
 
                 SuppliersMaster.SuppliersMasterSupplierId = mxc;
                 SuppliersMaster.SuppliersMasterSupplierReffAcNo = suppAccNo;
