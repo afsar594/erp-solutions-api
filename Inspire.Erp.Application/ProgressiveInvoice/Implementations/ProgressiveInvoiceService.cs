@@ -54,6 +54,10 @@ namespace Inspire.Erp.Application.Master.Implementations
                     k.AccountsTransactionsVoucherNo = puchaseVoucherNumber;
                     k.AccountsTransactionsVoucherType = VoucherType.ProgressiveInvoice_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
+                    k.AccountsTransactionsAllocDebit = 0;
+                    k.AccountsTransactionsAllocCredit = (decimal)progressiveInvoice.ProgressiveInvoiceTotAmount;
+                    k.AccountsTransactionsFcDebit = 0;
+                    k.AccountsTransactionsStatus = "A";
                     return k;
                 }).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
