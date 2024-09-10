@@ -117,9 +117,10 @@ namespace Inspire.Erp.Application.Account.Implementations
                             AccountsTransactionsCredit = records.AccountsTransactionsCredit,
                             AccountsTransactionsVoucherType = records.AccountsTransactionsVoucherType
                         });
-                        //credit += records.AccountsTransactionsCredit;
-                        //debit += records.AccountsTransactionsDebit;
                     }
+                    //credit += records.AccountsTransactionsCredit;
+                    //debit += records.AccountsTransactionsDebit;
+
                     //gridModel.Details.Add(new GetDaybookAccountTransaction()
                     //{
                     //    AccountsTransactionsParticulars = "Total",
