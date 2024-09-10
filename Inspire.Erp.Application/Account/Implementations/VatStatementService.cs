@@ -61,7 +61,7 @@ namespace Inspire.Erp.Application.Account.Implementations
 
                 if (model.isDate)
                 {
-                    result = await _accountTransaction.GetAsQueryable().Where(a => a.AccountsTransactionsAccNo == model.Filter && (a.AccountsTransactionsTransDate >= model.FromDate && a.AccountsTransactionsTransDate <= model.ToDate)).Select(x => new GetAccountTransactionVatStatementResponse
+                    result = await _accountTransaction.GetAsQueryable().Where(a => a.AccountsTransactionsAccNo.Contains(model.Filter) && (a.AccountsTransactionsTransDate >= model.FromDate && a.AccountsTransactionsTransDate <= model.ToDate)).Select(x => new GetAccountTransactionVatStatementResponse
                     {
                         AccountsTransactionsAccNo = x.AccountsTransactionsAccNo,
                         AccountsTransactionsAccName = _masterAccountsTable.GetAsQueryable().FirstOrDefault(c => c.MaAccNo == x.AccountsTransactionsAccNo) != null ? _masterAccountsTable.GetAsQueryable().FirstOrDefault(c => c.MaAccNo == x.AccountsTransactionsAccNo).MaAccName : "",
@@ -83,7 +83,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 }
                 else
                 {
-                    result = await _accountTransaction.GetAsQueryable().Where(a => a.AccountsTransactionsTransDate <= model.FromDate).Select(x => new GetAccountTransactionVatStatementResponse
+                    result = await _accountTransaction.GetAsQueryable().Where(a => a.AccountsTransactionsTransDate <= model.FromDate && a.AccountsTransactionsAccNo.Contains(model.Filter)).Select(x => new GetAccountTransactionVatStatementResponse
                     {
                         AccountsTransactionsAccNo = x.AccountsTransactionsAccNo,
                         AccountsTransactionsAccName = _masterAccountsTable.GetAsQueryable().FirstOrDefault(c => c.MaAccNo == x.AccountsTransactionsAccNo) != null ? _masterAccountsTable.GetAsQueryable().FirstOrDefault(c => c.MaAccNo == x.AccountsTransactionsAccNo).MaAccName : "",
