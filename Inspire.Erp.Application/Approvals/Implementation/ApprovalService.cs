@@ -75,9 +75,9 @@ namespace Inspire.Erp.Application.Approvals.Implementation
                 return Response<GridWrapperResponse<List<ApprovalResponse>>>.Fail(new GridWrapperResponse<List<ApprovalResponse>>(), ex.Message);
             }
         }
-        public List<Permissionapproval> GetPermissionapById(long id,int level)
+        public List<Permissionapproval> GetPermissionapById(long id, int level)
         {
-            var GetPermissionapById = _Permissionapproval.GetAsQueryable().AsNoTracking().Where(x => x.ApprovalformId == id && x.LevelId==level).ToList();
+            var GetPermissionapById = _Permissionapproval.GetAsQueryable().AsNoTracking().Where(x => x.ApprovalformId == id && x.LevelId == level).ToList();
             return GetPermissionapById;
         }
         public List<Permissionapproval> InsertPermissionApproval(List<Permissionapproval> Permissionapproval)
@@ -88,13 +88,27 @@ namespace Inspire.Erp.Application.Approvals.Implementation
 
                 foreach (var item in Permissionapproval)
                 {
-                    if (item.ApId == 0)
+                    if (item.isActive)
                     {
-                        _Permissionapproval.Insert(item);
+                        if (item.ApId == 0)
+                        {
+                            _Permissionapproval.Insert(item);
+                        }
+                        else
+                        {
+                            _Permissionapproval.Update(item);
+                        }
                     }
                     else
                     {
-                        _Permissionapproval.Update(item);
+                        if (item.ApId == 0)
+                        {
+
+                        }
+                        else
+                        {
+                            _Permissionapproval.Delete(item);
+                        }
                     }
                 }
                 _Permissionapproval.TransactionCommit();

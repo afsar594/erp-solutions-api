@@ -1,6 +1,7 @@
 ﻿using Inspire.Erp.Domain.Entities;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace Inspire.Erp.Domain.Models.Approvals
@@ -32,6 +33,9 @@ namespace Inspire.Erp.Domain.Models.Approvals
 
         public string? Username { get; set; }
         public DateTime? CreatedDate { get; set; }
+
+        [NotMapped]
+        public Boolean isActive { get; set; }
        
     }
 }
