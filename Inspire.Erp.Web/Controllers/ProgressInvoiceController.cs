@@ -83,7 +83,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             {
                 Valid = true,
                 Result = 0,
-                Message = "Record has been Deleted"
+                Message = "Record has been Deleted."
             };
             return apiResponse;
 
