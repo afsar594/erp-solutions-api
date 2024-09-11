@@ -30,5 +30,7 @@ namespace Inspire.Erp.Domain.Entities
         public string SwiftCode { get; set; }
         public string BankBranch { get; set; }
         public string BankCurrency { get; set; }
+       public string logotype { get; set; }
+        
     }
 }
