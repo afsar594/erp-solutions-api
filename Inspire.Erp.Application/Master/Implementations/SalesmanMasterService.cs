@@ -19,13 +19,14 @@ namespace Inspire.Erp.Application.Master
             bool valid = false;
             try
             {
-                valid = true;
-                int mxc = 0;
-                mxc = (int)salesmanrepository.GetAsQueryable().Where(k => k.SalesManMasterSalesManId != null).Select(x => x.SalesManMasterSalesManId).Max();
-                if (mxc == null) { mxc = 1; } else { mxc = mxc + 1; }
+                int? mxc = 0;
+                mxc =
+                    salesmanrepository.GetAsQueryable()
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.SalesManMasterSalesManId) + 1;
 
                 SalesManMaster.SalesManMasterSalesManId = mxc;
                 salesmanrepository.Insert(SalesManMaster);
+                GetAllSalesmanById((int)SalesManMaster.SalesManMasterSalesManId);
             }
             catch (Exception ex)
             {
