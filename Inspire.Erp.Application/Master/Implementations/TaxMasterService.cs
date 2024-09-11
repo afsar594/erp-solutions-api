@@ -26,6 +26,12 @@ namespace Inspire.Erp.Application.Master.Implementations
                 ////                                       .Where(x => x.CityMasterCityId > 0)
                 ////                                       .DefaultIfEmpty()
                 ////                                       .Max(o => o == null ? 0 : o.CityMasterCityId)) + 1;
+                ///
+                //int? mxc = 0;
+                //mxc =
+                //    cityrepository.GetAsQueryable()
+                //    .DefaultIfEmpty().Max(o => o == null ? 0 : o.CityMasterCityId) + 1;
+
                 taxrepository.Insert(TaxMaster);
             }
             catch (Exception ex)
