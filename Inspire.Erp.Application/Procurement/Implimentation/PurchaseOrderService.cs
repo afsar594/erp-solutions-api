@@ -197,10 +197,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 _trackingRegisterRepository.InsertList(listTrackRegs);
                 _purOrderRegisterRepository.InsertList(listTrackPurchOrderReg);
 
-                //PermissionApprovalDetail by zaid
-                var permsionApproval = _permissionApprovalRepo.GetAsQueryable().Where(x => x.VoucherType == "Purchase Order").OrderBy(x => x.LevelOrder).ToList();
+                //PermissionApprovalDetail by zaid               
 
-                var rights = _context.tbl_approvalforms.Where(a => a.Voucher_Type.Contains("Purchase Order")).AsNoTracking().ToList();
+                //  var permsionApproval = _context.Permissionapproval.AsNoTracking().Select(x => x.LevelId).Distinct().ToList();
+                var rights = _context.tbl_approvalforms.Where(a => a.Voucher_Type.Contains("Purchase Order") && a.is_active == true).AsNoTracking().ToList();
                 if (rights.Count > 0)
                 {
                     var existdata = _permissionApprovalDetailRepo.GetAsQueryable().Where(a => a.VoucherId == purchaseOrder.PurchaseOrderNo && a.VoucherType == "Purchase Order").ToList();
@@ -208,20 +208,24 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     if (existdata.Count > 0)
                     {
                         _permissionApprovalDetailRepo.DeleteList(existdata);
-                        foreach (var item in permsionApproval)
+                    }
+                    foreach (var item in rights)
+                    {
+                        for (int level = 1; level <= item.NoOfLevel; level++)
                         {
                             PermissionApprovalDetail POList = new PermissionApprovalDetail();
                             POList.VoucherType = "Purchase Order";
                             POList.VoucherId = purchaseOrder.PurchaseOrderNo;
                             POList.VoucherDate = purchaseOrder.PurchaseOrderDate;
                             POList.Amount = (double)purchaseOrder.PurchaseOrderNetAmount;
-                            POList.CreatedBy = item.UserId;
-                            POList.LevelId = item.LevelOrder;
+                            POList.CreatedBy = (int?)purchaseOrder.PurchaseOrderUserId ?? 1;
+                            POList.LevelId = level;
                             POList.Status = "Pending";
                             POList.Remarks = purchaseOrder.PurchaseOrderDescription;
                             _permissionApprovalDetailRepo.Insert(POList);
                         }
                     }
+
                 }
                 _purchaseOrderRepository.TransactionCommit();
             }
@@ -375,40 +379,45 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 _trackingRegisterRepository.InsertList(listTrackRegs);
                 _purOrderRegisterRepository.InsertList(listTrackPurchOrderReg);
-                var permsionApproval = _permissionApprovalRepo.GetAsQueryable().Where(x => x.VoucherType == "Purchase Order").OrderBy(x => x.LevelOrder).ToList();
-                var approvals = new Approval()
-                {
-                    CreatedBy = 0,
-                    LocationId = null,
-                    Status = false,
-                    VoucherType = "Purchase Order"
-                };
-                _approvalRepo.Insert(approvals);
-                _approvalDetailRepo.InsertList(permsionApproval.Select(x => new ApprovalDetail()
-                {
-                    ApprovalId = approvals.Id,
-                    Status = false,
-                    UserId = x.UserId,
-                    LevelOrder = x.LevelOrder,
-                    ApprovedAt = DateTime.Now,
-                }).ToList());
+                //var permsionApproval = _permissionApprovalRepo.GetAsQueryable().Where(x => x.VoucherType == "Purchase Order").OrderBy(x => x.LevelOrder).ToList();
+                //var approvals = new Approval()
+                //{
+                //    CreatedBy = 0,
+                //    LocationId = null,
+                //    Status = false,
+                //    VoucherType = "Purchase Order"
+                //};
+                //_approvalRepo.Insert(approvals);
+                //_approvalDetailRepo.InsertList(permsionApproval.Select(x => new ApprovalDetail()
+                //{
+                //    ApprovalId = approvals.Id,
+                //    Status = false,
+                //    UserId = x.UserId,
+                //    LevelOrder = x.LevelOrder,
+                //    ApprovedAt = DateTime.Now,
+                //}).ToList());
 
                 // PermissionApprovalDetail by zaid
-                var rights = _context.tbl_approvalforms.Where(a => a.Voucher_Type.Contains("Purchase Order")).AsNoTracking().ToList();
+
+                //var permsionApproval = _context.Permissionapproval.AsNoTracking().Select(x => x.LevelId).Distinct().ToList();
+                var rights = _context.tbl_approvalforms.Where(a => a.Voucher_Type.Contains("Purchase Order") && a.is_active == true).AsNoTracking().ToList();
                 if (rights.Count > 0)
                 {
-                    foreach (var item in permsionApproval)
+                    foreach (var item in rights)
                     {
-                        PermissionApprovalDetail POList = new PermissionApprovalDetail();
-                        POList.VoucherType = "Purchase Order";
-                        POList.VoucherId = purchaseOrder.PurchaseOrderNo;
-                        POList.VoucherDate = purchaseOrder.PurchaseOrderDate;
-                        POList.Amount = (double)purchaseOrder.PurchaseOrderNetAmount;
-                        POList.CreatedBy = item.UserId;
-                        POList.LevelId = item.LevelOrder;
-                        POList.Status = "Pending";
-                        POList.Remarks = purchaseOrder.PurchaseOrderDescription;
-                        _permissionApprovalDetailRepo.Insert(POList);
+                        for (int level = 1; level <= item.NoOfLevel; level++)
+                        {
+                            PermissionApprovalDetail POList = new PermissionApprovalDetail();
+                            POList.VoucherType = "Purchase Order";
+                            POList.VoucherId = purchaseOrder.PurchaseOrderNo;
+                            POList.VoucherDate = purchaseOrder.PurchaseOrderDate;
+                            POList.Amount = (double)purchaseOrder.PurchaseOrderNetAmount;
+                            POList.CreatedBy = (int?)purchaseOrder.PurchaseOrderUserId ?? 1;
+                            POList.LevelId = level;
+                            POList.Status = "Pending";
+                            POList.Remarks = purchaseOrder.PurchaseOrderDescription;
+                            _permissionApprovalDetailRepo.Insert(POList);
+                        }
                     }
                 }
                 _purchaseOrderRepository.TransactionCommit();

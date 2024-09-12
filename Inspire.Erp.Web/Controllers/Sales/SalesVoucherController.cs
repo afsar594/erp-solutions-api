@@ -567,11 +567,15 @@ namespace Inspire.Erp.Web.Controllers
             var customerMasters = _customerMasterRepository.GetAsQueryable().AsNoTracking().Where(k => k.CustomerMasterCustomerDelStatus != true).Select(a => new
             {
                 a.CustomerMasterCustomerNo,
-                a.CustomerMasterCustomerName,
+                a.CustomerMasterCustomerName,          
                 a.CustomerMasterCustomerVatNo,
                 a.CustomerMasterCustomerContactPerson,
                 a.CustomerMasterCustomerAddress,
-                a.CustomerMasterCustomerReffAcNo
+                a.CustomerMasterCustomerReffAcNo,
+                a.CustomerMasterCustomerEmail,
+                a.CustomerMasterCustomerMobile,
+                a.CustomerMasterCustomerTel1,
+                a.CustomerMasterCustomerFax
             }).ToList();
 
             var unitMasters = unitrepository.GetAsQueryable().AsNoTracking().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
