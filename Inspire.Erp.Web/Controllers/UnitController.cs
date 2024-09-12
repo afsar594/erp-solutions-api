@@ -34,11 +34,12 @@ namespace Inspire.Erp.Web.Controllers
             return unitMasterService.GetAllUnit().Select(k => new UnitMasterViewModel
             {
                  UnitMasterUnitId = k.UnitMasterUnitId,
-                 UnitMasterUnitShortName = k.UnitMasterUnitShortName,
-                 UnitMasterUnitFullName = k.UnitMasterUnitFullName,
+                 UnitMasterUnitShortName = k.UnitMasterUnitShortName.Trim(),
+                 UnitMasterUnitFullName = k.UnitMasterUnitFullName.Trim(),
                  UnitMasterUnitDescription = k.UnitMasterUnitDescription,
                  UnitMasterUnitStatus = k.UnitMasterUnitStatus,
-                UnitMasterUnitDelStatus=k.UnitMasterUnitDelStatus
+                UnitMasterUnitDelStatus=k.UnitMasterUnitDelStatus,
+                UnitDetailsConversionType = k.UnitDetails.Select(x => x.UnitDetailsConversionType).FirstOrDefault()
             }).ToList();
         }
 
@@ -71,8 +72,8 @@ namespace Inspire.Erp.Web.Controllers
             return unitMasterService.GetAllUnitById(id).Select(k => new UnitMasterViewModel
             {
                 UnitMasterUnitId = k.UnitMasterUnitId,
-                UnitMasterUnitShortName = k.UnitMasterUnitShortName,
-                UnitMasterUnitFullName = k.UnitMasterUnitFullName,
+                UnitMasterUnitShortName = k.UnitMasterUnitShortName.Trim(),
+                UnitMasterUnitFullName = k.UnitMasterUnitFullName.Trim(),
                 UnitMasterUnitDescription = k.UnitMasterUnitDescription,
                 UnitMasterUnitStatus = k.UnitMasterUnitStatus,
                 UnitMasterUnitDelStatus = k.UnitMasterUnitDelStatus
@@ -88,8 +89,8 @@ namespace Inspire.Erp.Web.Controllers
             return unitMasterService.InsertUnit(result).Select(k => new UnitMasterViewModel
             {
                 UnitMasterUnitId = k.UnitMasterUnitId,
-                UnitMasterUnitShortName = k.UnitMasterUnitShortName,
-                UnitMasterUnitFullName = k.UnitMasterUnitFullName,
+                UnitMasterUnitShortName = k.UnitMasterUnitShortName.Trim(),
+                UnitMasterUnitFullName = k.UnitMasterUnitFullName.Trim(),
                 UnitMasterUnitDescription = k.UnitMasterUnitDescription,
                 UnitMasterUnitStatus = k.UnitMasterUnitStatus,
                 UnitMasterUnitDelStatus = k.UnitMasterUnitDelStatus
@@ -104,8 +105,8 @@ namespace Inspire.Erp.Web.Controllers
             return unitMasterService.UpdateUnit(result).Select(k => new UnitMasterViewModel
             {
                 UnitMasterUnitId = k.UnitMasterUnitId,
-                UnitMasterUnitShortName = k.UnitMasterUnitShortName,
-                UnitMasterUnitFullName = k.UnitMasterUnitFullName,
+                UnitMasterUnitShortName = k.UnitMasterUnitShortName.Trim(),
+                UnitMasterUnitFullName = k.UnitMasterUnitFullName.Trim(),
                 UnitMasterUnitDescription = k.UnitMasterUnitDescription,
                 UnitMasterUnitStatus = k.UnitMasterUnitStatus,
                 UnitMasterUnitDelStatus = k.UnitMasterUnitDelStatus
@@ -120,8 +121,8 @@ namespace Inspire.Erp.Web.Controllers
             return unitMasterService.DeleteUnit(result).Select(k => new UnitMasterViewModel
             {
                 UnitMasterUnitId = k.UnitMasterUnitId,
-                UnitMasterUnitShortName = k.UnitMasterUnitShortName,
-                UnitMasterUnitFullName = k.UnitMasterUnitFullName,
+                UnitMasterUnitShortName = k.UnitMasterUnitShortName.Trim(),
+                UnitMasterUnitFullName = k.UnitMasterUnitFullName.Trim(),
                 UnitMasterUnitDescription = k.UnitMasterUnitDescription,
                 UnitMasterUnitStatus = k.UnitMasterUnitStatus,
                 UnitMasterUnitDelStatus = k.UnitMasterUnitDelStatus

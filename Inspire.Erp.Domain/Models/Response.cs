@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Inspire.Erp.Domain.Modals
@@ -30,5 +31,8 @@ namespace Inspire.Erp.Domain.Modals
                 Status = "Fail"
             };
         }
+
+        
     }
+
 }

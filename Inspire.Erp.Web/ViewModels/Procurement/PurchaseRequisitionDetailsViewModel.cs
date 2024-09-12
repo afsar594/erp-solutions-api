@@ -41,7 +41,7 @@ namespace Inspire.Erp.Web.ViewModels.Procurement
 
         public string? PurchaseRequisitionDetailsReqStatus { get; set; }
         public bool? PurchaseRequisitionDetailsDelStatus { get; set; }
-
+        public int? boqdId { get; set; }
         //public virtual PurchaseRequisition PurchaseRequisitionDetailsNoNavigation { get; set; }
     }
 }

@@ -6,7 +6,7 @@ namespace Inspire.Erp.Domain.Entities
     public partial class ReconciliationVoucherDetails
     {
         public string ReconciliationVoucherDetailsId { get; set; }
-        public int? ReconciliationVoucherDetailsSno { get; set; }
+        public int ReconciliationVoucherDetailsSno { get; set; }
         public string ReconciliationVoucherDetailsVno { get; set; }
         public int? ReconciliationVoucherDetailsTransSno { get; set; }
         public double? ReconciliationVoucherDetailsDebit { get; set; }

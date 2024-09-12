@@ -15,12 +15,21 @@ namespace Inspire.Erp.Domain.Modals
         public double? Job_Invoice_Discount { get; set; }
         public double? Job_Invoice_Net_Amount { get; set; }
         public double? Job_Invoice_Gross_Amount { get; set; }
-        public int?Job_Invoice_Details_Item_ID { get; set; }
-        public double?Job_Invoice_Details_Sold_Qty { get; set; }
-        public double?Job_Invoice_Details_Unit_Price { get; set; }
-        public int?Job_Invoice_Details_Unit_ID { get; set; }
-        public string?Job_Invoice_Details_Unit{ get; set; }
-        public string?Item_Name{ get; set; }
- 
+        public int? Job_Invoice_Details_Item_ID { get; set; }
+        public double? Job_Invoice_Details_Sold_Qty { get; set; }
+        public double? Job_Invoice_Details_Unit_Price { get; set; }
+        public int? Job_Invoice_Details_Unit_ID { get; set; }
+        public string? Job_Invoice_Details_Unit { get; set; }
+        public string? Item_Name { get; set; }
+
+    }
+    public class JobInvoiceRptModel
+    {
+        public DateTime? fromdate { get; set; }
+        public DateTime? todate { get; set; }
+        public int? customerId { get; set; }
+        public int? salemanId { get; set; }
+        public int? locationid { get; set; }
+        public bool isDateChecked { get; set; }
     }
 }

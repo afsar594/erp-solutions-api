@@ -36,6 +36,7 @@ namespace Inspire.Erp.Domain.Enums
         public static String PurchaseReturn_TYPE { get { return "PurchaseReturn"; } }
         public static String OBVoucher { get { return "OPENING BALANCE VOUCHER"; } }
         public static String PurchaseVoucher_TYPE { get { return "PurchaseVoucher"; } }
+        public static String DamageEntry_TYPE { get { return "DamageEntry"; } }
         public static String SalesVoucher_TYPE { get { return "SalesVoucher"; } }
         public static String SalesReturn_TYPE { get { return "SalesReturn"; } }
         public static String PurchaseOrder_TYPE { get { return "PurchaseOrder"; } }
@@ -50,6 +51,27 @@ namespace Inspire.Erp.Domain.Enums
         public static String StockTransferVoucher_TYPE { get { return "StockTransferVoucher"; } }
         public static String CustomerPurchaseOrder_TYPE { get { return "CustomerPurchaseOrder"; } }
         public static String AssetPurchaseVoucher_TYPE { get { return "AssetPurchaseVoucher"; } }
+        public static String PDC_TYPE { get { return "PDCVoucher"; } }
+        public static String JobInoviceVoucher_TYPE { get { return "JobInoviceVoucher"; } }
+        public static String GeneralPurchaseOrder_TYPE { get { return "GeneralPurchaseOrder"; } }
+        public static String StockRequisition_TYPE { get { return "StockRequisition"; } }
+        public static String ProgressiveInvoice_TYPE { get { return "ProgressiveInvoice"; } }
+        public static String StockAdjustmentVoucher_TYPE
+        {
+            get { return "StockAdjustmentVoucher"; }
+
+        }
+        public static String ReconciliationVoucher_TYPE
+        {
+            get { return "ReconciliationVoucher"; }
+
+        }
+        public static string BOQ { get { return "BOQ"; } }
+
+        public static String PosSalesVoucher_TYPE { get { return "PosSalesVoucher"; } }
+        public static String JobMasterVoucher_TYPE { get { return "JobMasterVoucher"; } }
+        public static String ManufactureItem_TYPE { get { return "ManufactureItem"; } }
+        public static String DamageVoucher_TYPE { get { return "DamageVoucher"; } }
     }
 
     public static class AccountStatus
@@ -93,9 +115,21 @@ namespace Inspire.Erp.Domain.Enums
         public static String JournalVoucher_Prefix { get { return "JournalVoucher_Prefix"; } }
         public static String Dep_JournalVoucher_Prefix { get { return "Dep_JournalVoucher_Prefix"; } }
         public static String AssetPurchaseVoucher_Prefix { get { return "AssetPurchaseVoucher_Prefix"; } }
+        public static String PDC_Voucher_Prefix { get { return "PDC_Voucher_Prefix"; } }
+        public static String JobInoviceVoucher_Prefix { get { return "JobInoviceVoucher_Prefix"; } }
+        public static String GeneralPurchaseOrder_Prefix { get { return "GeneralPurchaseOrder_Prefix"; } }
+
+        public static String StockRequisition_Prefix { get { return "StockRequisition_Prefix"; } }
+
+        public static String ManufactureItem_Prefix { get { return "ManufactureItem_Prefix"; } }
+        public static String DE_Prefix { get { return "DamageEntry_Prefix"; } }
+        public static String BOQ_Prefix { get { return "BOQ_Prefix"; } }
+
+        public static String ProgressiveInvoice_Prefix { get { return "ProgressiveInvoice_Prefix"; } }
     }
 
-    public static class ItemMasterStatus {
+    public static class ItemMasterStatus
+    {
         public static String Group { get { return "G"; } }
         public static String Item { get { return "I"; } }
         public static String SubItem { get { return "A"; } }

@@ -3,15 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Inspire.Erp.Application.Account;
 using Inspire.Erp.Application.Account.Interfaces;
 using Inspire.Erp.Application.Common;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Inspire.Erp.Web.Common;
 using Inspire.Erp.Web.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -22,10 +26,19 @@ namespace Inspire.Erp.Web.Controllers
     {
         private IPaymentVoucherService _paymentVoucherService;
         private readonly IMapper _mapper;
-        public PaymentVoucherController(IPaymentVoucherService paymentVoucherService, IMapper mapper)
+        private IRepository<CostCenterMaster> costcenterrepository;
+        private IRepository<JobMaster> jobrepository; private IRepository<GeneralSettings> _generalSettingsRepo;
+        private IRepository<CurrencyMaster> currencyrepository;
+        private IChartofAccountsService chartofAccountsService;
+        public PaymentVoucherController(IPaymentVoucherService paymentVoucherService, IMapper mapper, IRepository<CostCenterMaster> _countryrepository
+            , IRepository<JobMaster> _jobrepository, IRepository<CurrencyMaster> _currencyrepository, IChartofAccountsService _chartofAccountsService
+            , IRepository<GeneralSettings> generalSettingsRepo)
         {
             _paymentVoucherService = paymentVoucherService;
             _mapper = mapper;
+            costcenterrepository = _countryrepository;
+            jobrepository = _jobrepository; _generalSettingsRepo = generalSettingsRepo;
+            currencyrepository = _currencyrepository; chartofAccountsService = _chartofAccountsService;
         }
         [HttpPost]
         [Route("InsertPaymentVoucher")]
@@ -35,7 +48,8 @@ namespace Inspire.Erp.Web.Controllers
             var param1 = _mapper.Map<PaymentVoucher>(voucherCompositeView);
             var param2 = _mapper.Map<List<PaymentVoucherDetails>>(voucherCompositeView.PaymentVoucherDetails);
             var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-            var xs = _paymentVoucherService.InsertPaymentVoucher(param1, param3, param2);
+            var payAlloca = voucherCompositeView.allocationDetails;
+            var xs = _paymentVoucherService.InsertPaymentVoucher(param1, param3, param2, payAlloca);
             apiResponse = new ApiResponse<PaymentVoucher>
             {
                 Valid = true,
@@ -53,7 +67,8 @@ namespace Inspire.Erp.Web.Controllers
             var param1 = _mapper.Map<PaymentVoucher>(voucherCompositeView);
             var param2 = _mapper.Map<List<PaymentVoucherDetails>>(voucherCompositeView.PaymentVoucherDetails);
             var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-            var xs = _paymentVoucherService.UpdatePaymentVoucher(param1, param3, param2);
+            var payAlloca = voucherCompositeView.allocationDetails;
+            var xs = _paymentVoucherService.UpdatePaymentVoucher(param1, param3, param2, payAlloca);
             ApiResponse<PaymentVoucher> apiResponse = new ApiResponse<PaymentVoucher>
             {
                 Valid = true,
@@ -184,6 +199,47 @@ namespace Inspire.Erp.Web.Controllers
             {
                 return StatusCode(500, ex.Message);
             }
+        }
+
+        [HttpGet]
+        [Route("LoadDropdown")]
+        public ResponseInfo LoadDropdown()
+        {
+            var objectresponse = new ResponseInfo();
+
+            var costcenterMasters = costcenterrepository.GetAsQueryable().Where(a => a.CostCenterMasterCostCenterDelStatus != true).Select(c => new
+            {
+                c.CostCenterMasterCostCenterId,
+                c.CostCenterMasterCostCenterName,
+            }).ToList();
+            var jobMasters = jobrepository.GetAsQueryable().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
+            {
+                c.JobMasterJobId,
+                c.JobMasterJobName,
+            }).ToList();
+            var currencyMasters = currencyrepository.GetAsQueryable().Where(a => a.CurrencyMasterCurrencyDelStatus != true).Select(c => new
+            {
+                c.CurrencyMasterCurrencyId,
+                c.CurrencyMasterCurrencyName,
+                c.CurrencyMasterCurrencyRate
+            }).ToList();
+            var masterAccountsTables = chartofAccountsService.GetAllAccounts().Where(a => a.MaDelStatus != true && a.MaAccType == "A").Select(c => new
+            {
+                c.MaAccNo,
+                c.MaAccName,
+                c.MaRelativeNo,
+                c.MaSno
+            }).ToList();
+
+            objectresponse.ResultSet = new
+            {
+                costcenterMasters = costcenterMasters,
+                masterAccountsTables = masterAccountsTables,
+                jobMasters = jobMasters,
+                currencyMasters = currencyMasters,
+
+            };
+            return objectresponse;
         }
     }
 }

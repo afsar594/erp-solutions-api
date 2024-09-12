@@ -14,6 +14,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Inspire.Erp.Web.ViewModels.Accounts;
 using Inspire.Erp.Domain.Modals.Sales;
+using Inspire.Erp.Web.ViewModels.Procurement;
+using Inspire.Erp.Application.Store.Implementation;
+using Inspire.Erp.Domain.Modals.Stock;
+using Inspire.Erp.Application.Account;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.EntityFrameworkCore;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -24,24 +31,32 @@ namespace Inspire.Erp.Web.Controllers
     {
         private ICustomerQuotationService _customerQuotationService;
         private readonly IMapper _mapper;
-        public CustomerQuotationController(ICustomerQuotationService customerQuotationService, IMapper mapper)
+        private IRepository<EnquiryStatus> enquiryStatusrepository; private IRepository<JobMaster> jobrepository;
+        private IRepository<LocationMaster> locationrepository; private IRepository<CurrencyMaster> currencyrepository;
+        private IRepository<CustomerMaster> _customerMasterRepository; private IRepository<SalesManMaster> salesmanrepository;
+        private IRepository<ItemMaster> itemrepository; private IRepository<UnitMaster> unitrepository;
+        public CustomerQuotationController(ICustomerQuotationService customerQuotationService, IMapper mapper
+            , IRepository<EnquiryStatus> _enquiryStatusrepository, IRepository<JobMaster> _jobrepository, IRepository<LocationMaster> _locationrepository
+            , IRepository<CurrencyMaster> _currencyrepository, IRepository<CustomerMaster> customerMasterRepository, IRepository<SalesManMaster> _salesmanrepository
+            , IRepository<ItemMaster> _itemrepository, IRepository<UnitMaster> _unitrepository)
         {
             _customerQuotationService = customerQuotationService;
             _mapper = mapper;
+            enquiryStatusrepository = _enquiryStatusrepository; jobrepository = _jobrepository; locationrepository = _locationrepository;
+            salesmanrepository = _salesmanrepository; _customerMasterRepository = customerMasterRepository; currencyrepository = _currencyrepository;
+            itemrepository = _itemrepository; unitrepository = _unitrepository;
         }
-
-
         [HttpPost]
         [Route("InsertCustomerQuotation")]
-        public ApiResponse<CustomerQuotation> InsertCustomerQuotation([FromBody] CustomerQuotationViewModel customerQuotationCompositeView)
+        public ApiResponse<CustomerQuotationViewModel> InsertCustomerQuotation([FromBody] CustomerQuotationViewModel customerQuotationCompositeView)
         {
-            ApiResponse<CustomerQuotation> apiResponse = new ApiResponse<CustomerQuotation>();
-           
-           // if (_customerQuotationService.GetVouchersNumbers(customerQuotationCompositeView.CustomerQuotationQuotationId) == null)
-            try{
+            ApiResponse<CustomerQuotationViewModel> apiResponse = new ApiResponse<CustomerQuotationViewModel>();
+
+            try
+            {
                 var param1 = _mapper.Map<CustomerQuotation>(customerQuotationCompositeView);
                 var param2 = _mapper.Map<List<CustomerQuotationDetails>>(customerQuotationCompositeView.CustomerQuotationDetails);
-                var xs = _customerQuotationService.InsertCustomerQuotation(param1,param2);
+                var xs = _customerQuotationService.InsertCustomerQuotation(param1, param2);
                 //var apvm = new CustomerQuotationViewModel();
                 //apvm = _mapper.Map<CustomerQuotationViewModel>(xs.custQuotation);
                 //CustomerQuotationViewModel customerQuotationViewModel = new CustomerQuotationViewModel
@@ -97,17 +112,29 @@ namespace Inspire.Erp.Web.Controllers
 
                 //};
 
-                //customerQuotationViewModel.CustomerQuotationDetails = _mapper.Map<List<CustomerQuotationDetailsViewModel>>(xs.customerQuotationDetails);
-                apiResponse = new ApiResponse<CustomerQuotation>
+
+                CustomerQuotationViewModel CustomerQuotationViewModel = new CustomerQuotationViewModel();
+
+                if (xs != null)
                 {
-                    Valid = true,
-                    Result = xs,// _mapper.Map<CustomerQuotationViewModel>(customerQuotationViewModel),
-                    Message = CustomerQuotationMessage.SaveCustomerQuotation     
-                };
+                    CustomerQuotationViewModel = _mapper.Map<CustomerQuotationViewModel>(xs);
+                    CustomerQuotationViewModel.CustomerQuotationDetails = _mapper.Map<List<CustomerQuotationDetailsViewModel>>(xs.CustomerQuotationDetails);
+
+                    apiResponse = new ApiResponse<CustomerQuotationViewModel>
+                    {
+                        Valid = true,
+                        Result = CustomerQuotationViewModel,
+                        Message = CustomerQuotationMessage.SaveCustomerQuotation
+                    };
+                }
+                else
+                {
+                    return null;
+                }
             }
-           catch(Exception ex)
+            catch (Exception ex)
             {
-                apiResponse = new ApiResponse<CustomerQuotation>
+                apiResponse = new ApiResponse<CustomerQuotationViewModel>
                 {
                     Valid = false,
                     Error = true,
@@ -121,27 +148,32 @@ namespace Inspire.Erp.Web.Controllers
             return apiResponse;
 
         }
-
-
         [HttpPost]
         [Route("UpdateCustomerQuotation")]
-        public ApiResponse<CustomerQuotation> UpdateCustomerQuotation([FromBody] CustomerQuotationViewModel customerQuotationCompositeView)
+        public ApiResponse<CustomerQuotationViewModel> UpdateCustomerQuotation([FromBody] CustomerQuotationViewModel customerQuotationCompositeView)
         {
             var param1 = _mapper.Map<CustomerQuotation>(customerQuotationCompositeView);
             var param2 = _mapper.Map<List<CustomerQuotationDetails>>(customerQuotationCompositeView.CustomerQuotationDetails);
-            var xs = _customerQuotationService.UpdateCustomerQuotation(param1,param2);
-
-            
-            ApiResponse<CustomerQuotation> apiResponse = new ApiResponse<CustomerQuotation>
+            var xs = _customerQuotationService.UpdateCustomerQuotation(param1, param2);
+            if (xs != null)
             {
-                Valid = true,
-                Result = xs,
-                Message = CustomerQuotationMessage.UpdateCustomerQuotation
-            };
+                CustomerQuotationViewModel CustomerQuotationViewModel = new CustomerQuotationViewModel();
+                CustomerQuotationViewModel = _mapper.Map<CustomerQuotationViewModel>(xs);
+                CustomerQuotationViewModel.CustomerQuotationDetails = _mapper.Map<List<CustomerQuotationDetailsViewModel>>(xs.CustomerQuotationDetails);
 
-            return apiResponse;
+                ApiResponse<CustomerQuotationViewModel> apiResponse = new ApiResponse<CustomerQuotationViewModel>
+                {
+                    Valid = true,
+                    Result = CustomerQuotationViewModel,
+                    Message = CustomerQuotationMessage.UpdateCustomerQuotation
+                };
+                return apiResponse;
+            }
+            else
+            {
+                return null;
+            }
         }
-
         [HttpPost]
         [Route("DeleteCustomerQuotation")]
         public ApiResponse<int> DeleteCustomerQuotation([FromBody] CustomerQuotationViewModel customerQuotationCompositeView)
@@ -159,36 +191,32 @@ namespace Inspire.Erp.Web.Controllers
             return apiResponse;
 
         }
-
         [HttpGet]
         [Route("GetCustomerQuotation")]
-        public ApiResponse<List<CustomerQuotation>> GetAllCustomerQuotations()
+        public ApiResponse<List<CustomerQuotationViewModel>> GetAllCustomerQuotations()
         {
-            ApiResponse<List<CustomerQuotation>> apiResponse = new ApiResponse<List<CustomerQuotation>>
+            ApiResponse<List<CustomerQuotationViewModel>> apiResponse = new ApiResponse<List<CustomerQuotationViewModel>>
             {
                 Valid = true,
-                Result = _mapper.Map<List<CustomerQuotation>>(_customerQuotationService.GetCustomerQuotation()),
+                Result = _mapper.Map<List<CustomerQuotationViewModel>>(_customerQuotationService.GetCustomerQuotation()),
                 Message = ""
             };
             return apiResponse;
         }
-
         [HttpGet]
         [Route("GetSavedCustQuotationDetails/{id}")]
-        public ApiResponse<CustomerQuotation> GetSavedCustQuotationDetails(string id)
+        public ApiResponse<CustomerQuotationViewModel> GetSavedCustQuotationDetails(int id)
         {
-            CustomerQuotation custQuotation = _customerQuotationService.GetSavedCustQuotationDetails(id);
-            
-                ApiResponse<CustomerQuotation> apiResponse = new ApiResponse<CustomerQuotation>
-                {
-                    Valid = true,
-                    Result = custQuotation,
-                    Message = ""
-                };
-                return apiResponse;
-            }
-        //return null;
+            //CustomerQuotation custQuotation = _customerQuotationService.GetSavedCustQuotationDetails(id);
 
+            ApiResponse<CustomerQuotationViewModel> apiResponse = new ApiResponse<CustomerQuotationViewModel>
+            {
+                Valid = true,
+                Result = _mapper.Map<CustomerQuotationViewModel>(_customerQuotationService.GetSavedCustQuotationDetails(id)),
+                Message = ""
+            };
+            return apiResponse;
+        }
         [HttpGet]
         [Route("GetCustomerQuotationForSaleOrder")]
         public async Task<IActionResult> GetCustomerQuotationForSaleOrder()
@@ -204,6 +232,86 @@ namespace Inspire.Erp.Web.Controllers
             return Ok(apiResponse);
 
 
+        }
+        [HttpPost]
+        [Route("GetCustomerQuotationDetail")]
+        public async Task<IActionResult> GetCustomerQuotationDetail(QuotationFilterModel FilterModel)
+        {
+
+
+            return Ok(await _customerQuotationService.GetCustomerQuotationDetail(FilterModel));
+
+
+        }
+
+        [HttpGet]
+        [Route("QuotationLoadDropdown")]
+        public ResponseInfo QuotationLoadDropdown()
+        {
+            var objresponse = new ResponseInfo();
+
+            var enquiryStatus = enquiryStatusrepository.GetAsQueryable().AsNoTracking().Where(a => a.EnquiryStatusEnquiryStatusDelStatus != true).Select(c => new
+            {
+                c.EnquiryStatusEnquiryStatusId,
+                EnquiryStatusEnquiryStatus = c.EnquiryStatusEnquiryStatus.Trim(),
+            }).ToList();
+            var jobMasters = jobrepository.GetAsQueryable().AsNoTracking().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
+            {
+                c.JobMasterJobId,
+                JobMasterJobName = c.JobMasterJobName.Trim(),
+            }).ToList();
+            var LocationMaster = locationrepository.GetAsQueryable().AsNoTracking().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
+            {
+                c.LocationMasterLocationId,
+                LocationMasterLocationName = c.LocationMasterLocationName.Trim(),
+            }).ToList();
+            var SaleManList = salesmanrepository.GetAsQueryable().AsNoTracking().Where(a => a.SalesManMasterSalesManDelStatus != true).Select(c => new
+            {
+                c.SalesManMasterSalesManId,
+                SalesManMasterSalesManName = c.SalesManMasterSalesManName.Trim(),
+            }).ToList();
+            var currencyMasters = currencyrepository.GetAsQueryable().AsNoTracking().Where(a => a.CurrencyMasterCurrencyDelStatus != true).Select(c => new
+            {
+                c.CurrencyMasterCurrencyId,
+                CurrencyMasterCurrencyName = c.CurrencyMasterCurrencyName.Trim(),
+                c.CurrencyMasterCurrencyRate
+            }).ToList();
+            var customerMasters = _customerMasterRepository.GetAsQueryable().AsNoTracking().Where(k => k.CustomerMasterCustomerDelStatus != true).Select(a => new
+            {
+                a.CustomerMasterCustomerNo,
+                CustomerMasterCustomerName = a.CustomerMasterCustomerName.Trim(),
+                a.CustomerMasterCustomerContactPerson,
+                a.CustomerMasterCustomerAddress,
+                a.CustomerMasterCustomerReffAcNo,
+                a.CustomerMasterCustomerMobile,
+                a.CustomerMasterCustomerEmail,
+                a.CustomerMasterCustomerTel1
+            }).ToList();
+            var itemMaster = itemrepository.GetAsQueryable().AsNoTracking().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
+                    && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
+                    {
+                        k.ItemMasterItemId,
+                        k.ItemMasterPartNo,
+                        ItemMasterItemName = k.ItemMasterItemName.Trim()
+                    }).ToList();
+            var unitMasters = unitrepository.GetAsQueryable().AsNoTracking().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
+            {
+                x.UnitMasterUnitId,
+                UnitMasterUnitFullName = x.UnitMasterUnitFullName.Trim(),
+                UnitMasterUnitShortName = x.UnitMasterUnitShortName.Trim()
+            }).ToList();
+            objresponse.ResultSet = new
+            {
+                enquiryStatus = enquiryStatus,
+                jobMasters = jobMasters,
+                LocationMaster = LocationMaster,
+                SaleManList = SaleManList,
+                currencyMasters = currencyMasters,
+                customerMasters = customerMasters,
+                itemMaster = itemMaster,
+                unitMasters = unitMasters,
+            };
+            return objresponse;
         }
 
     }

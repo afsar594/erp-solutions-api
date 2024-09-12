@@ -60,7 +60,7 @@ namespace Inspire.Erp.Application.Store.Implementation
             try
             {
 
-                var results = await (from im in _context.ItemMaster
+                var results = await (from im in _context.ItemMaster.Where(a=> a.ItemMasterDelStatus!=true)
                                           join sr in _context.StockRegister on im.ItemMasterItemId equals sr.StockRegisterMaterialID.GetValueOrDefault() into gim
                                      from y in gim.DefaultIfEmpty()
                                      
@@ -267,6 +267,26 @@ namespace Inspire.Erp.Application.Store.Implementation
             //    throw ex;
 
             //}
+        }
+        public IEnumerable<StockTransfer> DeleteStockTransfers(string Id)
+        {
+            try
+            {
+                var dataObj = _StockTransferRepo.GetAsQueryable().Where(o => o.StockTransferVoucherNo == Id).FirstOrDefault();
+                dataObj.StockTransferDelStatus = true;
+                var detailData = _StockTransferDetailRepo.GetAsQueryable().Where(o => o.StockTransferDetailsSNo == Id).ToList();
+                detailData.ForEach(elemt =>
+                {
+                    elemt.StockTransferDetailsDelStatus = true;
+                });
+                _StockTransferRepo.Update(dataObj);
+                _StockTransferDetailRepo.UpdateList(detailData);
+                return _StockTransferRepo.GetAll();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
 
@@ -557,8 +577,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                 //string openingstockVoucherNumber = this.GenerateVoucherNo(stockTransfer.StockTransferStDate.Value).VouchersNumbersVNo;
                 //stockTransfer.StockTransferVoucherNo = openingstockVoucherNumber;
-
-
+              
                 int maxcount = 0;
                 maxcount = Convert.ToInt32(
                     await _StockTransferRepo.GetAsQueryable()
@@ -603,10 +622,10 @@ namespace Inspire.Erp.Application.Store.Implementation
                         return k;
                     }).ToList();
 
-                    _StockRegisterRepo.InsertList(stockRegister);
+                _StockRegisterRepo.InsertList(stockRegister);
 
-                    _StockTransferRepo.Update(stockTransfer);
-                    _StockTransferRepo.TransactionCommit();
+                _StockTransferRepo.Update(stockTransfer);
+                _StockTransferRepo.TransactionCommit();
                     return this.GetSavedStockTransferDetails(stockTransfer.StockTransferVoucherNo);
 
                 }

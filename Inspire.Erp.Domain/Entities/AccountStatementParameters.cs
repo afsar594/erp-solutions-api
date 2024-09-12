@@ -37,7 +37,7 @@ namespace Inspire.Erp.Domain.Entities
         public string? rptDescription { get; set; }
         public string? rptNarration { get; set; }
 
-
-        public List<ViewAccountsTransactionsVoucherType>? ViewAccountsTransactionsVoucherType { get; set; }
+        public List<string>? ViewAccountsTransactionsVoucherType { get; set; }
+        //public List<ViewAccountsTransactionsVoucherType>? ViewAccountsTransactionsVoucherType { get; set; }
     }
 }

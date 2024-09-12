@@ -14,6 +14,13 @@ using Microsoft.AspNetCore.Mvc;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Web.Common;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Inspire.Erp.Infrastructure.Database;
+using Microsoft.EntityFrameworkCore;
+using System.Linq.Dynamic.Core;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using NPOI.SS.UserModel;
 
 namespace Inspire.Erp.Web.Controllers.Procurement
 {
@@ -22,13 +29,25 @@ namespace Inspire.Erp.Web.Controllers.Procurement
     [ApiController]
     public class PurchaseOrderController : ControllerBase
     {
-        private IPurchaseOrderService _purchaseOrderService;
+        private InspireErpDBContext _context;
+        private IPurchaseOrderService _purchaseOrderService; private IRepository<PermissionApprovalDetail> _permissionApprovalDetailRepo;
+        private IRepository<ItemMaster> itemrepository; private IRepository<UnitMaster> unitrepository; private IRepository<PurOrderRegister> _purOrderRegisterRepository;
+        private IRepository<PurchaseOrder> _purchaseOrderRepository; private IRepository<PurchaseOrderDetails> _purchaseOrderDetailsRepository;
+        private IRepository<JobMaster> jobrepository; private readonly IRepository<SuppliersMaster> supplierrepository;
+        private IRepository<LocationMaster> locationrepository; private IRepository<CurrencyMaster> currencyrepository;
+        private IRepository<ViewAccountsTransactionsVoucherType> _viewAccountsTransactionsVoucherTypeRepository;
 
         private readonly IMapper _mapper;
-        public PurchaseOrderController(IPurchaseOrderService purchaseOrderService, IMapper mapper)
+        public PurchaseOrderController(IPurchaseOrderService purchaseOrderService, IMapper mapper, IRepository<ItemMaster> _itemrepository, IRepository<UnitMaster> _unitrepository,
+            IRepository<PurchaseOrder> purchaseOrderRepository, IRepository<PurOrderRegister> purOrderRegisterRepository, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository,
+            IRepository<JobMaster> _jobrepository, IRepository<LocationMaster> _locationrepository, InspireErpDBContext context
+            , IRepository<CurrencyMaster> _currencyrepository, IRepository<SuppliersMaster> _supplierrepository, IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo,
+            IRepository<ViewAccountsTransactionsVoucherType> viewAccountsTransactionsVoucherTypeRepository)
         {
-            _purchaseOrderService = purchaseOrderService;
-            _mapper = mapper;
+            _purchaseOrderService = purchaseOrderService; _context = context; _permissionApprovalDetailRepo = permissionApprovalDetailRepo;
+            _mapper = mapper; supplierrepository = _supplierrepository; _viewAccountsTransactionsVoucherTypeRepository = viewAccountsTransactionsVoucherTypeRepository;
+            itemrepository = _itemrepository; unitrepository = _unitrepository; _purchaseOrderRepository = purchaseOrderRepository; _purOrderRegisterRepository = purOrderRegisterRepository;
+            _purchaseOrderDetailsRepository = purchaseOrderDetailsRepository; jobrepository = _jobrepository; locationrepository = _locationrepository; currencyrepository = _currencyrepository;
         }
 
         //[HttpGet]
@@ -51,128 +70,28 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             return _mapper.Map<List<UserFile>>(_purchaseOrderService.GetAllUserFile());
         }
 
-         [HttpPost]
+        [HttpPost]
         [Route("InsertPurchaseOrder")]
         public ApiResponse<PurchaseOrderViewModel> InsertPurchaseOrder([FromBody] PurchaseOrderViewModel voucherCompositeView)
-        { 
+        {
 
             ApiResponse<PurchaseOrderViewModel> apiResponse = new ApiResponse<PurchaseOrderViewModel>();
-            //if (_purchaseOrderService.GetVouchersNumbers(voucherCompositeView.PurchaseOrderNo) == null)
-            //{
-                var param1 = _mapper.Map<PurchaseOrder>(voucherCompositeView);
-                var param2 = _mapper.Map<List<PurchaseOrderDetails>>(voucherCompositeView.PurchaseOrderDetails);
-                var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-                //var param4 = _mapper.Map<List<StockRegister>>(voucherCompositeView.StockRegister);
-                var xs = _purchaseOrderService.InsertPurchaseOrder(param1, param3, param2
-                    //, param4
-                    );
-            //PurchaseOrderViewModel purchaseOrderViewModel = new PurchaseOrderViewModel
-            //{
+            var param1 = _mapper.Map<PurchaseOrder>(voucherCompositeView);
+            var param2 = _mapper.Map<List<PurchaseOrderDetails>>(voucherCompositeView.PurchaseOrderDetails);
+            var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
+            var xs = _purchaseOrderService.InsertPurchaseOrder(param1, param3, param2
+                );
 
-            //    PurchaseOrderId = xs.purchaseOrder.PurchaseOrderId,
-            //    PurchaseOrderNo = xs.purchaseOrder.PurchaseOrderNo,
-            //    PurchaseOrderDate = xs.purchaseOrder.PurchaseOrderDate,
-            //    PurchaseOrderType = xs.purchaseOrder.PurchaseOrderType,
-            //    PurchaseOrderPartyId = xs.purchaseOrder.PurchaseOrderPartyId,
-            //    PurchaseOrderPartyName = xs.purchaseOrder.PurchaseOrderPartyName,
-            //    PurchaseOrderPartyAddress = xs.purchaseOrder.PurchaseOrderPartyAddress,
-            //    PurchaseOrderPartyVatNo = xs.purchaseOrder.PurchaseOrderPartyVatNo,
-            //    PurchaseOrderSupInvNo = xs.purchaseOrder.PurchaseOrderSupInvNo,
-            //    PurchaseOrderRefNo = xs.purchaseOrder.PurchaseOrderRefNo,
-            //    PurchaseOrderDescription = xs.purchaseOrder.PurchaseOrderDescription,
-            //    PurchaseOrderGrno = xs.purchaseOrder.PurchaseOrderGrno,
-            //    PurchaseOrderGrdate = xs.purchaseOrder.PurchaseOrderGrdate,
-            //    PurchaseOrderLpono = xs.purchaseOrder.PurchaseOrderLpono,
-            //    PurchaseOrderLpodate = xs.purchaseOrder.PurchaseOrderLpodate,
-            //    PurchaseOrderQtnNo = xs.purchaseOrder.PurchaseOrderQtnNo,
-            //    PurchaseOrderQtnDate = xs.purchaseOrder.PurchaseOrderQtnDate,
-            //    PurchaseOrderExcludeVat = xs.purchaseOrder.PurchaseOrderExcludeVat,
-            //    PurchaseOrderPono = xs.purchaseOrder.PurchaseOrderPono,
-            //    PurchaseOrderBatchCode = xs.purchaseOrder.PurchaseOrderBatchCode,
-            //    PurchaseOrderDayBookNo = xs.purchaseOrder.PurchaseOrderDayBookNo,
-            //    PurchaseOrderLocationId = xs.purchaseOrder.PurchaseOrderLocationId,
-            //    PurchaseOrderUserId = xs.purchaseOrder.PurchaseOrderUserId,
-            //    PurchaseOrderCurrencyId = xs.purchaseOrder.PurchaseOrderCurrencyId,
-            //    PurchaseOrderCompanyId = xs.purchaseOrder.PurchaseOrderCompanyId,
-            //    PurchaseOrderJobId = xs.purchaseOrder.PurchaseOrderJobId,
-            //    PurchaseOrderFsno = xs.purchaseOrder.PurchaseOrderFsno,
-            //    PurchaseOrderFcRate = xs.purchaseOrder.PurchaseOrderFcRate,
-            //    PurchaseOrderStatus = xs.purchaseOrder.PurchaseOrderStatus,
-            //    PurchaseOrderTotalGrossAmount = xs.purchaseOrder.PurchaseOrderTotalGrossAmount,
-            //    PurchaseOrderTotalItemDisAmount = xs.purchaseOrder.PurchaseOrderTotalItemDisAmount,
-            //    PurchaseOrderTotalActualAmount = xs.purchaseOrder.PurchaseOrderTotalActualAmount,
-            //    PurchaseOrderTotalDisPer = xs.purchaseOrder.PurchaseOrderTotalDisPer,
-            //    PurchaseOrderTotalDisAmount = xs.purchaseOrder.PurchaseOrderTotalDisAmount,
-            //    PurchaseOrderVatAmt = xs.purchaseOrder.PurchaseOrderVatAmt,
-            //    PurchaseOrderVatPer = xs.purchaseOrder.PurchaseOrderVatPer,
-            //    PurchaseOrderVatRoundSign = xs.purchaseOrder.PurchaseOrderVatRoundSign,
-            //    PurchaseOrderVatRountAmt = xs.purchaseOrder.PurchaseOrderVatRountAmt,
-            //    PurchaseOrderNetDisAmount = xs.purchaseOrder.PurchaseOrderNetDisAmount,
-            //    PurchaseOrderNetAmount = xs.purchaseOrder.PurchaseOrderNetAmount,
-            //    PurchaseOrderTransportCost = xs.purchaseOrder.PurchaseOrderTransportCost,
-            //    PurchaseOrderHandlingcharges = xs.purchaseOrder.PurchaseOrderHandlingcharges,
-            //    PurchaseOrderIssueId = xs.purchaseOrder.PurchaseOrderIssueId,
-            //    PurchaseOrderJobDirectPur = xs.purchaseOrder.PurchaseOrderJobDirectPur,
-            //    PurchaseOrderDelStatus = xs.purchaseOrder.PurchaseOrderDelStatus,
-
-
-
-            //    PurchaseOrderIndentNo = xs.purchaseOrder.PurchaseOrderIndentNo,
-            //    PurchaseOrderContPerson = xs.purchaseOrder.PurchaseOrderContPerson,
-            //    PurchaseOrderPreparedBy = xs.purchaseOrder.PurchaseOrderPreparedBy,
-            //    PurchaseOrderRecommendedBy = xs.purchaseOrder.PurchaseOrderRecommendedBy,
-            //    PurchaseOrderApproveEnable = xs.purchaseOrder.PurchaseOrderApproveEnable,
-            //    PurchaseOrderApproveDate = xs.purchaseOrder.PurchaseOrderApproveDate,
-            //    PurchaseOrderApproveStatus = xs.purchaseOrder.PurchaseOrderApproveStatus,
-            //    PurchaseOrderApproveUserId = xs.purchaseOrder.PurchaseOrderApproveUserId,
-
-
-
-            //    PurchaseOrderHeader = xs.purchaseOrder.PurchaseOrderHeader,
-            //    PurchaseOrderDelivery = xs.purchaseOrder.PurchaseOrderDelivery,
-            //    PurchaseOrderNotes = xs.purchaseOrder.PurchaseOrderNotes,
-            //    PurchaseOrderFooter = xs.purchaseOrder.PurchaseOrderFooter,
-            //    PurchaseOrderPaymentTerms = xs.purchaseOrder.PurchaseOrderPaymentTerms,
-            //    PurchaseOrderSubject = xs.purchaseOrder.PurchaseOrderSubject,
-
-            //    PurchaseOrderContent = xs.purchaseOrder.PurchaseOrderContent,
-            //    PurchaseOrderRemarks1 = xs.purchaseOrder.PurchaseOrderRemarks1,
-            //    PurchaseOrderRemarks2 = xs.purchaseOrder.PurchaseOrderRemarks2,
-            //    PurchaseOrderRemarks3 = xs.purchaseOrder.PurchaseOrderRemarks3,
-
-
-            //    PurchaseOrderDelivFromDate = xs.purchaseOrder.PurchaseOrderDelivFromDate,
-            //    PurchaseOrderDelivToDate = xs.purchaseOrder.PurchaseOrderDelivToDate,
-            //    PurchaseOrderDelivStatus = xs.purchaseOrder.PurchaseOrderDelivStatus,
-            //    PurchaseOrderDelivPlace = xs.purchaseOrder.PurchaseOrderDelivPlace,
-
-
-
-            //};
             PurchaseOrderViewModel purchaseOrderViewModel = new PurchaseOrderViewModel();
             purchaseOrderViewModel = _mapper.Map<PurchaseOrderViewModel>(xs.purchaseOrder);
 
-            //purchaseOrderViewModel.PurchaseOrderDetails = _mapper.Map<List<PurchaseOrderDetailsViewModel>>(xs.purchaseOrderDetails);
-                purchaseOrderViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
-                apiResponse = new ApiResponse<PurchaseOrderViewModel>
-                {
-                    Valid = true,
-                    Result = purchaseOrderViewModel, //_mapper.Map<PurchaseOrderViewModel>(purchaseOrderViewModel),
-                    Message = PurchaseOrderMessage.SaveVoucher
-                };
-            //}
-            //else
-            //{
-            //    apiResponse = new ApiResponse<PurchaseOrderViewModel>
-            //    {
-            //        Valid = false,
-            //        Error = true,
-            //        Exception = null,
-            //        Message = PurchaseOrderMessage.VoucherAlreadyExist
-            //    };
-
-            //}
-
+            purchaseOrderViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
+            apiResponse = new ApiResponse<PurchaseOrderViewModel>
+            {
+                Valid = true,
+                Result = purchaseOrderViewModel,
+                Message = PurchaseOrderMessage.SaveVoucher
+            };
 
             return apiResponse;
         }
@@ -184,99 +103,18 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             var param1 = _mapper.Map<PurchaseOrder>(voucherCompositeView);
             var param2 = _mapper.Map<List<PurchaseOrderDetails>>(voucherCompositeView.PurchaseOrderDetails);
             var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-            //var param4 = _mapper.Map<List<StockRegister>>(voucherCompositeView.StockRegister);
             var xs = _purchaseOrderService.UpdatePurchaseOrder(param1, param3, param2
-                //, param4
                 );
 
-            //PurchaseOrderViewModel purchaseOrderViewModel = new PurchaseOrderViewModel
-            //{
-            //    PurchaseOrderId = xs.purchaseOrder.PurchaseOrderId,
-            //    PurchaseOrderNo = xs.purchaseOrder.PurchaseOrderNo,
-            //    PurchaseOrderDate = xs.purchaseOrder.PurchaseOrderDate,
-            //    PurchaseOrderType = xs.purchaseOrder.PurchaseOrderType,
-            //    PurchaseOrderPartyId = xs.purchaseOrder.PurchaseOrderPartyId,
-            //    PurchaseOrderPartyName = xs.purchaseOrder.PurchaseOrderPartyName,
-            //    PurchaseOrderPartyAddress = xs.purchaseOrder.PurchaseOrderPartyAddress,
-            //    PurchaseOrderPartyVatNo = xs.purchaseOrder.PurchaseOrderPartyVatNo,
-            //    PurchaseOrderSupInvNo = xs.purchaseOrder.PurchaseOrderSupInvNo,
-            //    PurchaseOrderRefNo = xs.purchaseOrder.PurchaseOrderRefNo,
-            //    PurchaseOrderDescription = xs.purchaseOrder.PurchaseOrderDescription,
-            //    PurchaseOrderGrno = xs.purchaseOrder.PurchaseOrderGrno,
-            //    PurchaseOrderGrdate = xs.purchaseOrder.PurchaseOrderGrdate,
-            //    PurchaseOrderLpono = xs.purchaseOrder.PurchaseOrderLpono,
-            //    PurchaseOrderLpodate = xs.purchaseOrder.PurchaseOrderLpodate,
-            //    PurchaseOrderQtnNo = xs.purchaseOrder.PurchaseOrderQtnNo,
-            //    PurchaseOrderQtnDate = xs.purchaseOrder.PurchaseOrderQtnDate,
-            //    PurchaseOrderExcludeVat = xs.purchaseOrder.PurchaseOrderExcludeVat,
-            //    PurchaseOrderPono = xs.purchaseOrder.PurchaseOrderPono,
-            //    PurchaseOrderBatchCode = xs.purchaseOrder.PurchaseOrderBatchCode,
-            //    PurchaseOrderDayBookNo = xs.purchaseOrder.PurchaseOrderDayBookNo,
-            //    PurchaseOrderLocationId = xs.purchaseOrder.PurchaseOrderLocationId,
-            //    PurchaseOrderUserId = xs.purchaseOrder.PurchaseOrderUserId,
-            //    PurchaseOrderCurrencyId = xs.purchaseOrder.PurchaseOrderCurrencyId,
-            //    PurchaseOrderCompanyId = xs.purchaseOrder.PurchaseOrderCompanyId,
-            //    PurchaseOrderJobId = xs.purchaseOrder.PurchaseOrderJobId,
-            //    PurchaseOrderFsno = xs.purchaseOrder.PurchaseOrderFsno,
-            //    PurchaseOrderFcRate = xs.purchaseOrder.PurchaseOrderFcRate,
-            //    PurchaseOrderStatus = xs.purchaseOrder.PurchaseOrderStatus,
-            //    PurchaseOrderTotalGrossAmount = xs.purchaseOrder.PurchaseOrderTotalGrossAmount,
-            //    PurchaseOrderTotalItemDisAmount = xs.purchaseOrder.PurchaseOrderTotalItemDisAmount,
-            //    PurchaseOrderTotalActualAmount = xs.purchaseOrder.PurchaseOrderTotalActualAmount,
-            //    PurchaseOrderTotalDisPer = xs.purchaseOrder.PurchaseOrderTotalDisPer,
-            //    PurchaseOrderTotalDisAmount = xs.purchaseOrder.PurchaseOrderTotalDisAmount,
-            //    PurchaseOrderVatAmt = xs.purchaseOrder.PurchaseOrderVatAmt,
-            //    PurchaseOrderVatPer = xs.purchaseOrder.PurchaseOrderVatPer,
-            //    PurchaseOrderVatRoundSign = xs.purchaseOrder.PurchaseOrderVatRoundSign,
-            //    PurchaseOrderVatRountAmt = xs.purchaseOrder.PurchaseOrderVatRountAmt,
-            //    PurchaseOrderNetDisAmount = xs.purchaseOrder.PurchaseOrderNetDisAmount,
-            //    PurchaseOrderNetAmount = xs.purchaseOrder.PurchaseOrderNetAmount,
-            //    PurchaseOrderTransportCost = xs.purchaseOrder.PurchaseOrderTransportCost,
-            //    PurchaseOrderHandlingcharges = xs.purchaseOrder.PurchaseOrderHandlingcharges,
-            //    PurchaseOrderIssueId = xs.purchaseOrder.PurchaseOrderIssueId,
-            //    PurchaseOrderJobDirectPur = xs.purchaseOrder.PurchaseOrderJobDirectPur,
-            //    PurchaseOrderDelStatus = xs.purchaseOrder.PurchaseOrderDelStatus,
-
-            //    PurchaseOrderIndentNo = xs.purchaseOrder.PurchaseOrderIndentNo,
-            //    PurchaseOrderContPerson = xs.purchaseOrder.PurchaseOrderContPerson,
-            //    PurchaseOrderPreparedBy = xs.purchaseOrder.PurchaseOrderPreparedBy,
-            //    PurchaseOrderRecommendedBy = xs.purchaseOrder.PurchaseOrderRecommendedBy,
-            //    PurchaseOrderApproveEnable = xs.purchaseOrder.PurchaseOrderApproveEnable,
-            //    PurchaseOrderApproveDate = xs.purchaseOrder.PurchaseOrderApproveDate,
-            //    PurchaseOrderApproveStatus = xs.purchaseOrder.PurchaseOrderApproveStatus,
-            //    PurchaseOrderApproveUserId = xs.purchaseOrder.PurchaseOrderApproveUserId,
-
-
-
-            //    PurchaseOrderHeader = xs.purchaseOrder.PurchaseOrderHeader,
-            //    PurchaseOrderDelivery = xs.purchaseOrder.PurchaseOrderDelivery,
-            //    PurchaseOrderNotes = xs.purchaseOrder.PurchaseOrderNotes,
-            //    PurchaseOrderFooter = xs.purchaseOrder.PurchaseOrderFooter,
-            //    PurchaseOrderPaymentTerms = xs.purchaseOrder.PurchaseOrderPaymentTerms,
-            //    PurchaseOrderSubject = xs.purchaseOrder.PurchaseOrderSubject,
-
-            //    PurchaseOrderContent = xs.purchaseOrder.PurchaseOrderContent,
-            //    PurchaseOrderRemarks1 = xs.purchaseOrder.PurchaseOrderRemarks1,
-            //    PurchaseOrderRemarks2 = xs.purchaseOrder.PurchaseOrderRemarks2,
-            //    PurchaseOrderRemarks3 = xs.purchaseOrder.PurchaseOrderRemarks3,
-
-
-            //    PurchaseOrderDelivFromDate = xs.purchaseOrder.PurchaseOrderDelivFromDate,
-            //    PurchaseOrderDelivToDate = xs.purchaseOrder.PurchaseOrderDelivToDate,
-            //    PurchaseOrderDelivStatus = xs.purchaseOrder.PurchaseOrderDelivStatus,
-            //    PurchaseOrderDelivPlace = xs.purchaseOrder.PurchaseOrderDelivPlace,
-
-            //};
             PurchaseOrderViewModel purchaseOrderViewModel = new PurchaseOrderViewModel();
 
             purchaseOrderViewModel = _mapper.Map<PurchaseOrderViewModel>(xs.purchaseOrder);
-           // purchaseOrderViewModel.PurchaseOrderDetails = _mapper.Map<List<PurchaseOrderDetailsViewModel>>(xs.purchaseOrderDetails);
             purchaseOrderViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
 
             ApiResponse<PurchaseOrderViewModel> apiResponse = new ApiResponse<PurchaseOrderViewModel>
             {
                 Valid = true,
-                Result = purchaseOrderViewModel,//_mapper.Map<PurchaseOrderViewModel>(xs.purchaseOrder),
+                Result = purchaseOrderViewModel,
                 Message = PurchaseOrderMessage.UpdateVoucher
             };
 
@@ -291,9 +129,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             var param1 = _mapper.Map<PurchaseOrder>(voucherCompositeView);
             var param2 = _mapper.Map<List<PurchaseOrderDetails>>(voucherCompositeView.PurchaseOrderDetails);
             var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-            //var param4 = _mapper.Map<List<StockRegister>>(voucherCompositeView.StockRegister);
-            var xs = _purchaseOrderService.DeletePurchaseOrder(  param1,    param3, param2
-                //, param4
+            var xs = _purchaseOrderService.DeletePurchaseOrder(param1, param3, param2
                 );
             ApiResponse<int> apiResponse = new ApiResponse<int>
             {
@@ -433,9 +269,6 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                 Valid = true,
                 Result = true,
                 Message = PurchaseOrderMessage.VoucherNumberExist
-
-
-
             };
             var x = _purchaseOrderService.GetVouchersNumbers(id);
             if (x == null)
@@ -456,11 +289,279 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                 var item = _purchaseOrderService.GetPODetailsForGRN();
                 return Ok(item);
             }
-           catch(Exception ex)
-            { 
+            catch (Exception ex)
+            {
                 return StatusCode(500, ex.Message.ToString());
             }
         }
 
+        [HttpGet]
+        [Route("GetGRMPOs/{supplierId}")]
+        public async Task<IActionResult> GetGRMPOs(int? supplierId)
+        {
+            try
+            {
+                var item = await _purchaseOrderService.GetGRMPOs(supplierId);
+                return Ok(item);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
+        }
+        [HttpGet]
+        [Route("GetAllPOForGRN/{id}")]
+        public ResponseInfo GetAllPOForGRN(decimal id)
+        {
+
+            var objResponse = new ResponseInfo();
+
+            var materialList = itemrepository.GetAsQueryable().Where(a => a.ItemMasterDelStatus != true).Select(c => new
+            {
+                c.ItemMasterItemName,
+                c.ItemMasterItemId,
+                c.ItemMasterLastPurchasePrice
+            });
+            var unitList = unitrepository.GetAsQueryable().Where(a => a.UnitMasterUnitDelStatus != true).Select(c => new
+            {
+                c.UnitMasterUnitId,
+                UnitMasterUnitShortName = c.UnitMasterUnitShortName.Trim(),
+                c.UnitMasterUnitFullName
+            }).ToList();
+            var tracking = _purOrderRegisterRepository.GetAsQueryable().Where(a => a.PurOrderRegisterDelStatus != true).ToList();
+            var detailList = _purchaseOrderDetailsRepository.GetAsQueryable().ToList();
+            var details = _purchaseOrderRepository.GetAsQueryable().Where(a => a.PurchaseOrderDelStatus != true && a.PurchaseOrderPartyId == id).Select(c => new
+            {
+                c.PurchaseOrderId,
+                c.PurchaseOrderNo,
+                c.PurchaseOrderDate
+            }).ToList();
+            var purchaseOrderNos = details.Select(d => d.PurchaseOrderNo).ToList();
+
+            // Filtering detailList based on PurchaseOrderNos
+            var data = (from d in detailList
+                        join c in details on d.PurchaseOrderId equals c.PurchaseOrderId
+                        where purchaseOrderNos.Contains(d.PurchaseOrderDetailsNo)
+                        select new
+                        {
+                            PODID = d.PurchaseOrderDetailsId,
+                            POID = d.PurchaseOrderId,
+                            date = c.PurchaseOrderDate.Date,
+                            PONO = d.PurchaseOrderDetailsNo,
+                            itemId = d.PurchaseOrderDetailsMatId,
+                            itemname = materialList
+                        .Where(m => m.ItemMasterItemId == (long?)d.PurchaseOrderDetailsMatId)
+                        .Select(c => c.ItemMasterItemName ?? "")
+                        .FirstOrDefault() ?? "",
+                            unitId = d.PurchaseOrderDetailsUnitId ?? 0,
+                            unit = unitList
+                        .Where(u => u.UnitMasterUnitId == (int?)d.PurchaseOrderDetailsUnitId)
+                        .Select(c => c.UnitMasterUnitFullName.Trim() ?? "")
+                        .FirstOrDefault() ?? "",
+                            price = d.PurchaseOrderDetailsRate ?? 0,
+                            poQty = d.PurchaseOrderDetailsQuantity ?? 0,
+                            QtyIUssued = tracking.Where(a => a.PurOrderRegisterOrderNo == d.PurchaseOrderDetailsNo)
+                    .Sum(c => c.PurOrderRegisterQtyIssued ?? 0),
+                        })
+                .ToList();
+
+            objResponse.ResultSet = new
+            {
+                result = data
+            };
+            return objResponse;
+
+        }
+
+        [HttpGet]
+        [Route("PurchaseLoadDropdown")]
+        public ResponseInfo PurchaseLoadDropdown()
+        {
+            var objresponse = new ResponseInfo();
+
+            var jobMasters = jobrepository.GetAsQueryable().AsNoTracking().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
+            {
+                c.JobMasterJobId,
+                JobMasterJobName = c.JobMasterJobName.Trim(),
+            }).ToList();
+            var LocationMaster = locationrepository.GetAsQueryable().AsNoTracking().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
+            {
+                c.LocationMasterLocationId,
+                LocationMasterLocationName = c.LocationMasterLocationName.Trim(),
+            }).ToList();
+
+            var currencyMasters = currencyrepository.GetAsQueryable().AsNoTracking().Where(a => a.CurrencyMasterCurrencyDelStatus != true).Select(c => new
+            {
+                c.CurrencyMasterCurrencyId,
+                CurrencyMasterCurrencyName = c.CurrencyMasterCurrencyName.Trim(),
+                c.CurrencyMasterCurrencyRate
+            }).ToList();
+            var SuppliersMaster = supplierrepository.GetAsQueryable().AsNoTracking().Where(a => a.SuppliersMasterSupplierDelStatus != true).Select(c => new
+            {
+                c.SuppliersMasterSupplierId,
+                c.SuppliersMasterSupplierName,
+                c.SuppliersMasterSupplierVatNo
+            }).ToList();
+            var itemMaster = itemrepository.GetAsQueryable().AsNoTracking().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
+                    && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
+                    {
+                        k.ItemMasterItemId,
+                        k.ItemMasterPartNo,
+                        k.ItemMasterAccountNo,
+                        ItemMasterItemName = k.ItemMasterItemName.Trim()
+                    }).ToList();
+            var unitMasters = unitrepository.GetAsQueryable().AsNoTracking().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
+            {
+                x.UnitMasterUnitId,
+                UnitMasterUnitFullName = x.UnitMasterUnitFullName.Trim(),
+                UnitMasterUnitShortName = x.UnitMasterUnitShortName.Trim()
+            }).ToList();
+            var itemMasterGroup = itemrepository.GetAsQueryable().AsNoTracking().Where(k => k.ItemMasterAccountNo == 0 && (k.ItemMasterDelStatus != true)
+                && k.ItemMasterItemType == ItemMasterStatus.Group).Select(k => new
+                {
+                    k.ItemMasterItemId,
+                    k.ItemMasterItemName,
+                }).ToList();
+
+            var vouchers = _viewAccountsTransactionsVoucherTypeRepository.GetAsQueryable().AsNoTracking().ToList();
+            objresponse.ResultSet = new
+            {
+                jobMasters = jobMasters,
+                LocationMaster = LocationMaster,
+                currencyMasters = currencyMasters,
+                itemMaster = itemMaster,
+                unitMasters = unitMasters,
+                itemMasterGroup = itemMasterGroup,
+                SuppliersMaster = SuppliersMaster,
+                vouchers = vouchers
+            };
+            return objresponse;
+        }
+
+        [HttpGet]
+        [Route("POApprovalDropdown")]
+        public ResponseInfo POApprovalDropdown()
+        {
+            var objresponse = new ResponseInfo();
+
+            var data = _context.tbl_approvalforms.AsNoTracking().ToList();
+
+            var userList = _context.UserFile.AsNoTracking().Where(a => a.Deleted != true).Select(x => new
+            {
+                x.UserId,
+                x.UserName,
+            }).ToList();
+            objresponse.ResultSet = new
+            {
+                result = data,
+                userList = userList
+            };
+            return objresponse;
+        }
+
+        [HttpPost]
+        [Route("POApprovalList")]
+        public ResponseInfo POApprovalList(approlvalmodel model)
+        {
+            var objresponse = new ResponseInfo();
+
+            var voucherTypes = model.type ?? new List<string>();
+            IEnumerable<PermissionApprovalDetail> data;
+
+            var rightsQuery = from approval in _context.tbl_approvalforms.AsNoTracking()
+                              join permission in _context.Permissionapproval.AsNoTracking()
+                                  on approval.id equals permission.ApprovalformId
+                              where permission.UserId == model.userId
+                              && (voucherTypes == null || !voucherTypes.Any() || voucherTypes.Contains(approval.Voucher_Type))
+                              select new
+                              {
+                                  approval.Voucher_Type,
+                                  permission.LevelId,
+                                  permission.ApprovalformId,
+                                  permission.UserId
+                              };
+
+            var rights = rightsQuery.ToList();
+
+
+            if (model.isDate)
+            {
+                data = _context.PermissionApprovalDetail.AsNoTracking().AsEnumerable()
+               .Where(a =>
+               a.VoucherDate >= model.fromDate &&
+               a.VoucherDate <= model.toDate &&
+              (!rights.Any() || rights.Any(r => r.LevelId == a.LevelId && r.Voucher_Type == a.VoucherType)));
+            }
+            else
+            {
+                data = _context.PermissionApprovalDetail.AsNoTracking().AsEnumerable()
+                   .Where(a =>
+                   (!rights.Any() || rights.Any(r => r.LevelId == a.LevelId && r.Voucher_Type == a.VoucherType)));
+            }
+
+            var lowestPendingLevels = (from detail in _context.PermissionApprovalDetail.AsNoTracking()
+                                       where detail.Status == "Pending"
+                                       group detail by new { detail.VoucherId, detail.VoucherType } into grouped
+                                       select new
+                                       {
+                                           grouped.Key.VoucherId,
+                                           grouped.Key.VoucherType,
+                                           LowestPendingLevel = grouped.Min(d => d.LevelId)
+                                       }).ToList();
+
+            var pendingRecords = data
+                .Where(a => a.Status == "Pending" &&
+                 lowestPendingLevels.Any(l => l.VoucherId == a.VoucherId && l.VoucherType == a.VoucherType && l.LowestPendingLevel == a.LevelId))
+                 .ToList();
+
+            var approvedRecords = data
+                .Where(a => a.Status == "Approved")
+                .ToList();
+
+            var combinedData = pendingRecords.Concat(approvedRecords).ToList();
+
+            if (!string.IsNullOrEmpty(model.status) && model.status != "All")
+            {
+                combinedData = (List<PermissionApprovalDetail>)combinedData.Where(a => a.Status == model.status);
+            }
+
+            objresponse.ResultSet = new
+            {
+                result = combinedData,
+            };
+            return objresponse;
+        }
+
+        [HttpPost]
+        [Route("POApprovedList")]
+        public ResponseInfo POApprovedList(List<PermissionApprovalDetail>? model)
+        {
+            var objresponse = new ResponseInfo();
+
+            if (model == null || model.Count == 0)
+            {
+                objresponse.ErrorMessage = "No data provided for approval.";
+                return objresponse;
+            }
+            try
+            {
+                _permissionApprovalDetailRepo.BeginTransaction();
+                var currentDateTime = DateTime.Now;
+                foreach (var voucherType in model)
+                {
+                    voucherType.ModifiedDate = currentDateTime;
+                    voucherType.Status = "Approved";
+                    _permissionApprovalDetailRepo.Update(voucherType);
+                }
+                _permissionApprovalDetailRepo.TransactionCommit();
+                objresponse.Message = "Approved Successfully";
+            }
+            catch (Exception ex)
+            {
+                _permissionApprovalDetailRepo.TransactionRollback();
+                objresponse.ErrorMessage = $"An error occurred while approving: {ex.Message}";
+            }
+            return objresponse;
+        }
     }
 }

@@ -102,14 +102,12 @@ namespace Inspire.Erp.Application.MIS.Implementations
                 double Total_Dr = assetsFinal.Sum(x => Convert.ToDouble(x.Debit)); 
                 double Total_Cr = assetsFinal.Sum(x => Convert.ToDouble(x.Credit));
                 totalAsset = Total_Cr - Total_Dr;
-
             }
             catch (Exception)
             {
                 return ;
             }
         }
-
         private void GetBalanceSheetTotalsMainHead(GenericGridViewModel model, string relativeNo, ref double totalAsset)
         {
             try
@@ -178,8 +176,147 @@ namespace Inspire.Erp.Application.MIS.Implementations
                 return;
             }
         }
-
         public async Task<Response<List<BalanceSheetResponse>>> GetAccountTransactionsBalanceSheetsSummary(GenericGridViewModel model)
+        {
+            try
+            {
+                var gridReponse = new List<BalanceSheetResponse>();
+                double Net_Capital = 0, Net_Retained = 0, Net_Owners = 0, Total_INCOME = 0, Total_Expenses = 0, Net_Profit_Loss = 0;
+                GetBalanceSheetTotals(model, "EQ5", ref Net_Capital);
+                GetBalanceSheetTotals(model, "EQ38", ref Net_Retained);
+                GetBalanceSheetTotals(model, "EQ6", ref Net_Owners);
+                GetBalanceSheetTotalsMainHead(model, "INCOME", ref Total_INCOME);
+                GetBalanceSheetTotalsMainHead(model, "EXPENSES", ref Total_Expenses);
+                Net_Profit_Loss = (Total_INCOME - Total_Expenses); //+ ClostingStock - Opening_Stock_Value;
+
+                var assets = await (from ma in _masterAccount.GetAsQueryable().Where(y => y.MaMainHead.ToUpper() == "ASSETS")
+                                    join at in _accountTrans.GetAsQueryable()
+                                                  .Where(x => x.AccountsTransactionsTransDate >= model.FromDate
+                                    && x.AccountsTransactionsTransDate <= model.ToDate
+                                    )
+                                    on ma.MaAccNo equals at.AccountsTransactionsAccNo into g
+                                    from grd in g.DefaultIfEmpty()
+                                    group grd by new
+                                    {
+                                        //grd.AccountsTransactionsAccNo,
+                                        //ma.MaAccName,
+                                        ma.MaMainHead,
+                                        ma.MaRelativeNo,
+                                        ma.MaSubHead
+                                    } into gp
+                                    where gp.Sum(x => x.AccountsTransactionsCredit) > 0 || gp.Sum(x => x.AccountsTransactionsDebit) > 0
+                                    select new BalanceSheetResponse
+                                    {
+                                        MA_MainHead = gp.Key.MaMainHead,
+                                        MA_SubHead = gp.Key.MaSubHead,
+                                        //MA_AccNo = gp.Key.AccountsTransactionsAccNo,
+                                        //MA_AccName = gp.Key.MaAccName,
+                                        MA_RelativeNo = gp.Key.MaRelativeNo,
+                                        MA_RelativeName = _masterAccount.GetAsQueryable().Where(y => y.MaAccNo.ToUpper() == gp.Key.MaRelativeNo.ToUpper()).Select(y => y.MaAccName).FirstOrDefault(),
+                                        Debit = gp.Sum(pc => pc.AccountsTransactionsDebit),
+                                        Credit = gp.Sum(pc => pc.AccountsTransactionsCredit)
+                                    })
+
+                         .OrderBy(t => t.MA_RelativeName).ToListAsync();
+
+                var AccountTransIds = _accountTrans.GetAsQueryable()
+                                                               .Where(x => x.AccountsTransactionsTransDate >= model.FromDate
+                                                 && x.AccountsTransactionsTransDate <= model.ToDate).Select(o => o.AccountsTransactionsAccNo).Distinct().ToList();
+
+                var assetsNotIn = await (from ma in _masterAccount.GetAsQueryable().Where(y => y.MaMainHead.ToUpper() == "ASSETS"
+                                                                          && y.MaAccType == "A"
+                                                                          && y.MaStatus == "R"
+                                                                          && !AccountTransIds.Contains(y.MaAcAcc)
+                                         )
+
+                                         select new BalanceSheetResponse
+                                         {
+                                             MA_MainHead = ma.MaMainHead,
+                                             MA_SubHead = ma.MaSubHead,
+                                             //MA_AccNo = ma.MaAccNo,
+                                             //MA_AccName = ma.MaAccName,
+                                             MA_RelativeNo = ma.MaRelativeNo,
+                                             MA_RelativeName = _masterAccount.GetAsQueryable().Where(y => y.MaAccNo.ToUpper() == ma.MaRelativeNo.ToLower()).Select(y => y.MaAccName).FirstOrDefault(),
+                                             Debit = 0,
+                                             Credit = 0
+                                         })
+                        .OrderBy(t => t.MA_RelativeName).ToListAsync();
+
+                var assetsFinal = assets.Union(assetsNotIn);
+
+                var liabilites = await (from ma in _masterAccount.GetAsQueryable().Where(y => y.MaMainHead.ToUpper() == "LIABILITIES")
+                                        join at in _accountTrans.GetAsQueryable()
+                                                      .Where(x => x.AccountsTransactionsTransDate >= model.FromDate
+                                        && x.AccountsTransactionsTransDate <= model.ToDate
+                                        )
+                                        on ma.MaAccNo equals at.AccountsTransactionsAccNo into g
+                                        from grd in g.DefaultIfEmpty()
+                                        group grd by new
+                                        {
+                                            //grd.AccountsTransactionsAccNo,
+                                            //ma.MaAccName,
+                                            ma.MaMainHead,
+                                            ma.MaRelativeNo,
+                                            ma.MaSubHead
+                                        } into gp
+
+                                        where gp.Sum(x => x.AccountsTransactionsCredit) > 0 || gp.Sum(x => x.AccountsTransactionsDebit) > 0
+                                        select new BalanceSheetResponse
+                                        {
+                                            MA_MainHead = gp.Key.MaMainHead,
+                                            MA_SubHead = gp.Key.MaSubHead,
+                                            //MA_AccNo = gp.Key.AccountsTransactionsAccNo,
+                                            //MA_AccName = gp.Key.MaAccName,
+                                            MA_RelativeNo = gp.Key.MaRelativeNo,
+                                            MA_RelativeName = _masterAccount.GetAsQueryable().Where(y => y.MaAccNo.ToUpper() == gp.Key.MaRelativeNo.ToUpper()).Select(y => y.MaAccName).FirstOrDefault(),
+                                            Debit = gp.Sum(pc => pc.AccountsTransactionsDebit),
+                                            Credit = gp.Sum(pc => pc.AccountsTransactionsCredit)
+                                        })
+
+                       .OrderBy(t => t.MA_RelativeName).ToListAsync();
+
+                var liabilitesNotIn = await (from ma in _masterAccount.GetAsQueryable().Where(y => y.MaMainHead.ToUpper() == "LIABILITIES"
+                                                                          && y.MaAccType == "A"
+                                                                          && y.MaStatus == "R"
+                                                                          && !AccountTransIds.Contains(y.MaAcAcc)
+                                         )
+
+                                             select new BalanceSheetResponse
+                                             {
+                                                 MA_MainHead = ma.MaMainHead,
+                                                 MA_SubHead = ma.MaSubHead,
+                                                 //MA_AccNo = ma.MaAccNo,
+                                                 //MA_AccName = ma.MaAccName,
+                                                 MA_RelativeNo = ma.MaRelativeNo,
+                                                 MA_RelativeName = _masterAccount.GetAsQueryable().Where(y => y.MaAccNo.ToUpper() == ma.MaRelativeNo.ToLower()).Select(y => y.MaAccName).FirstOrDefault(),
+                                                 Debit = 0,
+                                                 Credit = 0
+                                             })
+                        .OrderBy(t => t.MA_RelativeName).ToListAsync();
+
+                var liabilitesFinal = liabilites.Union(liabilitesNotIn);
+
+                var assetsLiablitiesEquties = assetsFinal.Union(liabilitesFinal).ToList();
+                assetsLiablitiesEquties.Add(new BalanceSheetResponse
+                {
+                    MA_MainHead = "Equity",
+                    MA_SubHead = "Profit & Loss",
+                    MA_AccNo = "",
+                    MA_AccName = "Profit & Loss",
+                    MA_RelativeNo = "",
+                    MA_RelativeName = "Profit & Loss",
+                    Debit = Net_Profit_Loss > 0 ? 0 : Convert.ToDecimal(System.Math.Abs(Net_Profit_Loss)),
+                    Credit = Net_Profit_Loss > 0 ? Convert.ToDecimal(System.Math.Abs(Net_Profit_Loss)) : 0,
+                });
+
+                return Response<List<BalanceSheetResponse>>.Success(assetsLiablitiesEquties.ToList(), "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<List<BalanceSheetResponse>>.Fail(new List<BalanceSheetResponse>(), ex.Message);
+            }
+        }
+        public async Task<Response<List<BalanceSheetResponse>>> GetAccountTransactionsBalanceSheetsDetails(GenericGridViewModel model)
         {
             try
             {
@@ -201,11 +338,13 @@ namespace Inspire.Erp.Application.MIS.Implementations
                                                  from grd in g.DefaultIfEmpty()
                                                  group grd by new
                                                  {
-                                                     grd.AccountsTransactionsAccNo,
-                                                     ma.MaAccName,
                                                      ma.MaMainHead,
+                                                     ma.MaSubHead,
                                                      ma.MaRelativeNo,
-                                                     ma.MaSubHead
+                                                     grd.AccountsTransactionsAccNo,
+                                                     ma.MaAccName
+                                                     
+                                                   
                                                  } into gp
                                                  where gp.Sum(x => x.AccountsTransactionsCredit) > 0 || gp.Sum(x => x.AccountsTransactionsDebit) > 0
                                                  select new BalanceSheetResponse
@@ -798,11 +937,6 @@ namespace Inspire.Erp.Application.MIS.Implementations
                 return Response<List<GetAccountTransactionBalanceSheetResponse>>.Fail(new List<GetAccountTransactionBalanceSheetResponse>(), ex.Message);
             }
         }
-
-
-
-
-
         public async Task<Response<ReturnPrintResponse>> BalanceSheetPrint(GenericGridViewModel model)
         {
             try
@@ -917,7 +1051,6 @@ namespace Inspire.Erp.Application.MIS.Implementations
             }
             return sb.ToString();
         }
-
         public async Task<Response<ReturnPrintResponse>> BalanceSheetPrintSummary(GenericGridViewModel model)
         {
             try
@@ -974,8 +1107,6 @@ namespace Inspire.Erp.Application.MIS.Implementations
                 return Response<ReturnPrintResponse>.Fail(new ReturnPrintResponse(), ex.Message);
             }
         }
-
-
         private string GetHTMLStringSummary(List<GetBalanceSheetSummaryResponse> records)
         {
             var results = records;

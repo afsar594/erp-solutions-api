@@ -27,7 +27,7 @@ namespace Inspire.Erp.Web.ViewModels.Procurement
         public string PurchaseOrderLpono { get; set; }
         public DateTime? PurchaseOrderLpodate { get; set; }
         public string PurchaseOrderQtnNo { get; set; }
-        public DateTime? PurchaseOrderQtnDate { get; set; }    
+        public DateTime? PurchaseOrderQtnDate { get; set; }
         public bool? PurchaseOrderExcludeVat { get; set; }
         public string PurchaseOrderPono { get; set; }
         public string PurchaseOrderBatchCode { get; set; }
@@ -87,5 +87,15 @@ namespace Inspire.Erp.Web.ViewModels.Procurement
         //public List<StockRegisterViewModel> StockRegister { get; set; }
 
 
+    }
+
+    public class approlvalmodel
+    {
+        public string status { get; set; }
+        public List<string>? type { get; set; }
+        public int userId { get; set; }
+         public bool isDate { get; set; }
+        public DateTime? fromDate { get; set; }
+        public DateTime? toDate { get; set; }
     }
 }

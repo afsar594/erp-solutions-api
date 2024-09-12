@@ -72,8 +72,30 @@ namespace Inspire.Erp.Web.ViewModels
         public int? ItemMasterVATID { get; set; }
         public bool? ItemMasterDelStatus { get; set; }
         public string ItemMasterImageBase64 { get; set; }
-        public  List<ItemPriceLevelDetailsViewModel> ItemPriceLevelDetails { get; set; }
-        public  List<UnitDetailsViewModel> UnitDetails { get; set; }
+        public List<ItemPriceLevelDetailsViewModel> ItemPriceLevelDetails { get; set; }
+        public List<UnitDetailsViewModel> UnitDetails { get; set; }
         public List<ItemImagesViewModel> ItemImages { get; set; }
+    }
+
+    public class ItemMasterDTModel
+    {
+        public long? ItemMasterItemId { get; set; }
+        public string ItemMasterItemName { get; set; }
+        public decimal? ItemMasterUnitPrice { get; set; }
+        public string ItemMasterPartNo { get; set; }
+
+        public UnitDetailsDTModel UnitDetails { get; set; }
+
+
+    }
+    public class UnitDetailsDTModel
+    {
+        public int UnitDetailsId { get; set; }
+        public int UnitDetailsUnitId { get; set; }
+        public double? UnitDetailsConversionType { get; set; }
+        public double? UnitDetailsRate { get; set; }
+        public double? UnitDetailsUnitCost { get; set; }
+        public double? UnitDetailsUnitPrice { get; set; }
+
     }
 }

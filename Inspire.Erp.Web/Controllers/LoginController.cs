@@ -2,14 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Inspire.Erp.Application.Authentication.Inerfaces;
+using Inspire.Erp.Application.Master;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Inspire.Erp.Web.Common;
 using Inspire.Erp.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -19,9 +24,17 @@ namespace Inspire.Erp.Web.Controllers
     public class LoginController : ControllerBase
     {
         private readonly IloginService loginsvc;
-        public LoginController(IloginService _loginsvc)
+        private readonly IMapper _mapper;
+        private IRepository<UserFile> userFileRepository;
+        private IRepository<LocationMaster> locationrepository;
+        private IRepository<FinancialPeriods> financialrepository;
+
+        public LoginController(IloginService _loginsvc, IMapper mapper,
+            IRepository<LocationMaster> _locationrepository, IRepository<UserFile> _userFileRepository, IRepository<FinancialPeriods> _financialrepository)
         {
             loginsvc = _loginsvc;
+            _mapper = mapper; userFileRepository = _userFileRepository;
+            locationrepository = _locationrepository; financialrepository = _financialrepository;
         }
         [HttpPost]
         [Route("login")]
@@ -132,6 +145,144 @@ namespace Inspire.Erp.Web.Controllers
                 return Request.Headers["X-Forwarded-For"];
             else
                 return HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
+        }
+        [HttpPost]
+        [Route("InsertUser")]
+        public ApiResponse<UserFileViewModel> InserUser([FromBody] UserFileViewModel user)
+        {
+            ApiResponse<UserFileViewModel> apiResponse = new ApiResponse<UserFileViewModel>();
+
+            var param1 = _mapper.Map<UserFile>(user);
+
+            var xs = loginsvc.InsertUser(param1);
+
+            UserFileViewModel userdata = new UserFileViewModel();
+            userdata = _mapper.Map<UserFileViewModel>(xs);
+
+            apiResponse = new ApiResponse<UserFileViewModel>
+            {
+                Valid = true,
+                Result = userdata,
+                Message = UserFileMessage.SaveUser
+            };
+            return apiResponse;
+        }
+
+
+        [HttpPost]
+        [Route("UpdateUser")]
+        public ApiResponse<UserFileViewModel> UpdateUser([FromBody] UserFileViewModel user)
+        {
+            ApiResponse<UserFileViewModel> apiResponse = new ApiResponse<UserFileViewModel>();
+
+            var param1 = _mapper.Map<UserFile>(user);
+
+            var xs = loginsvc.UpdateUser(param1);
+
+            UserFileViewModel userdata = new UserFileViewModel();
+            userdata = _mapper.Map<UserFileViewModel>(xs);
+
+            apiResponse = new ApiResponse<UserFileViewModel>
+            {
+                Valid = true,
+                Result = userdata,
+                Message = UserFileMessage.UpdateUser
+            };
+            return apiResponse;
+        }
+
+        [HttpPost]
+        [Route("DeleteUser")]
+        public ApiResponse<UserFileViewModel> DeleteUser([FromBody] UserFileViewModel user)
+        {
+            ApiResponse<UserFileViewModel> apiResponse = new ApiResponse<UserFileViewModel>();
+
+            var param1 = _mapper.Map<UserFile>(user);
+
+            var xs = loginsvc.DeleteUser(param1);
+
+            UserFileViewModel userdata = new UserFileViewModel();
+            userdata = _mapper.Map<UserFileViewModel>(xs);
+
+            apiResponse = new ApiResponse<UserFileViewModel>
+            {
+                Valid = true,
+                Result = userdata,
+                Message = UserFileMessage.DeleteUser
+            };
+            return apiResponse;
+        }
+
+
+        [HttpGet]
+        [Route("GetAllUserFile")]
+        public ApiResponse<List<UserFile>> GetAllUserFile()
+        {
+            ApiResponse<List<UserFile>> apiResponse = new ApiResponse<List<UserFile>>
+            {
+                Valid = true,
+                Result = _mapper.Map<List<UserFile>>(loginsvc.GetAllUserFile()),
+                Message = ""
+            };
+            return apiResponse;
+        }
+
+        [HttpGet]
+        [Route("GetUserById")]
+
+        public UserFile GetUserById(long id)
+        {
+            var user = loginsvc.GetUserById(id);
+
+            return user;
+        }
+
+        [HttpGet]
+        [Route("LoadDropdown")]
+        public ResponseInfo LoadDropdown()
+        {
+            var objectresponse = new ResponseInfo();
+
+            var LocationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
+            {
+                c.LocationMasterLocationId,
+                c.LocationMasterLocationName
+            }).ToList();
+            var FinancialPeriods = financialrepository.GetAsQueryable().Where(x => x.FinancialPeriodsFsno != null).Select(k => new
+            {
+                k.FinancialPeriodsFsno,
+                k.FinancialPeriodsStartDate,
+                k.FinancialPeriodsEndDate
+            });
+
+            objectresponse.ResultSet = new
+            {
+                LocationMaster = LocationMaster,
+                FinancialPeriods = FinancialPeriods
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
+
+        [HttpGet]
+        [Route("GetAllUser")]
+
+        public ResponseInfo GetAllUser()
+        {
+            var objectresponse = new ResponseInfo();
+
+            var user = userFileRepository.GetAsQueryable().AsNoTracking().Select(a => new
+            {
+                a.UserId,
+                a.UserName
+            }).ToList();
+            objectresponse.ResultSet = new
+            {
+                result = user,
+            };
+            objectresponse.IsSuccess = true;
+            return objectresponse;
         }
     }
 }

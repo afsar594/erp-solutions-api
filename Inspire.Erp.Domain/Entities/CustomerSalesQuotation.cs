@@ -18,6 +18,13 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? CustomerQuotationDetailsAmount { get; set; }
         public long? CustomerQuotationDetailsUnits { get; set; }
         public string? CustomerQuotationDetailsRemarks { get; set; }
+        public decimal? CustomerQuotationVatPercentage { get; set; }
+        public decimal? CustomerQuotationDiscountPercentage { get; set; }
+        public decimal? CustomerQuotationVatAmount { get; set; }
+        public decimal? CustomerQuotationDiscountAmountTotal { get; set; }
+
+
+
 
 
 

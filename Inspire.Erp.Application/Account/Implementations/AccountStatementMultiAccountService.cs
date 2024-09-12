@@ -64,7 +64,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     Value = " 1 == 1",
                     Name = " All "
                 }); ;
-                response.AddRange(await _masterAccountsTable.ListSelectAsync(x => x.MaAccType == "G" && x.MaStatus == "R", x => new DropdownResponse
+                response.AddRange(await _masterAccountsTable.ListSelectAsync(x => x.MaAccType == "S" && x.MaStatus == "R", x => new DropdownResponse
                 {
                     Value = @$" MaRelativeNo == ""{x.MaAccNo}"" ",
                     Name = x.MaAccName
@@ -258,6 +258,152 @@ namespace Inspire.Erp.Application.Account.Implementations
                 return Response<MultiAccountDetailResponse>.Fail(new MultiAccountDetailResponse(), ex.Message);
             }
         }
+
+
+        public async Task<Response<List<StatementOfAccountFCDetailResponse>>> GetAccountTransactionsForeignCurrencyDetail(GenericGridViewModel model)
+        {
+            try
+            {
+                var location = await _locationMaster.GetAsQueryable().FirstOrDefaultAsync();
+
+                var AccountTrans= _accountTransaction.GetAsQueryable()
+                                                             .Where(x => (model.FromDate==null || x.AccountsTransactionsTransDate >= model.FromDate)
+                                               && (model.ToDate == null || x.AccountsTransactionsTransDate <= model.ToDate)
+                                                && (model.Filter == null || x.AccountsTransactionsAccNo.Contains(model.Filter)))
+                                             .Select(o =>
+                                               new StatementOfAccountFCDetailResponse
+                                               {
+                                                   AccNo = o.AccountsTransactionsAccNo,
+                                                   TransDate = (DateTime)o.AccountsTransactionsTransDate,
+                                                   Particulars = o.AccountsTransactionsParticulars,
+                                                   Debit = Convert.ToDouble(o.AccountsTransactionsFcDebit??0),
+                                                   Credit = Convert.ToDouble(o.AccountsTransactionsFcCredit??0),
+                                                   VoucherType = o.AccountsTransactionsVoucherType,
+                                                   VoucherNo = o.AccountsTransactionsVoucherNo,
+                                                   Description =o.AccountsTransactionsDescription,
+                                                   RefNo = o.RefNo
+                                               }).ToList();
+
+                foreach(var account in AccountTrans)
+                {
+                   if(account.Debit>account.Credit)
+                    {
+                        account.RunningBalance = account.RunningBalance + account.Debit;
+                    }
+
+                    if (account.Credit > account.Debit)
+                    {
+                        account.RunningBalance = account.RunningBalance - account.Credit;
+                    }
+                }
+
+                //If DrBala > CrBala Then
+                //          RunningBala = RunningBala + DrBala
+                //        ElseIf CrBala > DrBala Then
+                //            RunningBala = RunningBala - CrBala
+                //        End If
+                 return Response<List<StatementOfAccountFCDetailResponse>>.Success(AccountTrans, "Data found");
+            }
+            catch (Exception ex)
+            {
+                 return Response<List<StatementOfAccountFCDetailResponse>>.Fail(new List<StatementOfAccountFCDetailResponse>(), ex.Message);
+            }
+        }
+
+
+        public async Task<Response<StatementOfAccountFCSummResponse>> GetAccountTransactionsForeignCurrencySummary(GenericGridViewModel model)
+        {
+            try
+            {
+                //var location = await _locationMaster.GetAsQueryable().FirstOrDefaultAsync();
+
+                var AccountTrans = _accountTransaction.GetAsQueryable()
+                                                             .Where(x => (model.FromDate == null || x.AccountsTransactionsTransDate >= model.FromDate)
+                                               && (model.ToDate == null || x.AccountsTransactionsTransDate <= model.ToDate)
+                                                //&&  model.accountNos.Contains(x.AccountsTransactionsAccNo)
+                                                && x.AccountsTransactionsAccNo.ToLower() == model.Filter.ToLower()
+                                               )
+                                                            .GroupBy(r => r.AccountsTransactionsAccNo).Select(o =>
+
+                                               new StatementOfAccountFCSummResponse
+                                               {
+                                                   AccNo = o.Key,
+                                                   TotalDebit = Convert.ToDouble(o.Sum(pc => pc.AccountsTransactionsFcDebit ?? 0)),
+                                                   TotalCredit = Convert.ToDouble(o.Sum(pc => pc.AccountsTransactionsFcCredit ?? 0)),
+
+                                               }).ToList();
+
+                //var AccountTrans = _accountTransaction.GetAsQueryable()
+                //                                       .Where(x => (model.FromDate == null || x.AccountsTransactionsTransDate >= model.FromDate)
+                //                         && (model.ToDate == null || x.AccountsTransactionsTransDate <= model.ToDate)
+                //                          //&&  model.accountNos.Contains(x.AccountsTransactionsAccNo)
+                //                          && x.AccountsTransactionsAccNo.ToLower() == model.Filter.ToLower()
+                //                         )
+                //                                          //.GroupBy(r => r.AccountsTransactionsAccNo).Select(o =>
+                //                                          .GroupBy(c => new
+                //                                          {
+                //                                              c.AccountsTransactionsAccNo
+                //                                              //c.A
+
+                //                                          }).Select(o =>
+                //                         new StatementOfAccountFCSummResponse
+                //                         {
+                //                             AccNo = o.Key.AccountsTransactionsAccNo,
+                //                             TotalDebit = Convert.ToDouble(o.Sum(pc => pc.AccountsTransactionsFcDebit ?? 0)),
+                //                             TotalCredit = Convert.ToDouble(o.Sum(pc => pc.AccountsTransactionsFcCredit ?? 0)),
+
+                //                         }).ToList();
+
+                if (AccountTrans.Count > 0)
+                { 
+                    double Total_Dr = AccountTrans.Sum(x => Convert.ToDouble(x.TotalDebit));
+                double Total_Cr = AccountTrans.Sum(x => Convert.ToDouble(x.TotalCredit));
+                var acctrans = new StatementOfAccountFCSummResponse
+                {
+                    AccNo = AccountTrans.FirstOrDefault().AccNo,
+                    TotalDebit = Total_Dr,
+                    TotalCredit = Total_Cr
+                };
+                if (acctrans.TotalDebit > 0)
+                {
+                    acctrans.DebitBalance = acctrans.TotalDebit;
+                }
+                else
+                {
+                    acctrans.DebitBalance = 0;
+                }
+                if (acctrans.TotalCredit > 0)
+                {
+                    acctrans.CreditBalance = acctrans.TotalCredit;
+                }
+                else
+                {
+                    acctrans.CreditBalance = 0;
+                }
+
+                if (acctrans.DebitBalance >= acctrans.CreditBalance)
+                {
+                    acctrans.DebitBalance = acctrans.DebitBalance - acctrans.CreditBalance;
+                    acctrans.CreditBalance = 0;
+                }
+                if (acctrans.CreditBalance > acctrans.DebitBalance)
+                {
+                    acctrans.DebitBalance = 0;
+                    acctrans.CreditBalance = acctrans.CreditBalance - acctrans.DebitBalance;
+                }
+                return Response<StatementOfAccountFCSummResponse>.Success(acctrans, "Data found");
+            }
+                else
+                {
+                    return Response<StatementOfAccountFCSummResponse>.Success(new StatementOfAccountFCSummResponse(), "No Data found");
+                }
+               
+            }
+            catch (Exception ex)
+            {
+                return Response<StatementOfAccountFCSummResponse>.Fail(new StatementOfAccountFCSummResponse(), ex.Message);
+            }
+        }  
 
         public async Task<Response<ReturnPrintResponse>> VoucherPrint(GenericGridViewModel model)
         {

@@ -4,9 +4,15 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Inspire.Erp.Application.Account;
+using Inspire.Erp.Application.Account.Implementation;
 using Inspire.Erp.Application.Master;
+using Inspire.Erp.Application.NewFolder.Interfaces;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Domain.Modals.File;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Inspire.Erp.Web.Common;
 using Inspire.Erp.Web.ViewModels;
 using Microsoft.AspNetCore.Http;
@@ -21,13 +27,27 @@ namespace Inspire.Erp.Web.Controllers
     {
         private readonly IMapper _mapper;
         private IJobMasterService jobMasterService;
-        public JobController(IJobMasterService _jobMasterService, IMapper mapper)
+        private IFileService fileService;
+        private IRepository<CurrencyMaster> currencyrepository; private IRepository<CountryMaster> countryrepository;
+        private IChartofAccountsService chartofAccountsService; private IRepository<SalesManMaster> salesmanrepository;
+        private IRepository<CustomerMaster> _customerMasterRepository; private IRepository<ProjectDescriptionMaster> ProjectDescriptionrepository;
+        private IRepository<BankGuaranteeMaster> bankGuaranteerepository;
+        public JobController(IJobMasterService _jobMasterService, IMapper mapper,
+             IRepository<CurrencyMaster> _currencyrepository, IRepository<ProjectDescriptionMaster> _ProjectDescriptionrepository
+            , IChartofAccountsService _chartofAccountsService, IRepository<BankGuaranteeMaster> _bankGuaranteerepository, IRepository<SalesManMaster> _salesmanrepository, IRepository<CustomerMaster> customerMasterRepository
+            ,IFileService _fileService
+            )
         {
             jobMasterService = _jobMasterService;
             _mapper = mapper;
+            ProjectDescriptionrepository = _ProjectDescriptionrepository;
+            chartofAccountsService = _chartofAccountsService; salesmanrepository = _salesmanrepository;
+            currencyrepository = _currencyrepository; _customerMasterRepository = customerMasterRepository;
+            bankGuaranteerepository = _bankGuaranteerepository;
+            fileService = _fileService;
         }
         [HttpGet]
-        [Route("GetJobMaster")]                       
+        [Route("GetJobMaster")]
         public ApiResponse<List<JobMaster>> GetAllJob()
         {
             ApiResponse<List<JobMaster>> apiResponse = new ApiResponse<List<JobMaster>>
@@ -53,7 +73,7 @@ namespace Inspire.Erp.Web.Controllers
                     Result = jobMaster,
                     Message = ""
                 };
-                return apiResponse;                            
+                return apiResponse;
             }
             return null;
         }
@@ -67,8 +87,10 @@ namespace Inspire.Erp.Web.Controllers
             var param2 = _mapper.Map<List<JobMasterBudgetDetails>>(jobMaster.JobMasterBudgetDetails);
             var param3 = _mapper.Map<List<JobMasterJobDetails>>(jobMaster.JobMasterJobDetails);
             var param4 = _mapper.Map<List<JobMasterJobWiseBankGuarantees>>(jobMaster.JobMasterJobWiseBankGuarantees);
-
-            var respone = jobMasterService.InsertJobMaster(param1, param2, param3,param4);
+            var param5 = _mapper.Map<List<JobStaff>>(jobMaster.JobStaff);
+            var param6 = _mapper.Map<List<JobEquipment>>(jobMaster.JobEquipment);
+            var param7 = _mapper.Map<List<JobExcutionDetails>>(jobMaster.JobExcutionDetails);
+            var respone = jobMasterService.InsertJobMaster(param1, param2, param3, param4, param5, param6, param7);
 
             apiResponse = new ApiResponse<JobMaster>
             {
@@ -159,6 +181,20 @@ namespace Inspire.Erp.Web.Controllers
 
             }).ToList();
         }
+
+
+        [HttpGet]
+        [Route("GetJobCost/{id}")]
+        public async Task<IActionResult> GeneratePdf(int id)
+        {
+
+            var html = await jobMasterService.GetJobHTML(id);
+            var pdfRe = new AddPDFResponse();
+            pdfRe.Html = html;
+            var pdfBytes = await fileService.GeneratePdf(pdfRe);
+
+            return File(pdfBytes.Result, "application/pdf", "generated.pdf");
+        }
         [HttpPost]
         [Route("readpdffile")]
         public async Task<IActionResult> PostPdfFile()
@@ -172,9 +208,9 @@ namespace Inspire.Erp.Web.Controllers
             foreach (var file in files)
             {
                 Random rn = new Random();
-                int count = rn.Next(1111,9999);
+                int count = rn.Next(1111, 9999);
                 var fileName = count + file.FileName;
-                
+
                 //string fileExtension = Path.GetExtension(file.FileName);
                 //var pathBuilt = Path.Combine(Directory.GetCurrentDirectory() ,"Upload\\Pdfs");
 
@@ -197,6 +233,63 @@ namespace Inspire.Erp.Web.Controllers
 
 
             return Ok(true);
+        }
+
+        [HttpGet]
+        [Route("jobLoadDropdown")]
+        public ResponseInfo jobLoadDropdown()
+        {
+            var objresponse = new ResponseInfo();
+
+            var currencyMasters = currencyrepository.GetAsQueryable().Where(a => a.CurrencyMasterCurrencyDelStatus != true).Select(c => new
+            {
+                c.CurrencyMasterCurrencyId,
+                c.CurrencyMasterCurrencyName,
+                c.CurrencyMasterCurrencyRate
+            }).ToList();
+            var masterAccountsTables = chartofAccountsService.GetAllAccounts().Where(a => a.MaDelStatus != true).Select(c => new
+            {
+                c.MaAccNo,
+                c.MaAccName,
+                c.MaRelativeNo,
+                c.MaSno
+            }).ToList();
+            var customerMasters = _customerMasterRepository.GetAsQueryable().Where(k => k.CustomerMasterCustomerDelStatus != true).Select(a => new
+            {
+                a.CustomerMasterCustomerNo,
+                a.CustomerMasterCustomerName,
+                a.CustomerMasterCustomerVatNo,
+                a.CustomerMasterCustomerContactPerson,
+                a.CustomerMasterCustomerAddress,
+                a.CustomerMasterCustomerReffAcNo
+            }).ToList();
+            var SaleManList = salesmanrepository.GetAsQueryable().Where(a => a.SalesManMasterSalesManDelStatus != true).Select(c => new
+            {
+                c.SalesManMasterSalesManId,
+                c.SalesManMasterSalesManName,
+            }).ToList();
+            var projectDescriptionMaster = ProjectDescriptionrepository.GetAsQueryable().Where(a => a.ProjectDescriptionMasterProjectDescriptionDelStatus != true).Select(c => new
+            {
+                c.ProjectDescriptionMasterProjectDescriptionId,
+                c.ProjectDescriptionMasterProjectDescriptionName
+            }).ToList();
+
+            var bankGuaranteeMasters = bankGuaranteerepository.GetAsQueryable().Where(a => a.BankGuaranteeMasterDeleted != true).Select(c => new
+            {
+                c.BankGuaranteeMasterBgid,
+                BankGuaranteeMasterBgname = c.BankGuaranteeMasterBgname.Trim()
+            }).ToList();
+            objresponse.ResultSet = new
+            {
+                currencyMasters = currencyMasters,
+                masterAccountsTables = masterAccountsTables,
+                SaleManList = SaleManList,
+                customerMasters = customerMasters,
+                bankGuaranteeMasters = bankGuaranteeMasters,
+                projectDescriptionMaster = projectDescriptionMaster
+
+            };
+            return objresponse;
         }
     }
 }

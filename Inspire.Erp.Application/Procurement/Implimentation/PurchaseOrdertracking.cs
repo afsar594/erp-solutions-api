@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Transactions;
+using Microsoft.AspNetCore.Mvc;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Inspire.Erp.Application.Procurement.Implimentation
 {
@@ -24,8 +26,10 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
         private IRepository<CurrencyMaster> _curreny;
         private IRepository<StockRegister> _stock;
         private IRepository<PurOrderRegister> _poRegister;
-
-        public PurchaseOrdertracking(IRepository<PurchaseOrder> purchaseOrder, IRepository<PurchaseOrderDetails> poDetails, IRepository<Suppliers> supliers, IRepository<JobMaster> jobMaster, IRepository<ItemMaster> itemMaster, IRepository<CurrencyMaster> curreny, IRepository<StockRegister> stock, IRepository<PurOrderRegister> poRegister)
+        private IRepository<UserTracking> _UserTracking;
+        private IRepository<UserFile> _UserFile;
+        private IRepository<SuppliersMaster> _supliersMaster;
+        public PurchaseOrdertracking(IRepository<UserFile> UserFile, IRepository<UserTracking> UserTracking, IRepository<PurchaseOrder> purchaseOrder, IRepository<PurchaseOrderDetails> poDetails, IRepository<Suppliers> supliers, IRepository<JobMaster> jobMaster, IRepository<ItemMaster> itemMaster, IRepository<CurrencyMaster> curreny, IRepository<StockRegister> stock, IRepository<PurOrderRegister> poRegister, IRepository<SuppliersMaster> supliersMaster)
         {
             _purchaseOrder = purchaseOrder;
             _poDetails = poDetails;
@@ -35,92 +39,144 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
             _curreny = curreny;
             _stock = stock;
             _poRegister = poRegister;
+            _UserFile = UserFile;
+            _UserTracking = UserTracking;
+            _supliersMaster = supliersMaster;
         }
 
         public async Task<Response<List<POTrackingDetails>>> GetPurchaseOrderTrackingDetails(ReportFilter model)
         {
-            List<POTrackingDetails> data = new List<POTrackingDetails>();
+            List<POTrackingDetails> data = new List<POTrackingDetails>();            
             try
             {
+                // Suleman 8/3/2024 changes filter 
                 string filteredValue = string.Empty;
-                if (!string.IsNullOrEmpty(model.fromDate) && !string.IsNullOrEmpty(model.toDate))
+
+                if (model.IsDateCheck)
                 {
-                    filteredValue += $" and (po.PurchaseOrderDate >= {model.fromDate} and  po.PurchaseOrderDate <= {model.toDate} )";
-                }
-                if (model.SupplierId > 0)
-                {
-                    filteredValue += $" and po.PurchaseOrderSupInvNo = {model.SupplierId} ";
-                }
-                if (model.JobId > 0)
-                {
-                    filteredValue += $" and po.PurchaseOrderJobId = {model.JobId} ";
-                }
-                if (model.LocationId > 0)
-                {
-                    filteredValue += $" and po.PurchaseOrderLocationId = {model.LocationId} ";
-                }
-                if (model.ItemId > 0)
-                {
-                    filteredValue += $" and pod.PurchaseOrderDetailsMatId = {model.ItemId} ";
-                }
-                if (!string.IsNullOrEmpty(model.PONO) && model.PONO.ToUpper() != "ALL".ToUpper())
-                {
-                    filteredValue += $" and po.PurchaseOrderPono = {model.ItemId} ";
-                }
-                if (!string.IsNullOrEmpty(model.Status))
-                {
-                    filteredValue += $" and po.PurchaseOrderStatus = {model.Status} ";
-                }
-                var result = await (from po in _purchaseOrder.GetAsQueryable().Where($"1 == 1 {filteredValue}")
-                                    join sp in _supliers.GetAsQueryable() on po.PurchaseOrderSupInvNo equals sp.SuppliersInsId.ToString() into spGroup
-                                    from sp in spGroup.DefaultIfEmpty()
-                                    join pod in _poDetails.GetAsQueryable() on po.PurchaseOrderId equals pod.PurchaseOrderId into podGroup
-                                    from pod in podGroup.DefaultIfEmpty()
-                                    join i in _itemMaster.GetAsQueryable() on pod.PurchaseOrderDetailsMatId equals i.ItemMasterItemId into iGroup
-                                    from i in iGroup.DefaultIfEmpty()
-                                    join cm in _curreny.GetAsQueryable() on po.PurchaseOrderCurrencyId equals cm.CurrencyMasterCurrencyId into cmGroup
-                                    from cm in cmGroup.DefaultIfEmpty()
-                                    join jm in _jobMaster.GetAsQueryable() on po.PurchaseOrderJobId equals jm.JobMasterJobId into jmGroup
-                                    from jm in jmGroup.DefaultIfEmpty()
-                                    select new POTrackingDetails()
-                                    {
-                                        PONO = po.PurchaseOrderPono,
-                                        PODate = po.PurchaseOrderDate,
-                                        Supplier = sp.SuppliersInsName,
-                                        POQuantity = pod.PurchaseOrderDetailsQuantity,
-                                        PartNO = (i != null) ? i.ItemMasterPartNo : "",
-                                        ItemName = pod.PurchaseOrderDetailsItemName,
-                                        ItemRate = pod.PurchaseOrderDetailsRate,
-                                        PODetailsId = pod.PurchaseOrderDetailsPodId,
-                                        ItemId = pod.PurchaseOrderDetailsMatId.ToString(),
-                                        POStatus = po.PurchaseOrderStatus,
-                                        CurrencyRate = (cm != null) ? (decimal?)cm.CurrencyMasterCurrencyRate : 1,
-                                        DiscountPerc = po.PurchaseOrderTotalDisPer,
-                                        VATPerc = po.PurchaseOrderVatPer,
-                                        Amount = po.PurchaseOrderNetAmount,
-                                        DiscountAmount = po.PurchaseOrderTotalDisAmount,
-                                        IssuedQty = _poRegister.GetAsQueryable()
-                                                      .Where(pr => pr.PurOrderRegisterOrderNo == po.PurchaseOrderPono && pr.PurOrderRegisterDetailId == pod.PurchaseOrderDetailsPodId && pr.PurOrderRegisterMaterialId == pod.PurchaseOrderDetailsMatId)
-                                                      .Sum(pr => (int?)pr.PurOrderRegisterQtyIssued) ?? 0,
-                                        BalanceQty = pod.PurchaseOrderDetailsQuantity - (_poRegister.GetAsQueryable().Where(pr => pr.PurOrderRegisterOrderNo == po.PurchaseOrderPono && pr.PurOrderRegisterDetailId == pod.PurchaseOrderDetailsPodId && pr.PurOrderRegisterMaterialId == pod.PurchaseOrderDetailsMatId)
-                                                                       .Sum(pr => (int?)pr.PurOrderRegisterQtyIssued) ?? 0),
-                                        Currency = (cm != null) ? cm.CurrencyMasterCurrencyName : "",
-                                        JobName = (jm != null) ? jm.JobMasterJobName : "",
-                                        JobNo = (jm != null) ? jm.JobMasterJobNo : ""
-                                    }).OrderBy(x => x.PODate).ThenBy(x => x.PONO).ToDynamicListAsync();
-                if (result.Count > 0)
-                {
-                    foreach (var item in result)
+                    var result = await (from po in _purchaseOrder.GetAsQueryable()
+                                        join sp in _supliersMaster.GetAsQueryable() on (int?)po.PurchaseOrderPartyId equals sp.SuppliersMasterSupplierId into spGroup
+                                        from sp in spGroup.DefaultIfEmpty()
+                                        join pod in _poDetails.GetAsQueryable() on po.PurchaseOrderId equals pod.PurchaseOrderId into podGroup
+                                        from pod in podGroup.DefaultIfEmpty()
+                                        join i in _itemMaster.GetAsQueryable() on (long)pod.PurchaseOrderDetailsMatId equals i.ItemMasterItemId into iGroup
+                                        from i in iGroup.DefaultIfEmpty()
+                                        join cm in _curreny.GetAsQueryable() on po.PurchaseOrderCurrencyId equals cm.CurrencyMasterCurrencyId into cmGroup
+                                        from cm in cmGroup.DefaultIfEmpty()
+                                        join jm in _jobMaster.GetAsQueryable() on po.PurchaseOrderJobId equals jm.JobMasterJobId into jmGroup
+                                        from jm in jmGroup.DefaultIfEmpty()
+
+                                        where (model.SupplierId == 0 || po.PurchaseOrderPartyId == model.SupplierId) &&
+                                        (model.JobId == 0 || po.PurchaseOrderJobId == model.JobId) &&
+                                        (model.LocationId == 0 || po.PurchaseOrderLocationId == model.LocationId) &&
+                                        (model.PONO == "" || po.PurchaseOrderNo == model.PONO) &&
+                                        (model.Status == "" || po.PurchaseOrderStatus == model.Status) &&
+                                        (model.ItemId == 0 || pod.PurchaseOrderDetailsMatId == model.ItemId) &&
+                                        (po.PurchaseOrderDate >= model.fromDate && po.PurchaseOrderDate <= model.toDate)
+
+                                        select new POTrackingDetails()
+                                        {
+                                            PONO = po.PurchaseOrderNo,
+                                            PODate = po.PurchaseOrderDate,
+                                            Supplier = sp.SuppliersMasterSupplierName ?? "",
+                                            POQuantity = pod.PurchaseOrderDetailsQuantity,
+                                            PartNO = (i != null) ? i.ItemMasterPartNo : "",
+                                            ItemName = pod.PurchaseOrderDetailsItemName,
+                                            ItemRate = pod.PurchaseOrderDetailsRate,
+                                            PODetailsId = pod.PurchaseOrderDetailsPodId,
+                                            ItemId = pod.PurchaseOrderDetailsMatId.ToString(),
+                                            POStatus = po.PurchaseOrderDelivStatus,
+                                            CurrencyRate = (cm != null) ? (decimal?)cm.CurrencyMasterCurrencyRate : 1,
+                                            DiscountPerc = po.PurchaseOrderTotalDisPer,
+                                            VATPerc = po.PurchaseOrderVatPer,
+                                            Amount = po.PurchaseOrderNetAmount,
+                                            DiscountAmount = po.PurchaseOrderTotalDisAmount,
+                                            IssuedQty = _poRegister.GetAsQueryable()
+                                                          .Where(pr => pr.PurOrderRegisterOrderNo == po.PurchaseOrderPono && pr.PurOrderRegisterDetailId == pod.PurchaseOrderDetailsPodId && pr.PurOrderRegisterMaterialId == pod.PurchaseOrderDetailsMatId)
+                                                          .Sum(pr => (int?)pr.PurOrderRegisterQtyIssued) ?? 0,
+                                            BalanceQty = pod.PurchaseOrderDetailsQuantity - (_poRegister.GetAsQueryable().Where(pr => pr.PurOrderRegisterOrderNo == po.PurchaseOrderPono && pr.PurOrderRegisterDetailId == pod.PurchaseOrderDetailsPodId && pr.PurOrderRegisterMaterialId == pod.PurchaseOrderDetailsMatId)
+                                                                           .Sum(pr => (int?)pr.PurOrderRegisterQtyIssued) ?? 0),
+                                            Currency = (cm != null) ? cm.CurrencyMasterCurrencyName : "",
+                                            JobName = (jm != null) ? jm.JobMasterJobName : "",
+                                            JobNo = (jm != null) ? jm.JobMasterJobNo : ""
+                                        }).OrderBy(x => x.PODate).ThenBy(x => x.PONO).ToDynamicListAsync();
+                    if (result.Count > 0)
                     {
-                        data.Add(item);
+                        foreach (var item in result)
+                        {
+                            data.Add(item);
+                        }
                     }
+                    return new Response<List<POTrackingDetails>>()
+                    {
+                        Valid = true,
+                        Message = "Data Found",
+                        Result = data
+                    };
                 }
-                return new Response<List<POTrackingDetails>>()
+                else
                 {
-                    Valid = true,
-                    Message = "Data Found",
-                    Result = data
-                };
+                    var result = await (from po in _purchaseOrder.GetAsQueryable()
+                                        join sp in _supliersMaster.GetAsQueryable() on (int?)po.PurchaseOrderPartyId equals sp.SuppliersMasterSupplierId into spGroup
+                                        from sp in spGroup.DefaultIfEmpty()
+                                        join pod in _poDetails.GetAsQueryable() on po.PurchaseOrderId equals pod.PurchaseOrderId into podGroup
+                                        from pod in podGroup.DefaultIfEmpty()
+                                        join i in _itemMaster.GetAsQueryable() on (long)pod.PurchaseOrderDetailsMatId equals i.ItemMasterItemId into iGroup
+                                        from i in iGroup.DefaultIfEmpty()
+                                        join cm in _curreny.GetAsQueryable() on po.PurchaseOrderCurrencyId equals cm.CurrencyMasterCurrencyId into cmGroup
+                                        from cm in cmGroup.DefaultIfEmpty()
+                                        join jm in _jobMaster.GetAsQueryable() on po.PurchaseOrderJobId equals jm.JobMasterJobId into jmGroup
+                                        from jm in jmGroup.DefaultIfEmpty()
+
+                                        where (model.SupplierId == 0 || po.PurchaseOrderPartyId == model.SupplierId) &&
+                                        (model.JobId == 0 || po.PurchaseOrderJobId == model.JobId) &&
+                                        (model.LocationId == 0 || po.PurchaseOrderLocationId == model.LocationId) &&
+                                        (model.PONO == "" || po.PurchaseOrderNo == model.PONO) &&
+                                        (model.Status == "" || po.PurchaseOrderStatus == model.Status) &&
+                                        (model.ItemId == 0 || pod.PurchaseOrderDetailsMatId == model.ItemId)
+                                        select new POTrackingDetails()
+                                        {
+                                            PONO = po.PurchaseOrderNo,
+                                            PODate = po.PurchaseOrderDate,
+                                            Supplier = sp.SuppliersMasterSupplierName ?? "",
+                                            POQuantity = pod.PurchaseOrderDetailsQuantity,
+                                            PartNO = (i != null) ? i.ItemMasterPartNo : "",
+                                            ItemName = pod.PurchaseOrderDetailsItemName,
+                                            ItemRate = pod.PurchaseOrderDetailsRate,
+                                            PODetailsId = pod.PurchaseOrderDetailsPodId,
+                                            ItemId = pod.PurchaseOrderDetailsMatId.ToString(),
+                                            POStatus = po.PurchaseOrderDelivStatus,
+                                            CurrencyRate = (cm != null) ? (decimal?)cm.CurrencyMasterCurrencyRate : 1,
+                                            DiscountPerc = po.PurchaseOrderTotalDisPer,
+                                            VATPerc = po.PurchaseOrderVatPer,
+                                            Amount = po.PurchaseOrderNetAmount,
+                                            DiscountAmount = po.PurchaseOrderTotalDisAmount,
+                                            IssuedQty = _poRegister.GetAsQueryable()
+                                                          .Where(pr => pr.PurOrderRegisterOrderNo == po.PurchaseOrderPono && pr.PurOrderRegisterDetailId == pod.PurchaseOrderDetailsPodId && pr.PurOrderRegisterMaterialId == pod.PurchaseOrderDetailsMatId)
+                                                          .Sum(pr => (int?)pr.PurOrderRegisterQtyIssued) ?? 0,
+                                            BalanceQty = pod.PurchaseOrderDetailsQuantity - (_poRegister.GetAsQueryable().Where(pr => pr.PurOrderRegisterOrderNo == po.PurchaseOrderPono && pr.PurOrderRegisterDetailId == pod.PurchaseOrderDetailsPodId && pr.PurOrderRegisterMaterialId == pod.PurchaseOrderDetailsMatId)
+                                                                           .Sum(pr => (int?)pr.PurOrderRegisterQtyIssued) ?? 0),
+                                            Currency = (cm != null) ? cm.CurrencyMasterCurrencyName : "",
+                                            JobName = (jm != null) ? jm.JobMasterJobName : "",
+                                            JobNo = (jm != null) ? jm.JobMasterJobNo : ""
+                                        }).OrderBy(x => x.PODate).ThenBy(x => x.PONO).ToDynamicListAsync();
+
+                    if (result.Count > 0)
+                    {
+                        foreach (var item in result)
+                        {
+                            data.Add(item);
+                        }
+                    }
+                    return new Response<List<POTrackingDetails>>()
+                    {
+                        Valid = true,
+                        Message = "Data Found",
+                        Result = data
+                    };
+
+                }
+                
             }
             catch (Exception ex)
             {
@@ -186,8 +242,8 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
                 {
                     //var po = from p in _purchaseOrder.GetAsQueryable().Where(x => x.PurchaseOrderId == item.PurchaseOrderId) select p;
                     var po = _purchaseOrder.GetAsQueryable().FirstOrDefault(x => x.PurchaseOrderId == item.PurchaseOrderId);
-                    po.PurchaseOrderStatus = "P";
-                    _purchaseOrder.Update(po);
+                    // po.PurchaseOrderStatus = "P";
+                    // _purchaseOrder.Update(po);
                 }
                 #endregion
 
@@ -234,65 +290,173 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
                 #endregion
 
                 string filteredValue = string.Empty;
-                if (!string.IsNullOrEmpty(model.fromDate) && !string.IsNullOrEmpty(model.toDate))
+                // Suleman 8/3/2024 changes filter 
+                if (model.IsDateCheck)
                 {
-                    filteredValue += $" and (po.PurchaseOrderDate >= {model.fromDate} and  po.PurchaseOrderDate <= {model.toDate} )";
-                }
-                if (model.SupplierId > 0)
-                {
-                    filteredValue += $" and po.PurchaseOrderSupInvNo = {model.SupplierId} ";
-                }
-                if (model.JobId > 0)
-                {
-                    filteredValue += $" and po.PurchaseOrderJobId = {model.JobId} ";
-                }
-                if (model.LocationId > 0)
-                {
-                    filteredValue += $" and po.PurchaseOrderLocationId = {model.LocationId} ";
-                }
-                if (!string.IsNullOrEmpty(model.PONO) && model.PONO.ToUpper() != "ALL".ToUpper())
-                {
-                    filteredValue += $" and po.PurchaseOrderPono = {model.ItemId} ";
-                }
-                if (!string.IsNullOrEmpty(model.Status))
-                {
-                    filteredValue += $" and po.PurchaseOrderStatus = {model.Status} ";
-                }
+                    var detailsQuery = await (from po in _purchaseOrder.GetAsQueryable()
+                                                  // join sp in _supliers.GetAsQueryable() on po.PurchaseOrderSupInvNo equals sp.SuppliersInsId.ToString() into spGroup
+                                              join sp in _supliersMaster.GetAsQueryable() on (int?)po.PurchaseOrderPartyId equals sp.SuppliersMasterSupplierId into spGroup
+                                              from sp in spGroup.DefaultIfEmpty()
+                                              join cm in _curreny.GetAsQueryable() on po.PurchaseOrderCurrencyId equals cm.CurrencyMasterCurrencyId into cmGroup
+                                              from cm in cmGroup.DefaultIfEmpty()
+                                              join jm in _jobMaster.GetAsQueryable() on po.PurchaseOrderJobId equals jm.JobMasterJobId into jmGroup
+                                              from jm in jmGroup.DefaultIfEmpty()
 
+                                              where (model.SupplierId == 0 || po.PurchaseOrderPartyId == model.SupplierId) &&
+                                              (model.JobId == 0 || po.PurchaseOrderJobId == model.JobId) &&
+                                              (model.LocationId == 0 || po.PurchaseOrderLocationId == model.LocationId) &&
+                                              (model.PONO == "" || po.PurchaseOrderPono == model.PONO) &&
+                                              (model.Status == "" || po.PurchaseOrderStatus == model.Status) &&
+                                              (po.PurchaseOrderDate >= model.fromDate && po.PurchaseOrderDate <= model.toDate)
 
+                                              select new POTrackingSummary()
+                                              {
+                                                  PONO = po.PurchaseOrderPono,
+                                                  PODate = po.PurchaseOrderDate,
+                                                  //Supplier = sp != null ? sp.SuppliersInsName : "",
+                                                  Supplier = sp.SuppliersMasterSupplierName ?? "",
+                                                  Amount = po.PurchaseOrderNetAmount,
+                                                  POStatus = po.PurchaseOrderStatus,
+                                                  DeliveryFrom = po.PurchaseOrderDelivFromDate,
+                                                  DeliveryTo = po.PurchaseOrderDelivToDate,
+                                                  Status = po.PurchaseOrderStatus,
+                                                  Currency = cm != null ? cm.CurrencyMasterCurrencyName : "",
+                                                  JobName = jm != null ? jm.JobMasterJobName : "",
+                                                  JobNo = jm != null ? jm.JobMasterJobNo : "",
+                                                  CurrencyRate = cm != null ? (decimal?)cm.CurrencyMasterCurrencyRate : 1
+                                              }).OrderBy(x => x.PODate).ThenBy(x => x.PONO).ToDynamicListAsync();
+                    foreach (var item in detailsQuery)
+                    {
+                        data.Add(item);
+                    }
 
-                var detailsQuery = await (from po in _purchaseOrder.GetAsQueryable().Where($"1==1 { filteredValue }")
-                                          join sp in _supliers.GetAsQueryable() on po.PurchaseOrderSupInvNo equals sp.SuppliersInsId.ToString() into spGroup
-                                          from sp in spGroup.DefaultIfEmpty()
-                                          join cm in _curreny.GetAsQueryable() on po.PurchaseOrderCurrencyId equals cm.CurrencyMasterCurrencyId into cmGroup
-                                          from cm in cmGroup.DefaultIfEmpty()
-                                          join jm in _jobMaster.GetAsQueryable() on po.PurchaseOrderJobId equals jm.JobMasterJobId into jmGroup
-                                          from jm in jmGroup.DefaultIfEmpty()
-                                          select new POTrackingSummary()
-                                          {
-                                              PONO = po.PurchaseOrderPono,
-                                              PODate = po.PurchaseOrderDate,
-                                              Supplier = sp != null ? sp.SuppliersInsName : "",
-                                              Amount = po.PurchaseOrderNetAmount,
-                                              POStatus = po.PurchaseOrderStatus,
-                                              DeliveryFrom = po.PurchaseOrderDelivFromDate,
-                                              DeliveryTo = po.PurchaseOrderDelivToDate,
-                                              Status = po.PurchaseOrderStatus,
-                                              Currency = cm != null ? cm.CurrencyMasterCurrencyName : "",
-                                              JobName = jm != null ? jm.JobMasterJobName : "",
-                                              JobNo = jm != null ? jm.JobMasterJobNo : "",
-                                              CurrencyRate = cm != null ? (decimal?)cm.CurrencyMasterCurrencyRate : 1
-                                          }).OrderBy(x => x.PODate).ThenBy(x => x.PONO).ToDynamicListAsync();
-                foreach (var item in detailsQuery)
-                {
-                    data.Add(item);
+                    return Response<List<POTrackingSummary>>.Success(data, "Data Found");
                 }
+                else
+                {
+                    var detailsQuery = await (from po in _purchaseOrder.GetAsQueryable()
+                                                  // join sp in _supliers.GetAsQueryable() on po.PurchaseOrderSupInvNo equals sp.SuppliersInsId.ToString() into spGroup
+                                              join sp in _supliersMaster.GetAsQueryable() on (int?)po.PurchaseOrderPartyId equals sp.SuppliersMasterSupplierId into spGroup
+                                              from sp in spGroup.DefaultIfEmpty()
+                                              join cm in _curreny.GetAsQueryable() on po.PurchaseOrderCurrencyId equals cm.CurrencyMasterCurrencyId into cmGroup
+                                              from cm in cmGroup.DefaultIfEmpty()
+                                              join jm in _jobMaster.GetAsQueryable() on po.PurchaseOrderJobId equals jm.JobMasterJobId into jmGroup
+                                              from jm in jmGroup.DefaultIfEmpty()
 
-                return Response<List<POTrackingSummary>>.Success(data, "Data Found");
+                                              where (model.SupplierId == 0 || po.PurchaseOrderPartyId == model.SupplierId) &&
+                                              (model.JobId == 0 || po.PurchaseOrderJobId == model.JobId) &&
+                                              (model.LocationId == 0 || po.PurchaseOrderLocationId == model.LocationId) &&
+                                              (model.PONO == "" || po.PurchaseOrderPono == model.PONO) &&
+                                              (model.Status == "" || po.PurchaseOrderStatus == model.Status)             
+                                              select new POTrackingSummary()
+                                              {
+                                                  PONO = po.PurchaseOrderPono,
+                                                  PODate = po.PurchaseOrderDate,
+                                                  //Supplier = sp != null ? sp.SuppliersInsName : "",
+                                                  Supplier = sp.SuppliersMasterSupplierName ?? "",
+                                                  Amount = po.PurchaseOrderNetAmount,
+                                                  POStatus = po.PurchaseOrderStatus,
+                                                  DeliveryFrom = po.PurchaseOrderDelivFromDate,
+                                                  DeliveryTo = po.PurchaseOrderDelivToDate,
+                                                  Status = po.PurchaseOrderStatus,
+                                                  Currency = cm != null ? cm.CurrencyMasterCurrencyName : "",
+                                                  JobName = jm != null ? jm.JobMasterJobName : "",
+                                                  JobNo = jm != null ? jm.JobMasterJobNo : "",
+                                                  CurrencyRate = cm != null ? (decimal?)cm.CurrencyMasterCurrencyRate : 1
+                                              }).OrderBy(x => x.PODate).ThenBy(x => x.PONO).ToDynamicListAsync();
+                    foreach (var item in detailsQuery)
+                    {
+                        data.Add(item);
+                    }
+
+                    return Response<List<POTrackingSummary>>.Success(data, "Data Found");
+                }
             }
             catch (Exception ex)
             {
                 return Response<List<POTrackingSummary>>.Fail(new List<POTrackingSummary>(), ex.Message);
+            }
+        }
+        public async Task<Response<List<UserTrackingDetails>>> GetUserTrackingDetails(UserTrackFilter model)
+        {
+            try
+            {
+                List<UserTrackingDetails> data = new List<UserTrackingDetails>();
+                string filteredValue = string.Empty;
+
+                var query = _UserTracking.GetAsQueryable().Where(s => s.UserTrackingUserDelStatus != true).ToList();
+                if (model.Userid > 0)
+                {
+                    query = query.Where(a => a.UserTrackingUserUserId == model.Userid).ToList();
+
+                }
+                if (model.VPAction != null)
+                {
+                    query = query.Where(a => a.UserTrackingUserVpAction == model.VPAction).ToList();
+
+                }
+                if (model.VPType != null)
+                {
+                    query = query.Where(a => a.UserTrackingUserVpType == model.VPType).ToList();
+
+                }
+                if (model.fromDate != null && model.toDate != null)
+                {
+
+                    if (model.isCheck == true)
+
+                        query = query.Where(x => x.UserTrackingUserChangeDt.Value.Date >= Convert.ToDateTime(model.fromDate).Date && x.UserTrackingUserChangeDt.Value.Date <= Convert.ToDateTime(model.toDate).Date).ToList();
+
+                }
+
+
+                data = (from ut in query
+                        join uf in _UserFile.GetAsQueryable()
+                        on (long?)ut.UserTrackingUserUserId equals uf.UserId
+
+                        select new UserTrackingDetails
+                        {
+                            VP_Action = ut.UserTrackingUserVpAction,
+                            UserName = uf.UserName,
+                            VP_Type = ut.UserTrackingUserVpType,
+                            Change_Dt = ut.UserTrackingUserChangeDt,
+                            Change_Time = ut.UserTrackingUserChangeTime,
+                            User_VP_NO = ut.UserTrackingUserVpNo
+                        }).ToList();
+
+                return new Response<List<UserTrackingDetails>>()
+                {
+                    Valid = true,
+                    Message = "Data Found",
+                    Result = data
+                };
+            }
+            catch (Exception ex)
+            {
+                return Response<List<UserTrackingDetails>>.Fail(new List<UserTrackingDetails>(), ex.Message);
+            }
+        }
+
+        public async Task<Response<List<DropdownUserVPType>>> GetTrackingUserVPType()
+        {
+            try
+            {
+                var response = new List<DropdownUserVPType>();
+
+                //response.AddRange(await _UserTracking.ListSelectAsync(x => new DropdownUserVPType
+                //{
+                //    VPType = x.UserTrackingUserVpType
+                //}));
+                response = _UserTracking.GetAsQueryable().Select(ut => new DropdownUserVPType
+                { VPType = ut.UserTrackingUserVpType ?? "" }).
+                Distinct().Union(new[] { new DropdownUserVPType
+                { VPType = " ALL" } }).OrderBy(ut => ut.VPType).ToList();
+
+                return Response<List<DropdownUserVPType>>.Success(response, "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<List<DropdownUserVPType>>.Fail(new List<DropdownUserVPType>(), ex.Message);
             }
         }
     }

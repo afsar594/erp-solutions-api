@@ -14,19 +14,20 @@ using System.Threading.Tasks;
 
 namespace Inspire.Erp.Application.Account.Implementations
 {
-   public class VatStatementService: IVatStatementService
+    public class VatStatementService : IVatStatementService
     {
         private readonly IRepository<StationMaster> _locationMaster;
         private readonly IRepository<MasterAccountsTable> _masterAccountsTable;
         private readonly IRepository<AccountsTransactions> _accountTransaction;
         private readonly IRepository<GetAccountTransactionVatStatementResponse> _accountResponse;
+        private IRepository<AccountSettings> _accountsSettingsRepo;
         public VatStatementService(IRepository<MasterAccountsTable> masterAccountsTable,
-            IRepository<AccountsTransactions> accountTransaction, IRepository<StationMaster> locationMaster,
+            IRepository<AccountsTransactions> accountTransaction, IRepository<StationMaster> locationMaster, IRepository<AccountSettings> accountsSettingsRepo,
             IRepository<GetAccountTransactionVatStatementResponse> accountResponse)
         {
             _masterAccountsTable = masterAccountsTable;
             _accountTransaction = accountTransaction;
-            _accountResponse = accountResponse;
+            _accountResponse = accountResponse; _accountsSettingsRepo = accountsSettingsRepo;
             _locationMaster = locationMaster;
         }
         public async Task<Response<List<DropdownResponse>>> GetDistinctVoucherType()
@@ -39,7 +40,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 //    Value = " 1 == 1",
                 //    Name = " All "
                 //});
-                response.AddRange( _accountTransaction.GetAsQueryable().Select(x=>x.AccountsTransactionsVoucherType).Distinct().ToList().Select( x => new DropdownResponse
+                response.AddRange(_accountTransaction.GetAsQueryable().Select(x => x.AccountsTransactionsVoucherType).Distinct().ToList().Select(x => new DropdownResponse
                 {
                     Value = x,
                     Name = x
@@ -56,50 +57,52 @@ namespace Inspire.Erp.Application.Account.Implementations
         {
             try
             {
-                string query = @$" 1==1 {model.Filter}";
-                var result = await _accountTransaction.GetAsQueryable().Where(query).Select(x => new GetAccountTransactionVatStatementResponse
+                List<GetAccountTransactionVatStatementResponse> result = null;
+
+                if (model.isDate)
                 {
-                    AccountsTransactionsAccNo = x.AccountsTransactionsAccNo,
-                    AccountsTransactionsAccName = _masterAccountsTable.GetAsQueryable().FirstOrDefault(c => c.MaAccNo == x.AccountsTransactionsAccNo) != null ? _masterAccountsTable.GetAsQueryable().FirstOrDefault(c => c.MaAccNo == x.AccountsTransactionsAccNo).MaAccName : "",
-                    AccountsTransactionsDebit = Convert.ToDecimal(x.AccountsTransactionsDebit),
-                    AccountsTransactionsCredit = Convert.ToDecimal(x.AccountsTransactionsCredit),
-                    AccountsTransactionsAllocBalance = x.AccountsTransactionsAllocBalance,
-                    AccountsTransactionsVoucherNo = x.AccountsTransactionsVoucherNo,
-                    AccountsTransactionsVoucherType = x.AccountsTransactionsVoucherType,
-                    AccountsTransactionsDescription = x.AccountsTransactionsDescription,
-                    AccountsTransactionsTransDate = Convert.ToDateTime(x.AccountsTransactionsTransDate),
-                    AccountsTransactionsTransDateString = Convert.ToDateTime(x.AccountsTransactionsTransDate).ToString("MM-dd-yyyy"),
-                    RefNo = x.RefNo,
-                    AccountsTransactionsTransSno = Convert.ToInt32(x.AccountsTransactionsTransSno),
-                    AccountsTransactionsAllocDebit = x.AccountsTransactionsAllocDebit,
-                    AccountsTransactionsAllocCredit = x.AccountsTransactionsAllocCredit,
-                    AccountsTransactionsVatableAmount=x.AccountsTransactionsVatableAmount,
-                    AccountsTransactionsVatno=x.AccountsTransactionsVatno
-                    //AccountsTransactions_Alloc_Balance=x.AccountsTransactionsAllocBalance,
-                    //AccountsTransactions_AllocUpdateBal=x.AccountsTransactionsAllocUpdateBal,
-                    //AccountsTransactions_Alloc_Credit=x.AccountsTransactionsAllocCredit,
-                    //AccountsTransactions_Alloc_Debit=x.AccountsTransactionsAllocDebit,
-                    //AccountsTransactions_ApprovalDt=x.AccountsTransactionsApprovalDt,
-                    //AccountsTransactions_CheqDate=x.AccountsTransactionsCheqDate,
-                    //AccountsTransactions_CheqNo=x.AccountsTransactionsCheqNo,
-                    //AccountsTransactions_CompanyId=x.AccountsTransactionsCompanyId,
-                    //AccountsTransactions_CostCenter_Id=x.AccountsTransactionsCostCenterId,
-                    //AccountsTransactions_Credit=Convert.ToDecimal(x.AccountsTransactionsCredit),
-                    //AccountsTransactions_CrGram=x.AccountsTransactionsCrGram,
-                    //AccountsTransactions_CurrencyId=x.AccountsTransactionsCurrencyId,
-                    //AccountsTransactions_Debit=Convert.ToDecimal(x.AccountsTransactionsDebit),
-                    //AccountsTransactions_DelStatus=x.AccountstransactionsDelStatus,
-                    //AccountsTransactions_Department=x.AccountsTransactionsDepartment,
-                    //AccountsTransactions_DeptId=x.AccountsTransactionsDeptId,
-                    //AccountsTransactions_Description=x.AccountsTransactionsDescription,
-                    //AccountsTransactions_DrGram=x.AccountsTransactionsDrGram,
-                    //AccountsTransactions_FcAlloc_Balance=x.AccountsTransactionsFcAllocBalance,
-                    //AccountsTransactions_FcAlloc_Credit=x.AccountsTransactionsFcAllocCredit,
-                    //AccountsTransactions_FcAlloc_Debit=x.AccountsTransactionsFcAllocDebit,
-                    //AccountsTransactions_Fc_Credit=x.AccountsTransactionsFcCredit,
-                    //AccountsTransactions_Fc_Debit=x.AccountsTransactionsFcDebit,
-                    //AccountsTransactions_Fc_Rate=x.AccountsTransactionsFcRate
-                }).ToListAsync();
+                    result = await _accountTransaction.GetAsQueryable().Where(a => a.AccountsTransactionsAccNo.Contains(model.Filter) && (a.AccountsTransactionsTransDate >= model.FromDate && a.AccountsTransactionsTransDate <= model.ToDate)).Select(x => new GetAccountTransactionVatStatementResponse
+                    {
+                        AccountsTransactionsAccNo = x.AccountsTransactionsAccNo,
+                        AccountsTransactionsAccName = _masterAccountsTable.GetAsQueryable().FirstOrDefault(c => c.MaAccNo == x.AccountsTransactionsAccNo) != null ? _masterAccountsTable.GetAsQueryable().FirstOrDefault(c => c.MaAccNo == x.AccountsTransactionsAccNo).MaAccName : "",
+                        AccountsTransactionsDebit = Convert.ToDecimal(x.AccountsTransactionsDebit),
+                        AccountsTransactionsCredit = Convert.ToDecimal(x.AccountsTransactionsCredit),
+                        AccountsTransactionsAllocBalance = x.AccountsTransactionsAllocBalance,
+                        AccountsTransactionsVoucherNo = x.AccountsTransactionsVoucherNo,
+                        AccountsTransactionsVoucherType = x.AccountsTransactionsVoucherType,
+                        AccountsTransactionsDescription = x.AccountsTransactionsDescription,
+                        AccountsTransactionsTransDate = Convert.ToDateTime(x.AccountsTransactionsTransDate),
+                        AccountsTransactionsTransDateString = Convert.ToDateTime(x.AccountsTransactionsTransDate).ToString("MM-dd-yyyy"),
+                        RefNo = x.RefNo,
+                        AccountsTransactionsTransSno = Convert.ToInt32(x.AccountsTransactionsTransSno),
+                        AccountsTransactionsAllocDebit = x.AccountsTransactionsAllocDebit,
+                        AccountsTransactionsAllocCredit = x.AccountsTransactionsAllocCredit,
+                        AccountsTransactionsVatableAmount = x.AccountsTransactionsVatableAmount,
+                        AccountsTransactionsVatno = x.AccountsTransactionsVatno
+                    }).ToListAsync();
+                }
+                else
+                {
+                    result = await _accountTransaction.GetAsQueryable().Where(a => a.AccountsTransactionsTransDate <= model.FromDate && a.AccountsTransactionsAccNo.Contains(model.Filter)).Select(x => new GetAccountTransactionVatStatementResponse
+                    {
+                        AccountsTransactionsAccNo = x.AccountsTransactionsAccNo,
+                        AccountsTransactionsAccName = _masterAccountsTable.GetAsQueryable().FirstOrDefault(c => c.MaAccNo == x.AccountsTransactionsAccNo) != null ? _masterAccountsTable.GetAsQueryable().FirstOrDefault(c => c.MaAccNo == x.AccountsTransactionsAccNo).MaAccName : "",
+                        AccountsTransactionsDebit = Convert.ToDecimal(x.AccountsTransactionsDebit),
+                        AccountsTransactionsCredit = Convert.ToDecimal(x.AccountsTransactionsCredit),
+                        AccountsTransactionsAllocBalance = x.AccountsTransactionsAllocBalance,
+                        AccountsTransactionsVoucherNo = x.AccountsTransactionsVoucherNo,
+                        AccountsTransactionsVoucherType = x.AccountsTransactionsVoucherType,
+                        AccountsTransactionsDescription = x.AccountsTransactionsDescription,
+                        AccountsTransactionsTransDate = Convert.ToDateTime(x.AccountsTransactionsTransDate),
+                        AccountsTransactionsTransDateString = Convert.ToDateTime(x.AccountsTransactionsTransDate).ToString("MM-dd-yyyy"),
+                        RefNo = x.RefNo,
+                        AccountsTransactionsTransSno = Convert.ToInt32(x.AccountsTransactionsTransSno),
+                        AccountsTransactionsAllocDebit = x.AccountsTransactionsAllocDebit,
+                        AccountsTransactionsAllocCredit = x.AccountsTransactionsAllocCredit,
+                        AccountsTransactionsVatableAmount = x.AccountsTransactionsVatableAmount,
+                        AccountsTransactionsVatno = x.AccountsTransactionsVatno
+                    }).ToListAsync();
+                }
                 var gridReponse = new GridWrapperResponse<List<GetAccountTransactionVatStatementResponse>>();
                 gridReponse.Data = result;
                 var total = 0;
@@ -121,9 +124,9 @@ namespace Inspire.Erp.Application.Account.Implementations
                 var gridmodel = new List<GetAccountTransactionVatStatementSummaryResponse>();
                 decimal grandTotal = 0;
                 decimal runningBalance = 0;
-                foreach (var accounts in result.GroupBy(x=>x.AccountsTransactionsAccNo))
+                foreach (var accounts in result.GroupBy(x => x.AccountsTransactionsAccNo))
                 {
-                    
+
                     decimal debit = 0;
                     decimal credit = 0;
                     string accountName = "";
@@ -136,11 +139,11 @@ namespace Inspire.Erp.Application.Account.Implementations
                     runningBalance = (debit - credit) + (runningBalance);
                     gridmodel.Add(new GetAccountTransactionVatStatementSummaryResponse()
                     {
-                        RunningBalance=runningBalance.ToString(),
-                        AccountName= accountName,
-                        AccountNo=accounts.Key,
-                        Credit=credit.ToString(),
-                        Debit=debit.ToString()
+                        RunningBalance = runningBalance.ToString(),
+                        AccountName = accountName,
+                        AccountNo = accounts.Key,
+                        Credit = credit.ToString(),
+                        Debit = debit.ToString()
                     });
                 }
                 modelWrapper.Details = gridmodel;
@@ -186,13 +189,13 @@ namespace Inspire.Erp.Application.Account.Implementations
                         AccountNo = accounts.AccountsTransactionsAccNo,
                         Credit = accounts.AccountsTransactionsCredit.ToString(),
                         Debit = accounts.AccountsTransactionsDebit.ToString(),
-                        Date=accounts.AccountsTransactionsTransDateString,
-                        Description=accounts.AccountsTransactionsDescription,
-                        RefNo=accounts.RefNo,
-                        VatAmount=accounts.AccountsTransactionsVatableAmount.ToString(),
-                        VATNo=accounts.AccountsTransactionsVatno,
-                        VoucherNo=accounts.AccountsTransactionsVoucherNo,
-                        VoucherType=accounts.AccountsTransactionsVoucherType
+                        Date = accounts.AccountsTransactionsTransDateString,
+                        Description = accounts.AccountsTransactionsDescription,
+                        RefNo = accounts.RefNo,
+                        VatAmount = accounts.AccountsTransactionsVatableAmount.ToString(),
+                        VATNo = accounts.AccountsTransactionsVatno,
+                        VoucherNo = accounts.AccountsTransactionsVoucherNo,
+                        VoucherType = accounts.AccountsTransactionsVoucherType
                     });
                 }
 

@@ -19,28 +19,23 @@ namespace Inspire.Erp.Web.Controllers
         }
         #region MENU 
         [HttpPost("GetMenusByWorkgroupId")]
-        public async Task<IActionResult> GetMenusByWorkgroupId(int id = 0)
+        public async Task<IActionResult> GetMenusByWorkgroupId(int id)
         {
             return Ok(await _menuService.GetMenusByWorkgroupId(id));
         }
 
-        [HttpPost("GetAllMenuList")]
+        [HttpGet("GetAllMenuList")]
         public async Task<IActionResult> MenuList()
         {
             return Ok(await _menuService.MenuList());
         }
 
-        [HttpPost("GetSavedMenuById/{id}")]
-        public async Task<IActionResult> GetSavedMenuById(int Id)
-        {
-            return Ok(_menuService.GetMenuById(Id));
-        }
         [HttpPost("InsertMenu")]
         public async Task<IActionResult> SaveMenu([FromBody] Menu menu)
         {
             return Ok(await _menuService.SaveMenu(menu));
         }
-        [HttpPost("UpdateMenu")]
+        [HttpPut("UpdateMenu")]
         public async Task<IActionResult> UpdateMenu([FromBody] Menu menu)
         {
             return Ok(await _menuService.UpdateMenu(menu));
@@ -51,7 +46,7 @@ namespace Inspire.Erp.Web.Controllers
             return Ok(await _menuService.DeleteMenu(id));
         }
 
-   
+
         #endregion
     }
 }

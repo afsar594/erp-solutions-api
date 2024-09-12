@@ -6,69 +6,6 @@ namespace Inspire.Erp.Web.ViewModels.Procurement
 {
     public partial class PurchaseVoucherViewModel
     {
-        //////public PurchaseVoucherViewModel()
-        //////{
-        //////    PurchaseVoucherDetails = new HashSet<PurchaseVoucherDetailsViewModel>();
-        //////}
-        //////
-        ////public decimal PurchaseVoucherId { get; set; }
-        ////public string PurchaseVoucherNo { get; set; }
-        ////public DateTime? PurchaseVoucherDate { get; set; }
-        ////public string PurchaseVoucherType { get; set; }
-        ////public decimal? PurchaseVoucherPartyId { get; set; }
-        ////public string PurchaseVoucherPartyName { get; set; }
-        ////public string PurchaseVoucherPartyAddress { get; set; }
-        ////public string PurchaseVoucherPartyVatNo { get; set; }
-        ////public string? PurchaseVoucherRefNo { get; set; }
-        ////public string? PurchaseVoucherSupInvNo { get; set; }
-
-
-        ////public string PurchaseVoucherDescription { get; set; }
-
-        ////public string PurchaseVoucherGrno { get; set; }
-        ////public DateTime? PurchaseVoucherGrdate { get; set; }
-        ////public string PurchaseVoucherLpono { get; set; }
-        ////public DateTime? PurchaseVoucherLpodate { get; set; }
-        ////public string PurchaseVoucherQtnNo { get; set; }
-        ////public DateTime? PurchaseVoucherQtnDate { get; set; }
-
-        ////public bool? PurchaseVoucherExcludeVat { get; set; }
-        ////public string PurchaseVoucherPono { get; set; }
-        ////public string PurchaseVoucherBatchCode { get; set; }
-        ////public string PurchaseVoucherDayBookNo { get; set; }
-        ////public int? PurchaseVoucherLocationId { get; set; }
-        ////public long? PurchaseVoucherUserId { get; set; }
-        ////public int? PurchaseVoucherCurrencyId { get; set; }
-        ////public int? PurchaseVoucherCompanyId { get; set; }
-        ////public long? PurchaseVoucherJobId { get; set; }
-        ////public decimal? PurchaseVoucherFsno { get; set; }
-        ////public decimal? PurchaseVoucherFcRate { get; set; }
-        ////public string PurchaseVoucherStatus { get; set; }
-        ////public decimal? PurchaseVoucherTotalGrossAmount { get; set; }
-        ////public decimal? PurchaseVoucherTotalItemDisAmount { get; set; }
-        ////public decimal? PurchaseVoucherTotalActualAmount { get; set; }
-        ////public decimal? PurchaseVoucherTotalDisPer { get; set; }
-        ////public decimal? PurchaseVoucherTotalDisAmount { get; set; }
-        ////public decimal? PurchaseVoucherVatAmt { get; set; }
-        ////public decimal? PurchaseVoucherVatPer { get; set; }
-        ////public string PurchaseVoucherVatRoundSign { get; set; }
-        ////public decimal? PurchaseVoucherVatRountAmt { get; set; }
-        ////public decimal? PurchaseVoucherNetDisAmount { get; set; }
-        ////public decimal? PurchaseVoucherNetAmount { get; set; }
-        ////public decimal? PurchaseVoucherTransportCost { get; set; }
-        ////public decimal? PurchaseVoucherHandlingcharges { get; set; }
-        ////public string PurchaseVoucherIssueId { get; set; }
-        ////public bool? PurchaseVoucherJobDirectPur { get; set; }
-        ////public bool? PurchaseVoucherDelStatus { get; set; }
-
-
-
-        ////public List<AccountTransactionsViewModel> AccountsTransactions { get; set; }
-        ////public List<PurchaseVoucherDetailsViewModel> PurchaseVoucherDetails { get; set; }
-
-        //////public List<StockRegisterViewModel> StockRegister { get; set; }
-
-
         public long PurchaseVoucherPurId { get; set; }
         public string PurchaseVoucherVoucherNo { get; set; }
         public int? PurchaseVoucherPurchaseIdNum { get; set; }
@@ -134,5 +71,31 @@ namespace Inspire.Erp.Web.ViewModels.Procurement
 
         public List<AccountTransactionViewModel> AccountsTransactions { get; set; }
         public List<PurchaseVoucherDetailsViewModel> PurchaseVoucherDetails { get; set; }
+    }
+
+    public partial class PurchaseVoucherListView
+    {
+        public long PurchaseVoucherPurId { get; set; }
+        public string PurchaseVoucherVoucherNo { get; set; }
+        public string PurchaseVoucherPurchaseType { get; set; }
+        public string PurchaseVoucherGrNo { get; set; }
+        public DateTime? PurchaseVoucherPurchaseDate { get; set; }
+        public decimal? PurchaseVoucherNetAmount { get; set; }
+        public int? PurchaseVoucherUserId { get; set; }
+        public int? PurchaseVoucherLocationId { get; set; }
+        public int? PurchaseVoucherPoNo { get; set; }
+        public int? PurchaseVoucherCurrencyId { get; set; }        
+        public int? PurchaseVoucherJobId { get; set; }
+        public string PurchaseVoucherCashSupplierName { get; set; }
+        public decimal? PurchaseVoucherVatAmount { get; set; }
+        public string PurchaseVoucherVatRoundSign { get; set; }
+        public decimal? PurchaseVoucherVatRoundAmount { get; set; }
+        public string PurchaseVoucherVatNo { get; set; }
+        public int? PurchaseVoucherPartyId { get; set; }
+        public string PurchaseVoucherPartyName { get; set; }
+        public decimal? PurchaseVoucherTotalGrossAmt { get; set; }
+        public decimal? PurchaseVoucherTotalItemDisAmount { get; set; }
+        public decimal? PurchaseVoucherTotalDiscountAmt { get; set; }
+
     }
 }

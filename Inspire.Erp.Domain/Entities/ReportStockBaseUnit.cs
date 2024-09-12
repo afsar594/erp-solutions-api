@@ -7,7 +7,7 @@ namespace Inspire.Erp.Domain.Entities
     {
         public long? ItemGroupNo { get; set; }
         public string ItemGroupName { get; set; }
-        public int? StockRegisterMaterialId { get; set; }
+        public long? StockRegisterMaterialId { get; set; }
         public string ItemMasterPartNo { get; set; }
         public string ItemMasterItemName { get; set; }
         public int? StockRegisterLocationID { get; set; }
@@ -17,5 +17,6 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? Stock { get; set; }
         public decimal? StockRegisterRate { get; set; }
         public decimal? StockRegisterAmount { get; set; }
+        public long? RelativeNo { get; set; }
     }
 }

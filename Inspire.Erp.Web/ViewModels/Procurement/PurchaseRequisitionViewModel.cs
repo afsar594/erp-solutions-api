@@ -10,7 +10,7 @@ namespace Inspire.Erp.Web.ViewModels.Procurement
         //    PurchaseRequisitionDetails = new HashSet<PurchaseRequisitionDetails>();
         //}
 
-        public decimal PurchaseRequisitionId { get; set; }
+        public decimal? PurchaseRequisitionId { get; set; }
         public string PurchaseRequisitionNo { get; set; }
         public DateTime PurchaseRequisitionDate { get; set; }
         public string PurchaseRequisitionType { get; set; }

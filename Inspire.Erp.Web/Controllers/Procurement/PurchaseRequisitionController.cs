@@ -18,6 +18,7 @@ using Inspire.Erp.Web.Common;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Inspire.Erp.Application.Procurement.Implimentation;
 using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Application.Procurement.Implementation;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -34,49 +35,10 @@ namespace Inspire.Erp.Web.Controllers
             _mapper = mapper;
         }
 
-        //[HttpGet]
-        //[Route("PurchaseRequisition_GetReportPurchaseRequisition")]
-
-        //public List<ReportPurchaseRequisition> PurchaseRequisition_GetReportPurchaseRequisition()
-        //{
-        //    return _mapper.Map<List<ReportPurchaseRequisition>>(_purchaseRequisitionService.PurchaseRequisition_GetReportPurchaseRequisition());
-
-
-        //}
-
-
-
-
-
-
-
-        ////[HttpGet]
-        ////[Route("PurchaseRequisition_GetReportPurchaseRequisition")]
-        ////public ApiResponse<List<ReportPurchaseRequisition>> PurchaseRequisition_GetReportPurchaseRequisition()
-        ////{
-
-
-        ////    ApiResponse<List<ReportPurchaseRequisition>> apiResponse = new ApiResponse<List<ReportPurchaseRequisition>>
-        ////    {
-        ////        Valid = true,
-        ////        Result = _mapper.Map<List<ReportPurchaseRequisition>>(_purchaseRequisitionService.PurchaseRequisition_GetReportPurchaseRequisition()),
-        ////        Message = ""
-        ////    };
-        ////    return apiResponse;
-
-
-
-
-        ////}
-
-
-
         [HttpPost]
         [Route("InsertPurchaseRequisition")]
         public ApiResponse<PurchaseRequisitionViewModel> InsertPurchaseRequisition([FromBody] PurchaseRequisitionViewModel voucherCompositeView)
         {
-
-
             ApiResponse<PurchaseRequisitionViewModel> apiResponse = new ApiResponse<PurchaseRequisitionViewModel>();
             if (_purchaseRequisitionService.GetVouchersNumbers(voucherCompositeView.PurchaseRequisitionNo) == null)
             {
@@ -158,11 +120,7 @@ namespace Inspire.Erp.Web.Controllers
                 };
 
             }
-
-
             return apiResponse;
-
-
         }
 
         [HttpPost]
@@ -174,14 +132,11 @@ namespace Inspire.Erp.Web.Controllers
            var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
             List<AccountsTransactions> accountsTransactions = new List<AccountsTransactions>();
 
-
-           
-
             //var param4 = _mapper.Map<List<StockRegister>>(voucherCompositeView.StockRegister);
             var xs = _purchaseRequisitionService.UpdatePurchaseRequisition(param1, accountsTransactions, param2
                 //, param4
                 );
-
+            
             //var xs = _purchaseRequisitionService.UpdatePurchaseRequisition(param1, param3, param2
             //    //, param4
             //    );
@@ -249,101 +204,6 @@ namespace Inspire.Erp.Web.Controllers
             return apiResponse;
 
         }
-
-        //public AccountsTransactions GenerateNewAccountTransactionEntry(
-        //         long? AccountsTransactionsTransSno,
-        //  string? AccountsTransactionsAccNo,
-        // DateTime? AccountsTransactionsTransDate,
-        //string AccountsTransactionsParticulars,
-        //decimal AccountsTransactionsDebit,
-        //decimal AccountsTransactionsCredit,
-        //decimal? AccountsTransactionsFcDebit,
-        //decimal? AccountsTransactionsFcCredit,
-        //string AccountsTransactionsVoucherType,
-        //string AccountsTransactionsVoucherNo,
-        //string AccountsTransactionsDescription,
-        //long AccountsTransactionsUserId,
-        //string AccountsTransactionsStatus,
-        //DateTime AccountsTransactionsTstamp,
-        //string RefNo,
-        //decimal AccountsTransactionsFsno,
-        //decimal? AccountsTransactionsAllocDebit,
-        //decimal? AccountsTransactionsAllocCredit,
-        //decimal? AccountsTransactionsAllocBalance,
-        //decimal? AccountsTransactionsFcAllocDebit,
-        //decimal? AccountsTransactionsFcAllocCredit,
-        //decimal? AccountsTransactionsFcAllocBalance,
-        //int? AccountsTransactionsLocation,
-        //long? AccountsTransactionsJobNo,
-        //long? AccountsTransactionsCostCenterId,
-        //DateTime? AccountsTransactionsApprovalDt,
-        //int? AccountsTransactionsDepartment,
-        //decimal? AccountsTransactionsFcRate,
-        //int? AccountsTransactionsCompanyId,
-        //int? AccountsTransactionsCurrencyId,
-        //double? AccountsTransactionsDrGram,
-        //double? AccountsTransactionsCrGram,
-        //string AccountsTransactionsCheqNo,
-        //string AccountsTransactionsLpoNo,
-        //DateTime? AccountsTransactionsCheqDate,
-        //string AccountsTransactionsOpposEntryDesc,
-        //  double? AccountsTransactionsAllocUpdateBal,
-        // long? AccountsTransactionsDeptId,
-        //  string AccountsTransactionsVatno,
-        //  decimal? AccountsTransactionsVatableAmount,
-        //  bool? AccountstransactionsDelStatus 
-        //     )
-        //{
-
-        //    AccountsTransactions accountsTransactions = new AccountsTransactions
-        //    {
-
-        //       //AccountsTransactionsTransSno = AccountsTransactionsTransSno,
-        //        AccountsTransactionsAccNo = AccountsTransactionsAccNo,
-        //        AccountsTransactionsTransDate = AccountsTransactionsTransDate,
-        //        AccountsTransactionsParticulars = AccountsTransactionsParticulars,
-        //        AccountsTransactionsDebit = AccountsTransactionsDebit,
-        //        AccountsTransactionsCredit = AccountsTransactionsCredit,
-        //        AccountsTransactionsFcDebit = AccountsTransactionsFcDebit,
-        //        AccountsTransactionsFcCredit = AccountsTransactionsFcCredit,
-        //        AccountsTransactionsVoucherType = AccountsTransactionsVoucherType,
-        //        AccountsTransactionsVoucherNo = AccountsTransactionsVoucherNo,
-        //        AccountsTransactionsDescription = AccountsTransactionsDescription,
-        //        AccountsTransactionsUserId = AccountsTransactionsUserId,
-        //        AccountsTransactionsStatus = AccountsTransactionsStatus,
-        //        AccountsTransactionsTstamp = AccountsTransactionsTstamp,
-        //        RefNo = RefNo,
-        //        AccountsTransactionsFsno = AccountsTransactionsFsno,
-        //        AccountsTransactionsAllocDebit = AccountsTransactionsAllocDebit,
-        //        AccountsTransactionsAllocCredit = AccountsTransactionsAllocCredit,
-        //        AccountsTransactionsAllocBalance = AccountsTransactionsAllocBalance,
-        //        AccountsTransactionsFcAllocDebit = AccountsTransactionsFcAllocDebit,
-        //        AccountsTransactionsFcAllocCredit = AccountsTransactionsFcAllocCredit,
-        //        AccountsTransactionsFcAllocBalance = AccountsTransactionsFcAllocBalance,
-        //        AccountsTransactionsLocation = AccountsTransactionsLocation,
-        //        AccountsTransactionsJobNo = AccountsTransactionsJobNo,
-        //        AccountsTransactionsCostCenterId = AccountsTransactionsCostCenterId,
-        //        AccountsTransactionsApprovalDt = AccountsTransactionsApprovalDt,
-        //        AccountsTransactionsDepartment = AccountsTransactionsDepartment,
-        //        AccountsTransactionsFcRate = AccountsTransactionsFcRate,
-        //        AccountsTransactionsCompanyId = AccountsTransactionsCompanyId,
-        //        AccountsTransactionsCurrencyId = AccountsTransactionsCurrencyId,
-        //        AccountsTransactionsDrGram = AccountsTransactionsDrGram,
-        //        AccountsTransactionsCrGram = AccountsTransactionsCrGram,
-        //        AccountsTransactionsCheqNo = AccountsTransactionsCheqNo,
-        //        AccountsTransactionsLpoNo = AccountsTransactionsLpoNo,
-        //        AccountsTransactionsCheqDate = AccountsTransactionsCheqDate,
-        //        AccountsTransactionsOpposEntryDesc = AccountsTransactionsOpposEntryDesc,
-        //        AccountsTransactionsAllocUpdateBal = AccountsTransactionsAllocUpdateBal,
-        //        AccountsTransactionsDeptId = AccountsTransactionsDeptId,
-        //        AccountsTransactionsVatno = AccountsTransactionsVatno,
-        //        AccountsTransactionsVatableAmount = AccountsTransactionsVatableAmount,
-        //        AccountstransactionsDelStatus=false
-
-        //    };
-        //    return accountsTransactions;
-
-        //}
 
 
         [HttpPost]
@@ -525,5 +385,21 @@ namespace Inspire.Erp.Web.Controllers
             };
             return Ok(apiResponse);
         }
+    
+    [HttpPost]
+    [Route("GetPurchaseReqJobId")]
+    public async Task<IActionResult> GetPurchaseReqJobId(PurChaseRequisitionFilterReport model)
+    {
+
+        var response = await _purchaseRequisitionService.GetPurchaseReqJobId(model);
+        ApiResponse<List<PurChaseReqFields>> apiResponse = new ApiResponse<List<PurChaseReqFields>>
+        {
+            Valid = true,
+            Result = response.Result,
+            Message = ""
+        };
+        return Ok(apiResponse);
     }
+  }
+
 }

@@ -12,7 +12,7 @@ namespace Inspire.Erp.Domain.Enums
     public static class PaymentVoucherMessage
     {
 
-        public static String SaveVoucher { get {return "Payment Voucher saved successfully"; } }
+        public static String SaveVoucher { get { return "Payment Voucher saved successfully"; } }
         public static string UpdateVoucher { get { return "Payment Voucher updated successfully"; } }
         public static string DeleteVoucher { get { return "Payment Voucher updated successfully"; } }
         public static string VoucherAlreadyExist { get { return "Payment Voucher is already exist"; } }
@@ -55,6 +55,14 @@ namespace Inspire.Erp.Domain.Enums
         public static string CustomerQuotationError { get { return "Error in Insert/Update/Delete Quotation"; } }
     }
 
+    public static class BillofQtyMessage
+    {
+        public static String SaveBillofQty { get { return "BillofQty saved successfully"; } }
+        public static string UpdateBillofQty { get { return "BillofQty updated successfully"; } }
+        public static string DeleteBillofQty { get { return "BillofQty Deleted successfully"; } }
+        public static string BillofQtyAlreadyExist { get { return "BillofQty is already exist"; } }
+        public static string BillofQtyError { get { return "Error in Insert/Update/Delete BillofQty"; } }
+    }
     public static class CustomerEnquiryMessage
     {
         public static String SaveCustomerEnquiry { get { return "Customer Enquiry saved successfully"; } }
@@ -73,6 +81,7 @@ namespace Inspire.Erp.Domain.Enums
         public static String SaveFailed { get { return "Item save failed"; } }
         public static string UpdateFailed { get { return "Item update failed"; } }
         public static string DeleteFailed { get { return "Item delete failed"; } }
+        public static string DeleteFaileds { get { return "Item delete sucessfully"; } }
     }
 
 
@@ -84,14 +93,14 @@ namespace Inspire.Erp.Domain.Enums
 
     public static class CreditNoteMessage
     {
-        
+
         public static String SaveVoucher { get { return "Credit Note saved successfully"; } }
         public static string UpdateVoucher { get { return "Credit Note updated successfully"; } }
         public static string DeleteVoucher { get { return "Credit Note Deleted successfully"; } }
         public static string VoucherAlreadyExist { get { return "Credit Note No. is already exist"; } }
-      
+
         public static string VoucherNumberExist { get { return "Voucher Number is exist"; } }
-      
+
     }
 
 
@@ -102,7 +111,7 @@ namespace Inspire.Erp.Domain.Enums
         public static string UpdateVoucher { get { return "Debit Note updated successfully"; } }
         public static string DeleteVoucher { get { return "Debit Note Deleted successfully"; } }
         public static string VoucherAlreadyExist { get { return "Debite Note No. is already exist"; } }
-      
+
         public static string VoucherNumberExist { get { return "Voucher Number is exist"; } }
 
     }
@@ -113,7 +122,7 @@ namespace Inspire.Erp.Domain.Enums
         public static string UpdateVoucher { get { return "Purchase Journalr updated successfully"; } }
         public static string DeleteVoucher { get { return "Purchase Journal Deleted successfully"; } }
         public static string VoucherAlreadyExist { get { return "Purchase Journal is already exist"; } }
-     
+
         public static string VoucherNumberExist { get { return "Voucher Number is exist"; } }
 
     }
@@ -124,7 +133,7 @@ namespace Inspire.Erp.Domain.Enums
         public static string UpdateVoucher { get { return "Sales Journal updated successfully"; } }
         public static string DeleteVoucher { get { return "Sales Journal Deleted successfully"; } }
         public static string VoucherAlreadyExist { get { return "Sales Journal is already exist"; } }
-   
+
         public static string VoucherNumberExist { get { return "Voucher Number is exist"; } }
 
     }
@@ -142,14 +151,14 @@ namespace Inspire.Erp.Domain.Enums
 
     public static class SalesVoucherMessage
     {
-   
+
         public static String SaveVoucher { get { return "Sales Voucher saved successfully"; } }
         public static string UpdateVoucher { get { return "Sales Voucher updated successfully"; } }
         public static string DeleteVoucher { get { return "Sales Voucher updated successfully"; } }
         public static string VoucherAlreadyExist { get { return "Sales Voucher is already exist"; } }
 
         public static string VoucherNumberExist { get { return "Voucher Number is exist"; } }
-      
+
     }
 
     public static class SalesReturnMessage
@@ -163,7 +172,7 @@ namespace Inspire.Erp.Domain.Enums
     }
     public static class PurchaseReturnMessage
     {
-     
+
         public static String SaveVoucher { get { return "Purchase Return saved successfully"; } }
         public static string UpdateVoucher { get { return "Purchase Return updated successfully"; } }
         public static string DeleteVoucher { get { return "Purchase Return updated successfully"; } }
@@ -179,7 +188,7 @@ namespace Inspire.Erp.Domain.Enums
         public static string DeleteVoucher { get { return "Purchase Order deleted successfully"; } }
         public static string VoucherAlreadyExist { get { return "Purchase Order is already exist"; } }
         public static string VoucherNumberExist { get { return "Voucher Number is exist"; } }
-   
+
     }
 
     public static class PurchaseQuotationMessage
@@ -189,7 +198,7 @@ namespace Inspire.Erp.Domain.Enums
         public static string DeleteVoucher { get { return "Purchase Quotation updated successfully"; } }
         public static string VoucherAlreadyExist { get { return "Purchase Quotation is already exist"; } }
         public static string VoucherNumberExist { get { return "Voucher Number is exist"; } }
-    
+
     }
 
     public static class PurchaseRequisitionMessage
@@ -201,6 +210,7 @@ namespace Inspire.Erp.Domain.Enums
         public static string VoucherNumberExist { get { return "Voucher Number is exist"; } }
 
     }
+
 
 
     public static class IssueVoucherMessage
@@ -250,7 +260,7 @@ namespace Inspire.Erp.Domain.Enums
         public static string DeleteVoucher { get { return "Issue Return updated successfully"; } }
         public static string VoucherAlreadyExist { get { return "Issue Return is already exist"; } }
         public static string VoucherNumberExist { get { return "Voucher Number is exist"; } }
-      
+
     }
 
     public static class StockTransferMessage
@@ -292,13 +302,91 @@ namespace Inspire.Erp.Domain.Enums
     }
     public static class JobMasterMessage
     {
-        public static String SaveJob{ get { return "Job saved successfully"; } }
-        public static string UpdateJob { get { return "Job updated sucessfully"; } } 
+        public static String SaveJob { get { return "Job saved successfully"; } }
+        public static string UpdateJob { get { return "Job updated sucessfully"; } }
         public static string DeleteJob { get { return "Job deleted sucessfully"; } }
 
         public static String SaveFailed { get { return "Job Item save failed"; } }
         public static string UpdateFailed { get { return "Job Item update failed"; } }
         public static string DeleteFailed { get { return "Job Item delete failed"; } }
     }
+    public static class JobInvoiceMessage
+    {
+        public static String SaveJobInvoice { get { return "Job Invoice saved successfully"; } }
+        public static string UpdateJobInvoice { get { return "Job Invoice updated sucessfully"; } }
+        public static string DeleteJobInvoice { get { return "Job Invoice deleted sucessfully"; } }
+
+        public static String SaveFailed { get { return "Job Invoice save failed"; } }
+        public static string UpdateFailed { get { return "Job Invoice update failed"; } }
+        public static string DeleteFailed { get { return "Job Invoice delete failed"; } }
+    }
+    public static class ManufactureItemMessage
+    {
+        public static String SaveManufactureItem { get { return "Manufacture Items saved successfully"; } }
+        public static string UpdateManufactureItem { get { return "Manufacture Items updated sucessfully"; } }
+        public static string DeleteManufactureItem { get { return "Manufacture Items deleted sucessfully"; } }
+
+        public static String SaveFailed { get { return "Manufacture Items save failed"; } }
+        public static string UpdateFailed { get { return "Manufacture Items update failed"; } }
+        public static string DeleteFailed { get { return "Manufacture Items delete failed"; } }
+    }
+    public static class StockeAdjustmentMessage
+    {
+        public static string SaveStockAdjustmentVoucher { get { return "Stock Adjustment Voucher saved successfully"; } }
+        public static string UpdateStockAdjustmentVoucher { get { return "Stock Adjustment Voucher updated successfully"; } }
+        public static string DeleteStockAdjustmentVoucher { get { return "Stock Adjustment Vouchar deleted successfully"; } }
+
+    }
+    public static class GeneralPurchaseOrderMessage
+    {
+        public static String SaveVoucher { get { return "General Purchase Order saved successfully"; } }
+        public static string UpdateVoucher { get { return "General Purchase Order updated successfully"; } }
+        public static string DeleteVoucher { get { return "General Purchase Order deleted successfully"; } }
+        public static string VoucherAlreadyExist { get { return "General Purchase Order is already exist"; } }
+        public static string VoucherNumberExist { get { return "Voucher Number is exist"; } }
+
+    }
+    public static class StockRequisitionMessage
+    {
+        public static String SaveVoucher { get { return "Stock Requisition saved successfully"; } }
+        public static string UpdateVoucher { get { return "Stock Requisition updated successfully"; } }
+        public static string DeleteVoucher { get { return "Stock Requisition updated successfully"; } }
+        public static string VoucherAlreadyExist { get { return "Stock Requisition is already exist"; } }
+        public static string VoucherNumberExist { get { return "Voucher Number is exist"; } }
+
+    }
+
+    public static class UserFileMessage
+    {
+        public static String SaveUser { get { return "User  saved successfully"; } }
+        public static string UpdateUser { get { return "User updated successfully"; } }
+        public static string DeleteUser { get { return "User deleted successfully"; } }
+
+    }
+    public static class WorkPeriodsMessage
+    {
+        public static String StartWP { get { return "Work Period   Starts successfully"; } }
+        public static string EndWP { get { return "Work Period Ends successfully"; } }
+
+
+    }
+    public static class GRNMessage
+    {
+        public static String SaveVoucher { get { return "GRN saved successfully"; } }
+        public static string UpdateVoucher { get { return "GRN updated successfully"; } }
+        public static string DeleteVoucher { get { return "GRN updated successfully"; } }
+        public static string VoucherAlreadyExist { get { return "GRN is already exist"; } }
+        public static string VoucherNumberExist { get { return "Voucher Number is exist"; } }
+
+    }
+    public static class DamageMessage
+    {
+        public static String SaveDamage { get { return "Damage saved successfully"; } }
+        public static string UpdateDamage { get { return "Damage updated successfully"; } }
+        public static string DeleteDamage { get { return "Damage Delete successfully"; } }
+
+    }
+
+
 
 }

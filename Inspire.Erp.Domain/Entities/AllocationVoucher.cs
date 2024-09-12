@@ -22,8 +22,8 @@ namespace Inspire.Erp.Domain.Entities
         public int? AllocationVoucherLocationId { get; set; }
         public string AllocationVoucherVcreation { get; set; }
         public bool? AllocationVoucherDelStatus { get; set; }
-        
         [NotMapped]
         public virtual ICollection<AllocationVoucherDetails> VoucherAllocationDetails { get; set; }
     }
 }
+

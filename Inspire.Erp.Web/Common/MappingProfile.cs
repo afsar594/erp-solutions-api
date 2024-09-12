@@ -17,6 +17,8 @@ using System.Threading.Tasks;
 using Inspire.Erp.Web.ViewModels.Settings;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Modals.AccountStatement;
+using Inspire.Erp.Domain.Entities.POS;
+using Inspire.Erp.Domain.Modals;
 
 namespace Inspire.Erp.Web.Common
 {
@@ -26,7 +28,7 @@ namespace Inspire.Erp.Web.Common
         {
             // Add as many of these lines as you need to map your objects
 
-//******************** Masters
+            //******************** Masters
 
             CreateMap<CurrencyMaster, CurrencyMasterViewModel>();
             CreateMap<CurrencyMasterViewModel, CurrencyMaster>();
@@ -82,12 +84,21 @@ namespace Inspire.Erp.Web.Common
 
             CreateMap<JobMasterBudgetDetails, JobMasterBudgetDetailsViewModels>();
             CreateMap<JobMasterBudgetDetailsViewModels, JobMasterBudgetDetails>();
-            
+
             CreateMap<JobMasterJobDetails, JobMasterJobDetailsViewModels>();
             CreateMap<JobMasterJobDetailsViewModels, JobMasterJobDetails>();
-            
+
             CreateMap<JobMasterJobWiseBankGuarantees, JobMasterJobWiseBankGuaranteesViewModels>();
             CreateMap<JobMasterJobWiseBankGuaranteesViewModels, JobMasterJobWiseBankGuarantees>();
+
+            CreateMap<JobStaff, JobStaffViewModels>();
+            CreateMap<JobStaffViewModels, JobStaff>();
+
+            CreateMap<JobEquipment, JobEquipmentViewModels>();
+            CreateMap<JobEquipmentViewModels, JobEquipment>();
+
+            CreateMap<JobExcutionDetails, JobExcutionDetailsViewModels>();
+            CreateMap<JobExcutionDetailsViewModels, JobExcutionDetails>();
 
             CreateMap<UnitMaster, UnitMasterViewModel>();
             CreateMap<UnitMasterViewModel, UnitMaster>();
@@ -141,10 +152,10 @@ namespace Inspire.Erp.Web.Common
             CreateMap<MasterAccountsTableViewModel, MasterAccountsTable>();
 
             CreateMap<TaxMaster, TaxMasterViewModel>();
-            CreateMap<TaxMasterViewModel,TaxMaster>();
+            CreateMap<TaxMasterViewModel, TaxMaster>();
 
-            
-            
+
+
 
             //**********************************Masters ending **********
             //**********************************Accounts ****************
@@ -241,6 +252,8 @@ namespace Inspire.Erp.Web.Common
             CreateMap<CustomerPurchaseOrderDetailsViewModel, CustomerPurchaseOrderDetails>();
 
 
+            CreateMap<UserFile, UserFileViewModel>();
+            CreateMap<UserFileViewModel, UserFile>();
 
             // ********************* Accounts ending *************
             // ********************* Procurement *****************
@@ -297,6 +310,18 @@ namespace Inspire.Erp.Web.Common
             CreateMap<OpeningStockVoucherDetails, OpeningStockVoucherDetailsViewModel>();
             CreateMap<OpeningStockVoucherDetailsViewModel, OpeningStockVoucherDetails>();
 
+
+            CreateMap<GeneralPurchaseOrder, GeneralPurchaseOrderViewModel>();
+            CreateMap<GeneralPurchaseOrderViewModel, GeneralPurchaseOrder>();
+
+            CreateMap<GeneralPurchaseOrderDetails, GeneralPurchaseOrderDetailsViewModel>();
+            CreateMap<GeneralPurchaseOrderDetailsViewModel, GeneralPurchaseOrderDetails>();
+
+            CreateMap<StockRequisition, StockRequisitionViewModel>();
+            CreateMap<StockRequisitionViewModel, StockRequisition>();
+
+            CreateMap<StockRequisitionDetails, StockRequisitionDetailsViewModel>();
+            CreateMap<StockRequisitionDetailsViewModel, StockRequisitionDetails>();
 
             //*********************** Procurement Ending ******
             //*********************** Sales *******************
@@ -401,13 +426,13 @@ namespace Inspire.Erp.Web.Common
             CreateMap<StationMasterViewModel, StationMaster>();
 
             CreateMap<TaxMaster, TaxMasterViewModel>();
-            CreateMap<TaxMasterViewModel,TaxMaster>();
+            CreateMap<TaxMasterViewModel, TaxMaster>();
 
-            CreateMap<RouteMaster,RouteMasterViewModel>();
-            CreateMap<RouteMasterViewModel,RouteMaster>();
+            CreateMap<RouteMaster, RouteMasterViewModel>();
+            CreateMap<RouteMasterViewModel, RouteMaster>();
 
-            CreateMap<OptionsMaster,OptionsMasterViewModel>();
-            CreateMap<OptionsMasterViewModel,OptionsMaster>();
+            CreateMap<OptionsMaster, OptionsMasterViewModel>();
+            CreateMap<OptionsMasterViewModel, OptionsMaster>();
 
 
             CreateMap<AssetPurchaseVoucher, AssetPurchaseVoucherViewModel>();
@@ -434,6 +459,21 @@ namespace Inspire.Erp.Web.Common
             CreateMap<ReportFilterViewModel, ReportFilter>();
 
             #endregion
+
+            CreateMap<POS_WorkPeriod, WorkPeriodResponse>();
+            CreateMap<WorkPeriodResponse, POS_WorkPeriod>();
+
+            CreateMap<SalesHold, SalesHoldViewModel>();
+            CreateMap<SalesHoldViewModel, SalesHold>();
+
+            CreateMap<SalesHoldDetails, SalesHoldDetailsViewModel>();
+            CreateMap<SalesHoldDetailsViewModel, SalesHoldDetails>();
+
+            CreateMap<BillofQtyMasterModel, BillofQtyMaster>();
+            CreateMap<BillofQtyMaster, BillofQtyMasterModel>();
+
+            CreateMap<BillOfQTyDetailsModel, BillOfQTyDetails>();
+            CreateMap<BillOfQTyDetails, BillOfQTyDetailsModel>();
 
         }
     }

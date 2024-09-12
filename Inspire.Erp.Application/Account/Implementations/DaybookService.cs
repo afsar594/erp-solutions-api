@@ -22,13 +22,14 @@ namespace Inspire.Erp.Application.Account.Implementations
         private readonly IRepository<MasterAccountsTable> _masterAccountsTable;
         private readonly IRepository<AccountsTransactions> _accountTransaction;
         private readonly IRepository<StationMaster> _locationMaster;
+        private IRepository<AccountSettings> _accountsSettingsRepo;
         private readonly IFileService _fileService;
-        public DaybookService(IRepository<MasterAccountsTable> masterAccountsTable, IFileService fileService,
+        public DaybookService(IRepository<MasterAccountsTable> masterAccountsTable, IFileService fileService, IRepository<AccountSettings> accountsSettingsRepo,
             IRepository<AccountsTransactions> accountTransaction, IRepository<StationMaster> locationMaster)
         {
             _masterAccountsTable = masterAccountsTable;
             _accountTransaction = accountTransaction;
-            _fileService = fileService;
+            _fileService = fileService; _accountsSettingsRepo = accountsSettingsRepo;
             _locationMaster = locationMaster;
         }
         public async Task<Response<GridWrapperResponse<GetDaybookResponse>>> GetDaybookAccountTransactions(GenericGridViewModel model)
@@ -37,17 +38,48 @@ namespace Inspire.Erp.Application.Account.Implementations
             {
                 var gridModel = new GetDaybookResponse();
                 var location = await _locationMaster.GetAsQueryable().FirstOrDefaultAsync();
-                string query = @$" 1==1 {model.Filter}";
-                //var a = await _accountTransaction.GetAsQueryable().Where(x =>( x.AccountsTransactionsTransDate >= Convert.ToDateTime("02/21/2022")) && (x.AccountsTransactionsTransDate <= Convert.ToDateTime("02/21/2023")))
-                //    .ToListAsync();
-                var total = await _accountTransaction.GetAsQueryable().CountAsync(x=>x.AccountstransactionsDelStatus != null && x.AccountstransactionsDelStatus != true);
-                var queryData =  _accountTransaction.GetAsQueryable().Where(query).OrderBy(row => row.AccountsTransactionsTransDate ?? DateTime.MaxValue).AsQueryable();
-               var result=await queryData.Skip(model.Skip).Take(model.Take).Select(x => new GetDaybookAccountTransaction
+                var total = await _accountTransaction.GetAsQueryable().AsNoTracking().CountAsync(x => x.AccountstransactionsDelStatus != true);
+
+                var cashacc = _accountsSettingsRepo.GetAsQueryable().AsNoTracking().Where(a => a.AccountSettingsAccountDescription.Trim() == "Cash Account").Select(x => x.AccountSettingsAccountTextValue).FirstOrDefault();
+                string[] parts = cashacc.Split(new string[] { "::" }, StringSplitOptions.None);
+
+                string accountNumber = parts.Length > 1 ? parts[1].Trim() : string.Empty;
+                GetDaybookAccountTransaction data = null;
+
+                IQueryable<AccountsTransactions> queryData;
+                if (model.isDate)
+                {
+                    queryData = _accountTransaction.GetAsQueryable().AsNoTracking().Where(a => a.AccountsTransactionsAccNo != accountNumber && a.AccountsTransactionsTransDate >= model.FromDate && a.AccountsTransactionsTransDate <= model.ToDate).OrderBy(row => row.AccountsTransactionsTransDate ?? DateTime.MaxValue);
+                    var openingentry = _accountTransaction.GetAsQueryable().AsNoTracking().Where(a => a.AccountsTransactionsAccNo == accountNumber && a.AccountsTransactionsTransDate < model.FromDate).ToList();
+
+                    decimal totalDebits = openingentry.Sum(a => a.AccountsTransactionsDebit);
+                    decimal totalCredits = openingentry.Sum(a => a.AccountsTransactionsCredit);
+
+                    decimal openingBalance = totalCredits - totalDebits;
+
+                    data = new GetDaybookAccountTransaction
+                    {
+                        AccountsTransactionsTransDateString = "",
+                        AccountsTransactionsVoucherNo = "",
+                        RefNo = "",
+                        AccountsTransactionsDescription = "",
+                        AccountsTransactionsParticulars = "",
+                        AccountsTransactionsDebit = openingBalance < 0 ? openingBalance : 0,
+                        AccountsTransactionsCredit = openingBalance > 0 ? openingBalance : 0,
+                        AccountsTransactionsVoucherType = "Opening Balance"
+                    };
+
+                }
+                else
+                {
+                    queryData = _accountTransaction.GetAsQueryable().AsNoTracking().Where(a => a.AccountsTransactionsAccNo != accountNumber).OrderBy(row => row.AccountsTransactionsTransDate ?? DateTime.MaxValue);
+                }
+                var result = await queryData.Skip(model.Skip).Take(model.Take).Select(x => new GetDaybookAccountTransaction
                 {
                     AccountsTransactionsAccNo = x.AccountsTransactionsAccNo,
                     AccountsTransactionsAccName = _masterAccountsTable.GetAsQueryable().FirstOrDefault(c => c.MaAccNo == x.AccountsTransactionsAccNo).MaAccName,
-                    AccountsTransactionsDebit = Convert.ToDecimal(x.AccountsTransactionsDebit),
-                    AccountsTransactionsCredit = Convert.ToDecimal(x.AccountsTransactionsCredit),
+                    AccountsTransactionsDebit = x.AccountsTransactionsDebit,
+                    AccountsTransactionsCredit = x.AccountsTransactionsCredit,
                     AccountsTransactionsAllocBalance = x.AccountsTransactionsAllocBalance,
                     AccountsTransactionsVoucherNo = x.AccountsTransactionsVoucherNo,
                     AccountsTransactionsVoucherType = x.AccountsTransactionsVoucherType,
@@ -61,7 +93,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     AccountsTransactionsAllocCredit = x.AccountsTransactionsAllocCredit
                 }).ToListAsync();
                 var groupResponse = result.GroupBy(x => x.AccountsTransactionsTransDate);
-                gridModel.Details= new List<GetDaybookAccountTransaction>();
+                gridModel.Details = new List<GetDaybookAccountTransaction>();
                 decimal totalDebit = 0;
                 decimal totalCredit = 0;
                 foreach (var item in groupResponse)
@@ -70,20 +102,25 @@ namespace Inspire.Erp.Application.Account.Implementations
                     decimal debit = 0;
                     foreach (var records in item)
                     {
+                        if (model.isDate)
+                        {
+                            gridModel.Details.Insert(0, data);
+                        }
                         gridModel.Details.Add(new GetDaybookAccountTransaction()
                         {
-                            AccountsTransactionsTransDateString=records.AccountsTransactionsTransDateString,
-                            AccountsTransactionsVoucherNo=records.AccountsTransactionsVoucherNo,
-                            RefNo=records.RefNo,
-                            AccountsTransactionsDescription =records.AccountsTransactionsDescription,
-                            AccountsTransactionsParticulars=records.AccountsTransactionsParticulars,
-                            AccountsTransactionsDebit=records.AccountsTransactionsDebit,
-                            AccountsTransactionsCredit=records.AccountsTransactionsCredit,
-                            AccountsTransactionsVoucherType=records.AccountsTransactionsVoucherType
+                            AccountsTransactionsTransDateString = records.AccountsTransactionsTransDateString,
+                            AccountsTransactionsVoucherNo = records.AccountsTransactionsVoucherNo,
+                            RefNo = records.RefNo,
+                            AccountsTransactionsDescription = records.AccountsTransactionsDescription,
+                            AccountsTransactionsParticulars = records.AccountsTransactionsParticulars,
+                            AccountsTransactionsDebit = records.AccountsTransactionsDebit,
+                            AccountsTransactionsCredit = records.AccountsTransactionsCredit,
+                            AccountsTransactionsVoucherType = records.AccountsTransactionsVoucherType
                         });
-                        //credit += records.AccountsTransactionsCredit;
-                        //debit += records.AccountsTransactionsDebit;
                     }
+                    //credit += records.AccountsTransactionsCredit;
+                    //debit += records.AccountsTransactionsDebit;
+
                     //gridModel.Details.Add(new GetDaybookAccountTransaction()
                     //{
                     //    AccountsTransactionsParticulars = "Total",
@@ -131,7 +168,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     return Response<ReturnPrintResponse>.Fail(new ReturnPrintResponse(), "No records");
                 }
-                string cssPath = Path.Combine(Directory.GetCurrentDirectory(), "Assets", "Styles","Account", "daybookStyles.css");
+                string cssPath = Path.Combine(Directory.GetCurrentDirectory(), "Assets", "Styles", "Account", "daybookStyles.css");
                 string outPutPath = Path.Combine(Directory.GetCurrentDirectory(), "Assets", "Files", @$"{fileName}.pdf");
                 await _fileService.CheckFileExist(outPutPath);
                 AddPDFResponse pDFResponse = new AddPDFResponse()

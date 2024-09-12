@@ -28,13 +28,13 @@ namespace Inspire.Erp.Application.Master
             _utilityService = utilityService;
             DeptorsRelativeNo = config["ApplicationSettings:DebtorRelativeNo"];
         }
-        public async Task<IEnumerable<CustomerMaster>> InsertCustomer(CustomerMaster customerMaster)
+        public async Task<CustomerMaster> InsertCustomer(CustomerMaster customerMaster)
         {
             bool valid = false;
 
             try
             {
-                _masterAccountTable.BeginTransaction();
+                //_masterAccountTable.BeginTransaction();
                 var fs = await _utilityService.GetFinancialPeriods();
                 valid = true;
                 int mxc = 0;
@@ -44,9 +44,24 @@ namespace Inspire.Erp.Application.Master
                 MasterAccountsTable masterAccountsTable = null;
                 if (customerMaster.IsCreateAccount)
                 {
-                    var count = _masterAccountTable.GetAsQueryable().AsNoTracking().Where(x => x.MaRelativeNo == DeptorsRelativeNo).ToList().Count()+1;
-                    cusAccNo = count.ToString().Length == 1 ? "00" + count : count.ToString().Length == 2 ? "0" + count : count.ToString();
+                    var count = _masterAccountTable.GetAsQueryable().AsNoTracking().Where(x => x.MaRelativeNo == DeptorsRelativeNo).ToList().Count() + 1;
+                    //cusAccNo = count.ToString().Length == 1 ? "00" + count : count.ToString().Length == 2 ? "0" + count : count.ToString();
+                    cusAccNo = count.ToString("D3");
                     cusAccNo = masterAccount.MaAccNo + cusAccNo;
+
+                    var isunique = _masterAccountTable.GetAsQueryable().AsNoTracking().Where(x => x.MaAccNo == cusAccNo).FirstOrDefault();
+                    while (isunique != null)
+                    {
+                        // Increment the count and regenerate the cusAccNo
+                        count++;
+                        cusAccNo = count.ToString("D3");
+                        cusAccNo = masterAccount.MaAccNo + cusAccNo;
+
+                        // Check if the new cusAccNo is unique
+                        isunique = _masterAccountTable.GetAsQueryable().AsNoTracking()
+                                                      .Where(x => x.MaAccNo == cusAccNo)
+                                                      .FirstOrDefault();
+                    }
                     masterAccountsTable = new MasterAccountsTable()
                     {
                         MaAccName = customerMaster.CustomerMasterCustomerName,
@@ -64,15 +79,21 @@ namespace Inspire.Erp.Application.Master
                         MaStatus = "R",
                     };
                 }
-                mxc = customerrepository.GetAsQueryable().AsNoTracking().Where(k => k.CustomerMasterCustomerNo != null).Select(x => x.CustomerMasterCustomerNo).Max();
-                //if (mxc == null) { mxc = 1; } else { mxc = mxc + 1; }
+                if (masterAccountsTable != null)
+                {
+                    await _utilityService.SaveMasterAccountTable(masterAccountsTable);
+                }
+                var query = customerrepository.GetAsQueryable().AsNoTracking().Where(k => k.CustomerMasterCustomerNo != null)
+                    .Select(x => x.CustomerMasterCustomerNo);
+                if (query.Any())
+                {
+                    mxc = query.Max();
+                }
                 mxc = mxc == null ? 1 : mxc + 1;
                 customerMaster.CustomerMasterCustomerNo = mxc;
                 customerMaster.CustomerMasterCustomerReffAcNo = cusAccNo;
                 customerrepository.Insert(customerMaster);
 
-                if (masterAccountsTable != null)
-                   await _utilityService.SaveMasterAccountTable(masterAccountsTable);
 
                 #region ADD ACTIVITY LOGS
                 AddActivityLogViewModel log = new AddActivityLogViewModel()
@@ -81,10 +102,11 @@ namespace Inspire.Erp.Application.Master
                     Section = "Add Customer Master",
                     Entity = "Customer Master",
                 };
-               // await _utilityService.AddUserTrackingLog(log);
+                await _utilityService.AddUserTrackingLog(log);
                 #endregion
-                 customerrepository.SaveChangesAsync();
-                _masterAccountTable.TransactionCommit();
+                //customerrepository.SaveChangesAsync();
+                _masterAccountTable.SaveChangesAsync();
+                //_masterAccountTable.TransactionCommit();
 
             }
             catch (Exception ex)
@@ -100,49 +122,77 @@ namespace Inspire.Erp.Application.Master
             }
 
 
-            return this.GetAllCustomer();
+            return this.GetAllCustomerById(customerMaster.CustomerMasterCustomerNo);
         }
-        public async Task<IEnumerable<CustomerMaster>> UpdateCustomer(CustomerMaster customerMaster)
+        public CustomerMaster UpdateCustomer(CustomerMaster customerMaster)
+        {
+            bool valid = false;
+            try
+            {
+                //_masterAccountTable.BeginTransaction();
+                //var fs = await _utilityService.GetFinancialPeriods();
+                //valid = true;
+                //int mxc = 0;
+                //var maxId = _masterAccountTable.GetAsQueryable().AsNoTracking().Max(x => x.MaSno);
+                //var masterAccount = _masterAccountTable.GetAsQueryable().AsNoTracking().Where(x => x.MaAccNo == DeptorsRelativeNo).FirstOrDefault();
+                //var isAlreadyAccount = _masterAccountTable.GetAsQueryable().AsNoTracking().Where(x => x.MaAccName == customerMaster.CustomerMasterCustomerName).FirstOrDefault();
+                //var cusAccNo = string.Empty;
+                //MasterAccountsTable masterAccountsTable = null;
+                //if (customerMaster.IsCreateAccount && isAlreadyAccount == null)
+                //{
+                //    var count = _masterAccountTable.GetAsQueryable().AsNoTracking().Where(x => x.MaRelativeNo == DeptorsRelativeNo).ToList().Count() + 1;
+                //    cusAccNo = count.ToString().Length == 1 ? "00" + count : count.ToString().Length == 2 ? "0" + count : count.ToString();
+                //    cusAccNo = masterAccount.MaAccNo + cusAccNo;
+                //    masterAccountsTable = new MasterAccountsTable()
+                //    {
+                //        MaAccName = customerMaster.CustomerMasterCustomerName,
+                //        MaAccNo = cusAccNo,
+                //        MaAccType = "A",
+                //        MaImageKey = masterAccount.MaImageKey,
+                //        MaAssetDate = DateTime.Now,
+                //        MaFsno = fs.Result.FinancialPeriodsFsno,
+                //        MaMainHead = masterAccount.MaMainHead,
+                //        MaRelativeNo = masterAccount.MaAccNo,
+                //        MaSubHead = masterAccount.MaSubHead,
+                //        MaUserId = 0,
+                //        MaSno = maxId + 1,
+                //        MaDateCreated = DateTime.Now,
+                //        MaStatus = "R",
+                //    };
+                //}
+
+                //if (masterAccountsTable != null)
+                //    await _utilityService.SaveMasterAccountTable(masterAccountsTable);
+
+                customerrepository.Update(customerMaster);
+
+                //_masterAccountTable.TransactionCommit();
+                valid = true;
+
+            }
+            catch (Exception ex)
+            {
+                valid = false;
+                throw ex;
+
+            }
+            finally
+            {
+                //customerrepository.Dispose();
+            }
+            return this.GetAllCustomerById(customerMaster.CustomerMasterCustomerNo);
+        }
+        public CustomerMaster DeleteCustomer(CustomerMaster customerMaster)
         {
             bool valid = false;
             try
             {
                 _masterAccountTable.BeginTransaction();
-                var fs = await _utilityService.GetFinancialPeriods();
-                valid = true;
-                int mxc = 0;
-                var maxId = _masterAccountTable.GetAsQueryable().AsNoTracking().Max(x => x.MaSno);
-                var masterAccount = _masterAccountTable.GetAsQueryable().AsNoTracking().Where(x => x.MaAccNo == DeptorsRelativeNo).FirstOrDefault();
-                var isAlreadyAccount = _masterAccountTable.GetAsQueryable().AsNoTracking().Where(x => x.MaAccName == customerMaster.CustomerMasterCustomerName).FirstOrDefault();
-                var cusAccNo = string.Empty;
-                MasterAccountsTable masterAccountsTable = null;
-                if (customerMaster.IsCreateAccount && isAlreadyAccount ==null)
-                {
-                    var count = _masterAccountTable.GetAsQueryable().AsNoTracking().Where(x => x.MaRelativeNo == DeptorsRelativeNo).ToList().Count() + 1;
-                    cusAccNo = count.ToString().Length == 1 ? "00" + count : count.ToString().Length == 2 ? "0" + count : count.ToString();
-                    cusAccNo = masterAccount.MaAccNo + cusAccNo;
-                    masterAccountsTable = new MasterAccountsTable()
-                    {
-                        MaAccName = customerMaster.CustomerMasterCustomerName,
-                        MaAccNo = cusAccNo,
-                        MaAccType = "A",
-                        MaImageKey = masterAccount.MaImageKey,
-                        MaAssetDate = DateTime.Now,
-                        MaFsno = fs.Result.FinancialPeriodsFsno,
-                        MaMainHead = masterAccount.MaMainHead,
-                        MaRelativeNo = masterAccount.MaAccNo,
-                        MaSubHead = masterAccount.MaSubHead,
-                        MaUserId = 0,
-                        MaSno = maxId + 1,
-                        MaDateCreated = DateTime.Now,
-                        MaStatus = "R",
-                    };
-                }
-
-                if (masterAccountsTable != null)
-                    await _utilityService.SaveMasterAccountTable(masterAccountsTable);
-
+                customerMaster.CustomerMasterCustomerDeleteStatus = true;
                 customerrepository.Update(customerMaster);
+                var account = _masterAccountTable.GetAsQueryable().Where(a => a.MaRelativeNo == customerMaster.CustomerMasterCustomerReffAcNo).FirstOrDefault();
+
+                _masterAccountTable.Delete(account);
                 _masterAccountTable.TransactionCommit();
                 valid = true;
 
@@ -157,35 +207,14 @@ namespace Inspire.Erp.Application.Master
             {
                 //customerrepository.Dispose();
             }
-            return this.GetAllCustomer();
-        }
-        public IEnumerable<CustomerMaster> DeleteCustomer(CustomerMaster customerMaster)
-        {
-            bool valid = false;
-            try
-            {
-                customerrepository.Delete(customerMaster);
-                valid = true;
-
-            }
-            catch (Exception ex)
-            {
-                valid = false;
-                throw ex;
-
-            }
-            finally
-            {
-                //customerrepository.Dispose();
-            }
-            return this.GetAllCustomer();
+            return customerMaster;
         }
         public IEnumerable<CustomerMaster> GetAllCustomer()
         {
             IEnumerable<CustomerMaster> customerMasters;
             try
             {
-                customerMasters = customerrepository.GetAll();
+                customerMasters = customerrepository.GetAll().Where(a => a.CustomerMasterCustomerDelStatus != true).Select(k => k);
 
             }
             catch (Exception ex)
@@ -199,12 +228,12 @@ namespace Inspire.Erp.Application.Master
             }
             return customerMasters;
         }
-        public IEnumerable<CustomerMaster> GetAllCustomerById(int id)
+        public CustomerMaster GetAllCustomerById(int id)
         {
-            IEnumerable<CustomerMaster> customerMasters;
+            CustomerMaster customerMasters;
             try
             {
-                customerMasters = customerrepository.GetAsQueryable().Where(k => k.CustomerMasterCustomerNo == id).Select(k => k);
+                customerMasters = customerrepository.GetAsQueryable().Where(k => k.CustomerMasterCustomerNo == id).FirstOrDefault();
 
             }
             catch (Exception ex)

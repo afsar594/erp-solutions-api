@@ -6,6 +6,11 @@ namespace Inspire.Erp.Domain.Entities
 {
     public class Menu
     {
+        public Menu()
+        {
+            WorkGroupPermissions = new HashSet<WorkGroupPermissions>();
+
+        }
         public int Id { get; set; }
         public string Title { get; set; }
         public bool? IsDeleted { get; set; }
@@ -18,6 +23,7 @@ namespace Inspire.Erp.Domain.Entities
         public int? Order { get; set; }
         public string Page { get; set; }
         // Navigation property for many-to-many relationship
-        public ICollection<WorkGroupMenuDetail> MenusWorkgroupDetails { get; set; }
+        //public ICollection<WorkGroupMenuDetail> MenusWorkgroupDetails { get; set; }
+        public ICollection<WorkGroupPermissions> WorkGroupPermissions { get; set; }
     }
 }

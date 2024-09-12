@@ -30,6 +30,6 @@ namespace Inspire.Erp.Domain.Entities
         [NotMapped]
         public List<Domain.Models.TrackingData> TrackingData { get; set; }
         [NotMapped]
-        public List<Domain.Models.AllocationDetails> AllocationDetails { get; set; }
+        public List<Domain.Models.AllocationDetails> rvAllocationDetails { get; set; }
     }
 }

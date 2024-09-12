@@ -13,6 +13,10 @@ using Microsoft.AspNetCore.Mvc;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Web.Common;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Application.Account;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.EntityFrameworkCore;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -22,11 +26,16 @@ namespace Inspire.Erp.Web.Controllers
     public class PurchaseJournalController : ControllerBase
     {
         private IPurchaseJournalService _purchaseJournalService;
+        private IRepository<CostCenterMaster> costcenterrepository;
+        private IRepository<CurrencyMaster> currencyrepository; private IRepository<JobMaster> jobrepository;
+        private IChartofAccountsService chartofAccountsService;
         private readonly IMapper _mapper;
-        public PurchaseJournalController(IPurchaseJournalService purchaseJournalService, IMapper mapper)
+        public PurchaseJournalController(IPurchaseJournalService purchaseJournalService, IMapper mapper, IRepository<CostCenterMaster> _countryrepository
+            , IRepository<JobMaster> _jobrepository, IRepository<CurrencyMaster> _currencyrepository, IChartofAccountsService _chartofAccountsService)
         {
             _purchaseJournalService = purchaseJournalService;
-            _mapper = mapper;
+            _mapper = mapper; jobrepository = _jobrepository;
+            costcenterrepository = _countryrepository; currencyrepository = _currencyrepository; chartofAccountsService = _chartofAccountsService;
         }
         [HttpPost]
         [Route("InsertPurchaseJournal")]
@@ -69,128 +78,7 @@ namespace Inspire.Erp.Web.Controllers
 
         }
 
-
-
-        //[HttpPost]
-        //[Route("InsertPurchaseJournal")]
-        //public ApiResponse<PurchaseJournalViewModel> InsertPurchaseJournal([FromBody] PurchaseJournalViewModel voucherCompositeView)
-        //{
-        //    //var param1 = _mapper.Map<PurchaseJournal>(voucherCompositeView);
-        //    //var param2 = _mapper.Map<List<PurchaseJournalDetails>>(voucherCompositeView.PurchaseJournalDetails);
-        //    //var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-        //    //var xs = _purchaseJournalService.InsertPurchaseJournal(param1, param3, param2);
-        //    //PurchaseJournalViewModel purchaseJournalViewModel = new PurchaseJournalViewModel
-        //    //{
-        //    //    PurchaseJournalVno = xs.purchaseJournal.PurchaseJournalVno,
-        //    //    PurchaseJournalCrAmount = xs.purchaseJournal.PurchaseJournalCrAmount,
-        //    //    PurchaseJournalFcCrAmount = xs.purchaseJournal.PurchaseJournalFcCrAmount,
-        //    //    PurchaseJournalDrAmount = xs.purchaseJournal.PurchaseJournalDrAmount,
-        //    //    PurchaseJournalFcDrAmount = xs.purchaseJournal.PurchaseJournalFcDrAmount,
-        //    //    PurchaseJournalAcNo = xs.purchaseJournal.PurchaseJournalAcNo,
-        //    //    PurchaseJournalDate = xs.purchaseJournal.PurchaseJournalDate,
-        //    //    PurchaseJournalId = xs.purchaseJournal.PurchaseJournalId,
-        //    //    PurchaseJournalNarration = xs.purchaseJournal.PurchaseJournalNarration,
-        //    //    PurchaseJournalCurrencyId = xs.purchaseJournal.PurchaseJournalCurrencyId,
-
-        //    //    PurchaseJournalRefNo = xs.purchaseJournal.PurchaseJournalRefNo 
-
-        //    //};
-
-        //    //purchaseJournalViewModel.PurchaseJournalDetails = _mapper.Map<List<PurchaseJournalDetailsViewModel>>(xs.purchaseJournalDetails);
-        //    //purchaseJournalViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionsViewModel>>(xs.accountsTransactions);
-        //    //return _mapper.Map<PurchaseJournalViewModel>(purchaseJournalViewModel);
-
-
-        //    ApiResponse<PurchaseJournalViewModel> apiResponse = new ApiResponse<PurchaseJournalViewModel>();
-        //    if (_purchaseJournalService.GetVouchersNumbers(voucherCompositeView.PurchaseJournalVno) == null)
-        //    {
-        //        var param1 = _mapper.Map<PurchaseJournal>(voucherCompositeView);
-        //        var param2 = _mapper.Map<List<PurchaseJournalDetails>>(voucherCompositeView.PurchaseJournalDetails);
-        //        var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-        //        var xs = _purchaseJournalService.InsertPurchaseJournal(param1, param3, param2);
-        //        PurchaseJournalViewModel purchaseJournalViewModel = new PurchaseJournalViewModel
-        //        {
-        //            PurchaseJournalVno = xs.purchaseJournal.PurchaseJournalVno,
-        //            PurchaseJournalCrAmount = xs.purchaseJournal.PurchaseJournalCrAmount,
-        //            PurchaseJournalFcCrAmount = xs.purchaseJournal.PurchaseJournalFcCrAmount,
-        //            PurchaseJournalDrAmount = xs.purchaseJournal.PurchaseJournalDrAmount,
-        //            PurchaseJournalFcDrAmount = xs.purchaseJournal.PurchaseJournalFcDrAmount,
-        //            //PurchaseJournalAcNo = xs.purchaseJournal.PurchaseJournalAcNo,
-        //            PurchaseJournalDate = xs.purchaseJournal.PurchaseJournalDate,
-        //            PurchaseJournalId = xs.purchaseJournal.PurchaseJournalId,
-        //            PurchaseJournalNarration = xs.purchaseJournal.PurchaseJournalNarration,
-        //            PurchaseJournalCurrencyId = xs.purchaseJournal.PurchaseJournalCurrencyId,
-
-        //            PurchaseJournalRefNo = xs.purchaseJournal.PurchaseJournalRefNo
-        //        };
-
-        //        purchaseJournalViewModel.PurchaseJournalDetails = _mapper.Map<List<PurchaseJournalDetailsViewModel>>(xs.purchaseJournalDetails);
-        //        purchaseJournalViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
-        //        apiResponse = new ApiResponse<PurchaseJournalViewModel>
-        //        {
-        //            Valid = true,
-        //            Result = _mapper.Map<PurchaseJournalViewModel>(purchaseJournalViewModel),
-        //            Message = PurchaseJournalMessage.SaveVoucher
-        //        };
-        //    }
-        //    else
-        //    {
-        //        apiResponse = new ApiResponse<PurchaseJournalViewModel>
-        //        {
-        //            Valid = false,
-        //            Error = true,
-        //            Exception = null,
-        //            Message = PurchaseJournalMessage.VoucherAlreadyExist
-        //        };
-
-        //    }
-
-
-        //    return apiResponse;
-
-
-
-
-
-
-        //}
-
-        //[HttpPost]
-        //[Route("UpdatePurchaseJournal")]
-        //public ApiResponse<PurchaseJournalViewModel> UpdatePurchaseJournal([FromBody] PurchaseJournalViewModel voucherCompositeView)
-        //{
-        //    var param1 = _mapper.Map<PurchaseJournal>(voucherCompositeView);
-        //    var param2 = _mapper.Map<List<PurchaseJournalDetails>>(voucherCompositeView.PurchaseJournalDetails);
-        //    var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-        //    var xs = _purchaseJournalService.UpdatePurchaseJournal(param1, param3, param2);
-
-        //    PurchaseJournalViewModel purchaseJournalViewModel = new PurchaseJournalViewModel
-        //    {
-        //        PurchaseJournalVno = xs.purchaseJournal.PurchaseJournalVno,
-        //        PurchaseJournalCrAmount = xs.purchaseJournal.PurchaseJournalCrAmount,
-        //        //PurchaseJournalAcNo = xs.purchaseJournal.PurchaseJournalAcNo,
-        //        PurchaseJournalDate = xs.purchaseJournal.PurchaseJournalDate,
-        //        PurchaseJournalId = xs.purchaseJournal.PurchaseJournalId,
-        //        PurchaseJournalNarration = xs.purchaseJournal.PurchaseJournalNarration,
-        //        PurchaseJournalCurrencyId = xs.purchaseJournal.PurchaseJournalCurrencyId,
-        //        PurchaseJournalRefNo = xs.purchaseJournal.PurchaseJournalRefNo,
-        //        PurchaseJournalDrAmount = xs.purchaseJournal.PurchaseJournalDrAmount
-        //    };
-
-        //    purchaseJournalViewModel.PurchaseJournalDetails = _mapper.Map<List<PurchaseJournalDetailsViewModel>>(xs.purchaseJournalDetails);
-        //    purchaseJournalViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
-
-        //    ApiResponse<PurchaseJournalViewModel> apiResponse = new ApiResponse<PurchaseJournalViewModel>
-        //    {
-        //        Valid = true,
-        //        Result = _mapper.Map<PurchaseJournalViewModel>(purchaseJournalViewModel),
-        //        Message = PurchaseJournalMessage.UpdateVoucher
-        //    };
-
-        //    return apiResponse;
-
-        //}
-
+    
         [HttpPost]
         [Route("DeletePurchaseJournal")]
         public ApiResponse<int> DeletePurchaseJournal([FromBody] PurchaseJournalViewModel voucherCompositeView)
@@ -276,7 +164,46 @@ namespace Inspire.Erp.Web.Controllers
             return apiResponse;
         }
 
+        [HttpGet]
+        [Route("LoadDropdown")]
+        public ResponseInfo LoadDropdown()
+        {
+            var objresponse = new ResponseInfo();
 
+            var masterAccountsTables = chartofAccountsService.GetAllAccounts().Where(a => a.MaDelStatus != true && a.MaAccType == "A").Select(c => new
+            {
+                c.MaAccNo,
+                c.MaAccName,
+                c.MaRelativeNo,
+                c.MaSno
+            }).ToList();
+            var costcenterMasters = costcenterrepository.GetAsQueryable().AsNoTracking().Where(a => a.CostCenterMasterCostCenterDelStatus != true).Select(c => new
+            {
+                c.CostCenterMasterCostCenterId,
+                CostCenterMasterCostCenterName=c.CostCenterMasterCostCenterName.Trim(),
+            }).ToList();
+            var jobMasters = jobrepository.GetAsQueryable().AsNoTracking().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
+            {
+                c.JobMasterJobId,
+                JobMasterJobName=c.JobMasterJobName.Trim(),
+            }).ToList();
+            var currencyMasters = currencyrepository.GetAsQueryable().AsNoTracking().Where(a => a.CurrencyMasterCurrencyDelStatus != true).Select(c => new
+            {
+                c.CurrencyMasterCurrencyId,
+                CurrencyMasterCurrencyName = c.CurrencyMasterCurrencyName.Trim(),
+                c.CurrencyMasterCurrencyRate
+            }).ToList();
+
+            objresponse.ResultSet = new
+            {
+                costcenterMasters = costcenterMasters,
+                masterAccountsTables = masterAccountsTables,
+                jobMasters = jobMasters,
+                currencyMasters = currencyMasters,
+
+            };
+            return objresponse;
+        }
 
     }
 }

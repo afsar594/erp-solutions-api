@@ -1,5 +1,6 @@
 ﻿using Inspire.Erp.Application.Account.Interface;
 using Inspire.Erp.Application.Procurement.Interfaces;
+using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Modals;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -20,12 +21,25 @@ namespace Inspire.Erp.Web.Controllers
         {
             _pdc = pdc;
         }
-        [HttpGet("PDCPostedList")]
-        public async Task<IEnumerable<PDCPostedList>> PDCPostedList()
+        [HttpGet("PDCPostedReturnList/{chequeStatus}")]
+        public async Task<IEnumerable<PDCPostedList>> PDCPostedReturnList(string chequeStatus)
         {
             try
             {
-                return await _pdc.PDCPostedList();
+                return await _pdc.PDCPostedReturnList(chequeStatus);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpGet("PDCReturnList")]
+        public async Task<IEnumerable<PDCPostedList>> PDCReturnList()
+        {
+            try
+            {
+                return await _pdc.PDCReturnLists();
             }
             catch (Exception ex)
             {
@@ -70,5 +84,14 @@ namespace Inspire.Erp.Web.Controllers
         {
             return await _pdc.getFilteredPDCList(obj);
         }
+
+        [HttpPost("PostPDC")]
+        public async Task<IEnumerable<PDCGetList>> PostPDC([FromBody] List<PDCGetList> pDCGetList)
+        {
+            return await _pdc.PostPDC(pDCGetList);
+        }
+
+
+
     }
 }

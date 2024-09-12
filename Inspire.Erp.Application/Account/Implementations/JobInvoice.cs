@@ -14,10 +14,11 @@ using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Application.Sales.Interface;
 using Inspire.Erp.Application.Account.Interface;
 using Inspire.Erp.Domain.Modals;
+using Inspire.Erp.Domain.Modals.Common;
 
 namespace Inspire.Erp.Application.Account.implementations
 {
-    public class jobinvoiceimp: IJobInvoice
+    public class jobinvoiceimp : IJobInvoice
     {
         private readonly IRepository<JobInvoiceRequest> _jobinvoiceresponserepo;
         private readonly IRepository<JobInvoice> _jobinvoicerepo;
@@ -33,6 +34,8 @@ namespace Inspire.Erp.Application.Account.implementations
         private readonly IRepository<CostCenterMaster> _costCenterMaster;
         private readonly IRepository<CustomerMaster> _customerMaster;
         private readonly IRepository<LocationMaster> _locationMaster;
+        private IRepository<ProgramSettings> _programsettingsRepository;
+        private IRepository<VouchersNumbers> _voucherNumbersRepository;
         private static string prefix;
         public jobinvoiceimp(IRepository<ItemMaster> itemmasterrepo,
                IRepository<JobInvoiceRequest> jobinvoiceresponserepo,
@@ -48,7 +51,9 @@ namespace Inspire.Erp.Application.Account.implementations
                 IRepository<ProgramSettings> programsettingsrepository,
                 IRepository<CostCenterMaster> costCenterMaster,
                 IRepository<CostCenterMaster> customerMaster,
-                IRepository<CostCenterMaster> locationMaster)
+                IRepository<ProgramSettings> programsettingsRepository,
+                IRepository<VouchersNumbers> voucherNumbers
+            )
         {
             _lmrepo = lmrepo;
             _cmrepo = cmrepo;
@@ -65,28 +70,41 @@ namespace Inspire.Erp.Application.Account.implementations
             _costCenterMaster = costCenterMaster;
             _costCenterMaster = customerMaster;
             _costCenterMaster = costCenterMaster;
+            _programsettingsRepository = programsettingsRepository;
+            _voucherNumbersRepository = voucherNumbers;
         }
 
-       public JobInvoice InsertJobInvoice(JobInvoice JobInvoice)
+        public JobInvoice InsertJobInvoice(JobInvoice JobInvoice)
         {
             try
             {
 
+
+                string openingstockVoucherNumber = this.GenerateVoucherNo(JobInvoice.JobInvoiceVoucherDate.Value).VouchersNumbersVNo;
+                JobInvoice.JobInvoiceVoucherNo = openingstockVoucherNumber;
+
                 _jobinvoicerepo.BeginTransaction();
-                int maxcount = 1;
+                int maxcount = 0;
                 maxcount = Convert.ToInt32(
                     _jobinvoicerepo.GetAsQueryable()
                     .DefaultIfEmpty().Max(o => o == null ? 0 : o.JobInvoiceId) + 1);
                 JobInvoice.JobInvoiceId = maxcount;
 
                 _jobinvoicerepo.Insert(JobInvoice);
+
+                int maxcount1 = 0;
+                maxcount1 = Convert.ToInt32(
+                    _jobdetailsrepo.GetAsQueryable()
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.JobInvoiceDetailsDetailsId) + 1);
                 JobInvoice.JobInvoiceDetails.ForEach(elemt =>
                 {
-                    elemt.JobInvoiceDetailsDetailsId = maxcount;
+                    elemt.JobInvoiceDetailsDetailsId = maxcount1;
+                    elemt.JobInvoiceDetailsVoucherNo = JobInvoice.JobInvoiceVoucherNo;
+                    maxcount1++;
                 });
-                _jobdetailsrepo.InsertList(JobInvoice.JobInvoiceDetails);               
+                _jobdetailsrepo.InsertList(JobInvoice.JobInvoiceDetails);
                 _jobinvoicerepo.TransactionCommit();
-                return this.GetJobInvoiceById(JobInvoice.JobInvoiceId);
+                return this.GetJobInvoiceVoucherNo(JobInvoice.JobInvoiceVoucherNo);
             }
             catch (Exception ex)
             {
@@ -99,10 +117,27 @@ namespace Inspire.Erp.Application.Account.implementations
             try
             {
                 _jobinvoicerepo.BeginTransaction();
+
+                int maxcount1 = 0;
+                maxcount1 = Convert.ToInt32(
+                    _jobdetailsrepo.GetAsQueryable()
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.JobInvoiceDetailsDetailsId) + 1);
+
+                foreach (var item in JobInvoice.JobInvoiceDetails)
+                    if (item.JobInvoiceDetailsDetailsId == 0)
+                    {
+                        item.JobInvoiceDetailsVoucherNo = JobInvoice.JobInvoiceVoucherNo;
+                        item.JobInvoiceDetailsDetailsId = maxcount1;
+                        _jobdetailsrepo.Insert(item);
+                    }
+                    else
+                    {
+                        _jobdetailsrepo.Update(item);
+                    }
                 _jobinvoicerepo.Update(JobInvoice);
-                _jobdetailsrepo.UpdateList(JobInvoice.JobInvoiceDetails);
+                // _jobdetailsrepo.UpdateList(JobInvoice.JobInvoiceDetails);
                 _jobinvoicerepo.TransactionCommit();
-                return this.GetJobInvoiceById(JobInvoice.JobInvoiceId);
+                return this.GetJobInvoiceVoucherNo(JobInvoice.JobInvoiceVoucherNo);
             }
             catch (Exception ex)
             {
@@ -110,13 +145,13 @@ namespace Inspire.Erp.Application.Account.implementations
                 throw ex;
             }
         }
-        public IEnumerable<JobInvoice> DeleteJobInvoice(int Id)
+        public IEnumerable<JobInvoice> DeleteJobInvoice(string Id)
         {
             try
             {
-                var dataObj = _jobinvoicerepo.GetAsQueryable().Where(o => o.JobInvoiceId == Id).FirstOrDefault();
+                var dataObj = _jobinvoicerepo.GetAsQueryable().Where(o => o.JobInvoiceVoucherNo == Id).FirstOrDefault();
                 dataObj.JobInvoiceDelStatus = true;
-                var detailData = _jobdetailsrepo.GetAsQueryable().Where(o => o.JobInvoiceDetailsDetailsId == Id).ToList();
+                var detailData = _jobdetailsrepo.GetAsQueryable().Where(o => o.JobInvoiceDetailsVoucherNo == Id).ToList();
                 detailData.ForEach(elemt =>
                 {
                     elemt.JobInvoiceDetailsDelStatus = true;
@@ -130,18 +165,19 @@ namespace Inspire.Erp.Application.Account.implementations
                 throw ex;
             }
         }
-        
+
         public IEnumerable<JobInvoice> Getjobinvoice()
         {
             try
             {
-                var detailList = _jobdetailsrepo.GetAll().ToList();
-                var data = _jobinvoicerepo.GetAll().Select(o => new
-                {
-                    JobInvoice = o,
-                    JobInvoiceDetails = detailList.Where(a => Convert.ToInt32(a.JobInvoiceDetailsDetailsId) == Convert.ToInt32(o.JobInvoiceId)).ToList()
-                }).ToList();
-                return _jobinvoicerepo.GetAll();
+                // var detailList = _jobdetailsrepo.GetAll().Where(a => a.JobInvoiceDetailsDelStatus != true).ToList();
+                var data = _jobinvoicerepo.GetAll().Where(a => a.JobInvoiceDelStatus != true).ToList();
+                //.Select(o => new
+                //{
+                //    JobInvoice = o,
+                //    JobInvoiceDetails = detailList.Where(a => Convert.ToInt32(a.JobInvoiceDetailsDetailsId) == Convert.ToInt32(o.JobInvoiceId)).ToList()
+                //}).ToList();
+                return data;
 
             }
             catch (Exception ex)
@@ -154,8 +190,8 @@ namespace Inspire.Erp.Application.Account.implementations
             try
             {
                 var JobInvoice = new JobInvoice();
-                JobInvoice = _jobinvoicerepo.GetAsQueryable().FirstOrDefault(x => x.JobInvoiceId == id);
-                JobInvoice.JobInvoiceDetails =_jobdetailsrepo.GetAsQueryable().Where(x => x.JobInvoiceDetailsDetailsId == id).ToList();
+                JobInvoice = _jobinvoicerepo.GetAsQueryable().FirstOrDefault(x => x.JobInvoiceId == Convert.ToInt32(id));
+                JobInvoice.JobInvoiceDetails = _jobdetailsrepo.GetAsQueryable().Where(x => x.JobInvoiceDetailsDetailsId == Convert.ToInt32(id) && x.JobInvoiceDetailsDelStatus != true).ToList();
                 return JobInvoice;
 
             }
@@ -168,121 +204,46 @@ namespace Inspire.Erp.Application.Account.implementations
         {
             try
             {
-                JobInvoice JobInvoiceModel = new JobInvoice();
-                JobInvoiceModel.JobInvoiceVoucherNo = Convert.ToString(_jobinvoicerepo.GetAll().Where(k => k.JobInvoiceVoucherNo == VNo).FirstOrDefault());
-                return JobInvoiceModel;
 
+                JobInvoice JobInvoice = new JobInvoice();
+                JobInvoice = _jobinvoicerepo.GetAsQueryable().Where(k => k.JobInvoiceVoucherNo == VNo).SingleOrDefault();
+                JobInvoice.JobInvoiceDetails = _jobdetailsrepo.GetAsQueryable().Where(x => x.JobInvoiceDetailsVoucherNo == VNo && (x.JobInvoiceDetailsDelStatus == false || x.JobInvoiceDetailsDelStatus == null)).ToList();
+                return JobInvoice;
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
-        //public async Task<bool> Insertjobinvoice(JobInvoiceRequest obj)
-        //{
-        //    try
-        //    {
-        //        _jobinvoicerepo.InsertList(obj.ji);
-        //        _vouchersnumbersrepo.InsertList(obj.vn);
-        //        _accounttablerepo.InsertList(obj.at);
-        //        _jobdetailsrepo.InsertList(obj.jid);
-        //        return true;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //}
-        //public async Task<bool> Updatejobinvoice(JobInvoiceRequest obj)
-        //{
-        //    try
-        //    {
-        //        JobInvoice ji = _jobinvoicerepo.GetAsQueryable().Where(k => k.JobInvoiceVoucherNo == obj.vno).SingleOrDefault();
-        //        if (ji == null)
-        //        {
-        //            return false;
-        //        }
+        public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
+        {
+            try
+            {
+                var prefix = this._programsettingsRepository.GetAsQueryable().Where(k => k.ProgramSettingsKeyValue == Prefix.JobInoviceVoucher_Prefix).FirstOrDefault().ProgramSettingsTextValue;
+                int vnoMaxVal = Convert.ToInt32(_voucherNumbersRepository.GetAsQueryable()
+                                                        .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == VoucherType.JobInoviceVoucher_TYPE)
+                                                        .DefaultIfEmpty()
+                                                        .Max(o => o == null ? 0 : o.VouchersNumbersVNoNu)) + 1;
 
-        //        ji.JobInvoiceDiscount = double.Parse(obj.discount);
-        //        ji.JobInvoiceGrossAmount = double.Parse(obj.grossAmt);
-        //        ji.JobInvoiceNetAmount = double.Parse(obj.netAmt);
-        //        _jobinvoicerepo.Update(ji);
-        //        JobInvoiceDetails jid = _jobdetailsrepo.GetAsQueryable().Where(k => k.JobInvoiceDetailsVoucherNo == obj.vno).SingleOrDefault();
-        //        if (jid == null)
-        //        {
-        //            return false;
-        //        }
-        //        jid.JobInvoiceDetailsSoldQty = double.Parse(obj.qty);
-        //        jid.JobInvoiceDetailsDiscount = double.Parse(obj.discount);
-        //        jid.JobInvoiceDetailsGrossAmount = double.Parse(obj.grossAmt);
-        //        jid.JobInvoiceDetailsNetAmount = double.Parse(obj.netAmt);
-        //        _jobdetailsrepo.Update(jid);
-        //        return true;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //}
-        //public async Task<bool> DeleteJobInvoice(JobInvoiceRequest obj)
-        //{
-        //    try
-        //    {
-        //        //int vno = int.parse(obj.vno??"0");
+                VouchersNumbers vouchersNumbers = new VouchersNumbers
+                {
+                    VouchersNumbersVNo = prefix + vnoMaxVal,
+                    VouchersNumbersVNoNu = vnoMaxVal,
+                    VouchersNumbersVType = VoucherType.JobInoviceVoucher_TYPE,
+                    VouchersNumbersFsno = 1,
+                    VouchersNumbersStatus = AccountStatus.Pending,
+                    VouchersNumbersVoucherDate = VoucherGenDate
 
-        //        AccountsTransactions at = _accounttablerepo.GetAsQueryable().Where(k => k.AccountsTransactionsVoucherNo == obj.vno).SingleOrDefault();
-        //        if (at == null)
-        //        {
-        //            return false;
-        //        }
-        //        at.AccountstransactionsDelStatus = true;
-        //        _accounttablerepo.Update(at);
-        //        JobInvoice ji = _jobinvoicerepo.GetAsQueryable().Where(k => k.JobInvoiceVoucherNo == obj.vno).SingleOrDefault();
-        //        if (at == null)
-        //        {
-        //            return false;
-        //        }
-        //        ji.JobInvoiceDelStatus = true;
-        //        _jobinvoicerepo.Update(ji);
-        //        JobInvoiceDetails jid = _jobdetailsrepo.GetAsQueryable().Where(k => k.JobInvoiceDetailsVoucherNo == obj.vno).SingleOrDefault();
-        //        if (at == null)
-        //        {
-        //            return false;
-        //        }
-        //        jid.JobInvoiceDetailsDelStatus = true;
-        //        _jobdetailsrepo.Update(jid);
-        //        //stockregister sr = _stockregisterrepo.getasqueryable().where(k => k.stockregisterrefvoucherno == obj.vnonu).singleordefault();
-        //        //if (at == null)
-        //        //{
-        //        //    return false;
-        //        //}
-        //        //sr.stockregisterdelstatus = true;
-        //        //_stockregisterrepo.update(sr);
-        //        VouchersNumbers vn = _vouchersnumbersrepo.GetAsQueryable().Where(k => k.VouchersNumbersVNo == obj.vno).SingleOrDefault();
-        //        if (at == null)
-        //        {
-        //            return false;
-        //        }
-        //        vn.VouhersNumbersDelStatus = true;
-        //        _vouchersnumbersrepo.Update(vn);
-        //        return true;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //}
-        //public async Task<List<MasterAccountsTable>> Getsalesaccount()
-        //{
-        //    try
-        //    {
-        //        var x = _masteraccounttablerepo.GetAsQueryable().Where(k => k.MaAccType == "a" && k.MaMainHead == "income").ToList();
-        //        return x;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //}
+                };
+                _voucherNumbersRepository.Insert(vouchersNumbers);
+                return vouchersNumbers;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }     
+
     }
 }

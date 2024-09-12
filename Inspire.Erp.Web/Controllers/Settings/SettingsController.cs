@@ -8,6 +8,9 @@ using AutoMapper;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Inspire.Erp.Application.Account;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
 
 namespace Inspire.Erp.Web.Controllers.Settings
 {
@@ -18,10 +21,12 @@ namespace Inspire.Erp.Web.Controllers.Settings
     {
         private readonly IMapper _mapper;
         private IErpSettings _settingSvc;
-        public SettingsController(IErpSettings settingSvc, IMapper mapper)
+        private IRepository<GeneralSettings> _generalSettingsRepo;
+        public SettingsController(IErpSettings settingSvc, IMapper mapper, IRepository<GeneralSettings> generalSettingsRepo)
         {
             _settingSvc = settingSvc;
             _mapper = mapper;
+            _generalSettingsRepo = generalSettingsRepo;
         }
         [HttpGet]
         [Route("general")]
@@ -101,13 +106,36 @@ namespace Inspire.Erp.Web.Controllers.Settings
         public ApiResponse<List<GeneralSettings>> UpdateGeneralSetting([FromBody] List<GeneralSettings> generalSettings)
         {
             bool result = _settingSvc.updateGeneralSettings(generalSettings);
-            ApiResponse <List<GeneralSettings>> apiResponse = new ApiResponse<List<GeneralSettings>>
+            ApiResponse<List<GeneralSettings>> apiResponse = new ApiResponse<List<GeneralSettings>>
             {
                 Valid = result,
                 Result = _settingSvc.GetGeneralSettings().ToList(),
                 Message = ""
             };
             return apiResponse;
+        }
+        [HttpGet]
+        [Route("LoadDropdown")]
+        public ResponseInfo LoadDropdown()
+        {
+            var objectresponse = new ResponseInfo();
+
+            var GeneralSettings = _generalSettingsRepo.GetAsQueryable().Where(k => k.GeneralSettingsKeyValue.Trim() == "DEFAULTCURRENCY" || k.GeneralSettingsKeyValue.Trim() == "VAT_Calculation" ||
+            k.GeneralSettingsKeyValue.Trim() == "DEFAULT_LOCATION" || k.GeneralSettingsKeyValue.Trim() == "DEFAULT_COST_CENTER" || k.GeneralSettingsKeyValue.Trim() == "DEFAULTINTIALACCOUNT" || k.GeneralSettingsKeyValue.Trim() == "DEFAULT_Type"
+            || k.GeneralSettingsKeyValue.Trim() == "HIDE_JOBCOST"
+            ).Select(c => new
+            {
+                c.GeneralSettingsId,
+                c.GeneralSettingsTextValue,
+                GeneralSettingsKeyValue = c.GeneralSettingsKeyValue.Trim(),
+                c.GeneralSettingsBoolValue
+            }).ToList();
+
+            objectresponse.ResultSet = new
+            {
+                GeneralSettings = GeneralSettings,
+            };
+            return objectresponse;
         }
     }
 }

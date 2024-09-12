@@ -19,9 +19,12 @@ namespace Inspire.Erp.Domain.Modals
             public string? PDCVNO { get; set; }
             public DateTime? POSTDt { get; set; }
             public int? PID { get; set; }
+            public string Tran_Type { get; set; }
+            public string ChequeStatus { get; set; }
         }
 
         public class PDCGetList {
+            public bool Pdc { get; set; }
             public string? VNO { get; set; }
             public string? PartyName { get; set; }
             public string? VType { get; set; }
@@ -33,6 +36,10 @@ namespace Inspire.Erp.Domain.Modals
             public string? BAccNo { get; set; }
             public string? AccName { get; set; }
             public int? PID { get; set; }
+            public string Narration { get; set; }
+            public  string Type { get; set; }
+            public string postingBank { get; set; }
+            public string Tran_Type { get; set; }
         }
     }
 }

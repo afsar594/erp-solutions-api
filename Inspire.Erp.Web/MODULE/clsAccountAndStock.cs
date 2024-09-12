@@ -524,7 +524,7 @@ false
                                     // DateTime ? AccountsTransactionsTransDate,
     MASTER.PurchaseReturnDate,
  //string AccountsTransactionsParticulars,
- "VAT" + MASTER.PurchaseReturnDescription,
+ "VAT", //+ MASTER.PurchaseReturnDescription,
 //decimal AccountsTransactionsDebit,
 0,
   //decimal AccountsTransactionsCredit,
@@ -613,7 +613,7 @@ false
                                  // DateTime ? AccountsTransactionsTransDate,
     MASTER.PurchaseReturnDate,
 //string AccountsTransactionsParticulars,
-"STOCK" + MASTER.PurchaseReturnDescription,
+"STOCK", //+ MASTER.PurchaseReturnDescription,
 //decimal AccountsTransactionsDebit,
 0,
   //decimal AccountsTransactionsCredit,
@@ -703,7 +703,7 @@ false
                                                   // DateTime ? AccountsTransactionsTransDate,
              MASTER.PurchaseReturnDate,
          //string AccountsTransactionsParticulars,
-         "CASH" + MASTER.PurchaseReturnDescription,
+         "CASH", //+ MASTER.PurchaseReturnDescription,
          //decimal AccountsTransactionsDebit,
          Convert.ToDecimal(MASTER.PurchaseReturnNetAmount),
        //decimal AccountsTransactionsCredit,
@@ -791,7 +791,7 @@ false
                                             // DateTime ? AccountsTransactionsTransDate,
           MASTER.PurchaseReturnDate,
        //string AccountsTransactionsParticulars,
-       "ROUD OFF" + MASTER.PurchaseReturnDescription,
+       "ROUD OFF", //+ MASTER.PurchaseReturnDescription,
       //decimal AccountsTransactionsDebit,
       MASTER.PurchaseReturnVatRoundSign != "+" ? Convert.ToDecimal(MASTER.PurchaseReturnVatRountAmt) : 0,
           //decimal AccountsTransactionsCredit,
@@ -2791,68 +2791,76 @@ false
         {
             for (int i = 0; i < DTLS.Count; i++)
             {
-                STOCK.Add(clsCommonFunctions.AddNewEntry_To_StockRegister(
+                try
+                {
+                   
+                        STOCK.Add(clsCommonFunctions.AddNewEntry_To_StockRegister(
 
-                 // long ? StockRegisterId,
-                 0,
-                 //              string StockRegisterVoucherNo,
-                 "",
-                 //     string StockRegisterTransType,
-                 "",
-                  //      DateTime ? StockRegisterVoucherDate,
-                 (DateTime) MASTER.StockTransferStDate,
-                 //     string StockRegisterRemarks,
-                 MASTER.StockTransferNarration,
-                //     decimal ? StockRegisterSno,
-                i,
-                    //       long ? StockRegisterMatId,
-                    DTLS[i].StockTransferDetailsMaterialId,
+                                   // long ? StockRegisterId,
+                                   0,
+                                   //              string StockRegisterVoucherNo,
+                                   "",
+                                   //     string StockRegisterTransType,
+                                   "",
+                                   //      DateTime ? StockRegisterVoucherDate,
+                                   (DateTime)MASTER.StockTransferStDate,
+                                   //     string StockRegisterRemarks,
+                                   MASTER.StockTransferNarration,
+                                  //     decimal ? StockRegisterSno,
+                                  i,
+                                      //       long ? StockRegisterMatId,
+                                      DTLS[i].StockTransferDetailsMaterialId,
 
-                  //     int ? StockRegisterUnitId,
-                  DTLS[i].StockTransferDetailsUnitId,
+                                    //     int ? StockRegisterUnitId,
+                                    DTLS[i].StockTransferDetailsUnitId,
 
-                 //     decimal ? StockRegisterQuantity,
-                (decimal) DTLS[i].StockTransferDetailsQty,
-                 //     decimal ? StockRegisterSin,
-                (decimal) DTLS[i].StockTransferDetailsQty,
-                 //     decimal ? StockRegisterSout,
-                 0,
-                  //     string StockRegisterStatus,
-                  "",
-                 //      string StockRegisterBatchCode,
-                 "",
-                 //     decimal ? StockRegisterRate,
-                 (decimal)DTLS[i].StockTransferDetailsRate,
-                  //     decimal ? StockRegisterFcRate,
-                  (decimal)DTLS[i].StockTransferDetailsRate,
-                 //   decimal ? StockRegisterAmount,
-                 (decimal)DTLS[i].StockTransferDetailsRate * (decimal)DTLS[i].StockTransferDetailsQty,
-                 //   decimal ? StockRegisterFCAmount,
-                 (decimal)DTLS[i].StockTransferDetailsRate * (decimal)DTLS[i].StockTransferDetailsQty,
-                   //     Double ? StockRegisterLandingCost,
-                   (decimal)DTLS[i].StockTransferDetailsRate * (decimal)DTLS[i].StockTransferDetailsQty,
-                   //int ? StockRegisterLocationID,
-                   MASTER.StockTransferLocationIdFrom,
-                  //      int ? StockRegisterFsno,
-                  1,
-                   //     int StockRegisterDepId,
-                   0,
-                    //       int StockRegisterJobId,
-                    MASTER.StockTransferJobId,
+                                  //     decimal ? StockRegisterQuantity,
+                                  (decimal)DTLS[i].StockTransferDetailsQty,
+                                  //     decimal ? StockRegisterSin,
+                                  (decimal)DTLS[i].StockTransferDetailsQty,
+                                   //     decimal ? StockRegisterSout,
+                                   0,
+                                    //     string StockRegisterStatus,
+                                    "",
+                                   //      string StockRegisterBatchCode,
+                                   "",
+                                   //     decimal ? StockRegisterRate,
+                                   (decimal)DTLS[i].StockTransferDetailsRate,
+                                    //     decimal ? StockRegisterFcRate,
+                                    (decimal)DTLS[i].StockTransferDetailsRate,
+                                   //   decimal ? StockRegisterAmount,
+                                   (decimal)DTLS[i].StockTransferDetailsRate * (decimal)DTLS[i].StockTransferDetailsQty,
+                                   //   decimal ? StockRegisterFCAmount,
+                                   (decimal)DTLS[i].StockTransferDetailsRate * (decimal)DTLS[i].StockTransferDetailsQty,
+                                     //     Double ? StockRegisterLandingCost,
+                                     (decimal)DTLS[i].StockTransferDetailsRate * (decimal)DTLS[i].StockTransferDetailsQty,
+                                     //int ? StockRegisterLocationID,
+                                     MASTER.StockTransferLocationIdFrom,
+                                    //      int ? StockRegisterFsno,
+                                    1,
+                                     //     int StockRegisterDepId,
+                                     0,
+                                      //       int StockRegisterJobId,
+                                      MASTER.StockTransferJobId,
 
-                //      DateTime ? StockRegisterExpDate,
-                null,
-                  //     double ? StockRegisterNetStkBal,
-                  0,
-                 //      bool ? StockRegisterDelStatus
-                 false
+                                  //      DateTime ? StockRegisterExpDate,
+                                  null,
+                                    //     double ? StockRegisterNetStkBal,
+                                    0,
+                                   //      bool ? StockRegisterDelStatus
+                                   false
 
-                    ));
+                                      ));
 
+              
+                }
+                catch (Exception ex)
+                {
+
+                    var s=ex.ToString();
+                }
+               
             }
-
-
-            
 
         }
 

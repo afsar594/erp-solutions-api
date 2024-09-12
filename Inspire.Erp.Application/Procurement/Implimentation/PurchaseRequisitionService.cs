@@ -19,71 +19,44 @@ using System.Threading.Tasks;
 using Inspire.Erp.Infrastructure.Database;
 using SendGrid.Helpers.Mail;
 using System.Linq.Dynamic.Core;
+using Inspire.Erp.Domain.Entities.POS;
 
 namespace Inspire.Erp.Application.Procurement.Implementation
 {
     public class PurchaseRequisitionService : IPurchaseRequisitionService
     {
+        private InspireErpDBContext _context;
         private IRepository<StockRegister> _stockRegisterRepository;
         private IRepository<AccountsTransactions> _accountTransactionRepository;
         private IRepository<PurchaseRequisition> _purchaseRequisitionRepository;
         private IRepository<PurchaseRequisitionDetails> _purchaseRequisitionDetailsRepository;
         private IRepository<ProgramSettings> _programsettingsRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
-        private readonly ILogger<PaymentVoucherService> _logger;
-        private readonly IRepository<PermissionApproval> _permissionApprovalRepo;
-        private readonly IRepository<Approval> _approvalRepo;
-        private readonly IRepository<ApprovalDetail> _approvalDetailRepo;
-         public readonly InspireErpDBContext dbContext;
+        private readonly ILogger<PaymentVoucherService> _logger; private readonly IRepository<PermissionApproval> _permissionApprovalRepo; private readonly IRepository<Approval> _approvalRepo; private readonly IRepository<ApprovalDetail> _approvalDetailRepo; public readonly InspireErpDBContext dbContext;
         private IRepository<IPurchaseOrderService> _purchaseOrderService;
         private IRepository<AvIssueVoucherDetails> _AvIssueVoucherDetails;
-        private IRepository<AvIssueVoucher> _AvIssueVoucher;
+        private IRepository<AvIssueVoucher> _AvIssueVoucher; private IRepository<PermissionApprovalDetail> _permissionApprovalDetailRepo;
+        private IRepository<JobMaster> jobrepository;
+        private IRepository<LocationMaster> locationrepository; private IRepository<BillOfQTyDetails> _BillOfQTyDetailsRepository;
+        private IRepository<TrackingRegister> _trackingRegisterRepository; private IRepository<ItemMaster> _itemMasterRepository; private IRepository<UnitMaster> _unitMasterRepository; private IRepository<SuppliersMaster> _suppliersMasterRepository; private IRepository<LocationMaster> _locationMasterRepository;
 
-
-        private IRepository<ItemMaster> _itemMasterRepository;
-        private IRepository<UnitMaster> _unitMasterRepository;
-        private IRepository<SuppliersMaster> _suppliersMasterRepository;
-        private IRepository<LocationMaster> _locationMasterRepository;
-
-        ////      private IRepository<ReportPurchaseRequisition> _reportPurchaseRequisitionRepository;
-        ////public PurchaseRequisitionService(IRepository<ReportPurchaseRequisition> reportPurchaseRequisitionRepository,
         public PurchaseRequisitionService(IRepository<ItemMaster> itemMasterRepository, IRepository<UnitMaster> unitMasterRepository,
-            IRepository<SuppliersMaster> suppliersMasterRepository, IRepository<LocationMaster> locationMasterRepository,
+            IRepository<SuppliersMaster> suppliersMasterRepository, IRepository<LocationMaster> _locationrepository, IRepository<LocationMaster> locationMasterRepository,
             IRepository<PermissionApproval> permissionApprovalRepo, IRepository<Approval> approvalRepo, IRepository<ApprovalDetail> approvalDetailRepo,
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
-            IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
-           
-
-        IRepository<PurchaseRequisition> purchaseRequisitionRepository, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository)
+            IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger, IRepository<JobMaster> _jobrepository, IRepository<BillOfQTyDetails> BillOfQTyDetailsRepository,
+             IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo,
+        IRepository<PurchaseRequisition> purchaseRequisitionRepository, InspireErpDBContext context, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository)
         {
             this._accountTransactionRepository = accountTransactionRepository;
-            this._stockRegisterRepository = stockRegisterRepository;
-            this._purchaseRequisitionRepository = purchaseRequisitionRepository;
-            this._purchaseRequisitionDetailsRepository = purchaseRequisitionDetailsRepository;
-            _programsettingsRepository = programsettingsRepository;
-            _voucherNumbersRepository = voucherNumbers;
-            _approvalDetailRepo = approvalDetailRepo;
-            _permissionApprovalRepo = permissionApprovalRepo;
-            _approvalRepo= approvalRepo;          
-
-            _itemMasterRepository = itemMasterRepository;
-            _unitMasterRepository = unitMasterRepository;
-            _suppliersMasterRepository = suppliersMasterRepository;
-            _locationMasterRepository = locationMasterRepository;
-           
-
-            ////_reportPurchaseRequisitionRepository = reportPurchaseRequisitionRepository;
+            this._stockRegisterRepository = stockRegisterRepository; _context = context;
+            this._purchaseRequisitionRepository = purchaseRequisitionRepository; _permissionApprovalDetailRepo = permissionApprovalDetailRepo;
+            this._purchaseRequisitionDetailsRepository = purchaseRequisitionDetailsRepository; _BillOfQTyDetailsRepository = BillOfQTyDetailsRepository;
+            _programsettingsRepository = programsettingsRepository; _voucherNumbersRepository = voucherNumbers; _approvalDetailRepo = approvalDetailRepo; _permissionApprovalRepo = permissionApprovalRepo; _approvalRepo = approvalRepo; locationrepository = _locationrepository;
+            jobrepository = _jobrepository; _itemMasterRepository = itemMasterRepository; _unitMasterRepository = unitMasterRepository; _suppliersMasterRepository = suppliersMasterRepository; _locationMasterRepository = locationMasterRepository; _trackingRegisterRepository = trackingRegisterRepository;
         }
-
-        ////public IEnumerable<ReportPurchaseRequisition> PurchaseRequisition_GetReportPurchaseRequisition()
-        ////{
-        ////    return _reportPurchaseRequisitionRepository.GetAll();
-        ////}
-
-
-        public PurchaseRequisitionModel UpdatePurchaseRequisition(PurchaseRequisition purchaseRequisition, List<AccountsTransactions> accountsTransactions, 
+        public PurchaseRequisitionModel UpdatePurchaseRequisition(PurchaseRequisition purchaseRequisition, List<AccountsTransactions> accountsTransactions,
             List<PurchaseRequisitionDetails> purchaseRequisitionDetails
-            //, List<StockRegister> stockRegister
             )
         {
 
@@ -91,26 +64,26 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             {
                 _purchaseRequisitionRepository.BeginTransaction();
 
-               this.deleteAccountTractionByVoucherId(purchaseRequisition.PurchaseRequisitionNo, VoucherType.PurchaseRequisition_TYPE);
+                this.deleteAccountTractionByVoucherId(purchaseRequisition.PurchaseRequisitionNo, VoucherType.PurchaseRequisition_TYPE);
                 purchaseRequisition.PurchaseRequisitionDetails = purchaseRequisitionDetails.Select((k) =>
                 {
-                    //if (k.PurchaseRequisitionDetailsId == 0)
-                    //{
-                    k.PurchaseRequisitionId = purchaseRequisition.PurchaseRequisitionId;
-                    k.PurchaseRequisitionDetailsNo = purchaseRequisition.PurchaseRequisitionNo;
-                    //k.PurchaseRequisitionDetailsId = 0;
-                    //}
+                    if (k.PurchaseRequisitionDetailsId == 0)
+                    {
+                        k.PurchaseRequisitionId = purchaseRequisition.PurchaseRequisitionId;
+                        k.PurchaseRequisitionDetailsNo = purchaseRequisition.PurchaseRequisitionNo;
+                        k.PurchaseRequisitionDetailsId = null;
+                    }
+                    else
+                    {
+                        k.PurchaseRequisitionId = purchaseRequisition.PurchaseRequisitionId;
+                        k.PurchaseRequisitionDetailsNo = purchaseRequisition.PurchaseRequisitionNo;
 
+                    }
                     return k;
                 }).ToList();
 
                 _purchaseRequisitionRepository.Update(purchaseRequisition);
 
-
-
-
-
-                //_purchaseRequisitionRepository.Update(purchaseRequisition);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     if (k.AccountsTransactionsTransSno == 0)
@@ -125,27 +98,48 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 }).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
+                //PermissionApprovalDetail by zaid              
 
-                //stockRegister = stockRegister.Select((k) =>
-                //{
-                //    if (k.StockRegisterId == 0)
-                //    {
-                //        k.StockRegisterVoucherDate = purchaseRequisition.PurchaseRequisitionDate;
-                //        k.StockRegisterVoucherNo = purchaseRequisition.PurchaseRequisitionNo;
-                //        k.StockRegisterTransType = VoucherType.PurchaseRequisition_TYPE;
+                var rights = _context.tbl_approvalforms.Where(a => a.Voucher_Type.Contains("Purchase Requisition") && a.is_active == true).AsNoTracking().ToList();
+                if (rights.Count > 0)
+                {
+                    var existdata = _permissionApprovalDetailRepo.GetAsQueryable().Where(a => a.VoucherId == purchaseRequisition.PurchaseRequisitionNo && a.VoucherType == "Purchase Requisition").ToList();
 
-                //        k.StockRegisterStatus = AccountStatus.Approved;
-                //    }
+                    if (existdata.Count > 0)
+                    {
+                        _permissionApprovalDetailRepo.DeleteList(existdata);
+                    }
+                    foreach (var item in rights)
+                    {
+                        for (int level = 1; level <= item.NoOfLevel; level++)
+                        {
+                            PermissionApprovalDetail POList = new PermissionApprovalDetail();
+                            POList.VoucherType = "Purchase Requisition";
+                            POList.VoucherId = purchaseRequisition.PurchaseRequisitionNo;
+                            POList.VoucherDate = purchaseRequisition.PurchaseRequisitionDate;
+                            POList.Amount = (double)purchaseRequisition.PurchaseRequisitionNetAmount;
+                            POList.CreatedBy = (int?)(purchaseRequisition.PurchaseRequisitionUserId ?? 1);
+                            POList.LevelId = level;
+                            POList.Status = "Pending";
+                            POList.Remarks = purchaseRequisition.PurchaseRequisitionDescription;
+                            _permissionApprovalDetailRepo.Insert(POList);
+                        }
+                    }
 
-                //    return k;
-                //}).ToList();
-                //_stockRegisterRepository.UpdateList(stockRegister);
+                }
 
-
-
-
-
-
+                foreach (var item in purchaseRequisitionDetails)
+                {
+                    if (item.boqdId > 0)
+                    {
+                        var data = _BillOfQTyDetailsRepository.GetAsQueryable().AsNoTracking().Where(a => a.Id == item.boqdId).FirstOrDefault();
+                        if (data != null)
+                        {
+                            data.IsEdit = false;
+                            _BillOfQTyDetailsRepository.Update(data);
+                        }
+                    }
+                }
                 _purchaseRequisitionRepository.TransactionCommit();
 
             }
@@ -160,7 +154,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
         public int DeletePurchaseRequisition(PurchaseRequisition purchaseRequisition, List<AccountsTransactions> accountsTransactions,
             List<PurchaseRequisitionDetails> purchaseRequisitionDetails
-            //, List<StockRegister> stockRegister
             )
         {
             int i = 0;
@@ -219,24 +212,22 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             return i;
 
         }
-
-
-       public void deleteAccountTractionByVoucherId(string AccountsTransactionsVoucherNo,string AccountsTransactionsVoucherType)
+        public void deleteAccountTractionByVoucherId(string AccountsTransactionsVoucherNo, string AccountsTransactionsVoucherType)
         {
             List<AccountsTransactions> accttrans = this._accountTransactionRepository.GetAsQueryable()
-                 .Where(k => k.AccountsTransactionsVoucherNo == AccountsTransactionsVoucherNo &&   k.AccountsTransactionsVoucherType == AccountsTransactionsVoucherType && k.AccountstransactionsDelStatus != true).Select((l) => new AccountsTransactions
+                 .Where(k => k.AccountsTransactionsVoucherNo == AccountsTransactionsVoucherNo && k.AccountsTransactionsVoucherType == AccountsTransactionsVoucherType && k.AccountstransactionsDelStatus != true).Select((l) => new AccountsTransactions
                  {
-                      AccountsTransactionsTransSno = l.AccountsTransactionsTransSno,
-                      AccountstransactionsDelStatus = true,
+                     AccountsTransactionsTransSno = l.AccountsTransactionsTransSno,
+                     AccountstransactionsDelStatus = true,
 
                      AccountsTransactionsAccNo = l.AccountsTransactionsAccNo,
                      AccountsTransactionsTransDate = l.AccountsTransactionsTransDate,
                      AccountsTransactionsParticulars = l.AccountsTransactionsParticulars,
 
                      AccountsTransactionsDebit = l.AccountsTransactionsDebit,
-       
 
-     AccountsTransactionsCredit = l.AccountsTransactionsCredit,
+
+                     AccountsTransactionsCredit = l.AccountsTransactionsCredit,
                      AccountsTransactionsFcDebit = l.AccountsTransactionsFcDebit,
                      AccountsTransactionsFcCredit = l.AccountsTransactionsFcCredit,
 
@@ -245,63 +236,63 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
 
 
-       
 
 
-    AccountsTransactionsVoucherNo = l.AccountsTransactionsVoucherNo,
+
+                     AccountsTransactionsVoucherNo = l.AccountsTransactionsVoucherNo,
                      AccountsTransactionsDescription = l.AccountsTransactionsDescription,
                      AccountsTransactionsUserId = l.AccountsTransactionsUserId,
 
                      AccountsTransactionsStatus = l.AccountsTransactionsStatus,
 
 
-       
 
 
 
 
-      AccountsTransactionsTstamp = l.AccountsTransactionsTstamp,
+
+                     AccountsTransactionsTstamp = l.AccountsTransactionsTstamp,
                      RefNo = l.RefNo,
                      AccountsTransactionsFsno = l.AccountsTransactionsFsno,
 
                      AccountsTransactionsAllocDebit = l.AccountsTransactionsAllocDebit,
-      
 
 
-    AccountsTransactionsAllocCredit = l.AccountsTransactionsAllocCredit,
+
+                     AccountsTransactionsAllocCredit = l.AccountsTransactionsAllocCredit,
                      AccountsTransactionsAllocBalance = l.AccountsTransactionsAllocBalance,
                      AccountsTransactionsFcAllocDebit = l.AccountsTransactionsFcAllocDebit,
 
                      AccountsTransactionsFcAllocCredit = l.AccountsTransactionsFcAllocCredit,
 
-        
 
 
-    AccountsTransactionsFcAllocBalance = l.AccountsTransactionsFcAllocBalance,
+
+                     AccountsTransactionsFcAllocBalance = l.AccountsTransactionsFcAllocBalance,
                      AccountsTransactionsLocation = l.AccountsTransactionsLocation,
                      AccountsTransactionsJobNo = l.AccountsTransactionsJobNo,
 
                      AccountsTransactionsCostCenterId = l.AccountsTransactionsCostCenterId,
 
 
-        
 
 
 
-     AccountsTransactionsApprovalDt = l.AccountsTransactionsApprovalDt,
+
+                     AccountsTransactionsApprovalDt = l.AccountsTransactionsApprovalDt,
                      AccountsTransactionsDepartment = l.AccountsTransactionsDepartment,
                      AccountsTransactionsFcRate = l.AccountsTransactionsFcRate,
 
                      AccountsTransactionsCompanyId = l.AccountsTransactionsCompanyId,
-        
-    AccountsTransactionsCurrencyId = l.AccountsTransactionsCurrencyId,
+
+                     AccountsTransactionsCurrencyId = l.AccountsTransactionsCurrencyId,
                      AccountsTransactionsDrGram = l.AccountsTransactionsDrGram,
                      AccountsTransactionsCrGram = l.AccountsTransactionsCrGram,
 
                      AccountsTransactionsCheqNo = l.AccountsTransactionsCheqNo,
 
-       
-    AccountsTransactionsLpoNo = l.AccountsTransactionsLpoNo,
+
+                     AccountsTransactionsLpoNo = l.AccountsTransactionsLpoNo,
                      AccountsTransactionsCheqDate = l.AccountsTransactionsCheqDate,
                      AccountsTransactionsOpposEntryDesc = l.AccountsTransactionsOpposEntryDesc,
 
@@ -309,27 +300,26 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
 
 
-         
 
 
-    AccountsTransactionsDeptId = l.AccountsTransactionsDeptId,
+
+                     AccountsTransactionsDeptId = l.AccountsTransactionsDeptId,
                      AccountsTransactionsVatno = l.AccountsTransactionsVatno,
                      AccountsTransactionsVatableAmount = l.AccountsTransactionsVatableAmount,
 
-                     
-         
 
 
 
 
 
-    }).ToList() ;
+
+
+                 }).ToList();
 
             this._accountTransactionRepository.UpdateList(accttrans);
         }
         public PurchaseRequisitionModel InsertPurchaseRequisition(PurchaseRequisition purchaseRequisition, List<AccountsTransactions> accountsTransactions,
             List<PurchaseRequisitionDetails> purchaseRequisitionDetails
-            //, List<StockRegister> stockRegister
             )
         {
             try
@@ -338,7 +328,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 string purchaseRequisitionNumber = this.GenerateVoucherNo(purchaseRequisition.PurchaseRequisitionDate.Date).VouchersNumbersVNo;
                 purchaseRequisition.PurchaseRequisitionNo = purchaseRequisitionNumber;
 
-
                 int maxcount = 0;
                 maxcount = Convert.ToInt32(
                     _purchaseRequisitionRepository.GetAsQueryable()
@@ -346,22 +335,16 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 purchaseRequisition.PurchaseRequisitionId = maxcount;
 
-
-
-
-
-
-                purchaseRequisitionDetails = purchaseRequisitionDetails.Select((x) =>
+                purchaseRequisition.PurchaseRequisitionDetails = purchaseRequisition.PurchaseRequisitionDetails.Select((x) =>
                 {
+                    x.PurchaseRequisitionDetailsId = null;
                     x.PurchaseRequisitionId = maxcount;
                     x.PurchaseRequisitionDetailsNo = purchaseRequisitionNumber;
                     return x;
                 }).ToList();
-                //_purchaseRequisitionDetailsRepository.InsertList(purchaseRequisitionDetails);
 
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
-                    //k.AccountsTransactionsTransDate = purchaseRequisition.PurchaseRequisitionDate;
                     k.AccountsTransactionsVoucherNo = purchaseRequisitionNumber;
                     k.AccountsTransactionsVoucherType = VoucherType.PurchaseRequisition_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
@@ -369,41 +352,61 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 }).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
-
-
-                //stockRegister = stockRegister.Select((k) =>
-                //{
-                //    k.StockRegisterVoucherDate = purchaseRequisition.PurchaseRequisitionDate;
-                //    k.StockRegisterVoucherNo = purchaseRequisitionNumber;
-                //    k.StockRegisterTransType = VoucherType.PurchaseRequisition_TYPE;
-                //    k.StockRegisterStatus = AccountStatus.Approved;
-                //    return k;
-                //}).ToList();
-                //_stockRegisterRepository.InsertList(stockRegister);
-
-
-
-
-
                 _purchaseRequisitionRepository.Insert(purchaseRequisition);
-                var permsionApproval = _permissionApprovalRepo.GetAsQueryable().Where(x => x.VoucherType == VoucherType.PurchaseRequisition_TYPE).OrderBy(x => x.LevelOrder).ToList();
-                var approvals = new Approval()
-                {
-                    CreatedBy = 0,
-                    LocationId = null,
-                    Status = false,
-                    VoucherType = "CustomerQuotation"
-                };
-                _approvalRepo.Insert(approvals);
-                _approvalDetailRepo.InsertList(permsionApproval.Select(x => new ApprovalDetail()
-                {
-                    ApprovalId = approvals.Id,
-                    Status = false,
-                    UserId = x.UserId,
-                    LevelOrder = x.LevelOrder,
-                    ApprovedAt = DateTime.Now,
-                }).ToList());
 
+                //var permsionApproval = _permissionApprovalRepo.GetAsQueryable().AsNoTracking().Where(x => x.VoucherType == "Purchase Requisition").OrderBy(x => x.LevelOrder).ToList();
+                //var approvals = new Approval()
+                //{
+                //    CreatedBy = 0,
+                //    LocationId = null,
+                //    Status = false,
+                //    VoucherType = "Purchase Requisition"
+                //};
+                //_approvalRepo.Insert(approvals);
+                //_approvalDetailRepo.InsertList(permsionApproval.Select(x => new ApprovalDetail()
+                //{
+                //    ApprovalId = approvals.Id,
+                //    Status = false,
+                //    UserId = x.UserId,
+                //    LevelOrder = x.LevelOrder,
+                //    ApprovedAt = DateTime.Now,
+                //}).ToList());
+
+                // PermissionApprovalDetail by zaid
+
+                var rights = _context.tbl_approvalforms.Where(a => a.Voucher_Type.Contains("Purchase Requisition") && a.is_active == true).AsNoTracking().ToList();
+                if (rights.Count > 0)
+                {
+                    foreach (var item in rights)
+                    {
+                        for (int level = 1; level <= item.NoOfLevel; level++)
+                        {
+                            PermissionApprovalDetail POList = new PermissionApprovalDetail();
+                            POList.VoucherType = "Purchase Requisition";
+                            POList.VoucherId = purchaseRequisition.PurchaseRequisitionNo;
+                            POList.VoucherDate = purchaseRequisition.PurchaseRequisitionDate;
+                            POList.Amount = (double)purchaseRequisition.PurchaseRequisitionNetAmount;
+                            POList.CreatedBy = (int?)(purchaseRequisition.PurchaseRequisitionUserId ?? 1);
+                            POList.LevelId = level;
+                            POList.Status = "Pending";
+                            POList.Remarks = purchaseRequisition.PurchaseRequisitionDescription;
+                            _permissionApprovalDetailRepo.Insert(POList);
+                        }
+                    }
+                }
+
+                foreach (var item in purchaseRequisitionDetails)
+                {
+                    if (item.boqdId > 0)
+                    {
+                        var data = _BillOfQTyDetailsRepository.GetAsQueryable().AsNoTracking().Where(a => a.Id == item.boqdId).FirstOrDefault();
+                        if (data != null)
+                        {
+                            data.IsEdit = false;
+                            _BillOfQTyDetailsRepository.Update(data);
+                        }
+                    }
+                }
                 _purchaseRequisitionRepository.TransactionCommit();
                 return this.GetSavedPurchaseRequisitionDetails(purchaseRequisition.PurchaseRequisitionNo);
 
@@ -429,42 +432,23 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         public PurchaseRequisitionModel GetSavedPurchaseRequisitionDetails(string pvno)
         {
             PurchaseRequisitionModel purchaseRequisitionModel = new PurchaseRequisitionModel();
-            //purchaseRequisitionModel.purchaseRequisition = _purchaseRequisitionRepository.GetAsQueryable().Where(k => k.PurchaseRequisitionNo == pvno && k.PurchaseRequisitionDelStatus == false).SingleOrDefault();
 
             purchaseRequisitionModel.purchaseRequisition = _purchaseRequisitionRepository.GetAsQueryable().Where(k => k.PurchaseRequisitionNo == pvno).SingleOrDefault();
-
-
 
             purchaseRequisitionModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.PurchaseRequisition_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
             purchaseRequisitionModel.purchaseRequisitionDetails = _purchaseRequisitionDetailsRepository.GetAsQueryable().Where(x => x.PurchaseRequisitionDetailsNo == pvno && (x.PurchaseRequisitionDetailsDelStatus == false || x.PurchaseRequisitionDetailsDelStatus == null)).ToList();
             return purchaseRequisitionModel;
 
-
-
-
-
         }
-
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
         {
             try
             {
-
-
-
-
-
-
                 var prefix = this._programsettingsRepository.GetAsQueryable().Where(k => k.ProgramSettingsKeyValue == Prefix.PurchaseRequisition_Prefix).FirstOrDefault().ProgramSettingsTextValue;
                 int vnoMaxVal = Convert.ToInt32(_voucherNumbersRepository.GetAsQueryable()
                                                         .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == VoucherType.PurchaseRequisition_TYPE)
                                                         .DefaultIfEmpty()
                                                         .Max(o => o == null ? 0 : o.VouchersNumbersVNoNu)) + 1;
-
-
-                //var prefix = "CN";
-                //int vnoMaxVal = 1;
-
 
                 VouchersNumbers vouchersNumbers = new VouchersNumbers
                 {
@@ -485,12 +469,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             }
 
         }
-
-
-
-        //using Microsoft.Extensions.Logging;
-        //private readonly ILogger<PaymentVoucherService> _logger;
-        //IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
         public VouchersNumbers GetVouchersNumbers(string pvno)
         {
             try
@@ -505,8 +483,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             }
 
         }
-        
-       public async Task<Response<List<PurChaseRequisitionStatus>>> GetPurchaseRequisitionStatus(PurChaseRequisitionStatusFilterReport model)
+        public async Task<Response<List<PurChaseRequisitionStatus>>> GetPurchaseRequisitionStatus(PurChaseRequisitionStatusFilterReport model)
         {
             List<PurChaseRequisitionStatus> data = new List<PurChaseRequisitionStatus>();
             try
@@ -534,51 +511,51 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 }
 
                 var subqueryRDI = (from pod in dbContext.PurchaseOrderDetails
-                                    join po in dbContext.GeneralPurchaseOrder on pod.PurchaseOrderDetailsPoId equals po.GeneralPurchaseOrderId
-                                    group new { pod, po } by new
-                                    {
-                                        pod.PurchaseOrderDetailsId,
-                                        pod.PurchaseOrderDetailsPrdId,
-                                        po.GeneralPurchaseOrderStatus
-                                    } into grp
-                                    select new
-                                    {
-                                        grp.Key.PurchaseOrderDetailsId,
-                                        grp.Key.PurchaseOrderDetailsPrdId,
-                                        grp.Key.GeneralPurchaseOrderStatus,
-                                        Quantity = grp.Sum(x => x.pod.PurchaseOrderDetailsQuantity)
-                                    });
+                                   join po in dbContext.GeneralPurchaseOrder on pod.PurchaseOrderDetailsPoId equals (int?)po.GeneralPurchaseOrderId
+                                   group new { pod, po } by new
+                                   {
+                                       pod.PurchaseOrderDetailsId,
+                                       pod.PurchaseOrderDetailsPrdId,
+                                       po.GeneralPurchaseOrderStatus
+                                   } into grp
+                                   select new
+                                   {
+                                       grp.Key.PurchaseOrderDetailsId,
+                                       grp.Key.PurchaseOrderDetailsPrdId,
+                                       grp.Key.GeneralPurchaseOrderStatus,
+                                       Quantity = grp.Sum(x => x.pod.PurchaseOrderDetailsQuantity)
+                                   });
                 var subqueryIMT = (from d in dbContext.AvIssueVoucherDetails
-                                 join i in dbContext.AvIssueVoucher on d.AvIssueVoucherDetailsAvSvNo equals i.AvIssueVoucherAccNo
-                                 group d by d.AvIssueVoucherDetailsMaterialId into grp
-                                 select new
-                                 {
-                                     grp.Key,
-                                     issueQty = grp.Sum(x => x.AvIssueVoucherDetailsSoldQuantity),
-                                     stock = grp.Sum(x => x.AvIssueVoucherDetailsStock),
-                                     BalToIssue = grp.Sum(x => x.AvIssueVoucherDetailsStock) - grp.Sum(x => x.AvIssueVoucherDetailsSoldAmount)
-                                 });
+                                   join i in dbContext.AvIssueVoucher on d.AvIssueVoucherDetailsAvSvNo equals i.AvIssueVoucherAccNo
+                                   group d by d.AvIssueVoucherDetailsMaterialId into grp
+                                   select new
+                                   {
+                                       grp.Key,
+                                       issueQty = grp.Sum(x => x.AvIssueVoucherDetailsSoldQuantity),
+                                       stock = grp.Sum(x => x.AvIssueVoucherDetailsStock),
+                                       BalToIssue = grp.Sum(x => x.AvIssueVoucherDetailsStock) - grp.Sum(x => x.AvIssueVoucherDetailsSoldAmount)
+                                   });
                 var subquerySEI = (from d in dbContext.AvIssueVoucherDetails
-                            join i in dbContext.AvIssueVoucher on d.AvIssueVoucherDetailsAvSvNo equals i.AvIssueVoucherAccNo
-                            join s in dbContext.StockRegister on d.AvIssueVoucherDetailsMaterialId equals s.StockRegisterMaterialID
-                            group new { d, s } by d.AvIssueVoucherDetailsMaterialId into grp
-                            select new
-                            {
-                                grp.Key,
-                                issueQty = grp.Sum(x => x.d.AvIssueVoucherDetailsSoldQuantity),
-                                stock = grp.Sum(x => x.s.StockRegisterSIN - x.s.StockRegisterSout),
-                                BalToIssue = grp.Sum(x => (x.s.StockRegisterSIN - x.s.StockRegisterSout) - Convert.ToDecimal(x.d.AvIssueVoucherDetailsSoldQuantity))
-                            });
-              var results = (from pd in _purchaseRequisitionDetailsRepository.GetAsQueryable().Where($"1 == 1  {filteredValue}")
+                                   join i in dbContext.AvIssueVoucher on d.AvIssueVoucherDetailsAvSvNo equals i.AvIssueVoucherAccNo
+                                   join s in dbContext.StockRegister on d.AvIssueVoucherDetailsMaterialId equals s.StockRegisterMaterialID
+                                   group new { d, s } by d.AvIssueVoucherDetailsMaterialId into grp
+                                   select new
+                                   {
+                                       grp.Key,
+                                       issueQty = grp.Sum(x => x.d.AvIssueVoucherDetailsSoldQuantity),
+                                       stock = grp.Sum(x => x.s.StockRegisterSIN - x.s.StockRegisterSout),
+                                       BalToIssue = grp.Sum(x => (x.s.StockRegisterSIN - x.s.StockRegisterSout) - Convert.ToDecimal(x.d.AvIssueVoucherDetailsSoldQuantity))
+                                   });
+                var results = (from pd in _purchaseRequisitionDetailsRepository.GetAsQueryable().Where($"1 == 1  {filteredValue}")
 
-                                join pm in dbContext.PurchaseRequisition on Convert.ToDecimal(pd.PurchaseRequisitionId) equals pm.PurchaseRequisitionId
-                               join im in dbContext.ItemMaster on (long)pd.PurchaseRequisitionDetailsItemID equals im.ItemMasterItemId into imJoin
+                               join pm in dbContext.PurchaseRequisition on (decimal?)pd.PurchaseRequisitionId equals pm.PurchaseRequisitionId
+                               join im in dbContext.ItemMaster on (long)pd.PurchaseRequisitionDetailsMatId equals im.ItemMasterItemId into imJoin
                                from im in imJoin.DefaultIfEmpty()
 
                                join um in dbContext.UnitMaster on pd.PurchaseRequisitionDetailsUnitId equals um.UnitMasterUnitId into umJoin
                                from um in umJoin.DefaultIfEmpty()
 
-                               join pods in subqueryRDI on pd.PurchaseRequisitionDetailsItemID equals  pods.PurchaseOrderDetailsPrdId into podJoin
+                               join pods in subqueryRDI on pd.PurchaseRequisitionDetailsMatId equals pods.PurchaseOrderDetailsPrdId into podJoin
                                from pod in podJoin.DefaultIfEmpty()
 
                                join vd in subqueryIMT on im.ItemMasterItemId equals Convert.ToInt64(vd.Key) into vdJoin
@@ -586,7 +563,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                join vda in subquerySEI on im.ItemMasterItemId equals Convert.ToInt64(vda.Key) into vdaJoin
                                from vda in vdaJoin.DefaultIfEmpty()
 
-                              // where pd.PurchaseRequisitionDetailsReqStatus == "OPEN" && "$ {filteredValue}"
+                                   // where pd.PurchaseRequisitionDetailsReqStatus == "OPEN" && "$ {filteredValue}"
 
                                select new PurChaseRequisitionStatus
                                {
@@ -600,17 +577,157 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                    RequisitionDate = Convert.ToDateTime(pm.PurchaseRequisitionDate)
 
                                }).ToListAsync();
-                            return new Response<List<PurChaseRequisitionStatus>>()
-                           {
-                                Valid = true,
-                                Message = "Data Found",
-                                Result = data
-                            };
-                }
-                catch (Exception ex)
+                return new Response<List<PurChaseRequisitionStatus>>()
                 {
-                    return Response<List<PurChaseRequisitionStatus>>.Fail(new List<PurChaseRequisitionStatus>(), ex.Message);
-                }
+                    Valid = true,
+                    Message = "Data Found",
+                    Result = data
+                };
+            }
+            catch (Exception ex)
+            {
+                return Response<List<PurChaseRequisitionStatus>>.Fail(new List<PurChaseRequisitionStatus>(), ex.Message);
+            }
         }
+        public async Task<Response<List<PurChaseReqFields>>> GetPurchaseReqJobId(PurChaseRequisitionFilterReport model)
+        {
+            List<PurChaseReqFields> data = new List<PurChaseReqFields>();
+            try
+            {
+                string filteredValue = string.Empty;
+                var query = _purchaseRequisitionRepository.GetAsQueryable().AsNoTracking().Where(s => s.PurchaseRequisitionDelStatus != true);
+                if (model.JobId > 0)
+                {
+                    query = query.Where(a => a.PurchaseRequisitionJobId == model.JobId);
+
+                }
+                data = (from sm in query
+                        join sd in _purchaseRequisitionDetailsRepository.GetAsQueryable().AsNoTracking()
+                            on (decimal?)sm.PurchaseRequisitionId equals sd.PurchaseRequisitionId
+                        join im in _itemMasterRepository.GetAsQueryable().AsNoTracking()
+                            on (long?)sd.PurchaseRequisitionDetailsMatId equals im.ItemMasterItemId into imGroup
+                        from im in imGroup.DefaultIfEmpty()
+                        join um in _unitMasterRepository.GetAsQueryable().AsNoTracking()
+                            on sd.PurchaseRequisitionDetailsUnitId equals um.UnitMasterUnitId into umGroup
+                        from um in umGroup.DefaultIfEmpty()
+                        join jm in jobrepository.GetAsQueryable().AsNoTracking()
+                            on sm.PurchaseRequisitionJobId equals jm.JobMasterJobId into jmGroup
+                        from jm in jmGroup.DefaultIfEmpty()
+                        join lm in locationrepository.GetAsQueryable().AsNoTracking()
+                            on sm.PurchaseRequisitionLocationId equals lm.LocationMasterLocationId into lmGroup
+                        from lm in lmGroup.DefaultIfEmpty()
+                        join iv in _context.IssueVoucherDetails.AsNoTracking()
+                            on sd.PurchaseRequisitionDetailsId equals iv.IssueVoucherDetailsReqDId into ivGroup
+                        from srq in ivGroup.DefaultIfEmpty()
+                        select new PurChaseReqFields
+                        {
+                            PurchaseRequisitionPartyName = sm.PurchaseRequisitionPartyName ?? "",
+                            purchaseRequisitionType = sm.PurchaseRequisitionType ?? "",
+                            Item_Name = im != null ? im.ItemMasterItemName : "",
+                            Unit = um != null ? um.UnitMasterUnitShortName : "",
+                            DelQty = srq.IssueVoucherDetailsQuantity ?? 0m,
+                            SRID = sm.PurchaseRequisitionId,
+                            SRDID = sd.PurchaseRequisitionDetailsId,
+                            SRNo = sm.PurchaseRequisitionNo ?? "",
+                            Date = sm.PurchaseRequisitionDate,
+                            Rate = sd.PurchaseRequisitionDetailsRate ?? 0,
+                            SRQ = sd.PurchaseRequisitionDetailsQuantity ?? 0,
+                            BalQty = (sd.PurchaseRequisitionDetailsQuantity - (srq.IssueVoucherDetailsQuantity ?? 0m)) ?? 0,
+                            matId = sd.PurchaseRequisitionDetailsMatId,
+                            unitid = sd.PurchaseRequisitionDetailsUnitId,
+                            jobid = sm.PurchaseRequisitionJobId,
+                            Stock = srq.IssueVoucherDetailsCurrentStockQty ?? 0m
+                        })
+                     .OrderBy(x => x.SRDID)
+                     .ToList();
+
+                data = data.Where(a => a.BalQty > 0).ToList();
+                return new Response<List<PurChaseReqFields>>()
+                {
+                    Valid = true,
+                    Message = "Data Found",
+                    Result = data
+                };
+            }
+            catch (Exception ex)
+            {
+                return Response<List<PurChaseReqFields>>.Fail(new List<PurChaseReqFields>(), ex.Message);
+            }
+        }
+
+        //public async Task<Response<List<PurChaseReqFields>>> GetPurchaseReqJobId(PurChaseRequisitionFilterReport model)
+        //{
+        //    List<PurChaseReqFields> data = new List<PurChaseReqFields>();
+        //    try
+        //    {
+        //        string filteredValue = string.Empty;
+
+        //        var query = _purchaseRequisitionRepository.GetAsQueryable().Where(s => s.PurchaseRequisitionDelStatus != true).ToList();
+        //        if (model.JobId > 0)
+        //        {
+        //            query = query.Where(a => a.PurchaseRequisitionJobId == model.JobId).ToList();
+
+        //        }
+        //        data = (from sm in query
+        //                join sd in _purchaseRequisitionDetailsRepository.GetAsQueryable() on (decimal?)sm.PurchaseRequisitionId equals sd.PurchaseRequisitionId
+        //                join im in _itemMasterRepository.GetAsQueryable() on (long?)sd.PurchaseRequisitionDetailsMatId equals im.ItemMasterItemId into imGroup
+        //                from im in imGroup.DefaultIfEmpty()
+
+        //                join um in _unitMasterRepository.GetAsQueryable() on sd.PurchaseRequisitionDetailsUnitId equals um.UnitMasterUnitId into umGroup
+        //                from um in umGroup.DefaultIfEmpty()
+
+        //                join jm in jobrepository.GetAsQueryable() on sm.PurchaseRequisitionJobId equals jm.JobMasterJobId into jmGroup
+        //                from jm in jmGroup.DefaultIfEmpty()
+
+        //                join lm in locationrepository.GetAsQueryable() on sm.PurchaseRequisitionLocationId equals lm.LocationMasterLocationId into lmGroup
+        //                from lm in lmGroup.DefaultIfEmpty()
+
+        //                join srq in (
+        //                    from tr in _trackingRegisterRepository.GetAsQueryable()
+        //                    where tr.TrackingRegisterVoucherType == "CustomerPurchaseOrder"
+        //                    group tr by tr.TrackingRegisterDetailsId into trGroup
+        //                    select new
+        //                    {
+        //                        Tracking_Register_Details_ID = trGroup.Key,
+        //                        DelQty = trGroup.Sum(tr => tr.TrackingRegisterQtyout ?? 0),
+        //                        Stock = trGroup.Sum(tr => tr.TrackingRegisterQtyin ?? 0 - tr.TrackingRegisterQtyout ?? 0)
+        //                    }
+        //                ) on sd.PurchaseRequisitionDetailsId equals srq.Tracking_Register_Details_ID into srqGroup
+        //                from srq in srqGroup.DefaultIfEmpty()
+        //                where (sd.PurchaseRequisitionDetailsQuantity - srq?.DelQty) > 0
+        //                select new PurChaseReqFields
+        //                {
+        //                    PurchaseRequisitionPartyName = sm.PurchaseRequisitionPartyName ?? "",
+        //                    purchaseRequisitionType = sm.PurchaseRequisitionType ?? "",
+        //                    Item_Name = im.ItemMasterItemName.ToString() ?? "",
+        //                    Unit = um == null ? null : um.UnitMasterUnitShortName ?? "" + " :: " + um.UnitMasterUnitId.ToString() ?? "",
+        //                    DelQty = srq?.DelQty ?? 0,
+        //                    SRID = sm.PurchaseRequisitionId,
+        //                    SRDID = sd.PurchaseRequisitionDetailsId,
+        //                    SRNo = sm.PurchaseRequisitionNo ?? "",
+        //                    Date = sm.PurchaseRequisitionDate,
+        //                    Rate = sd.PurchaseRequisitionDetailsRate ?? 0,
+        //                    SRQ = sd.PurchaseRequisitionDetailsQuantity ?? 0,
+        //                    BalQty = (sd.PurchaseRequisitionDetailsQuantity - srq?.DelQty) ?? 0,
+        //                    matId = sd.PurchaseRequisitionDetailsMatId ?? 0,
+        //                    unitid = sd.PurchaseRequisitionDetailsUnitId,
+        //                    jobid = sm.PurchaseRequisitionJobId,
+        //                    Stock = srq?.Stock ?? 0
+        //                }).OrderBy(x => x.SRDID).ToList();
+
+
+        //        return new Response<List<PurChaseReqFields>>()
+        //        {
+        //            Valid = true,
+        //            Message = "Data Found",
+        //            Result = data
+        //        };
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Response<List<PurChaseReqFields>>.Fail(new List<PurChaseReqFields>(), ex.Message);
+        //    }
+        //}
+
     }
 }

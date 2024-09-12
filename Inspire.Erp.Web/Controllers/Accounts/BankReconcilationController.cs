@@ -23,11 +23,31 @@ namespace Inspire.Erp.Web.Controllers
         {
             return await _ibn.GetAccountListForDropdown();
         }
-        [HttpGet("BankLedger")]
-        public async Task<IEnumerable<BankLedger>> BankLedger()
+        [HttpGet("BankLedger/{bankAccNo}")]
+        public async Task<IEnumerable<BankLedger>> BankLedger(string bankAccNo)
         {
-            var res = await _ibn.BankLedger();
-            return res;
+            return await _ibn.BankLedger(bankAccNo);
+        }
+        [HttpPost("SaveBankReconciliation")]
+        public async Task<ActionResult> SaveBankReconciliation([FromBody] ReconciliationVoucher reconciliation)
+        {
+            return Ok(_ibn.SavebankReconciliation(reconciliation));
+        }
+        [HttpPost("UpdateBankReconciliation")]
+        public async Task<ActionResult> UpdateBankReconciliation([FromBody] ReconciliationVoucher reconciliation)
+        {
+            return Ok(_ibn.UpdatebankReconciliation(reconciliation));
+        }
+        [HttpGet("List")]
+        public async Task<ActionResult> getBankReconciliationList()
+        {
+            return Ok(await _ibn.getbankReconciliationList());
+        }
+
+        [HttpGet("List/{Id}")]
+        public async Task<ActionResult> getBankReconciliationList(string Id)
+        {
+            return Ok(_ibn.getbankReconciliationById(Id));
         }
     }
 }

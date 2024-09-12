@@ -421,10 +421,6 @@ namespace Inspire.Erp.Application.MIS.Implementations
                 return Response<ProfitLossWrapper>.Fail(new ProfitLossWrapper(), ex.Message);
             }
         }
-
-
-
-
         public async Task<Response<ProfitAndLossWrapper>> GetAccountTransactionsProfitAndLoss(GenericGridViewModel model)
         {
             try
@@ -432,26 +428,25 @@ namespace Inspire.Erp.Application.MIS.Implementations
                 ProfitAndLossWrapper gridModel = new ProfitAndLossWrapper();
                 var location = await _stationMaster.GetAsQueryable().FirstOrDefaultAsync();
 
-                var trans=_accountTrans.GetAsQueryable().Where(x => x.AccountsTransactionsTransDate >= model.FromDate
-                && x.AccountsTransactionsTransDate <= model.ToDate 
-                && x.AccountsTransactionsAccNo== "IN33");
+                //var trans = _accountTrans.GetAsQueryable().Where(x => (model.FromDate == null || x.AccountsTransactionsTransDate >= model.FromDate)
+                //                               && (model.ToDate == null || x.AccountsTransactionsTransDate <= model.ToDate));
+                //&& x.AccountsTransactionsAccNo== "IN33");
 
-                gridModel.TotalSalesDebit = trans.Sum(survey => survey.AccountsTransactionsDebit);
-                gridModel.TotalSalesCredit = trans.Sum(survey => survey.AccountsTransactionsCredit);
-                gridModel.SalesAccount = "Sales Income";
+                //gridModel.TotalSalesDebit = trans.Sum(survey => survey.AccountsTransactionsDebit);
+                //gridModel.TotalSalesCredit = trans.Sum(survey => survey.AccountsTransactionsCredit);
+                //gridModel.SalesAccount = "Sales Income";
 
-                var transSalesR = _accountTrans.GetAsQueryable().Where(x => x.AccountsTransactionsTransDate >= model.FromDate
-              && x.AccountsTransactionsTransDate <= model.ToDate
-              && x.AccountsTransactionsAccNo == "IN3492");
+                //var transSalesR = _accountTrans.GetAsQueryable().Where(x => (model.FromDate == null || x.AccountsTransactionsTransDate >= model.FromDate)
+                //                               && (model.ToDate == null || x.AccountsTransactionsTransDate <= model.ToDate));
+              //&& x.AccountsTransactionsAccNo == "IN3492");
 
-                gridModel.TotalSalesReturnDebit = transSalesR.Sum(survey => survey.AccountsTransactionsDebit);
-                gridModel.TotalSalesReturnCredit = transSalesR.Sum(survey => survey.AccountsTransactionsCredit);
+                //gridModel.TotalSalesReturnDebit = transSalesR.Sum(survey => survey.AccountsTransactionsDebit);
+                //gridModel.TotalSalesReturnCredit = transSalesR.Sum(survey => survey.AccountsTransactionsCredit);
 
                 gridModel.IncomeDetails = await (from ma in _masterAccount.GetAsQueryable().Where(y => y.MaMainHead.ToUpper() == "INCOME")
                                                   join at in _accountTrans.GetAsQueryable()
-                                                                .Where(x => x.AccountsTransactionsTransDate >= model.FromDate
-                                                  && x.AccountsTransactionsTransDate <= model.ToDate
-                                                  )
+                                                                 .Where(x => (model.FromDate == null || x.AccountsTransactionsTransDate >= model.FromDate)
+                                               && (model.ToDate == null || x.AccountsTransactionsTransDate <= model.ToDate))
                                                   on ma.MaAccNo equals at.AccountsTransactionsAccNo into g
                                                   from grd in g.DefaultIfEmpty()
                                                   group grd by new
@@ -477,9 +472,8 @@ namespace Inspire.Erp.Application.MIS.Implementations
 
                 gridModel.ExpenseDetails = await (from ma in _masterAccount.GetAsQueryable().Where(y => y.MaMainHead.ToUpper() == "EXPENSES")
                                                   join at in _accountTrans.GetAsQueryable()
-                                                                .Where(x => x.AccountsTransactionsTransDate >= model.FromDate
-                                                  && x.AccountsTransactionsTransDate <= model.ToDate
-                                                  )
+                                                                .Where(x => (model.FromDate == null || x.AccountsTransactionsTransDate >= model.FromDate)
+                                               && (model.ToDate == null || x.AccountsTransactionsTransDate <= model.ToDate))
                                                   on ma.MaAccNo equals at.AccountsTransactionsAccNo into g
                                                   from grd in g.DefaultIfEmpty()
                                                   group grd by new

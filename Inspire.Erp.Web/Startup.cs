@@ -22,6 +22,9 @@ using Newtonsoft.Json;
 using OfficeOpenXml.FormulaParsing.Logging;
 using System.IO;
 using Inspire.Erp.Domain.Models.Common;
+using Inspire.Erp.Application.Account.Implementation;
+using Inspire.Erp.Application.NewFolder.Interfaces;
+using Inspire.Erp.Application.NewFolder.Implementations;
 
 namespace Inspire.Erp.Web
 {
@@ -95,9 +98,12 @@ namespace Inspire.Erp.Web
                       });
             });
 
-            var converter = new SynchronizedConverter(new PdfTools()); services.AddSingleton(converter); services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
-            
-        services.AddScoped<INotificationHub, NotificationHub>();
+            //  var converter = new SynchronizedConverter(new PdfTools());
+            //  services.AddSingleton(converter);
+            //  services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
+            services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
+            services.AddScoped<INotificationHub, NotificationHub>();
+           
             //  services.AddMvc().AddNewtonsoftJson(
             //options => {
             //    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;

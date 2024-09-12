@@ -30,21 +30,22 @@ namespace Inspire.Erp.Application.Account.Implementations
         private IRepository<CustomerMaster> _customerMasterRepository;
         private IRepository<CustomerContacts> _customerContactsRepository;
         private IRepository<CustomerDepartments> _customerDepartmentsRepository;
+        private readonly IRepository<MasterAccountsTable> _masterAccountTable;
         ////private IRepository<ProgramSettings> _programsettingsRepository;
         ////private IRepository<VouchersNumbers> _voucherNumbersRepository;
         private readonly ILogger<NewCustomerService> _logger;
 
         public NewCustomerService(IRepository<CustomerMaster> customerMasterRepository, IRepository<CustomerContacts> customerContactsRepository,
-            IRepository<CustomerDepartments> customerDepartmentsRepository, ILogger<NewCustomerService> logger)
+            IRepository<CustomerDepartments> customerDepartmentsRepository, IRepository<MasterAccountsTable> masterAccountTable, ILogger<NewCustomerService> logger)
         {
-            this._customerMasterRepository = customerMasterRepository;
+            this._customerMasterRepository = customerMasterRepository; _masterAccountTable = masterAccountTable;
             this._customerContactsRepository = customerContactsRepository;
             this._customerDepartmentsRepository = customerDepartmentsRepository;
             _logger = logger;
 
         }
 
-        public CustomerViewModel UpdateNewCustomer(CustomerMaster customerMaster, List<CustomerContacts> customerContacts,List<CustomerDepartments> customerDepartments)
+        public CustomerViewModel UpdateNewCustomer(CustomerMaster customerMaster, List<CustomerContacts> customerContacts, List<CustomerDepartments> customerDepartments)
         {
 
             try
@@ -74,19 +75,28 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _customerMasterRepository.BeginTransaction();
 
                 customerMaster.CustomerMasterCustomerDeleteStatus = true;
+                customerMaster.CustomerMasterCustomerDelStatus = true;
 
-                customerContacts = customerContacts.Select((k) => {
+                customerContacts = customerContacts.Select((k) =>
+                {
                     k.CustomerContactsDelStatus = true;
                     return k;
                 }).ToList();
 
                 _customerContactsRepository.UpdateList(customerContacts);
 
-                customerDepartments = customerDepartments.Select((k) => {
+                customerDepartments = customerDepartments.Select((k) =>
+                {
                     k.CustomerDepartmentsDelStatus = true;
                     return k;
                 }).ToList();
                 _customerDepartmentsRepository.UpdateList(customerDepartments);
+
+                var account = _masterAccountTable.GetAsQueryable().Where(a => a.MaAccNo == customerMaster.CustomerMasterCustomerReffAcNo).FirstOrDefault();
+                if (account != null)
+                {
+                    _masterAccountTable.Delete(account);
+                }
 
                 _customerMasterRepository.Update(customerMaster);
 
@@ -172,7 +182,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             }
 
         }
-        
+
         public IEnumerable<CustomerMaster> GetAllCustomers()
         {
             IEnumerable<CustomerMaster> customerMasters = _customerMasterRepository.GetAll().Where(k => k.CustomerMasterCustomerDelStatus == false || k.CustomerMasterCustomerDelStatus == null);

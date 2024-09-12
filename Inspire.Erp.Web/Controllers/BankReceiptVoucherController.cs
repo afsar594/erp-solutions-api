@@ -13,6 +13,8 @@ using Inspire.Erp.Web.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using System.Security.Permissions;
+using Microsoft.CodeAnalysis;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -56,7 +58,8 @@ namespace Inspire.Erp.Web.Controllers
             var param1 = _mapper.Map<BankReceiptVoucher>(voucherCompositeView);
             var param2 = _mapper.Map<List<BankReceiptVoucherDetails>>(voucherCompositeView.BankReceiptVoucherDetails);
             var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-            var xs = _bankReceiptVoucherService.InsertBankReceiptVoucher(param1, param3, param2);
+            var allocaDetails = voucherCompositeView.AllocationDetails;
+            var xs = _bankReceiptVoucherService.InsertBankReceiptVoucher(param1, param3, param2, allocaDetails);
             apiResponse = new ApiResponse<BankReceiptVoucher>
             {
                 Valid = true,
@@ -73,7 +76,8 @@ namespace Inspire.Erp.Web.Controllers
             var param1 = _mapper.Map<BankReceiptVoucher>(voucherCompositeView);
             var param2 = _mapper.Map<List<BankReceiptVoucherDetails>>(voucherCompositeView.BankReceiptVoucherDetails);
             var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-            var xs = _bankReceiptVoucherService.UpdateBankReceiptVoucher(param1, param3, param2);
+            var brAllo = voucherCompositeView.AllocationDetails;
+            var xs = _bankReceiptVoucherService.UpdateBankReceiptVoucher(param1, param3, param2,brAllo);
             
             var apiResponse = new ApiResponse<BankReceiptVoucher>()
             {

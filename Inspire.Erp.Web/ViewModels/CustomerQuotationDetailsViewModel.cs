@@ -7,8 +7,8 @@ namespace Inspire.Erp.Web.ViewModels
 {
     public class CustomerQuotationDetailsViewModel
     {
-        public long CustomerQuotationDetailsId { get; set; }
         public long CustomerQuotationDetailsQuotationId { get; set; }
+        public long CustomerQuotationDetailsId { get; set; }
         public string CustomerQuotationDetailsVoucherNo { get; set; }
         public int? CustomerQuotationDetailsSlno { get; set; }
         public long? CustomerQuotationDetailsItemId { get; set; }
@@ -24,7 +24,6 @@ namespace Inspire.Erp.Web.ViewModels
         public bool? CustomerQuotationDetailsIsEdited { get; set; }
         public double? CustomerQuotationDetailsPurchasePrice { get; set; }
         public string CustomerQuotationDetailsPriceType { get; set; }
-        public long? CustomerQuotationDetailsQuotationDetailsId { get; set; }
         public int? CustomerQuotationDetailsVoucherType { get; set; }
         public string CustomerQuotationDetailsCashCustomerName { get; set; }
         public long? CustomerQuotationDetailsEnquiryDetailsId { get; set; }

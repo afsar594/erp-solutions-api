@@ -28,10 +28,11 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         private readonly IAssetsOpeningService _assetsOpeningService;
         private readonly IVatStatementService _vatStatementService;
         private readonly IAssetsMasterService _assetsMasterService;
+        private readonly IAccountTransactionsServices _accountTransactionsServices;
         public AccountController(IAccountStatementService accountStatService, IDaybookService daybookService, IAssetsOpeningService assetsOpeningService,
             IVoucherAllocationService voucherAllocation, IOutstandingStatementService outstandingStatement, IOldBalanceSheetService oldBalanceSheet,
             IVoucherPrintService iVoucherPrintService, IAccountStatementMultiAccountService multiAccountService, IAgeingReport ageingReport,
-            IVatStatementService vatStatementService, IAssetsMasterService assetsMasterService)
+            IVatStatementService vatStatementService, IAssetsMasterService assetsMasterService, IAccountTransactionsServices accountTransactionsServices)
         {
             _accountStatService = accountStatService;
             _iVoucherPrintService = iVoucherPrintService;
@@ -44,7 +45,9 @@ namespace Inspire.Erp.Web.Controllers.Accounts
             _assetsOpeningService = assetsOpeningService;
             _vatStatementService = vatStatementService;
             _assetsMasterService = assetsMasterService;
+            _accountTransactionsServices = accountTransactionsServices;
         }
+
         #region Account Statement 
         [HttpGet("GetAccountMasterDropdown")]
         public async Task<IActionResult> GetAccountMasterDropdown()
@@ -95,6 +98,25 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         {
             return Ok(await _multiAccountService.GetAccountTransactionsMultiAccountDetail(model));
         }
+
+
+        [HttpPost("GetAccountTransactionsForeignCurrencyDetail")]
+        public async Task<IActionResult> GetAccountTransactionsForeignCurrencyDetail(GenericGridViewModel model)
+        {
+            return Ok(await _multiAccountService.GetAccountTransactionsForeignCurrencyDetail(model));
+        }
+        //[HttpPost("GetAccountTransactionsForeignCurrencySummary")]
+        //public async Task<IActionResult> GetAccountTransactionsForeignCurrencySummary([FromBody] AccountTransactionsFilterReport model)
+        //{
+        //    return Ok(await _multiAccountService.GetAccountTransactionsForeignCurrencySummary(model));
+        //}
+
+        [HttpPost("GetAccountTransactionsForeignCurrencySummary")]
+        public async Task<IActionResult> GetAccountTransactionsForeignCurrencySummary(GenericGridViewModel model)
+        {
+            return Ok(await _multiAccountService.GetAccountTransactionsForeignCurrencySummary(model));
+        }
+
         [HttpPost("DownloadMultiAccountPrint")]
         public async Task<IActionResult> DownloadMultiAccountPrint(GenericGridViewModel model)
         {
@@ -154,6 +176,22 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         #endregion
 
         #region Voucher Allocation
+
+        [HttpPost]
+        [Route("GetAllocationDetailsByAccNoRefNo")]
+        public async Task<IActionResult> GetAllocationDetailsByAccNoRefNo(string accNo, string refNO, string vType)
+        {
+            return Ok(await _accountTransactionsServices.GetReceiptVoucherAllocations(accNo, refNO, vType));
+        }
+
+        [HttpGet]
+        [Route("getAllocationforPrint")]
+        public async Task<ResponseInfo> getAllocationforPrint(int? Id)
+        {
+            //return await _accountTransactionsServices.getAllocationforPrint(accNo, date,vType);
+            return await _accountTransactionsServices.getAllocationforPrint(Id);
+        }
+
         [HttpGet("GetCustomerMasterDropdown")]
         public async Task<IActionResult> GetCustomerMasterDropdown()
         {
@@ -170,7 +208,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
             return Ok(await _voucherAllocation.GetAccountTransactions(model));
         }
         [HttpGet("GetSpecificVoucherAllocation")]
-        public async Task<IActionResult> GetSpecificVoucherAllocation(int id = 0)
+        public async Task<IActionResult> GetSpecificVoucherAllocation(string id)
         {
             return Ok(await _voucherAllocation.GetSpecificVoucherAllocation(id));
         }
@@ -187,6 +225,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
             }
 
         }
+       
         [HttpPost("GetVoucherAllocationsList")]
         public async Task<IActionResult> GetVoucherAllocationsList(GenericGridViewModel model)
         {
@@ -206,11 +245,11 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         }
 
         [HttpDelete("DeleteAllocationVoucher")]
-        public IActionResult DeleteAllocationVoucher(long ID)
+        public IActionResult DeleteAllocationVoucher(string id, string type)
         {
             try
             {
-                return Ok(_voucherAllocation.DeleteAllocationVoucher(ID));
+                return Ok(_voucherAllocation.DeleteAllocationVoucher(id, type));
             }
             catch (System.Exception ex)
             {

@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inspire.Erp.Domain.Entities
 {
-    public partial class ProgressiveInvoice
+    public class ProgressiveInvoice
     {
         public int? ProgressiveInvoiceId { get; set; }
         public string ProgressiveInvoiceInvNo { get; set; }
@@ -36,5 +37,8 @@ namespace Inspire.Erp.Domain.Entities
         public double? ProgressiveInvoicePlRetention { get; set; }
         public double? ProgressiveInvoicePlTotalAmount { get; set; }
         public bool? ProgressiveInvoiceDelStatus { get; set; }
+        [NotMapped]
+        public List<AccountsTransactions> AccountsTransactions { get; set; }
+
     }
 }

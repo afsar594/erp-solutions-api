@@ -452,27 +452,7 @@ namespace Inspire.Erp.WebReport.ReportEngine
 						break;
 					case ExportFormatType.HTML32:
 					case ExportFormatType.HTML40:
-						//
-						extensionFile = ".html";
-						// Nel caso dell'Html occore definire le HTMLFormatOptions come ExportOptions del lReportDocument
-						CrystalDecisions.Shared.HTMLFormatOptions htmlOption = new CrystalDecisions.Shared.HTMLFormatOptions();
-						htmlOption.HTMLBaseFolderName = tempDir;
-						htmlOption.HTMLFileName = identifier + extensionFile;
-						//Aggiunge una barra di navigazione alle pagine
-						htmlOption.HTMLHasPageNavigator = true;
-						//Abilita la separazione delle pagine
-						htmlOption.HTMLEnableSeparatedPages = true;
-						lReportDocument.ExportOptions.FormatOptions = htmlOption;
-						break;
-					case ExportFormatType.WordForWindows:
-						//
-						extensionFile = ".doc";
-						break;
-					case ExportFormatType.EditableRTF:
-						//
-						extensionFile = ".rtf";
-						break;
-					case ExportFormatType.TabSeperatedText:
+
 						//
 						extensionFile = ".txt";
 						break;
