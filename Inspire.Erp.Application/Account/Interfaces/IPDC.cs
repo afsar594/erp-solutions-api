@@ -18,5 +18,6 @@ namespace Inspire.Erp.Application.Account.Interface
 
         public Task<List<BankNamesModel>> GetBankNames();
         Task<IEnumerable<PDCGetList>> PDCGetReturnList(PDCFilters obj);
+        bool ReleasePostPdc(List<PDCGetList> list);
     }
 }
