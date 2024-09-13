@@ -14437,7 +14437,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.PurchaseOrderDetailsGrossAmount).HasColumnType("numeric(18, 4)");
 
                 entity.Property(e => e.PurchaseOrderDetailsItemName)
-                    .HasMaxLength(100)
+                    .HasMaxLength(50000)
                     .IsUnicode(false);
 
                 entity.Property(e => e.PurchaseOrderDetailsManfDate).HasColumnType("datetime");
@@ -20688,6 +20688,11 @@ namespace Inspire.Erp.Infrastructure.Database
                .HasColumnName("BankCurrency")
                .HasMaxLength(100)
                .IsUnicode(false);
+
+               entity.Property(e => e.logotype)
+              .HasColumnName("logotype")
+              .HasMaxLength(100)
+              .IsUnicode(false);
             });
 
             modelBuilder.Entity<StockAdjustment>(entity =>

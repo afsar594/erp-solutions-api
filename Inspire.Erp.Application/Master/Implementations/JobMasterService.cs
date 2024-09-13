@@ -152,38 +152,16 @@ namespace Inspire.Erp.Application.Master
         {
             try
             {
+                
                 jobrepository.BeginTransaction();
-                int jobId = (int)jobrepository.GetAsQueryable().Where(k => k.JobMasterJobId != null).Select(x => x.JobMasterJobId).Max();
-                if (jobId == null) { jobId = 1; } else { jobId = jobId + 1; }
+                int jobId = 0;
+                jobId =
+                    jobrepository.GetAsQueryable()
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.JobMasterJobId) + 1;
                 jobMaster.JobMasterJobId = jobId;
-
 
                 string vNumber = this.GenerateVoucherNo(jobMaster.JobMasterJobDate).VouchersNumbersVNo;
                 jobMaster.JobMasterJobNo = vNumber;
-
-                //foreach (var item in jobMaster.JobMasterBudgetDetails)
-                //{
-                //    var groupedResults =
-                //        from at in context.AccountsTransactions
-                //        join cos in context.CostCenterMaster on
-                //        at.AccountsTransactionsCostCenterId equals cos.CostCenterMasterCostCenterId
-                //        where at.AccountstransactionsDelStatus == false 
-                //        && at.AccountsTransactionsCostCenterId == item.JobMasterBudgetDetailsBudId
-                //        group at by cos.CostCenterMasterCostCenterName into g
-                //        select new
-                //        {
-                //            CostName = g.Key,
-                //            TotalDrAmt = g.Sum(x => x.AccountsTransactionsDebit)
-                //        };
-
-                //    foreach (var result in groupedResults)
-                //    {
-
-                //        item.JobMasterBudgetDetailsActual = result.TotalDrAmt;
-                //        item.JobMasterBudgetDetailsVariance = -result.TotalDrAmt;
-
-                //    }
-                //}
 
                 jobMaster.JobMasterBudgetDetails.Select((x) =>
                 {

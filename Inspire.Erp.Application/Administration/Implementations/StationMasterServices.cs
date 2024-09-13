@@ -50,7 +50,8 @@ namespace Inspire.Erp.Application.Administration.Implementations
                 station.IBAN = stationMaster.IBAN;
                 station.SwiftCode = stationMaster.SwiftCode;
                 station.BankBranch = stationMaster.BankBranch;
-                station.BankCurrency = stationMaster.BankCurrency;               
+                station.BankCurrency = stationMaster.BankCurrency;
+                station.logotype = stationMaster.logotype;
                 this.stationMaster.Update(station);
                 return await GetStationMasters();
             }
@@ -134,6 +135,7 @@ namespace Inspire.Erp.Application.Administration.Implementations
                 station.SwiftCode = stationMaster.SwiftCode;
                 station.BankBranch = stationMaster.BankBranch;
                 station.BankCurrency = stationMaster.BankCurrency;
+                station.logotype = stationMaster.logotype;                
                 this.stationMaster.Update(station);
                 return await GetStationMasters();
             }

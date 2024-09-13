@@ -33,5 +33,6 @@ namespace Inspire.Erp.Domain.Entities
         public int id { get; set; }
         public string Voucher_Type { get; set; }
         public Boolean is_active { get; set; }
+        public int NoOfLevel { get; set; }
     }
 }
