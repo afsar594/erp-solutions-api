@@ -16,6 +16,7 @@ using Inspire.Erp.Domain.Modals.Settings;
 using Inspire.Erp.Domain.Models.MIS;
 using Inspire.Erp.Domain.Entities.POS;
 using Inspire.Erp.Domain.Models.Approvals;
+using Inspire.Erp.Domain.Models;
 
 namespace Inspire.Erp.Infrastructure.Database
 {
@@ -31,7 +32,7 @@ namespace Inspire.Erp.Infrastructure.Database
             Configuration = _Configuration;
         }
 
-        public virtual DbSet<ImportTimeSheet> ImportTimeSheet { get; set; }
+        public virtual DbSet<Inspire.Erp.Domain.Entities.ImportTimeSheet> ImportTimeSheet { get; set; }
         public virtual DbSet<AccountSettings> AccountSettings { get; set; }
         public virtual DbSet<AccountsTransactions> AccountsTransactions { get; set; }
         public virtual DbSet<ActivityLog> ActivityLog { get; set; }
@@ -41,6 +42,8 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<AllocationVoucherDetails> AllocationVoucherDetails { get; set; }
         public virtual DbSet<AssetDepDetails> AssetDepDetails { get; set; }
         public virtual DbSet<AssetMaster> AssetMaster { get; set; }
+        public virtual DbSet<AssetSubListHeader> AssetSubListHeader { get; set; }
+        public virtual DbSet<AssetSubMaster> AssetSubMaster { get; set; }
         public virtual DbSet<AutoCodes> AutoCodes { get; set; }
         public virtual DbSet<AvCreditNote> AvCreditNote { get; set; }
         public virtual DbSet<AvCreditNoteDetails> AvCreditNoteDetails { get; set; }
@@ -110,7 +113,7 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<FormNames> FormNames { get; set; }
         public virtual DbSet<GeneralPurchaseOrder> GeneralPurchaseOrder { get; set; }
         public virtual DbSet<GeneralPurchaseOrderDetails> GeneralPurchaseOrderDetails { get; set; }
-        public virtual DbSet<GeneralSettings> GeneralSettings { get; set; }
+        public virtual DbSet<Inspire.Erp.Domain.Entities.GeneralSettings> GeneralSettings { get; set; }
         //////public virtual DbSet<GeneralSettings1> GeneralSettings1 { get; set; }
         public virtual DbSet<GenericMaster> GenericMaster { get; set; }
         public virtual DbSet<GlobalAccountsTable> GlobalAccountsTable { get; set; }
@@ -206,7 +209,7 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<ProductList> ProductList { get; set; }
         public virtual DbSet<ProformaInvoice> ProformaInvoice { get; set; }
         public virtual DbSet<ProformaInvoiceDetails> ProformaInvoiceDetails { get; set; }
-        public virtual DbSet<ProgramSettings> ProgramSettings { get; set; }
+        public virtual DbSet<Inspire.Erp.Domain.Entities.ProgramSettings> ProgramSettings { get; set; }
         public virtual DbSet<ProgressiveInvoice> ProgressiveInvoice { get; set; }
         public virtual DbSet<ProgressiveInvoiceDetails> ProgressiveInvoiceDetails { get; set; }
         public virtual DbSet<ProjectDescriptionMaster> ProjectDescriptionMaster { get; set; }
@@ -497,7 +500,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             //modelBuilder.Query<IssueWithStockTransfer>().ToView("VW_ISSUE_WITH_STOCK_TRANSFER");
             #endregion
-            modelBuilder.Entity<ImportTimeSheet>(entity =>
+            modelBuilder.Entity<Inspire.Erp.Domain.Entities.ImportTimeSheet>(entity =>
             {
                 entity.HasKey(e => e.SerialNo);
 
@@ -517,7 +520,132 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.Task).HasMaxLength(50);
             });
 
+            modelBuilder.Entity<AssetSubListHeader>(entity =>
+            {
+                entity.ToTable("AssetSubListHeader");
+                entity.HasKey(e => e.VoucherNo);
 
+                entity.Property(e => e.VoucherNo)
+                    .HasMaxLength(30)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.VoucherDate)
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.RefNo)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Description)
+                    .HasMaxLength(2000)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.GrandTotal)
+                    .HasColumnType("float");
+            });
+
+
+            modelBuilder.Entity<AssetSubMaster>(entity =>
+            {
+                entity.HasKey(e => e.SubAssetID);
+
+                entity.Property(e => e.GroupID)
+                    .IsRequired(false);
+
+                entity.Property(e => e.SlNo)
+                    .IsRequired(false);
+
+                entity.Property(e => e.AssetDescription)
+                    .HasMaxLength(500) // Example: you can adjust the length as per your requirement
+                    .IsRequired(false);
+
+                entity.Property(e => e.AssetCode)
+                    .HasMaxLength(100) // Example: adjust as needed
+                    .IsRequired(false);
+
+                entity.Property(e => e.PurchDate)
+                    .IsRequired(false);
+
+                entity.Property(e => e.PurchPrice)
+                    .IsRequired(false);
+
+                entity.Property(e => e.DepPerc)
+                    .IsRequired(false);
+
+                entity.Property(e => e.DepDate)
+                    .IsRequired(false);
+
+                entity.Property(e => e.Days)
+                    .IsRequired(false);
+
+                entity.Property(e => e.PerDay)
+                    .IsRequired(false);
+
+                entity.Property(e => e.AccDep)
+                    .IsRequired(false);
+
+                entity.Property(e => e.BookVaue)
+                    .IsRequired(false);
+
+                entity.Property(e => e.VoucherNo)
+                    .HasMaxLength(100) // Example: adjust as needed
+                    .IsRequired(false);
+
+                entity.Property(e => e.IsEdit)
+                    .HasDefaultValue(false);
+
+                entity.Property(e => e.Remarks)
+                    .HasMaxLength(1000) // Example: adjust as needed
+                    .IsRequired(false);
+            });
+
+            modelBuilder.Entity<AssetMaster>(entity =>
+            {
+                entity.HasKey(x => x.AssetMasterAssetId);
+
+                entity.ToTable("Asset_Master");
+
+                entity.Property(e => e.AssetMasterAssetAccountNo)
+                    .HasColumnName("Asset_Master_Asset_Account_No")
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.AssetMasterAssetCode)
+                    .HasColumnName("Asset_Master_Asset_Code")
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.AssetMasterAssetCreatedDate)
+                    .HasColumnName("Asset_Master_Asset_Created_Date")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.AssetMasterAssetDelStatus).HasColumnName("Asset_Master_Asset_DelStatus");
+
+                entity.Property(e => e.AssetMasterAssetDepExpAccount)
+                    .HasColumnName("Asset_Master_Asset_DepExp_Account")
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.AssetMasterAssetDepLibAccount)
+                    .HasColumnName("Asset_Master_Asset_DepLib_Account")
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.AssetMasterAssetId).HasColumnName("Asset_Master_Asset_ID").ValueGeneratedOnAdd();
+
+                entity.Property(e => e.AssetMasterAssetName)
+                    .HasColumnName("Asset_Master_Asset_Name")
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.AssetMasterAssetRelativeNo).HasColumnName("Asset_Master_Asset_RelativeNo");
+
+                entity.Property(e => e.AssetMasterAssetType)
+                    .HasColumnName("Asset_Master_Asset_Type")
+                    .HasMaxLength(3)
+                    .IsUnicode(false)
+                    .IsFixedLength();
+            });
 
             modelBuilder.Entity<AccountSettings>(entity =>
             {
@@ -1027,54 +1155,7 @@ namespace Inspire.Erp.Infrastructure.Database
                     .IsUnicode(false);
             });
 
-            modelBuilder.Entity<AssetMaster>(entity =>
-            {
-                entity.HasKey(x => x.AssetMasterAssetId);
-
-                entity.ToTable("Asset_Master");
-
-                entity.Property(e => e.AssetMasterAssetAccountNo)
-                    .HasColumnName("Asset_Master_Asset_Account_No")
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.AssetMasterAssetCode)
-                    .HasColumnName("Asset_Master_Asset_Code")
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.AssetMasterAssetCreatedDate)
-                    .HasColumnName("Asset_Master_Asset_Created_Date")
-                    .HasColumnType("datetime");
-
-                entity.Property(e => e.AssetMasterAssetDelStatus).HasColumnName("Asset_Master_Asset_DelStatus");
-
-                entity.Property(e => e.AssetMasterAssetDepExpAccount)
-                    .HasColumnName("Asset_Master_Asset_DepExp_Account")
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.AssetMasterAssetDepLibAccount)
-                    .HasColumnName("Asset_Master_Asset_DepLib_Account")
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.AssetMasterAssetId).HasColumnName("Asset_Master_Asset_ID").ValueGeneratedOnAdd();
-
-                entity.Property(e => e.AssetMasterAssetName)
-                    .HasColumnName("Asset_Master_Asset_Name")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.AssetMasterAssetRelativeNo).HasColumnName("Asset_Master_Asset_RelativeNo");
-
-                entity.Property(e => e.AssetMasterAssetType)
-                    .HasColumnName("Asset_Master_Asset_Type")
-                    .HasMaxLength(3)
-                    .IsUnicode(false)
-                    .IsFixedLength();
-            });
-
+          
             modelBuilder.Entity<AutoCodes>(entity =>
             {
                 entity.HasNoKey();
@@ -7191,7 +7272,7 @@ namespace Inspire.Erp.Infrastructure.Database
             //////});
             ///
 
-            modelBuilder.Entity<GeneralSettings>(entity =>
+            modelBuilder.Entity<Inspire.Erp.Domain.Entities.GeneralSettings>(entity =>
             {
                 entity.ToTable("General_Settings");
                 entity.HasKey(e => e.GeneralSettingsId);
@@ -7565,7 +7646,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.HappyHourDetailsDelStatus).HasColumnName("Happy_Hour_Details_DelStatus");
             });
 
-            modelBuilder.Entity<ImportTimeSheet>(entity =>
+            modelBuilder.Entity<Inspire.Erp.Domain.Entities.ImportTimeSheet>(entity =>
             {
                 entity.HasKey(e => e.SerialNo);
 
@@ -13490,7 +13571,7 @@ namespace Inspire.Erp.Infrastructure.Database
             ///
 
 
-            modelBuilder.Entity<ProgramSettings>(entity =>
+            modelBuilder.Entity<Inspire.Erp.Domain.Entities.ProgramSettings>(entity =>
             {
                 entity.HasKey(e => e.ProgramSettingsGenId);
 
@@ -24411,7 +24492,7 @@ namespace Inspire.Erp.Infrastructure.Database
         });
 
 
-            modelBuilder.Entity<ImportTimeSheet>(entity =>
+            modelBuilder.Entity<Inspire.Erp.Domain.Entities.ImportTimeSheet>(entity =>
             {
                 entity.HasKey(e => e.SerialNo);
 
