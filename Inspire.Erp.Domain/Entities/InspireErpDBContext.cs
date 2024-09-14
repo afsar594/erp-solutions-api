@@ -23,7 +23,10 @@ namespace Inspire.Erp.Domain.Entities
         public virtual DbSet<AllocationVoucher> AllocationVoucher { get; set; }
         public virtual DbSet<AllocationVoucherDetails> AllocationVoucherDetails { get; set; }
         public virtual DbSet<AssetDepDetails> AssetDepDetails { get; set; }
+        public virtual DbSet<AssetSubListHeader> AssetSubListHeaders { get; set; }
         public virtual DbSet<AssetMaster> AssetMaster { get; set; }
+        public virtual DbSet<AssetSubMaster> AssetSubMaster { get; set; }
+    
         public virtual DbSet<AutoCodes> AutoCodes { get; set; }
         public virtual DbSet<AvCreditNote> AvCreditNote { get; set; }
         public virtual DbSet<AvCreditNoteDetails> AvCreditNoteDetails { get; set; }
@@ -271,6 +274,62 @@ namespace Inspire.Erp.Domain.Entities
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
+
+            modelBuilder.Entity<AssetSubMaster>(entity =>
+            {
+                entity.HasKey(e => e.SubAssetID);
+
+                entity.Property(e => e.GroupID)
+                    .IsRequired(false);
+
+                entity.Property(e => e.SlNo)
+                    .IsRequired(false);
+
+                entity.Property(e => e.AssetDescription)
+                    .HasMaxLength(500) // Example: you can adjust the length as per your requirement
+                    .IsRequired(false);
+
+                entity.Property(e => e.AssetCode)
+                    .HasMaxLength(100) // Example: adjust as needed
+                    .IsRequired(false);
+
+                entity.Property(e => e.PurchDate)
+                    .IsRequired(false);
+
+                entity.Property(e => e.PurchPrice)
+                    .IsRequired(false);
+
+                entity.Property(e => e.DepPerc)
+                    .IsRequired(false);
+
+                entity.Property(e => e.DepDate)
+                    .IsRequired(false);
+
+                entity.Property(e => e.Days)
+                    .IsRequired(false);
+
+                entity.Property(e => e.PerDay)
+                    .IsRequired(false);
+
+                entity.Property(e => e.AccDep)
+                    .IsRequired(false);
+
+                entity.Property(e => e.BookVaue)
+                    .IsRequired(false);
+
+                entity.Property(e => e.VoucherNo)
+                    .HasMaxLength(100) // Example: adjust as needed
+                    .IsRequired(false);
+
+                entity.Property(e => e.IsEdit)
+                    .HasDefaultValue(false);
+
+                entity.Property(e => e.Remarks)
+                    .HasMaxLength(1000) // Example: adjust as needed
+                    .IsRequired(false);
+            });
+
             modelBuilder.Entity<AccountSettings>(entity =>
             {
                 entity.HasNoKey();
@@ -821,6 +880,29 @@ namespace Inspire.Erp.Domain.Entities
                     .IsFixedLength();
             });
 
+  modelBuilder.Entity<AssetSubListHeader>(entity =>
+            {
+                entity.ToTable("AssetSubListHeader");
+                entity.HasKey(e => e.VoucherNo);
+
+                entity.Property(e => e.VoucherNo)
+                    .HasMaxLength(30)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.VoucherDate)
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.RefNo)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Description)
+                    .HasMaxLength(2000)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.GrandTotal)
+                    .HasColumnType("float");
+            });
             modelBuilder.Entity<AutoCodes>(entity =>
             {
                 entity.HasNoKey();

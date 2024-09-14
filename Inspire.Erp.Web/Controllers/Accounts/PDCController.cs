@@ -91,7 +91,11 @@ namespace Inspire.Erp.Web.Controllers
             return await _pdc.PostPDC(pDCGetList);
         }
 
-
+        [HttpPost("ReleasePostPDC")]
+        public async Task<bool> ReleasePostPDC([FromBody] List<PDCGetList> pDCGetList)
+        {
+            return  _pdc.ReleasePostPdc(pDCGetList);
+        }
 
     }
 }

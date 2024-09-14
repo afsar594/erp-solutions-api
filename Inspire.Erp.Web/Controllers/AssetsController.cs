@@ -26,13 +26,11 @@ namespace Inspire.Erp.Web.Controllers
 
         private readonly IMapper _mapper;
         private readonly IAssetSubListService _Assetsubmaster;
-
         public AssetsController(IAssetSubListService Assetsubmaster, IMapper mapper, IRepository<AssetSubMaster> assetsubmaster, IRepository<VouchersNumbers> vouchersNumbers, IRepository<AssetSubMaster> assetSubMaster)
         {
             _mapper = mapper;
             _Assetsubmaster = Assetsubmaster;
             _vouchersNumbers = vouchersNumbers;
-
         }
 
 

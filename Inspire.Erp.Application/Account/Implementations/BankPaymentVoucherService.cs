@@ -371,8 +371,6 @@ namespace Inspire.Erp.Application.Account.Implementations
                 string bankPaymentVoucherNumber = this.GenerateVoucherNo(bankPaymentVoucher.BankPaymentVoucherVDt.Value).VouchersNumbersVNo;
                 //bankPaymentVoucher.BankPaymentVoucherVoucherNo = bankPaymentVoucher.BankPaymentVoucherVoucherNo;
                 bankPaymentVoucher.BankPaymentVoucherVoucherNo = bankPaymentVoucherNumber;
-
-        
                 bankPaymentVoucherDetails = bankPaymentVoucherDetails.Select((x) =>
                 {
                     x.BankPaymentVoucherDetailsSno = null;

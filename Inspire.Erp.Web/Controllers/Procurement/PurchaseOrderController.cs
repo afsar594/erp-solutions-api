@@ -522,7 +522,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
 
             if (!string.IsNullOrEmpty(model.status) && model.status != "All")
             {
-                combinedData = (List<PermissionApprovalDetail>)combinedData.Where(a => a.Status == model.status);
+                combinedData = combinedData.Where(a => a.Status == model.status).ToList();
             }
 
             objresponse.ResultSet = new
