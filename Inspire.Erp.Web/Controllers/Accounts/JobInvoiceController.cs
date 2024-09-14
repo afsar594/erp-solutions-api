@@ -28,16 +28,16 @@ namespace Inspire.Erp.Web.Controllers
     public class JobInvoiceController : ControllerBase
     {
         private IJobInvoice _invoice;
-        private IMapper _mapper; private IRepository<LocationMaster> locationrepository; private IChartofAccountsService chartofAccountsService;
+        private IMapper _mapper; private IRepository<LocationMaster> locationrepository; private IChartofAccountsService chartofAccountsService; private IRepository<AccountSettings> _accountsSettingsRepo;
         private IRepository<UnitMaster> unitrepository; private IRepository<JobMaster> jobrepository; private IRepository<CurrencyMaster> currencyrepository;
         private IRepository<CustomerMaster> _customerMasterRepository; private IRepository<SalesManMaster> salesmanrepository; private IRepository<ItemMaster> itemrepository;
         private readonly IRepository<JobInvoice> _jobinvoicerepo; private readonly IRepository<JobInvoiceDetails> _jobdetailsrepo; IRepository<UnitDetails> unitDetailRepository;
-        public JobInvoiceController(IJobInvoice invoice, IMapper mapper, IRepository<JobInvoice> jobinvoicerepo, IRepository<UnitMaster> _unitrepository, IRepository<JobMaster> _jobrepository, IRepository<ItemMaster> _itemrepository
+        public JobInvoiceController(IJobInvoice invoice, IMapper mapper, IRepository<JobInvoice> jobinvoicerepo, IRepository<UnitMaster> _unitrepository, IRepository<AccountSettings> accountsSettingsRepo, IRepository<JobMaster> _jobrepository, IRepository<ItemMaster> _itemrepository
             , IRepository<CurrencyMaster> _currencyrepository, IRepository<UnitDetails> _unitDetailRepository, IRepository<JobInvoiceDetails> jobdetailsrepo, IRepository<SalesManMaster> _salesmanrepository, IRepository<CustomerMaster> customerMasterRepository, IRepository<LocationMaster> _locationrepository, IChartofAccountsService _chartofAccountsService)
         {
             _invoice = invoice;
             _mapper = mapper; locationrepository = _locationrepository; chartofAccountsService = _chartofAccountsService; _jobdetailsrepo = jobdetailsrepo;
-            unitrepository = _unitrepository; jobrepository = _jobrepository; currencyrepository = _currencyrepository; _jobinvoicerepo = jobinvoicerepo;
+            unitrepository = _unitrepository; jobrepository = _jobrepository; currencyrepository = _currencyrepository; _jobinvoicerepo = jobinvoicerepo; _accountsSettingsRepo = accountsSettingsRepo;
             _customerMasterRepository = customerMasterRepository; salesmanrepository = _salesmanrepository; itemrepository = _itemrepository; unitDetailRepository = _unitDetailRepository;
         }
         [HttpGet]
@@ -275,6 +275,12 @@ namespace Inspire.Erp.Web.Controllers
                 })
                 .ToList();
 
+            var accountsSettings = _accountsSettingsRepo.GetAsQueryable().AsNoTracking().Where(a => a.AccountSettingsAccountDelStatus != true).Select(c => new
+            {
+                c.AccountSettingsAccountId,
+                AccountSettingsAccountDescription = c.AccountSettingsAccountDescription.Trim(),
+                c.AccountSettingsAccountTextValue
+            }).ToList();
             var locationMasterTask = await locationrepository.GetAsQueryable().AsNoTracking()
                 .Where(a => !a.LocationMasterLocationDelStatus != true)
                 .Select(c => new
@@ -330,7 +336,8 @@ namespace Inspire.Erp.Web.Controllers
                 masterAccountsTables = masterAccountsTablesTask,
                 locationMaster = locationMasterTask,
                 customerMasters = customerMastersTask,
-                SaleManList = saleManListTask
+                SaleManList = saleManListTask,
+                accountsSettings = accountsSettings
             };
 
             return objresponse;
