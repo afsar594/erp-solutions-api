@@ -81,7 +81,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 foreach (var x in customerQuotationDetails)
                 {
-                    x.CustomerQuotationDetailsQuotationId = customerQuotation.CustomerQuotationQid;
+                    x.CustomerQuotationDetailsQuotationId = Convert.ToInt16(customerQuotation.CustomerQuotationQid);
                     x.CustomerQuotationDetailsVoucherNo = customerQuotation.CustomerQuotationVoucherNo;
 
                     if (x.CustomerQuotationDetailsId == 0)
@@ -155,17 +155,21 @@ namespace Inspire.Erp.Application.Sales.Implementations
             try
             {
                 _customerQuotationRepository.BeginTransaction();
+
+              
+
                 string customerQuotationNumber = clsCommonFunctions.GenerateVoucherNo(customerQuotation.CustomerQuotationQuotationDate
                    , VoucherType.Quotation, Prefix.CQ_Prefix
                    , _programsettingsRepository, _voucherNumbersRepository).VouchersNumbersVNo;
 
+                               
                 customerQuotation.CustomerQuotationVoucherNo = customerQuotationNumber;
 
                 customerQuotation.CustomerQuotationDetails.Clear();
                 long maxcount = 0;
                 maxcount = (
                     _customerQuotationRepository.GetAsQueryable()
-                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.CustomerQuotationQid) + 1);
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : Convert.ToInt16( o.CustomerQuotationQid)) + 1);
 
                 customerQuotation.CustomerQuotationQid = maxcount;
 
@@ -182,7 +186,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     customerQuotation.CustomerQuotationDetails.Add(x);
                     maxCount1++;
                 }
-
+                customerQuotation.CustomerQuotationQuotationRoot = customerQuotation.CustomerQuotationQid;
+                customerQuotation.CustomerQuotationQuotationAddition = 0;
                 _customerQuotationRepository.Insert(customerQuotation);
                 //_customerQuotationDetailsRepository.InsertList(customerQuotationDetails);
 
@@ -232,7 +237,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
         {
 
             CustomerQuotation voucherdata = new CustomerQuotation();
-            voucherdata = _customerQuotationRepository.GetAsQueryable().Where(k => k.CustomerQuotationQid == id && k.CustomerQuotationDelStatus != true).FirstOrDefault();
+            voucherdata = _customerQuotationRepository.GetAsQueryable().Where(k => Convert.ToInt16(k.CustomerQuotationQid) == id && k.CustomerQuotationDelStatus != true).FirstOrDefault();
             if (voucherdata != null)
             {
                 voucherdata.CustomerQuotationDetails = _customerQuotationDetailsRepository.GetAsQueryable().Where(qd => qd.CustomerQuotationDetailsQuotationId == id).ToList();
@@ -302,7 +307,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                     });
 
                 var results = await (from cpo in _Context.CustomerQuotation
-                                     join cpod in _Context.CustomerQuotationDetails on cpo.CustomerQuotationQid equals cpod.CustomerQuotationDetailsQuotationId
+                                     join cpod in _Context.CustomerQuotationDetails on Convert.ToInt16(cpo.CustomerQuotationQid) equals cpod.CustomerQuotationDetailsQuotationId
                                      join im in _Context.ItemMaster on cpod.CustomerQuotationDetailsItemId equals im.ItemMasterItemId
                                      join um in _Context.UnitMaster on cpod.CustomerQuotationDetailsUnitId equals um.UnitMasterUnitId
                                      join drq in subqueryDRQD on cpod.CustomerQuotationDetailsQuotationId equals drq.CPOrderDetailsQDetailsId into gdrq
@@ -313,7 +318,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                      select new GetCustQuotationForSaleOrderResponse
                                      {
                                          ItemName = im.ItemMasterItemName,
-                                         QuotationId = cpo.CustomerQuotationQid,
+                                         QuotationId = Convert.ToInt16(cpo.CustomerQuotationQid),
                                          QuotationDate = cpo.CustomerQuotationQuotationDate,
                                          QuotationSerial = cpod.CustomerQuotationDetailsSlno,
                                          QuotationDetailsId = cpod.CustomerQuotationDetailsId,
@@ -355,7 +360,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                     && (s.CustomerQuotationQuotationDate >= FilterModel.fromDate && s.CustomerQuotationQuotationDate <= FilterModel.toDate)
                                     select new GetCustomerQuotationDetail
                                     {
-                                        QuotationId = s.CustomerQuotationQid,
+                                        QuotationId = Convert.ToInt16(s.CustomerQuotationQid),
                                         VoucherNo = s.CustomerQuotationVoucherNo,
                                         VoucherType = s.CustomerQuotationVoucherType,
                                         QuotationDate = s.CustomerQuotationQuotationDate,
@@ -375,7 +380,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                     && (FilterModel.Status == null || s.CustomerQuotationIsClose == FilterModel.Status)
                                     select new GetCustomerQuotationDetail
                                     {
-                                        QuotationId = s.CustomerQuotationQid,
+                                        QuotationId = Convert.ToInt16(s.CustomerQuotationQid),
                                         VoucherNo = s.CustomerQuotationVoucherNo,
                                         VoucherType = s.CustomerQuotationVoucherType,
                                         QuotationDate = s.CustomerQuotationQuotationDate,
