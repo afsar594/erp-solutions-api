@@ -520,7 +520,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.Task).HasMaxLength(50);
             });
 
-            modelBuilder.Entity<Erp.Domain.Entities.AssetSubListHeader>(entity =>
+            modelBuilder.Entity<Erp.Domain.Entities. AssetSubListHeader>(entity =>
             {
                 entity.ToTable("AssetSubListHeader");
                 entity.HasKey(e => e.VoucherNo);
@@ -6022,9 +6022,8 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.CustomerQuotationVoucherNo)
                       .HasColumnName("Customer_Quotation_VoucherNo")
-                      .HasMaxLength(50)
+                      .HasMaxLength(100)
                       .IsUnicode(false);
-
                 entity.Property(e => e.CustomerQuotationQuotationAddition)
                       .HasColumnName("Customer_Quotation_Quotation_Addition");
 

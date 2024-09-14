@@ -19,10 +19,10 @@ namespace Inspire.Erp.Application.Assets
     {
         private IRepository<AssetMaster> _assetsubmaster;
         private IRepository<VouchersNumbers> _vouchersNumbers;
-        private IRepository<AssetSubListHeader> _assetSubListHeader;
+        private IRepository<Erp.Domain.Entities.AssetSubListHeader> _assetSubListHeader;
         private IRepository<AssetSubMaster> _assetSubMaster;
 
-        public AssetSubListService(IRepository<AssetMaster> assetsubmaster, IRepository<VouchersNumbers> vouchersNumbers, IRepository<AssetSubListHeader> assets, IRepository<AssetSubMaster> assetSubMaster)
+        public AssetSubListService(IRepository<AssetMaster> assetsubmaster, IRepository<VouchersNumbers> vouchersNumbers, IRepository<Erp.Domain.Entities.AssetSubListHeader> assets, IRepository<AssetSubMaster> assetSubMaster)
         {
             _assetsubmaster = assetsubmaster;
             _vouchersNumbers = vouchersNumbers;
@@ -91,12 +91,12 @@ namespace Inspire.Erp.Application.Assets
         }
 
 
-        public async Task<bool> CreateVoucherHeaderAsync(AssetSubListHeader model)
+        public async Task<bool> CreateVoucherHeaderAsync(Erp.Domain.Entities.AssetSubListHeader model)
         {
             try
             {
                 // Create the voucher header object
-                var voucherHeader = new AssetSubListHeader
+                var voucherHeader = new Erp.Domain.Entities.AssetSubListHeader
                 {
                     VoucherNo = model.VoucherNo,           // Voucher Number
                     VoucherDate = DateTime.Now,      // Current Date
