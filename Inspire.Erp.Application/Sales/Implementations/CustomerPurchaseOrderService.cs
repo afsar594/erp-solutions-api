@@ -771,7 +771,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 List<CustomerSalesQuotation> response = new List<CustomerSalesQuotation>();
 
                 var results = await (from cpo in _Context.CustomerQuotation
-                                     join cpods in _Context.CustomerQuotationDetails on Convert.ToInt16(cpo.CustomerQuotationQid) equals cpods.CustomerQuotationDetailsQuotationId
+                                     join cpods in _Context.CustomerQuotationDetails on cpo.CustomerQuotationQid equals cpods.CustomerQuotationDetailsQuotationId
                                      join cl in _Context.LocationMaster on cpo.CustomerQuotationLocationId equals cl.LocationMasterLocationId
                                      join cm in _Context.CustomerMaster on cpo.CustomerQuotationCustomerId equals cm.CustomerMasterCustomerNo
                                      join itm in _Context.ItemMaster on cpods.CustomerQuotationDetailsItemId equals itm.ItemMasterItemId
@@ -786,7 +786,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                    && ((model.DateFrom == null || model.DateTo == null) || (cpo.CustomerQuotationQuotationDate.Value.Date >= model.DateFrom && cpo.CustomerQuotationQuotationDate.Value.Date <= model.DateTo))
                                      select new CustomerSalesQuotation
                                      {
-                                         CustomerQuotationQid = Convert.ToInt16(cpo.CustomerQuotationQid),
+                                         CustomerQuotationQid = cpo.CustomerQuotationQid,
                                          CustomerQuotationVoucherNo = cpo.CustomerQuotationVoucherNo,
                                          CustomerQuotationDetailsCashCustomerName = cpo.CustomerQuotationCustomerId,
                                          customerQuotationQuotationdate = cpo.CustomerQuotationQuotationDate,

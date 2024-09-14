@@ -156,22 +156,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             {
                 _customerQuotationRepository.BeginTransaction();
 
-                if (customerQuotation.CustomerQuotationReviseQuotation == true)
-                {
-                    string[] parts = customerQuotation.CustomerQuotationQid.Split('-');
-                    string baseNumber = parts[0];
-                    int revision = 1;
-
-                    if (parts.Length > 1)
-                    {
-                        if (int.TryParse(parts[1], out int currentRevision))
-                        {
-                            revision = currentRevision + 1;
-                        }
-                    }
-
-                    customerQuotation.CustomerQuotationQid = $"{baseNumber}-{revision}";
-                }
+              
 
                 string customerQuotationNumber = clsCommonFunctions.GenerateVoucherNo(customerQuotation.CustomerQuotationQuotationDate
                    , VoucherType.Quotation, Prefix.CQ_Prefix
@@ -186,7 +171,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     _customerQuotationRepository.GetAsQueryable()
                     .DefaultIfEmpty().Max(o => o == null ? 0 : Convert.ToInt16( o.CustomerQuotationQid)) + 1);
 
-                customerQuotation.CustomerQuotationQid = maxcount.ToString();
+                customerQuotation.CustomerQuotationQid = maxcount;
 
                 long maxCount1 = 0;
                 maxCount1 = _customerQuotationDetailsRepository.GetAsQueryable()

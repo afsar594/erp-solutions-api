@@ -12,7 +12,7 @@ namespace Inspire.Erp.Domain.Entities
             CustomerQuotationDetails = new HashSet<CustomerQuotationDetails>();
         }
 
-        public string CustomerQuotationQid { get; set; }
+        public long CustomerQuotationQid { get; set; }
         public string CustomerQuotationVoucherNo { get; set; }
         public long? CustomerQuotationQuotationAddition { get; set; }
         public long? CustomerQuotationQuotationRoot { get; set; }

@@ -42,7 +42,7 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<AllocationVoucherDetails> AllocationVoucherDetails { get; set; }
         public virtual DbSet<AssetDepDetails> AssetDepDetails { get; set; }
         public virtual DbSet<AssetMaster> AssetMaster { get; set; }
-        public virtual DbSet<AssetSubListHeader> AssetSubListHeader { get; set; }
+        public virtual DbSet<Erp.Domain.Entities.AssetSubListHeader> AssetSubListHeader { get; set; }
         public virtual DbSet<AssetSubMaster> AssetSubMaster { get; set; }
         public virtual DbSet<AutoCodes> AutoCodes { get; set; }
         public virtual DbSet<AvCreditNote> AvCreditNote { get; set; }
@@ -520,7 +520,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.Task).HasMaxLength(50);
             });
 
-            modelBuilder.Entity<AssetSubListHeader>(entity =>
+            modelBuilder.Entity<Erp.Domain.Entities.AssetSubListHeader>(entity =>
             {
                 entity.ToTable("AssetSubListHeader");
                 entity.HasKey(e => e.VoucherNo);
