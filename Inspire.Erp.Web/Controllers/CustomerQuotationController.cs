@@ -34,17 +34,17 @@ namespace Inspire.Erp.Web.Controllers
         private IRepository<EnquiryStatus> enquiryStatusrepository; private IRepository<JobMaster> jobrepository;
         private IRepository<LocationMaster> locationrepository; private IRepository<CurrencyMaster> currencyrepository;
         private IRepository<CustomerMaster> _customerMasterRepository; private IRepository<SalesManMaster> salesmanrepository;
-        private IRepository<ItemMaster> itemrepository; private IRepository<UnitMaster> unitrepository;
+        private IRepository<ItemMaster> itemrepository; private IRepository<UnitMaster> unitrepository; private IRepository<CustomerQuotation> _customerQuotationRepository;
         public CustomerQuotationController(ICustomerQuotationService customerQuotationService, IMapper mapper
             , IRepository<EnquiryStatus> _enquiryStatusrepository, IRepository<JobMaster> _jobrepository, IRepository<LocationMaster> _locationrepository
             , IRepository<CurrencyMaster> _currencyrepository, IRepository<CustomerMaster> customerMasterRepository, IRepository<SalesManMaster> _salesmanrepository
-            , IRepository<ItemMaster> _itemrepository, IRepository<UnitMaster> _unitrepository)
+            , IRepository<ItemMaster> _itemrepository, IRepository<CustomerQuotation> customerQuotationRepository, IRepository<UnitMaster> _unitrepository)
         {
             _customerQuotationService = customerQuotationService;
             _mapper = mapper;
             enquiryStatusrepository = _enquiryStatusrepository; jobrepository = _jobrepository; locationrepository = _locationrepository;
             salesmanrepository = _salesmanrepository; _customerMasterRepository = customerMasterRepository; currencyrepository = _currencyrepository;
-            itemrepository = _itemrepository; unitrepository = _unitrepository;
+            itemrepository = _itemrepository; unitrepository = _unitrepository; _customerQuotationRepository = customerQuotationRepository;
         }
         [HttpPost]
         [Route("InsertCustomerQuotation")]
@@ -56,7 +56,7 @@ namespace Inspire.Erp.Web.Controllers
             {
                 var param1 = _mapper.Map<CustomerQuotation>(customerQuotationCompositeView);
                 var param2 = _mapper.Map<List<CustomerQuotationDetails>>(customerQuotationCompositeView.CustomerQuotationDetails);
-                var xs = _customerQuotationService.InsertCustomerQuotation(param1, param2);               
+                var xs = _customerQuotationService.InsertCustomerQuotation(param1, param2);
 
                 CustomerQuotationViewModel CustomerQuotationViewModel = new CustomerQuotationViewModel();
 
@@ -283,5 +283,27 @@ namespace Inspire.Erp.Web.Controllers
             return objresponse;
         }
 
+
+        [HttpGet]
+        [Route("QuotationRevised/{id}")]
+        public ResponseInfo QuotationRevised(int id)
+        {
+            var objresponse = new ResponseInfo();
+
+            var check = _customerQuotationRepository.GetAsQueryable()
+                                .AsNoTracking()
+                                .Where(a => a.CustomerQuotationQuotationRoot == id)
+                                .Select(x => x.CustomerQuotationQuotationAddition)
+                                .ToList()  
+                                .LastOrDefault();
+
+
+
+            objresponse.ResultSet = new
+            {
+                check = check
+            };
+            return objresponse;
+        }
     }
 }
