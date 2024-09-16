@@ -28,6 +28,7 @@ namespace Inspire.Erp.Application.Sales.Interfaces
         public Task<Response<List<GetCustQuotationForSaleOrderResponse>>> GetCustomerQuotationForSaleOrder();
 
         public Task<Response<List<GetCustomerQuotationDetail>>> GetCustomerQuotationDetail(QuotationFilterModel FilterModel);
+        public CustomerQuotation IsRevisedCustomerQuotation(CustomerQuotation customerQuotation, List<CustomerQuotationDetails> customerQuotationDetails);
 
 
 
