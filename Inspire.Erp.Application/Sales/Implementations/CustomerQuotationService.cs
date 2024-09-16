@@ -71,6 +71,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 _customerQuotationRepository.BeginTransaction();
                 customerQuotation.CustomerQuotationDetails.Clear();
 
+
                 _customerQuotationRepository.Update(customerQuotation);
 
                 long maxcount1 = 0;
@@ -110,6 +111,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 _userTrackingRepository.Insert(trackingData);
                 _customerQuotationRepository.TransactionCommit();
 
+
             }
             catch (Exception ex)
             {
@@ -136,6 +138,12 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 //_customerQuotationDetailsRepository.UpdateList();
                 _customerQuotationRepository.Update(customerQuotation);
 
+
+                var cehck = _voucherNumbersRepository.GetAsQueryable().Where(a => a.VouchersNumbersVNo == customerQuotation.CustomerQuotationVoucherNo).FirstOrDefault();
+                if (cehck != null)
+                {
+                    _voucherNumbersRepository.Delete(cehck);
+                }
                 _customerQuotationRepository.TransactionCommit();
                 i = 1;
             }
@@ -156,20 +164,19 @@ namespace Inspire.Erp.Application.Sales.Implementations
             {
                 _customerQuotationRepository.BeginTransaction();
 
-              
+
 
                 string customerQuotationNumber = clsCommonFunctions.GenerateVoucherNo(customerQuotation.CustomerQuotationQuotationDate
                    , VoucherType.Quotation, Prefix.CQ_Prefix
                    , _programsettingsRepository, _voucherNumbersRepository).VouchersNumbersVNo;
 
-                               
                 customerQuotation.CustomerQuotationVoucherNo = customerQuotationNumber;
 
                 customerQuotation.CustomerQuotationDetails.Clear();
                 long maxcount = 0;
                 maxcount = (
                     _customerQuotationRepository.GetAsQueryable()
-                    .DefaultIfEmpty().Max(o => o == null ? 0 :  o.CustomerQuotationQid) + 1);
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.CustomerQuotationQid) + 1);
 
                 customerQuotation.CustomerQuotationQid = maxcount;
 
@@ -394,6 +401,57 @@ namespace Inspire.Erp.Application.Sales.Implementations
             }
 
 
+        }
+
+        public CustomerQuotation IsRevisedCustomerQuotation(CustomerQuotation customerQuotation, List<CustomerQuotationDetails> customerQuotationDetails)
+        {
+
+            try
+            {
+                _customerQuotationRepository.BeginTransaction();
+                customerQuotation.CustomerQuotationDetails.Clear();                
+
+                string[] parts = customerQuotation.CustomerQuotationVoucherNo.Split('-');
+               
+                long? additionValue = null;
+                
+                    if (parts.Length > 1 && long.TryParse(parts[1], out long parsedValue))
+                    {
+                        additionValue = parsedValue;
+                    }                
+
+                customerQuotation.CustomerQuotationQuotationRoot = customerQuotation.CustomerQuotationQid;
+                customerQuotation.CustomerQuotationQuotationAddition = additionValue;
+                long maxcount = 0;
+                maxcount = (
+                    _customerQuotationRepository.GetAsQueryable()
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.CustomerQuotationQid) + 1);
+
+                customerQuotation.CustomerQuotationQid = maxcount;
+
+                long maxCount1 = 0;
+                maxCount1 = _customerQuotationDetailsRepository.GetAsQueryable()
+                     .DefaultIfEmpty()
+                     .Max(o => o == null ? 0 : o.CustomerQuotationDetailsId) + 1;
+                foreach (var x in customerQuotationDetails)
+                {
+
+                    x.CustomerQuotationDetailsId = maxCount1;
+                    x.CustomerQuotationDetailsQuotationId = maxcount;
+                    x.CustomerQuotationDetailsVoucherNo = customerQuotation.CustomerQuotationVoucherNo;
+                    customerQuotation.CustomerQuotationDetails.Add(x);
+                    maxCount1++;
+                }                
+                _customerQuotationRepository.Insert(customerQuotation);
+                _customerQuotationRepository.TransactionCommit();
+            }
+            catch (Exception ex)
+            {
+                _customerQuotationRepository.TransactionRollback();
+                throw ex;
+            }
+
+            return customerQuotation;
         }
     }
 }
