@@ -73,6 +73,7 @@ namespace Inspire.Erp.Web.Controllers
                 WorkGroupMasterWorkGroupName = k.WorkGroupMasterWorkGroupName,
                 WorkGroupMasterWorkGroupDelStatus = k.WorkGroupMasterWorkGroupDelStatus
             }).ToList();
+
         }
 
         [HttpPost]

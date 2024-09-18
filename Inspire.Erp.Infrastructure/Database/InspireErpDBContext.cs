@@ -457,8 +457,8 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<HrDocumentRequest> HrDocumentRequest { get; set; }
         public virtual DbSet<HrDocumentStatusMaster> HrDocumentStatusMaster { get; set; }
         public virtual DbSet<HrDocumentType> HrDocumentType { get; set; }
-
-
+        public virtual DbSet<HrStaffMaster> HrStaffMaster { get; set; }
+        public virtual DbSet<HrVehicleMaster> HrVehicleMaster { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -469,6 +469,270 @@ namespace Inspire.Erp.Infrastructure.Database
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<HrVehicleMaster>(entity =>
+            {
+                entity.ToTable("HR_VehicleMaster");
+
+                entity.Property(e => e.Id)
+                    .HasColumnName("ID")
+                    .ValueGeneratedNever();
+
+                entity.Property(e => e.ChasisNo)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.CompanyId).HasColumnName("CompanyID");
+
+                entity.Property(e => e.EngineNo)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.LocationId).HasColumnName("LocationID");
+
+                entity.Property(e => e.StaffId).HasColumnName("StaffID");
+
+                entity.Property(e => e.VehicleNo)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.VehicleTye)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+            });
+            modelBuilder.Entity<HrStaffMaster>(entity =>
+            {
+                entity.HasKey(e => e.StaffId);
+
+                entity.ToTable("HR_StaffMaster");
+
+                entity.HasIndex(e => e.EnrollNo)
+                    .HasName("enrollno")
+                    .IsUnique();
+
+                entity.Property(e => e.StaffId)
+                    .HasColumnName("StaffID")
+                    .ValueGeneratedNever();
+
+                entity.Property(e => e.Accommodation)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.AgentId).HasColumnName("AgentID");
+
+                entity.Property(e => e.BankAcNo)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.CmpId).HasColumnName("CmpID");
+
+                entity.Property(e => e.CostCenterId).HasColumnName("CostCenter_Id");
+
+                entity.Property(e => e.CurrencyId).HasColumnName("CurrencyID");
+
+                entity.Property(e => e.DateOfEntry).HasColumnType("datetime");
+
+                entity.Property(e => e.Dob)
+                    .HasColumnName("DOB")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.Doj)
+                    .HasColumnName("DOJ")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.EmpQid)
+                    .HasColumnName("EmpQID")
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.EmpvisaId)
+                    .HasColumnName("EMPVisaID")
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.FamilyName)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.FatherName)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.FileNo)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.FirstName)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.FriOtrate).HasColumnName("FriOTRate");
+
+                entity.Property(e => e.FullName)
+                    .HasMaxLength(500)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Gender)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.GradeId).HasColumnName("GradeID");
+
+                entity.Property(e => e.GratStDate).HasColumnType("datetime");
+
+                entity.Property(e => e.HolOtrate).HasColumnName("HolOTRate");
+
+                entity.Property(e => e.ImgStaus)
+                    .HasColumnName("IMG_Staus")
+                    .HasMaxLength(10)
+                    .IsUnicode(false)
+                    .IsFixedLength();
+
+                entity.Property(e => e.LastName)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.LastReJoinDate).HasColumnType("datetime");
+
+                entity.Property(e => e.LastWorkingDay).HasColumnType("datetime");
+
+                entity.Property(e => e.LeaveFreq)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.LeavePolcyId).HasColumnName("Leave_Polcy_ID");
+
+                entity.Property(e => e.LevelId).HasColumnName("LevelID");
+
+                entity.Property(e => e.MiddleName)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.NorOtrate).HasColumnName("NorOTRate");
+
+                entity.Property(e => e.NormalHr).HasColumnType("datetime");
+
+                entity.Property(e => e.Oteligible).HasColumnName("OTEligible");
+
+                entity.Property(e => e.Otremarks)
+                    .HasColumnName("OTRemarks")
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.OverTiPolcyId).HasColumnName("OverTI_Polcy_ID");
+
+                entity.Property(e => e.PortOfEntry)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.PreAlopnBal)
+                    .HasColumnName("PreALOpnBal")
+                    .HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.PreviousEmployer)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.RoutingCode)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.ShiftId).HasColumnName("ShiftID");
+
+                entity.Property(e => e.ShiftTypeId).HasColumnName("ShiftTypeID");
+
+                entity.Property(e => e.ShiftTypeId1).HasColumnName("Shift_Type_ID");
+
+                entity.Property(e => e.SiteId).HasColumnName("SiteID");
+
+                entity.Property(e => e.StaffCode)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.StaffPhoto).HasColumnType("image");
+
+                entity.Property(e => e.StaffTypeId).HasColumnName("StaffTypeID");
+
+                entity.Property(e => e.StatusChangeDate).HasColumnType("datetime");
+
+                entity.Property(e => e.SubDepId).HasColumnName("SubDepID");
+
+                entity.Property(e => e.SuperVisorId).HasColumnName("SuperVisorID");
+
+                entity.Property(e => e.TimePolcyId).HasColumnName("Time_Polcy_ID");
+
+                entity.Property(e => e.TransType)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Ttid).HasColumnName("TTId");
+
+                entity.Property(e => e.Uidno)
+                    .HasColumnName("UIDNO")
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.VehicleNo)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.WpsIban)
+                    .HasColumnName("WPS_IBAN")
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.WpspersonId).HasColumnName("WPSPersonId");
+
+                //entity.HasOne(d => d.BloodGroup)
+                //    .WithMany(p => p.HrStaffMaster)
+                //    .HasForeignKey(d => d.BloodGroupId)
+                //    .HasConstraintName("FK_StaffMaster_BloodGroup");
+
+                //entity.HasOne(d => d.Company)
+                //    .WithMany(p => p.HrStaffMaster)
+                //    .HasForeignKey(d => d.CompanyId)
+                //    .OnDelete(DeleteBehavior.Cascade)
+                //    .HasConstraintName("FK_StaffMaster_CompanyMaster");
+
+                //entity.HasOne(d => d.Department)
+                //    .WithMany(p => p.HrStaffMaster)
+                //    .HasForeignKey(d => d.DepartmentId)
+                //    .HasConstraintName("FK_StaffMaster_Department");
+
+                //entity.HasOne(d => d.Designation)
+                //    .WithMany(p => p.HrStaffMaster)
+                //    .HasForeignKey(d => d.DesignationId)
+                //    .HasConstraintName("FK_StaffMaster_Designation");
+
+                //entity.HasOne(d => d.Language)
+                //    .WithMany(p => p.HrStaffMaster)
+                //    .HasForeignKey(d => d.LanguageId)
+                //    .HasConstraintName("FK_StaffMaster_Language");
+
+                //entity.HasOne(d => d.MaritalStatus)
+                //    .WithMany(p => p.HrStaffMaster)
+                //    .HasForeignKey(d => d.MaritalStatusId)
+                //    .HasConstraintName("FK_StaffMaster_MaritalStatus");
+
+                //entity.HasOne(d => d.Nationality)
+                //    .WithMany(p => p.HrStaffMaster)
+                //    .HasForeignKey(d => d.NationalityId)
+                //    .HasConstraintName("FK_StaffMaster_Nationality");
+
+                //entity.HasOne(d => d.Qualification)
+                //    .WithMany(p => p.HrStaffMaster)
+                //    .HasForeignKey(d => d.QualificationId)
+                //    .HasConstraintName("FK_StaffMaster_Qualification");
+
+                //entity.HasOne(d => d.VisaCompany)
+                //    .WithMany(p => p.HrStaffMaster)
+                //    .HasForeignKey(d => d.VisaCompanyId)
+                //    .HasConstraintName("FK_StaffMaster_VisaCompany");
+
+                //entity.HasOne(d => d.VisaDesignation)
+                //    .WithMany(p => p.HrStaffMaster)
+                //    .HasForeignKey(d => d.VisaDesignationId)
+                //    .HasConstraintName("FK_StaffMaster_VisaDesignation");
+            });
             modelBuilder.Entity<HrDocumentImages>(entity =>
             {
                 entity.HasKey(e => e.DocImageId);
