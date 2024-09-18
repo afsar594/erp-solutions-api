@@ -10321,6 +10321,12 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnName("Job_Invoice_Details_Voucher_No")
                     .HasMaxLength(20)
                     .IsUnicode(false);
+
+                entity.Property(e => e.jobInvoiceDetailsItemName)
+                   .HasColumnName("jobInvoiceDetailsItemName")
+                   .HasMaxLength(150)
+                   .IsUnicode(false);
+
             });
 
             ////modelBuilder.Entity<JobMaster>(entity =>

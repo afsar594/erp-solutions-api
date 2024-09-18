@@ -128,7 +128,7 @@ namespace Inspire.Erp.Web.Controllers.Document
                 {
                     AppByStaffId = x.AppByStaffId,
                     AppDate = x.AppDate,
-                    Approved = x.Approved,
+                    Approved = x.Approved, 
                     ApproveDate = x.ApproveDate,
                     AppStatus = x.AppStatus,
                     DocTypeId = x.DocTypeId,
