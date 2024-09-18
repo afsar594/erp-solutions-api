@@ -292,18 +292,12 @@ namespace Inspire.Erp.Application.Account.Implementations
                 }).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
-
-
-
                 stockRegister = stockRegister.Select((k) =>
                 {
                     k.StockRegisterDelStatus = true;
                     return k;
                 }).ToList();
                 _stockRegisterRepository.UpdateList(stockRegister);
-
-
-
 
                 // salesReturn.SalesReturnDetails = salesReturnDetails;
 
@@ -322,16 +316,13 @@ namespace Inspire.Erp.Application.Account.Implementations
                 i = 0;
                 throw ex;
             }
-
             return i;
-
         }
         public SalesReturnModel InsertSalesReturn(SalesReturn salesReturn, List<AccountsTransactions> accountsTransactions,
             List<SalesReturnDetails> salesReturnDetails, List<StockRegister> stockRegister)
         {
             try
             {
-
                 _accountTransactionRepository.BeginTransaction();
 
                 string openingstockVoucherNumber = this.GenerateVoucherNo(salesReturn.SalesReturnDate.Value).VouchersNumbersVNo;
@@ -353,13 +344,6 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _Context.SaveChanges();
                 Console.WriteLine("FOUR = " + salesReturn.SalesReturnId);
 
-                //var lSv = _Context.AccountsTransactions.FirstOrDefault(x => x.AccountsTransactionsVoucherNo == salesReturn.SalesReturnSVNo);
-                //lSv.AccountsTransactionsAllocCredit = 0;
-                //lSv.AccountsTransactionsAllocDebit = salesReturn.SalesReturnNetAmount == null ? 0 : salesReturn.SalesReturnNetAmount.Value;
-                //lSv.AccountsTransactionsAllocBalance = lSv.AccountsTransactionsDebit - lSv.AccountsTransactionsAllocDebit;
-
-                //_Context.AccountsTransactions.Update(lSv);
-                //_Context.SaveChanges(true);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     k.AccountsTransactionsAccNo = k.AccountsTransactionsAccNo ?? "12345";
@@ -410,9 +394,6 @@ namespace Inspire.Erp.Application.Account.Implementations
                     });
                 }
 
-                //sr.StockRegisterUsedQTY= salesReturn.
-                // return sr;
-                // }).ToList();
                 _Context.StockRegister.AddRange(sr);
                 _Context.SaveChanges();
                 _accountTransactionRepository.TransactionCommit();
