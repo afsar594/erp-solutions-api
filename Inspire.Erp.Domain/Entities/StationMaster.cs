@@ -33,4 +33,10 @@ namespace Inspire.Erp.Domain.Entities
        public string logotype { get; set; }
         
     }
+
+    public partial class StationMasterList
+    {
+        public int? StationMasterCode { get; set; }
+        public string StationMasterStationName { get; set; }
+    }
 }

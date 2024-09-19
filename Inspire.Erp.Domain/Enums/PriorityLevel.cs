@@ -51,11 +51,14 @@ namespace Inspire.Erp.Domain.Enums
         public static String StockTransferVoucher_TYPE { get { return "StockTransferVoucher"; } }
         public static String CustomerPurchaseOrder_TYPE { get { return "CustomerPurchaseOrder"; } }
         public static String AssetPurchaseVoucher_TYPE { get { return "AssetPurchaseVoucher"; } }
+        public static String AssetSubMasterVoucher_TYPE { get { return "AssetSubMasterVoucher"; } }
         public static String PDC_TYPE { get { return "PDCVoucher"; } }
         public static String JobInoviceVoucher_TYPE { get { return "JobInoviceVoucher"; } }
         public static String GeneralPurchaseOrder_TYPE { get { return "GeneralPurchaseOrder"; } }
         public static String StockRequisition_TYPE { get { return "StockRequisition"; } }
         public static String ProgressiveInvoice_TYPE { get { return "ProgressiveInvoice"; } }
+
+        public static String DocumentVoucher_TYPE { get { return "DocumentVoucher"; } }
         public static String StockAdjustmentVoucher_TYPE
         {
             get { return "StockAdjustmentVoucher"; }
@@ -115,6 +118,7 @@ namespace Inspire.Erp.Domain.Enums
         public static String JournalVoucher_Prefix { get { return "JournalVoucher_Prefix"; } }
         public static String Dep_JournalVoucher_Prefix { get { return "Dep_JournalVoucher_Prefix"; } }
         public static String AssetPurchaseVoucher_Prefix { get { return "AssetPurchaseVoucher_Prefix"; } }
+        public static String AssetSubMasterVoucher_Prefix { get { return "AssetSubMasterVoucher_Prefix"; } }
         public static String PDC_Voucher_Prefix { get { return "PDC_Voucher_Prefix"; } }
         public static String JobInoviceVoucher_Prefix { get { return "JobInoviceVoucher_Prefix"; } }
         public static String GeneralPurchaseOrder_Prefix { get { return "GeneralPurchaseOrder_Prefix"; } }
@@ -126,6 +130,7 @@ namespace Inspire.Erp.Domain.Enums
         public static String BOQ_Prefix { get { return "BOQ_Prefix"; } }
 
         public static String ProgressiveInvoice_Prefix { get { return "ProgressiveInvoice_Prefix"; } }
+        public static String DocumentVoucher_Prefix { get { return "DocumentVoucher_Prefix"; } }
     }
 
     public static class ItemMasterStatus

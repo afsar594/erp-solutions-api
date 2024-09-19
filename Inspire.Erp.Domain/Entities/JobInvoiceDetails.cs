@@ -20,5 +20,6 @@ namespace Inspire.Erp.Domain.Entities
         public int? JobInvoiceDetailsSno { get; set; }
         public int? JobInvoiceDetailsLocationId { get; set; }
         public bool? JobInvoiceDetailsDelStatus { get; set; }
+        public string? jobInvoiceDetailsItemName { get; set; }
     }
 }

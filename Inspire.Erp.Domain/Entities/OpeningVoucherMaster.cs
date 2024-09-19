@@ -16,5 +16,7 @@ namespace Inspire.Erp.Domain.Entities
         public DateTime? OpeningVoucherMasterLastUpdateTime { get; set; }
         public int? OpeningVoucherMasterFsno { get; set; }
         public bool? OpeningVoucherMasterDelStatus { get; set; }
+        public string OpeningVoucherNo { get; set; }
+
     }
 }

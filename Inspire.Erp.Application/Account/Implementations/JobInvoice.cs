@@ -170,13 +170,7 @@ namespace Inspire.Erp.Application.Account.implementations
         {
             try
             {
-                // var detailList = _jobdetailsrepo.GetAll().Where(a => a.JobInvoiceDetailsDelStatus != true).ToList();
-                var data = _jobinvoicerepo.GetAll().Where(a => a.JobInvoiceDelStatus != true).ToList();
-                //.Select(o => new
-                //{
-                //    JobInvoice = o,
-                //    JobInvoiceDetails = detailList.Where(a => Convert.ToInt32(a.JobInvoiceDetailsDetailsId) == Convert.ToInt32(o.JobInvoiceId)).ToList()
-                //}).ToList();
+                var data = _jobinvoicerepo.GetAll().Where(a => a.JobInvoiceDelStatus != true).OrderBy(c => c.JobInvoiceId).ToList();
                 return data;
 
             }
@@ -243,7 +237,7 @@ namespace Inspire.Erp.Application.Account.implementations
                 throw ex;
             }
 
-        }     
+        }
 
     }
 }
