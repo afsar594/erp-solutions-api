@@ -3,8 +3,10 @@ using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Modals.AccountStatement;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Models;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,32 +20,34 @@ namespace Inspire.Erp.Web.Controllers.Accounts
     public class AccountController : ControllerBase
     {
         private readonly IAccountStatementService _accountStatService;
-        private readonly IVoucherPrintService _iVoucherPrintService;
+        private readonly IVoucherPrintService _iVoucherPrintService; private IRepository<AccountSettings> _accountsSettingsRepo;
         private readonly IAccountStatementMultiAccountService _multiAccountService;
-        private readonly IDaybookService _daybookService;
+        private readonly IDaybookService _daybookService; private IRepository<AccountsTransactions> _accountTransactionRepository;
         private readonly IVoucherAllocationService _voucherAllocation;
         private readonly IOutstandingStatementService _outstandingStatement;
-        private readonly IOldBalanceSheetService _oldBalanceSheet;
-        private readonly IAgeingReport _ageingReport;
+        private readonly IOldBalanceSheetService _oldBalanceSheet; private IRepository<CustomerMaster> _customerMasterRepository;
+        private readonly IAgeingReport _ageingReport; private IRepository<SalesManMaster> salesmanrepository;
         private readonly IAssetsOpeningService _assetsOpeningService;
-        private readonly IVatStatementService _vatStatementService;
-        private readonly IAssetsMasterService _assetsMasterService;
+        private readonly IVatStatementService _vatStatementService; private IRepository<SalesVoucherDetails> _salesVoucherDetailsRepository;
+        private readonly IAssetsMasterService _assetsMasterService; private IRepository<SalesVoucher> _salesVoucherRepository;
         private readonly IAccountTransactionsServices _accountTransactionsServices;
-        public AccountController(IAccountStatementService accountStatService, IDaybookService daybookService, IAssetsOpeningService assetsOpeningService,
-            IVoucherAllocationService voucherAllocation, IOutstandingStatementService outstandingStatement, IOldBalanceSheetService oldBalanceSheet,
-            IVoucherPrintService iVoucherPrintService, IAccountStatementMultiAccountService multiAccountService, IAgeingReport ageingReport,
-            IVatStatementService vatStatementService, IAssetsMasterService assetsMasterService, IAccountTransactionsServices accountTransactionsServices)
+        public AccountController(IAccountStatementService accountStatService, IDaybookService daybookService, IAssetsOpeningService assetsOpeningService, IRepository<AccountsTransactions> accountTransactionRepository,
+            IVoucherAllocationService voucherAllocation, IOutstandingStatementService outstandingStatement, IOldBalanceSheetService oldBalanceSheet, IRepository<CustomerMaster> customerMasterRepository,
+            IVoucherPrintService iVoucherPrintService, IAccountStatementMultiAccountService multiAccountService, IAgeingReport ageingReport, IRepository<SalesManMaster> _salesmanrepository,
+            IVatStatementService vatStatementService, IAssetsMasterService assetsMasterService, IAccountTransactionsServices accountTransactionsServices, IRepository<AccountSettings> accountsSettingsRepo,
+            IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository)
         {
             _accountStatService = accountStatService;
             _iVoucherPrintService = iVoucherPrintService;
-            _multiAccountService = multiAccountService;
-            _daybookService = daybookService;
+            _multiAccountService = multiAccountService; _accountsSettingsRepo = accountsSettingsRepo;
+            _daybookService = daybookService; _accountTransactionRepository = accountTransactionRepository;
             _voucherAllocation = voucherAllocation;
             _outstandingStatement = outstandingStatement;
-            _oldBalanceSheet = oldBalanceSheet;
-            _ageingReport = ageingReport;
+            _oldBalanceSheet = oldBalanceSheet; _customerMasterRepository = customerMasterRepository;
+            _ageingReport = ageingReport; salesmanrepository = _salesmanrepository;
             _assetsOpeningService = assetsOpeningService;
-            _vatStatementService = vatStatementService;
+            _vatStatementService = vatStatementService; _salesVoucherRepository = salesVoucherRepository;
+            _salesVoucherDetailsRepository = salesVoucherDetailsRepository;
             _assetsMasterService = assetsMasterService;
             _accountTransactionsServices = accountTransactionsServices;
         }
@@ -225,7 +229,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
             }
 
         }
-       
+
         [HttpPost("GetVoucherAllocationsList")]
         public async Task<IActionResult> GetVoucherAllocationsList(GenericGridViewModel model)
         {
@@ -408,6 +412,132 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         }
         #endregion
 
+        #region invoice Profit Analysis
 
+        [HttpGet]
+        [Route("ProfitAnalysisLoadDropdown")]
+        public ResponseInfo ProfitAnalysisLoadDropdown()
+        {
+            var objresponse = new ResponseInfo();
+
+
+            var saleManList = salesmanrepository.GetAsQueryable().AsNoTracking().Where(a => a.SalesManMasterSalesManDelStatus != true).Select(c => new
+            {
+                c.SalesManMasterSalesManId,
+                c.SalesManMasterSalesManName,
+            }).ToList();
+            var customerMasters = _customerMasterRepository.GetAsQueryable().AsNoTracking().Where(k => k.CustomerMasterCustomerDelStatus != true).Select(a => new
+            {
+                a.CustomerMasterCustomerNo,
+                a.CustomerMasterCustomerName,
+            }).ToList();
+            objresponse.ResultSet = new
+            {
+                customerMasters = customerMasters,
+                saleManList = saleManList
+            };
+            return objresponse;
+        }
+
+        [HttpPost]
+        [Route("InvoiceProfitAnalysis")]
+        public ResponseInfo InvoiceProfitAnalysis(InvoiceProfitAnalysis model)
+        {
+            var objresponse = new ResponseInfo();
+
+            var query = _salesVoucherRepository.GetAsQueryable().AsNoTracking()
+                            .Where(a => a.SalesVoucherDelStatus != true &&
+                                        (model.salemanId == 0 || a.SalesVoucherSalesManID == model.salemanId) &&
+                                        (model.customerId == 0 || a.SalesVoucherPartyId == model.customerId));
+
+            if (model.isDate)
+            {
+                query = query.Where(c => c.SalesVoucherDate >= model.fromdate && c.SalesVoucherDate <= model.todate);
+            }
+
+            var result = query.ToList();
+            var accountsSettings = _accountsSettingsRepo.GetAsQueryable().AsNoTracking().Where(a => a.AccountSettingsAccountDelStatus != true && (a.AccountSettingsAccountDescription.Contains("Cost Of Finished Goods A/C") || a.AccountSettingsAccountDescription.Contains("Sales Account"))).Select(c => new
+            {
+                c.AccountSettingsAccountId,
+                AccountSettingsAccountDescription = c.AccountSettingsAccountDescription.Trim(),
+                c.AccountSettingsAccountTextValue
+            }).ToList();
+            List<string> ids = new List<string>();
+            string sale = "";
+            string cost = "";
+            if (accountsSettings.Count > 0)
+            {
+                var salesAccountTextValue = accountsSettings.Where(a => a.AccountSettingsAccountDescription.Trim() == "Sales Account").Select(a => a.AccountSettingsAccountTextValue)
+                 .FirstOrDefault();
+
+                var costAccountTextValue = accountsSettings.Where(a => a.AccountSettingsAccountDescription.Trim() == "Cost Of Finished Goods A/C").Select(a => a.AccountSettingsAccountTextValue)
+                 .FirstOrDefault();
+
+
+                if (!string.IsNullOrEmpty(salesAccountTextValue))
+                {
+                    var parts = salesAccountTextValue.Split(new[] { "::" }, StringSplitOptions.None);
+
+                    if (parts.Length > 1)
+                    {
+                        sale = parts[1].Trim();
+                        ids.Add(parts[1]);
+                    }
+                }
+                if (!string.IsNullOrEmpty(costAccountTextValue))
+                {
+                    var parts = costAccountTextValue.Split(new[] { "::" }, StringSplitOptions.None);
+
+                    if (parts.Length > 1)
+                    {
+                        cost = parts[1].Trim();
+                        ids.Add(parts[1]);
+                    }
+                }
+            }
+            var acc = _accountTransactionRepository.GetAsQueryable().AsNoTracking()
+                .Where(a => a.AccountstransactionsDelStatus != true
+                            && a.AccountsTransactionsVoucherType == "SalesVoucher")
+                .ToList();
+
+            var account = acc.Where(a => ids.Any(id =>
+                            string.Equals(a.AccountsTransactionsAccNo.Trim(), id.Trim(), StringComparison.OrdinalIgnoreCase)))
+                            .ToList();
+            var data = from q in result
+                       join s in _salesVoucherDetailsRepository.GetAsQueryable().AsNoTracking()
+                           on q.SalesVoucherId equals s.SalesVoucherId
+                       join m in account
+                           on q.SalesVoucherNo equals m.AccountsTransactionsVoucherNo
+                       group new { s, m } by new
+                       {
+                           q.SalesVoucherNo,
+                           q.SalesVoucherDate,
+                           s.SalesVoucherDetailsQuantity,
+                           s.SalesVoucherDetailsMatId
+                       } into grouped
+                       let invoiceAmount = grouped.Sum(g => g.m.AccountsTransactionsCredit)
+                       let cost1 = grouped.Sum(g => g.m.AccountsTransactionsDebit)
+                       let profit = invoiceAmount - cost1
+                       let profitPercentage = profit == 0 ? 0 : (profit / cost1) * 100
+                       select new
+                       {
+                           InvoiceNo = grouped.Key.SalesVoucherNo,
+                           Date = grouped.Key.SalesVoucherDate,
+                           Quantity = grouped.Key.SalesVoucherDetailsQuantity,
+                           Item = grouped.Key.SalesVoucherDetailsMatId,
+                           InvoiceAmount = invoiceAmount,
+                           Cost = cost1,
+                           Profit = profit,
+                           ProfitPercentage = Math.Round(profitPercentage, 2)
+        };
+
+        objresponse.ResultSet = new
+            {
+                result = data.ToList()
+    };
+            return objresponse;
+        }
+
+        #endregion
     }
 }

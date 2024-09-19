@@ -177,5 +177,14 @@ namespace Inspire.Erp.Domain.Modals.Common
         [DefaultValue(false)]
         public bool? isCheck { get; set; } 
     }
+    public class InvoiceProfitAnalysis
+    {
+        public int? customerId { get; set; }
+        public int? salemanId { get; set; }
+        public bool isDate { get; set; }
+        public DateTime? fromdate { get; set; }
+        public DateTime? todate { get; set;}
+
+    }
 
 }
