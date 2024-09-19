@@ -69,7 +69,7 @@ namespace Inspire.Erp.Web.Controllers.Document
             {
                 Valid = true,
                 Result = mapper.Map<HrDocumentType>(UpdateJobInvoiceViewModel),
-                Message = "=saved"
+                Message = "Document Type has been saved."
 
             };
             return apiResponse;
