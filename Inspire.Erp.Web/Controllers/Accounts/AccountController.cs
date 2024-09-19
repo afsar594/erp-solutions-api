@@ -409,5 +409,13 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         #endregion
 
 
+        #region Assets Consumtions
+
+        [HttpGet("GetAssetsCodes")]
+        public async Task<IActionResult> GetAssetCodes()
+        {
+            return Ok(await _assetsMasterService.GetAssetsCodes());
+        }
+        #endregion
     }
 }

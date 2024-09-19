@@ -10,6 +10,9 @@ using Inspire.Erp.Infrastructure.Database.Repositoy;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Inspire.Erp.Domain.Models;
+using Inspire.Erp.Domain.Models.Master;
+using SendGrid.Helpers.Mail;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Inspire.Erp.Application.Account.Implementations
 {
@@ -17,10 +20,13 @@ namespace Inspire.Erp.Application.Account.Implementations
     {
         private readonly IRepository<MasterAccountsTable> _masterAccountTable;
         private readonly IRepository<AssetMaster> _asetMaster;
-        public AssetsMasterService(IRepository<MasterAccountsTable> masterAccountTable, IRepository<AssetMaster> asetMaster)
+        private readonly IRepository<AssetSubMaster> _asetSubMaster;
+
+        public AssetsMasterService(IRepository<MasterAccountsTable> masterAccountTable, IRepository<AssetMaster> asetMaster, IRepository<AssetSubMaster> asetSubMaster)
         {
             _masterAccountTable = masterAccountTable;
             _asetMaster = asetMaster;
+            _asetSubMaster = asetSubMaster;
         }
         public async Task<Response<List<MasterAccountsTable>>> GetFixedAccountForAssetMaster(GenericGridViewModel model)
         {
@@ -128,6 +134,35 @@ namespace Inspire.Erp.Application.Account.Implementations
             catch (Exception ex)
             {
                 return Response<bool>.Fail(false, ex.Message);
+            }
+        }
+
+        public async Task<Response<List<AssetCodes>>> GetAssetsCodes()
+        {
+            try
+            {
+                var result = (from assetSubMaster in _asetSubMaster.GetAsQueryable() 
+                             join assetMaster in _asetMaster.GetAsQueryable() 
+                             on assetSubMaster.GroupID equals assetMaster.AssetMasterAssetId
+                             select new AssetCodes
+                             {
+                                GroupID = (long)assetSubMaster.GroupID,
+                                AssetMasterAssetId = assetMaster.AssetMasterAssetId,
+                                AssetCode = assetSubMaster.AssetCode,
+                                AssetDescription = assetSubMaster.AssetDescription,
+                                SubAssetID = assetSubMaster.SubAssetID,
+                                AssetMasterAssetName = assetMaster.AssetMasterAssetName
+
+                             }).ToList();
+
+
+               
+                return Response<List<AssetCodes>>.Success(result, "Data found");
+
+            }
+            catch (Exception ex)
+            {
+                return Response<List<AssetCodes>>.Fail(new List<AssetCodes>(), ex.Message);
             }
         }
     }
