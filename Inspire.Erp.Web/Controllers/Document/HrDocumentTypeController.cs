@@ -57,28 +57,26 @@ namespace Inspire.Erp.Web.Controllers.Document
             }
 
 
-            [HttpPost]
-            [Route("InsertHrDocumentType")]
-            public List<HrDocumentTypeViewModel> InsertDocumentType([FromBody] HrDocumentTypeViewModel hrDocumentTypeViewModel)
-            {
-                try
-                {
-                    var docType = mapper.Map<HrDocumentType>(hrDocumentTypeViewModel);
-                    return hrDocumentTypeService.InsertDocumentType(docType).Select(x => new HrDocumentTypeViewModel()
-                    {
-                        AppDocument = x.AppDocument,
-                        DefaultType = x.DefaultType,
-                        DocumentType = x.DocumentType,
-                        DocumentTypeId = x.DocumentTypeId
-                    }).ToList();
-                }
-                catch (Exception ex)
-                {
-                    return new List<HrDocumentTypeViewModel>();
-                }
-            }
+        [HttpPost]
+        [Route("InsertDocumentType")]
+        public ApiResponse<HrDocumentType> InsertDocumentType([FromBody] HrDocumentType DocumentTypeViewModel)
+        {
+            var param1 = mapper.Map<HrDocumentType>(DocumentTypeViewModel);
+            var UpdateJobInvoiceViewModel = hrDocumentTypeService.InsertDocumentType(param1);
 
-            [HttpPost]
+
+            ApiResponse<HrDocumentType> apiResponse = new ApiResponse<HrDocumentType>
+            {
+                Valid = true,
+                Result = mapper.Map<HrDocumentType>(UpdateJobInvoiceViewModel),
+                Message = "=saved"
+
+            };
+            return apiResponse;
+
+        }
+
+        [HttpPost]
             [Route("UpdateHrDocumentType")]
             public List<HrDocumentTypeViewModel> UpdateDocumentType([FromBody] HrDocumentTypeViewModel hrDocumentTypeViewModel)
             {

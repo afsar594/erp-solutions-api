@@ -8,7 +8,8 @@ namespace Inspire.Erp.Application.Document.Interfaces
 {
     public interface IHrDocumentTypeService
     {
-        public IEnumerable<HrDocumentType> InsertDocumentType(HrDocumentType hrDocumentType);
+        public HrDocumentType InsertDocumentType(HrDocumentType hrDocumentType);
+
         public IEnumerable<HrDocumentType> UpdateDocumentType(HrDocumentType hrDocumentType);
         public IEnumerable<HrDocumentType> DeleteDocumentType(HrDocumentType hrDocumentType);
         public IEnumerable<HrDocumentType> GetAllHrDocumentType();

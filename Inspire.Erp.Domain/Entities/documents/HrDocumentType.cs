@@ -8,9 +8,13 @@ namespace Inspire.Erp.Domain.Entities.documents
     public partial class HrDocumentType : BaseEntity
     {
         public long DocumentTypeId { get; set; }
-        public string DocumentType { get; set; }
+        public string? DocumentType { get; set; }
         public bool DefaultType { get; set; }
         public bool? AppDocument { get; set; }
+        public string StationMasterCode { get; set; }
+        public string DocumentvoucherNo { get; set; }
+
+
     }
     public partial class HrDocumentTypeFilter : BaseEntity
     {

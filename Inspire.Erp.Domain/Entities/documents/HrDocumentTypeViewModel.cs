@@ -10,5 +10,7 @@ namespace Inspire.Erp.Domain.Entities.documents
         public string DocumentType { get; set; }
         public bool DefaultType { get; set; }
         public bool? AppDocument { get; set; }
+        public string StationMasterCode { get; set; }
+        public string DocumentvoucherNo { get; set; }
     }
 }

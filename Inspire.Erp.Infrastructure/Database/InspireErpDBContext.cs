@@ -874,6 +874,15 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.DocumentType)
                     .HasMaxLength(50)
                     .IsUnicode(false);
+
+                entity.Property(e => e.DocumentvoucherNo)
+                  .HasMaxLength(50)
+                  .IsUnicode(false);
+
+
+                entity.Property(e => e.StationMasterCode)
+                  .HasMaxLength(50)
+                  .IsUnicode(false);
             });
 
             #region If the db table and entity has same name
@@ -13061,6 +13070,12 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.OpeningVoucherMasterTotalDebit).HasColumnName("Opening_Voucher_Master_Total_Debit");
 
                 entity.Property(e => e.OpeningVoucherMasterUserId).HasColumnName("Opening_Voucher_Master_User_ID");
+
+                entity.Property(e => e.OpeningVoucherNo)
+                  .HasColumnName("OpeningVoucherNo")
+                  .HasMaxLength(30)
+                  .IsUnicode(false);
+
             });
 
             modelBuilder.Entity<OptionsMaster>(entity =>
