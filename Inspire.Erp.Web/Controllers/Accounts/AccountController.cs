@@ -518,7 +518,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
                        let invoiceAmount = grouped.Sum(g => g.m.AccountsTransactionsCredit)
                        let cost1 = grouped.Sum(g => g.m.AccountsTransactionsDebit)
                        let profit = invoiceAmount - cost1
-                       let profitPercentage = cost1 == 0 ? 0 : (invoiceAmount / cost1) * 100
+                       let profitPercentage = profit == 0 ? 0 : (profit / cost1) * 100
                        select new
                        {
                            InvoiceNo = grouped.Key.SalesVoucherNo,
