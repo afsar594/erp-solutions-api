@@ -10,8 +10,10 @@ namespace Inspire.Erp.Application.Document.Interfaces
     {
         public HrDocumentType InsertDocumentType(HrDocumentType hrDocumentType);
 
-        public IEnumerable<HrDocumentType> UpdateDocumentType(HrDocumentType hrDocumentType);
-        public IEnumerable<HrDocumentType> DeleteDocumentType(HrDocumentType hrDocumentType);
+        public HrDocumentType UpdateDocumentType(HrDocumentType hrDocumentType);
+       
+        public IEnumerable<HrDocumentType> DeleteDocumentType(string Id);
+
         public IEnumerable<HrDocumentType> GetAllHrDocumentType();
         public IEnumerable<StationMasterList> GetAllCompanies();
     }
