@@ -71,43 +71,41 @@ namespace Inspire.Erp.Application.Document.Implementations
             }
            
         }
-        public IEnumerable<HrDocumentType> UpdateDocumentType(HrDocumentType HrDocumentType)
+        public HrDocumentType UpdateDocumentType(HrDocumentType HrDocumentType)
         {
-            bool valid = false;
             try
             {
+                _HrDocumentTypeRepo.BeginTransaction();
+
+                int maxcount1 = 0;
+                maxcount1 = Convert.ToInt32(
+                    _HrDocumentTypeRepo.GetAsQueryable()
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.DocumentTypeId) + 1);
+
                 _HrDocumentTypeRepo.Update(HrDocumentType);
-                valid = true;
+                _HrDocumentTypeRepo.TransactionCommit();
+
+                return this.GetAllHrDocumentTypebyvoucher(HrDocumentType.DocumentvoucherNo);
             }
             catch (Exception ex)
             {
-                valid = false;
+                _HrDocumentTypeRepo.TransactionRollback();
                 throw ex;
             }
-            finally
-            {
-                //hrCompanyMastersrepository.Dispose();
-            }
-            return this.GetAllHrDocumentType();
         }
-        public IEnumerable<HrDocumentType> DeleteDocumentType(HrDocumentType hrCompanyMaster)
+        public IEnumerable<HrDocumentType> DeleteDocumentType(string Id)
         {
-            bool valid = false;
             try
             {
-                _HrDocumentTypeRepo.Delete(hrCompanyMaster);
-                valid = true;
+                var dataObj = _HrDocumentTypeRepo.GetAsQueryable().Where(o => o.DocumentvoucherNo == Id).FirstOrDefault();
+                dataObj.Deletestatus = true;
+                _HrDocumentTypeRepo.Update(dataObj);
+                return _HrDocumentTypeRepo.GetAll();
             }
             catch (Exception ex)
             {
-                valid = false;
                 throw ex;
             }
-            finally
-            {
-                //hrCompanyMastersrepository.Dispose();
-            }
-            return this.GetAllHrDocumentType();
         }
         public HrDocumentType GetAllHrDocumentTypebyvoucher(string VNo)
         {

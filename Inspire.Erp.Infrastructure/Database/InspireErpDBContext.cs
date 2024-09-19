@@ -883,6 +883,10 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.StationMasterCode)
                   .HasMaxLength(50)
                   .IsUnicode(false);
+
+                entity.Property(e => e.Deletestatus)
+                .HasColumnName("Deletestatus");
+
             });
 
             #region If the db table and entity has same name
