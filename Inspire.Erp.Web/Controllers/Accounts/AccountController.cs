@@ -529,15 +529,16 @@ namespace Inspire.Erp.Web.Controllers.Accounts
                            Cost = cost1,
                            Profit = profit,
                            ProfitPercentage = Math.Round(profitPercentage, 2)
-        };
+                       };
 
-        objresponse.ResultSet = new
+            objresponse.ResultSet = new
             {
                 result = data.ToList()
-    };
+            };
             return objresponse;
         }
 
+        #endregion
         #region Assets Consumtions
 
         [HttpGet("GetAssetsCodes")]
