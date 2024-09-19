@@ -131,6 +131,8 @@ namespace Inspire.Erp.Domain.Enums
 
         public static String ProgressiveInvoice_Prefix { get { return "ProgressiveInvoice_Prefix"; } }
         public static String DocumentVoucher_Prefix { get { return "DocumentVoucher_Prefix"; } }
+
+        public static String OBVoucher_Prefix { get { return "OBVoucher_Prefix"; } }
     }
 
     public static class ItemMasterStatus
