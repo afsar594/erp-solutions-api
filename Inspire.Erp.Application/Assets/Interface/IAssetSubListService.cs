@@ -1,4 +1,5 @@
 ﻿using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Models.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,11 @@ namespace Inspire.Erp.Application.Assets.Interface
     {
 
         public IQueryable GetAllAssets();
-        List<AssetSubMaster> InsertPermissionApproval(Erp.Domain.Models.ViewModels.AssetSubMasterViewModel request);
+        public List<AssetSubMasterListVM> GetAllAssetSubMasterDetails();
+        bool DeleteAssetSubMasterById(int id); // New method for deletion
+        public AssetSubMasterListVM GetAssetSubMasterDetailById(int SubAssetId);
+        List<AssetSubMaster> InsertPermissionApproval(AssetSubMasterViewModel request);
+
     }
 
 
