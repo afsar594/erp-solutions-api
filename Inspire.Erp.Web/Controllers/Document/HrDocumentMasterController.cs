@@ -164,26 +164,17 @@ namespace Inspire.Erp.Web.Controllers.Document
         //}
 
 
-        public async Task<ApiResponse<List<HrDocumentMaster>>> InsertHrDocumentMaster([FromBody] HrDocumentMaster HrDocumentMaster)
+        [HttpPost]
+        [Route("InsertHrDocumentMaster")]
+        public ApiResponse<HrDocumentMaster> InsertHrDocumentMaster([FromBody] HrDocumentMaster HrDocumentMaster)
         {
-            if (HrDocumentMaster.HrDocumentImages != null && (HrDocumentMaster.DocumentId == null || HrDocumentMaster.DocumentId == 0))
-            {
-                HrDocumentMaster.HrDocumentImages = new List<HrDocumentImages> {
-                                                        new HrDocumentImages {
-                                                             DocImage = HrDocumentMaster.DocImage[0].ToString(),
-                                                        } };
-            }
 
-            var model = mapper.Map<HrDocumentMaster>(HrDocumentMaster);
-            // var data = (HrDocumentMaster.DocumentId == null || HrDocumentMaster.DocumentId == 0);
+            var InsertJobInvoiceViewModel = hrDocumentMasterService.InsertHrDocumentMaster(HrDocumentMaster);
 
-            var data  = hrDocumentMasterService.InsertHrDocumentMaster(model);
-
-            List<HrDocumentMaster> result = mapper.Map<List<HrDocumentMaster>>(data);
-            ApiResponse<List<HrDocumentMaster>> apiResponse = new ApiResponse<List<HrDocumentMaster>>
+            ApiResponse<HrDocumentMaster> apiResponse = new ApiResponse<HrDocumentMaster>
             {
                 Valid = true,
-                Result = result,
+                Result = mapper.Map<HrDocumentMaster>(HrDocumentMaster),
                 Message = "Saved."
             };
             return apiResponse;
