@@ -875,15 +875,6 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasMaxLength(50)
                     .IsUnicode(false);
 
-                entity.Property(e => e.DocumentvoucherNo)
-                  .HasMaxLength(50)
-                  .IsUnicode(false);
-
-
-                entity.Property(e => e.StationMasterCode)
-                  .HasMaxLength(50)
-                  .IsUnicode(false);
-
                 entity.Property(e => e.Deletestatus)
                 .HasColumnName("Deletestatus");
 

@@ -12,7 +12,7 @@ namespace Inspire.Erp.Application.Document.Interfaces
 
         public HrDocumentType UpdateDocumentType(HrDocumentType hrDocumentType);
        
-        public IEnumerable<HrDocumentType> DeleteDocumentType(string Id);
+        public IEnumerable<HrDocumentType> DeleteDocumentType(long Id);
 
         public IEnumerable<HrDocumentType> GetAllHrDocumentType();
         public IEnumerable<StationMasterList> GetAllCompanies();

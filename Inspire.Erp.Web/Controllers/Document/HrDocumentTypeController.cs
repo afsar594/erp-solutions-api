@@ -95,7 +95,7 @@ namespace Inspire.Erp.Web.Controllers.Document
         }
         [HttpDelete]
         [Route("DeleteHrDocumentType")]
-        public IActionResult DeleteHrDocumentType(string Id)
+        public IActionResult DeleteHrDocumentType(long Id)
         {
             try
             {
