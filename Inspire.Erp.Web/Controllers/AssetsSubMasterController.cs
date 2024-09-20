@@ -34,7 +34,7 @@ namespace Inspire.Erp.Web.Controllers
         private IRepository<AssetSubMaster> _assetsubmaster;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
         private IRepository<Erp.Domain.Entities.ProgramSettings> _programsettingsRepository;
-      
+
         private readonly IMapper _mapper;
         private readonly IAssetSubListService _Assetsubmaster;
         public AssetsSubMasterController(IAssetSubListService Assetsubmaster, IMapper mapper, IRepository<AssetSubMaster> assetsubmaster, IRepository<VouchersNumbers> vouchersNumbers, IRepository<AssetSubMaster> assetSubMaster)
@@ -42,12 +42,56 @@ namespace Inspire.Erp.Web.Controllers
             _mapper = mapper;
             _Assetsubmaster = Assetsubmaster;
             _voucherNumbersRepository = vouchersNumbers;
-            
+
         }
 
 
-      
+        [HttpGet("GetAllSubAssetList")]
+        public IActionResult GetAllAssetSubMasterDetails()
+        {
+            try
+            {
+                var items = _Assetsubmaster.GetAllAssetSubMasterDetails();
+                if (items == null || !items.Any())
+                {
+                    return NotFound("No asset sub-master details found.");
+                }
+                return Ok(items);
+            }
+            catch (Exception ex)
+            {
+                // Log the full exception details here
+                return StatusCode(500, $"An error occurred while retrieving asset sub-master details: {ex.Message}");
+            }
+        }
 
+        [HttpGet("GetAllSubAssetById")]
+      
+        public IActionResult GetSubAssetByid(int SubAssetId)
+        {
+            try
+            {
+                var item = _Assetsubmaster.GetAssetSubMasterDetailById(SubAssetId);
+                return Ok(item);
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult DeleteAssetSubMasterById(int id)
+        {
+            var isDeleted = _Assetsubmaster.DeleteAssetSubMasterById(id);
+
+            if (!isDeleted)
+            {
+                return NotFound(); // Return 404 if the asset was not found
+            }
+
+            return NoContent(); // Return 204 No Content on successful deletion
+        }
 
         [HttpGet("GetAllAssetMasterList")]
         public IActionResult GetAssets()
@@ -64,7 +108,7 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpPost]
         [Route("InsertAssetsSubMaster")]
-        public ApiResponse<List<AssetSubMaster>> InsertPermissionApproval([FromBody] Erp.Domain.Models.ViewModels.AssetSubMasterViewModel request)
+        public ApiResponse<List<AssetSubMaster>> InsertPermissionApproval([FromBody] Domain.Models.ViewModels.AssetSubMasterViewModel request)
         {
             ApiResponse<List<AssetSubMaster>> apiResponse = new ApiResponse<List<AssetSubMaster>>();
             if (request.AssetSubMasterDetails == null)
@@ -76,7 +120,7 @@ namespace Inspire.Erp.Web.Controllers
                 };
             }
             var param1 = _mapper.Map<List<AssetSubMaster>>(request.AssetSubMasterDetails);
-            var param2 = _mapper.Map<Erp.Domain.Entities.AssetSubListHeader>(request.AssetSubListHeader);
+            var param2 = _mapper.Map<Domain.Entities.AssetSubListHeader>(request.AssetSubListHeader);
 
             var xs = _Assetsubmaster.InsertPermissionApproval(request);
             List<AssetSubMaster> Permission = new List<AssetSubMaster>();

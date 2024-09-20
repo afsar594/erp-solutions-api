@@ -69,54 +69,44 @@ namespace Inspire.Erp.Web.Controllers.Document
             {
                 Valid = true,
                 Result = mapper.Map<HrDocumentType>(UpdateJobInvoiceViewModel),
-                Message = "=saved"
+                Message = "Document Type has been saved."
 
             };
             return apiResponse;
 
         }
-
         [HttpPost]
-            [Route("UpdateHrDocumentType")]
-            public List<HrDocumentTypeViewModel> UpdateDocumentType([FromBody] HrDocumentTypeViewModel hrDocumentTypeViewModel)
-            {
-                try
-                {
-                    var docType = mapper.Map<HrDocumentType>(hrDocumentTypeViewModel);
-                    return hrDocumentTypeService.UpdateDocumentType(docType).Select(x => new HrDocumentTypeViewModel()
-                    {
-                        AppDocument = x.AppDocument,
-                        DefaultType = x.DefaultType,
-                        DocumentType = x.DocumentType,
-                        DocumentTypeId = x.DocumentTypeId
-                    }).ToList();
-                }
-                catch (Exception ex)
-                {
-                    return new List<HrDocumentTypeViewModel>();
-                }
-            }
+        [Route("UpdateHrDocumentType")]
+        public ApiResponse<HrDocumentType> UpdateHrDocumentType([FromBody] HrDocumentType DocumentTypeViewModel)
+        {
+            var param1 = mapper.Map<HrDocumentType>(DocumentTypeViewModel);
+            var UpdateJobInvoiceViewModel = hrDocumentTypeService.UpdateDocumentType(param1);
 
-            [HttpPost]
-            [Route("DeleteHrDocumentType")]
-            public List<HrDocumentTypeViewModel> DeleteDocumentType([FromBody] HrDocumentTypeViewModel hrDocumentTypeViewModel)
+
+            ApiResponse<HrDocumentType> apiResponse = new ApiResponse<HrDocumentType>
             {
-                try
-                {
-                    var docType = mapper.Map<HrDocumentType>(hrDocumentTypeViewModel);
-                    return hrDocumentTypeService.DeleteDocumentType(docType).Select(x => new HrDocumentTypeViewModel()
-                    {
-                        AppDocument = x.AppDocument,
-                        DefaultType = x.DefaultType,
-                        DocumentType = x.DocumentType,
-                        DocumentTypeId = x.DocumentTypeId
-                    }).ToList();
-                }
-                catch (Exception ex)
-                {
-                    return new List<HrDocumentTypeViewModel>();
-                }
+                Valid = true,
+                Result = mapper.Map<HrDocumentType>(UpdateJobInvoiceViewModel),
+                Message = "Document Type has been Updated."
+
+            };
+            return apiResponse;
+
+        }
+        [HttpDelete]
+        [Route("DeleteHrDocumentType")]
+        public IActionResult DeleteHrDocumentType(long Id)
+        {
+            try
+            {
+                return Ok(hrDocumentTypeService.DeleteDocumentType(Id));
             }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
+        }
+     
         [HttpGet]
         [Route("GetAllCompanies")]
         public List<StationMasterList> GetAllCompanies()

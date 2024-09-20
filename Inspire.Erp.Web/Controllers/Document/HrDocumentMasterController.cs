@@ -18,12 +18,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Inspire.Erp.Application.Document.Interfaces;
+using Inspire.Erp.Application.Master.Interfaces;
 
 namespace Inspire.Erp.Web.Controllers.Document
 {
-    [Route("api")]
-    [Produces("application/json")]
     [ApiController]
+    [Route("api/HrDocumentMaster")]
     public class HrDocumentMasterController : ControllerBase
     {
 
@@ -133,34 +133,60 @@ namespace Inspire.Erp.Web.Controllers.Document
         /// </returns>
         [HttpPost]
         [Route("InsertHrDocumentMaster")]
-        public List<HrDocumentMasterViewModel> InsertHrDocumentMaster([FromBody] HrDocumentMasterViewModel hrDocumentMasterViewModel)
+        //public List<HrDocumentMasterViewModel> InsertHrDocumentMaster([FromBody] HrDocumentMasterViewModel hrDocumentMasterViewModel)
+        //{
+        //    try
+        //    {
+        //        var hrDocumentMaster = mapper.Map<HrDocumentMaster>(hrDocumentMasterViewModel);
+        //        return this.hrDocumentMasterService.InsertHrDocumentMaster(hrDocumentMaster).Select(x => new HrDocumentMasterViewModel()
+        //        {
+        //            DocumentId = x.DocumentId,
+        //            DocumentTypeId = x.DocumentTypeId,
+        //            StaffId = x.StaffId,
+        //            CompanyId = x.CompanyId,
+        //            VehicleId = x.VehicleId,
+        //            OtherId = x.OtherId,
+        //            MasterType = x.MasterType,
+        //            DocName = x.DocName,
+        //            DocNo = x.DocNo,
+        //            Remarks = x.Remarks,
+        //            IssueDate = x.IssueDate,
+        //            ExpDate = x.ExpDate,
+        //            DocImage = x.DocImage,
+        //            Status = x.Status,
+        //            DocStatusId = x.DocStatusId
+        //        }).ToList();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return null;
+        //    }
+        //}
+
+
+        public async Task<ApiResponse<List<HrDocumentMaster>>> InsertHrDocumentMaster([FromBody] HrDocumentMaster HrDocumentMaster)
         {
-            try
+            if (HrDocumentMaster.HrDocumentImages != null && (HrDocumentMaster.DocumentId == null || HrDocumentMaster.DocumentId == 0))
             {
-                var hrDocumentMaster = mapper.Map<HrDocumentMaster>(hrDocumentMasterViewModel);
-                return this.hrDocumentMasterService.InsertHrDocumentMaster(hrDocumentMaster).Select(x => new HrDocumentMasterViewModel()
-                {
-                    DocumentId = x.DocumentId,
-                    DocumentTypeId = x.DocumentTypeId,
-                    StaffId = x.StaffId,
-                    CompanyId = x.CompanyId,
-                    VehicleId = x.VehicleId,
-                    OtherId = x.OtherId,
-                    MasterType = x.MasterType,
-                    DocName = x.DocName,
-                    DocNo = x.DocNo,
-                    Remarks = x.Remarks,
-                    IssueDate = x.IssueDate,
-                    ExpDate = x.ExpDate,
-                    DocImage = x.DocImage,
-                    Status = x.Status,
-                    DocStatusId = x.DocStatusId
-                }).ToList();
+                HrDocumentMaster.HrDocumentImages = new List<HrDocumentImages> {
+                                                        new HrDocumentImages {
+                                                             DocImage = HrDocumentMaster.DocImage[0].ToString(),
+                                                        } };
             }
-            catch (Exception ex)
+
+            var model = mapper.Map<HrDocumentMaster>(HrDocumentMaster);
+            // var data = (HrDocumentMaster.DocumentId == null || HrDocumentMaster.DocumentId == 0);
+
+            var data  = hrDocumentMasterService.InsertHrDocumentMaster(model);
+
+            List<HrDocumentMaster> result = mapper.Map<List<HrDocumentMaster>>(data);
+            ApiResponse<List<HrDocumentMaster>> apiResponse = new ApiResponse<List<HrDocumentMaster>>
             {
-                return null;
-            }
+                Valid = true,
+                Result = result,
+                Message = "Saved."
+            };
+            return apiResponse;
         }
 
         //added by irfan 08 Mar -2023

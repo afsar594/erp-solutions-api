@@ -56,7 +56,8 @@ namespace Inspire.Erp.Web.Controllers.Accounts
                     OpeningVoucherMasterUserId = xs.openingBalanceVoucher.OpeningVoucherMasterUserId,
                     OpeningVoucherMasterLastUpdateTime = xs.openingBalanceVoucher.OpeningVoucherMasterLastUpdateTime,
                     OpeningVoucherMasterFsno = xs.openingBalanceVoucher.OpeningVoucherMasterFsno,
-                    OpeningVoucherMasterDelStatus = xs.openingBalanceVoucher.OpeningVoucherMasterDelStatus
+                    OpeningVoucherMasterDelStatus = xs.openingBalanceVoucher.OpeningVoucherMasterDelStatus,
+                    OpeningVoucherNo= xs.openingBalanceVoucher.OpeningVoucherNo
 
                 };
 

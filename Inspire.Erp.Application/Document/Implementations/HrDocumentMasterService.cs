@@ -8,6 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Inspire.Erp.Application.Document.Implementations
 {
@@ -28,18 +30,37 @@ namespace Inspire.Erp.Application.Document.Implementations
             _vehicleRepoService = vehicleRepo;
             _Context = Context;
         }
-        public IEnumerable<HrDocumentMaster> InsertHrDocumentMaster(HrDocumentMaster hrDocumentMaster)
+      
+        public async Task<IEnumerable<HrDocumentMaster>> InsertHrDocumentMaster(HrDocumentMaster hrDocumentMaster)
         {
+            bool valid = false;
             try
             {
-                this.repository.Insert(hrDocumentMaster);
-                return GetAllStaffDocumentMaster();
+                valid = true;
+                hrDocumentMaster.DocumentId = Convert.ToInt32(await repository.GetAsQueryable()
+                                             .Where(x => x.DocumentId > 0)
+                                             .DefaultIfEmpty().MaxAsync(o => o == null ? 0 : o.DocumentId)) + 1;
+
+                repository.Insert(hrDocumentMaster);
+                return this.GetAllStaffDocumentMaster();
             }
             catch (Exception ex)
             {
+                valid = false;
                 throw ex;
+
             }
+            finally
+            {
+                //cityrepository.Dispose();
+            }
+
         }
+
+
+
+
+
 
         public IEnumerable<HrDocumentMaster> UpdateHrDocumentMaster(HrDocumentMaster hrDocumentMaster)
         {

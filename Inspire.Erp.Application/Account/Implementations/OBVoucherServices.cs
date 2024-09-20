@@ -110,10 +110,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 i = 0;
                 throw ex;
             }
-
-
             return i;
-
         }
         public OBVoucherModel InsertOBVoucher(OpeningVoucherMaster openingVoucher, List<AccountsTransactions> accountsTransactions,
                                                         List<OpeningVoucherDetails> openingVoucherDetails)
@@ -125,33 +122,10 @@ namespace Inspire.Erp.Application.Account.Implementations
                 string openingstockVoucherNumber = this.GenerateVoucherNo(openingVoucher.OpeningVoucherMasterOpBDate.Value).VouchersNumbersVNo;
                 openingVoucher.OpeningVoucherNo = openingstockVoucherNumber;
 
-                _obVoucherRepository.BeginTransaction();
                 int mxc = 0;
                 mxc = Convert.ToInt32(
                     _obVoucherRepository.GetAsQueryable()
                     .DefaultIfEmpty().Max(o => o == null ? 0 : o.OpeningVoucherMasterId) + 1);
-                openingVoucher.OpeningVoucherMasterId = mxc;
-
-
-                //int mxc =0;
-                //mxc = (int)_obVoucherRepository.GetAsQueryable().Where(k => k.OpeningVoucherMasterId != null)
-                //            .DefaultIfEmpty()
-                //            .Max(o => o == null ? 0 : o.OpeningVoucherMasterId) + 1;             
-
-
-                //VouchersNumbers vouchersNumbers = new VouchersNumbers
-                //{
-                //    VouchersNumbersVNo = "OB" + Convert.ToString( mxc),
-                //    VouchersNumbersVNoNu = mxc,
-                //    VouchersNumbersVType = VoucherType.OBVoucher,
-                //    VouchersNumbersFsno = 1,
-                //    VouchersNumbersStatus = AccountStatus.Pending,
-                //    VouchersNumbersVoucherDate = openingVoucher.OpeningVoucherMasterOpBDate.Value
-
-                //};
-                //_voucherNumbersRepository.Insert(vouchersNumbers);
-
-
                 openingVoucher.OpeningVoucherMasterId = mxc;
 
                 ////string vNo = "";
@@ -172,6 +146,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 }).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
                 _obVoucherRepository.Insert(openingVoucher);
+               
                 _obVoucherRepository.TransactionCommit();
                
                 return this.GetSavedOBVoucherDetails(Convert.ToString(openingVoucher.OpeningVoucherNo));
@@ -206,8 +181,21 @@ namespace Inspire.Erp.Application.Account.Implementations
                                                     openingVoucherDetails = k.OpeningVoucherDetails.Where(x => x.OpeningVoucherDetailsDelStatus == false).ToList()
                                                 })
                                                 .SingleOrDefault();
-                voucherdata.openingBalanceVoucher = _obVoucherRepository.GetAsQueryable().Where(k => k.OpeningVoucherMasterId == Convert.ToInt32(pvno)).FirstOrDefault();
+                voucherdata.openingBalanceVoucher = _obVoucherRepository.GetAsQueryable().Where(k => k.OpeningVoucherNo == pvno).FirstOrDefault();
                 return voucherdata;
+
+
+                //OBVoucherModel OBVoucherModel = new OBVoucherModel();
+                //OBVoucherModel = _obVoucherRepository.GetAsQueryable().Where(k => k.OpeningVoucherNo == pvno).SingleOrDefault();
+                //OBVoucherModel.openingBalanceVoucher = _obVoucherRepository.GetAsQueryable().Where(x => x.OpeningVoucherNo == pvno && (x.OpeningVoucherMasterDelStatus == false || x.OpeningVoucherMasterDelStatus == null)).ToList();
+                //return OBVoucherModel;
+
+
+
+
+
+
+
 
             }
             return null;
@@ -218,9 +206,8 @@ namespace Inspire.Erp.Application.Account.Implementations
         {
             try
             {
-                ////var vno=  this._paymentVoucherRepository.GetAsQueryable().Where(k => k.PaymentVoucherVoucherNo == null).FirstOrDefault();
-
-                var prefix = this._programsettingsRepository.GetAsQueryable().Where(k => k.ProgramSettingsKeyValue == Prefix.PV_Prefix).FirstOrDefault().ProgramSettingsTextValue;
+            
+                var prefix = this._programsettingsRepository.GetAsQueryable().Where(k => k.ProgramSettingsKeyValue == Prefix.OBVoucher_Prefix).FirstOrDefault().ProgramSettingsTextValue;
                 int vnoMaxVal = Convert.ToInt32(_voucherNumbersRepository.GetAsQueryable()
                                                         .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == VoucherType.OBVoucher)
                                                         .DefaultIfEmpty()

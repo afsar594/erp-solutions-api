@@ -41,23 +41,30 @@ namespace Inspire.Erp.Application.Assets.Implementation
         {
             try
             {
-                var prefix = _programsettingsRepository.GetAsQueryable().Where(k => k.ProgramSettingsKeyValue == Prefix.AssetSubMasterVoucher_Prefix).FirstOrDefault().ProgramSettingsTextValue;
-                int vnoMaxVal = Convert.ToInt32(_vouchersNumbers.GetAsQueryable()
-                                                        .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == VoucherType.AssetSubMasterVoucher_TYPE)
-                                                        .DefaultIfEmpty()
-                                                        .Max(o => o == null ? 0 : o.VouchersNumbersVNoNu)) + 1;
+                // Fetch the prefix for the voucher
+                var prefix = _programsettingsRepository.GetAsQueryable()
+                    .Where(k => k.ProgramSettingsKeyValue == Prefix.AssetSubMasterVoucher_Prefix)
+                    .FirstOrDefault()?.ProgramSettingsTextValue ?? "ASM"; // Default to "AS" if not found
 
+                // Find the highest existing voucher number and increment by 1
+                int vnoMaxVal = Convert.ToInt32(_vouchersNumbers.GetAsQueryable()
+                    .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == VoucherType.AssetSubMasterVoucher_TYPE)
+                    .DefaultIfEmpty()
+                    .Max(o => o == null ? 0 : o.VouchersNumbersVNoNu)) + 1;
+
+                // Create a new voucher with the incremented number
                 VouchersNumbers vouchersNumbers = new VouchersNumbers
                 {
-                    VouchersNumbersVNo = prefix + vnoMaxVal,
+                    VouchersNumbersVNo = "ASM" + vnoMaxVal,
                     VouchersNumbersVNoNu = vnoMaxVal,
-                    VouchersNumbersVType = VoucherType.PurchaseVoucher_TYPE,
+                    VouchersNumbersVType = VoucherType.AssetSubMasterVoucher_TYPE, // Ensure the type is correct
                     VouchersNumbersFsno = 1,
                     VouchersNumbersStatus = AccountStatus.Pending,
                     VouchersNumbersVoucherDate = VoucherGenDate
-
                 };
+
                 _vouchersNumbers.Insert(vouchersNumbers);
+
                 return vouchersNumbers;
             }
             catch (Exception ex)
@@ -66,7 +73,7 @@ namespace Inspire.Erp.Application.Assets.Implementation
             }
         }
 
-        public List<AssetSubMaster> InsertPermissionApproval( Erp.Domain.Models.ViewModels.AssetSubMasterViewModel model)
+        public List<AssetSubMaster> InsertPermissionApproval(AssetSubMasterViewModel model)
         {
             try
 
@@ -75,8 +82,8 @@ namespace Inspire.Erp.Application.Assets.Implementation
 
                 string voucher = v.VouchersNumbersVNo;
 
-              
-               
+
+
                 _assetSubMaster.BeginTransaction();
 
                 foreach (var item in model.AssetSubMasterDetails)
@@ -106,10 +113,78 @@ namespace Inspire.Erp.Application.Assets.Implementation
         }
 
 
+        public AssetSubMasterListVM GetAssetSubMasterDetailById(int id)
+        {
+            try
+            {
+                var detailData = _assetSubMaster.GetAsQueryable()
+                    .Where(x => x.SubAssetID == id)
+                    .Select(x => new AssetSubMasterListVM
+                    {
+
+                        GroupID = x.GroupID,
+                        SubAssetID = x.SubAssetID,
+                        SlNo = (double?)x.SlNo,
+                        AssetDescription = x.AssetDescription,
+                        AssetCode = x.AssetCode,
+                        PurchDate = x.PurchDate,
+                        PurchPrice = (double?)x.PurchPrice,
+                        DepPerc = (double?)x.DepPerc,
+                        DepDate = x.DepDate,
+                        Days = (double?)x.Days,
+                        PerDay = (double?)x.PerDay,
+                        AccDep = (double?)x.AccDep,
+                        BookVaue = (double?)x.BookVaue,
+                        VoucherNo = x.VoucherNo,
+                        IsEdit = x.IsEdit,
+                        Remarks = x.Remarks
+                    })
+                    .FirstOrDefault(); // Get the first match or null if not found
+
+                return detailData;
+            }
+            catch (Exception ex)
+            {
+                throw ex; // Consider logging the exception as well
+            }
+        }
 
 
-        
+        public List<AssetSubMasterListVM> GetAllAssetSubMasterDetails()
+        {
+            try
+            {
+                var detailData = _assetSubMaster.GetAsQueryable()
+                    .Select(x => new AssetSubMasterListVM
+                    {
+                        GroupID = x.GroupID,
+                        SubAssetID = x.SubAssetID,
+                        SlNo = (double?)x.SlNo,
+                        AssetDescription = x.AssetDescription,
+                        AssetCode = x.AssetCode,
+                        PurchDate = x.PurchDate,
+                        PurchPrice = (double?)x.PurchPrice,
+                        DepPerc = (double?)x.DepPerc,
+                        DepDate = x.DepDate,
+                        Days = (double?)x.Days,
+                        PerDay = (double?)x.PerDay,
+                        AccDep = (double?)x.AccDep,
+                        BookVaue = (double?)x.BookVaue,
+                        VoucherNo = x.VoucherNo,
+                        IsEdit = x.IsEdit,
+                        Remarks = x.Remarks
+                    })
+                    .ToList(); // Materialize the query to a List
 
+                return detailData;
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+               // _logger.LogError(ex, "Error retrieving all AssetSubMaster records");
+                throw; // Re-throw the exception after logging
+            }
+        }
 
         public IQueryable GetAllAssets()
         {
@@ -127,6 +202,28 @@ namespace Inspire.Erp.Application.Assets.Implementation
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+
+        public bool DeleteAssetSubMasterById(int id)
+        {
+            try
+            {
+                var assetSubMaster = _assetSubMaster.GetAsQueryable().FirstOrDefault(x => x.SubAssetID == id);
+
+                if (assetSubMaster == null)
+                {
+                    return false; // Return false if the record doesn't exist
+                }
+
+                _assetSubMaster.Delete(assetSubMaster); // Assuming your repository has a Delete method
+                _assetSubMaster.SaveChangesAsync(); // Save changes to the database
+
+                return true; // Return true if deletion was successful
+            }
+            catch (Exception ex)
+            {
+                throw ex; // Consider logging the error and returning an appropriate result
             }
         }
     }

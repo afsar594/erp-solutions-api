@@ -11,8 +11,10 @@ namespace Inspire.Erp.Domain.Entities.documents
         public string? DocumentType { get; set; }
         public bool DefaultType { get; set; }
         public bool? AppDocument { get; set; }
-        public string StationMasterCode { get; set; }
-        public string DocumentvoucherNo { get; set; }
+      public bool Deletestatus { get; set; }
+    }
+    
+    
 
 
     }
@@ -24,6 +26,6 @@ namespace Inspire.Erp.Domain.Entities.documents
         public int? companyid { get; set; }
         public string? DocumentType { get; set; }
         public int? statusId { get; set; }
-    }
+    
 
 }
