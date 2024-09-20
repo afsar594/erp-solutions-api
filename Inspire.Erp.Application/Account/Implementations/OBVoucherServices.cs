@@ -107,10 +107,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 i = 0;
                 throw ex;
             }
-
-
             return i;
-
         }
         public OBVoucherModel InsertOBVoucher(OpeningVoucherMaster openingVoucher, List<AccountsTransactions> accountsTransactions,
                                                         List<OpeningVoucherDetails> openingVoucherDetails)
@@ -181,8 +178,21 @@ namespace Inspire.Erp.Application.Account.Implementations
                                                     openingVoucherDetails = k.OpeningVoucherDetails.Where(x => x.OpeningVoucherDetailsDelStatus == false).ToList()
                                                 })
                                                 .SingleOrDefault();
-                voucherdata.openingBalanceVoucher = _obVoucherRepository.GetAsQueryable().Where(k => k.OpeningVoucherNo ==pvno).FirstOrDefault();
+                voucherdata.openingBalanceVoucher = _obVoucherRepository.GetAsQueryable().Where(k => k.OpeningVoucherNo == pvno).FirstOrDefault();
                 return voucherdata;
+
+
+                //OBVoucherModel OBVoucherModel = new OBVoucherModel();
+                //OBVoucherModel = _obVoucherRepository.GetAsQueryable().Where(k => k.OpeningVoucherNo == pvno).SingleOrDefault();
+                //OBVoucherModel.openingBalanceVoucher = _obVoucherRepository.GetAsQueryable().Where(x => x.OpeningVoucherNo == pvno && (x.OpeningVoucherMasterDelStatus == false || x.OpeningVoucherMasterDelStatus == null)).ToList();
+                //return OBVoucherModel;
+
+
+
+
+
+
+
 
             }
             return null;
