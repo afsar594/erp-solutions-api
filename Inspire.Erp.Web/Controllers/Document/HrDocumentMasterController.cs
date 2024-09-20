@@ -163,6 +163,7 @@ namespace Inspire.Erp.Web.Controllers.Document
         //    }
         //}
 
+
         [HttpPost]
         [Route("InsertHrDocumentMaster")]
         public ApiResponse<HrDocumentMaster> InsertHrDocumentMaster([FromBody] HrDocumentMaster HrDocumentMaster)
