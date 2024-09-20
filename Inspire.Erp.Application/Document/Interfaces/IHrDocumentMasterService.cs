@@ -1,14 +1,18 @@
-﻿using Inspire.Erp.Domain.Entities.documents;
+﻿using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Entities.documents;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Inspire.Erp.Application.Document.Interfaces
 {
     public interface IHrDocumentMasterService
     {
-        public IEnumerable<HrDocumentMaster> InsertHrDocumentMaster(HrDocumentMaster hrDocumentMaster);
+      
+        public Task<IEnumerable<HrDocumentMaster>> InsertHrDocumentMaster(HrDocumentMaster hrDocumentMaster);
+
         public IEnumerable<HrDocumentMaster> UpdateHrDocumentMaster(HrDocumentMaster hrDocumentMaster);
         public IEnumerable<HrDocumentMaster> DeleteHrDocumentMaster(HrDocumentMaster hrDocumentMaster);
         public IEnumerable<HrDocumentMaster> GetAllHrDocumentMasters();
