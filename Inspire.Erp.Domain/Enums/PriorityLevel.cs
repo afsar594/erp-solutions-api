@@ -57,6 +57,8 @@ namespace Inspire.Erp.Domain.Enums
         public static String GeneralPurchaseOrder_TYPE { get { return "GeneralPurchaseOrder"; } }
         public static String StockRequisition_TYPE { get { return "StockRequisition"; } }
         public static String ProgressiveInvoice_TYPE { get { return "ProgressiveInvoice"; } }
+
+        public static String DocumentVoucher_TYPE { get { return "DocumentVoucher"; } }
         public static String StockAdjustmentVoucher_TYPE
         {
             get { return "StockAdjustmentVoucher"; }
@@ -128,6 +130,9 @@ namespace Inspire.Erp.Domain.Enums
         public static String BOQ_Prefix { get { return "BOQ_Prefix"; } }
 
         public static String ProgressiveInvoice_Prefix { get { return "ProgressiveInvoice_Prefix"; } }
+        public static String DocumentVoucher_Prefix { get { return "DocumentVoucher_Prefix"; } }
+
+        public static String OBVoucher_Prefix { get { return "OBVoucher_Prefix"; } }
     }
 
     public static class ItemMasterStatus

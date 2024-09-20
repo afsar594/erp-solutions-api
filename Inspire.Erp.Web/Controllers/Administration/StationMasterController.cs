@@ -58,8 +58,9 @@ namespace Inspire.Erp.Web.Controllers.Administration
                 IBAN=k.IBAN,
                 SwiftCode=k.SwiftCode,
                 BankBranch=k.BankBranch,
-                BankCurrency=k.BankCurrency
-                 }).ToList();
+                BankCurrency=k.BankCurrency,
+                logotype = k.logotype
+            }).ToList();
         }
 
         [HttpPost]

@@ -32,5 +32,6 @@ namespace Inspire.Erp.Web.ViewModels.Administration
         public string SwiftCode { get; set; }
         public string BankBranch { get; set; }
         public string BankCurrency { get; set; }
+        public string logotype { get; set; }
     }
 }

@@ -2,6 +2,7 @@
 using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Models;
+using Inspire.Erp.Domain.Models.Master;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -16,5 +17,7 @@ namespace Inspire.Erp.Application.Account.Interfaces
         Task<Response<AssetMaster>> GetAssetMaster(int id);
         Task<Response<List<AssetMaster>>> GetRelativeAssetMasterRecord(int accNo);
         Task<Response<bool>> AddEditAssetMaster(AssetMasterViewModel model);
+        Task<Response<List<AssetCodes>>> GetAssetsCodes();
+        
     }
 }
