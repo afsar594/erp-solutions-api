@@ -1,8 +1,10 @@
 ﻿using Inspire.Erp.Application.Common;
 using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Modals.Common;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 
 namespace Inspire.Erp.Application.Account.Interfaces
@@ -18,6 +20,7 @@ namespace Inspire.Erp.Application.Account.Interfaces
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
 
         public VouchersNumbers GetVouchersNumbers(string pvno);
+        public Task<ResponseInfo> LoadAccounts();
 
     }
 }
