@@ -57,7 +57,7 @@ namespace Inspire.Erp.Application.Document.Implementations
                 maxcount = Convert.ToInt32(
                     _documentMasterrepository.GetAsQueryable()
                     .DefaultIfEmpty().Max(o => o == null ? 0 : o.DocumentId) + 1);
-                hrDocumentMaster.DocumentId = maxcount;
+                //hrDocumentMaster.DocumentId = maxcount;
 
                 _documentMasterrepository.Insert(hrDocumentMaster);
 

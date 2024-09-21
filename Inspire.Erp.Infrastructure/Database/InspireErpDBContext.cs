@@ -750,10 +750,10 @@ namespace Inspire.Erp.Infrastructure.Database
                     .IsUnicode(false);
                 entity.Property(e => e.DocName);
 
-                entity.HasOne(d => d.Document)
-                    .WithMany(p => p.HrDocumentImages)
-                    .HasForeignKey(d => d.DocumentId)
-                    .HasConstraintName("FK_DocumentImages_DocumentMaster1");
+                //entity.HasOne(d => d.Document)
+                //    .WithMany(p => p.HrDocumentImages)
+                //    .HasForeignKey(d => d.DocumentId)
+                //    .HasConstraintName("FK_DocumentImages_DocumentMaster1");
             });
 
             modelBuilder.Entity<HrDocumentInOutDetails>(entity =>
@@ -780,10 +780,12 @@ namespace Inspire.Erp.Infrastructure.Database
             modelBuilder.Entity<DocumentMaster>(entity =>
             {
                 entity.HasKey(e => e.DocumentId);
-                entity.ToTable("HR_DocumentMaster");                
-                entity.Property(e => e.DocImage).HasColumnType("image");
+                entity.ToTable("HR_DocumentMaster");     
+                
+                entity.Property(e => e.DocImage).HasColumnName("DocImage");
+
                 entity.Property(e => e.DocName)
-                    .HasMaxLength(150)
+                    .HasMaxLength(50)
                     .IsUnicode(false);
                 entity.Property(e => e.DocNo)
                     .HasMaxLength(50)
