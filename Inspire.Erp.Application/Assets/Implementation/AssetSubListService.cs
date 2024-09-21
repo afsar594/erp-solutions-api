@@ -26,14 +26,16 @@ namespace Inspire.Erp.Application.Assets.Implementation
         private IRepository<AssetSubListHeader> _assetSubListHeader;
         private IRepository<ProgramSettings> _programsettingsRepository;
         private IRepository<AssetSubMaster> _assetSubMaster;
+        private IRepository<MasterAccountsTable> _masterAccountTable;
 
-        public AssetSubListService(IRepository<AssetMaster> assetsubmaster, IRepository<VouchersNumbers> vouchersNumbers, IRepository<AssetSubListHeader> assets, IRepository<AssetSubMaster> assetSubMaster, IRepository<ProgramSettings> programsettingsRepository)
+        public AssetSubListService(IRepository<AssetMaster> assetsubmaster, IRepository<VouchersNumbers> vouchersNumbers, IRepository<AssetSubListHeader> assets, IRepository<AssetSubMaster> assetSubMaster, IRepository<ProgramSettings> programsettingsRepository, IRepository<MasterAccountsTable> masterAccountTable)
         {
             _assetmaster = assetsubmaster;
             _vouchersNumbers = vouchersNumbers;
             _assetSubListHeader = assets;
             _assetSubMaster = assetSubMaster;
             _programsettingsRepository = programsettingsRepository;
+            _masterAccountTable = masterAccountTable;
         }
 
 
@@ -186,22 +188,18 @@ namespace Inspire.Erp.Application.Assets.Implementation
             }
         }
 
-        public IQueryable GetAllAssets()
+        public async Task<List<MasterAccountsTable>> GetAllAssets()
         {
             try
             {
-                var detailData = _assetmaster.GetAsQueryable()
-                 .Select(x => new
-                 {
-                     x.AssetMasterAssetCode,
-                     x.AssetMasterAssetName
-                 });
+                var detailData = await _masterAccountTable.GetAsQueryable()
+                    .Where(x => x.MaSubHead == "Fixed Asset")
+                    .ToListAsync();
                 return detailData;
-
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw;
             }
         }
 

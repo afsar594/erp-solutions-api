@@ -11,11 +11,12 @@ namespace Inspire.Erp.Application.Assets.Interface
     public interface IAssetSubListService
     {
 
-        public IQueryable GetAllAssets();
+        public  Task<List<MasterAccountsTable>> GetAllAssets();
         public List<AssetSubMasterListVM> GetAllAssetSubMasterDetails();
         bool DeleteAssetSubMasterById(int id); // New method for deletion
         public AssetSubMasterListVM GetAssetSubMasterDetailById(int SubAssetId);
         List<AssetSubMaster> InsertPermissionApproval(AssetSubMasterViewModel request);
+       
 
     }
 
