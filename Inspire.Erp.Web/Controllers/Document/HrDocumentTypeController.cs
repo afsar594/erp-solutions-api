@@ -36,27 +36,32 @@ namespace Inspire.Erp.Web.Controllers.Document
                 this.hrDocumentTypeService = _hrDocumentTypeService;
             }
 
-            [HttpGet]
-            [Route("HrGetAllDocumentTypes")]
-            public List<HrDocumentTypeViewModel> getAllDocumentTypes()
+        [HttpGet]
+        [Route("GetDocumentType")]
+        public ApiResponse<List<HrDocumentType>> GetDocumentType()
+        {
+            ApiResponse<List<HrDocumentType>> apiResponse = new ApiResponse<List<HrDocumentType>>
             {
-                try
-                {
-                    return hrDocumentTypeService.GetAllHrDocumentType().Select(x => new HrDocumentTypeViewModel()
-                    {
-                        AppDocument = x.AppDocument,
-                        DefaultType = x.DefaultType,
-                        DocumentType = x.DocumentType,
-                        DocumentTypeId = x.DocumentTypeId
-                    }).ToList();
-                }
-                catch (Exception ex)
-                {
-                    return new List<HrDocumentTypeViewModel>();
-                }
+                Valid = true,
+                Result = mapper.Map<List<HrDocumentType>>(hrDocumentTypeService.GetAllHrDocumentType()),
+                Message = ""
+            };
+            return apiResponse;
+        }
+        [HttpGet]
+        [Route("GetDocumentTypeById")]
+        public IActionResult GetDocumentTypeById(int id)
+        {
+            try
+            {
+                var item = hrDocumentTypeService.GetDocumentTypeById(id);
+                return Ok(item);
             }
-
-
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
+        }
         [HttpPost]
         [Route("InsertDocumentType")]
         public ApiResponse<HrDocumentType> InsertDocumentType([FromBody] HrDocumentType DocumentTypeViewModel)
