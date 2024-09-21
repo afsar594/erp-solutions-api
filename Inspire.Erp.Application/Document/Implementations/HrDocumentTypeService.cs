@@ -121,23 +121,32 @@ namespace Inspire.Erp.Application.Document.Implementations
                 throw ex;
             }
         }
-
-        public IEnumerable<HrDocumentType> GetAllHrDocumentType()
+        public HrDocumentType GetDocumentTypeById(int? id)
         {
-            IEnumerable<HrDocumentType> HrDocumentTypes;
             try
             {
-                HrDocumentTypes = _HrDocumentTypeRepo.GetAll();
+                var HrDocumentType = new HrDocumentType();
+                HrDocumentType = _HrDocumentTypeRepo.GetAsQueryable().FirstOrDefault(x => x.DocumentTypeId == Convert.ToInt32(id));
+                return HrDocumentType;
+
             }
             catch (Exception ex)
             {
                 throw ex;
             }
-            finally
+        }
+        public IEnumerable<HrDocumentType> GetAllHrDocumentType()
+        {
+            try
             {
-                //hrShiftsrepository.Dispose();
+                var data = _HrDocumentTypeRepo.GetAll().Where(a => a.Deletestatus != true).OrderBy(c => c.DocumentTypeId).ToList();
+                return data;
+
             }
-            return HrDocumentTypes;
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
         public IEnumerable<StationMasterList> GetAllCompanies()
         {
