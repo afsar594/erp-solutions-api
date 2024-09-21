@@ -19,6 +19,8 @@ namespace Inspire.Erp.Web.ViewModels.Accounts
         public int? OpeningVoucherMasterFsno { get; set; }
         public bool? OpeningVoucherMasterDelStatus { get; set; }
 
+        public string OpeningVoucherNo { get; set; }
+
         public List<AccountTransactionsViewModel> AccountsTransactions { get; set; }
         public List<OpeningBalanceVoucherDetailsViewModel> openingVoucherDetails { get; set; }
 

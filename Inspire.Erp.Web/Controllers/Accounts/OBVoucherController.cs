@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Inspire.Erp.Web.ViewModels.Accounts;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Inspire.Erp.Domain.Modals.Common;
 
 namespace Inspire.Erp.Web.Controllers.Accounts
 {
@@ -55,7 +56,8 @@ namespace Inspire.Erp.Web.Controllers.Accounts
                     OpeningVoucherMasterUserId = xs.openingBalanceVoucher.OpeningVoucherMasterUserId,
                     OpeningVoucherMasterLastUpdateTime = xs.openingBalanceVoucher.OpeningVoucherMasterLastUpdateTime,
                     OpeningVoucherMasterFsno = xs.openingBalanceVoucher.OpeningVoucherMasterFsno,
-                    OpeningVoucherMasterDelStatus = xs.openingBalanceVoucher.OpeningVoucherMasterDelStatus
+                    OpeningVoucherMasterDelStatus = xs.openingBalanceVoucher.OpeningVoucherMasterDelStatus,
+                    OpeningVoucherNo= xs.openingBalanceVoucher.OpeningVoucherNo
 
                 };
 
@@ -204,6 +206,12 @@ namespace Inspire.Erp.Web.Controllers.Accounts
 
         }
 
+        [HttpGet]
+        [Route("getAccounts")]
+        public async Task<ResponseInfo> getAccounts()
+        {
+            return await _obVoucherService.LoadAccounts();
+        }
         //[HttpGet]
         //[Route("CheckVnoExist/{id}")]
         //public ApiResponse<bool> CheckVnoExist(string id)

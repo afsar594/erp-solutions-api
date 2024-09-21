@@ -18,6 +18,7 @@ using Inspire.Erp.Application.Account.Interface;
 using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.Common;
 using Spire.Pdf.General.Paper.Uof;
+using Serilog;
 namespace Inspire.Erp.Application.Document.Implementations
 {
     public class HrDocumentTypeService : IHrDocumentTypeService
@@ -43,8 +44,8 @@ namespace Inspire.Erp.Application.Document.Implementations
                 valid = true;
 
 
-                string openingstockVoucherNumber = this.GenerateVoucherNo(System.DateTime.Now).VouchersNumbersVNo;
-                HrDocumentType.DocumentvoucherNo = openingstockVoucherNumber;
+                //string openingstockVoucherNumber = this.GenerateVoucherNo(System.DateTime.Now).VouchersNumbersVNo;
+                //HrDocumentType.DocumentvoucherNo = openingstockVoucherNumber;
 
                 _HrDocumentTypeRepo.BeginTransaction();
 
@@ -61,7 +62,7 @@ namespace Inspire.Erp.Application.Document.Implementations
 
                 _HrDocumentTypeRepo.TransactionCommit();
 
-                return this.GetAllHrDocumentTypebyvoucher(HrDocumentType.DocumentvoucherNo);
+                return this.GetAllHrDocumentTypebyvoucher(HrDocumentType.DocumentTypeId);
 
             }
             catch (Exception ex)
@@ -85,7 +86,7 @@ namespace Inspire.Erp.Application.Document.Implementations
                 _HrDocumentTypeRepo.Update(HrDocumentType);
                 _HrDocumentTypeRepo.TransactionCommit();
 
-                return this.GetAllHrDocumentTypebyvoucher(HrDocumentType.DocumentvoucherNo);
+                return this.GetAllHrDocumentTypebyvoucher(HrDocumentType.DocumentTypeId);
             }
             catch (Exception ex)
             {
@@ -93,11 +94,11 @@ namespace Inspire.Erp.Application.Document.Implementations
                 throw ex;
             }
         }
-        public IEnumerable<HrDocumentType> DeleteDocumentType(string Id)
+        public IEnumerable<HrDocumentType> DeleteDocumentType(long Id)
         {
             try
             {
-                var dataObj = _HrDocumentTypeRepo.GetAsQueryable().Where(o => o.DocumentvoucherNo == Id).FirstOrDefault();
+                var dataObj = _HrDocumentTypeRepo.GetAsQueryable().Where(o => o.DocumentTypeId == Id).FirstOrDefault();
                 dataObj.Deletestatus = true;
                 _HrDocumentTypeRepo.Update(dataObj);
                 return _HrDocumentTypeRepo.GetAll();
@@ -107,12 +108,12 @@ namespace Inspire.Erp.Application.Document.Implementations
                 throw ex;
             }
         }
-        public HrDocumentType GetAllHrDocumentTypebyvoucher(string VNo)
+        public HrDocumentType GetAllHrDocumentTypebyvoucher(long VNo)
         {
             try
             {
                 HrDocumentType HrDocumentTypes = new HrDocumentType();
-                HrDocumentTypes = _HrDocumentTypeRepo.GetAsQueryable().Where(k => k.DocumentvoucherNo == VNo).SingleOrDefault();
+                HrDocumentTypes = _HrDocumentTypeRepo.GetAsQueryable().Where(k => k.DocumentTypeId == VNo).SingleOrDefault();
                 return HrDocumentTypes;
             }
             catch (Exception ex)

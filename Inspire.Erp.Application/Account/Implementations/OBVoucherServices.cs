@@ -2,6 +2,7 @@
 using Inspire.Erp.Application.Common;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -11,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Inspire.Erp.Application.Account.Implementations
 {
@@ -22,10 +24,11 @@ namespace Inspire.Erp.Application.Account.Implementations
         private IRepository<ProgramSettings> _programsettingsRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
         private readonly ILogger<OBVoucherService> _logger;
+        private readonly IRepository<MasterAccountsTable> _masterAccountsTable;
 
         public OBVoucherService(IRepository<AccountsTransactions> accountTransactionRepository, IRepository<ProgramSettings> programsettingsRepository,
             IRepository<VouchersNumbers> voucherNumbers, ILogger<OBVoucherService> logger,
-            IRepository<OpeningVoucherMaster> obVoucherRepository, IRepository<OpeningVoucherDetails> obVoucherDetailsRepository)
+            IRepository<OpeningVoucherMaster> obVoucherRepository, IRepository<OpeningVoucherDetails> obVoucherDetailsRepository, IRepository<MasterAccountsTable> masterAccountsTable)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._obVoucherRepository = obVoucherRepository;
@@ -33,7 +36,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             _programsettingsRepository = programsettingsRepository;
             _voucherNumbersRepository = voucherNumbers;
             _logger = logger;
-
+            _masterAccountsTable = masterAccountsTable;
         }
 
         public OBVoucherModel UpdateOBVoucher(OpeningVoucherMaster openingBalanceVoucher, List<AccountsTransactions> accountsTransactions,
@@ -107,10 +110,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 i = 0;
                 throw ex;
             }
-
-
             return i;
-
         }
         public OBVoucherModel InsertOBVoucher(OpeningVoucherMaster openingVoucher, List<AccountsTransactions> accountsTransactions,
                                                         List<OpeningVoucherDetails> openingVoucherDetails)
@@ -181,8 +181,21 @@ namespace Inspire.Erp.Application.Account.Implementations
                                                     openingVoucherDetails = k.OpeningVoucherDetails.Where(x => x.OpeningVoucherDetailsDelStatus == false).ToList()
                                                 })
                                                 .SingleOrDefault();
-                voucherdata.openingBalanceVoucher = _obVoucherRepository.GetAsQueryable().Where(k => k.OpeningVoucherNo ==pvno).FirstOrDefault();
+                voucherdata.openingBalanceVoucher = _obVoucherRepository.GetAsQueryable().Where(k => k.OpeningVoucherNo == pvno).FirstOrDefault();
                 return voucherdata;
+
+
+                //OBVoucherModel OBVoucherModel = new OBVoucherModel();
+                //OBVoucherModel = _obVoucherRepository.GetAsQueryable().Where(k => k.OpeningVoucherNo == pvno).SingleOrDefault();
+                //OBVoucherModel.openingBalanceVoucher = _obVoucherRepository.GetAsQueryable().Where(x => x.OpeningVoucherNo == pvno && (x.OpeningVoucherMasterDelStatus == false || x.OpeningVoucherMasterDelStatus == null)).ToList();
+                //return OBVoucherModel;
+
+
+
+
+
+
+
 
             }
             return null;
@@ -232,6 +245,21 @@ namespace Inspire.Erp.Application.Account.Implementations
                 throw ex;
             }
 
+        }
+
+        public async Task<ResponseInfo> LoadAccounts()
+        {
+            var objresponse = new ResponseInfo();
+            var details = await _masterAccountsTable.GetAsQueryable().Where(a => a.MaAccType == "A" || a.MaAccNo == "01001005").Select(c => new
+            {
+              c.MaAccNo,
+              c.MaAccName
+            }).ToListAsync();
+            objresponse.ResultSet = new
+            {
+                details = details,
+            };
+            return objresponse;
         }
     }
 }
