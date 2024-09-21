@@ -37,7 +37,7 @@ namespace Inspire.Erp.Application.Document.Implementations
             _programsettingsRepository = programsettingsRepository;
         }
         public HrDocumentType InsertDocumentType(HrDocumentType HrDocumentType)
-        { 
+        {
             bool valid = false;
             try
             {
@@ -70,7 +70,7 @@ namespace Inspire.Erp.Application.Document.Implementations
                 _HrDocumentTypeRepo.TransactionRollback();
                 throw ex;
             }
-           
+
         }
         public HrDocumentType UpdateDocumentType(HrDocumentType HrDocumentType)
         {
