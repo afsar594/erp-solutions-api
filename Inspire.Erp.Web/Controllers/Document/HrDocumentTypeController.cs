@@ -48,20 +48,20 @@ namespace Inspire.Erp.Web.Controllers.Document
             };
             return apiResponse;
         }
-        [HttpGet]
-        [Route("GetDocumentTypeById")]
-        public IActionResult GetDocumentTypeById(int id)
+        [HttpGet("GetDocumentTypeById/{id}")]
+        public ApiResponse<HrDocumentType> GetDocumentTypeById(int id)
         {
-            try
+            var DocumentType = hrDocumentTypeService.GetDocumentTypeById(id);
+
+            ApiResponse<HrDocumentType> apiResponse = new ApiResponse<HrDocumentType>
             {
-                var item = hrDocumentTypeService.GetDocumentTypeById(id);
-                return Ok(item);
-            }
-            catch (System.Exception ex)
-            {
-                return StatusCode(500, ex.Message.ToString());
-            }
+                Valid = true,
+                Result = DocumentType,
+                Message = ""
+            };
+            return apiResponse;
         }
+
         [HttpPost]
         [Route("InsertDocumentType")]
         public ApiResponse<HrDocumentType> InsertDocumentType([FromBody] HrDocumentType DocumentTypeViewModel)
