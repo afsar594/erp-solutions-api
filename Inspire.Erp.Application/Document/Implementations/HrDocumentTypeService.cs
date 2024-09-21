@@ -135,6 +135,10 @@ namespace Inspire.Erp.Application.Document.Implementations
                 throw ex;
             }
         }
+
+
+
+
         public IEnumerable<HrDocumentType> GetAllHrDocumentType()
         {
             try
