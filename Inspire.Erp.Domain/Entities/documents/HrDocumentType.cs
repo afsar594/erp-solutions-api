@@ -12,6 +12,9 @@ namespace Inspire.Erp.Domain.Entities.documents
         public bool DefaultType { get; set; }
         public bool? AppDocument { get; set; }
       public bool Deletestatus { get; set; }
+
+      public string DocumentvoucherNo { get; set; }
+        
     }
     
     
