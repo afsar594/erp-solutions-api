@@ -85,8 +85,8 @@ namespace Inspire.Erp.Web.Controllers.Document
             }
         }
 
-        [HttpPost]
-        [Route("GetReport")]
+        //[HttpPost]
+        //[Route("GetReport")]
         //public IActionResult GetReport([FromBody] DtoDocumentReportParam _DtoDocumentReportParam)
         //{
         //    try
@@ -131,38 +131,8 @@ namespace Inspire.Erp.Web.Controllers.Document
         /// <returns>
         ///  in the response returns an object of type  List<HrDocumentMasterViewModel> 
         /// </returns>
-        [HttpPost]
-        [Route("InsertHrDocumentMaster")]
-        //public List<HrDocumentMasterViewModel> InsertHrDocumentMaster([FromBody] HrDocumentMasterViewModel hrDocumentMasterViewModel)
-        //{
-        //    try
-        //    {
-        //        var hrDocumentMaster = mapper.Map<HrDocumentMaster>(hrDocumentMasterViewModel);
-        //        return this.hrDocumentMasterService.InsertHrDocumentMaster(hrDocumentMaster).Select(x => new HrDocumentMasterViewModel()
-        //        {
-        //            DocumentId = x.DocumentId,
-        //            DocumentTypeId = x.DocumentTypeId,
-        //            StaffId = x.StaffId,
-        //            CompanyId = x.CompanyId,
-        //            VehicleId = x.VehicleId,
-        //            OtherId = x.OtherId,
-        //            MasterType = x.MasterType,
-        //            DocName = x.DocName,
-        //            DocNo = x.DocNo,
-        //            Remarks = x.Remarks,
-        //            IssueDate = x.IssueDate,
-        //            ExpDate = x.ExpDate,
-        //            DocImage = x.DocImage,
-        //            Status = x.Status,
-        //            DocStatusId = x.DocStatusId
-        //        }).ToList();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return null;
-        //    }
-        //}
-
+       
+       
 
         [HttpPost]
         [Route("InsertHrDocumentMaster")]
