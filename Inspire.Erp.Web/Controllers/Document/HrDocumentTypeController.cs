@@ -73,7 +73,6 @@ namespace Inspire.Erp.Web.Controllers.Document
 
             };
             return apiResponse;
-
         }
         [HttpPost]
         [Route("UpdateHrDocumentType")]
@@ -91,7 +90,6 @@ namespace Inspire.Erp.Web.Controllers.Document
 
             };
             return apiResponse;
-
         }
         [HttpDelete]
         [Route("DeleteHrDocumentType")]
