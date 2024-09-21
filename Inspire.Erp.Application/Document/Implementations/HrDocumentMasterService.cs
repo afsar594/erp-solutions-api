@@ -52,18 +52,9 @@ namespace Inspire.Erp.Application.Document.Implementations
                 hrDocumentMaster.DocumentvoucherNo = openingstockVoucherNumber;
 
                 _documentMasterrepository.BeginTransaction();
-
-                int maxcount = 0;
-                maxcount = Convert.ToInt32(
-                    _documentMasterrepository.GetAsQueryable()
-                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.DocumentId) + 1);
-                //hrDocumentMaster.DocumentId = maxcount;
-
                 _documentMasterrepository.Insert(hrDocumentMaster);
-
-
                 _documentMasterrepository.TransactionCommit();
-
+                
                 return this.GetDocumentMasterbyvoucher(hrDocumentMaster.DocumentvoucherNo);
 
             }
@@ -121,15 +112,8 @@ namespace Inspire.Erp.Application.Document.Implementations
             try
             {
                 _documentMasterrepository.BeginTransaction();
-
-                int maxcount1 = 0;
-                maxcount1 = Convert.ToInt32(
-                    _documentMasterrepository.GetAsQueryable()
-                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.DocumentId) + 1);
-
                 _documentMasterrepository.Update(DocumentMaster);
                 _documentMasterrepository.TransactionCommit();
-
                 return this.GetDocumentMasterbyvoucher(DocumentMaster.DocumentvoucherNo);
             }
             catch (Exception ex)
