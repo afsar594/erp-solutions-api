@@ -152,12 +152,12 @@ namespace Inspire.Erp.Web.Controllers
             {
                 var assetSubMaster = _mapper.Map<AssetSubMaster>(request);
                
-                var result = await _Assetsubmaster.UpsertAssetSubMasterAsync(assetSubMaster);
+               // var result = await _Assetsubmaster.UpsertAssetSubMasterAsync(assetSubMaster);
 
                 return Ok(new ApiResponse<AssetSubMaster>
                 {
                     Valid = true,
-                    Result = result,
+                    Result = null,// result,
                     Message = "Asset sub-master updated successfully"
                 });
             }
