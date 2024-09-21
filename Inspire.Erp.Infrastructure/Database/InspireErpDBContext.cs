@@ -454,6 +454,7 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<HrDocumentImages> HrDocumentImages { get; set; }
         public virtual DbSet<HrDocumentInOutDetails> HrDocumentInOutDetails { get; set; }
         public virtual DbSet<HrDocumentMaster> HrDocumentMaster { get; set; }
+        public virtual DbSet<DocumentMaster> DocumentMaster { get; set; }
         public virtual DbSet<HrDocumentRequest> HrDocumentRequest { get; set; }
         public virtual DbSet<HrDocumentStatusMaster> HrDocumentStatusMaster { get; set; }
         public virtual DbSet<HrDocumentType> HrDocumentType { get; set; }
@@ -774,6 +775,52 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.Lcdate).HasColumnName("LCDate");
                 entity.Property(e => e.LeaveId).HasColumnName("LeaveID");
                 entity.Property(e => e.DocResubDys).HasColumnName("DOC_RESUB_DYS");
+            });
+
+            modelBuilder.Entity<DocumentMaster>(entity =>
+            {
+                entity.HasKey(e => e.DocumentId);
+
+                entity.ToTable("HR_DocumentMaster");
+
+                entity.Property(e => e.DocumentId);
+
+                entity.Property(e => e.DocImage).HasColumnType("image");
+
+                entity.Property(e => e.DocName)
+                    .HasMaxLength(150)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.DocNo)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.DocStatusId).HasColumnName("DocStatusID");
+
+                entity.Property(e => e.ExpDate).HasColumnType("datetime");
+
+                entity.Property(e => e.IssueDate).HasColumnType("datetime");
+
+                entity.Property(e => e.MasterType)
+                    .IsRequired()
+                    .HasMaxLength(10)
+                    .IsFixedLength();
+
+                
+                entity.Property(e => e.Remarks)
+                    .IsRequired()
+                    .HasMaxLength(250)
+                    .IsUnicode(false);
+
+                
+                entity.Property(e => e.Status).HasColumnName("status");
+
+
+                entity.Property(e => e.DocumentvoucherNo)
+                  .HasMaxLength(50)
+                  .IsUnicode(false);
+
+
             });
 
             modelBuilder.Entity<HrDocumentMaster>(entity =>

@@ -143,7 +143,7 @@ namespace Inspire.Erp.Application.Document.Implementations
         {
             try
             {
-                var data = _HrDocumentTypeRepo.GetAll();
+                var data = _HrDocumentTypeRepo.GetAll().Where(a => a.Deletestatus != true);
                 return data;
 
             }
