@@ -13,7 +13,7 @@ namespace Inspire.Erp.Domain.Entities.documents
         public string Extension { get; set; }
         public string DocName { get; set; }
 
-        public virtual HrDocumentMaster Document { get; set; }
+        //public virtual HrDocumentMaster Document { get; set; }
     }
 
     public class DTOHrDocumentImages

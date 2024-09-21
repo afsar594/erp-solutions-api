@@ -17,7 +17,7 @@ namespace Inspire.Erp.Application.Document.Implementations
 {
     public class HrDocumentMasterService : IHrDocumentMasterService
     {
-        private IRepository<HrDocumentMaster> repository;
+        private IRepository<DocumentMaster> repository;
         private IRepository<DocumentMaster> _documentMasterrepository;
         private readonly IHrDocumentTypeService _documentTypeRepoService;
         private readonly IHrStaffMasterService _staffRepoService;
@@ -27,7 +27,7 @@ namespace Inspire.Erp.Application.Document.Implementations
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
         private readonly InspireErpDBContext _Context;
 
-        public HrDocumentMasterService(IRepository<HrDocumentMaster> repository, IHrDocumentTypeService documentTypeRepo, IHrStaffMasterService staffRepo
+        public HrDocumentMasterService(IRepository<DocumentMaster> repository, IHrDocumentTypeService documentTypeRepo, IHrStaffMasterService staffRepo
         , IHrVehicleMasterService vehicleRepo, InspireErpDBContext Context, IRepository<DocumentMaster> documentMasterrepository, IRepository<ProgramSettings> programsettingsrepository, IRepository<ProgramSettings> programsettingsRepository, IRepository<VouchersNumbers> voucherNumbersRepository)
         {
             this.repository = repository;

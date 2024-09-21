@@ -453,7 +453,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
         public virtual DbSet<HrDocumentImages> HrDocumentImages { get; set; }
         public virtual DbSet<HrDocumentInOutDetails> HrDocumentInOutDetails { get; set; }
-        public virtual DbSet<HrDocumentMaster> HrDocumentMaster { get; set; }
+        //public virtual DbSet<HrDocumentMaster> HrDocumentMaster { get; set; }
         public virtual DbSet<DocumentMaster> DocumentMaster { get; set; }
         public virtual DbSet<HrDocumentRequest> HrDocumentRequest { get; set; }
         public virtual DbSet<HrDocumentStatusMaster> HrDocumentStatusMaster { get; set; }
@@ -780,42 +780,26 @@ namespace Inspire.Erp.Infrastructure.Database
             modelBuilder.Entity<DocumentMaster>(entity =>
             {
                 entity.HasKey(e => e.DocumentId);
-
-                entity.ToTable("HR_DocumentMaster");
-
-                entity.Property(e => e.DocumentId);
-
+                entity.ToTable("HR_DocumentMaster");                
                 entity.Property(e => e.DocImage).HasColumnType("image");
-
                 entity.Property(e => e.DocName)
                     .HasMaxLength(150)
                     .IsUnicode(false);
-
                 entity.Property(e => e.DocNo)
                     .HasMaxLength(50)
                     .IsUnicode(false);
-
                 entity.Property(e => e.DocStatusId).HasColumnName("DocStatusID");
-
                 entity.Property(e => e.ExpDate).HasColumnType("datetime");
-
                 entity.Property(e => e.IssueDate).HasColumnType("datetime");
-
                 entity.Property(e => e.MasterType)
                     .IsRequired()
                     .HasMaxLength(10)
-                    .IsFixedLength();
-
-                
+                    .IsFixedLength();                
                 entity.Property(e => e.Remarks)
                     .IsRequired()
                     .HasMaxLength(250)
-                    .IsUnicode(false);
-
-                
+                    .IsUnicode(false);                
                 entity.Property(e => e.Status).HasColumnName("status");
-
-
                 entity.Property(e => e.DocumentvoucherNo)
                   .HasMaxLength(50)
                   .IsUnicode(false);
@@ -823,48 +807,48 @@ namespace Inspire.Erp.Infrastructure.Database
 
             });
 
-            modelBuilder.Entity<HrDocumentMaster>(entity =>
-            {
-                entity.HasKey(e => e.DocumentId);
+            //modelBuilder.Entity<HrDocumentMaster>(entity =>
+            //{
+            //    entity.HasKey(e => e.DocumentId);
 
-                entity.ToTable("HR_DocumentMaster");
+            //    entity.ToTable("HR_DocumentMaster");
 
-                entity.Property(e => e.DocumentId);
+            //    entity.Property(e => e.DocumentId);
 
-                entity.Property(e => e.DocImage).HasColumnType("image");
+            //    entity.Property(e => e.DocImage).HasColumnType("image");
 
-                entity.Property(e => e.DocName)
-                    .HasMaxLength(150)
-                    .IsUnicode(false);
+            //    entity.Property(e => e.DocName)
+            //        .HasMaxLength(150)
+            //        .IsUnicode(false);
 
-                entity.Property(e => e.DocNo)
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
+            //    entity.Property(e => e.DocNo)
+            //        .HasMaxLength(50)
+            //        .IsUnicode(false);
 
-                entity.Property(e => e.DocStatusId).HasColumnName("DocStatusID");
+            //    entity.Property(e => e.DocStatusId).HasColumnName("DocStatusID");
 
-                entity.Property(e => e.ExpDate).HasColumnType("datetime");
+            //    entity.Property(e => e.ExpDate).HasColumnType("datetime");
 
-                entity.Property(e => e.IssueDate).HasColumnType("datetime");
+            //    entity.Property(e => e.IssueDate).HasColumnType("datetime");
 
-                entity.Property(e => e.MasterType)
-                    .IsRequired()
-                    .HasMaxLength(10)
-                    .IsFixedLength();
+            //    entity.Property(e => e.MasterType)
+            //        .IsRequired()
+            //        .HasMaxLength(10)
+            //        .IsFixedLength();
 
-                entity.Property(e => e.OtherId).HasColumnName("OtherID");
+            //    entity.Property(e => e.OtherId).HasColumnName("OtherID");
 
-                entity.Property(e => e.Remarks)
-                    .IsRequired()
-                    .HasMaxLength(250)
-                    .IsUnicode(false);
+            //    entity.Property(e => e.Remarks)
+            //        .IsRequired()
+            //        .HasMaxLength(250)
+            //        .IsUnicode(false);
 
-                entity.Property(e => e.StaffId).HasColumnName("StaffID");
+            //    entity.Property(e => e.StaffId).HasColumnName("StaffID");
 
-                entity.Property(e => e.Status).HasColumnName("status");
+            //    entity.Property(e => e.Status).HasColumnName("status");
 
-                entity.Property(e => e.VehicleId).HasColumnName("VehicleID");
-            });
+            //    entity.Property(e => e.VehicleId).HasColumnName("VehicleID");
+            //});
 
             modelBuilder.Entity<HrDocumentRequest>(entity =>
             {
