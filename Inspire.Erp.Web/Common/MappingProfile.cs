@@ -19,6 +19,7 @@ using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Modals.AccountStatement;
 using Inspire.Erp.Domain.Entities.POS;
 using Inspire.Erp.Domain.Modals;
+using Inspire.Erp.Domain.Entities.documents;
 
 namespace Inspire.Erp.Web.Common
 {
@@ -474,6 +475,10 @@ namespace Inspire.Erp.Web.Common
 
             CreateMap<BillOfQTyDetailsModel, BillOfQTyDetails>();
             CreateMap<BillOfQTyDetails, BillOfQTyDetailsModel>();
+
+           
+
+
 
         }
     }

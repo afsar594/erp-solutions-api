@@ -18,12 +18,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Inspire.Erp.Application.Document.Interfaces;
+using Inspire.Erp.Application.Master.Interfaces;
 
 namespace Inspire.Erp.Web.Controllers.Document
 {
-    [Route("api")]
-    [Produces("application/json")]
     [ApiController]
+    [Route("api/HrDocumentMaster")]
     public class HrDocumentMasterController : ControllerBase
     {
 
@@ -85,8 +85,8 @@ namespace Inspire.Erp.Web.Controllers.Document
             }
         }
 
-        [HttpPost]
-        [Route("GetReport")]
+        //[HttpPost]
+        //[Route("GetReport")]
         //public IActionResult GetReport([FromBody] DtoDocumentReportParam _DtoDocumentReportParam)
         //{
         //    try
@@ -131,49 +131,25 @@ namespace Inspire.Erp.Web.Controllers.Document
         /// <returns>
         ///  in the response returns an object of type  List<HrDocumentMasterViewModel> 
         /// </returns>
+       
+       
+
         [HttpPost]
         [Route("InsertHrDocumentMaster")]
-        public List<HrDocumentMasterViewModel> InsertHrDocumentMaster([FromBody] HrDocumentMasterViewModel hrDocumentMasterViewModel)
+        public ApiResponse<HrDocumentMaster> InsertHrDocumentMaster([FromBody] HrDocumentMaster HrDocumentMaster)
         {
-            try
+
+            var InsertJobInvoiceViewModel = hrDocumentMasterService.InsertHrDocumentMaster(HrDocumentMaster);
+
+            ApiResponse<HrDocumentMaster> apiResponse = new ApiResponse<HrDocumentMaster>
             {
-                var hrDocumentMaster = mapper.Map<HrDocumentMaster>(hrDocumentMasterViewModel);
-                return this.hrDocumentMasterService.InsertHrDocumentMaster(hrDocumentMaster).Select(x => new HrDocumentMasterViewModel()
-                {
-                    DocumentId = x.DocumentId,
-                    DocumentTypeId = x.DocumentTypeId,
-                    StaffId = x.StaffId,
-                    CompanyId = x.CompanyId,
-                    VehicleId = x.VehicleId,
-                    OtherId = x.OtherId,
-                    MasterType = x.MasterType,
-                    DocName = x.DocName,
-                    DocNo = x.DocNo,
-                    Remarks = x.Remarks,
-                    IssueDate = x.IssueDate,
-                    ExpDate = x.ExpDate,
-                    DocImage = x.DocImage,
-                    Status = x.Status,
-                    DocStatusId = x.DocStatusId
-                }).ToList();
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
+                Valid = true,
+                Result = mapper.Map<HrDocumentMaster>(HrDocumentMaster),
+                Message = "Saved."
+            };
+            return apiResponse;
         }
 
-        //added by irfan 08 Mar -2023
-        /// <summary>
-        /// Name : UpdateHrDocumentMaster
-        /// Desc : is used to update existing record in db table 
-        /// </summary>
-        /// <param name="hrDocumentMasterViewModel">
-        ///     accepts an argument of type HrDocumentMasterViewModel
-        /// </param>
-        /// <returns>
-        ///  in the response returns an object of type  List<HrDocumentMasterViewModel> 
-        /// </returns>
         [HttpPost]
         [Route("UpdateHrDocumentMaster")]
         public List<HrDocumentMasterViewModel> UpdateHrDocumentMaster([FromBody] HrDocumentMasterViewModel hrDocumentMasterViewModel)

@@ -878,6 +878,9 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.Deletestatus)
                 .HasColumnName("Deletestatus");
 
+                entity.Property(e => e.DocumentvoucherNo)
+                  .HasMaxLength(50)
+                  .IsUnicode(false);
             });
 
             #region If the db table and entity has same name

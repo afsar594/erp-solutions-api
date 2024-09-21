@@ -36,26 +36,31 @@ namespace Inspire.Erp.Web.Controllers.Document
                 this.hrDocumentTypeService = _hrDocumentTypeService;
             }
 
-            [HttpGet]
-            [Route("HrGetAllDocumentTypes")]
-            public List<HrDocumentTypeViewModel> getAllDocumentTypes()
+        [HttpGet]
+        [Route("GetDocumentType")]
+        public ApiResponse<List<HrDocumentType>> GetDocumentType()
+        {
+            ApiResponse<List<HrDocumentType>> apiResponse = new ApiResponse<List<HrDocumentType>>
             {
-                try
-                {
-                    return hrDocumentTypeService.GetAllHrDocumentType().Select(x => new HrDocumentTypeViewModel()
-                    {
-                        AppDocument = x.AppDocument,
-                        DefaultType = x.DefaultType,
-                        DocumentType = x.DocumentType,
-                        DocumentTypeId = x.DocumentTypeId
-                    }).ToList();
-                }
-                catch (Exception ex)
-                {
-                    return new List<HrDocumentTypeViewModel>();
-                }
-            }
+                Valid = true,
+                Result = mapper.Map<List<HrDocumentType>>(hrDocumentTypeService.GetAllHrDocumentType()),
+                Message = ""
+            };
+            return apiResponse;
+        }
+        [HttpGet("GetDocumentTypeById/{id}")]
+        public ApiResponse<HrDocumentType> GetDocumentTypeById(int id)
+        {
+            var DocumentType = hrDocumentTypeService.GetDocumentTypeById(id);
 
+            ApiResponse<HrDocumentType> apiResponse = new ApiResponse<HrDocumentType>
+            {
+                Valid = true,
+                Result = DocumentType,
+                Message = ""
+            };
+            return apiResponse;
+        }
 
         [HttpPost]
         [Route("InsertDocumentType")]
@@ -73,7 +78,6 @@ namespace Inspire.Erp.Web.Controllers.Document
 
             };
             return apiResponse;
-
         }
         [HttpPost]
         [Route("UpdateHrDocumentType")]
@@ -91,7 +95,6 @@ namespace Inspire.Erp.Web.Controllers.Document
 
             };
             return apiResponse;
-
         }
         [HttpDelete]
         [Route("DeleteHrDocumentType")]
