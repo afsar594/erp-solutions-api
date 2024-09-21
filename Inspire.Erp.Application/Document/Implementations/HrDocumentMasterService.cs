@@ -153,7 +153,6 @@ namespace Inspire.Erp.Application.Document.Implementations
                 throw ex;
             }
         }
-
         public DocumentMaster GetDocumentMasterById(int? id)
         {
             try
@@ -167,8 +166,6 @@ namespace Inspire.Erp.Application.Document.Implementations
                 throw ex;
             }
         }
-
-
         public IEnumerable<DocumentMaster> GetAllHrDocumentMasters()
         {
             try
@@ -181,7 +178,6 @@ namespace Inspire.Erp.Application.Document.Implementations
                 throw ex;
             }
         }
-
 
         //End
 
