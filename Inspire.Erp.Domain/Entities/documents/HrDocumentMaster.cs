@@ -13,10 +13,10 @@ namespace Inspire.Erp.Domain.Entities.documents
         public long? CompanyId { get; set; }
         public long? VehicleId { get; set; }
         public long? OtherId { get; set; }
-        public string MasterType { get; set; }
-        public string DocName { get; set; }
+        public string? MasterType { get; set; }
+        public string? DocName { get; set; }
         public string DocNo { get; set; }
-        public string Remarks { get; set; }
+        public string? Remarks { get; set; }
         public DateTime? IssueDate { get; set; }
         public DateTime? ExpDate { get; set; }
         public string? DocImage { get; set; }
