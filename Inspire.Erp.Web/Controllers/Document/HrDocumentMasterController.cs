@@ -18,6 +18,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Inspire.Erp.Application.Document.Interfaces;
+using Inspire.Erp.Domain.Modals.Stock;
+using NPOI.SS.Formula.Functions;
 namespace Inspire.Erp.Web.Controllers.Document
 {
     [ApiController]
@@ -106,6 +108,11 @@ namespace Inspire.Erp.Web.Controllers.Document
             };
             return apiResponse;
         }
-
+        [HttpPost]
+        [Route("GetDocumentReport")]
+        public IActionResult GetDocumentReport(Documentfilter model)
+        {
+            return Ok(hrDocumentMasterService.GetDocumentReport(model));
+        }
     }
 }
