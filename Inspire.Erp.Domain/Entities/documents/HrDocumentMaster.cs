@@ -29,8 +29,8 @@ namespace Inspire.Erp.Domain.Entities.documents
     {
         public long? DocumentTypeId { get; set; }
         public long? CompanyId { get; set; }
-        public DateTime IssueDateto { get; set; }
-        public DateTime IssueDatefrom { get; set; }
+        public DateTime? IssueDateto { get; set; }
+        public DateTime? IssueDatefrom { get; set; }
         public bool isDateChecked { get; set; }
     }
     public partial class DocumentMasterlist : BaseEntity
