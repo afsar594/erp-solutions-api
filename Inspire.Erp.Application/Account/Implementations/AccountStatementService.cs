@@ -68,7 +68,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 //});
                 response.AddRange(await _jobMaster.ListSelectAsync(x => 1 == 1, x => new DropdownResponse
                 {
-                    Id =x.JobMasterJobId != null? Convert.ToInt32(x.JobMasterJobId):0,
+                    Id = x.JobMasterJobId != 0 ? Convert.ToInt32(x.JobMasterJobId):0,
                     Name = x.JobMasterJobName
                 }));
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
