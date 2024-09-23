@@ -79,6 +79,7 @@ namespace Inspire.Erp.Web.Controllers.Document
             };
             return apiResponse;
         }
+
         [HttpPost]
         [Route("UpdateHrDocumentType")]
         public ApiResponse<HrDocumentType> UpdateHrDocumentType([FromBody] HrDocumentType DocumentTypeViewModel)
@@ -96,6 +97,7 @@ namespace Inspire.Erp.Web.Controllers.Document
             };
             return apiResponse;
         }
+
         [HttpDelete]
         [Route("DeleteHrDocumentType")]
         public IActionResult DeleteHrDocumentType(long Id)
@@ -128,6 +130,7 @@ namespace Inspire.Erp.Web.Controllers.Document
                 return new List<StationMasterList>();
             }
         }
+
         [HttpGet]
         [Route("GetAlldocumentType")]
         public List<HrDocumentTypeList> GetAlldocumentType()
