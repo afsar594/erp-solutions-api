@@ -25,23 +25,19 @@ namespace Inspire.Erp.Application.Document.Implementations
         private IRepository<DocumentMaster> repository;
         private IRepository<DocumentMaster> _documentMasterrepository;
         private readonly IHrDocumentTypeService _documentTypeRepoService;
-        private readonly IHrStaffMasterService _staffRepoService;
-        private readonly IHrVehicleMasterService _vehicleRepoService;
         private readonly IRepository<ProgramSettings> _programsettingsrepository;
         private IRepository<ProgramSettings> _programsettingsRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
         private readonly InspireErpDBContext _Context;
         private IRepository<HrDocumentType> _documentHrDocumentTypey;
         private IRepository<StationMaster> _stationMaster;
-        public HrDocumentMasterService(IRepository<DocumentMaster> repository, IHrDocumentTypeService documentTypeRepo, IHrStaffMasterService staffRepo
-        , IHrVehicleMasterService vehicleRepo, InspireErpDBContext Context, IRepository<DocumentMaster> documentMasterrepository, IRepository<ProgramSettings> programsettingsrepository, 
+        public HrDocumentMasterService(IRepository<DocumentMaster> repository, IHrDocumentTypeService documentTypeRepo
+        ,  InspireErpDBContext Context, IRepository<DocumentMaster> documentMasterrepository, IRepository<ProgramSettings> programsettingsrepository, 
             IRepository<ProgramSettings> programsettingsRepository, IRepository<VouchersNumbers> voucherNumbersRepository, IRepository<HrDocumentType> documentHrDocumentTypey, IRepository<StationMaster> stationMaster)
         {
             this.repository = repository;
             _documentTypeRepoService = documentTypeRepo;
-            _staffRepoService = staffRepo;
-            _vehicleRepoService = vehicleRepo;
-            _Context = Context;
+             _Context = Context;
             _documentMasterrepository = documentMasterrepository;
             _programsettingsrepository = programsettingsrepository;
             _programsettingsRepository = programsettingsRepository;
@@ -218,9 +214,7 @@ namespace Inspire.Erp.Application.Document.Implementations
                     Valid = true,
                     Result = Document,
                     Message = "Document Data Found"
-                };
-            
+                };            
         }
-
     }
 }
