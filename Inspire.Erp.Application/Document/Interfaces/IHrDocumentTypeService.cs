@@ -20,5 +20,9 @@ namespace Inspire.Erp.Application.Document.Interfaces
         public IEnumerable<StationMasterList> GetAllCompanies();
 
         public IEnumerable<HrDocumentTypeList> GetAlldocumentType();
+
+        public IEnumerable<CustomermasterList> GetAllCompany();
+
+        
     }
 }
