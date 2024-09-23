@@ -12,12 +12,19 @@ namespace Inspire.Erp.Domain.Entities.documents
         public bool DefaultType { get; set; }
         public bool? AppDocument { get; set; }
       public bool Deletestatus { get; set; }
+
+      public string DocumentvoucherNo { get; set; }
+        
     }
-    
-    
+    public partial class HrDocumentTypeList
+    {
+        public long DocumentTypeId { get; set; }
+        public string? DocumentType { get; set; }
+    }
 
 
-    }
+
+}
     public partial class HrDocumentTypeFilter : BaseEntity
     {
         public string? MasterType { get; set; }

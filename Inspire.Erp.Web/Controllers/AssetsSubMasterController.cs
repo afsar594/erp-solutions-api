@@ -22,6 +22,7 @@ using Inspire.Erp.Domain.Modals;
 using System.Linq;
 using Inspire.Erp.Application.Assets.Interface;
 using Inspire.Erp.Web.ViewModels;
+using Inspire.Erp.Domain.Models.ViewModels;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -94,16 +95,17 @@ namespace Inspire.Erp.Web.Controllers
         }
 
         [HttpGet("GetAllAssetMasterList")]
-        public IActionResult GetAssets()
+        public async Task<IActionResult> GetAssets()
         {
             try
             {
-                var item = _Assetsubmaster.GetAllAssets();
-                return Ok(item);
+                var assets = await _Assetsubmaster.GetAllAssets();
+                return Ok(assets);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
-                return StatusCode(500, ex.Message.ToString());
+                // Log the exception here
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving assets.");
             }
         }
         [HttpPost]
@@ -132,6 +134,42 @@ namespace Inspire.Erp.Web.Controllers
                 Message = ""
             };
             return apiResponse;
+        }
+
+        [HttpPost("UpsertAssetSubMaster")]
+        public async Task<ActionResult<ApiResponse<AssetSubMaster>>> UpsertAssetSubMaster([FromBody] AssetSubMaster request)
+        {
+            if (request == null || request == null)
+            {
+                return BadRequest(new ApiResponse<AssetSubMaster>
+                {
+                    Valid = false,
+                    Message = "Invalid data",
+                });
+            }
+
+            try
+            {
+                var assetSubMaster = _mapper.Map<AssetSubMaster>(request);
+               
+               // var result = await _Assetsubmaster.UpsertAssetSubMasterAsync(assetSubMaster);
+
+                return Ok(new ApiResponse<AssetSubMaster>
+                {
+                    Valid = true,
+                    Result = null,// result,
+                    Message = "Asset sub-master updated successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse<AssetSubMaster>
+                {
+                    Valid = false,
+                    Message = "An error occurred while processing your request."
+                });
+            }
         }
 
     }

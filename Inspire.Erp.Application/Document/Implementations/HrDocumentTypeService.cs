@@ -37,15 +37,15 @@ namespace Inspire.Erp.Application.Document.Implementations
             _programsettingsRepository = programsettingsRepository;
         }
         public HrDocumentType InsertDocumentType(HrDocumentType HrDocumentType)
-        { 
+        {
             bool valid = false;
             try
             {
                 valid = true;
 
 
-                //string openingstockVoucherNumber = this.GenerateVoucherNo(System.DateTime.Now).VouchersNumbersVNo;
-                //HrDocumentType.DocumentvoucherNo = openingstockVoucherNumber;
+                string openingstockVoucherNumber = this.GenerateVoucherNo(System.DateTime.Now).VouchersNumbersVNo;
+                HrDocumentType.DocumentvoucherNo = openingstockVoucherNumber;
 
                 _HrDocumentTypeRepo.BeginTransaction();
 
@@ -62,7 +62,7 @@ namespace Inspire.Erp.Application.Document.Implementations
 
                 _HrDocumentTypeRepo.TransactionCommit();
 
-                return this.GetAllHrDocumentTypebyvoucher(HrDocumentType.DocumentTypeId);
+                return this.GetAllHrDocumentTypebyvoucher(HrDocumentType.DocumentvoucherNo);
 
             }
             catch (Exception ex)
@@ -70,7 +70,7 @@ namespace Inspire.Erp.Application.Document.Implementations
                 _HrDocumentTypeRepo.TransactionRollback();
                 throw ex;
             }
-           
+
         }
         public HrDocumentType UpdateDocumentType(HrDocumentType HrDocumentType)
         {
@@ -86,7 +86,7 @@ namespace Inspire.Erp.Application.Document.Implementations
                 _HrDocumentTypeRepo.Update(HrDocumentType);
                 _HrDocumentTypeRepo.TransactionCommit();
 
-                return this.GetAllHrDocumentTypebyvoucher(HrDocumentType.DocumentTypeId);
+                return this.GetAllHrDocumentTypebyvoucher(HrDocumentType.DocumentvoucherNo);
             }
             catch (Exception ex)
             {
@@ -108,12 +108,12 @@ namespace Inspire.Erp.Application.Document.Implementations
                 throw ex;
             }
         }
-        public HrDocumentType GetAllHrDocumentTypebyvoucher(long VNo)
+        public HrDocumentType GetAllHrDocumentTypebyvoucher(string VNo)
         {
             try
             {
                 HrDocumentType HrDocumentTypes = new HrDocumentType();
-                HrDocumentTypes = _HrDocumentTypeRepo.GetAsQueryable().Where(k => k.DocumentTypeId == VNo).SingleOrDefault();
+                HrDocumentTypes = _HrDocumentTypeRepo.GetAsQueryable().Where(k => k.DocumentvoucherNo == VNo).SingleOrDefault();
                 return HrDocumentTypes;
             }
             catch (Exception ex)
@@ -121,23 +121,36 @@ namespace Inspire.Erp.Application.Document.Implementations
                 throw ex;
             }
         }
-
-        public IEnumerable<HrDocumentType> GetAllHrDocumentType()
+        public HrDocumentType GetDocumentTypeById(int? id)
         {
-            IEnumerable<HrDocumentType> HrDocumentTypes;
             try
             {
-                HrDocumentTypes = _HrDocumentTypeRepo.GetAll();
+                var HrDocumentType = new HrDocumentType();
+                HrDocumentType = _HrDocumentTypeRepo.GetAsQueryable().FirstOrDefault(x => x.DocumentTypeId == Convert.ToInt32(id));
+                return HrDocumentType;
+
             }
             catch (Exception ex)
             {
                 throw ex;
             }
-            finally
+        }
+
+
+
+
+        public IEnumerable<HrDocumentType> GetAllHrDocumentType()
+        {
+            try
             {
-                //hrShiftsrepository.Dispose();
+                var data = _HrDocumentTypeRepo.GetAll().Where(a => a.Deletestatus != true);
+                return data;
+
             }
-            return HrDocumentTypes;
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
         public IEnumerable<StationMasterList> GetAllCompanies()
         {
@@ -158,6 +171,24 @@ namespace Inspire.Erp.Application.Document.Implementations
                 //_StationMasterRepo.Dispose();
             }
             //return StationMaster;
+        }
+        public IEnumerable<HrDocumentTypeList> GetAlldocumentType()
+        {
+            IEnumerable<HrDocumentTypeList> HrDocumentType;
+            try
+            {
+
+                return _HrDocumentTypeRepo.GetAll().Where(a => a.Deletestatus != true)
+                    .Select(c => new HrDocumentTypeList { DocumentTypeId = c.DocumentTypeId, DocumentType = c.DocumentType });
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+            }
         }
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
         {
