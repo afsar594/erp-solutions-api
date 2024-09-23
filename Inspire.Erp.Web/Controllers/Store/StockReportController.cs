@@ -79,7 +79,6 @@ namespace Inspire.Erp.Web.Controllers.Store
 
             var results = await _openingStockService.GetAveragePurchasePriceGPC(itemId, unitDetailId,quantity);
             return Ok(results);
-
         }
         [HttpGet]
         [Route("GetStockReportBaseUnitByItemId/{id}")]
