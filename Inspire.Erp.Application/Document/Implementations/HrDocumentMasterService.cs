@@ -181,19 +181,19 @@ namespace Inspire.Erp.Application.Document.Implementations
         public Response<List<DocumentMasterlist>> GetDocumentReport(Documentfilter model)
         {
             List<DocumentMasterlist> Document = new List<DocumentMasterlist>();
-            var query = _documentMasterrepository.GetAsQueryable().AsNoTracking();
+            var query = _documentMasterrepository.GetAsQueryable().AsNoTracking().ToList();
 
             if (model.DocumentTypeId > 0)
             {
-                query = query.Where(im => im.DocumentTypeId == model.DocumentTypeId && im.Status != true);
+                query = query.Where(im => im.DocumentTypeId == model.DocumentTypeId && im.Status != true).ToList();
             }
             if (model.CompanyId > 0)
             {
-                query = query.Where(im => im.CompanyId == model.CompanyId && im.Status != true);
+                query = query.Where(im => im.CompanyId == model.CompanyId && im.Status != true).ToList();
             }
             if (model.isDateChecked)
             {
-                query = query.Where(a => EF.Functions.DateDiffDay(a.IssueDate, model.IssueDatefrom) >=0 && EF.Functions.DateDiffDay(a.IssueDate , model.IssueDateto)<=0);
+                query = query.Where(a => a.IssueDate.Value.Date >= model.IssueDatefrom.Value.Date && a.IssueDate.Value.Date <= model.IssueDateto.Value.Date).ToList();
             }
             Document = (from ss in query
                         join a in _documentHrDocumentTypey.GetAsQueryable().AsNoTracking() on ss.DocumentTypeId equals (long)a.DocumentTypeId
