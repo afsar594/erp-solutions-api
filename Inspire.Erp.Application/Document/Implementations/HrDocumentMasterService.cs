@@ -33,13 +33,13 @@ namespace Inspire.Erp.Application.Document.Implementations
         private IRepository<StationMaster> _stationMaster;
         private IRepository<CustomerMaster> _customerMasterRepository;
         public HrDocumentMasterService(IRepository<DocumentMaster> repository, IHrDocumentTypeService documentTypeRepo
-        ,  InspireErpDBContext Context, IRepository<DocumentMaster> documentMasterrepository, IRepository<ProgramSettings> programsettingsrepository, 
+        , InspireErpDBContext Context, IRepository<DocumentMaster> documentMasterrepository, IRepository<ProgramSettings> programsettingsrepository,
             IRepository<ProgramSettings> programsettingsRepository, IRepository<VouchersNumbers> voucherNumbersRepository,
             IRepository<HrDocumentType> documentHrDocumentTypey, IRepository<StationMaster> stationMaster, IRepository<CustomerMaster> customerMasterRepository)
         {
             this.repository = repository;
             _documentTypeRepoService = documentTypeRepo;
-             _Context = Context;
+            _Context = Context;
             _documentMasterrepository = documentMasterrepository;
             _programsettingsrepository = programsettingsrepository;
             _programsettingsRepository = programsettingsRepository;
@@ -62,7 +62,7 @@ namespace Inspire.Erp.Application.Document.Implementations
                 _documentMasterrepository.BeginTransaction();
                 _documentMasterrepository.Insert(hrDocumentMaster);
                 _documentMasterrepository.TransactionCommit();
-                
+
                 return this.GetDocumentMasterbyvoucher(hrDocumentMaster.DocumentvoucherNo);
 
             }
@@ -121,7 +121,7 @@ namespace Inspire.Erp.Application.Document.Implementations
             {
                 _documentMasterrepository.BeginTransaction();
 
-                 //DocumentMaster = _documentMasterrepository.GetAsQueryable().Where(rec => rec.DocumentId == Convert.ToInt32(DocumentMaster.DocumentId)).FirstOrDefault();
+                //DocumentMaster = _documentMasterrepository.GetAsQueryable().Where(rec => rec.DocumentId == Convert.ToInt32(DocumentMaster.DocumentId)).FirstOrDefault();
 
                 _documentMasterrepository.Update(DocumentMasters);
 
@@ -177,47 +177,47 @@ namespace Inspire.Erp.Application.Document.Implementations
                 throw ex;
             }
         }
-  
+
         public Response<List<DocumentMasterlist>> GetDocumentReport(Documentfilter model)
         {
-                List<DocumentMasterlist> Document = new List<DocumentMasterlist>();
-                var query = _documentMasterrepository.GetAsQueryable();
+            List<DocumentMasterlist> Document = new List<DocumentMasterlist>();
+            var query = _documentMasterrepository.GetAsQueryable().AsNoTracking();
 
-                if (model.DocumentTypeId > 0)
-                {
-                    query = query.Where(im => im.DocumentTypeId == model.DocumentTypeId && im.Status != true);
-                }
-                if (model.CompanyId > 0)
-                {
-                    query = query.Where(im => im.CompanyId == model.CompanyId && im.Status != true);
-                }
-                if (model.isDateChecked)
-                {
-                    query = query.Where(a => a.IssueDate >= model.IssueDatefrom && a.IssueDate <= model.IssueDateto);
-                }
-                Document = (from ss in query
-                            join a in _documentHrDocumentTypey.GetAsQueryable() on ss.DocumentTypeId equals (long)a.DocumentTypeId
-                            join s in _customerMasterRepository.GetAsQueryable() on ss.CompanyId equals s.CustomerMasterCustomerNo
-                            select new DocumentMasterlist
-                            {
-                                DocumentTypeId = ss.DocumentTypeId,
-                                CompanyId = ss.CompanyId,
-                                Companyname= s.CustomerMasterCustomerName ?? "",
-                                Documenttype = a.DocumentType ?? "",
-                                MasterType = ss.MasterType ?? "",
-                                DocName = ss.DocName ?? "",
-                                Remarks = ss.Remarks ?? "",
-                                IssueDate = Convert.ToDateTime(ss.IssueDate),
-                                DocumentvoucherNo = ss.DocumentvoucherNo ?? "",
-                                DocNo = ss.DocNo
-                            }).ToList();
+            if (model.DocumentTypeId > 0)
+            {
+                query = query.Where(im => im.DocumentTypeId == model.DocumentTypeId && im.Status != true);
+            }
+            if (model.CompanyId > 0)
+            {
+                query = query.Where(im => im.CompanyId == model.CompanyId && im.Status != true);
+            }
+            if (model.isDateChecked)
+            {
+                query = query.Where(a => EF.Functions.DateDiffDay(a.IssueDate, model.IssueDatefrom) >=0 && EF.Functions.DateDiffDay(a.IssueDate , model.IssueDateto)<=0);
+            }
+            Document = (from ss in query
+                        join a in _documentHrDocumentTypey.GetAsQueryable().AsNoTracking() on ss.DocumentTypeId equals (long)a.DocumentTypeId
+                        join s in _customerMasterRepository.GetAsQueryable().AsNoTracking() on ss.CompanyId equals s.CustomerMasterCustomerNo
+                        select new DocumentMasterlist
+                        {
+                            DocumentTypeId = ss.DocumentTypeId,
+                            CompanyId = ss.CompanyId,
+                            Companyname = s.CustomerMasterCustomerName ?? "",
+                            Documenttype = a.DocumentType ?? "",
+                            MasterType = ss.MasterType ?? "",
+                            DocName = ss.DocName ?? "",
+                            Remarks = ss.Remarks ?? "",
+                            IssueDate = Convert.ToDateTime(ss.IssueDate),
+                            DocumentvoucherNo = ss.DocumentvoucherNo ?? "",
+                            DocNo = ss.DocNo
+                        }).ToList();
 
-                return new Response<List<DocumentMasterlist>>
-                {
-                    Valid = true,
-                    Result = Document,
-                    Message = "Document Data Found"
-                };            
+            return new Response<List<DocumentMasterlist>>
+            {
+                Valid = true,
+                Result = Document,
+                Message = "Document Data Found"
+            };
         }
     }
 }
