@@ -28,13 +28,18 @@ namespace Inspire.Erp.Application.Document.Implementations
         private readonly IRepository<ProgramSettings> _programsettingsrepository;
         private IRepository<ProgramSettings> _programsettingsRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
-        public HrDocumentTypeService(IRepository<HrDocumentType> HrDocumentTypeRepo, IRepository<StationMaster> stationMasterRepo, IRepository<ProgramSettings> programsettingsrepository, IRepository<VouchersNumbers> voucherNumbersRepository, IRepository<ProgramSettings> programsettingsRepository)
+        private IRepository<CustomerMaster> _customerMasterRepository;
+
+
+        public HrDocumentTypeService(IRepository<HrDocumentType> HrDocumentTypeRepo, IRepository<StationMaster> stationMasterRepo, IRepository<ProgramSettings> programsettingsrepository,
+            IRepository<VouchersNumbers> voucherNumbersRepository, IRepository<ProgramSettings> programsettingsRepository, IRepository<CustomerMaster> customerMasterRepository)
         {
             _HrDocumentTypeRepo = HrDocumentTypeRepo;
             _StationMasterRepo = stationMasterRepo;
             _programsettingsrepository = programsettingsrepository;
             _voucherNumbersRepository = voucherNumbersRepository;
             _programsettingsRepository = programsettingsRepository;
+            _customerMasterRepository = customerMasterRepository;
         }
         public HrDocumentType InsertDocumentType(HrDocumentType HrDocumentType)
         {
@@ -151,6 +156,29 @@ namespace Inspire.Erp.Application.Document.Implementations
             {
                 throw ex;
             }
+        }
+
+        
+
+          public IEnumerable<CustomermasterList> GetAllCompany()
+        {
+            IEnumerable<CustomermasterList> CustomermasterList;
+            try
+            {
+
+                return _customerMasterRepository.GetAll().Where(a => a.CustomerMasterCustomerDeleteStatus != true)
+                    .Select(c => new CustomermasterList { CustomermasterNo = c.CustomerMasterCustomerNo, CustomermasterName = c.CustomerMasterCustomerName });
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                //CustomermasterList.Dispose();
+            }
+            //return CustomermasterList;
         }
         public IEnumerable<StationMasterList> GetAllCompanies()
         {

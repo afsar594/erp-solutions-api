@@ -31,9 +31,11 @@ namespace Inspire.Erp.Application.Document.Implementations
         private readonly InspireErpDBContext _Context;
         private IRepository<HrDocumentType> _documentHrDocumentTypey;
         private IRepository<StationMaster> _stationMaster;
+        private IRepository<CustomerMaster> _customerMasterRepository;
         public HrDocumentMasterService(IRepository<DocumentMaster> repository, IHrDocumentTypeService documentTypeRepo
         ,  InspireErpDBContext Context, IRepository<DocumentMaster> documentMasterrepository, IRepository<ProgramSettings> programsettingsrepository, 
-            IRepository<ProgramSettings> programsettingsRepository, IRepository<VouchersNumbers> voucherNumbersRepository, IRepository<HrDocumentType> documentHrDocumentTypey, IRepository<StationMaster> stationMaster)
+            IRepository<ProgramSettings> programsettingsRepository, IRepository<VouchersNumbers> voucherNumbersRepository,
+            IRepository<HrDocumentType> documentHrDocumentTypey, IRepository<StationMaster> stationMaster, IRepository<CustomerMaster> customerMasterRepository)
         {
             this.repository = repository;
             _documentTypeRepoService = documentTypeRepo;
@@ -44,6 +46,7 @@ namespace Inspire.Erp.Application.Document.Implementations
             _voucherNumbersRepository = voucherNumbersRepository;
             _documentHrDocumentTypey = documentHrDocumentTypey;
             _stationMaster = stationMaster;
+            _customerMasterRepository = customerMasterRepository;
         }
         //Start
 
@@ -194,12 +197,12 @@ namespace Inspire.Erp.Application.Document.Implementations
                 }
                 Document = (from ss in query
                             join a in _documentHrDocumentTypey.GetAsQueryable() on ss.DocumentTypeId equals (long)a.DocumentTypeId
-                            join s in _stationMaster.GetAsQueryable() on ss.CompanyId equals s.StationMasterCode
+                            join s in _customerMasterRepository.GetAsQueryable() on ss.CompanyId equals s.CustomerMasterCustomerNo
                             select new DocumentMasterlist
                             {
                                 DocumentTypeId = ss.DocumentTypeId,
                                 CompanyId = ss.CompanyId,
-                                Companyname= s.StationMasterAddress ?? "",
+                                Companyname= s.CustomerMasterCustomerName ?? "",
                                 Documenttype = a.DocumentType ?? "",
                                 MasterType = ss.MasterType ?? "",
                                 DocName = ss.DocName ?? "",

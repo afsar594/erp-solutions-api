@@ -149,6 +149,25 @@ namespace Inspire.Erp.Web.Controllers.Document
                 return new List<HrDocumentTypeList>();
             }
         }
+
+        [HttpGet]
+        [Route("GetAllCompany")]
+        public List<CustomermasterList> GetAllCompany()
+        {
+            try
+            {
+                return hrDocumentTypeService.GetAllCompany().Select(x => new CustomermasterList()
+                {
+                    CustomermasterNo = x.CustomermasterNo,
+                    CustomermasterName = x.CustomermasterName,
+
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                return new List<CustomermasterList>();
+            }
+        }
     }
  }
 
