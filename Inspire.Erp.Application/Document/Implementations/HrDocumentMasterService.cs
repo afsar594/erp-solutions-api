@@ -107,14 +107,19 @@ namespace Inspire.Erp.Application.Document.Implementations
             }
 
         }
-        public DocumentMaster UpdateHrDocumentMaster(DocumentMaster DocumentMaster)
+        public DocumentMaster UpdateHrDocumentMaster(DocumentMaster DocumentMasters)
         {
             try
             {
                 _documentMasterrepository.BeginTransaction();
-                _documentMasterrepository.Update(DocumentMaster);
+
+                 //DocumentMaster = _documentMasterrepository.GetAsQueryable().Where(rec => rec.DocumentId == Convert.ToInt32(DocumentMaster.DocumentId)).FirstOrDefault();
+
+                _documentMasterrepository.Update(DocumentMasters);
+
                 _documentMasterrepository.TransactionCommit();
-                return this.GetDocumentMasterbyvoucher(DocumentMaster.DocumentvoucherNo);
+
+                return this.GetDocumentMasterbyvoucher(DocumentMasters.DocumentvoucherNo);
             }
             catch (Exception ex)
             {
@@ -127,6 +132,8 @@ namespace Inspire.Erp.Application.Document.Implementations
             try
             {
                 var dataObj = _documentMasterrepository.GetAsQueryable().Where(o => o.DocumentId == Id).FirstOrDefault();
+
+
                 dataObj.Status = true;
 
                 _documentMasterrepository.Update(dataObj);
@@ -162,6 +169,9 @@ namespace Inspire.Erp.Application.Document.Implementations
                 throw ex;
             }
         }
+
+
+       
 
         //End
 

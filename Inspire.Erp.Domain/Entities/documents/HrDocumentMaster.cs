@@ -50,4 +50,5 @@ namespace Inspire.Erp.Domain.Entities.documents
         public long? DocStatusId { get; set; }
         public string DocumentvoucherNo { get; set; }
     }
+    
 }

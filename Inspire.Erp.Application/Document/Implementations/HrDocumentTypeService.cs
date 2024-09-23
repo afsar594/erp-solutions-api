@@ -172,6 +172,24 @@ namespace Inspire.Erp.Application.Document.Implementations
             }
             //return StationMaster;
         }
+        public IEnumerable<HrDocumentTypeList> GetAlldocumentType()
+        {
+            IEnumerable<HrDocumentTypeList> HrDocumentType;
+            try
+            {
+
+                return _HrDocumentTypeRepo.GetAll().Where(a => a.Deletestatus != true)
+                    .Select(c => new HrDocumentTypeList { DocumentTypeId = c.DocumentTypeId, DocumentType = c.DocumentType });
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+            }
+        }
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
         {
             try

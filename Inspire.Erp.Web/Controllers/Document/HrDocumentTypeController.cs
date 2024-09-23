@@ -128,6 +128,24 @@ namespace Inspire.Erp.Web.Controllers.Document
                 return new List<StationMasterList>();
             }
         }
+        [HttpGet]
+        [Route("GetAlldocumentType")]
+        public List<HrDocumentTypeList> GetAlldocumentType()
+        {
+            try
+            {
+                return hrDocumentTypeService.GetAlldocumentType().Select(x => new HrDocumentTypeList()
+                {
+                    DocumentType = x.DocumentType,
+                    DocumentTypeId = x.DocumentTypeId,
+
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                return new List<HrDocumentTypeList>();
+            }
+        }
     }
  }
 
