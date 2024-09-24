@@ -236,8 +236,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         StockRegisterSIN = 0,
                         StockRegisterSout = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
                         StockRegisterRate = avgrate,
-                        StockRegisterAmount = item.SalesVoucherDetailsQuantity * avgrate ?? 0,
-                        StockRegisterFCAmount = item.SalesVoucherDetailsQuantity * avgrate * rate,
+                        StockRegisterAmount = item.SalesVoucherDetailsQuantity * (decimal)(converontype) * avgrate ?? 0,
+                        StockRegisterFCAmount = item.SalesVoucherDetailsQuantity* (decimal)(converontype) * avgrate * rate,
                         StockRegisterAssignedDate = DateTime.Now.Date,
                         StockRegisterStatus = "A",
                         StockRegisterTransType = VoucherType.SalesVoucher_TYPE,
@@ -411,7 +411,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 foreach (var item in salesVoucher.SalesVoucherDetails)
                 {
                     var avgrate = item.SalesVoucherDetailsCostPrice ?? 1;
-                    var converontype = this.getConverionTypebyUnitId(item.SalesVoucherDetailsMatId, item.SalesVoucherDetailsUnitId);                    
+                    var converontype = this.getConverionTypebyUnitId(item.SalesVoucherDetailsMatId, item.SalesVoucherDetailsUnitId);
 
                     stockReg.Add(new StockRegister()
                     {
@@ -423,8 +423,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         StockRegisterSIN = 0,
                         StockRegisterSout = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
                         StockRegisterRate = avgrate,
-                        StockRegisterAmount = item.SalesVoucherDetailsQuantity * avgrate ?? 0,
-                        StockRegisterFCAmount = item.SalesVoucherDetailsQuantity * avgrate * rate,
+                        StockRegisterAmount = item.SalesVoucherDetailsQuantity* (decimal)(converontype) * avgrate ?? 0,
+                        StockRegisterFCAmount = item.SalesVoucherDetailsQuantity *(decimal)(converontype) * avgrate * rate,
                         StockRegisterAssignedDate = DateTime.Now.Date,
                         StockRegisterStatus = "A",
                         StockRegisterTransType = VoucherType.SalesVoucher_TYPE,
