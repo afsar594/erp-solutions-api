@@ -141,8 +141,6 @@ namespace Inspire.Erp.Application.Authentication.Implementations
                     Created = DateTime.UtcNow
                 };
             }
-
-
         }
 
         #region POS

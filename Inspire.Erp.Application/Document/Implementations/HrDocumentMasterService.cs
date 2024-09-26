@@ -193,7 +193,7 @@ namespace Inspire.Erp.Application.Document.Implementations
             }
             if (model.isDateChecked)
             {
-                query = query.Where(a => a.IssueDate.Value.Date >= model.IssueDatefrom.Value.Date && a.IssueDate.Value.Date <= model.IssueDateto.Value.Date).ToList();
+                query = query.Where(a => a.ExpDate.Value.Date >= model.IssueDatefrom.Value.Date && a.ExpDate.Value.Date <= model.IssueDateto.Value.Date).ToList();
             }
             Document = (from ss in query
                         join a in _documentHrDocumentTypey.GetAsQueryable().AsNoTracking() on ss.DocumentTypeId equals (long)a.DocumentTypeId
