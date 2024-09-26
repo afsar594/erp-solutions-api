@@ -79,6 +79,7 @@ namespace Inspire.Erp.Web.Controllers.Document
             };
             return apiResponse;
         }
+
         [HttpPost]
         [Route("UpdateHrDocumentType")]
         public ApiResponse<HrDocumentType> UpdateHrDocumentType([FromBody] HrDocumentType DocumentTypeViewModel)
@@ -96,6 +97,7 @@ namespace Inspire.Erp.Web.Controllers.Document
             };
             return apiResponse;
         }
+
         [HttpDelete]
         [Route("DeleteHrDocumentType")]
         public IActionResult DeleteHrDocumentType(long Id)
@@ -126,6 +128,44 @@ namespace Inspire.Erp.Web.Controllers.Document
             catch (Exception ex)
             {
                 return new List<StationMasterList>();
+            }
+        }
+
+        [HttpGet]
+        [Route("GetAlldocumentType")]
+        public List<HrDocumentTypeList> GetAlldocumentType()
+        {
+            try
+            {
+                return hrDocumentTypeService.GetAlldocumentType().Select(x => new HrDocumentTypeList()
+                {
+                    DocumentType = x.DocumentType,
+                    DocumentTypeId = x.DocumentTypeId,
+
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                return new List<HrDocumentTypeList>();
+            }
+        }
+
+        [HttpGet]
+        [Route("GetAllCompany")]
+        public List<CustomermasterList> GetAllCompany()
+        {
+            try
+            {
+                return hrDocumentTypeService.GetAllCompany().Select(x => new CustomermasterList()
+                {
+                    CustomermasterNo = x.CustomermasterNo,
+                    CustomermasterName = x.CustomermasterName,
+
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                return new List<CustomermasterList>();
             }
         }
     }

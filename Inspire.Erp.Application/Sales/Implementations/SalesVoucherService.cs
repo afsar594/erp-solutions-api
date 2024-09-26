@@ -42,7 +42,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<Domain.Entities.ProgramSettings> _programsettingsRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
         private readonly ILogger<PaymentVoucherService> _logger;
-
+        private IRepository<AccountSettings> _accountsSettingssvcs;
         private IRepository<ItemMaster> _itemMasterRepository;
         private IRepository<UnitMaster> _unitMasterRepository;
         private IRepository<SuppliersMaster> _suppliersMasterRepository;
@@ -93,7 +93,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             IRepository<SuppliersMaster> suppliersMasterRepository, IRepository<LocationMaster> locationMasterRepository,
 
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<Domain.Entities.ProgramSettings> programsettingsRepository,
-             IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
+             IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger, IRepository<AccountSettings> accountsSettingssvcsRepository,
 
             IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository, IRepository<CurrencyMaster> currencyMasterRepository, IRepository<UnitDetails> unitDetailsRepository, IRepository<MasterAccountsTable> accMaster, IRepository<SalesReturn> salesReturn, IRepository<SalesReturnDetails> salesReturnDtls, IRepository<OptionsMaster> optionMaster
             //IRepository<POS_Sales_Voucher> posSalesVoucherRepository, IRepository<POS_Sales_Voucher_Details> posSalesVoucherDetailsRepository
@@ -115,7 +115,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             _departmentMasterRepository = departmentMasterRepository;
             _currencyMasterRepository = currencyMasterRepository;
             _UnitDetailsRepository = unitDetailsRepository;
-            this.accMaster = accMaster;
+            this.accMaster = accMaster; _accountsSettingssvcs = accountsSettingssvcsRepository;
             _salesReturn = salesReturn;
             _salesReturnDtls = salesReturnDtls;
             _optionMaster = optionMaster;
@@ -216,27 +216,13 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 }).Where(x => x.AccountsTransactionsTransSno == 0).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
-
-                //stockRegister = stockRegister.Select((k) =>
-                //{
-                //    if (k.StockRegisterStoreID == 0)
-                //    {
-                //        k.StockRegisterVoucherDate = salesVoucher.SalesVoucherDate;
-                //        k.StockRegisterRefVoucherNo = salesVoucher.SalesVoucherNo;
-                //        k.StockRegisterTransType = VoucherType.SalesVoucher_TYPE;
-                //        k.StockRegisterStatus = AccountStatus.Approved;
-                //    }
-
-                //    return k;
-                //}).ToList();
-                //_stockRegisterRepository.UpdateList(stockRegister);
-
                 var currencyRate = clsCommonFunctions.getConverionCurrencyRate(salesVoucher.SalesVoucherCurrencyId, _currencyMasterRepository);
                 var rate = (decimal)currencyRate;
 
                 var stockReg = new List<StockRegister>();
                 foreach (var item in salesVoucher.SalesVoucherDetails)
                 {
+                    var avgrate = item.SalesVoucherDetailsCostPrice ?? 1;
 
                     var converontype = this.getConverionTypebyUnitId(item.SalesVoucherDetailsMatId, item.SalesVoucherDetailsUnitId);
 
@@ -249,9 +235,9 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         StockRegisterQuantity = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
                         StockRegisterSIN = 0,
                         StockRegisterSout = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
-                        StockRegisterRate = item.SalesVoucherDetailsRate,
-                        StockRegisterAmount = item.SalesVoucherDetailsQuantity * item.SalesVoucherDetailsRate ?? 0,
-                        StockRegisterFCAmount = item.SalesVoucherDetailsQuantity * item.SalesVoucherDetailsRate * rate,
+                        StockRegisterRate = avgrate,
+                        StockRegisterAmount = item.SalesVoucherDetailsQuantity * (decimal)(converontype) * avgrate ?? 0,
+                        StockRegisterFCAmount = item.SalesVoucherDetailsQuantity* (decimal)(converontype) * avgrate * rate,
                         StockRegisterAssignedDate = DateTime.Now.Date,
                         StockRegisterStatus = "A",
                         StockRegisterTransType = VoucherType.SalesVoucher_TYPE,
@@ -421,16 +407,11 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 var currencyRate = clsCommonFunctions.getConverionCurrencyRate(salesVoucher.SalesVoucherCurrencyId, _currencyMasterRepository);
                 var rate = (decimal)currencyRate;
 
-
                 var stockReg = new List<StockRegister>();
                 foreach (var item in salesVoucher.SalesVoucherDetails)
                 {
-
+                    var avgrate = item.SalesVoucherDetailsCostPrice ?? 1;
                     var converontype = this.getConverionTypebyUnitId(item.SalesVoucherDetailsMatId, item.SalesVoucherDetailsUnitId);
-                    // get Price by Item Id.
-                     //var Price = Convert.ToDecimal(GetAveragePurchasePrice(Convert.ToInt32(item.SalesVoucherDetailsMatId), null));
-
-                    //var response = await _openingStockService.GetAveragePurchasePrice(Convert.ToInt32(item.SalesVoucherDetailsMatId), null);
 
                     stockReg.Add(new StockRegister()
                     {
@@ -441,9 +422,9 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         StockRegisterQuantity = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
                         StockRegisterSIN = 0,
                         StockRegisterSout = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
-                        StockRegisterRate = item.SalesVoucherDetailsRate,
-                        StockRegisterAmount = item.SalesVoucherDetailsQuantity * item.SalesVoucherDetailsRate ?? 0,
-                        StockRegisterFCAmount = item.SalesVoucherDetailsQuantity * item.SalesVoucherDetailsRate * rate,
+                        StockRegisterRate = avgrate,
+                        StockRegisterAmount = item.SalesVoucherDetailsQuantity* (decimal)(converontype) * avgrate ?? 0,
+                        StockRegisterFCAmount = item.SalesVoucherDetailsQuantity *(decimal)(converontype) * avgrate * rate,
                         StockRegisterAssignedDate = DateTime.Now.Date,
                         StockRegisterStatus = "A",
                         StockRegisterTransType = VoucherType.SalesVoucher_TYPE,

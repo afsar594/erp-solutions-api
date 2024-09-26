@@ -16,11 +16,17 @@ namespace Inspire.Erp.Domain.Entities.documents
       public string DocumentvoucherNo { get; set; }
         
     }
-    
-    
-
-
+    public partial class HrDocumentTypeList
+    {
+        public long DocumentTypeId { get; set; }
+        public string? DocumentType { get; set; }
     }
+    public partial class CustomermasterList
+    {
+        public long CustomermasterNo { get; set; }
+        public string? CustomermasterName { get; set; }
+    }
+}
     public partial class HrDocumentTypeFilter : BaseEntity
     {
         public string? MasterType { get; set; }

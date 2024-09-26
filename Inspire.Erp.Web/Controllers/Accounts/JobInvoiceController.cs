@@ -299,7 +299,10 @@ namespace Inspire.Erp.Web.Controllers
                     a.CustomerMasterCustomerVatNo,
                     a.CustomerMasterCustomerContactPerson,
                     a.CustomerMasterCustomerAddress,
-                    a.CustomerMasterCustomerReffAcNo
+                    a.CustomerMasterCustomerReffAcNo,
+                    a.CustomerMasterCustomerEmail,
+                    a.CustomerMasterCustomerTel1,
+                    a.CustomerMasterCustomerMobile
                 })
                 .ToListAsync();
 

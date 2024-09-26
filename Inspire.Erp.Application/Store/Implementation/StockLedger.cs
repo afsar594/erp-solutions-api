@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Inspire.Erp.Infrastructure.Database;
+using Microsoft.EntityFrameworkCore;
 
 namespace Inspire.Erp.Application.Store.Implementation
 {
@@ -21,14 +22,16 @@ namespace Inspire.Erp.Application.Store.Implementation
         private InspireErpDBContext _context;
         private readonly IRepository<StockRegister> _sRegister;
         private readonly IRepository<ItemMaster> _iMster;
+        private readonly IRepository<UnitMaster> _unitMaster;
         private readonly IRepository<PurchaseVoucher> _pv;
         private readonly IRepository<PurchaseVoucherDetails> _pvDetail;
         private readonly IRepository<FinancialPeriods> _fP;
 
-        public StockLedger(IRepository<StockRegister> sRegister, IRepository<ItemMaster> iMster, IRepository<PurchaseVoucherDetails> pvDetail, IRepository<PurchaseVoucher> pv, IRepository<FinancialPeriods> fP)
+        public StockLedger(IRepository<StockRegister> sRegister, IRepository<ItemMaster> iMster, IRepository<PurchaseVoucherDetails> pvDetail, IRepository<UnitMaster> unitMaster, IRepository<PurchaseVoucher> pv, IRepository<FinancialPeriods> fP)
         {
             this._sRegister = sRegister;
             this._iMster = iMster;
+            _unitMaster = unitMaster;
             _pvDetail = pvDetail;
             _pv = pv;
             _fP = fP;
@@ -64,11 +67,12 @@ namespace Inspire.Erp.Application.Store.Implementation
                     }
 
                     var stock = _sRegister.GetAsQueryable();
-
+                    var unit = _unitMaster.GetAsQueryable().AsNoTracking();
 
                     var result = (from im in query
                                   join sr in stock on im.ItemMasterItemId equals (long)sr.StockRegisterMaterialID.GetValueOrDefault() into gimV1
                                   from y in gimV1.DefaultIfEmpty()
+                                  join um in unit on y.StockRegisterUnitID equals um.UnitMasterUnitId
                                   where im.ItemMasterItemType == "A"
                                   && (sFilter.LocationId == null || y.StockRegisterLocationID == sFilter.LocationId)
                                   && (sFilter.PartNo == null || im.ItemMasterPartNo == sFilter.PartNo)
@@ -77,6 +81,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                   {
                                       im.ItemMasterItemId,
                                       im.ItemMasterItemName,
+                                      um.UnitMasterUnitFullName,
                                       y.StockRegisterSIN,
                                       y.StockRegisterSout,
                                       y.StockRegisterVoucherDate,
@@ -88,6 +93,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                    {
                                        Item_Id = x.ItemMasterItemId,
                                        Item_Name = x.ItemMasterItemName,
+                                       unitName= x.UnitMasterUnitFullName,
                                        StockIn = (x.StockRegisterSIN != null && x.StockRegisterSIN > 0 && x.StockRegisterVoucherDate >= sFilter.fromDate && x.StockRegisterVoucherDate <= sFilter.toDate) ? x.StockRegisterSIN : 0,
                                        StockInAmount = (x.StockRegisterSIN != null && x.StockRegisterSIN > 0 && x.StockRegisterVoucherDate >= sFilter.fromDate && x.StockRegisterVoucherDate <= sFilter.toDate) ? x.StockRegisterAmount ?? 0 : 0,
                                        StockOut = (x.StockRegisterSout != null && x.StockRegisterSout > 0 && x.StockRegisterVoucherDate >= sFilter.fromDate && x.StockRegisterVoucherDate <= sFilter.toDate) ? x.StockRegisterSout ?? 0 : 0,
@@ -114,6 +120,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                              RelativeNo = g.Max(x => x.ItemMasterPartNo),
                              PartNo = g.Max(x => x.ItemMasterAccountNo.ToString()),
                              ItemName = g.Max(x => x.Item_Name),
+                             unitName=g.Max(x=>x.unitName),
                              StockRate = (decimal)g.Max(x => x.StockInAmount),
                          }).ToList();
 
@@ -168,11 +175,12 @@ namespace Inspire.Erp.Application.Store.Implementation
                                      .OrderBy(im => im.ItemMasterItemId);
                     }
                     var stock = _sRegister.GetAsQueryable();
-
+                    var unit = _unitMaster.GetAsQueryable().AsNoTracking();
 
                     var result = (from im in query
                                   join sr in stock on im.ItemMasterItemId equals (long)sr.StockRegisterMaterialID.GetValueOrDefault() into gimV1
                                   from y in gimV1.DefaultIfEmpty()
+                                  join um in unit on y.StockRegisterUnitID equals um.UnitMasterUnitId
                                   where im.ItemMasterItemType == "A"
                                   && (sFilter.LocationId == null || y.StockRegisterLocationID == sFilter.LocationId)
                                   && (sFilter.PartNo == null || im.ItemMasterPartNo == sFilter.PartNo)                                  
@@ -180,6 +188,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                   {
                                       im.ItemMasterItemId,
                                       im.ItemMasterItemName,
+                                      um.UnitMasterUnitFullName,
                                       y.StockRegisterSIN,
                                       y.StockRegisterSout,
                                       y.StockRegisterVoucherDate,
@@ -191,6 +200,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                   {
                                       Item_Id = x.ItemMasterItemId,
                                       Item_Name = x.ItemMasterItemName,
+                                      unitName=x.UnitMasterUnitFullName,
                                       StockIn = (x.StockRegisterSIN != null && x.StockRegisterSIN > 0) ? x.StockRegisterSIN : 0,
                                       StockInAmount = (x.StockRegisterSIN != null && x.StockRegisterSIN > 0) ? x.StockRegisterAmount ?? 0 : 0,
                                       StockOut = (x.StockRegisterSout != null && x.StockRegisterSout > 0) ? x.StockRegisterSout ?? 0 : 0,
@@ -217,6 +227,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                             RelativeNo = g.Max(x => x.ItemMasterPartNo),
                             PartNo = g.Max(x => x.ItemMasterAccountNo.ToString()),
                             ItemName = g.Max(x => x.Item_Name),
+                            unitName = g.Max(x => x.unitName),
                             StockRate = (decimal)g.Max(x => x.StockInAmount),
                         }).ToList();
 
