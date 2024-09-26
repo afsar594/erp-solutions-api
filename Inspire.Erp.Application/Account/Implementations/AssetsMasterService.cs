@@ -13,6 +13,9 @@ using Inspire.Erp.Domain.Models;
 using Inspire.Erp.Domain.Models.Master;
 using SendGrid.Helpers.Mail;
 using Microsoft.AspNetCore.Mvc;
+using System.IO;
+using Microsoft.VisualBasic;
+using Inspire.Erp.Domain.Enums;
 
 namespace Inspire.Erp.Application.Account.Implementations
 {
@@ -76,7 +79,6 @@ namespace Inspire.Erp.Application.Account.Implementations
             try
             {
                 var result = await _asetMaster.GetAsQueryable().Where(x => x.AssetMasterAssetId == id).FirstOrDefaultAsync();
-
                 return Response<AssetMaster>.Success(result, "Data found");
             }
             catch (Exception ex)
@@ -96,6 +98,198 @@ namespace Inspire.Erp.Application.Account.Implementations
             catch (Exception ex)
             {
                 return Response<List<AssetMaster>>.Fail(new List<AssetMaster>(), ex.Message);
+            }
+        }
+
+
+        public async Task<Response<bool>> SaveNewAssetGroup(AssetGroupViewModel model)
+        {
+            try 
+            {
+                //CREATING ASSET ACCOUNT IN CHART OF ACCOUNT
+                var masterAccFixed = new MasterAccountsTable();
+                masterAccFixed.MaSno = Convert.ToInt32(_masterAccountTable.GetAsQueryable()
+                                             .Where(x => Convert.ToInt32(x.MaSno) > 0)
+                                             .DefaultIfEmpty()
+                                             .Max(o => o == null ? 0 : o.MaSno)) + 1;
+
+                masterAccFixed.MaRelativeNo = "01";
+                var AccNo = _masterAccountTable.GetAsQueryable()
+                                           .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == masterAccFixed.MaRelativeNo)
+                                           .DefaultIfEmpty()
+                                           .Max(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length - 3, 3))) + 1;
+
+                masterAccFixed.MaAccNo = masterAccFixed.MaRelativeNo + String.Format("{0:00}", AccNo);
+                masterAccFixed.MaAccName = model.GroupName;
+
+                var mainHead = _masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == masterAccFixed.MaRelativeNo).MaMainHead;
+                var subHead = _masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == masterAccFixed.MaRelativeNo).MaSubHead;
+
+                masterAccFixed.MaMainHead = mainHead ?? "";
+                masterAccFixed.MaSubHead = subHead ?? "";
+                masterAccFixed.MaAccType = model.AccountType;
+
+                masterAccFixed.MaStatus = AccountStatus.AccStatus;
+
+                if (model.AccountType == ItemMasterStatus.Group || model.AccountType == AccountMasterStatus.SubItem)
+                {
+
+                    masterAccFixed.MaImageKey = ItemMasterStatus.GroupItem;
+                }
+                else
+                {
+                    masterAccFixed.MaImageKey = ItemMasterStatus.SubItem;
+                }
+
+                masterAccFixed.MaSystemAcc = "U";
+                masterAccFixed.MaFsno = 1;
+                masterAccFixed.MaStatus = "R";
+                masterAccFixed.MaUserId = 1;
+                masterAccFixed.MaDateCreated = DateTime.Now;
+                masterAccFixed.MaCurrencyId = 1;
+                masterAccFixed.MaGpAcc = "Y";
+                masterAccFixed.MaAcAcc = "Y";
+                masterAccFixed.MaEdAcc = "Y";
+                masterAccFixed.MaOpenBalance = 0;
+                masterAccFixed.MaTotalDebit = 0;
+                masterAccFixed.MaTotalCredit = 0;
+                //masterAccFixed.MaManualCode = MaManualCode;
+                //masterAcc.MaIsAirAcc = MaIsAirAcc;
+                //masterAcc.MaIsSeaAcc = MaIsSeaAcc;
+                //masterAcc.MaCostCenterId = MaCostCenterId;
+                //MaCostCenterSub = MaCostCenterSub;
+                //masterAcc.MaSortNo = MaSortNo;
+                //masterAcc.MaShowSuminTb = MaShowSuminTb;
+                //masterAcc.MaAssetValue = MaAssetValue;
+                //masterAcc.MaAssetDepValue = MaAssetDepValue;
+                //masterAcc.MaAssetQty = MaAssetQty;
+                //masterAcc.MaLifeInYrs = MaLifeInYrs;
+                //masterAcc.MaAssetDepMode = MaAssetDepMode;
+                //masterAcc.MaAssetDate = MaAssetDate;
+                //masterAcc.MaIsAsset = MaIsAsset;
+                _masterAccountTable.Insert(masterAccFixed);
+
+                //CREATING LIABILITIES ACCOUNT IN CHART OF ACCOUNT
+                var masterAccLiabilities = new MasterAccountsTable();
+                masterAccLiabilities.MaSno = Convert.ToInt32(_masterAccountTable.GetAsQueryable()
+                                             .Where(x => Convert.ToInt32(x.MaSno) > 0)
+                                             .DefaultIfEmpty()
+                                             .Max(o => o == null ? 0 : o.MaSno)) + 1;
+
+
+                masterAccLiabilities.MaRelativeNo = "03";
+                AccNo = _masterAccountTable.GetAsQueryable()
+                                           .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == masterAccLiabilities.MaRelativeNo)
+                                           .DefaultIfEmpty()
+                                           .Max(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length - 3, 3))) + 1;
+
+                masterAccLiabilities.MaAccNo = masterAccLiabilities.MaRelativeNo + String.Format("{0:00}", AccNo);
+                masterAccLiabilities.MaAccName = model.GroupName;
+
+                mainHead = _masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == masterAccLiabilities.MaRelativeNo).MaMainHead;
+                subHead = _masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == masterAccLiabilities.MaRelativeNo).MaSubHead;
+
+                masterAccLiabilities.MaMainHead = mainHead ?? "";
+                masterAccLiabilities.MaSubHead = subHead ?? "";
+                masterAccLiabilities.MaAccType = model.AccountType;
+
+                masterAccLiabilities.MaStatus = AccountStatus.AccStatus;
+
+                if (model.AccountType == ItemMasterStatus.Group || model.AccountType == AccountMasterStatus.SubItem)
+                {
+
+                    masterAccLiabilities.MaImageKey = ItemMasterStatus.GroupItem;
+                }
+                else
+                {
+                    masterAccLiabilities.MaImageKey = ItemMasterStatus.SubItem;
+                }
+
+                masterAccLiabilities.MaSystemAcc = "U";
+                masterAccLiabilities.MaFsno = 1;
+                masterAccLiabilities.MaStatus = "R";
+                masterAccLiabilities.MaUserId = 1;
+                masterAccLiabilities.MaDateCreated = DateTime.Now;
+                masterAccLiabilities.MaCurrencyId = 1;
+                masterAccLiabilities.MaGpAcc = "Y";
+                masterAccLiabilities.MaAcAcc = "Y";
+                masterAccLiabilities.MaEdAcc = "Y";
+                masterAccLiabilities.MaOpenBalance = 0;
+                masterAccLiabilities.MaTotalDebit = 0;
+                masterAccLiabilities.MaTotalCredit = 0;
+                _masterAccountTable.Insert(masterAccLiabilities);
+
+
+                //CREATING LIABILITIES ACCOUNT IN CHART OF ACCOUNT
+                var masterAccExpenses = new MasterAccountsTable();
+                masterAccExpenses.MaSno = Convert.ToInt32(_masterAccountTable.GetAsQueryable()
+                                             .Where(x => Convert.ToInt32(x.MaSno) > 0)
+                                             .DefaultIfEmpty()
+                                             .Max(o => o == null ? 0 : o.MaSno)) + 1;
+
+
+                masterAccExpenses.MaRelativeNo = "04";
+                AccNo = _masterAccountTable.GetAsQueryable()
+                                           .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == masterAccExpenses.MaRelativeNo)
+                                           .DefaultIfEmpty()
+                                           .Max(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length - 3, 3))) + 1;
+
+                masterAccExpenses.MaAccNo = masterAccExpenses.MaRelativeNo + String.Format("{0:00}", AccNo);
+                masterAccExpenses.MaAccName = model.GroupName;
+
+                mainHead = _masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == masterAccExpenses.MaRelativeNo).MaMainHead;
+                subHead = _masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == masterAccExpenses.MaRelativeNo).MaSubHead;
+
+                masterAccExpenses.MaMainHead = mainHead ?? "";
+                masterAccExpenses.MaSubHead = subHead ?? "";
+                masterAccExpenses.MaAccType = model.AccountType;
+
+                masterAccExpenses.MaStatus = AccountStatus.AccStatus;
+
+                if (model.AccountType == ItemMasterStatus.Group || model.AccountType == AccountMasterStatus.SubItem)
+                {
+
+                    masterAccExpenses.MaImageKey = ItemMasterStatus.GroupItem;
+                }
+                else
+                {
+                    masterAccExpenses.MaImageKey = ItemMasterStatus.SubItem;
+                }
+
+                masterAccExpenses.MaSystemAcc = "U";
+                masterAccExpenses.MaFsno = 1;
+                masterAccExpenses.MaStatus = "R";
+                masterAccExpenses.MaUserId = 1;
+                masterAccExpenses.MaDateCreated = DateTime.Now;
+                masterAccExpenses.MaCurrencyId = 1;
+                masterAccExpenses.MaGpAcc = "Y";
+                masterAccExpenses.MaAcAcc = "Y";
+                masterAccExpenses.MaEdAcc = "Y";
+                masterAccExpenses.MaOpenBalance = 0;
+                masterAccExpenses.MaTotalDebit = 0;
+                masterAccExpenses.MaTotalCredit = 0;
+                _masterAccountTable.Insert(masterAccExpenses);
+
+
+                //Assets here
+                var assetMaster = new AssetMaster()
+                {
+                    AssetMasterAssetCode = "Code",
+                    AssetMasterAssetName = model.GroupName,
+                    AssetMasterAssetType = ItemMasterStatus.Group,
+                    AssetMasterAssetCreatedDate = DateTime.Now,
+                    AssetMasterAssetRelativeNo = Convert.ToInt32(model.ParentRelativeNo),
+                    AssetMasterAssetAccountNo = "",
+                    AssetMasterAssetDepExpAccount = "",
+                    AssetMasterAssetDepLibAccount = "",
+                };
+
+                _asetMaster.Insert(assetMaster);
+                return Response<bool>.Success(true, "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<bool>.Fail(false, ex.Message);
             }
         }
 

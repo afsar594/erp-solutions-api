@@ -20,16 +20,22 @@ namespace Inspire.Erp.Web.Controllers.Accounts
     public class AccountController : ControllerBase
     {
         private readonly IAccountStatementService _accountStatService;
-        private readonly IVoucherPrintService _iVoucherPrintService; private IRepository<AccountSettings> _accountsSettingsRepo;
+        private readonly IVoucherPrintService _iVoucherPrintService;
+        private IRepository<AccountSettings> _accountsSettingsRepo;
         private readonly IAccountStatementMultiAccountService _multiAccountService;
-        private readonly IDaybookService _daybookService; private IRepository<AccountsTransactions> _accountTransactionRepository;
+        private readonly IDaybookService _daybookService;
+        private IRepository<AccountsTransactions> _accountTransactionRepository;
         private readonly IVoucherAllocationService _voucherAllocation;
         private readonly IOutstandingStatementService _outstandingStatement;
-        private readonly IOldBalanceSheetService _oldBalanceSheet; private IRepository<CustomerMaster> _customerMasterRepository;
-        private readonly IAgeingReport _ageingReport; private IRepository<SalesManMaster> salesmanrepository;
+        private readonly IOldBalanceSheetService _oldBalanceSheet;
+        private IRepository<CustomerMaster> _customerMasterRepository;
+        private readonly IAgeingReport _ageingReport;
+        private IRepository<SalesManMaster> salesmanrepository;
         private readonly IAssetsOpeningService _assetsOpeningService;
-        private readonly IVatStatementService _vatStatementService; private IRepository<SalesVoucherDetails> _salesVoucherDetailsRepository;
-        private readonly IAssetsMasterService _assetsMasterService; private IRepository<SalesVoucher> _salesVoucherRepository;
+        private readonly IVatStatementService _vatStatementService;
+        private IRepository<SalesVoucherDetails> _salesVoucherDetailsRepository;
+        private readonly IAssetsMasterService _assetsMasterService; 
+        private IRepository<SalesVoucher> _salesVoucherRepository;
         private readonly IAccountTransactionsServices _accountTransactionsServices;
         public AccountController(IAccountStatementService accountStatService, IDaybookService daybookService, IAssetsOpeningService assetsOpeningService, IRepository<AccountsTransactions> accountTransactionRepository,
             IVoucherAllocationService voucherAllocation, IOutstandingStatementService outstandingStatement, IOldBalanceSheetService oldBalanceSheet, IRepository<CustomerMaster> customerMasterRepository,
@@ -411,8 +417,15 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         {
             return Ok(await _assetsMasterService.AddEditAssetMaster(model));
         }
-        #endregion
 
+        [HttpPost("SaveNewAssetGroup")]
+        public async Task<IActionResult> SaveNewAssetGroup(AssetGroupViewModel model)
+        {
+            return Ok(await _assetsMasterService.SaveNewAssetGroup(model));
+        }
+
+
+        #endregion
         #region invoice Profit Analysis
 
         [HttpGet]
