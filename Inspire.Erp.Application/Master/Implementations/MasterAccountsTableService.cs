@@ -489,6 +489,7 @@ namespace Inspire.Erp.Application.Master
                                              .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == masterAccountsTable.MaRelativeNo)
                                              .DefaultIfEmpty()
                                              .Max(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length - 3, 3))) + 1;
+               
                 if (masterAccountsTable.MaRelativeNo != null && masterAccountsTable.MaRelativeNo != "0")
                 {
                     var mainHead = masteraccountstablerepository.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == masterAccountsTable.MaRelativeNo).MaMainHead;
@@ -548,8 +549,6 @@ namespace Inspire.Erp.Application.Master
                 var subHead = masteraccountstablerepository.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == masterAccountsTable.MaRelativeNo).MaSubHead;
                 masterAccountsTable.MaMainHead = mainHead ?? "";
                 masterAccountsTable.MaSubHead = subHead ?? "";
-
-
 
                 masterAccountsTable.MaAccNo = masterAccountsTable.MaRelativeNo + String.Format("{0:000}", AccNo);
                 var exist = masteraccountstablerepository.GetAsQueryable().Where(a => a.MaAccNo == masterAccountsTable.MaAccNo).ToList();

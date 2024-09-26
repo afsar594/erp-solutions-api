@@ -18,6 +18,7 @@ namespace Inspire.Erp.Application.Account.Interfaces
         Task<Response<List<AssetMaster>>> GetRelativeAssetMasterRecord(int accNo);
         Task<Response<bool>> AddEditAssetMaster(AssetMasterViewModel model);
         Task<Response<List<AssetCodes>>> GetAssetsCodes();
-        
+        Task<Response<bool>> SaveNewAssetGroup(AssetGroupViewModel model);
+
     }
 }
