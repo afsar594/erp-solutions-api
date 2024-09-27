@@ -6149,10 +6149,9 @@ namespace Inspire.Erp.Infrastructure.Database
                       .HasMaxLength(50)
                       .IsUnicode(false);
 
-                entity.Property(e => e.CustomerQuotationNote)
-                      .HasColumnName("Customer_Quotation_Note")
-                      .HasMaxLength(200)
-                      .IsUnicode(false);
+                entity.Property(e => e.CustomerQuotationNote).HasColumnName("Customer_Quotation_Note");
+                     
+                    
 
                 entity.Property(e => e.CustomerQuotationWarranty)
                       .HasColumnName("Customer_Quotation_Warranty")

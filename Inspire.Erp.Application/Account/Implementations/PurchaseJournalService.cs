@@ -46,7 +46,6 @@ namespace Inspire.Erp.Application.Account.Implementations
 
             try
             {
-
                 //=================================               
                 clsCommonFunctions.Delete_OldEntry_AccountsTransactions(purchaseJournal.PurchaseJournalVno, VoucherType.PurchaseJournal_TYPE, _accountTransactionRepository);
                 //=================================
@@ -105,17 +104,15 @@ namespace Inspire.Erp.Application.Account.Implementations
 
                 clsCommonFunctions.Delete_OldEntry_AccountsTransactions(purchaseJournal.PurchaseJournalVno, VoucherType.PurchaseJournal_TYPE, _accountTransactionRepository);
 
-                purchaseJournal.PurchaseJournalDelStatus = true;
-
-                purchaseJournalDetails = purchaseJournalDetails.Select((k) =>
+                var dataObj = _purchaseJournalRepository.GetAsQueryable().Where(o => o.PurchaseJournalVno == purchaseJournal.PurchaseJournalVno).FirstOrDefault();
+                dataObj.PurchaseJournalDelStatus = true;
+                var detailData = _purchaseJournalDetailsRepository.GetAsQueryable().Where(o => o.PurchaseJournalDetailsVatNo == purchaseJournal.PurchaseJournalVno).ToList();
+                detailData.ForEach(elemt =>
                 {
-                    k.PurchaseJournalDetailsDelStatus = true;
-                    return k;
-                }).ToList();
-
-                _purchaseJournalDetailsRepository.UpdateList(purchaseJournalDetails);                              
-
-                _purchaseJournalRepository.Update(purchaseJournal);
+                    elemt.PurchaseJournalDetailsDelStatus = true;
+                });
+                _purchaseJournalRepository.Update(dataObj);
+                _purchaseJournalDetailsRepository.UpdateList(detailData);
 
                 var vchrnumer = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == purchaseJournal.PurchaseJournalVno).FirstOrDefault();
 
@@ -137,10 +134,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 i = 0;
                 throw ex;
             }
-
-
             return i;
-
         }
         public PurchaseJournal InsertPurchaseJournal(PurchaseJournal purchaseJournal, List<AccountsTransactions> accountsTransactions, List<PurchaseJournalDetails> purchaseJournalDetails)
         {
