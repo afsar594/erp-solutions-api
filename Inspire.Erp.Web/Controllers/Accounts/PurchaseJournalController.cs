@@ -100,7 +100,7 @@ namespace Inspire.Erp.Web.Controllers
         [HttpGet]
         [Route("GetAllAccountTransaction")]
         public ApiResponse<List<AccountsTransactions>> GetAllAccountTransaction()
-        {
+        { 
             ApiResponse<List<AccountsTransactions>> apiResponse = new ApiResponse<List<AccountsTransactions>>
             {
                 Valid = true,
@@ -121,8 +121,7 @@ namespace Inspire.Erp.Web.Controllers
                 Message = ""
             };
             return apiResponse;
-
-        }
+           }
         [HttpGet]
         [Route("GetSavedPurchaseJournalDetails/{id}")]
         public ApiResponse<PurchaseJournal> GetSavedPurchaseJournalDetails(string id)
