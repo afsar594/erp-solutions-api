@@ -105,17 +105,32 @@ namespace Inspire.Erp.Application.Account.Implementations
 
                 clsCommonFunctions.Delete_OldEntry_AccountsTransactions(purchaseJournal.PurchaseJournalVno, VoucherType.PurchaseJournal_TYPE, _accountTransactionRepository);
 
-                purchaseJournal.PurchaseJournalDelStatus = true;
 
-                purchaseJournalDetails = purchaseJournalDetails.Select((k) =>
+                var dataObj = _purchaseJournalRepository.GetAsQueryable().Where(o => o.PurchaseJournalVno == purchaseJournal.PurchaseJournalVno).FirstOrDefault();
+                dataObj.PurchaseJournalDelStatus = true;
+                var detailData = _purchaseJournalDetailsRepository.GetAsQueryable().Where(o => o.PurchaseJournalDetailsVatNo == purchaseJournal.PurchaseJournalVno).ToList();
+                detailData.ForEach(elemt =>
                 {
-                    k.PurchaseJournalDetailsDelStatus = true;
-                    return k;
-                }).ToList();
+                    elemt.PurchaseJournalDetailsDelStatus = true;
+                });
+                _purchaseJournalRepository.Update(dataObj);
+                _purchaseJournalDetailsRepository.UpdateList(detailData);
 
-                _purchaseJournalDetailsRepository.UpdateList(purchaseJournalDetails);                              
 
-                _purchaseJournalRepository.Update(purchaseJournal);
+
+
+                //purchaseJournal.PurchaseJournalDelStatus = true;
+                //_purchaseJournalRepository.Update(purchaseJournal);
+
+                //purchaseJournalDetails = purchaseJournalDetails.Select((k) =>
+                //{
+                //    k.PurchaseJournalDetailsDelStatus = true;
+                //    return k;
+                //}).ToList();
+
+                //_purchaseJournalDetailsRepository.UpdateList(purchaseJournalDetails);                              
+
+
 
                 var vchrnumer = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == purchaseJournal.PurchaseJournalVno).FirstOrDefault();
 
