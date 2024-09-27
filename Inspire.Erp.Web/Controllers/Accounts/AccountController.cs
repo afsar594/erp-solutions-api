@@ -424,8 +424,15 @@ namespace Inspire.Erp.Web.Controllers.Accounts
             return Ok(await _assetsMasterService.SaveNewAssetGroup(model));
         }
 
+        [HttpPost("SaveNewAssetHead")]
+        public async Task<IActionResult> SaveNewAssetHead(AssetGroupViewModel model)
+        {
+            return Ok(await _assetsMasterService.SaveNewAssetHead(model));
+        }
+
 
         #endregion
+
         #region invoice Profit Analysis
 
         [HttpGet]
@@ -553,6 +560,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         }
 
         #endregion
+
         #region Assets Consumtions
 
         [HttpGet("GetAssetsCodes")]

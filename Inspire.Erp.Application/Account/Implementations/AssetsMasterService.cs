@@ -293,6 +293,71 @@ namespace Inspire.Erp.Application.Account.Implementations
             }
         }
 
+
+
+        public async Task<Response<bool>> SaveNewAssetHead(AssetGroupViewModel model)
+        {
+            try
+            {
+                //CREATING ASSET ACCOUNT IN CHART OF ACCOUNT
+                var masterAccFixed = new MasterAccountsTable();
+                masterAccFixed.MaSno = Convert.ToInt32(_masterAccountTable.GetAsQueryable()
+                                             .Where(x => Convert.ToInt32(x.MaSno) > 0)
+                                             .DefaultIfEmpty()
+                                             .Max(o => o == null ? 0 : o.MaSno)) + 1;
+
+                masterAccFixed.MaRelativeNo = model.ParentRelativeNo;
+                var AccNo = _masterAccountTable.GetAsQueryable()
+                                           .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == masterAccFixed.MaRelativeNo)
+                                           .DefaultIfEmpty()
+                                           .Max(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length - 3, 3))) + 1;
+
+                masterAccFixed.MaAccNo = masterAccFixed.MaRelativeNo + String.Format("{0:00}", AccNo);
+                masterAccFixed.MaAccName = model.GroupName;
+
+                var mainHead = _masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == masterAccFixed.MaRelativeNo).MaMainHead;
+                var subHead = _masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == masterAccFixed.MaRelativeNo).MaSubHead;
+
+                masterAccFixed.MaMainHead = mainHead ?? "";
+                masterAccFixed.MaSubHead = subHead ?? "";
+                masterAccFixed.MaAccType = model.AccountType;
+
+                masterAccFixed.MaStatus = AccountStatus.AccStatus;
+
+                if (model.AccountType == ItemMasterStatus.Group || model.AccountType == AccountMasterStatus.SubItem)
+                {
+
+                    masterAccFixed.MaImageKey = ItemMasterStatus.GroupItem;
+                }
+                else
+                {
+                    masterAccFixed.MaImageKey = ItemMasterStatus.SubItem;
+                }
+
+                masterAccFixed.MaSystemAcc = "U";
+                masterAccFixed.MaFsno = 1;
+                masterAccFixed.MaStatus = "R";
+                masterAccFixed.MaUserId = 1;
+                masterAccFixed.MaDateCreated = DateTime.Now;
+                masterAccFixed.MaCurrencyId = 1;
+                masterAccFixed.MaGpAcc = "Y";
+                masterAccFixed.MaAcAcc = "Y";
+                masterAccFixed.MaEdAcc = "Y";
+                masterAccFixed.MaOpenBalance = 0;
+                masterAccFixed.MaTotalDebit = 0;
+                masterAccFixed.MaTotalCredit = 0;
+                
+                _masterAccountTable.Insert(masterAccFixed);
+
+              
+                return Response<bool>.Success(true, "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<bool>.Fail(false, ex.Message);
+            }
+        }
+
         public async Task<Response<bool>> AddEditAssetMaster(AssetMasterViewModel model)
         {
             try
