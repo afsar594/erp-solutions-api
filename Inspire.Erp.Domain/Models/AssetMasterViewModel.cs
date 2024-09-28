@@ -29,6 +29,6 @@ namespace Inspire.Erp.Domain.Models
 
        // public string ParentGroup { get; set; }
         public string AccountType { get; set; }
-
+        public DateTime CreatedDate { get; set; }
     }
 }
