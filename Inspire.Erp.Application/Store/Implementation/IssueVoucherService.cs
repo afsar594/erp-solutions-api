@@ -165,10 +165,11 @@ namespace Inspire.Erp.Application.Store.Implementation
                         StockRegisterStatus = AccountStatus.Approved,
                         StockRegisterAssignedDate = issueVoucher.IssueVoucherDate,
                         StockRegisterExpDate = null,
-                        StockRegisterDepID = 1,
+                        StockRegisterDepID = (int?)issueVoucher.IssueVoucherDepartmentId,
                         StockRegisterDelStatus = false,
                         StockRegisterUnitID = item.IssueVoucherDetailsUnitId,
-                        StockRegisterLocationID = issueVoucher.IssueVoucherLocationId
+                        StockRegisterLocationID = issueVoucher.IssueVoucherLocationId,
+                        StockRegisterJobID = issueVoucher.IssueVoucherJobId,
                     });
                 }
                 _stockRegisterRepository.InsertList(stockRegister);
@@ -338,10 +339,11 @@ namespace Inspire.Erp.Application.Store.Implementation
                         StockRegisterStatus = AccountStatus.Approved,
                         StockRegisterAssignedDate = issueVoucher.IssueVoucherDate,
                         StockRegisterExpDate = null,
-                        StockRegisterDepID = 1,
+                        StockRegisterDepID = (int?)issueVoucher.IssueVoucherDepartmentId,
                         StockRegisterDelStatus = false,
                         StockRegisterUnitID = item.IssueVoucherDetailsUnitId,
-                        StockRegisterLocationID = issueVoucher.IssueVoucherLocationId
+                        StockRegisterLocationID = issueVoucher.IssueVoucherLocationId,
+                        StockRegisterJobID = issueVoucher.IssueVoucherJobId,
                     });
                 }
                 _stockRegisterRepository.InsertList(stockRegister);

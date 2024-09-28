@@ -147,7 +147,11 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                         StockRegisterAmount = item.PurchaseVoucherDetailsQuantity * item.PurchaseVoucherDetailsRate,
                         StockRegisterFCAmount = item.PurchaseVoucherDetailsQuantity * item.PurchaseVoucherDetailsRate * rate,
                         StockRegisterTransType = VoucherType.PurchaseVoucher_TYPE,
-                        StockRegisterStatus = AccountStatus.Approved,
+                        StockRegisterStatus = AccountStatus.Approved,                        
+                        StockRegisterUnitID = item.PurchaseVoucherDetailsUnitId,
+                        StockRegisterLocationID = grn.PurchaseVoucherLocationID,
+                        StockRegisterJobID = grn.PurchaseVoucherJobID,
+                        StockRegisterDelStatus = false
 
                     });
 
@@ -228,6 +232,10 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                         StockRegisterFCAmount = item.PurchaseVoucherDetailsQuantity * item.PurchaseVoucherDetailsRate * rate,
                         StockRegisterTransType = VoucherType.PurchaseVoucher_TYPE,
                         StockRegisterStatus = AccountStatus.Approved,
+                        StockRegisterUnitID = item.PurchaseVoucherDetailsUnitId,
+                        StockRegisterLocationID = grn.PurchaseVoucherLocationID,
+                        StockRegisterJobID = grn.PurchaseVoucherJobID,                        
+                        StockRegisterDelStatus = false
                     });
                 }
                 _stockRegisterRepository.InsertList(stockRegisters);
