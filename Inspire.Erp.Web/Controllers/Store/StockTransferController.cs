@@ -37,29 +37,21 @@ namespace Inspire.Erp.Web.Controllers.Store
             jobrepository = _jobrepository; locationrepository = _locationrepository; _customerMasterRepository = customerMasterRepository;
             itemrepository = _itemrepository; unitrepository = _unitrepository; departmentrepository = _departmentrepository;
         }
-        /// <summary>
-        /// Need to replace SP getStockItemsList by LINQ see from the vb.code and load it according to the reposnse 
-        /// </summary>
-        /// <returns></returns>
+
         [HttpGet("getStockItemsList")]
-        public async Task<ApiResponse<List<StockItemResponse>>> getStockItemsList()
+        public async Task<IActionResult> getStockItemsList(int? itemId, int? locationId)
         {
             try
             {
-                List<StockItemResponse> list = await _st.getStockItemResponse();
-                ApiResponse<List<StockItemResponse>> response = new ApiResponse<List<StockItemResponse>>()
-                {
-                    Result = list,
-                    Message = "Ok"
-                };
-                return response;
+               var list = await _st.getStockItemResponse(itemId, locationId);
+                return Ok(list);
+
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
-
 
         [HttpGet]
         [Route("GetAllStockTransfer")]
@@ -73,27 +65,6 @@ namespace Inspire.Erp.Web.Controllers.Store
             };
             return apiResponse;
         }
-        /// <summary>
-        ///  Need to replace SP getStockTransferReport by LINQ see from the vb.code and load it according to the reposnse  
-        /// </summary>
-        /// <returns></returns>
-        //[HttpGet("getStockTransferReport")]
-        //public async Task<ApiResponse<List<StockTransferResponseModel>>> getStockTransferReport()
-        //{
-        //    try
-        //    {
-        //        ApiResponse<List<StockTransferResponseModel>> response = new ApiResponse<List<StockTransferResponseModel>>()
-        //        {
-        //            Result = _st.getStockTransferReport().ToList(),
-        //            Message = "Ok"
-        //        };
-        //        return response;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //}
 
         [HttpPost]
         [Route("InsertStockTransfer")]
@@ -157,61 +128,6 @@ namespace Inspire.Erp.Web.Controllers.Store
             return Ok(_st.DeleteStockTransfers(Id));
         }
 
-        //[HttpPost]
-        //[Route("DeleteStockTransfer")]
-        //public async Task<bool> DeleteStockTransfer([FromBody] StockTransferViewModel stockTranfermodel)
-        //{
-        //    try
-        //    {
-        //        var param1 = _mapper.Map<StockTransfer>(stockTranfermodel);
-        //    var param2 = _mapper.Map<List<StockTransferDetails>>(stockTranfermodel.StockTransferDetails);
-
-        //        //==============
-        //       var  param3 = new List<AccountsTransactions>();
-        //        List<StockRegister> param4 = new List<StockRegister>();
-
-        //        var result= await _st.DeleteStockTransfer(param1, param2
-        //       , param4
-        //       );
-        //    return true;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-
-        //}
-
-        //[HttpPost("deleteStockTransfer")]
-        //public async Task<bool> deleteStockTransfer(StockTransferRequestModel obj)
-        //{
-        //    try
-        //    {
-        //        await _st.deleteStockTransfer(obj);
-        //        return true;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //}
-        //[HttpPost("UpdateStockTransfer")]
-        //public async Task<bool> UpdateStockTransfer(StockTransferRequestModel obj)
-        //{
-        //    try
-        //    {
-        //        await _st.UpdateStockTransfer(obj);
-        //        return true;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //}
-
-
-
-
         [HttpPost]
         [Route("UpdateStockTransfer")]
         public async Task<ApiResponse<StockTransferViewModel>> UpdateStockTransfer([FromBody] StockTransferViewModel stockTranfermodel)
@@ -274,8 +190,6 @@ namespace Inspire.Erp.Web.Controllers.Store
 
             return apiResponse;
         }
-
-
 
         [HttpGet]
         [Route("GetSavedStockTransferDetails/{id}")]
@@ -368,7 +282,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 customerMasters = customerMasters,
                 itemMaster = itemMaster,
                 unitMasters = unitMasters,
-                departmentMasters= departmentMasters
+                departmentMasters = departmentMasters
             };
             return objresponse;
         }

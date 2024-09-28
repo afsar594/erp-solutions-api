@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -17,8 +18,9 @@ namespace Inspire.Erp.Domain.Entities
         public string StockTransferDetailsBatchCode { get; set; }
         public DateTime? StockTransferDetailsExpDate { get; set; }
         public bool? StockTransferDetailsDelStatus { get; set; }
-        //public string StockTransferDetailsVoucherNo { get; set; }
-
+        
+        public decimal? StockTransferDetailsCostPrice { get; set; }
+        [NotMapped]
         public virtual StockTransfer StockTransferDetailsNoNavigation { get; set; }
     }
 }
