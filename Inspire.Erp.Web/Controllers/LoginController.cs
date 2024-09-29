@@ -18,6 +18,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Inspire.Erp.Web.Controllers
 {
+    [Authorize]
     [Route("api")]
     [Produces("application/json")]
     [ApiController]
@@ -236,7 +237,7 @@ namespace Inspire.Erp.Web.Controllers
 
             return user;
         }
-
+        [AllowAnonymous]
         [HttpGet]
         [Route("LoadDropdown")]
         public ResponseInfo LoadDropdown()

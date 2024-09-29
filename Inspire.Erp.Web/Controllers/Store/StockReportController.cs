@@ -20,9 +20,11 @@ using Inspire.Erp.Domain.Modals.Stock;
 using NPOI.OpenXmlFormats.Dml;
 using System.Net.Http.Headers;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers.Store
 {
+    [Authorize]
     [Route("api/StockReport")]
     [Produces("application/json")]
     [ApiController]

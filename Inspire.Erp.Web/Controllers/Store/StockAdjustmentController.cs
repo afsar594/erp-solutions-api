@@ -5,6 +5,7 @@ using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Inspire.Erp.Web.Common;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers.Store
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class StockAdjustmentController : ControllerBase
