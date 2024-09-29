@@ -47,14 +47,28 @@ namespace Inspire.Erp.Application.Authentication.Implementations
                 {
                     if (user.Freeze == false)
                     {
-                        // authentication successful so generate jwt and refresh tokens
-                        var jwtToken = generateJwtToken(user);
-                        var refreshToken = generateRefreshToken(user);
-                        user.Loginfailure = 0;
-                        user.Token = jwtToken;
-                        user.RefreshToken = refreshToken.Token;
-                        user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
-                        userFileRepository.Update(user);
+                        var lastupdate = (DateTime)user.PasswordUpdateDate;
+                        var today = DateTime.Now;
+                        var totaldays = (today - lastupdate).TotalDays;
+                        if (totaldays > 90)
+                        {
+                            return new UserFile
+                            {
+                                IsValid = false,
+                                Message = "Password Expired , Please contact the Site Owner"
+                            };
+                        }
+                        else
+                        {
+                            // authentication successful so generate jwt and refresh tokens
+                            var jwtToken = generateJwtToken(user);
+                            var refreshToken = generateRefreshToken(user);
+                            user.Loginfailure = 0;
+                            user.Token = jwtToken;
+                            user.RefreshToken = refreshToken.Token;
+                            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+                            userFileRepository.Update(user);
+                        }
                     }
                     else
                     {
@@ -67,6 +81,10 @@ namespace Inspire.Erp.Application.Authentication.Implementations
                 }
                 else
                 {
+                    if (user.Loginfailure == null)
+                    {
+                        user.Loginfailure = 0;
+                    }
                     user.Loginfailure += 1;
                     if (user.Loginfailure == 5)
                     {
@@ -207,8 +225,13 @@ namespace Inspire.Erp.Application.Authentication.Implementations
             {
                 userFileRepository.BeginTransaction();
 
+                var jwtToken = generateJwtToken(user);
+                var refreshToken = generateRefreshToken(user);                
+                user.Token = jwtToken;
+                user.RefreshToken = refreshToken.Token;
                 user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
-
+                user.PasswordUpdateDate = DateTime.Now;
+                user.Loginfailure = 0;
                 userFileRepository.Update(user);
 
                 userFileRepository.TransactionCommit();
@@ -293,7 +316,8 @@ namespace Inspire.Erp.Application.Authentication.Implementations
                 user.Token = jwtToken;
                 user.RefreshToken = refreshToken.Token;
                 user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
-
+                user.PasswordUpdateDate = DateTime.Now;
+                user.Loginfailure = 0;
                 userFileRepository.Insert(user);
 
                 userFileRepository.TransactionCommit();
