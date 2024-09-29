@@ -68,11 +68,15 @@ namespace Inspire.Erp.Application.Authentication.Implementations
                 else
                 {
                     user.Loginfailure += 1;
+                    if (user.Loginfailure == 5)
+                    {
+                        user.Freeze = true;
+                    }
                     userFileRepository.Update(user);
                     return new UserFile
                     {
                         IsValid = false,
-                        Message = "Incorrect Password ,Login failure try " + user.Loginfailure +"/5"
+                        Message = "Incorrect Password ,Login failure try " + user.Loginfailure + "/5"
                     };
                 }
             }
