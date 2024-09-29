@@ -27,6 +27,8 @@ namespace Inspire.Erp.Domain.Entities
         [NotMapped]
         public int? FinancialPeriodsFsno { get; set; }
 
+        public int? Loginfailure { get; set; }
+
     }
 
     [NotMapped]

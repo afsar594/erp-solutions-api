@@ -100,7 +100,13 @@ namespace Inspire.Erp.Web
            
             services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
             services.AddScoped<INotificationHub, NotificationHub>();
-                      
+
+            services.AddControllers(options =>
+            {
+                // Register the filter globally
+                options.Filters.Add<SpecialCharacterValidationFilter>();
+            });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

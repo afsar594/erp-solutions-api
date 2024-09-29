@@ -83,18 +83,24 @@ namespace Inspire.Erp.Web.Controllers
         [HttpPost("authenticate")]
         public IActionResult Authenticate([FromBody] User user)
         {
+           
             var response = loginsvc.Authenticate(new UserFile
             {
                 UserName = user.Username,
                 Password = user.Password
             }, ipAddress());
 
-            if (response == null)
-                return BadRequest(new { message = "Username or password is incorrect" });
-
-            setTokenCookie(response.RefreshToken);
-            response.FinancialPeriodsFsno = user.Financialperiod.FinancialPeriodsFsno;
-            response.LocId = (int)user.Location.LocationMasterLocationId;
+            if (response.IsValid != false)
+            {
+                response.IsValid = true;
+                setTokenCookie(response.RefreshToken);
+                response.FinancialPeriodsFsno = user.Financialperiod.FinancialPeriodsFsno;
+                response.LocId = (int)user.Location.LocationMasterLocationId;
+            }
+            else
+            {
+                return Ok(response);
+            }
             return Ok(ApiResponse<UserFile>.Success(response));
         }
 
