@@ -1,12 +1,14 @@
 ﻿using Inspire.Erp.Application.Account.Interfaces;
 using Inspire.Erp.Application.Sales.Interfaces;
 using Inspire.Erp.Domain.Modals.Common;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers.Accounts
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class JobCostReportController : ControllerBase

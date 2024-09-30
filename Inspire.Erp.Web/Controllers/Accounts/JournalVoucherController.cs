@@ -13,9 +13,11 @@ using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Web.Common;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Inspire.Erp.Application.Account.Implementations;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers.Accounts
 {
+    [Authorize]
     [Route("api/JournalVoucher")]
     [Produces("application/json")]
     [ApiController]

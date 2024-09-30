@@ -2,6 +2,7 @@
 using Inspire.Erp.Application.Procurement.Interfaces;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Modals;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ using static Inspire.Erp.Domain.Modals.PDCResponse;
 
 namespace Inspire.Erp.Web.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class PDCController : ControllerBase
