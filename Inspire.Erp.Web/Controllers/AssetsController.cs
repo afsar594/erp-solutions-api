@@ -33,7 +33,6 @@ namespace Inspire.Erp.Web.Controllers
     public class AssetsController : ControllerBase
     {
 
-
         private readonly IAssetsMasterService _assetsMasterService;
         private readonly IMapper _mapper;
         private IRepository<AssetMaster> _assetMasterRepository;
@@ -43,7 +42,6 @@ namespace Inspire.Erp.Web.Controllers
             _mapper = mapper;
             _assetsMasterService = assetMasterService;
             _assetMasterRepository = assetMaster;
-
         }
 
 
@@ -60,8 +58,5 @@ namespace Inspire.Erp.Web.Controllers
                 return StatusCode(500, $"An error occurred while retrieving asset sub-master details: {ex.Message}");
             }
         }
-
-       
-
     }
 }

@@ -35,11 +35,9 @@ namespace Inspire.Erp.Domain.Models
 
     public class AssetHeaderViewModel
     {
-
         public int AssetGroupId { get; set; }
         public string HeadName { get; set; }
-
-        public string ParentRelativeNo { get; set; }
+       // public string ParentRelativeNo { get; set; }
         public DateTime CreatedDate { get; set; }
     }
 }
