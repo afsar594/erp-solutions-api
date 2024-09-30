@@ -413,9 +413,6 @@ namespace Inspire.Erp.Application.Account.Implementations
                                 AssetMasterAssetName = assetMaster.AssetMasterAssetName
 
                              }).ToList();
-
-
-               
                 return Response<List<AssetCodes>>.Success(result, "Data found");
 
             }
