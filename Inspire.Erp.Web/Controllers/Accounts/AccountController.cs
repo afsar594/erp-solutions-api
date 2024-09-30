@@ -426,7 +426,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         }
 
         [HttpPost("SaveNewAssetHead")]
-        public async Task<IActionResult> SaveNewAssetHead(AssetGroupViewModel model)
+        public async Task<IActionResult> SaveNewAssetHead(AssetHeaderViewModel model)
         {
             return Ok(await _assetsMasterService.SaveNewAssetHead(model));
         }
