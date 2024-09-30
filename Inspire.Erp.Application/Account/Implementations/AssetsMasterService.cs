@@ -37,7 +37,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             {
                 var response = new List<MasterAccountsTable>();
                 var fixedAccount = await _masterAccountTable.GetAsQueryable().Where(x => x.MaAccName == "Fixed Asset").FirstOrDefaultAsync();
-                var result = await _masterAccountTable.GetAsQueryable().Where(x => x.MaRelativeNo == fixedAccount.MaAccNo).ToListAsync();
+                var result = await _masterAccountTable.GetAsQueryable().Where(x => x.MaRelativeNo == fixedAccount.MaRelativeNo).ToListAsync();
                 //var data = RecursionMasterAccountTable(result);
                 return Response<List<MasterAccountsTable>>.Success(result, "Data found");
             }
