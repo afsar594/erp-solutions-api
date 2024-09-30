@@ -34,7 +34,8 @@ public class SpecialCharacterValidationFilter : IAsyncActionFilter
                     var objResponse = new ResponseInfo
                     {
                         IsSuccess = false,
-                        Message = "Request contains special characters (" + @"';#""=\--)"
+                        //Message = "Request contains special characters (" + @"';#""=\--)"
+                        ErrorMessage= "Request contains special characters (" + @"';#""=\--)"
                     };
                     // If special characters are found, return an error response
                     context.Result = new ObjectResult(objResponse)
