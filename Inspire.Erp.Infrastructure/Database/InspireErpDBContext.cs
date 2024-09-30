@@ -21568,6 +21568,8 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasMaxLength(30)
                     .IsUnicode(false);
 
+                entity.Property(e => e.StockTransferDepId).HasColumnName("StockTransferDepID");
+                entity.Property(e => e.StockTransferCustomerId).HasColumnName("StockTransferCustomerID");
                 entity.Property(e => e.StockTransferUserId).HasColumnName("Stock_Transfer_User_ID");
             });
 
@@ -21605,7 +21607,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.StockTransferId).HasColumnName("Stock_Transfer_ID");
 
                 entity.Property(e => e.StockTransferDetailsUnitId).HasColumnName("Stock_Transfer_Details_Unit_ID");
-
+                entity.Property(e => e.StockTransferDetailsCostPrice).HasColumnName("StockTransferDetailsCostPrice");               
 
                 entity.HasOne(d => d.StockTransferDetailsNoNavigation)
                    .WithMany(p => p.StockTransferDetails)

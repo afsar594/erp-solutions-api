@@ -20,9 +20,11 @@ using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Inspire.Erp.Application.Account;
 using Microsoft.EntityFrameworkCore;
 using Spire.Pdf.Exporting.XPS.Schema;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/JobInvoice")]
     public class JobInvoiceController : ControllerBase

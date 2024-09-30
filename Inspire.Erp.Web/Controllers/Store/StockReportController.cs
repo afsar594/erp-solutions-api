@@ -1,18 +1,4 @@
-﻿////using System;
-////using System.Collections.Generic;
-////using System.Linq;
-////using System.Threading.Tasks;
-////using Microsoft.AspNetCore.Mvc;
-
-////namespace Inspire.Erp.Web.Controllers.Store
-////{
-////    public class OpeningStockController : Controller
-////    {
-
-////    }
-////}
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -34,9 +20,11 @@ using Inspire.Erp.Domain.Modals.Stock;
 using NPOI.OpenXmlFormats.Dml;
 using System.Net.Http.Headers;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers.Store
 {
+    [Authorize]
     [Route("api/StockReport")]
     [Produces("application/json")]
     [ApiController]
@@ -98,14 +86,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 OrderByGroup = false,
                 PrintReceivedQtyReport = false,
             });
-            return Ok(results);
-            //ApiResponse<List<StockReportBaseUnitResponse>> apiResponse = new ApiResponse<List<StockReportBaseUnitResponse>>
-            //{
-            //    Valid = true,
-            //    Result = _mapper.Map<List<StockReportBaseUnitResponse>>(_openingStockService.GetStockReportBaseUnitList()),
-            //    Message = ""
-            //};
-            //return apiResponse;
+            return Ok(results);            
         }
 
 

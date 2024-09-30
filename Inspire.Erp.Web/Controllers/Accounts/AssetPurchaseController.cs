@@ -23,9 +23,11 @@ using NPOI.SS.Formula.Functions;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using System.ComponentModel.Design;
 using System.Security.Cryptography;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers
 {
+    [Authorize]
     [Route("api/AssetPurchase")]
     [Produces("application/json")]
     [ApiController]
@@ -195,29 +197,7 @@ namespace Inspire.Erp.Web.Controllers
                 return apiResponse;
             }
             return null;
-        }
-        //[HttpGet]
-        //[Route("CheckVnoExist/{id}")]
-        //public ApiResponse<bool> CheckVnoExist(string id)
-        //{
-        //    ApiResponse<bool> apiResponse = new ApiResponse<bool>
-        //    {
-        //        Valid = true,
-        //        Result = true,
-        //        Message = SalesOrderMessage.VoucherNumberExist
-
-
-
-        //    };
-        //    var x = _salesOrderService.GetVouchersNumbers(id);
-        //    if (x == null)
-        //    {
-        //        apiResponse.Result = false;
-        //        apiResponse.Message = "";
-        //    }
-
-        //    return apiResponse;
-        //}
+        }        
 
     }
 }

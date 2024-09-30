@@ -420,6 +420,8 @@ namespace Inspire.Erp.Application.Master.Implementations
                 //=================================
                 clsCommonFunctions.Delete_OldEntry_StockRegister(purchaseVoucher.PurchaseVoucherVoucherNo, VoucherType.PurchaseVoucher_TYPE, _stockRegisterRepository);
                 clsCommonFunctions.Delete_OldEntry_AccountsTransactions(purchaseVoucher.PurchaseVoucherVoucherNo, VoucherType.PurchaseVoucher_TYPE, _accountTransactionRepository);
+                //clsCommonFunctions.Delete_OldEntry_vouchernumber(purchaseVoucher.PurchaseVoucherVoucherNo, VoucherType.PurchaseVoucher_TYPE, _voucherNumbersRepository);
+
                 //=================================
 
 

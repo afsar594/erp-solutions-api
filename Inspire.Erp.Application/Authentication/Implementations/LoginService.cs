@@ -3,6 +3,7 @@ using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Infrastructure;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -30,17 +31,74 @@ namespace Inspire.Erp.Application.Authentication.Implementations
         }
         public UserFile Authenticate(UserFile userData, string ipAddress)
         {
-            var user = userFileRepository.GetAsQueryable().Where(x => x.UserName == userData.UserName && x.Password == userData.Password).SingleOrDefault();
-            if (user == null) return null;
+            var user = userFileRepository.GetAsQueryable().Where(x => x.UserName == userData.UserName).FirstOrDefault();
 
-            // authentication successful so generate jwt and refresh tokens
-            var jwtToken = generateJwtToken(user);
-            var refreshToken = generateRefreshToken(user);
+            if (user == null)
+            {
+                return new UserFile
+                {
+                    IsValid = false,
+                    Message = "User Does not exist"
+                };
+            }
+            else
+            {
+                if (user.Password == userData.Password)
+                {
+                    if (user.Freeze == false)
+                    {
+                        var lastupdate = (DateTime)user.PasswordUpdateDate;
+                        var today = DateTime.Now;
+                        var totaldays = (today - lastupdate).TotalDays;
+                        if (totaldays > 90)
+                        {
+                            return new UserFile
+                            {
+                                IsValid = false,
+                                Message = "Password Expired , Please contact the Site Owner"
+                            };
+                        }
+                        else
+                        {
+                            // authentication successful so generate jwt and refresh tokens
+                            var jwtToken = generateJwtToken(user);
+                            var refreshToken = generateRefreshToken(user);
+                            user.Loginfailure = 0;
+                            user.Token = jwtToken;
+                            user.RefreshToken = refreshToken.Token;
+                            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+                            userFileRepository.Update(user);
+                        }
+                    }
+                    else
+                    {
+                        return new UserFile
+                        {
+                            IsValid = false,
+                            Message = "User Expired"
+                        };
+                    }
+                }
+                else
+                {
+                    if (user.Loginfailure == null)
+                    {
+                        user.Loginfailure = 0;
+                    }
+                    user.Loginfailure += 1;
+                    if (user.Loginfailure == 5)
+                    {
+                        user.Freeze = true;
+                    }
+                    userFileRepository.Update(user);
+                    return new UserFile
+                    {
+                        IsValid = false,
+                        Message = "Incorrect Password ,Login failure try " + user.Loginfailure + "/5"
+                    };
+                }
+            }
 
-            user.Token = jwtToken;
-            user.RefreshToken = refreshToken.Token;
-            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
-            userFileRepository.Update(user);
             return user;
         }
         public UserFile RefreshToken(UserFile userData)
@@ -167,8 +225,13 @@ namespace Inspire.Erp.Application.Authentication.Implementations
             {
                 userFileRepository.BeginTransaction();
 
+                var jwtToken = generateJwtToken(user);
+                var refreshToken = generateRefreshToken(user);                
+                user.Token = jwtToken;
+                user.RefreshToken = refreshToken.Token;
                 user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
-
+                user.PasswordUpdateDate = DateTime.Now;
+                user.Loginfailure = 0;
                 userFileRepository.Update(user);
 
                 userFileRepository.TransactionCommit();
@@ -217,7 +280,7 @@ namespace Inspire.Erp.Application.Authentication.Implementations
             IEnumerable<UserFile> UserFile;
             try
             {
-                UserFile = userFileRepository.GetAll().Where(a => a.Deleted != true).Select(k=>k);
+                UserFile = userFileRepository.GetAll().Where(a => a.Deleted != true).Select(k => k);
 
             }
             catch (Exception ex)
@@ -253,7 +316,8 @@ namespace Inspire.Erp.Application.Authentication.Implementations
                 user.Token = jwtToken;
                 user.RefreshToken = refreshToken.Token;
                 user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
-
+                user.PasswordUpdateDate = DateTime.Now;
+                user.Loginfailure = 0;
                 userFileRepository.Insert(user);
 
                 userFileRepository.TransactionCommit();

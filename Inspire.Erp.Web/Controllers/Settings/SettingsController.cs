@@ -11,9 +11,11 @@ using System.Threading.Tasks;
 using Inspire.Erp.Application.Account;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers.Settings
 {
+    [Authorize]
     [Route("api/settings")]
     [Produces("application/json")]
     [ApiController]
