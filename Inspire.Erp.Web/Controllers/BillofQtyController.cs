@@ -199,7 +199,7 @@ namespace Inspire.Erp.Web.Controllers
             var data = (from d in detailList
                         join c in details on d.BillQtyId equals c.Id
                         //where (customerEnqId == -1 || c.CustomerEnqId == customerEnqId)
-                        //where d.IsEdit == true
+                        where d.IsEdit == true
                         select new BoqDetailDto
                         {
                             Id = c.Id,
