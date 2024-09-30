@@ -47,7 +47,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             try
             {
                 //=================================               
-                clsCommonFunctions.Delete_OldEntry_AccountsTransactions(purchaseJournal.PurchaseJournalVno, VoucherType.PurchaseJournal_TYPE, _accountTransactionRepository);
+                //clsCommonFunctions.Delete_OldEntry_AccountsTransactions(purchaseJournal.PurchaseJournalVno, VoucherType.PurchaseJournal_TYPE, _accountTransactionRepository);
                 //=================================
 
                 _purchaseJournalRepository.BeginTransaction();
@@ -57,15 +57,16 @@ namespace Inspire.Erp.Application.Account.Implementations
 
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
-                    k.AccountsTransactionsTransSno = 0;
-                    k.AccountsTransactionsVoucherNo = purchaseJournal.PurchaseJournalVno;
-                    k.AccountsTransactionsVoucherType = VoucherType.PurchaseJournal_TYPE;
-                    k.AccountsTransactionsStatus = AccountStatus.Approved;
-
+                    if(k.AccountsTransactionsTransSno == 0)
+                    {
+                        k.AccountsTransactionsVoucherNo = purchaseJournal.PurchaseJournalVno;
+                        k.AccountsTransactionsVoucherType = VoucherType.PurchaseJournal_TYPE;
+                        k.AccountsTransactionsStatus = AccountStatus.Approved;
+                    }
                     return k;
                 }).ToList();
 
-                _accountTransactionRepository.InsertList(accountsTransactions);
+                _accountTransactionRepository.UpdateList(accountsTransactions);
                 foreach (var x in purchaseJournal.PurchaseJournalDetails)
                 {
                     x.PurchaseJournalDetailsId = 0;
