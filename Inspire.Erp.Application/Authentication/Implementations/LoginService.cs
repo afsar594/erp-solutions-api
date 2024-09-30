@@ -12,6 +12,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Inspire.Erp.Application.Authentication.Implementations
 {
@@ -225,18 +226,29 @@ namespace Inspire.Erp.Application.Authentication.Implementations
             {
                 userFileRepository.BeginTransaction();
 
-                var jwtToken = generateJwtToken(user);
-                var refreshToken = generateRefreshToken(user);                
-                user.Token = jwtToken;
-                user.RefreshToken = refreshToken.Token;
-                user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
-                user.PasswordUpdateDate = DateTime.Now;
-                user.Loginfailure = 0;
-                userFileRepository.Update(user);
+                string errorMessage;
+                bool isValid = ValidatePassword(user.Password, out errorMessage);
+                if (isValid)
+                {
+                    var jwtToken = generateJwtToken(user);
+                    var refreshToken = generateRefreshToken(user);
+                    user.Token = jwtToken;
+                    user.RefreshToken = refreshToken.Token;
+                    user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+                    user.PasswordUpdateDate = DateTime.Now;
+                    user.Loginfailure = 0;
+                    userFileRepository.Update(user);
 
-                userFileRepository.TransactionCommit();
+                    userFileRepository.TransactionCommit();
 
-                return this.GetUserById(user.UserId);
+                    return this.GetUserById(user.UserId);
+                }
+                else
+                {
+                    user.IsValid = false;
+                    user.Message = errorMessage;
+                    return user;
+                }
 
             }
             catch (Exception ex)
@@ -310,19 +322,30 @@ namespace Inspire.Erp.Application.Authentication.Implementations
                     user.UserId = maxcount;
                     user.LogInId = maxcount.ToString();
                 }
-                var jwtToken = generateJwtToken(user);
-                var refreshToken = generateRefreshToken(user);
+                string errorMessage;
 
-                user.Token = jwtToken;
-                user.RefreshToken = refreshToken.Token;
-                user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
-                user.PasswordUpdateDate = DateTime.Now;
-                user.Loginfailure = 0;
-                userFileRepository.Insert(user);
+                bool isValid = ValidatePassword(user.Password, out errorMessage);
+                if (isValid)
+                {
+                    var jwtToken = generateJwtToken(user);
+                    var refreshToken = generateRefreshToken(user);
 
-                userFileRepository.TransactionCommit();
+                    user.Token = jwtToken;
+                    user.RefreshToken = refreshToken.Token;
+                    user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+                    user.PasswordUpdateDate = DateTime.Now;
+                    user.Loginfailure = 0;
+                    userFileRepository.Insert(user);
+                    userFileRepository.TransactionCommit();
 
-                return this.GetUserById(user.UserId);
+                    return this.GetUserById(user.UserId);
+                }
+                else
+                {
+                    user.IsValid = false;
+                    user.Message = errorMessage;
+                    return user;
+                }
 
             }
             catch (Exception ex)
@@ -333,7 +356,29 @@ namespace Inspire.Erp.Application.Authentication.Implementations
 
         }
 
+        private bool ValidatePassword(string password, out string errorMessage)
+        {
+            errorMessage = string.Empty;
 
+            if (string.IsNullOrWhiteSpace(password) || password.Length < 8)
+            {
+                errorMessage = "Password must be at least 8 characters long.";
+                return false;
+            }
+
+            var hasUpperCase = new Regex(@"[A-Z]").IsMatch(password);
+            var hasLowerCase = new Regex(@"[a-z]").IsMatch(password);
+            var hasNumber = new Regex(@"[0-9]").IsMatch(password);
+            var hasSpecialChar = new Regex(@"[!@#$%^&*(),.?""':;{}|<>]").IsMatch(password);
+
+            if (!(hasUpperCase && hasLowerCase && hasNumber && hasSpecialChar))
+            {
+                errorMessage = "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.";
+                return false;
+            }
+
+            return true;
+        }
     }
 
 

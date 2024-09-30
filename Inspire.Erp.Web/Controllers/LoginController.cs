@@ -162,16 +162,27 @@ namespace Inspire.Erp.Web.Controllers
             var param1 = _mapper.Map<UserFile>(user);
 
             var xs = loginsvc.InsertUser(param1);
-
             UserFileViewModel userdata = new UserFileViewModel();
-            userdata = _mapper.Map<UserFileViewModel>(xs);
-
-            apiResponse = new ApiResponse<UserFileViewModel>
+            if (xs.IsValid == true)
             {
-                Valid = true,
-                Result = userdata,
-                Message = UserFileMessage.SaveUser
-            };
+                userdata = _mapper.Map<UserFileViewModel>(xs);
+
+                apiResponse = new ApiResponse<UserFileViewModel>
+                {
+                    Valid = true,
+                    Result = userdata,
+                    Message = UserFileMessage.UpdateUser
+                };
+            }
+            else
+            {
+                apiResponse = new ApiResponse<UserFileViewModel>
+                {
+                    Valid = false,
+                    Result = userdata,
+                    Message = xs.Message
+                };
+            }
             return apiResponse;
         }
 
@@ -187,14 +198,26 @@ namespace Inspire.Erp.Web.Controllers
             var xs = loginsvc.UpdateUser(param1);
 
             UserFileViewModel userdata = new UserFileViewModel();
-            userdata = _mapper.Map<UserFileViewModel>(xs);
-
-            apiResponse = new ApiResponse<UserFileViewModel>
+            if (xs.IsValid == true)
             {
-                Valid = true,
-                Result = userdata,
-                Message = UserFileMessage.UpdateUser
-            };
+                userdata = _mapper.Map<UserFileViewModel>(xs);
+
+                apiResponse = new ApiResponse<UserFileViewModel>
+                {
+                    Valid = true,
+                    Result = userdata,
+                    Message = UserFileMessage.UpdateUser
+                };
+            }
+            else
+            {
+                apiResponse = new ApiResponse<UserFileViewModel>
+                {
+                    Valid = false,
+                    Result = userdata,
+                    Message = xs.Message
+                };
+            }
             return apiResponse;
         }
 
