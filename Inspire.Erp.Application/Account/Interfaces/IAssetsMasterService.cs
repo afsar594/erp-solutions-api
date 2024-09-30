@@ -1,4 +1,5 @@
-﻿using Inspire.Erp.Domain.Entities;
+﻿using AutoMapper.Configuration.Conventions;
+using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Models;
@@ -16,6 +17,8 @@ namespace Inspire.Erp.Application.Account.Interfaces
         Task<Response<List<MasterAccountsTable>>> GetRelativeAccountAssetMaster(string accNo);
         Task<Response<AssetMaster>> GetAssetMaster(int id);
         Task<Response<List<AssetMaster>>> GetRelativeAssetMasterRecord(int accNo);
+
+        Task<Response<List<AssetMaster>>> GetFixedAssets(int relativeNo);
         Task<Response<bool>> AddEditAssetMaster(AssetMasterViewModel model);
         Task<Response<List<AssetCodes>>> GetAssetsCodes();
         Task<Response<bool>> SaveNewAssetGroup(AssetGroupViewModel model);

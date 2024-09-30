@@ -46,6 +46,19 @@ namespace Inspire.Erp.Application.Account.Implementations
                 return Response<List<MasterAccountsTable>>.Fail(new List<MasterAccountsTable>(), ex.Message);
             }
         }
+
+        public async Task<Response<List<AssetMaster>>> GetFixedAssets(int relativeNo)
+        {
+            try
+            {
+                var result = await _asetMaster.GetAsQueryable().Where(x => x.AssetMasterAssetRelativeNo == relativeNo).ToListAsync();
+                return Response<List<AssetMaster>>.Success(result, "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<List<AssetMaster>>.Fail(new List<AssetMaster>(), ex.Message);
+            }
+        }
         public async Task<Response<List<MasterAccountsTable>>> GetRelativeAccountAssetMaster(string accNo)
         {
             try
@@ -274,14 +287,14 @@ namespace Inspire.Erp.Application.Account.Implementations
                 //Assets here
                 var assetMaster = new AssetMaster()
                 {
-                    AssetMasterAssetCode = "Code",
+                    AssetMasterAssetCode = model.GroupName.Substring(0, 2) + AccNo,
                     AssetMasterAssetName = model.GroupName,
                     AssetMasterAssetType = ItemMasterStatus.Group,
                     AssetMasterAssetCreatedDate = DateTime.Now,
                     AssetMasterAssetRelativeNo = Convert.ToInt32(model.ParentRelativeNo),
-                    AssetMasterAssetAccountNo = "",
-                    AssetMasterAssetDepExpAccount = "",
-                    AssetMasterAssetDepLibAccount = "",
+                    AssetMasterAssetAccountNo = masterAccFixed.MaAccNo,
+                    AssetMasterAssetDepExpAccount = masterAccLiabilities.MaAccNo,
+                    AssetMasterAssetDepLibAccount = masterAccExpenses.MaAccNo,
                 };
 
                 _asetMaster.Insert(assetMaster);
