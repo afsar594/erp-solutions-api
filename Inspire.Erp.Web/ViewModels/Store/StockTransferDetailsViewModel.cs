@@ -16,6 +16,7 @@ namespace Inspire.Erp.Web.ViewModels.Store
         public DateTime? StockTransferDetailsExpDate { get; set; }
         public bool? StockTransferDetailsDelStatus { get; set; }
         public int? VoucherNumber { get; set; }
+        public decimal? StockTransferDetailsCostPrice { get; set; }
 
 
     }

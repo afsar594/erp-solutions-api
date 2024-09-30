@@ -669,7 +669,10 @@ namespace Inspire.Erp.Application.Store.Implementation
                                  .OrderBy(im => im.ItemMasterItemId);
                 }
 
-
+                if (model.LocationId == -1)
+                {
+                    model.LocationId = null;
+                }
                 var subrq = (from s in _context.UnitDetails.Where(x => x.UnitDetailsConversionType == 1 && (model.ItemId == null || x.UnitDetailsItemId == model.ItemId))
                              select new
                              {

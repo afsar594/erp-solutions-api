@@ -4,6 +4,7 @@ using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Modals.Stock;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers.Store
 {
+    [Authorize]
     [Route("api/StockLedger")]
     [Produces("application/json")]
     [ApiController]

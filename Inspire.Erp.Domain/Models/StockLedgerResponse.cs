@@ -10,6 +10,8 @@ namespace Inspire.Erp.Domain.Models
         public string PartNo { get; set; }
         public string RelativeNo { get; set; }
         public string ItemName { get; set; }
+        public string unitName { get; set; }
+        
         public decimal StockRate { get; set; }
         public decimal OpenQuantity { get; set; }
         public decimal OpenValue { get; set; }

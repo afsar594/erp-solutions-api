@@ -15,11 +15,13 @@ using Inspire.Erp.Domain.Modals.File;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Inspire.Erp.Web.Common;
 using Inspire.Erp.Web.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Inspire.Erp.Web.Controllers
 {
+    [Authorize]
     [Route("api")]
     [Produces("application/json")]
     [ApiController]

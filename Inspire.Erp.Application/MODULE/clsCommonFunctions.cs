@@ -17,10 +17,7 @@ namespace Inspire.Erp.Application.MODULE
 {
     public static class clsCommonFunctions
     {
-
-        //private static IRepository<StockRegister> _stockRegisterRepository;
-        //private static  IRepository<AccountsTransactions> _accountTransactionRepository;
-        //public static  void Delete_OldEntry_AccountsTransactions(string AccountsTransactionsVoucherNo, string AccountsTransactionsVoucherType)
+        
         public static void Delete_OldEntry_AccountsTransactions(string AccountsTransactionsVoucherNo, string AccountsTransactionsVoucherType, IRepository<AccountsTransactions> _accountTransactionRepository)
 
         {
@@ -191,6 +188,15 @@ namespace Inspire.Erp.Application.MODULE
             }
         }
 
+        public static void Delete_OldEntry_vouchernumber(string Vno, string StockRegisterTransType, IRepository<VouchersNumbers> _VoucherNumberRepo)
+        {
+            var data = _VoucherNumberRepo.GetAsQueryable().Where(a => a.VouchersNumbersVNo == Vno && a.VouchersNumbersVType.Trim() == StockRegisterTransType).ToList();
+            if (data != null)
+            {
+                _VoucherNumberRepo.DeleteList(data);
+            }
+        }
+
         public static VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate, string voucherType, string voucherPrefix,
                 IRepository<ProgramSettings> _programsettingsRepository,
          IRepository<VouchersNumbers> _voucherNumbersRepository)
@@ -227,54 +233,7 @@ namespace Inspire.Erp.Application.MODULE
                 throw ex;
             }
 
-        }
-        //public static void Delete_OldEntry_StockRegister(string StockRegisterVoucherNo, string StockRegisterTransType, IRepository<StockRegister> _stockRegisterRepository)
-        //{
-        //    List<StockRegister> stockTrans = _stockRegisterRepository.GetAsQueryable()
-        //         .Where(k => k.StockRegisterRefVoucherNo == StockRegisterVoucherNo && k.StockRegisterTransType == StockRegisterTransType && k.StockRegisterDelStatus != true).Select((l) => new StockRegister
-        //         {
-        //             StockRegisterStoreID = l.StockRegisterStoreID,
-
-        //             //StockRegisterVoucherDate = l.StockRegisterVoucherDate,
-        //             StockRegisterRemarks = l.StockRegisterRemarks,
-        //             StockRegisterSno = l.StockRegisterSno,
-        //             StockRegisterQuantity = l.StockRegisterQuantity,
-        //             StockRegisterSIN = l.StockRegisterSIN,
-        //             StockRegisterSout = l.StockRegisterSout,
-        //             StockRegisterTransType = l.StockRegisterTransType,
-        //             StockRegisterRefVoucherNo = l.StockRegisterRefVoucherNo,
-
-        //             //StockRegisterDepID =  l.StockRegisterDepID,
-        //             StockRegisterStatus = l.StockRegisterStatus,
-        //             StockRegisterFSNO = l.StockRegisterFSNO,
-        //             StockRegisterBatchCode = l.StockRegisterBatchCode,
-        //             StockRegisterJobID = l.StockRegisterJobID,
-        //             StockRegisterRate = l.StockRegisterRate,
-        //             StockRegisterFCAmount = l.StockRegisterFCAmount,
-
-        //             //StockRegisterLandingCost =  l.StockRegisterLandingCost,
-
-        //             StockRegisterLocationID = l.StockRegisterLocationID,
-
-        //             StockRegisterAmount = l.StockRegisterAmount,
-        //             //StockRegisterUnitID =  l.StockRegisterUnitID,
-
-        //             StockRegisterExpDate = l.StockRegisterExpDate,
-
-        //             StockRegisterNetStkBal = l.StockRegisterNetStkBal,
-        //             StockRegisterMaterialID = l.StockRegisterMaterialID,
-
-        //             //StockRegisterFcRate =  l.StockRegisterFcRate,
-        //             StockRegisterDelStatus = false
-
-
-
-
-        //         }).ToList();
-        //    _stockRegisterRepository.DeleteList(stockTrans);
-        //    //_stockRegisterRepository.UpdateList(stockTrans);
-
-        //}
+        }       
 
         public static double getConverionCurrencyRate(int? itemid, IRepository<CurrencyMaster> _currencyMasterRepository)
         {

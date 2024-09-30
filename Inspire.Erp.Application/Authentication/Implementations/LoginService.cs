@@ -3,6 +3,7 @@ using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Infrastructure;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -11,6 +12,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Inspire.Erp.Application.Authentication.Implementations
 {
@@ -30,17 +32,74 @@ namespace Inspire.Erp.Application.Authentication.Implementations
         }
         public UserFile Authenticate(UserFile userData, string ipAddress)
         {
-            var user = userFileRepository.GetAsQueryable().Where(x => x.UserName == userData.UserName && x.Password == userData.Password).SingleOrDefault();
-            if (user == null) return null;
+            var user = userFileRepository.GetAsQueryable().Where(x => x.UserName == userData.UserName).FirstOrDefault();
 
-            // authentication successful so generate jwt and refresh tokens
-            var jwtToken = generateJwtToken(user);
-            var refreshToken = generateRefreshToken(user);
+            if (user == null)
+            {
+                return new UserFile
+                {
+                    IsValid = false,
+                    Message = "User Does not exist"
+                };
+            }
+            else
+            {
+                if (user.Password == userData.Password)
+                {
+                    if (user.Freeze == false)
+                    {
+                        var lastupdate = (DateTime)user.PasswordUpdateDate;
+                        var today = DateTime.Now;
+                        var totaldays = (today - lastupdate).TotalDays;
+                        if (totaldays > 90)
+                        {
+                            return new UserFile
+                            {
+                                IsValid = false,
+                                Message = "Password Expired , Please contact the Site Owner"
+                            };
+                        }
+                        else
+                        {
+                            // authentication successful so generate jwt and refresh tokens
+                            var jwtToken = generateJwtToken(user);
+                            var refreshToken = generateRefreshToken(user);
+                            user.Loginfailure = 0;
+                            user.Token = jwtToken;
+                            user.RefreshToken = refreshToken.Token;
+                            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+                            userFileRepository.Update(user);
+                        }
+                    }
+                    else
+                    {
+                        return new UserFile
+                        {
+                            IsValid = false,
+                            Message = "User Expired"
+                        };
+                    }
+                }
+                else
+                {
+                    if (user.Loginfailure == null)
+                    {
+                        user.Loginfailure = 0;
+                    }
+                    user.Loginfailure += 1;
+                    if (user.Loginfailure == 5)
+                    {
+                        user.Freeze = true;
+                    }
+                    userFileRepository.Update(user);
+                    return new UserFile
+                    {
+                        IsValid = false,
+                        Message = "Incorrect Password ,Login failure try " + user.Loginfailure + "/5"
+                    };
+                }
+            }
 
-            user.Token = jwtToken;
-            user.RefreshToken = refreshToken.Token;
-            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
-            userFileRepository.Update(user);
             return user;
         }
         public UserFile RefreshToken(UserFile userData)
@@ -141,8 +200,6 @@ namespace Inspire.Erp.Application.Authentication.Implementations
                     Created = DateTime.UtcNow
                 };
             }
-
-
         }
 
         #region POS
@@ -169,13 +226,29 @@ namespace Inspire.Erp.Application.Authentication.Implementations
             {
                 userFileRepository.BeginTransaction();
 
-                user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+                string errorMessage;
+                bool isValid = ValidatePassword(user.Password, out errorMessage);
+                if (isValid)
+                {
+                    var jwtToken = generateJwtToken(user);
+                    var refreshToken = generateRefreshToken(user);
+                    user.Token = jwtToken;
+                    user.RefreshToken = refreshToken.Token;
+                    user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+                    user.PasswordUpdateDate = DateTime.Now;
+                    user.Loginfailure = 0;
+                    userFileRepository.Update(user);
 
-                userFileRepository.Update(user);
+                    userFileRepository.TransactionCommit();
 
-                userFileRepository.TransactionCommit();
-
-                return this.GetUserById(user.UserId);
+                    return this.GetUserById(user.UserId);
+                }
+                else
+                {
+                    user.IsValid = false;
+                    user.Message = errorMessage;
+                    return user;
+                }
 
             }
             catch (Exception ex)
@@ -219,7 +292,7 @@ namespace Inspire.Erp.Application.Authentication.Implementations
             IEnumerable<UserFile> UserFile;
             try
             {
-                UserFile = userFileRepository.GetAll().Where(a => a.Deleted != true).Select(k=>k);
+                UserFile = userFileRepository.GetAll().Where(a => a.Deleted != true).Select(k => k);
 
             }
             catch (Exception ex)
@@ -249,18 +322,30 @@ namespace Inspire.Erp.Application.Authentication.Implementations
                     user.UserId = maxcount;
                     user.LogInId = maxcount.ToString();
                 }
-                var jwtToken = generateJwtToken(user);
-                var refreshToken = generateRefreshToken(user);
+                string errorMessage;
 
-                user.Token = jwtToken;
-                user.RefreshToken = refreshToken.Token;
-                user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+                bool isValid = ValidatePassword(user.Password, out errorMessage);
+                if (isValid)
+                {
+                    var jwtToken = generateJwtToken(user);
+                    var refreshToken = generateRefreshToken(user);
 
-                userFileRepository.Insert(user);
+                    user.Token = jwtToken;
+                    user.RefreshToken = refreshToken.Token;
+                    user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+                    user.PasswordUpdateDate = DateTime.Now;
+                    user.Loginfailure = 0;
+                    userFileRepository.Insert(user);
+                    userFileRepository.TransactionCommit();
 
-                userFileRepository.TransactionCommit();
-
-                return this.GetUserById(user.UserId);
+                    return this.GetUserById(user.UserId);
+                }
+                else
+                {
+                    user.IsValid = false;
+                    user.Message = errorMessage;
+                    return user;
+                }
 
             }
             catch (Exception ex)
@@ -271,7 +356,29 @@ namespace Inspire.Erp.Application.Authentication.Implementations
 
         }
 
+        private bool ValidatePassword(string password, out string errorMessage)
+        {
+            errorMessage = string.Empty;
 
+            if (string.IsNullOrWhiteSpace(password) || password.Length < 8)
+            {
+                errorMessage = "Password must be at least 8 characters long.";
+                return false;
+            }
+
+            var hasUpperCase = new Regex(@"[A-Z]").IsMatch(password);
+            var hasLowerCase = new Regex(@"[a-z]").IsMatch(password);
+            var hasNumber = new Regex(@"[0-9]").IsMatch(password);
+            var hasSpecialChar = new Regex(@"[!@#$%^&*(),.?""':;{}|<>]").IsMatch(password);
+
+            if (!(hasUpperCase && hasLowerCase && hasNumber && hasSpecialChar))
+            {
+                errorMessage = "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.";
+                return false;
+            }
+
+            return true;
+        }
     }
 
 

@@ -19,8 +19,8 @@ namespace Inspire.Erp.Web.ViewModels.Store
         public string StockTransferApprovedBy { get; set; }
         public DateTime? StockTransferApprovedDate { get; set; }
         public bool? StockTransferDelStatus { get; set; }
-
-
+        public decimal? StockTransferDepId { get; set; }
+        public decimal? StockTransferCustomerId { get; set; }
 
         public List<StockTransferDetailsViewModel> StockTransferDetails { get; set; }
 

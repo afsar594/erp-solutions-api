@@ -18,6 +18,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Inspire.Erp.Web.Controllers
 {
+    [Authorize]
     [Route("api")]
     [Produces("application/json")]
     [ApiController]
@@ -82,18 +83,24 @@ namespace Inspire.Erp.Web.Controllers
         [HttpPost("authenticate")]
         public IActionResult Authenticate([FromBody] User user)
         {
+           
             var response = loginsvc.Authenticate(new UserFile
             {
                 UserName = user.Username,
                 Password = user.Password
             }, ipAddress());
 
-            if (response == null)
-                return BadRequest(new { message = "Username or password is incorrect" });
-
-            setTokenCookie(response.RefreshToken);
-            response.FinancialPeriodsFsno = user.Financialperiod.FinancialPeriodsFsno;
-            response.LocId = (int)user.Location.LocationMasterLocationId;
+            if (response.IsValid != false)
+            {
+                response.IsValid = true;
+                setTokenCookie(response.RefreshToken);
+                response.FinancialPeriodsFsno = user.Financialperiod.FinancialPeriodsFsno;
+                response.LocId = (int)user.Location.LocationMasterLocationId;
+            }
+            else
+            {
+                return Ok(response);
+            }
             return Ok(ApiResponse<UserFile>.Success(response));
         }
 
@@ -155,16 +162,27 @@ namespace Inspire.Erp.Web.Controllers
             var param1 = _mapper.Map<UserFile>(user);
 
             var xs = loginsvc.InsertUser(param1);
-
             UserFileViewModel userdata = new UserFileViewModel();
-            userdata = _mapper.Map<UserFileViewModel>(xs);
-
-            apiResponse = new ApiResponse<UserFileViewModel>
+            if (xs.IsValid == true)
             {
-                Valid = true,
-                Result = userdata,
-                Message = UserFileMessage.SaveUser
-            };
+                userdata = _mapper.Map<UserFileViewModel>(xs);
+
+                apiResponse = new ApiResponse<UserFileViewModel>
+                {
+                    Valid = true,
+                    Result = userdata,
+                    Message = UserFileMessage.UpdateUser
+                };
+            }
+            else
+            {
+                apiResponse = new ApiResponse<UserFileViewModel>
+                {
+                    Valid = false,
+                    Result = userdata,
+                    Message = xs.Message
+                };
+            }
             return apiResponse;
         }
 
@@ -180,14 +198,26 @@ namespace Inspire.Erp.Web.Controllers
             var xs = loginsvc.UpdateUser(param1);
 
             UserFileViewModel userdata = new UserFileViewModel();
-            userdata = _mapper.Map<UserFileViewModel>(xs);
-
-            apiResponse = new ApiResponse<UserFileViewModel>
+            if (xs.IsValid == true)
             {
-                Valid = true,
-                Result = userdata,
-                Message = UserFileMessage.UpdateUser
-            };
+                userdata = _mapper.Map<UserFileViewModel>(xs);
+
+                apiResponse = new ApiResponse<UserFileViewModel>
+                {
+                    Valid = true,
+                    Result = userdata,
+                    Message = UserFileMessage.UpdateUser
+                };
+            }
+            else
+            {
+                apiResponse = new ApiResponse<UserFileViewModel>
+                {
+                    Valid = false,
+                    Result = userdata,
+                    Message = xs.Message
+                };
+            }
             return apiResponse;
         }
 
@@ -236,7 +266,7 @@ namespace Inspire.Erp.Web.Controllers
 
             return user;
         }
-
+        [AllowAnonymous]
         [HttpGet]
         [Route("LoadDropdown")]
         public ResponseInfo LoadDropdown()

@@ -28,6 +28,7 @@ namespace Inspire.Erp.Application.Store.Implementation
         private IRepository<CurrencyMaster> _currencyMasterRepository;
         private IRepository<ItemMaster> _itemMasterRepository;
         private IRepository<UnitMaster> _unitMasterRepository;
+        private IRepository<UnitDetails> _UnitDetailsRepository;
         private IRepository<SuppliersMaster> _suppliersMasterRepository;
         private IRepository<LocationMaster> _locationMasterRepository;
         private IRepository<AccountSettings> _accountsSettingssvcs;
@@ -38,10 +39,11 @@ namespace Inspire.Erp.Application.Store.Implementation
             IRepository<ItemMaster> itemMasterRepository, IRepository<UnitMaster> unitMasterRepository,
             IRepository<SuppliersMaster> suppliersMasterRepository, IRepository<LocationMaster> locationMasterRepository,
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
-             IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger, IRepository<CurrencyMaster> currencyMasterRepository,
+             IRepository<VouchersNumbers> voucherNumbers, IRepository<UnitDetails> unitDetailsRepository, ILogger<PaymentVoucherService> logger, IRepository<CurrencyMaster> currencyMasterRepository,
             IRepository<IssueVoucher> issueVoucherRepository, IRepository<IssueVoucherDetails> issueVoucherDetailsRepository, IRepository<AccountSettings> accountsSettingssvcsRepository,
             IRepository<JobMasterBudgetDetails> jobbudgetRepository)
         {
+            _UnitDetailsRepository = unitDetailsRepository;
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository;
             this._issueVoucherRepository = issueVoucherRepository;
@@ -144,24 +146,30 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                 foreach (var item in issueVoucherDetails)
                 {
+
+                    var avgrate = item.IssueVoucherDetailsSalesPrice ?? 1;
+
+                    var converontype = this.getConverionTypebyUnitId(item.IssueVoucherDetailsMatId, item.IssueVoucherDetailsUnitId);
                     stockRegister.Add(new StockRegister
                     {
                         StockRegisterMaterialID = item.IssueVoucherDetailsMatId,
                         StockRegisterPurchaseID = issueVoucher.IssueVoucherNo,
                         StockRegisterRefVoucherNo = issueVoucher.IssueVoucherNo,
-                        StockRegisterQuantity = item.IssueVoucherDetailsQuantity,
-                        StockRegisterRate = item.IssueVoucherDetailsRate,
-                        StockRegisterSIN = item.IssueVoucherDetailsCurrentStockQty,
-                        StockRegisterAmount = item.IssueVoucherDetailsNetAmt,
+                        StockRegisterQuantity = item.IssueVoucherDetailsQuantity * (decimal)converontype ?? 0,
+                        StockRegisterRate = avgrate,
+                        StockRegisterSIN = item.IssueVoucherDetailsQuantity * (decimal)converontype ?? 0,
+                        StockRegisterAmount = item.IssueVoucherDetailsQuantity * (decimal)converontype * avgrate ?? 0,
+                        StockRegisterFCAmount = item.IssueVoucherDetailsQuantity * (decimal)converontype * avgrate * rate ?? 0,
                         StockRegisterVoucherDate = issueVoucher.IssueVoucherDate,
                         StockRegisterTransType = VoucherType.IssueVoucher_TYPE,
                         StockRegisterStatus = AccountStatus.Approved,
                         StockRegisterAssignedDate = issueVoucher.IssueVoucherDate,
                         StockRegisterExpDate = null,
-                        StockRegisterDepID = 1,
+                        StockRegisterDepID = (int?)issueVoucher.IssueVoucherDepartmentId,
                         StockRegisterDelStatus = false,
                         StockRegisterUnitID = item.IssueVoucherDetailsUnitId,
-                        StockRegisterLocationID = issueVoucher.IssueVoucherLocationId
+                        StockRegisterLocationID = issueVoucher.IssueVoucherLocationId,
+                        StockRegisterJobID = issueVoucher.IssueVoucherJobId,
                     });
                 }
                 _stockRegisterRepository.InsertList(stockRegister);
@@ -313,24 +321,29 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                 foreach (var item in issueVoucherDetails)
                 {
+                    var avgrate = item.IssueVoucherDetailsSalesPrice ?? 1;
+
+                    var converontype = this.getConverionTypebyUnitId(item.IssueVoucherDetailsMatId, item.IssueVoucherDetailsUnitId);
                     stockRegister.Add(new StockRegister
                     {
                         StockRegisterMaterialID = item.IssueVoucherDetailsMatId,
                         StockRegisterPurchaseID = issueVoucherNumber,
                         StockRegisterRefVoucherNo = issueVoucherNumber,
-                        StockRegisterQuantity = item.IssueVoucherDetailsQuantity,
-                        StockRegisterRate = item.IssueVoucherDetailsRate,
-                        StockRegisterSIN = item.IssueVoucherDetailsCurrentStockQty,
-                        StockRegisterAmount = item.IssueVoucherDetailsNetAmt,
+                        StockRegisterQuantity = item.IssueVoucherDetailsQuantity * (decimal) converontype??0,
+                        StockRegisterRate = avgrate,
+                        StockRegisterSIN = item.IssueVoucherDetailsQuantity * (decimal)converontype ?? 0,
+                        StockRegisterAmount = item.IssueVoucherDetailsQuantity * (decimal)converontype *avgrate ?? 0,
+                        StockRegisterFCAmount= item.IssueVoucherDetailsQuantity * (decimal)converontype * avgrate * rate ?? 0,
                         StockRegisterVoucherDate = issueVoucher.IssueVoucherDate,
                         StockRegisterTransType = VoucherType.IssueVoucher_TYPE,
                         StockRegisterStatus = AccountStatus.Approved,
                         StockRegisterAssignedDate = issueVoucher.IssueVoucherDate,
                         StockRegisterExpDate = null,
-                        StockRegisterDepID = 1,
+                        StockRegisterDepID = (int?)issueVoucher.IssueVoucherDepartmentId,
                         StockRegisterDelStatus = false,
                         StockRegisterUnitID = item.IssueVoucherDetailsUnitId,
-                        StockRegisterLocationID = issueVoucher.IssueVoucherLocationId
+                        StockRegisterLocationID = issueVoucher.IssueVoucherLocationId,
+                        StockRegisterJobID = issueVoucher.IssueVoucherJobId,
                     });
                 }
                 _stockRegisterRepository.InsertList(stockRegister);
@@ -433,6 +446,17 @@ namespace Inspire.Erp.Application.Store.Implementation
                 throw ex;
             }
 
+        }
+        private decimal getConverionTypebyUnitId(int? itemid, int? unitDetailsid)
+        {
+            try
+            {
+                return (decimal)_UnitDetailsRepository.GetAsQueryable().FirstOrDefault(x => x.UnitDetailsItemId == itemid && x.UnitDetailsUnitId == unitDetailsid).UnitDetailsConversionType;
+            }
+            catch
+            {
+                return 1;
+            }
         }
 
     }

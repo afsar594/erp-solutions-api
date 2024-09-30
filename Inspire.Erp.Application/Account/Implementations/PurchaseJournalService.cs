@@ -46,7 +46,6 @@ namespace Inspire.Erp.Application.Account.Implementations
 
             try
             {
-
                 //=================================               
                 //clsCommonFunctions.Delete_OldEntry_AccountsTransactions(purchaseJournal.PurchaseJournalVno, VoucherType.PurchaseJournal_TYPE, _accountTransactionRepository);
                 //=================================
@@ -106,17 +105,15 @@ namespace Inspire.Erp.Application.Account.Implementations
 
                 clsCommonFunctions.Delete_OldEntry_AccountsTransactions(purchaseJournal.PurchaseJournalVno, VoucherType.PurchaseJournal_TYPE, _accountTransactionRepository);
 
-                purchaseJournal.PurchaseJournalDelStatus = true;
-
-                purchaseJournalDetails = purchaseJournalDetails.Select((k) =>
+                var dataObj = _purchaseJournalRepository.GetAsQueryable().Where(o => o.PurchaseJournalVno == purchaseJournal.PurchaseJournalVno).FirstOrDefault();
+                dataObj.PurchaseJournalDelStatus = true;
+                var detailData = _purchaseJournalDetailsRepository.GetAsQueryable().Where(o => o.PurchaseJournalDetailsVatNo == purchaseJournal.PurchaseJournalVno).ToList();
+                detailData.ForEach(elemt =>
                 {
-                    k.PurchaseJournalDetailsDelStatus = true;
-                    return k;
-                }).ToList();
-
-                _purchaseJournalDetailsRepository.UpdateList(purchaseJournalDetails);                              
-
-                _purchaseJournalRepository.Update(purchaseJournal);
+                    elemt.PurchaseJournalDetailsDelStatus = true;
+                });
+                _purchaseJournalRepository.Update(dataObj);
+                _purchaseJournalDetailsRepository.UpdateList(detailData);
 
                 var vchrnumer = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == purchaseJournal.PurchaseJournalVno).FirstOrDefault();
 
@@ -138,16 +135,14 @@ namespace Inspire.Erp.Application.Account.Implementations
                 i = 0;
                 throw ex;
             }
-
-
             return i;
-
         }
         public PurchaseJournal InsertPurchaseJournal(PurchaseJournal purchaseJournal, List<AccountsTransactions> accountsTransactions, List<PurchaseJournalDetails> purchaseJournalDetails)
         {
             try
             {
                 _purchaseJournalRepository.BeginTransaction();
+
                 string purchaseJournalNumber = this.GenerateVoucherNo(purchaseJournal.PurchaseJournalDate.Value).VouchersNumbersVNo;
                 purchaseJournal.PurchaseJournalVno = purchaseJournalNumber;
 
@@ -160,6 +155,7 @@ namespace Inspire.Erp.Application.Account.Implementations
 
                 _purchaseJournalRepository.Insert(purchaseJournal);
                 //purchaseJournal.PurchaseJournalDetails = purchaseJournal.PurchaseJournalDetails.AsEnumerable().Where(k => k != null).Select(x =>
+                
                 foreach (var x in purchaseJournal.PurchaseJournalDetails)
                 {
                     x.PurchaseJournalDetailsId = 0;
@@ -209,9 +205,9 @@ namespace Inspire.Erp.Application.Account.Implementations
         }
         public PurchaseJournal GetSavedPurchaseJournalDetails(string pvno)
         {
-            PurchaseJournal purchaseJournal = new PurchaseJournal();
+            
+           var purchaseJournal = _purchaseJournalRepository.GetAsQueryable().Where(k => k.PurchaseJournalVno == pvno).SingleOrDefault();
 
-            purchaseJournal = _purchaseJournalRepository.GetAsQueryable().Where(k => k.PurchaseJournalVno == pvno).SingleOrDefault();
             purchaseJournal.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.PurchaseJournal_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
             purchaseJournal.PurchaseJournalDetails = _purchaseJournalDetailsRepository.GetAsQueryable().Where(x => x.PurchaseJournalDetailsVno == pvno && (x.PurchaseJournalDetailsDelStatus == false || x.PurchaseJournalDetailsDelStatus == null)).ToList();
             return purchaseJournal;

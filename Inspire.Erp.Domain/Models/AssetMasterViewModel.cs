@@ -17,4 +17,27 @@ namespace Inspire.Erp.Domain.Models
         public DateTime? AssetMasterAssetCreatedDate { get; set; }
         public bool? AssetMasterAssetDelStatus { get; set; }
     }
+
+
+    public class AssetGroupViewModel
+    {
+
+        public string ParentGroupName { get; set; }
+        public string GroupName { get; set; }
+
+        public string ParentRelativeNo { get; set; }
+
+       // public string ParentGroup { get; set; }
+        public string AccountType { get; set; }
+        public DateTime CreatedDate { get; set; }
+    }
+
+
+    public class AssetHeaderViewModel
+    {
+        public int AssetGroupId { get; set; }
+        public string HeadName { get; set; }
+       // public string ParentRelativeNo { get; set; }
+        public DateTime CreatedDate { get; set; }
+    }
 }

@@ -47,9 +47,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<UnitMaster> _unitMasterRepository;
         private IRepository<SuppliersMaster> _suppliersMasterRepository;
         private IRepository<LocationMaster> _locationMasterRepository;
-
-
-
         private IRepository<CustomerMaster> _customerMasterRepository;
         private IRepository<SalesManMaster> _salesManMasterRepository;
         private IRepository<DepartmentMaster> _departmentMasterRepository;
@@ -129,36 +126,20 @@ namespace Inspire.Erp.Application.Sales.Implementations
             _context = context;
             _openingStockService = openingStockService;
             //_reportSalesVoucherRepository = reportSalesVoucherRepository;
-        }
-
-        //public IEnumerable<ReportSalesVoucher> SalesVoucher_GetReportSalesVoucher()
-        //{
-        //    return _reportSalesVoucherRepository.GetAll();
-        //}
-
-
-
+        }      
         public IEnumerable<LocationMaster> SalesVoucher_GetAllLocationMaster()
         {
             return _locationMasterRepository.GetAll();
         }
 
-
-
         public IEnumerable<SuppliersMaster> SalesVoucher_GetAllSuppliersMaster()
         {
             return _suppliersMasterRepository.GetAll();
         }
-
-
         public IEnumerable<DepartmentMaster> SalesVoucher_GetAllDepartmentMaster()
         {
             return _departmentMasterRepository.GetAll();
         }
-
-
-
-
         public IEnumerable<CustomerMaster> SalesVoucher_GetAllCustomerMaster()
         {
             return _customerMasterRepository.GetAll();
@@ -236,10 +217,10 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         StockRegisterSIN = 0,
                         StockRegisterSout = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
                         StockRegisterRate = avgrate,
-                        StockRegisterAmount = item.SalesVoucherDetailsQuantity * avgrate ?? 0,
-                        StockRegisterFCAmount = item.SalesVoucherDetailsQuantity * avgrate * rate,
+                        StockRegisterAmount = item.SalesVoucherDetailsQuantity * (decimal)(converontype) * avgrate ?? 0,
+                        StockRegisterFCAmount = item.SalesVoucherDetailsQuantity* (decimal)(converontype) * avgrate * rate,
                         StockRegisterAssignedDate = DateTime.Now.Date,
-                        StockRegisterStatus = "A",
+                        StockRegisterStatus = AccountStatus.Approved,
                         StockRegisterTransType = VoucherType.SalesVoucher_TYPE,
                         StockRegisterUnitID = item.SalesVoucherDetailsUnitId,
                         StockRegisterLocationID = salesVoucher.SalesVoucherLocationID,
@@ -287,6 +268,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 //=================================
                 clsCommonFunctions.Delete_OldEntry_StockRegister(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _stockRegisterRepository);
                 clsCommonFunctions.Delete_OldEntry_AccountsTransactions(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _accountTransactionRepository);
+                //clsCommonFunctions.Delete_OldEntry_vouchernumber(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _voucherNumbersRepository);
                 //=================================
 
 
@@ -411,7 +393,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 foreach (var item in salesVoucher.SalesVoucherDetails)
                 {
                     var avgrate = item.SalesVoucherDetailsCostPrice ?? 1;
-                    var converontype = this.getConverionTypebyUnitId(item.SalesVoucherDetailsMatId, item.SalesVoucherDetailsUnitId);                    
+                    var converontype = this.getConverionTypebyUnitId(item.SalesVoucherDetailsMatId, item.SalesVoucherDetailsUnitId);
 
                     stockReg.Add(new StockRegister()
                     {
@@ -423,8 +405,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         StockRegisterSIN = 0,
                         StockRegisterSout = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
                         StockRegisterRate = avgrate,
-                        StockRegisterAmount = item.SalesVoucherDetailsQuantity * avgrate ?? 0,
-                        StockRegisterFCAmount = item.SalesVoucherDetailsQuantity * avgrate * rate,
+                        StockRegisterAmount = item.SalesVoucherDetailsQuantity* (decimal)(converontype) * avgrate ?? 0,
+                        StockRegisterFCAmount = item.SalesVoucherDetailsQuantity *(decimal)(converontype) * avgrate * rate,
                         StockRegisterAssignedDate = DateTime.Now.Date,
                         StockRegisterStatus = "A",
                         StockRegisterTransType = VoucherType.SalesVoucher_TYPE,
@@ -615,7 +597,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
             }).ToList();
             _accountTransactionRepository.InsertList(accountsTransactions);
         }
-
         private string getAccountNoByPartyName(string partyName)
         {
             try
@@ -630,7 +611,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 return string.Empty;
             }
         }
-
         private decimal getCurrencyRate(int? salesVoucherCurrencyId)
         {
             try
@@ -642,7 +622,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 return 1;
             }
         }
-
 
         public IEnumerable<AccountsTransactions> GetAllTransaction()
         {
@@ -807,12 +786,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
             }
 
         }
-
-
-
-        //using Microsoft.Extensions.Logging;
-        //private readonly ILogger<PaymentVoucherService> _logger;
-        //IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
         public VouchersNumbers GetVouchersNumbers(string pvno)
         {
             try
@@ -871,8 +844,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 throw ex;
             }
         }
-
-
         public async Task<Response<GridWrapperResponse<List<GetSalesVoucherResponse>>>> GetSalesVoucher(GenericGridViewModel model)
         {
             try
@@ -1043,79 +1014,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 throw ex;
             }
         }
-
-        //public POS_Sales_Voucher InsertPosSalesVoucher(POS_Sales_Voucher salesVoucher, List<POS_Sales_Voucher_Details> posSalesVoucherDetails)
-        //{
-        //    try
-        //    {
-        //        _posSalesVoucherRepository.BeginTransaction();
-        //        string salesVoucherNumber = this.GeneratePosVoucherNo(salesVoucher.VoucherDate).VouchersNumbersVNo;
-        //        salesVoucher.VoucherNo = salesVoucherNumber;
-
-
-        //        int maxcount = 0;
-        //        maxcount = Convert.ToInt32(
-        //            _posSalesVoucherRepository.GetAsQueryable()
-        //            .DefaultIfEmpty().Max(o => o == null ? 0 : o.V_Id) + 1);
-
-        //        posSalesVoucherDetails = posSalesVoucherDetails.Select((x) =>
-        //        {
-        //            x.SNO = maxcount;
-        //            x.VoucherNo = salesVoucherNumber;
-        //            return x;
-        //        }).ToList();
-
-        //        var stockReg = new List<StockRegister>();
-        //        foreach (var item in salesVoucher.posSalesVoucherDetails)
-        //        {
-        //            stockReg.Add(new StockRegister()
-        //            {
-        //                StockRegisterPurchaseID = salesVoucher.VoucherNo,
-        //                StockRegisterRefVoucherNo = salesVoucher.VoucherNo,
-        //                StockRegisterVoucherDate = DateTime.Now.Date,
-        //                StockRegisterMaterialID = Convert.ToInt32(item.ItemId),
-        //                StockRegisterQuantity = item.Sold_Qty,
-        //                StockRegisterSIN = 0,
-        //                StockRegisterSout = item.Sold_Qty,
-        //                StockRegisterRate = item.UnitPrice,
-        //                StockRegisterAmount = item.GrossAmt ?? 0,
-        //                StockRegisterFCAmount = item.GrossAmt,
-        //                StockRegisterAssignedDate = DateTime.Now.Date,
-        //                StockRegisterStatus = "A",
-        //                StockRegisterTransType = salesVoucher.Voucher_Type,
-        //                StockRegisterUnitID = Convert.ToInt32(item.UnitId),
-        //                StockRegisterLocationID = salesVoucher.Location,
-        //                StockRegisterDepID = Convert.ToInt32(salesVoucher.DeptID),
-        //                StockRegisterDelStatus = false
-        //            });
-        //        }
-        //        _stockRegisterRepository.InsertList(stockReg);
-
-
-        //        _posSalesVoucherRepository.Insert(salesVoucher);
-        //        _posSalesVoucherDetailsRepository.InsertList(posSalesVoucherDetails);
-        //        _posSalesVoucherRepository.TransactionCommit();
-        //        return this.GetSavedPosSalesVoucherDetails(salesVoucher.VoucherNo);
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _posSalesVoucherRepository.TransactionRollback();
-        //        throw ex;
-        //    }
-
-        //}
-
-        //public POS_Sales_Voucher GetSavedPosSalesVoucherDetails(string pvno)
-        //{
-        //    POS_Sales_Voucher salesVoucher = new POS_Sales_Voucher();
-
-        //    salesVoucher = _posSalesVoucherRepository.GetAsQueryable().Where(k => k.VoucherNo == pvno).SingleOrDefault();
-        //    salesVoucher.posSalesVoucherDetails = _posSalesVoucherDetailsRepository.GetAsQueryable().Where(x => x.VoucherNo == pvno).ToList();
-
-
-        //    return salesVoucher;
-        //}
         public VouchersNumbers GeneratePosVoucherNo(DateTime? VoucherGenDate)
         {
             try
@@ -1148,76 +1046,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
             }
 
         }
-
-        //public POS_Sales_Voucher UpdatePosSalesVoucher(POS_Sales_Voucher salesVoucher, List<POS_Sales_Voucher_Details> PosSalesVoucherDetails)
-        //{
-        //    try
-        //    {
-        //        _posSalesVoucherRepository.BeginTransaction();
-        //        _posSalesVoucherRepository.Update(salesVoucher);
-        //        _posSalesVoucherDetailsRepository.UpdateList(PosSalesVoucherDetails);
-        //        _posSalesVoucherRepository.TransactionCommit();
-
-        //        return this.GetSavedPosSalesVoucherDetails(salesVoucher.VoucherNo);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _posSalesVoucherRepository.TransactionRollback();
-        //        throw ex;
-        //    }
-        //}
-
-        //public IEnumerable<POS_Sales_Voucher> GetPosSalesVoucher()
-        //{
-        //    var salV = (from s in _posSalesVoucherRepository.GetAsQueryable()
-        //                join c in _customerMasterRepository.GetAsQueryable() on s.Customer_ID equals c.CustomerMasterCustomerNo
-        //                select new POS_Sales_Voucher()
-        //                {
-        //                    V_Id = s.V_Id,
-        //                    VoucherNo = s.VoucherNo,
-        //                    VoucherDate = s.VoucherDate,
-        //                    Voucher_Type = s.Voucher_Type,
-        //                    Customer_ID = c.CustomerMasterCustomerNo,
-        //                    CustomerName = c.CustomerMasterCustomerName,
-        //                    refno = s.refno,
-        //                    DeptID = s.DeptID,
-        //                    Location = s.Location,
-        //                    UserId = s.UserId,
-        //                    CompanyId = s.CompanyId,
-        //                    DiscountPer = s.DiscountPer,
-        //                    Vat_Per = s.Vat_Per,
-        //                    Vat_RoundSign = s.Vat_RoundSign,
-        //                    Vat_RountAmt = s.Vat_RountAmt,
-        //                    NetDiscount = s.NetDiscount,
-        //                    NetAmount = s.NetAmount,
-        //                    Remarks = s.Remarks,
-        //                    ShortNo = s.ShortNo,
-        //                    CashCustName = s.CashCustName,
-        //                    Counter_ID_N = s.Counter_ID_N,
-        //                    Discount = s.Discount,
-        //                    GrossAmount = s.GrossAmount,
-        //                    HOLD_B = s.HOLD_B,
-        //                    WorkPeriodID = s.WorkPeriodID,
-        //                    InvoiceType = s.InvoiceType,
-        //                    PaymentMode = s.PaymentMode,
-        //                    Vat_TaxableAmt = s.Vat_TaxableAmt,
-        //                    Refrence = s.Refrence,
-        //                    Salesman = s.Salesman,
-        //                    Retail_B = s.Retail_B,
-        //                    VatAmount = s.VatAmount,
-        //                    SV_SM_VoucherNo = s.SV_SM_VoucherNo,
-        //                    Shift_ID_N = s.Shift_ID_N,
-        //                    StationID = s.StationID,
-        //                    SV_NoVat_B = s.SV_NoVat_B,
-        //                    SV_SM_Bal = s.SV_SM_Bal,
-        //                    Vat_AMT = s.Vat_AMT,
-        //                    Vatable_TotAmt = s.Vatable_TotAmt
-        //                }).ToList();
-
-
-
-        //    return salV;
-        //}
 
         #region Pos Sales Hold
         public VouchersNumbers GeneratePosSaleHoldVoucherNo(DateTime? VoucherGenDate)
@@ -1369,8 +1197,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
         }
 
         #endregion
-
-
         public POS_WorkPeriod StartPosWP(POS_WorkPeriod wp)
         {
             try

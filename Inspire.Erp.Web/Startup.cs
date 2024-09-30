@@ -97,17 +97,16 @@ namespace Inspire.Erp.Web
                                 .AllowAnyMethod();
                       });
             });
-
-            //  var converter = new SynchronizedConverter(new PdfTools());
-            //  services.AddSingleton(converter);
-            //  services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
+           
             services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
             services.AddScoped<INotificationHub, NotificationHub>();
-           
-            //  services.AddMvc().AddNewtonsoftJson(
-            //options => {
-            //    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-            //});
+
+            services.AddControllers(options =>
+            {
+                // Register the filter globally
+                options.Filters.Add<SpecialCharacterValidationFilter>();
+            });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -130,12 +129,7 @@ namespace Inspire.Erp.Web
 
             app.UseRouting();
             app.UseCors("AllowAllHeaders");
-            // global cors policy
-            //app.UseCors(x => x
-            //    .SetIsOriginAllowed(origin => true)
-            //    .AllowAnyMethod()
-            //    .AllowAnyHeader()
-            //    .AllowCredentials());
+            // global cors policy            
             app.UseCors(options => options.AllowAnyOrigin());
             app.UseAuthentication();
             app.UseAuthorization();

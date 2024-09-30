@@ -10,7 +10,7 @@ namespace Inspire.Erp.Application.Store.Interface
 {
     public interface IStockTransferService
     {
-        public Task<List<StockItemResponse>> getStockItemResponse();
+        public Task<Response<decimal>> getStockItemResponse( int? itemId,int? locationId);
         public Task<StockTransferModel> InsertStockTransfer(StockTransfer stockTransfer, List<StockTransferDetails> stockTransferDetails
              , List<StockRegister> stockRegister);
         //public Task<bool>  ddeleteStockTransfer(StockTransferRequestModel obj);

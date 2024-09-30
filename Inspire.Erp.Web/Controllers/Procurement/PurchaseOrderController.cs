@@ -488,8 +488,8 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             {
                 data = _context.PermissionApprovalDetail.AsNoTracking().AsEnumerable()
                .Where(a =>
-               a.VoucherDate >= model.fromDate &&
-               a.VoucherDate <= model.toDate &&
+               a.VoucherDate.Value.Date >= model.fromDate.Value.Date &&
+               a.VoucherDate.Value.Date <= model.toDate.Value.Date &&
               (!rights.Any() || rights.Any(r => r.LevelId == a.LevelId && r.Voucher_Type == a.VoucherType)));
             }
             else

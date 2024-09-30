@@ -6149,10 +6149,9 @@ namespace Inspire.Erp.Infrastructure.Database
                       .HasMaxLength(50)
                       .IsUnicode(false);
 
-                entity.Property(e => e.CustomerQuotationNote)
-                      .HasColumnName("Customer_Quotation_Note")
-                      .HasMaxLength(200)
-                      .IsUnicode(false);
+                entity.Property(e => e.CustomerQuotationNote).HasColumnName("Customer_Quotation_Note");
+                     
+                    
 
                 entity.Property(e => e.CustomerQuotationWarranty)
                       .HasColumnName("Customer_Quotation_Warranty")
@@ -9917,6 +9916,9 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnName("Job_Invoice_Voucher_No")
                     .HasMaxLength(20)
                     .IsUnicode(false);
+
+                entity.Property(e => e.Invoicetype).HasColumnName("Invoicetype");
+                
             });
 
             modelBuilder.Entity<JobInvoiceDetails>(entity =>
@@ -21566,6 +21568,8 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasMaxLength(30)
                     .IsUnicode(false);
 
+                entity.Property(e => e.StockTransferDepId).HasColumnName("StockTransferDepID");
+                entity.Property(e => e.StockTransferCustomerId).HasColumnName("StockTransferCustomerID");
                 entity.Property(e => e.StockTransferUserId).HasColumnName("Stock_Transfer_User_ID");
             });
 
@@ -21603,7 +21607,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.StockTransferId).HasColumnName("Stock_Transfer_ID");
 
                 entity.Property(e => e.StockTransferDetailsUnitId).HasColumnName("Stock_Transfer_Details_Unit_ID");
-
+                entity.Property(e => e.StockTransferDetailsCostPrice).HasColumnName("StockTransferDetailsCostPrice");               
 
                 entity.HasOne(d => d.StockTransferDetailsNoNavigation)
                    .WithMany(p => p.StockTransferDetails)

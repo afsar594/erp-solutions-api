@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -19,7 +21,9 @@ namespace Inspire.Erp.Domain.Entities
         public string StockTransferApprovedBy { get; set; }
         public DateTime? StockTransferApprovedDate { get; set; }
         public bool? StockTransferDelStatus { get; set; }
-
-        public virtual ICollection<StockTransferDetails> StockTransferDetails { get; set; }
+        public decimal? StockTransferDepId { get; set; }
+        public decimal? StockTransferCustomerId { get; set; }
+        [NotMapped]
+        public List<StockTransferDetails> StockTransferDetails { get; set; }
     }
 }
