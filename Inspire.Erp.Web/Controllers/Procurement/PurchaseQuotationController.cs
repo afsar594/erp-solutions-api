@@ -16,12 +16,11 @@ using Inspire.Erp.Web.Common;
 
 
 using Microsoft.AspNetCore.Mvc.Rendering;
-
-
-
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers
 {
+    [Authorize]
     [Route("api/PurchaseQuotation")]
     [Produces("application/json")]
     [ApiController]
@@ -34,46 +33,7 @@ namespace Inspire.Erp.Web.Controllers
             _purchaseQuotationService = purchaseQuotationService;
             _mapper = mapper;
         }
-
-        //[HttpGet]
-        //[Route("PurchaseQuotation_GetReportPurchaseQuotation")]
-
-        //public List<ReportPurchaseQuotation> PurchaseQuotation_GetReportPurchaseQuotation()
-        //{
-        //    return _mapper.Map<List<ReportPurchaseQuotation>>(_purchaseQuotationService.PurchaseQuotation_GetReportPurchaseQuotation());
-
-
-        //}
-
-
-
-
-
-
-
-        ////[HttpGet]
-        ////[Route("PurchaseQuotation_GetReportPurchaseQuotation")]
-        ////public ApiResponse<List<ReportPurchaseQuotation>> PurchaseQuotation_GetReportPurchaseQuotation()
-        ////{
-
-
-
-        ////    ApiResponse<List<ReportPurchaseQuotation>> apiResponse = new ApiResponse<List<ReportPurchaseQuotation>>
-        ////    {
-        ////        Valid = true,
-        ////        Result = _mapper.Map<List<ReportPurchaseQuotation>>(_purchaseQuotationService.PurchaseQuotation_GetReportPurchaseQuotation()),
-        ////        Message = ""
-        ////    };
-        ////    return apiResponse;
-
-
-
-
-        ////}
-
-
-
-
+                                               
         [HttpPost]
         [Route("InsertPurchaseQuotation")]
         public ApiResponse<PurchaseQuotationViewModel> InsertPurchaseQuotation([FromBody] PurchaseQuotationViewModel voucherCompositeView)
@@ -274,8 +234,6 @@ namespace Inspire.Erp.Web.Controllers
             return apiResponse;
 
         }
-
-
 
         [HttpGet]
         [Route("GetAllAccountTransaction")]

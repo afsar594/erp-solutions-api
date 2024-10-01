@@ -13,15 +13,15 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Web.Common;
-
-
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Inspire.Erp.Application.Procurement.Implimentation;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Application.Procurement.Implementation;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers
 {
+    [Authorize]
     [Route("api/PurchaseRequisition")]
     [Produces("application/json")]
     [ApiController]

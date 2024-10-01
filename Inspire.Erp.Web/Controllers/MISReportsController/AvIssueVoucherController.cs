@@ -5,11 +5,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Inspire.Erp.Application.Account.Interfaces;
 using Inspire.Erp.Domain.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace Inspire.Erp.Web.Controllers.MISReportsControllers
 {
+    [Authorize]
     [Route("api/AvIssueVoucher")]
     [Produces("application/json")]
     [ApiController]

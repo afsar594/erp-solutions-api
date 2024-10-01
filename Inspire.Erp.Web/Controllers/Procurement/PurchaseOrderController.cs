@@ -21,9 +21,11 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq.Dynamic.Core;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using NPOI.SS.UserModel;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers.Procurement
 {
+    [Authorize]
     [Route("api/PurchaseOrder")]
     [Produces("application/json")]
     [ApiController]
@@ -49,19 +51,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             itemrepository = _itemrepository; unitrepository = _unitrepository; _purchaseOrderRepository = purchaseOrderRepository; _purOrderRegisterRepository = purOrderRegisterRepository;
             _purchaseOrderDetailsRepository = purchaseOrderDetailsRepository; jobrepository = _jobrepository; locationrepository = _locationrepository; currencyrepository = _currencyrepository;
         }
-
-        //[HttpGet]
-        //[Route("PurchaseOrder_GetReportPurchaseOrder")]
-        //public ApiResponse<List<ReportPurchaseOrder>> PurchaseOrder_GetReportPurchaseOrder()
-        //{
-        //    ApiResponse<List<ReportPurchaseOrder>> apiResponse = new ApiResponse<List<ReportPurchaseOrder>>
-        //    {
-        //        Valid = true,
-        //        Result = _mapper.Map<List<ReportPurchaseOrder>>(_purchaseOrderService.PurchaseOrder_GetReportPurchaseOrder()),
-        //        Message = ""
-        //    };
-        //    return apiResponse;
-        //}
+        
         [HttpGet]
         [Route("GetAllUserFile")]
 
