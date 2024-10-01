@@ -634,7 +634,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                   } into g
                                   select new PurChaseReqFields
                                   {
-                                      //ItemId = (int)g.Key.PurchaseRequisitionDetailsMatId,
+                                      matId = (int)g.Key.PurchaseRequisitionDetailsMatId,
                                       Item_Name = g.Key.ItemMasterItemName,
                                       SRID = (int)g.Key.PurchaseRequisitionId,
                                       SRDID = (int)g.Key.PurchaseRequisitionDetailsId,
