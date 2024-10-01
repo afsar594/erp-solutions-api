@@ -360,7 +360,6 @@ namespace Inspire.Erp.Application.Account.Implementations
 
                 var masterAcc = await _masterAccountTable.GetAsQueryable().FirstOrDefaultAsync(x => x.MaAccNo == asset.AssetMasterAssetAccountNo);
                 //CREATING ASSET ACCOUNT IN CHART OF ACCOUNT
-               
                 var masterAccFixed = new MasterAccountsTable();
                 masterAccFixed.MaSno = Convert.ToInt32(_masterAccountTable.GetAsQueryable()
                                              .Where(x => Convert.ToInt32(x.MaSno) > 0)
@@ -368,10 +367,10 @@ namespace Inspire.Erp.Application.Account.Implementations
                                              .Max(o => o == null ? 0 : o.MaSno)) + 1;
 
                 masterAccFixed.MaRelativeNo = masterAcc.MaRelativeNo;
-                var AccNo = _masterAccountTable.GetAsQueryable()
+                var AccNo = await _masterAccountTable.GetAsQueryable()
                                            .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == masterAccFixed.MaRelativeNo)
                                            .DefaultIfEmpty()
-                                           .Max(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length - 3, 3))) + 1;
+                                           .MaxAsync(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length - 3, 3))) + 1;
 
                 masterAccFixed.MaAccNo = masterAccFixed.MaRelativeNo + String.Format("{0:00}", AccNo);
                 masterAccFixed.MaAccName = model.HeadName + " " + "[ASSET]";
@@ -380,6 +379,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 masterAccFixed.MaAccType = "A";
                 masterAccFixed.MaStatus = AccountStatus.AccStatus;
                 masterAccFixed.MaImageKey = ItemMasterStatus.ItemKey;
+                masterAccFixed.MaManualCode = model.HeadName.Substring(0, 2) + AccNo;
                 //if (model.AccountType == ItemMasterStatus.Group || model.AccountType == AccountMasterStatus.SubItem)
                 //{
 
@@ -414,10 +414,10 @@ namespace Inspire.Erp.Application.Account.Implementations
 
 
                 masterAccLiabilities.MaRelativeNo =masterAccLiab.MaRelativeNo;
-                AccNo = _masterAccountTable.GetAsQueryable()
+                AccNo = await _masterAccountTable.GetAsQueryable()
                                            .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == masterAccLiabilities.MaRelativeNo)
                                            .DefaultIfEmpty()
-                                           .Max(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length - 3, 3))) + 1;
+                                           .MaxAsync(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length - 3, 3))) + 1;
 
                 masterAccLiabilities.MaAccNo = masterAccLiabilities.MaRelativeNo + String.Format("{0:00}", AccNo);
                 masterAccLiabilities.MaAccName = model.HeadName + " " + "[LIABILITY]";
@@ -433,11 +433,12 @@ namespace Inspire.Erp.Application.Account.Implementations
                 masterAccLiabilities.MaDateCreated = DateTime.Now;
                 masterAccLiabilities.MaCurrencyId = 1;
                 masterAccLiabilities.MaGpAcc = "Y";
-                masterAccLiabilities.MaAcAcc = "Y";
+                masterAccLiabilities.MaAcAcc = "Y"; 
                 masterAccLiabilities.MaEdAcc = "Y";
-                masterAccLiabilities.MaOpenBalance = 0;
+                masterAccLiabilities.MaOpenBalance =0;
                 masterAccLiabilities.MaTotalDebit = 0;
                 masterAccLiabilities.MaTotalCredit = 0;
+                masterAccLiabilities.MaManualCode = model.HeadName.Substring(0, 2) + AccNo;
                 _masterAccountTable.Insert(masterAccLiabilities);
 
 
@@ -451,10 +452,10 @@ namespace Inspire.Erp.Application.Account.Implementations
 
 
                 masterAccExpenses.MaRelativeNo = masterAccExp.MaRelativeNo;
-                AccNo = _masterAccountTable.GetAsQueryable()
+                AccNo = await _masterAccountTable.GetAsQueryable()
                                            .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == masterAccExpenses.MaRelativeNo)
                                            .DefaultIfEmpty()
-                                           .Max(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length - 3, 3))) + 1;
+                                           .MaxAsync(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length - 3, 3))) + 1;
 
                 masterAccExpenses.MaAccNo = masterAccExpenses.MaRelativeNo + String.Format("{0:00}", AccNo);
                 masterAccExpenses.MaAccName = model.HeadName + " " + "[EXPENSE]";
@@ -476,6 +477,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 masterAccExpenses.MaOpenBalance = 0;
                 masterAccExpenses.MaTotalDebit = 0;
                 masterAccExpenses.MaTotalCredit = 0;
+                masterAccExpenses.MaManualCode = model.HeadName.Substring(0, 2) + AccNo;
                 _masterAccountTable.Insert(masterAccExpenses);
 
 
