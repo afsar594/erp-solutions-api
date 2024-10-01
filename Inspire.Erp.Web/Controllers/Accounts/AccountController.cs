@@ -425,6 +425,18 @@ namespace Inspire.Erp.Web.Controllers.Accounts
             return Ok(await _assetsMasterService.SaveNewAssetGroup(model));
         }
 
+        [HttpPost("EditAssetGroup")]
+        public async Task<IActionResult> EditAssetGroup(AssetGroupEditViewModel model)
+        {
+            return Ok(await _assetsMasterService.EditAssetGroup(model));
+        }
+
+        [HttpPost("EditAssetHead")]
+        public async Task<IActionResult> EditAssetHead(AssetGroupEditViewModel model)
+        {
+            return Ok(await _assetsMasterService.EditAssetHead(model));
+        }
+
         [HttpPost("SaveNewAssetHead")]
         public async Task<IActionResult> SaveNewAssetHead(AssetHeaderViewModel model)
         {

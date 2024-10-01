@@ -275,9 +275,6 @@ namespace Inspire.Erp.Web.Controllers
 
                 throw ex;
             }
-
-
-
         }
 
         [HttpGet]
@@ -300,9 +297,6 @@ namespace Inspire.Erp.Web.Controllers
 
                 throw ex;
             }
-
-
-
         }
 
 
