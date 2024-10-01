@@ -15,9 +15,11 @@ using Microsoft.AspNetCore.Mvc;
 using Inspire.Erp.Web.ViewModels.Accounts;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Inspire.Erp.Domain.Modals.Common;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers.Accounts
 {
+    [Authorize]
     [Route("api")]
     [Produces("application/json")]
     [ApiController]
@@ -142,20 +144,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
             return apiResponse;
 
         }
-
-        //[HttpGet]
-        //[Route("GetAllAccountTransaction")]
-        //public ApiResponse<List<AccountsTransactions>> GetAllAccountTransaction()
-        //{
-        //    ApiResponse<List<AccountsTransactions>> apiResponse = new ApiResponse<List<AccountsTransactions>>
-        //    {
-        //        Valid = true,
-        //        Result = _mapper.Map<List<AccountsTransactions>>(_obVoucherService.GetAllTransaction()),
-        //        Message = ""
-        //    };
-        //    return apiResponse;
-        //}
-
+       
         [HttpGet]
         [Route("GetOBVouchers")]
         public ApiResponse<List<OpeningVoucherMaster>> GetAllOBVouchers()
@@ -211,25 +200,6 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         public async Task<ResponseInfo> getAccounts()
         {
             return await _obVoucherService.LoadAccounts();
-        }
-        //[HttpGet]
-        //[Route("CheckVnoExist/{id}")]
-        //public ApiResponse<bool> CheckVnoExist(string id)
-        //{
-        //    ApiResponse<bool> apiResponse = new ApiResponse<bool>
-        //    {
-        //        Valid = true,
-        //        Result = true,
-        //        Message = PaymentVoucherMessage.VoucherAlreadyExist
-        //    };
-        //    var x = _obVoucherService.GetVouchersNumbers(id);
-        //    if (x == null)
-        //    {
-        //        apiResponse.Result = false;
-        //        apiResponse.Message = "";
-        //    }
-
-        //    return apiResponse;
-        //}
+        }        
     }
 }

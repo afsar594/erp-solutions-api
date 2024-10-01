@@ -1,6 +1,8 @@
 ﻿using Inspire.Erp.Application.Account.Interfaces;
 using Inspire.Erp.Application.Common;
-using Inspire.Erp.Domain.Entities;
+using Microsoft.Extensions.Logging;
+using Inspire.Erp.Infrastructure.Database;
+
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.EntityFrameworkCore;
@@ -8,11 +10,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Inspire.Erp.Domain.Entities;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using Microsoft.Extensions.Logging;
-using Inspire.Erp.Infrastructure.Database;
-
 namespace Inspire.Erp.Application.Account.Implementations
 {
     public class JournalVoucherService : IJournalVoucherService
@@ -200,7 +200,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 var voucherNumber = _voucherNumbersRepository.GetAll().FirstOrDefault(o => o.VouchersNumbersVNo == voucherNo);
                 if (voucherNo != null)
                 {
-                    vnoMaxVal = vnoMaxVal + 1;
+                    //vnoMaxVal = vnoMaxVal + 1;
                     VouchersNumbers vouchersNumbers = new VouchersNumbers
                     {
                         VouchersNumbersVNo = prefix + vnoMaxVal,

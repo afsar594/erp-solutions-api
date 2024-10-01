@@ -22,6 +22,7 @@ using Inspire.Erp.Domain.Modals.Stock;
 using NPOI.SS.Formula.Functions;
 namespace Inspire.Erp.Web.Controllers.Document
 {
+    [Authorize]
     [ApiController]
     [Route("api/HrDocumentMaster")]
     public class HrDocumentMasterController : ControllerBase

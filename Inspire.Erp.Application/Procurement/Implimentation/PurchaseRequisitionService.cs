@@ -617,9 +617,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                       on sd.PurchaseRequisitionDetailsId equals iv.IssueVoucherDetailsReqDId into ivGroup
                                   from srq in ivGroup.DefaultIfEmpty()
                                   where per.Status == "Approved"
-                                        && !_permissionApprovalDetailRepo.GetAsQueryable()
-                                              .Where(p => p.VoucherId == sm.PurchaseRequisitionNo)
-                                              .Any(p => p.Status != "Approved")
+                                        //&& !_permissionApprovalDetailRepo.GetAsQueryable()
+                                        //      .Where(p => p.VoucherId == sm.PurchaseRequisitionNo)
+                                        //      .Any(p => p.Status == "Approved")
                                   group new { sm, sd, im, um, srq } by new
                                   {
                                       sd.PurchaseRequisitionDetailsId,

@@ -9,9 +9,11 @@ using Inspire.Erp.Web.ViewModels.Administration;
 using Inspire.Erp.Application.Administration.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers.Administration
 {
+    [Authorize]
     [Route("api/master")]
     [Produces("application/json")]
     [ApiController]
