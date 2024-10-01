@@ -32,6 +32,15 @@ namespace Inspire.Erp.Domain.Models
         public DateTime CreatedDate { get; set; }
     }
 
+    public class AssetGroupEditViewModel
+    {
+        public int AssetId { get; set; }
+       
+        public string GroupName { get; set; }
+
+        
+    }
+
 
     public class AssetHeaderViewModel
     {
