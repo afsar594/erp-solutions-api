@@ -26,8 +26,7 @@ using System.Security.Cryptography;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers
-{
-    [Authorize]
+{   
     [Route("api/AssetPurchase")]
     [Produces("application/json")]
     [ApiController]

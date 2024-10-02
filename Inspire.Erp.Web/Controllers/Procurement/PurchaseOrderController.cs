@@ -24,8 +24,7 @@ using NPOI.SS.UserModel;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers.Procurement
-{
-    [Authorize]
+{    
     [Route("api/PurchaseOrder")]
     [Produces("application/json")]
     [ApiController]
@@ -51,7 +50,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             itemrepository = _itemrepository; unitrepository = _unitrepository; _purchaseOrderRepository = purchaseOrderRepository; _purOrderRegisterRepository = purOrderRegisterRepository;
             _purchaseOrderDetailsRepository = purchaseOrderDetailsRepository; jobrepository = _jobrepository; locationrepository = _locationrepository; currencyrepository = _currencyrepository;
         }
-        
+
         [HttpGet]
         [Route("GetAllUserFile")]
 
@@ -161,92 +160,22 @@ namespace Inspire.Erp.Web.Controllers.Procurement
 
         [HttpGet]
         [Route("GetSavedPurchaseOrderDetails/{id}")]
-        public ApiResponse<PurchaseOrderViewModel> GetSavedPurchaseOrderDetails(string id)
+        public IActionResult GetSavedPurchaseOrderDetails(string id)
         {
-            PurchaseOrderModel purchaseOrder = _purchaseOrderService.GetSavedPurchaseOrderDetails(id);
-            if (purchaseOrder != null)
+            try
             {
-                PurchaseOrderViewModel purchaseOrderViewModel = new PurchaseOrderViewModel
+                var result = _purchaseOrderService.GetSavedPurchaseOrderDetails(id);
+                if (result == null)
                 {
-                    PurchaseOrderId = purchaseOrder.purchaseOrder.PurchaseOrderId,
-                    PurchaseOrderNo = purchaseOrder.purchaseOrder.PurchaseOrderNo,
-                    PurchaseOrderDate = purchaseOrder.purchaseOrder.PurchaseOrderDate,
-                    PurchaseOrderType = purchaseOrder.purchaseOrder.PurchaseOrderType,
-                    PurchaseOrderPartyId = purchaseOrder.purchaseOrder.PurchaseOrderPartyId,
-                    PurchaseOrderPartyName = purchaseOrder.purchaseOrder.PurchaseOrderPartyName,
-                    PurchaseOrderPartyAddress = purchaseOrder.purchaseOrder.PurchaseOrderPartyAddress,
-                    PurchaseOrderPartyVatNo = purchaseOrder.purchaseOrder.PurchaseOrderPartyVatNo,
-                    PurchaseOrderSupInvNo = purchaseOrder.purchaseOrder.PurchaseOrderSupInvNo,
-                    PurchaseOrderRefNo = purchaseOrder.purchaseOrder.PurchaseOrderRefNo,
-                    PurchaseOrderDescription = purchaseOrder.purchaseOrder.PurchaseOrderDescription,
-                    PurchaseOrderGrno = purchaseOrder.purchaseOrder.PurchaseOrderGrno,
-                    PurchaseOrderGrdate = purchaseOrder.purchaseOrder.PurchaseOrderGrdate,
-                    PurchaseOrderLpono = purchaseOrder.purchaseOrder.PurchaseOrderLpono,
-                    PurchaseOrderLpodate = purchaseOrder.purchaseOrder.PurchaseOrderLpodate,
-                    PurchaseOrderQtnNo = purchaseOrder.purchaseOrder.PurchaseOrderQtnNo,
-                    PurchaseOrderQtnDate = purchaseOrder.purchaseOrder.PurchaseOrderQtnDate,
-                    PurchaseOrderExcludeVat = purchaseOrder.purchaseOrder.PurchaseOrderExcludeVat,
-                    PurchaseOrderPono = purchaseOrder.purchaseOrder.PurchaseOrderPono,
-                    PurchaseOrderBatchCode = purchaseOrder.purchaseOrder.PurchaseOrderBatchCode,
-                    PurchaseOrderDayBookNo = purchaseOrder.purchaseOrder.PurchaseOrderDayBookNo,
-                    PurchaseOrderLocationId = purchaseOrder.purchaseOrder.PurchaseOrderLocationId,
-                    PurchaseOrderUserId = purchaseOrder.purchaseOrder.PurchaseOrderUserId,
-                    PurchaseOrderCurrencyId = purchaseOrder.purchaseOrder.PurchaseOrderCurrencyId,
-                    PurchaseOrderCompanyId = purchaseOrder.purchaseOrder.PurchaseOrderCompanyId,
-                    PurchaseOrderJobId = purchaseOrder.purchaseOrder.PurchaseOrderJobId,
-                    PurchaseOrderFsno = purchaseOrder.purchaseOrder.PurchaseOrderFsno,
-                    PurchaseOrderFcRate = purchaseOrder.purchaseOrder.PurchaseOrderFcRate,
-                    PurchaseOrderStatus = purchaseOrder.purchaseOrder.PurchaseOrderStatus,
-                    PurchaseOrderTotalGrossAmount = purchaseOrder.purchaseOrder.PurchaseOrderTotalGrossAmount,
-                    PurchaseOrderTotalItemDisAmount = purchaseOrder.purchaseOrder.PurchaseOrderTotalItemDisAmount,
-                    PurchaseOrderTotalActualAmount = purchaseOrder.purchaseOrder.PurchaseOrderTotalActualAmount,
-                    PurchaseOrderTotalDisPer = purchaseOrder.purchaseOrder.PurchaseOrderTotalDisPer,
-                    PurchaseOrderTotalDisAmount = purchaseOrder.purchaseOrder.PurchaseOrderTotalDisAmount,
-                    PurchaseOrderVatAmt = purchaseOrder.purchaseOrder.PurchaseOrderVatAmt,
-                    PurchaseOrderVatPer = purchaseOrder.purchaseOrder.PurchaseOrderVatPer,
-                    PurchaseOrderVatRoundSign = purchaseOrder.purchaseOrder.PurchaseOrderVatRoundSign,
-                    PurchaseOrderVatRountAmt = purchaseOrder.purchaseOrder.PurchaseOrderVatRountAmt,
-                    PurchaseOrderNetDisAmount = purchaseOrder.purchaseOrder.PurchaseOrderNetDisAmount,
-                    PurchaseOrderNetAmount = purchaseOrder.purchaseOrder.PurchaseOrderNetAmount,
-                    PurchaseOrderTransportCost = purchaseOrder.purchaseOrder.PurchaseOrderTransportCost,
-                    PurchaseOrderHandlingcharges = purchaseOrder.purchaseOrder.PurchaseOrderHandlingcharges,
-                    PurchaseOrderIssueId = purchaseOrder.purchaseOrder.PurchaseOrderIssueId,
-                    PurchaseOrderJobDirectPur = purchaseOrder.purchaseOrder.PurchaseOrderJobDirectPur,
-                    PurchaseOrderDelStatus = purchaseOrder.purchaseOrder.PurchaseOrderDelStatus,
-                    PurchaseOrderIndentNo = purchaseOrder.purchaseOrder.PurchaseOrderIndentNo,
-                    PurchaseOrderContPerson = purchaseOrder.purchaseOrder.PurchaseOrderContPerson,
-                    PurchaseOrderPreparedBy = purchaseOrder.purchaseOrder.PurchaseOrderPreparedBy,
-                    PurchaseOrderRecommendedBy = purchaseOrder.purchaseOrder.PurchaseOrderRecommendedBy,
-                    PurchaseOrderApproveEnable = purchaseOrder.purchaseOrder.PurchaseOrderApproveEnable,
-                    PurchaseOrderApproveDate = purchaseOrder.purchaseOrder.PurchaseOrderApproveDate,
-                    PurchaseOrderApproveStatus = purchaseOrder.purchaseOrder.PurchaseOrderApproveStatus,
-                    PurchaseOrderApproveUserId = purchaseOrder.purchaseOrder.PurchaseOrderApproveUserId,
-                    PurchaseOrderHeader = purchaseOrder.purchaseOrder.PurchaseOrderHeader,
-                    PurchaseOrderDelivery = purchaseOrder.purchaseOrder.PurchaseOrderDelivery,
-                    PurchaseOrderNotes = purchaseOrder.purchaseOrder.PurchaseOrderNotes,
-                    PurchaseOrderFooter = purchaseOrder.purchaseOrder.PurchaseOrderFooter,
-                    PurchaseOrderPaymentTerms = purchaseOrder.purchaseOrder.PurchaseOrderPaymentTerms,
-                    PurchaseOrderSubject = purchaseOrder.purchaseOrder.PurchaseOrderSubject,
-                    PurchaseOrderContent = purchaseOrder.purchaseOrder.PurchaseOrderContent,
-                    PurchaseOrderRemarks1 = purchaseOrder.purchaseOrder.PurchaseOrderRemarks1,
-                    PurchaseOrderRemarks2 = purchaseOrder.purchaseOrder.PurchaseOrderRemarks2,
-                    PurchaseOrderRemarks3 = purchaseOrder.purchaseOrder.PurchaseOrderRemarks3,
-                    PurchaseOrderDelivFromDate = purchaseOrder.purchaseOrder.PurchaseOrderDelivFromDate,
-                    PurchaseOrderDelivToDate = purchaseOrder.purchaseOrder.PurchaseOrderDelivToDate,
-                    PurchaseOrderDelivStatus = purchaseOrder.purchaseOrder.PurchaseOrderDelivStatus,
-                    PurchaseOrderDelivPlace = purchaseOrder.purchaseOrder.PurchaseOrderDelivPlace,
-                };
-                purchaseOrderViewModel.PurchaseOrderDetails = _mapper.Map<List<PurchaseOrderDetailsViewModel>>(purchaseOrder.purchaseOrderDetails);
-                purchaseOrderViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(purchaseOrder.accountsTransactions);
-                ApiResponse<PurchaseOrderViewModel> apiResponse = new ApiResponse<PurchaseOrderViewModel>
-                {
-                    Valid = true,
-                    Result = purchaseOrderViewModel,
-                    Message = ""
-                };
-                return apiResponse;
+                    return NotFound($"No purchase order found for id: {id}");
+                }
+                return Ok(result);
+                //return Ok(_purchaseOrderService.GetSavedPurchaseOrderDetails(id));
             }
-            return null;
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
 
         }
 

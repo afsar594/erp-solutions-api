@@ -12,8 +12,7 @@ using static Inspire.Erp.Domain.Modals.PDCResponse;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Inspire.Erp.Web.Controllers
-{
-    [Authorize]
+{   
     [Route("api/[controller]")]
     [ApiController]
     public class PDCController : ControllerBase

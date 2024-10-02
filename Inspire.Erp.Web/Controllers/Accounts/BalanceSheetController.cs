@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers.Accounts
 {
-    [Authorize]
+   
     [Route("api/[controller]")]
     [ApiController]
     public class BalanceSheetController : ControllerBase

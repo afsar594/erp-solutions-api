@@ -17,7 +17,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers.Accounts
 {
-    [Authorize]
+   
     [Route("api/JournalVoucher")]
     [Produces("application/json")]
     [ApiController]

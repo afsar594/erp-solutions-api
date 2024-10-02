@@ -24,7 +24,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers
 {
-    [Authorize]
+   
     [ApiController]
     [Route("api/JobInvoice")]
     public class JobInvoiceController : ControllerBase

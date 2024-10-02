@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers
 {
-    [Authorize]
+   
     [Route("api/CreditNote")]
     [Produces("application/json")]
     [ApiController]
