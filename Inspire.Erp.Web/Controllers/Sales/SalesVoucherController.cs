@@ -20,9 +20,11 @@ using Inspire.Erp.Application.Account;
 using Inspire.Erp.Domain.Modals.Common;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers
 {
+    [Authorize]
     [Route("api/SalesVoucher")]
     [Produces("application/json")]
     [ApiController]
@@ -657,11 +659,3 @@ namespace Inspire.Erp.Web.Controllers
         }
     }
 }
-
-
-
-
-
-
-
-
