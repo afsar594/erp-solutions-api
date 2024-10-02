@@ -17,10 +17,11 @@ using Inspire.Erp.Web.MODULE;
 
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Inspire.Erp.Application.Account.Implementations;
-
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers.Sales
 {
+    [Authorize]
     [Route("api/DeliveryNote")]
     [Produces("application/json")]
     [ApiController]

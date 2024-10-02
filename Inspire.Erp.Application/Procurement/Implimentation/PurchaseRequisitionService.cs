@@ -617,9 +617,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                       on sd.PurchaseRequisitionDetailsId equals iv.IssueVoucherDetailsReqDId into ivGroup
                                   from srq in ivGroup.DefaultIfEmpty()
                                   where per.Status == "Approved"
-                                        && !_permissionApprovalDetailRepo.GetAsQueryable()
-                                              .Where(p => p.VoucherId == sm.PurchaseRequisitionNo)
-                                              .Any(p => p.Status != "Approved")
+                                        //&& !_permissionApprovalDetailRepo.GetAsQueryable()
+                                        //      .Where(p => p.VoucherId == sm.PurchaseRequisitionNo)
+                                        //      .Any(p => p.Status == "Approved")
                                   group new { sm, sd, im, um, srq } by new
                                   {
                                       sd.PurchaseRequisitionDetailsId,
@@ -634,7 +634,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                   } into g
                                   select new PurChaseReqFields
                                   {
-                                      //ItemId = (int)g.Key.PurchaseRequisitionDetailsMatId,
+                                      matId = (int)g.Key.PurchaseRequisitionDetailsMatId,
                                       Item_Name = g.Key.ItemMasterItemName,
                                       SRID = (int)g.Key.PurchaseRequisitionId,
                                       SRDID = (int)g.Key.PurchaseRequisitionDetailsId,

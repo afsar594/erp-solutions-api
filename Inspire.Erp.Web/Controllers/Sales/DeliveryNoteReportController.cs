@@ -5,9 +5,11 @@ using System;
 using Inspire.Erp.Application.StoreWareHouse.Interface;
 using Inspire.Erp.Application.Sales.Interfaces;
 using Inspire.Erp.Domain.Modals.Common;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers.Sales
 {
+    [Authorize]
     [Route("api/DeliveryNoteReport")]
     [Produces("application/json")]
     [ApiController]

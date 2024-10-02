@@ -630,9 +630,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                     join sm in _suppliersMasterRepository.GetAsQueryable() on po.PurchaseOrderPartyId equals sm.SuppliersMasterSupplierId
                                     join im in _itemMasterRepository.GetAsQueryable() on (long)pod.PurchaseOrderDetailsMatId equals im.ItemMasterItemId
                                     where (supplierId == null || supplierId == 0 || sm.SuppliersMasterSupplierId == supplierId) && per.Status == "Approved"
-                                    && !(_permissionApprovalDetailRepo.GetAsQueryable()
-                                                                .Where(p => p.VoucherId == po.PurchaseOrderNo)
-                                                                .Any(p => p.Status != "Approved"))
+                                    //&& !(_permissionApprovalDetailRepo.GetAsQueryable()
+                                    //                            .Where(p => p.VoucherId == po.PurchaseOrderNo)
+                                    //                            .Any(p => p.Status != "Approved"))
                                     //&& po.PurchaseOrderStatus.Trim().ToUpper() == "OPEN"
                                     group new { po, pod, sm, im } by new
                                     {

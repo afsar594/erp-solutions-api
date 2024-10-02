@@ -17,9 +17,11 @@ using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Application.Account;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers
 {
+    [Authorize]
     [Route("api/PurchaseJournal")]
     [Produces("application/json")]
     [ApiController]

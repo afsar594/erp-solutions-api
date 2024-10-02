@@ -16,11 +16,11 @@ using Inspire.Erp.Web.Common;
 using Inspire.Erp.Web.MODULE;
 
 using Microsoft.AspNetCore.Mvc.Rendering;
-
-
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers
 {
+    [Authorize]
     [Route("api/SalesReturn")]
     [Produces("application/json")]
     [ApiController]
@@ -33,39 +33,6 @@ namespace Inspire.Erp.Web.Controllers
             _salesReturnService = salesReturnService;
             _mapper = mapper;
         }
-
-        //[HttpGet]
-        //[Route("SalesReturn_GetReportSalesReturn")]
-
-        //public List<ReportSalesReturn> SalesReturn_GetReportSalesReturn()
-        //{
-        //    return _mapper.Map<List<ReportSalesReturn>>(_salesReturnService.SalesReturn_GetReportSalesReturn());
-
-
-        //}
-
-
-
-        //[HttpGet]
-        //[Route("SalesReturn_GetReportSalesReturn")]
-        //public ApiResponse<List<ReportSalesReturn>> SalesReturn_GetReportSalesReturn()
-        //{
-
-
-
-        //    ApiResponse<List<ReportSalesReturn>> apiResponse = new ApiResponse<List<ReportSalesReturn>>
-        //    {
-        //        Valid = true,
-        //        Result = _mapper.Map<List<ReportSalesReturn>>(_salesReturnService.SalesReturn_GetReportSalesReturn()),
-        //        Message = ""
-        //    };
-        //    return apiResponse;
-
-
-
-
-        //}
-
 
         [HttpGet]
         [Route("GenerateVoucherNo")]
