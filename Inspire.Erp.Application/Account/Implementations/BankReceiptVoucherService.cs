@@ -115,6 +115,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                 PDC_Details_DelStatus = false,
                             });
                         }
+                        accountsTransactions[0].AccountsTransactionsAccNo = "01001003002";
 
                     }
 
@@ -257,6 +258,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                             PDC_Details_PartyAccNo = item.BankReceiptVoucherDetailsAcNo,
                             PDC_Details_DelStatus = false,
                         });
+
+                        accountsTransactions[0].AccountsTransactionsAccNo = "01001003002";
                     }
                 }
                 if (_pdcDetails != null && _pdcDetails.Count() > 0)
