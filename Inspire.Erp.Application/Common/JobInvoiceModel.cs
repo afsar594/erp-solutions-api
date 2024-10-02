@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Inspire.Erp.Application.Common
 {
-    public class JobInvoiceModel
+    public partial class JobInvoiceModel
     {
         public DateTime? Job_Invoice_Voucher_Date { get; set; }
         public string? Job_Invoice_Voucher_No { get; set; }

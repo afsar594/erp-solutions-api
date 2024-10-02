@@ -21,10 +21,11 @@ using Inspire.Erp.Application.Account;
 using Microsoft.EntityFrameworkCore;
 using Spire.Pdf.Exporting.XPS.Schema;
 using Microsoft.AspNetCore.Authorization;
+using Inspire.Erp.Web.ViewModels.sales;
 
 namespace Inspire.Erp.Web.Controllers
 {
-   
+
     [ApiController]
     [Route("api/JobInvoice")]
     public class JobInvoiceController : ControllerBase
@@ -70,35 +71,50 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpPost]
         [Route("InsertJobInvoice")]
-        public ApiResponse<JobInvoice> InsertJobInvoice([FromBody] JobInvoice JobInvoiceViewModel)
+        public async Task<ApiResponse<JobInvoiceViewModel>> InsertJobInvoice([FromBody] JobInvoiceViewModel JobInvoiceViewModel)
         {
 
             var param1 = _mapper.Map<JobInvoice>(JobInvoiceViewModel);
-            var InsertJobInvoiceViewModel = _invoice.InsertJobInvoice(param1);
+            var param2 = _mapper.Map<List<JobInvoiceDetails>>(JobInvoiceViewModel.JobInvoiceDetails);
+            var param3 = _mapper.Map<List<AccountsTransactions>>(JobInvoiceViewModel.AccountsTransactions);
+            var xs = await _invoice.InsertJobInvoice(param1, param2, param3);
+            JobInvoiceViewModel salesVoucherViewModel = new JobInvoiceViewModel
+            {
+                JobInvoiceId = xs.JobInvoice.JobInvoiceId,
+            };
 
-            ApiResponse<JobInvoice> apiResponse = new ApiResponse<JobInvoice>
+            salesVoucherViewModel.JobInvoiceDetails = _mapper.Map<List<JobInvoiceDetailsViewModel>>(xs.JobInvoiceDetails);
+            salesVoucherViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
+            ApiResponse<JobInvoiceViewModel> apiResponse = new ApiResponse<JobInvoiceViewModel>
             {
                 Valid = true,
-                Result = _mapper.Map<JobInvoice>(InsertJobInvoiceViewModel),
+                Result = _mapper.Map<JobInvoiceViewModel>(salesVoucherViewModel),
                 Message = JobInvoiceMessage.SaveJobInvoice
             };
             return apiResponse;
         }
         [HttpPost]
         [Route("UpdateJobInvoice")]
-        public ApiResponse<JobInvoice> UpdateJobInvoice([FromBody] JobInvoice JobInvoiceViewModel)
+        public async Task<ApiResponse<JobInvoiceViewModel>> UpdateJobInvoice([FromBody] JobInvoiceViewModel JobInvoiceViewModel)
         {
             var param1 = _mapper.Map<JobInvoice>(JobInvoiceViewModel);
-            var UpdateJobInvoiceViewModel = _invoice.UpdateJobInvoice(param1);
+            var param2 = _mapper.Map<List<JobInvoiceDetails>>(JobInvoiceViewModel.JobInvoiceDetails);
+            var param3 = _mapper.Map<List<AccountsTransactions>>(JobInvoiceViewModel.AccountsTransactions);
+            var xs = await _invoice.UpdateJobInvoice(param1, param2, param3);
 
+            JobInvoiceViewModel salesVoucherViewModel = new JobInvoiceViewModel
+            {
+                JobInvoiceId = xs.JobInvoice.JobInvoiceId,
+            };
 
-            ApiResponse<JobInvoice> apiResponse = new ApiResponse<JobInvoice>
+            salesVoucherViewModel.JobInvoiceDetails = _mapper.Map<List<JobInvoiceDetailsViewModel>>(xs.JobInvoiceDetails);
+            salesVoucherViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
+            ApiResponse<JobInvoiceViewModel> apiResponse = new ApiResponse<JobInvoiceViewModel>
             {
                 Valid = true,
-                Result = _mapper.Map<JobInvoice>(UpdateJobInvoiceViewModel),
+                Result = _mapper.Map<JobInvoiceViewModel>(salesVoucherViewModel),
                 Message = JobInvoiceMessage.UpdateJobInvoice
-
-            };
+            };            
             return apiResponse;
 
         }
@@ -118,16 +134,24 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("GetJobInvoiceVoucherNo/{id}")]
-        public ApiResponse<JobInvoice> GetJobInvoiceVoucherNo(string id)
+        public ApiResponse<JobInvoiceViewModel> GetJobInvoiceVoucherNo(string id)
         {
-            JobInvoice salesJournal = _invoice.GetJobInvoiceVoucherNo(id);
+            JobInvoiceModel xs = _invoice.GetJobInvoiceVoucherNo(id);
 
-            if (salesJournal != null)
+            if (xs != null)
             {
-                ApiResponse<JobInvoice> apiResponse = new ApiResponse<JobInvoice>
+
+                JobInvoiceViewModel salesVoucherViewModel = new JobInvoiceViewModel
+                {
+                    JobInvoiceId = xs.JobInvoice.JobInvoiceId,
+                    JobInvoiceVoucherNo = xs.JobInvoice.JobInvoiceVoucherNo,
+                };
+                salesVoucherViewModel.JobInvoiceDetails = _mapper.Map<List<JobInvoiceDetailsViewModel>>(xs.JobInvoiceDetails);
+                salesVoucherViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
+                ApiResponse<JobInvoiceViewModel> apiResponse = new ApiResponse<JobInvoiceViewModel>
                 {
                     Valid = true,
-                    Result = salesJournal,
+                    Result = salesVoucherViewModel,
                     Message = ""
                 };
                 return apiResponse;
