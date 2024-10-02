@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers.Sales
 {
-    [Authorize]
+   
     [Route("api/CustomerEnqirySearch")]
     [Produces("application/json")]
     [ApiController]

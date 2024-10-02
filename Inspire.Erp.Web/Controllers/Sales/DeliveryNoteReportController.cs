@@ -8,8 +8,7 @@ using Inspire.Erp.Domain.Modals.Common;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers.Sales
-{
-    [Authorize]
+{   
     [Route("api/DeliveryNoteReport")]
     [Produces("application/json")]
     [ApiController]

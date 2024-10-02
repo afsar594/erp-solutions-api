@@ -20,8 +20,7 @@ using System.Threading.Tasks;
 using Inspire.Erp.Application.Document.Interfaces;
 
 namespace Inspire.Erp.Web.Controllers.Document
-{
-    [Authorize]
+{   
     [Route("api/HrDocumentType")]
     [Produces("application/json")]
     [ApiController]

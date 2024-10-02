@@ -22,7 +22,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers
 {
-    [Authorize]
+   
     [Route("api/PurchaseReturn")]
     [Produces("application/json")]
     [ApiController]

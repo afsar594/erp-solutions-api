@@ -13,8 +13,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers
-{
-    [Authorize]
+{   
     [Route("api/TrialBalanceReport")]
     [Produces("application/json")]
     [ApiController]

@@ -18,7 +18,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Inspire.Erp.Web.Controllers
 {
-    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class PurchaseVoucherController : ControllerBase

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers.Procurement
 {
-    [Authorize]
+   
     [Route("api/PrecurementReports")]
     [Produces("application/json")]
     [ApiController]
