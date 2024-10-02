@@ -100,7 +100,7 @@ namespace Inspire.Erp.Application.Account.implementations
 
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
-                    k.AccountsTransactionsVoucherNo = JobInvoice.JobInvoiceVoucherNo;
+                    k.AccountsTransactionsVoucherNo = openingstockVoucherNumber;
                     k.AccountsTransactionsAccNo = k.AccountsTransactionsAccNo ?? string.Empty;
                     k.AccountsTransactionsVoucherType = VoucherType.SalesVoucher_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
