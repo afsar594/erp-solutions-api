@@ -19,5 +19,19 @@ namespace Inspire.Erp.Domain.Modals
 
         public long? Enquiry_Master_Status_ID { get; set; }
         public long? Enquiry_Master_SaleMan_ID { get; set; }
+
+
+        public string? Enquiry_Details_Enquiry_Details_Equiry_ID { get; set; }
+        public long? Enquiry_Details_Enquiry_Details_Item_ID { get; set; }
+        public long? Enquiry_Details_Enquiry_Details_Unit_ID { get; set; }
+        public double? Enquiry_Details_Enquiry_Details_QTY { get; set; }
+
+        public string? Enquiry_Details_Enquiry_Details_Description { get; set; }
+
+        public string? Enquiry_Details_Enquiry_Details_Material_Description { get; set; }
+
+
+
     }
 }
+   
