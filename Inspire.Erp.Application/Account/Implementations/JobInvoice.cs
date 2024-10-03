@@ -222,7 +222,7 @@ namespace Inspire.Erp.Application.Account.implementations
             {
 
                 JobInvoiceModel xs = new JobInvoiceModel();
-                xs.JobInvoice = _jobinvoicerepo.GetAsQueryable().Where(k => k.JobInvoiceVoucherNo == VNo).SingleOrDefault();
+                xs.JobInvoice = _jobinvoicerepo.GetAsQueryable().Where(k => k.JobInvoiceVoucherNo == VNo).FirstOrDefault();
                 xs.JobInvoiceDetails = _jobdetailsrepo.GetAsQueryable().Where(x => x.JobInvoiceDetailsVoucherNo == VNo && (x.JobInvoiceDetailsDelStatus == false || x.JobInvoiceDetailsDelStatus == null)).ToList();
                 xs.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(x => x.AccountsTransactionsVoucherNo == VNo && x.AccountstransactionsDelStatus != true).ToList();
                 return xs;

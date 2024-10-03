@@ -102,6 +102,7 @@ namespace Inspire.Erp.Web.Controllers
                 JobInvoiceVoucherDate = xs.JobInvoice.JobInvoiceVoucherDate,
                 JobInvoiceVatAmt = xs.JobInvoice.JobInvoiceVatAmt,
                 JobInvoiceVoucherNo = xs.JobInvoice.JobInvoiceVoucherNo,
+                Invoicetype = xs.JobInvoice.Invoicetype,
             };
 
             salesVoucherViewModel.JobInvoiceDetails = _mapper.Map<List<JobInvoiceDetailsViewModel>>(xs.JobInvoiceDetails);
@@ -147,6 +148,7 @@ namespace Inspire.Erp.Web.Controllers
                 JobInvoiceVoucherDate = xs.JobInvoice.JobInvoiceVoucherDate,
                 JobInvoiceVatAmt = xs.JobInvoice.JobInvoiceVatAmt,
                 JobInvoiceVoucherNo = xs.JobInvoice.JobInvoiceVoucherNo,
+                Invoicetype = xs.JobInvoice.Invoicetype,
             };
 
             salesVoucherViewModel.JobInvoiceDetails = _mapper.Map<List<JobInvoiceDetailsViewModel>>(xs.JobInvoiceDetails);
@@ -156,7 +158,7 @@ namespace Inspire.Erp.Web.Controllers
                 Valid = true,
                 Result = _mapper.Map<JobInvoiceViewModel>(salesVoucherViewModel),
                 Message = JobInvoiceMessage.UpdateJobInvoice
-            };            
+            };
             return apiResponse;
 
         }
@@ -186,7 +188,28 @@ namespace Inspire.Erp.Web.Controllers
                 JobInvoiceViewModel salesVoucherViewModel = new JobInvoiceViewModel
                 {
                     JobInvoiceId = xs.JobInvoice.JobInvoiceId,
+                    JobInvoiceCurrencyId = xs.JobInvoice.JobInvoiceCurrencyId,
+                    JobInvoiceCustomerId = xs.JobInvoice.JobInvoiceCustomerId,
+                    JobInvoiceCustomerName = xs.JobInvoice.JobInvoiceCustomerName,
+                    JobInvoiceDelStatus = xs.JobInvoice.JobInvoiceDelStatus,
+                    JobInvoiceDiscount = xs.JobInvoice.JobInvoiceDiscount,
+                    JobInvoiceFcRate = xs.JobInvoice.JobInvoiceFcRate,
+                    JobInvoiceFsno = xs.JobInvoice.JobInvoiceFsno,
+                    JobInvoiceLocationId = xs.JobInvoice.JobInvoiceLocationId,
+                    JobInvoiceGrossAmount = xs.JobInvoice.JobInvoiceGrossAmount,
+                    JobInvoiceLpoDate = xs.JobInvoice.JobInvoiceLpoDate,
+                    JobInvoiceNetAmount = xs.JobInvoice.JobInvoiceNetAmount,
+                    JobInvoiceLpoNo = xs.JobInvoice.JobInvoiceLpoNo,
+                    JobInvoiceJobId = xs.JobInvoice.JobInvoiceJobId,
+                    JobInvoiceRemarks = xs.JobInvoice.JobInvoiceRemarks,
+                    JobInvoiceSalesAccount = xs.JobInvoice.JobInvoiceSalesAccount,
+                    JobInvoiceSalesManId = xs.JobInvoice.JobInvoiceSalesManId,
+                    JobInvoiceUserId = xs.JobInvoice.JobInvoiceUserId,
+                    JobInvoiceVat = xs.JobInvoice.JobInvoiceVat,
+                    JobInvoiceVoucherDate = xs.JobInvoice.JobInvoiceVoucherDate,
+                    JobInvoiceVatAmt = xs.JobInvoice.JobInvoiceVatAmt,
                     JobInvoiceVoucherNo = xs.JobInvoice.JobInvoiceVoucherNo,
+                    Invoicetype = xs.JobInvoice.Invoicetype,
                 };
                 salesVoucherViewModel.JobInvoiceDetails = _mapper.Map<List<JobInvoiceDetailsViewModel>>(xs.JobInvoiceDetails);
                 salesVoucherViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
