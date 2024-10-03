@@ -102,7 +102,7 @@ namespace Inspire.Erp.Application.Account.implementations
                 {
                     k.AccountsTransactionsVoucherNo = openingstockVoucherNumber;
                     k.AccountsTransactionsAccNo = k.AccountsTransactionsAccNo ?? string.Empty;
-                    k.AccountsTransactionsVoucherType = VoucherType.SalesVoucher_TYPE;
+                    k.AccountsTransactionsVoucherType = VoucherType.JobInoviceVoucher_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
                 }).ToList();
@@ -152,7 +152,7 @@ namespace Inspire.Erp.Application.Account.implementations
                 {
                     k.AccountsTransactionsVoucherNo = JobInvoice.JobInvoiceVoucherNo;
                     k.AccountsTransactionsAccNo = k.AccountsTransactionsAccNo ?? string.Empty;
-                    k.AccountsTransactionsVoucherType = VoucherType.SalesVoucher_TYPE;
+                    k.AccountsTransactionsVoucherType = VoucherType.JobInoviceVoucher_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
                 }).ToList();
