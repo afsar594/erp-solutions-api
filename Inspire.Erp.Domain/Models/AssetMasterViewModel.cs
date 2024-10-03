@@ -35,10 +35,7 @@ namespace Inspire.Erp.Domain.Models
     public class AssetGroupEditViewModel
     {
         public int AssetId { get; set; }
-       
         public string GroupName { get; set; }
-
-        
     }
 
 
