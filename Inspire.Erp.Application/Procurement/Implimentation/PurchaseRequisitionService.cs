@@ -433,10 +433,25 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         {
             PurchaseRequisitionModel purchaseRequisitionModel = new PurchaseRequisitionModel();
 
-            purchaseRequisitionModel.purchaseRequisition = _purchaseRequisitionRepository.GetAsQueryable().Where(k => k.PurchaseRequisitionNo == pvno).SingleOrDefault();
+            purchaseRequisitionModel.purchaseRequisition = _purchaseRequisitionRepository.GetAsQueryable().Where(k => k.PurchaseRequisitionNo == pvno).FirstOrDefault();
 
-            purchaseRequisitionModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.PurchaseRequisition_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
-            purchaseRequisitionModel.purchaseRequisitionDetails = _purchaseRequisitionDetailsRepository.GetAsQueryable().Where(x => x.PurchaseRequisitionDetailsNo == pvno && (x.PurchaseRequisitionDetailsDelStatus == false || x.PurchaseRequisitionDetailsDelStatus == null)).ToList();
+            purchaseRequisitionModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.PurchaseRequisition_TYPE && (c.AccountstransactionsDelStatus != true)).ToList();
+            purchaseRequisitionModel.purchaseRequisitionDetails = _purchaseRequisitionDetailsRepository.GetAsQueryable().Where(x => x.PurchaseRequisitionDetailsNo == pvno && (x.PurchaseRequisitionDetailsDelStatus != true)).ToList();
+
+            var approvals = _permissionApprovalDetailRepo.GetAsQueryable().AsNoTracking().Where(a => a.VoucherId == pvno).ToList();
+            if (approvals.Count > 0)
+            {
+                if(approvals.Any(a=>a.Status.Contains("Approved")))
+                {
+                    purchaseRequisitionModel.purchaseRequisition.PurchaseRequisitionApproveEnable = true;
+                    purchaseRequisitionModel.purchaseRequisition.PurchaseRequisitionApprovedBy = approvals[0].ApprovedBy;
+                }
+                else
+                {
+                    purchaseRequisitionModel.purchaseRequisition.PurchaseRequisitionApproveEnable = false;
+                    purchaseRequisitionModel.purchaseRequisition.PurchaseRequisitionApprovedBy = approvals[0].ApprovedBy ?? 1;
+                }
+            }
             return purchaseRequisitionModel;
 
         }
@@ -621,9 +636,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                       on sd.PurchaseRequisitionDetailsId equals iv.IssueVoucherDetailsReqDId into ivGroup
                                   from srq in ivGroup.DefaultIfEmpty()
                                   where per.Status == "Approved"
-                                        //&& !_permissionApprovalDetailRepo.GetAsQueryable()
-                                        //      .Where(p => p.VoucherId == sm.PurchaseRequisitionNo)
-                                        //      .Any(p => p.Status == "Approved")
+                                  //&& !_permissionApprovalDetailRepo.GetAsQueryable()
+                                  //      .Where(p => p.VoucherId == sm.PurchaseRequisitionNo)
+                                  //      .Any(p => p.Status == "Approved")
                                   group new { sm, sd, im, um, srq } by new
                                   {
                                       sd.PurchaseRequisitionDetailsId,

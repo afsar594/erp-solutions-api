@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -54,7 +55,7 @@ namespace Inspire.Erp.Domain.Entities
         public DateTime? PurchaseRequisitionDetailsReqDate { get; set; }
         public string PurchaseRequisitionDetailsReqStatus { get; set; }
 
-         public int? PurchaseRequisitionApprovedBy { get; set; }
+        public int? PurchaseRequisitionApprovedBy { get; set; }
         public DateTime? PurchaseRequisitionApprovedDate { get; set; }
         public decimal? PurchaseRequisitionFcRate { get; set; }
         public int? PurchaseRequisitionPurchaseRequestId { get; set; }
@@ -69,6 +70,8 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? PurchaseRequisitionVatPer { get; set; }
         public string PurchaseRequisitionVatRoundSign { get; set; }
         public decimal? PurchaseRequisitionVatRountAmt { get; set; }
+        [NotMapped]
+        public bool PurchaseRequisitionApproveEnable { get; set; }
         public virtual ICollection<PurchaseRequisitionDetails> PurchaseRequisitionDetails { get; set; }
     }
 }

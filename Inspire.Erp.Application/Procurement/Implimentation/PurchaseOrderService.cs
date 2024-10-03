@@ -467,15 +467,15 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             var approvals = _permissionApprovalDetailRepo.GetAsQueryable().AsNoTracking().Where(a => a.VoucherId == pvno).Select(x => new { x.Status, x.ApprovedBy }).ToList();
             if (approvals.Count > 0)
             {
-                if (approvals.Any(a => a.Status == "Pending"))
+                if (approvals.Any(a => a.Status == "Approved"))
                 {
                     purchaseOrderModel.purchaseOrder.PurchaseOrderApproveUserId = approvals[0].ApprovedBy;
-                    purchaseOrderModel.purchaseOrder.PurchaseOrderApproveEnable = false;
+                    purchaseOrderModel.purchaseOrder.PurchaseOrderApproveEnable = true;
                 }
                 else
                 {
                     purchaseOrderModel.purchaseOrder.PurchaseOrderApproveUserId = approvals[0].ApprovedBy;
-                    purchaseOrderModel.purchaseOrder.PurchaseOrderApproveEnable = true;
+                    purchaseOrderModel.purchaseOrder.PurchaseOrderApproveEnable = false;
                 }
             }
 

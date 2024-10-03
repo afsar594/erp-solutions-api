@@ -327,7 +327,8 @@ namespace Inspire.Erp.Web.Controllers
                     PurchaseRequisitionIssueId = purchaseRequisition.purchaseRequisition.PurchaseRequisitionIssueId,
                     PurchaseRequisitionJobDirectPur = purchaseRequisition.purchaseRequisition.PurchaseRequisitionJobDirectPur,
                     PurchaseRequisitionDelStatus = purchaseRequisition.purchaseRequisition.PurchaseRequisitionDelStatus,
-
+                    PurchaseRequisitionApprovedBy=purchaseRequisition.purchaseRequisition.PurchaseRequisitionApprovedBy,
+                    PurchaseRequisitionApproveEnable=purchaseRequisition.purchaseRequisition.PurchaseRequisitionApproveEnable
 
                 };
                 purchaseRequisitionViewModel.PurchaseRequisitionDetails = _mapper.Map<List<PurchaseRequisitionDetailsViewModel>>(purchaseRequisition.purchaseRequisitionDetails);
