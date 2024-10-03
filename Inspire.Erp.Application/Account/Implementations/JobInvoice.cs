@@ -102,8 +102,10 @@ namespace Inspire.Erp.Application.Account.implementations
                 {
                     k.AccountsTransactionsVoucherNo = openingstockVoucherNumber;
                     k.AccountsTransactionsAccNo = k.AccountsTransactionsAccNo ?? string.Empty;
-                    k.AccountsTransactionsVoucherType = VoucherType.SalesVoucher_TYPE;
+                    k.AccountsTransactionsVoucherType = VoucherType.JobInoviceVoucher_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
+                    k.AccountsTransactionsTransDate = JobInvoice.JobInvoiceVoucherDate;
+                    k.AccountsTransactionsLocation = JobInvoice.JobInvoiceLocationId ?? 0;
                     return k;
                 }).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
@@ -152,8 +154,10 @@ namespace Inspire.Erp.Application.Account.implementations
                 {
                     k.AccountsTransactionsVoucherNo = JobInvoice.JobInvoiceVoucherNo;
                     k.AccountsTransactionsAccNo = k.AccountsTransactionsAccNo ?? string.Empty;
-                    k.AccountsTransactionsVoucherType = VoucherType.SalesVoucher_TYPE;
+                    k.AccountsTransactionsVoucherType = VoucherType.JobInoviceVoucher_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
+                    k.AccountsTransactionsTransDate = JobInvoice.JobInvoiceVoucherDate;
+                    k.AccountsTransactionsLocation = JobInvoice.JobInvoiceLocationId ?? 0;
                     return k;
                 }).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
