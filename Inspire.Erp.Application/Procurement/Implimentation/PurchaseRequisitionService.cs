@@ -599,8 +599,12 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 if (model.JobId > 0)
                 {
                     query = query.Where(a => a.PurchaseRequisitionJobId == model.JobId);
-
                 }
+                if (model.IsDateChecked)
+                {
+                    query = query.Where(a => a.PurchaseRequisitionDate.Date >= model.fromDate.Value && a.PurchaseRequisitionDate.Date <= model.toDate.Value);
+                }
+
                 var check = _context.tbl_approvalforms.AsNoTracking().Where(a => a.Voucher_Type.Trim() == "Purchase Requisition" && a.is_active == true).ToList();
 
                 if (check.Count > 0)
