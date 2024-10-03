@@ -17,8 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Inspire.Erp.Web.Controllers
-{
-    [Authorize]
+{    
     [Route("api")]
     [Produces("application/json")]
     [ApiController]
