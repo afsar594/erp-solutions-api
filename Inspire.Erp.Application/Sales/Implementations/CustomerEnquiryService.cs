@@ -347,8 +347,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     reportDetails = await (from ce in _customerEnquiryRepository.GetAsQueryable()
                         .Where(a => (filter.CustomerId == null || a.EnquiryMasterSalesManId == filter.CustomerId)
                                    && (filter.StatusId == null || a.EnquiryMasterEnquiryStatusId == filter.StatusId)
-                                   && (filter.fromDate == null || a.EnquiryMasterEnquiryDate >= filter.fromDate)
-                                   && (filter.toDate == null || a.EnquiryMasterEnquiryDate < filter.toDate))
+                                   && (filter.fromDate == null || a.EnquiryMasterEnquiryDate.Value.Date>= filter.fromDate.Value)
+                                   && (filter.toDate == null || a.EnquiryMasterEnquiryDate.Value.Date <= filter.toDate.Value))
                                            join lm in _locationMasterRepository.GetAsQueryable() on ce.EnquiryMasterLocationId equals (long)lm.LocationMasterLocationId into lmGroup
                                            from lm in lmGroup.DefaultIfEmpty()
                                            join cm in _customerMasterRepository.GetAsQueryable() on ce.EnquiryMasterSalesManId equals cm.CustomerMasterCustomerNo into cmGroup
