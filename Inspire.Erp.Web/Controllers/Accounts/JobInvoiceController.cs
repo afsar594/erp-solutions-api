@@ -162,7 +162,7 @@ namespace Inspire.Erp.Web.Controllers
             return apiResponse;
 
         }
-        [HttpDelete]
+        [HttpGet]
         [Route("DeleteJobInvoice")]
         public IActionResult DeleteJobInvoice(string Id)
         {

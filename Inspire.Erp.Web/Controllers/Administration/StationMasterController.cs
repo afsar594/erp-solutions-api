@@ -84,7 +84,7 @@ namespace Inspire.Erp.Web.Controllers.Administration
         {
             return Ok(await stationMasterService.InsertStationMaster(stationMaster));
         }
-        [HttpPatch]
+        [HttpPost]
         [Route("UpdateStationMaster")]
         public async Task<IActionResult> UpdateStationMaster(StationMaster stationMaster)
         {
