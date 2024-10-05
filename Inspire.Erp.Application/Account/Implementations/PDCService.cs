@@ -56,32 +56,9 @@ namespace Inspire.Erp.Application.Account.Implementation
             try
             {
                 //C  or // R
-                 
-             //var result = await (from pdc in _pdcDetails.GetAsQueryable()
-             //       join acc in _MasterAccountsTableRepo.GetAsQueryable()
-             //       on pdc.PDC_Details_Bank_Account_No equals acc.MaAccNo
-             //       where pdc.PDC_Details_Cheque_Status == chequeStatus
-             //       select new PDCPostedList
-             //       {
-             //           BAccNo = acc.MaAccName, // Assuming AccountName is the field in Accounts table
-             //           CAmount = pdc.PDC_Details_Cheque_Amount,
-             //           CBName = pdc.PDC_Details_Cheque_Bank_Name,
-             //           CNO = pdc.PDC_Details_Cheque_No,
-             //           PartyName = pdc.PDC_Details_PartyAccNo,
-             //           PDate = pdc.PDC_Details_PDC_Date,
-             //           PID = pdc.PDC_Details_ID,
-             //           POSTDt = pdc.PDC_Details_PDC_Voucher_Date,
-             //           TDate = pdc.PDC_Details_Trans_Date,
-             //           VNO = pdc.PDC_Details_V_No,
-             //           VType = pdc.PDC_Details_V_Type,
-             //           PDCVNO = pdc.PDC_Details_V_No,
-             //           Tran_Type = pdc.PDC_Details_Trans_Type,
-             //           ChequeStatus = pdc.PDC_Details_Cheque_Status,
-             //       }).ToListAsync();
-
                 var result = await (from pdc in _pdcDetails.GetAsQueryable()
                                     join acc in _MasterAccountsTableRepo.GetAsQueryable()
-                                    on pdc.PDC_Details_Bank_Account_No equals acc.MaAccNo into accGroup
+                                    on pdc.PDC_Details_PartyAccNo equals acc.MaAccNo into accGroup
                                     from acc in accGroup.DefaultIfEmpty()
                                     where pdc.PDC_Details_Cheque_Status == chequeStatus
                                     select new PDCPostedList
@@ -102,7 +79,6 @@ namespace Inspire.Erp.Application.Account.Implementation
                                         ChequeStatus = pdc.PDC_Details_Cheque_Status,
                                     }).ToListAsync();
 
-
                 return result;
             }
             catch (Exception ex)
@@ -117,7 +93,7 @@ namespace Inspire.Erp.Application.Account.Implementation
                 //NC
                 var result = await _pdcDetails.GetAsQueryable().Where(x => x.PDC_Details_Cheque_Status == "NC").Select(x => new PDCGetList
                 {
-                    BAccNo = x.PDC_Details_Bank_Account_No,
+                    BAccNo = !string.IsNullOrEmpty(x.PDC_Details_Bank_Account_No)? _MasterAccountsTableRepo.GetAsQueryable().FirstOrDefault(c => c.MaAccNo == x.PDC_Details_Bank_Account_No).MaAccName :"",
                     CAmount = x.PDC_Details_Cheque_Amount,
                     CBName = x.PDC_Details_Cheque_Bank_Name,
                     CNO = x.PDC_Details_Cheque_No,
@@ -177,13 +153,12 @@ namespace Inspire.Erp.Application.Account.Implementation
         {
             try
             {
-                string s = "EXEC getFilteredPDCList @postDate='" + obj.postDate+ "',@dateFrom='" + obj.dateFrom + "'" +
-     ",@dateTo='" + obj.dateTo + "',@pdcType='" + obj.pdcType + "',@keyWords='" +
-     "" + obj.keyWords[0] + "',@searchType='" + obj.searchType + "'";
+     //           string s = "EXEC getFilteredPDCList @postDate='" + obj.postDate+ "',@dateFrom='" + obj.dateFrom + "'" +
+     //",@dateTo='" + obj.dateTo + "',@pdcType='" + obj.pdcType + "',@keyWords='" +
+     //"" + obj.keyWords[0] + "',@searchType='" + obj.searchType + "'";
                
                  var result = await _pdcDetails.GetAsQueryable()
                     .Where(x => 
-                                  (x.PDC_Details_PDC_Date>=obj.dateFrom  && x.PDC_Details_PDC_Date <= obj.dateTo) &&
                     //(obj.keyWords != null && obj.keyWords.Count >0 && !string.IsNullOrEmpty(obj.keyWords[0]) ? x.PDC_Details_Bank_Account_No.Contains(obj.keyWords[0]):true) && 
                     (!string.IsNullOrEmpty(obj.pdcType) ? x.PDC_Details_Trans_Type== obj.pdcType :true) && x.PDC_Details_Cheque_Status == "NC")
                     .Select(x => new PDCGetList

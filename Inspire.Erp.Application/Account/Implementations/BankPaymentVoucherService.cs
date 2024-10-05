@@ -94,7 +94,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                 PDC_Details_Cheque_No = item.BankPaymentVoucherDetailsChequeNo == null ? "" : item.BankPaymentVoucherDetailsChequeNo.ToString(),
                                 PDC_Details_Cheque_Amount = item.BankPaymentVoucherDetailsDrAmount,
                                 PDC_Details_FC_Cheque_Amount = item.BankPaymentVoucherDetailsDrAmount,
-                                PDC_Details_Bank_Account_No = item.BankPaymentVoucherDetailsAcNo,
+                                PDC_Details_Bank_Account_No = bankPaymentVoucher.BankPaymentVoucherCrAcNo,
                                 PDC_Details_Cheque_Bank_Name = "",
                                 PDC_Details_Cheque_Status = "NC",
                                 PDC_Details_PDC_Voucher_ID = null,
@@ -410,7 +410,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                             PDC_Details_Cheque_No = item.BankPaymentVoucherDetailsChequeNo == null ? "" : item.BankPaymentVoucherDetailsChequeNo.ToString(),
                             PDC_Details_Cheque_Amount = item.BankPaymentVoucherDetailsDrAmount,
                             PDC_Details_FC_Cheque_Amount = item.BankPaymentVoucherDetailsDrAmount,
-                            PDC_Details_Bank_Account_No = item.BankPaymentVoucherDetailsAcNo,
+                            PDC_Details_Bank_Account_No = bankPaymentVoucher.BankPaymentVoucherCrAcNo,
                             PDC_Details_Cheque_Bank_Name = "",
                             PDC_Details_Cheque_Status = "NC",
                             PDC_Details_PDC_Voucher_ID = null,
@@ -425,11 +425,9 @@ namespace Inspire.Erp.Application.Account.Implementations
                             PDC_Details_PartyAccNo = item.BankPaymentVoucherDetailsAcNo,
                             PDC_Details_DelStatus = false,
                         });
+                        accountsTransactions[0].AccountsTransactionsAccNo = "03001001003";
+
                     }
-
-
-                    accountsTransactions[0].AccountsTransactionsAccNo = "03001001003";
-
                 }
                 if (_pdcDetails != null && _pdcDetails.Count() > 0)
                 {
