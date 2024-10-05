@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers
 {
-    [Authorize]
+    
     [Route("api/[controller]")]
     [ApiController]
     public class GRNController : ControllerBase

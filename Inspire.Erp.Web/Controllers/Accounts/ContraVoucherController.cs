@@ -16,8 +16,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers
-{
-    [Authorize]
+{   
     [Route("api/ContraVoucher")]
     [Produces("application/json")]
     [ApiController]

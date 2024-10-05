@@ -155,8 +155,12 @@ namespace Inspire.Erp.Web.Common
             CreateMap<TaxMaster, TaxMasterViewModel>();
             CreateMap<TaxMasterViewModel, TaxMaster>();
 
+            CreateMap<JobInvoice, JobInvoiceViewModel>();
+            CreateMap<JobInvoiceViewModel, JobInvoice>();
 
-
+            CreateMap<JobInvoiceDetails, JobInvoiceDetailsViewModel>();
+            CreateMap<JobInvoiceDetailsViewModel, JobInvoiceDetails>();
+            
 
             //**********************************Masters ending **********
             //**********************************Accounts ****************

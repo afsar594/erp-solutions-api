@@ -24,8 +24,7 @@ using NPOI.SS.UserModel;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers.Procurement
-{
-    [Authorize]
+{    
     [Route("api/PurchaseOrder")]
     [Produces("application/json")]
     [ApiController]
@@ -51,7 +50,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             itemrepository = _itemrepository; unitrepository = _unitrepository; _purchaseOrderRepository = purchaseOrderRepository; _purOrderRegisterRepository = purOrderRegisterRepository;
             _purchaseOrderDetailsRepository = purchaseOrderDetailsRepository; jobrepository = _jobrepository; locationrepository = _locationrepository; currencyrepository = _currencyrepository;
         }
-        
+
         [HttpGet]
         [Route("GetAllUserFile")]
 
@@ -161,6 +160,24 @@ namespace Inspire.Erp.Web.Controllers.Procurement
 
         [HttpGet]
         [Route("GetSavedPurchaseOrderDetails/{id}")]
+        //public IActionResult GetSavedPurchaseOrderDetails(string id)
+        //{
+        //    try
+        //    {
+        //        var result = _purchaseOrderService.GetSavedPurchaseOrderDetails(id);
+        //        if (result == null)
+        //        {
+        //            return NotFound($"No purchase order found for id: {id}");
+        //        }
+        //        return Ok(result);
+        //        //return Ok(_purchaseOrderService.GetSavedPurchaseOrderDetails(id));
+        //    }
+        //    catch (System.Exception ex)
+        //    {
+        //        return StatusCode(500, ex.Message);
+        //    }
+
+        //}
         public ApiResponse<PurchaseOrderViewModel> GetSavedPurchaseOrderDetails(string id)
         {
             PurchaseOrderModel purchaseOrder = _purchaseOrderService.GetSavedPurchaseOrderDetails(id);
@@ -249,6 +266,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             return null;
 
         }
+
 
         [HttpGet]
         [Route("CheckVnoExist/{id}")]

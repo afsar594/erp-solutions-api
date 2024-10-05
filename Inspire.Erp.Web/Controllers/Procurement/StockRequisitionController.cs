@@ -21,8 +21,7 @@ using Inspire.Erp.Domain.Modals.Common;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers
-{
-    [Authorize]
+{   
     [Route("api/StockRequisition")]
     [Produces("application/json")]
     [ApiController]

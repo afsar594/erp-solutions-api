@@ -12,8 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers.Administration
-{
-    [Authorize]
+{    
     [Route("api/master")]
     [Produces("application/json")]
     [ApiController]
@@ -85,7 +84,7 @@ namespace Inspire.Erp.Web.Controllers.Administration
         {
             return Ok(await stationMasterService.InsertStationMaster(stationMaster));
         }
-        [HttpPut]
+        [HttpPost]
         [Route("UpdateStationMaster")]
         public async Task<IActionResult> UpdateStationMaster(StationMaster stationMaster)
         {

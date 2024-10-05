@@ -17,8 +17,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers.Procurement
-{
-    [Authorize]
+{    
     [Route("api/PurchassOrderTracking")]
     [Produces("application/json")]
     [ApiController]

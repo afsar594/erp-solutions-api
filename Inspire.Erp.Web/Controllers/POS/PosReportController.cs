@@ -16,7 +16,6 @@ using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers.POS
 {
-    [Authorize]
     [Route("api/pos/item")]
     [Produces("application/json")]
     [ApiController]

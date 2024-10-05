@@ -10,8 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace Inspire.Erp.Web.Controllers.MISReportsControllers
-{
-    [Authorize]
+{   
     [Route("api/AvIssueVoucher")]
     [Produces("application/json")]
     [ApiController]

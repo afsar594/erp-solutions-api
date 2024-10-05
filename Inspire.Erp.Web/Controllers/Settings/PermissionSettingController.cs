@@ -8,8 +8,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers.Settings
-{
-    [Authorize]
+{   
     [Route("api/PermissionSetting")]
     [ApiController]
     [Produces("application/json")]

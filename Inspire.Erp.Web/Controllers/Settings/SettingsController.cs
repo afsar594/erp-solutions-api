@@ -14,8 +14,7 @@ using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers.Settings
-{
-    [Authorize]
+{  
     [Route("api/settings")]
     [Produces("application/json")]
     [ApiController]

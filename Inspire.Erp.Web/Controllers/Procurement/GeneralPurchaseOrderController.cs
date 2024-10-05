@@ -18,8 +18,7 @@ using Inspire.Erp.Application.Procurement.Implementation;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers.Procurement
-{
-    [Authorize]
+{   
     [Route("api/GeneralPurchaseOrder")]
     [Produces("application/json")]
     [ApiController]

@@ -12,8 +12,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers
-{
-    [Authorize]
+{    
     [ApiController]
     [Route("api/ProformaInvoice")]
     public class ProformaInvoiceController : ControllerBase

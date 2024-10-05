@@ -76,7 +76,6 @@ namespace Inspire.Erp.Web.Controllers.Store
 
             IssueVoucherViewModel issueVoucherViewModel = new IssueVoucherViewModel
             {
-
                 IssueVoucherId = xs.issueVoucher.IssueVoucherId,
                 IssueVoucherNo = xs.issueVoucher.IssueVoucherNo,
                 IssueVoucherDate = xs.issueVoucher.IssueVoucherDate,
@@ -122,8 +121,6 @@ namespace Inspire.Erp.Web.Controllers.Store
                 IssueVoucherBufferPurNo = xs.issueVoucher.IssueVoucherBufferPurNo,
                 IssueVoucherBufferReqNo = xs.issueVoucher.IssueVoucherBufferReqNo,
                 IssueVoucherDelStatus = xs.issueVoucher.IssueVoucherDelStatus,
-
-
             };
 
             issueVoucherViewModel.IssueVoucherDetails = _mapper.Map<List<IssueVoucherDetailsViewModel>>(xs.issueVoucherDetails);
@@ -134,9 +131,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 Result = _mapper.Map<IssueVoucherViewModel>(issueVoucherViewModel),
                 Message = IssueVoucherMessage.SaveVoucher
             };
-
             return apiResponse;
-
         }
 
         [HttpPost]
@@ -148,12 +143,11 @@ namespace Inspire.Erp.Web.Controllers.Store
             var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
             param3 = new List<AccountsTransactions>();
             List<StockRegister> param4 = new List<StockRegister>();
-            // clsAccountAndStock.IssueVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
-
+            
             var xs = _issueVoucherService.UpdateIssueVoucher(param1, param3, param2
            , param4
            );
-            //========================
+         
             IssueVoucherViewModel issueVoucherViewModel = new IssueVoucherViewModel
             {
                 IssueVoucherId = xs.issueVoucher.IssueVoucherId,
@@ -212,9 +206,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 Result = _mapper.Map<IssueVoucherViewModel>(issueVoucherViewModel),
                 Message = IssueVoucherMessage.UpdateVoucher
             };
-
             return apiResponse;
-
         }
 
         [HttpPost]
@@ -225,15 +217,12 @@ namespace Inspire.Erp.Web.Controllers.Store
             var param2 = _mapper.Map<List<IssueVoucherDetails>>(voucherCompositeView.IssueVoucherDetails);
             var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
             param3 = new List<AccountsTransactions>();
-            List<StockRegister> param4 = new List<StockRegister>();
-            //clsAccountAndStock.IssueVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
+            List<StockRegister> param4 = new List<StockRegister>();            
 
             var xs = _issueVoucherService.DeleteIssueVoucher(param1, param3, param2
            , param4
            );
-            //========================
-
-
+            
             ApiResponse<int> apiResponse = new ApiResponse<int>
             {
                 Valid = true,
@@ -242,19 +231,12 @@ namespace Inspire.Erp.Web.Controllers.Store
             };
 
             return apiResponse;
-
         }
-
-
-
 
         [HttpGet]
         [Route("GetAllAccountTransaction")]
         public ApiResponse<List<AccountsTransactions>> GetAllAccountTransaction()
         {
-
-
-
             ApiResponse<List<AccountsTransactions>> apiResponse = new ApiResponse<List<AccountsTransactions>>
             {
                 Valid = true,
@@ -262,15 +244,12 @@ namespace Inspire.Erp.Web.Controllers.Store
                 Message = ""
             };
             return apiResponse;
-
         }
 
         [HttpGet]
         [Route("GetIssueVoucher")]
         public ApiResponse<List<IssueVoucher>> GetAllIssueVoucher()
         {
-
-
             ApiResponse<List<IssueVoucher>> apiResponse = new ApiResponse<List<IssueVoucher>>
             {
                 Valid = true,
@@ -278,10 +257,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 Message = ""
             };
             return apiResponse;
-
-
         }
-
         [HttpGet]
         [Route("GetSavedIssueVoucherDetails/{id}")]
         public ApiResponse<IssueVoucherViewModel> GetSavedIssueVoucherDetails(string id)
@@ -292,8 +268,6 @@ namespace Inspire.Erp.Web.Controllers.Store
             {
                 IssueVoucherViewModel issueVoucherViewModel = new IssueVoucherViewModel
                 {
-
-
                     IssueVoucherId = issueVoucher.issueVoucher.IssueVoucherId,
                     IssueVoucherNo = issueVoucher.issueVoucher.IssueVoucherNo,
                     IssueVoucherDate = issueVoucher.issueVoucher.IssueVoucherDate,
@@ -339,8 +313,6 @@ namespace Inspire.Erp.Web.Controllers.Store
                     IssueVoucherBufferPurNo = issueVoucher.issueVoucher.IssueVoucherBufferPurNo,
                     IssueVoucherBufferReqNo = issueVoucher.issueVoucher.IssueVoucherBufferReqNo,
                     IssueVoucherDelStatus = issueVoucher.issueVoucher.IssueVoucherDelStatus,
-
-
                 };
                 issueVoucherViewModel.IssueVoucherDetails = _mapper.Map<List<IssueVoucherDetailsViewModel>>(issueVoucher.issueVoucherDetails);
                 issueVoucherViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(issueVoucher.accountsTransactions);
@@ -353,12 +325,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 return apiResponse;
             }
             return null;
-
-
-
         }
-
-
 
         [HttpGet]
         [Route("CheckVnoExist/{id}")]
@@ -369,9 +336,6 @@ namespace Inspire.Erp.Web.Controllers.Store
                 Valid = true,
                 Result = true,
                 Message = IssueVoucherMessage.VoucherNumberExist
-
-
-
             };
             var x = _issueVoucherService.GetVouchersNumbers(id);
             if (x == null)
@@ -379,7 +343,6 @@ namespace Inspire.Erp.Web.Controllers.Store
                 apiResponse.Result = false;
                 apiResponse.Message = "";
             }
-
             return apiResponse;
         }
 
