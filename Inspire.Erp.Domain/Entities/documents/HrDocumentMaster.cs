@@ -45,6 +45,7 @@ namespace Inspire.Erp.Domain.Entities.documents
         public string DocNo { get; set; }
         public string Remarks { get; set; }
         public DateTime IssueDate { get; set; }
+        public DateTime ExpDate { get; set; }        
         public string? DocImage { get; set; }
         public bool? Status { get; set; }
         public string DocumentvoucherNo { get; set; }
