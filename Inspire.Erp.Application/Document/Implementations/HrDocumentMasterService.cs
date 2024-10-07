@@ -208,6 +208,7 @@ namespace Inspire.Erp.Application.Document.Implementations
                             DocName = ss.DocName ?? "",
                             Remarks = ss.Remarks ?? "",
                             IssueDate = Convert.ToDateTime(ss.IssueDate),
+                            ExpDate= (DateTime)ss.ExpDate,
                             DocumentvoucherNo = ss.DocumentvoucherNo ?? "",
                             DocNo = ss.DocNo
                         }).ToList();
