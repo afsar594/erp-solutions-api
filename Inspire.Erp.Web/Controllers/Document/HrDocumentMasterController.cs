@@ -66,7 +66,7 @@ namespace Inspire.Erp.Web.Controllers.Document
 
         [HttpPost]
         [Route("UpdateDocumentMaster")]
-        public ApiResponse<DocumentMaster> UpdateHrDocumentType([FromBody] DocumentMaster DocumentMaster)
+        public ApiResponse<DocumentMaster> UpdateHrDocumentMaster([FromBody] DocumentMaster DocumentMaster)
         {
             var UpdateDocumentMasterl = hrDocumentMasterService.UpdateHrDocumentMaster(DocumentMaster);
 
