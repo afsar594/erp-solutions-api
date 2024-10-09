@@ -7,6 +7,7 @@ using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Models;
 using Inspire.Erp.Domain.Models.Procurement.PurchaseOrderTracking;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NPOI.OpenXmlFormats.Spreadsheet;
@@ -16,7 +17,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers.Procurement
-{
+{    
     [Route("api/PurchassOrderTracking")]
     [Produces("application/json")]
     [ApiController]

@@ -14,8 +14,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers.Accounts
-{
-    [Authorize]
+{   
     [Route("api/[controller]")]
     [ApiController]
     public class AccountController : ControllerBase

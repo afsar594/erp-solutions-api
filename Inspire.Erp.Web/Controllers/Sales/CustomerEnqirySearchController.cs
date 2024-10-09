@@ -1,11 +1,13 @@
 ﻿using Inspire.Erp.Application.Sales.Interfaces;
 using Inspire.Erp.Domain.Modals.Common;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers.Sales
 {
+   
     [Route("api/CustomerEnqirySearch")]
     [Produces("application/json")]
     [ApiController]

@@ -51,49 +51,27 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<SalesManMaster> _salesManMasterRepository;
         private IRepository<DepartmentMaster> _departmentMasterRepository;
         private IRepository<UnitDetails> _UnitDetailsRepository;
-
-
         private IRepository<SalesReturn> _salesReturn;
         private IRepository<SalesReturnDetails> _salesReturnDtls;
         private IRepository<OptionsMaster> _optionMaster;
         private InspireErpDBContext _context;
-
-
-        /// <summary>
-        /// Master accounts
-        /// </summary>
-        private IRepository<MasterAccountsTable> accMaster;
-
-        //private IRepository<POS_Sales_Voucher> _posSalesVoucherRepository;
-        //private IRepository<POS_Sales_Voucher_Details> _posSalesVoucherDetailsRepository;
-
-
-
+        private IRepository<MasterAccountsTable> accMaster;      
         private IRepository<SalesHold> _salesHoldRepository;
         private IRepository<SalesHoldDetails> _salesHoldDetailsRepository;
-
         private IRepository<POS_WorkPeriod> _POSWorkPeriodRepository;
         private IRepository<UserTracking> _UserTracking;
-
-
         private IStockService _openingStockService;
-
-
-        //private IRepository<ReportSalesVoucher> _reportSalesVoucherRepository;
         public SalesVoucherService(
-            IRepository<UserTracking> UserTracking,
-            //IRepository<ReportSalesVoucher> reportSalesVoucherRepository,
+            IRepository<UserTracking> UserTracking,            
             IRepository<CustomerMaster> customerMasterRepository,
             IRepository<SalesManMaster> salesManMasterRepository,
             IRepository<DepartmentMaster> departmentMasterRepository,
             IRepository<ItemMaster> itemMasterRepository, IRepository<UnitMaster> unitMasterRepository,
             IRepository<SuppliersMaster> suppliersMasterRepository, IRepository<LocationMaster> locationMasterRepository,
-
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<Domain.Entities.ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger, IRepository<AccountSettings> accountsSettingssvcsRepository,
-
-            IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository, IRepository<CurrencyMaster> currencyMasterRepository, IRepository<UnitDetails> unitDetailsRepository, IRepository<MasterAccountsTable> accMaster, IRepository<SalesReturn> salesReturn, IRepository<SalesReturnDetails> salesReturnDtls, IRepository<OptionsMaster> optionMaster
-            //IRepository<POS_Sales_Voucher> posSalesVoucherRepository, IRepository<POS_Sales_Voucher_Details> posSalesVoucherDetailsRepository
+            IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository, IRepository<CurrencyMaster> currencyMasterRepository, 
+            IRepository<UnitDetails> unitDetailsRepository, IRepository<MasterAccountsTable> accMaster, IRepository<SalesReturn> salesReturn, IRepository<SalesReturnDetails> salesReturnDtls, IRepository<OptionsMaster> optionMaster            
             , IRepository<SalesHold> salesHoldRepository, IRepository<SalesHoldDetails> salesHoldDetailsRepository, IRepository<POS_WorkPeriod> POSWorkPeriodRepository, InspireErpDBContext context
             , IStockService openingStockService)
         {
@@ -115,17 +93,13 @@ namespace Inspire.Erp.Application.Sales.Implementations
             this.accMaster = accMaster; _accountsSettingssvcs = accountsSettingssvcsRepository;
             _salesReturn = salesReturn;
             _salesReturnDtls = salesReturnDtls;
-            _optionMaster = optionMaster;
-            //_posSalesVoucherDetailsRepository = posSalesVoucherDetailsRepository;
-            //_posSalesVoucherRepository = posSalesVoucherRepository;
-
+            _optionMaster = optionMaster;           
             _salesHoldRepository = salesHoldRepository;
             _salesHoldDetailsRepository = salesHoldDetailsRepository;
             _POSWorkPeriodRepository = POSWorkPeriodRepository;
             _UserTracking = UserTracking;
             _context = context;
-            _openingStockService = openingStockService;
-            //_reportSalesVoucherRepository = reportSalesVoucherRepository;
+            _openingStockService = openingStockService;          
         }      
         public IEnumerable<LocationMaster> SalesVoucher_GetAllLocationMaster()
         {

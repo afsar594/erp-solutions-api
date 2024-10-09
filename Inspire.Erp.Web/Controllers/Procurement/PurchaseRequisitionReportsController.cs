@@ -3,6 +3,7 @@ using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -12,6 +13,7 @@ using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers.Procurement
 {
+    
     [Route("api/PurchaseRequisitionReports")]
     [Produces("application/json")]
     [ApiController]

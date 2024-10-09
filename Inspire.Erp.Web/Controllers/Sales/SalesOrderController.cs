@@ -17,12 +17,12 @@ using Inspire.Erp.Web.MODULE;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Inspire.Erp.WebReport.ReportEngine;
 using Inspire.Erp.Domain.Modals.Sales;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers
 {
     [Route("api/SalesOrder")]
-    [Produces("application/json")]
-    [ApiController]
+    [Produces("application/json")]    
     public class SalesOrderController : ControllerBase
     {
         private ICustomerPurchaseOrderService _salesOrderService;
@@ -32,20 +32,7 @@ namespace Inspire.Erp.Web.Controllers
             _salesOrderService = salesOrderService;
             _mapper = mapper;
         }
-        //[HttpGet]
-        //[Route("GetSalesOrderDetailsByMasterNo")]
-        //public IActionResult GetSalesOrderDetailsByMasterNo(string SalesOrderNo)
-        //{
-        //    try
-        //    {
-        //        var item = _salesOrderService.GetSalesOrderDetailsByMasterNo(SalesOrderNo);
-        //        return Ok(item);
-        //    }
-        //    catch (System.Exception ex)
-        //    {
-        //        return StatusCode(500, ex.Message.ToString());
-        //    }
-        //}
+
         [HttpPost]
         [Route("InsertSalesOrder")]
         public ApiResponse<CustomerPurchaseOrderViewModel> InsertSalesOrder([FromBody] CustomerPurchaseOrderViewModel voucherCompositeView)
@@ -236,18 +223,6 @@ namespace Inspire.Erp.Web.Controllers
             return apiResponse;
 
         }
-        //[HttpGet]
-        //[Route("GetAllAccountTransaction")]
-        //public ApiResponse<List<AccountsTransactions>> GetAllAccountTransaction()
-        //{
-        //    ApiResponse<List<AccountsTransactions>> apiResponse = new ApiResponse<List<AccountsTransactions>>
-        //    {
-        //        Valid = true,
-        //        Result = _mapper.Map<List<AccountsTransactions>>(_salesOrderService.GetAllTransaction()),
-        //        Message = ""
-        //    };
-        //    return apiResponse;
-        //}
 
         [HttpGet]
         [Route("GetAllSalesOrder")]
@@ -321,31 +296,7 @@ namespace Inspire.Erp.Web.Controllers
             }
             return null;
 
-
-
         }
-        //[HttpGet]
-        //[Route("CheckVnoExist/{id}")]
-        //public ApiResponse<bool> CheckVnoExist(string id)
-        //{
-        //    ApiResponse<bool> apiResponse = new ApiResponse<bool>
-        //    {
-        //        Valid = true,
-        //        Result = true,
-        //        Message = SalesOrderMessage.VoucherNumberExist
-
-
-
-        //    };
-        //    var x = _salesOrderService.GetVouchersNumbers(id);
-        //    if (x == null)
-        //    {
-        //        apiResponse.Result = false;
-        //        apiResponse.Message = "";
-        //    }
-
-        //    return apiResponse;
-        //}
 
 
         [HttpPost]

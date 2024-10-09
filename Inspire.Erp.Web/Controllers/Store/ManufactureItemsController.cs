@@ -1,22 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using Inspire.Erp.Application.Store.Interfaces;
-using Inspire.Erp.Application.Common;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Web.Common;
-using Inspire.Erp.Web.ViewModels.Store;
-using Inspire.Erp.Web.ViewModels;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Inspire.Erp.Web.MODULE;
-using Inspire.Erp.Application.Store.implementations;
-using Microsoft.VisualStudio.Web.CodeGeneration.Contracts.Messaging;
-using Inspire.Erp.Domain.Entities.POS;
+using System.Collections.Generic;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -102,8 +90,7 @@ namespace Inspire.Erp.Web.Controllers
             {
                 ApiResponse<List<ManufactureItemsMaster>> apiResponse = new ApiResponse<List<ManufactureItemsMaster>>
                 {
-                    Valid = true,
-                   // Result = '',
+                    Valid = true,                   
                     Message = ManufactureItemMessage.DeleteManufactureItem
                 };
                 return apiResponse;

@@ -13,4 +13,11 @@ namespace Inspire.Erp.Application.Common
         public List<SalesVoucherDetails> salesVoucherDetails { get; set; }
         public List<StockRegister> stockRegister { get; set; }
     }
+    public partial class JobInvoiceModel
+    {
+        public JobInvoice JobInvoice { get; set; }
+        public List<AccountsTransactions> accountsTransactions { get; set; }
+
+        public List<JobInvoiceDetails> JobInvoiceDetails { get; set; }        
+    }
 }

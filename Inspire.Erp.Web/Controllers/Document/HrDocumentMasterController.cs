@@ -21,8 +21,7 @@ using Inspire.Erp.Application.Document.Interfaces;
 using Inspire.Erp.Domain.Modals.Stock;
 using NPOI.SS.Formula.Functions;
 namespace Inspire.Erp.Web.Controllers.Document
-{
-    [Authorize]
+{   
     [ApiController]
     [Route("api/HrDocumentMaster")]
     public class HrDocumentMasterController : ControllerBase
@@ -67,7 +66,7 @@ namespace Inspire.Erp.Web.Controllers.Document
 
         [HttpPost]
         [Route("UpdateDocumentMaster")]
-        public ApiResponse<DocumentMaster> UpdateHrDocumentType([FromBody] DocumentMaster DocumentMaster)
+        public ApiResponse<DocumentMaster> UpdateHrDocumentMaster([FromBody] DocumentMaster DocumentMaster)
         {
             var UpdateDocumentMasterl = hrDocumentMasterService.UpdateHrDocumentMaster(DocumentMaster);
 
