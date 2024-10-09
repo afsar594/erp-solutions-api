@@ -22,6 +22,9 @@ using Microsoft.EntityFrameworkCore;
 using Spire.Pdf.Exporting.XPS.Schema;
 using Microsoft.AspNetCore.Authorization;
 using Inspire.Erp.Web.ViewModels.sales;
+using Newtonsoft.Json;
+using System.Net.Http;
+using System.Text;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -437,5 +440,55 @@ namespace Inspire.Erp.Web.Controllers
             return objresponse;
         }
 
+        [HttpPost("CallDynamicReport")]
+        public async Task<IActionResult> CallDynamicReport()
+        {
+            var objresponse = new ResponseInfo();
+
+            var requestUrl = "http://103.74.54.207:8104/api/cr/DynamicReportCall";            
+            var _httpClient = new HttpClient();
+            // Prepare the request body
+            var requestBody = new
+            {
+                reportName = "TestReport1",
+                sqlQuery = "SELECT * FROM AccountsTransactions WHERE AccountsTransactions_AccNo='01001014'",
+                reportDisplayName = "TestReport1.pdf",
+                reportParam = new[]
+                {
+                    new { name = "test", value = "AS11449" },
+                    new { name = "name", value = "Ali Abdullah" },
+                    new { name = "address", value = "KARACHI" },
+                    new { name = "cell", value = "98685790565" }
+                }
+            };
+
+            // Convert the body to JSON format
+            var jsonBody = JsonConvert.SerializeObject(requestBody);
+            var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
+
+            try
+            {
+                // Send the POST request
+                var response = await _httpClient.PostAsync(requestUrl, content);
+
+                // Check if the request was successful
+                if (response.IsSuccessStatusCode)
+                {
+                    var pdfBytes = await response.Content.ReadAsByteArrayAsync();
+
+                    // Return the PDF file as a response
+                    return File(pdfBytes, "application/pdf", "TestReport1.pdf");                    
+                }
+                else
+                {
+                    return StatusCode((int)response.StatusCode, response.ReasonPhrase);
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                // Handle any exceptions
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
     }
 }
