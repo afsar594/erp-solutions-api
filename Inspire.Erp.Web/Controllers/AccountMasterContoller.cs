@@ -24,14 +24,13 @@ namespace Inspire.Erp.Web.Controllers
             MasterAccountsTableService = _MasterAccountsTableService;
             _mapper = mapper;
         }
+
         [HttpGet]
         [Route("account/GetAllAccount")]
         public IActionResult GetAllAccount()
         {
             try
             {
-
-
                 IEnumerable<MasterAccountsTable> listItemnater = MasterAccountsTableService.GetAllAccount();
                 var x = _mapper.Map<List<MasterAccountsTableViewModel>>(listItemnater);
                 ApiResponse<List<MasterAccountsTableViewModel>> apiResponse = new ApiResponse<List<MasterAccountsTableViewModel>>
@@ -110,9 +109,7 @@ namespace Inspire.Erp.Web.Controllers
                 Result = x,
                 Message = ""
             };
-
             return apiResponse;
-
         }
 
         [HttpGet]
@@ -232,8 +229,6 @@ namespace Inspire.Erp.Web.Controllers
                     Message = AccountMasterMessage.DeleteFailed
                 };
             }
-
-
             return apiResponse;
         }
 
