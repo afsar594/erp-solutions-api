@@ -309,14 +309,17 @@ namespace Inspire.Erp.Application.Account.Implementations
                 var asset = await _asetMaster.GetAsQueryable().FirstOrDefaultAsync(x => x.AssetMasterAssetId == model.AssetId);
                 var masterAcc = _masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == asset.AssetMasterAssetAccountNo);
                 masterAcc.MaAccName = model.GroupName + " Assets";
+                _masterAccountTable.Update(masterAcc);
                 var masterAccLiab = _masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == asset.AssetMasterAssetDepLibAccount);
                 masterAccLiab.MaAccName = model.GroupName + " Liabilities";
+                _masterAccountTable.Update(masterAccLiab);
                 var masterAccExp = _masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == asset.AssetMasterAssetDepExpAccount);
                 masterAccExp.MaAccName = model.GroupName + " Expenses";
+                _masterAccountTable.Update(masterAccExp);
 
                 asset.AssetMasterAssetName = model.GroupName;
                 asset.AssetMasterAssetCode = model.GroupName.Substring(0, 2) + asset.AssetMasterAssetId;
-
+                _asetMaster.Update(asset);
                 return Response<bool>.Success(true, "Data Saved");
             }
             catch (Exception ex)
@@ -332,16 +335,21 @@ namespace Inspire.Erp.Application.Account.Implementations
                 //CREATING ASSET ACCOUNT IN CHART OF ACCOUNT
                 var asset = await _asetMaster.GetAsQueryable().FirstOrDefaultAsync(x => x.AssetMasterAssetId == model.AssetId);
                 var masterAcc = _masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == asset.AssetMasterAssetAccountNo);
-                masterAcc.MaAccName = model.GroupName +" " + "[ASSET]"; ;
+                masterAcc.MaAccName = model.GroupName +" " + "[ASSET]";
                 masterAcc.MaManualCode = model.GroupName.Substring(0, 2) + asset.AssetMasterAssetId;
+                _masterAccountTable.Update(masterAcc);
+
                 var masterAccLiab = _masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == asset.AssetMasterAssetDepLibAccount);
                 masterAccLiab.MaAccName = model.GroupName + " " + "[LIABILITY]";
+                _masterAccountTable.Update(masterAccLiab);
+
                 var masterAccExp = _masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == asset.AssetMasterAssetDepExpAccount);
                 masterAccExp.MaAccName = model.GroupName + " [EXPENSE]";
+                _masterAccountTable.Update(masterAccExp);
 
                 asset.AssetMasterAssetName = model.GroupName;
                 asset.AssetMasterAssetCode = model.GroupName.Substring(0, 2) + asset.AssetMasterAssetId;
-
+                _asetMaster.Update(asset);
                 return Response<bool>.Success(true, "Data Saved");
             }
             catch (Exception ex)
