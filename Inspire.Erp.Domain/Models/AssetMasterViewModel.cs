@@ -24,10 +24,7 @@ namespace Inspire.Erp.Domain.Models
 
         public string ParentGroupName { get; set; }
         public string GroupName { get; set; }
-
-        public string ParentRelativeNo { get; set; }
-
-       // public string ParentGroup { get; set; }
+        public int AssetGroupId { get; set; }
         public string AccountType { get; set; }
         public DateTime CreatedDate { get; set; }
     }
@@ -43,7 +40,6 @@ namespace Inspire.Erp.Domain.Models
     {
         public int AssetGroupId { get; set; }
         public string HeadName { get; set; }
-       // public string ParentRelativeNo { get; set; }
         public DateTime CreatedDate { get; set; }
     }
 }
