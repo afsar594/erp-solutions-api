@@ -486,7 +486,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     AssetMasterAssetCode = model.HeadName.Substring(0, 2) + AccNo,
                     AssetMasterAssetName = model.HeadName,
-                    AssetMasterAssetType = ItemMasterStatus.Group,
+                    AssetMasterAssetType = ItemMasterStatus.SubItem,
                     AssetMasterAssetCreatedDate = DateTime.Now,
                     AssetMasterAssetRelativeNo = Convert.ToInt32(model.AssetGroupId),
                     AssetMasterAssetAccountNo = masterAccFixed.MaAccNo,
