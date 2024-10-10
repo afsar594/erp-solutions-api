@@ -73,7 +73,8 @@ namespace Inspire.Erp.WebReport.Controllers
                 CrystalReport report = new CrystalReport();
                 string dsnFileName = !string.IsNullOrEmpty(reportFilterModel.DsnFileName) ? reportFilterModel.DsnFileName : "DSN";
                 var dbSettings = report.getDbSettingsFromJSonFle($@"{driPath }bin\{dsnFileName}.json");
-                string filePath =  $@"{driPath }Reports\{dbSettings.FolderName}\{reportFilterModel.ReportName}.rpt";
+               // string filePath =  $@"{driPath }Reports\{dbSettings.FolderName}\{reportFilterModel.ReportName}.rpt";
+                string filePath = $@"{driPath}Report\sample.rpt";
                 result = report.RenderReport(
                                                                     PathReport: filePath,
                                                                     SelectionFormula: reportFilterModel.SelectionFormula,
