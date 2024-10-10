@@ -105,8 +105,9 @@ namespace Inspire.Erp.WebReport.ReportEngine
 			//
 			try
 			{
-				crReportDocument.Load(reportPath, CrystalDecisions.Shared.OpenReportMethod.OpenReportByTempCopy);
-				SetConnectionDB(crReportDocument);
+                crReportDocument.Load(reportPath);
+                //crReportDocument.Load(reportPath, CrystalDecisions.Shared.OpenReportMethod.OpenReportByTempCopy);
+                SetConnectionDB(crReportDocument);
 			}
 			catch (Exception ex)
 			{
@@ -192,8 +193,8 @@ namespace Inspire.Erp.WebReport.ReportEngine
 				{
 					connection.SetConnection(csServerName, csDatabaseName, false);
 					connection.SetLogon(csUserID, csPassword);
-					connection.LogonProperties.Set("Data Source", csServerName);
-					connection.LogonProperties.Set("Initial Catalog", csDatabaseName);
+					//connection.LogonProperties.Set("Data Source", csServerName);
+					//connection.LogonProperties.Set("Initial Catalog", csDatabaseName);
 				}
 
 		              
@@ -413,14 +414,14 @@ namespace Inspire.Erp.WebReport.ReportEngine
 				|| (expFormatType == ExportFormatType.Excel)
 				|| (expFormatType == ExportFormatType.ExcelRecord)
 				|| (expFormatType == ExportFormatType.RichText)
-				|| (expFormatType == ExportFormatType.Text)
+				//|| (expFormatType == ExportFormatType.Text)
 				|| (expFormatType == ExportFormatType.CrystalReport)
 				|| (expFormatType == ExportFormatType.HTML32)
 				|| (expFormatType == ExportFormatType.HTML40)
 				|| (expFormatType == ExportFormatType.WordForWindows)
-				|| (expFormatType == ExportFormatType.EditableRTF)
-				|| (expFormatType == ExportFormatType.TabSeperatedText)
-				|| (expFormatType == ExportFormatType.CharacterSeparatedValues)
+				//|| (expFormatType == ExportFormatType.EditableRTF)
+				//|| (expFormatType == ExportFormatType.TabSeperatedText)
+				//|| (expFormatType == ExportFormatType.CharacterSeparatedValues)
 				)
 			{
 				// Export Format Options and Extension file
@@ -442,10 +443,10 @@ namespace Inspire.Erp.WebReport.ReportEngine
 						//
 						extensionFile = ".rtf";
 						break;
-					case ExportFormatType.Text:
-						//
-						extensionFile = ".txt";
-						break;
+					//case ExportFormatType.Text:
+					//	//
+					//	extensionFile = ".txt";
+					//	break;
 					case ExportFormatType.CrystalReport:
 						//
 						extensionFile = ".rpt";
@@ -456,17 +457,17 @@ namespace Inspire.Erp.WebReport.ReportEngine
 						//
 						extensionFile = ".txt";
 						break;
-					case ExportFormatType.CharacterSeparatedValues:
-						//
-						extensionFile = ".csv";
-						//
-						CharacterSeparatedValuesFormatOptions lCsvOp = new CharacterSeparatedValuesFormatOptions();
-						lCsvOp.PreserveDateFormatting = true;
-						lCsvOp.PreserveNumberFormatting = true;
-						lCsvOp.Delimiter = "";
-						lCsvOp.SeparatorText = ";";
-						lReportDocument.ExportOptions.FormatOptions = lCsvOp;
-						break;
+					//case ExportFormatType.CharacterSeparatedValues:
+					//	//
+					//	extensionFile = ".csv";
+					//	//
+					//	CharacterSeparatedValuesFormatOptions lCsvOp = new CharacterSeparatedValuesFormatOptions();
+					//	lCsvOp.PreserveDateFormatting = true;
+					//	lCsvOp.PreserveNumberFormatting = true;
+					//	lCsvOp.Delimiter = "";
+					//	lCsvOp.SeparatorText = ";";
+					//	lReportDocument.ExportOptions.FormatOptions = lCsvOp;
+					//	break;
 					default:
 						//
 						extensionFile = ".pdf";
@@ -567,26 +568,26 @@ namespace Inspire.Erp.WebReport.ReportEngine
 					//
 					expFormatType = ExportFormatType.RichText;
 					break;
-				case "rte":
-					//
-					expFormatType = ExportFormatType.EditableRTF;
-					break;
+				//case "rte":
+				//	//
+				//	expFormatType = ExportFormatType.EditableRTF;
+				//	break;
 				case "xlr":
 					//
 					expFormatType = ExportFormatType.ExcelRecord;
 					break;
-				case "txt":
-					//
-					expFormatType = ExportFormatType.Text;
-					break;
-				case "ttx":
-					//
-					expFormatType = ExportFormatType.TabSeperatedText;
-					break;
-				case "csv":
-					//
-					expFormatType = ExportFormatType.CharacterSeparatedValues;
-					break;
+				//case "txt":
+				//	//
+				//	expFormatType = ExportFormatType.Text;
+				//	break;
+				//case "ttx":
+				//	//
+				//	expFormatType = ExportFormatType.TabSeperatedText;
+				//	break;
+				//case "csv":
+				//	//
+				//	expFormatType = ExportFormatType.CharacterSeparatedValues;
+				//	break;
 				case "rpt":
 					//
 					expFormatType = ExportFormatType.CrystalReport;
@@ -787,9 +788,32 @@ namespace Inspire.Erp.WebReport.ReportEngine
 		}
 
 
+        public static HttpResponseMessage RenderReport(string reportPath, string reportFileName, string exportFilename)
+        {
+            var rd = new ReportDocument();
+            string path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath(reportPath), reportFileName);
+            rd.Load(path);
+            MemoryStream ms = new MemoryStream();
+            using (var stream = rd.ExportToStream(ExportFormatType.PortableDocFormat))
+            {
+                stream.CopyTo(ms);
+            }
 
-		
-		public HttpResponseMessage RenderReport(string PathReport, string SelectionFormula, string Namefile, List<Models.ReportParameters> reportParameters, DbConnectionModel dbSettings )
+            var result = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new ByteArrayContent(ms.ToArray())
+            };
+            result.Content.Headers.ContentDisposition =
+                new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
+                {
+                    FileName = exportFilename
+                };
+            result.Content.Headers.ContentType =
+                new System.Net.Http.Headers.MediaTypeHeaderValue("application/pdf");
+            return result;
+        }
+
+        public HttpResponseMessage RenderReport(string PathReport, string SelectionFormula, string Namefile, List<Models.ReportParameters> reportParameters, DbConnectionModel dbSettings )
 		{
 			ReportDocument reportDoc;
 			SetConnectionInfo(dbSettings.ServerName, dbSettings.UserName, dbSettings.Password, dbSettings.DBName, "");
