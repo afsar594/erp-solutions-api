@@ -105,8 +105,8 @@ namespace Inspire.Erp.WebReport.ReportEngine
 			//
 			try
 			{
-                crReportDocument.Load(reportPath);
-                //crReportDocument.Load(reportPath, CrystalDecisions.Shared.OpenReportMethod.OpenReportByTempCopy);
+                //crReportDocument.Load(reportPath);
+                crReportDocument.Load(reportPath, CrystalDecisions.Shared.OpenReportMethod.OpenReportByTempCopy);
                 SetConnectionDB(crReportDocument);
 			}
 			catch (Exception ex)
