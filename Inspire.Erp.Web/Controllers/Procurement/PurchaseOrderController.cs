@@ -24,7 +24,7 @@ using NPOI.SS.UserModel;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers.Procurement
-{    
+{
     [Route("api/PurchaseOrder")]
     [Produces("application/json")]
     [ApiController]
@@ -160,24 +160,6 @@ namespace Inspire.Erp.Web.Controllers.Procurement
 
         [HttpGet]
         [Route("GetSavedPurchaseOrderDetails/{id}")]
-        //public IActionResult GetSavedPurchaseOrderDetails(string id)
-        //{
-        //    try
-        //    {
-        //        var result = _purchaseOrderService.GetSavedPurchaseOrderDetails(id);
-        //        if (result == null)
-        //        {
-        //            return NotFound($"No purchase order found for id: {id}");
-        //        }
-        //        return Ok(result);
-        //        //return Ok(_purchaseOrderService.GetSavedPurchaseOrderDetails(id));
-        //    }
-        //    catch (System.Exception ex)
-        //    {
-        //        return StatusCode(500, ex.Message);
-        //    }
-
-        //}
         public ApiResponse<PurchaseOrderViewModel> GetSavedPurchaseOrderDetails(string id)
         {
             PurchaseOrderModel purchaseOrder = _purchaseOrderService.GetSavedPurchaseOrderDetails(id);
@@ -568,6 +550,40 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             {
                 _permissionApprovalDetailRepo.TransactionRollback();
                 objresponse.ErrorMessage = $"An error occurred while approving: {ex.Message}";
+            }
+            return objresponse;
+        }
+
+        [HttpGet]
+        [Route("POApprovalById")]
+        public ResponseInfo POApprovalById(string VoucherId)
+        {
+            var objresponse = new ResponseInfo();
+            try
+            {
+                var user = _context.UserFile.AsNoTracking();
+                var data = _permissionApprovalDetailRepo.GetAsQueryable().Where(a => a.VoucherId == VoucherId).Select(c => new
+                {
+                    c.Id,
+                    c.VoucherType,
+                    c.VoucherId,
+                    c.LevelId,
+                    c.VoucherDate,
+                    c.Status,
+                    c.Amount,
+                    c.Remarks,
+                    c.ModifiedDate,
+                    apprevedby = user.Where(a => a.UserId == c.ApprovedBy).Select(x => x.UserName).FirstOrDefault() ?? string.Empty,
+                    Createdby = user.Where(a => a.UserId == c.CreatedBy).Select(x => x.UserName).FirstOrDefault() ?? string.Empty,
+
+                }).ToList();
+                objresponse.IsSuccess = true;
+                objresponse.ResultSet = data;
+            }
+            catch (Exception ex)
+            {
+                objresponse.IsSuccess = false;
+                objresponse.ErrorMessage = ex.Message ?? ex.InnerException.Message;
             }
             return objresponse;
         }
