@@ -16,13 +16,13 @@ using System.IO;
 
 namespace Inspire.Erp.Web.Controllers.Administration
 {
-    [Route("api/Upload")]
+    [Route("api/Temp")]
     [Produces("application/json")]
     [ApiController]
-    public class UploadController : ControllerBase
+    public class TempController : ControllerBase
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public UploadController(IHttpContextAccessor httpContextAccessor)
+        public TempController(IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
         }
