@@ -4,9 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
-using CrystalDecisions.Web;
-using CrystalDecisions.Shared;
-using CrystalDecisions.CrystalReports.Engine;
 
 namespace ReportService
 {
