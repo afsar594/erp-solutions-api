@@ -12445,7 +12445,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<OldBsMaster>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(c => c.OldBsMasterId);
 
                 entity.ToTable("OLD_BS_Master");
 
@@ -12473,7 +12473,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<OldBsMasterDetails>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(c => c.OldBsMasterDetailsId);
 
                 entity.ToTable("OLD_BS_Master_Details");
 
