@@ -69,31 +69,31 @@ namespace Inspire.Erp.WebReport.Controllers
             HttpResponseMessage result;
             try
             {
-                var par = new ReportParameters();
-                par.Key = "testP";
-                par.Value = "Sudhir";
-                reportFilterModel.Parameters.Add(par);
+                //var par = new ReportParameters();
+                //par.Key = "testP";
+                //par.Value = "Sudhir";
+                //reportFilterModel.Parameters.Add(par);
                 string driPath = AppDomain.CurrentDomain.BaseDirectory;
                 CrystalReport report = new CrystalReport();
                 string dsnFileName = !string.IsNullOrEmpty(reportFilterModel.DsnFileName) ? reportFilterModel.DsnFileName : "DSN";
                 var dbSettings = report.getDbSettingsFromJSonFle($@"{driPath }bin\{dsnFileName}.json");
-                //string filePath =  $@"{driPath }Reports\{dbSettings.FolderName}\{reportFilterModel.ReportName}.rpt";
+                //string filePath = $@"{driPath}Reports\{dbSettings.FolderName}\{reportFilterModel.ReportName}.rpt";
 
-                // string filePath = $@"{driPath}Reports\{reportFilterModel.ReportName}.rpt";
+                string filePath = $@"{driPath}Reports\{reportFilterModel.ReportName}.rpt";
                 //string filePath = $@"{driPath}Reports\sample.rpt";
-                //result = report.RenderReport(
-                //                                                    PathReport: filePath,
-                //                                                    SelectionFormula: reportFilterModel.SelectionFormula,
-                //                                                    Namefile: reportFilterModel.ReportName + ".pdf", reportFilterModel.Parameters,
-                //                                                    dbSettings
+                result = report.RenderReport(
+                                                                    PathReport: filePath,
+                                                                    SelectionFormula: reportFilterModel.SelectionFormula,
+                                                                    Namefile: reportFilterModel.ReportName + ".pdf", reportFilterModel.Parameters,
+                                                                    dbSettings
 
-                //   );
+                   );
 
-                string reportPath = "~/Reports";
-                string reportFileName = "sample.rpt";
-                string exportFilename = "sample.pdf";
+                //string reportPath = "~/Reports";
+                //string reportFileName = "sample.rpt";
+                //string exportFilename = "sample.pdf";
 
-                result = CrystalReport.RenderReport(reportPath, reportFileName, exportFilename);
+                //result = CrystalReport.RenderReport(reportPath, reportFileName, exportFilename);
                 return result;
             }
             catch (Exception ex)
