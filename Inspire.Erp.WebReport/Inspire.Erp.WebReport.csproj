@@ -319,6 +319,7 @@
     <Content Include="Areas\HelpPage\Views\Help\Api.cshtml" />
     <Content Include="bin\dsn.json" />
     <Content Include="reports\SalesVoucherVAT.rpt" />
+    <Content Include="reports\jobinvoice.rpt" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.4.1.js" />
     <Content Include="Scripts\jquery-3.4.1.min.js" />
