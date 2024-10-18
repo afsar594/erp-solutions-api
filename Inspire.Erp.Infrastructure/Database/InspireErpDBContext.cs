@@ -453,6 +453,9 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<DocumentMaster> DocumentMaster { get; set; }
         public virtual DbSet<HrDocumentStatusMaster> HrDocumentStatusMaster { get; set; }
         public virtual DbSet<HrDocumentType> HrDocumentType { get; set; }
+
+        // hr Staffmaster
+        public virtual DbSet<HrStaffMaster> HrStaffMasters { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -505,6 +508,20 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.DocStatus)
                     .HasMaxLength(150)
                     .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<HrStaffMaster>(e =>
+            {
+                e.HasKey(e => e.StaffId);
+                e.ToTable("HR_StaffMaster");
+                e.Property(e => e.ShiftTypeId).HasColumnName("Shift_Type_ID");
+                e.Property(e => e.TimePolcyId).HasColumnName("Time_Polcy_ID");
+                e.Property(e => e.CostCenterId).HasColumnName("CostCenter_Id");
+                e.Property(e => e.LeavePolcyId).HasColumnName("Leave_Polcy_ID");
+                //e.Property(e => e.ShiftTypeId).HasColumnName("Shift_Type_ID");
+                e.Property(e => e.OverTiPolcyId).HasColumnName("OverTI_Polcy_ID");
+                e.Property(e => e.ImgStaus).HasColumnName("IMG_Staus");
+                e.Property(e => e.WpsIban).HasColumnName("WPS_IBAN");
             });
 
             modelBuilder.Entity<HrDocumentType>(entity =>
@@ -12445,7 +12462,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<OldBsMaster>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(c => c.OldBsMasterId);
 
                 entity.ToTable("OLD_BS_Master");
 
@@ -12473,7 +12490,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<OldBsMasterDetails>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(c => c.OldBsMasterDetailsId);
 
                 entity.ToTable("OLD_BS_Master_Details");
 
