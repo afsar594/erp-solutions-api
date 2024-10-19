@@ -126,19 +126,20 @@ namespace Inspire.Erp.Application.Account.Implementations
                                              .DefaultIfEmpty()
                                              .Max(o => o == null ? 0 : o.MaSno)) + 1;
 
-                string topRelativeNo = "01";
+                string topAccNo = "01002";
+                var topAcc = _masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaAccNo.Trim() == topAccNo);
                 var AccNo = await _masterAccountTable.GetAsQueryable()
-                                           .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == topRelativeNo)
+                                           .Where(x => Convert.ToInt64(x.MaAccNo.Trim()) > 0 && x.MaRelativeNo.Trim() == topAcc.MaRelativeNo.Trim())
                                            .DefaultIfEmpty()
-                                           .MaxAsync(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length - 3, 3))) + 1;
+                                           .MaxAsync(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Trim().Substring(o.MaAccNo.Trim().Length - 3, 3))) + 1;
 
-                var topAcc = _masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaRelativeNo == topRelativeNo);
-                masterAccFixed.MaAccNo = topAcc.MaRelativeNo + String.Format("{0:00}", AccNo);
+               
+                masterAccFixed.MaAccNo = topAcc.MaRelativeNo.Trim() + String.Format("{0:00}", AccNo);
                 masterAccFixed.MaAccName = model.GroupName + " Assets";
                 masterAccFixed.MaMainHead = topAcc.MaMainHead ?? "";
                 masterAccFixed.MaSubHead = topAcc.MaSubHead ?? "";
                 masterAccFixed.MaAccType = model.AccountType;
-                masterAccFixed.MaRelativeNo = topAcc.MaAccNo;
+                masterAccFixed.MaRelativeNo = topAcc.MaAccNo.Trim();
                 masterAccFixed.MaStatus = AccountStatus.AccStatus;
 
                 if (model.AccountType == ItemMasterStatus.Group || model.AccountType == AccountMasterStatus.SubItem)
@@ -173,19 +174,20 @@ namespace Inspire.Erp.Application.Account.Implementations
                                              .Max(o => o == null ? 0 : o.MaSno)) + 1;
 
 
-                topRelativeNo = "03";
+                topAccNo = "03002";
+                topAcc = _masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaAccNo.Trim() == topAccNo);
                 AccNo = _masterAccountTable.GetAsQueryable()
-                                           .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == topRelativeNo)
+                                           .Where(x => Convert.ToInt64(x.MaAccNo.Trim()) > 0 && x.MaRelativeNo.Trim() == topAcc.MaRelativeNo.Trim())
                                            .DefaultIfEmpty()
-                                           .Max(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length - 3, 3))) + 1;
+                                           .Max(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Trim().Substring(o.MaAccNo.Trim().Length - 3, 3))) + 1;
 
-                topAcc = _masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaRelativeNo == topRelativeNo);
-                masterAccLiabilities.MaAccNo = topAcc.MaRelativeNo + String.Format("{0:00}", AccNo);
+                
+                masterAccLiabilities.MaAccNo = topAcc.MaRelativeNo.Trim() + String.Format("{0:00}", AccNo);
                 masterAccLiabilities.MaAccName = model.GroupName + " Liabilities";
                 masterAccFixed.MaMainHead = topAcc.MaMainHead ?? "";
                 masterAccFixed.MaSubHead = topAcc.MaSubHead ?? "";
                 masterAccFixed.MaAccType = model.AccountType;
-                masterAccFixed.MaRelativeNo = topAcc.MaAccNo;
+                masterAccFixed.MaRelativeNo = topAcc.MaAccNo.Trim();
                 masterAccLiabilities.MaStatus = AccountStatus.AccStatus;
 
                 if (model.AccountType == ItemMasterStatus.Group || model.AccountType == AccountMasterStatus.SubItem)
@@ -221,19 +223,20 @@ namespace Inspire.Erp.Application.Account.Implementations
                                              .Max(o => o == null ? 0 : o.MaSno)) + 1;
 
 
-                topRelativeNo = "04";
+                topAccNo = "04002";
+                topAcc = _masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaAccNo.Trim() == topAccNo);
                 AccNo = _masterAccountTable.GetAsQueryable()
-                                           .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == topRelativeNo)
+                                           .Where(x => Convert.ToInt64(x.MaAccNo.Trim()) > 0 && x.MaRelativeNo.Trim() == topAcc.MaRelativeNo.Trim())
                                            .DefaultIfEmpty()
-                                           .Max(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length - 3, 3))) + 1;
+                                           .Max(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Trim().Substring(o.MaAccNo.Trim().Length - 3, 3))) + 1;
 
-                topAcc = _masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaRelativeNo == topRelativeNo);
+
                 masterAccLiabilities.MaAccNo = topAcc.MaRelativeNo + String.Format("{0:00}", AccNo);
                 masterAccLiabilities.MaAccName = model.GroupName + " Expenses";
                 masterAccFixed.MaMainHead = topAcc.MaMainHead ?? "";
                 masterAccFixed.MaSubHead = topAcc.MaSubHead ?? "";
                 masterAccFixed.MaAccType = model.AccountType;
-                masterAccFixed.MaRelativeNo = topAcc.MaAccNo;
+                masterAccFixed.MaRelativeNo = topAcc.MaAccNo.Trim();
                 masterAccLiabilities.MaStatus = AccountStatus.AccStatus;
                 if (model.AccountType == ItemMasterStatus.Group || model.AccountType == AccountMasterStatus.SubItem)
                 {
@@ -275,8 +278,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                     AssetMasterAssetCreatedDate = DateTime.Now,
                     AssetMasterAssetRelativeNo = model.AssetGroupId,
                     AssetMasterAssetAccountNo = masterAccFixed.MaAccNo,
-                    AssetMasterAssetDepExpAccount = masterAccLiabilities.MaAccNo,
-                    AssetMasterAssetDepLibAccount = masterAccExpenses.MaAccNo,
+                    AssetMasterAssetDepExpAccount = masterAccExpenses.MaAccNo,
+                    AssetMasterAssetDepLibAccount = masterAccLiabilities.MaAccNo,
                 };
                 _asetMaster.Insert(assetMaster);
 
