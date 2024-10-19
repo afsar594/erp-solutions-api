@@ -10,6 +10,8 @@ using Inspire.Erp.Application.Administration.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Inspire.Erp.Domain.Modals.Common;
 
 namespace Inspire.Erp.Web.Controllers.Administration
 {    
@@ -21,12 +23,14 @@ namespace Inspire.Erp.Web.Controllers.Administration
         private readonly IMapper _mapper;
         private IStationMasterServices stationMasterService;
         private IPosStationSettingsServices PosStationSettingsServices;
-        public StationMasterController(IStationMasterServices _stationMasterService, IMapper mapper, IPosStationSettingsServices posStationSettingsServices)
+        private IRepository<ReportName> ReportNamerepository;
+        public StationMasterController(IStationMasterServices _stationMasterService,IRepository<ReportName> _reportNameRepository, IMapper mapper, IPosStationSettingsServices posStationSettingsServices)
         {
 
             stationMasterService = _stationMasterService;
             _mapper = mapper;
             PosStationSettingsServices = posStationSettingsServices;
+            ReportNamerepository = _reportNameRepository;
         }
         [HttpGet]
         [Route("GetAllStation")]
@@ -129,5 +133,20 @@ namespace Inspire.Erp.Web.Controllers.Administration
         {
             return Ok(await PosStationSettingsServices.DeleteCounter(Id));
         }
+
+        [HttpGet]
+        [Route("GetReportName/{id}")]
+        public ResponseInfo GetReportName(int id)
+        {
+            var data = new ResponseInfo();
+            var name = ReportNamerepository.GetAsQueryable().Where(i => i.id == id).FirstOrDefault();
+            data.ResultSet = new
+            {
+                result = name
+            };
+            return data;
+        }
+
+
     }
 }

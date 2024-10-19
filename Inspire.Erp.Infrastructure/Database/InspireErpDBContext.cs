@@ -454,6 +454,7 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<HrDocumentStatusMaster> HrDocumentStatusMaster { get; set; }
         public virtual DbSet<HrDocumentType> HrDocumentType { get; set; }
 
+        public DbSet<ReportName> ReportName { get; set; }
         // hr Staffmaster
         public virtual DbSet<HrStaffMaster> HrStaffMasters { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -469,8 +470,8 @@ namespace Inspire.Erp.Infrastructure.Database
             modelBuilder.Entity<DocumentMaster>(entity =>
             {
                 entity.HasKey(e => e.DocumentId);
-                entity.ToTable("HR_DocumentMaster");     
-                
+                entity.ToTable("HR_DocumentMaster");
+
                 entity.Property(e => e.DocImage).HasColumnName("DocImage");
 
                 entity.Property(e => e.DocName)
@@ -485,11 +486,11 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.MasterType)
                     .IsRequired()
                     .HasMaxLength(10)
-                    .IsFixedLength();                
+                    .IsFixedLength();
                 entity.Property(e => e.Remarks)
                     .IsRequired()
                     .HasMaxLength(250)
-                    .IsUnicode(false);                
+                    .IsUnicode(false);
                 entity.Property(e => e.Status).HasColumnName("status");
                 entity.Property(e => e.DocumentvoucherNo)
                   .HasMaxLength(50)
@@ -497,6 +498,12 @@ namespace Inspire.Erp.Infrastructure.Database
 
 
             });
+
+            modelBuilder.Entity<ReportName>(entity =>
+            {
+                entity.ToTable("Report_Name");
+            });
+
             modelBuilder.Entity<HrDocumentStatusMaster>(entity =>
             {
                 entity.HasKey(e => e.DocStatusId);
@@ -606,7 +613,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.Task).HasMaxLength(50);
             });
 
-            modelBuilder.Entity<Erp.Domain.Entities. AssetSubListHeader>(entity =>
+            modelBuilder.Entity<Erp.Domain.Entities.AssetSubListHeader>(entity =>
             {
                 entity.ToTable("AssetSubListHeader");
                 entity.HasKey(e => e.VoucherNo);
@@ -1241,7 +1248,7 @@ namespace Inspire.Erp.Infrastructure.Database
                     .IsUnicode(false);
             });
 
-          
+
             modelBuilder.Entity<AutoCodes>(entity =>
             {
                 entity.HasNoKey();
@@ -6167,8 +6174,8 @@ namespace Inspire.Erp.Infrastructure.Database
                       .IsUnicode(false);
 
                 entity.Property(e => e.CustomerQuotationNote).HasColumnName("Customer_Quotation_Note");
-                     
-                    
+
+
 
                 entity.Property(e => e.CustomerQuotationWarranty)
                       .HasColumnName("Customer_Quotation_Warranty")
@@ -9935,7 +9942,7 @@ namespace Inspire.Erp.Infrastructure.Database
                     .IsUnicode(false);
 
                 entity.Property(e => e.Invoicetype).HasColumnName("Invoicetype");
-                
+
             });
 
             modelBuilder.Entity<JobInvoiceDetails>(entity =>
@@ -13332,7 +13339,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.LevelId)
                       .HasColumnName("LevelId");
-                
+
                 entity.Property(e => e.Username)
                       .HasColumnName("Username")
                         .IsUnicode(false);
@@ -20869,10 +20876,10 @@ namespace Inspire.Erp.Infrastructure.Database
                .HasMaxLength(100)
                .IsUnicode(false);
 
-               entity.Property(e => e.logotype)
-              .HasColumnName("logotype")
-              .HasMaxLength(100)
-              .IsUnicode(false);
+                entity.Property(e => e.logotype)
+               .HasColumnName("logotype")
+               .HasMaxLength(100)
+               .IsUnicode(false);
             });
 
             modelBuilder.Entity<StockAdjustment>(entity =>
@@ -21624,7 +21631,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.StockTransferId).HasColumnName("Stock_Transfer_ID");
 
                 entity.Property(e => e.StockTransferDetailsUnitId).HasColumnName("Stock_Transfer_Details_Unit_ID");
-                entity.Property(e => e.StockTransferDetailsCostPrice).HasColumnName("StockTransferDetailsCostPrice");               
+                entity.Property(e => e.StockTransferDetailsCostPrice).HasColumnName("StockTransferDetailsCostPrice");
 
                 entity.HasOne(d => d.StockTransferDetailsNoNavigation)
                    .WithMany(p => p.StockTransferDetails)
