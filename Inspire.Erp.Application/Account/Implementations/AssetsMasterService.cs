@@ -488,8 +488,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                     AssetMasterAssetCreatedDate = DateTime.Now,
                     AssetMasterAssetRelativeNo = Convert.ToInt32(model.AssetGroupId),
                     AssetMasterAssetAccountNo = masterAccFixed.MaAccNo,
-                    AssetMasterAssetDepExpAccount = masterAccLiabilities.MaAccNo,
-                    AssetMasterAssetDepLibAccount = masterAccExpenses.MaAccNo,
+                    AssetMasterAssetDepExpAccount = masterAccExpenses.MaAccNo,
+                    AssetMasterAssetDepLibAccount = masterAccLiabilities.MaAccNo,
                 };
 
                 _asetMaster.Insert(assetMaster);
