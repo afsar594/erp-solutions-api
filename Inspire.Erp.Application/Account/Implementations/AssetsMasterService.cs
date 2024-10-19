@@ -126,22 +126,19 @@ namespace Inspire.Erp.Application.Account.Implementations
                                              .DefaultIfEmpty()
                                              .Max(o => o == null ? 0 : o.MaSno)) + 1;
 
-                masterAccFixed.MaRelativeNo = "01";
+                string topRelativeNo = "01";
                 var AccNo = await _masterAccountTable.GetAsQueryable()
-                                           .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == masterAccFixed.MaRelativeNo)
+                                           .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == topRelativeNo)
                                            .DefaultIfEmpty()
                                            .MaxAsync(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length - 3, 3))) + 1;
 
-                masterAccFixed.MaAccNo = masterAccFixed.MaRelativeNo + String.Format("{0:00}", AccNo);
+                var topAcc = _masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaRelativeNo == topRelativeNo);
+                masterAccFixed.MaAccNo = topAcc.MaRelativeNo + String.Format("{0:00}", AccNo);
                 masterAccFixed.MaAccName = model.GroupName + " Assets";
-
-                var mainHead = _masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == masterAccFixed.MaRelativeNo).MaMainHead;
-                var subHead = _masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == masterAccFixed.MaRelativeNo).MaSubHead;
-
-                masterAccFixed.MaMainHead = mainHead ?? "";
-                masterAccFixed.MaSubHead = subHead ?? "";
+                masterAccFixed.MaMainHead = topAcc.MaMainHead ?? "";
+                masterAccFixed.MaSubHead = topAcc.MaSubHead ?? "";
                 masterAccFixed.MaAccType = model.AccountType;
-
+                masterAccFixed.MaRelativeNo = topAcc.MaAccNo;
                 masterAccFixed.MaStatus = AccountStatus.AccStatus;
 
                 if (model.AccountType == ItemMasterStatus.Group || model.AccountType == AccountMasterStatus.SubItem)
@@ -176,22 +173,19 @@ namespace Inspire.Erp.Application.Account.Implementations
                                              .Max(o => o == null ? 0 : o.MaSno)) + 1;
 
 
-                masterAccLiabilities.MaRelativeNo = "03";
+                topRelativeNo = "03";
                 AccNo = _masterAccountTable.GetAsQueryable()
-                                           .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == masterAccLiabilities.MaRelativeNo)
+                                           .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == topRelativeNo)
                                            .DefaultIfEmpty()
                                            .Max(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length - 3, 3))) + 1;
 
-                masterAccLiabilities.MaAccNo = masterAccLiabilities.MaRelativeNo + String.Format("{0:00}", AccNo);
+                topAcc = _masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaRelativeNo == topRelativeNo);
+                masterAccLiabilities.MaAccNo = topAcc.MaRelativeNo + String.Format("{0:00}", AccNo);
                 masterAccLiabilities.MaAccName = model.GroupName + " Liabilities";
-
-                mainHead = _masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == masterAccLiabilities.MaRelativeNo).MaMainHead;
-                subHead = _masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == masterAccLiabilities.MaRelativeNo).MaSubHead;
-
-                masterAccLiabilities.MaMainHead = mainHead ?? "";
-                masterAccLiabilities.MaSubHead = subHead ?? "";
-                masterAccLiabilities.MaAccType = model.AccountType;
-
+                masterAccFixed.MaMainHead = topAcc.MaMainHead ?? "";
+                masterAccFixed.MaSubHead = topAcc.MaSubHead ?? "";
+                masterAccFixed.MaAccType = model.AccountType;
+                masterAccFixed.MaRelativeNo = topAcc.MaAccNo;
                 masterAccLiabilities.MaStatus = AccountStatus.AccStatus;
 
                 if (model.AccountType == ItemMasterStatus.Group || model.AccountType == AccountMasterStatus.SubItem)
@@ -227,24 +221,20 @@ namespace Inspire.Erp.Application.Account.Implementations
                                              .Max(o => o == null ? 0 : o.MaSno)) + 1;
 
 
-                masterAccExpenses.MaRelativeNo = "04";
+                topRelativeNo = "04";
                 AccNo = _masterAccountTable.GetAsQueryable()
-                                           .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == masterAccExpenses.MaRelativeNo)
+                                           .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == topRelativeNo)
                                            .DefaultIfEmpty()
                                            .Max(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length - 3, 3))) + 1;
 
-                masterAccExpenses.MaAccNo = masterAccExpenses.MaRelativeNo + String.Format("{0:00}", AccNo);
-                masterAccExpenses.MaAccName = model.GroupName + " Expenses";
-
-                mainHead = _masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == masterAccExpenses.MaRelativeNo).MaMainHead;
-                subHead = _masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == masterAccExpenses.MaRelativeNo).MaSubHead;
-
-                masterAccExpenses.MaMainHead = mainHead ?? "";
-                masterAccExpenses.MaSubHead = subHead ?? "";
-                masterAccExpenses.MaAccType = model.AccountType;
-
-                masterAccExpenses.MaStatus = AccountStatus.AccStatus;
-
+                topAcc = _masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaRelativeNo == topRelativeNo);
+                masterAccLiabilities.MaAccNo = topAcc.MaRelativeNo + String.Format("{0:00}", AccNo);
+                masterAccLiabilities.MaAccName = model.GroupName + " Expenses";
+                masterAccFixed.MaMainHead = topAcc.MaMainHead ?? "";
+                masterAccFixed.MaSubHead = topAcc.MaSubHead ?? "";
+                masterAccFixed.MaAccType = model.AccountType;
+                masterAccFixed.MaRelativeNo = topAcc.MaAccNo;
+                masterAccLiabilities.MaStatus = AccountStatus.AccStatus;
                 if (model.AccountType == ItemMasterStatus.Group || model.AccountType == AccountMasterStatus.SubItem)
                 {
 
@@ -374,7 +364,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                              .DefaultIfEmpty()
                                              .Max(o => o == null ? 0 : o.MaSno)) + 1;
 
-                masterAccFixed.MaRelativeNo = masterAcc.MaRelativeNo;
+                masterAccFixed.MaRelativeNo = masterAcc.MaAccNo;
                 var AccNo = await _masterAccountTable.GetAsQueryable()
                                            .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == masterAccFixed.MaRelativeNo)
                                            .DefaultIfEmpty()
@@ -421,7 +411,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                              .Max(o => o == null ? 0 : o.MaSno)) + 1;
 
 
-                masterAccLiabilities.MaRelativeNo =masterAccLiab.MaRelativeNo;
+                masterAccLiabilities.MaRelativeNo =masterAccLiab.MaAccNo;
                 AccNo = await _masterAccountTable.GetAsQueryable()
                                            .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == masterAccLiabilities.MaRelativeNo)
                                            .DefaultIfEmpty()
@@ -459,7 +449,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                              .Max(o => o == null ? 0 : o.MaSno)) + 1;
 
 
-                masterAccExpenses.MaRelativeNo = masterAccExp.MaRelativeNo;
+                masterAccExpenses.MaRelativeNo = masterAccExp.MaAccNo;
                 AccNo = await _masterAccountTable.GetAsQueryable()
                                            .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == masterAccExpenses.MaRelativeNo)
                                            .DefaultIfEmpty()
