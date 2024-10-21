@@ -253,7 +253,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _assetopening.BeginTransaction();
 
 
-                clsCommonFunctions.Delete_OldEntry_AccountsTransactions(assetPurchaseVoucher.AssetPurchaseVoucherNo, VoucherType.AssetPurchaseVoucher_TYPE, _accountTransactionRepository);
+                //clsCommonFunctions.Delete_OldEntry_AccountsTransactions(assetPurchaseVoucher.AssetPurchaseVoucherNo, VoucherType.AssetPurchaseVoucher_TYPE, _accountTransactionRepository);
              
                 _assetopening.Update(assetPurchaseVoucher);
              
@@ -271,6 +271,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 }).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 _assetopening.Update(assetPurchaseVoucher);
+                _assetopeningDetail.UpdateList(assetPurchaseVoucher.AssetPurchaseVoucherDetails.ToList());
                 _assetopening.TransactionCommit();
 
             }
@@ -291,7 +292,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _assetopening.BeginTransaction();
 
 
-                clsCommonFunctions.Delete_OldEntry_AccountsTransactions(assetPurchaseVoucher.AssetPurchaseVoucherNo, VoucherType.AssetPurchaseVoucher_TYPE, _accountTransactionRepository);
+                //clsCommonFunctions.Delete_OldEntry_AccountsTransactions(assetPurchaseVoucher.AssetPurchaseVoucherNo, VoucherType.AssetPurchaseVoucher_TYPE, _accountTransactionRepository);
 
                 assetPurchaseVoucher.AssetPurchaseVoucherDelStatus = true;
 
@@ -332,7 +333,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             AssetPurchaseVoucherModel customerPurchaseOrderModel = new AssetPurchaseVoucherModel();
             customerPurchaseOrderModel.assetPurchaseVoucher = _assetopening.GetAsQueryable().Include(x=>x.AssetPurchaseVoucherDetails).Where(k => k.AssetPurchaseVoucherNo == pvno).SingleOrDefault();
             customerPurchaseOrderModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.CustomerPurchaseOrder_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
-            //customerPurchaseOrderModel.assetPurchaseVoucher.AssetPurchaseVoucherDetails = _assetopeningDetail.GetAsQueryable().Where(x => x.AssetPurchaseDetailsVoucherNo == pvno && (x.AssetPurchaseVoucherDetailsDelStatus == false || x.AssetPurchaseVoucherDetailsDelStatus == null)).ToList();
+            customerPurchaseOrderModel.assetPurchaseVoucher.AssetPurchaseVoucherDetails = _assetopeningDetail.GetAsQueryable().Where(x => x.AssetPurchaseDetailsVoucherNo == pvno && (x.AssetPurchaseVoucherDetailsDelStatus == false || x.AssetPurchaseVoucherDetailsDelStatus == null)).ToList();
             return customerPurchaseOrderModel;
         }
         public IEnumerable<AssetPurchaseVoucher> GetAssetPurchaseVouchers()
