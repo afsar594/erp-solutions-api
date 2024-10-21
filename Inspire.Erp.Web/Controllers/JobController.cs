@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using AutoMapper;
 using Inspire.Erp.Application.Account;
@@ -29,14 +30,23 @@ namespace Inspire.Erp.Web.Controllers
         private readonly IMapper _mapper;
         private IJobMasterService jobMasterService;
         private IFileService fileService;
-        private IRepository<CurrencyMaster> currencyrepository; private IRepository<CountryMaster> countryrepository;
-        private IChartofAccountsService chartofAccountsService; private IRepository<SalesManMaster> salesmanrepository;
-        private IRepository<CustomerMaster> _customerMasterRepository; private IRepository<ProjectDescriptionMaster> ProjectDescriptionrepository;
+        private IRepository<CurrencyMaster> currencyrepository; 
+        private IRepository<CountryMaster> countryrepository;
+        private IChartofAccountsService chartofAccountsService;
+        private IRepository<SalesManMaster> salesmanrepository;
+        private IRepository<CustomerMaster> _customerMasterRepository;
+        private IRepository<ProjectDescriptionMaster> ProjectDescriptionrepository;
         private IRepository<BankGuaranteeMaster> bankGuaranteerepository;
+        private IRepository<CostCenterMaster> costcanterrepository;
         public JobController(IJobMasterService _jobMasterService, IMapper mapper,
-             IRepository<CurrencyMaster> _currencyrepository, IRepository<ProjectDescriptionMaster> _ProjectDescriptionrepository
-            , IChartofAccountsService _chartofAccountsService, IRepository<BankGuaranteeMaster> _bankGuaranteerepository, IRepository<SalesManMaster> _salesmanrepository, IRepository<CustomerMaster> customerMasterRepository
-            ,IFileService _fileService
+             IRepository<CurrencyMaster> _currencyrepository, 
+             IRepository<ProjectDescriptionMaster> _ProjectDescriptionrepository
+            , IChartofAccountsService _chartofAccountsService, 
+             IRepository<BankGuaranteeMaster> _bankGuaranteerepository,
+             IRepository<SalesManMaster> _salesmanrepository, 
+             IRepository<CustomerMaster> customerMasterRepository,
+             IRepository<CostCenterMaster> _costcentermasterrepository,
+            IFileService _fileService
             )
         {
             jobMasterService = _jobMasterService;
@@ -46,6 +56,7 @@ namespace Inspire.Erp.Web.Controllers
             currencyrepository = _currencyrepository; _customerMasterRepository = customerMasterRepository;
             bankGuaranteerepository = _bankGuaranteerepository;
             fileService = _fileService;
+            costcanterrepository = _costcentermasterrepository;
         }
         [HttpGet]
         [Route("GetJobMaster")]
@@ -280,6 +291,13 @@ namespace Inspire.Erp.Web.Controllers
                 c.BankGuaranteeMasterBgid,
                 BankGuaranteeMasterBgname = c.BankGuaranteeMasterBgname.Trim()
             }).ToList();
+
+            var costCenterMaster = costcanterrepository.GetAsQueryable().Where(a => a.CostCenterMasterCostCenterDelStatus != true).Select(c => new
+            {
+                c.CostCenterMasterCostCenterId,
+                CostCenterMasterCostCenterName=c.CostCenterMasterCostCenterName.Trim()
+            }).ToList();
+            
             objresponse.ResultSet = new
             {
                 currencyMasters = currencyMasters,
@@ -287,7 +305,8 @@ namespace Inspire.Erp.Web.Controllers
                 SaleManList = SaleManList,
                 customerMasters = customerMasters,
                 bankGuaranteeMasters = bankGuaranteeMasters,
-                projectDescriptionMaster = projectDescriptionMaster
+                projectDescriptionMaster = projectDescriptionMaster,
+                costCenterMaster = costCenterMaster,
 
             };
             return objresponse;
