@@ -57,6 +57,11 @@ namespace Inspire.Erp.Web.ViewModels
         public List<JobStaffViewModels> JobStaff { get; set; }
         public List<JobEquipmentViewModels> JobEquipment { get; set; }
         public List<JobExcutionDetailsViewModels> JobExcutionDetails { get; set; }
+
+        public List<JobTimesheetDescViewModels> JobTimesheetDesc { get; set; }
+        public List<JobTimeSheetEquipViewModels> JobTimeSheetEquip { get; set; }
+        public List<JobTimesheetMasterViewModels> JobTimesheetMaster { get; set; }
+        public List<JobTimeSheetStaffViewModels> JobTimeSheetStaff { get; set; }
     }
     public class JobStaffViewModels
     {
@@ -80,5 +85,43 @@ namespace Inspire.Erp.Web.ViewModels
         public int JobMasterJobId { get; set; }
         public DateTime? JobMasterExecDate { get; set; }
         public string JobMasterExecDescription { get; set; }
+    }
+    public class JobTimesheetDescViewModels
+    {
+        public int Id { get; set; }
+        public int TimeSheetId { get; set; }
+        public int JobId { get; set; }
+        public DateTime TimeIn { get; set; }
+        public DateTime TimeOut { get; set; }
+        public string Description { get; set; }
+        public string Remarks { get; set; }
+
+    }
+    public class JobTimeSheetEquipViewModels
+    {
+        public int Id { get; set; }
+        public int? TimeSheetId { get; set; } // Nullable
+        public int JobId { get; set; }
+        public int? EquipmentId { get; set; } // Nullable
+        public string EquipmentDesc { get; set; }              
+    }
+    public class JobTimesheetMasterViewModels
+    {
+        public int Id { get; set; }
+        public string TimesheetId { get; set; } // Nullable
+        public int JobId { get; set; }
+        public string TimesheetDate { get; set; } // Not nullable
+        public string Remarks { get; set; } // Nullable
+        public string ClientRemarks { get; set; } // Nullable
+        public string VesselName { get; set; } // Nullable
+
+    }
+    public class JobTimeSheetStaffViewModels
+    {
+        public int Id { get; set; }
+        public int StaffId { get; set; }
+        public int JobId { get; set; }
+        public string Remarks { get; set; } // Nullable
+        public int TimesheetId { get; set; }
     }
 }

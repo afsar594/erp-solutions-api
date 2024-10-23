@@ -104,6 +104,15 @@ namespace Inspire.Erp.Domain.Entities
         public List<JobEquipment> JobEquipment { get; set; }
         [NotMapped]
         public List<JobExcutionDetails> JobExcutionDetails { get; set; }
+
+        [NotMapped]
+        public List<JobTimesheetDesc> JobTimesheetDesc { get; set; }
+        [NotMapped]
+        public List<JobTimeSheetEquip> JobTimeSheetEquip { get; set; }
+        [NotMapped]
+        public List<JobTimesheetMaster> JobTimesheetMaster { get; set; }
+        [NotMapped]
+        public List<JobTimeSheetStaff> JobTimeSheetStaff { get; set; }
     }
 
     public class JobStaff
@@ -136,4 +145,50 @@ namespace Inspire.Erp.Domain.Entities
         [JsonIgnore]
         public virtual JobMaster JobMasterJobJob { get; set; }
     }
+    public class JobTimesheetDesc
+    {
+        public int Id { get; set; }
+        public int TimeSheetId { get; set; }
+        public int JobId { get; set; }
+        public DateTime TimeIn { get; set; }
+        public DateTime TimeOut { get; set; }
+        public string Description { get; set; }
+        public string Remarks { get; set; }
+        [JsonIgnore]
+        public virtual JobMaster JobMasterJobJob { get; set; }
+
+    }
+    public class JobTimeSheetEquip
+    {
+        public int Id { get; set; }
+        public int? TimeSheetId { get; set; } // Nullable
+        public int JobId { get; set; }
+        public int? EquipmentId { get; set; } // Nullable
+        public string EquipmentDesc { get; set; }
+        [JsonIgnore]
+        public virtual JobMaster JobMasterJobJob { get; set; }
+    }
+    public class JobTimesheetMaster
+    {
+        public int Id { get; set; }
+        public string TimesheetId { get; set; } // Nullable
+        public int JobId { get; set; }
+        public string TimesheetDate { get; set; } // Not nullable
+        public string Remarks { get; set; } // Nullable
+        public string ClientRemarks { get; set; } // Nullable
+        public string VesselName { get; set; } // Nullable
+        [JsonIgnore]
+        public virtual JobMaster JobMasterJobJob { get; set; }
+    }
+    public class JobTimeSheetStaff
+    {
+        public int Id { get; set; }
+        public int StaffId { get; set; }
+        public int JobId { get; set; }
+        public string Remarks { get; set; } // Nullable
+        public int TimesheetId { get; set; }
+        [JsonIgnore]
+        public virtual JobMaster JobMasterJobJob { get; set; }
+    }
+
 }
