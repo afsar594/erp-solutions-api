@@ -9,6 +9,7 @@ using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Models.ViewModels;
 using Inspire.Erp.Infrastructure.Database;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Inspire.Erp.Domain.Modals.Common;
 
 namespace Inspire.Erp.Application.Account.Implementations
 {
@@ -38,84 +39,93 @@ namespace Inspire.Erp.Application.Account.Implementations
             _context = context;
         }
 
-        public IQueryable GetDetailWiseReport(long? itemId, string partNo, long? departmentId, long? jobId, DateTime? dateFrom, DateTime? toDate)
+        public ResponseInfo GetDetailWiseReport(DTOIssueReportParam model)
         {
             try
             {
+                var objresponse = new ResponseInfo();
                 var StockTransferDetailsJobWiseList = _context.StockTransferDetailsJobWise.ToList();
                 var StockTransferJobWiseList = _context.StockTransferJobWise.ToList();
                 var ItemMasterList = _context.ItemMaster.ToList();
                 var data = (from dtl in _context.IssueVoucherDetails.ToList()
-                            join hdr in _context.IssueVoucher.ToList() on dtl.IssueVoucherDetailsNo equals hdr.IssueVoucherNo
-                            join itemmaster in ItemMasterList on (long)dtl.IssueVoucherDetailsMatId equals itemmaster.ItemMasterItemId
-                            into itm
+                            join hdr in _context.IssueVoucher.ToList()
+                                on dtl.IssueVoucherDetailsNo equals hdr.IssueVoucherNo
+                            join itemmaster in ItemMasterList
+                                on (long?)dtl.IssueVoucherDetailsMatId equals itemmaster.ItemMasterItemId into itm
                             from immaster in itm.DefaultIfEmpty()
                             select new DTOIssueReport()
                             {
                                 JobId = hdr.IssueVoucherJobId,
-                                DepartmentId = (int?)hdr.IssueVoucherDepartmentId,
+                                DepartmentId = hdr.IssueVoucherDepartmentId != null ? (int?)hdr.IssueVoucherDepartmentId : null,
                                 ItemId = immaster != null ? (long?)immaster.ItemMasterItemId : null,
                                 IssueNo = hdr.IssueVoucherNo,
                                 IssueDate = hdr.IssueVoucherDate,
                                 PartNo = immaster != null ? immaster.ItemMasterPartNo : "",
                                 ItemName = immaster != null ? immaster.ItemMasterItemName : "",
-                                Quantity = (int?)dtl.IssueVoucherDetailsQuantity,
-                                Rate = (int?)dtl.IssueVoucherDetailsRate,
-                                Amount = (int?)dtl.IssueVoucherDetailsRate * (int?)dtl.IssueVoucherDetailsQuantity,
-                            }).OrderBy(o => o.ItemName).AsQueryable();
+                                Quantity = dtl.IssueVoucherDetailsQuantity != null ? (int?)dtl.IssueVoucherDetailsQuantity : 0,
+                                Rate = dtl.IssueVoucherDetailsRate != null ? (int?)dtl.IssueVoucherDetailsRate : 0,
+                                Amount = (double?)((dtl.IssueVoucherDetailsRate != null && dtl.IssueVoucherDetailsQuantity != null) ? (int?)dtl.IssueVoucherDetailsRate * dtl.IssueVoucherDetailsQuantity : 0)
+                            }).OrderBy(o => o.ItemName).AsQueryable().ToList();
 
                 var data2 = (from dtl in StockTransferDetailsJobWiseList
-                             join hdr in StockTransferJobWiseList on dtl.StockTransferDetailsJobWiseSno equals hdr.StockTransferJobWiseStid
-                             into leftDetail
+                             join hdr in StockTransferJobWiseList
+                                 on dtl.StockTransferDetailsJobWiseSno equals hdr.StockTransferJobWiseStid into leftDetail
                              from StockTrans in leftDetail.DefaultIfEmpty()
-                             join itemMaster in ItemMasterList on (long)dtl.StockTransferDetailsJobWiseMaterialId equals itemMaster.ItemMasterItemId
-                             into left
+                             join itemMaster in ItemMasterList
+                                 on (long?)dtl.StockTransferDetailsJobWiseMaterialId equals itemMaster.ItemMasterItemId into left
                              from item in left.DefaultIfEmpty()
                              select new DTOIssueReport()
                              {
-                                 JobId = StockTrans != null ? StockTrans.StockTransferJobWiseJobIdFrom : null,
-                                 DepartmentId = 0,
-                                 ItemId = item != null ? (long?)item.ItemMasterItemId : null,
-                                 IssueNo = Convert.ToString(StockTrans != null ? StockTrans.StockTransferJobWiseStid : 0),
-                                 IssueDate = StockTrans != null ? StockTrans.StockTransferJobWiseDate : null,
-                                 PartNo = StockTrans != null ? StockTrans.StockTransferJobWiseVno : null,
-                                 ItemName = item != null ? item.ItemMasterItemName : null,
-                                 Quantity = dtl.StockTransferDetailsJobWiseQty,
-                                 Rate = dtl.StockTransferDetailsJobWiseRate,
-                                 Amount = dtl.StockTransferDetailsJobWiseQty * dtl.StockTransferDetailsJobWiseRate
-                             }).AsQueryable();
+                                 JobId = StockTrans?.StockTransferJobWiseJobIdFrom ?? 0, // Safe null check
+                                 DepartmentId = 0, // Defaulted to 0 as per original logic
+                                 ItemId = item?.ItemMasterItemId, // Safe null check for itemMaster
+                                 IssueNo = StockTrans != null ? StockTrans.StockTransferJobWiseStid.ToString() : "0", // Safe null check for StockTrans
+                                 IssueDate = StockTrans?.StockTransferJobWiseDate, // Nullable, no conversion needed
+                                 PartNo = StockTrans?.StockTransferJobWiseVno, // Safe null check
+                                 ItemName = item?.ItemMasterItemName, // Safe null check for itemMaster
+                                 Quantity = dtl.StockTransferDetailsJobWiseQty ?? 0, // Handles null Quantity
+                                 Rate = dtl.StockTransferDetailsJobWiseRate ?? 0, // Handles null Rate
+                                 Amount = (dtl.StockTransferDetailsJobWiseQty ?? 0) * (dtl.StockTransferDetailsJobWiseRate ?? 0) // Safe calculation
+                             }).AsQueryable().ToList();
+
 
                 var data3 = (from dtl in StockTransferDetailsJobWiseList
-                             join hdr in StockTransferJobWiseList on dtl.StockTransferDetailsJobWiseSno equals hdr.StockTransferJobWiseStid
-                             into leftDetail
+                             join hdr in StockTransferJobWiseList
+                                 on dtl.StockTransferDetailsJobWiseSno equals hdr.StockTransferJobWiseStid into leftDetail
                              from StockTrans in leftDetail.DefaultIfEmpty()
-                             join itemMaster in ItemMasterList on (long)dtl.StockTransferDetailsJobWiseMaterialId equals itemMaster.ItemMasterItemId
-                             into left
+                             join itemMaster in ItemMasterList
+                                 on (long?)dtl.StockTransferDetailsJobWiseMaterialId equals itemMaster.ItemMasterItemId into left
                              from item in left.DefaultIfEmpty()
                              select new DTOIssueReport()
                              {
-                                 JobId = StockTrans != null ? StockTrans.StockTransferJobWiseJobIdFrom : null,
+                                 JobId = StockTrans?.StockTransferJobWiseJobIdFrom ?? 0,
                                  DepartmentId = 0,
-                                 ItemId = item != null ? (long?)item.ItemMasterItemId : null,
-                                 IssueNo = Convert.ToString(StockTrans != null ? StockTrans.StockTransferJobWiseStid : 0),
-                                 IssueDate = StockTrans != null ? StockTrans.StockTransferJobWiseDate : null,
-                                 PartNo = StockTrans != null ? StockTrans.StockTransferJobWiseVno : null,
-                                 ItemName = item != null ? item.ItemMasterItemName : null,
-                                 Quantity = dtl.StockTransferDetailsJobWiseQty * -1,
-                                 Rate = dtl.StockTransferDetailsJobWiseRate * -1,
-                                 Amount = dtl.StockTransferDetailsJobWiseQty * dtl.StockTransferDetailsJobWiseRate
-                             }).AsQueryable();
+                                 ItemId = item?.ItemMasterItemId,
+                                 IssueNo = StockTrans != null ? StockTrans.StockTransferJobWiseStid.ToString() : "0",
+                                 IssueDate = StockTrans?.StockTransferJobWiseDate,
+                                 PartNo = StockTrans?.StockTransferJobWiseVno,
+                                 ItemName = item?.ItemMasterItemName,
+                                 Quantity = (dtl.StockTransferDetailsJobWiseQty ?? 0) * -1,
+                                 Rate = (dtl.StockTransferDetailsJobWiseRate ?? 0) * -1,
+                                 Amount = (dtl.StockTransferDetailsJobWiseQty ?? 0) * (dtl.StockTransferDetailsJobWiseRate ?? 0)
+                             }).AsQueryable().ToList();
 
-                var finalData = data.Union(data2).Union(data3).AsQueryable();
+
+                var finalData = data.Union(data2).Union(data3).AsQueryable().ToList();
 
                 if (finalData != null && finalData.Count() > 0)
                 {
-                    finalData = finalData.Where(o => (itemId == null ? true : o.ItemId == itemId) && (partNo == "" ? true : o.PartNo == partNo) && (departmentId == null ? true : o.DepartmentId == departmentId)
-                    && (jobId == null ? true : o.JobId == jobId)).AsQueryable();
+                    finalData = finalData.Where(o => (model.itemId == null ? true : o.ItemId == model.itemId) && (model.partNo == "" ? true : o.PartNo == model.partNo) && (model.departmentId == null ? true : o.DepartmentId == model.departmentId)
+                    && (model.jobId == null ? true : o.JobId == model.jobId)).AsQueryable().ToList();
+                }
+                if (model.isDate == true)
+                {
+                    finalData.Where(a => a.IssueDate >= model.dateFrom && a.IssueDate <= model.toDate).ToList();
                 }
 
                 Console.WriteLine("**********************" + finalData.Count());
-                return finalData;
+                objresponse.ResultSet = finalData;
+                return objresponse;
             }
             catch (System.Exception ex)
             {

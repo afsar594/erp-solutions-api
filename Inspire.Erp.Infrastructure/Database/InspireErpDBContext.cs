@@ -19,6 +19,7 @@ using Inspire.Erp.Domain.Models.Approvals;
 using Inspire.Erp.Domain.Models;
 using System.Xml.Linq;
 using Inspire.Erp.Domain.Entities.documents;
+using Inspire.Erp.Domain.Models.ViewModels;
 
 namespace Inspire.Erp.Infrastructure.Database
 {
@@ -596,7 +597,7 @@ namespace Inspire.Erp.Infrastructure.Database
             modelBuilder.Entity<SingleValueSPResult>().HasNoKey();
             // modelBuilder.Entity<POS_Sales_Voucher>().HasNoKey();           
 
-            //modelBuilder.Query<IssueWithStockTransfer>().ToView("VW_ISSUE_WITH_STOCK_TRANSFER");
+            modelBuilder.Query<IssueWithStockTransfer>().ToView("VW_ISSUE_WITH_STOCK_TRANSFER");
             #endregion
             modelBuilder.Entity<Inspire.Erp.Domain.Entities.ImportTimeSheet>(entity =>
             {

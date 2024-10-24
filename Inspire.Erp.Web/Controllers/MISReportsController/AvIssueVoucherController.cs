@@ -29,7 +29,7 @@ namespace Inspire.Erp.Web.Controllers.MISReportsControllers
         {
             try
             {
-                var data = _service.GetDetailWiseReport(_DTOIssueReportParam.itemId, _DTOIssueReportParam.partNo, _DTOIssueReportParam.departmentId, _DTOIssueReportParam.jobId, _DTOIssueReportParam.dateFrom, _DTOIssueReportParam.toDate);
+                var data = _service.GetDetailWiseReport(_DTOIssueReportParam);
                 return Ok(data);
             }
             catch (Exception ex)
