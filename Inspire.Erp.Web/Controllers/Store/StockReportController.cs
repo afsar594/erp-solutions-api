@@ -23,7 +23,7 @@ using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers.Store
-{  
+{
     [Route("api/StockReport")]
     [Produces("application/json")]
     [ApiController]
@@ -54,7 +54,7 @@ namespace Inspire.Erp.Web.Controllers.Store
         public async Task<IActionResult> GetAveragePurchasePrice(int itemId)
         {
 
-            var results = await _openingStockService.GetAveragePurchasePrice(itemId,null);
+            var results = await _openingStockService.GetAveragePurchasePrice(itemId, null);
             return Ok(results);
 
         }
@@ -64,7 +64,7 @@ namespace Inspire.Erp.Web.Controllers.Store
         public async Task<IActionResult> GetAveragePurchasePriceGPC(int itemId, int unitDetailId, decimal? quantity)
         {
 
-            var results = await _openingStockService.GetAveragePurchasePriceGPC(itemId, unitDetailId,quantity);
+            var results = await _openingStockService.GetAveragePurchasePriceGPC(itemId, unitDetailId, quantity);
             return Ok(results);
         }
         [HttpGet]
@@ -85,7 +85,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 OrderByGroup = false,
                 PrintReceivedQtyReport = false,
             });
-            return Ok(results);            
+            return Ok(results);
         }
 
 
@@ -96,7 +96,7 @@ namespace Inspire.Erp.Web.Controllers.Store
             var results = await _openingStockService.GetStockMovementReport(model);
             return Ok(results);
         }
-
+        [SkipSpecialCharacterValidationAttribute]
         [HttpPost]
         [Route("GetStockReportBaseUnitWithValue")]
         public async Task<IActionResult> GetStockReportBaseUnitWithValue(GenericGridViewModel model)
@@ -139,7 +139,6 @@ namespace Inspire.Erp.Web.Controllers.Store
             objectresponse.IsSuccess = true;
             return objectresponse;
         }
-
 
     }
 }
