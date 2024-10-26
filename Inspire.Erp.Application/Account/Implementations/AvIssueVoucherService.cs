@@ -133,7 +133,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             }
         }
 
-        public IQueryable GetJobWiseReport(long? itemId, string partNo, long? departmentId, long? jobId, DateTime? dateFrom, DateTime? toDate)
+        public IQueryable GetJobWiseReport(long? itemId, string partNo, long? departmentId, long? jobId, DateTime? dateFrom, DateTime? toDate, bool? isDate)
         {
             try
             {
@@ -164,11 +164,17 @@ namespace Inspire.Erp.Application.Account.Implementations
                                 Services = immaster != null ? immaster.ItemMasterServices : false,
                             }).AsQueryable();
 
+                
                 if (data != null && data.Count() > 0)
                 {
                     data = data.Where(o => (itemId == null ? true : o.ItemId == itemId) && (partNo == "" ? true : o.PartNo == partNo) && (departmentId == null ? true : o.DepId == departmentId)
                     && (jobId == null ? true : o.JobId == jobId)).AsQueryable();
                 }
+                if (isDate == true)
+                {
+                    data.Where(a =>a.IssueDate.Date  >= dateFrom.Value.Date && toDate.Value.Date <= a.IssueDate.Date).AsQueryable(); 
+                }                
+
                 return data;
             }
             catch (System.Exception ex)
