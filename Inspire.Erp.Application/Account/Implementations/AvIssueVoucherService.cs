@@ -23,7 +23,6 @@ namespace Inspire.Erp.Application.Account.Implementations
         private readonly IRepository<StockTransferDetailsJobWise> _StockTransferDetailsJobWise;
         private readonly IRepository<StockTransferJobWise> _StockTransferJobWise;
         private readonly InspireErpDBContext _context;
-
         public AvIssueVoucherService(IRepository<AvIssueVoucher> AvIssueVoucher, IRepository<AvIssueVoucherDetails> AvIssueVoucherDetails,
         IRepository<ItemMaster> ItemMaster, IRepository<JobMaster> JobMaster, IRepository<IssueWithStockTransfer> IssueWithStockTransfer,
         IRepository<StockTransferDetailsJobWise> StockTransferDetailsJobWise, IRepository<StockTransferJobWise> StockTransferJobWise,
