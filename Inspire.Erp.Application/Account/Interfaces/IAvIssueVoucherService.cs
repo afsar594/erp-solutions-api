@@ -10,7 +10,7 @@ namespace Inspire.Erp.Application.Account.Interfaces
     public interface IAvIssueVoucherService
     {
         public ResponseInfo GetDetailWiseReport(DTOIssueReportParam _DTOIssueReportParam);
-        public IQueryable GetJobWiseReport(long? itemId, string partNo, long? departmentId, long? jobId, DateTime? dateFrom, DateTime? toDate);
+        public ResponseInfo GetJobWiseReport(DTOIssueReportParam model);
         public IQueryable GetSummaryWiseReport(long? itemId, string partNo, long? departmentId, long? jobId, DateTime? dateFrom, DateTime? toDate);
     }
 }

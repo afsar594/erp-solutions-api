@@ -137,27 +137,28 @@ namespace Inspire.Erp.Application.Account.Implementations
             .GroupBy(m => new
             {
                 m.StockRegisterMaterialId,
-                m.StockRegisterAmount,
-                m.ItemMasterItemName,
-                m.ItemMasterPartNo,
-                m.RelativeNo,
-                m.StockRegisterRate,
-                m.StockRegisterUnitId,
-                m.UnitMasterUnitShortName,
-                m.StockRegisterLocationID
+                //m.StockRegisterAmount,
+                //m.ItemMasterItemName,
+                //m.ItemMasterPartNo,
+                //m.RelativeNo,
+                //m.StockRegisterRate,
+                //m.StockRegisterUnitId,
+                //m.UnitMasterUnitShortName,
+                //m.StockRegisterLocationID
             })
             .Select(grp => new ReportStockBaseUnit
             {
                 StockRegisterMaterialId = grp.Key.StockRegisterMaterialId,
-                ItemMasterPartNo = grp.Key.ItemMasterPartNo,
-                ItemMasterItemName = grp.Key.ItemMasterItemName,
-                StockRegisterUnitId = grp.Key.StockRegisterUnitId,
-                UnitMasterUnitShortName = grp.Key.UnitMasterUnitShortName,
+                ItemMasterPartNo = grp.First().ItemMasterPartNo,
+                ItemMasterItemName = grp.First().ItemMasterItemName,
+                StockRegisterUnitId = grp.First().StockRegisterUnitId,
+                UnitMasterUnitShortName = grp.First().UnitMasterUnitShortName,
                 Stock = grp.Sum(x => (x.StockRegisterSIN) - (x.StockRegisterSout)),
-                StockRegisterRate = grp.Key.StockRegisterRate,
-                StockRegisterAmount = grp.Key.StockRegisterAmount,
-                RelativeNo = grp.Key.RelativeNo,
-                StockRegisterLocationID = grp.Key.StockRegisterLocationID
+                //StockRegisterRate = grp.Where(c => c.StockRegisterSIN > 0).Average(x => x.StockRegisterRate),
+                StockRegisterRate = grp.Where(c => c.StockRegisterSIN > 0).Select(x => x.StockRegisterRate).DefaultIfEmpty(0).Average(),
+                StockRegisterAmount = grp.Sum(x => x.StockRegisterAmount),
+                RelativeNo = grp.First().RelativeNo,
+                StockRegisterLocationID = grp.First().StockRegisterLocationID
             })
             .ToList();
 

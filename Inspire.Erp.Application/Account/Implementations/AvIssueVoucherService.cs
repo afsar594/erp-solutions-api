@@ -117,12 +117,12 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     finalData = finalData.Where(o => (model.itemId == null ? true : o.ItemId == model.itemId) && (model.partNo == "" ? true : o.PartNo == model.partNo) && (model.departmentId == null ? true : o.DepartmentId == model.departmentId)
                     && (model.jobId == null ? true : o.JobId == model.jobId)).AsQueryable().ToList();
-                }
-                if (model.isDate == true)
-                {
-                    finalData.Where(a => a.IssueDate >= model.dateFrom && a.IssueDate <= model.toDate).ToList();
-                }
 
+                    if (model.isDate == true)
+                    {
+                        finalData = finalData.Where(a => a.IssueDate >= model.dateFrom && a.IssueDate <= model.toDate).ToList();
+                    }
+                }
                 Console.WriteLine("**********************" + finalData.Count());
                 objresponse.ResultSet = finalData;
                 return objresponse;
@@ -133,10 +133,11 @@ namespace Inspire.Erp.Application.Account.Implementations
             }
         }
 
-        public IQueryable GetJobWiseReport(long? itemId, string partNo, long? departmentId, long? jobId, DateTime? dateFrom, DateTime? toDate)
+        public ResponseInfo GetJobWiseReport(DTOIssueReportParam model)
         {
             try
             {
+                var objresponse = new ResponseInfo();
                 var data = (from dtl in _context.IssueVoucherDetails
                             join hdr in _context.IssueVoucher on dtl.IssueVoucherDetailsNo equals hdr.IssueVoucherNo
                             join itemmaster in _ItemMaster.GetAll() on (long)dtl.IssueVoucherDetailsMatId equals itemmaster.ItemMasterItemId
@@ -162,14 +163,19 @@ namespace Inspire.Erp.Application.Account.Implementations
                                 DepId = hdr.IssueVoucherDepartmentId,
                                 CostCenter = hdr.IssueVoucherCostCenterId,
                                 Services = immaster != null ? immaster.ItemMasterServices : false,
-                            }).AsQueryable();
+                            }).AsQueryable().ToList();
 
                 if (data != null && data.Count() > 0)
                 {
-                    data = data.Where(o => (itemId == null ? true : o.ItemId == itemId) && (partNo == "" ? true : o.PartNo == partNo) && (departmentId == null ? true : o.DepId == departmentId)
-                    && (jobId == null ? true : o.JobId == jobId)).AsQueryable();
+                    data = data.Where(o => (model.itemId == null ? true : o.ItemId == model.itemId) && (model.partNo == "" ? true : o.PartNo == model.partNo) && (model.departmentId == null ? true : o.DepId == model.departmentId)
+                    && (model.jobId == null ? true : o.JobId == model.jobId)).AsQueryable().ToList();
+                    if (model.isDate == true)
+                    {
+                        data = data.Where(a => a.IssueDate >= model.dateFrom && a.IssueDate <= model.toDate).ToList();
+                    }
                 }
-                return data;
+                objresponse.ResultSet = data;
+                return objresponse;
             }
             catch (System.Exception ex)
             {
