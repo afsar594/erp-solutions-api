@@ -649,7 +649,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                       sm.PurchaseRequisitionDate,
                                       sd.PurchaseRequisitionDetailsRate,
                                       sd.PurchaseRequisitionDetailsQuantity,
-                                      sd.PurchaseRequisitionDetailsUnitId
+                                      sd.PurchaseRequisitionDetailsUnitId,
+                                       sm.PurchaseRequisitionJobId
                                   } into g
                                   select new PurChaseReqFields
                                   {
@@ -662,6 +663,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                       Rate = g.Key.PurchaseRequisitionDetailsRate,
                                       SRQ = (int)g.Key.PurchaseRequisitionDetailsQuantity,
                                       unitid = g.Key.PurchaseRequisitionDetailsUnitId,
+                                      jobid = g.Key.PurchaseRequisitionJobId,
+
                                       Unit = _unitMasterRepository.GetAsQueryable()
                                                     .Where(x => x.UnitMasterUnitId == g.Key.PurchaseRequisitionDetailsUnitId)
                                                     .Select(x => x.UnitMasterUnitFullName.Trim())
