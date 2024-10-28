@@ -23,7 +23,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers
-{   
+{
     [Route("api/SalesVoucher")]
     [Produces("application/json")]
     [ApiController]
@@ -568,15 +568,15 @@ namespace Inspire.Erp.Web.Controllers
             var customerMasters = _customerMasterRepository.GetAsQueryable().AsNoTracking().Where(k => k.CustomerMasterCustomerDelStatus != true).Select(a => new
             {
                 a.CustomerMasterCustomerNo,
-                a.CustomerMasterCustomerName,          
+                a.CustomerMasterCustomerName,
                 a.CustomerMasterCustomerVatNo,
                 a.CustomerMasterCustomerContactPerson,
-                a.CustomerMasterCustomerAddress,
+                //   a.CustomerMasterCustomerAddress,
                 a.CustomerMasterCustomerReffAcNo,
-                a.CustomerMasterCustomerEmail,
-                a.CustomerMasterCustomerMobile,
-                a.CustomerMasterCustomerTel1,
-                a.CustomerMasterCustomerFax
+                // a.CustomerMasterCustomerEmail,
+                // a.CustomerMasterCustomerMobile,
+                // a.CustomerMasterCustomerTel1,
+                // a.CustomerMasterCustomerFax
             }).ToList();
 
             var unitMasters = unitrepository.GetAsQueryable().AsNoTracking().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
@@ -654,6 +654,33 @@ namespace Inspire.Erp.Web.Controllers
             };
 
             objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
+        [HttpGet]
+        [Route("GetCustomerById/{id}")]
+        public ResponseInfo GetCustomerById(int id)
+        {
+            var objectresponse = new ResponseInfo();
+            var customer = _customerMasterRepository.GetAsQueryable().Where(a => a.CustomerMasterCustomerDelStatus != true && a.CustomerMasterCustomerNo == id).Select(c => new
+            {
+
+                c.CustomerMasterCustomerNo,
+                c.CustomerMasterCustomerName,
+                CustomerMasterCustomerVatNo = c.CustomerMasterCustomerVatNo.Trim() ?? "",
+                CustomerMasterCustomerContactPerson = c.CustomerMasterCustomerContactPerson.Trim() ?? "",
+                CustomerMasterCustomerAddress = c.CustomerMasterCustomerAddress.Trim() ?? "",
+                CustomerMasterCustomerReffAcNo = c.CustomerMasterCustomerReffAcNo.Trim() ?? "",
+                CustomerMasterCustomerEmail = c.CustomerMasterCustomerEmail.Trim() ?? "",
+                CustomerMasterCustomerMobile = c.CustomerMasterCustomerMobile.Trim() ?? "",
+                CustomerMasterCustomerTel1 = c.CustomerMasterCustomerTel1.Trim() ?? "",
+                CustomerMasterCustomerFax = c.CustomerMasterCustomerFax.Trim() ?? "",
+                CustomerMasterCustomerWebSite = c.CustomerMasterCustomerWebSite.Trim() ?? ""
+            }).FirstOrDefault();
+            objectresponse.IsSuccess = true;
+            objectresponse.ResultSet = new
+            {
+                result = customer
+            };
             return objectresponse;
         }
     }
