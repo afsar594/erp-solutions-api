@@ -571,12 +571,12 @@ namespace Inspire.Erp.Web.Controllers
                 a.CustomerMasterCustomerName,
                 a.CustomerMasterCustomerVatNo,
                 a.CustomerMasterCustomerContactPerson,
-                //   a.CustomerMasterCustomerAddress,
+                a.CustomerMasterCustomerAddress,
                 a.CustomerMasterCustomerReffAcNo,
-                // a.CustomerMasterCustomerEmail,
-                // a.CustomerMasterCustomerMobile,
-                // a.CustomerMasterCustomerTel1,
-                // a.CustomerMasterCustomerFax
+                a.CustomerMasterCustomerEmail,
+                a.CustomerMasterCustomerMobile,
+                a.CustomerMasterCustomerTel1,
+                a.CustomerMasterCustomerFax
             }).ToList();
 
             var unitMasters = unitrepository.GetAsQueryable().AsNoTracking().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new

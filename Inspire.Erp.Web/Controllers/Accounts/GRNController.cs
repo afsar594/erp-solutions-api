@@ -171,11 +171,11 @@ namespace Inspire.Erp.Web.Controllers
                 c.SuppliersMasterSupplierName,
                 c.SuppliersMasterSupplierVatNo,
                 c.SuppliersMasterSupplierReffAcNo,
-                //c.SuppliersMasterSupplierAddress,
-                //c.SuppliersMasterSupplierContactPerson,
-                //c.SuppliersMasterSupplierEmail,
-                //c.SuppliersMasterSupplierMobile,
-                //c.SuppliersMasterSupplierTel1,
+                c.SuppliersMasterSupplierAddress,
+                c.SuppliersMasterSupplierContactPerson,
+                c.SuppliersMasterSupplierEmail,
+                c.SuppliersMasterSupplierMobile,
+                c.SuppliersMasterSupplierTel1,
             }).ToList();
 
             var unitMasters = unitrepository.GetAsQueryable().AsNoTracking().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
