@@ -142,7 +142,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     {
 
 
-                        AccountsTransactionsAccNo = "01",
+                        AccountsTransactionsAccNo = item.AssetPurchaseVoucherDetailsAccNo,
                         AccountsTransactionsTransDate = DateTime.Now,
                         AccountsTransactionsParticulars = "ASSET PURCHASE",
                         AccountsTransactionsFcCredit = 0,

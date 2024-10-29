@@ -44,6 +44,7 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? OPBookValue { get; set; }
 
         public bool? AssetPurchaseVoucherDetailsDelStatus { get; set; }
+        public string AssetPurchaseVoucherDetailsAccNo { get; set; }
 
         [NotMapped]
         public virtual AssetPurchaseVoucher AssetPurchaseVoucherDetailsNoNavigation { get; set; }

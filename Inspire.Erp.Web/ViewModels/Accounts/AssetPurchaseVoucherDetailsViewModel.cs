@@ -43,7 +43,7 @@ namespace Inspire.Erp.Web.ViewModels.Accounts
 
         public bool? AssetPurchaseVoucherDetailsDelStatus { get; set; }
 
-        public string AccNo { get; set; }
+        public string AssetPurchaseVoucherDetailsAccNo { get; set; }
 
     }
 }
