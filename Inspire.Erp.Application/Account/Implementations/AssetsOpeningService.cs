@@ -124,7 +124,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     return x;
                 }).ToList();
 
-                var currency = await _currencyMaster.GetAsQueryable().Where(x => x.CurrencyMasterCurrencyId == assetPurchaseVoucher.CurrencyId).FirstOrDefaultAsync();
+                //var currency = await _currencyMaster.GetAsQueryable().Where(x => x.CurrencyMasterCurrencyId == assetPurchaseVoucher.CurrencyId).FirstOrDefaultAsync();
                 //accountsTransactions = accountsTransactions.Select((k) =>
                 //{
                 //    k.AccountsTransactionsTransDate = assetPurchaseVoucher.AstPurDt;
@@ -137,18 +137,19 @@ namespace Inspire.Erp.Application.Account.Implementations
                 List<AccountsTransactions> accountsTransactions = new List<AccountsTransactions>();
                 foreach (var item in assetPurchaseVoucher.AssetPurchaseVoucherDetails)
                 {
-                    var assetMas= await _assetMaster.GetAsQueryable().Where(k => k.AssetMasterAssetId == item.AstID).SingleOrDefaultAsync(); 
+                    //var assetMas= await _assetMaster.GetAsQueryable().Where(k => k.AssetMasterAssetId == item.AstID).SingleOrDefaultAsync(); 
                     accountsTransactions.Add(new AccountsTransactions()
                     {
 
 
-                        AccountsTransactionsAccNo = assetMas.AssetMasterAssetAccountNo,
+                        AccountsTransactionsAccNo = "01",
                         AccountsTransactionsTransDate = DateTime.Now,
                         AccountsTransactionsParticulars = "ASSET PURCHASE",
                         AccountsTransactionsFcCredit = 0,
                         AccountsTransactionsCredit = 0,
                         AccountsTransactionsFcDebit = item.Amount,
-                        AccountsTransactionsDebit = (decimal)(item.Amount * (decimal)currency.CurrencyMasterCurrencyRate),
+                       // AccountsTransactionsDebit = (decimal)(item.Amount * (decimal)currency.CurrencyMasterCurrencyRate),
+                        AccountsTransactionsDebit = (decimal)item.Amount,
                         AccountsTransactionsVoucherType = VoucherType.AssetPurchaseVoucher_TYPE,
                         AccountsTransactionsVoucherNo = assetPurchaseVoucherNumber,
                         AccountsTransactionsDescription = assetPurchaseVoucher.Description,
@@ -164,71 +165,71 @@ namespace Inspire.Erp.Application.Account.Implementations
                         AccountsTransactionsApprovalDt = DateTime.Now,
                         AccountsTransactionsFsno = (decimal)item.FSNO,
                         AccountsTransactionsLocation = item.LocationID,
-                        AccountsTransactionsFcRate = (decimal)currency.CurrencyMasterCurrencyRate,
-                        AccountsTransactionsCurrencyId = currency.CurrencyMasterCurrencyId,
+                        //AccountsTransactionsFcRate = (decimal)currency.CurrencyMasterCurrencyRate,
+                        //AccountsTransactionsCurrencyId = currency.CurrencyMasterCurrencyId,
                         AccountsTransactionsLpoNo = assetPurchaseVoucher.LPONo
                     });
                 }
 
-                ////Credit AccountsTransactions
-                accountsTransactions.Add(new AccountsTransactions()
-                {
-                    AccountsTransactionsAccNo = "03001001001001",//temporary,
-                    AccountsTransactionsTransDate = DateTime.Now,
-                    AccountsTransactionsParticulars = "ASSET PURCHASE" + " ",
-                    AccountsTransactionsFcCredit = assetPurchaseVoucher.NetAmount,
-                    AccountsTransactionsCredit = (decimal)(assetPurchaseVoucher.NetAmount * (decimal)currency.CurrencyMasterCurrencyRate),
-                    AccountsTransactionsFcDebit = 0,
-                    AccountsTransactionsDebit = 0,
-                    AccountsTransactionsVoucherType = VoucherType.AssetPurchaseVoucher_TYPE,
-                    AccountsTransactionsVoucherNo = assetPurchaseVoucherNumber,
-                    AccountsTransactionsDescription = assetPurchaseVoucher.Description,
-                    AccountsTransactionsUserId = 1,//will be modified later
-                    AccountsTransactionsStatus = "A",
-                    AccountsTransactionsAllocDebit = 0,
-                    AccountsTransactionsAllocCredit = 0,
-                    AccountsTransactionsAllocBalance = assetPurchaseVoucher.AstPurchaseType == "Cash" ? assetPurchaseVoucher.NetAmount : 0,
-                    AccountsTransactionsFcAllocCredit = 0,
-                    AccountsTransactionsFcAllocDebit = 0,
-                    AccountsTransactionsFcAllocBalance = assetPurchaseVoucher.AstPurchaseType == "Cash" ? (decimal)(assetPurchaseVoucher.NetAmount * (decimal)currency.CurrencyMasterCurrencyRate) : 0,
-                    AccountsTransactionsTstamp = DateTime.Now,
-                    AccountsTransactionsApprovalDt = DateTime.Now,
-                    AccountsTransactionsFsno =(decimal) assetPurchaseVoucher.FSNO,
-                    AccountsTransactionsLocation = assetPurchaseVoucher.LocationID,
-                    AccountsTransactionsFcRate = (decimal)currency.CurrencyMasterCurrencyRate,
-                    AccountsTransactionsCurrencyId = currency.CurrencyMasterCurrencyId,
-                    AccountsTransactionsLpoNo = assetPurchaseVoucher.LPONo
-                });
+                //////Credit AccountsTransactions
+                //accountsTransactions.Add(new AccountsTransactions()
+                //{
+                //    AccountsTransactionsAccNo = "03001001001001",//temporary,
+                //    AccountsTransactionsTransDate = DateTime.Now,
+                //    AccountsTransactionsParticulars = "ASSET PURCHASE" + " ",
+                //    AccountsTransactionsFcCredit = assetPurchaseVoucher.NetAmount,
+                //    AccountsTransactionsCredit = (decimal)(assetPurchaseVoucher.NetAmount * (decimal)currency.CurrencyMasterCurrencyRate),
+                //    AccountsTransactionsFcDebit = 0,
+                //    AccountsTransactionsDebit = 0,
+                //    AccountsTransactionsVoucherType = VoucherType.AssetPurchaseVoucher_TYPE,
+                //    AccountsTransactionsVoucherNo = assetPurchaseVoucherNumber,
+                //    AccountsTransactionsDescription = assetPurchaseVoucher.Description,
+                //    AccountsTransactionsUserId = 1,//will be modified later
+                //    AccountsTransactionsStatus = "A",
+                //    AccountsTransactionsAllocDebit = 0,
+                //    AccountsTransactionsAllocCredit = 0,
+                //    AccountsTransactionsAllocBalance = assetPurchaseVoucher.AstPurchaseType == "Cash" ? assetPurchaseVoucher.NetAmount : 0,
+                //    AccountsTransactionsFcAllocCredit = 0,
+                //    AccountsTransactionsFcAllocDebit = 0,
+                //    AccountsTransactionsFcAllocBalance = assetPurchaseVoucher.AstPurchaseType == "Cash" ? (decimal)(assetPurchaseVoucher.NetAmount * (decimal)currency.CurrencyMasterCurrencyRate) : 0,
+                //    AccountsTransactionsTstamp = DateTime.Now,
+                //    AccountsTransactionsApprovalDt = DateTime.Now,
+                //    AccountsTransactionsFsno =(decimal) assetPurchaseVoucher.FSNO,
+                //    AccountsTransactionsLocation = assetPurchaseVoucher.LocationID,
+                //    AccountsTransactionsFcRate = (decimal)currency.CurrencyMasterCurrencyRate,
+                //    AccountsTransactionsCurrencyId = currency.CurrencyMasterCurrencyId,
+                //    AccountsTransactionsLpoNo = assetPurchaseVoucher.LPONo
+                //});
 
-                accountsTransactions.Add(new AccountsTransactions()
-                {
-                    AccountsTransactionsAccNo = "AS2544",//to be changed,
-                    AccountsTransactionsTransDate = DateTime.Now,
-                    AccountsTransactionsParticulars = "ASSET PURCHASE" + " ",
-                    AccountsTransactionsFcCredit = assetPurchaseVoucher.DisAmount,
-                    AccountsTransactionsCredit = (decimal)(assetPurchaseVoucher.DisAmount * (decimal)currency.CurrencyMasterCurrencyRate),
-                    AccountsTransactionsFcDebit = 0,
-                    AccountsTransactionsDebit = 0,
-                    AccountsTransactionsVoucherType = VoucherType.AssetPurchaseVoucher_TYPE,
-                    AccountsTransactionsVoucherNo = assetPurchaseVoucherNumber,
-                    AccountsTransactionsDescription = assetPurchaseVoucher.Description,
-                    AccountsTransactionsUserId = 1,//will be modified later
-                    AccountsTransactionsStatus = "A",
-                    AccountsTransactionsAllocDebit = 0,
-                    AccountsTransactionsAllocCredit = 0,
-                    AccountsTransactionsAllocBalance = 0,
-                    AccountsTransactionsFcAllocCredit = 0,
-                    AccountsTransactionsFcAllocDebit = 0,
-                    AccountsTransactionsFcAllocBalance = 0,
-                    AccountsTransactionsTstamp = DateTime.Now,
-                    AccountsTransactionsApprovalDt = DateTime.Now,
-                    AccountsTransactionsFsno = (decimal)assetPurchaseVoucher.FSNO,
-                    AccountsTransactionsLocation = assetPurchaseVoucher.LocationID,
-                    AccountsTransactionsFcRate = (decimal)currency.CurrencyMasterCurrencyRate,
-                    AccountsTransactionsCurrencyId = currency.CurrencyMasterCurrencyId,
-                    AccountsTransactionsLpoNo = assetPurchaseVoucher.LPONo
-                });
-                ////End Credit AccountsTransactions
+                //accountsTransactions.Add(new AccountsTransactions()
+                //{
+                //    AccountsTransactionsAccNo = "AS2544",//to be changed,
+                //    AccountsTransactionsTransDate = DateTime.Now,
+                //    AccountsTransactionsParticulars = "ASSET PURCHASE" + " ",
+                //    AccountsTransactionsFcCredit = assetPurchaseVoucher.DisAmount,
+                //    AccountsTransactionsCredit = (decimal)(assetPurchaseVoucher.DisAmount * (decimal)currency.CurrencyMasterCurrencyRate),
+                //    AccountsTransactionsFcDebit = 0,
+                //    AccountsTransactionsDebit = 0,
+                //    AccountsTransactionsVoucherType = VoucherType.AssetPurchaseVoucher_TYPE,
+                //    AccountsTransactionsVoucherNo = assetPurchaseVoucherNumber,
+                //    AccountsTransactionsDescription = assetPurchaseVoucher.Description,
+                //    AccountsTransactionsUserId = 1,//will be modified later
+                //    AccountsTransactionsStatus = "A",
+                //    AccountsTransactionsAllocDebit = 0,
+                //    AccountsTransactionsAllocCredit = 0,
+                //    AccountsTransactionsAllocBalance = 0,
+                //    AccountsTransactionsFcAllocCredit = 0,
+                //    AccountsTransactionsFcAllocDebit = 0,
+                //    AccountsTransactionsFcAllocBalance = 0,
+                //    AccountsTransactionsTstamp = DateTime.Now,
+                //    AccountsTransactionsApprovalDt = DateTime.Now,
+                //    AccountsTransactionsFsno = (decimal)assetPurchaseVoucher.FSNO,
+                //    AccountsTransactionsLocation = assetPurchaseVoucher.LocationID,
+                //    AccountsTransactionsFcRate = (decimal)currency.CurrencyMasterCurrencyRate,
+                //    AccountsTransactionsCurrencyId = currency.CurrencyMasterCurrencyId,
+                //    AccountsTransactionsLpoNo = assetPurchaseVoucher.LPONo
+                //});
+                //////End Credit AccountsTransactions
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
                 _assetopening.Insert(assetPurchaseVoucher);
@@ -270,8 +271,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     return k;
                 }).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
-                _assetopening.Update(assetPurchaseVoucher);
-                _assetopeningDetail.UpdateList(assetPurchaseVoucher.AssetPurchaseVoucherDetails.ToList());
+                
                 _assetopening.TransactionCommit();
 
             }
@@ -481,7 +481,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             {
                 return null;
             }
-        }
+        } 
         private async Task<string> EditAssetOpening(AddEditAssetPurchaseVoucher model)
         {
             try
@@ -598,7 +598,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     model.CurrencyId = orders.CurrencyId;
                     model.AssetPurchaseVoucherDetail = _assetopeningDetail.GetAsQueryable()
                         .Where(x => x.AstPurchaseID == id).Select(x => new AddEditAssetPurchaseVoucherDetail
-                        {
+                        { 
                             AstPurDetID = x.AstPurDetID,
                             AstPurchaseID = x.AstPurchaseID,
                             AssetSize = x.AssetSize,
