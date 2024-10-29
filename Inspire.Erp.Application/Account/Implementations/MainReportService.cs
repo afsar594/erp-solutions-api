@@ -20,6 +20,7 @@ using Spire.Pdf.Exporting.XPS.Schema;
 using DinkToPdf;
 using SendGrid.Helpers.Mail;
 using Inspire.Erp.Domain.Modals;
+using System.Linq.Dynamic.Core;
 
 namespace Inspire.Erp.Application.Account.Implementations
 {
@@ -876,17 +877,17 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                     List<ReportPurchaseVoucher> reportPurchaseVoucher_ALL = (from k in _reportPurchaseVoucherRepository.GetAsQueryable()
                                                                              where ((purchasevoucherreportParameters.rptSupplier == -1 ? true : (k.PurchaseVoucherPartyId == purchasevoucherreportParameters.rptSupplier))
                                                                               && (purchasevoucherreportParameters.rptInvoiceType == "ALL" ? true : (k.PurchaseVoucherPurchaseType == purchasevoucherreportParameters.rptInvoiceType))
-
-                                                                             && (purchasevoucherreportParameters.rptCurrency == -1 ? true : ((k.PurchaseVoucherCurrencyId == purchasevoucherreportParameters.rptCurrency)
-                                   && (purchasevoucherreportParameters.rptLocation == -1 ? true : (k.PurchaseVoucherLocationId == purchasevoucherreportParameters.rptLocation))
-                                   && (purchasevoucherreportParameters.rptJob == -1 ? true : (k.PurchaseVoucherJobId == purchasevoucherreportParameters.rptJob))
+                                     && (purchasevoucherreportParameters.rptDateRange == false ? true : (k.PurchaseVoucherPurchaseDate.Value.Date >= purchasevoucherreportParameters.rptDtpFrom.Value.Date)
+                                     && (k.PurchaseVoucherPurchaseDate.Value.Date <= purchasevoucherreportParameters.rptDtpTo.Value.Date))
+                                     && (purchasevoucherreportParameters.rptLocation == -1 ? true : (k.PurchaseVoucherLocationId.Value == purchasevoucherreportParameters.rptLocation.Value))
+                                     && (purchasevoucherreportParameters.rptCurrency == -1 ? true : ((k.PurchaseVoucherCurrencyId == purchasevoucherreportParameters.rptCurrency)
+                                     && (purchasevoucherreportParameters.rptJob == -1 ? true : (k.PurchaseVoucherJobId == purchasevoucherreportParameters.rptJob))
                                      && (purchasevoucherreportParameters.rptSuppInvNo.Trim() == "" ? true : (k.PurchaseVoucherSupplyInvoiceNo.Trim() == purchasevoucherreportParameters.rptSuppInvNo.Trim()))
-                        && (purchasevoucherreportParameters.rptBrand == -1 ? true : (k.ItemBrandId == (long)purchasevoucherreportParameters.rptBrand))
-                              && (purchasevoucherreportParameters.rptItemGroup == -1 ? true : (k.ItemGroupId == purchasevoucherreportParameters.rptItemGroup))
-                             && (purchasevoucherreportParameters.rptItem == -1 ? true : (k.PurchaseVoucherDetailsMaterialId == purchasevoucherreportParameters.rptItem))
+                                    && (purchasevoucherreportParameters.rptBrand == -1 ? true : (k.ItemBrandId == (long)purchasevoucherreportParameters.rptBrand))
+                                    && (purchasevoucherreportParameters.rptItemGroup == -1 ? true : (k.ItemGroupId == purchasevoucherreportParameters.rptItemGroup))
+                                    && (purchasevoucherreportParameters.rptItem == -1 ? true : (k.PurchaseVoucherDetailsMaterialId == purchasevoucherreportParameters.rptItem))
 
-                              && (purchasevoucherreportParameters.rptDateRange == false ? true : (k.PurchaseVoucherPurchaseDate.Value.Date >= purchasevoucherreportParameters.rptDtpFrom.Value.Date)
-                                          && (k.PurchaseVoucherPurchaseDate.Value.Date <= purchasevoucherreportParameters.rptDtpTo.Value.Date))
+
                             && (k.PurchaseVoucherDelStatus == false || k.PurchaseVoucherDelStatus == null))))
                                                                              group k by new
                                                                              {
@@ -930,18 +931,17 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                     List<ReportPurchaseVoucher> reportPurchaseVoucher_ALL
                         = _reportPurchaseVoucherRepository.GetAsQueryable().Where(k =>
                            (purchasevoucherreportParameters.rptSupplier == -1 ? true : (k.PurchaseVoucherPartyId == purchasevoucherreportParameters.rptSupplier))
-                            && (purchasevoucherreportParameters.rptInvoiceType == "ALL" ? true : (k.PurchaseVoucherPurchaseType == purchasevoucherreportParameters.rptInvoiceType))
-
-                           && (purchasevoucherreportParameters.rptCurrency == -1 ? true : ((k.PurchaseVoucherCurrencyId == purchasevoucherreportParameters.rptCurrency)
-                        && (purchasevoucherreportParameters.rptLocation == -1 ? true : (k.PurchaseVoucherLocationId == purchasevoucherreportParameters.rptLocation))
-                        && (purchasevoucherreportParameters.rptJob == -1 ? true : (k.PurchaseVoucherJobId == purchasevoucherreportParameters.rptJob))
-                        && (purchasevoucherreportParameters.rptSuppInvNo.Trim() == "" ? true : (k.PurchaseVoucherSupplyInvoiceNo.Trim() == purchasevoucherreportParameters.rptSuppInvNo.Trim()))
-                        && (purchasevoucherreportParameters.rptBrand == -1 ? true : (k.ItemBrandId == purchasevoucherreportParameters.rptBrand))
-                        && (purchasevoucherreportParameters.rptItemGroup == -1 ? true : (k.ItemGroupId == purchasevoucherreportParameters.rptItemGroup))
-                        && (purchasevoucherreportParameters.rptItem == -1 ? true : (k.PurchaseVoucherDetailsMaterialId == purchasevoucherreportParameters.rptItem))
-                        && (purchasevoucherreportParameters.rptDateRange == false ? true : (k.PurchaseVoucherPurchaseDate.Value.Date >= purchasevoucherreportParameters.rptDtpFrom.Value.Date)
-                        && (k.PurchaseVoucherPurchaseDate.Value.Date <= purchasevoucherreportParameters.rptDtpTo.Value.Date))
-                        && (k.PurchaseVoucherDelStatus == false || k.PurchaseVoucherDelStatus == null)))).OrderBy(x => x.PurchaseVoucherPurId).
+                         && (purchasevoucherreportParameters.rptInvoiceType == "ALL" ? true : (k.PurchaseVoucherPurchaseType == purchasevoucherreportParameters.rptInvoiceType))
+                         && (purchasevoucherreportParameters.rptDateRange == false ? true : (k.PurchaseVoucherPurchaseDate.Value.Date >= purchasevoucherreportParameters.rptDtpFrom.Value.Date)
+                         && (k.PurchaseVoucherPurchaseDate.Value.Date <= purchasevoucherreportParameters.rptDtpTo.Value.Date))
+                         && (purchasevoucherreportParameters.rptLocation == -1 ? true : (k.PurchaseVoucherLocationId == purchasevoucherreportParameters.rptLocation))
+                         && (purchasevoucherreportParameters.rptCurrency == -1 ? true : ((k.PurchaseVoucherCurrencyId == purchasevoucherreportParameters.rptCurrency)
+                         && (purchasevoucherreportParameters.rptJob == -1 ? true : (k.PurchaseVoucherJobId == purchasevoucherreportParameters.rptJob))
+                         && (purchasevoucherreportParameters.rptSuppInvNo.Trim() == "" ? true : (k.PurchaseVoucherSupplyInvoiceNo.Trim() == purchasevoucherreportParameters.rptSuppInvNo.Trim()))
+                         && (purchasevoucherreportParameters.rptBrand == -1 ? true : (k.ItemBrandId == purchasevoucherreportParameters.rptBrand))
+                         && (purchasevoucherreportParameters.rptItemGroup == -1 ? true : (k.ItemGroupId == purchasevoucherreportParameters.rptItemGroup))
+                         && (purchasevoucherreportParameters.rptItem == -1 ? true : (k.PurchaseVoucherDetailsMaterialId == purchasevoucherreportParameters.rptItem))
+                         && (k.PurchaseVoucherDelStatus == false || k.PurchaseVoucherDelStatus == null)))).OrderBy(x => x.PurchaseVoucherPurId).
                         Select(c => new ReportPurchaseVoucher
                         {
 
