@@ -19,6 +19,7 @@ using Inspire.Erp.Domain.Models.Approvals;
 using Inspire.Erp.Domain.Models;
 using System.Xml.Linq;
 using Inspire.Erp.Domain.Entities.documents;
+using Inspire.Erp.Domain.Models.ViewModels;
 
 namespace Inspire.Erp.Infrastructure.Database
 {
@@ -158,6 +159,11 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<JobStaff> JobStaff { get; set; }
         public virtual DbSet<JobEquipment> JobEquipment { get; set; }
         public virtual DbSet<JobExcutionDetails> JobExcutionDetails { get; set; }
+        public virtual DbSet<JobTimesheetDesc> JobTimesheetDesc { get; set; }
+        public virtual DbSet<JobTimeSheetEquip> JobTimeSheetEquip { get; set; }
+        public virtual DbSet<JobTimeSheetStaff> JobTimeSheetStaff { get; set; }
+
+        public virtual DbSet<JobTimesheetMaster> JobTimesheetMaster { get; set; }
         public virtual DbSet<JobDocuments> JobDocuments { get; set; }
         public virtual DbSet<JobOrder> JobOrder { get; set; }
         public virtual DbSet<JobOrderDetails> JobOrderDetails { get; set; }
@@ -591,7 +597,7 @@ namespace Inspire.Erp.Infrastructure.Database
             modelBuilder.Entity<SingleValueSPResult>().HasNoKey();
             // modelBuilder.Entity<POS_Sales_Voucher>().HasNoKey();           
 
-            //modelBuilder.Query<IssueWithStockTransfer>().ToView("VW_ISSUE_WITH_STOCK_TRANSFER");
+            modelBuilder.Query<IssueWithStockTransfer>().ToView("VW_ISSUE_WITH_STOCK_TRANSFER");
             #endregion
             modelBuilder.Entity<Inspire.Erp.Domain.Entities.ImportTimeSheet>(entity =>
             {
@@ -10618,6 +10624,67 @@ namespace Inspire.Erp.Infrastructure.Database
                    .HasConstraintName("FK_JobExec_JobMaster");
             });
 
+            modelBuilder.Entity<JobTimesheetMaster>(entity =>
+            {
+                entity.ToTable("Job_Timesheet_Master");
+
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.TimesheetId)
+                      .HasMaxLength(10)
+                      .HasColumnName("Timesheet_id");
+
+                entity.Property(e => e.JobId)
+                      .HasColumnName("jobid");
+
+                entity.Property(e => e.TimesheetDate)
+                      .HasMaxLength(10)
+                      .HasColumnName("Timesheet_date");
+
+                entity.Property(e => e.Remarks)
+                      .HasMaxLength(10);                      
+
+                entity.Property(e => e.ClientRemarks)
+                      .HasMaxLength(10)
+                      .HasColumnName("Client_remarks");
+
+                entity.Property(e => e.VesselName)
+                      .HasMaxLength(10)
+                      .HasColumnName("Vessel_name");
+
+                entity.HasOne(d => d.JobMasterJobJob)
+                  .WithMany(p => p.JobTimesheetMaster)
+                  .HasForeignKey(d => d.JobId)
+                  .HasConstraintName("FK_Job_Timesheet_Master_Job_Master");
+            });
+
+            modelBuilder.Entity<JobTimeSheetStaff>(entity =>
+            {
+                entity.ToTable("Job_TimeSheet_staff");
+
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.StaffId)
+                      .HasColumnName("Staff_Id");
+
+                entity.Property(e => e.JobId)
+                      .HasColumnName("jobid");
+
+                entity.Property(e => e.TimesheetId)
+                     .HasColumnName("Timesheet_id");
+
+                entity.Property(e => e.Remarks)
+                      .HasMaxLength(100)
+                      .IsFixedLength()
+                      .IsRequired(false); // Nullable
+
+                // Assuming there's a relationship between JobTimeSheetStaff and JobMaster
+                entity.HasOne(d => d.JobMasterJobJob)
+                  .WithMany(p => p.JobTimeSheetStaff)
+                  .HasForeignKey(d => d.JobId)
+                  .HasConstraintName("FK_Job_TimeSheet_Staff_Job_Master");
+
+            });
             modelBuilder.Entity<JobDocuments>(entity =>
             {
                 entity.HasKey(e => e.JobDocumentId);
@@ -10637,7 +10704,66 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.JobDocumentDelStatus).HasColumnName("Job_Document_DelStatus");
             });
 
+            modelBuilder.Entity<JobTimesheetDesc>(entity =>
+            {
+                entity.ToTable("Job_timesheet_desc");
 
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.TimeSheetId)
+                      .HasColumnName("TimeSheetid");
+
+                entity.Property(e => e.JobId)
+                      .HasColumnName("Jobid");
+
+                entity.Property(e => e.TimeIn)
+                      .IsRequired()
+                      .HasColumnType("datetime");
+
+                entity.Property(e => e.TimeOut)
+                      .IsRequired()
+                      .HasColumnType("datetime");
+
+                entity.Property(e => e.Description)
+                      .IsRequired()
+                      .HasMaxLength(100)
+                      .IsFixedLength();
+
+                entity.Property(e => e.Remarks)
+                      .HasMaxLength(100)
+                      .IsFixedLength();
+
+                // Assuming there's a relationship between JobTimesheetDesc and JobMaster
+                entity.HasOne(d => d.JobMasterJobJob)
+                   .WithMany(p => p.JobTimesheetDesc)
+                   .HasForeignKey(d => d.JobId)
+                   .HasConstraintName("FK_Job_Timesheet_Desc_Job_Master");
+            });
+            modelBuilder.Entity<JobTimeSheetEquip>(entity =>
+            {
+                entity.ToTable("Job_TimeSheet_Equip");
+
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.TimeSheetId)
+                      .HasColumnName("Timesheet_id");
+
+                entity.Property(e => e.JobId)
+                      .HasColumnName("jobid");
+
+                entity.Property(e => e.EquipmentId)
+                      .HasColumnName("Equipment_id");
+
+                entity.Property(e => e.EquipmentDesc)
+                      .HasMaxLength(100)
+                      .HasColumnName("Equipment_Desc");
+
+                // Assuming there's a relationship between JobTimesheetDesc and JobMaster
+                entity.HasOne(d => d.JobMasterJobJob)
+                   .WithMany(p => p.JobTimeSheetEquip)
+                   .HasForeignKey(d => d.JobId)
+                   .HasConstraintName("FK_Job_TimeSheet_Equip_Job_Master");
+            });
 
             modelBuilder.Entity<JobOrder>(entity =>
             {

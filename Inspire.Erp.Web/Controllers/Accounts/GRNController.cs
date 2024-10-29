@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers
 {
-    
+
     [Route("api/[controller]")]
     [ApiController]
     public class GRNController : ControllerBase
@@ -241,6 +241,33 @@ namespace Inspire.Erp.Web.Controllers
 
             objectresponse.IsSuccess = true;
             return objectresponse;
+        }
+
+        [HttpGet]
+        [Route("GetSupplierById/{id}")]
+        public ResponseInfo GetSupplierById(int id)
+        {
+            var obj = new ResponseInfo();
+            var supplier = supplierrepository.GetAsQueryable().Where(a => a.SuppliersMasterSupplierDelStatus != true && a.SuppliersMasterSupplierId == id).Select(c => new
+            {
+                c.SuppliersMasterSupplierId,
+                c.SuppliersMasterSupplierName,
+                SuppliersMasterSupplierVatNo = c.SuppliersMasterSupplierVatNo.Trim() ?? "",
+                SuppliersMasterSupplierEmail = c.SuppliersMasterSupplierEmail.Trim() ?? "",
+                SuppliersMasterSupplierFax = c.SuppliersMasterSupplierFax.Trim() ?? "",
+                SuppliersMasterSupplierWebSite = c.SuppliersMasterSupplierWebSite.Trim() ?? "",
+                SuppliersMasterSupplierContactPerson = c.SuppliersMasterSupplierContactPerson.Trim() ?? "",
+                SuppliersMasterSupplierTel1 = c.SuppliersMasterSupplierTel1.Trim() ?? "",
+                SuppliersMasterSupplierAddress = c.SuppliersMasterSupplierAddress.Trim() ?? "",
+                SuppliersMasterSupplierReffAcNo = c.SuppliersMasterSupplierReffAcNo.Trim() ?? ""
+            }).FirstOrDefault();
+
+            obj.IsSuccess = true;
+            obj.ResultSet = new
+            {
+                result = supplier
+            };
+            return obj;
         }
 
     }

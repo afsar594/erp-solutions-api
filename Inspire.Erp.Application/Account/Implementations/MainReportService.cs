@@ -137,27 +137,28 @@ namespace Inspire.Erp.Application.Account.Implementations
             .GroupBy(m => new
             {
                 m.StockRegisterMaterialId,
-                m.StockRegisterAmount,
-                m.ItemMasterItemName,
-                m.ItemMasterPartNo,
-                m.RelativeNo,
-                m.StockRegisterRate,
-                m.StockRegisterUnitId,
-                m.UnitMasterUnitShortName,
-                m.StockRegisterLocationID
+                //m.StockRegisterAmount,
+                //m.ItemMasterItemName,
+                //m.ItemMasterPartNo,
+                //m.RelativeNo,
+                //m.StockRegisterRate,
+                //m.StockRegisterUnitId,
+                //m.UnitMasterUnitShortName,
+                //m.StockRegisterLocationID
             })
             .Select(grp => new ReportStockBaseUnit
             {
                 StockRegisterMaterialId = grp.Key.StockRegisterMaterialId,
-                ItemMasterPartNo = grp.Key.ItemMasterPartNo,
-                ItemMasterItemName = grp.Key.ItemMasterItemName,
-                StockRegisterUnitId = grp.Key.StockRegisterUnitId,
-                UnitMasterUnitShortName = grp.Key.UnitMasterUnitShortName,
+                ItemMasterPartNo = grp.First().ItemMasterPartNo,
+                ItemMasterItemName = grp.First().ItemMasterItemName,
+                StockRegisterUnitId = grp.First().StockRegisterUnitId,
+                UnitMasterUnitShortName = grp.First().UnitMasterUnitShortName,
                 Stock = grp.Sum(x => (x.StockRegisterSIN) - (x.StockRegisterSout)),
-                StockRegisterRate = grp.Key.StockRegisterRate,
-                StockRegisterAmount = grp.Key.StockRegisterAmount,
-                RelativeNo = grp.Key.RelativeNo,
-                StockRegisterLocationID = grp.Key.StockRegisterLocationID
+                //StockRegisterRate = grp.Where(c => c.StockRegisterSIN > 0).Average(x => x.StockRegisterRate),
+                StockRegisterRate = grp.Where(c => c.StockRegisterSIN > 0).Select(x => x.StockRegisterRate).DefaultIfEmpty(0).Average(),
+                StockRegisterAmount = grp.Sum(x => x.StockRegisterAmount),
+                RelativeNo = grp.First().RelativeNo,
+                StockRegisterLocationID = grp.First().StockRegisterLocationID
             })
             .ToList();
 
@@ -874,11 +875,12 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
 
                     List<ReportPurchaseVoucher> reportPurchaseVoucher_ALL = (from k in _reportPurchaseVoucherRepository.GetAsQueryable()
                                                                              where ((purchasevoucherreportParameters.rptSupplier == -1 ? true : (k.PurchaseVoucherPartyId == purchasevoucherreportParameters.rptSupplier))
-                                    && (purchasevoucherreportParameters.rptCurrency == -1 ? true : ((k.PurchaseVoucherCurrencyId == purchasevoucherreportParameters.rptCurrency)
+                                                                              && (purchasevoucherreportParameters.rptInvoiceType == "ALL" ? true : (k.PurchaseVoucherPurchaseType == purchasevoucherreportParameters.rptInvoiceType))
+
+                                                                             && (purchasevoucherreportParameters.rptCurrency == -1 ? true : ((k.PurchaseVoucherCurrencyId == purchasevoucherreportParameters.rptCurrency)
                                    && (purchasevoucherreportParameters.rptLocation == -1 ? true : (k.PurchaseVoucherLocationId == purchasevoucherreportParameters.rptLocation))
                                    && (purchasevoucherreportParameters.rptJob == -1 ? true : (k.PurchaseVoucherJobId == purchasevoucherreportParameters.rptJob))
                                      && (purchasevoucherreportParameters.rptSuppInvNo.Trim() == "" ? true : (k.PurchaseVoucherSupplyInvoiceNo.Trim() == purchasevoucherreportParameters.rptSuppInvNo.Trim()))
-                                                                              && (purchasevoucherreportParameters.rptInvoiceType == "ALL" ? true : (k.PurchaseVoucherPurchaseType == purchasevoucherreportParameters.rptInvoiceType))
                         && (purchasevoucherreportParameters.rptBrand == -1 ? true : (k.ItemBrandId == (long)purchasevoucherreportParameters.rptBrand))
                               && (purchasevoucherreportParameters.rptItemGroup == -1 ? true : (k.ItemGroupId == purchasevoucherreportParameters.rptItemGroup))
                              && (purchasevoucherreportParameters.rptItem == -1 ? true : (k.PurchaseVoucherDetailsMaterialId == purchasevoucherreportParameters.rptItem))
@@ -928,11 +930,12 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                     List<ReportPurchaseVoucher> reportPurchaseVoucher_ALL
                         = _reportPurchaseVoucherRepository.GetAsQueryable().Where(k =>
                            (purchasevoucherreportParameters.rptSupplier == -1 ? true : (k.PurchaseVoucherPartyId == purchasevoucherreportParameters.rptSupplier))
-                        && (purchasevoucherreportParameters.rptCurrency == -1 ? true : ((k.PurchaseVoucherCurrencyId == purchasevoucherreportParameters.rptCurrency)
+                            && (purchasevoucherreportParameters.rptInvoiceType == "ALL" ? true : (k.PurchaseVoucherPurchaseType == purchasevoucherreportParameters.rptInvoiceType))
+
+                           && (purchasevoucherreportParameters.rptCurrency == -1 ? true : ((k.PurchaseVoucherCurrencyId == purchasevoucherreportParameters.rptCurrency)
                         && (purchasevoucherreportParameters.rptLocation == -1 ? true : (k.PurchaseVoucherLocationId == purchasevoucherreportParameters.rptLocation))
                         && (purchasevoucherreportParameters.rptJob == -1 ? true : (k.PurchaseVoucherJobId == purchasevoucherreportParameters.rptJob))
                         && (purchasevoucherreportParameters.rptSuppInvNo.Trim() == "" ? true : (k.PurchaseVoucherSupplyInvoiceNo.Trim() == purchasevoucherreportParameters.rptSuppInvNo.Trim()))
-                        && (purchasevoucherreportParameters.rptInvoiceType == "ALL" ? true : (k.PurchaseVoucherPurchaseType == purchasevoucherreportParameters.rptInvoiceType))
                         && (purchasevoucherreportParameters.rptBrand == -1 ? true : (k.ItemBrandId == purchasevoucherreportParameters.rptBrand))
                         && (purchasevoucherreportParameters.rptItemGroup == -1 ? true : (k.ItemGroupId == purchasevoucherreportParameters.rptItemGroup))
                         && (purchasevoucherreportParameters.rptItem == -1 ? true : (k.PurchaseVoucherDetailsMaterialId == purchasevoucherreportParameters.rptItem))
@@ -992,11 +995,12 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
 
                 List<ReportPurchaseOrder> reportPurchaseOrder_ALL = (from k in _reportPurchaseOrderRepository.GetAsQueryable()
                                                                      where ((purchaseOrderreportParameters.rptSupplier == -1 ? true : (k.PurchaseOrderPartyId == purchaseOrderreportParameters.rptSupplier))
+                                                                        && (purchaseOrderreportParameters.rptInvoiceType == "ALL" ? true : (k.PurchaseOrderType == purchaseOrderreportParameters.rptInvoiceType.Trim()))
+
                             && (purchaseOrderreportParameters.rptCurrency == -1 ? true : ((k.PurchaseOrderCurrencyId == purchaseOrderreportParameters.rptCurrency)
                            && (purchaseOrderreportParameters.rptLocation == -1 ? true : (k.PurchaseOrderLocationId == purchaseOrderreportParameters.rptLocation))
                            && (purchaseOrderreportParameters.rptJob == -1 ? true : (k.PurchaseOrderJobId == purchaseOrderreportParameters.rptJob))
                              && (purchaseOrderreportParameters.rptSuppInvNo.Trim() == "" ? true : (k.PurchaseOrderSupInvNo.Trim() == purchaseOrderreportParameters.rptSuppInvNo.Trim()))
-                                                                      && (purchaseOrderreportParameters.rptInvoiceType == "ALL" ? true : (k.PurchaseOrderType == purchaseOrderreportParameters.rptInvoiceType))
                      ////&& (purchasevoucherreportParameters.rptBrand == -1 ? true : (k.ItemBrandId == purchasevoucherreportParameters.rptBrand))
                      ////      && (purchasevoucherreportParameters.rptItemGroup == -1 ? true : (k.ItemGroupId == purchasevoucherreportParameters.rptItemGroup))
                      && (purchaseOrderreportParameters.rptItem == -1 ? true : (k.ItemMasterItemId == purchaseOrderreportParameters.rptItem))
@@ -1044,11 +1048,12 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
             {
                 List<ReportPurchaseOrder> reportPurchaseOrder_ALL = _reportPurchaseOrderRepository.GetAsQueryable().Where(k =>
                 (purchaseOrderreportParameters.rptSupplier == -1 ? true : (k.PurchaseOrderPartyId == purchaseOrderreportParameters.rptSupplier))
+                        && (purchaseOrderreportParameters.rptInvoiceType == "ALL" ? true : (k.PurchaseOrderType == purchaseOrderreportParameters.rptInvoiceType.Trim()))
+
                           && (purchaseOrderreportParameters.rptCurrency == -1 ? true : ((k.PurchaseOrderCurrencyId == purchaseOrderreportParameters.rptCurrency)
                          && (purchaseOrderreportParameters.rptLocation == -1 ? true : (k.PurchaseOrderLocationId == purchaseOrderreportParameters.rptLocation))
                          && (purchaseOrderreportParameters.rptJob == -1 ? true : (k.PurchaseOrderJobId == purchaseOrderreportParameters.rptJob))
                           && (purchaseOrderreportParameters.rptSuppInvNo.Trim() == "" ? true : (k.PurchaseOrderSupInvNo.Trim() == purchaseOrderreportParameters.rptSuppInvNo.Trim()))
-                          && (purchaseOrderreportParameters.rptInvoiceType == "ALL" ? true : (k.PurchaseOrderType == purchaseOrderreportParameters.rptInvoiceType))
                    //&& (purchasevoucherreportParameters.rptBrand == -1 ? true : (k.ItemBrandId == purchasevoucherreportParameters.rptBrand))
                    //  && (purchasevoucherreportParameters.rptItemGroup == -1 ? true : (k.ItemGroupId == purchasevoucherreportParameters.rptItemGroup))
                    && (purchaseOrderreportParameters.rptItem == -1 ? true : (k.ItemMasterItemId == purchaseOrderreportParameters.rptItem))

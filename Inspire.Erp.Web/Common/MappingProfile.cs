@@ -98,6 +98,19 @@ namespace Inspire.Erp.Web.Common
             CreateMap<JobEquipment, JobEquipmentViewModels>();
             CreateMap<JobEquipmentViewModels, JobEquipment>();
 
+            // JobTimesheetDesc mappings
+            CreateMap<JobTimesheetDesc, JobTimesheetDescViewModels>();
+            CreateMap<JobTimesheetDescViewModels, JobTimesheetDesc>();
+            // JobTimeSheetEquip mappings
+            CreateMap<JobTimeSheetEquip, JobTimeSheetEquipViewModels>();
+            CreateMap<JobTimeSheetEquipViewModels, JobTimeSheetEquip>();
+            // JobTimesheetMaster mappings
+            CreateMap<JobTimesheetMaster, JobTimesheetMasterViewModels>();
+            CreateMap<JobTimesheetMasterViewModels, JobTimesheetMaster>();
+            // JobTimeSheetStaff mappings
+            CreateMap<JobTimeSheetStaff, JobTimeSheetStaffViewModels>();
+            CreateMap<JobTimeSheetStaffViewModels, JobTimeSheetStaff>();
+
             CreateMap<JobExcutionDetails, JobExcutionDetailsViewModels>();
             CreateMap<JobExcutionDetailsViewModels, JobExcutionDetails>();
 

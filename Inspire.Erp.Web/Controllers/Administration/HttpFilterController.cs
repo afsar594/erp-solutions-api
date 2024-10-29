@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 using Inspire.Erp.Domain.Modals.Common;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
+using System;
 
-public class SpecialCharacterValidationFilter : IAsyncActionFilter
+public class SpecialCharacterValidationFilter : ActionFilterAttribute
 {
     private readonly string _pattern = @"[';#""=\\]|--"; // Updated to allow single hyphen but disallow double hyphen
 
@@ -35,7 +36,7 @@ public class SpecialCharacterValidationFilter : IAsyncActionFilter
                     {
                         IsSuccess = false,
                         //Message = "Request contains special characters (" + @"';#""=\--)"
-                        ErrorMessage= "Request contains special characters (" + @"';#""=\--)"
+                        ErrorMessage = "Request contains special characters (" + @"';#""=\--)"
                     };
                     // If special characters are found, return an error response
                     context.Result = new ObjectResult(objResponse)
@@ -71,7 +72,7 @@ public class SpecialCharacterValidationFilter : IAsyncActionFilter
     }
 }
 
-public class SkipSpecialCharacterValidationAttribute 
+public class SkipSpecialCharacterValidationAttribute : Attribute
 {
     // Empty class, only used as a marker for skipping validation
 }
