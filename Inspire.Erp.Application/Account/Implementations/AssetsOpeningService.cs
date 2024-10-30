@@ -602,7 +602,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                             AstPurDetID = x.AstPurDetID,
                             AstPurchaseID = x.AstPurchaseID,
                             AssetSize = x.AssetSize,
-                            AstPurDate = x.AstPurDate,
+                            AstPurDate = (DateTime)x.AstPurDate,
                             Amount = x.Amount,
                             Quantity = (int)x.Quantity,
                             BookValue = x.BookValue,
