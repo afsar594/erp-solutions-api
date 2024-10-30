@@ -20,7 +20,7 @@ namespace Inspire.Erp.Domain.Entities
         public string Remarks { get; set; }
         public string AstPurRefNo { get; set; }
         public decimal? LifrInYrs { get; set; }
-        public DateTime AstPurDate { get; set; }
+        public DateTime? AstPurDate { get; set; }
         public string DepMode { get; set; }
         public decimal? DepAmt { get; set; }
         public decimal? DepPerc { get; set; }
