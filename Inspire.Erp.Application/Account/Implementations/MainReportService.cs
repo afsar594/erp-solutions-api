@@ -880,13 +880,13 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                                      && (purchasevoucherreportParameters.rptDateRange == false ? true : (k.PurchaseVoucherPurchaseDate.Value.Date >= purchasevoucherreportParameters.rptDtpFrom.Value.Date)
                                      && (k.PurchaseVoucherPurchaseDate.Value.Date <= purchasevoucherreportParameters.rptDtpTo.Value.Date))
                                      && (purchasevoucherreportParameters.rptLocation == -1 ? true : (k.PurchaseVoucherLocationId.Value == purchasevoucherreportParameters.rptLocation.Value))
+                                      && (purchasevoucherreportParameters.rptItem == -1 ? true : (k.PurchaseVoucherDetailsMaterialId == purchasevoucherreportParameters.rptItem))
+                                     && (purchasevoucherreportParameters.rptSuppInvNo.Trim() == "" ? true : (k.PurchaseVoucherSupplyInvoiceNo.Trim() == purchasevoucherreportParameters.rptSuppInvNo.Trim()))
                                      && (purchasevoucherreportParameters.rptCurrency == -1 ? true : ((k.PurchaseVoucherCurrencyId == purchasevoucherreportParameters.rptCurrency)
                                      && (purchasevoucherreportParameters.rptJob == -1 ? true : (k.PurchaseVoucherJobId == purchasevoucherreportParameters.rptJob))
-                                     && (purchasevoucherreportParameters.rptSuppInvNo.Trim() == "" ? true : (k.PurchaseVoucherSupplyInvoiceNo.Trim() == purchasevoucherreportParameters.rptSuppInvNo.Trim()))
                                     && (purchasevoucherreportParameters.rptBrand == -1 ? true : (k.ItemBrandId == (long)purchasevoucherreportParameters.rptBrand))
                                     && (purchasevoucherreportParameters.rptItemGroup == -1 ? true : (k.ItemGroupId == purchasevoucherreportParameters.rptItemGroup))
-                                    && (purchasevoucherreportParameters.rptItem == -1 ? true : (k.PurchaseVoucherDetailsMaterialId == purchasevoucherreportParameters.rptItem))
-
+                                  
 
                             && (k.PurchaseVoucherDelStatus == false || k.PurchaseVoucherDelStatus == null))))
                                                                              group k by new
@@ -937,12 +937,12 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                          && (purchasevoucherreportParameters.rptDateRange == false ? true : (k.PurchaseVoucherPurchaseDate.Value.Date >= purchasevoucherreportParameters.rptDtpFrom.Value.Date)
                          && (k.PurchaseVoucherPurchaseDate.Value.Date <= purchasevoucherreportParameters.rptDtpTo.Value.Date))
                          && (purchasevoucherreportParameters.rptLocation == -1 ? true : (k.PurchaseVoucherLocationId == purchasevoucherreportParameters.rptLocation))
+                         && (purchasevoucherreportParameters.rptItem == -1 ? true : (k.PurchaseVoucherDetailsMaterialId == purchasevoucherreportParameters.rptItem))
+                         && (purchasevoucherreportParameters.rptSuppInvNo.Trim() == "" ? true : (k.PurchaseVoucherSupplyInvoiceNo.Trim() == purchasevoucherreportParameters.rptSuppInvNo.Trim()))
                          && (purchasevoucherreportParameters.rptCurrency == -1 ? true : ((k.PurchaseVoucherCurrencyId == purchasevoucherreportParameters.rptCurrency)
                          && (purchasevoucherreportParameters.rptJob == -1 ? true : (k.PurchaseVoucherJobId == purchasevoucherreportParameters.rptJob))
-                         && (purchasevoucherreportParameters.rptSuppInvNo.Trim() == "" ? true : (k.PurchaseVoucherSupplyInvoiceNo.Trim() == purchasevoucherreportParameters.rptSuppInvNo.Trim()))
                          && (purchasevoucherreportParameters.rptBrand == -1 ? true : (k.ItemBrandId == purchasevoucherreportParameters.rptBrand))
                          && (purchasevoucherreportParameters.rptItemGroup == -1 ? true : (k.ItemGroupId == purchasevoucherreportParameters.rptItemGroup))
-                         && (purchasevoucherreportParameters.rptItem == -1 ? true : (k.PurchaseVoucherDetailsMaterialId == purchasevoucherreportParameters.rptItem))
                          && (k.PurchaseVoucherDelStatus == false || k.PurchaseVoucherDelStatus == null)))).OrderBy(x => x.PurchaseVoucherPurId).
                         Select(c => new ReportPurchaseVoucher
                         {
