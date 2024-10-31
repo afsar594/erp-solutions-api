@@ -904,6 +904,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                                                                                  k.PurchaseVoucherVatAmount,
                                                                                  k.PurchaseVoucherVatRoundAmount,
                                                                                  k.PurchaseVoucherNetAmount,
+                                                                               
                                                                              } into grp
                                                                              select new ReportPurchaseVoucher
                                                                              {
@@ -920,6 +921,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                                                                                  PurchaseVoucherVatAmount = grp.Key.PurchaseVoucherVatAmount,
                                                                                  PurchaseVoucherVatRoundAmount = grp.Key.PurchaseVoucherVatRoundAmount,
                                                                                  PurchaseVoucherNetAmount = grp.Key.PurchaseVoucherNetAmount
+                                                                                 
 
                                                                              }).ToList();
 
@@ -950,6 +952,12 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                             PurchaseVoucherNetAmount = c.PurchaseVoucherNetAmount,
                             ItemBrandId = c.ItemBrandId,
                             ItemGroupId = c.ItemGroupId,
+                            SuppliersMasterSupplierName = c.SuppliersMasterSupplierName,
+                            PurchaseVoucherSupplyInvoiceNo = c.PurchaseVoucherSupplyInvoiceNo,
+                            UnitMasterUnitShortName = c.UnitMasterUnitShortName,
+                            PurchaseVoucherUserId = c.PurchaseVoucherUserId,
+                            PurchaseVoucherDetailsUnit = c.PurchaseVoucherDetailsUnit,
+                            ItemMasterItemName = c.ItemMasterItemName,
                             ItemBrandName = c.ItemBrandName,
                             ItemGroupName = c.ItemGroupName,
                             PurchaseVoucherDetailsRate = c.PurchaseVoucherDetailsRate,
