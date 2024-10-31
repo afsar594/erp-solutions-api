@@ -970,6 +970,8 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                             LocationMasterLocationName = c.LocationMasterLocationName,
                             PurchaseVoucherFcNetAmount = c.PurchaseVoucherFcNetAmount,
                             PurchaseVoucherDetailsGrossAmount= c.PurchaseVoucherDetailsGrossAmount,
+                            PurchaseVoucherVatNo = c.PurchaseVoucherVatNo,
+
                         }).ToList();
 
                     return reportPurchaseVoucher_ALL;
@@ -1032,7 +1034,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                                                                          PurchaseOrderVatAmt = grp.Key.PurchaseOrderVatAmt,
                                                                          PurchaseOrderVatRountAmt = grp.Key.PurchaseOrderVatRountAmt,
                                                                          PurchaseOrderNetAmount = grp.Key.PurchaseOrderNetAmount,
-                                                                  
+                                                                         
                                                                      }).ToList();
 
                 return reportPurchaseOrder_ALL;
