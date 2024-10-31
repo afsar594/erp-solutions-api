@@ -904,7 +904,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                                                                                  k.PurchaseVoucherVatAmount,
                                                                                  k.PurchaseVoucherVatRoundAmount,
                                                                                  k.PurchaseVoucherNetAmount,
-
+                                                                                 
                                                                              } into grp
                                                                              select new ReportPurchaseVoucher
                                                                              {
@@ -971,6 +971,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                             PurchaseVoucherFcNetAmount = c.PurchaseVoucherFcNetAmount,
                             PurchaseVoucherDetailsGrossAmount= c.PurchaseVoucherDetailsGrossAmount,
                             PurchaseVoucherVatNo = c.PurchaseVoucherVatNo,
+                            PurchaseVoucherPurchaseType = c.PurchaseVoucherPurchaseType,
 
                         }).ToList();
 
