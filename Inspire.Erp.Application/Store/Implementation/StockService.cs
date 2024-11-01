@@ -717,12 +717,12 @@ namespace Inspire.Erp.Application.Store.Implementation
                    Item_Id = x.ItemMasterItemId,
                    Item_Name = x.ItemMasterItemName,
                    Stock_Register_Unit = x.UnitMasterUnitShortName ?? "",
-                   StockIn = (x.StockRegisterSIN != null && x.StockRegisterSIN > 0 && x.StockRegisterVoucherDate >= model.fromDate && x.StockRegisterVoucherDate <= model.toDate) ? x.StockRegisterSIN : 0,
-                   StockInAmount = (x.StockRegisterSIN != null && x.StockRegisterSIN > 0 && x.StockRegisterVoucherDate >= model.fromDate && x.StockRegisterVoucherDate <= model.toDate) ? x.StockRegisterAmount ?? 0 : 0,
-                   StockOut = (x.StockRegisterSout != null && x.StockRegisterSout > 0 && x.StockRegisterVoucherDate >= model.fromDate && x.StockRegisterVoucherDate <= model.toDate) ? x.StockRegisterSout ?? 0 : 0,
-                   StockOutAmount = (x.StockRegisterSout != null && x.StockRegisterSout > 0 && x.StockRegisterVoucherDate >= model.fromDate && x.StockRegisterVoucherDate <= model.toDate) ? x.StockRegisterAmount ?? 0 : 0,
-                   OpenQty = (x.StockRegisterVoucherDate < model.fromDate) ? (x.StockRegisterSIN ?? 0) - (x.StockRegisterSout ?? 0) : 0,
-                   OpenQtyAmount = (x.StockRegisterVoucherDate < model.fromDate) ? ((x.StockRegisterSIN ?? 0) > 0 ? (x.StockRegisterAmount ?? 0) : 0) - ((x.StockRegisterSout ?? 0) > 0 ? (x.StockRegisterAmount ?? 0) : 0) : 0,
+                   StockIn = (x.StockRegisterSIN != null && x.StockRegisterSIN > 0 && x.StockRegisterVoucherDate.Value.Date >= model.fromDate.Date && x.StockRegisterVoucherDate.Value.Date <= model.toDate.Date) ? x.StockRegisterSIN : 0,
+                   StockInAmount = (x.StockRegisterSIN != null && x.StockRegisterSIN > 0 && x.StockRegisterVoucherDate.Value.Date >= model.fromDate.Date && x.StockRegisterVoucherDate.Value.Date <= model.toDate.Date) ? x.StockRegisterAmount ?? 0 : 0,
+                   StockOut = (x.StockRegisterSout != null && x.StockRegisterSout > 0 && x.StockRegisterVoucherDate.Value.Date >= model.fromDate.Date && x.StockRegisterVoucherDate.Value.Date <= model.toDate.Date) ? x.StockRegisterSout ?? 0 : 0,
+                   StockOutAmount = (x.StockRegisterSout != null && x.StockRegisterSout > 0 && x.StockRegisterVoucherDate.Value.Date >= model.fromDate.Date && x.StockRegisterVoucherDate.Value.Date <= model.toDate.Date) ? x.StockRegisterAmount ?? 0 : 0,
+                   OpenQty = (x.StockRegisterVoucherDate.Value.Date < model.fromDate.Date) ? (x.StockRegisterSIN ?? 0) - (x.StockRegisterSout ?? 0) : 0,
+                   OpenQtyAmount = (x.StockRegisterVoucherDate.Value.Date < model.fromDate.Date) ? ((x.StockRegisterSIN ?? 0) > 0 ? (x.StockRegisterAmount ?? 0) : 0) - ((x.StockRegisterSout ?? 0) > 0 ? (x.StockRegisterAmount ?? 0) : 0) : 0,
 
                    TotalBal = 0,
                    TotalBalAmount = 0
@@ -740,8 +740,8 @@ namespace Inspire.Erp.Application.Store.Implementation
                        StockOutAmount = g.Sum(a => a.StockOutAmount),
                        OpenQty = g.Sum(a => a.OpenQty),
                        OpenQtyAmount = g.Sum(a => a.OpenQtyAmount),
-                       TotalBal = g.Sum(a => a.StockIn) - g.Sum(a => a.StockOut),
-                       TotalBalAmount = g.Sum(a => a.StockInAmount) - g.Sum(a => a.StockOutAmount)
+                       TotalBal = g.Sum(a => a.OpenQty) + (g.Sum(a => a.StockIn) - g.Sum(a => a.StockOut)),
+                       TotalBalAmount = g.Sum(a => a.OpenQtyAmount) + (g.Sum(a => a.StockInAmount) - g.Sum(a => a.StockOutAmount))
                    })
                .ToList();
 
@@ -763,9 +763,9 @@ namespace Inspire.Erp.Application.Store.Implementation
                                    TransType = y.StockRegisterTransType,
                                    Unit = n.UnitMasterUnitShortName ?? "",
                                    Location = lms.LocationMasterLocationName ?? "",
-                                   Rate = y != null && y.StockRegisterSIN > 0 && y.StockRegisterVoucherDate >= model.fromDate && y.StockRegisterVoucherDate <= model.toDate ? y.StockRegisterRate : 0,
-                                   Qty = y != null && y.StockRegisterSIN > 0 && y.StockRegisterVoucherDate >= model.fromDate && y.StockRegisterVoucherDate <= model.toDate ? y.StockRegisterSIN : 0,
-                                   QtyAmount = y != null && y.StockRegisterSIN > 0 && y.StockRegisterVoucherDate >= model.fromDate && y.StockRegisterVoucherDate <= model.toDate ? y.StockRegisterAmount : 0,
+                                   Rate = y != null && y.StockRegisterSIN > 0 && y.StockRegisterVoucherDate.Value.Date >= model.fromDate.Date && y.StockRegisterVoucherDate.Value.Date <= model.toDate.Date ? y.StockRegisterRate : 0,
+                                   Qty = y != null && y.StockRegisterSIN > 0 && y.StockRegisterVoucherDate.Value.Date >= model.fromDate.Date && y.StockRegisterVoucherDate.Value.Date <= model.toDate.Date ? y.StockRegisterSIN : 0,
+                                   QtyAmount = y != null && y.StockRegisterSIN > 0 && y.StockRegisterVoucherDate.Value.Date >= model.fromDate.Date && y.StockRegisterVoucherDate.Value.Date <= model.toDate.Date ? y.StockRegisterAmount : 0,
                                }).ToList();
 
                 var indexedStockMovementIn = StockIn.Where(x => x.Qty > 0)
@@ -794,9 +794,9 @@ namespace Inspire.Erp.Application.Store.Implementation
                                     TransType = y.StockRegisterTransType,
                                     Unit = n.UnitMasterUnitShortName ?? "",
                                     Location = lms.LocationMasterLocationName ?? "",
-                                    Rate = y != null && y.StockRegisterSout > 0 && y.StockRegisterVoucherDate >= model.fromDate && y.StockRegisterVoucherDate <= model.toDate ? y.StockRegisterRate : 0,
-                                    Qty = y != null && y.StockRegisterSout > 0 && y.StockRegisterVoucherDate >= model.fromDate && y.StockRegisterVoucherDate <= model.toDate ? y.StockRegisterSout : 0,
-                                    QtyAmount = y != null && y.StockRegisterSout > 0 && y.StockRegisterVoucherDate >= model.fromDate && y.StockRegisterVoucherDate <= model.toDate ? y.StockRegisterAmount : 0,
+                                    Rate = y != null && y.StockRegisterSout > 0 && y.StockRegisterVoucherDate.Value.Date >= model.fromDate.Date && y.StockRegisterVoucherDate.Value.Date <= model.toDate.Date ? y.StockRegisterRate : 0,
+                                    Qty = y != null && y.StockRegisterSout > 0 && y.StockRegisterVoucherDate.Value.Date >= model.fromDate.Date && y.StockRegisterVoucherDate.Value.Date <= model.toDate.Date ? y.StockRegisterSout : 0,
+                                    QtyAmount = y != null && y.StockRegisterSout > 0 && y.StockRegisterVoucherDate.Value.Date >= model.fromDate.Date && y.StockRegisterVoucherDate.Value.Date <= model.toDate.Date ? y.StockRegisterAmount : 0,
                                 }).ToList();
 
                 var indexedStockMovementOut = StockOut.Where(x => x.Qty > 0)
