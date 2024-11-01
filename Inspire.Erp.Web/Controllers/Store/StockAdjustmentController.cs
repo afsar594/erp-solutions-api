@@ -137,13 +137,31 @@ namespace Inspire.Erp.Web.Controllers.Store
                 LocationMasterLocationName = c.LocationMasterLocationName.Trim(),
             }).ToList();
 
+            //var itemMaster = _itemrepository.GetAsQueryable().AsNoTracking().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
+            //        && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
+            //        {
+            //            k.ItemMasterItemId,
+            //            k.ItemMasterPartNo,
+            //            ItemMasterItemName = k.ItemMasterItemName.Trim(),
+            //            ItemMasterCurrentStock =k.ItemMasterCurrentStock,
+                      
+
+            //        }).ToList();
+
             var itemMaster = _itemrepository.GetAsQueryable().AsNoTracking().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
-                    && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
-                    {
-                        k.ItemMasterItemId,
-                        k.ItemMasterPartNo,
-                        ItemMasterItemName = k.ItemMasterItemName.Trim()
-                    }).ToList();
+                 && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
+                 {
+                     k.ItemMasterItemId,
+                     k.ItemMasterItemName,
+                     k.ItemMasterBarcode,
+                     k.ItemMasterPartNo,
+                     k.ItemMasterCurrentStock,
+                     k.ItemMasterAccountNo
+                 }).ToList();
+
+
+
+
             var unitMasters = _unitrepository.GetAsQueryable().AsNoTracking().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
             {
                 x.UnitMasterUnitId,
@@ -156,6 +174,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 LocationMaster = LocationMaster,
                 itemMaster = itemMaster,
                 unitMasters = unitMasters,
+               
             };
             return objresponse;
         }
