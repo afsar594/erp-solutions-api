@@ -25182,6 +25182,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.Date)
                       .HasColumnType("datetime");
 
+
                 entity.Property(e => e.CustomerEnqId)
                       .HasColumnType("numeric(18, 0)");
 
