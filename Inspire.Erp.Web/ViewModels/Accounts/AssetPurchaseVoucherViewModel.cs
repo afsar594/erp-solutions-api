@@ -50,6 +50,7 @@ namespace Inspire.Erp.Web.ViewModels.Accounts
         public string VatRoundSign { get; set; }
         public decimal? VatRountAmt { get; set; }
         public string AstVatNo { get; set; }
+        public int? SupplierId { get; set; }
 
         public List<AccountTransactionViewModel> AccountsTransactions { get; set; }
         public List<AssetPurchaseVoucherDetailsViewModel> AssetPurchaseVoucherDetails { get; set; }
