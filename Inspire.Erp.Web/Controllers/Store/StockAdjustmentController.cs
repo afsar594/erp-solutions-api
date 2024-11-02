@@ -9,7 +9,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NPOI.HPSF;
 using SendGrid.Helpers.Mail;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,16 +25,19 @@ namespace Inspire.Erp.Web.Controllers.Store
         private IStockAdjustmentService _sa;
         private readonly IMapper _mapper;
         private IRepository<JobMaster> _jobrepository;
-        private IRepository<LocationMaster> _locationrepository; private IRepository<ItemMaster> _itemrepository;
+        private IRepository<LocationMaster> _locationrepository;
+        private IRepository<ItemMaster> _itemrepository;
         private IRepository<UnitMaster> _unitrepository;
-        Repository<UnitDetails> _unitDetailRepository;
+        private IRepository<UnitDetails> _unitDetailRepository;
+        private IRepository<StockRegister> _stockRegisterRepository;
         public StockAdjustmentController(IStockAdjustmentService sa, IMapper mapper, IRepository<UnitMaster> unitrepository,
-            IRepository<JobMaster> jobrepository, IRepository<LocationMaster> locationrepository, IRepository<ItemMaster> itemrepository, Repository<UnitDetails> unitDetailRepository)
+            IRepository<JobMaster> jobrepository, IRepository<LocationMaster> locationrepository, IRepository<ItemMaster> itemrepository, IRepository<UnitDetails> unitDetailRepository, IRepository<StockRegister> stockRegisterRepository)
         {
             _sa = sa;
             _mapper = mapper; _itemrepository = itemrepository; _unitrepository = unitrepository;
             _jobrepository = jobrepository; _locationrepository = locationrepository;
             _unitDetailRepository = unitDetailRepository;
+            _stockRegisterRepository = stockRegisterRepository;
         }
 
         [HttpGet]
@@ -151,8 +156,10 @@ namespace Inspire.Erp.Web.Controllers.Store
 
             //        }).ToList();
 
+           
 
-            var objectresponse = new ResponseInfo();
+
+
             var itemMaster = (from item in _itemrepository.GetAsQueryable().AsNoTracking()
                               join unit in _unitDetailRepository.GetAsQueryable().AsNoTracking()
                               on item.ItemMasterItemId equals unit.UnitDetailsItemId
@@ -166,23 +173,10 @@ namespace Inspire.Erp.Web.Controllers.Store
                                   item.ItemMasterVenderId,
                                   item.ItemMasterItemSize,
                                   itemMasterBarcode = unit.UnitDetailsBarcode,
-                                  item.ItemMasterCurrentStock,
-                                  
+                                  ItemMasterCurrentStock =_stockRegisterRepository.GetAsQueryable().Where(x => x.StockRegisterMaterialID ==item.ItemMasterItemId).Sum(y => (y.StockRegisterSIN ?? 0) - (y.StockRegisterSout ?? 0)),
+
+
                               }).Distinct().ToList();
-
-            //var itemMaster = _itemrepository.GetAsQueryable().AsNoTracking().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
-            //     && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
-            //     {
-            //         k.ItemMasterItemId,
-            //         k.ItemMasterItemName,
-            //         k.ItemMasterBarcode,
-            //         k.ItemMasterPartNo,
-            //         k.ItemMasterCurrentStock,
-            //         k.ItemMasterAccountNo
-            //     }).ToList();
-
-
-
 
             var unitMasters = _unitrepository.GetAsQueryable().AsNoTracking().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
             {
