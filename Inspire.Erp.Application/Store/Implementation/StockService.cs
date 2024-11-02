@@ -648,7 +648,7 @@ namespace Inspire.Erp.Application.Store.Implementation
         //}
 
 
-        public async Task<Response<List<VWStockBaseUnitWithValue>>> GetStockReportBaseUnitWithValue(StockFilterModel model)
+        public async Task<Response<List<VWStockBaseUnitWithValue>>> GetStockReportBaseUnitWithValue(StockBaseUnitModel model)
         {
             try
             {
@@ -692,18 +692,19 @@ namespace Inspire.Erp.Application.Store.Implementation
                                 d.StockRegisterSout,
                                 d.StockRegisterAmount,
                                 d.StockRegisterRate,
-                            }).GroupBy(x => x.ItemMasterItemId)
+                            })
+                            .AsEnumerable()
+                            .GroupBy(x => x.ItemMasterItemId)
                 .Select(g => new VWStockBaseUnitWithValue
                 {
                     ItemId = g.Key,
                     Stock = g.Sum(x => (x.StockRegisterSIN ?? 0) - (x.StockRegisterSout ?? 0)),
-                    ItemName = g.FirstOrDefault().ItemMasterItemName,
-                    RelativeNO = g.FirstOrDefault().ItemMasterPartNo, // Ensure a default value if null
-                    UnitShortName = g.FirstOrDefault().UnitMasterUnitFullName,
+                    ItemName = g.FirstOrDefault()?.ItemMasterItemName,
+                    RelativeNO = g.FirstOrDefault()?.ItemMasterPartNo ?? string.Empty, // Ensure a default value if null
+                    UnitShortName = g.FirstOrDefault()?.UnitMasterUnitFullName ?? string.Empty,
                     AVGRATE = g.Average(x => x.StockRegisterRate ?? 0),
                     AMOUNT = g.Sum(x => x.StockRegisterAmount ?? 0),
-                    AVGPURCHASEValue = g.Sum(x => (x.StockRegisterSIN ?? 0) > 0 ? (x.StockRegisterAmount ?? 0) / (x.StockRegisterSIN ?? 1) : 0),
-                    ItemNo = g.FirstOrDefault().ItemMasterPartNo
+                    AVGPURCHASEValue = g.Where(x => x.StockRegisterSIN > 0).Average(a => (decimal)a.StockRegisterRate),
                 }).ToList();
 
 
@@ -795,7 +796,6 @@ namespace Inspire.Erp.Application.Store.Implementation
                    StockOutAmount = (x.StockRegisterSout != null && x.StockRegisterSout > 0 && x.StockRegisterVoucherDate.Value.Date >= model.fromDate.Date && x.StockRegisterVoucherDate.Value.Date <= model.toDate.Date) ? x.StockRegisterAmount ?? 0 : 0,
                    OpenQty = (x.StockRegisterVoucherDate.Value.Date < model.fromDate.Date) ? (x.StockRegisterSIN ?? 0) - (x.StockRegisterSout ?? 0) : 0,
                    OpenQtyAmount = (x.StockRegisterVoucherDate.Value.Date < model.fromDate.Date) ? ((x.StockRegisterSIN ?? 0) > 0 ? (x.StockRegisterAmount ?? 0) : 0) - ((x.StockRegisterSout ?? 0) > 0 ? (x.StockRegisterAmount ?? 0) : 0) : 0,
-
                    TotalBal = 0,
                    TotalBalAmount = 0
                })
