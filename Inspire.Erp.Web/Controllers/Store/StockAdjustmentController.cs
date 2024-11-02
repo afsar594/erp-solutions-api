@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SendGrid.Helpers.Mail;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,12 +25,14 @@ namespace Inspire.Erp.Web.Controllers.Store
         private IRepository<JobMaster> _jobrepository;
         private IRepository<LocationMaster> _locationrepository; private IRepository<ItemMaster> _itemrepository;
         private IRepository<UnitMaster> _unitrepository;
+        Repository<UnitDetails> _unitDetailRepository;
         public StockAdjustmentController(IStockAdjustmentService sa, IMapper mapper, IRepository<UnitMaster> unitrepository,
-            IRepository<JobMaster> jobrepository, IRepository<LocationMaster> locationrepository, IRepository<ItemMaster> itemrepository)
+            IRepository<JobMaster> jobrepository, IRepository<LocationMaster> locationrepository, IRepository<ItemMaster> itemrepository, Repository<UnitDetails> unitDetailRepository)
         {
             _sa = sa;
             _mapper = mapper; _itemrepository = itemrepository; _unitrepository = unitrepository;
             _jobrepository = jobrepository; _locationrepository = locationrepository;
+            _unitDetailRepository = unitDetailRepository;
         }
 
         [HttpGet]
@@ -137,16 +140,35 @@ namespace Inspire.Erp.Web.Controllers.Store
                 LocationMasterLocationName = c.LocationMasterLocationName.Trim(),
             }).ToList();
 
-            var itemMaster = _itemrepository.GetAsQueryable().AsNoTracking().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
-                    && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
-                    {
-                        k.ItemMasterItemId,
-                        k.ItemMasterPartNo,
-                        ItemMasterItemName = k.ItemMasterItemName.Trim(),
-                        k.ItemMasterCurrentStock,
+            //var itemMaster = _itemrepository.GetAsQueryable().AsNoTracking().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
+            //        && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
+            //        {
+            //            k.ItemMasterItemId,
+            //            k.ItemMasterPartNo,
+            //            ItemMasterItemName = k.ItemMasterItemName.Trim(),
+            //            k.ItemMasterCurrentStock = (decimal) _StockRegister.Sum(y => y.StockRegisterSIN ?? 0 - y.StockRegisterSout ?? 0) 
 
 
-                    }).ToList();
+            //        }).ToList();
+
+
+            var objectresponse = new ResponseInfo();
+            var itemMaster = (from item in _itemrepository.GetAsQueryable().AsNoTracking()
+                              join unit in _unitDetailRepository.GetAsQueryable().AsNoTracking()
+                              on item.ItemMasterItemId equals unit.UnitDetailsItemId
+                              where item.ItemMasterAccountNo != 0
+                              && item.ItemMasterDelStatus != true
+                              && item.ItemMasterItemType != ItemMasterStatus.Group
+                              select new
+                              {
+                                  item.ItemMasterItemId,
+                                  item.ItemMasterItemName,
+                                  item.ItemMasterVenderId,
+                                  item.ItemMasterItemSize,
+                                  itemMasterBarcode = unit.UnitDetailsBarcode,
+                                  item.ItemMasterCurrentStock,
+                                  
+                              }).Distinct().ToList();
 
             //var itemMaster = _itemrepository.GetAsQueryable().AsNoTracking().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
             //     && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
