@@ -52,7 +52,9 @@ namespace Inspire.Erp.Application.Account.Implementations
                                       .Where(a => a.AccountsTransactionsAccNo.ToUpper() == accNo.ToUpper()
                                         && a.AccountsTransactionsAllocBalance > 0
                                         && ((vType == VoucherType.Receipt && a.AccountsTransactionsDebit != 0 && a.AccountsTransactionsVoucherType == VoucherType.SalesVoucher_TYPE)
-                                      || (vType == VoucherType.Payment && a.AccountsTransactionsCredit != 0 && a.AccountsTransactionsVoucherType == VoucherType.PurchaseVoucher_TYPE)))
+                                      || (vType == VoucherType.Payment && a.AccountsTransactionsCredit != 0 && a.AccountsTransactionsVoucherType == VoucherType.PurchaseVoucher_TYPE))
+                                      || vType == VoucherType.Receipt && a.AccountsTransactionsVoucherType == VoucherType.Receipt && a.AccountsTransactionsAllocCredit > 0 && a.AccountsTransactionsVoucherNo == refNo
+                                      || vType == VoucherType.Payment && a.AccountsTransactionsVoucherType == VoucherType.Payment && a.AccountsTransactionsAllocDebit > 0 && a.AccountsTransactionsVoucherNo == refNo)
                                         .Select(g => new Domain.Models.AllocationDetails()
                                         {
                                             TransNo = g.AccountsTransactionsTransSno,
