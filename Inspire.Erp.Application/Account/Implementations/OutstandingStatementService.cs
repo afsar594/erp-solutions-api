@@ -89,7 +89,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                     RefNo = x.RefNo,
                     AccountsTransactionsTransSno = Convert.ToInt32(x.AccountsTransactionsTransSno),
                     AccountsTransactionsAllocDebit = x.AccountsTransactionsAllocDebit,
-                    AccountsTransactionsAllocCredit = x.AccountsTransactionsAllocCredit
+                    AccountsTransactionsAllocCredit = x.AccountsTransactionsAllocCredit,
+                    
                 }).ToListAsync();
                 decimal runningBalance = 0;
                 decimal totalDebit = 0;
@@ -148,7 +149,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                         RefNo=accounts.RefNo != null? accounts.RefNo:"",
                         AccountstransactionsTotalDays= Math.Round(((DateTime.Now- Convert.ToDateTime(accounts.AccountsTransactionsTransDate)).TotalDays)).ToString(),
                         AccountsTransactionsAccNo = accounts.AccountsTransactionsAccNo != null ? accounts.AccountsTransactionsAccNo:"",
-          
+                        
                         AccountstransactionsRunningBalance = runningBalance.ToString()
                     });
                     accNo = accounts.AccountsTransactionsAccNo ;
@@ -241,6 +242,9 @@ namespace Inspire.Erp.Application.Account.Implementations
                                   settled = transaction.AccountsTransactionsDebit > transaction.AccountsTransactionsCredit ? transaction.AccountsTransactionsAllocDebit : transaction.AccountsTransactionsAllocDebit,
                                   Balance = transaction.AccountsTransactionsDebit > transaction.AccountsTransactionsCredit ? transaction.AccountsTransactionsAllocBalance : -1 * transaction.AccountsTransactionsAllocBalance,
                                   RunningBal = 0m,
+
+
+
                                   Days = (Convert.ToDateTime(model.fromDate).Date - transaction.AccountsTransactionsTransDate.Value.Date).Days
                               }).ToList();
 

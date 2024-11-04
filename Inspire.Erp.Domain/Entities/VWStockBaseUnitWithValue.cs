@@ -10,7 +10,7 @@ namespace Inspire.Erp.Domain.Entities
         public long ItemId { get; set; }
         public decimal Stock { get; set; }
         public string? ItemName { get; set; }
-        public long RelativeNO { get; set; }
+        public string? RelativeNO { get; set; }
         public int? UnitId { get; set; }
         public string? UnitShortName { get; set; }
         public decimal AVGRATE { get; set; }

@@ -20,7 +20,13 @@ namespace Inspire.Erp.Domain.Modals.Stock
         public bool ExcludeZeroBalance { get; set; }
         public bool PrintReceivedQtyReport { get; set; }
 
-
+    }
+    public class StockBaseUnitModel
+    {
+        public long? ItemId { get; set; }
+        public long? ItemGroupId { get; set; }
+        public int? LocationId { get; set; }
+        public bool ExcludeZeroBalance { get; set; }
     }
     public class QuotationFilterModel
     {
