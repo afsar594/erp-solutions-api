@@ -121,6 +121,7 @@ namespace Inspire.Erp.Web.Controllers.Store
             return apiResponse;
         }
 
+
         [HttpPost("StockAdjustmentReport")]
         public async Task<IActionResult> StockAdjustmentReport(StockAdjustmentReportFilter model)
         {
@@ -132,8 +133,7 @@ namespace Inspire.Erp.Web.Controllers.Store
         public ResponseInfo StockAdjustmentDropdown()
         {
             var objresponse = new ResponseInfo();
-
-
+            
             var jobMasters = _jobrepository.GetAsQueryable().AsNoTracking().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
             {
                 c.JobMasterJobId,
@@ -145,22 +145,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 LocationMasterLocationName = c.LocationMasterLocationName.Trim(),
             }).ToList();
 
-            //var itemMaster = _itemrepository.GetAsQueryable().AsNoTracking().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
-            //        && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
-            //        {
-            //            k.ItemMasterItemId,
-            //            k.ItemMasterPartNo,
-            //            ItemMasterItemName = k.ItemMasterItemName.Trim(),
-            //            k.ItemMasterCurrentStock = (decimal) _StockRegister.Sum(y => y.StockRegisterSIN ?? 0 - y.StockRegisterSout ?? 0) 
-
-
-            //        }).ToList();
-
-           
-
-
-
-            var itemMaster = (from item in _itemrepository.GetAsQueryable().AsNoTracking()
+           var itemMaster = (from item in _itemrepository.GetAsQueryable().AsNoTracking()
                               join unit in _unitDetailRepository.GetAsQueryable().AsNoTracking()
                               on item.ItemMasterItemId equals unit.UnitDetailsItemId
                               where item.ItemMasterAccountNo != 0
@@ -174,7 +159,6 @@ namespace Inspire.Erp.Web.Controllers.Store
                                   item.ItemMasterItemSize,
                                   itemMasterBarcode = unit.UnitDetailsBarcode,
                                   ItemMasterCurrentStock =_stockRegisterRepository.GetAsQueryable().Where(x => x.StockRegisterMaterialID ==item.ItemMasterItemId).Sum(y => (y.StockRegisterSIN ?? 0) - (y.StockRegisterSout ?? 0)),
-
 
                               }).Distinct().ToList();
 
