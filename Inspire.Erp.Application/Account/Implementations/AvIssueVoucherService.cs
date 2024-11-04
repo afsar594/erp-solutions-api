@@ -119,7 +119,7 @@ namespace Inspire.Erp.Application.Account.Implementations
 
                     if (model.isDate == true)
                     {
-                        finalData = finalData.Where(a => a.IssueDate >= model.dateFrom && a.IssueDate <= model.toDate).ToList();
+                        finalData = finalData.Where(a => a.IssueDate.Value.Date >= model.dateFrom.Value.Date && a.IssueDate.Value.Date <= model.toDate.Value.Date).ToList();
                     }
                 }
                 Console.WriteLine("**********************" + finalData.Count());
