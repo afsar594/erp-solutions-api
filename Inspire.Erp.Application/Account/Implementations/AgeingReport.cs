@@ -78,9 +78,20 @@ namespace Inspire.Erp.Application.Account.Implementations
                         accNo = accounts.AccountsTransactionsAccNo;
                         Remarks = accounts.AccountsTransactionsDescription;
 
-                      //  var account = await _MasterAccountsTable.FirstOrDefaultAsync(c => c.MaAccNo == accounts.AccountsTransactionsAccNo);
+                        if (accounts == null || accounts.AccountsTransactionsAccNo == null)
+                        {
+                            // Handle the null case as appropriate
+                            return null; // Or throw an exception or whatever logic you need
+                        }
+                        var account = await _MasterAccountsTable.GetAsQueryable()
+                            .Where(c => c.MaAccNo == accounts.AccountsTransactionsAccNo)
+                            .FirstOrDefaultAsync();
+                        if(account.MaAccName=="Supplier")
+                        {
+                            UnAllocated -= accounts.AccountsTransactionsAllocBalance.Value;
+                        }
 
-                        if(accounts.AccountsTransactionsCredit>0 && accounts.AccountsTransactionsAllocBalance>0 )
+                        else if(accounts.AccountsTransactionsCredit>0 && accounts.AccountsTransactionsAllocBalance>0 )
                         {
                             UnAllocated += accounts.AccountsTransactionsAllocBalance.Value;
                         }
