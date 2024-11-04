@@ -18,6 +18,7 @@ namespace Inspire.Erp.Domain.Entities
         public DateTime? Date { get; set; }
         public decimal? CustomerEnqId { get; set; }
         public string Remarks { get; set; }
+        public string Status { get; set; }
         [NotMapped]
         public virtual ICollection<BillOfQTyDetails> BillOfQTyDetails { get; set; }
     }
@@ -30,6 +31,7 @@ namespace Inspire.Erp.Domain.Entities
         public DateTime? Date { get; set; }
         public decimal? CustomerEnqId { get; set; }
         public string Remarks { get; set; }
+        public string Status { get; set; }
         public virtual List<BillOfQTyDetailsModel> BillOfQTyDetails { get; set; }
     }
     public class BoqDetailDto

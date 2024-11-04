@@ -99,7 +99,7 @@ namespace Inspire.Erp.Web.Controllers.Store
         [SkipSpecialCharacterValidationAttribute]
         [HttpPost]
         [Route("GetStockReportBaseUnitWithValue")]
-        public async Task<IActionResult> GetStockReportBaseUnitWithValue(GenericGridViewModel model)
+        public async Task<IActionResult> GetStockReportBaseUnitWithValue(StockBaseUnitModel model)
         {
             return Ok(await _openingStockService.GetStockReportBaseUnitWithValue(model));
         }
