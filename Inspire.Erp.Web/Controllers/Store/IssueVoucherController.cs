@@ -20,6 +20,7 @@ using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Inspire.Erp.Application.Account;
 using Inspire.Erp.Domain.Modals.Common;
 using Microsoft.EntityFrameworkCore;
+using DinkToPdf;
 
 namespace Inspire.Erp.Web.Controllers.Store
 {
@@ -39,12 +40,13 @@ namespace Inspire.Erp.Web.Controllers.Store
         private IChartofAccountsService chartofAccountsService; private IRepository<SalesManMaster> salesmanrepository;
         private IRepository<DepartmentMaster> departmentrepository;
         private IRepository<UnitDetails> _UnitDetailsRepository; private IRepository<IssueVoucher> _issueVoucherRepository;
+        private IRepository<UnitDetails> unitDetailRepository;
         public IssueVoucherController(IIssueVoucherService issueVoucherService, IMapper mapper,
              IRepository<ItemMaster> _itemrepository, IRepository<UnitDetails> unitDetailsRepository,
             IRepository<SuppliersMaster> _supplierrepository, IRepository<VendorMaster> _Brandrepository, IRepository<IssueVoucher> issueVoucherRepository,
             IRepository<UnitMaster> _unitrepository, IRepository<LocationMaster> _locationrepository, IRepository<SalesManMaster> _salesmanrepository
             , IRepository<CostCenterMaster> _countryrepository, IRepository<DepartmentMaster> _departmentrepository, IRepository<CustomerMaster> customerMasterRepository
-            , IRepository<JobMaster> _jobrepository, IRepository<CurrencyMaster> _currencyrepository, IChartofAccountsService _chartofAccountsService)
+            , IRepository<JobMaster> _jobrepository, IRepository<CurrencyMaster> _currencyrepository, IChartofAccountsService _chartofAccountsService, IRepository<UnitDetails> unitDetailRepository)
         {
             _issueVoucherService = issueVoucherService;
             _mapper = mapper; _issueVoucherRepository = issueVoucherRepository;
@@ -54,6 +56,7 @@ namespace Inspire.Erp.Web.Controllers.Store
             costcenterrepository = _countryrepository; departmentrepository = _departmentrepository;
             jobrepository = _jobrepository; locationrepository = _locationrepository;
             currencyrepository = _currencyrepository; chartofAccountsService = _chartofAccountsService;
+            this.unitDetailRepository = unitDetailRepository;
         }
 
 
@@ -351,12 +354,20 @@ namespace Inspire.Erp.Web.Controllers.Store
         public ResponseInfo LoadDropdown()
         {
             var objectresponse = new ResponseInfo();
-            var itemMaster = itemrepository.GetAsQueryable().AsNoTracking().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
-                     && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
-                     {
-                         k.ItemMasterItemId,
-                         k.ItemMasterItemName
-                     }).ToList();
+            var itemMaster = (from item in itemrepository.GetAsQueryable().AsNoTracking()
+                              join unit in unitDetailRepository.GetAsQueryable().AsNoTracking()
+                              on item.ItemMasterItemId equals unit.UnitDetailsItemId
+                              where item.ItemMasterAccountNo != 0
+                              && item.ItemMasterDelStatus != true
+                              && item.ItemMasterItemType != ItemMasterStatus.Group
+                              select new
+                              {
+                                  item.ItemMasterItemId,
+                                  item.ItemMasterItemName,
+                                  item.ItemMasterVenderId,
+                                  item.ItemMasterItemSize,
+                                  itemMasterBarcode = unit.UnitDetailsBarcode ?? ""
+                              }).Distinct().ToList();
 
             var jobMasters = jobrepository.GetAsQueryable().AsNoTracking().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
             {
