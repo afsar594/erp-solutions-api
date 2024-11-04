@@ -990,19 +990,18 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
             if (purchaseOrderreportParameters.rptSummary == true)
             {
               List<ReportPurchaseOrder> reportPurchaseOrder_ALL = (from k in _reportPurchaseOrderRepository.GetAsQueryable()
-                                                                     where ((purchaseOrderreportParameters.rptSupplier == -1 ? true : (k.PurchaseOrderPartyId == purchaseOrderreportParameters.rptSupplier))
-                                                                        && (purchaseOrderreportParameters.rptInvoiceType == "ALL" ? true : (k.PurchaseOrderType == purchaseOrderreportParameters.rptInvoiceType.Trim()))
-
-                            && (purchaseOrderreportParameters.rptCurrency == -1 ? true : ((k.PurchaseOrderCurrencyId == purchaseOrderreportParameters.rptCurrency)
-                           && (purchaseOrderreportParameters.rptLocation == -1 ? true : (k.PurchaseOrderLocationId == purchaseOrderreportParameters.rptLocation))
-                           && (purchaseOrderreportParameters.rptJob == -1 ? true : (k.PurchaseOrderJobId == purchaseOrderreportParameters.rptJob))
-                             && (purchaseOrderreportParameters.rptSuppInvNo.Trim() == "" ? true : (k.PurchaseOrderSupInvNo.Trim() == purchaseOrderreportParameters.rptSuppInvNo.Trim()))
+                                where ((purchaseOrderreportParameters.rptSupplier == -1 ? true : (k.PurchaseOrderPartyId == purchaseOrderreportParameters.rptSupplier))
+                                && (purchaseOrderreportParameters.rptInvoiceType == "ALL" ? true : (k.PurchaseOrderType == purchaseOrderreportParameters.rptInvoiceType.Trim()))
+                                && (purchaseOrderreportParameters.rptLocation == -1 ? true : (k.PurchaseOrderLocationId == purchaseOrderreportParameters.rptLocation))
+                                && (purchaseOrderreportParameters.rptDateRange == false ? true : (k.PurchaseOrderDate.Value.Date >= purchaseOrderreportParameters.rptDtpFrom.Value.Date)
+                                && (k.PurchaseOrderDate.Value.Date <= purchaseOrderreportParameters.rptDtpTo.Value.Date))
+                                && (purchaseOrderreportParameters.rptCurrency == -1 ? true : ((k.PurchaseOrderCurrencyId == purchaseOrderreportParameters.rptCurrency)
+                                && (purchaseOrderreportParameters.rptItem == -1 ? true : (k.ItemMasterItemId == purchaseOrderreportParameters.rptItem))
+                                && (purchaseOrderreportParameters.rptJob == -1 ? true : (k.PurchaseOrderJobId == purchaseOrderreportParameters.rptJob))
+                                && (purchaseOrderreportParameters.rptSuppInvNo.Trim() == "" ? true : (k.PurchaseOrderSupInvNo.Trim() == purchaseOrderreportParameters.rptSuppInvNo.Trim()))
                      ////&& (purchasevoucherreportParameters.rptBrand == -1 ? true : (k.ItemBrandId == purchasevoucherreportParameters.rptBrand))
                      ////      && (purchasevoucherreportParameters.rptItemGroup == -1 ? true : (k.ItemGroupId == purchasevoucherreportParameters.rptItemGroup))
-                     && (purchaseOrderreportParameters.rptItem == -1 ? true : (k.ItemMasterItemId == purchaseOrderreportParameters.rptItem))
-
-                      && (purchaseOrderreportParameters.rptDateRange == false ? true : (k.PurchaseOrderDate.Value.Date >= purchaseOrderreportParameters.rptDtpFrom.Value.Date)
-                                  && (k.PurchaseOrderDate.Value.Date <= purchaseOrderreportParameters.rptDtpTo.Value.Date))
+              
                     && (k.PurchaseOrderDelStatus == false || k.PurchaseOrderDelStatus == null))))
                                                                      group k by new
                                                                      {
@@ -1045,15 +1044,16 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                 List<ReportPurchaseOrder> reportPurchaseOrder_ALL = _reportPurchaseOrderRepository.GetAsQueryable().Where(k =>
                 (purchaseOrderreportParameters.rptSupplier == -1 ? true : (k.PurchaseOrderPartyId == purchaseOrderreportParameters.rptSupplier))
                          && (purchaseOrderreportParameters.rptInvoiceType == "ALL" ? true : (k.PurchaseOrderType == purchaseOrderreportParameters.rptInvoiceType.Trim()))
-                         && (purchaseOrderreportParameters.rptCurrency == -1 ? true : ((k.PurchaseOrderCurrencyId == purchaseOrderreportParameters.rptCurrency)
                          && (purchaseOrderreportParameters.rptLocation == -1 ? true : (k.PurchaseOrderLocationId == purchaseOrderreportParameters.rptLocation))
+                         && (purchaseOrderreportParameters.rptDateRange == false ? true : (k.PurchaseOrderDate.Value.Date >= purchaseOrderreportParameters.rptDtpFrom.Value.Date)
+                         && (k.PurchaseOrderDate.Value.Date <= purchaseOrderreportParameters.rptDtpTo.Value.Date))
+                          && (purchaseOrderreportParameters.rptItem == -1 ? true : (k.ItemMasterItemId == purchaseOrderreportParameters.rptItem))
+                         && (purchaseOrderreportParameters.rptCurrency == -1 ? true : ((k.PurchaseOrderCurrencyId == purchaseOrderreportParameters.rptCurrency)
                          && (purchaseOrderreportParameters.rptJob == -1 ? true : (k.PurchaseOrderJobId == purchaseOrderreportParameters.rptJob))
                          && (purchaseOrderreportParameters.rptSuppInvNo.Trim() == "" ? true : (k.PurchaseOrderSupInvNo.Trim() == purchaseOrderreportParameters.rptSuppInvNo.Trim()))
                    //&& (purchasevoucherreportParameters.rptBrand == -1 ? true : (k.ItemBrandId == purchasevoucherreportParameters.rptBrand))
                    //  && (purchasevoucherreportParameters.rptItemGroup == -1 ? true : (k.ItemGroupId == purchasevoucherreportParameters.rptItemGroup))
-                   && (purchaseOrderreportParameters.rptItem == -1 ? true : (k.ItemMasterItemId == purchaseOrderreportParameters.rptItem))
-                    && (purchaseOrderreportParameters.rptDateRange == false ? true : (k.PurchaseOrderDate.Value.Date >= purchaseOrderreportParameters.rptDtpFrom.Value.Date)
-                                && (k.PurchaseOrderDate.Value.Date <= purchaseOrderreportParameters.rptDtpTo.Value.Date))
+                  
                   && (k.PurchaseOrderDelStatus == false || k.PurchaseOrderDelStatus == null)))).OrderBy(x => x.PurchaseOrderId).ToList();
 
                 return reportPurchaseOrder_ALL;

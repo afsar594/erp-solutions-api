@@ -563,7 +563,7 @@ namespace Inspire.Erp.Web.Controllers
                                   item.ItemMasterItemName,
                                   item.ItemMasterVenderId,
                                   item.ItemMasterItemSize,
-                                  itemMasterBarcode = unit.UnitDetailsBarcode
+                                  itemMasterBarcode =unit.UnitDetailsBarcode ?? ""
                               }).Distinct().ToList();
             var customerMasters = _customerMasterRepository.GetAsQueryable().AsNoTracking().Where(k => k.CustomerMasterCustomerDelStatus != true).Select(a => new
             {
