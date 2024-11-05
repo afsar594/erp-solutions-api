@@ -29,23 +29,23 @@ namespace Inspire.Erp.Application.Account.Implementations
             try
             {
                 await Task.Delay(500);
-                var result = (from AD in this.allocationVDlts.GetAll()
-                              join AT in _accountTransactionRepository.GetAll() on AD.AllocationVoucherDetailsTransSno equals (int)AT.AccountsTransactionsTransSno
-                              where AD.AllocationVoucherDetailsAccNo == accNo && AD.AllocationVoucherDetailsVno.ToUpper() == refNo.ToUpper() && AD.AllocationVoucherDetailsRefVtype.ToUpper() == vType.ToUpper()
-                              select new Domain.Models.AllocationDetails()
-                              {
-                                  TransNo = AT.AccountsTransactionsTransSno,
-                                  Status = "P",
-                                  TransDate = AT.AccountsTransactionsTransDate,
-                                  VoucherNo = AD.AllocationVoucherDetailsVno,
-                                  Type = AD.AllocationVoucherDetailsRefVtype,
-                                  Credit = (decimal)AT.AccountsTransactionsCredit > 0 ? AT.AccountsTransactionsCredit : 0,
-                                  Debit = (decimal)AT.AccountsTransactionsDebit > 0 ? AT.AccountsTransactionsDebit : 0,
-                                  Balance = AT.AccountsTransactionsAllocBalance,
-                                  AllocAmount = AT.AccountsTransactionsAllocCredit > 0 ? AT.AccountsTransactionsAllocCredit : AT.AccountsTransactionsAllocDebit,
-                                  NetAllocation = getNatAllocationAmount(AT.AccountsTransactionsTransSno),
-                                  RefLocation = AD.AllocationVoucherDetailsRefLocationId.ToString()
-                              }).ToList();
+                //var result = (from AD in this.allocationVDlts.GetAll()
+                //              join AT in _accountTransactionRepository.GetAll() on AD.AllocationVoucherDetailsTransSno equals (int)AT.AccountsTransactionsTransSno
+                //              where AD.AllocationVoucherDetailsAccNo == accNo && AD.AllocationVoucherDetailsVno.ToUpper() == refNo.ToUpper() && AD.AllocationVoucherDetailsRefVtype.ToUpper() == vType.ToUpper()
+                //              select new Domain.Models.AllocationDetails()
+                //              {
+                //                  TransNo = AT.AccountsTransactionsTransSno,
+                //                  Status = "P",
+                //                  TransDate = AT.AccountsTransactionsTransDate,
+                //                  VoucherNo = AD.AllocationVoucherDetailsVno,
+                //                  Type = AD.AllocationVoucherDetailsRefVtype,
+                //                  Credit = (decimal)AT.AccountsTransactionsCredit > 0 ? AT.AccountsTransactionsCredit : 0,
+                //                  Debit = (decimal)AT.AccountsTransactionsDebit > 0 ? AT.AccountsTransactionsDebit : 0,
+                //                  Balance = AT.AccountsTransactionsAllocBalance,
+                //                  AllocAmount = AT.AccountsTransactionsAllocCredit > 0 ? AT.AccountsTransactionsAllocCredit : AT.AccountsTransactionsAllocDebit,
+                //                  NetAllocation = getNatAllocationAmount(AT.AccountsTransactionsTransSno),
+                //                  RefLocation = AD.AllocationVoucherDetailsRefLocationId.ToString()
+                //              }).ToList();
 
 
                 var transValues = _accountTransactionRepository.GetAsQueryable()
@@ -71,9 +71,9 @@ namespace Inspire.Erp.Application.Account.Implementations
 
 
 
-                result.AddRange(transValues);
+                //result.AddRange(transValues);
 
-                return ApiResponse<List<AllocationDetails>>.Success(result, "Data Found");
+                return ApiResponse<List<AllocationDetails>>.Success(transValues, "Data Found");
             }
             catch (Exception ex)
             {

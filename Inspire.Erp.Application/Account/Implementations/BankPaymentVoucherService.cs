@@ -140,10 +140,10 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _UserTracking.Insert(trackingData);
 
 
-                if (allocationDetails.Count > 0)
-                {
-                    insertAllocations(bankPaymentVoucher, allocationDetails);
-                }
+                //if (allocationDetails.Count > 0)
+                //{
+                //    insertAllocations(bankPaymentVoucher, allocationDetails);
+                //}
                 _bankPaymentVoucherRepository.TransactionCommit();
 
             }
@@ -447,10 +447,10 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _UserTracking.Insert(trackingData);
 
 
-                if (allocationDetails.Count > 0)
-                {
-                    insertAllocations(bankPaymentVoucher, allocationDetails);
-                }
+                //if (allocationDetails.Count > 0)
+                //{
+                //    insertAllocations(bankPaymentVoucher, allocationDetails);
+                //}
 
 
                 _bankPaymentVoucherRepository.TransactionCommit();

@@ -141,7 +141,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _UserTracking.Insert(trackingData);
 
                 //here allocation details 
-                if (allocationDetails.Count() > 0) { insertAllocations(bankReceiptVoucher, allocationDetails); }
+                //if (allocationDetails.Count() > 0) { insertAllocations(bankReceiptVoucher, allocationDetails); }
 
 
                 _bankReceiptVoucherRepository.TransactionCommit();
@@ -279,7 +279,7 @@ namespace Inspire.Erp.Application.Account.Implementations
 
 
                 //here allocation details 
-                if(allocationDetails.Count() > 0) { insertAllocations(bankReceiptVoucher, allocationDetails); }
+                //if(allocationDetails.Count() > 0) { insertAllocations(bankReceiptVoucher, allocationDetails); }
 
 
                 _bankReceiptVoucherRepository.TransactionCommit();

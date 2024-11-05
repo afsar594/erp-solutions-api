@@ -90,10 +90,10 @@ namespace Inspire.Erp.Application.Account.Implementations
                 //trackingData.UserTrackingUserVpType = "RECEIPTVOUCHER";
                 //UserTracking.Insert(trackingData);
 
-                if (alloDetails.Count > 0)
-                {
-                    insertAllocations(receiptVoucher, alloDetails);
-                }
+                //if (alloDetails.Count > 0)
+                //{
+                //    insertAllocations(receiptVoucher, alloDetails);
+                //}
                 _receiptVoucherRepository.TransactionCommit();
             }
             catch (Exception ex)
@@ -191,10 +191,10 @@ namespace Inspire.Erp.Application.Account.Implementations
                 //trackingData.UserTrackingUserVpType = "RECEIPTVOUCHER";
                 //UserTracking.Insert(trackingData);
 
-                if (alloDetails.Count > 0)
-                {
-                    insertAllocations(receiptVoucher, alloDetails);
-                }
+                //if (alloDetails.Count > 0)
+                //{
+                //    insertAllocations(receiptVoucher, alloDetails);
+                //}
 
 
 
