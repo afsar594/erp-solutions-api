@@ -164,11 +164,14 @@ namespace Inspire.Erp.Application.Master
             bool valid = false;
             try
             {
-                supplierrepository.Delete(SuppliersMaster);
+                SuppliersMaster.SuppliersMasterSupplierDelStatus = true;
+
+                supplierrepository.Update(SuppliersMaster);
                 var account = _masterAccountTable.GetAsQueryable().Where(a => a.MaAccNo == SuppliersMaster.SuppliersMasterSupplierReffAcNo).FirstOrDefault();
                 if(account != null)
                 {
-                    _masterAccountTable.Delete(account);
+                    account.MaDelStatus = true;
+                    _masterAccountTable.Update(account);
                 }
                 valid = true;
 

@@ -203,8 +203,11 @@ namespace Inspire.Erp.Application.Master
                 customerMaster.CustomerMasterCustomerDeleteStatus = true;
                 customerrepository.Update(customerMaster);
                 var account = _masterAccountTable.GetAsQueryable().Where(a => a.MaRelativeNo == customerMaster.CustomerMasterCustomerReffAcNo).FirstOrDefault();
-
-                _masterAccountTable.Delete(account);
+                if (account !=null)
+                {
+                    account.MaDelStatus = true;
+                }
+                _masterAccountTable.Update(account);
                 _masterAccountTable.TransactionCommit();
                 valid = true;
 
