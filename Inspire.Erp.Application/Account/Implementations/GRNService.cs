@@ -141,18 +141,17 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                         StockRegisterRefVoucherNo = grn.PurchaseVoucherVoucherNo,
                         StockRegisterPurchaseID = grn.PurchaseVoucherVoucherNo,
                         StockRegisterVoucherDate = grn.PurchaseVoucherPurchaseDate,
-                        StockRegisterQuantity = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 0,
-                        StockRegisterSIN = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 0,
-                        StockRegisterRate = item.PurchaseVoucherDetailsRate,
+                        StockRegisterQuantity = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 1,
+                        StockRegisterSIN = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 1,
+                        StockRegisterRate = item.PurchaseVoucherDetailsRate / converontype ?? 1,
                         StockRegisterAmount = item.PurchaseVoucherDetailsQuantity * item.PurchaseVoucherDetailsRate,
                         StockRegisterFCAmount = item.PurchaseVoucherDetailsQuantity * item.PurchaseVoucherDetailsRate * rate,
                         StockRegisterTransType = VoucherType.PurchaseVoucher_TYPE,
-                        StockRegisterStatus = AccountStatus.Approved,                        
+                        StockRegisterStatus = AccountStatus.Approved,
                         StockRegisterUnitID = item.PurchaseVoucherDetailsUnitId,
                         StockRegisterLocationID = grn.PurchaseVoucherLocationID,
                         StockRegisterJobID = grn.PurchaseVoucherJobID,
                         StockRegisterDelStatus = false
-
                     });
 
                 }
@@ -225,16 +224,16 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                         StockRegisterRefVoucherNo = grn.PurchaseVoucherVoucherNo,
                         StockRegisterPurchaseID = grn.PurchaseVoucherVoucherNo,
                         StockRegisterVoucherDate = grn.PurchaseVoucherPurchaseDate,
-                        StockRegisterQuantity = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 0,
-                        StockRegisterSIN = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 0,
-                        StockRegisterRate = item.PurchaseVoucherDetailsRate,
+                        StockRegisterQuantity = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 1,
+                        StockRegisterSIN = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 1,
+                        StockRegisterRate = item.PurchaseVoucherDetailsRate / converontype ?? 1,
                         StockRegisterAmount = item.PurchaseVoucherDetailsQuantity * item.PurchaseVoucherDetailsRate,
                         StockRegisterFCAmount = item.PurchaseVoucherDetailsQuantity * item.PurchaseVoucherDetailsRate * rate,
                         StockRegisterTransType = VoucherType.PurchaseVoucher_TYPE,
                         StockRegisterStatus = AccountStatus.Approved,
                         StockRegisterUnitID = item.PurchaseVoucherDetailsUnitId,
                         StockRegisterLocationID = grn.PurchaseVoucherLocationID,
-                        StockRegisterJobID = grn.PurchaseVoucherJobID,                        
+                        StockRegisterJobID = grn.PurchaseVoucherJobID,
                         StockRegisterDelStatus = false
                     });
                 }
@@ -314,7 +313,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 throw ex;
             }
         }
-       
+
         public IQueryable DeleteGRN(PurchaseVoucher grn)
         {
             try
