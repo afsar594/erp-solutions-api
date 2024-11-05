@@ -343,8 +343,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                 //trackingData.UserTrackingUserVpType = "PAYMENTVOUCHER";
                 //UserTracking.Insert(trackingData);
 
-                if(paymentAllocation.Count > 0)
-                    insertAllocations(paymentVoucher, paymentAllocation);
+                //if(paymentAllocation.Count > 0)
+                //    insertAllocations(paymentVoucher, paymentAllocation);
 
 
 

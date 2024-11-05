@@ -660,28 +660,20 @@ namespace Inspire.Erp.Application.Account.Implementations
                     {
                         UpdateVoucherAllocationId(item.AllocationVoucherDetailsRefVtype, id, 0);
 
-                        //getTransId = item.AllocationVoucherDetailsTransSno;
                         var accTrans = _accountTransaction.GetAsQueryable().Where(x => x.AccountsTransactionsTransSno == item.AllocationVoucherDetailsTransSno).FirstOrDefault();
 
                         if (accTrans != null)
                         {
                             if (accTrans.AccountsTransactionsCredit > 0)
                             {
-                                accTrans.AccountsTransactionsAllocBalance += accTrans.AccountsTransactionsAllocCredit;
-      
+                                accTrans.AccountsTransactionsAllocBalance += (decimal)item.AllocationVoucherDetailsAllocCredit;
+                                accTrans.AccountsTransactionsAllocCredit -= (decimal)item.AllocationVoucherDetailsAllocCredit;
                             }
                             else
                             {
-                                accTrans.AccountsTransactionsAllocBalance += accTrans.AccountsTransactionsAllocDebit;
+                                accTrans.AccountsTransactionsAllocBalance += (decimal)item.AllocationVoucherDetailsAllocDebit;
+                                accTrans.AccountsTransactionsAllocDebit -= (decimal)item.AllocationVoucherDetailsAllocDebit;
                             }
-
-                            accTrans.AccountsTransactionsAllocCredit = 0;
-                            accTrans.AccountsTransactionsAllocDebit = 0;
-                            accTrans.AccountsTransactionsFcAllocCredit = 0;
-                            accTrans.AccountsTransactionsFcAllocDebit = 0;
-
-
-
                             _accountTransaction.Update(accTrans);
                         }
 
