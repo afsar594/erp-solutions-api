@@ -638,7 +638,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                          && (model.CustomerId == null || cpod.CustomerPurchaseOrderId == model.CustomerId)
                                          && (model.LocacationId == null || cpog.CustomerPurchaseOrderLocationId == model.LocacationId)
                                          && (model.LPO == null || cpog.CustomerPurchaseOrderLpoNo == model.LPO)
-                                         && (cpog.CustomerPurchaseOrderDate >= model.DateFrom && cpog.CustomerPurchaseOrderDate <= model.DateTo)
+                                         && (cpog.CustomerPurchaseOrderDate.Value.Date >= model.DateFrom.Value.Date && cpog.CustomerPurchaseOrderDate.Value.Date <= model.DateTo.Value.Date)
                                          select new GetCustomerPurchaseOrderTrackingResponse
                                          {
                                              CPOId = cpog.CustomerPurchaseOrderId,

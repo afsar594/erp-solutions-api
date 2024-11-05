@@ -392,7 +392,7 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
                                               (model.LocationId == 0 || po.PurchaseOrderLocationId == model.LocationId) &&
                                               (model.PONO == "" || po.PurchaseOrderPono == model.PONO) &&
                                               (model.Status == "" || po.PurchaseOrderStatus == model.Status) &&
-                                              (po.PurchaseOrderDate >= model.fromDate && po.PurchaseOrderDate <= model.toDate)
+                                              (po.PurchaseOrderDate.Date >= model.fromDate.Value.Date && po.PurchaseOrderDate.Date <= model.toDate.Value.Date)
 
                                               select new POTrackingSummary()
                                               {
