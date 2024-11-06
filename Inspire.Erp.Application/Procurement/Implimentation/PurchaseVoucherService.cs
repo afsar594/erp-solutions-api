@@ -106,14 +106,14 @@ namespace Inspire.Erp.Application.Master.Implementations
                     _PurchaseVoucher.GetAsQueryable()
                     .DefaultIfEmpty().Max(o => o == null ? 0 : o.PurchaseVoucherPurID) + 1);
 
-                // purchaseVoucher.PurchaseVoucherPurID = maxcount;
+                 purchaseVoucher.PurchaseVoucherPurID = maxcount;
 
-                purchaseVoucherDetails = purchaseVoucherDetails.Select((x) =>
-                {
-                    x.PurchaseVoucherDetailsPrId = maxcount;
-                    x.PurchaseVoucherDetailsVoucherNo = puchaseVoucherNumber;
-                    return x;
-                }).ToList();
+                //purchaseVoucherDetails = purchaseVoucherDetails.Select((x) =>
+                //{
+                //    x.PurchaseVoucherDetailsPrId = maxcount;
+                //    x.PurchaseVoucherDetailsVoucherNo = puchaseVoucherNumber;
+                //    return x;
+                //}).ToList();
 
 
 
@@ -133,17 +133,47 @@ namespace Inspire.Erp.Application.Master.Implementations
                     .DefaultIfEmpty().Max(o => o == null ? 0 : o.StockRegisterStoreID) + 1);
 
 
+                List<StockRegister> stockRegisters = new List<StockRegister>();
 
-                stockRegister = stockRegister.Select((k) =>
+                var currencyRate = clsCommonFunctions.getConverionCurrencyRate(purchaseVoucher.PurchaseVoucherCurrencyID, _currencyMasterRepository);
+                var rate = (decimal)currencyRate;
+
+                foreach (var item in purchaseVoucherDetails)
                 {
-                    k.StockRegisterVoucherDate = purchaseVoucher.PurchaseVoucherPurchaseDate;
-                    k.StockRegisterRefVoucherNo = puchaseVoucherNumber;
-                    k.StockRegisterTransType = VoucherType.PurchaseVoucher_TYPE;
-                    k.StockRegisterStatus = AccountStatus.Approved;
-                    //k.StockRegisterSout= purchaseVoucher.
-                    return k;
-                }).ToList();
-                _stockRegisterRepository.InsertList(stockRegister);
+                    var converontype = this.getConverionTypebyUnitId(item.PurchaseVoucherDetailsMaterialId, item.PurchaseVoucherDetailsUnitId);
+
+                    item.PurchaseVoucherDetailsVoucherNo = puchaseVoucherNumber;
+                    item.PurchaseVoucherDetailsPrId=maxcount;
+                    stockRegisters.Add(new StockRegister
+                    {
+                        StockRegisterMaterialID = item.PurchaseVoucherDetailsMaterialId,
+                        StockRegisterRefVoucherNo = puchaseVoucherNumber,
+                        StockRegisterPurchaseID = puchaseVoucherNumber,
+                        StockRegisterVoucherDate = purchaseVoucher.PurchaseVoucherPurchaseDate,
+                        StockRegisterQuantity = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 1,
+                        StockRegisterSIN = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 1,
+                        StockRegisterRate = item.PurchaseVoucherDetailsRate / converontype ?? 1,
+                        StockRegisterAmount = item.PurchaseVoucherDetailsQuantity * item.PurchaseVoucherDetailsRate,
+                        StockRegisterFCAmount = item.PurchaseVoucherDetailsQuantity * item.PurchaseVoucherDetailsRate * rate,
+                        StockRegisterTransType = VoucherType.PurchaseVoucher_TYPE,
+                        StockRegisterStatus = AccountStatus.Approved,
+                        StockRegisterUnitID = item.PurchaseVoucherDetailsUnitId,
+                        StockRegisterLocationID = purchaseVoucher.PurchaseVoucherLocationID,
+                        StockRegisterJobID = purchaseVoucher.PurchaseVoucherJobID,
+                        StockRegisterDelStatus = false
+                    });
+                }
+                _stockRegisterRepository.InsertList(stockRegisters);
+                //stockRegister = stockRegister.Select((k) =>
+                //{
+                //    k.StockRegisterVoucherDate = purchaseVoucher.PurchaseVoucherPurchaseDate;
+                //    k.StockRegisterRefVoucherNo = puchaseVoucherNumber;
+                //    k.StockRegisterTransType = VoucherType.PurchaseVoucher_TYPE;
+                //    k.StockRegisterStatus = AccountStatus.Approved;
+                //    //k.StockRegisterSout= purchaseVoucher.
+                //    return k;
+                //}).ToList();
+                //_stockRegisterRepository.InsertList(stockRegister);
 
                 _PurchaseVoucher.Insert(purchaseVoucher);
                 _PurchaseVoucherDetails.InsertList(purchaseVoucherDetails);
@@ -568,12 +598,12 @@ namespace Inspire.Erp.Application.Master.Implementations
                     stockRegisters.Add(new StockRegister
                     {
                         StockRegisterMaterialID = item.PurchaseVoucherDetailsMaterialId,
-                        StockRegisterRefVoucherNo = vnumber,
-                        StockRegisterPurchaseID = vnumber,
+                        StockRegisterRefVoucherNo = purchaseVoucher.PurchaseVoucherVoucherNo,
+                        StockRegisterPurchaseID = purchaseVoucher.PurchaseVoucherVoucherNo,
                         StockRegisterVoucherDate = purchaseVoucher.PurchaseVoucherPurchaseDate,
-                        StockRegisterQuantity = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 0,
-                        StockRegisterSIN = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 0,
-                        StockRegisterRate = item.PurchaseVoucherDetailsRate,
+                        StockRegisterQuantity = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 1,
+                        StockRegisterSIN = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 1,
+                        StockRegisterRate = item.PurchaseVoucherDetailsRate / converontype ?? 1,
                         StockRegisterAmount = item.PurchaseVoucherDetailsQuantity * item.PurchaseVoucherDetailsRate,
                         StockRegisterFCAmount = item.PurchaseVoucherDetailsQuantity * item.PurchaseVoucherDetailsRate * rate,
                         StockRegisterTransType = VoucherType.PurchaseVoucher_TYPE,
@@ -636,9 +666,9 @@ namespace Inspire.Erp.Application.Master.Implementations
                         StockRegisterRefVoucherNo = purchaseVoucher.PurchaseVoucherVoucherNo,
                         StockRegisterPurchaseID = purchaseVoucher.PurchaseVoucherVoucherNo,
                         StockRegisterVoucherDate = purchaseVoucher.PurchaseVoucherPurchaseDate,
-                        StockRegisterQuantity = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 0,
-                        StockRegisterSIN = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 0,
-                        StockRegisterRate = item.PurchaseVoucherDetailsRate,
+                        StockRegisterQuantity = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 1,
+                        StockRegisterSIN = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 1,
+                        StockRegisterRate = item.PurchaseVoucherDetailsRate / converontype ?? 1,
                         StockRegisterAmount = item.PurchaseVoucherDetailsQuantity * item.PurchaseVoucherDetailsRate,
                         StockRegisterFCAmount = item.PurchaseVoucherDetailsQuantity * item.PurchaseVoucherDetailsRate * rate,
                         StockRegisterTransType = VoucherType.PurchaseVoucher_TYPE,
