@@ -15,5 +15,7 @@ namespace Inspire.Erp.Domain.Entities
         public double? RfqEntryDetailsRfqamt { get; set; }
         public string RfqEntryDetailsRemarks { get; set; }
         public bool? RfqEntryDetailsDelStatus { get; set; }
+        public string RFQ_EntryvouchaseNo { get; set; }
+
     }
 }
