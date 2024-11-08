@@ -55,7 +55,7 @@ namespace Inspire.Erp.Web.Controllers
         [Route("InsertRfq")]
         public async Task<ApiResponse<RfqEntry>> InsertRfq([FromBody] RfqEntry RfqEntry)
         {
-           var rfq = _rfq.InsertRfq(RfqEntry);
+           var rfq = await _rfq.InsertRfq(RfqEntry);
 
             ApiResponse<RfqEntry> apiResponse = new ApiResponse<RfqEntry>
             {
@@ -69,7 +69,7 @@ namespace Inspire.Erp.Web.Controllers
         [Route("UpdatetRfq")]
         public async Task<ApiResponse<RfqEntry>> UpdatetRfq([FromBody] RfqEntry RfqEntry)
         {
-            var rfq = _rfq.InsertRfq(RfqEntry);
+            var rfq = await _rfq.InsertRfq(RfqEntry);
 
             ApiResponse<RfqEntry> apiResponse = new ApiResponse<RfqEntry>
             {
