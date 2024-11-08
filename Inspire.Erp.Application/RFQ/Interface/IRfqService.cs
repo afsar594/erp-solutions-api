@@ -5,6 +5,7 @@ using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Models;
 using Inspire.Erp.Domain.Models.Approvals;
+using Inspire.Erp.Web.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,10 +15,10 @@ namespace Inspire.Erp.Application.RFQ.Interface
 {
     public interface IRfqService
     {
-        public IEnumerable<RfqEntry> GetRfq();
+        public IEnumerable<RFQViewModel> GetRfq();
         public RfqEntry GetRfqById(int? id);
-        public Task<RfqEntry> InsertRfq(RfqEntry RfqEntry);
-        public Task<RfqEntry> UpdatetRfq(RfqEntry RfqEntry);
+        public Task<RFQViewModel> InsertRfq(RfqEntry RfqEntry,List<RfqEntryDetails> RfqEntryDetails);
+        public Task<RFQViewModel> UpdatetRfq(RfqEntry RfqEntry, List<RfqEntryDetails> RfqEntryDetails);
 
         public IEnumerable<RfqEntry> DeleteRfq(string Id);
         

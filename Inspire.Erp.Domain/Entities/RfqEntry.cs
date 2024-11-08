@@ -19,7 +19,5 @@ namespace Inspire.Erp.Domain.Entities
 
         public string RFQ_EntryvouchaseNo { get; set; }
 
-        [NotMapped]
-        public List<RfqEntryDetails> RfqEntryDetails { get; set; }
     }
 }

@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
 using Inspire.Erp.Application.RFQ.Interface;
 using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Domain.Models;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Inspire.Erp.Web.ViewModels;
+using Inspire.Erp.Web.ViewModels.sales;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -27,12 +30,12 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpGet]
         [Route("GetRfq")]
-        public ApiResponse<List<RfqEntry>> GetRfq()
+        public ApiResponse<List<RFQViewModel>> GetRfq()
         {
-            ApiResponse<List<RfqEntry>> apiResponse = new ApiResponse<List<RfqEntry>>
+            ApiResponse<List<RFQViewModel>> apiResponse = new ApiResponse<List<RFQViewModel>>
             {
                 Valid = true,
-                Result = _mapper.Map<List<RfqEntry>>(_rfq.GetRfq()),
+                Result = _mapper.Map<List<RFQViewModel>>(_rfq.GetRfq()),
                 Message = ""
             };
             return apiResponse;
@@ -53,28 +56,34 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpPost]
         [Route("InsertRfq")]
-        public async Task<ApiResponse<RfqEntry>> InsertRfq([FromBody] RfqEntry RfqEntry)
+        public async Task<ApiResponse<RFQViewModel>> UpdateJobInvoice([FromBody] RFQViewModel RfqEntryModule)
         {
-           var rfq = await _rfq.InsertRfq(RfqEntry);
 
-            ApiResponse<RfqEntry> apiResponse = new ApiResponse<RfqEntry>
+            var param1 = _mapper.Map<RfqEntry>(RfqEntryModule);
+            var param2 = _mapper.Map<List<RfqEntryDetails>>(RfqEntryModule.RfqEntryDetails);
+
+            var rfq = await _rfq.InsertRfq(param1, param2);
+
+            ApiResponse<RFQViewModel> apiResponse = new ApiResponse<RFQViewModel>
             {
                 Valid = true,
-                Result = _mapper.Map<RfqEntry>(rfq),
+                Result = _mapper.Map<RFQViewModel>(rfq),
                 Message = "RFQ has been Saved."
             };
             return apiResponse;
         }
         [HttpPost]
         [Route("UpdatetRfq")]
-        public async Task<ApiResponse<RfqEntry>> UpdatetRfq([FromBody] RfqEntry RfqEntry)
-        {
-            var rfq = await _rfq.InsertRfq(RfqEntry);
+        public async Task<ApiResponse<RFQViewModel>> UpdatetRfq([FromBody] RFQViewModel RfqEntryModule)
 
-            ApiResponse<RfqEntry> apiResponse = new ApiResponse<RfqEntry>
+        {
+            var param1 = _mapper.Map<RfqEntry>(RfqEntryModule);
+            var param2 = _mapper.Map<List<RfqEntryDetails>>(RfqEntryModule.RfqEntryDetails);
+            var rfq = await _rfq.UpdatetRfq(param1, param2);
+            ApiResponse<RFQViewModel> apiResponse = new ApiResponse<RFQViewModel>
             {
                 Valid = true,
-                Result = _mapper.Map<RfqEntry>(rfq),
+                Result = _mapper.Map<RFQViewModel>(rfq),
                 Message = "RFQ has been Updated."
             };
             return apiResponse;

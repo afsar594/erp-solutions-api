@@ -6,6 +6,7 @@ using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Entities.documents;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Inspire.Erp.Web.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,14 +40,14 @@ namespace Inspire.Erp.Application.RFQ.Implementation
                 throw ex;
             }
         }
-        public RfqEntry GetRfqById(int? id)
+        public RFQViewModel GetRfqById(int? id)
         {
             try
             {
-                var RfqEntry = new RfqEntry();
-                RfqEntry = _rfqEntry.GetAsQueryable().FirstOrDefault(x => x.RfqEntryId == Convert.ToInt32(id));
-                RfqEntry.RfqEntryDetails = _rfqEntryDetails.GetAsQueryable().Where(x => x.RfqEntryDetailsDetId == Convert.ToInt32(id) && x.RfqEntryDetailsDelStatus != true).ToList();
-                return RfqEntry;
+                RFQViewModel Rfq = new RFQViewModel();
+                Rfq.RfqEntry = _rfqEntry.GetAsQueryable().FirstOrDefault(x => x.RfqEntryId == Convert.ToInt32(id));
+                Rfq.RfqEntryDetails = _rfqEntryDetails.GetAsQueryable().Where(x => x.RfqEntryDetailsDetId == Convert.ToInt32(id) && x.RfqEntryDetailsDelStatus != true).ToList();
+                return Rfq;
 
             }
             catch (Exception ex)
@@ -54,7 +55,8 @@ namespace Inspire.Erp.Application.RFQ.Implementation
                 throw ex;
             }
         }
-        public async Task<RfqEntry> InsertRfq(RfqEntry RfqEntry)
+        public async Task<RFQViewModel> InsertRfq(RfqEntry RfqEntry, List<RfqEntryDetails> RfqEntryDetails)
+
         {
             try
             {
@@ -71,16 +73,16 @@ namespace Inspire.Erp.Application.RFQ.Implementation
                 _rfqEntry.Insert(RfqEntry);
 
 
-                RfqEntry.RfqEntryDetails.ForEach(elemt =>
+                RfqEntryDetails.ForEach(elemt =>
                 {
                     elemt.RfqEntryDetailsDetId = maxcount;
                     elemt.RFQ_EntryvouchaseNo = RFQVoucherNumber;
                     maxcount++;
                 }); 
-                _rfqEntryDetails.InsertList(RfqEntry.RfqEntryDetails);
+                _rfqEntryDetails.InsertList(RfqEntryDetails);
                 _rfqEntry.TransactionCommit();
 
-                return this.GetRfqEntrybyvoucher(RFQVoucherNumber);
+                return this.GetRfqEntrybyvoucher(RfqEntry.RFQ_EntryvouchaseNo);
             }
             catch (Exception ex)
             {
@@ -89,7 +91,7 @@ namespace Inspire.Erp.Application.RFQ.Implementation
             }
         }
 
-        public async Task<RfqEntry> UpdatetRfq(RfqEntry RfqEntry)
+        public async Task<RFQViewModel> UpdatetRfq(RfqEntry RfqEntry, List<RfqEntryDetails> RfqEntryDetails)
         {
             try
             {
@@ -106,16 +108,16 @@ namespace Inspire.Erp.Application.RFQ.Implementation
                 _rfqEntry.Update(RfqEntry);
 
 
-                RfqEntry.RfqEntryDetails.ForEach(elemt =>
+                RfqEntryDetails.ForEach(elemt =>
                 {
                     elemt.RfqEntryDetailsDetId = maxcount;
                     elemt.RFQ_EntryvouchaseNo = RFQVoucherNumber;
                     maxcount++;
                 });
-                _rfqEntryDetails.UpdateList(RfqEntry.RfqEntryDetails);
+                _rfqEntryDetails.UpdateList(RfqEntryDetails);
                 _rfqEntry.TransactionCommit();
 
-                return this.GetRfqEntrybyvoucher(RFQVoucherNumber);
+                return this.GetRfqEntrybyvoucher(RfqEntry.RFQ_EntryvouchaseNo);
             }
             catch (Exception ex)
             {
@@ -145,29 +147,17 @@ namespace Inspire.Erp.Application.RFQ.Implementation
             }
         }
 
-        public RfqEntry GetDocumentMasterbyvoucher(string VNo)
+       
+        public RFQViewModel GetRfqEntrybyvoucher(string VNo)
         {
-            try
-            {
-                RfqEntry RfqEntry = new RfqEntry();
-                RfqEntry = _rfqEntry.GetAsQueryable().Where(k => k.RFQ_EntryvouchaseNo == VNo).SingleOrDefault();
-                return RfqEntry;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
 
-        public RfqEntry GetRfqEntrybyvoucher(string VNo)
-        {
             try
             {
 
-                RfqEntry RfqEntry = new RfqEntry();
-                RfqEntry = _rfqEntry.GetAsQueryable().Where(k => k.RFQ_EntryvouchaseNo == VNo).FirstOrDefault();
-                RfqEntry.RfqEntryDetails  = _rfqEntryDetails.GetAsQueryable().Where(x => x.RFQ_EntryvouchaseNo == VNo && (x.RfqEntryDetailsDelStatus == false || x.RfqEntryDetailsDelStatus == null)).ToList();
-                return RfqEntry;
+                RFQViewModel Rfq = new RFQViewModel();
+                Rfq.RfqEntry = _rfqEntry.GetAsQueryable().Where(k => k.RFQ_EntryvouchaseNo == VNo).FirstOrDefault();
+                Rfq.RfqEntryDetails = _rfqEntryDetails.GetAsQueryable().Where(x => x.RFQ_EntryvouchaseNo == VNo && (x.RfqEntryDetailsDelStatus == false || x.RfqEntryDetailsDelStatus == null)).ToList();
+                return Rfq;
             }
             catch (Exception ex)
             {
@@ -206,6 +196,14 @@ namespace Inspire.Erp.Application.RFQ.Implementation
 
         }
 
-       
+        IEnumerable<RFQViewModel> IRfqService.GetRfq()
+        {
+            throw new NotImplementedException();
+        }
+
+        RfqEntry IRfqService.GetRfqById(int? id)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
