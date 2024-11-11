@@ -62,7 +62,7 @@ namespace Inspire.Erp.Web.ViewModels.sales
         public string SalesVoucherRemarks2 { get; set; }
         public string SalesVoucherTermsAndCondition { get; set; }
         public string SalesVoucherShippinAddress { get; set; }
-
+        public decimal? SalesVoucherExpense { get; set; }
         public bool? SalesVoucherDelStatus { get; set; }
         public List<AccountTransactionViewModel> AccountsTransactions { get; set; }
         public List<SalesVoucherDetailsViewModel> SalesVoucherDetails { get; set; }

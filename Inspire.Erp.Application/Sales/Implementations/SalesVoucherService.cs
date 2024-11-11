@@ -55,14 +55,14 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<SalesReturnDetails> _salesReturnDtls;
         private IRepository<OptionsMaster> _optionMaster;
         private InspireErpDBContext _context;
-        private IRepository<MasterAccountsTable> accMaster;      
+        private IRepository<MasterAccountsTable> accMaster;
         private IRepository<SalesHold> _salesHoldRepository;
         private IRepository<SalesHoldDetails> _salesHoldDetailsRepository;
         private IRepository<POS_WorkPeriod> _POSWorkPeriodRepository;
         private IRepository<UserTracking> _UserTracking;
         private IStockService _openingStockService;
         public SalesVoucherService(
-            IRepository<UserTracking> UserTracking,            
+            IRepository<UserTracking> UserTracking,
             IRepository<CustomerMaster> customerMasterRepository,
             IRepository<SalesManMaster> salesManMasterRepository,
             IRepository<DepartmentMaster> departmentMasterRepository,
@@ -70,8 +70,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
             IRepository<SuppliersMaster> suppliersMasterRepository, IRepository<LocationMaster> locationMasterRepository,
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<Domain.Entities.ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger, IRepository<AccountSettings> accountsSettingssvcsRepository,
-            IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository, IRepository<CurrencyMaster> currencyMasterRepository, 
-            IRepository<UnitDetails> unitDetailsRepository, IRepository<MasterAccountsTable> accMaster, IRepository<SalesReturn> salesReturn, IRepository<SalesReturnDetails> salesReturnDtls, IRepository<OptionsMaster> optionMaster            
+            IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository, IRepository<CurrencyMaster> currencyMasterRepository,
+            IRepository<UnitDetails> unitDetailsRepository, IRepository<MasterAccountsTable> accMaster, IRepository<SalesReturn> salesReturn, IRepository<SalesReturnDetails> salesReturnDtls, IRepository<OptionsMaster> optionMaster
             , IRepository<SalesHold> salesHoldRepository, IRepository<SalesHoldDetails> salesHoldDetailsRepository, IRepository<POS_WorkPeriod> POSWorkPeriodRepository, InspireErpDBContext context
             , IStockService openingStockService)
         {
@@ -93,14 +93,14 @@ namespace Inspire.Erp.Application.Sales.Implementations
             this.accMaster = accMaster; _accountsSettingssvcs = accountsSettingssvcsRepository;
             _salesReturn = salesReturn;
             _salesReturnDtls = salesReturnDtls;
-            _optionMaster = optionMaster;           
+            _optionMaster = optionMaster;
             _salesHoldRepository = salesHoldRepository;
             _salesHoldDetailsRepository = salesHoldDetailsRepository;
             _POSWorkPeriodRepository = POSWorkPeriodRepository;
             _UserTracking = UserTracking;
             _context = context;
-            _openingStockService = openingStockService;          
-        }      
+            _openingStockService = openingStockService;
+        }
         public IEnumerable<LocationMaster> SalesVoucher_GetAllLocationMaster()
         {
             return _locationMasterRepository.GetAll();
@@ -181,6 +181,18 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                     var converontype = this.getConverionTypebyUnitId(item.SalesVoucherDetailsMatId, item.SalesVoucherDetailsUnitId);
 
+
+                    var expense = 0;
+                    if (salesVoucher.SalesVoucherExpense > 0)
+                    {
+                        //expense calculation
+                        var exp = item.SalesVoucherDetailsRate / salesVoucher.SalesVoucherTotalGrossAmount;
+
+                        var expen = exp * salesVoucher.SalesVoucherExpense;
+                        expense = (int)((expen + item.SalesVoucherDetailsRate) / item.SalesVoucherDetailsQuantity);
+
+                    }
+
                     stockReg.Add(new StockRegister()
                     {
                         StockRegisterPurchaseID = salesVoucher.SalesVoucherNo,
@@ -192,7 +204,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         StockRegisterSout = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
                         StockRegisterRate = avgrate,
                         StockRegisterAmount = item.SalesVoucherDetailsQuantity * (decimal)(converontype) * avgrate ?? 0,
-                        StockRegisterFCAmount = item.SalesVoucherDetailsQuantity* (decimal)(converontype) * avgrate * rate,
+                        StockRegisterFCAmount = item.SalesVoucherDetailsQuantity * (decimal)(converontype) * avgrate * rate,
                         StockRegisterAssignedDate = DateTime.Now.Date,
                         StockRegisterStatus = AccountStatus.Approved,
                         StockRegisterTransType = VoucherType.SalesVoucher_TYPE,
@@ -200,7 +212,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         StockRegisterLocationID = salesVoucher.SalesVoucherLocationID,
                         StockRegisterJobID = salesVoucher.SalesVoucherJobId,
                         StockRegisterDepID = salesVoucher.SalesVoucherDptID,
-                        StockRegisterDelStatus = false
+                        StockRegisterDelStatus = false,
+                        StockRegisterLandingCost = expense
                     });
                 }
                 _stockRegisterRepository.UpdateList(stockReg);
@@ -369,6 +382,16 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     var avgrate = item.SalesVoucherDetailsCostPrice ?? 1;
                     var converontype = this.getConverionTypebyUnitId(item.SalesVoucherDetailsMatId, item.SalesVoucherDetailsUnitId);
 
+                    var expense = 0;
+                    if (salesVoucher.SalesVoucherExpense > 0)
+                    {
+                        //expense calculation
+                        var exp = item.SalesVoucherDetailsRate / salesVoucher.SalesVoucherTotalGrossAmount;
+
+                        var expen = exp * salesVoucher.SalesVoucherExpense;
+                        expense = (int)((expen + item.SalesVoucherDetailsRate) / item.SalesVoucherDetailsQuantity);
+
+                    }
                     stockReg.Add(new StockRegister()
                     {
                         StockRegisterPurchaseID = salesVoucher.SalesVoucherNo,
@@ -377,10 +400,10 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         StockRegisterMaterialID = item.SalesVoucherDetailsMatId,
                         StockRegisterQuantity = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
                         StockRegisterSIN = 0,
-                        StockRegisterSout = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
+                        StockRegisterSout = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 1,
                         StockRegisterRate = avgrate,
-                        StockRegisterAmount = item.SalesVoucherDetailsQuantity* (decimal)(converontype) * avgrate ?? 0,
-                        StockRegisterFCAmount = item.SalesVoucherDetailsQuantity *(decimal)(converontype) * avgrate * rate,
+                        StockRegisterAmount = item.SalesVoucherDetailsQuantity * (decimal)(converontype) * avgrate ?? 1,
+                        StockRegisterFCAmount = item.SalesVoucherDetailsQuantity * (decimal)(converontype) * avgrate * rate ?? 1,
                         StockRegisterAssignedDate = DateTime.Now.Date,
                         StockRegisterStatus = "A",
                         StockRegisterTransType = VoucherType.SalesVoucher_TYPE,
@@ -388,7 +411,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         StockRegisterLocationID = salesVoucher.SalesVoucherLocationID,
                         StockRegisterJobID = salesVoucher.SalesVoucherJobId,
                         StockRegisterDepID = salesVoucher.SalesVoucherDptID,
-                        StockRegisterDelStatus = false
+                        StockRegisterDelStatus = false,
+                        StockRegisterLandingCost = expense
                     });
                 }
                 _stockRegisterRepository.InsertList(stockReg);

@@ -20651,6 +20651,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.SalesVoucherShippinAddress).HasColumnName("SalesVoucherShippinAddress");
                 entity.Property(e => e.SalesVoucherDelStatus).HasColumnName("SalesVoucherDelStatus");
                 entity.Property(e => e.SalesVoucherShortNo).HasColumnName("SalesVoucherShortNo");
+                entity.Property(e => e.SalesVoucherExpense).HasColumnName("SalesVoucherExpense");
             });
 
             modelBuilder.Entity<SalesVoucherBatchDetials>(entity =>

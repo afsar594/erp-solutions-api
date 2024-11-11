@@ -159,7 +159,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                         StockRegisterRate = avgrate,
                         StockRegisterSout = item.IssueVoucherDetailsQuantity * (decimal)converontype ?? 1,
                         StockRegisterAmount = item.IssueVoucherDetailsQuantity * (decimal)converontype * avgrate ?? 1,
-                        StockRegisterFCAmount = item.IssueVoucherDetailsQuantity * (decimal)converontype * avgrate * rate ?? 0,
+                        StockRegisterFCAmount = item.IssueVoucherDetailsQuantity * (decimal)converontype * avgrate * rate ?? 1,
                         StockRegisterVoucherDate = issueVoucher.IssueVoucherDate,
                         StockRegisterTransType = VoucherType.IssueVoucher_TYPE,
                         StockRegisterStatus = AccountStatus.Approved,
