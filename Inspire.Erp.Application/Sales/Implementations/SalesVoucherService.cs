@@ -186,10 +186,10 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     if (salesVoucher.SalesVoucherExpense > 0)
                     {
                         //expense calculation
-                        var exp = item.SalesVoucherDetailsRate / salesVoucher.SalesVoucherTotalGrossAmount;
+                        var exp = item.SalesVoucherDetailsGrossAmount / salesVoucher.SalesVoucherTotalGrossAmount;
 
                         var expen = exp * salesVoucher.SalesVoucherExpense;
-                        expense = (int)((expen + item.SalesVoucherDetailsRate) / item.SalesVoucherDetailsQuantity);
+                        expense = (int)((expen + item.SalesVoucherDetailsGrossAmount) / item.SalesVoucherDetailsQuantity);
 
                     }
 
@@ -386,10 +386,10 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     if (salesVoucher.SalesVoucherExpense > 0)
                     {
                         //expense calculation
-                        var exp = item.SalesVoucherDetailsRate / salesVoucher.SalesVoucherTotalGrossAmount;
+                        var exp = item.SalesVoucherDetailsGrossAmount / salesVoucher.SalesVoucherTotalGrossAmount;
 
                         var expen = exp * salesVoucher.SalesVoucherExpense;
-                        expense = (int)((expen + item.SalesVoucherDetailsRate) / item.SalesVoucherDetailsQuantity);
+                        expense = (int)((expen + item.SalesVoucherDetailsGrossAmount) / item.SalesVoucherDetailsQuantity);
 
                     }
                     stockReg.Add(new StockRegister()
