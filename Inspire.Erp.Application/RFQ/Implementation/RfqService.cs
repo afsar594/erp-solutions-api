@@ -68,8 +68,8 @@ namespace Inspire.Erp.Application.RFQ.Implementation
                 int maxcount = 0;
                 maxcount = Convert.ToInt32(
                     _rfqEntry.GetAsQueryable()
-                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.RfqEntryRfqEnqId) + 1);
-                RfqEntry.RfqEntryRfqEnqId = maxcount;
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.RfqEntryId) + 1);
+                RfqEntry.RfqEntryId = maxcount;
                 _rfqEntry.Insert(RfqEntry);
 
 
@@ -169,7 +169,7 @@ namespace Inspire.Erp.Application.RFQ.Implementation
         {
             try
             {
-                var prefix = this._programsettingsrepository.GetAsQueryable().Where(k => k.ProgramSettingsKeyValue == Prefix.RFQ_Prefix).FirstOrDefault().ProgramSettingsTextValue;
+                var prefix = _programsettingsrepository.GetAsQueryable().Where(k => k.ProgramSettingsKeyValue == Prefix.RFQ_Prefix).FirstOrDefault().ProgramSettingsTextValue;
                 int vnoMaxVal = Convert.ToInt32(_voucherNumbersRepository.GetAsQueryable()
                                                         .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == VoucherType.RFQ_TYPE)
                                                         .DefaultIfEmpty()

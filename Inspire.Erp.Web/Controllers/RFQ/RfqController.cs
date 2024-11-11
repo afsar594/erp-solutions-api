@@ -21,12 +21,13 @@ namespace Inspire.Erp.Web.Controllers
         private IRepository<RfqEntryDetails> _rfqEntryDetailsrepository;
         private IRfqService _rfq;
         private readonly IMapper _mapper;
-        public RfqController(IMapper mapper, IRepository<RfqEntry> rfqEntryrepository, IRepository<RfqEntryDetails> rfqEntryDetailsrepository)
+        public RfqController(IMapper mapper, IRepository<RfqEntry> rfqEntryrepository, IRepository<RfqEntryDetails> rfqEntryDetailsrepository, IRfqService rfq)
         {
 
             _rfqEntryrepository = rfqEntryrepository;
             _rfqEntryDetailsrepository = rfqEntryDetailsrepository;
             _mapper = mapper;
+            _rfq = rfq;
         }
         [HttpGet]
         [Route("GetRfq")]
@@ -60,7 +61,7 @@ namespace Inspire.Erp.Web.Controllers
         {
 
             var param1 = _mapper.Map<RfqEntry>(RfqEntryModule);
-            var param2 = _mapper.Map<List<RfqEntryDetails>>(RfqEntryModule.RfqEntryDetails);
+            var param2 = RfqEntryModule.RfqEntryDetails;
 
             var rfq = await _rfq.InsertRfq(param1, param2);
 
