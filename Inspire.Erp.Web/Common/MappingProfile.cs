@@ -493,8 +493,9 @@ namespace Inspire.Erp.Web.Common
             CreateMap<BillOfQTyDetailsModel, BillOfQTyDetails>();
             CreateMap<BillOfQTyDetails, BillOfQTyDetailsModel>();
 
-           
 
+            CreateMap<RFQViewModel, RfqEntry>();
+            CreateMap<RfqEntry, RFQViewModel>();
 
 
         }
