@@ -14,7 +14,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers.Accounts
-{   
+{
     [Route("api/[controller]")]
     [ApiController]
     public class AccountController : ControllerBase
@@ -34,7 +34,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         private readonly IAssetsOpeningService _assetsOpeningService;
         private readonly IVatStatementService _vatStatementService;
         private IRepository<SalesVoucherDetails> _salesVoucherDetailsRepository;
-        private readonly IAssetsMasterService _assetsMasterService; 
+        private readonly IAssetsMasterService _assetsMasterService;
         private IRepository<SalesVoucher> _salesVoucherRepository;
         private readonly IAccountTransactionsServices _accountTransactionsServices;
         public AccountController(IAccountStatementService accountStatService, IDaybookService daybookService, IAssetsOpeningService assetsOpeningService, IRepository<AccountsTransactions> accountTransactionRepository,
@@ -114,12 +114,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         public async Task<IActionResult> GetAccountTransactionsForeignCurrencyDetail(GenericGridViewModel model)
         {
             return Ok(await _multiAccountService.GetAccountTransactionsForeignCurrencyDetail(model));
-        }
-        //[HttpPost("GetAccountTransactionsForeignCurrencySummary")]
-        //public async Task<IActionResult> GetAccountTransactionsForeignCurrencySummary([FromBody] AccountTransactionsFilterReport model)
-        //{
-        //    return Ok(await _multiAccountService.GetAccountTransactionsForeignCurrencySummary(model));
-        //}
+        }       
 
         [HttpPost("GetAccountTransactionsForeignCurrencySummary")]
         public async Task<IActionResult> GetAccountTransactionsForeignCurrencySummary(GenericGridViewModel model)
@@ -485,7 +480,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
 
             if (model.isDate)
             {
-                query = query.Where(c => c.SalesVoucherDate >= model.fromdate && c.SalesVoucherDate <= model.todate);
+                query = query.Where(c => c.SalesVoucherDate.Value.Date >= model.fromdate.Value.Date && c.SalesVoucherDate.Value.Date <= model.todate.Value.Date);
             }
 
             var result = query.ToList();
@@ -533,9 +528,15 @@ namespace Inspire.Erp.Web.Controllers.Accounts
                             && a.AccountsTransactionsVoucherType == "SalesVoucher")
                 .ToList();
 
+            if (model.isDate)
+            {
+                acc = acc.Where(a => a.AccountsTransactionsTransDate.Value.Date >= model.fromdate.Value.Date && a.AccountsTransactionsTransDate.Value.Date <= model.todate.Value.Date).ToList();
+            }
+
             var account = acc.Where(a => ids.Any(id =>
                             string.Equals(a.AccountsTransactionsAccNo.Trim(), id.Trim(), StringComparison.OrdinalIgnoreCase)))
                             .ToList();
+
             var data = from q in result
                        join s in _salesVoucherDetailsRepository.GetAsQueryable().AsNoTracking()
                            on q.SalesVoucherId equals s.SalesVoucherId
@@ -549,7 +550,8 @@ namespace Inspire.Erp.Web.Controllers.Accounts
                            s.SalesVoucherDetailsMatId
                        } into grouped
                        let invoiceAmount = grouped.Sum(g => g.m.AccountsTransactionsCredit)
-                       let cost1 = grouped.Sum(g => g.m.AccountsTransactionsDebit)
+                       let sum = grouped.Sum(g => (decimal?)g.m.AccountsTransactionsDebit)
+                       let cost1 = (sum == 0 ? 1m : sum)
                        let profit = invoiceAmount - cost1
                        let profitPercentage = profit == 0 ? 0 : (profit / cost1) * 100
                        select new
@@ -561,7 +563,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
                            InvoiceAmount = invoiceAmount,
                            Cost = cost1,
                            Profit = profit,
-                           ProfitPercentage = Math.Round(profitPercentage, 2)
+                           ProfitPercentage = Math.Round((decimal)profitPercentage, 2)
                        };
 
             objresponse.ResultSet = new
