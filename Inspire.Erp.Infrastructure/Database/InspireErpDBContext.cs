@@ -19285,6 +19285,8 @@ namespace Inspire.Erp.Infrastructure.Database
                     .IsUnicode(false);
 
                 entity.Property(e => e.RfqEntrySupplierId).HasColumnName("RFQ_Entry_Supplier_ID");
+                entity.Property(e => e.RFQ_EntryvouchaseNo).HasColumnName("RFQ_EntryvouchaseNo");
+
             });
 
             modelBuilder.Entity<RfqEntryDetails>(entity =>
@@ -19318,6 +19320,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.RfqEntryDetailsRfqamt).HasColumnName("RFQ_Entry_Details_RFQAmt");
 
                 entity.Property(e => e.RfqEntryDetailsUnitId).HasColumnName("RFQ_Entry_Details_Unit_ID");
+                entity.Property(e => e.RFQ_EntryvouchaseNo).HasColumnName("RFQ_EntryvouchaseNo");
             });
 
             ////modelBuilder.Entity<SalesJournal>(entity =>

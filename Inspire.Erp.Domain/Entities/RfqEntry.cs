@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -15,5 +16,8 @@ namespace Inspire.Erp.Domain.Entities
         public int? RfqEntrySalesManId { get; set; }
         public bool? RfqEntryDeliveryStatus { get; set; }
         public bool? RfqEntryDelStatus { get; set; }
+
+        public string RFQ_EntryvouchaseNo { get; set; }
+
     }
 }

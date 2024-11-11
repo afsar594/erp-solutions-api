@@ -87,7 +87,8 @@ namespace Inspire.Erp.Application.Master
             IEnumerable<CurrencyMaster> currencyMasters;
             try
             {
-                currencyMasters  =  currencyrepository.GetAll();
+                currencyMasters = currencyrepository.GetAll().Where(a => a.CurrencyMasterCurrencyStatus != true).ToList();
+
 
             }
             catch (Exception ex)
