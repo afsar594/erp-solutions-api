@@ -31,12 +31,12 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpGet]
         [Route("GetRfq")]
-        public ApiResponse<List<RFQViewModel>> GetRfq()
+        public ApiResponse<List<RfqEntry>> GetRfq()
         {
-            ApiResponse<List<RFQViewModel>> apiResponse = new ApiResponse<List<RFQViewModel>>
+            ApiResponse<List<RfqEntry>> apiResponse = new ApiResponse<List<RfqEntry>>
             {
                 Valid = true,
-                Result = _mapper.Map<List<RFQViewModel>>(_rfq.GetRfq()),
+                Result = _mapper.Map<List<RfqEntry>>(_rfq.GetRfq()),
                 Message = ""
             };
             return apiResponse;

@@ -32,7 +32,7 @@ namespace Inspire.Erp.Application.RFQ.Implementation
         {
             try
             {
-                var data = _rfqEntry.GetAll().Where(a => a.RfqEntryStatus != true).OrderBy(c => c.RfqEntryId).ToList();
+                var data = _rfqEntry.GetAll().Where(a => a.RfqEntryStatus != true).OrderBy(c => c.RFQEntryID).ToList();
                 return data;
             }
             catch (Exception ex)
@@ -40,13 +40,14 @@ namespace Inspire.Erp.Application.RFQ.Implementation
                 throw ex;
             }
         }
-        public RFQViewModel GetRfqById(int? id)
+
+        public RFQViewModel GetRfqById(int id)
         {
             try
             {
                 RFQViewModel Rfq = new RFQViewModel();
-                Rfq.RfqEntry = _rfqEntry.GetAsQueryable().FirstOrDefault(x => x.RfqEntryId == Convert.ToInt32(id));
-                Rfq.RfqEntryDetails = _rfqEntryDetails.GetAsQueryable().Where(x => x.RfqEntryDetailsDetId == Convert.ToInt32(id) && x.RfqEntryDetailsDelStatus != true).ToList();
+                Rfq.RfqEntry = _rfqEntry.GetAsQueryable().FirstOrDefault(x => x.RFQEntryID == Convert.ToInt32(id));
+                Rfq.RfqEntryDetails = _rfqEntryDetails.GetAsQueryable().Where(x => x.RFQEntryDetailsDetID ==  Convert.ToInt32(id) && x.RFQEntryDetailsDelStatus != true).ToList();
                 return Rfq;
 
             }
@@ -68,14 +69,14 @@ namespace Inspire.Erp.Application.RFQ.Implementation
                 int maxcount = 0;
                 maxcount = Convert.ToInt32(
                     _rfqEntry.GetAsQueryable()
-                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.RfqEntryId) + 1);
-                RfqEntry.RfqEntryId = maxcount;
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.RFQEntryID) + 1);
+                RfqEntry.RFQEntryID = maxcount;
                 _rfqEntry.Insert(RfqEntry);
 
 
                 RfqEntryDetails.ForEach(elemt =>
                 {
-                    elemt.RfqEntryDetailsDetId = maxcount;
+                    elemt.RFQEntryDetailsDetID = maxcount;
                     elemt.RFQ_EntryvouchaseNo = RFQVoucherNumber;
                     maxcount++;
                 }); 
@@ -110,7 +111,7 @@ namespace Inspire.Erp.Application.RFQ.Implementation
 
                 RfqEntryDetails.ForEach(elemt =>
                 {
-                    elemt.RfqEntryDetailsDetId = maxcount;
+                    elemt.RFQEntryDetailsDetID = maxcount;
                     elemt.RFQ_EntryvouchaseNo = RFQVoucherNumber;
                     maxcount++;
                 });
@@ -135,7 +136,7 @@ namespace Inspire.Erp.Application.RFQ.Implementation
                 var detailData = _rfqEntryDetails.GetAsQueryable().Where(o => o.RFQ_EntryvouchaseNo == Id).ToList();
                 detailData.ForEach(elemt =>
                 {
-                    elemt.RfqEntryDetailsDelStatus = true;
+                    elemt.RFQEntryDetailsDelStatus = true;
                 });
                 _rfqEntry.Update(dataObj);
                 _rfqEntryDetails.UpdateList(detailData);
@@ -156,7 +157,7 @@ namespace Inspire.Erp.Application.RFQ.Implementation
 
                 RFQViewModel Rfq = new RFQViewModel();
                 Rfq.RfqEntry = _rfqEntry.GetAsQueryable().Where(k => k.RFQ_EntryvouchaseNo == VNo).FirstOrDefault();
-                Rfq.RfqEntryDetails = _rfqEntryDetails.GetAsQueryable().Where(x => x.RFQ_EntryvouchaseNo == VNo && (x.RfqEntryDetailsDelStatus == false || x.RfqEntryDetailsDelStatus == null)).ToList();
+                Rfq.RfqEntryDetails = _rfqEntryDetails.GetAsQueryable().Where(x => x.RFQ_EntryvouchaseNo == VNo && (x.RFQEntryDetailsDelStatus == false || x.RFQEntryDetailsDelStatus == null)).ToList();
                 return Rfq;
             }
             catch (Exception ex)
@@ -196,14 +197,7 @@ namespace Inspire.Erp.Application.RFQ.Implementation
 
         }
 
-        IEnumerable<RFQViewModel> IRfqService.GetRfq()
-        {
-            throw new NotImplementedException();
-        }
-
-        RfqEntry IRfqService.GetRfqById(int? id)
-        {
-            throw new NotImplementedException();
-        }
+        
+       
     }
 }

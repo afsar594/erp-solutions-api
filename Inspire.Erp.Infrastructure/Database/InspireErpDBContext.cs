@@ -19254,105 +19254,50 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<RfqEntry>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.RFQEntryID);
 
                 entity.ToTable("RFQ_Entry");
 
-                entity.Property(e => e.RfqEntryDelStatus).HasColumnName("RFQ_Entry_DelStatus");
+                entity.Property(e => e.RFQEntryID)
+                   .HasColumnName("RFQ_Entry_ID").ValueGeneratedNever();
 
-                entity.Property(e => e.RfqEntryDeliveryStatus).HasColumnName("RFQ_Entry_Delivery_Status");
 
-                entity.Property(e => e.RfqEntryId).HasColumnName("RFQ_Entry_ID");
-
-                entity.Property(e => e.RfqEntryRfqDate)
-                    .HasColumnName("RFQ_Entry_RFQ_Date")
-                    .HasColumnType("datetime");
-
+                entity.Property(e => e.RfqEntryRfqId).HasColumnName("RFQ_Entry_RFQ_ID");
+                entity.Property(e => e.RfqEntryRfqDate).HasColumnName("RFQ_Entry_RFQ_Date").HasColumnType("datetime");
                 entity.Property(e => e.RfqEntryRfqEnqId).HasColumnName("RFQ_Entry_RFQ_Enq_ID");
-
-                entity.Property(e => e.RfqEntryRfqId)
-                    .HasColumnName("RFQ_Entry_RFQ_ID")
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.RfqEntrySalesManId).HasColumnName("RFQ_Entry_Sales_Man_ID");
-
-                entity.Property(e => e.RfqEntryStatus).HasColumnName("RFQ_Entry_Status");
-
-                entity.Property(e => e.RfqEntrySupplierAddress)
-                    .HasColumnName("RFQ_Entry_Supplier_Address")
-                    .HasMaxLength(300)
-                    .IsUnicode(false);
-
                 entity.Property(e => e.RfqEntrySupplierId).HasColumnName("RFQ_Entry_Supplier_ID");
+                entity.Property(e => e.RfqEntrySupplierAddress).HasColumnName("RFQ_Entry_Supplier_Address").HasMaxLength(300)
+                    .IsUnicode(false);
+                entity.Property(e => e.RfqEntryStatus).HasColumnName("RFQ_Entry_Status");
+                entity.Property(e => e.RfqEntrySalesManId).HasColumnName("RFQ_Entry_Sales_Man_ID");
+                entity.Property(e => e.RfqEntryDeliveryStatus).HasColumnName("RFQ_Entry_Delivery_Status");
+                entity.Property(e => e.RfqEntryDelStatus).HasColumnName("RFQ_Entry_DelStatus");
+                entity.Property(e => e.RfqEntryRfqEnqId).HasColumnName("RFQ_Entry_PReq_ID");
                 entity.Property(e => e.RFQ_EntryvouchaseNo).HasColumnName("RFQ_EntryvouchaseNo");
 
             });
 
             modelBuilder.Entity<RfqEntryDetails>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.RFQEntryDetailsDetID);
 
                 entity.ToTable("RFQ_Entry_Details");
 
-                entity.Property(e => e.RfqEntryDetailsDelStatus).HasColumnName("RFQ_Entry_Details_DelStatus");
+                entity.Property(e => e.RFQEntryDetailsDetID)
+                  .HasColumnName("RFQ_Entry_Details_Det_ID").ValueGeneratedNever();
 
-                entity.Property(e => e.RfqEntryDetailsDelqty).HasColumnName("RFQ_Entry_Details_Delqty");
-
-                entity.Property(e => e.RfqEntryDetailsDescription)
-                    .HasColumnName("RFQ_Entry_Details_Description")
-                    .HasMaxLength(150)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.RfqEntryDetailsDetId).HasColumnName("RFQ_Entry_Details_Det_ID");
-
-                entity.Property(e => e.RfqEntryDetailsItemId).HasColumnName("RFQ_Entry_Details_Item_ID");
-
-                entity.Property(e => e.RfqEntryDetailsPrice).HasColumnName("RFQ_Entry_Details_Price");
-
-                entity.Property(e => e.RfqEntryDetailsQuantity).HasColumnName("RFQ_Entry_Details_Quantity");
-
-                entity.Property(e => e.RfqEntryDetailsRemarks)
-                    .HasColumnName("RFQ_Entry_Details_Remarks")
-                    .HasMaxLength(150)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.RfqEntryDetailsRfqamt).HasColumnName("RFQ_Entry_Details_RFQAmt");
-
-                entity.Property(e => e.RfqEntryDetailsUnitId).HasColumnName("RFQ_Entry_Details_Unit_ID");
+                entity.Property(e => e.RFQEntryDetailsItemID).HasColumnName("RFQ_Entry_Details_Item_ID");
+                entity.Property(e => e.RFQEntryDetailsDescription).HasColumnName("RFQ_Entry_Details_Description").HasMaxLength(500)
+                   .IsUnicode(false);
+                entity.Property(e => e.RFQEntryDetailsUnitID).HasColumnName("RFQ_Entry_Details_Unit_ID");
+                entity.Property(e => e.RFQEntryDetailsQuantity).HasColumnName("RFQ_Entry_Details_Quantity");
+                entity.Property(e => e.RFQEntryDetailsPrice).HasColumnName("RFQ_Entry_Details_Price");
+                entity.Property(e => e.RFQEntryDetailsDelqty).HasColumnName("RFQ_Entry_Details_Delqty");
+                entity.Property(e => e.RFQEntryDetailsRFQAmt).HasColumnName("RFQ_Entry_Details_RFQAmt");
+                entity.Property(e => e.RFQEntryDetailsRemarks).HasColumnName("RFQ_Entry_Details_Remarks");
+                entity.Property(e => e.RFQEntryDetailsDelStatus).HasColumnName("RFQ_Entry_Details_DelStatus");
                 entity.Property(e => e.RFQ_EntryvouchaseNo).HasColumnName("RFQ_EntryvouchaseNo");
             });
-
-            ////modelBuilder.Entity<SalesJournal>(entity =>
-            ////{
-            ////    entity.HasNoKey();
-
-            ////    entity.ToTable("Sales_Journal");
-
-            ////    entity.Property(e => e.SalesJournalCustId).HasColumnName("Sales_Journal_Cust_ID");
-
-            ////    entity.Property(e => e.SalesJournalDate)
-            ////        .HasColumnName("Sales_Journal_Date")
-            ////        .HasColumnType("datetime");
-
-            ////    entity.Property(e => e.SalesJournalDelStatus).HasColumnName("Sales_Journal_DelStatus");
-
-            ////    entity.Property(e => e.SalesJournalFsno).HasColumnName("Sales_Journal_FSNO");
-
-            ////    entity.Property(e => e.SalesJournalId).HasColumnName("Sales_Journal_ID");
-
-            ////    entity.Property(e => e.SalesJournalReffNo)
-            ////        .HasColumnName("Sales_Journal_ReffNo")
-            ////        .HasMaxLength(30)
-            ////        .IsUnicode(false);
-
-            ////    entity.Property(e => e.SalesJournalRemarks)
-            ////        .HasColumnName("Sales_Journal_Remarks")
-            ////        .HasMaxLength(200)
-            ////        .IsUnicode(false);
-
-            ////    entity.Property(e => e.SalesJournalUserId).HasColumnName("Sales_Journal_User_ID");
-            ////});
 
             modelBuilder.Entity<SalesJournal>(entity =>
             {
