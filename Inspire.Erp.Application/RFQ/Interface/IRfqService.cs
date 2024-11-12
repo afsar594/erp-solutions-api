@@ -20,7 +20,7 @@ namespace Inspire.Erp.Application.RFQ.Interface
         public Task<RFQViewModel> InsertRfq(RfqEntry RfqEntry,List<RfqEntryDetails> RfqEntryDetails);
         public Task<RFQViewModel> UpdatetRfq(RfqEntry RfqEntry, List<RfqEntryDetails> RfqEntryDetails);
 
-        public IEnumerable<RfqEntry> DeleteRfq(string Id);
+        public IEnumerable<RfqEntry> DeleteRfq(string vouchaseNo);
         
     }
 }

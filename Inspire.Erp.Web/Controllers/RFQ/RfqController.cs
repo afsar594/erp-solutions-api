@@ -91,11 +91,11 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpGet]
         [Route("DeleteRfq")]
-        public IActionResult DeleteRfq(string Id)
+        public IActionResult DeleteRfq(string vouchaseNo)
         {
             try
             {
-                return Ok(_rfq.DeleteRfq(Id));
+                return Ok(_rfq.DeleteRfq(vouchaseNo));
             }
             catch (Exception ex)
             {

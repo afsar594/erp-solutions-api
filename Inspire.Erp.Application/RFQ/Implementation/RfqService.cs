@@ -127,13 +127,13 @@ namespace Inspire.Erp.Application.RFQ.Implementation
             }
         }
 
-        public IEnumerable<RfqEntry> DeleteRfq(string Id)
+        public IEnumerable<RfqEntry> DeleteRfq(string vouchaseNo)
         {
             try
             {
-                var dataObj = _rfqEntry.GetAsQueryable().Where(o => o.RFQ_EntryvouchaseNo == Id).FirstOrDefault();
+                var dataObj = _rfqEntry.GetAsQueryable().Where(o => o.RFQ_EntryvouchaseNo == vouchaseNo).FirstOrDefault();
                 dataObj.RfqEntryDelStatus = true;
-                var detailData = _rfqEntryDetails.GetAsQueryable().Where(o => o.RFQ_EntryvouchaseNo == Id).ToList();
+                var detailData = _rfqEntryDetails.GetAsQueryable().Where(o => o.RFQ_EntryvouchaseNo == vouchaseNo).ToList();
                 detailData.ForEach(elemt =>
                 {
                     elemt.RFQEntryDetailsDelStatus = true;
