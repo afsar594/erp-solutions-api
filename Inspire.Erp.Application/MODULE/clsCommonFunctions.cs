@@ -17,7 +17,7 @@ namespace Inspire.Erp.Application.MODULE
 {
     public static class clsCommonFunctions
     {
-        
+
         public static void Delete_OldEntry_AccountsTransactions(string AccountsTransactionsVoucherNo, string AccountsTransactionsVoucherType, IRepository<AccountsTransactions> _accountTransactionRepository)
 
         {
@@ -233,7 +233,7 @@ namespace Inspire.Erp.Application.MODULE
                 throw ex;
             }
 
-        }       
+        }
 
         public static double getConverionCurrencyRate(int? itemid, IRepository<CurrencyMaster> _currencyMasterRepository)
         {
@@ -244,6 +244,47 @@ namespace Inspire.Erp.Application.MODULE
             catch
             {
                 return 1;
+            }
+        }
+
+        public static string GenrateVoucherNo(string voucherType, string voucherprefix, IRepository<ProgramSettings> _progrramSettingRepo, IRepository<VouchersNumbers> _voucherNosRepo)
+        {
+            try
+            {
+                var program = _progrramSettingRepo.GetAsQueryable().Where(p => p.ProgramSettingsKeyValue.Equals("PREFIX_CLOSING_TYPE")).Select(s => s.ProgramSettingsTextValue).FirstOrDefault();
+                var prefixSeprator = _progrramSettingRepo.GetAsQueryable().Where(P => P.ProgramSettingsKeyValue.Equals("PREFIX_SEPERATOR")).Select(S => S.ProgramSettingsTextValue).FirstOrDefault();
+                decimal vNoMax = 0;
+                var prefix = _progrramSettingRepo.GetAsQueryable().Where(p => p.ProgramSettingsKeyValue.Equals(voucherprefix)).Select(v => v.ProgramSettingsTextValue).FirstOrDefault();
+                var date = DateTime.Now;
+                string vnoPrefix = string.Empty;
+                if (program.Equals("1"))
+                {
+                    vNoMax = _voucherNosRepo.GetAsQueryable().Where(v => v.VouchersNumbersVNoNu > 0 && v.VouchersNumbersVType.Equals(voucherType) && v.VouchersNumbersVoucherDate.HasValue && v.VouchersNumbersVoucherDate.Value.Month == date.Month).AsEnumerable().Select(a => a.VouchersNumbersVNoNu).DefaultIfEmpty(0).Max() + 1;
+
+                    vnoPrefix = prefix + prefixSeprator + date.Year.ToString() + prefixSeprator + date.Month.ToString() + prefixSeprator + vNoMax.ToString();
+                }
+                else
+                {
+                    vNoMax = _voucherNosRepo.GetAsQueryable().Where(v => v.VouchersNumbersVNoNu > 0 && v.VouchersNumbersVType.Equals(voucherType) && v.VouchersNumbersVoucherDate.HasValue && v.VouchersNumbersVoucherDate.Value.Year == date.Year).AsEnumerable().Select(a => a.VouchersNumbersVNoNu).DefaultIfEmpty(0).Max() + 1;
+
+                    vnoPrefix = prefix + prefixSeprator + date.Year.ToString() + prefixSeprator + date.Month.ToString() + prefixSeprator + vNoMax.ToString();
+                }
+                VouchersNumbers vocherNumber = new VouchersNumbers
+                {
+                    VouchersNumbersVNo = vnoPrefix,
+                    VouchersNumbersVNoNu = vNoMax,
+                    VouchersNumbersVType = voucherType,
+                    VouchersNumbersFsno = 1,
+                    VouchersNumbersStatus = AccountStatus.Pending,
+                    VouchersNumbersVoucherDate = date
+                };
+                _voucherNosRepo.Insert(vocherNumber);
+                return vocherNumber.VouchersNumbersVNo;
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+
             }
         }
 
