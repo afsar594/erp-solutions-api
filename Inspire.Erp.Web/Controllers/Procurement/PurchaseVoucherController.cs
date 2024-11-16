@@ -162,7 +162,7 @@ namespace Inspire.Erp.Web.Controllers
         }
 
         [HttpGet("GetSavedPurchaseVoucherDetails/{id}")]
-        public ApiResponse<PurchaseVoucher> GetSavedPurchaseVoucherDetails(string id)
+        public ApiResponse<PurchaseVoucher> GetSavedPurchaseVoucherDetails(long id)
         {
             var purchaseVoucher = _service.GetSavedPurchaseVoucherDetailsV2(id);
 
