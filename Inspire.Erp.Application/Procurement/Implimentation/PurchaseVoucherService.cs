@@ -38,7 +38,7 @@ namespace Inspire.Erp.Application.Master.Implementations
         private readonly IConfiguration _configuration;
         public PurchaseVoucherService(IRepository<PurchaseVoucher> PurchaseVoucher, IRepository<PurchaseVoucherDetails> PurchaseVoucherDetails,
         IRepository<JobMaster> JobMaster, IRepository<Suppliers> Suppliers, IRepository<LocationMaster> LocationMaster,
-        IRepository<ItemMaster> ItemMaster, IRepository<UnitMaster> UnitMaster, InspireErpDBContext context, IRepository<VouchersNumbers> voucherNumbersRepository, 
+        IRepository<ItemMaster> ItemMaster, IRepository<UnitMaster> UnitMaster, InspireErpDBContext context, IRepository<VouchersNumbers> voucherNumbersRepository,
         IRepository<ProgramSettings> programsettingsRepository, IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<CurrencyMaster> currencyMasterRepository, IConfiguration configuration)
         {
             _PurchaseVoucher = PurchaseVoucher;
@@ -97,7 +97,8 @@ namespace Inspire.Erp.Application.Master.Implementations
             try
             {
                 _PurchaseVoucher.BeginTransaction();
-                string puchaseVoucherNumber = this.GenerateVoucherNo(purchaseVoucher.PurchaseVoucherPurchaseDate.Date).VouchersNumbersVNo;
+                // string puchaseVoucherNumber = this.GenerateVoucherNo(purchaseVoucher.PurchaseVoucherPurchaseDate.Date).VouchersNumbersVNo;
+                string puchaseVoucherNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.PurchaseVoucher_TYPE, Prefix.PurchaseVoucher_Prefix, _programsettingsRepository, _voucherNumbersRepository);
                 purchaseVoucher.PurchaseVoucherVoucherNo = puchaseVoucherNumber;
 
 
@@ -106,7 +107,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                     _PurchaseVoucher.GetAsQueryable()
                     .DefaultIfEmpty().Max(o => o == null ? 0 : o.PurchaseVoucherPurID) + 1);
 
-                 purchaseVoucher.PurchaseVoucherPurID = maxcount;
+                purchaseVoucher.PurchaseVoucherPurID = maxcount;
 
                 //purchaseVoucherDetails = purchaseVoucherDetails.Select((x) =>
                 //{
@@ -143,7 +144,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                     var converontype = this.getConverionTypebyUnitId(item.PurchaseVoucherDetailsMaterialId, item.PurchaseVoucherDetailsUnitId);
 
                     item.PurchaseVoucherDetailsVoucherNo = puchaseVoucherNumber;
-                    item.PurchaseVoucherDetailsPrId=maxcount;
+                    item.PurchaseVoucherDetailsPrId = maxcount;
                     stockRegisters.Add(new StockRegister
                     {
                         StockRegisterMaterialID = item.PurchaseVoucherDetailsMaterialId,
@@ -188,7 +189,7 @@ namespace Inspire.Erp.Application.Master.Implementations
             }
         }
 
-        
+
 
         public IQueryable GetPurchaseReturnReport()
         {
@@ -364,14 +365,14 @@ namespace Inspire.Erp.Application.Master.Implementations
         public PurchaseVoucherModel UpdatePurchaseVoucher(PurchaseVoucher purchaseVoucher, List<AccountsTransactions> accountsTransactions, List<PurchaseVoucherDetails> purchaseVoucherDetails, List<StockRegister> stockRegister)
         {
             try
-            {               
+            {
 
                 _PurchaseVoucher.BeginTransaction();
 
                 //=================================
                 clsCommonFunctions.Delete_OldEntryOf_StockRegister(purchaseVoucher.PurchaseVoucherVoucherNo, VoucherType.PurchaseVoucher_TYPE, _stockRegisterRepository);
-                clsCommonFunctions.Delete_OldEntry_AccountsTransactions(purchaseVoucher.PurchaseVoucherVoucherNo, purchaseVoucher.PurchaseVoucherPurchaseType, _accountTransactionRepository);               
-                _PurchaseVoucher.Update(purchaseVoucher);               
+                clsCommonFunctions.Delete_OldEntry_AccountsTransactions(purchaseVoucher.PurchaseVoucherVoucherNo, purchaseVoucher.PurchaseVoucherPurchaseType, _accountTransactionRepository);
+                _PurchaseVoucher.Update(purchaseVoucher);
 
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
@@ -562,7 +563,8 @@ namespace Inspire.Erp.Application.Master.Implementations
 
                 _accountTransactionRepository.BeginTransaction();
 
-                string vnumber = this.GenerateVoucherNo(purchaseVoucher.PurchaseVoucherPurchaseDate).VouchersNumbersVNo;
+                //string vnumber = this.GenerateVoucherNo(purchaseVoucher.PurchaseVoucherPurchaseDate).VouchersNumbersVNo;
+                string vnumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.PurchaseVoucher_TYPE, Prefix.PurchaseVoucher_Prefix, _programsettingsRepository, _voucherNumbersRepository);
                 purchaseVoucher.PurchaseVoucherVoucherNo = vnumber;
 
                 int maxcount = 0;

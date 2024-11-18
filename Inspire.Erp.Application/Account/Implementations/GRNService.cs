@@ -192,7 +192,8 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
             {
                 grn.PurchaseVoucherDelStatus = false;
 
-                string contraVoucherNumber = this.GenerateVoucherNo(grn.PurchaseVoucherGRDate).VouchersNumbersVNo;
+                //string contraVoucherNumber = this.GenerateVoucherNo(grn.PurchaseVoucherGRDate).VouchersNumbersVNo;
+                string contraVoucherNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.PurchaseVoucher_TYPE, Prefix.PurchaseVoucher_Prefix, _programsettingsRepository, _voucherNumbersRepository);
                 grn.PurchaseVoucherVoucherNo = contraVoucherNumber;
 
                 foreach (var k in grn.AccountsTransactions)

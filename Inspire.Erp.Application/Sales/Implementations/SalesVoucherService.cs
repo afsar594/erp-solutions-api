@@ -338,13 +338,13 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
         public async Task<SalesVoucherModel> InsertSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions,
             List<SalesVoucherDetails> salesVoucherDetails
-            , List<StockRegister> stockRegister
-            )
+            , List<StockRegister> stockRegister)
         {
             try
             {
                 _salesVoucherRepository.BeginTransaction();
-                string salesVoucherNumber = this.GenerateVoucherNo(salesVoucher.SalesVoucherDate).VouchersNumbersVNo;
+                //string salesVoucherNumber = this.GenerateVoucherNo(salesVoucher.SalesVoucherDate).VouchersNumbersVNo;
+                string salesVoucherNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.SalesVoucher_TYPE, Prefix.SalesVoucher_Prefix,_programsettingsRepository,_voucherNumbersRepository);
                 salesVoucher.SalesVoucherNo = salesVoucherNumber;
 
 
@@ -750,19 +750,11 @@ namespace Inspire.Erp.Application.Sales.Implementations
             {
 
 
-
-
-
-
                 var prefix = this._programsettingsRepository.GetAsQueryable().Where(k => k.ProgramSettingsKeyValue == Prefix.SalesVoucher_Prefix).FirstOrDefault().ProgramSettingsTextValue;
                 int vnoMaxVal = Convert.ToInt32(_voucherNumbersRepository.GetAsQueryable()
                                                         .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == VoucherType.SalesVoucher_TYPE)
                                                         .DefaultIfEmpty()
                                                         .Max(o => o == null ? 0 : o.VouchersNumbersVNoNu)) + 1;
-
-
-                //var prefix = "CN";
-                //int vnoMaxVal = 1;
 
 
                 VouchersNumbers vouchersNumbers = new VouchersNumbers
