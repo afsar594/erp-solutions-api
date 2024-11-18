@@ -16,7 +16,7 @@ namespace Inspire.Erp.Web.Controllers
         {
              _assetRegisterService = assetRegisterService;
         }
-        [HttpGet("Show")]
+        [HttpGet("AssetRigister")]
         public async Task<IActionResult> Show(DateTime? fromDate, DateTime? toDate, string searchText)
         {
             var result = await _assetRegisterService.GetAssetsRegisterAsync(fromDate, toDate, searchText);
