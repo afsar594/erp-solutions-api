@@ -166,9 +166,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
 
 
-                string customerQuotationNumber = clsCommonFunctions.GenerateVoucherNo(customerQuotation.CustomerQuotationQuotationDate
-                   , VoucherType.Quotation, Prefix.CQ_Prefix
-                   , _programsettingsRepository, _voucherNumbersRepository).VouchersNumbersVNo;
+                string customerQuotationNumber = clsCommonFunctions.GenrateVoucherNo( VoucherType.Quotation, Prefix.CQ_Prefix
+                   , _programsettingsRepository, _voucherNumbersRepository);
 
                 customerQuotation.CustomerQuotationVoucherNo = customerQuotationNumber;
 

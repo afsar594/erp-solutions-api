@@ -44,7 +44,7 @@ namespace Inspire.Erp.Application.Sales.Interfaces
             , List<StockRegister> stockRegister
             );
         public IEnumerable<AccountsTransactions> GetAllTransaction();
-        public SalesVoucherModel GetSavedSalesVoucherDetails(string pvno);
+        public SalesVoucherModel GetSavedSalesVoucherDetails(decimal pvno);
         public IEnumerable<SalesVoucher> GetSalesVoucher();
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
         public VouchersNumbers GetVouchersNumbers(string pvno);

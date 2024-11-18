@@ -15,7 +15,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Interface
         PurchaseVoucher updateGRN(PurchaseVoucher grn, List<AccountsTransactions> accountsTransactions);
         public IEnumerable<GRNResponse> loadPo(GRNRequest obj);
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
-        public PurchaseVoucher GetByID(string voucherNo);
+        public PurchaseVoucher GetByID(long voucherNo);
         public IQueryable GetAllGRN();
 
     }

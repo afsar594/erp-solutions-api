@@ -415,7 +415,7 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("GetSavedSalesVoucherDetails/{id}")]
-        public ApiResponse<SalesVoucherViewModel> GetSavedSalesVoucherDetails(string id)
+        public ApiResponse<SalesVoucherViewModel> GetSavedSalesVoucherDetails(decimal id)
         {
             SalesVoucherModel xs = _salesVoucherService.GetSavedSalesVoucherDetails(id);
 

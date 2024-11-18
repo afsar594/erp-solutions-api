@@ -66,27 +66,34 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
             }
         }
 
-        public PurchaseVoucher GetByID(string voucherNo)
+        public PurchaseVoucher GetByID(long voucherNo)
         {
             try
             {
                 PurchaseVoucher pv = new PurchaseVoucher();
-                var userTrackngData = (from hdr in _context.UserTracking.Where(o => o.UserTrackingUserVpType == "GRN" && o.UserTrackingUserVpNo == voucherNo)
-                                       join dtl in _context.UserFile on (long)hdr.UserTrackingUserUserId equals dtl.UserId
-                                       select new UserTrackingDisplay()
-                                       {
-                                           Action = hdr.UserTrackingUserVpAction,
-                                           Id = dtl.UserId.ToString(),
-                                           Name = dtl.UserName,
-                                           VType = hdr.UserTrackingUserVpType,
-                                           Date = Convert.ToDateTime(hdr.UserTrackingUserChangeDt).ToString("dd/MMM/yyyy"),
-                                           Time = Convert.ToDateTime(hdr.UserTrackingUserChangeTime).ToShortTimeString(),
-                                           VNo = hdr.UserTrackingUserVpNo,
-                                       }).ToList();
-                pv = _purchaseVoucherRepository.GetAll().FirstOrDefault(o => o.PurchaseVoucherVoucherNo == voucherNo);
-                pv.PurchaseVoucherDetails = _purchaseVoucherDetailsRepository.GetAll().Where(o => o.PurchaseVoucherDetailsVoucherNo == voucherNo).ToList();
-                pv.AccountsTransactions = _accountTransactionRepository.GetAll().Where(o => o.AccountsTransactionsVoucherNo == voucherNo && o.AccountstransactionsDelStatus != true).ToList();
-                pv.UserTrackingData = userTrackngData;
+             
+
+                pv = _purchaseVoucherRepository.GetAll().FirstOrDefault(o => o.PurchaseVoucherPurID == voucherNo);
+                if (pv != null)
+                {
+                    var userTrackngData = (from hdr in _context.UserTracking.Where(o => o.UserTrackingUserVpType == "GRN" && o.UserTrackingUserVpNo == pv.PurchaseVoucherGRNo)
+                                           join dtl in _context.UserFile on (long)hdr.UserTrackingUserUserId equals dtl.UserId
+                                           select new UserTrackingDisplay()
+                                           {
+                                               Action = hdr.UserTrackingUserVpAction,
+                                               Id = dtl.UserId.ToString(),
+                                               Name = dtl.UserName,
+                                               VType = hdr.UserTrackingUserVpType,
+                                               Date = Convert.ToDateTime(hdr.UserTrackingUserChangeDt).ToString("dd/MMM/yyyy"),
+                                               Time = Convert.ToDateTime(hdr.UserTrackingUserChangeTime).ToShortTimeString(),
+                                               VNo = hdr.UserTrackingUserVpNo,
+                                           }).ToList();
+
+
+                    pv.PurchaseVoucherDetails = _purchaseVoucherDetailsRepository.GetAll().Where(o => o.PurchaseVoucherDetailsVoucherNo == pv.PurchaseVoucherGRNo).ToList();
+                    pv.AccountsTransactions = _accountTransactionRepository.GetAll().Where(o => o.AccountsTransactionsVoucherNo == pv.PurchaseVoucherGRNo && o.AccountstransactionsDelStatus != true).ToList();
+                    pv.UserTrackingData = userTrackngData;
+                }
                 return pv;
             }
             catch (System.Exception ex)

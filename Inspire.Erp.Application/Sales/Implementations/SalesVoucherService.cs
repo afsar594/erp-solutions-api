@@ -238,7 +238,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 throw ex;
             }
 
-            return this.GetSavedSalesVoucherDetails(salesVoucher.SalesVoucherNo);
+            return this.GetSavedSalesVoucherDetails((decimal)salesVoucher.SalesVoucherId);
         }
 
 
@@ -435,11 +435,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
 
 
-
-
-
-
-                return this.GetSavedSalesVoucherDetails(salesVoucher.SalesVoucherNo);
+                return this.GetSavedSalesVoucherDetails((decimal)salesVoucher.SalesVoucherId);
 
             }
             catch (Exception ex)
@@ -709,37 +705,42 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
             return salV;
         }
-        public SalesVoucherModel GetSavedSalesVoucherDetails(string pvno)
+        public SalesVoucherModel GetSavedSalesVoucherDetails(decimal pvno)
         {
             SalesVoucherModel salesVoucherModel = new SalesVoucherModel();
             //salesVoucherModel.salesVoucher = _salesVoucherRepository.GetAsQueryable().Where(k => k.SalesVoucherNo == pvno && k.SalesVoucherDelStatus == false).SingleOrDefault();
-            salesVoucherModel.salesVoucher = _salesVoucherRepository.GetAsQueryable().Where(k => k.SalesVoucherNo == pvno).SingleOrDefault();
-            salesVoucherModel.salesVoucherDetails = _salesVoucherDetailsRepository.GetAsQueryable().Where(x => x.SalesVoucherDetailsNo == pvno && (x.SalesVoucherDetailsDelStatus == false || x.SalesVoucherDetailsDelStatus == null)).ToList();
+            salesVoucherModel.salesVoucher = _salesVoucherRepository.GetAsQueryable().Where(k => k.SalesVoucherId == pvno).SingleOrDefault();
 
-            salesVoucherModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(x => x.AccountsTransactionsVoucherNo == pvno && x.AccountstransactionsDelStatus != true).ToList();
-
-            if (salesVoucherModel.salesVoucherDetails.Count > 0)
+            if (salesVoucherModel.salesVoucher != null)
             {
-                foreach (var item in salesVoucherModel.salesVoucherDetails)
+
+
+                salesVoucherModel.salesVoucherDetails = _salesVoucherDetailsRepository.GetAsQueryable().Where(x => x.SalesVoucherDetailsNo == salesVoucherModel.salesVoucher.SalesVoucherNo && (x.SalesVoucherDetailsDelStatus == false || x.SalesVoucherDetailsDelStatus == null)).ToList();
+
+                salesVoucherModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(x => x.AccountsTransactionsVoucherNo == salesVoucherModel.salesVoucher.SalesVoucherNo && x.AccountstransactionsDelStatus != true).ToList();
+
+                if (salesVoucherModel.salesVoucherDetails.Count > 0)
                 {
-                    decimal sumReturnedQty = 0;
-                    var stockQuery = _stockRegisterRepository.GetAsQueryable()
-                    .Where(a => a.StockRegisterMaterialID == item.SalesVoucherDetailsMatId &&
-                                a.StockRegisterTransType == "SalesReturn" &&
-                                a.StockRegisterRefVoucherNo == item.SalesVoucherDetailsNo);
-
-                    sumReturnedQty = stockQuery.Any()
-                                       ? stockQuery.Sum(s => (decimal?)s.StockRegisterSout) ?? 0
-                                       : 0;
-
-                    if (sumReturnedQty != null)
+                    foreach (var item in salesVoucherModel.salesVoucherDetails)
                     {
-                        item.SalesReturnQtyTill = sumReturnedQty;
-                    }
+                        decimal sumReturnedQty = 0;
+                        var stockQuery = _stockRegisterRepository.GetAsQueryable()
+                        .Where(a => a.StockRegisterMaterialID == item.SalesVoucherDetailsMatId &&
+                                    a.StockRegisterTransType == "SalesReturn" &&
+                                    a.StockRegisterRefVoucherNo == item.SalesVoucherDetailsNo);
 
+                        sumReturnedQty = stockQuery.Any()
+                                           ? stockQuery.Sum(s => (decimal?)s.StockRegisterSout) ?? 0
+                                           : 0;
+
+                        if (sumReturnedQty != null)
+                        {
+                            item.SalesReturnQtyTill = sumReturnedQty;
+                        }
+
+                    }
                 }
             }
-
 
             return salesVoucherModel;
         }

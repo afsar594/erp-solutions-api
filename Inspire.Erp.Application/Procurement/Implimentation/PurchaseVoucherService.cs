@@ -281,32 +281,37 @@ namespace Inspire.Erp.Application.Master.Implementations
             // throw new NotImplementedException();
         }
 
-        public PurchaseVoucher GetSavedPurchaseVoucherDetailsV2(string pvno)
+        public PurchaseVoucher GetSavedPurchaseVoucherDetailsV2(long pvno)
         {
             PurchaseVoucher voucherModel = new PurchaseVoucher();
-            voucherModel = _PurchaseVoucher.GetAsQueryable().Where(k => k.PurchaseVoucherVoucherNo == pvno).SingleOrDefault();
-            voucherModel.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.PurchaseVoucher_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
-            voucherModel.PurchaseVoucherDetails = _PurchaseVoucherDetails.GetAsQueryable().Where(x => x.PurchaseVoucherDetailsVoucherNo == pvno && (x.PurchaseVoucherDetailsDelStatus == false || x.PurchaseVoucherDetailsDelStatus == null)).ToList();
-
-            if (voucherModel.PurchaseVoucherDetails.Count > 0)
+            voucherModel = _PurchaseVoucher.GetAsQueryable().Where(k => k.PurchaseVoucherPurID == pvno).SingleOrDefault();
+            if (voucherModel != null)
             {
-                foreach (var item in voucherModel.PurchaseVoucherDetails)
+
+
+                voucherModel.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == voucherModel.PurchaseVoucherGRNo && c.AccountsTransactionsVoucherType == VoucherType.PurchaseVoucher_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
+                voucherModel.PurchaseVoucherDetails = _PurchaseVoucherDetails.GetAsQueryable().Where(x => x.PurchaseVoucherDetailsVoucherNo == voucherModel.PurchaseVoucherGRNo && (x.PurchaseVoucherDetailsDelStatus == false || x.PurchaseVoucherDetailsDelStatus == null)).ToList();
+
+                if (voucherModel.PurchaseVoucherDetails.Count > 0)
                 {
-                    decimal sumReturnedQty = 0;
-                    var stockQuery = _stockRegisterRepository.GetAsQueryable()
-                    .Where(a => a.StockRegisterMaterialID == item.PurchaseVoucherDetailsMaterialId &&
-                                a.StockRegisterTransType == "PurchaseReturn" &&
-                                a.StockRegisterRefVoucherNo == item.PurchaseVoucherDetailsVoucherNo);
-
-                    sumReturnedQty = stockQuery.Any()
-                                       ? stockQuery.Sum(s => (decimal?)s.StockRegisterSout) ?? 0
-                                       : 0;
-
-                    if (sumReturnedQty != null)
+                    foreach (var item in voucherModel.PurchaseVoucherDetails)
                     {
-                        item.PurchaseReturnQtyTill = sumReturnedQty;
-                    }
+                        decimal sumReturnedQty = 0;
+                        var stockQuery = _stockRegisterRepository.GetAsQueryable()
+                        .Where(a => a.StockRegisterMaterialID == item.PurchaseVoucherDetailsMaterialId &&
+                                    a.StockRegisterTransType == "PurchaseReturn" &&
+                                    a.StockRegisterRefVoucherNo == item.PurchaseVoucherDetailsVoucherNo);
 
+                        sumReturnedQty = stockQuery.Any()
+                                           ? stockQuery.Sum(s => (decimal?)s.StockRegisterSout) ?? 0
+                                           : 0;
+
+                        if (sumReturnedQty != null)
+                        {
+                            item.PurchaseReturnQtyTill = sumReturnedQty;
+                        }
+
+                    }
                 }
             }
             return voucherModel;
@@ -620,7 +625,7 @@ namespace Inspire.Erp.Application.Master.Implementations
 
                 _accountTransactionRepository.TransactionCommit();
 
-                return this.GetSavedPurchaseVoucherDetailsV2(purchaseVoucher.PurchaseVoucherVoucherNo);
+                return this.GetSavedPurchaseVoucherDetailsV2(purchaseVoucher.PurchaseVoucherPurID);
             }
             catch (Exception ex)
             {
@@ -685,7 +690,7 @@ namespace Inspire.Erp.Application.Master.Implementations
 
 
                 _accountTransactionRepository.TransactionCommit();
-                return this.GetSavedPurchaseVoucherDetailsV2(purchaseVoucher.PurchaseVoucherVoucherNo);
+                return this.GetSavedPurchaseVoucherDetailsV2(purchaseVoucher.PurchaseVoucherPurID);
 
             }
             catch (Exception ex)

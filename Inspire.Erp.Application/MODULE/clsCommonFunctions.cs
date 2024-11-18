@@ -274,7 +274,7 @@ namespace Inspire.Erp.Application.MODULE
 
                     vnoPrefix = prefix + prefixSeprator + date.Year.ToString() + prefixSeprator + date.Month.ToString() + prefixSeprator + vNoMax.ToString();
                 }
-                else  // yearly
+                else if (program.Equals("2"))  // yearly
                 {
                     vNoMax = _voucherNosRepo.GetAsQueryable().Where(v => v.VouchersNumbersVNoNu > 0
                     && v.VouchersNumbersVType.Equals(voucherType)
@@ -283,6 +283,14 @@ namespace Inspire.Erp.Application.MODULE
                     ).AsEnumerable().Select(a => a.VouchersNumbersVNoNu).DefaultIfEmpty(0).Max() + 1;
 
                     vnoPrefix = prefix + prefixSeprator + date.Year.ToString() + prefixSeprator + date.Month.ToString() + prefixSeprator + vNoMax.ToString();
+                }
+                else
+                {
+                    vNoMax = _voucherNosRepo.GetAsQueryable().Where(v => v.VouchersNumbersVNoNu > 0 && v.VouchersNumbersVType.Equals(voucherType)).AsEnumerable().
+                        Select(a => a.VouchersNumbersVNoNu).DefaultIfEmpty(0).Max() + 1;
+
+                    vnoPrefix = prefix + prefixSeprator + vNoMax.ToString();
+
                 }
                 VouchersNumbers vocherNumber = new VouchersNumbers
                 {
