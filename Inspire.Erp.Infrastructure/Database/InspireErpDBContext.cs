@@ -260,6 +260,7 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<ReportSalesVoucher> ReportSalesVoucher { get; set; }
         public virtual DbSet<ReportPurchaseOrder> ReportPurchaseOrder { get; set; }
         public virtual DbSet<tbl_approvalforms> tbl_approvalforms { get; set; }
+        public virtual DbSet<tbl_DASHBOARD_SUMMARY> tbl_DASHBOARD_SUMMARY { get; set; }
 
         //*********************************************************
         //===========================================================
@@ -595,6 +596,7 @@ namespace Inspire.Erp.Infrastructure.Database
             modelBuilder.Entity<GetAccountTransactionProfitLossResponse>().HasNoKey();
             modelBuilder.Entity<GetATFinancialClosingResponse>().HasNoKey();
             modelBuilder.Entity<SingleValueSPResult>().HasNoKey();
+            modelBuilder.Entity<tbl_DASHBOARD_SUMMARY>().HasNoKey();
             // modelBuilder.Entity<POS_Sales_Voucher>().HasNoKey();           
 
             modelBuilder.Query<IssueWithStockTransfer>().ToView("VW_ISSUE_WITH_STOCK_TRANSFER");
@@ -10642,7 +10644,7 @@ namespace Inspire.Erp.Infrastructure.Database
                       .HasColumnName("Timesheet_date");
 
                 entity.Property(e => e.Remarks)
-                      .HasMaxLength(10);                      
+                      .HasMaxLength(10);
 
                 entity.Property(e => e.ClientRemarks)
                       .HasMaxLength(10)

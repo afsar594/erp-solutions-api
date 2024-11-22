@@ -35,4 +35,12 @@ namespace Inspire.Erp.Domain.Entities
         public Boolean is_active { get; set; }
         public int NoOfLevel { get; set; }
     }
+
+    public class tbl_DASHBOARD_SUMMARY
+    {
+        public string TYPE { get; set; }
+        public string DISCRIPTION { get; set; }
+        public decimal? VALUE { get; set; }
+        public int SORT { get; set; }
+    }
 }
