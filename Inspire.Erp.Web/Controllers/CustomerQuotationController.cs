@@ -33,15 +33,15 @@ namespace Inspire.Erp.Web.Controllers
         private readonly IMapper _mapper;
         private IRepository<EnquiryStatus> enquiryStatusrepository; private IRepository<JobMaster> jobrepository;
         private IRepository<LocationMaster> locationrepository; private IRepository<CurrencyMaster> currencyrepository;
-        private IRepository<CustomerMaster> _customerMasterRepository; private IRepository<SalesManMaster> salesmanrepository;
+        private IRepository<CustomerMaster> _customerMasterRepository; private IRepository<SalesManMaster> salesmanrepository; IRepository<UnitDetails> unitDetailRepository;
         private IRepository<ItemMaster> itemrepository; private IRepository<UnitMaster> unitrepository; private IRepository<CustomerQuotation> _customerQuotationRepository;
-        public CustomerQuotationController(ICustomerQuotationService customerQuotationService, IMapper mapper
+        public CustomerQuotationController(ICustomerQuotationService customerQuotationService, IMapper mapper, IRepository<UnitDetails> _unitDetailRepository
             , IRepository<EnquiryStatus> _enquiryStatusrepository, IRepository<JobMaster> _jobrepository, IRepository<LocationMaster> _locationrepository
             , IRepository<CurrencyMaster> _currencyrepository, IRepository<CustomerMaster> customerMasterRepository, IRepository<SalesManMaster> _salesmanrepository
             , IRepository<ItemMaster> _itemrepository, IRepository<CustomerQuotation> customerQuotationRepository, IRepository<UnitMaster> _unitrepository)
         {
             _customerQuotationService = customerQuotationService;
-            _mapper = mapper;
+            _mapper = mapper; unitDetailRepository = _unitDetailRepository;
             enquiryStatusrepository = _enquiryStatusrepository; jobrepository = _jobrepository; locationrepository = _locationrepository;
             salesmanrepository = _salesmanrepository; _customerMasterRepository = customerMasterRepository; currencyrepository = _currencyrepository;
             itemrepository = _itemrepository; unitrepository = _unitrepository; _customerQuotationRepository = customerQuotationRepository;
@@ -257,13 +257,27 @@ namespace Inspire.Erp.Web.Controllers
                 a.CustomerMasterCustomerTel1,
                 a.CustomerMasterCustomerVatNo
             }).ToList();
-            var itemMaster = itemrepository.GetAsQueryable().AsNoTracking().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
-                    && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
-                    {
-                        k.ItemMasterItemId,
-                        k.ItemMasterPartNo,
-                        ItemMasterItemName = k.ItemMasterItemName.Trim()
-                    }).ToList();
+            //var itemMaster = itemrepository.GetAsQueryable().AsNoTracking().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
+            //        && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
+            //        {
+            //            k.ItemMasterItemId,
+            //            k.ItemMasterPartNo,
+            //            ItemMasterItemName = k.ItemMasterItemName.Trim()
+            //        }).ToList();
+            var itemMaster = (from item in itemrepository.GetAsQueryable().AsNoTracking()
+                              join unit in unitDetailRepository.GetAsQueryable().AsNoTracking()
+                              on item.ItemMasterItemId equals unit.UnitDetailsItemId
+                              where item.ItemMasterAccountNo != 0
+                              && item.ItemMasterDelStatus != true
+                              && item.ItemMasterItemType != ItemMasterStatus.Group
+                              select new
+                              {
+                                  item.ItemMasterItemId,
+                                  item.ItemMasterItemName,
+                                  item.ItemMasterVenderId,
+                                  item.ItemMasterItemSize,
+                                  itemMasterBarcode = unit.UnitDetailsBarcode ?? ""
+                              }).Distinct().ToList();
             var unitMasters = unitrepository.GetAsQueryable().AsNoTracking().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
             {
                 x.UnitMasterUnitId,
