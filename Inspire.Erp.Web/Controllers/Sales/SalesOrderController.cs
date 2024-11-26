@@ -347,6 +347,21 @@ namespace Inspire.Erp.Web.Controllers
             };
             return Ok(apiResponse);
         }
+
+        [HttpPost]
+        [Route("GetGRSOs")]
+        public async Task<IActionResult> GetGRSOs([FromBody] CustPurchOrderFilterModel model)
+        {
+            try
+            {
+                var item = await _salesOrderService.GetGRSOs(model);
+                return Ok(item);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
+        }
     }
 }
 

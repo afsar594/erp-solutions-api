@@ -608,6 +608,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                                      select new GetCustomerPurchaseOrderTrackingResponse
                                      {
+
                                          CPOId = cpo.CustomerPurchaseOrderId,
                                          CPODate = cpo.CustomerPurchaseOrderDate,
                                          LPONo = cpo.CustomerPurchaseOrderLpoNo == null ? "" : cpo.CustomerPurchaseOrderLpoNo,
@@ -675,6 +676,63 @@ namespace Inspire.Erp.Application.Sales.Implementations
             catch (Exception ex)
             {
                 return Response<List<CustomerSalesQuotation>>.Fail(new List<CustomerSalesQuotation>(), ex.Message);
+            }
+        }
+
+        public async Task<Response<List<GetCustomerPurchaseOrderTrackingResponse>>> GetGRSOs(CustPurchOrderFilterModel model)
+        {
+            try
+            {
+                List<GetCustomerPurchaseOrderTrackingResponse> response = new List<GetCustomerPurchaseOrderTrackingResponse>();
+
+                var results = await (from cpo in _Context.CustomerPurchaseOrder
+                                     join cpod in _Context.CustomerPurchaseOrderDetails on cpo.CustomerPurchaseOrderId equals cpod.CustomerPurchaseOrderId
+                                     join im in _Context.ItemMaster on cpod.CustomerPurchaseOrderDetailsItemId equals im.ItemMasterItemId
+                                     join um in _Context.UnitMaster on cpod.CustomerPurchaseOrderDetailsUnitId equals um.UnitMasterUnitId
+                                     join cm in _Context.CustomerMaster on cpo.CustomerPurchaseOrderCustomerId equals cm.CustomerMasterCustomerNo
+                                     join umd in _Context.UnitDetails on new { unitId = um.UnitMasterUnitId, itemId = im.ItemMasterItemId } equals new { unitId = umd.UnitDetailsUnitId, itemId = umd.UnitDetailsItemId } into gdrq
+                                     from q in gdrq.DefaultIfEmpty()
+                                     where (model.CustomerId == 0 || model.CustomerId == null || cpo.CustomerPurchaseOrderCustomerId == model.CustomerId)
+                                     && (model.ItemId == 0 || model.ItemId == null || im.ItemMasterItemId == model.ItemId)
+                                     && (model.LocacationId == 0 || model.LocacationId == null || cpo.CustomerPurchaseOrderLocationId == model.LocacationId)
+                                     && ((model.DateFrom == null || model.DateTo == null) || (cpo.CustomerPurchaseOrderDate.Value.Date >= model.DateFrom && cpo.CustomerPurchaseOrderDate.Value.Date <= model.DateTo))
+                                     select new GetCustomerPurchaseOrderTrackingResponse
+                                     {
+                                         CPOId = cpo.CustomerPurchaseOrderId,
+                                         CPODate = cpo.CustomerPurchaseOrderDate,
+                                         VoucherNo = cpo.CustomerPurchaseOrderVoucherNo,
+                                         LPONo = cpo.CustomerPurchaseOrderLpoNo == null ? "" : cpo.CustomerPurchaseOrderLpoNo,
+                                         CustomerName = cm.CustomerMasterCustomerName,
+                                         CustomerId = cpo.CustomerPurchaseOrderCustomerId,
+                                         LocationId = (int?)cpo.CustomerPurchaseOrderLocationId,
+                                         PartNo = im.ItemMasterPartNo == null ? "" : im.ItemMasterPartNo,
+                                         MatDes = cpod.CustomerPurchaseOrderDetailsDescription == null ? im.ItemMasterItemName : cpod.CustomerPurchaseOrderDetailsDescription,
+                                         ItemId = (int)cpod.CustomerPurchaseOrderDetailsItemId,
+                                         UnitDes = um.UnitMasterUnitDescription.Trim(),
+                                         UnitId = cpod.CustomerPurchaseOrderDetailsUnitId,
+                                         UnitName = um.UnitMasterUnitFullName.Trim(),
+                                         CPODId = cpod.CustomerPurchaseOrderDetailsId,
+                                         Amount = cpod.CustomerPurchaseOrderDetailsAmount,
+                                         Quantity = cpod.CustomerPurchaseOrderDetailsQty,
+                                         UnitPrice = cpod.CustomerPurchaseOrderDetailsUnitPrice,
+                                         BalancedQuantity = (int)cpod.CustomerPurchaseOrderDetailsQty - (_Context.SalesVoucherDetails.AsQueryable().Where(pr =>
+                                        (pr.SalesVoucherDetailsSodId == cpod.CustomerPurchaseOrderDetailsId
+                                           && pr.SalesVoucherDetailsMatId == cpod.CustomerPurchaseOrderDetailsItemId))
+                                        .Sum(prdq => (int)((prdq.SalesVoucherDetailsQuantity) ?? 0))),
+
+                                         DeliveredQuantity = (_Context.SalesVoucherDetails.AsQueryable().Where(pr =>
+                                                 (pr.SalesVoucherDetailsSodId == cpod.CustomerPurchaseOrderDetailsId
+                                                  && pr.SalesVoucherDetailsMatId == cpod.CustomerPurchaseOrderDetailsItemId))
+                                        .Sum(prdq => (int)((prdq.SalesVoucherDetailsQuantity) ?? 0))),
+
+                                     })
+                                 .OrderBy(x => x.CPODate).ThenBy(x => x.VoucherNo)
+                                     .ToListAsync();
+                return Response<List<GetCustomerPurchaseOrderTrackingResponse>>.Success(results, "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<List<GetCustomerPurchaseOrderTrackingResponse>>.Fail(new List<GetCustomerPurchaseOrderTrackingResponse>(), ex.Message);
             }
         }
     }
