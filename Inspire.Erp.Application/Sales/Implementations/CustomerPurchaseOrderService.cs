@@ -461,7 +461,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                      on pod.CustomerPurchaseOrderId equals po.CustomerPurchaseOrderId
                                      where po.CustomerPurchaseOrderDelStatus != true
                                      where po.CustomerPurchaseOrderCustomerId != null
-                                    && (model.CustomerId == null || model.CustomerId == 0 || po.CustomerPurchaseOrderId == model.CustomerId)
+                                    && (model.CustomerId == null || model.CustomerId == 0 || po.CustomerPurchaseOrderCustomerId == model.CustomerId)
                                    && (model.LocacationId == null || model.LocacationId == 0 || po.CustomerPurchaseOrderLocationId == model.LocacationId)
                                      select new
                                      {
