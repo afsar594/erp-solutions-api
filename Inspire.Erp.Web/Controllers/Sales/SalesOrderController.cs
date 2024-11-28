@@ -18,6 +18,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Inspire.Erp.WebReport.ReportEngine;
 using Inspire.Erp.Domain.Modals.Sales;
 using Microsoft.AspNetCore.Authorization;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.EntityFrameworkCore;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -26,11 +29,14 @@ namespace Inspire.Erp.Web.Controllers
     public class SalesOrderController : ControllerBase
     {
         private ICustomerPurchaseOrderService _salesOrderService;
+        private readonly IRepository<LocationMaster> _locationrepository;
+        private readonly IRepository<CustomerMaster> _customerMasterRepo;
         private readonly IMapper _mapper;
-        public SalesOrderController(ICustomerPurchaseOrderService salesOrderService, IMapper mapper)
+        public SalesOrderController(ICustomerPurchaseOrderService salesOrderService, IMapper mapper, IRepository<LocationMaster> locationrepository,
+            IRepository<CustomerMaster> customerMasterRepo)
         {
-            _salesOrderService = salesOrderService;
-            _mapper = mapper;
+            _salesOrderService = salesOrderService; _customerMasterRepo = customerMasterRepo;
+            _mapper = mapper; _locationrepository = locationrepository;
         }
 
         [HttpPost]
@@ -361,6 +367,38 @@ namespace Inspire.Erp.Web.Controllers
             {
                 return StatusCode(500, ex.Message.ToString());
             }
+        }
+
+        [HttpGet]
+        [Route("getCustomerlocation")]
+        public async Task<ResponseInfo> getCustomerlocation()
+        {
+            var obj = new ResponseInfo();
+            try
+            {
+                var data = await _locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(a => new
+                {
+                    a.LocationMasterLocationId,
+                    a.LocationMasterLocationName,
+                }).ToListAsync();
+                var query = await _customerMasterRepo.GetAsQueryable().Where(a => a.CustomerMasterCustomerDelStatus != true).Select(x => new
+                {
+                    x.CustomerMasterCustomerNo,
+                    x.CustomerMasterCustomerName
+                }).ToListAsync();
+                obj.IsSuccess = true;
+                obj.ResultSet = new
+                {
+                    location = data,
+                    customer = query
+                };
+            }
+            catch (Exception ex)
+            {
+                obj.IsSuccess = false;
+                obj.ErrorMessage = ex.Message + ex?.InnerException.Message;
+            }
+            return obj;
         }
     }
 }
