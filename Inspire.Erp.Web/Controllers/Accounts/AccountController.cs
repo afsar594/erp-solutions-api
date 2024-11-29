@@ -37,11 +37,12 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         private readonly IAssetsMasterService _assetsMasterService;
         private IRepository<SalesVoucher> _salesVoucherRepository;
         private readonly IAccountTransactionsServices _accountTransactionsServices;
+        private IRepository<ItemMaster> _itemrepository;
         public AccountController(IAccountStatementService accountStatService, IDaybookService daybookService, IAssetsOpeningService assetsOpeningService, IRepository<AccountsTransactions> accountTransactionRepository,
             IVoucherAllocationService voucherAllocation, IOutstandingStatementService outstandingStatement, IOldBalanceSheetService oldBalanceSheet, IRepository<CustomerMaster> customerMasterRepository,
             IVoucherPrintService iVoucherPrintService, IAccountStatementMultiAccountService multiAccountService, IAgeingReport ageingReport, IRepository<SalesManMaster> _salesmanrepository,
             IVatStatementService vatStatementService, IAssetsMasterService assetsMasterService, IAccountTransactionsServices accountTransactionsServices, IRepository<AccountSettings> accountsSettingsRepo,
-            IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository)
+            IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository, IRepository<ItemMaster> itemrepository)
         {
             _accountStatService = accountStatService;
             _iVoucherPrintService = iVoucherPrintService;
@@ -54,7 +55,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
             _assetsOpeningService = assetsOpeningService;
             _vatStatementService = vatStatementService; _salesVoucherRepository = salesVoucherRepository;
             _salesVoucherDetailsRepository = salesVoucherDetailsRepository;
-            _assetsMasterService = assetsMasterService;
+            _assetsMasterService = assetsMasterService; _itemrepository = itemrepository;
             _accountTransactionsServices = accountTransactionsServices;
         }
 
@@ -114,7 +115,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         public async Task<IActionResult> GetAccountTransactionsForeignCurrencyDetail(GenericGridViewModel model)
         {
             return Ok(await _multiAccountService.GetAccountTransactionsForeignCurrencyDetail(model));
-        }       
+        }
 
         [HttpPost("GetAccountTransactionsForeignCurrencySummary")]
         public async Task<IActionResult> GetAccountTransactionsForeignCurrencySummary(GenericGridViewModel model)
@@ -542,12 +543,16 @@ namespace Inspire.Erp.Web.Controllers.Accounts
                            on q.SalesVoucherId equals s.SalesVoucherId
                        join m in account
                            on q.SalesVoucherNo equals m.AccountsTransactionsVoucherNo
+
+                       join im in _itemrepository.GetAsQueryable().AsNoTracking()
+                            on s.SalesVoucherDetailsMatId equals (int)im.ItemMasterItemId
+
                        group new { s, m } by new
                        {
                            q.SalesVoucherNo,
                            q.SalesVoucherDate,
                            s.SalesVoucherDetailsQuantity,
-                           s.SalesVoucherDetailsMatId
+                           im.ItemMasterItemName
                        } into grouped
                        let invoiceAmount = grouped.Sum(g => g.m.AccountsTransactionsCredit)
                        let sum = grouped.Sum(g => (decimal?)g.m.AccountsTransactionsDebit)
@@ -559,7 +564,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
                            InvoiceNo = grouped.Key.SalesVoucherNo,
                            Date = grouped.Key.SalesVoucherDate,
                            Quantity = grouped.Key.SalesVoucherDetailsQuantity,
-                           Item = grouped.Key.SalesVoucherDetailsMatId,
+                           Item = grouped.Key.ItemMasterItemName,
                            InvoiceAmount = invoiceAmount,
                            Cost = cost1,
                            Profit = profit,
