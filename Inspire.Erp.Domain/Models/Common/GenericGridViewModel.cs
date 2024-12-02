@@ -16,9 +16,12 @@ namespace Inspire.Erp.Domain.Modals.Common
         public int Total { get; set; } = 0;
         public string Extension { get; set; }
         public string FormatType { get; set; }
-        public  bool isDate { get; set; }
+        public bool isDate { get; set; }
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
+
+        public List<string>? VoucherType { get; set; }
+        public List<string>? Accounts { get; set; }
     }
 
     public class ReportFilter
@@ -169,15 +172,15 @@ namespace Inspire.Erp.Domain.Modals.Common
 
         public int? Userid { get; set; }
         [DefaultValue(null)]
-        public string VPAction { get; set; } 
+        public string VPAction { get; set; }
         [DefaultValue(null)]
-        public string VPType { get; set; } 
+        public string VPType { get; set; }
         [DefaultValue(null)]
-        public DateTime? fromDate { get; set; } 
+        public DateTime? fromDate { get; set; }
         [DefaultValue(null)]
         public DateTime? toDate { get; set; }
         [DefaultValue(false)]
-        public bool? isCheck { get; set; } 
+        public bool? isCheck { get; set; }
     }
     public class InvoiceProfitAnalysis
     {
@@ -185,7 +188,7 @@ namespace Inspire.Erp.Domain.Modals.Common
         public int? salemanId { get; set; }
         public bool isDate { get; set; }
         public DateTime? fromdate { get; set; }
-        public DateTime? todate { get; set;}
+        public DateTime? todate { get; set; }
 
     }
 
