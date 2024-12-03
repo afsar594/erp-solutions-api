@@ -42,7 +42,7 @@ namespace Inspire.Erp.Application.Master.Interfaces
                                                                      List<AccountsTransactions> accountsTransactions,
                                                                      List<PurchaseVoucherDetails> purchaseVoucherDetails);
 
-        public PurchaseVoucher GetSavedPurchaseVoucherDetailsV2(long id);
+        public PurchaseVoucher GetSavedPurchaseVoucherDetailsV2(string id);
 
     }
 }

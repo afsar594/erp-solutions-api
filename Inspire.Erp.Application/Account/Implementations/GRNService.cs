@@ -66,17 +66,17 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
             }
         }
 
-        public PurchaseVoucher GetByID(long voucherNo)
+        public PurchaseVoucher GetByID(string voucherNo)
         {
             try
             {
                 PurchaseVoucher pv = new PurchaseVoucher();
              
 
-                pv = _purchaseVoucherRepository.GetAll().FirstOrDefault(o => o.PurchaseVoucherPurID == voucherNo);
+                pv = _purchaseVoucherRepository.GetAll().FirstOrDefault(o => o.PurchaseVoucherVoucherNo == voucherNo);
                 if (pv != null)
                 {
-                    var userTrackngData = (from hdr in _context.UserTracking.Where(o => o.UserTrackingUserVpType == "GRN" && o.UserTrackingUserVpNo == pv.PurchaseVoucherGRNo)
+                    var userTrackngData = (from hdr in _context.UserTracking.Where(o => o.UserTrackingUserVpType == "GRN" && o.UserTrackingUserVpNo == voucherNo)
                                            join dtl in _context.UserFile on (long)hdr.UserTrackingUserUserId equals dtl.UserId
                                            select new UserTrackingDisplay()
                                            {
@@ -90,8 +90,8 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                                            }).ToList();
 
 
-                    pv.PurchaseVoucherDetails = _purchaseVoucherDetailsRepository.GetAll().Where(o => o.PurchaseVoucherDetailsVoucherNo == pv.PurchaseVoucherGRNo).ToList();
-                    pv.AccountsTransactions = _accountTransactionRepository.GetAll().Where(o => o.AccountsTransactionsVoucherNo == pv.PurchaseVoucherGRNo && o.AccountstransactionsDelStatus != true).ToList();
+                    pv.PurchaseVoucherDetails = _purchaseVoucherDetailsRepository.GetAll().Where(o => o.PurchaseVoucherDetailsVoucherNo == voucherNo).ToList();
+                    pv.AccountsTransactions = _accountTransactionRepository.GetAll().Where(o => o.AccountsTransactionsVoucherNo == voucherNo && o.AccountstransactionsDelStatus != true).ToList();
                     pv.UserTrackingData = userTrackngData;
                 }
                 return pv;
