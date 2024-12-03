@@ -241,6 +241,7 @@ namespace Inspire.Erp.Application.Master
             {
                 //customerrepository.Dispose();
             }
+            customerMasters = customerMasters.OrderBy(o => o.CustomerMasterCustomerName).ToList();
             return customerMasters;
         }
         public CustomerMaster GetAllCustomerById(int id)
