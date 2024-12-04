@@ -173,7 +173,14 @@ namespace Inspire.Erp.Web.Common
 
             CreateMap<JobInvoiceDetails, JobInvoiceDetailsViewModel>();
             CreateMap<JobInvoiceDetailsViewModel, JobInvoiceDetails>();
-            
+
+
+            CreateMap<StockReservation, StockReservationViewModel>();
+            CreateMap<StockReservationViewModel, StockReservation>();
+
+            CreateMap<StockReservationDetails, StockReservationViewModel>();
+            CreateMap<StockReservationViewModel, StockReservationDetails>();
+
 
             //**********************************Masters ending **********
             //**********************************Accounts ****************

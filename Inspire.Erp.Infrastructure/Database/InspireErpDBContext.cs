@@ -21540,14 +21540,16 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<StockReservation>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.StockReservationId);
 
                 entity.ToTable("Stock_Reservation");
 
+
+                entity.Property(e => e.StockReservationId)
+                    .HasColumnName("Stock_Reservation_ID")
+                    .ValueGeneratedNever();
+
                 entity.Property(e => e.StockReservationDelStatus).HasColumnName("Stock_Reservation_DelStatus");
-
-                entity.Property(e => e.StockReservationId).HasColumnName("Stock_Reservation_ID");
-
                 entity.Property(e => e.StockReservationJobId).HasColumnName("Stock_Reservation_Job_ID");
 
                 entity.Property(e => e.StockReservationRDate)
@@ -21564,18 +21566,19 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<StockReservationDetails>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.StockReservationDetailsRdId);
 
                 entity.ToTable("Stock_Reservation_Details");
+                
+                entity.Property(e => e.StockReservationDetailsRdId)
+                   .HasColumnName("Stock_Reservation_Details_RD_ID")
+                   .ValueGeneratedNever();
 
                 entity.Property(e => e.StockReservationDetailsDelStatus).HasColumnName("Stock_Reservation_Details_DelStatus");
 
                 entity.Property(e => e.StockReservationDetailsItemId).HasColumnName("Stock_Reservation_Details_Item_ID");
 
                 entity.Property(e => e.StockReservationDetailsRId).HasColumnName("Stock_Reservation_Details_R_ID");
-
-                entity.Property(e => e.StockReservationDetailsRdId).HasColumnName("Stock_Reservation_Details_RD_ID");
-
                 entity.Property(e => e.StockReservationDetailsRelease).HasColumnName("Stock_Reservation_Details_Release");
 
                 entity.Property(e => e.StockReservationDetailsRemarks)

@@ -11,5 +11,7 @@ namespace Inspire.Erp.Domain.Entities
         public string StockReservationRemarks { get; set; }
         public bool? StockReservationRelease { get; set; }
         public bool? StockReservationDelStatus { get; set; }
+
+        public List<StockReservationDetails> StockReservationDetails { get; set; }
     }
 }
