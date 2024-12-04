@@ -100,6 +100,7 @@ namespace Inspire.Erp.Application.Master
             {
                 //cityrepository.Dispose();
             }
+            VendorMasters = VendorMasters.OrderBy(sm => sm.VendorMasterVendorName).ToList();
             return VendorMasters;
         }
 

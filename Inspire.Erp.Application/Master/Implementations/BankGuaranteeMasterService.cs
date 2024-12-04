@@ -107,6 +107,7 @@ namespace Inspire.Erp.Application.Master.Implementations
             {
                 //bankGuaranteerepository.Dispose();
             }
+            bankGuaranteeMasters = bankGuaranteeMasters.OrderBy(sm => sm.BankGuaranteeMasterBgname).ToList();
             return bankGuaranteeMasters;
         }
     }

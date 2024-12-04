@@ -102,6 +102,7 @@ namespace Inspire.Erp.Application.Master
             {
                 //cityrepository.Dispose();
             }
+            enquiryStatus = enquiryStatus.OrderBy(sm => sm.EnquiryStatusEnquiryStatus).ToList();
             return enquiryStatus;
         }
 

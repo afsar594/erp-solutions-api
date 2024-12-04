@@ -99,6 +99,7 @@ namespace Inspire.Erp.Application.Master
             {
                 //jobrepository.Dispose();
             }
+            jobMasters = jobMasters.OrderBy(sm => sm.JobMasterJobName).ToList();
             return jobMasters;
         }
 

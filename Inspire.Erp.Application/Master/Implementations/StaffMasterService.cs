@@ -99,6 +99,7 @@ namespace Inspire.Erp.Application.Master
             {
                 //staffrepository.Dispose();
             }
+            staffMasters = staffMasters.OrderBy(sm => sm.StaffMasterStaffName).ToList();
             return staffMasters;
         }
         public IEnumerable<StaffMaster> GetAllStaffById(int id)

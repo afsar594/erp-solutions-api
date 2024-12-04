@@ -99,6 +99,7 @@ namespace Inspire.Erp.Application.Master
             {
                 //cityrepository.Dispose();
             }
+            customerType = customerType.OrderBy(sm => sm.CustomerTypeName).ToList();
             return customerType;
         }
 

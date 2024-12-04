@@ -106,6 +106,7 @@ namespace Inspire.Erp.Application.Master.Implementations
             {
                 //cityrepository.Dispose();
             }
+            taxMasters = taxMasters.OrderBy(sm => sm.TmName).ToList();
             return taxMasters;
         }
 
