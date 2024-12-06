@@ -284,13 +284,13 @@ namespace Inspire.Erp.Application.Master.Implementations
         public PurchaseVoucher GetSavedPurchaseVoucherDetailsV2(string pvno)
         {
             PurchaseVoucher voucherModel = new PurchaseVoucher();
-            voucherModel = _PurchaseVoucher.GetAsQueryable().Where(k => k.PurchaseVoucherVoucherNo == pvno).SingleOrDefault();
+            voucherModel = _PurchaseVoucher.GetAsQueryable().Where(k => k.PurchaseVoucherPurID == Convert.ToInt64(pvno)).SingleOrDefault();
             if (voucherModel != null)
             {
 
 
-                voucherModel.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.PurchaseVoucher_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
-                voucherModel.PurchaseVoucherDetails = _PurchaseVoucherDetails.GetAsQueryable().Where(x => x.PurchaseVoucherDetailsVoucherNo == pvno && (x.PurchaseVoucherDetailsDelStatus == false || x.PurchaseVoucherDetailsDelStatus == null)).ToList();
+                voucherModel.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == voucherModel.PurchaseVoucherVoucherNo && c.AccountsTransactionsVoucherType == VoucherType.PurchaseVoucher_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
+                voucherModel.PurchaseVoucherDetails = _PurchaseVoucherDetails.GetAsQueryable().Where(x => x.PurchaseVoucherDetailsVoucherNo == voucherModel.PurchaseVoucherVoucherNo && (x.PurchaseVoucherDetailsDelStatus == false || x.PurchaseVoucherDetailsDelStatus == null)).ToList();
 
                 if (voucherModel.PurchaseVoucherDetails.Count > 0)
                 {
