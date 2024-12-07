@@ -169,7 +169,10 @@ namespace Inspire.Erp.Application.Store.Implementation
                         StockRegisterDelStatus = false,
                         StockRegisterUnitID = item.IssueVoucherDetailsUnitId,
                         StockRegisterLocationID = issueVoucher.IssueVoucherLocationId,
-                        StockRegisterJobID = issueVoucher.IssueVoucherJobId,
+                        //ali ansari
+                        //StockRegisterJobID = issueVoucher.IssueVoucherJobId,
+                        StockRegisterJobID = item.IssueVoucherDetailsJobID,
+                        //ali ansari
                     });
                 }
                 _stockRegisterRepository.InsertList(stockRegister);
@@ -343,7 +346,11 @@ namespace Inspire.Erp.Application.Store.Implementation
                         StockRegisterDelStatus = false,
                         StockRegisterUnitID = item.IssueVoucherDetailsUnitId,
                         StockRegisterLocationID = issueVoucher.IssueVoucherLocationId,
-                        StockRegisterJobID = issueVoucher.IssueVoucherJobId,
+                        //ali ansari
+                        //StockRegisterJobID = issueVoucher.IssueVoucherJobId,
+                        StockRegisterJobID = item.IssueVoucherDetailsJobID,
+                        //ali ansari
+                        
                     });
                 }
                 _stockRegisterRepository.InsertList(stockRegister);

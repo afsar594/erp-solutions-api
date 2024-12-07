@@ -42,6 +42,10 @@ namespace Inspire.Erp.Domain.Entities
         public int? IssueVoucherDetailsPurDId { get; set; }
         public decimal? IssueVoucherDetailsSalesPrice { get; set; }
         public bool? IssueVoucherDetailsDelStatus { get; set; }
+        //ali ansari for adding job in detail
+        public int? IssueVoucherDetailsJobID { get; set; }
+        //ali ansari for adding job in detail
+
 
         public virtual IssueVoucher IssueVoucherDetailsNoNavigation { get; set; }
     }
