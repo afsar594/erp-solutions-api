@@ -28,6 +28,10 @@ namespace Inspire.Erp.Application.Master
         private IRepository<JobStaff> jobstaffrepository;
         private IRepository<JobEquipment> jobEquipmentrepository;
         private IRepository<JobExcutionDetails> jobexecrepository;
+        private IRepository<JobTimesheetDesc> _jobTimesheetDesc;
+        private IRepository<JobTimeSheetEquip> _jobTimeSheetEquip;
+        private IRepository<JobTimesheetMaster> _jobTimesheetMaster;
+        private IRepository<JobTimeSheetStaff> _jobTimeSheetStaff;
         private IRepository<AccountsTransactions> accountsTransactionsRepository;
         private readonly InspireErpDBContext context;
         public JobMasterService(IRepository<JobMaster> _jobrepository,
@@ -36,7 +40,12 @@ namespace Inspire.Erp.Application.Master
             IRepository<JobMasterJobWiseBankGuarantees> _jobBankGuaruRepository,
             IRepository<AccountsTransactions> _accountsTransactionsRepository,
             InspireErpDBContext _context, IRepository<ProgramSettings> _programsettingsRepository,
-            IRepository<VouchersNumbers> _voucherNumbersRepository, IRepository<JobStaff> _jobstaffrepository, IRepository<JobEquipment> _jobEquipmentrepository, IRepository<JobExcutionDetails> _jobexecrepository)
+            IRepository<VouchersNumbers> _voucherNumbersRepository, IRepository<JobStaff> _jobstaffrepository,
+            IRepository<JobEquipment> _jobEquipmentrepository, IRepository<JobExcutionDetails> _jobexecrepository,
+            IRepository<JobTimeSheetEquip> jobTimeSheetEquip,
+        IRepository<JobTimesheetMaster> jobTimesheetMaster,
+            IRepository<JobTimeSheetStaff> jobTimeSheetStaff, IRepository<JobTimesheetDesc> jobTimesheetDesc
+            )
         {
             jobrepository = _jobrepository;
             jobbudgetRepository = _jobbudgetRepository;
@@ -49,43 +58,9 @@ namespace Inspire.Erp.Application.Master
             jobstaffrepository = _jobstaffrepository;
             jobEquipmentrepository = _jobEquipmentrepository;
             jobexecrepository = _jobexecrepository;
+            _jobTimesheetDesc = jobTimesheetDesc; _jobTimesheetMaster = jobTimesheetMaster;
+            _jobTimeSheetEquip = jobTimeSheetEquip; _jobTimeSheetStaff = jobTimeSheetStaff;
         }
-
-        //        jobMaster.JobMasterJobId = mxc;
-        //        jobrepository.Insert(jobMaster);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        valid = false;
-        //        throw ex;
-        //    }
-        //    finally
-        //    {
-        //        //jobrepository.Dispose();
-        //    }
-        //    return this.GetAllJob();
-        //}
-        //public IEnumerable<JobMaster> UpdateJob(JobMaster jobMaster)
-        //{
-        //    bool valid = false;
-        //    try
-        //    {
-        //       jobrepository.Update(jobMaster);
-        //        valid = true;
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        valid = false;
-        //        throw ex;
-
-        //    }
-        //    finally
-        //    {
-        //        //jobrepository.Dispose();
-        //    }
-        //    return this.GetAllJob();
-        //}
         public IEnumerable<JobMaster> DeleteJob(JobMaster jobMaster)
         {
             bool valid = false;
@@ -124,6 +99,7 @@ namespace Inspire.Erp.Application.Master
             {
                 //jobrepository.Dispose();
             }
+            jobMasters = jobMasters.OrderBy(sm => sm.JobMasterJobName).ToList();
             return jobMasters;
         }
 
@@ -142,17 +118,16 @@ namespace Inspire.Erp.Application.Master
             }
             finally
             {
-                //cityrepository.Dispose();
             }
             return jobMasters;
 
         }
 
-        public JobMaster InsertJobMaster(JobMaster jobMaster, List<JobMasterBudgetDetails> jobMasterBudgetDetails, List<JobMasterJobDetails> jobMasterJobDetails, List<JobMasterJobWiseBankGuarantees> jobMasterJobWiseBankGuarantees, List<JobStaff> jobStaff, List<JobEquipment> jobEquipment, List<JobExcutionDetails> jobExcutionDetails)
+        public JobMaster InsertJobMaster(JobMaster jobMaster, List<JobMasterBudgetDetails> jobMasterBudgetDetails, List<JobMasterJobDetails> jobMasterJobDetails, List<JobMasterJobWiseBankGuarantees> jobMasterJobWiseBankGuarantees, List<JobStaff> jobStaff, List<JobEquipment> jobEquipment, List<JobExcutionDetails> jobExcutionDetails, List<JobTimesheetDesc> JobTimesheetDesc, List<JobTimeSheetEquip> JobTimeSheetEquip, List<JobTimesheetMaster> JobTimesheetMaster, List<JobTimeSheetStaff> JobTimeSheetStaff)
         {
             try
             {
-                
+
                 jobrepository.BeginTransaction();
                 int jobId = 0;
                 jobId =
@@ -202,6 +177,30 @@ namespace Inspire.Erp.Application.Master
                     return x;
                 }).ToList();
                 /// end 
+                /// 
+                jobMaster.JobTimesheetDesc.Select((x) =>
+                {
+                    x.JobId = jobId;
+                    return x;
+                }).ToList();
+
+                jobMaster.JobTimeSheetEquip.Select((x) =>
+                {
+                    x.JobId = jobId;
+                    return x;
+                }).ToList();
+                jobMaster.JobTimesheetMaster.Select((x) =>
+                {
+                    x.JobId = jobId;
+                    return x;
+                }).ToList();
+                jobMaster.JobTimeSheetStaff.Select((x) =>
+                {
+                    x.JobId = jobId;
+                    return x;
+                }).ToList();
+                /// 
+
                 jobrepository.Insert(jobMaster);
                 jobrepository.TransactionCommit();
 
@@ -218,9 +217,8 @@ namespace Inspire.Erp.Application.Master
         {
             try
             {
-              
-                jobrepository.Update(jobMaster);
 
+                jobrepository.Update(jobMaster);
                 return this.GetSavedJobMasterDetails(jobMaster.JobMasterJobNo);
 
             }
@@ -288,6 +286,10 @@ namespace Inspire.Erp.Application.Master
                                             DrAmt = at.AccountsTransactionsDebit,
                                             CostName = cos.CostCenterMasterCostCenterName
                                         }).ToList();
+                jobMasterData.JobTimeSheetStaff = _jobTimeSheetStaff.GetAsQueryable().AsNoTracking().Where(a => a.JobId == jobMasterData.JobMasterJobId).ToList();
+                jobMasterData.JobTimesheetMaster = _jobTimesheetMaster.GetAsQueryable().AsNoTracking().Where(a => a.JobId == jobMasterData.JobMasterJobId).ToList();
+                jobMasterData.JobTimeSheetEquip = _jobTimeSheetEquip.GetAsQueryable().AsNoTracking().Where(a => a.JobId == jobMasterData.JobMasterJobId).ToList();
+                jobMasterData.JobTimesheetDesc = _jobTimesheetDesc.GetAsQueryable().AsNoTracking().Where(a => a.JobId == jobMasterData.JobMasterJobId).ToList();
                 return jobMasterData;
             }
             return null;

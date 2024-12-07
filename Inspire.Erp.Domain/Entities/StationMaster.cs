@@ -39,4 +39,17 @@ namespace Inspire.Erp.Domain.Entities
         public int? StationMasterCode { get; set; }
         public string StationMasterStationName { get; set; }
     }
+
+    public partial class ReportName
+    {
+        public int id { get; set; }
+        public int ClientCode { get; set; }
+        public string DBName { get; set; }
+        public string FormName { get; set; }
+        public string ReportCaption { get; set; }
+        public string ReprtFileName { get; set; }
+        public bool ShowInForm { get; set; }
+        public string SqlQuery { get; set; }
+        public bool isactive { get; set; }
+    }
 }

@@ -21,7 +21,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Inspire.Erp.Web.Controllers
-{  
+{
     [Route("api")]
     [Produces("application/json")]
     [ApiController]
@@ -30,7 +30,7 @@ namespace Inspire.Erp.Web.Controllers
         private readonly IMapper _mapper;
         private IJobMasterService jobMasterService;
         private IFileService fileService;
-        private IRepository<CurrencyMaster> currencyrepository; 
+        private IRepository<CurrencyMaster> currencyrepository;
         private IRepository<CountryMaster> countryrepository;
         private IChartofAccountsService chartofAccountsService;
         private IRepository<SalesManMaster> salesmanrepository;
@@ -38,15 +38,16 @@ namespace Inspire.Erp.Web.Controllers
         private IRepository<ProjectDescriptionMaster> ProjectDescriptionrepository;
         private IRepository<BankGuaranteeMaster> bankGuaranteerepository;
         private IRepository<CostCenterMaster> costcanterrepository;
+        private readonly IRepository<JobMaster> _jobmasterrepository;
         public JobController(IJobMasterService _jobMasterService, IMapper mapper,
-             IRepository<CurrencyMaster> _currencyrepository, 
+             IRepository<CurrencyMaster> _currencyrepository,
              IRepository<ProjectDescriptionMaster> _ProjectDescriptionrepository
-            , IChartofAccountsService _chartofAccountsService, 
+            , IChartofAccountsService _chartofAccountsService,
              IRepository<BankGuaranteeMaster> _bankGuaranteerepository,
-             IRepository<SalesManMaster> _salesmanrepository, 
+             IRepository<SalesManMaster> _salesmanrepository,
              IRepository<CustomerMaster> customerMasterRepository,
              IRepository<CostCenterMaster> _costcentermasterrepository,
-            IFileService _fileService
+            IFileService _fileService, IRepository<JobMaster> jobmasterrepository
             )
         {
             jobMasterService = _jobMasterService;
@@ -55,7 +56,7 @@ namespace Inspire.Erp.Web.Controllers
             chartofAccountsService = _chartofAccountsService; salesmanrepository = _salesmanrepository;
             currencyrepository = _currencyrepository; _customerMasterRepository = customerMasterRepository;
             bankGuaranteerepository = _bankGuaranteerepository;
-            fileService = _fileService;
+            fileService = _fileService; _jobmasterrepository = jobmasterrepository;
             costcanterrepository = _costcentermasterrepository;
         }
         [HttpGet]
@@ -102,7 +103,11 @@ namespace Inspire.Erp.Web.Controllers
             var param5 = _mapper.Map<List<JobStaff>>(jobMaster.JobStaff);
             var param6 = _mapper.Map<List<JobEquipment>>(jobMaster.JobEquipment);
             var param7 = _mapper.Map<List<JobExcutionDetails>>(jobMaster.JobExcutionDetails);
-            var respone = jobMasterService.InsertJobMaster(param1, param2, param3, param4, param5, param6, param7);
+            var param8 = _mapper.Map<List<JobTimesheetDesc>>(jobMaster.JobTimesheetDesc);
+            var param9 = _mapper.Map<List<JobTimeSheetEquip>>(jobMaster.JobTimeSheetEquip);
+            var param10 = _mapper.Map<List<JobTimesheetMaster>>(jobMaster.JobTimesheetMaster);
+            var param11 = _mapper.Map<List<JobTimeSheetStaff>>(jobMaster.JobTimeSheetStaff);
+            var respone = jobMasterService.InsertJobMaster(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11);
 
             apiResponse = new ApiResponse<JobMaster>
             {
@@ -295,9 +300,13 @@ namespace Inspire.Erp.Web.Controllers
             var costCenterMaster = costcanterrepository.GetAsQueryable().Where(a => a.CostCenterMasterCostCenterDelStatus != true).Select(c => new
             {
                 c.CostCenterMasterCostCenterId,
-                CostCenterMasterCostCenterName=c.CostCenterMasterCostCenterName.Trim()
+                CostCenterMasterCostCenterName = c.CostCenterMasterCostCenterName.Trim()
             }).ToList();
-            
+            var jobmaster = _jobmasterrepository.GetAsQueryable().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
+            {
+                c.JobMasterJobId,
+                c.JobMasterJobName
+            }).ToList();
             objresponse.ResultSet = new
             {
                 currencyMasters = currencyMasters,
@@ -307,6 +316,7 @@ namespace Inspire.Erp.Web.Controllers
                 bankGuaranteeMasters = bankGuaranteeMasters,
                 projectDescriptionMaster = projectDescriptionMaster,
                 costCenterMaster = costCenterMaster,
+                jobmaster = jobmaster
 
             };
             return objresponse;

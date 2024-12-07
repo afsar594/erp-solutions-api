@@ -103,6 +103,7 @@ namespace Inspire.Erp.Application.Master
             {
                 //costcenterrepository.Dispose();
             }
+            costcenterMasters = costcenterMasters.OrderBy(sm => sm.CostCenterMasterCostCenterName).ToList();
             return costcenterMasters;
         }
 

@@ -101,6 +101,7 @@ namespace Inspire.Erp.Application.Master
             {
                 //priceLevelrepository.Dispose();
             }
+            priceLevelMasters = priceLevelMasters.OrderBy(sm => sm.PriceLevelMasterPriceLevelName).ToList();
             return priceLevelMasters;
         }
         public IEnumerable<PriceLevelMaster> GetAllPriceLevelById(int id)

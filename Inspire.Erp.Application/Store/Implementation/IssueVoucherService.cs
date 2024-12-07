@@ -35,7 +35,7 @@ namespace Inspire.Erp.Application.Store.Implementation
         private IRepository<JobMasterBudgetDetails> _jobbudgetRepository;
 
 
-        public IssueVoucherService(            
+        public IssueVoucherService(
             IRepository<ItemMaster> itemMasterRepository, IRepository<UnitMaster> unitMasterRepository,
             IRepository<SuppliersMaster> suppliersMasterRepository, IRepository<LocationMaster> locationMasterRepository,
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
@@ -55,10 +55,10 @@ namespace Inspire.Erp.Application.Store.Implementation
             _unitMasterRepository = unitMasterRepository;
             _suppliersMasterRepository = suppliersMasterRepository;
             _locationMasterRepository = locationMasterRepository;
-            _accountsSettingssvcs = accountsSettingssvcsRepository;  
+            _accountsSettingssvcs = accountsSettingssvcsRepository;
             _jobbudgetRepository = jobbudgetRepository;
         }
-        
+
 
         public IssueVoucherModel UpdateIssueVoucher(IssueVoucher issueVoucher, List<AccountsTransactions> accountsTransactions,
             List<IssueVoucherDetails> issueVoucherDetails
@@ -157,9 +157,9 @@ namespace Inspire.Erp.Application.Store.Implementation
                         StockRegisterRefVoucherNo = issueVoucher.IssueVoucherNo,
                         StockRegisterQuantity = item.IssueVoucherDetailsQuantity * (decimal)converontype ?? 0,
                         StockRegisterRate = avgrate,
-                        StockRegisterSIN = item.IssueVoucherDetailsQuantity * (decimal)converontype ?? 0,
-                        StockRegisterAmount = item.IssueVoucherDetailsQuantity * (decimal)converontype * avgrate ?? 0,
-                        StockRegisterFCAmount = item.IssueVoucherDetailsQuantity * (decimal)converontype * avgrate * rate ?? 0,
+                        StockRegisterSout = item.IssueVoucherDetailsQuantity * (decimal)converontype ?? 1,
+                        StockRegisterAmount = item.IssueVoucherDetailsQuantity * (decimal)converontype * avgrate ?? 1,
+                        StockRegisterFCAmount = item.IssueVoucherDetailsQuantity * (decimal)converontype * avgrate * rate ?? 1,
                         StockRegisterVoucherDate = issueVoucher.IssueVoucherDate,
                         StockRegisterTransType = VoucherType.IssueVoucher_TYPE,
                         StockRegisterStatus = AccountStatus.Approved,
@@ -243,7 +243,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
             return i;
 
-        }      
+        }
 
         public IssueVoucherModel InsertIssueVoucher(IssueVoucher issueVoucher, List<AccountsTransactions> accountsTransactions,
             List<IssueVoucherDetails> issueVoucherDetails
@@ -299,7 +299,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     AccountsTransactionsUserId = 1,
                     AccountstransactionsDelStatus = false,
 
-                }) ;
+                });
                 accountsTransactions.Add(new AccountsTransactions
                 {
                     AccountsTransactionsTransDate = issueVoucher.IssueVoucherDate,
@@ -332,11 +332,11 @@ namespace Inspire.Erp.Application.Store.Implementation
                         StockRegisterMaterialID = item.IssueVoucherDetailsMatId,
                         StockRegisterPurchaseID = issueVoucherNumber,
                         StockRegisterRefVoucherNo = issueVoucherNumber,
-                        StockRegisterQuantity = item.IssueVoucherDetailsQuantity * (decimal) converontype??0,
+                        StockRegisterQuantity = item.IssueVoucherDetailsQuantity * (decimal)converontype ?? 0,
                         StockRegisterRate = avgrate,
-                        StockRegisterSIN = item.IssueVoucherDetailsQuantity * (decimal)converontype ?? 0,
-                        StockRegisterAmount = item.IssueVoucherDetailsQuantity * (decimal)converontype *avgrate ?? 0,
-                        StockRegisterFCAmount= item.IssueVoucherDetailsQuantity * (decimal)converontype * avgrate * rate ?? 0,
+                        StockRegisterSout = item.IssueVoucherDetailsQuantity * (decimal)converontype ?? 0,
+                        StockRegisterAmount = item.IssueVoucherDetailsQuantity * (decimal)converontype * avgrate ?? 0,
+                        StockRegisterFCAmount = item.IssueVoucherDetailsQuantity * (decimal)converontype * avgrate * rate ?? 0,
                         StockRegisterVoucherDate = issueVoucher.IssueVoucherDate,
                         StockRegisterTransType = VoucherType.IssueVoucher_TYPE,
                         StockRegisterStatus = AccountStatus.Approved,
@@ -354,12 +354,13 @@ namespace Inspire.Erp.Application.Store.Implementation
                     });
                 }
                 _stockRegisterRepository.InsertList(stockRegister);
-                if(issueVoucher.IssueVoucherJobId > 0)
+                if (issueVoucher.IssueVoucherJobId > 0)
                 {
-                    var jobbuget = _jobbudgetRepository.GetAsQueryable().Where(s => s.JobMasterBudgetDetailsJobId == issueVoucher.IssueVoucherJobId).FirstOrDefault().JobMasterNo;
+                    var jobbuget = _jobbudgetRepository.GetAsQueryable().Where(s => s.JobMasterBudgetDetailsJobId == issueVoucher.IssueVoucherJobId).FirstOrDefault()?.JobMasterNo;
+
                     var newBudgetDetail = new JobMasterBudgetDetails
                     {
-                        JobMasterNo = jobbuget,
+                        JobMasterNo = jobbuget ?? "",
                         JobMasterBudgetDetailsBudAmount = 0,
                         JobMasterBudgetDetailsJobId = issueVoucher.IssueVoucherJobId,
                         JobMasterBudgetDetailsBudId = (int)issueVoucher.IssueVoucherCostCenterId,

@@ -89,9 +89,12 @@ namespace Inspire.Erp.Application.Account.Implementations
                     RefNo = x.RefNo,
                     AccountsTransactionsTransSno = Convert.ToInt32(x.AccountsTransactionsTransSno),
                     AccountsTransactionsAllocDebit = x.AccountsTransactionsAllocDebit,
-                    AccountsTransactionsAllocCredit = x.AccountsTransactionsAllocCredit
+                    AccountsTransactionsAllocCredit = x.AccountsTransactionsAllocCredit,
+                    
                 }).ToListAsync();
                 decimal runningBalance = 0;
+                decimal totalDebit = 0;
+                decimal totalCredit = 0;
                 int ZeroToThirty = 0;
                 int ThirtyOneToSixty = 0;
                 int SixtyOneToNinety = 0;
@@ -102,9 +105,36 @@ namespace Inspire.Erp.Application.Account.Implementations
                 gridmodel.Details = new List<GetOutstandingStatementResponse>();
                 foreach (var accounts in result)
                 {
-                    decimal totalDebit = accounts.AccountsTransactionsDebit;
-                    decimal totalCredit = accounts.AccountsTransactionsCredit;
-                    runningBalance = (totalDebit - totalCredit) + (runningBalance);
+                    //if (accounts.AccountsTransactionsAllocDebit != null && accounts.AccountsTransactionsAllocDebit != 0)
+                    //{
+                    //    totalDebit = accounts.AccountsTransactionsDebit - accounts.AccountsTransactionsAllocDebit.Value;
+                    //}
+                    //else
+                    //{
+                    //    totalDebit = accounts.AccountsTransactionsDebit - 0;
+                    //}
+
+                    //if (accounts.AccountsTransactionsAllocCredit != null && accounts.AccountsTransactionsAllocCredit != 0)
+                    //{
+                    //    totalCredit = accounts.AccountsTransactionsCredit - accounts.AccountsTransactionsAllocCredit.Value;
+                    //}
+                    //else
+                    //{
+                    //    totalCredit = accounts.AccountsTransactionsCredit - 0;
+                    //}
+
+                    if(accounts.AccountsTransactionsDebit>0)
+                    {
+                        runningBalance = runningBalance + accounts.AccountsTransactionsAllocBalance.Value;
+
+                    }
+                    else
+                    {
+                        runningBalance = runningBalance - accounts.AccountsTransactionsAllocBalance.Value;
+
+                    }
+
+
                     gridmodel.Details.Add(new GetOutstandingStatementResponse()
                     {
                         AccountsTransactionsVoucherNo = accounts.AccountsTransactionsVoucherNo != null ? accounts.AccountsTransactionsVoucherNo:"" ,
@@ -119,34 +149,38 @@ namespace Inspire.Erp.Application.Account.Implementations
                         RefNo=accounts.RefNo != null? accounts.RefNo:"",
                         AccountstransactionsTotalDays= Math.Round(((DateTime.Now- Convert.ToDateTime(accounts.AccountsTransactionsTransDate)).TotalDays)).ToString(),
                         AccountsTransactionsAccNo = accounts.AccountsTransactionsAccNo != null ? accounts.AccountsTransactionsAccNo:"",
-          
+                        
                         AccountstransactionsRunningBalance = runningBalance.ToString()
                     });
-                    accNo = accounts.AccountsTransactionsAccNo != null ? accounts.AccountsTransactionsAccNo : "";
-                    var days= Math.Round(((DateTime.Now - Convert.ToDateTime(accounts.AccountsTransactionsTransDate)).TotalDays));
-                    if (days >= 0 && days < 31)
+                    accNo = accounts.AccountsTransactionsAccNo ;
+                    if (accounts.AccountsTransactionsDebit > 0)
                     {
-                        ZeroToThirty += Convert.ToInt32(accounts.AccountsTransactionsAllocBalance);
-                    }
-                    else if (days >= 31 && days < 60)
-                    {
-                        ThirtyOneToSixty += Convert.ToInt32(accounts.AccountsTransactionsAllocBalance);
-                    }
-                    else if (days >= 61 && days < 90)
-                    {
-                        SixtyOneToNinety += Convert.ToInt32(accounts.AccountsTransactionsAllocBalance);
-                    }
-                    else if (days >= 91 && days < 180)
-                    {
-                        NinetyOneToOneEighty += Convert.ToInt32(accounts.AccountsTransactionsAllocBalance);
-                    }
-                    else if (days >= 181 && days < 360)
-                    {
-                        OneEightyToThreeSixty += Convert.ToInt32(accounts.AccountsTransactionsAllocBalance);
-                    }
-                    else if (days > 360)
-                    {
-                        aboveThreeSixty += Convert.ToInt32(accounts.AccountsTransactionsAllocBalance);
+                  
+                        var days = Math.Round(((DateTime.Now - Convert.ToDateTime(accounts.AccountsTransactionsTransDate)).TotalDays));
+                        if (days >= 0 && days < 31)
+                        {
+                            ZeroToThirty += Convert.ToInt32(accounts.AccountsTransactionsAllocBalance);
+                        }
+                        else if (days >= 31 && days < 60)
+                        {
+                            ThirtyOneToSixty += Convert.ToInt32(accounts.AccountsTransactionsAllocBalance);
+                        }
+                        else if (days >= 61 && days < 90)
+                        {
+                            SixtyOneToNinety += Convert.ToInt32(accounts.AccountsTransactionsAllocBalance);
+                        }
+                        else if (days >= 91 && days < 180)
+                        {
+                            NinetyOneToOneEighty += Convert.ToInt32(accounts.AccountsTransactionsAllocBalance);
+                        }
+                        else if (days >= 181 && days < 360)
+                        {
+                            OneEightyToThreeSixty += Convert.ToInt32(accounts.AccountsTransactionsAllocBalance);
+                        }
+                        else if (days > 360)
+                        {
+                            aboveThreeSixty += Convert.ToInt32(accounts.AccountsTransactionsAllocBalance);
+                        }
                     }
                 }
                 gridmodel.TotalRunningBalance = runningBalance.ToString();
@@ -208,6 +242,9 @@ namespace Inspire.Erp.Application.Account.Implementations
                                   settled = transaction.AccountsTransactionsDebit > transaction.AccountsTransactionsCredit ? transaction.AccountsTransactionsAllocDebit : transaction.AccountsTransactionsAllocDebit,
                                   Balance = transaction.AccountsTransactionsDebit > transaction.AccountsTransactionsCredit ? transaction.AccountsTransactionsAllocBalance : -1 * transaction.AccountsTransactionsAllocBalance,
                                   RunningBal = 0m,
+
+
+
                                   Days = (Convert.ToDateTime(model.fromDate).Date - transaction.AccountsTransactionsTransDate.Value.Date).Days
                               }).ToList();
 

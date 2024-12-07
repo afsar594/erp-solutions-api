@@ -23,7 +23,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers
-{   
+{
     [Route("api/SalesVoucher")]
     [Produces("application/json")]
     [ApiController]
@@ -415,7 +415,7 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("GetSavedSalesVoucherDetails/{id}")]
-        public ApiResponse<SalesVoucherViewModel> GetSavedSalesVoucherDetails(string id)
+        public ApiResponse<SalesVoucherViewModel> GetSavedSalesVoucherDetails(decimal id)
         {
             SalesVoucherModel xs = _salesVoucherService.GetSavedSalesVoucherDetails(id);
 
@@ -563,12 +563,12 @@ namespace Inspire.Erp.Web.Controllers
                                   item.ItemMasterItemName,
                                   item.ItemMasterVenderId,
                                   item.ItemMasterItemSize,
-                                  itemMasterBarcode = unit.UnitDetailsBarcode
+                                  itemMasterBarcode =unit.UnitDetailsBarcode ?? ""
                               }).Distinct().ToList();
             var customerMasters = _customerMasterRepository.GetAsQueryable().AsNoTracking().Where(k => k.CustomerMasterCustomerDelStatus != true).Select(a => new
             {
                 a.CustomerMasterCustomerNo,
-                a.CustomerMasterCustomerName,          
+                a.CustomerMasterCustomerName,
                 a.CustomerMasterCustomerVatNo,
                 a.CustomerMasterCustomerContactPerson,
                 a.CustomerMasterCustomerAddress,
@@ -654,6 +654,33 @@ namespace Inspire.Erp.Web.Controllers
             };
 
             objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
+        [HttpGet]
+        [Route("GetCustomerById/{id}")]
+        public ResponseInfo GetCustomerById(int id)
+        {
+            var objectresponse = new ResponseInfo();
+            var customer = _customerMasterRepository.GetAsQueryable().Where(a => a.CustomerMasterCustomerDelStatus != true && a.CustomerMasterCustomerNo == id).Select(c => new
+            {
+
+                c.CustomerMasterCustomerNo,
+                c.CustomerMasterCustomerName,
+                CustomerMasterCustomerVatNo = c.CustomerMasterCustomerVatNo.Trim() ?? "",
+                CustomerMasterCustomerContactPerson = c.CustomerMasterCustomerContactPerson.Trim() ?? "",
+                CustomerMasterCustomerAddress = c.CustomerMasterCustomerAddress.Trim() ?? "",
+                CustomerMasterCustomerReffAcNo = c.CustomerMasterCustomerReffAcNo.Trim() ?? "",
+                CustomerMasterCustomerEmail = c.CustomerMasterCustomerEmail.Trim() ?? "",
+                CustomerMasterCustomerMobile = c.CustomerMasterCustomerMobile.Trim() ?? "",
+                CustomerMasterCustomerTel1 = c.CustomerMasterCustomerTel1.Trim() ?? "",
+                CustomerMasterCustomerFax = c.CustomerMasterCustomerFax.Trim() ?? "",
+                CustomerMasterCustomerWebSite = c.CustomerMasterCustomerWebSite.Trim() ?? ""
+            }).FirstOrDefault();
+            objectresponse.IsSuccess = true;
+            objectresponse.ResultSet = new
+            {
+                result = customer
+            };
             return objectresponse;
         }
     }

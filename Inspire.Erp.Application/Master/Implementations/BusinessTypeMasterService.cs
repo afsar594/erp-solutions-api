@@ -100,6 +100,7 @@ namespace Inspire.Erp.Application.Master
             {
                 //businesstyperepository.Dispose();
             }
+            businesstypeMasters = businesstypeMasters.OrderBy(sm => sm.BusinessTypeMasterBusinessTypeName).ToList();
             return businesstypeMasters;
         }
         public IEnumerable<BusinessTypeMaster> GetAllBusinessTypeById(int id)

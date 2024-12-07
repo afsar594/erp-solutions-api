@@ -105,6 +105,7 @@ namespace Inspire.Erp.Application.Master
             {
                 //unitrepository.Dispose();
             }
+             unitMasters = unitMasters.OrderBy(sm => sm.UnitMasterUnitShortName).ToList();
             return unitMasters;
         }
         public IEnumerable<UnitMaster> GetAllUnitById(int id)

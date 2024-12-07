@@ -101,6 +101,7 @@ namespace Inspire.Erp.Application.Master
             {
                 //cityrepository.Dispose();
             }
+            departmentMasters = departmentMasters.OrderBy(sm => sm.DepartmentMasterDepartmentName).ToList();
             return departmentMasters;
         }
         public IEnumerable<DepartmentMaster> GetAllDepartmentById(int id)

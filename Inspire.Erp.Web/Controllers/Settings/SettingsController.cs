@@ -23,11 +23,13 @@ namespace Inspire.Erp.Web.Controllers.Settings
         private readonly IMapper _mapper;
         private IErpSettings _settingSvc;
         private IRepository<GeneralSettings> _generalSettingsRepo;
-        public SettingsController(IErpSettings settingSvc, IMapper mapper, IRepository<GeneralSettings> generalSettingsRepo)
+        private IRepository<OptionsMaster> _optionMasterRepo;
+        public SettingsController(IErpSettings settingSvc, IMapper mapper, IRepository<GeneralSettings> generalSettingsRepo, IRepository<OptionsMaster> optionMasterRepo)
         {
             _settingSvc = settingSvc;
             _mapper = mapper;
             _generalSettingsRepo = generalSettingsRepo;
+            _optionMasterRepo = optionMasterRepo;
         }
         [HttpGet]
         [Route("general")]
@@ -131,10 +133,18 @@ namespace Inspire.Erp.Web.Controllers.Settings
                 GeneralSettingsKeyValue = c.GeneralSettingsKeyValue.Trim(),
                 c.GeneralSettingsBoolValue
             }).ToList();
+            var OptionSettings = _optionMasterRepo.GetAsQueryable().Where(o => o.OptionsMasterDescription == "DEFAULT_VAT").Select(s=> new
+            {
+                s.OptionsMasterId,
+                s.OptionsMasterDescription,
+                s.OptionsMasterType
+
+            }).FirstOrDefault();
 
             objectresponse.ResultSet = new
             {
                 GeneralSettings = GeneralSettings,
+                OptionSettings = OptionSettings,
             };
             return objectresponse;
         }

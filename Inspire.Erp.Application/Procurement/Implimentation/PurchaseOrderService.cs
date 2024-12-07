@@ -635,9 +635,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             try
             {
                 var check = _context.tbl_approvalforms.AsNoTracking().Where(a => a.Voucher_Type.Trim() == "Purchase Order" && a.is_active == true).ToList();
+                //check = null;
 
                 List<PODetailsViewModel> result = null;
-                if (check.Count > 0)
+                if (check?.Count > 0)
                 {
                     result = await (from po in _purchaseOrderRepository.GetAsQueryable()
                                     join per in _permissionApprovalDetailRepo.GetAsQueryable() on po.PurchaseOrderNo equals per.VoucherId
@@ -645,10 +646,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                     join sm in _suppliersMasterRepository.GetAsQueryable() on po.PurchaseOrderPartyId equals sm.SuppliersMasterSupplierId
                                     join im in _itemMasterRepository.GetAsQueryable() on (long)pod.PurchaseOrderDetailsMatId equals im.ItemMasterItemId
                                     where (supplierId == null || supplierId == 0 || sm.SuppliersMasterSupplierId == supplierId) && per.Status == "Approved"
-                                    //&& !(_permissionApprovalDetailRepo.GetAsQueryable()
-                                    //                            .Where(p => p.VoucherId == po.PurchaseOrderNo)
-                                    //                            .Any(p => p.Status != "Approved"))
-                                    //&& po.PurchaseOrderStatus.Trim().ToUpper() == "OPEN"
                                     group new { po, pod, sm, im } by new
                                     {
                                         pod.PurchaseOrderDetailsId,
@@ -689,9 +686,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                     && pr.PurchaseVoucherDetailsMaterialId == g.Key.PurchaseOrderDetailsMatId)
                                             .Sum(prdq => (int?)prdq.PurchaseVoucherDetailsQuantity) ?? 0,
                                     })
-                 .OrderBy(x => x.PODate)
-                 .ThenBy(x => x.PONo)
-                 .ToListAsync();
+                                    .OrderBy(x => x.PODate)
+                                    .ThenBy(x => x.PONo)
+                                    .ToListAsync();
                 }
                 else
                 {
@@ -699,9 +696,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                     join pod in _purchaseOrderDetailsRepository.GetAsQueryable() on po.PurchaseOrderId equals pod.PurchaseOrderId
                                     join sm in _suppliersMasterRepository.GetAsQueryable() on po.PurchaseOrderPartyId equals sm.SuppliersMasterSupplierId
                                     join im in _itemMasterRepository.GetAsQueryable() on (long)pod.PurchaseOrderDetailsMatId equals im.ItemMasterItemId
-                                    //where sm.SuppliersMasterSupplierId == supplierId
                                     where (supplierId == null || supplierId == 0 || sm.SuppliersMasterSupplierId == supplierId)
-                                    //&& po.PurchaseOrderStatus.Trim().ToUpper() == "OPEN"
                                     select new PODetailsViewModel
                                     {
                                         ItemId = (int)pod.PurchaseOrderDetailsMatId,

@@ -64,6 +64,7 @@ namespace Inspire.Erp.Domain.Entities
         public string? SalesVoucherShippinAddress { get; set; }
         public bool? SalesVoucherDelStatus { get; set; }
         public long? SalesVoucherShortNo { get; set; }
+        public decimal? SalesVoucherExpense { get; set; }
         [NotMapped]
         public string? CurrencyMasterCurrencyName { get; set; }
         [NotMapped]

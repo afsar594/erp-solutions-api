@@ -34,6 +34,10 @@ namespace Inspire.Erp.Application.Account.Implementations
         private readonly IUtilityService _utilityService;
         private readonly IRepository<FinancialPeriods> _financialPeriods;
         private readonly string Jv_Type = "JOURNAL";
+        private readonly string PB_Type = "Previous Balance Type";
+        private readonly string Jv_Na = "Opening Balance";
+
+
         public OldBalanceSheetService(IRepository<VouchersNumbers> voucherNumber, IRepository<JournalVoucher> journalVoucher, IFileService fileService
             , IRepository<OldBsMaster> oldBsMaster, IRepository<JournalVoucherDetails> journalVoucherDetail, IRepository<FinancialPeriods> financialPeriods,
             IRepository<OldBsMasterDetails> oldBsMasterDetail, IRepository<MasterAccountsTable> masterAccount, IUtilityService utilityService,
@@ -203,29 +207,23 @@ namespace Inspire.Erp.Application.Account.Implementations
         {
             try
             {
-                if (olDJvNO != null)
-                {
-                    var journalVoucher = _journalVoucher.GetAsQueryable().Where(x => x.JournalVoucherId == olDJvNO).ToList();
-                    _journalVoucher.DeleteList(journalVoucher);
-                    _journalVoucher.SaveChangesAsync();
 
-                    var journalVoucherDetail = _journalVoucherDetail.GetAsQueryable().Where(x => x.JournalVoucherDetailsId== olDJvNO).ToList();
-                    _journalVoucherDetail.DeleteList(journalVoucherDetail);
-                    _journalVoucherDetail.SaveChangesAsync();
+                var journalVoucher = _journalVoucher.GetAsQueryable().Where(x => x.JournalVoucherNarration == Jv_Na).ToList();
+                _journalVoucher.DeleteList(journalVoucher);
+                _journalVoucher.SaveChangesAsync();
 
-                    var accountTransaction = _accountTransaction.GetAsQueryable()
-                        .Where(x => x.AccountsTransactionsVoucherNo == olDJvNO.ToString() && x.AccountsTransactionsFsno == financialId && x.AccountsTransactionsVoucherType == Jv_Type)
+                var journalVoucherDetail = _journalVoucherDetail.GetAsQueryable().Where(x => x.JournalVoucherDetailsNarration == Jv_Na).ToList();
+                _journalVoucherDetail.DeleteList(journalVoucherDetail);
+                _journalVoucherDetail.SaveChangesAsync();
+
+                var accountTransaction = _accountTransaction.GetAsQueryable()
+                        .Where(x => x.AccountsTransactionsVoucherType == PB_Type)
                         .ToList();
                     _accountTransaction.DeleteList(accountTransaction);
                     _accountTransaction.SaveChangesAsync();
 
-                    var voucherNumber = _voucherNumber.GetAsQueryable()
-                        .FirstOrDefault(x => x.VouchersNumbersVNo == olDJvNO.ToString().Trim()
-                        && x.VouchersNumbersVType == Jv_Type);
-                    voucherNumber.VouchersNumbersStatus = "D";
-                    _voucherNumber.Delete(voucherNumber);
-                    _voucherNumber.SaveChangesAsync();
-                }
+                   
+                
 
             }
             catch (Exception)
@@ -263,6 +261,10 @@ namespace Inspire.Erp.Application.Account.Implementations
                     var amount = details.Debit != null ? details.Debit : details.Credit;
                     var narration = details.OldBsMasterDetailsNarration;
                     int id = rnd.Next();
+
+                    if (accountNo != null)
+                    {
+                        
                     _oldBsMasterDetail.Insert(new OldBsMasterDetails()
                     {
                         OldBsMasterDetailsId = id,
@@ -288,24 +290,24 @@ namespace Inspire.Erp.Application.Account.Implementations
                         // JournalVoucherDetails_Reference_No = model.OldBsMasterFsno,
                         JournalVoucherDetailsNarration = "Opening Balance"
                     });
-                    accountsTransactions.Add(new AccountsTransactions()
-                    {
-                        AccountsTransactionsAccNo = accountNo,
-                        AccountsTransactionsDebit = details.Debit != null ? (decimal)details.Debit : 0,
-                        AccountsTransactionsCredit = details.Credit != null ? (decimal)details.Credit : 0,
-                        AccountsTransactionsVoucherNo = "PB"+ tempJvNO,
-                        AccountsTransactionsVoucherType = "Previous Balance Type",
-                        AccountsTransactionsStatus = AccountStatus.Approved,
-                        AccountsTransactionsTransDate = financialPeriod.FinancialPeriodsStartDate,
-                        AccountsTransactionsParticulars = details.OldBsMasterDetailsNarration,
-                        AccountsTransactionsTstamp = DateTime.Now,
-                        AccountsTransactionsUserId = 1,
-                        AccountsTransactionsFsno = 1 ,
 
-                    });
+                        accountsTransactions.Add(new AccountsTransactions()
+                        {
+                            AccountsTransactionsAccNo = accountNo,
+                            AccountsTransactionsDebit = (decimal)amount,
+                            AccountsTransactionsCredit = (decimal)amount,
+                            AccountsTransactionsVoucherNo = "PB" + tempJvNO,
+                            AccountsTransactionsVoucherType = "Previous Balance Type",
+                            AccountsTransactionsStatus = AccountStatus.Approved,
+                            AccountsTransactionsTransDate = financialPeriod.FinancialPeriodsStartDate,
+                            AccountsTransactionsParticulars = details.OldBsMasterDetailsNarration,
+                            AccountsTransactionsTstamp = DateTime.Now,
+                            AccountsTransactionsUserId = 1,
+                            AccountsTransactionsFsno = 1,
 
+                        });
 
-                     
+                    }
                     _journalVoucherDetail.SaveChangesAsync();
                 }
                 if(accountsTransactions.Count > 0)

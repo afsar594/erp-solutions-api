@@ -120,20 +120,13 @@ namespace Inspire.Erp.Web.Controllers
                 Result = 0,
                 Message = SalesReturnMessage.DeleteVoucher
             };
-
             return apiResponse;
-
         }
-
-
 
         [HttpGet]
         [Route("GetAllAccountTransaction")]
         public ApiResponse<List<AccountsTransactions>> GetAllAccountTransaction()
         {
-
-
-
             ApiResponse<List<AccountsTransactions>> apiResponse = new ApiResponse<List<AccountsTransactions>>
             {
                 Valid = true,
@@ -141,7 +134,6 @@ namespace Inspire.Erp.Web.Controllers
                 Message = ""
             };
             return apiResponse;
-
         }
 
         [HttpGet]
@@ -157,11 +149,6 @@ namespace Inspire.Erp.Web.Controllers
                 Message = ""
             };
             return apiResponse;
-
-
-
-
-
         }
 
         [HttpGet]

@@ -1,21 +1,21 @@
 ﻿using Inspire.Erp.Application.Account.Interfaces;
 using Inspire.Erp.Application.Common;
-using Inspire.Erp.Domain.Entities;
-using Inspire.Erp.Domain.Enums;
-using Inspire.Erp.Domain.Models;
-using Inspire.Erp.Infrastructure.Database;
-using Inspire.Erp.Infrastructure.Database.Repositoy;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System;
-using System.Collections.Generic;
-using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
 using System.Text;
 
+using Inspire.Erp.Infrastructure.Database;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.EntityFrameworkCore;
+using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Domain.Models;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System;
+using System.Collections.Generic;
+using System.Data;
 namespace Inspire.Erp.Application.Account.Implementations
 {
     public class ReceiptVoucherService : IReceiptVoucherService
@@ -76,6 +76,10 @@ namespace Inspire.Erp.Application.Account.Implementations
                     {
                         k.AccountsTransactionsVoucherType = VoucherType.Receipt;
                         k.AccountsTransactionsStatus = AccountStatus.Approved;
+                        k.AccountsTransactionsAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
+                        k.AccountsTransactionsFcAllocDebit = 0;
+                        k.AccountsTransactionsFcAllocCredit = 0;
+                        k.AccountsTransactionsFcAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
                     }
                     return k;
                 }).ToList();
@@ -90,10 +94,10 @@ namespace Inspire.Erp.Application.Account.Implementations
                 //trackingData.UserTrackingUserVpType = "RECEIPTVOUCHER";
                 //UserTracking.Insert(trackingData);
 
-                if (alloDetails.Count > 0)
-                {
-                    insertAllocations(receiptVoucher, alloDetails);
-                }
+                //if (alloDetails.Count > 0)
+                //{
+                //    insertAllocations(receiptVoucher, alloDetails);
+                //}
                 _receiptVoucherRepository.TransactionCommit();
             }
             catch (Exception ex)
@@ -191,10 +195,10 @@ namespace Inspire.Erp.Application.Account.Implementations
                 //trackingData.UserTrackingUserVpType = "RECEIPTVOUCHER";
                 //UserTracking.Insert(trackingData);
 
-                if (alloDetails.Count > 0)
-                {
-                    insertAllocations(receiptVoucher, alloDetails);
-                }
+                //if (alloDetails.Count > 0)
+                //{
+                //    insertAllocations(receiptVoucher, alloDetails);
+                //}
 
 
 

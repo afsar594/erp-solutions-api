@@ -98,6 +98,19 @@ namespace Inspire.Erp.Web.Common
             CreateMap<JobEquipment, JobEquipmentViewModels>();
             CreateMap<JobEquipmentViewModels, JobEquipment>();
 
+            // JobTimesheetDesc mappings
+            CreateMap<JobTimesheetDesc, JobTimesheetDescViewModels>();
+            CreateMap<JobTimesheetDescViewModels, JobTimesheetDesc>();
+            // JobTimeSheetEquip mappings
+            CreateMap<JobTimeSheetEquip, JobTimeSheetEquipViewModels>();
+            CreateMap<JobTimeSheetEquipViewModels, JobTimeSheetEquip>();
+            // JobTimesheetMaster mappings
+            CreateMap<JobTimesheetMaster, JobTimesheetMasterViewModels>();
+            CreateMap<JobTimesheetMasterViewModels, JobTimesheetMaster>();
+            // JobTimeSheetStaff mappings
+            CreateMap<JobTimeSheetStaff, JobTimeSheetStaffViewModels>();
+            CreateMap<JobTimeSheetStaffViewModels, JobTimeSheetStaff>();
+
             CreateMap<JobExcutionDetails, JobExcutionDetailsViewModels>();
             CreateMap<JobExcutionDetailsViewModels, JobExcutionDetails>();
 
@@ -160,7 +173,14 @@ namespace Inspire.Erp.Web.Common
 
             CreateMap<JobInvoiceDetails, JobInvoiceDetailsViewModel>();
             CreateMap<JobInvoiceDetailsViewModel, JobInvoiceDetails>();
-            
+
+
+            CreateMap<StockReservation, StockReservationViewModel>();
+            CreateMap<StockReservationViewModel, StockReservation>();
+
+            CreateMap<StockReservationDetails, StockReservationViewModel>();
+            CreateMap<StockReservationViewModel, StockReservationDetails>();
+
 
             //**********************************Masters ending **********
             //**********************************Accounts ****************
@@ -480,8 +500,9 @@ namespace Inspire.Erp.Web.Common
             CreateMap<BillOfQTyDetailsModel, BillOfQTyDetails>();
             CreateMap<BillOfQTyDetails, BillOfQTyDetailsModel>();
 
-           
 
+            CreateMap<RFQViewModel, RfqEntry>();
+            CreateMap<RfqEntry, RFQViewModel>();
 
 
         }

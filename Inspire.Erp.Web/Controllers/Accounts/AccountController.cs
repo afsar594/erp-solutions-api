@@ -14,7 +14,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers.Accounts
-{   
+{
     [Route("api/[controller]")]
     [ApiController]
     public class AccountController : ControllerBase
@@ -34,14 +34,15 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         private readonly IAssetsOpeningService _assetsOpeningService;
         private readonly IVatStatementService _vatStatementService;
         private IRepository<SalesVoucherDetails> _salesVoucherDetailsRepository;
-        private readonly IAssetsMasterService _assetsMasterService; 
+        private readonly IAssetsMasterService _assetsMasterService;
         private IRepository<SalesVoucher> _salesVoucherRepository;
         private readonly IAccountTransactionsServices _accountTransactionsServices;
+        private IRepository<ItemMaster> _itemrepository;
         public AccountController(IAccountStatementService accountStatService, IDaybookService daybookService, IAssetsOpeningService assetsOpeningService, IRepository<AccountsTransactions> accountTransactionRepository,
             IVoucherAllocationService voucherAllocation, IOutstandingStatementService outstandingStatement, IOldBalanceSheetService oldBalanceSheet, IRepository<CustomerMaster> customerMasterRepository,
             IVoucherPrintService iVoucherPrintService, IAccountStatementMultiAccountService multiAccountService, IAgeingReport ageingReport, IRepository<SalesManMaster> _salesmanrepository,
             IVatStatementService vatStatementService, IAssetsMasterService assetsMasterService, IAccountTransactionsServices accountTransactionsServices, IRepository<AccountSettings> accountsSettingsRepo,
-            IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository)
+            IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository, IRepository<ItemMaster> itemrepository)
         {
             _accountStatService = accountStatService;
             _iVoucherPrintService = iVoucherPrintService;
@@ -54,7 +55,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
             _assetsOpeningService = assetsOpeningService;
             _vatStatementService = vatStatementService; _salesVoucherRepository = salesVoucherRepository;
             _salesVoucherDetailsRepository = salesVoucherDetailsRepository;
-            _assetsMasterService = assetsMasterService;
+            _assetsMasterService = assetsMasterService; _itemrepository = itemrepository;
             _accountTransactionsServices = accountTransactionsServices;
         }
 
@@ -115,11 +116,6 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         {
             return Ok(await _multiAccountService.GetAccountTransactionsForeignCurrencyDetail(model));
         }
-        //[HttpPost("GetAccountTransactionsForeignCurrencySummary")]
-        //public async Task<IActionResult> GetAccountTransactionsForeignCurrencySummary([FromBody] AccountTransactionsFilterReport model)
-        //{
-        //    return Ok(await _multiAccountService.GetAccountTransactionsForeignCurrencySummary(model));
-        //}
 
         [HttpPost("GetAccountTransactionsForeignCurrencySummary")]
         public async Task<IActionResult> GetAccountTransactionsForeignCurrencySummary(GenericGridViewModel model)
@@ -458,17 +454,19 @@ namespace Inspire.Erp.Web.Controllers.Accounts
             {
                 c.SalesManMasterSalesManId,
                 c.SalesManMasterSalesManName,
-            }).ToList();
+            }).OrderBy(o=>o.SalesManMasterSalesManName).ToList();
+            
             var customerMasters = _customerMasterRepository.GetAsQueryable().AsNoTracking().Where(k => k.CustomerMasterCustomerDelStatus != true).Select(a => new
             {
                 a.CustomerMasterCustomerNo,
                 a.CustomerMasterCustomerName,
-            }).ToList();
+            }).OrderBy(o => o.CustomerMasterCustomerName).ToList();
             objresponse.ResultSet = new
             {
                 customerMasters = customerMasters,
                 saleManList = saleManList
             };
+           
             return objresponse;
         }
 
@@ -485,7 +483,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
 
             if (model.isDate)
             {
-                query = query.Where(c => c.SalesVoucherDate >= model.fromdate && c.SalesVoucherDate <= model.todate);
+                query = query.Where(c => c.SalesVoucherDate.Value.Date >= model.fromdate.Value.Date && c.SalesVoucherDate.Value.Date <= model.todate.Value.Date);
             }
 
             var result = query.ToList();
@@ -533,23 +531,34 @@ namespace Inspire.Erp.Web.Controllers.Accounts
                             && a.AccountsTransactionsVoucherType == "SalesVoucher")
                 .ToList();
 
+            if (model.isDate)
+            {
+                acc = acc.Where(a => a.AccountsTransactionsTransDate.Value.Date >= model.fromdate.Value.Date && a.AccountsTransactionsTransDate.Value.Date <= model.todate.Value.Date).ToList();
+            }
+
             var account = acc.Where(a => ids.Any(id =>
                             string.Equals(a.AccountsTransactionsAccNo.Trim(), id.Trim(), StringComparison.OrdinalIgnoreCase)))
                             .ToList();
+
             var data = from q in result
                        join s in _salesVoucherDetailsRepository.GetAsQueryable().AsNoTracking()
                            on q.SalesVoucherId equals s.SalesVoucherId
                        join m in account
                            on q.SalesVoucherNo equals m.AccountsTransactionsVoucherNo
+
+                       join im in _itemrepository.GetAsQueryable().AsNoTracking()
+                            on s.SalesVoucherDetailsMatId equals (int)im.ItemMasterItemId
+
                        group new { s, m } by new
                        {
                            q.SalesVoucherNo,
                            q.SalesVoucherDate,
                            s.SalesVoucherDetailsQuantity,
-                           s.SalesVoucherDetailsMatId
+                           im.ItemMasterItemName
                        } into grouped
                        let invoiceAmount = grouped.Sum(g => g.m.AccountsTransactionsCredit)
-                       let cost1 = grouped.Sum(g => g.m.AccountsTransactionsDebit)
+                       let sum = grouped.Sum(g => (decimal?)g.m.AccountsTransactionsDebit)
+                       let cost1 = (sum == 0 ? 1m : sum)
                        let profit = invoiceAmount - cost1
                        let profitPercentage = profit == 0 ? 0 : (profit / cost1) * 100
                        select new
@@ -557,11 +566,11 @@ namespace Inspire.Erp.Web.Controllers.Accounts
                            InvoiceNo = grouped.Key.SalesVoucherNo,
                            Date = grouped.Key.SalesVoucherDate,
                            Quantity = grouped.Key.SalesVoucherDetailsQuantity,
-                           Item = grouped.Key.SalesVoucherDetailsMatId,
+                           Item = grouped.Key.ItemMasterItemName,
                            InvoiceAmount = invoiceAmount,
                            Cost = cost1,
                            Profit = profit,
-                           ProfitPercentage = Math.Round(profitPercentage, 2)
+                           ProfitPercentage = Math.Round((decimal)profitPercentage, 2)
                        };
 
             objresponse.ResultSet = new

@@ -19,6 +19,7 @@ using Inspire.Erp.Domain.Models.Approvals;
 using Inspire.Erp.Domain.Models;
 using System.Xml.Linq;
 using Inspire.Erp.Domain.Entities.documents;
+using Inspire.Erp.Domain.Models.ViewModels;
 
 namespace Inspire.Erp.Infrastructure.Database
 {
@@ -158,6 +159,11 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<JobStaff> JobStaff { get; set; }
         public virtual DbSet<JobEquipment> JobEquipment { get; set; }
         public virtual DbSet<JobExcutionDetails> JobExcutionDetails { get; set; }
+        public virtual DbSet<JobTimesheetDesc> JobTimesheetDesc { get; set; }
+        public virtual DbSet<JobTimeSheetEquip> JobTimeSheetEquip { get; set; }
+        public virtual DbSet<JobTimeSheetStaff> JobTimeSheetStaff { get; set; }
+
+        public virtual DbSet<JobTimesheetMaster> JobTimesheetMaster { get; set; }
         public virtual DbSet<JobDocuments> JobDocuments { get; set; }
         public virtual DbSet<JobOrder> JobOrder { get; set; }
         public virtual DbSet<JobOrderDetails> JobOrderDetails { get; set; }
@@ -254,6 +260,7 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<ReportSalesVoucher> ReportSalesVoucher { get; set; }
         public virtual DbSet<ReportPurchaseOrder> ReportPurchaseOrder { get; set; }
         public virtual DbSet<tbl_approvalforms> tbl_approvalforms { get; set; }
+        public virtual DbSet<tbl_DASHBOARD_SUMMARY> tbl_DASHBOARD_SUMMARY { get; set; }
 
         //*********************************************************
         //===========================================================
@@ -454,6 +461,7 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<HrDocumentStatusMaster> HrDocumentStatusMaster { get; set; }
         public virtual DbSet<HrDocumentType> HrDocumentType { get; set; }
 
+        public DbSet<ReportName> ReportName { get; set; }
         // hr Staffmaster
         public virtual DbSet<HrStaffMaster> HrStaffMasters { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -469,8 +477,8 @@ namespace Inspire.Erp.Infrastructure.Database
             modelBuilder.Entity<DocumentMaster>(entity =>
             {
                 entity.HasKey(e => e.DocumentId);
-                entity.ToTable("HR_DocumentMaster");     
-                
+                entity.ToTable("HR_DocumentMaster");
+
                 entity.Property(e => e.DocImage).HasColumnName("DocImage");
 
                 entity.Property(e => e.DocName)
@@ -485,11 +493,11 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.MasterType)
                     .IsRequired()
                     .HasMaxLength(10)
-                    .IsFixedLength();                
+                    .IsFixedLength();
                 entity.Property(e => e.Remarks)
                     .IsRequired()
                     .HasMaxLength(250)
-                    .IsUnicode(false);                
+                    .IsUnicode(false);
                 entity.Property(e => e.Status).HasColumnName("status");
                 entity.Property(e => e.DocumentvoucherNo)
                   .HasMaxLength(50)
@@ -497,6 +505,12 @@ namespace Inspire.Erp.Infrastructure.Database
 
 
             });
+
+            modelBuilder.Entity<ReportName>(entity =>
+            {
+                entity.ToTable("Report_Name");
+            });
+
             modelBuilder.Entity<HrDocumentStatusMaster>(entity =>
             {
                 entity.HasKey(e => e.DocStatusId);
@@ -582,9 +596,10 @@ namespace Inspire.Erp.Infrastructure.Database
             modelBuilder.Entity<GetAccountTransactionProfitLossResponse>().HasNoKey();
             modelBuilder.Entity<GetATFinancialClosingResponse>().HasNoKey();
             modelBuilder.Entity<SingleValueSPResult>().HasNoKey();
+            modelBuilder.Entity<tbl_DASHBOARD_SUMMARY>().HasNoKey();
             // modelBuilder.Entity<POS_Sales_Voucher>().HasNoKey();           
 
-            //modelBuilder.Query<IssueWithStockTransfer>().ToView("VW_ISSUE_WITH_STOCK_TRANSFER");
+            modelBuilder.Query<IssueWithStockTransfer>().ToView("VW_ISSUE_WITH_STOCK_TRANSFER");
             #endregion
             modelBuilder.Entity<Inspire.Erp.Domain.Entities.ImportTimeSheet>(entity =>
             {
@@ -606,7 +621,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.Task).HasMaxLength(50);
             });
 
-            modelBuilder.Entity<Erp.Domain.Entities. AssetSubListHeader>(entity =>
+            modelBuilder.Entity<Erp.Domain.Entities.AssetSubListHeader>(entity =>
             {
                 entity.ToTable("AssetSubListHeader");
                 entity.HasKey(e => e.VoucherNo);
@@ -1241,7 +1256,7 @@ namespace Inspire.Erp.Infrastructure.Database
                     .IsUnicode(false);
             });
 
-          
+
             modelBuilder.Entity<AutoCodes>(entity =>
             {
                 entity.HasNoKey();
@@ -6167,8 +6182,8 @@ namespace Inspire.Erp.Infrastructure.Database
                       .IsUnicode(false);
 
                 entity.Property(e => e.CustomerQuotationNote).HasColumnName("Customer_Quotation_Note");
-                     
-                    
+
+
 
                 entity.Property(e => e.CustomerQuotationWarranty)
                       .HasColumnName("Customer_Quotation_Warranty")
@@ -9935,7 +9950,7 @@ namespace Inspire.Erp.Infrastructure.Database
                     .IsUnicode(false);
 
                 entity.Property(e => e.Invoicetype).HasColumnName("Invoicetype");
-                
+
             });
 
             modelBuilder.Entity<JobInvoiceDetails>(entity =>
@@ -10611,6 +10626,67 @@ namespace Inspire.Erp.Infrastructure.Database
                    .HasConstraintName("FK_JobExec_JobMaster");
             });
 
+            modelBuilder.Entity<JobTimesheetMaster>(entity =>
+            {
+                entity.ToTable("Job_Timesheet_Master");
+
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.TimesheetId)
+                      .HasMaxLength(10)
+                      .HasColumnName("Timesheet_id");
+
+                entity.Property(e => e.JobId)
+                      .HasColumnName("jobid");
+
+                entity.Property(e => e.TimesheetDate)
+                      .HasMaxLength(10)
+                      .HasColumnName("Timesheet_date");
+
+                entity.Property(e => e.Remarks)
+                      .HasMaxLength(10);
+
+                entity.Property(e => e.ClientRemarks)
+                      .HasMaxLength(10)
+                      .HasColumnName("Client_remarks");
+
+                entity.Property(e => e.VesselName)
+                      .HasMaxLength(10)
+                      .HasColumnName("Vessel_name");
+
+                entity.HasOne(d => d.JobMasterJobJob)
+                  .WithMany(p => p.JobTimesheetMaster)
+                  .HasForeignKey(d => d.JobId)
+                  .HasConstraintName("FK_Job_Timesheet_Master_Job_Master");
+            });
+
+            modelBuilder.Entity<JobTimeSheetStaff>(entity =>
+            {
+                entity.ToTable("Job_TimeSheet_staff");
+
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.StaffId)
+                      .HasColumnName("Staff_Id");
+
+                entity.Property(e => e.JobId)
+                      .HasColumnName("jobid");
+
+                entity.Property(e => e.TimesheetId)
+                     .HasColumnName("Timesheet_id");
+
+                entity.Property(e => e.Remarks)
+                      .HasMaxLength(100)
+                      .IsFixedLength()
+                      .IsRequired(false); // Nullable
+
+                // Assuming there's a relationship between JobTimeSheetStaff and JobMaster
+                entity.HasOne(d => d.JobMasterJobJob)
+                  .WithMany(p => p.JobTimeSheetStaff)
+                  .HasForeignKey(d => d.JobId)
+                  .HasConstraintName("FK_Job_TimeSheet_Staff_Job_Master");
+
+            });
             modelBuilder.Entity<JobDocuments>(entity =>
             {
                 entity.HasKey(e => e.JobDocumentId);
@@ -10630,7 +10706,66 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.JobDocumentDelStatus).HasColumnName("Job_Document_DelStatus");
             });
 
+            modelBuilder.Entity<JobTimesheetDesc>(entity =>
+            {
+                entity.ToTable("Job_timesheet_desc");
 
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.TimeSheetId)
+                      .HasColumnName("TimeSheetid");
+
+                entity.Property(e => e.JobId)
+                      .HasColumnName("Jobid");
+
+                entity.Property(e => e.TimeIn)
+                      .IsRequired()
+                      .HasColumnType("datetime");
+
+                entity.Property(e => e.TimeOut)
+                      .IsRequired()
+                      .HasColumnType("datetime");
+
+                entity.Property(e => e.Description)
+                      .IsRequired()
+                      .HasMaxLength(100)
+                      .IsFixedLength();
+
+                entity.Property(e => e.Remarks)
+                      .HasMaxLength(100)
+                      .IsFixedLength();
+
+                // Assuming there's a relationship between JobTimesheetDesc and JobMaster
+                entity.HasOne(d => d.JobMasterJobJob)
+                   .WithMany(p => p.JobTimesheetDesc)
+                   .HasForeignKey(d => d.JobId)
+                   .HasConstraintName("FK_Job_Timesheet_Desc_Job_Master");
+            });
+            modelBuilder.Entity<JobTimeSheetEquip>(entity =>
+            {
+                entity.ToTable("Job_TimeSheet_Equip");
+
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.TimeSheetId)
+                      .HasColumnName("Timesheet_id");
+
+                entity.Property(e => e.JobId)
+                      .HasColumnName("jobid");
+
+                entity.Property(e => e.EquipmentId)
+                      .HasColumnName("Equipment_id");
+
+                entity.Property(e => e.EquipmentDesc)
+                      .HasMaxLength(100)
+                      .HasColumnName("Equipment_Desc");
+
+                // Assuming there's a relationship between JobTimesheetDesc and JobMaster
+                entity.HasOne(d => d.JobMasterJobJob)
+                   .WithMany(p => p.JobTimeSheetEquip)
+                   .HasForeignKey(d => d.JobId)
+                   .HasConstraintName("FK_Job_TimeSheet_Equip_Job_Master");
+            });
 
             modelBuilder.Entity<JobOrder>(entity =>
             {
@@ -13332,7 +13467,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.LevelId)
                       .HasColumnName("LevelId");
-                
+
                 entity.Property(e => e.Username)
                       .HasColumnName("Username")
                         .IsUnicode(false);
@@ -19121,102 +19256,50 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<RfqEntry>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.RFQEntryID);
 
                 entity.ToTable("RFQ_Entry");
 
-                entity.Property(e => e.RfqEntryDelStatus).HasColumnName("RFQ_Entry_DelStatus");
+                entity.Property(e => e.RFQEntryID)
+                   .HasColumnName("RFQ_Entry_ID").ValueGeneratedNever();
 
-                entity.Property(e => e.RfqEntryDeliveryStatus).HasColumnName("RFQ_Entry_Delivery_Status");
 
-                entity.Property(e => e.RfqEntryId).HasColumnName("RFQ_Entry_ID");
-
-                entity.Property(e => e.RfqEntryRfqDate)
-                    .HasColumnName("RFQ_Entry_RFQ_Date")
-                    .HasColumnType("datetime");
-
+                entity.Property(e => e.RfqEntryRfqId).HasColumnName("RFQ_Entry_RFQ_ID");
+                entity.Property(e => e.RfqEntryRfqDate).HasColumnName("RFQ_Entry_RFQ_Date").HasColumnType("datetime");
                 entity.Property(e => e.RfqEntryRfqEnqId).HasColumnName("RFQ_Entry_RFQ_Enq_ID");
-
-                entity.Property(e => e.RfqEntryRfqId)
-                    .HasColumnName("RFQ_Entry_RFQ_ID")
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.RfqEntrySalesManId).HasColumnName("RFQ_Entry_Sales_Man_ID");
-
-                entity.Property(e => e.RfqEntryStatus).HasColumnName("RFQ_Entry_Status");
-
-                entity.Property(e => e.RfqEntrySupplierAddress)
-                    .HasColumnName("RFQ_Entry_Supplier_Address")
-                    .HasMaxLength(300)
-                    .IsUnicode(false);
-
                 entity.Property(e => e.RfqEntrySupplierId).HasColumnName("RFQ_Entry_Supplier_ID");
+                entity.Property(e => e.RfqEntrySupplierAddress).HasColumnName("RFQ_Entry_Supplier_Address").HasMaxLength(300)
+                    .IsUnicode(false);
+                entity.Property(e => e.RfqEntryStatus).HasColumnName("RFQ_Entry_Status");
+                entity.Property(e => e.RfqEntrySalesManId).HasColumnName("RFQ_Entry_Sales_Man_ID");
+                entity.Property(e => e.RfqEntryDeliveryStatus).HasColumnName("RFQ_Entry_Delivery_Status");
+                entity.Property(e => e.RfqEntryDelStatus).HasColumnName("RFQ_Entry_DelStatus");
+                entity.Property(e => e.RfqEntryRfqEnqId).HasColumnName("RFQ_Entry_PReq_ID");
+                entity.Property(e => e.RFQ_EntryvouchaseNo).HasColumnName("RFQ_EntryvouchaseNo");
+
             });
 
             modelBuilder.Entity<RfqEntryDetails>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.RFQEntryDetailsDetID);
 
                 entity.ToTable("RFQ_Entry_Details");
 
-                entity.Property(e => e.RfqEntryDetailsDelStatus).HasColumnName("RFQ_Entry_Details_DelStatus");
+                entity.Property(e => e.RFQEntryDetailsDetID)
+                  .HasColumnName("RFQ_Entry_Details_Det_ID").ValueGeneratedNever();
 
-                entity.Property(e => e.RfqEntryDetailsDelqty).HasColumnName("RFQ_Entry_Details_Delqty");
-
-                entity.Property(e => e.RfqEntryDetailsDescription)
-                    .HasColumnName("RFQ_Entry_Details_Description")
-                    .HasMaxLength(150)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.RfqEntryDetailsDetId).HasColumnName("RFQ_Entry_Details_Det_ID");
-
-                entity.Property(e => e.RfqEntryDetailsItemId).HasColumnName("RFQ_Entry_Details_Item_ID");
-
-                entity.Property(e => e.RfqEntryDetailsPrice).HasColumnName("RFQ_Entry_Details_Price");
-
-                entity.Property(e => e.RfqEntryDetailsQuantity).HasColumnName("RFQ_Entry_Details_Quantity");
-
-                entity.Property(e => e.RfqEntryDetailsRemarks)
-                    .HasColumnName("RFQ_Entry_Details_Remarks")
-                    .HasMaxLength(150)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.RfqEntryDetailsRfqamt).HasColumnName("RFQ_Entry_Details_RFQAmt");
-
-                entity.Property(e => e.RfqEntryDetailsUnitId).HasColumnName("RFQ_Entry_Details_Unit_ID");
+                entity.Property(e => e.RFQEntryDetailsItemID).HasColumnName("RFQ_Entry_Details_Item_ID");
+                entity.Property(e => e.RFQEntryDetailsDescription).HasColumnName("RFQ_Entry_Details_Description").HasMaxLength(500)
+                   .IsUnicode(false);
+                entity.Property(e => e.RFQEntryDetailsUnitID).HasColumnName("RFQ_Entry_Details_Unit_ID");
+                entity.Property(e => e.RFQEntryDetailsQuantity).HasColumnName("RFQ_Entry_Details_Quantity");
+                entity.Property(e => e.RFQEntryDetailsPrice).HasColumnName("RFQ_Entry_Details_Price");
+                entity.Property(e => e.RFQEntryDetailsDelqty).HasColumnName("RFQ_Entry_Details_Delqty");
+                entity.Property(e => e.RFQEntryDetailsRFQAmt).HasColumnName("RFQ_Entry_Details_RFQAmt");
+                entity.Property(e => e.RFQEntryDetailsRemarks).HasColumnName("RFQ_Entry_Details_Remarks");
+                entity.Property(e => e.RFQEntryDetailsDelStatus).HasColumnName("RFQ_Entry_Details_DelStatus");
+                entity.Property(e => e.RFQ_EntryvouchaseNo).HasColumnName("RFQ_EntryvouchaseNo");
             });
-
-            ////modelBuilder.Entity<SalesJournal>(entity =>
-            ////{
-            ////    entity.HasNoKey();
-
-            ////    entity.ToTable("Sales_Journal");
-
-            ////    entity.Property(e => e.SalesJournalCustId).HasColumnName("Sales_Journal_Cust_ID");
-
-            ////    entity.Property(e => e.SalesJournalDate)
-            ////        .HasColumnName("Sales_Journal_Date")
-            ////        .HasColumnType("datetime");
-
-            ////    entity.Property(e => e.SalesJournalDelStatus).HasColumnName("Sales_Journal_DelStatus");
-
-            ////    entity.Property(e => e.SalesJournalFsno).HasColumnName("Sales_Journal_FSNO");
-
-            ////    entity.Property(e => e.SalesJournalId).HasColumnName("Sales_Journal_ID");
-
-            ////    entity.Property(e => e.SalesJournalReffNo)
-            ////        .HasColumnName("Sales_Journal_ReffNo")
-            ////        .HasMaxLength(30)
-            ////        .IsUnicode(false);
-
-            ////    entity.Property(e => e.SalesJournalRemarks)
-            ////        .HasColumnName("Sales_Journal_Remarks")
-            ////        .HasMaxLength(200)
-            ////        .IsUnicode(false);
-
-            ////    entity.Property(e => e.SalesJournalUserId).HasColumnName("Sales_Journal_User_ID");
-            ////});
 
             modelBuilder.Entity<SalesJournal>(entity =>
             {
@@ -20515,6 +20598,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.SalesVoucherShippinAddress).HasColumnName("SalesVoucherShippinAddress");
                 entity.Property(e => e.SalesVoucherDelStatus).HasColumnName("SalesVoucherDelStatus");
                 entity.Property(e => e.SalesVoucherShortNo).HasColumnName("SalesVoucherShortNo");
+                entity.Property(e => e.SalesVoucherExpense).HasColumnName("SalesVoucherExpense");
             });
 
             modelBuilder.Entity<SalesVoucherBatchDetials>(entity =>
@@ -20869,10 +20953,10 @@ namespace Inspire.Erp.Infrastructure.Database
                .HasMaxLength(100)
                .IsUnicode(false);
 
-               entity.Property(e => e.logotype)
-              .HasColumnName("logotype")
-              .HasMaxLength(100)
-              .IsUnicode(false);
+                entity.Property(e => e.logotype)
+               .HasColumnName("logotype")
+               .HasMaxLength(100)
+               .IsUnicode(false);
             });
 
             modelBuilder.Entity<StockAdjustment>(entity =>
@@ -21456,14 +21540,16 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<StockReservation>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.StockReservationId);
 
                 entity.ToTable("Stock_Reservation");
 
+
+                entity.Property(e => e.StockReservationId)
+                    .HasColumnName("Stock_Reservation_ID")
+                    .ValueGeneratedNever();
+
                 entity.Property(e => e.StockReservationDelStatus).HasColumnName("Stock_Reservation_DelStatus");
-
-                entity.Property(e => e.StockReservationId).HasColumnName("Stock_Reservation_ID");
-
                 entity.Property(e => e.StockReservationJobId).HasColumnName("Stock_Reservation_Job_ID");
 
                 entity.Property(e => e.StockReservationRDate)
@@ -21480,18 +21566,19 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<StockReservationDetails>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.StockReservationDetailsRdId);
 
                 entity.ToTable("Stock_Reservation_Details");
+                
+                entity.Property(e => e.StockReservationDetailsRdId)
+                   .HasColumnName("Stock_Reservation_Details_RD_ID")
+                   .ValueGeneratedNever();
 
                 entity.Property(e => e.StockReservationDetailsDelStatus).HasColumnName("Stock_Reservation_Details_DelStatus");
 
                 entity.Property(e => e.StockReservationDetailsItemId).HasColumnName("Stock_Reservation_Details_Item_ID");
 
                 entity.Property(e => e.StockReservationDetailsRId).HasColumnName("Stock_Reservation_Details_R_ID");
-
-                entity.Property(e => e.StockReservationDetailsRdId).HasColumnName("Stock_Reservation_Details_RD_ID");
-
                 entity.Property(e => e.StockReservationDetailsRelease).HasColumnName("Stock_Reservation_Details_Release");
 
                 entity.Property(e => e.StockReservationDetailsRemarks)
@@ -21624,7 +21711,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.StockTransferId).HasColumnName("Stock_Transfer_ID");
 
                 entity.Property(e => e.StockTransferDetailsUnitId).HasColumnName("Stock_Transfer_Details_Unit_ID");
-                entity.Property(e => e.StockTransferDetailsCostPrice).HasColumnName("StockTransferDetailsCostPrice");               
+                entity.Property(e => e.StockTransferDetailsCostPrice).HasColumnName("StockTransferDetailsCostPrice");
 
                 entity.HasOne(d => d.StockTransferDetailsNoNavigation)
                    .WithMany(p => p.StockTransferDetails)
@@ -25048,6 +25135,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.Date)
                       .HasColumnType("datetime");
+
 
                 entity.Property(e => e.CustomerEnqId)
                       .HasColumnType("numeric(18, 0)");

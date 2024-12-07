@@ -71,22 +71,29 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
             try
             {
                 PurchaseVoucher pv = new PurchaseVoucher();
-                var userTrackngData = (from hdr in _context.UserTracking.Where(o => o.UserTrackingUserVpType == "GRN" && o.UserTrackingUserVpNo == voucherNo)
-                                       join dtl in _context.UserFile on (long)hdr.UserTrackingUserUserId equals dtl.UserId
-                                       select new UserTrackingDisplay()
-                                       {
-                                           Action = hdr.UserTrackingUserVpAction,
-                                           Id = dtl.UserId.ToString(),
-                                           Name = dtl.UserName,
-                                           VType = hdr.UserTrackingUserVpType,
-                                           Date = Convert.ToDateTime(hdr.UserTrackingUserChangeDt).ToString("dd/MMM/yyyy"),
-                                           Time = Convert.ToDateTime(hdr.UserTrackingUserChangeTime).ToShortTimeString(),
-                                           VNo = hdr.UserTrackingUserVpNo,
-                                       }).ToList();
-                pv = _purchaseVoucherRepository.GetAll().FirstOrDefault(o => o.PurchaseVoucherVoucherNo == voucherNo);
-                pv.PurchaseVoucherDetails = _purchaseVoucherDetailsRepository.GetAll().Where(o => o.PurchaseVoucherDetailsVoucherNo == voucherNo).ToList();
-                pv.AccountsTransactions = _accountTransactionRepository.GetAll().Where(o => o.AccountsTransactionsVoucherNo == voucherNo && o.AccountstransactionsDelStatus != true).ToList();
-                pv.UserTrackingData = userTrackngData;
+             
+
+                pv = _purchaseVoucherRepository.GetAll().FirstOrDefault(o => o.PurchaseVoucherPurID == Convert.ToInt64(voucherNo));
+                if (pv != null)
+                {
+                    var userTrackngData = (from hdr in _context.UserTracking.Where(o => o.UserTrackingUserVpType == "GRN" && o.UserTrackingUserVpNo == voucherNo)
+                                           join dtl in _context.UserFile on (long)hdr.UserTrackingUserUserId equals dtl.UserId
+                                           select new UserTrackingDisplay()
+                                           {
+                                               Action = hdr.UserTrackingUserVpAction,
+                                               Id = dtl.UserId.ToString(),
+                                               Name = dtl.UserName,
+                                               VType = hdr.UserTrackingUserVpType,
+                                               Date = Convert.ToDateTime(hdr.UserTrackingUserChangeDt).ToString("dd/MMM/yyyy"),
+                                               Time = Convert.ToDateTime(hdr.UserTrackingUserChangeTime).ToShortTimeString(),
+                                               VNo = hdr.UserTrackingUserVpNo,
+                                           }).ToList();
+
+
+                    pv.PurchaseVoucherDetails = _purchaseVoucherDetailsRepository.GetAll().Where(o => o.PurchaseVoucherDetailsVoucherNo == pv.PurchaseVoucherVoucherNo).ToList();
+                    pv.AccountsTransactions = _accountTransactionRepository.GetAll().Where(o => o.AccountsTransactionsVoucherNo == pv.PurchaseVoucherVoucherNo && o.AccountstransactionsDelStatus != true).ToList();
+                    pv.UserTrackingData = userTrackngData;
+                }
                 return pv;
             }
             catch (System.Exception ex)
@@ -141,18 +148,17 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                         StockRegisterRefVoucherNo = grn.PurchaseVoucherVoucherNo,
                         StockRegisterPurchaseID = grn.PurchaseVoucherVoucherNo,
                         StockRegisterVoucherDate = grn.PurchaseVoucherPurchaseDate,
-                        StockRegisterQuantity = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 0,
-                        StockRegisterSIN = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 0,
-                        StockRegisterRate = item.PurchaseVoucherDetailsRate,
+                        StockRegisterQuantity = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 1,
+                        StockRegisterSIN = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 1,
+                        StockRegisterRate = item.PurchaseVoucherDetailsRate / converontype ?? 1,
                         StockRegisterAmount = item.PurchaseVoucherDetailsQuantity * item.PurchaseVoucherDetailsRate,
                         StockRegisterFCAmount = item.PurchaseVoucherDetailsQuantity * item.PurchaseVoucherDetailsRate * rate,
                         StockRegisterTransType = VoucherType.PurchaseVoucher_TYPE,
-                        StockRegisterStatus = AccountStatus.Approved,                        
+                        StockRegisterStatus = AccountStatus.Approved,
                         StockRegisterUnitID = item.PurchaseVoucherDetailsUnitId,
                         StockRegisterLocationID = grn.PurchaseVoucherLocationID,
                         StockRegisterJobID = grn.PurchaseVoucherJobID,
                         StockRegisterDelStatus = false
-
                     });
 
                 }
@@ -193,7 +199,8 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
             {
                 grn.PurchaseVoucherDelStatus = false;
 
-                string contraVoucherNumber = this.GenerateVoucherNo(grn.PurchaseVoucherGRDate).VouchersNumbersVNo;
+                //string contraVoucherNumber = this.GenerateVoucherNo(grn.PurchaseVoucherGRDate).VouchersNumbersVNo;
+                string contraVoucherNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.PurchaseVoucher_TYPE, Prefix.PurchaseVoucher_Prefix, _programsettingsRepository, _voucherNumbersRepository);
                 grn.PurchaseVoucherVoucherNo = contraVoucherNumber;
 
                 foreach (var k in grn.AccountsTransactions)
@@ -225,16 +232,16 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                         StockRegisterRefVoucherNo = grn.PurchaseVoucherVoucherNo,
                         StockRegisterPurchaseID = grn.PurchaseVoucherVoucherNo,
                         StockRegisterVoucherDate = grn.PurchaseVoucherPurchaseDate,
-                        StockRegisterQuantity = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 0,
-                        StockRegisterSIN = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 0,
-                        StockRegisterRate = item.PurchaseVoucherDetailsRate,
+                        StockRegisterQuantity = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 1,
+                        StockRegisterSIN = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 1,
+                        StockRegisterRate = item.PurchaseVoucherDetailsRate / converontype ?? 1,
                         StockRegisterAmount = item.PurchaseVoucherDetailsQuantity * item.PurchaseVoucherDetailsRate,
                         StockRegisterFCAmount = item.PurchaseVoucherDetailsQuantity * item.PurchaseVoucherDetailsRate * rate,
                         StockRegisterTransType = VoucherType.PurchaseVoucher_TYPE,
                         StockRegisterStatus = AccountStatus.Approved,
                         StockRegisterUnitID = item.PurchaseVoucherDetailsUnitId,
                         StockRegisterLocationID = grn.PurchaseVoucherLocationID,
-                        StockRegisterJobID = grn.PurchaseVoucherJobID,                        
+                        StockRegisterJobID = grn.PurchaseVoucherJobID,
                         StockRegisterDelStatus = false
                     });
                 }
@@ -314,7 +321,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 throw ex;
             }
         }
-       
+
         public IQueryable DeleteGRN(PurchaseVoucher grn)
         {
             try

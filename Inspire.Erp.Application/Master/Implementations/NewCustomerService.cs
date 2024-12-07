@@ -186,6 +186,7 @@ namespace Inspire.Erp.Application.Account.Implementations
         public IEnumerable<CustomerMaster> GetAllCustomers()
         {
             IEnumerable<CustomerMaster> customerMasters = _customerMasterRepository.GetAll().Where(k => k.CustomerMasterCustomerDelStatus == false || k.CustomerMasterCustomerDelStatus == null);
+            customerMasters = customerMasters.OrderBy(o => o.CustomerMasterCustomerName).ToList();
             return customerMasters;
         }
         public CustomerViewModel GetSavedCustomers(int pvno)
