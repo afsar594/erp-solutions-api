@@ -73,7 +73,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 PurchaseVoucher pv = new PurchaseVoucher();
              
 
-                pv = _purchaseVoucherRepository.GetAll().FirstOrDefault(o => o.PurchaseVoucherVoucherNo == voucherNo);
+                pv = _purchaseVoucherRepository.GetAll().FirstOrDefault(o => o.PurchaseVoucherPurID == Convert.ToInt64(voucherNo));
                 if (pv != null)
                 {
                     var userTrackngData = (from hdr in _context.UserTracking.Where(o => o.UserTrackingUserVpType == "GRN" && o.UserTrackingUserVpNo == voucherNo)
@@ -90,8 +90,8 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                                            }).ToList();
 
 
-                    pv.PurchaseVoucherDetails = _purchaseVoucherDetailsRepository.GetAll().Where(o => o.PurchaseVoucherDetailsVoucherNo == voucherNo).ToList();
-                    pv.AccountsTransactions = _accountTransactionRepository.GetAll().Where(o => o.AccountsTransactionsVoucherNo == voucherNo && o.AccountstransactionsDelStatus != true).ToList();
+                    pv.PurchaseVoucherDetails = _purchaseVoucherDetailsRepository.GetAll().Where(o => o.PurchaseVoucherDetailsVoucherNo == pv.PurchaseVoucherVoucherNo).ToList();
+                    pv.AccountsTransactions = _accountTransactionRepository.GetAll().Where(o => o.AccountsTransactionsVoucherNo == pv.PurchaseVoucherVoucherNo && o.AccountstransactionsDelStatus != true).ToList();
                     pv.UserTrackingData = userTrackngData;
                 }
                 return pv;
