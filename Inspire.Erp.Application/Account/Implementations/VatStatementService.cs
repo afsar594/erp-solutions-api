@@ -35,15 +35,16 @@ namespace Inspire.Erp.Application.Account.Implementations
             try
             {
                 var response = new List<DropdownResponse>();
-                //response.Add(new DropdownResponse()
-                //{
-                //    Value = " 1 == 1",
-                //    Name = " All "
-                //});
+               
                 response.AddRange(_accountTransaction.GetAsQueryable().Select(x => x.AccountsTransactionsVoucherType).Distinct().ToList().Select(x => new DropdownResponse
                 {
                     Value = x,
                     Name = x
+                }));
+                response.AddRange(_accountsSettingsRepo.GetAsQueryable().Where(i => i.AccountSettingsAccountKeyValue.Equals("VAT_OUTPUT") || i.AccountSettingsAccountKeyValue.Equals("VAT_INPUT")).Select(x => new DropdownResponse()
+                {
+                    Value = x.AccountSettingsAccountTextValue,
+                    Name = x.AccountSettingsAccountDescription
                 }));
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
             }
