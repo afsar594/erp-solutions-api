@@ -263,14 +263,14 @@ namespace Inspire.Erp.Web.Controllers
                 c.CurrencyMasterCurrencyId,
                 c.CurrencyMasterCurrencyName,
                 c.CurrencyMasterCurrencyRate
-            }).ToList();
+            }).OrderBy(x => x.CurrencyMasterCurrencyName).ToList();
             var masterAccountsTables = chartofAccountsService.GetAllAccounts().Where(a => a.MaDelStatus != true).Select(c => new
             {
                 c.MaAccNo,
                 c.MaAccName,
                 c.MaRelativeNo,
                 c.MaSno
-            }).ToList();
+            }).OrderBy(x => x.MaAccName).ToList();
             var customerMasters = _customerMasterRepository.GetAsQueryable().Where(k => k.CustomerMasterCustomerDelStatus != true).Select(a => new
             {
                 a.CustomerMasterCustomerNo,
@@ -279,34 +279,34 @@ namespace Inspire.Erp.Web.Controllers
                 a.CustomerMasterCustomerContactPerson,
                 a.CustomerMasterCustomerAddress,
                 a.CustomerMasterCustomerReffAcNo
-            }).ToList();
+            }).OrderBy(x => x.CustomerMasterCustomerName).ToList();
             var SaleManList = salesmanrepository.GetAsQueryable().Where(a => a.SalesManMasterSalesManDelStatus != true).Select(c => new
             {
                 c.SalesManMasterSalesManId,
                 c.SalesManMasterSalesManName,
-            }).ToList();
+            }).OrderBy(x => x.SalesManMasterSalesManName).ToList();
             var projectDescriptionMaster = ProjectDescriptionrepository.GetAsQueryable().Where(a => a.ProjectDescriptionMasterProjectDescriptionDelStatus != true).Select(c => new
             {
                 c.ProjectDescriptionMasterProjectDescriptionId,
                 c.ProjectDescriptionMasterProjectDescriptionName
-            }).ToList();
+            }).OrderBy(x => x.ProjectDescriptionMasterProjectDescriptionName).ToList();
 
             var bankGuaranteeMasters = bankGuaranteerepository.GetAsQueryable().Where(a => a.BankGuaranteeMasterDeleted != true).Select(c => new
             {
                 c.BankGuaranteeMasterBgid,
                 BankGuaranteeMasterBgname = c.BankGuaranteeMasterBgname.Trim()
-            }).ToList();
+            }).OrderBy(x => x.BankGuaranteeMasterBgname).ToList();
 
             var costCenterMaster = costcanterrepository.GetAsQueryable().Where(a => a.CostCenterMasterCostCenterDelStatus != true).Select(c => new
             {
                 c.CostCenterMasterCostCenterId,
                 CostCenterMasterCostCenterName = c.CostCenterMasterCostCenterName.Trim()
-            }).ToList();
+            }).OrderBy(x => x.CostCenterMasterCostCenterName).ToList();
             var jobmaster = _jobmasterrepository.GetAsQueryable().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
             {
                 c.JobMasterJobId,
                 c.JobMasterJobName
-            }).ToList();
+            }).OrderBy(x => x.JobMasterJobName).ToList();
             objresponse.ResultSet = new
             {
                 currencyMasters = currencyMasters,

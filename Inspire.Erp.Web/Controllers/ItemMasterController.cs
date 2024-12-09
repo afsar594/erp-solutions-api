@@ -378,40 +378,40 @@ namespace Inspire.Erp.Web.Controllers
                      {
                          k.ItemMasterItemId,
                          k.ItemMasterItemName
-                     }).ToList();
+                     }).OrderBy(x => x.ItemMasterItemName).ToList();
 
             var VendorMasters = Brandrepository.GetAsQueryable().Where(c => c.VendorMasterVendorDelStatus != true).Select(a => new
             {
                 a.VendorMasterVendorId,
                 a.VendorMasterVendorName
-            }).ToList();
+            }).OrderBy(x => x.VendorMasterVendorName).ToList();
             var Stocktype = itemStockRepository.GetAsQueryable().Where(c => c.ItemStockTypeDelStatus != 1).Select(a => new
             {
                 a.ItemStockTypeId,
                 a.ItemStockTypeDescription
-            }).ToList();
+            }).OrderBy(x => x.ItemStockTypeDescription).ToList();
             var SuppliersMaster = supplierrepository.GetAsQueryable().Where(a => a.SuppliersMasterSupplierDelStatus != true).Select(c => new
             {
                 c.SuppliersMasterSupplierId,
                 c.SuppliersMasterSupplierName
-            }).ToList();
+            }).OrderBy(x => x.SuppliersMasterSupplierName).ToList();
             var taxMasters = taxrepository.GetAsQueryable().Where(a => a.TmDelStatus != true).Select(c => new
             {
                 c.TmId,
                 c.TmName,
                 c.TmPercentage
-            }).ToList();
+            }).OrderBy(x => x.TmName).ToList();
             var priceLevelMasters = priceLevelrepository.GetAsQueryable().Where(a => a.PriveLevelMasterPriceLevelDelStatus != true).Select(c => new
             {
                 c.PriceLevelMasterPriceLevelId,
                 c.PriceLevelMasterPriceLevelName
-            }).ToList();
+            }).OrderBy(x => x.PriceLevelMasterPriceLevelName).ToList();
             var unitMasters = unitrepository.GetAsQueryable().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
             {
                 x.UnitMasterUnitId,
                 x.UnitMasterUnitFullName,
                 x.UnitMasterUnitShortName
-            }).ToList();
+            }).OrderBy(x => x.UnitMasterUnitShortName).ToList();
             objectresponse.ResultSet = new
             {
                 itemMaster = itemMaster,

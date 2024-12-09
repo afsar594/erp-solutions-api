@@ -48,7 +48,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     {
                         Name = x,
                         Value = x
-                    }).ToListAsync());
+                    }).OrderBy(x=>x.Name).ToListAsync());
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
             }
             catch (Exception ex)

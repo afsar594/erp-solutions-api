@@ -163,7 +163,7 @@ namespace Inspire.Erp.Web.Controllers
                                   item.ItemMasterVenderId,
                                   item.ItemMasterItemSize,
                                   itemMasterBarcode = unit.UnitDetailsBarcode ?? ""
-                              }).Distinct().ToList();
+                              }).Distinct().OrderBy(x=>x.ItemMasterItemName).ToList();
 
             var SuppliersMaster = supplierrepository.GetAsQueryable().AsNoTracking().Where(a => a.SuppliersMasterSupplierDelStatus != true).Select(c => new
             {
@@ -176,54 +176,54 @@ namespace Inspire.Erp.Web.Controllers
                 c.SuppliersMasterSupplierEmail,
                 c.SuppliersMasterSupplierMobile,
                 c.SuppliersMasterSupplierTel1,
-            }).ToList();
+            }).OrderBy(x=>x.SuppliersMasterSupplierName).ToList();
 
             var unitMasters = unitrepository.GetAsQueryable().AsNoTracking().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
             {
                 x.UnitMasterUnitId,
                 UnitMasterUnitFullName = x.UnitMasterUnitFullName.Trim(),
                 UnitMasterUnitShortName = x.UnitMasterUnitShortName.Trim(),
-            }).ToList();
+            }).OrderBy(x=>x.UnitMasterUnitFullName).ToList();
 
             var jobMasters = jobrepository.GetAsQueryable().AsNoTracking().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
             {
                 c.JobMasterJobId,
                 c.JobMasterJobName,
-            }).ToList();
+            }).OrderBy(x=>x.JobMasterJobName).ToList();
             var currencyMasters = currencyrepository.GetAsQueryable().AsNoTracking().Where(a => a.CurrencyMasterCurrencyDelStatus != true).Select(c => new
             {
                 c.CurrencyMasterCurrencyId,
                 c.CurrencyMasterCurrencyName,
                 c.CurrencyMasterCurrencyRate
-            }).ToList();
+            }).OrderBy(x=>x.CurrencyMasterCurrencyName).ToList();
             var masterAccountsTables = chartofAccountsService.GetAllAccounts().Where(a => a.MaDelStatus != true).Select(c => new
             {
                 c.MaAccNo,
                 c.MaAccName,
                 c.MaRelativeNo,
                 c.MaSno
-            }).ToList();
+            }).OrderBy(x=>x.MaAccName).ToList();
             var costcenterMasters = costcenterrepository.GetAsQueryable().AsNoTracking().Where(a => a.CostCenterMasterCostCenterDelStatus != true).Select(c => new
             {
                 c.CostCenterMasterCostCenterId,
                 c.CostCenterMasterCostCenterName,
-            }).ToList();
+            }).OrderBy(x=>x.CostCenterMasterCostCenterName).ToList();
             var LocationMaster = locationrepository.GetAsQueryable().AsNoTracking().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
             {
                 c.LocationMasterLocationId,
                 c.LocationMasterLocationName,
-            }).ToList();
+            }).OrderBy(x=>x.LocationMasterLocationName).ToList();
             var BrandMasters = Brandrepository.GetAsQueryable().AsNoTracking().Where(a => a.VendorMasterVendorDelStatus != true).Select(c => new
             {
                 c.VendorMasterVendorId,
                 c.VendorMasterVendorName,
-            }).ToList();
+            }).OrderBy(x=>x.VendorMasterVendorName).ToList();
             var accountsSettings = _accountsSettingsRepo.GetAsQueryable().AsNoTracking().Where(a => a.AccountSettingsAccountDelStatus != true).Select(c => new
             {
                 c.AccountSettingsAccountId,
                 AccountSettingsAccountDescription = c.AccountSettingsAccountDescription.Trim(),
                 c.AccountSettingsAccountTextValue
-            }).ToList();
+            }).OrderBy(x=>x.AccountSettingsAccountTextValue).ToList();
 
             objectresponse.ResultSet = new
             {

@@ -60,6 +60,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                     Id = x.CurrencyMasterCurrencyId,
                     Name = x.CurrencyMasterCurrencyName
                 }));
+
+                response.AddRange(response.OrderBy(x => x.Name)); // Order by Name
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
             }
             catch (Exception ex)

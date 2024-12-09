@@ -123,13 +123,13 @@ namespace Inspire.Erp.Web.Controllers.Store
                      {
                          k.ItemMasterItemId,
                          k.ItemMasterItemName
-                     }).ToList();
+                     }).OrderBy(x => x.ItemMasterItemName).ToList();
             var itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
              && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
              {
                  k.ItemMasterItemId,
                  k.ItemMasterItemName
-             }).ToList();
+             }).OrderBy(x => x.ItemMasterItemName).ToList();
 
             objectresponse.ResultSet = new
             {

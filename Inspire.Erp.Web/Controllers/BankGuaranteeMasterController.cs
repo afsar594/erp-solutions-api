@@ -36,7 +36,8 @@ namespace Inspire.Erp.Web.Controllers
                 BankGuaranteeMasterUserId = k.BankGuaranteeMasterUserId,
                 BankGuaranteeMasterDeleted = k.BankGuaranteeMasterDeleted,
                 BankGuaranteeMasterStatus = k.BankGuaranteeMasterStatus
-            }).ToList();
+            }).OrderBy(x => x.BankGuaranteeMasterBgname) // Order by BankGuaranteeMasterBgname
+                .ToList();
         }
 
         [HttpPost]
@@ -51,7 +52,7 @@ namespace Inspire.Erp.Web.Controllers
                 BankGuaranteeMasterUserId = k.BankGuaranteeMasterUserId,
                 BankGuaranteeMasterDeleted = k.BankGuaranteeMasterDeleted,
                 BankGuaranteeMasterStatus = k.BankGuaranteeMasterStatus
-            }).ToList();
+            }).OrderBy(x => x.BankGuaranteeMasterBgname).ToList();
         }
 
         [HttpPost]
@@ -66,7 +67,7 @@ namespace Inspire.Erp.Web.Controllers
                 BankGuaranteeMasterUserId = k.BankGuaranteeMasterUserId,
                 BankGuaranteeMasterDeleted = k.BankGuaranteeMasterDeleted,
                 BankGuaranteeMasterStatus = k.BankGuaranteeMasterStatus
-            }).ToList();
+            }).OrderBy(x => x.BankGuaranteeMasterBgname).ToList();
         }
 
         [HttpPost]
@@ -81,7 +82,7 @@ namespace Inspire.Erp.Web.Controllers
                 BankGuaranteeMasterUserId = k.BankGuaranteeMasterUserId,
                 BankGuaranteeMasterDeleted = k.BankGuaranteeMasterDeleted,
                 BankGuaranteeMasterStatus = k.BankGuaranteeMasterStatus
-            }).ToList();
+            }).OrderBy(x => x.BankGuaranteeMasterBgname).ToList();
         }
     }
 }

@@ -226,17 +226,17 @@ namespace Inspire.Erp.Web.Controllers.Store
             {
                 c.CostCenterMasterCostCenterId,
                 c.CostCenterMasterCostCenterName,
-            }).ToList();
+            }).OrderBy(x => x.CostCenterMasterCostCenterName).ToList();
             var jobMasters = jobrepository.GetAsQueryable().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
             {
                 c.JobMasterJobId,
                 c.JobMasterJobName,
-            }).ToList();
+            }).OrderBy(x => x.JobMasterJobName).ToList();
             var locationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
             {
                 c.LocationMasterLocationId,
                 c.LocationMasterLocationName,
-            }).ToList();
+            }).OrderBy(x => x.LocationMasterLocationName).ToList();
 
             var masterAccountsTables = chartofAccountsService.GetAllAccounts().Where(a => a.MaAccType == "A" && a.MaDelStatus != true).Select(c => new
             {
@@ -244,7 +244,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 c.MaAccName,
                 c.MaRelativeNo,
                 c.MaSno
-            }).ToList();
+            }).OrderBy(x => x.MaAccName).ToList();
 
             var vouchers = _viewAccountsTransactionsVoucherTypeRepository.GetAsQueryable().ToList();
             objectresponse.ResultSet = new

@@ -52,42 +52,42 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             {
                 c.ItemMasterItemId,
                 c.ItemMasterItemName
-            }).ToList();
+            }).OrderBy(x => x.ItemMasterItemName).ToList();
             var itemMasterGroup = itemrepository.GetAsQueryable().AsNoTracking().Where(a => a.ItemMasterDelStatus != true && a.ItemMasterItemType == ItemMasterStatus.Group).Select(c => new
             {
                 c.ItemMasterItemId,
                 c.ItemMasterItemName
-            }).ToList();
+            }).OrderBy(x => x.ItemMasterItemName).ToList();
 
             var suppliersMaster = supplierrepository.GetAsQueryable().AsNoTracking().Where(a => a.SuppliersMasterSupplierDelStatus != true).Select(c => new
             {
                 c.SuppliersMasterSupplierId,
                 c.SuppliersMasterSupplierName,
-            }).ToList();
+            }).OrderBy(x => x.SuppliersMasterSupplierName).ToList();
 
             var unitMasters = unitrepository.GetAsQueryable().AsNoTracking().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
             {
                 x.UnitMasterUnitId,
                 UnitMasterUnitFullName = x.UnitMasterUnitFullName.Trim(),
                 UnitMasterUnitShortName = x.UnitMasterUnitShortName.Trim(),
-            }).ToList();
+            }).OrderBy(x => x.UnitMasterUnitShortName).ToList();
 
             var jobMasters = jobrepository.GetAsQueryable().AsNoTracking().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
             {
                 c.JobMasterJobId,
                 c.JobMasterJobName,
-            }).ToList();
+            }).OrderBy(x => x.JobMasterJobName).ToList();
 
             var currencyMasters = currencyrepository.GetAsQueryable().AsNoTracking().Where(a => a.CurrencyMasterCurrencyDelStatus != true).Select(c => new
             {
                 c.CurrencyMasterCurrencyId,
                 c.CurrencyMasterCurrencyName,
-            }).ToList();
+            }).OrderBy(x => x.CurrencyMasterCurrencyName).ToList();
             var LocationMaster = locationrepository.GetAsQueryable().AsNoTracking().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
             {
                 c.LocationMasterLocationId,
                 c.LocationMasterLocationName,
-            }).ToList();
+            }).OrderBy(x => x.LocationMasterLocationName).ToList();
             obj.ResultSet = new
             {
                 itemMaster = itemMaster,
