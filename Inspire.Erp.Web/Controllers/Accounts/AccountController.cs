@@ -457,17 +457,19 @@ namespace Inspire.Erp.Web.Controllers.Accounts
             {
                 c.SalesManMasterSalesManId,
                 c.SalesManMasterSalesManName,
-            }).ToList();
+            }).OrderBy(o=>o.SalesManMasterSalesManName).ToList();
+            
             var customerMasters = _customerMasterRepository.GetAsQueryable().AsNoTracking().Where(k => k.CustomerMasterCustomerDelStatus != true).Select(a => new
             {
                 a.CustomerMasterCustomerNo,
                 a.CustomerMasterCustomerName,
-            }).ToList();
+            }).OrderBy(o => o.CustomerMasterCustomerName).ToList();
             objresponse.ResultSet = new
             {
                 customerMasters = customerMasters,
                 saleManList = saleManList
             };
+           
             return objresponse;
         }
 

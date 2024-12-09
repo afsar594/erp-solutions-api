@@ -42,7 +42,9 @@ namespace Inspire.Erp.Web.ViewModels.Store
         public int? IssueVoucherDetailsPurDId { get; set; }
         public decimal? IssueVoucherDetailsSalesPrice { get; set; }
         public bool? IssueVoucherDetailsDelStatus { get; set; }
-
+        //ali ansari
+        public int? IssueVoucherDetailsJobID { get; set; }
+        //ali ansari
         //public virtual IssueVoucherController IssueVoucherDetailsNoNavigation { get; set; }
     }
 }
