@@ -1,4 +1,5 @@
-﻿using Inspire.Erp.Application.Common;
+﻿using Inspire.Erp.Application.Account.implementations;
+using Inspire.Erp.Application.Common;
 using Inspire.Erp.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -20,3 +21,5 @@ namespace Inspire.Erp.Application.Account.Interface
 
     }  
 }
+
+

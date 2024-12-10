@@ -27,23 +27,24 @@ namespace Inspire.Erp.Application.Account.implementations
         {
             try
             {
-                 _stockReservationrepository.BeginTransaction();
+                _stockReservationrepository.BeginTransaction();
 
                 int maxcount = 0;
                 maxcount = Convert.ToInt32(_stockReservationrepository.GetAsQueryable().DefaultIfEmpty().Max(o => o == null ? 0 : o.StockReservationId) + 1);
                 stockReservation.StockReservationId = maxcount;
-
-                _stockReservationrepository.Insert(stockReservation);                
+                _stockReservationrepository.Insert(stockReservation);
 
                 int maxcount1 = 0;
                 maxcount1 = Convert.ToInt32(_stockReservationDetailsrepository.GetAsQueryable().DefaultIfEmpty().Max(o => o == null ? 0 : o.StockReservationDetailsRId) + 1);
                 stockReservation.StockReservationDetails.ForEach(elemt =>
                 {
-                    elemt.StockReservationDetailsRId = maxcount1;
+                    elemt.StockReservationDetailsRdId = maxcount1;
+                    elemt.StockReservationDetailsRId = maxcount;
                     maxcount1++;
                 });
 
                 _stockReservationDetailsrepository.InsertList(stockReservation.StockReservationDetails);
+
                 _stockReservationrepository.TransactionCommit();
                 return this.GetstockReservationbyId(stockReservation.StockReservationId);
             }
@@ -137,5 +138,5 @@ namespace Inspire.Erp.Application.Account.implementations
             }
         }
     }
-       
+
 }
