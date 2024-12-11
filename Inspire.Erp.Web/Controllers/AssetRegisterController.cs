@@ -4,6 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using System;
 
+
+using Inspire.Erp.Domain.DTO.Asset_Register;
+using Inspire.Erp.Domain.Models.Master;
+
 namespace Inspire.Erp.Web.Controllers
 {
     [Route("api/master")]
@@ -16,10 +20,10 @@ namespace Inspire.Erp.Web.Controllers
         {
              _assetRegisterService = assetRegisterService;
         }
-        [HttpGet("AssetRigister")]
-        public async Task<IActionResult> Show(DateTime? fromDate, DateTime? toDate, string searchText)
+        [HttpPost("AssetRegister")]
+        public async Task<IActionResult> Show(AssetRegisterModel model)
         {
-            var result = await _assetRegisterService.GetAssetsRegisterAsync(fromDate, toDate, searchText);
+            var result = await _assetRegisterService.GetAssetsRegisterAsync(model.fromDate, model.toDate, model.searchText);
 
             if (result == null)
             {
