@@ -367,7 +367,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                                   item.ItemMasterVenderId,
                                   item.ItemMasterItemSize,
                                   itemMasterBarcode = unit.UnitDetailsBarcode ?? ""
-                              }).Distinct().ToList();
+                              }).Distinct().OrderBy(x => x.ItemMasterItemName).ToList();
 
             var jobMasters = jobrepository.GetAsQueryable().AsNoTracking().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
             {
@@ -379,43 +379,43 @@ namespace Inspire.Erp.Web.Controllers.Store
                 c.CurrencyMasterCurrencyId,
                 c.CurrencyMasterCurrencyName,
                 c.CurrencyMasterCurrencyRate
-            }).ToList();
+            }).OrderBy(x => x.CurrencyMasterCurrencyName).ToList();
             var unitMasters = unitrepository.GetAsQueryable().AsNoTracking().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
             {
                 x.UnitMasterUnitId,
                 x.UnitMasterUnitFullName,
                 UnitMasterUnitShortName = x.UnitMasterUnitShortName.Trim()
-            }).ToList();
+            }).OrderBy(x => x.UnitMasterUnitShortName).ToList();
             var costcenterMasters = costcenterrepository.GetAsQueryable().AsNoTracking().Where(a => a.CostCenterMasterCostCenterDelStatus != true).Select(c => new
             {
                 c.CostCenterMasterCostCenterId,
                 c.CostCenterMasterCostCenterName,
-            }).ToList();
+            }).OrderBy(x => x.CostCenterMasterCostCenterName).ToList();
             var LocationMaster = locationrepository.GetAsQueryable().AsNoTracking().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
             {
                 c.LocationMasterLocationId,
                 c.LocationMasterLocationName,
-            }).ToList();
+            }).OrderBy(x => x.LocationMasterLocationName).ToList();
 
             var DepartmentsList = departmentrepository.GetAsQueryable().AsNoTracking().Where(a => a.DepartmentMasterDepartmentDelStatus != true).Select(k => new
             {
                 k.DepartmentMasterDepartmentId,
                 k.DepartmentMasterDepartmentName,
 
-            }).ToList();
+            }).OrderBy(x => x.DepartmentMasterDepartmentName).ToList();
             var masterAccountsTables = chartofAccountsService.GetAllAccounts().Where(a => a.MaDelStatus != true).Select(c => new
             {
                 c.MaAccNo,
                 c.MaAccName,
                 c.MaRelativeNo,
                 c.MaSno
-            }).ToList();
+            }).OrderBy(x => x.MaAccName).ToList();
 
             var issueVoucher = _issueVoucherRepository.GetAsQueryable().AsNoTracking().Where(a => a.IssueVoucherDelStatus != true).Select(x => new
             {
                 x.IssueVoucherId,
                 x.IssueVoucherNo
-            }).ToList();
+            }).OrderBy(x => x.IssueVoucherNo).ToList();
             objectresponse.ResultSet = new
             {
                 itemMaster = itemMaster,

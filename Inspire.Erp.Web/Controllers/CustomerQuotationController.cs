@@ -223,28 +223,28 @@ namespace Inspire.Erp.Web.Controllers
             {
                 c.EnquiryStatusEnquiryStatusId,
                 EnquiryStatusEnquiryStatus = c.EnquiryStatusEnquiryStatus.Trim(),
-            }).ToList();
+            }).OrderBy(x => x.EnquiryStatusEnquiryStatus).ToList();
             var jobMasters = jobrepository.GetAsQueryable().AsNoTracking().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
             {
                 c.JobMasterJobId,
                 JobMasterJobName = c.JobMasterJobName.Trim(),
-            }).ToList();
+            }).OrderBy(x => x.JobMasterJobName).ToList();
             var LocationMaster = locationrepository.GetAsQueryable().AsNoTracking().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
             {
                 c.LocationMasterLocationId,
                 LocationMasterLocationName = c.LocationMasterLocationName.Trim(),
-            }).ToList();
+            }).OrderBy(x => x.LocationMasterLocationName).ToList();
             var SaleManList = salesmanrepository.GetAsQueryable().AsNoTracking().Where(a => a.SalesManMasterSalesManDelStatus != true).Select(c => new
             {
                 c.SalesManMasterSalesManId,
                 SalesManMasterSalesManName = c.SalesManMasterSalesManName.Trim(),
-            }).ToList();
+            }).OrderBy(x => x.SalesManMasterSalesManName).ToList();
             var currencyMasters = currencyrepository.GetAsQueryable().AsNoTracking().Where(a => a.CurrencyMasterCurrencyDelStatus != true).Select(c => new
             {
                 c.CurrencyMasterCurrencyId,
                 CurrencyMasterCurrencyName = c.CurrencyMasterCurrencyName.Trim(),
                 c.CurrencyMasterCurrencyRate
-            }).ToList();
+            }).OrderBy(x => x.CurrencyMasterCurrencyName).ToList();
             var customerMasters = _customerMasterRepository.GetAsQueryable().AsNoTracking().Where(k => k.CustomerMasterCustomerDelStatus != true).Select(a => new
             {
                 a.CustomerMasterCustomerNo,
@@ -256,7 +256,7 @@ namespace Inspire.Erp.Web.Controllers
                 a.CustomerMasterCustomerEmail,
                 a.CustomerMasterCustomerTel1,
                 a.CustomerMasterCustomerVatNo
-            }).ToList();
+            }).OrderBy(x => x.CustomerMasterCustomerName).ToList();
             //var itemMaster = itemrepository.GetAsQueryable().AsNoTracking().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
             //        && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
             //        {
@@ -277,13 +277,13 @@ namespace Inspire.Erp.Web.Controllers
                                   item.ItemMasterVenderId,
                                   item.ItemMasterItemSize,
                                   itemMasterBarcode = unit.UnitDetailsBarcode ?? ""
-                              }).Distinct().ToList();
+                              }).Distinct().OrderBy(x => x.ItemMasterItemName).ToList();
             var unitMasters = unitrepository.GetAsQueryable().AsNoTracking().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
             {
                 x.UnitMasterUnitId,
                 UnitMasterUnitFullName = x.UnitMasterUnitFullName.Trim(),
                 UnitMasterUnitShortName = x.UnitMasterUnitShortName.Trim()
-            }).ToList();
+            }).OrderBy(x => x.UnitMasterUnitShortName).ToList();
             objresponse.ResultSet = new
             {
                 enquiryStatus = enquiryStatus,

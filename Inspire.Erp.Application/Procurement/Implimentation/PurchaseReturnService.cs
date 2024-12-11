@@ -82,6 +82,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     Id = x.LocationMasterLocationId != null ? Convert.ToInt32(x.LocationMasterLocationId) : 0,
                     Name = x.LocationMasterLocationName
                 }));
+
+                response.AddRange(response.OrderBy(x => x.Name)); // Order by Name
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
             }
             catch (Exception ex)
@@ -104,6 +106,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     Value = "CREDIT",
                     Name = "CREDIT"
                 });
+
+                response.AddRange(response.OrderBy(x => x.Name)); // Order by Name
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
             }
             catch (Exception ex)
@@ -121,6 +125,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     Id = x.JobMasterJobId != null ? Convert.ToInt32(x.JobMasterJobId) : 0,
                     Name = x.JobMasterJobName
                 }));
+
+                response.AddRange(response.OrderBy(x => x.Name)); // Order by Name
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
             }
             catch (Exception ex)
@@ -143,6 +149,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     Id = x.SuppliersMasterSupplierId != null ? Convert.ToInt32(x.SuppliersMasterSupplierId) : 0,
                     Name = x.SuppliersMasterSupplierName
                 }));
+
+                response.AddRange(response.OrderBy(x => x.Name)); // Order by Name
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
             }
             catch (Exception ex)

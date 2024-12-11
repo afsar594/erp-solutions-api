@@ -53,7 +53,7 @@ namespace Inspire.Erp.Web.Controllers
             {
                 Valid = true,
                 Result = _mapper.Map<StockReservationViewModel>(StockReservation),
-                Message = ""
+                Message = "Stock Reservation has been saved."
             };
             return apiResponse;
         }
@@ -107,7 +107,7 @@ namespace Inspire.Erp.Web.Controllers
             {
                 Valid = true,
                 Result = _mapper.Map<StockReservationViewModel>(StockReservation),
-                Message = ""
+                Message = "Stock Reservation has been updated."
             };
             return apiResponse;            
         }

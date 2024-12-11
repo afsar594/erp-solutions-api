@@ -67,7 +67,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                             Balance = g.AccountsTransactionsAllocBalance,
                                             AllocAmount = g.AccountsTransactionsAllocCredit > 0 ? g.AccountsTransactionsAllocCredit : g.AccountsTransactionsAllocDebit,
                                             RefLocation = g.AccountsTransactionsLocation.ToString()
-                                        }).ToList();
+                                        }).OrderBy(x => x.VoucherNo).ToList();
 
 
 

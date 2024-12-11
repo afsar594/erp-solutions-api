@@ -414,23 +414,23 @@ namespace Inspire.Erp.Web.Controllers
                 c.CurrencyMasterCurrencyId,
                 c.CurrencyMasterCurrencyName,
                 c.CurrencyMasterCurrencyRate
-            }).ToList();
+            }).OrderBy(x => x.CurrencyMasterCurrencyName).ToList();
             var countryMasters = countryrepository.GetAsQueryable().Where(a => a.CountryMasterCountryDelStatus != true).Select(c => new
             {
                 c.CountryMasterCountryId,
                 c.CountryMasterCountryName
-            }).ToList();
+            }).OrderBy(x => x.CountryMasterCountryName).ToList();
             var cityMasters = cityrepository.GetAsQueryable().Where(a => a.CityMasterCityDelStatus != true).Select(c => new
             {
                 c.CityMasterCityId,
                 c.CityMasterCityName,
                 c.CityMasterCityCountryId
-            }).ToList();
+            }).OrderBy(x => x.CityMasterCityName).ToList();
             var locationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
             {
                 c.LocationMasterLocationId,
                 c.LocationMasterLocationName,
-            }).ToList();
+            }).OrderBy(x => x.LocationMasterLocationName).ToList();
 
             var masterAccountsTables = chartofAccountsService.GetAllAccounts().Where(a => a.MaDelStatus != true).Select(c => new
             {
@@ -438,12 +438,12 @@ namespace Inspire.Erp.Web.Controllers
                 c.MaAccName,
                 c.MaRelativeNo,
                 c.MaSno
-            }).ToList();
+            }).OrderBy(x => x.MaAccName).ToList();
             var priceLevelMasters = priceLevelrepository.GetAsQueryable().Where(a => a.PriveLevelMasterPriceLevelDelStatus != true).Select(c => new
             {
                 c.PriceLevelMasterPriceLevelId,
                 c.PriceLevelMasterPriceLevelName
-            }).ToList();
+            }).OrderBy(x => x.PriceLevelMasterPriceLevelName).ToList();
             var customerType = CustomerTyperepository.GetAsQueryable().Where(a => a.CustomerTypeDelStatus != true).Select(c => new
             {
                 c.CustomerTypeId,

@@ -153,31 +153,31 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                      {
                          k.ItemMasterItemId,
                          k.ItemMasterItemName
-                     }).ToList();
+                     }).OrderBy(x => x.ItemMasterItemName).ToList();
 
             var SuppliersMaster = supplierrepository.GetAsQueryable().Where(a => a.SuppliersMasterSupplierDelStatus != true).Select(c => new
             {
                 c.SuppliersMasterSupplierId,
                 c.SuppliersMasterSupplierName,
                 c.SuppliersMasterSupplierVatNo
-            }).ToList();
+            }).OrderBy(x => x.SuppliersMasterSupplierName).ToList();
 
             var jobMasters = jobrepository.GetAsQueryable().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
             {
                 c.JobMasterJobId,
                 c.JobMasterJobName,
-            }).ToList();
+            }).OrderBy(x => x.JobMasterJobName).ToList();
             var LocationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
             {
                 c.LocationMasterLocationId,
                 c.LocationMasterLocationName,
-            }).ToList();
+            }).OrderBy(x => x.LocationMasterLocationName).ToList();
 
             var purchaseOrder = _purchaseOrderRepository.GetAsQueryable().Where(k => k.PurchaseOrderDelStatus != true).Select(c => new
             {
                 c.PurchaseOrderId,
                 c.PurchaseOrderNo
-            }).ToList();
+            }).OrderBy(x => x.PurchaseOrderNo).ToList();
             objectresponse.ResultSet = new
             {
                 itemMaster = itemMaster,

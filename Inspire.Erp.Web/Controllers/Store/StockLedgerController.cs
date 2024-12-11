@@ -47,18 +47,18 @@ namespace Inspire.Erp.Web.Controllers.Store
                      k.ItemMasterPartNo,
                      k.ItemMasterCurrentStock,
                      k.ItemMasterAccountNo
-                 }).ToList();
+                 }).OrderBy(x => x.ItemMasterItemName).ToList();
             var LocationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
             {
                 c.LocationMasterLocationId,
                 c.LocationMasterLocationName
-            }).ToList();
+            }).OrderBy(x => x.LocationMasterLocationName).ToList();
             var itemMasterGroup = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo == 0 && (k.ItemMasterDelStatus != true)
                 && k.ItemMasterItemType == ItemMasterStatus.Group).Select(k => new
                 {
                     k.ItemMasterItemId,
                     k.ItemMasterItemName,
-                }).ToList();
+                }).OrderBy(x => x.ItemMasterItemName).ToList();
             objectresponse.ResultSet = new
             {
                 itemMaster = itemMaster,

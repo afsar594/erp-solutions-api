@@ -49,6 +49,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                     Value = x.MaAccNo,
                     Name = x.MaAccName
                 }));
+
+                response.AddRange(response.OrderBy(x => x.Name)); // Order by Name
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
             }
             catch (Exception ex)
@@ -102,7 +104,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     AccountsTransactionsAllocDebit = x.AccountsTransactionsAllocDebit,
                     AccountsTransactionsAllocCredit = x.AccountsTransactionsAllocCredit
                     // Rest of the properties...
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsAccName).ToList();
 
                 string accName = string.Empty;
                 string accno = string.Empty;

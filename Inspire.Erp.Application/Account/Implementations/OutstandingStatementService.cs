@@ -58,6 +58,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                     Value = x.SuppliersMasterSupplierReffAcNo,
                     Name = x.SuppliersMasterSupplierName
                 }));
+
+                response.AddRange(response.OrderBy(x => x.Name)); // Order by Name
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
             }
             catch (Exception ex)

@@ -138,12 +138,12 @@ namespace Inspire.Erp.Web.Controllers.Store
             {
                 c.JobMasterJobId,
                 JobMasterJobName = c.JobMasterJobName.Trim(),
-            }).ToList();
+            }).OrderBy(x => x.JobMasterJobName).ToList();
             var LocationMaster = _locationrepository.GetAsQueryable().AsNoTracking().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
             {
                 c.LocationMasterLocationId,
                 LocationMasterLocationName = c.LocationMasterLocationName.Trim(),
-            }).ToList();
+            }).OrderBy(x => x.LocationMasterLocationName).ToList();
 
            var itemMaster = (from item in _itemrepository.GetAsQueryable().AsNoTracking()
                               join unit in _unitDetailRepository.GetAsQueryable().AsNoTracking()
@@ -160,14 +160,14 @@ namespace Inspire.Erp.Web.Controllers.Store
                                   itemMasterBarcode = unit.UnitDetailsBarcode,
                                   ItemMasterCurrentStock =_stockRegisterRepository.GetAsQueryable().Where(x => x.StockRegisterMaterialID ==item.ItemMasterItemId).Sum(y => (y.StockRegisterSIN ?? 0) - (y.StockRegisterSout ?? 0)),
 
-                              }).Distinct().ToList();
+                              }).Distinct().OrderBy(x => x.ItemMasterItemName).ToList();
 
             var unitMasters = _unitrepository.GetAsQueryable().AsNoTracking().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
             {
                 x.UnitMasterUnitId,
                 UnitMasterUnitFullName = x.UnitMasterUnitFullName.Trim(),
                 UnitMasterUnitShortName = x.UnitMasterUnitShortName.Trim()
-            }).ToList();
+            }).OrderBy(x => x.UnitMasterUnitShortName).ToList();
             objresponse.ResultSet = new
             {
                 jobMasters = jobMasters,

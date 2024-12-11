@@ -127,7 +127,7 @@ namespace Inspire.Erp.Application.Account.Implementations
         }
         public async Task<List<MasterAccountsTable>> GetAccountListForDropdown()
         {
-            return   _MasterAccountsTableRepo.GetAsQueryable().Where(m => m.MaRelativeNo == "01001002" && m.MaStatus == "R").ToList();
+            return   _MasterAccountsTableRepo.GetAsQueryable().Where(m => m.MaRelativeNo == "01001002" && m.MaStatus == "R").OrderBy(x=>x.MaAccName).ToList();
         }
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
         {

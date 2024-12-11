@@ -296,7 +296,7 @@ namespace Inspire.Erp.Web.Controllers
                 {
                     c.LocationMasterLocationId,
                     LocationMasterLocationName = c.LocationMasterLocationName.Trim(),
-                }).ToListAsync();
+                }).OrderBy(x=>x.LocationMasterLocationName).ToListAsync();
 
             var customerMastersTask = await _customerMasterRepository.GetAsQueryable().AsNoTracking()
                 .Where(k => !k.CustomerMasterCustomerDelStatus != true)
@@ -304,7 +304,7 @@ namespace Inspire.Erp.Web.Controllers
                 {
                     a.CustomerMasterCustomerNo,
                     CustomerMasterCustomerName = a.CustomerMasterCustomerName.Trim(),
-                }).ToListAsync();
+                }).OrderBy(x => x.CustomerMasterCustomerName).ToListAsync();
 
             var saleManListTask = await salesmanrepository.GetAsQueryable().AsNoTracking()
                 .Where(a => !a.SalesManMasterSalesManDelStatus != true)
@@ -312,7 +312,7 @@ namespace Inspire.Erp.Web.Controllers
                 {
                     c.SalesManMasterSalesManId,
                     SalesManMasterSalesManName = c.SalesManMasterSalesManName.Trim(),
-                }).ToListAsync();
+                }).OrderBy(x=>x.SalesManMasterSalesManName).ToListAsync();
 
             objresponse.ResultSet = new
             {
@@ -336,7 +336,7 @@ namespace Inspire.Erp.Web.Controllers
                     x.UnitMasterUnitId,
                     UnitMasterUnitFullName = x.UnitMasterUnitFullName.Trim(),
                     UnitMasterUnitShortName = x.UnitMasterUnitShortName.Trim(),
-                })
+                }).OrderBy(x=>x.UnitMasterUnitShortName)
                 .ToListAsync();
 
             var jobMastersTask = await jobrepository.GetAsQueryable().AsNoTracking()

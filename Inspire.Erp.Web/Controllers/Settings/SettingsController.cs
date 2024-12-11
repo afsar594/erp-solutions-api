@@ -139,7 +139,7 @@ namespace Inspire.Erp.Web.Controllers.Settings
                 s.OptionsMasterDescription,
                 s.OptionsMasterType
 
-            }).FirstOrDefault();
+            }).OrderBy(x => x.OptionsMasterDescription).FirstOrDefault();
 
             objectresponse.ResultSet = new
             {

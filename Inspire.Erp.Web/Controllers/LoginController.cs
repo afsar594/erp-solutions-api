@@ -276,7 +276,7 @@ namespace Inspire.Erp.Web.Controllers
             {
                 c.LocationMasterLocationId,
                 c.LocationMasterLocationName
-            }).ToList();
+            }).OrderBy(x=>x.LocationMasterLocationName).ToList();
             var FinancialPeriods = financialrepository.GetAsQueryable().Where(x => x.FinancialPeriodsFsno != null).Select(k => new
             {
                 k.FinancialPeriodsFsno,
@@ -305,7 +305,7 @@ namespace Inspire.Erp.Web.Controllers
             {
                 a.UserId,
                 a.UserName
-            }).ToList();
+            }).OrderBy(x=>x.UserName).ToList();
             objectresponse.ResultSet = new
             {
                 result = user,

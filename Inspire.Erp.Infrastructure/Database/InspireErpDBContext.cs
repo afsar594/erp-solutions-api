@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using System;
 using System.Collections.Generic;
 using System.Reflection.Emit;
-using System.Text;
+using System.Text;                                                                                                               
 using static Inspire.Erp.Domain.Modals.PDCResponse;
 //using Inspire.Erp.Domain.Modals.ViewModels;
 using Inspire.Erp.Domain.Modals.Settings;
@@ -21543,14 +21543,14 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.HasKey(e => e.StockReservationId);
 
                 entity.ToTable("Stock_Reservation");
-
-
-                entity.Property(e => e.StockReservationId)
-                    .HasColumnName("Stock_Reservation_ID")
-                    .ValueGeneratedNever();
+                               
 
                 entity.Property(e => e.StockReservationDelStatus).HasColumnName("Stock_Reservation_DelStatus");
                 entity.Property(e => e.StockReservationJobId).HasColumnName("Stock_Reservation_Job_ID");
+
+                entity.Property(e => e.StockReservationId).HasColumnName("Stock_Reservation_ID");
+
+
 
                 entity.Property(e => e.StockReservationRDate)
                     .HasColumnName("Stock_Reservation_R_Date")
@@ -21569,10 +21569,9 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.HasKey(e => e.StockReservationDetailsRdId);
 
                 entity.ToTable("Stock_Reservation_Details");
-                
+
                 entity.Property(e => e.StockReservationDetailsRdId)
-                   .HasColumnName("Stock_Reservation_Details_RD_ID")
-                   .ValueGeneratedNever();
+                   .HasColumnName("Stock_Reservation_Details_RD_ID");
 
                 entity.Property(e => e.StockReservationDetailsDelStatus).HasColumnName("Stock_Reservation_Details_DelStatus");
 
@@ -21707,7 +21706,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.StockTransferDetailsSNo).HasColumnName("Stock_Transfer_Details_SNO");
 
-                entity.Property(e => e.StockTransferDetailsStId).HasColumnName("Stock_Transfer_Details_STID").ValueGeneratedOnAdd(); ;
+                entity.Property(e => e.StockTransferDetailsStId).HasColumnName("Stock_Transfer_Details_STID").ValueGeneratedOnAdd(); 
                 entity.Property(e => e.StockTransferId).HasColumnName("Stock_Transfer_ID");
 
                 entity.Property(e => e.StockTransferDetailsUnitId).HasColumnName("Stock_Transfer_Details_Unit_ID");
