@@ -18,9 +18,9 @@ namespace Inspire.Erp.Web.Controllers
         readonly IAssetRegisterService _assetRegisterService;
         public AssetRegisterController(IAssetRegisterService assetRegisterService)
         {
-             _assetRegisterService = assetRegisterService;
+            _assetRegisterService = assetRegisterService;
         }
-        [HttpPost("AssetRegister")]
+
         public async Task<IActionResult> Show(AssetRegisterModel model)
         {
             var result = await _assetRegisterService.GetAssetsRegisterAsync(model.fromDate, model.toDate, model.searchText);
