@@ -380,12 +380,12 @@ namespace Inspire.Erp.Web.Controllers
                 {
                     a.LocationMasterLocationId,
                     a.LocationMasterLocationName,
-                }).ToListAsync();
+                }).OrderBy(x=>x.LocationMasterLocationName).ToListAsync();
                 var query = await _customerMasterRepo.GetAsQueryable().Where(a => a.CustomerMasterCustomerDelStatus != true).Select(x => new
                 {
                     x.CustomerMasterCustomerNo,
                     x.CustomerMasterCustomerName
-                }).ToListAsync();
+                }).OrderBy(x=>x.CustomerMasterCustomerName).ToListAsync();
                 obj.IsSuccess = true;
                 obj.ResultSet = new
                 {
