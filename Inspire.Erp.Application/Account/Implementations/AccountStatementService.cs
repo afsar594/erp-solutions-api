@@ -39,18 +39,17 @@ namespace Inspire.Erp.Application.Account.Implementations
             try
             {
                 var response = new List<DropdownResponse>();
-                //response.Add(new DropdownResponse()
-                //{
-                //    Value = "",
-                //    Name = "All"
-                //});
-                 response.AddRange( await _masterAccountsTable.ListSelectAsync(x => x.MaAccType=="A", x => new DropdownResponse
+
+                // Fetch the data from ListSelectAsync
+                response.AddRange(await _masterAccountsTable.ListSelectAsync(x => x.MaAccType == "A", x => new DropdownResponse
                 {
                     Value = x.MaAccNo,
                     Name = x.MaAccName
                 }));
 
-                response.AddRange(response.OrderBy(x => x.Name)); // Order by Name
+                // Sort the response list by 'Name', ensure null safety and order properly
+                response = response.OrderBy(x => x.Name ?? string.Empty).ToList(); // This ensures that null names are treated as empty strings for sorting
+
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
             }
             catch (Exception ex)
@@ -73,6 +72,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     Id = x.JobMasterJobId != 0 ? Convert.ToInt32(x.JobMasterJobId):0,
                     Name = x.JobMasterJobName
                 }));
+                response = response.OrderBy(r => r.Name).ToList();
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
             }
             catch (Exception ex)
