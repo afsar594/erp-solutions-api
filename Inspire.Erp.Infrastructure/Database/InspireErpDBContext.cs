@@ -14738,7 +14738,8 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnName("PurchaseOrderDetailsID")
                     .HasColumnType("numeric(18, 0)")
                     .ValueGeneratedOnAdd();
-
+                entity.Property(e => e.PurchaseOrderDetailsJobId)
+ .HasColumnName("Purchase_Order_Details_Job_Id");
                 entity.Property(e => e.PurchaseOrderDetailsActualAmount).HasColumnType("numeric(18, 4)");
 
                 entity.Property(e => e.PurchaseOrderDetailsBatchCode)
@@ -15478,7 +15479,6 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnName("PurchaseRequisitionDetailsID")
                     .HasColumnType("numeric(18, 0)")
                     .ValueGeneratedOnAdd();
-
                 entity.Property(e => e.PurchaseRequisitionDetailsActualAmount).HasColumnType("numeric(18, 4)");
 
                 entity.Property(e => e.PurchaseRequisitionDetailsBatchCode)
