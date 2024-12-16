@@ -11885,10 +11885,12 @@ namespace Inspire.Erp.Infrastructure.Database
             });
             modelBuilder.Entity<PurchaseRequisitionDetails>(entity =>
             {
+                entity.ToTable("PurchaseRequisitionDetails");
                 entity.Property(e => e.PurchaseRequisitionDetailsId)
                     .HasColumnName("PurchaseRequisitionDetailsID")
                     .HasColumnType("numeric(18, 0)")
                     .ValueGeneratedOnAdd();
+                entity.Property(e => e.PurchaseRequisitionDetailsJobId).HasColumnName("Purchase_Requisition_Details_Job_ID");
                 entity.Property(e => e.PurchaseRequisitionDetailsActualAmount).HasColumnType("numeric(18, 4)");
 
                 entity.Property(e => e.PurchaseRequisitionDetailsBatchCode)
@@ -12959,6 +12961,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.ToTable("Purchase_Voucher_Details");
                 entity.Property(e => e.PurchaseVoucherDetailsPurcahseDetailsId).HasColumnName("Purchase_Voucher_Details_Purcahse_Details_ID");
                 entity.Property(e => e.PurchaseVoucherDetailsVoucherNo).HasColumnName("Purchase_Voucher_Details_VoucherNo");
+                entity.Property(e => e.PurchaseVoucherDetailsJobID).HasColumnName("Purchase_Voucher_Details_Job_ID");
                 entity.Property(e => e.PurchaseVoucherDetailsBatchCode).HasColumnName("Purchase_Voucher_Details_Batch_Code");
                 entity.Property(e => e.PurchaseVoucherDetailsSno).HasColumnName("Purchase_Voucher_Details_SNO");
                 entity.Property(e => e.PurchaseVoucherDetailsMaterialId).HasColumnName("Purchase_Voucher_Details_Material_ID");

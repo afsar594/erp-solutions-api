@@ -7,6 +7,7 @@ namespace Inspire.Erp.Domain.Entities
     public partial class PurchaseRequisitionDetails
     {
         public decimal? PurchaseRequisitionDetailsId { get; set; }
+        public int? PurchaseRequisitionDetailsJobId { get; set; }
         public decimal? PurchaseRequisitionId { get; set; }
         public string PurchaseRequisitionDetailsNo { get; set; }
         public decimal? PurchaseRequisitionDetailsSno { get; set; }
