@@ -11548,10 +11548,12 @@ namespace Inspire.Erp.Infrastructure.Database
                     .IsUnicode(false);
             });
 
+           //kr dain push bhai ho gaya
 
 
             modelBuilder.Entity<PurchaseOrderDetails>(entity =>
             {
+                entity.ToTable("PurchaseOrderDetails");
                 entity.Property(e => e.PurchaseOrderDetailsId)
                     .HasColumnName("PurchaseOrderDetailsID")
                     .HasColumnType("numeric(18, 0)")
