@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Application.Store.Interfaces;
+using Inspire.Erp.Domain.Modals.Common;
+using Microsoft.EntityFrameworkCore;
 
 namespace Inspire.Erp.Application.Store.implementations
 {
@@ -15,10 +17,19 @@ namespace Inspire.Erp.Application.Store.implementations
         private readonly IRepository<ManufactureItemsMaster> _ManufactureItemsMastererepo;
         private readonly IRepository<ManufactureItemsMasterDetails> _ManufactureItemsMasterDetailsrepo;
         private static string prefix;
+
+        private readonly IRepository<ItemMaster> _itemMasterRepository;
+        private readonly IRepository<UnitMaster> _unitMasterRepository;
+        private readonly IRepository<LocationMaster> _locationMasterRepository;
+        private readonly IRepository<UnitDetails> _unitDetailRepository;
         public ManufactureItems(IRepository<ProgramSettings> programsettingsRepository,
                 IRepository<VouchersNumbers> voucherNumbers,
                 IRepository<ManufactureItemsMaster> ManufactureItemsMaster,
-                IRepository<ManufactureItemsMasterDetails> ManufactureItemsMasterDetails
+                IRepository<ManufactureItemsMasterDetails> ManufactureItemsMasterDetails,
+                IRepository<ItemMaster> itemMasterREPO,
+                IRepository<UnitDetails> unitDetailRepository,
+                IRepository<UnitMaster> UnitMasterRepo,
+                IRepository<LocationMaster> locationMasterRepo
             )
         {
 
@@ -26,6 +37,10 @@ namespace Inspire.Erp.Application.Store.implementations
             _programsettingsrepository = programsettingsRepository;
             _ManufactureItemsMastererepo = ManufactureItemsMaster;
             _ManufactureItemsMasterDetailsrepo = ManufactureItemsMasterDetails;
+            _itemMasterRepository = itemMasterREPO;
+            _locationMasterRepository = locationMasterRepo;
+            _unitMasterRepository = UnitMasterRepo;
+            _unitDetailRepository = unitDetailRepository;
         }
 
         public ManufactureItemsMaster InsertManufactureItems(ManufactureItemsMaster ManufactureItems)
@@ -198,6 +213,57 @@ namespace Inspire.Erp.Application.Store.implementations
 
         }
 
+
+        public ResponseInfo LoadDropDown()
+        {
+
+            var obj = new ResponseInfo();
+            try
+            {
+                var locationMaster = _locationMasterRepository.GetAsQueryable().Where(x => x.LocationMasterLocationDelStatus != true).Select( l=> new
+                {
+                    l.LocationMasterLocationId,
+                    l.LocationMasterLocationName,
+                } ).ToList();
+
+                var itemMaster = (from item in _itemMasterRepository.GetAsQueryable().AsNoTracking()
+                                  join unitdetail in _unitDetailRepository.GetAsQueryable().AsNoTracking()
+                                    on item.ItemMasterItemId equals unitdetail.UnitDetailsItemId
+                                    where item.ItemMasterAccountNo !=0 &&
+                                    item.ItemMasterDelStatus != true &&
+                                    item.ItemMasterItemType != ItemMasterStatus.Group
+                                  select new
+                                  {
+                                      item.ItemMasterItemId,
+                                      item.ItemMasterItemName,
+                                      item.ItemMasterVenderId,
+                                      item.ItemMasterItemSize,
+                                      itemMasterBarcode = unitdetail.UnitDetailsBarcode ?? ""
+                                  }).Distinct().OrderBy(x => x.ItemMasterItemName).ToList();
+
+                var unit = _unitMasterRepository.GetAsQueryable().Where(u => u.UnitMasterUnitDelStatus != true).Select(i => new
+                {
+                    i.UnitMasterUnitId,
+                    i.UnitMasterUnitFullName
+                });
+                obj.ResultSet = new
+                {
+                    itemMaster = itemMaster,
+                    unitMaster = unit,
+                    locationMaster = locationMaster,
+                };
+                obj.IsSuccess = true;
+
+
+            }
+            catch (System.Exception ex)
+            {
+                obj.ErrorMessage = ex.Message + ex.InnerException?.Message;
+                obj.IsSuccess = false;
+
+            }
+            return obj;
+        }
 
     }
 }

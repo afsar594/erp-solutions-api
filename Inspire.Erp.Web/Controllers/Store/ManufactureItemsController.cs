@@ -2,6 +2,7 @@
 using Inspire.Erp.Application.Store.Interfaces;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Web.Common;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -90,7 +91,7 @@ namespace Inspire.Erp.Web.Controllers
             {
                 ApiResponse<List<ManufactureItemsMaster>> apiResponse = new ApiResponse<List<ManufactureItemsMaster>>
                 {
-                    Valid = true,                   
+                    Valid = true,
                     Message = ManufactureItemMessage.DeleteManufactureItem
                 };
                 return apiResponse;
@@ -129,6 +130,20 @@ namespace Inspire.Erp.Web.Controllers
             {
                 return StatusCode(500, ex.Message.ToString());
             }
+        }
+
+
+        [HttpGet]
+        [Route("LoadDropDown")]
+        public ResponseInfo LoadDropDown()
+        {
+            var obj = new ResponseInfo();
+
+            var item = _Manufacture.LoadDropDown();
+            obj.ResultSet = item.ResultSet;
+            obj.IsSuccess = item.IsSuccess;
+            return obj;
+
         }
 
     }

@@ -30,14 +30,14 @@ namespace Inspire.Erp.Application.Master.Implementations
                             from p in _context.AssetPurchaseVoucherDetails
                             join pd in _context.AssetPurchaseVoucher on p.AstPurchaseID equals pd.AstPurID
                             join s in _context.Suppliers on pd.SupplierId equals s.SuppliersInsId into supplierJoin
-                            from supplier in supplierJoin.DefaultIfEmpty() // LEFT JOIN for Suppliers
+                            from supplier in supplierJoin.DefaultIfEmpty()
                             join a in _context.AssetMaster on p.AstID equals a.AssetMasterAssetId into assetJoin
-                            from asset in assetJoin.DefaultIfEmpty() // LEFT JOIN for AssetMaster
+                            from asset in assetJoin.DefaultIfEmpty() 
                             where (fromDate == null || p.AstPurDate >= fromDate) &&
                             (toDate == null || p.AstPurDate <= toDate) &&
                             (string.IsNullOrEmpty(searchText) ||
                             (asset != null && asset.AssetMasterAssetName.Contains(searchText)) ||
-                           (supplier != null && supplier.SuppliersInsName.Contains(searchText)))
+                            (supplier != null && supplier.SuppliersInsName.Contains(searchText)))
                             select new
                             {
                                 AstPurchaseID = p.AstPurchaseID,
@@ -101,7 +101,7 @@ namespace Inspire.Erp.Application.Master.Implementations
             var assetDetail = await _context.AssetPurchaseVoucherDetails
                 .FirstOrDefaultAsync(p => p.AstPurchaseID == astPurchaseId && p.AstID == astId);
 
-          
+            
             if (assetDetail != null)
             {
                 assetDetail.AccDepAmt = (decimal?)accDepAmt;
