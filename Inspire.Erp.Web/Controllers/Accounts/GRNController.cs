@@ -81,11 +81,11 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("GetByID")]
-        public IActionResult GetByID(string voucherNo)
+        public IActionResult GetByID(int id)
         {
             try
             {
-                return Ok(_grn.GetByID(voucherNo));
+                return Ok(_grn.GetByID(id));
             }
             catch (System.Exception ex)
             {

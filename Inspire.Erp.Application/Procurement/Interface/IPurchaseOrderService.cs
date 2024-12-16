@@ -21,7 +21,7 @@ namespace Inspire.Erp.Application.Procurement.Interfaces
         public PurchaseOrderModel UpdatePurchaseOrder(PurchaseOrder purchaseOrder, List<AccountsTransactions> accountsTransactions, List<PurchaseOrderDetails> purchaseOrderDetails );
         public int DeletePurchaseOrder(PurchaseOrder purchaseOrder, List<AccountsTransactions> accountsTransactions, List<PurchaseOrderDetails> purchaseOrderDetails);
         public IEnumerable<AccountsTransactions> GetAllTransaction();
-        public PurchaseOrderModel GetSavedPurchaseOrderDetails(string pvno);
+        public PurchaseOrderModel GetSavedPurchaseOrderDetails(int pvno);
         public IEnumerable<PurchaseOrder> GetPurchaseOrder();
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
         public VouchersNumbers GetVouchersNumbers(string pvno);

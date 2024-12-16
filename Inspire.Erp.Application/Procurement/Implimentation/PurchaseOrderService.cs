@@ -235,7 +235,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 throw ex;
             }
 
-            return this.GetSavedPurchaseOrderDetails(purchaseOrder.PurchaseOrderNo);
+            return this.GetSavedPurchaseOrderDetails((int)purchaseOrder.PurchaseOrderId);
         }
         private decimal getConverionTypebyUnitId(int? unitDetailsid)
         {
@@ -421,7 +421,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     }
                 }
                 _purchaseOrderRepository.TransactionCommit();
-                return this.GetSavedPurchaseOrderDetails(purchaseOrder.PurchaseOrderNo);
+                return this.GetSavedPurchaseOrderDetails((int)purchaseOrder.PurchaseOrderId);
 
             }
             catch (Exception ex)
@@ -440,18 +440,18 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IEnumerable<PurchaseOrder> purchaseOrder_ALL = _purchaseOrderRepository.GetAll().Where(k => k.PurchaseOrderDelStatus == false || k.PurchaseOrderDelStatus == null);
             return purchaseOrder_ALL;
         }
-        public PurchaseOrderModel GetSavedPurchaseOrderDetails(string pvno)
+        public PurchaseOrderModel GetSavedPurchaseOrderDetails(int id)
         {
             PurchaseOrderModel purchaseOrderModel = new PurchaseOrderModel();
-            purchaseOrderModel.purchaseOrder = _purchaseOrderRepository.GetAsQueryable().Where(k => k.PurchaseOrderNo == pvno).SingleOrDefault();
+            purchaseOrderModel.purchaseOrder = _purchaseOrderRepository.GetAsQueryable().Where(k => k.PurchaseOrderId == id).SingleOrDefault();
             try
             {
-                purchaseOrderModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.PurchaseOrder_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
+                purchaseOrderModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == purchaseOrderModel.purchaseOrder.PurchaseOrderNo && c.AccountsTransactionsVoucherType == VoucherType.PurchaseOrder_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
             }
             catch
             {
             }
-            purchaseOrderModel.purchaseOrderDetails = _purchaseOrderDetailsRepository.GetAsQueryable().Where(x => x.PurchaseOrderDetailsNo == pvno && (x.PurchaseOrderDetailsDelStatus == false || x.PurchaseOrderDetailsDelStatus == null)).ToList();
+            purchaseOrderModel.purchaseOrderDetails = _purchaseOrderDetailsRepository.GetAsQueryable().Where(x => x.PurchaseOrderDetailsNo == purchaseOrderModel.purchaseOrder.PurchaseOrderNo && (x.PurchaseOrderDetailsDelStatus == false || x.PurchaseOrderDetailsDelStatus == null)).ToList();
 
             foreach (var purchaseOrderDetail in purchaseOrderModel.purchaseOrderDetails)
             {
@@ -461,10 +461,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 }
                 purchaseOrderDetail.PurchaseOrderNetStock = 0;
-                purchaseOrderDetail.PurchaseOrderTillNowQTY = GetTillNowQTY(pvno);
+                purchaseOrderDetail.PurchaseOrderTillNowQTY = GetTillNowQTY(purchaseOrderModel.purchaseOrder.PurchaseOrderNo);
             }
 
-            var approvals = _permissionApprovalDetailRepo.GetAsQueryable().AsNoTracking().Where(a => a.VoucherId == pvno).Select(x => new { x.Status, x.ApprovedBy }).ToList();
+            var approvals = _permissionApprovalDetailRepo.GetAsQueryable().AsNoTracking().Where(a => a.VoucherId == purchaseOrderModel.purchaseOrder.PurchaseOrderNo).Select(x => new { x.Status, x.ApprovedBy }).ToList();
             if (approvals.Count > 0)
             {
                 if (approvals.Any(a => a.Status == "Approved"))

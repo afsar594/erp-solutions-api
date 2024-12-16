@@ -25,7 +25,7 @@ namespace Inspire.Erp.Application.Sales.Interfaces
             , List<StockRegister> stockRegister
             );
         public IEnumerable<AccountsTransactions> GetAllTransaction();
-        public CustomerPurchaseOrderModel GetSavedCustomerPurchaseOrderDetails(string pvno);
+        public CustomerPurchaseOrderModel GetSavedCustomerPurchaseOrderDetails(int id);
         public IEnumerable<CustomerPurchaseOrder> GetCustomerPurchaseOrders();
         //public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
         public VouchersNumbers GetVouchersNumbers(string pvno);

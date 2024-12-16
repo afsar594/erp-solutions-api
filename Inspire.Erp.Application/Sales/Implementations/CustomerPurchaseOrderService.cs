@@ -213,7 +213,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 _customerPurchaseOrderRepository.TransactionRollback();
                 throw ex;
             }
-            return this.GetSavedCustomerPurchaseOrderDetails(customerPurchaseOrder.CustomerPurchaseOrderVoucherNo);
+            return this.GetSavedCustomerPurchaseOrderDetails((int)customerPurchaseOrder.CustomerPurchaseOrderId);
         }
 
         public int DeleteSalesOrder(CustomerPurchaseOrder customerPurchaseOrder, List<AccountsTransactions> accountsTransactions,
@@ -358,7 +358,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 _purOrderRegisterRepository.InsertList(listTrackPurchOrderReg);
                 _custOrderRegRepository.InsertList(listCustOrderRegisterReg);
                 _customerPurchaseOrderRepository.TransactionCommit();
-                return this.GetSavedCustomerPurchaseOrderDetails(customerPurchaseOrder.CustomerPurchaseOrderVoucherNo);
+                return this.GetSavedCustomerPurchaseOrderDetails((int)customerPurchaseOrder.CustomerPurchaseOrderId);
             }
             catch (Exception ex)
             {
@@ -375,12 +375,12 @@ namespace Inspire.Erp.Application.Sales.Implementations
             IEnumerable<CustomerPurchaseOrder> customerPurchaseOrder_ALL = _customerPurchaseOrderRepository.GetAll().Where(k => k.CustomerPurchaseOrderDelStatus == false || k.CustomerPurchaseOrderDelStatus == null);
             return customerPurchaseOrder_ALL;
         }
-        public CustomerPurchaseOrderModel GetSavedCustomerPurchaseOrderDetails(string pvno)
+        public CustomerPurchaseOrderModel GetSavedCustomerPurchaseOrderDetails(int id)
         {
             CustomerPurchaseOrderModel customerPurchaseOrderModel = new CustomerPurchaseOrderModel();
-            customerPurchaseOrderModel.customerPurchaseOrder = _customerPurchaseOrderRepository.GetAsQueryable().Where(k => k.CustomerPurchaseOrderVoucherNo == pvno).SingleOrDefault();
-            customerPurchaseOrderModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.CustomerPurchaseOrder_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
-            customerPurchaseOrderModel.customerPurchaseOrderDetails = _customerPurchaseOrderDetailsRepository.GetAsQueryable().Where(x => x.CustomerPurchaseOrderDetailsVoucherNo == pvno && (x.CustomerPurchaseOrderDetailsDelStatus == false || x.CustomerPurchaseOrderDetailsDelStatus == null)).ToList();
+            customerPurchaseOrderModel.customerPurchaseOrder = _customerPurchaseOrderRepository.GetAsQueryable().Where(k => k.CustomerPurchaseOrderId == id).SingleOrDefault();
+            customerPurchaseOrderModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == customerPurchaseOrderModel.customerPurchaseOrder.CustomerPurchaseOrderVoucherNo && c.AccountsTransactionsVoucherType == VoucherType.CustomerPurchaseOrder_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
+            customerPurchaseOrderModel.customerPurchaseOrderDetails = _customerPurchaseOrderDetailsRepository.GetAsQueryable().Where(x => x.CustomerPurchaseOrderDetailsVoucherNo == customerPurchaseOrderModel.customerPurchaseOrder.CustomerPurchaseOrderVoucherNo && (x.CustomerPurchaseOrderDetailsDelStatus == false || x.CustomerPurchaseOrderDetailsDelStatus == null)).ToList();
             return customerPurchaseOrderModel;
         }
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)

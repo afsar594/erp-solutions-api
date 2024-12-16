@@ -66,17 +66,17 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
             }
         }
 
-        public PurchaseVoucher GetByID(string voucherNo)
+        public PurchaseVoucher GetByID(int id)
         {
             try
             {
                 PurchaseVoucher pv = new PurchaseVoucher();
              
 
-                pv = _purchaseVoucherRepository.GetAll().FirstOrDefault(o => o.PurchaseVoucherPurID == Convert.ToInt64(voucherNo));
+                pv = _purchaseVoucherRepository.GetAll().FirstOrDefault(o => o.PurchaseVoucherPurID == Convert.ToInt64(id));
                 if (pv != null)
                 {
-                    var userTrackngData = (from hdr in _context.UserTracking.Where(o => o.UserTrackingUserVpType == "GRN" && o.UserTrackingUserVpNo == voucherNo)
+                    var userTrackngData = (from hdr in _context.UserTracking.Where(o => o.UserTrackingUserVpType == "GRN" && o.UserTrackingUserVpNo == pv.PurchaseVoucherVoucherNo)
                                            join dtl in _context.UserFile on (long)hdr.UserTrackingUserUserId equals dtl.UserId
                                            select new UserTrackingDisplay()
                                            {
