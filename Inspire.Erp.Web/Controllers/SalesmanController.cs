@@ -55,7 +55,7 @@ namespace Inspire.Erp.Web.Controllers
                 SalesManMasterSalesManContactNo = k.SalesManMasterSalesManContactNo,
                 SalesManMasterSalesManLocationId = k.SalesManMasterSalesManLocationId,
                 SalesManMasterSalesManDelStatus = k.SalesManMasterSalesManDelStatus
-            }).ToList();
+            }).OrderBy(x => x.SalesManMasterSalesManName).ToList();
         }
 
 
@@ -73,7 +73,7 @@ namespace Inspire.Erp.Web.Controllers
                 SalesManMasterSalesManContactNo = k.SalesManMasterSalesManContactNo,
                 SalesManMasterSalesManLocationId = k.SalesManMasterSalesManLocationId,
                 SalesManMasterSalesManDelStatus = k.SalesManMasterSalesManDelStatus
-            }).ToList();
+            }).OrderBy(x => x.SalesManMasterSalesManName).ToList();
         }
 
         [HttpPost]
@@ -89,7 +89,7 @@ namespace Inspire.Erp.Web.Controllers
                 SalesManMasterSalesManContactNo = k.SalesManMasterSalesManContactNo,
                 SalesManMasterSalesManLocationId = k.SalesManMasterSalesManLocationId,
                 SalesManMasterSalesManDelStatus = k.SalesManMasterSalesManDelStatus
-            }).ToList();
+            }).OrderBy(x => x.SalesManMasterSalesManName).ToList();
         }
 
         [HttpPost]
@@ -105,7 +105,7 @@ namespace Inspire.Erp.Web.Controllers
                 SalesManMasterSalesManContactNo = k.SalesManMasterSalesManContactNo,
                 SalesManMasterSalesManLocationId = k.SalesManMasterSalesManLocationId,
                 SalesManMasterSalesManDelStatus = k.SalesManMasterSalesManDelStatus
-            }).ToList();
+            }).OrderBy(x => x.SalesManMasterSalesManName).ToList();
         }
     }
 }

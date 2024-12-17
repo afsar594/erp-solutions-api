@@ -115,7 +115,7 @@ namespace Inspire.Erp.Web.Controllers
                 PurchaseVoucherTotalItemDisAmount = a.PurchaseVoucherTotalItemDisAmount,
                 PurchaseVoucherTotalDiscountAmt = a.PurchaseVoucherTotalDiscountAmt
 
-            }).ToList();
+            }).OrderBy(x => x.PurchaseVoucherPartyName).ToList();
             ApiResponse<List<PurchaseVoucherListView>> apiResponse = new ApiResponse<List<PurchaseVoucherListView>>
             {
                 Valid = true,

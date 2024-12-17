@@ -61,12 +61,27 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpGet]
         [Route("GetJobMaster")]
+        //public ApiResponse<List<JobMaster>> GetAllJob()
+        //{
+        //    ApiResponse<List<JobMaster>> apiResponse = new ApiResponse<List<JobMaster>>
+        //    {
+        //        Valid = true,
+        //        Result = _mapper.Map<List<JobMaster>>(jobMasterService.GetAllJob()),
+        //        Message = ""
+        //    };
+        //    return apiResponse;
+        //}
+
         public ApiResponse<List<JobMaster>> GetAllJob()
         {
+            var jobs = jobMasterService.GetAllJob()
+                .OrderBy(job => job.JobMasterJobName) // Assuming 'Name' is the property you want to order by
+                .ToList();
+
             ApiResponse<List<JobMaster>> apiResponse = new ApiResponse<List<JobMaster>>
             {
                 Valid = true,
-                Result = _mapper.Map<List<JobMaster>>(jobMasterService.GetAllJob()),
+                Result = _mapper.Map<List<JobMaster>>(jobs),
                 Message = ""
             };
             return apiResponse;

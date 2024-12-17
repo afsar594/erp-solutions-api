@@ -33,7 +33,7 @@ namespace Inspire.Erp.Web.Controllers
               TermsAndConditionTermsConditions = k.TermsAndConditionTermsConditions,
               TermsAndConditionTermsDeleted = k.TermsAndConditionTermsDeleted,
                 TermsAndConditionsTermsDelStatus=k.TermsAndConditionsTermsDelStatus
-            }).ToList();
+            }).OrderBy(x=>x.TermsAndConditionTermsConditions).ToList();
         }
 
         [HttpGet]

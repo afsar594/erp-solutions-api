@@ -152,7 +152,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             ApiResponse<List<PurchaseOrder>> apiResponse = new ApiResponse<List<PurchaseOrder>>
             {
                 Valid = true,
-                Result = _purchaseOrderService.GetPurchaseOrder().ToList(),
+                Result = _purchaseOrderService.GetPurchaseOrder().OrderBy(x=>x.PurchaseOrderPartyName).ToList(),
                 Message = ""
             };
             return apiResponse;
@@ -317,15 +317,15 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                 c.UnitMasterUnitId,
                 UnitMasterUnitShortName = c.UnitMasterUnitShortName.Trim(),
                 c.UnitMasterUnitFullName
-            }).ToList();
-            var tracking = _purOrderRegisterRepository.GetAsQueryable().Where(a => a.PurOrderRegisterDelStatus != true).ToList();
-            var detailList = _purchaseOrderDetailsRepository.GetAsQueryable().ToList();
+            }).OrderBy(x => x.UnitMasterUnitShortName).ToList();
+            var tracking = _purOrderRegisterRepository.GetAsQueryable().Where(a => a.PurOrderRegisterDelStatus != true).OrderBy(x => x.PurOrderRegisterOrderNo).ToList();
+            var detailList = _purchaseOrderDetailsRepository.GetAsQueryable().OrderBy(x => x.PurchaseOrderDetailsUnitName).ToList();
             var details = _purchaseOrderRepository.GetAsQueryable().Where(a => a.PurchaseOrderDelStatus != true && a.PurchaseOrderPartyId == id).Select(c => new
             {
                 c.PurchaseOrderId,
                 c.PurchaseOrderNo,
                 c.PurchaseOrderDate
-            }).ToList();
+            }).OrderBy(x => x.PurchaseOrderNo).ToList();
             var purchaseOrderNos = details.Select(d => d.PurchaseOrderNo).ToList();
 
             // Filtering detailList based on PurchaseOrderNos
@@ -353,7 +353,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                             QtyIUssued = tracking.Where(a => a.PurOrderRegisterOrderNo == d.PurchaseOrderDetailsNo)
                     .Sum(c => c.PurOrderRegisterQtyIssued ?? 0),
                         })
-                .ToList();
+                .OrderBy(x => x.itemname).ToList();
 
             objResponse.ResultSet = new
             {

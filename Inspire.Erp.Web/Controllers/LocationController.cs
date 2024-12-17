@@ -43,7 +43,7 @@ namespace Inspire.Erp.Web.Controllers
                 LocationMasterLocationCashAccount = k.LocationMasterLocationCashAccount,
                 LocationMasterLocationCostCenter = k.LocationMasterLocationCostCenter,
                 LocationMasterLocationDelStatus= k.LocationMasterLocationDelStatus
-            }).ToList();
+            }).OrderBy(x => x.LocationMasterLocationName).ToList();
         }
 
         [HttpGet]
@@ -73,7 +73,7 @@ namespace Inspire.Erp.Web.Controllers
                 LocationMasterLocationCashAccount = k.LocationMasterLocationCashAccount,
                 LocationMasterLocationCostCenter = k.LocationMasterLocationCostCenter,
                 LocationMasterLocationDelStatus = k.LocationMasterLocationDelStatus
-            }).ToList();
+            }).OrderBy(x => x.LocationMasterLocationName).ToList();
         }
 
         [HttpPost]
@@ -94,7 +94,7 @@ namespace Inspire.Erp.Web.Controllers
                 LocationMasterLocationCashAccount = k.LocationMasterLocationCashAccount,
                 LocationMasterLocationCostCenter = k.LocationMasterLocationCostCenter,
                 LocationMasterLocationDelStatus = k.LocationMasterLocationDelStatus
-            }).ToList();
+            }).OrderBy(x => x.LocationMasterLocationName ).ToList();
         }
 
         [HttpPost]
@@ -115,7 +115,7 @@ namespace Inspire.Erp.Web.Controllers
                 LocationMasterLocationCashAccount = k.LocationMasterLocationCashAccount,
                 LocationMasterLocationCostCenter = k.LocationMasterLocationCostCenter,
                 LocationMasterLocationDelStatus = k.LocationMasterLocationDelStatus
-            }).ToList();
+            }).OrderBy(x => x.LocationMasterLocationName ).ToList();
         }
 
         [HttpPost]
@@ -136,7 +136,7 @@ namespace Inspire.Erp.Web.Controllers
                 LocationMasterLocationCashAccount = k.LocationMasterLocationCashAccount,
                 LocationMasterLocationCostCenter = k.LocationMasterLocationCostCenter,
                 LocationMasterLocationDelStatus = k.LocationMasterLocationDelStatus
-            }).ToList();
+            }).OrderBy(x => x.LocationMasterLocationName).ToList();
         }
     }
 }

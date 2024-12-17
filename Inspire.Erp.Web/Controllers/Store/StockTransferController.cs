@@ -242,12 +242,12 @@ namespace Inspire.Erp.Web.Controllers.Store
             {
                 c.JobMasterJobId,
                 JobMasterJobName = c.JobMasterJobName.Trim(),
-            }).ToList();
+            }).OrderBy(x=>x.JobMasterJobName).ToList();
             var LocationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
             {
                 c.LocationMasterLocationId,
                 LocationMasterLocationName = c.LocationMasterLocationName.Trim(),
-            }).ToList();
+            }).OrderBy(x => x.LocationMasterLocationName).ToList();
 
             var customerMasters = _customerMasterRepository.GetAsQueryable().Where(k => k.CustomerMasterCustomerDelStatus != true).Select(a => new
             {
@@ -256,25 +256,25 @@ namespace Inspire.Erp.Web.Controllers.Store
                 a.CustomerMasterCustomerContactPerson,
                 a.CustomerMasterCustomerAddress,
                 a.CustomerMasterCustomerReffAcNo
-            }).ToList();
+            }).OrderBy(x => x.CustomerMasterCustomerName).ToList();
             var itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
                     && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
                     {
                         k.ItemMasterItemId,
                         k.ItemMasterPartNo,
                         ItemMasterItemName = k.ItemMasterItemName.Trim()
-                    }).ToList();
+                    }).OrderBy(x => x.ItemMasterItemName).ToList();
             var unitMasters = unitrepository.GetAsQueryable().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
             {
                 x.UnitMasterUnitId,
                 UnitMasterUnitFullName = x.UnitMasterUnitFullName.Trim(),
                 UnitMasterUnitShortName = x.UnitMasterUnitShortName.Trim()
-            }).ToList();
+            }).OrderBy(x => x.UnitMasterUnitShortName).ToList();
             var departmentMasters = departmentrepository.GetAsQueryable().Where(a => a.DepartmentMasterDepartmentDelStatus != true).Select(c => new
             {
                 c.DepartmentMasterDepartmentId,
                 DepartmentMasterDepartmentName = c.DepartmentMasterDepartmentName.Trim()
-            }).ToList();
+            }).OrderBy(x => x.DepartmentMasterDepartmentName).ToList();
             objresponse.ResultSet = new
             {
                 jobMasters = jobMasters,

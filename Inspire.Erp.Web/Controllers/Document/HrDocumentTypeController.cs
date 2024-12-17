@@ -123,7 +123,7 @@ namespace Inspire.Erp.Web.Controllers.Document
                     StationMasterCode = x.StationMasterCode,
                     StationMasterStationName = x.StationMasterStationName,
                    
-                }).ToList();
+                }).OrderBy(x => x.StationMasterStationName).ToList();
             }
             catch (Exception ex)
             {
@@ -142,7 +142,7 @@ namespace Inspire.Erp.Web.Controllers.Document
                     DocumentType = x.DocumentType,
                     DocumentTypeId = x.DocumentTypeId,
 
-                }).ToList();
+                }).OrderBy(x => x.DocumentType).ToList();
             }
             catch (Exception ex)
             {
@@ -161,7 +161,7 @@ namespace Inspire.Erp.Web.Controllers.Document
                     CustomermasterNo = x.CustomermasterNo,
                     CustomermasterName = x.CustomermasterName,
 
-                }).ToList();
+                }).OrderBy(x => x.CustomermasterName).ToList();
             }
             catch (Exception ex)
             {
