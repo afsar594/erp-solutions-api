@@ -281,7 +281,7 @@ namespace Inspire.Erp.Application.Master.Implementations
             // throw new NotImplementedException();
         }
 
-        public PurchaseVoucher GetSavedPurchaseVoucherDetailsV2(string pvno)
+        public PurchaseVoucher GetSavedPurchaseVoucherDetailsV2(long pvno)
         {
             PurchaseVoucher voucherModel = new PurchaseVoucher();
             voucherModel = _PurchaseVoucher.GetAsQueryable().Where(k => k.PurchaseVoucherPurID == Convert.ToInt64(pvno)).SingleOrDefault();
@@ -625,7 +625,7 @@ namespace Inspire.Erp.Application.Master.Implementations
 
                 _accountTransactionRepository.TransactionCommit();
 
-                return this.GetSavedPurchaseVoucherDetailsV2(purchaseVoucher.PurchaseVoucherVoucherNo);
+                return this.GetSavedPurchaseVoucherDetailsV2(purchaseVoucher.PurchaseVoucherPurID);
             }
             catch (Exception ex)
             {
@@ -690,7 +690,7 @@ namespace Inspire.Erp.Application.Master.Implementations
 
 
                 _accountTransactionRepository.TransactionCommit();
-                return this.GetSavedPurchaseVoucherDetailsV2(purchaseVoucher.PurchaseVoucherVoucherNo);
+                return this.GetSavedPurchaseVoucherDetailsV2(purchaseVoucher.PurchaseVoucherPurID);
 
             }
             catch (Exception ex)
