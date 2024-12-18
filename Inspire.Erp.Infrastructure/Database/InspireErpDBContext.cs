@@ -64,6 +64,7 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<BankReceiptVoucherDetails> BankReceiptVoucherDetails { get; set; }
         public virtual DbSet<BatchBarCodes> BatchBarCodes { get; set; }
         public virtual DbSet<BatchMaster> BatchMaster { get; set; }
+        public virtual DbSet<ComplaintMaster> ComplaintMasters { get; set; }
         public virtual DbSet<BudgetMaster> BudgetMaster { get; set; }
         public virtual DbSet<BusinessTypeMaster> BusinessTypeMaster { get; set; }
         public virtual DbSet<CardDetails> CardDetails { get; set; }
@@ -1478,7 +1479,11 @@ namespace Inspire.Erp.Infrastructure.Database
                     .IsUnicode(false);
             });
 
+            modelBuilder.Entity<ComplaintMaster>(entity =>
+            {
+                entity.ToTable("ComplainMaster");
 
+            });
 
             modelBuilder.Entity<ReportPurchaseRequisition>(entity =>
             {
