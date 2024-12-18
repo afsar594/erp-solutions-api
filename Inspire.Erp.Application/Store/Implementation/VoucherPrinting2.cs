@@ -41,7 +41,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                                                    && (x.AccountsTransactions_VoucherType == obj.VoucherType
                                                                    || x.Vouchers_Numbers_V_NO_NU == obj.VoucherNo_NU
                                                                    || x.AccountsTransactions_CheqNo == obj.chequeNo))
-                                                                   .ToList();
+                                                                   .OrderBy(x => x.AccountsTransactions_VoucherNo).ToList();
 
                 SqlConnection cnn1 = new SqlConnection("Server=DESKTOP-0B84I8A;Database=InspireERPDB(awais);Integrated Security=True");
                 SqlCommand CmdMaster = new SqlCommand();

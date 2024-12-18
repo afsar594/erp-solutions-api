@@ -39,7 +39,7 @@ namespace Inspire.Erp.Web.Controllers
                 VendorMasterVendorFax = k.VendorMasterVendorFax,
                 VendorMasterVendorEmail = k.VendorMasterVendorEmail,
                 VendorMasterVendorDelStatus =k.VendorMasterVendorDelStatus
-            }).ToList();
+            }).OrderBy(x => x.VendorMasterVendorName).ToList();
         }
 
         [HttpGet]
@@ -58,7 +58,7 @@ namespace Inspire.Erp.Web.Controllers
                 VendorMasterVendorEmail = k.VendorMasterVendorEmail,
                 VendorMasterVendorDelStatus = k.VendorMasterVendorDelStatus
 
-            }).ToList();
+            }).OrderBy(x => x.VendorMasterVendorName).ToList();
         }
 
 
@@ -77,7 +77,7 @@ namespace Inspire.Erp.Web.Controllers
                 VendorMasterVendorFax = k.VendorMasterVendorFax,
                 VendorMasterVendorEmail = k.VendorMasterVendorEmail,
                 VendorMasterVendorDelStatus = k.VendorMasterVendorDelStatus
-            }).ToList();
+            }).OrderBy(x => x.VendorMasterVendorName).ToList();
         }
 
         [HttpPost]
@@ -95,7 +95,7 @@ namespace Inspire.Erp.Web.Controllers
                 VendorMasterVendorFax = k.VendorMasterVendorFax,
                 VendorMasterVendorEmail = k.VendorMasterVendorEmail,
                 VendorMasterVendorDelStatus = k.VendorMasterVendorDelStatus
-            }).ToList();
+            }).OrderBy(x => x.VendorMasterVendorName).ToList();
         }
 
         [HttpPost]
@@ -113,7 +113,7 @@ namespace Inspire.Erp.Web.Controllers
                 VendorMasterVendorFax = k.VendorMasterVendorFax,
                 VendorMasterVendorEmail = k.VendorMasterVendorEmail,
                 VendorMasterVendorDelStatus = k.VendorMasterVendorDelStatus
-            }).ToList();
+            }).OrderBy(x => x.VendorMasterVendorName).ToList();
         }
     }
 }

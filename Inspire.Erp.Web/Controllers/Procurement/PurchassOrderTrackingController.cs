@@ -135,7 +135,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                 LogInId = ut.UserId,
                 username = ut.UserName
 
-            }).Distinct().ToList();
+            }).Distinct().OrderBy(x => x.username).ToList();
             objectresponse.ResultSet = new
             {
                 response = response

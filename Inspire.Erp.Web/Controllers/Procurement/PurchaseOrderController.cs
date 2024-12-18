@@ -440,7 +440,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             {
                 x.UserId,
                 x.UserName,
-            }).ToList();
+            }).OrderBy(x => x.UserName).ToList();
             objresponse.ResultSet = new
             {
                 result = data,
@@ -471,7 +471,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                                   permission.UserId
                               };
 
-            var rights = rightsQuery.ToList();
+            var rights = rightsQuery.OrderBy(x => x.LevelId).ToList();
 
 
             if (model.isDate)
@@ -493,20 +493,20 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                                        where detail.Status == "Pending"
                                        group detail by new { detail.VoucherId, detail.VoucherType } into grouped
                                        select new
-                                       {
+                                       {    
                                            grouped.Key.VoucherId,
                                            grouped.Key.VoucherType,
                                            LowestPendingLevel = grouped.Min(d => d.LevelId)
-                                       }).ToList();
+                                       }).AsNoTracking().OrderBy(x => x.VoucherId).ToList();
 
             var pendingRecords = data
                 .Where(a => a.Status == "Pending" &&
                  lowestPendingLevels.Any(l => l.VoucherId == a.VoucherId && l.VoucherType == a.VoucherType && l.LowestPendingLevel == a.LevelId))
-                 .ToList();
+                 .OrderBy(x => x.VoucherDate).ToList();
 
             var approvedRecords = data
                 .Where(a => a.Status == "Approved")
-                .ToList();
+                .OrderBy(x => x.VoucherDate).ToList();
 
             var combinedData = pendingRecords.Concat(approvedRecords).ToList();
 
@@ -576,7 +576,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                     apprevedby = user.Where(a => a.UserId == c.ApprovedBy).Select(x => x.UserName).FirstOrDefault() ?? string.Empty,
                     Createdby = user.Where(a => a.UserId == c.CreatedBy).Select(x => x.UserName).FirstOrDefault() ?? string.Empty,
 
-                }).ToList();
+                }).OrderBy(x => x.VoucherDate).ToList();
                 objresponse.IsSuccess = true;
                 objresponse.ResultSet = data;
             }

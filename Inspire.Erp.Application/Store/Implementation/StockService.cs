@@ -514,7 +514,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                     SaleInAmount = am.SaleInAmount,
                                     SaleOutQty = am.SaleOutQty,
                                     SaleOutAmount = am.SaleOutAmount,
-                                }).ToList();
+                                }).OrderBy(x => x.ItemName).ToList();
 
                 stockMov.StockMovementInOutGroupWise = stockInOutGW;
 
@@ -597,7 +597,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                  QtyOut = am.QtyOut,
                                  QtyOutAmount = am.QtyOutTotAmt,
                                  LPO = am.LPO
-                             }).ToList();
+                             }).OrderBy(x => x.Ref_Vocher_No).ToList();
 
                 stockMov.StockMovementInOut = queryInOut;
                 return Response<StockMovementReportResponse>.Success(stockMov, "Data found");
@@ -616,7 +616,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                        {
                            SIN = (decimal)d.StockRegisterSIN,
                            Rate = (decimal)d.StockRegisterRate
-                       }).ToList().Sum(x => x.SIN * x.Rate);
+                       }).OrderBy(x => x.SIN).ToList().Sum(x => x.SIN * x.Rate);
             return res;
         }
         //public async Task<Response<List<VWStockBaseUnitWithValue>>> GetStockReportBaseUnitWithValue1(GenericGridViewModel model)
@@ -705,7 +705,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     AVGRATE = g.Average(x => x.StockRegisterRate ?? 0),
                     AMOUNT = g.Sum(x => x.StockRegisterAmount ?? 0),
                     AVGPURCHASEValue = g.Where(x => x.StockRegisterSIN > 0).Average(a => (decimal)a.StockRegisterRate),
-                }).ToList();
+                }).OrderBy(x => x.ItemName).ToList();
 
 
 
@@ -762,7 +762,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                        ItemId = (long)g.Key,
                                        TotalQty = g.Sum(x => x.StockRegisterSIN - x.StockRegisterSout),
                                        TotalAmount = g.Sum(x => (x.StockRegisterSIN - x.StockRegisterSout) * x.StockRegisterRate)
-                                   }).ToList();
+                                   }).OrderBy(x => x.ItemId).ToList();
 
 
                 var results = (from im in query
@@ -815,7 +815,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                        TotalBal = g.Sum(a => a.OpenQty) + (g.Sum(a => a.StockIn) - g.Sum(a => a.StockOut)),
                        TotalBalAmount = g.Sum(a => a.OpenQtyAmount) + (g.Sum(a => a.StockInAmount) - g.Sum(a => a.StockOutAmount))
                    })
-               .ToList();
+               .OrderBy(x => x.Item_Name).ToList();
 
                 var StockIn = (from im in query
                                join sr in _stockRegisterRepository.GetAsQueryable() on im.ItemMasterItemId equals (long)sr.StockRegisterMaterialID.GetValueOrDefault() into gimV1
@@ -838,7 +838,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                    Rate = y != null && y.StockRegisterSIN > 0 && y.StockRegisterVoucherDate.Value.Date >= model.fromDate.Date && y.StockRegisterVoucherDate.Value.Date <= model.toDate.Date ? y.StockRegisterRate : 0,
                                    Qty = y != null && y.StockRegisterSIN > 0 && y.StockRegisterVoucherDate.Value.Date >= model.fromDate.Date && y.StockRegisterVoucherDate.Value.Date <= model.toDate.Date ? y.StockRegisterSIN : 0,
                                    QtyAmount = y != null && y.StockRegisterSIN > 0 && y.StockRegisterVoucherDate.Value.Date >= model.fromDate.Date && y.StockRegisterVoucherDate.Value.Date <= model.toDate.Date ? y.StockRegisterAmount : 0,
-                               }).ToList();
+                               }).OrderBy(x => x.Ref_Vocher_No).ToList();
 
                 var indexedStockMovementIn = StockIn.Where(x => x.Qty > 0)
                                      .Select((x, index) =>
@@ -846,7 +846,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                          x.Sr = index + 1;
                                          return x;
                                      })
-                                     .ToList();
+                                     .OrderBy(x => x.Ref_Vocher_No).ToList();
 
                 var StockOut = (from im in query
                                 join sr in _stockRegisterRepository.GetAsQueryable() on im.ItemMasterItemId equals (long)sr.StockRegisterMaterialID.GetValueOrDefault() into gimV1
@@ -869,7 +869,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                     Rate = y != null && y.StockRegisterSout > 0 && y.StockRegisterVoucherDate.Value.Date >= model.fromDate.Date && y.StockRegisterVoucherDate.Value.Date <= model.toDate.Date ? y.StockRegisterRate : 0,
                                     Qty = y != null && y.StockRegisterSout > 0 && y.StockRegisterVoucherDate.Value.Date >= model.fromDate.Date && y.StockRegisterVoucherDate.Value.Date <= model.toDate.Date ? y.StockRegisterSout : 0,
                                     QtyAmount = y != null && y.StockRegisterSout > 0 && y.StockRegisterVoucherDate.Value.Date >= model.fromDate.Date && y.StockRegisterVoucherDate.Value.Date <= model.toDate.Date ? y.StockRegisterAmount : 0,
-                                }).ToList();
+                                }).OrderBy(x => x.Ref_Vocher_No).ToList();
 
                 var indexedStockMovementOut = StockOut.Where(x => x.Qty > 0)
                                      .Select((x, index) =>
@@ -877,7 +877,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                          x.Sr = index + 1;
                                          return x;
                                      })
-                                     .ToList();
+                                     .OrderBy(x => x.Ref_Vocher_No).ToList();
                 var response1 = new StockMovementResponse
                 {
                     StockRegisterResponse = results,

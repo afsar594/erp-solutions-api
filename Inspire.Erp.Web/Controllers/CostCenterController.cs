@@ -37,7 +37,7 @@ namespace Inspire.Erp.Web.Controllers
                 CostCenterMasterCostCenterIsSystem = k.CostCenterMasterCostCenterIsSystem,
                 CostCenterMasterCostCenterSortOrder = k.CostCenterMasterCostCenterSortOrder,
                 CostCenterMasterCostCenterDelStatus = k.CostCenterMasterCostCenterDelStatus
-            }).ToList();
+            }).OrderBy(x => x.CostCenterMasterCostCenterName).ToList();
         }
 
         [HttpGet]
@@ -53,7 +53,7 @@ namespace Inspire.Erp.Web.Controllers
                 CostCenterMasterCostCenterIsSystem = k.CostCenterMasterCostCenterIsSystem,
                 CostCenterMasterCostCenterSortOrder = k.CostCenterMasterCostCenterSortOrder,
                 CostCenterMasterCostCenterDelStatus = k.CostCenterMasterCostCenterDelStatus
-            }).ToList();
+            }).OrderBy(x => x.CostCenterMasterCostCenterName).ToList();
         }
 
         [HttpPost]
@@ -69,7 +69,7 @@ namespace Inspire.Erp.Web.Controllers
                 CostCenterMasterCostCenterIsSystem = k.CostCenterMasterCostCenterIsSystem,
                 CostCenterMasterCostCenterSortOrder = k.CostCenterMasterCostCenterSortOrder,
                 CostCenterMasterCostCenterDelStatus = k.CostCenterMasterCostCenterDelStatus
-            }).ToList();
+            }).OrderBy(x => x.CostCenterMasterCostCenterName).ToList();
         }
 
         [HttpPost]
@@ -85,7 +85,7 @@ namespace Inspire.Erp.Web.Controllers
                 CostCenterMasterCostCenterIsSystem = k.CostCenterMasterCostCenterIsSystem,
                 CostCenterMasterCostCenterSortOrder = k.CostCenterMasterCostCenterSortOrder,
                 CostCenterMasterCostCenterDelStatus = k.CostCenterMasterCostCenterDelStatus
-            }).ToList();
+            }).OrderBy(x => x.CostCenterMasterCostCenterName).ToList();
         }
 
         [HttpPost]
@@ -101,7 +101,7 @@ namespace Inspire.Erp.Web.Controllers
                 CostCenterMasterCostCenterIsSystem = k.CostCenterMasterCostCenterIsSystem,
                 CostCenterMasterCostCenterSortOrder = k.CostCenterMasterCostCenterSortOrder,
                 CostCenterMasterCostCenterDelStatus = k.CostCenterMasterCostCenterDelStatus
-            }).ToList();
+            }).OrderBy(x => x.CostCenterMasterCostCenterName).ToList();
         }
     }
 }

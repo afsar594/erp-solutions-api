@@ -453,7 +453,7 @@ namespace Inspire.Erp.Web.Controllers
         {
             var objectresponse = new ResponseInfo();
             var listItemnater = itemrepository.GetAsQueryable().Where(a => a.ItemMasterItemId == id && a.ItemMasterDelStatus != true).ToList();
-            var unitlist = _unitDetailsRepo.GetAsQueryable().Where(a => a.UnitDetailsItemId == id && a.UnitDetailsDelStatus != true).ToList();
+            var unitlist = _unitDetailsRepo.GetAsQueryable().Where(a => a.UnitDetailsItemId == id && a.UnitDetailsDelStatus != true).OrderBy(x => x.UnitDetailsItem).ToList();
 
             var data = listItemnater.Select(a => new
             {

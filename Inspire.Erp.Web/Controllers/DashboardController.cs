@@ -152,7 +152,7 @@ namespace Inspire.Erp.Web.Controllers
                 var groupedData = pendingDetails
                     .GroupBy(a => a.VoucherId)
                     .Select(g => g.FirstOrDefault())
-                    .ToList();
+                    .OrderBy(x => x.VoucherDate).ToList();
 
 
                 obj.IsSuccess = true;

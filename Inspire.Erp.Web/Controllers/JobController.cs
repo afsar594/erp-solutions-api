@@ -76,7 +76,7 @@ namespace Inspire.Erp.Web.Controllers
         {
             var jobs = jobMasterService.GetAllJob()
                 .OrderBy(job => job.JobMasterJobName) // Assuming 'Name' is the property you want to order by
-                .ToList();
+                .OrderBy(x => x.JobMasterJobName).ToList();
 
             ApiResponse<List<JobMaster>> apiResponse = new ApiResponse<List<JobMaster>>
             {

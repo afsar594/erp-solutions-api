@@ -37,7 +37,7 @@ namespace Inspire.Erp.Web.Controllers
                 BankGuaranteeMasterDeleted = k.BankGuaranteeMasterDeleted,
                 BankGuaranteeMasterStatus = k.BankGuaranteeMasterStatus
             }).OrderBy(x => x.BankGuaranteeMasterBgname) // Order by BankGuaranteeMasterBgname
-                .ToList();
+                .OrderBy(x => x.BankGuaranteeMasterBgname).ToList();
         }
 
         [HttpPost]

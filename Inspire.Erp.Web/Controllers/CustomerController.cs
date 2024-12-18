@@ -84,7 +84,7 @@ namespace Inspire.Erp.Web.Controllers
                 CustomerMasterCustomerGroupAccNo = k.CustomerMasterCustomerGroupAccNo,
                 CustomerMasterCustomerCtTypeId = k.CustomerMasterCustomerCtTypeId,
                 CustomerMasterCustomerDelStatus = k.CustomerMasterCustomerDelStatus
-            }).ToList();
+            }).OrderBy(x => x.CustomerMasterCustomerName).ToList();
         }
 
         [HttpPost]
@@ -137,7 +137,7 @@ namespace Inspire.Erp.Web.Controllers
                 CustomerMasterCustomerGroupAccNo = k.CustomerMasterCustomerGroupAccNo,
                 CustomerMasterCustomerCtTypeId = k.CustomerMasterCustomerCtTypeId,
                 CustomerMasterCustomerDelStatus = k.CustomerMasterCustomerDelStatus
-            }).ToList();
+            }).OrderBy(x => x.CustomerMasterCustomerName).ToList();
         }
         //[HttpGet("{id}")]
         [HttpGet("GetAllCustomerById/{id}")]
@@ -448,7 +448,7 @@ namespace Inspire.Erp.Web.Controllers
             {
                 c.CustomerTypeId,
                 c.CustomerTypeName
-            }).ToList();
+            }).OrderBy(x => x.CustomerTypeName).ToList();
             objresponse.ResultSet = new
             {
                 currencyMasters = currencyMasters,

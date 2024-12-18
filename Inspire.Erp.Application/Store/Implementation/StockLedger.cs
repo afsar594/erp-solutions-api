@@ -122,7 +122,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                                 ItemName = g.Max(x => x.Item_Name),
                                                 unitName = g.Max(x => x.unitName),
                                                 StockRate = (decimal)g.Max(x => x.StockInAmount),
-                                            }).ToList();
+                                            }).OrderBy(x => x.ItemName).ToList();
 
                     var openValues = getOpenValues(sFilter.fromDate, (int?)sFilter.ItemId);
                     if (openValues.Count > 0)
@@ -231,7 +231,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                                 ItemName = g.Max(x => x.Item_Name),
                                                 unitName = g.Max(x => x.unitName),
                                                 StockRate = (decimal)g.Max(x => x.StockInAmount),
-                                            }).ToList();
+                                            }).OrderBy(x => x.ItemName).ToList();
 
                     var openValues = getOpenValues(DateTime.Now, (int?)sFilter.ItemId);
                     if (openValues.Count > 0)

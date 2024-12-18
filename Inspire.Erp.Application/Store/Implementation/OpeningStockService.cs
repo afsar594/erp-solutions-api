@@ -552,7 +552,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 {
                     k.OpeningStockVoucherDetailsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.OpeningStockVoucherDetailsItemName).ToList();
                 _openingstockVoucherRepository.Update(openingstockVoucher);
                 //_openingstockVoucherDetailsRepository.UpdateList(openingstockVoucherDetails);
 

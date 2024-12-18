@@ -36,7 +36,7 @@ namespace Inspire.Erp.Web.Controllers
                 ProjectDescriptionMasterProjectDescriptionSortOrder = k.ProjectDescriptionMasterProjectDescriptionSortOrder,
                 ProjectDescriptionMasterProjectDescriptionStatus = k.ProjectDescriptionMasterProjectDescriptionStatus,
                 ProjectDescriptionMasterProjectDescriptionDelStatus = k.ProjectDescriptionMasterProjectDescriptionDelStatus
-            }).ToList();
+            }).OrderBy(x => x.ProjectDescriptionMasterProjectDescriptionName).ToList();
         }
 
 
@@ -53,7 +53,7 @@ namespace Inspire.Erp.Web.Controllers
                 ProjectDescriptionMasterProjectDescriptionStatus = k.ProjectDescriptionMasterProjectDescriptionStatus,
                 ProjectDescriptionMasterProjectDescriptionDelStatus = k.ProjectDescriptionMasterProjectDescriptionDelStatus
 
-            }).ToList();
+            }).OrderBy(x => x.ProjectDescriptionMasterProjectDescriptionName).ToList();
         }
 
 
@@ -69,7 +69,7 @@ namespace Inspire.Erp.Web.Controllers
                 ProjectDescriptionMasterProjectDescriptionSortOrder = k.ProjectDescriptionMasterProjectDescriptionSortOrder,
                 ProjectDescriptionMasterProjectDescriptionStatus = k.ProjectDescriptionMasterProjectDescriptionStatus,
                 ProjectDescriptionMasterProjectDescriptionDelStatus = k.ProjectDescriptionMasterProjectDescriptionDelStatus
-            }).ToList();
+            }).OrderBy(x => x.ProjectDescriptionMasterProjectDescriptionName).ToList();
         }
 
         [HttpPost]
@@ -84,7 +84,7 @@ namespace Inspire.Erp.Web.Controllers
                 ProjectDescriptionMasterProjectDescriptionSortOrder = k.ProjectDescriptionMasterProjectDescriptionSortOrder,
                 ProjectDescriptionMasterProjectDescriptionStatus = k.ProjectDescriptionMasterProjectDescriptionStatus,
                 ProjectDescriptionMasterProjectDescriptionDelStatus = k.ProjectDescriptionMasterProjectDescriptionDelStatus
-            }).ToList();
+            }).OrderBy(x => x.ProjectDescriptionMasterProjectDescriptionName).ToList();
         }
 
         [HttpPost]
@@ -99,7 +99,7 @@ namespace Inspire.Erp.Web.Controllers
                 ProjectDescriptionMasterProjectDescriptionSortOrder = k.ProjectDescriptionMasterProjectDescriptionSortOrder,
                 ProjectDescriptionMasterProjectDescriptionStatus = k.ProjectDescriptionMasterProjectDescriptionStatus,
                 ProjectDescriptionMasterProjectDescriptionDelStatus = k.ProjectDescriptionMasterProjectDescriptionDelStatus
-            }).ToList();
+            }).OrderBy(x => x.ProjectDescriptionMasterProjectDescriptionName).ToList();
         }
     }
 }

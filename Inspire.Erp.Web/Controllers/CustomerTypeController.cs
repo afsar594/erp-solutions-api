@@ -38,7 +38,7 @@ namespace Inspire.Erp.Web.Controllers
                 CustomerTypeStatus = k.CustomerTypeStatus,
                 CustomerTypeDelStatus=k.CustomerTypeDelStatus
 
-    }).ToList();
+    }).OrderBy(x => x.CustomerTypeName).ToList();
         }
 
 
@@ -56,7 +56,7 @@ namespace Inspire.Erp.Web.Controllers
                 CustomerTypeStatus = k.CustomerTypeStatus,
                 CustomerTypeDelStatus = k.CustomerTypeDelStatus
 
-            }).ToList();
+            }).OrderBy(x => x.CustomerTypeName).ToList();
         }
 
         [HttpPost]
@@ -75,7 +75,7 @@ namespace Inspire.Erp.Web.Controllers
                 CustomerTypeDelStatus = k.CustomerTypeDelStatus
 
 
-            }).ToList();
+            }).OrderBy(x => x.CustomerTypeName).ToList();
         }
 
         [HttpPost]
@@ -94,7 +94,7 @@ namespace Inspire.Erp.Web.Controllers
                 CustomerTypeDelStatus = k.CustomerTypeDelStatus
 
 
-            }).ToList();
+            }).OrderBy(x => x.CustomerTypeName).ToList();
         }
 
         [HttpPost]
@@ -112,7 +112,7 @@ namespace Inspire.Erp.Web.Controllers
                 CustomerTypeStatus = k.CustomerTypeStatus,
                 CustomerTypeDelStatus = k.CustomerTypeDelStatus
 
-            }).ToList();
+            }).OrderBy(x => x.CustomerTypeName).ToList();
         }
     }
 }

@@ -176,23 +176,23 @@ namespace Inspire.Erp.Web.Controllers
                 c.MaAccName,
                 c.MaRelativeNo,
                 c.MaSno
-            }).ToList();
+            }).OrderBy(x => x.MaAccName).ToList();
             var costcenterMasters = costcenterrepository.GetAsQueryable().AsNoTracking().Where(a => a.CostCenterMasterCostCenterDelStatus != true).Select(c => new
             {
                 c.CostCenterMasterCostCenterId,
                 CostCenterMasterCostCenterName=c.CostCenterMasterCostCenterName.Trim(),
-            }).ToList();
+            }).OrderBy(x => x.CostCenterMasterCostCenterName).ToList();
             var jobMasters = jobrepository.GetAsQueryable().AsNoTracking().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
             {
                 c.JobMasterJobId,
                 JobMasterJobName=c.JobMasterJobName.Trim(),
-            }).ToList();
+            }).OrderBy(x => x.JobMasterJobName).ToList();
             var currencyMasters = currencyrepository.GetAsQueryable().AsNoTracking().Where(a => a.CurrencyMasterCurrencyDelStatus != true).Select(c => new
             {
                 c.CurrencyMasterCurrencyId,
                 CurrencyMasterCurrencyName = c.CurrencyMasterCurrencyName.Trim(),
                 c.CurrencyMasterCurrencyRate
-            }).ToList();
+            }).OrderBy(x => x.CurrencyMasterCurrencyName).ToList();
 
             objresponse.ResultSet = new
             {

@@ -38,7 +38,7 @@ namespace Inspire.Erp.Web.Controllers
                 CityMasterCityDeleted = k.CityMasterCityDeleted,
                 CityMasterCityStatus = k.CityMasterCityStatus,
                 CityMasterCityDelStatus= k.CityMasterCityDelStatus
-            }).ToList();
+            }).OrderBy(x => x.CityMasterCityName).ToList();
         }
 
 
@@ -56,7 +56,7 @@ namespace Inspire.Erp.Web.Controllers
                 CityMasterCityStatus = k.CityMasterCityStatus,
                 CityMasterCityDelStatus = k.CityMasterCityDelStatus
 
-            }).ToList();
+            }).OrderBy(x => x.CityMasterCityName).ToList();
         }
 
         [HttpPost]
@@ -75,7 +75,7 @@ namespace Inspire.Erp.Web.Controllers
                 CityMasterCityDelStatus = k.CityMasterCityDelStatus
 
 
-            }).ToList();
+            }).OrderBy(x => x.CityMasterCityName).ToList();
         }
 
         [HttpPost]
@@ -92,7 +92,7 @@ namespace Inspire.Erp.Web.Controllers
                 CityMasterCityStatus = k.CityMasterCityStatus,
                 CityMasterCityDelStatus = k.CityMasterCityDelStatus
 
-            }).ToList();
+            }).OrderBy(x => x.CityMasterCityName).ToList();
         }
 
         [HttpPost]
@@ -108,7 +108,7 @@ namespace Inspire.Erp.Web.Controllers
                 CityMasterCityDeleted = k.CityMasterCityDeleted,
                 CityMasterCityStatus = k.CityMasterCityStatus,
                 CityMasterCityDelStatus = k.CityMasterCityDelStatus
-            }).ToList();
+            }).OrderBy(x => x.CityMasterCityName).ToList();
         }
     }
 }

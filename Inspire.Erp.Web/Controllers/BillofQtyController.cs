@@ -189,11 +189,11 @@ namespace Inspire.Erp.Web.Controllers
         public ResponseInfo LoadBOQ(int customerEnqId)
         {
             var objResponse = new ResponseInfo();
-            var detailList = _BillOfQTyDetailsRepository.GetAsQueryable().AsNoTracking().ToList();
-            var details = _BillofQtyMasterRepository.GetAsQueryable().AsNoTracking().ToList();
+            var detailList = _BillOfQTyDetailsRepository.GetAsQueryable().AsNoTracking().OrderBy(x => x.BillQtyId).ToList();
+            var details = _BillofQtyMasterRepository.GetAsQueryable().AsNoTracking().OrderBy(x => x.BillofqtyNo).ToList();
             if (customerEnqId != 0)
             {
-                details = details.Where(a => a.CustomerEnqId == customerEnqId).ToList();
+                details = details.Where(a => a.CustomerEnqId == customerEnqId).OrderBy(x => x.BillofqtyNo).ToList();
             }
             // Filtering detailList based on PurchaseOrderNos and customerEnqId
             var data = (from d in detailList
@@ -211,7 +211,7 @@ namespace Inspire.Erp.Web.Controllers
                             Qty = d.Qty,
                             UnitCode = d.UnitCode
                         }).OrderBy(x => x.dId)
-                .ToList();
+                .OrderBy(x => x.BillofqtyNo).ToList();
 
             objResponse.ResultSet = new
             {

@@ -51,7 +51,7 @@ namespace Inspire.Erp.Web.Controllers
                 StaffMasterStaffCode = k.StaffMasterStaffCode,
                 StaffMasterStaffName = k.StaffMasterStaffName,
                 StaffMasterStaffDelStatus = k.StaffMasterStaffDelStatus
-            }).ToList();
+            }).OrderBy(x => x.StaffMasterStaffName).ToList();
         }
 
 
@@ -66,7 +66,7 @@ namespace Inspire.Erp.Web.Controllers
                 StaffMasterStaffCode = k.StaffMasterStaffCode,
                 StaffMasterStaffName = k.StaffMasterStaffName,
                 StaffMasterStaffDelStatus = k.StaffMasterStaffDelStatus
-            }).ToList();
+            }).OrderBy(x => x.StaffMasterStaffName).ToList();
         }
 
         [HttpPost]
@@ -80,7 +80,7 @@ namespace Inspire.Erp.Web.Controllers
                 StaffMasterStaffCode = k.StaffMasterStaffCode,
                 StaffMasterStaffName = k.StaffMasterStaffName,
                 StaffMasterStaffDelStatus = k.StaffMasterStaffDelStatus
-            }).ToList();
+            }).OrderBy(x=>x.StaffMasterStaffName).ToList();
         }
 
         [HttpPost]
@@ -94,7 +94,7 @@ namespace Inspire.Erp.Web.Controllers
                 StaffMasterStaffCode = k.StaffMasterStaffCode,
                 StaffMasterStaffName = k.StaffMasterStaffName,
                 StaffMasterStaffDelStatus = k.StaffMasterStaffDelStatus
-            }).ToList();
+            }).OrderBy(x => x.StaffMasterStaffName).ToList();
         }
     }
 }

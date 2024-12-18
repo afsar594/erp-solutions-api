@@ -250,7 +250,7 @@ namespace Inspire.Erp.Application.Store.Implementation
         {
             StockTransferModel issueVoucherModel = new StockTransferModel();            
             issueVoucherModel.stockTransfer = _StockTransferRepo.GetAsQueryable().Where(k => k.StockTransferVoucherNo == pvno).SingleOrDefault();
-            issueVoucherModel.stockTransferDetails = _StockTransferDetailRepo.GetAsQueryable().Where(x => x.StockTransferDetailsSNo == pvno && (x.StockTransferDetailsDelStatus == false || x.StockTransferDetailsDelStatus == null)).ToList();
+            issueVoucherModel.stockTransferDetails = _StockTransferDetailRepo.GetAsQueryable().Where(x => x.StockTransferDetailsSNo == pvno && (x.StockTransferDetailsDelStatus == false || x.StockTransferDetailsDelStatus == null)).OrderBy(x => x.StockTransferDetailsSNo).ToList();
             return issueVoucherModel;
         }
 
@@ -347,14 +347,14 @@ namespace Inspire.Erp.Application.Store.Implementation
             {
                 k.StockTransferDetailsDelStatus = true;
                 return k;
-            }).ToList();
+            }).OrderBy(x => x.StockTransferDetailsSNo).ToList();
 
 
                 stockRegister = stockRegister.Select((k) =>
                 {
                     k.StockRegisterDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.StockRegisterRefVoucherNo).ToList();
                 _StockRegisterRepo.UpdateList(stockRegister);
 
                 _StockTransferRepo.UpdateAsync(stockTransfer);
@@ -402,7 +402,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                         x.StockTransferDetailsSNo = stockTransfer.StockTransferVoucherNo;
 
                         return x;
-                    }).ToList();
+                    }).OrderBy(x => x.StockTransferDetailsSNo).ToList();
 
                 //stockRegister = stockRegister.Select((k) =>
                 //{
