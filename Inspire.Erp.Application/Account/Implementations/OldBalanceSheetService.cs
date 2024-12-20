@@ -377,6 +377,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                             OldBsMasterDetailsGroupName = dbs.OldBsMasterDetailsGroupName,
                             OldBsMasterDetailsAccNo = dbs.OldBsMasterDetailsAccNo,
                             OldBsMasterDetailsAccName = _masterAccount.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == dbs.OldBsMasterDetailsAccNo).MaAccName
+                       // OldBsMasterDetailsAccName=_masterAccount.GetAsQueryable().Where(y => y.MaAccNo.ToUpper() == dbs.OldBsMasterDetailsAccNo.ToUpper()).Select(y => y.MaAccName).FirstOrDefault(),
                         });
                     }
                 }
