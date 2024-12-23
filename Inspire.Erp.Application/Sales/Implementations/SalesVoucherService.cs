@@ -343,10 +343,9 @@ namespace Inspire.Erp.Application.Sales.Implementations
             try
             {
                 _salesVoucherRepository.BeginTransaction();
-                //string salesVoucherNumber = this.GenerateVoucherNo(salesVoucher.SalesVoucherDate).VouchersNumbersVNo;
+
                 string salesVoucherNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.SalesVoucher_TYPE, Prefix.SalesVoucher_Prefix,_programsettingsRepository,_voucherNumbersRepository);
                 salesVoucher.SalesVoucherNo = salesVoucherNumber;
-
 
                 decimal? maxcount = 0;
                 maxcount =
@@ -417,8 +416,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 }
                 _stockRegisterRepository.InsertList(stockReg);
 
-
-
                 _salesVoucherRepository.Insert(salesVoucher);
 
                 UserTracking trackingData = new UserTracking();
@@ -431,9 +428,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 _UserTracking.Insert(trackingData);
 
                 _salesVoucherRepository.TransactionCommit();
-
-
-
 
                 return this.GetSavedSalesVoucherDetails((decimal)salesVoucher.SalesVoucherId);
 
@@ -713,8 +707,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
             if (salesVoucherModel.salesVoucher != null)
             {
-
-
                 salesVoucherModel.salesVoucherDetails = _salesVoucherDetailsRepository.GetAsQueryable().Where(x => x.SalesVoucherDetailsNo == salesVoucherModel.salesVoucher.SalesVoucherNo && (x.SalesVoucherDetailsDelStatus == false || x.SalesVoucherDetailsDelStatus == null)).ToList();
 
                 salesVoucherModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(x => x.AccountsTransactionsVoucherNo == salesVoucherModel.salesVoucher.SalesVoucherNo && x.AccountstransactionsDelStatus != true).ToList();
@@ -737,14 +729,11 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         {
                             item.SalesReturnQtyTill = sumReturnedQty;
                         }
-
                     }
                 }
             }
-
             return salesVoucherModel;
         }
-
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
         {
             try
