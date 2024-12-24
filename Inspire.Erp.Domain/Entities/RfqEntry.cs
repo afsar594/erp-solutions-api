@@ -18,5 +18,10 @@ namespace Inspire.Erp.Domain.Entities
         public bool? RfqEntryDelStatus { get; set; }
         public string RFQ_EntryvouchaseNo { get; set; }
 
+        public string? Remarks { get; set; }
+
+
+        
+
     }
 }

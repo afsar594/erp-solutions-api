@@ -21,8 +21,10 @@ namespace Inspire.Erp.Web.ViewModels
         public bool? RfqEntryDelStatus { get; set; }
 
         public string RFQ_EntryvouchaseNo { get; set; }
+        public string? Remarks { get; set; }
 
 
+       
         public List<RfqEntryDetails> RfqEntryDetails { get; set; }
         }
 

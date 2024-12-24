@@ -14035,9 +14035,11 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.RfqEntryDelStatus).HasColumnName("RFQ_Entry_DelStatus");
                 entity.Property(e => e.RfqEntryRfqEnqId).HasColumnName("RFQ_Entry_PReq_ID");
                 entity.Property(e => e.RFQ_EntryvouchaseNo).HasColumnName("RFQ_EntryvouchaseNo");
+                entity.Property(e => e.Remarks).HasColumnName("Remarks");
+
 
             });
-
+            
             modelBuilder.Entity<RfqEntryDetails>(entity =>
             {
                 entity.HasKey(e => e.RFQEntryDetailsDetID);
