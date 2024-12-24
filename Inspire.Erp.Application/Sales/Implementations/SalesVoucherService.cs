@@ -105,7 +105,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
         {
             return _locationMasterRepository.GetAll();
         }
-
         public IEnumerable<SuppliersMaster> SalesVoucher_GetAllSuppliersMaster()
         {
             return _suppliersMasterRepository.GetAll();
@@ -130,13 +129,11 @@ namespace Inspire.Erp.Application.Sales.Implementations
         {
             return _itemMasterRepository.GetAll();
         }
-
         public async Task<SalesVoucherModel> UpdateSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions,
             List<SalesVoucherDetails> salesVoucherDetails
            , List<StockRegister> stockRegister
             )
         {
-
             try
             {
                 _salesVoucherRepository.BeginTransaction();
@@ -229,8 +226,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 _UserTracking.Insert(trackingData);
 
                 _salesVoucherRepository.TransactionCommit();
-
-
             }
             catch (Exception ex)
             {
@@ -240,8 +235,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
             return this.GetSavedSalesVoucherDetails((decimal)salesVoucher.SalesVoucherId);
         }
-
-
         public int DeleteSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions,
             List<SalesVoucherDetails> salesVoucherDetails
             , List<StockRegister> stockRegister
@@ -276,30 +269,16 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 }).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
-
-
-
                 stockRegister = stockRegister.Select((k) =>
                 {
                     k.StockRegisterDelStatus = true;
                     return k;
                 }).ToList();
                 _stockRegisterRepository.UpdateList(stockRegister);
-
-
-
-
                 salesVoucher.SalesVoucherDetails = salesVoucherDetails;
-
                 _salesVoucherRepository.Update(salesVoucher);
-
                 var vchrnumer = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == salesVoucher.SalesVoucherNo).FirstOrDefault();
-
                 _voucherNumbersRepository.Update(vchrnumer);
-
-
-
-
 
                 UserTracking trackingData = new UserTracking();
                 trackingData.UserTrackingUserUserId = 1;
@@ -310,7 +289,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 trackingData.UserTrackingUserVpType = VoucherType.SalesVoucher_TYPE;
                 _UserTracking.Insert(trackingData);
 
-
                 _salesVoucherRepository.TransactionCommit();
                 i = 1;
             }
@@ -320,9 +298,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 i = 0;
                 throw ex;
             }
-
             return i;
-
         }
         private decimal getConverionTypebyUnitId(int? itemid, int? unitDetailsid)
         {
@@ -343,10 +319,9 @@ namespace Inspire.Erp.Application.Sales.Implementations
             try
             {
                 _salesVoucherRepository.BeginTransaction();
-                //string salesVoucherNumber = this.GenerateVoucherNo(salesVoucher.SalesVoucherDate).VouchersNumbersVNo;
+
                 string salesVoucherNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.SalesVoucher_TYPE, Prefix.SalesVoucher_Prefix,_programsettingsRepository,_voucherNumbersRepository);
                 salesVoucher.SalesVoucherNo = salesVoucherNumber;
-
 
                 decimal? maxcount = 0;
                 maxcount =
@@ -390,7 +365,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                         var expen = exp * salesVoucher.SalesVoucherExpense;
                         expense = (int)((expen + item.SalesVoucherDetailsGrossAmount) / item.SalesVoucherDetailsQuantity);
-
                     }
                     stockReg.Add(new StockRegister()
                     {
@@ -417,8 +391,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 }
                 _stockRegisterRepository.InsertList(stockReg);
 
-
-
                 _salesVoucherRepository.Insert(salesVoucher);
 
                 UserTracking trackingData = new UserTracking();
@@ -432,9 +404,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 _salesVoucherRepository.TransactionCommit();
 
-
-
-
                 return this.GetSavedSalesVoucherDetails((decimal)salesVoucher.SalesVoucherId);
 
             }
@@ -443,7 +412,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 _salesVoucherRepository.TransactionRollback();
                 throw ex;
             }
-
         }
         public async Task<Response<decimal>> GetAveragePurchasePrice(int itemId, int? locationId)
         {
@@ -543,7 +511,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 return Response<decimal>.Fail(0, ex.Message);
             }
         }
-
         private void createAccountTransactionEntries(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions)
         {
             decimal currencyRate = getCurrencyRate(salesVoucher.SalesVoucherCurrencyId);
@@ -616,27 +583,13 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 return 1;
             }
         }
-
         public IEnumerable<AccountsTransactions> GetAllTransaction()
         {
             return _accountTransactionRepository.GetAll();
         }
         public IEnumerable<SalesVoucher> GetSalesVoucher()
         {
-            //IEnumerable<SalesVoucher> salesVoucher_ALL = _salesVoucherRepository.GetAll().Where(k => k.SalesVoucherDelStatus == false || k.SalesVoucherDelStatus == null).ToList();
-            //IEnumerable<CurrencyMaster> _currencyMaster = _currencyMasterRepository.GetAll().ToList();
-
-            //foreach (var salesVoucher in salesVoucher_ALL)
-            //{
-            //    salesVoucher.CurrencyMasterCurrencyName = _currencyMaster
-            //                                                 .Where(c => c.CurrencyMasterCurrencyId == salesVoucher.SalesVoucherCurrencyId)
-            //                                                 .FirstOrDefault() != null ? _currencyMaster
-            //                                                 .Where(c => c.CurrencyMasterCurrencyId == salesVoucher.SalesVoucherCurrencyId)
-            //                                                 .FirstOrDefault().CurrencyMasterCurrencyName : null;
-            //}
-
-
-            var salV = (from s in _salesVoucherRepository.GetAsQueryable()
+         var salV = (from s in _salesVoucherRepository.GetAsQueryable()
                         join c in _customerMasterRepository.GetAsQueryable() on s.SalesVoucherPartyId equals c.CustomerMasterCustomerNo
                         join cr in _currencyMasterRepository.GetAsQueryable() on s.SalesVoucherCurrencyId equals cr.CurrencyMasterCurrencyId
                         where s.SalesVoucherDelStatus == null || s.SalesVoucherDelStatus == false
@@ -699,10 +652,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                             SalesVoucherShortNo = s.SalesVoucherShortNo,
                         }).ToList();
 
-
-
-
-
             return salV;
         }
         public SalesVoucherModel GetSavedSalesVoucherDetails(decimal pvno)
@@ -713,8 +662,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
             if (salesVoucherModel.salesVoucher != null)
             {
-
-
                 salesVoucherModel.salesVoucherDetails = _salesVoucherDetailsRepository.GetAsQueryable().Where(x => x.SalesVoucherDetailsNo == salesVoucherModel.salesVoucher.SalesVoucherNo && (x.SalesVoucherDetailsDelStatus == false || x.SalesVoucherDetailsDelStatus == null)).ToList();
 
                 salesVoucherModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(x => x.AccountsTransactionsVoucherNo == salesVoucherModel.salesVoucher.SalesVoucherNo && x.AccountstransactionsDelStatus != true).ToList();
@@ -737,14 +684,11 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         {
                             item.SalesReturnQtyTill = sumReturnedQty;
                         }
-
                     }
                 }
             }
-
             return salesVoucherModel;
         }
-
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
         {
             try
