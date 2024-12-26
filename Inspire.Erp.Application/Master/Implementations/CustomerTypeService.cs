@@ -20,11 +20,13 @@ namespace Inspire.Erp.Application.Master
             try
             {
                 valid = true;
-                int mxc = 0;
-                mxc = CustomerTyperepository.GetAsQueryable().Where(k => k.CustomerTypeId != null).Select(x => x.CustomerTypeId).Max();
-                if (mxc == null) { mxc = 1; } else { mxc = mxc + 1; }
+                //int mxc = 0;
+                //mxc = CustomerTyperepository.GetAsQueryable().Where(k => k.CustomerTypeId != null).Select(x => x.CustomerTypeId).Max();
+                //if (mxc == null) { mxc = 1; } else { mxc = mxc + 1; }
 
-                customerType.CustomerTypeId = mxc;
+                //customerType.CustomerTypeId = mxc;
+                customerType.CustomerTypeStatus = false;
+                customerType.CustomerTypeDelStatus = false;
                 CustomerTyperepository.Insert(customerType);
             }
             catch (Exception ex)

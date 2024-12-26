@@ -5013,7 +5013,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<CustomerType>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.CustomerTypeId);
 
                 entity.ToTable("Customer_Type");
 
@@ -5022,8 +5022,8 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.CustomerTypeDeleted).HasColumnName("Customer_Type_Deleted");
 
                 entity.Property(e => e.CustomerTypeId)
-                    .HasColumnName("Customer_type_ID")
-                    .ValueGeneratedOnAdd();
+                    .HasColumnName("Customer_type_ID");
+                  
 
                 entity.Property(e => e.CustomerTypeName)
                     .HasColumnName("Customer_Type_Name")
