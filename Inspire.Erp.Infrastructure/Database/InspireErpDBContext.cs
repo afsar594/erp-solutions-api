@@ -17470,7 +17470,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<VendorMaster>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.VendorMasterVendorId);
 
                 entity.ToTable("Vendor_Master");
 
