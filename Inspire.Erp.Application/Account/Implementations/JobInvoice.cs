@@ -114,7 +114,7 @@ namespace Inspire.Erp.Application.Account.implementations
 
 
                 _jobinvoicerepo.TransactionCommit();
-                return this.GetJobInvoiceVoucherNo(JobInvoice.JobInvoiceVoucherNo);
+                return this.GetJobInvoiceVoucherNo((int)JobInvoice.JobInvoiceId);
             }
             catch (Exception ex)
             {
@@ -163,7 +163,7 @@ namespace Inspire.Erp.Application.Account.implementations
                 _accountTransactionRepository.InsertList(accountsTransactions);
                 // _jobdetailsrepo.UpdateList(JobInvoice.JobInvoiceDetails);
                 _jobinvoicerepo.TransactionCommit();
-                return this.GetJobInvoiceVoucherNo(JobInvoice.JobInvoiceVoucherNo);
+                return this.GetJobInvoiceVoucherNo((int)JobInvoice.JobInvoiceId);
             }
             catch (Exception ex)
             {
@@ -220,15 +220,15 @@ namespace Inspire.Erp.Application.Account.implementations
                 throw ex;
             }
         }
-        public JobInvoiceModel GetJobInvoiceVoucherNo(string VNo)
+        public JobInvoiceModel GetJobInvoiceVoucherNo(int VNo)
         {
             try
             {
 
                 JobInvoiceModel xs = new JobInvoiceModel();
-                xs.JobInvoice = _jobinvoicerepo.GetAsQueryable().Where(k => k.JobInvoiceVoucherNo == VNo).FirstOrDefault();
-                xs.JobInvoiceDetails = _jobdetailsrepo.GetAsQueryable().Where(x => x.JobInvoiceDetailsVoucherNo == VNo && (x.JobInvoiceDetailsDelStatus == false || x.JobInvoiceDetailsDelStatus == null)).ToList();
-                xs.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(x => x.AccountsTransactionsVoucherNo == VNo && x.AccountstransactionsDelStatus != true).ToList();
+                xs.JobInvoice = _jobinvoicerepo.GetAsQueryable().Where(k => k.JobInvoiceId == VNo).FirstOrDefault();
+                xs.JobInvoiceDetails = _jobdetailsrepo.GetAsQueryable().Where(x => x.JobInvoiceDetailsVoucherNo == xs.JobInvoice.JobInvoiceVoucherNo && (x.JobInvoiceDetailsDelStatus == false || x.JobInvoiceDetailsDelStatus == null)).ToList();
+                xs.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(x => x.AccountsTransactionsVoucherNo == xs.JobInvoice.JobInvoiceVoucherNo && x.AccountstransactionsDelStatus != true).ToList();
                 return xs;
             }
             catch (Exception ex)

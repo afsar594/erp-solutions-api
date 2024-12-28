@@ -13,7 +13,7 @@ namespace Inspire.Erp.Application.Account.Interface
         public Task<JobInvoiceModel> InsertJobInvoice(JobInvoice JobInvoiceViewModel, List<JobInvoiceDetails> jobInvoiceDetails, List<AccountsTransactions> accountsTransactions);
         public Task<JobInvoiceModel> UpdateJobInvoice(JobInvoice JobInvoiceViewModel, List<JobInvoiceDetails> jobInvoiceDetails, List<AccountsTransactions> accountsTransactions);
         public IEnumerable<JobInvoice> DeleteJobInvoice(string Id);
-        public JobInvoiceModel GetJobInvoiceVoucherNo(string? id);
+        public JobInvoiceModel GetJobInvoiceVoucherNo(int id);
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
 
     }

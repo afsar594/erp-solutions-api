@@ -181,7 +181,7 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("GetJobInvoiceVoucherNo/{id}")]
-        public ApiResponse<JobInvoiceViewModel> GetJobInvoiceVoucherNo(string id)
+        public ApiResponse<JobInvoiceViewModel> GetJobInvoiceVoucherNo(int id)
         {
             JobInvoiceModel xs = _invoice.GetJobInvoiceVoucherNo(id);
 
