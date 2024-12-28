@@ -166,7 +166,7 @@ namespace Inspire.Erp.Web.Controllers
             catch (Exception ex)
             {
                 obj.IsSuccess = false;
-                obj.ErrorMessage = ex.Message + ex?.InnerException.Message;
+                obj.ErrorMessage = ex.Message + ex.InnerException?.Message;
             }
             return obj;
         }
