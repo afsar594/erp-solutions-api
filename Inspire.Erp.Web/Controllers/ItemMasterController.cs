@@ -383,7 +383,8 @@ namespace Inspire.Erp.Web.Controllers
             var VendorMasters = Brandrepository.GetAsQueryable().Where(c => c.VendorMasterVendorDelStatus != true).Select(a => new
             {
                 a.VendorMasterVendorId,
-                a.VendorMasterVendorName
+                a.VendorMasterVendorName,
+                a.VendorMasterVendorStatus,
             }).OrderBy(x => x.VendorMasterVendorName).ToList();
             var Stocktype = itemStockRepository.GetAsQueryable().Where(c => c.ItemStockTypeDelStatus != 1).Select(a => new
             {
