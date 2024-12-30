@@ -21,14 +21,9 @@ namespace Inspire.Erp.Application.Master
             {
                 valid = true;
                 long mxc = 0;
-                //mxc = (int)Brandrepository.GetAsQueryable().Where(k => k.VendorMasterVendorId != null).Select(x => x.VendorMasterVendorId).Max();
-                //if (mxc == null) { mxc = 1; } else { mxc = mxc + 1; }
-
-
-                mxc = Convert.ToInt32(
+                  mxc = Convert.ToInt32(
                    Brandrepository.GetAsQueryable()
-                   .DefaultIfEmpty().Max(o => o == null ? 0 : o.VendorMasterVendorId) + 1);
-               
+                   .DefaultIfEmpty().Max(o => o == null ? 0 : o.VendorMasterVendorId) + 1);              
 
                 VendorMaster.VendorMasterVendorId = mxc;
 
