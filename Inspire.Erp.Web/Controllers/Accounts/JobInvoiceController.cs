@@ -381,6 +381,7 @@ namespace Inspire.Erp.Web.Controllers
                 {
                     c.LocationMasterLocationId,
                     c.LocationMasterLocationName,
+                    c.LocationMasterLocationStatus,
                 })
                 .ToListAsync();
 

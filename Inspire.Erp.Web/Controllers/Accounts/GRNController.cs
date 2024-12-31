@@ -212,6 +212,7 @@ namespace Inspire.Erp.Web.Controllers
             {
                 c.LocationMasterLocationId,
                 c.LocationMasterLocationName,
+                c.LocationMasterLocationStatus,
             }).OrderBy(x=>x.LocationMasterLocationName).ToList();
             var BrandMasters = Brandrepository.GetAsQueryable().AsNoTracking().Where(a => a.VendorMasterVendorDelStatus != true).Select(c => new
             {
