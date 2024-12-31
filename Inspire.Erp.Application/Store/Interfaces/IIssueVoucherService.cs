@@ -29,7 +29,7 @@ namespace Inspire.Erp.Application.Store.Interfaces
   
 
         
-        public IssueVoucherModel GetSavedIssueVoucherDetails(string pvno);
+        public IssueVoucherModel GetSavedIssueVoucherDetails(int pvno);
         public IEnumerable<IssueVoucher> GetIssueVoucher();
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
 

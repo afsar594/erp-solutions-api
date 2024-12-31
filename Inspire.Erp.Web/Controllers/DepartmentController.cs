@@ -35,7 +35,8 @@ namespace Inspire.Erp.Web.Controllers
                 DepartmentMasterDepartmentId = k.DepartmentMasterDepartmentId,
                 DepartmentMasterDepartmentName = k.DepartmentMasterDepartmentName,
                 DepartmentMasterDepartmentStatus = k.DepartmentMasterDepartmentStatus,
-                DepartmentMasterDepartmentDelStatus= k.DepartmentMasterDepartmentDelStatus
+                DepartmentMasterDepartmentDelStatus= k.DepartmentMasterDepartmentDelStatus,
+                DepartmentMasterDepartmentCode=k.DepartmentMasterDepartmentCode
 
             }).OrderBy(x=>x.DepartmentMasterDepartmentName).ToList();
         }
