@@ -263,7 +263,7 @@ namespace Inspire.Erp.Web.Controllers.Store
         }
         [HttpGet]
         [Route("GetSavedIssueVoucherDetails/{id}")]
-        public ApiResponse<IssueVoucherViewModel> GetSavedIssueVoucherDetails(string id)
+        public ApiResponse<IssueVoucherViewModel> GetSavedIssueVoucherDetails(int id)
         {
             IssueVoucherModel issueVoucher = _issueVoucherService.GetSavedIssueVoucherDetails(id);
 

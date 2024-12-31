@@ -72,9 +72,10 @@ namespace Inspire.Erp.Application.Account.implementations
         {
             try
             {
+                string openingstockVoucherNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.JobInoviceVoucher_TYPE, Prefix.JobInoviceVoucher_Prefix, _programsettingsRepository, _voucherNumbersRepository);
 
 
-                string openingstockVoucherNumber = this.GenerateVoucherNo(JobInvoice.JobInvoiceVoucherDate.Value).VouchersNumbersVNo;
+                //string openingstockVoucherNumber = this.GenerateVoucherNo(JobInvoice.JobInvoiceVoucherDate.Value).VouchersNumbersVNo;
                 JobInvoice.JobInvoiceVoucherNo = openingstockVoucherNumber;
 
                 _jobinvoicerepo.BeginTransaction();

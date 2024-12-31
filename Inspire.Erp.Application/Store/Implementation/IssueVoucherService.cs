@@ -185,7 +185,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 throw ex;
             }
 
-            return this.GetSavedIssueVoucherDetails(issueVoucher.IssueVoucherNo);
+            return this.GetSavedIssueVoucherDetails((int)issueVoucher.IssueVoucherId);
         }
 
         public int DeleteIssueVoucher(IssueVoucher issueVoucher, List<AccountsTransactions> accountsTransactions,
@@ -253,7 +253,9 @@ namespace Inspire.Erp.Application.Store.Implementation
             try
             {
                 _issueVoucherRepository.BeginTransaction();
-                string issueVoucherNumber = this.GenerateVoucherNo(issueVoucher.IssueVoucherDate.Date).VouchersNumbersVNo;
+                string issueVoucherNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.IssueVoucher_TYPE, Prefix.IssueVoucher_Prefix, _programsettingsRepository, _voucherNumbersRepository);
+
+                //string issueVoucherNumber = this.GenerateVoucherNo(issueVoucher.IssueVoucherDate.Date).VouchersNumbersVNo;
                 issueVoucher.IssueVoucherNo = issueVoucherNumber;
                 int maxcount = 0;
                 maxcount = Convert.ToInt32(
@@ -375,7 +377,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 }
 
                 _issueVoucherRepository.TransactionCommit();
-                return this.GetSavedIssueVoucherDetails(issueVoucher.IssueVoucherNo);
+                return this.GetSavedIssueVoucherDetails((int)issueVoucher.IssueVoucherId);
 
             }
             catch (Exception ex)
@@ -393,15 +395,15 @@ namespace Inspire.Erp.Application.Store.Implementation
             IEnumerable<IssueVoucher> issueVoucher_ALL = _issueVoucherRepository.GetAll().Where(k => k.IssueVoucherDelStatus == false || k.IssueVoucherDelStatus == null);
             return issueVoucher_ALL;
         }
-        public IssueVoucherModel GetSavedIssueVoucherDetails(string pvno)
+        public IssueVoucherModel GetSavedIssueVoucherDetails(int pvno)
         {
             IssueVoucherModel issueVoucherModel = new IssueVoucherModel();
             //issueVoucherModel.issueVoucher = _issueVoucherRepository.GetAsQueryable().Where(k => k.IssueVoucherNo == pvno && k.IssueVoucherDelStatus == false).SingleOrDefault();
 
-            issueVoucherModel.issueVoucher = _issueVoucherRepository.GetAsQueryable().Where(k => k.IssueVoucherNo == pvno).SingleOrDefault();
+            issueVoucherModel.issueVoucher = _issueVoucherRepository.GetAsQueryable().Where(k => k.IssueVoucherId == pvno).SingleOrDefault();
 
-            issueVoucherModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.IssueVoucher_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
-            issueVoucherModel.issueVoucherDetails = _issueVoucherDetailsRepository.GetAsQueryable().Where(x => x.IssueVoucherDetailsNo == pvno && (x.IssueVoucherDetailsDelStatus == false || x.IssueVoucherDetailsDelStatus == null)).ToList();
+            issueVoucherModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == issueVoucherModel.issueVoucher.IssueVoucherNo && c.AccountsTransactionsVoucherType == VoucherType.IssueVoucher_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
+            issueVoucherModel.issueVoucherDetails = _issueVoucherDetailsRepository.GetAsQueryable().Where(x => x.IssueVoucherDetailsNo == issueVoucherModel.issueVoucher.IssueVoucherNo && (x.IssueVoucherDetailsDelStatus == false || x.IssueVoucherDetailsDelStatus == null)).ToList();
             return issueVoucherModel;
         }
 
