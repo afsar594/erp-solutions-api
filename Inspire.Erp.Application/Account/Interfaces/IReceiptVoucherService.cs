@@ -13,7 +13,7 @@ namespace Inspire.Erp.Application.Account.Interfaces
         public ReceiptVoucherMaster UpdateReceiptVoucher(ReceiptVoucherMaster receiptVoucher, List<AccountsTransactions> accountsTransactions, List<ReceiptVoucherDetails> receiptVoucherDetails, List<AllocationDetails> alloDetails);
         public int DeleteReceiptVoucher(ReceiptVoucherMaster receiptVoucher, List<AccountsTransactions> accountsTransactions, List<ReceiptVoucherDetails> receiptVoucherDetails);
         public IEnumerable<AccountsTransactions> GetAllTransaction();
-        public ReceiptVoucherMaster GetSavedReceiptDetails(string Rvno);
+        public ReceiptVoucherMaster GetSavedReceiptDetails(int Rvno);
         public IEnumerable<ReceiptVoucherMaster> GetReceiptVouchers();
         
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);

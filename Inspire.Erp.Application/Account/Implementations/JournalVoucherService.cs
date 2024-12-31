@@ -13,6 +13,7 @@ using System.Linq;
 using Inspire.Erp.Domain.Entities;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using Inspire.Erp.Application.MODULE;
 namespace Inspire.Erp.Application.Account.Implementations
 {
     public class JournalVoucherService : IJournalVoucherService
@@ -60,14 +61,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 _journalVoucherDetailsRepository.UpdateList(journalVoucherDetails);
                 _journalVoucherRepository.Update(journalVoucher);
-                //UserTracking trackingData = new UserTracking();
-                //trackingData.UserTrackingUserUserId = 1;
-                //trackingData.UserTrackingUserVpAction = "Update";
-                //trackingData.UserTrackingUserVpNo = journalVoucher.JournalVoucherVrefNo;
-                //trackingData.UserTrackingUserChangeDt = DateTime.Now;
-                //trackingData.UserTrackingUserChangeTime = DateTime.Now;
-                //trackingData.UserTrackingUserVpType = "JOURNALVOUCHER";
-                //_UserTracking.Insert(trackingData);
+
                 _journalVoucherRepository.TransactionCommit();
             }
             catch (Exception ex)
@@ -75,7 +69,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _journalVoucherRepository.TransactionRollback();
                 throw ex;
             }
-            return this.GetSavedJournalVoucherDetails(journalVoucher.JournalVoucherVrefNo);
+            return this.GetSavedJournalVoucherDetails(journalVoucher.JournalVoucherSno);
         }
 
         public int DeleteJournalVoucher(JournalVoucher journalVoucher, List<AccountsTransactions> accountsTransactions, List<JournalVoucherDetails> journalVoucherDetails)
@@ -124,8 +118,8 @@ namespace Inspire.Erp.Application.Account.Implementations
             try
             {
                 _journalVoucherRepository.BeginTransaction();
-                string jvno = this.GenerateVoucherNo(journalVoucher.JournalVoucherDate).VouchersNumbersVNo;
-                journalVoucher.JournalVoucherVrefNo = jvno;
+                //string jvno = this.GenerateVoucherNo(journalVoucher.JournalVoucherDate).VouchersNumbersVNo;
+                journalVoucher.JournalVoucherVrefNo = clsCommonFunctions.GenrateVoucherNo(VoucherType.JournalVoucher_TYPE, Prefix.JournalVoucher_Prefix, _programsettingsRepository, _voucherNumbersRepository); 
                 int maxcount = 0;
                 maxcount = Convert.ToInt32(
                     _journalVoucherRepository.GetAsQueryable()
@@ -149,7 +143,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     return k;
                 }).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
-                
+
                 //UserTracking trackingData = new UserTracking();
                 //trackingData.UserTrackingUserUserId = 1;
                 //trackingData.UserTrackingUserVpAction = "Insert";
@@ -159,7 +153,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 //trackingData.UserTrackingUserVpType = "JOVOUCHER";
                 //_UserTracking.Insert(trackingData);
                 _journalVoucherRepository.TransactionCommit();
-                return this.GetSavedJournalVoucherDetails(journalVoucher.JournalVoucherVrefNo);
+                return this.GetSavedJournalVoucherDetails(journalVoucher.JournalVoucherSno);
 
             }
             catch (Exception ex)
@@ -177,12 +171,16 @@ namespace Inspire.Erp.Application.Account.Implementations
             IEnumerable<JournalVoucher> journalVoucher_ALL = _journalVoucherRepository.GetAll().Where(k => k.JournalVoucherDelStatus == false || k.JournalVoucherDelStatus == null);
             return journalVoucher_ALL;
         }
-        public JournalVoucher GetSavedJournalVoucherDetails(string pvno)
+        public JournalVoucher GetSavedJournalVoucherDetails(int pvno)
         {
             JournalVoucher journalVoucherModel = new JournalVoucher();
-            journalVoucherModel = _journalVoucherRepository.GetAsQueryable().Where(k => k.JournalVoucherVrefNo == pvno).SingleOrDefault();
-            journalVoucherModel.JournalVoucherDetails = _journalVoucherDetailsRepository.GetAsQueryable().Where(x => x.JournalVoucherDetailVrefNo == pvno && x.JournalVoucherDetailsDelStatus == false).ToList();
-            journalVoucherModel.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(x => x.AccountsTransactionsVoucherNo == pvno && x.AccountstransactionsDelStatus == false).ToList();
+            journalVoucherModel = _journalVoucherRepository.GetAsQueryable().Where(k => k.JournalVoucherSno == pvno).SingleOrDefault();
+            if (journalVoucherModel != null)
+            {
+                journalVoucherModel.JournalVoucherDetails = _journalVoucherDetailsRepository.GetAsQueryable().Where(x => x.JournalVoucherDetailVrefNo == journalVoucherModel.JournalVoucherVrefNo && x.JournalVoucherDetailsDelStatus == false).ToList();
+                journalVoucherModel.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(x => x.AccountsTransactionsVoucherNo == journalVoucherModel.JournalVoucherVrefNo && x.AccountstransactionsDelStatus == false).ToList();
+                
+            }
             return journalVoucherModel;
         }
 

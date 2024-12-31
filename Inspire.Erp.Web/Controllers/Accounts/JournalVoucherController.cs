@@ -113,7 +113,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
 
         [HttpGet]
         [Route("GetSavedJournalVoucherDetails/{id}")]
-        public ApiResponse<JournalVoucher> GetSavedJournalVoucherDetails(string id)
+        public ApiResponse<JournalVoucher> GetSavedJournalVoucherDetails(int id)
         {
             JournalVoucher journalVoucher = _journalVoucherService.GetSavedJournalVoucherDetails(id);
 

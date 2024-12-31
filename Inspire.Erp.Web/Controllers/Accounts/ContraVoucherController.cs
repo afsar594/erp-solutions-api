@@ -124,7 +124,7 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("GetSavedContraVoucherDetails/{id}")]
-        public ApiResponse<ContraVoucher> GetSavedContraVoucherDetails(string id)
+        public ApiResponse<ContraVoucher> GetSavedContraVoucherDetails(int id)
         {
             ContraVoucher contraVoucher = _contraVoucherService.GetSavedContraVoucherDetails(id);
             if (contraVoucher != null)
