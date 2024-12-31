@@ -395,6 +395,7 @@ namespace Inspire.Erp.Web.Controllers.Store
             {
                 c.LocationMasterLocationId,
                 c.LocationMasterLocationName,
+                c.LocationMasterLocationStatus,
             }).OrderBy(x => x.LocationMasterLocationName).ToList();
 
             var DepartmentsList = departmentrepository.GetAsQueryable().AsNoTracking().Where(a => a.DepartmentMasterDepartmentDelStatus != true).Select(k => new

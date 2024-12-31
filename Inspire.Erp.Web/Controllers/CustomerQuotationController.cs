@@ -232,6 +232,7 @@ namespace Inspire.Erp.Web.Controllers
             var LocationMaster = locationrepository.GetAsQueryable().AsNoTracking().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
             {
                 c.LocationMasterLocationId,
+                c.LocationMasterLocationStatus,
                 LocationMasterLocationName = c.LocationMasterLocationName.Trim(),
             }).OrderBy(x => x.LocationMasterLocationName).ToList();
             var SaleManList = salesmanrepository.GetAsQueryable().AsNoTracking().Where(a => a.SalesManMasterSalesManDelStatus != true).Select(c => new
