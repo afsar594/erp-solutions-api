@@ -171,6 +171,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             {
                 c.LocationMasterLocationId,
                 c.LocationMasterLocationName,
+                c.LocationMasterLocationStatus,
             }).OrderBy(x => x.LocationMasterLocationName).ToList();
 
             var purchaseOrder = _purchaseOrderRepository.GetAsQueryable().Where(k => k.PurchaseOrderDelStatus != true).Select(c => new
