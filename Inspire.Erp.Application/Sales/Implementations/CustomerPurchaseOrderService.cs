@@ -113,7 +113,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     k.CustomerPurchaseOrderId = customerPurchaseOrder.CustomerPurchaseOrderId;
                     k.CustomerPurchaseOrderDetailsVoucherNo = customerPurchaseOrder.CustomerPurchaseOrderVoucherNo;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.CustomerPurchaseOrderDetailsVoucherNo).ToList();
 
                 _customerPurchaseOrderRepository.Update(customerPurchaseOrder);
 
@@ -128,7 +128,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     }
 
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
 
@@ -142,7 +142,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         k.StockRegisterStatus = AccountStatus.Approved;
                     }
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.StockRegisterRefVoucherNo).ToList();
                 _stockRegisterRepository.UpdateList(stockRegister);
 
                 //insert tracking register
@@ -235,20 +235,20 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 {
                     k.CustomerPurchaseOrderDetailsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.CustomerPurchaseOrderDetailsVoucherNo).ToList();
 
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
                 stockRegister = stockRegister.Select((k) =>
                 {
                     k.StockRegisterDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.StockRegisterRefVoucherNo).ToList();
                 _stockRegisterRepository.UpdateList(stockRegister);
                 _customerPurchaseOrderRepository.Update(customerPurchaseOrder);
 
@@ -287,7 +287,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     x.CustomerPurchaseOrderId = maxcount;
                     x.CustomerPurchaseOrderDetailsVoucherNo = customerPurchaseOrderNumber;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.CustomerPurchaseOrderDetailsVoucherNo).ToList();
 
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
@@ -295,7 +295,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     k.AccountsTransactionsVoucherType = VoucherType.CustomerPurchaseOrder_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
                 _customerPurchaseOrderRepository.Insert(customerPurchaseOrder);
 
@@ -379,8 +379,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
         {
             CustomerPurchaseOrderModel customerPurchaseOrderModel = new CustomerPurchaseOrderModel();
             customerPurchaseOrderModel.customerPurchaseOrder = _customerPurchaseOrderRepository.GetAsQueryable().Where(k => k.CustomerPurchaseOrderId == id).SingleOrDefault();
-            customerPurchaseOrderModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == customerPurchaseOrderModel.customerPurchaseOrder.CustomerPurchaseOrderVoucherNo && c.AccountsTransactionsVoucherType == VoucherType.CustomerPurchaseOrder_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
-            customerPurchaseOrderModel.customerPurchaseOrderDetails = _customerPurchaseOrderDetailsRepository.GetAsQueryable().Where(x => x.CustomerPurchaseOrderDetailsVoucherNo == customerPurchaseOrderModel.customerPurchaseOrder.CustomerPurchaseOrderVoucherNo && (x.CustomerPurchaseOrderDetailsDelStatus == false || x.CustomerPurchaseOrderDetailsDelStatus == null)).ToList();
+            customerPurchaseOrderModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == customerPurchaseOrderModel.customerPurchaseOrder.CustomerPurchaseOrderVoucherNo && c.AccountsTransactionsVoucherType == VoucherType.CustomerPurchaseOrder_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+            customerPurchaseOrderModel.customerPurchaseOrderDetails = _customerPurchaseOrderDetailsRepository.GetAsQueryable().Where(x => x.CustomerPurchaseOrderDetailsVoucherNo == customerPurchaseOrderModel.customerPurchaseOrder.CustomerPurchaseOrderVoucherNo && (x.CustomerPurchaseOrderDetailsDelStatus == false || x.CustomerPurchaseOrderDetailsDelStatus == null)).OrderBy(x => x.CustomerPurchaseOrderDetailsVoucherNo).ToList();
             return customerPurchaseOrderModel;
         }
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
@@ -480,7 +480,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                      }).ToList();
                 if (model.isDataChecked)
                 {
-                    purchaseorder = purchaseorder.Where(a => a.CustomerPurchaseOrderDate.Value.Date >= model.DateFrom.Value.Date && a.CustomerPurchaseOrderDate.Value.Date <= model.DateTo.Value.Date).ToList();
+                    purchaseorder = purchaseorder.Where(a => a.CustomerPurchaseOrderDate.Value.Date >= model.DateFrom.Value.Date && a.CustomerPurchaseOrderDate.Value.Date <= model.DateTo.Value.Date).OrderBy(x => x.CustomerPurchaseOrderVoucherNo).ToList();
                 }
 
                 var results = (from cpod in purchaseorder
@@ -518,7 +518,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                    DeliveredId = srq.CustomerDeliveryNoteDeliveryID,
                                    ItemId = (int)cpod.CustomerPurchaseOrderDetailsItemId,
                                    LocationId = (int)cpod.CustomerPurchaseOrderLocationId
-                               }).ToList();
+                               }).OrderBy(x => x.VoucherNo).ToList();
                 return Response<List<GetCustomerPurchaseOrderTrackingResponse>>.Success(results, "Data found");
             }
             catch (Exception ex)

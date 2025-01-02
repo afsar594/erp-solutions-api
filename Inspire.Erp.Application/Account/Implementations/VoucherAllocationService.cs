@@ -526,7 +526,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     AllocationVoucherVoucherNo = x.AllocationVoucherVoucherNo,
                     AllocationVoucherVoucherAccNo = x.AllocationVoucherVoucherAccNo,
                     AllocationVoucherVoucherDate = x.AllocationVoucherVoucherDate
-                }).ToList());
+                }).OrderBy(x => x.AllocationVoucherVoucherNo).ToList());
                 var gridResponse = new GridWrapperResponse<List<GetVoucherAllocationListResponse>>();
                 gridResponse.Data = response;
                 gridResponse.Total = 0;
@@ -571,7 +571,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                             AllocationVoucherDetailsId = x.AllocationVoucherDetailsId,
                             AllocationVoucherDetailsVtype = x.AllocationVoucherDetailsVtype,
                             AllocationVoucherDetailsSno = Convert.ToInt32(model.AllocationVoucherId),
-                        }).ToList();
+                        }).OrderBy(x => x.AllocationVoucherDetailsAccNo).ToList();
 
                     var accTrans = await GetAccountTransactions(new GenericGridViewModel()
                     {

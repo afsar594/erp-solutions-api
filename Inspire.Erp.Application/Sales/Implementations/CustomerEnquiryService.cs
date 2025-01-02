@@ -166,7 +166,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
         {
             IEnumerable<EnquiryMaster> customerEnquiry = _customerEnquiryRepository.GetAll().Where(k => k.EnquiryMasterDelStatus == false || k.EnquiryMasterDelStatus == null);
 
-            customerEnquiry = customerEnquiry.OrderBy(sm => sm.EnquiryMasterContactName).ToList();
+            customerEnquiry = customerEnquiry.OrderBy(sm => sm.EnquiryMasterContactName).OrderBy(x => x.EnquiryMasterContactName).ToList();
             return customerEnquiry;
         }
         public CustomerEnquiryModel GetSavedCustEnquiryDetails(string Qtno)

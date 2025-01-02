@@ -5098,7 +5098,7 @@ namespace Inspire.Erp.Application.Master
                     model.Cash = model.NetTotal - cardAmountResult.FirstOrDefault().CardAmount;
                     var pc = await ProcessCash(totalChange, model);
                     cardAmountResponse.VoucherNo = model.VoucherNo;
-                    var tempSettDet = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId).ToList();
+                    var tempSettDet = settDetailsTempRepo.GetAsQueryable().Where(o => o.UserId == model.UserId).OrderBy(x => x.CounterName).ToList();
                     if (tempSettDet != null) settDetailsTempRepo.DeleteList(tempSettDet);
                 }
                 else

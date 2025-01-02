@@ -89,7 +89,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     //}
 
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.IssueReturnDetailsItemName).ToList();
 
                 _issueReturnRepository.Update(issueReturn);
 
@@ -109,7 +109,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     }
 
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
 
@@ -125,7 +125,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     }
 
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.StockRegisterRefVoucherNo).ToList();
                 _stockRegisterRepository.UpdateList(stockRegister);
 
 
@@ -167,7 +167,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 {
                     k.IssueReturnDetailsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.IssueReturnDetailsItemName).ToList();
 
                 //_issueReturnDetailsRepository.UpdateList(issueReturnDetails);
 
@@ -175,7 +175,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
 
@@ -185,7 +185,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 {
                     k.StockRegisterDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.StockRegisterRefVoucherNo).ToList();
                 _stockRegisterRepository.UpdateList(stockRegister);
 
 
@@ -241,7 +241,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     x.IssueReturnId = maxcount;
                     x.IssueReturnDetailsNo = issueReturnNumber;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.IssueReturnDetailsItemName).ToList();
                 //_issueReturnDetailsRepository.InsertList(issueReturnDetails);
 
                 accountsTransactions = accountsTransactions.Select((k) =>
@@ -251,7 +251,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     k.AccountsTransactionsVoucherType = VoucherType.IssueReturn_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
                 foreach (var item in issueReturnDetails)
@@ -311,8 +311,8 @@ namespace Inspire.Erp.Application.Store.Implementation
 
 
 
-            issueReturnModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == issueReturnModel.issueReturn.IssueReturnNo && c.AccountsTransactionsVoucherType == VoucherType.IssueReturn_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
-            issueReturnModel.issueReturnDetails = _issueReturnDetailsRepository.GetAsQueryable().Where(x => x.IssueReturnDetailsNo == issueReturnModel.issueReturn.IssueReturnNo && (x.IssueReturnDetailsDelStatus == false || x.IssueReturnDetailsDelStatus == null)).ToList();
+            issueReturnModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == issueReturnModel.issueReturn.IssueReturnNo && c.AccountsTransactionsVoucherType == VoucherType.IssueReturn_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+            issueReturnModel.issueReturnDetails = _issueReturnDetailsRepository.GetAsQueryable().Where(x => x.IssueReturnDetailsNo == issueReturnModel.issueReturn.IssueReturnNo && (x.IssueReturnDetailsDelStatus == false || x.IssueReturnDetailsDelStatus == null)).OrderBy(x => x.IssueReturnDetailsItemName).ToList();
             return issueReturnModel;
 
         }

@@ -349,7 +349,7 @@ namespace Inspire.Erp.Application.Common
                 {
                     emails.Add(new EmailAddress(email));
                 }
-                emails.AddRange(_mailSettings.CCEmails.Select(x => new EmailAddress(x)).ToList());
+                emails.AddRange(_mailSettings.CCEmails.Select(x => new EmailAddress(x)).OrderBy(x => x.Name).ToList());
                 var plainTextContent = "";
                 var htmlContent = mailRequest.Body;
                 var msg = MailHelper.CreateSingleEmailToMultipleRecipients(from, emails, subject, plainTextContent, htmlContent);

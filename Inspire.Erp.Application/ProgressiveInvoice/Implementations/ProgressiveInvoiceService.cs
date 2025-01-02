@@ -59,7 +59,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                     k.AccountsTransactionsFcDebit = 0;
                     k.AccountsTransactionsStatus = "A";
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
                 _progressiveInvoice.Insert(progressiveInvoice);
@@ -93,7 +93,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                         k.AccountsTransactionsStatus = AccountStatus.Approved;
                     }
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
                 _progressiveInvoice.TransactionCommit();
 
@@ -120,7 +120,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 _progressiveInvoice.Update(progressiveInvoice);
                 var vchrnumer = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == progressiveInvoice.ProgressiveInvoiceInvNo).FirstOrDefault();

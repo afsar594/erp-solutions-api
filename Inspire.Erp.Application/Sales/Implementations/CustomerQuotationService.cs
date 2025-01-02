@@ -134,7 +134,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
               {
                   x.CustomerQuotationDetailsDelStatus = true;
                   return x;
-              }).ToList();
+              }).OrderBy(x => x.CustomerQuotationDetailsVoucherNo).ToList();
                 //_customerQuotationDetailsRepository.UpdateList();
                 _customerQuotationRepository.Update(customerQuotation);
 
@@ -246,7 +246,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             voucherdata = _customerQuotationRepository.GetAsQueryable().Where(k => k.CustomerQuotationQid == id && k.CustomerQuotationDelStatus != true).FirstOrDefault();
             if (voucherdata != null)
             {
-                voucherdata.CustomerQuotationDetails = _customerQuotationDetailsRepository.GetAsQueryable().Where(qd => qd.CustomerQuotationDetailsQuotationId == id).ToList();
+                voucherdata.CustomerQuotationDetails = _customerQuotationDetailsRepository.GetAsQueryable().Where(qd => qd.CustomerQuotationDetailsQuotationId == id).OrderBy(x => x.CustomerQuotationDetailsVoucherNo).ToList();
                 return voucherdata;
 
             }

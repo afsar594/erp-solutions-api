@@ -186,7 +186,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 {
                     k.PurchaseQuotationDetailsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.PurchaseQuotationDetailsItemName).ToList();
 
                 //_purchaseQuotationDetailsRepository.UpdateList(purchaseQuotationDetails);
 

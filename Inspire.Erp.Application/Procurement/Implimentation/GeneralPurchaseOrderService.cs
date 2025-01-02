@@ -248,7 +248,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     UserId = x.UserId,
                     LevelOrder = x.LevelOrder,
                     ApprovedAt = DateTime.Now,
-                }).ToList());
+                }).OrderBy(x => x.LevelOrder).ToList());
                 _GeneralpurchaseOrderRepository.TransactionCommit();
                 return this.GetSavedGeneralPurchaseOrderDetails(GeneralpurchaseOrder.GeneralPurchaseOrderPono);
 

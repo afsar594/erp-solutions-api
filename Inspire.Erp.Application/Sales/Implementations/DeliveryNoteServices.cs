@@ -135,7 +135,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 {
                     k.CustomerDeliveryNoteDetailsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.CustomerDeliveryNoteDetailsDeliveryNo).ToList();
 
                 deliveryNote.CustomerDeliveryNoteDetails = deliveryNoteDetails;
 
@@ -214,7 +214,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             DeliveryNoteModel deliveryNoteModel = new DeliveryNoteModel();
 
             deliveryNoteModel.deliveryNote = _deliveryNoteRepository.GetAsQueryable().Where(k => k.CustomerDeliveryNoteDeliveryID == pvno).SingleOrDefault();
-            deliveryNoteModel.deliveryNoteDetails = _deliveryNoteDetailsRepository.GetAsQueryable().Where(x => x.CustomerDeliveryNoteDetailsDeliveryNo == pvno && (x.CustomerDeliveryNoteDetailsDelStatus == false || x.CustomerDeliveryNoteDetailsDelStatus == null)).ToList();
+            deliveryNoteModel.deliveryNoteDetails = _deliveryNoteDetailsRepository.GetAsQueryable().Where(x => x.CustomerDeliveryNoteDetailsDeliveryNo == pvno && (x.CustomerDeliveryNoteDetailsDelStatus == false || x.CustomerDeliveryNoteDetailsDelStatus == null)).OrderBy(x => x.CustomerDeliveryNoteDetailsDeliveryNo).ToList();
             return deliveryNoteModel;
         }
 
@@ -228,7 +228,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
         public IEnumerable<CustomerDeliveryNote> GetDeliveryNote()
         {
 
-            var customerDeliveryNotes = _deliveryNoteRepository.GetAll().Where(a => a.CustomerDeliveryNoteDelStatus == false || a.CustomerDeliveryNoteDelStatus == null).ToList();
+            var customerDeliveryNotes = _deliveryNoteRepository.GetAll().Where(a => a.CustomerDeliveryNoteDelStatus == false || a.CustomerDeliveryNoteDelStatus == null).OrderBy(x => x.CustomerDeliveryNoteCustomerName).ToList();
             return customerDeliveryNotes;
         }
 
@@ -311,7 +311,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 {
                     x.CustomerDeliveryNoteDetailsDeliveryDetailId = maxcount;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.CustomerDeliveryNoteDetailsDeliveryNo).ToList();
                 _deliveryNoteDetailsRepository.InsertList(deliveryNoteDetails);
 
                 _deliveryNoteRepository.Insert(deliveryNote);

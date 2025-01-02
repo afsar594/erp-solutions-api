@@ -329,7 +329,7 @@ namespace Inspire.Erp.Application.Sales.Implementation
                 #endregion
                 _customerOrder.SaveChangesAsync();
 
-                var listOrdersDetails = _customerOrderDetails.GetAsQueryable().Where(x => x.CustomerOrderDetailsSno == model.CustomerOrderId).ToList();
+                var listOrdersDetails = _customerOrderDetails.GetAsQueryable().Where(x => x.CustomerOrderDetailsSno == model.CustomerOrderId).OrderBy(x => x.CustomerOrderDetailsSno).ToList();
                 _customerOrderDetails.DeleteList(listOrdersDetails);
                 #region ADD ACTIVITY LOGS
                 AddActivityLogViewModel Deletelogs = new AddActivityLogViewModel()
@@ -398,7 +398,7 @@ namespace Inspire.Erp.Application.Sales.Implementation
                     CustomerOrderNetAmount = x.CustomerOrderNetAmount,
                     CustomerOrderNo = x.CustomerOrderNo,
                     CustomerOrderTotalAmount = x.CustomerOrderTotalAmount,
-                }).ToList());
+                }).OrderBy(x => x.CustomerOrderNo).ToList());
                 var gridResponse = new GridWrapperResponse<List<GetCustomerSalesOrderListResponse>>();
                 gridResponse.Data = response;
                 gridResponse.Total = 0;
@@ -447,7 +447,7 @@ namespace Inspire.Erp.Application.Sales.Implementation
                             CustomerOrderDetailsUnitName = _unitMaster.GetAsQueryable().FirstOrDefault(c => c.UnitMasterUnitId == x.CustomerOrderDetailsUnitId).UnitMasterUnitShortName,
                             CustomerOrderDetailsMaterialId = x.CustomerOrderDetailsMaterialId,
                             CustomerOrderDetailsFcAmount = x.CustomerOrderDetailsFcAmount
-                        }).ToList();
+                        }).OrderBy(x => x.CustomerOrderDetailsUnitName).ToList();
 
                 });
                 return Response<GetCustomerSalesOrderListResponse>.Success(model, "Records FOund.");

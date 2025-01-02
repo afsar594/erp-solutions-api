@@ -158,7 +158,7 @@ namespace Inspire.Erp.Application.OrderApprovals.Implementation
             {
                 this.orderApprovals.Update(model);
                 await Task.Delay(1000);
-                var orderApp = this.orderApprovals.GetAll().ToList();
+                var orderApp = this.orderApprovals.GetAll().OrderBy(x => x.VoucherNo).ToList();
                 foreach (var item in orderApp)
                 {
                     data.Add(item);

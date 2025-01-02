@@ -125,7 +125,7 @@ namespace Inspire.Erp.Application.MODULE
 
 
 
-                 }).ToList();
+                 }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
             _accountTransactionRepository.DeleteList(accttrans);
             //_accountTransactionRepository.UpdateList(accttrans);
         }

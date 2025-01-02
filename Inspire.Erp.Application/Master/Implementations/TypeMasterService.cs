@@ -99,7 +99,7 @@ namespace Inspire.Erp.Application.Master
             {
                 //cityrepository.Dispose();
             }
-            typeMaster = typeMaster.OrderBy(sm => sm.TypeMasterTypeName).ToList();
+            typeMaster = typeMaster.OrderBy(sm => sm.TypeMasterTypeName).OrderBy(x => x.TypeMasterTypeName).ToList();
             return typeMaster;
         }
 

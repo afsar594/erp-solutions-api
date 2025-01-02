@@ -83,7 +83,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     k.StockRequisitionId = StockRequisition.StockRequisitionId;
                     k.StockRequisitionDetailsNo = StockRequisition.StockRequisitionNo;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.StockRequisitionDetailsItemName).ToList();
 
                 _StockRequisitionRepository.Update(StockRequisition);
                 //_StockRequisitionRepository.Update(StockRequisition);
@@ -98,7 +98,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     }
 
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 _StockRequisitionRepository.TransactionCommit();
 
@@ -127,7 +127,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 {
                     k.StockRequisitionDetailsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.StockRequisitionDetailsItemName).ToList();
 
                 _StockRequisitionDetailsRepository.UpdateList(StockRequisitionDetails);
 
@@ -135,7 +135,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
                 StockRequisition.StockRequisitionDetails = StockRequisitionDetails;
@@ -181,7 +181,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     x.StockRequisitionId = maxcount;
                     x.StockRequisitionDetailsNo = StockRequisitionNumber;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.StockRequisitionDetailsNo).ToList();
 
                 StockRequisition.StockRequisitionDetails.Clear();
 
@@ -206,7 +206,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     k.AccountsTransactionsVoucherType = VoucherType.StockRequisition_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
                 _StockRequisitionRepository.Insert(StockRequisition);
@@ -226,7 +226,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     UserId = x.UserId,
                     LevelOrder = x.LevelOrder,
                     ApprovedAt = DateTime.Now,
-                }).ToList());
+                }).OrderBy(x => x.LevelOrder).ToList());
 
                 _StockRequisitionRepository.TransactionCommit();
                 return this.GetSavedStockRequisitionDetails(StockRequisition.StockRequisitionNo);
@@ -252,7 +252,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         {
             StockRequisitionModel StockRequisitionModel = new StockRequisitionModel();
             StockRequisitionModel.StockRequisition = _StockRequisitionRepository.GetAsQueryable().Where(k => k.StockRequisitionNo == pvno).SingleOrDefault();
-            StockRequisitionModel.StockRequisitionDetails = _StockRequisitionDetailsRepository.GetAsQueryable().Where(x => x.StockRequisitionDetailsNo == pvno && (x.StockRequisitionDetailsDelStatus == false || x.StockRequisitionDetailsDelStatus == null)).ToList();
+            StockRequisitionModel.StockRequisitionDetails = _StockRequisitionDetailsRepository.GetAsQueryable().Where(x => x.StockRequisitionDetailsNo == pvno && (x.StockRequisitionDetailsDelStatus == false || x.StockRequisitionDetailsDelStatus == null)).OrderBy(x => x.StockRequisitionDetailsItemName).ToList();
             return StockRequisitionModel;
 
         }

@@ -157,7 +157,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.SalesReturnId = salesReturn.SalesReturnId;
                     k.SalesReturnDetailsNo = salesReturn.SalesReturnNo;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.SalesReturnDetailsItemName).ToList();
 
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
@@ -172,9 +172,9 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsFcAllocCredit = 0;
                     k.AccountsTransactionsFcAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
-                var removedList = _Context.SalesReturnDetails.Where(o => o.SalesReturnId == salesReturn.SalesReturnId).ToList();
+                var removedList = _Context.SalesReturnDetails.Where(o => o.SalesReturnId == salesReturn.SalesReturnId).OrderBy(x => x.SalesReturnDetailsItemName).ToList();
                 _Context.SalesReturnDetails.RemoveRange(removedList);
                 _Context.SaveChanges();
 
@@ -281,7 +281,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     k.SalesReturnDetailsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.SalesReturnDetailsItemName).ToList();
 
                 //_salesReturnDetailsRepository.UpdateList(salesReturnDetails);
 
@@ -289,14 +289,14 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
                 stockRegister = stockRegister.Select((k) =>
                 {
                     k.StockRegisterDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.StockRegisterRefVoucherNo).ToList();
                 _stockRegisterRepository.UpdateList(stockRegister);
 
                 // salesReturn.SalesReturnDetails = salesReturnDetails;
@@ -339,7 +339,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     x.SalesReturnId = salesReturn.SalesReturnId;
                     x.SalesReturnDetailsNo = salesReturn.SalesReturnNo;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.SalesReturnDetailsItemName).ToList();
                 _Context.SalesReturnDetails.AddRange(salesReturnDetails);
                 _Context.SaveChanges();
                 Console.WriteLine("FOUR = " + salesReturn.SalesReturnId);
@@ -358,7 +358,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsFcAllocCredit = 0;
                     k.AccountsTransactionsFcAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
 
                 _Context.AccountsTransactions.AddRange(accountsTransactions);
                 _Context.SaveChanges();
@@ -412,7 +412,7 @@ namespace Inspire.Erp.Application.Account.Implementations
         }
         public List<SalesReturn> GetSalesReturn()
         {
-            List<SalesReturn> salesReturn_ALL = _salesReturnRepository.GetAll().Where(k => k.SalesReturnDelStatus == false || k.SalesReturnDelStatus == null).ToList();
+            List<SalesReturn> salesReturn_ALL = _salesReturnRepository.GetAll().Where(k => k.SalesReturnDelStatus == false || k.SalesReturnDelStatus == null).OrderBy(x => x.SalesReturnNo).ToList();
             return salesReturn_ALL;
         }
         public SalesReturnModel GetSavedSalesReturnDetails(int pvno)
@@ -421,8 +421,8 @@ namespace Inspire.Erp.Application.Account.Implementations
             salesReturnModel.salesReturn = _salesReturnRepository.GetAsQueryable().Where(k => k.SalesReturnId == pvno && k.SalesReturnDelStatus != true).FirstOrDefault();
             if (salesReturnModel.salesReturn != null)
             {
-                salesReturnModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == salesReturnModel.salesReturn.SalesReturnNo && c.AccountsTransactionsVoucherType == VoucherType.SalesReturn_TYPE && (c.AccountstransactionsDelStatus != true)).ToList();
-                salesReturnModel.salesReturnDetails = _salesReturnDetailsRepository.GetAsQueryable().Where(x => x.SalesReturnDetailsNo == salesReturnModel.salesReturn.SalesReturnNo && (x.SalesReturnDetailsDelStatus != true)).ToList();
+                salesReturnModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == salesReturnModel.salesReturn.SalesReturnNo && c.AccountsTransactionsVoucherType == VoucherType.SalesReturn_TYPE && (c.AccountstransactionsDelStatus != true)).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                salesReturnModel.salesReturnDetails = _salesReturnDetailsRepository.GetAsQueryable().Where(x => x.SalesReturnDetailsNo == salesReturnModel.salesReturn.SalesReturnNo && (x.SalesReturnDetailsDelStatus != true)).OrderBy(x => x.SalesReturnDetailsItemName).ToList();
 
                 foreach (var item in salesReturnModel.salesReturnDetails)
                 {

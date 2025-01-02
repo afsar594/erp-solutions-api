@@ -155,7 +155,7 @@ namespace Inspire.Erp.Application.Master
                     if (accCheckDtls.Count > 0)
                     {
                         var Shead = masteraccountstablerepository.GetAsQueryable().Where(n => n.MaAccNo == accCheckDtls.First().MaRelativeNo)
-                       .Select(a => a).ToList();
+                       .Select(a => a).OrderBy(x => x.MaAccName).ToList();
                         var Suhead = masteraccountstablerepository.GetAsQueryable().Where(v => v.MaAccNo == Shead.First().MaRelativeNo).Select(S => S).ToList();
 
                         var MAhead = masteraccountstablerepository.GetAsQueryable().Where(j => j.MaAccNo == Suhead.First().MaRelativeNo).Select(q => q).ToList();

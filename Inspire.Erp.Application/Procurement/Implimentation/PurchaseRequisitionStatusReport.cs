@@ -45,7 +45,7 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
             try
             {
 
-                var res45 = _pRequisition.GetAll().ToList();
+                var res45 = _pRequisition.GetAll().OrderBy(x => x.PurchaseRequisitionPartyName).ToList();
                 var res1 = (from pd in _pRDetails.GetAsQueryable()
                             join pm in _pRequisition.GetAsQueryable() on pd.PurchaseRequisitionId equals pm.PurchaseRequisitionId
                             join im in _itemMaster.GetAsQueryable() on pd.PurchaseRequisitionDetailsMatId equals im.ItemMasterItemId

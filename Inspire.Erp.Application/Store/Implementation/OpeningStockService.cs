@@ -77,7 +77,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     }
 
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 _stockRegisterRepository.UpdateList(stockregister);
                 _openingStockRepository.TransactionCommit();
@@ -104,14 +104,14 @@ namespace Inspire.Erp.Application.Store.Implementation
                 stockRegister = stockRegister.Select((k) => {
                     k.StockRegisterDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.StockRegisterRefVoucherNo).ToList();
 
                 _stockRegisterRepository.UpdateList(stockRegister);
 
                 accountsTransactions = accountsTransactions.Select((k) => {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
                 _openingStockRepository.Update(openingStock);
@@ -174,7 +174,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     k.AccountsTransactionsVoucherType = VoucherType.Payment;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
                 _openingStockRepository.Insert(openingStock);
                 _openingStockRepository.TransactionCommit();
@@ -216,7 +216,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                                 .Include(k => k.PaymentVoucherDetails).AsEnumerable()
                                                 .Select((k) => new OpeningStockModel
                                                 {
-                                                    AccountsTransactions = k.AccountsTransactions.Where(x => x.AccountstransactionsDelStatus == false).ToList(),
+                                                    AccountsTransactions = k.AccountsTransactions.Where(x => x.AccountstransactionsDelStatus == false).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList(),
                                                     // stockRegister = k.StockRegisters.Where(x => x.StockRegisterDelStatus == false).ToList()
                                                 })
                                                 .SingleOrDefault();
@@ -344,7 +344,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     x.OpeningStockVoucherId = maxcount;
                     x.OpeningStockVoucherDetailsNo = openingstockVoucherNumber;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.OpeningStockVoucherDetailsItemName).ToList();
 
 
                 openstockVoucher.OpeningStockVoucherDetails = await Task.WhenAll(openstockVoucher.OpeningStockVoucherDetails.Select(async (osvd) =>
@@ -366,7 +366,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     k.AccountsTransactionsVoucherType = VoucherType.OpeningStockVoucher_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
 
@@ -440,7 +440,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     //}
 
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.OpeningStockVoucherDetailsItemName).ToList();
 
                 openingstockVoucher.OpeningStockVoucherDetails = await Task.WhenAll(openingstockVoucher.OpeningStockVoucherDetails.Select(async (osvd) =>
                 {
@@ -461,7 +461,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     }
 
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
 
@@ -476,7 +476,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     }
 
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.StockRegisterRefVoucherNo).ToList();
                 _stockRegisterRepository.UpdateList(stockRegister);
 
                 _openingstockVoucherRepository.TransactionCommit();
@@ -512,8 +512,8 @@ namespace Inspire.Erp.Application.Store.Implementation
         {
             OpeningStockVoucherModel openingstockVoucherModel = new OpeningStockVoucherModel();
             openingstockVoucherModel.openingstockVoucher = _openingstockVoucherRepository.GetAsQueryable().Where(k => k.OpeningStockVoucherId == pvno).SingleOrDefault();
-            openingstockVoucherModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == openingstockVoucherModel.openingstockVoucher.OpeningStockVoucherNo && c.AccountsTransactionsVoucherType == VoucherType.OpeningStockVoucher_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
-            openingstockVoucherModel.openingstockVoucherDetails = _openingstockVoucherDetailsRepository.GetAsQueryable().Where(x => x.OpeningStockVoucherDetailsNo == openingstockVoucherModel.openingstockVoucher.OpeningStockVoucherNo && (x.OpeningStockVoucherDetailsDelStatus == false || x.OpeningStockVoucherDetailsDelStatus == null)).ToList();
+            openingstockVoucherModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == openingstockVoucherModel.openingstockVoucher.OpeningStockVoucherNo && c.AccountsTransactionsVoucherType == VoucherType.OpeningStockVoucher_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).OrderBy(x => x.AccountsTransactionsVoucherNoNavigation).ToList();
+            openingstockVoucherModel.openingstockVoucherDetails = _openingstockVoucherDetailsRepository.GetAsQueryable().Where(x => x.OpeningStockVoucherDetailsNo == openingstockVoucherModel.openingstockVoucher.OpeningStockVoucherNo && (x.OpeningStockVoucherDetailsDelStatus == false || x.OpeningStockVoucherDetailsDelStatus == null)).OrderBy(x => x.OpeningStockVoucherDetailsItemName).ToList();
             return openingstockVoucherModel;
         }
 
@@ -549,7 +549,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsCheqNo).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
 
@@ -559,7 +559,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 {
                     k.StockRegisterDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.StockRegisterAssignedDate).ToList();
                 _stockRegisterRepository.UpdateList(stockRegister);
 
 

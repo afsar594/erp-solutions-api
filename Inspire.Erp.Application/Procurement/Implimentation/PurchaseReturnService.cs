@@ -1000,7 +1000,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     k.AccountsTransactionsVoucherType = VoucherType.PurchaseReturn_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransaction.InsertList(accountsTransactions);
                 var currencyRate = clsCommonFunctions.getConverionCurrencyRate(purchaseReturn.PurchaseReturnCurrencyId, _currencyMasterRepository);
                 var rate = (decimal)currencyRate;

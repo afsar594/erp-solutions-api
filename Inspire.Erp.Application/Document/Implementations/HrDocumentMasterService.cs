@@ -211,7 +211,7 @@ namespace Inspire.Erp.Application.Document.Implementations
                             ExpDate= (DateTime)ss.ExpDate,
                             DocumentvoucherNo = ss.DocumentvoucherNo ?? "",
                             DocNo = ss.DocNo
-                        }).ToList();
+                        }).OrderBy(x => x.DocName).ToList();
 
             return new Response<List<DocumentMasterlist>>
             {

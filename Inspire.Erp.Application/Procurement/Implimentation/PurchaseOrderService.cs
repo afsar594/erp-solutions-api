@@ -621,7 +621,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         price = materialList.Where(m => m.ItemMasterItemId == (long?)d.PurchaseOrderDetailsMatId).Select(c => (decimal?)c.ItemMasterLastPurchasePrice).FirstOrDefault() ?? 0,
                         poQty = d.PurchaseOrderDetailsQuantity ?? 0,
                     }).ToList()
-                }).ToList();
+                }).OrderBy(x => x.PurchaseOrder).ToList();
                 return data;
             }
             catch (System.Exception ex)

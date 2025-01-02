@@ -209,7 +209,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 {
                     k.IssueVoucherDetailsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.IssueVoucherDetailsItemName).ToList();
 
                 //_issueVoucherDetailsRepository.UpdateList(issueVoucherDetails);
 
@@ -217,14 +217,14 @@ namespace Inspire.Erp.Application.Store.Implementation
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
                 stockRegister = stockRegister.Select((k) =>
                 {
                     k.StockRegisterDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.StockRegisterRefVoucherNo).ToList();
                 _stockRegisterRepository.UpdateList(stockRegister);
 
                 issueVoucher.IssueVoucherDetails = issueVoucherDetails;
@@ -267,9 +267,9 @@ namespace Inspire.Erp.Application.Store.Implementation
                     x.IssueVoucherId = maxcount;
                     x.IssueVoucherDetailsNo = issueVoucherNumber;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.IssueVoucherDetailsItemName).ToList();
                 _issueVoucherRepository.Insert(issueVoucher);
-                var accounts = _accountsSettingssvcs.GetAsQueryable().AsNoTracking().Where(x => x.AccountSettingsAccountDescription.Trim().Contains("Purchase Account") || x.AccountSettingsAccountDescription.Trim().Contains("Cost Of Finished Goods A/C")).ToList();
+                var accounts = _accountsSettingssvcs.GetAsQueryable().AsNoTracking().Where(x => x.AccountSettingsAccountDescription.Trim().Contains("Purchase Account") || x.AccountSettingsAccountDescription.Trim().Contains("Cost Of Finished Goods A/C")).OrderBy(x => x.AccountSettingsAccountTableName).ToList();
 
                 var credit = accounts.Where(a => a.AccountSettingsAccountDescription.Trim() == "Purchase Account").Select(x => x.AccountSettingsAccountTextValue).FirstOrDefault();
                 string[] parts = credit.Split(new string[] { "::" }, StringSplitOptions.None);
@@ -402,8 +402,8 @@ namespace Inspire.Erp.Application.Store.Implementation
 
             issueVoucherModel.issueVoucher = _issueVoucherRepository.GetAsQueryable().Where(k => k.IssueVoucherId == pvno).SingleOrDefault();
 
-            issueVoucherModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == issueVoucherModel.issueVoucher.IssueVoucherNo && c.AccountsTransactionsVoucherType == VoucherType.IssueVoucher_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
-            issueVoucherModel.issueVoucherDetails = _issueVoucherDetailsRepository.GetAsQueryable().Where(x => x.IssueVoucherDetailsNo == issueVoucherModel.issueVoucher.IssueVoucherNo && (x.IssueVoucherDetailsDelStatus == false || x.IssueVoucherDetailsDelStatus == null)).ToList();
+            issueVoucherModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == issueVoucherModel.issueVoucher.IssueVoucherNo && c.AccountsTransactionsVoucherType == VoucherType.IssueVoucher_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+            issueVoucherModel.issueVoucherDetails = _issueVoucherDetailsRepository.GetAsQueryable().Where(x => x.IssueVoucherDetailsNo == issueVoucherModel.issueVoucher.IssueVoucherNo && (x.IssueVoucherDetailsDelStatus == false || x.IssueVoucherDetailsDelStatus == null)).OrderBy(x => x.IssueVoucherDetailsItemName).ToList();
             return issueVoucherModel;
         }
 

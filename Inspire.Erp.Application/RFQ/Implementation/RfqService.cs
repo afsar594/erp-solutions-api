@@ -32,7 +32,7 @@ namespace Inspire.Erp.Application.RFQ.Implementation
         {
             try
             {
-                var data = _rfqEntry.GetAll().Where(a => a.RfqEntryStatus != true).OrderBy(c => c.RFQEntryID).ToList();
+                var data = _rfqEntry.GetAll().Where(a => a.RfqEntryStatus != true).OrderBy(c => c.RFQEntryID).OrderBy(x => x.RFQ_EntryvouchaseNo).ToList();
                 return data;
             }
             catch (Exception ex)
@@ -47,7 +47,7 @@ namespace Inspire.Erp.Application.RFQ.Implementation
             {
                 RFQViewModel Rfq = new RFQViewModel();
                 Rfq.RfqEntry = _rfqEntry.GetAsQueryable().FirstOrDefault(x => x.RFQEntryID == Convert.ToInt32(id));
-                Rfq.RfqEntryDetails = _rfqEntryDetails.GetAsQueryable().Where(x => x.RFQEntryDetailsDetID ==  Convert.ToInt32(id) && x.RFQEntryDetailsDelStatus != true).ToList();
+                Rfq.RfqEntryDetails = _rfqEntryDetails.GetAsQueryable().Where(x => x.RFQEntryDetailsDetID ==  Convert.ToInt32(id) && x.RFQEntryDetailsDelStatus != true).OrderBy(x => x.RFQ_EntryvouchaseNo).ToList();
                 return Rfq;
 
             }
@@ -133,7 +133,7 @@ namespace Inspire.Erp.Application.RFQ.Implementation
             {
                 var dataObj = _rfqEntry.GetAsQueryable().Where(o => o.RFQ_EntryvouchaseNo == vouchaseNo).FirstOrDefault();
                 dataObj.RfqEntryDelStatus = true;
-                var detailData = _rfqEntryDetails.GetAsQueryable().Where(o => o.RFQ_EntryvouchaseNo == vouchaseNo).ToList();
+                var detailData = _rfqEntryDetails.GetAsQueryable().Where(o => o.RFQ_EntryvouchaseNo == vouchaseNo).OrderBy(x => x.RFQ_EntryvouchaseNo).ToList();
                 detailData.ForEach(elemt =>
                 {
                     elemt.RFQEntryDetailsDelStatus = true;
@@ -157,11 +157,11 @@ namespace Inspire.Erp.Application.RFQ.Implementation
 
                 RFQViewModel Rfq = new RFQViewModel();
                 Rfq.RfqEntry = _rfqEntry.GetAsQueryable().Where(k => k.RFQ_EntryvouchaseNo == VNo).FirstOrDefault();
-                Rfq.RfqEntryDetails = _rfqEntryDetails.GetAsQueryable().Where(x => x.RFQ_EntryvouchaseNo == VNo && (x.RFQEntryDetailsDelStatus == false || x.RFQEntryDetailsDelStatus == null)).ToList();
+                Rfq.RfqEntryDetails = _rfqEntryDetails.GetAsQueryable().Where(x => x.RFQ_EntryvouchaseNo == VNo && (x.RFQEntryDetailsDelStatus == false || x.RFQEntryDetailsDelStatus == null)).OrderBy(x => x.RFQ_EntryvouchaseNo).ToList();
                 return Rfq;
             }
             catch (Exception ex)
-            {
+            { 
                 throw ex;
             }
         }

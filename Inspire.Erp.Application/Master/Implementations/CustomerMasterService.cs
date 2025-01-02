@@ -107,7 +107,7 @@ namespace Inspire.Erp.Application.Master
                 await _utilityService.AddUserTrackingLog(log);
 
                 //check if the new account has already existed records in acounts transactions table
-                var checktransactions = _accountTransactionRepository.GetAsQueryable().Where(a => a.AccountsTransactionsAccNo == cusAccNo).ToList();
+                var checktransactions = _accountTransactionRepository.GetAsQueryable().Where(a => a.AccountsTransactionsAccNo == cusAccNo).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 if (checktransactions.Count > 0)
                 {
                     foreach (var item in checktransactions)

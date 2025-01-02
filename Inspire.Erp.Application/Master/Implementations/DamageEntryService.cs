@@ -226,7 +226,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 {
                     DamageMaster = o,
                     _DamageDetailsRepo = detailList.Where(a => Convert.ToInt32(a.DamageDetailsId) == Convert.ToInt32(o.DamageMasterId)).ToList()
-                }).ToList();
+                }).OrderBy(x => x.DamageMaster).ToList();
                 return _DamageMasterRepo.GetAll();
 
             }
