@@ -23,7 +23,7 @@ namespace Inspire.Erp.Application.Procurement.Interface
         Task<Response<List<DropdownResponse>>> GetVoucherTypeDropdown();
 
         List<PurchaseReturn> GetPurchaseReturn();
-        PurchaseReturnModel GetSavedPurchaseReturnDetails(string pvno);
+        PurchaseReturnModel GetSavedPurchaseReturnDetails(int pvno);
 
         PurchaseReturnModel InsertPurchaseReturn(PurchaseReturn purchaseReturn,
                                  List<AccountsTransactions> accountsTransactions,

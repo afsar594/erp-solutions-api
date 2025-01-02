@@ -153,7 +153,7 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("GetSavedSalesReturnDetails/{id}")]
-        public IActionResult GetSavedSalesReturnDetails(string id)
+        public IActionResult GetSavedSalesReturnDetails(int id)
         {
             try
             {

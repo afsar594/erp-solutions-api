@@ -709,15 +709,15 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             //}
             return AllPurchaseReturn;
         }
-        public PurchaseReturnModel GetSavedPurchaseReturnDetails(string pvno)
+        public PurchaseReturnModel GetSavedPurchaseReturnDetails(int pvno)
         {
             PurchaseReturnModel purchaseReturnModel = new PurchaseReturnModel();
 
-            purchaseReturnModel.purchaseReturn = _purchaseReturnRepo.GetAsQueryable().Where(k => k.PurchaseReturnNo == pvno && k.PurchaseReturnDelStatus != true).FirstOrDefault();
+            purchaseReturnModel.purchaseReturn = _purchaseReturnRepo.GetAsQueryable().Where(k => k.PurchaseReturnId == pvno && k.PurchaseReturnDelStatus != true).FirstOrDefault();
             if (purchaseReturnModel.purchaseReturn != null)
             {
-                purchaseReturnModel.accountsTransactions = _accountTransaction.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.PurchaseReturn_TYPE && (c.AccountstransactionsDelStatus != true)).ToList();
-                purchaseReturnModel.purchaseReturnDetails = _purchaseReturnDetailsRepo.GetAsQueryable().Where(x => x.PurchaseReturnDetailsNo == pvno && (x.PurchaseReturnDetailsDelStatus == false || x.PurchaseReturnDetailsDelStatus == null)).ToList();
+                purchaseReturnModel.accountsTransactions = _accountTransaction.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == purchaseReturnModel.purchaseReturn.PurchaseReturnNo && c.AccountsTransactionsVoucherType == VoucherType.PurchaseReturn_TYPE && (c.AccountstransactionsDelStatus != true)).ToList();
+                purchaseReturnModel.purchaseReturnDetails = _purchaseReturnDetailsRepo.GetAsQueryable().Where(x => x.PurchaseReturnDetailsNo == purchaseReturnModel.purchaseReturn.PurchaseReturnNo && (x.PurchaseReturnDetailsDelStatus == false || x.PurchaseReturnDetailsDelStatus == null)).ToList();
 
                 List<PurchaseVoucherDetails> details = new List<PurchaseVoucherDetails>();
                 //purchase voucher quantity calculation
@@ -939,7 +939,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 throw ex;
             }
 
-            return this.GetSavedPurchaseReturnDetails(purchaseReturn.PurchaseReturnNo);
+            return this.GetSavedPurchaseReturnDetails((int)purchaseReturn.PurchaseReturnId);
         }
         public VouchersNumbers GetVouchersNumbers(string pvno)
         {
@@ -973,7 +973,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             try
             {
                 _purchaseReturnRepo.BeginTransaction();
-                string purchaseReturnNumber = this.GenerateVoucherNo(purchaseReturn.PurchaseReturnDate.Date).VouchersNumbersVNo;
+                string purchaseReturnNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.PurchaseReturn_TYPE, Prefix.PurchaseReturn_Prefix,
+                    _programsettingsRepository, _voucherNumber);
                 purchaseReturn.PurchaseReturnNo = purchaseReturnNumber;
 
 
@@ -1039,7 +1040,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 _purchaseReturnRepo.Insert(purchaseReturn);
                 _purchaseReturnRepo.TransactionCommit();
-                return this.GetSavedPurchaseReturnDetails(purchaseReturn.PurchaseReturnNo);
+                return this.GetSavedPurchaseReturnDetails((int)purchaseReturn.PurchaseReturnId);
 
             }
             catch (Exception ex)

@@ -267,7 +267,7 @@ namespace Inspire.Erp.Web.Controllers.Store
 
         [HttpGet]
         [Route("GetSavedIssueReturnDetails/{id}")]
-        public ApiResponse<IssueReturnViewModel> GetSavedIssueReturnDetails(string id)
+        public ApiResponse<IssueReturnViewModel> GetSavedIssueReturnDetails(int id)
         {
             IssueReturnModel issueReturn = _issueReturnService.GetSavedIssueReturnDetails(id);
 

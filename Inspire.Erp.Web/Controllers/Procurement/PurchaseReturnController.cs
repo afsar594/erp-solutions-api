@@ -54,7 +54,7 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("GetSavedPurchaseReturnDetails/{id}")]
-        public ApiResponse<PurchaseReturnViewModel> GetSavedPurchaseReturnDetails(string id)
+        public ApiResponse<PurchaseReturnViewModel> GetSavedPurchaseReturnDetails(int id)
         {
             PurchaseReturnModel purchaseReturn = _purchaseReturnService.GetSavedPurchaseReturnDetails(id);
 

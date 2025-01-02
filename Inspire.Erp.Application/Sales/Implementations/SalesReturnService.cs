@@ -246,7 +246,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 throw ex;
             }
 
-            return this.GetSavedSalesReturnDetails(salesReturn.SalesReturnNo);
+            return this.GetSavedSalesReturnDetails((int)salesReturn.SalesReturnId);
         }
 
         private decimal getConverionTypebyUnitId(int? itemid, int? unitDetailsid)
@@ -325,7 +325,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             {
                 _accountTransactionRepository.BeginTransaction();
 
-                string openingstockVoucherNumber = this.GenerateVoucherNo(salesReturn.SalesReturnDate.Value).VouchersNumbersVNo;
+                string openingstockVoucherNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.SalesReturn_TYPE, Prefix.SalesReturn_Prefix, _programsettingsRepository, _voucherNumbersRepository);
                 salesReturn.SalesReturnNo = openingstockVoucherNumber;
 
                 salesReturn.SalesReturnNo = salesReturn.SalesReturnNo;
@@ -397,7 +397,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _Context.StockRegister.AddRange(sr);
                 _Context.SaveChanges();
                 _accountTransactionRepository.TransactionCommit();
-                return this.GetSavedSalesReturnDetails(salesReturn.SalesReturnNo);
+                return this.GetSavedSalesReturnDetails((int)salesReturn.SalesReturnId);
             }
             catch (Exception ex)
             {
@@ -415,14 +415,14 @@ namespace Inspire.Erp.Application.Account.Implementations
             List<SalesReturn> salesReturn_ALL = _salesReturnRepository.GetAll().Where(k => k.SalesReturnDelStatus == false || k.SalesReturnDelStatus == null).ToList();
             return salesReturn_ALL;
         }
-        public SalesReturnModel GetSavedSalesReturnDetails(string pvno)
+        public SalesReturnModel GetSavedSalesReturnDetails(int pvno)
         {
             SalesReturnModel salesReturnModel = new SalesReturnModel();
-            salesReturnModel.salesReturn = _salesReturnRepository.GetAsQueryable().Where(k => k.SalesReturnNo == pvno && k.SalesReturnDelStatus != true).FirstOrDefault();
+            salesReturnModel.salesReturn = _salesReturnRepository.GetAsQueryable().Where(k => k.SalesReturnId == pvno && k.SalesReturnDelStatus != true).FirstOrDefault();
             if (salesReturnModel.salesReturn != null)
             {
-                salesReturnModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.SalesReturn_TYPE && (c.AccountstransactionsDelStatus != true)).ToList();
-                salesReturnModel.salesReturnDetails = _salesReturnDetailsRepository.GetAsQueryable().Where(x => x.SalesReturnDetailsNo == pvno && (x.SalesReturnDetailsDelStatus != true)).ToList();
+                salesReturnModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == salesReturnModel.salesReturn.SalesReturnNo && c.AccountsTransactionsVoucherType == VoucherType.SalesReturn_TYPE && (c.AccountstransactionsDelStatus != true)).ToList();
+                salesReturnModel.salesReturnDetails = _salesReturnDetailsRepository.GetAsQueryable().Where(x => x.SalesReturnDetailsNo == salesReturnModel.salesReturn.SalesReturnNo && (x.SalesReturnDetailsDelStatus != true)).ToList();
 
                 foreach (var item in salesReturnModel.salesReturnDetails)
                 {

@@ -193,7 +193,7 @@ namespace Inspire.Erp.Web.Controllers.Store
 
         [HttpGet]
         [Route("GetSavedStockTransferDetails/{id}")]
-        public ApiResponse<StockTransferViewModel> GetSavedStockTransferDetails(string id)
+        public ApiResponse<StockTransferViewModel> GetSavedStockTransferDetails(int id)
         {
             StockTransferModel stockTransfer = _st.GetSavedStockTransferDetails(id);
 

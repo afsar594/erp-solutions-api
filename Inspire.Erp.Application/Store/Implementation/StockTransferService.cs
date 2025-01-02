@@ -120,7 +120,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                 _StockTransferRepo.BeginTransaction();
 
-                string openingstockVoucherNumber = this.GenerateVoucherNo(stockTransfer.StockTransferStDate.Value).VouchersNumbersVNo;
+                string openingstockVoucherNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.StockTransferVoucher_TYPE, Prefix.StockTransfer_Prefix, _programsettingsRepository, _VoucherNumberRepo);
                 stockTransfer.StockTransferVoucherNo = openingstockVoucherNumber;
 
 
@@ -207,7 +207,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                 _StockTransferRepo.Insert(stockTransfer);
                 _StockTransferRepo.TransactionCommit();
-                return this.GetSavedStockTransferDetails(stockTransfer.StockTransferVoucherNo);
+                return this.GetSavedStockTransferDetails((int)stockTransfer.StockTransferId);
 
 
             }
@@ -246,11 +246,11 @@ namespace Inspire.Erp.Application.Store.Implementation
         }
 
 
-        public StockTransferModel GetSavedStockTransferDetails(string pvno)
+        public StockTransferModel GetSavedStockTransferDetails(int pvno)
         {
             StockTransferModel issueVoucherModel = new StockTransferModel();            
-            issueVoucherModel.stockTransfer = _StockTransferRepo.GetAsQueryable().Where(k => k.StockTransferVoucherNo == pvno).SingleOrDefault();
-            issueVoucherModel.stockTransferDetails = _StockTransferDetailRepo.GetAsQueryable().Where(x => x.StockTransferDetailsSNo == pvno && (x.StockTransferDetailsDelStatus == false || x.StockTransferDetailsDelStatus == null)).OrderBy(x => x.StockTransferDetailsSNo).ToList();
+            issueVoucherModel.stockTransfer = _StockTransferRepo.GetAsQueryable().Where(k => k.StockTransferId == pvno).SingleOrDefault();
+            issueVoucherModel.stockTransferDetails = _StockTransferDetailRepo.GetAsQueryable().Where(x => x.StockTransferDetailsSNo == issueVoucherModel.stockTransfer.StockTransferVoucherNo && (x.StockTransferDetailsDelStatus == false || x.StockTransferDetailsDelStatus == null)).OrderBy(x => x.StockTransferDetailsSNo).ToList();
             return issueVoucherModel;
         }
 
@@ -470,7 +470,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                 _StockTransferRepo.Update(stockTransfer);
                 _StockTransferRepo.TransactionCommit();
-                return this.GetSavedStockTransferDetails(stockTransfer.StockTransferVoucherNo);
+                return this.GetSavedStockTransferDetails((int)stockTransfer.StockTransferId);
 
             }
             catch (Exception ex)

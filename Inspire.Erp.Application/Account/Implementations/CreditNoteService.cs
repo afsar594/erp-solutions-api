@@ -11,6 +11,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Microsoft.Extensions.Logging;
+using Inspire.Erp.Application.MODULE;
 
 namespace Inspire.Erp.Application.Account.Implementations
 {
@@ -73,7 +74,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _creditNoteRepository.TransactionRollback();
                 throw ex;
             }
-            return this.GetSavedCreditNoteDetails(creditNote.CreditNoteVno);
+            return this.GetSavedCreditNoteDetails((int)creditNote.CreditNoteId);
         }
 
         public int DeleteCreditNote(CreditNote creditNote, List<AccountsTransactions> accountsTransactions, List<CreditNoteDetails> creditNoteDetails)
@@ -125,7 +126,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             {
                 _creditNoteRepository.BeginTransaction();
                 creditNote.CreditNoteVno = creditNote.CreditNoteVno;
-                string creditVno = this.GenerateVoucherNo(creditNote.CreditNoteDate).VouchersNumbersVNo;
+                string creditVno = clsCommonFunctions.GenrateVoucherNo(VoucherType.CreditNote_TYPE, Prefix.CreditNote_Prefix, _programsettingsRepository, _voucherNumbersRepository);
                 creditNote.CreditNoteVno = creditVno;
                 int maxcount = 0;
                 maxcount = Convert.ToInt32(
@@ -158,7 +159,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 trackingData.UserTrackingUserVpType = "CREDITNOTEVOUCHER";
                 _userTracking.Insert(trackingData);
                 _creditNoteRepository.TransactionCommit();
-                return this.GetSavedCreditNoteDetails(creditNote.CreditNoteVno);
+                return this.GetSavedCreditNoteDetails((int)creditNote.CreditNoteId);
             }
             catch (Exception ex)
             {
@@ -178,12 +179,12 @@ namespace Inspire.Erp.Application.Account.Implementations
             return creditNote_ALL;
         }
 
-        public CreditNote GetSavedCreditNoteDetails(string pvno)
+        public CreditNote GetSavedCreditNoteDetails(int pvno)
         {
             CreditNote creditNoteModel = new CreditNote();
-            creditNoteModel = _creditNoteRepository.GetAsQueryable().Where(k => k.CreditNoteVno == pvno).SingleOrDefault();
-            creditNoteModel.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.CreditNote_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
-            creditNoteModel.CreditNoteDetails = _creditNoteDetailsRepository.GetAsQueryable().Where(x => x.CreditNoteDetailsVno == pvno && (x.CreditNoteDetailsDelStatus == false || x.CreditNoteDetailsDelStatus == null)).ToList();
+            creditNoteModel = _creditNoteRepository.GetAsQueryable().Where(k => k.CreditNoteId == pvno).SingleOrDefault();
+            creditNoteModel.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == creditNoteModel.CreditNoteVno && c.AccountsTransactionsVoucherType == VoucherType.CreditNote_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
+            creditNoteModel.CreditNoteDetails = _creditNoteDetailsRepository.GetAsQueryable().Where(x => x.CreditNoteDetailsVno == creditNoteModel.CreditNoteVno && (x.CreditNoteDetailsDelStatus == false || x.CreditNoteDetailsDelStatus == null)).ToList();
             return creditNoteModel;
         }
 

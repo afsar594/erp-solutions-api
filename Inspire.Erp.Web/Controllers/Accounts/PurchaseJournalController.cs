@@ -125,7 +125,7 @@ namespace Inspire.Erp.Web.Controllers
            }
         [HttpGet]
         [Route("GetSavedPurchaseJournalDetails/{id}")]
-        public ApiResponse<PurchaseJournal> GetSavedPurchaseJournalDetails(string id)
+        public ApiResponse<PurchaseJournal> GetSavedPurchaseJournalDetails(int id)
         {
             PurchaseJournal purchaseJournal = _purchaseJournalService.GetSavedPurchaseJournalDetails(id);
 
