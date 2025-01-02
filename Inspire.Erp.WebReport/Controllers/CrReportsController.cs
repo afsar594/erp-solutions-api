@@ -7,6 +7,7 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+
 namespace Inspire.Erp.WebReport.Controllers
 {
     [RoutePrefix("api/Reports")]
@@ -14,81 +15,75 @@ namespace Inspire.Erp.WebReport.Controllers
     [AllowCrossSite]
     public class CrReportsController : ApiController
     {
-        /// <summary>
-        /// Name : getReportPrint
-        /// Desc : This is used to generate report and convert to pdf
-        /// </summary>
-        /// <param name="reportFilterModel"> 
-        ///  used as a parameter
-        ///  accpected format as given balow 
-        /// </param>
-        /// <returns></returns>
-        /// 
-        /************************* Accepted Parameter Format ***************************/
-        /**
-                                {
-                                  "ReportName":"crpJobCardEntryTable",
-                                  "SelectionFormula":"{tbl_JobCard.JC_Id_N}=1006",
-                                  "Parameters": [
-                                    {
-                                      "Key": "Add1",
-                                      "Value": "Address test 1"
-                                    },
-                                    {
-                                      "Key": "Add2",
-                                      "Value": "Address test 2"
-                                    },
-                                    {
-                                      "Key": "Email",
-                                      "Value": "email@gamil.com"
-                                    },
-                                    {
-                                      "Key": "Heading",
-                                      "Value": "Main Heading"
-                                    },
-                                    {
-                                      "Key": "Company",
-                                      "Value": "Company Name"
-                                    },
-                                    {
-                                      "Key": "subHeading",
-                                      "Value": "sub Heading"
-                                    }
-                                  ]
-                                }         
-         
-         */
         [AllowCrossSite]
         [AllowAnonymous]
-        [Route("getReportPrint")]
+        [Route("getReportPrint/{folderName}")]
         [HttpPut]
-        [ClientCacheWithEtag(60)]  //1 min client side caching
-        public HttpResponseMessage getReportPrint([FromBody] ReportFilterModel reportFilterModel)
+        [ClientCacheWithEtag(60)]
+        public HttpResponseMessage getReportPrint([FromUri] string folderName, [FromBody] ReportFilterModel reportFilterModel)
         {
-            string exportPath = AppDomain.CurrentDomain.BaseDirectory + @"FileExports";
             HttpResponseMessage result;
             try
             {
+                Logger.LogInfo($"getReportPrint called with folderName: {folderName} and ReportName: {reportFilterModel.ReportName}");
+
                 string driPath = AppDomain.CurrentDomain.BaseDirectory;
                 CrystalReport report = new CrystalReport();
-                string dsnFileName = !string.IsNullOrEmpty(reportFilterModel.DsnFileName) ? reportFilterModel.DsnFileName : "DSN";
-                var dbSettings = report.getDbSettingsFromJSonFle($@"{driPath }bin\{dsnFileName}.json");
-                string filePath =  $@"{driPath }Reports\{dbSettings.FolderName}\{reportFilterModel.ReportName}.rpt";
+                var folderPath = Path.Combine(driPath, "bin", folderName);
+                var dsnName = Path.Combine(folderPath, "DSN.json");
+                var dbSettings = report.getDbSettingsFromJSonFle(dsnName);
+                string filePath = Path.Combine(folderPath, "Reports", $"{reportFilterModel.ReportName}.rpt");
+
                 result = report.RenderReport(
-                                                                    PathReport: filePath,
-                                                                    SelectionFormula: reportFilterModel.SelectionFormula,
-                                                                    Namefile: reportFilterModel.ReportName  + ".pdf", reportFilterModel.Parameters,
-                                                                    dbSettings
-                                                               );
+                    PathReport: filePath,
+                    SelectionFormula: reportFilterModel.SelectionFormula,
+                    Namefile: reportFilterModel.ReportName + ".pdf",
+                    reportFilterModel.Parameters,
+                    dbSettings
+                );
+
+                Logger.LogInfo($"Report successfully generated for {reportFilterModel.ReportName}");
                 return result;
             }
             catch (Exception ex)
             {
+                Logger.LogError("Failed to generate report in getReportPrint", ex);
                 var errorResponse = Request.CreateResponse(HttpStatusCode.InternalServerError, "An error occurred: " + ex.Message);
                 return errorResponse;
             }
         }
 
-     
+        [AllowCrossSite]
+        [AllowAnonymous]
+        [Route("getPrintByQuery/{folderName}")]
+        [HttpPut]
+        [ClientCacheWithEtag(60)]
+        public HttpResponseMessage getPrintByQuery([FromUri] string folderName, [FromBody] ReportFilterModel reportFilterModel)
+        {
+            HttpResponseMessage result;
+            try
+            {
+                Logger.LogInfo($"getPrintByQuery called with folderName: {folderName} and ReportName: {reportFilterModel.ReportName}");
+
+                string driPath = AppDomain.CurrentDomain.BaseDirectory;
+                CrystalReport report = new CrystalReport();
+
+                var folderPath = Path.Combine(driPath, "bin", folderName);
+                var dsnName = Path.Combine(folderPath, "DSN.json");
+                var dbSettings = report.getDbSettingsFromJSonFle(dsnName);
+                string filePath = Path.Combine(folderPath, "Reports", $"{reportFilterModel.ReportName}.rpt");
+
+                result = report.RenderReport(filePath, reportFilterModel, dbSettings);
+
+                Logger.LogInfo($"Report successfully generated for {reportFilterModel.ReportName}");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to generate report in getPrintByQuery", ex);
+                var errorResponse = Request.CreateResponse(HttpStatusCode.InternalServerError, "An error occurred: " + ex.Message);
+                return errorResponse;
+            }
+        }
     }
 }

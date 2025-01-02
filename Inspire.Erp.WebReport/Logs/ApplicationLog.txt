@@ -1,0 +1,5 @@
+2025-01-03 02:24:23 [INFO] getReportPrint called with folderName: CustomerA and ReportName: string
+2025-01-03 02:24:24 [ERROR] Failed to generate report in getReportPrint - Exception: CrystalReport.PrepareReport: Load report failed.
+StackTrace:    at Inspire.Erp.WebReport.ReportEngine.CrystalReport.PrepareReport(String reportPath) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\CrystalReport.cs:line 113
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String PathReport, String SelectionFormula, String Namefile, List`1 reportParameters, DbConnectionModel dbSettings) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\CrystalReport.cs:line 798
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getReportPrint(String folderName, ReportFilterModel reportFilterModel) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\Controllers\CrReportsController.cs:line 37
