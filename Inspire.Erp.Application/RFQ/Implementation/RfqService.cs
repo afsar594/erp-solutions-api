@@ -62,7 +62,8 @@ namespace Inspire.Erp.Application.RFQ.Implementation
             try
             {
 
-                string RFQVoucherNumber = this.GenerateVoucherNo(RfqEntry.RfqEntryRfqDate.Value).VouchersNumbersVNo;
+                string RFQVoucherNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.RFQ_TYPE, Prefix.RFQ_Prefix,
+                    _programsettingsrepository, _voucherNumbersRepository);
                 RfqEntry.RFQ_EntryvouchaseNo = RFQVoucherNumber;
 
                 _rfqEntry.BeginTransaction();

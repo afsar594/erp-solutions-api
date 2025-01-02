@@ -51,7 +51,8 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
         {
             try
             {
-                string openingstockVoucherNumber = this.GenerateVoucherNo(DamageMaster.DamageMasterVdate.Value).VouchersNumbersVNo;
+                string openingstockVoucherNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.DamageEntry_TYPE, Prefix.DE_Prefix,
+                    _programsettingsRepository, _voucherNumbersRepository);
                 DamageMaster.DamageMasterVoucherNumber = openingstockVoucherNumber;
 
                 _DamageMasterRepo.BeginTransaction();
