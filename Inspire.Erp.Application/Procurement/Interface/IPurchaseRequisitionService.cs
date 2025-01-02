@@ -37,7 +37,7 @@ namespace Inspire.Erp.Application.Procurement.Interfaces
   
 
         
-        public PurchaseRequisitionModel GetSavedPurchaseRequisitionDetails(string pvno);
+        public PurchaseRequisitionModel GetSavedPurchaseRequisitionDetails(int pvno);
         public IEnumerable<PurchaseRequisition> GetPurchaseRequisition();
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
 

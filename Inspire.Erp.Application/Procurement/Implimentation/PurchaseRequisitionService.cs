@@ -20,6 +20,7 @@ using Inspire.Erp.Infrastructure.Database;
 using SendGrid.Helpers.Mail;
 using System.Linq.Dynamic.Core;
 using Inspire.Erp.Domain.Entities.POS;
+using Inspire.Erp.Application.MODULE;
 
 namespace Inspire.Erp.Application.Procurement.Implementation
 {
@@ -149,7 +150,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 throw ex;
             }
 
-            return this.GetSavedPurchaseRequisitionDetails(purchaseRequisition.PurchaseRequisitionNo);
+            return this.GetSavedPurchaseRequisitionDetails((int)purchaseRequisition.PurchaseRequisitionId);
         }
 
         public int DeletePurchaseRequisition(PurchaseRequisition purchaseRequisition, List<AccountsTransactions> accountsTransactions,
@@ -325,7 +326,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             try
             {
                 _purchaseRequisitionRepository.BeginTransaction();
-                string purchaseRequisitionNumber = this.GenerateVoucherNo(purchaseRequisition.PurchaseRequisitionDate.Date).VouchersNumbersVNo;
+                string purchaseRequisitionNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.PurchaseRequisition_TYPE, Prefix.PurchaseRequisition_Prefix,
+                    _programsettingsRepository, _voucherNumbersRepository); 
                 purchaseRequisition.PurchaseRequisitionNo = purchaseRequisitionNumber;
 
                 int maxcount = 0;
@@ -408,7 +410,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     }
                 }
                 _purchaseRequisitionRepository.TransactionCommit();
-                return this.GetSavedPurchaseRequisitionDetails(purchaseRequisition.PurchaseRequisitionNo);
+                return this.GetSavedPurchaseRequisitionDetails((int)purchaseRequisition.PurchaseRequisitionId);
 
             }
             catch (Exception ex)
@@ -429,16 +431,16 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IEnumerable<PurchaseRequisition> purchaseRequisition_ALL = _purchaseRequisitionRepository.GetAll().Where(k => k.PurchaseRequisitionDelStatus == false || k.PurchaseRequisitionDelStatus == null);
             return purchaseRequisition_ALL;
         }
-        public PurchaseRequisitionModel GetSavedPurchaseRequisitionDetails(string pvno)
+        public PurchaseRequisitionModel GetSavedPurchaseRequisitionDetails(int pvno)
         {
             PurchaseRequisitionModel purchaseRequisitionModel = new PurchaseRequisitionModel();
 
-            purchaseRequisitionModel.purchaseRequisition = _purchaseRequisitionRepository.GetAsQueryable().Where(k => k.PurchaseRequisitionNo == pvno).FirstOrDefault();
+            purchaseRequisitionModel.purchaseRequisition = _purchaseRequisitionRepository.GetAsQueryable().Where(k => k.PurchaseRequisitionId == pvno).FirstOrDefault();
 
-            purchaseRequisitionModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.PurchaseRequisition_TYPE && (c.AccountstransactionsDelStatus != true)).ToList();
-            purchaseRequisitionModel.purchaseRequisitionDetails = _purchaseRequisitionDetailsRepository.GetAsQueryable().Where(x => x.PurchaseRequisitionDetailsNo == pvno && (x.PurchaseRequisitionDetailsDelStatus != true)).ToList();
+            purchaseRequisitionModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == purchaseRequisitionModel.purchaseRequisition.PurchaseRequisitionNo && c.AccountsTransactionsVoucherType == VoucherType.PurchaseRequisition_TYPE && (c.AccountstransactionsDelStatus != true)).ToList();
+            purchaseRequisitionModel.purchaseRequisitionDetails = _purchaseRequisitionDetailsRepository.GetAsQueryable().Where(x => x.PurchaseRequisitionDetailsNo == purchaseRequisitionModel.purchaseRequisition.PurchaseRequisitionNo && (x.PurchaseRequisitionDetailsDelStatus != true)).ToList();
 
-            var approvals = _permissionApprovalDetailRepo.GetAsQueryable().AsNoTracking().Where(a => a.VoucherId == pvno).ToList();
+            var approvals = _permissionApprovalDetailRepo.GetAsQueryable().AsNoTracking().Where(a => a.VoucherId == purchaseRequisitionModel.purchaseRequisition.PurchaseRequisitionNo).ToList();
             if (approvals.Count > 0)
             {
                 if(approvals.Any(a=>a.Status.Contains("Approved")))
