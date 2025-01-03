@@ -7,6 +7,7 @@ namespace Inspire.Erp.Domain.Entities
 {
     public partial class BankPaymentVoucher
     {
+        public int BankPaymentVoucherSno { get; set; }
         public string BankPaymentVoucherVoucherNo { get; set; }
         public DateTime? BankPaymentVoucherVDt { get; set; }
         public string BankPaymentVoucherOptType { get; set; }

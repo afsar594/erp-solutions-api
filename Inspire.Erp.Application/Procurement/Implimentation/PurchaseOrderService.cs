@@ -297,7 +297,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             {
                 _purchaseOrderRepository.BeginTransaction();
 
-                string purchaseOrderNumber = this.GenerateVoucherNo(purchaseOrder.PurchaseOrderDate.Date).VouchersNumbersVNo;
+                string purchaseOrderNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.PurchaseOrder_TYPE, Prefix.PurchaseOrder_Prefix,
+                    _programsettingsRepository, _voucherNumbersRepository);
                 purchaseOrder.PurchaseOrderNo = purchaseOrderNumber;
 
                 int maxcount = 0;
