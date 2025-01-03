@@ -81,7 +81,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                     }
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.PurchaseRequisitionDetailsItemName).ToList();
 
                 _purchaseRequisitionRepository.Update(purchaseRequisition);
 
@@ -168,7 +168,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 {
                     k.PurchaseRequisitionDetailsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.PurchaseRequisitionDetailsItemName).ToList();
 
                 //_purchaseRequisitionDetailsRepository.UpdateList(purchaseRequisitionDetails);
 
@@ -315,7 +315,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
 
 
-                 }).ToList();
+                 }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
 
             this._accountTransactionRepository.UpdateList(accttrans);
         }

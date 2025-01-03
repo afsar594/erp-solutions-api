@@ -54,7 +54,7 @@ namespace Inspire.Erp.Web.Controllers
                 RmStatus = k.RmStatus,
                 RmDelStatus = k.RmDelStatus
 
-            }).ToList();
+            }).OrderBy(x => x.RmName).ToList();
         }
 
         [HttpPost]
@@ -70,7 +70,7 @@ namespace Inspire.Erp.Web.Controllers
                 RmSalesmanId = k.RmSalesmanId,
                 RmStatus = k.RmStatus,
                 RmDelStatus = k.RmDelStatus
-            }).ToList();
+            }).OrderBy(x => x.RmName).ToList();
         }
 
         [HttpPost]
@@ -86,7 +86,7 @@ namespace Inspire.Erp.Web.Controllers
                 RmSalesmanId = k.RmSalesmanId,
                 RmStatus = k.RmStatus,
                 RmDelStatus = k.RmDelStatus
-            }).ToList();
+            }).OrderBy(x => x.RmName).ToList();
         }
 
         [HttpPost]

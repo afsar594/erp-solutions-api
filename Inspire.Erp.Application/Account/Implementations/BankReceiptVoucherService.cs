@@ -77,7 +77,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsFcAllocCredit = 0;
                     k.AccountsTransactionsFcAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 List<PdcDetails> _pdcDetails = new List<PdcDetails>();
                 foreach (var item in bankReceiptVoucherDetails)
@@ -172,7 +172,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 _bankReceiptVoucherRepository.Update(bankReceiptVoucher);
                 var vchrnumer = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == bankReceiptVoucher.BankReceiptVoucherVoucherNo).FirstOrDefault();
@@ -212,7 +212,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     x.BankReceiptVoucherDetailsSno = null;
                     x.BankReceiptVoucherDetailsVoucherNo = bankReceiptVoucher.BankReceiptVoucherVoucherNo;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.BankReceiptVoucherDetailsVoucherNo).ToList();
                 _bankReceiptVoucherDetailsRepository.InsertList(bankReceiptVoucherDetails);
 
                 accountsTransactions = accountsTransactions.Select((k) =>

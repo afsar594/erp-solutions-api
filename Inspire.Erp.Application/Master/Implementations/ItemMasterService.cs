@@ -1379,7 +1379,7 @@ namespace Inspire.Erp.Application.Master
                                   InvoiceCode = og.Key.InvoiceCode,
                                   InvoiceCodeName = og.Key.MaAccName,
                                   CreditAccountNumber = og.Key.CreditAccountNumber
-                              }).ToList();
+                              }).OrderBy(x => x.AccountCodeName).ToList();
                 if (result.Count > 0)
                 {
 

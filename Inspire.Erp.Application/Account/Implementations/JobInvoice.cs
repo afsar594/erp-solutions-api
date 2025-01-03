@@ -108,7 +108,7 @@ namespace Inspire.Erp.Application.Account.implementations
                     k.AccountsTransactionsTransDate = JobInvoice.JobInvoiceVoucherDate;
                     k.AccountsTransactionsLocation = JobInvoice.JobInvoiceLocationId ?? 0;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
 

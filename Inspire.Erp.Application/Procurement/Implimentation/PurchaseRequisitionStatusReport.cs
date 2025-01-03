@@ -61,7 +61,7 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
                                 PReqId = g.Key.PurchaseOrderDetailsPrId,
                                 Quantity = g.Sum(x => x.PurchaseOrderDetailsQuantity),
                                 PoStatus = g.Key.PurchaseOrderStatus
-                            }).ToList();
+                            }).OrderBy(x => x.PReqId).ToList();
                 var res3 = (from d in _avIssueDetails.GetAll()
                             join i in _avIssueVoucher.GetAll() on d.AvIssueVoucherDetailsAvSvNo equals i.AvIssueVoucherAvsvNo
                             join s in _stockRegister.GetAll() on d.AvIssueVoucherDetailsMaterialId equals s.StockRegisterMaterialID

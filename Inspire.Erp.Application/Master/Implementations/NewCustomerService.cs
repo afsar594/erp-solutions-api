@@ -153,7 +153,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     {
                         x.CustomerContactsCustomerId = mxc;
                         return x;
-                    }).ToList();
+                    }).OrderBy(x => x.CustomerContactsName).ToList();
                     _customerContactsRepository.InsertList(customerContacts);
 
                 };

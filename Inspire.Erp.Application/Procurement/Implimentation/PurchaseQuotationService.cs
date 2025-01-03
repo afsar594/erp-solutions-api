@@ -114,7 +114,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     //}
 
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.PurchaseQuotationDetailsNo).ToList();
 
                 _purchaseQuotationRepository.Update(purchaseQuotation);
 
@@ -270,7 +270,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     k.AccountsTransactionsVoucherType = VoucherType.PurchaseQuotation_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
 

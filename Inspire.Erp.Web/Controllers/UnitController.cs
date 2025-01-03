@@ -77,7 +77,7 @@ namespace Inspire.Erp.Web.Controllers
                 UnitMasterUnitDescription = k.UnitMasterUnitDescription,
                 UnitMasterUnitStatus = k.UnitMasterUnitStatus,
                 UnitMasterUnitDelStatus = k.UnitMasterUnitDelStatus
-            }).ToList();
+            }).OrderBy(x => x.UnitMasterUnitShortName).ToList();
         }
 
 
@@ -94,7 +94,7 @@ namespace Inspire.Erp.Web.Controllers
                 UnitMasterUnitDescription = k.UnitMasterUnitDescription,
                 UnitMasterUnitStatus = k.UnitMasterUnitStatus,
                 UnitMasterUnitDelStatus = k.UnitMasterUnitDelStatus
-            }).ToList();
+            }).OrderBy(x => x.UnitMasterUnitShortName).ToList();
         }
 
         [HttpPost]
@@ -110,7 +110,7 @@ namespace Inspire.Erp.Web.Controllers
                 UnitMasterUnitDescription = k.UnitMasterUnitDescription,
                 UnitMasterUnitStatus = k.UnitMasterUnitStatus,
                 UnitMasterUnitDelStatus = k.UnitMasterUnitDelStatus
-            }).ToList();
+            }).OrderBy(x => x.UnitMasterUnitShortName).ToList();
         }
 
         [HttpPost]

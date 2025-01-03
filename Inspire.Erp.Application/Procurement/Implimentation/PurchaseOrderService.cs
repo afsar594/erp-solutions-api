@@ -152,7 +152,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     }
 
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
                 //insert tracking register
@@ -262,7 +262,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 {
                     k.PurchaseOrderDetailsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.PurchaseOrderDetailsItemName).ToList();
 
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {

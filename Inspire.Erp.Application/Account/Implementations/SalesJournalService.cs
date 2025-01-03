@@ -180,7 +180,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
                 _salesJournalRepository.Update(salesJournal);
@@ -222,7 +222,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 
                      x.SalesJournalDetailsVno = salesJournalNumber;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.SalesJournalDetailsVno).ToList();
                 _salesJournalRepository.Insert(salesJournal);
 
 

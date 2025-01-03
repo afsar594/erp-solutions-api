@@ -302,13 +302,13 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     k.AssetPurchaseVoucherDetailsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AssetPurchaseDetailsVoucherNo).ToList();
 
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
                 _assetopening.Update(assetPurchaseVoucher);

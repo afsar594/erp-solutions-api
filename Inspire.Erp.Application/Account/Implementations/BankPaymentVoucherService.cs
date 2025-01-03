@@ -327,7 +327,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     k.BankPaymentVoucherDetailsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.BankPaymentVoucherDetailsVoucherNo).ToList();
 
                 _bankPaymentVoucherDetailsRepository.UpdateList(bankPaymentVoucherDetails);
 
@@ -335,7 +335,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
                 _bankPaymentVoucherRepository.Update(bankPaymentVoucher);
@@ -378,7 +378,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     x.BankPaymentVoucherDetailsSno = null;
                     x.BankPaymentVoucherDetailsVoucherNo = bankPaymentVoucher.BankPaymentVoucherVoucherNo;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.BankPaymentVoucherDetailsVoucherNo).ToList();
                 _bankPaymentVoucherDetailsRepository.InsertList(bankPaymentVoucherDetails);
 
                 accountsTransactions = accountsTransactions.Select((k) =>

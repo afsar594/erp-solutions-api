@@ -64,7 +64,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                         k.AccountsTransactionsStatus = AccountStatus.Approved;
                     }
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
 
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 foreach (var x in purchaseJournal.PurchaseJournalDetails)

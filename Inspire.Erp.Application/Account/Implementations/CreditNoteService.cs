@@ -88,7 +88,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     k.CreditNoteDetailsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.CreditNoteDetailsVno).ToList();
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     k.AccountstransactionsDelStatus = true;

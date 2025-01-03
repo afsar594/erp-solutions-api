@@ -211,7 +211,7 @@ namespace Inspire.Erp.Web.Controllers
                 //JobMasterJobDelStatus = k.JobMasterJobDelStatus
 
 
-            }).ToList();
+            }).OrderBy(x => x.JobMasterJobName).ToList();
         }
 
 
