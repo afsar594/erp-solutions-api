@@ -3156,9 +3156,14 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<BankPaymentVoucher>(entity =>
                             {
-                                entity.HasKey(e => e.BankPaymentVoucherVoucherNo);
-
+                                entity.HasKey(e => e.BankPaymentVoucherSno);
+                                //entity.ToTable("Bank_Receipt_Voucher_SNo");
+                                entity.HasKey(e => e.BankPaymentVoucherVoucherNo);                              
                                 entity.ToTable("Bank_Payment_Voucher");
+                                entity.Property(e => e.BankPaymentVoucherSno)
+                                    .HasColumnName("Bank_Payment_Voucher_SNo")
+                                    .HasMaxLength(30)
+                                    .IsUnicode(false);
 
                                 entity.Property(e => e.BankPaymentVoucherVoucherNo)
                                     .HasColumnName("Bank_Payment_Voucher_Voucher_No")
@@ -3297,8 +3302,10 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<BankReceiptVoucher>(entity =>
              {
-                 entity.HasKey(e => e.BankReceiptVoucherVoucherNo);
+                 entity.HasKey(e => e.BankReceiptVoucherSno);
+                                entity.HasKey(e => e.BankReceiptVoucherVoucherNo);
                  entity.ToTable("Bank_Receipt_Voucher");
+                 entity.Property(e => e.BankReceiptVoucherSno).HasColumnName("Bank_Receipt_Voucher_SNo");
                  entity.Property(e => e.BankReceiptVoucherVoucherNo).HasColumnName("Bank_Receipt_Voucher_Voucher_NO");
                  entity.Property(e => e.BankReceiptVoucherAllocId).HasColumnName("Bank_Receipt_Voucher_Alloc_ID");
                  entity.Property(e => e.BankReceiptVoucherCrAmount).HasColumnName("Bank_Receipt_Voucher_CR_Amount");
@@ -3329,6 +3336,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.ToTable("Bank_Receipt_Voucher_Details");
 
                 entity.Property(e => e.BankReceiptVoucherDetailsId).HasColumnName("Bank_Receipt_Voucher_Details_ID");
+                entity.Property(e => e.BankReceiptVoucherSno).HasColumnName("Bank_Receipt_Voucher_SNo");
 
                 entity.Property(e => e.BankReceiptVoucherDetailsAcNo)
                     .HasColumnName("Bank_Receipt_Voucher_Details_AC_NO")

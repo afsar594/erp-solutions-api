@@ -1,5 +1,6 @@
 ﻿using Inspire.Erp.Application.Account.Interfaces;
 using Inspire.Erp.Application.Common;
+using Inspire.Erp.Application.MODULE;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Domain.Models;
@@ -152,7 +153,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _bankReceiptVoucherRepository.TransactionRollback();
                 throw ex;
             }
-            return this.GetSavedBankReceiptDetails(bankReceiptVoucher.BankReceiptVoucherVoucherNo);
+            return this.GetSavedBankReceiptDetails(bankReceiptVoucher.BankReceiptVoucherSno);
         }
 
         public int DeleteBankReceiptVoucher(BankReceiptVoucher bankReceiptVoucher, List<AccountsTransactions> accountsTransactions, List<BankReceiptVoucherDetails> bankReceiptVoucherDetails)
@@ -203,8 +204,9 @@ namespace Inspire.Erp.Application.Account.Implementations
             {
                 _bankReceiptVoucherRepository.BeginTransaction();
                 //bankReceiptVoucher.BankReceiptVoucherVoucherNo = bankReceiptVoucher.BankReceiptVoucherVoucherNo;
-                string bankReceiptVoucherNumber = this.GenerateVoucherNo(bankReceiptVoucher.BankReceiptVoucherVDate).VouchersNumbersVNo;
-                
+                string bankReceiptVoucherNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.BankReceipt, Prefix.BRV_Prefix,
+                    _programsettingsRepository, _voucherNumbersRepository);
+
                 bankReceiptVoucher.BankReceiptVoucherVoucherNo = bankReceiptVoucherNumber;
                
                 bankReceiptVoucherDetails = bankReceiptVoucherDetails.Select((x) =>
@@ -283,7 +285,7 @@ namespace Inspire.Erp.Application.Account.Implementations
 
 
                 _bankReceiptVoucherRepository.TransactionCommit();
-                return this.GetSavedBankReceiptDetails(bankReceiptVoucher.BankReceiptVoucherVoucherNo);
+                return this.GetSavedBankReceiptDetails(bankReceiptVoucher.BankReceiptVoucherSno);
 
             }
             catch (Exception ex)
@@ -460,12 +462,14 @@ namespace Inspire.Erp.Application.Account.Implementations
                 return 1;
             }
         }
-        public BankReceiptVoucher GetSavedBankReceiptDetails(string pvno)
+        public BankReceiptVoucher GetSavedBankReceiptDetails(int pvno)
         {
             BankReceiptVoucher voucherdata = new BankReceiptVoucher();
+           
+            voucherdata = _bankReceiptVoucherRepository.GetAsQueryable().Where(k => k.BankReceiptVoucherSno == pvno).SingleOrDefault();
             var userTrackngData = (from hdr in context.UserTracking
                                    join dtl in context.UserFile on (long)hdr.UserTrackingUserUserId equals dtl.UserId
-                                   where (hdr.UserTrackingUserVpType == "BANKRECEIPTVOUCHER" && hdr.UserTrackingUserVpNo == pvno)
+                                   where (hdr.UserTrackingUserVpType == "BANKRECEIPTVOUCHER" && hdr.UserTrackingUserVpNo == voucherdata.BankReceiptVoucherVoucherNo)
                                    select new UserTrackingDisplay
                                    {
                                        //VPAction = hdr.UserTrackingUserVpAction,
@@ -482,10 +486,9 @@ namespace Inspire.Erp.Application.Account.Implementations
                                        Time = hdr.UserTrackingUserChangeTime.Value.ToString("hh:mm t"),
                                        VNo = hdr.UserTrackingUserVpNo,
                                    }).ToList();
-            voucherdata = _bankReceiptVoucherRepository.GetAsQueryable().Where(k => k.BankReceiptVoucherVoucherNo == pvno).SingleOrDefault();
             voucherdata.UserTrackingData = userTrackngData;
-            voucherdata.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno).ToList();
-            voucherdata.BankReceiptVoucherDetails = _bankReceiptVoucherDetailsRepository.GetAsQueryable().Where(x => x.BankReceiptVoucherDetailsVoucherNo == pvno).ToList();
+            voucherdata.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == voucherdata.BankReceiptVoucherVoucherNo).ToList();
+            voucherdata.BankReceiptVoucherDetails = _bankReceiptVoucherDetailsRepository.GetAsQueryable().Where(x => x.BankReceiptVoucherDetailsVoucherNo == voucherdata.BankReceiptVoucherVoucherNo).ToList();
             voucherdata.AllocationDetails = this._IPaymentVoucherService.GetAllocationDetails(voucherdata.BankReceiptVoucherDrAcNo, voucherdata.BankReceiptVoucherVoucherNo).Result;
             return voucherdata;
         }
