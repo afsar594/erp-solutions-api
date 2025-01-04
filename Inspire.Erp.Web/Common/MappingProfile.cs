@@ -504,8 +504,8 @@ namespace Inspire.Erp.Web.Common
             CreateMap<RFQViewModel, RfqEntry>();
             CreateMap<RfqEntry, RFQViewModel>();
 
-            //CreateMap<RFQViewModel, RfqEntryDetails>();
-            //CreateMap<RfqEntryDetails, RFQViewModel>();
+            CreateMap<RFQDetailViewModel, RfqEntryDetails>();
+            CreateMap<RfqEntryDetails, RFQDetailViewModel>();
 
 
         }

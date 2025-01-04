@@ -25,8 +25,9 @@ namespace Inspire.Erp.Web.ViewModels
 
 
        
-        public List<RfqEntryDetails> RfqEntryDetails { get; set; }
-        }
+        public List<RFQDetailViewModel> RfqEntryDetailViewModel { get; set; }
+        
+    }
 
     }
 
