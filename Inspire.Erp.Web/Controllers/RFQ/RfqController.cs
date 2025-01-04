@@ -61,7 +61,7 @@ namespace Inspire.Erp.Web.Controllers
         {
 
             var param1 = _mapper.Map<RfqEntry>(RfqEntryModule);
-            var param2 =_mapper.Map<List<RfqEntryDetails>>(RfqEntryModule.RfqEntryDetailViewModel);
+            var param2 =_mapper.Map<List<RfqEntryDetails>>(RfqEntryModule.rfqEntryDetails);
 
             var rfq = await _rfq.InsertRfq(param1, param2);
 
@@ -79,7 +79,7 @@ namespace Inspire.Erp.Web.Controllers
 
         {
             var param1 = _mapper.Map<RfqEntry>(RfqEntryModule);
-            var param2 = _mapper.Map<List<RfqEntryDetails>>(RfqEntryModule.RfqEntryDetailViewModel);
+            var param2 = _mapper.Map<List<RfqEntryDetails>>(RfqEntryModule.rfqEntryDetails);
             var rfq = await _rfq.UpdatetRfq(param1, param2);
             ApiResponse<RFQViewModel> apiResponse = new ApiResponse<RFQViewModel>
             {

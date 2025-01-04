@@ -14070,6 +14070,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.RFQEntryDetailsRemarks).HasColumnName("RFQ_Entry_Details_Remarks");
                 entity.Property(e => e.RFQEntryDetailsDelStatus).HasColumnName("RFQ_Entry_Details_DelStatus");
                 entity.Property(e => e.RFQ_EntryvouchaseNo).HasColumnName("RFQ_EntryvouchaseNo");
+                entity.Property(e => e.RFQ_Entry_ID).HasColumnName("RFQ_Entry_ID");
             });
 
             modelBuilder.Entity<SalesJournal>(entity =>

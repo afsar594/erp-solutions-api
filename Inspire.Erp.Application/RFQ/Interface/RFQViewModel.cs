@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 namespace Inspire.Erp.Web.ViewModels
 {
-    public partial class RFQViewModel
+    public partial class RFQViewModel1
     {
 
         public RfqEntry RfqEntry { get; set; }

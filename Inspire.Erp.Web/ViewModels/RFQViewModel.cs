@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.ViewModels
 {
-    public partial class RFQViewModel
+    public class RFQViewModel
     {
         public int RFQEntryID { get; set; }
         public string? RfqEntryRfqId { get; set; }
@@ -19,15 +19,11 @@ namespace Inspire.Erp.Web.ViewModels
         public int? RfqEntrySalesManId { get; set; }
         public bool? RfqEntryDeliveryStatus { get; set; }
         public bool? RfqEntryDelStatus { get; set; }
-
         public string RFQ_EntryvouchaseNo { get; set; }
         public string? Remarks { get; set; }
-
-
-       
-        public List<RFQDetailViewModel> RfqEntryDetailViewModel { get; set; }
-        
-    }
+        public List<RFQDetailViewModel> rfqEntryDetails { get; set; }
 
     }
+
+}
 

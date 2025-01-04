@@ -32,7 +32,7 @@ namespace Inspire.Erp.Application.RFQ.Implementation
         {
             try
             {
-                var data = _rfqEntry.GetAll().Where(a => a.RfqEntryStatus != true).OrderBy(c => c.RFQEntryID).OrderBy(x => x.RFQ_EntryvouchaseNo).ToList();
+                var data = _rfqEntry.GetAll().Where(a => a.RfqEntryStatus != true).OrderBy(c => c.RFQEntryID).ToList();
                 return data;
             }
             catch (Exception ex)
@@ -41,13 +41,13 @@ namespace Inspire.Erp.Application.RFQ.Implementation
             }
         }
 
-        public RFQViewModel GetRfqById(int id)
+        public RfqEntry GetRfqById(int id)
         {
             try
             {
-                RFQViewModel Rfq = new RFQViewModel();
-                Rfq.RfqEntry = _rfqEntry.GetAsQueryable().FirstOrDefault(x => x.RFQEntryID == Convert.ToInt32(id));
-                Rfq.RfqEntryDetails = _rfqEntryDetails.GetAsQueryable().Where(x => x.RFQEntryDetailsDetID ==  Convert.ToInt32(id) && x.RFQEntryDetailsDelStatus != true).OrderBy(x => x.RFQ_EntryvouchaseNo).ToList();
+                RfqEntry Rfq = new RfqEntry();
+                Rfq = _rfqEntry.GetAsQueryable().FirstOrDefault(x => x.RFQEntryID == Convert.ToInt32(id));
+                Rfq.RfqEntryDetails = _rfqEntryDetails.GetAsQueryable().Where(x => x.RFQ_Entry_ID == Convert.ToInt32(id) && x.RFQEntryDetailsDelStatus != true).OrderBy(x => x.RFQEntryDetailsDetID).ToList();
                 return Rfq;
 
             }
@@ -56,7 +56,7 @@ namespace Inspire.Erp.Application.RFQ.Implementation
                 throw ex;
             }
         }
-        public async Task<RFQViewModel> InsertRfq(RfqEntry RfqEntry, List<RfqEntryDetails> RfqEntryDetails)
+        public async Task<RfqEntry> InsertRfq(RfqEntry RfqEntry, List<RfqEntryDetails> RfqEntryDetails)
 
         {
             try
@@ -74,17 +74,21 @@ namespace Inspire.Erp.Application.RFQ.Implementation
                 RfqEntry.RFQEntryID = maxcount;
                 _rfqEntry.Insert(RfqEntry);
 
-
+                int maxcount1 = 0;
+                maxcount1 = Convert.ToInt32(
+                   _rfqEntryDetails.GetAsQueryable()
+                   .DefaultIfEmpty().Max(o => o == null ? 0 : o.RFQEntryDetailsDetID) + 1);
                 RfqEntryDetails.ForEach(elemt =>
                 {
-                    elemt.RFQEntryDetailsDetID = maxcount;
+                    elemt.RFQEntryDetailsDetID = maxcount1;
                     elemt.RFQ_EntryvouchaseNo = RFQVoucherNumber;
-                    maxcount++;
-                }); 
+                    elemt.RFQ_Entry_ID = maxcount;
+                    maxcount1++;
+                });
                 _rfqEntryDetails.InsertList(RfqEntryDetails);
                 _rfqEntry.TransactionCommit();
 
-                return this.GetRfqEntrybyvoucher(RfqEntry.RFQ_EntryvouchaseNo);
+                return this.GetRfqById(RfqEntry.RFQEntryID);
             }
             catch (Exception ex)
             {
@@ -93,13 +97,13 @@ namespace Inspire.Erp.Application.RFQ.Implementation
             }
         }
 
-        public async Task<RFQViewModel> UpdatetRfq(RfqEntry RfqEntry, List<RfqEntryDetails> RfqEntryDetails)
+        public async Task<RfqEntry> UpdatetRfq(RfqEntry RfqEntry, List<RfqEntryDetails> RfqEntryDetails)
         {
             try
             {
 
-                string RFQVoucherNumber = this.GenerateVoucherNo(RfqEntry.RfqEntryRfqDate.Value).VouchersNumbersVNo;
-                RfqEntry.RFQ_EntryvouchaseNo = RFQVoucherNumber;
+                // string RFQVoucherNumber = this.GenerateVoucherNo(RfqEntry.RfqEntryRfqDate.Value).VouchersNumbersVNo;
+                // RfqEntry.RFQ_EntryvouchaseNo = RFQVoucherNumber;
 
                 _rfqEntry.BeginTransaction();
                 int maxcount = 0;
@@ -110,16 +114,32 @@ namespace Inspire.Erp.Application.RFQ.Implementation
                 _rfqEntry.Update(RfqEntry);
 
 
-                RfqEntryDetails.ForEach(elemt =>
+                int maxcount1 = 0;
+                maxcount1 = Convert.ToInt32(
+                   _rfqEntryDetails.GetAsQueryable()
+                   .DefaultIfEmpty().Max(o => o == null ? 0 : o.RFQEntryDetailsDetID) + 1);
+
+                foreach (var elemt in RfqEntryDetails)
                 {
-                    elemt.RFQEntryDetailsDetID = maxcount;
-                    elemt.RFQ_EntryvouchaseNo = RFQVoucherNumber;
-                    maxcount++;
-                });
-                _rfqEntryDetails.UpdateList(RfqEntryDetails);
+                    elemt.RFQ_Entry_ID = maxcount;
+                    if (elemt.RFQEntryDetailsDetID == 0)
+                    {
+                        elemt.RFQEntryDetailsDetID = maxcount1;
+                        _rfqEntryDetails.Insert(elemt);
+                        maxcount1++;
+                    }
+                    else
+                    {
+                        _rfqEntryDetails.Update(elemt);
+
+                    }
+
+                }
+
+                //_rfqEntryDetails.UpdateList(RfqEntryDetails);
                 _rfqEntry.TransactionCommit();
 
-                return this.GetRfqEntrybyvoucher(RfqEntry.RFQ_EntryvouchaseNo);
+                return this.GetRfqById(RfqEntry.RFQEntryID);
             }
             catch (Exception ex)
             {
@@ -149,20 +169,20 @@ namespace Inspire.Erp.Application.RFQ.Implementation
             }
         }
 
-       
-        public RFQViewModel GetRfqEntrybyvoucher(string VNo)
+
+        public RfqEntry GetRfqEntrybyvoucher(string VNo)
         {
 
             try
             {
 
-                RFQViewModel Rfq = new RFQViewModel();
-                Rfq.RfqEntry = _rfqEntry.GetAsQueryable().Where(k => k.RFQ_EntryvouchaseNo == VNo).FirstOrDefault();
+                RfqEntry Rfq = new RfqEntry();
+                Rfq = _rfqEntry.GetAsQueryable().Where(k => k.RFQ_EntryvouchaseNo == VNo).FirstOrDefault();
                 Rfq.RfqEntryDetails = _rfqEntryDetails.GetAsQueryable().Where(x => x.RFQ_EntryvouchaseNo == VNo && (x.RFQEntryDetailsDelStatus == false || x.RFQEntryDetailsDelStatus == null)).OrderBy(x => x.RFQ_EntryvouchaseNo).ToList();
                 return Rfq;
             }
             catch (Exception ex)
-            { 
+            {
                 throw ex;
             }
         }
@@ -198,7 +218,7 @@ namespace Inspire.Erp.Application.RFQ.Implementation
 
         }
 
-        
-       
+
+
     }
 }
