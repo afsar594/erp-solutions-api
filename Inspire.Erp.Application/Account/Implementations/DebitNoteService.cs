@@ -91,7 +91,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 {
                     k.DebitNoteDetailsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.DebitNoteDetailsAccNo).ToList();
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     k.AccountstransactionsDelStatus = true;

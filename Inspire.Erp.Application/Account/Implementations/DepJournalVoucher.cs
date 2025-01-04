@@ -85,7 +85,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     k.JournalVoucherDetailsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.JournalVoucherDetailsReferenceNo).ToList();
                 _journalVoucherDetailsRepository.UpdateList(journalVoucherDetails);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {

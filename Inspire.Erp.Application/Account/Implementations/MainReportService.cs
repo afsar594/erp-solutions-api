@@ -924,7 +924,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                                                                                  PurchaseVoucherDetailsGrossAmount = grp.Key.PurchaseVoucherTotalGrossAmt,                                                                                 
 
 
-                                                                             }).ToList();
+                                                                             }).OrderBy(x => x.PurchaseVoucherPoNo).ToList();
 
                     return reportPurchaseVoucher_ALL;
                 }
@@ -973,7 +973,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                             PurchaseVoucherVatNo = c.PurchaseVoucherVatNo,
                             PurchaseVoucherPurchaseType = c.PurchaseVoucherPurchaseType,
 
-                        }).ToList();
+                        }).OrderBy(x => x.PurchaseVoucherVoucherNo).ToList();
 
                     return reportPurchaseVoucher_ALL;
                 }

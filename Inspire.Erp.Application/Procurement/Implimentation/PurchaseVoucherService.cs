@@ -466,22 +466,18 @@ namespace Inspire.Erp.Application.Master.Implementations
                 {
                     k.PurchaseVoucherDetailsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.PurchaseVoucherDetailsItemName).ToList();
 
                 //_salesVoucherDetailsRepository.UpdateList(salesVoucherDetails);
 
-                accountsTransactions = accountsTransactions.Select((k) =>
-                {
-                    k.AccountstransactionsDelStatus = true;
-                    return k;
-                }).ToList();
+                accountsTransactions = accountsTransactions.Select((k) => { k.AccountstransactionsDelStatus = true; return k; }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
                 stockRegister = stockRegister.Select((k) =>
                 {
                     k.StockRegisterDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.StockRegisterRefVoucherNo).ToList();
                 _stockRegisterRepository.UpdateList(stockRegister);
 
 
@@ -532,7 +528,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                                        PurchaseVoucherDisAmount = pm.PurchaseVoucherDisAmount,
                                        PurchaseVoucherVatAmount = pm.PurchaseVoucherVATAmount,
                                        PurchaseVoucherNetAmount = pm.PurchaseVoucherNetAmount
-                                   }).ToList();
+                                   }).OrderBy(x => x.PurchaseVoucherVoucherNo).ToList();
 
                 // response.AddRange(loj);
 
@@ -582,7 +578,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                     x.PurchaseVoucherDetailsPrId = maxcount;
                     x.PurchaseVoucherDetailsVoucherNo = vnumber;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.PurchaseVoucherDetailsVoucherNo).ToList();
                 _PurchaseVoucherDetails.InsertList(purchaseVoucherDetails);
 
                 accountsTransactions = accountsTransactions.Select((k) =>

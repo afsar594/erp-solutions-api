@@ -150,7 +150,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 {
                     k.GeneralPurchaseOrderDetailsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.GeneralPurchaseOrder).ToList();
 
                 _GeneralpurchaseOrderDetailsRepository.UpdateList(GeneralpurchaseOrderDetails);
 
@@ -158,7 +158,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
                 GeneralpurchaseOrder.GeneralPurchaseOrderDetails = GeneralpurchaseOrderDetails;

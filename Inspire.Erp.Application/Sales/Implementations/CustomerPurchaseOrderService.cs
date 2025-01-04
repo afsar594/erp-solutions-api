@@ -477,7 +477,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                          pod.CustomerPurchaseOrderDetailsUnitId,
                                          po.CustomerPurchaseOrderCustomerId,
                                          po.CustomerPurchaseOrderLocationId
-                                     }).ToList();
+                                     }).OrderBy(x => x.CustomerPurchaseOrderVoucherNo).ToList();
                 if (model.isDataChecked)
                 {
                     purchaseorder = purchaseorder.Where(a => a.CustomerPurchaseOrderDate.Value.Date >= model.DateFrom.Value.Date && a.CustomerPurchaseOrderDate.Value.Date <= model.DateTo.Value.Date).OrderBy(x => x.CustomerPurchaseOrderVoucherNo).ToList();

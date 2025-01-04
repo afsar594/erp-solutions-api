@@ -825,7 +825,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransaction.UpdateList(accountsTransactions);
 
                 stockRegister = stockRegister.Select((k) =>
@@ -869,7 +869,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     k.PurchaseReturnId = purchaseReturn.PurchaseReturnId;
                     k.PurchaseReturnDetailsNo = purchaseReturn.PurchaseReturnNo;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.PurchaseReturnDetailsNo).ToList();
 
                 _purchaseReturnRepo.Update(purchaseReturn);
 

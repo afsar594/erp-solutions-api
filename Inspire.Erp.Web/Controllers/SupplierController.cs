@@ -71,7 +71,7 @@ namespace Inspire.Erp.Web.Controllers
                 SuppliersMasterSupplierCreditLimit = k.SuppliersMasterSupplierCreditLimit,
                 SuppliersMasterSupplierVatNo = k.SuppliersMasterSupplierVatNo,
                 SuppliersMasterSupplierDelStatus = k.SuppliersMasterSupplierDelStatus
-            }).ToList();
+            }).OrderBy(x => x.SuppliersMasterSupplierName).ToList();
         }
 
 

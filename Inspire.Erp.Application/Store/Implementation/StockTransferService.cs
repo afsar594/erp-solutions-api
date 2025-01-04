@@ -137,7 +137,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     x.StockTransferDetailsSNo = openingstockVoucherNumber;
 
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.StockTransferDetailsSNo).ToList();
 
                 //stockRegister = stockRegister.Select((k) =>
                 //{

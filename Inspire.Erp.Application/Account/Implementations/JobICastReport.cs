@@ -94,7 +94,7 @@ namespace Inspire.Erp.Application.Account.implementations
                                        Amount = (AT.AccountsTransactionsFcDebit != null) ? AT.AccountsTransactionsFcDebit : 0,
                                        RunningBal = (AT.AccountsTransactionsAllocCredit != null) ? AT.AccountsTransactionsAllocCredit : 0,
                                        CostCenter = (CC != null) ? CC.CostCenterMasterCostCenterName : null
-                                   }).ToList();
+                                   }).OrderBy(x => x.VNo).ToList();
                     return Response<List<JobCastDetailsSummary>>.Success(querySummary, "Data Found");
                 }
             }
