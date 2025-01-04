@@ -490,13 +490,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                    where (hdr.UserTrackingUserVpType == "BANKPAYMENTVOUCHER" && hdr.UserTrackingUserVpNo == voucherdata.BankPaymentVoucherVoucherNo)
                                    select new UserTrackingDisplay
                                    {
-                                       //VPAction = hdr.UserTrackingUserVpAction,
-                                       //UserId = dtl.UserId,
-                                       //VPType = hdr.UserTrackingUserVpType,
-                                       //ChangeDt = hdr.UserTrackingUserChangeDt,
-                                       //ChangeTime = hdr.UserTrackingUserChangeTime,
-                                       //VPNo = hdr.UserTrackingUserVpNo,
-
+                                       
                                        Action = hdr.UserTrackingUserVpAction,
                                        Id = dtl.UserId.ToString(),
                                        VType = hdr.UserTrackingUserVpType,

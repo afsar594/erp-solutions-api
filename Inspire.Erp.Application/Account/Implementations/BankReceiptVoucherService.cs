@@ -211,7 +211,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                
                 bankReceiptVoucherDetails = bankReceiptVoucherDetails.Select((x) =>
                 {
-                    x.BankReceiptVoucherDetailsSno = null;
+                    //x.BankReceiptVoucherDetailsSno = null;
                     x.BankReceiptVoucherDetailsVoucherNo = bankReceiptVoucher.BankReceiptVoucherVoucherNo;
                     return x;
                 }).ToList();
