@@ -58,7 +58,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     }
 
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherType).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 _obVoucherDetailsRepository.UpdateList(openingVoucherDetails);
                 _obVoucherRepository.TransactionCommit();
@@ -85,7 +85,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 openingVoucherDetails = openingVoucherDetails.Select((k) => {
                     k.OpeningVoucherDetailsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.OpeningVoucherDetailsVoucherNo).ToList();
 
                 _obVoucherDetailsRepository.UpdateList(openingVoucherDetails);
 
@@ -134,7 +134,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     x.OpeningVoucherDetailsOpId = openingVoucher.OpeningVoucherNo;
                     x.OpeningVoucherDetailsVoucherNo = x.OpeningVoucherDetailsVoucherNo;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.OpeningVoucherDetailsVoucherNo).ToList();
                 _obVoucherDetailsRepository.InsertList(openingVoucherDetails);
 
                 accountsTransactions = accountsTransactions.Select((k) => {
@@ -143,7 +143,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsVoucherNo = openingVoucher.OpeningVoucherNo; 
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherType).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
                 _obVoucherRepository.Insert(openingVoucher);
                

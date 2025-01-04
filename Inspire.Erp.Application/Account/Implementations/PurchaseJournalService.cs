@@ -170,7 +170,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsVoucherType = VoucherType.PurchaseJournal_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
 

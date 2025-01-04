@@ -248,7 +248,7 @@ namespace Inspire.Erp.Application.Account.Implementations
 
 
                                   Days = (Convert.ToDateTime(model.fromDate).Date - transaction.AccountsTransactionsTransDate.Value.Date).Days
-                              }).ToList();
+                              }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
 
                 if (!model.isDateRange)
                     result = result.Where(x => x.AccountsTransactionsTransDate.Value.Date <= Convert.ToDateTime(model.fromDate).Date).ToList();

@@ -37,7 +37,7 @@ namespace Inspire.Erp.Web.Controllers
                 RmSalesmanId = k.RmSalesmanId,
                 RmStatus = k.RmStatus,
                 RmDelStatus = k.RmDelStatus
-            }).ToList();
+            }).OrderBy(x => x.RmName).ToList();
         }
 
 
@@ -102,7 +102,7 @@ namespace Inspire.Erp.Web.Controllers
                 RmSalesmanId = k.RmSalesmanId,
                 RmStatus = k.RmStatus,
                 RmDelStatus = k.RmDelStatus
-            }).ToList();
+            }).OrderBy(x => x.RmName).ToList();
         }
     }
 }

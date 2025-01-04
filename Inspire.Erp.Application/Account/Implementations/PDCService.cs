@@ -195,7 +195,7 @@ namespace Inspire.Erp.Application.Account.Implementation
                       select new BankNamesModel
                             {
                                 AccName = an.MaAccName
-                            }).ToList();
+                            }).OrderBy(x => x.AccName).ToList();
                 return l;
             }
             catch (Exception ex)

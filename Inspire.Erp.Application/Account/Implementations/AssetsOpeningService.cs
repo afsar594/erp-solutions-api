@@ -124,7 +124,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     x.AstPurchaseID = maxcount;
                     x.AssetPurchaseDetailsVoucherNo = assetPurchaseVoucherNumber;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.AssetPurchaseDetailsVoucherNo).ToList();
 
                 //var currency = await _currencyMaster.GetAsQueryable().Where(x => x.CurrencyMasterCurrencyId == assetPurchaseVoucher.CurrencyId).FirstOrDefaultAsync();
                 //accountsTransactions = accountsTransactions.Select((k) =>
@@ -271,7 +271,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     }
 
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 
                 _assetopening.TransactionCommit();
@@ -616,7 +616,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                             AstID =(int) x.AstID,
                             AstPurRefNo = x.AstPurRefNo,
                             BatchCode = x.BatchCode,
-                        }).ToList();
+                        }).OrderBy(x => x.AssetPurchaseDetailsVoucherNo).ToList();
 
                 });
                 return Response<AddEditAssetPurchaseVoucher>.Success(model, "Records FOund.");

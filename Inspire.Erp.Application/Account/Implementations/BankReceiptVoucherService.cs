@@ -167,7 +167,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     k.BankReceiptVoucherDetailsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.BankReceiptVoucherDetailsVoucherNo).ToList();
                 _bankReceiptVoucherDetailsRepository.UpdateList(bankReceiptVoucherDetails);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
@@ -229,7 +229,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsFcAllocCredit = 0;
                     k.AccountsTransactionsFcAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 List<PdcDetails> _pdcDetails = new List<PdcDetails>();
                 foreach (var item in bankReceiptVoucherDetails)
                 {
@@ -485,7 +485,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                        Date = hdr.UserTrackingUserChangeDt.Value.ToString("dd/MM/yyyy"),
                                        Time = hdr.UserTrackingUserChangeTime.Value.ToString("hh:mm t"),
                                        VNo = hdr.UserTrackingUserVpNo,
-                                   }).ToList();
+                                   }).OrderBy(x => x.Name).ToList();
             voucherdata.UserTrackingData = userTrackngData;
             voucherdata.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == voucherdata.BankReceiptVoucherVoucherNo).ToList();
             voucherdata.BankReceiptVoucherDetails = _bankReceiptVoucherDetailsRepository.GetAsQueryable().Where(x => x.BankReceiptVoucherDetailsVoucherNo == voucherdata.BankReceiptVoucherVoucherNo).ToList();

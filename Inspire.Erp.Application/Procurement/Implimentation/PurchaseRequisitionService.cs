@@ -96,7 +96,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     }
 
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
                 //PermissionApprovalDetail by zaid              
@@ -176,7 +176,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
 
@@ -343,7 +343,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     x.PurchaseRequisitionId = maxcount;
                     x.PurchaseRequisitionDetailsNo = purchaseRequisitionNumber;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.PurchaseRequisitionDetailsId).ToList();
 
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {

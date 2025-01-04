@@ -111,7 +111,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 {
                     k.EnquiryDetailsEnquiryDetailsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.EnquiryDetailsEnquiryDetailsDescription).ToList();
 
                 _customerEnquiryDetailsRepository.UpdateList(customerEnquiryDetails);
 
@@ -147,7 +147,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     x.EnquiryDetailsEnquiryDetailsId = 0;
                     x.EnquiryDetailsEnquiryDetailsEquiryId = customerEnquiryNumber;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.EnquiryDetailsEnquiryDetailsId).ToList();
                 _customerEnquiryDetailsRepository.InsertList(customerEnquiryDetails);
 
                 _customerEnquiryRepository.Insert(customerEnquiry);

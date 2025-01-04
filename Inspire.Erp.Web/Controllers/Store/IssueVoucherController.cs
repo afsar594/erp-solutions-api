@@ -373,7 +373,7 @@ namespace Inspire.Erp.Web.Controllers.Store
             {
                 c.JobMasterJobId,
                 c.JobMasterJobName,
-            }).ToList();
+            }).OrderBy(x => x.JobMasterJobName).ToList();
             var currencyMasters = currencyrepository.GetAsQueryable().AsNoTracking().Where(a => a.CurrencyMasterCurrencyDelStatus != true).Select(c => new
             {
                 c.CurrencyMasterCurrencyId,

@@ -125,7 +125,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                     k.AccountsTransactionsVoucherType = VoucherType.PurchaseVoucher_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
                 decimal stockRegCount = 0;
@@ -389,7 +389,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                         k.AccountsTransactionsStatus = AccountStatus.Approved;
                     }
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
                 List<StockRegister> stockRegisters = new List<StockRegister>();
@@ -588,7 +588,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                     k.AccountsTransactionsVoucherType = VoucherType.PurchaseVoucher_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
                 List<StockRegister> stockRegisters = new List<StockRegister>();
 

@@ -11,10 +11,6 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Microsoft.Extensions.Logging;
-using Inspire.Erp.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Spire.Pdf.Exporting.XPS.Schema;
 using DinkToPdf;
@@ -306,7 +302,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 AccChqDate = l.AccChqDate,
                 AccVatNo = l.AccVatNo,
                 AccVatAmt = l.AccVatAmt,
-            }).ToList();
+            }).OrderBy(x => x.AccName).ToList();
             _tempReportAccStatementRepository.DeleteList(tempReport);
             //_accountTransactionRepository.UpdateList(accttrans);
         }
@@ -811,7 +807,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                                                                        //StockRegisterAmount = grp.Sum(x => x.StockRegisterAmount),
                                                                        //LocationMasterLocationName = "",
                                                                        //StockRegisterLocationID = 0,
-                                                                   }).ToList();
+                                                                   }).OrderBy(x => x.SalesVoucherNo).ToList();
 
                 return reportSalesVoucher_ALL;
             }
@@ -860,7 +856,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
 
 
 
-                  }).ToList();
+                  }).OrderBy(x => x.SalesVoucherNo).ToList();
                 return reportSalesVoucher_ALL;
             }
 
@@ -1035,7 +1031,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                                                                          PurchaseOrderVatRountAmt = grp.Key.PurchaseOrderVatRountAmt,
                                                                          PurchaseOrderNetAmount = grp.Key.PurchaseOrderNetAmount,
                                                                          
-                                                                     }).ToList();
+                                                                     }).OrderBy(x => x.PurchaseOrderNo).ToList();
 
                 return reportPurchaseOrder_ALL;
             }
@@ -1109,7 +1105,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                             PurchaseRequisitionVatRountAmt = grp.Key.PurchaseRequisitionVatRountAmt,
                             PurchaseRequisitionNetAmount = grp.Key.PurchaseRequisitionNetAmount,
                      
-                        }).ToList();
+                        }).OrderBy(x => x.PurchaseRequisitionNo).ToList();
 
                         return reportPurchaseRequisition_ALL;
             }

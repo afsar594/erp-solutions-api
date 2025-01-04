@@ -57,7 +57,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                         k.AccountsTransactionsStatus = AccountStatus.Approved;
                     }
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherType).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 _journalVoucherDetailsRepository.UpdateList(journalVoucherDetails);
                 _journalVoucherRepository.Update(journalVoucher);
@@ -133,7 +133,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     x.JournalVoucherID = maxcount;
                     x.JournalVoucherDetailVrefNo = journalVoucher.JournalVoucherVrefNo;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.JournalVoucherDetailVrefNo).ToList();
                 _journalVoucherDetailsRepository.InsertList(journalVoucherDetails);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
@@ -141,7 +141,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsVoucherType = VoucherType.JournalVoucher_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
                 //UserTracking trackingData = new UserTracking();

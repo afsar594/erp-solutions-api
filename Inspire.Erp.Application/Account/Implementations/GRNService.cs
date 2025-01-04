@@ -87,7 +87,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                                                Date = Convert.ToDateTime(hdr.UserTrackingUserChangeDt).ToString("dd/MMM/yyyy"),
                                                Time = Convert.ToDateTime(hdr.UserTrackingUserChangeTime).ToShortTimeString(),
                                                VNo = hdr.UserTrackingUserVpNo,
-                                           }).ToList();
+                                           }).OrderBy(x => x.Name).ToList();
 
 
                     pv.PurchaseVoucherDetails = _purchaseVoucherDetailsRepository.GetAll().Where(o => o.PurchaseVoucherDetailsVoucherNo == pv.PurchaseVoucherVoucherNo).ToList();

@@ -260,7 +260,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     x.PurchaseQuotationId = maxcount;
                     x.PurchaseQuotationDetailsNo = purchaseQuotationNumber;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.PurchaseQuotationDetailsNo).ToList();
                 //_purchaseQuotationDetailsRepository.InsertList(purchaseQuotationDetails);
 
                 accountsTransactions = accountsTransactions.Select((k) =>

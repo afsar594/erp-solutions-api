@@ -72,7 +72,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsFcAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
                     return k;
                    
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
 
                 List<PdcDetails> _pdcDetails = new List<PdcDetails>();
                 foreach (var item in bankPaymentVoucherDetails)
@@ -395,7 +395,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsFcAllocCredit = 0;
                     k.AccountsTransactionsFcAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
 
                 List<PdcDetails> _pdcDetails = new List<PdcDetails>();
                 foreach (var item in bankPaymentVoucherDetails)
@@ -504,7 +504,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                        Time = hdr.UserTrackingUserChangeTime.Value.ToString("hh:mm t"),
                                        VNo = hdr.UserTrackingUserVpNo,
 
-                                   }).ToList();
+                                   }).OrderBy(x => x.Name).ToList();
             voucherdata.UserTrackingData = userTrackngData;
             voucherdata.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == voucherdata.BankPaymentVoucherVoucherNo).ToList();
             voucherdata.BankPaymentVoucherDetails = _bankPaymentVoucherDetailsRepository.GetAsQueryable().Where(x => x.BankPaymentVoucherDetailsVoucherNo == voucherdata.BankPaymentVoucherVoucherNo).ToList();

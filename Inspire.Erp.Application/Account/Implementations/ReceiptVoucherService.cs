@@ -83,7 +83,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                         k.AccountsTransactionsFcAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
                     }
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 _receiptVoucherDetailsRepository.UpdateList(receiptVoucherDetails);
                 //UserTracking trackingData = new UserTracking();
@@ -120,7 +120,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     k.ReceiptVoucherDetailsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.ReceiptVoucherDetailsVoucherNo).ToList();
                 _receiptVoucherDetailsRepository.UpdateList(receiptVoucherDetails);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
@@ -170,7 +170,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     x.ReceiptVoucherDetailsSlNo = maxcount;
                     x.ReceiptVoucherDetailsVoucherNo = receiptVoucher.ReceiptVoucherMasterVoucherNo;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.ReceiptVoucherDetailsSlNo).ToList();
                 _receiptVoucherDetailsRepository.InsertList(receiptVoucherDetails);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
@@ -183,7 +183,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsFcAllocCredit = 0;
                     k.AccountsTransactionsFcAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
                 _receiptVoucherRepository.Insert(receiptVoucher);
 
@@ -400,7 +400,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                        ChangeDt = hdr.UserTrackingUserChangeDt,
                                        ChangeTime = hdr.UserTrackingUserChangeTime,
                                        VPNo = hdr.UserTrackingUserVpNo,
-                                   }).ToList();
+                                   }).OrderBy(x => x.UserName).ToList();
             voucherdata.TrackingData = userTrackngData;
                // voucherdata.rvAllocationDetails = getAllocationDetails(voucherdata.ReceiptVoucherMasterDrAcNo, voucherdata.ReceiptVoucherMasterVoucherNo); //_IPaymentVoucherService.GetAllocationDetails(voucherdata.ReceiptVoucherMasterDrAcNo, voucherdata.ReceiptVoucherMasterVoucherNo).Result   ;
                 return voucherdata;
@@ -429,7 +429,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                 Balance = dtl.AccountsTransactionsAllocBalance,
                                 AllocAmount = dtl.AccountsTransactionsFcRate,
                                 NetAllocation = dtl.AccountsTransactionsVatableAmount,
-                            }).ToList();
+                            }).OrderBy(x => x.VoucherNo).ToList();
                 return data;
             }
             catch (System.Exception ex)

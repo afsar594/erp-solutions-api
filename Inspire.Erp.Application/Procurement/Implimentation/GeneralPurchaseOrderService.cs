@@ -120,7 +120,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     }
 
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
 
@@ -203,7 +203,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     x.GeneralPurchaseOrderId = maxcount;
                     x.GeneralPurchaseOrderPono = purchaseOrderNumber;// purchaseOrder.PurchaseOrderNo;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.GeneralPurchaseOrderPono).ToList();
 
                 GeneralpurchaseOrder.GeneralPurchaseOrderDetails.Clear();
 
@@ -227,7 +227,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     k.AccountsTransactionsVoucherType = VoucherType.PurchaseOrder_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherType).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
                 _GeneralpurchaseOrderRepository.Insert(GeneralpurchaseOrder);

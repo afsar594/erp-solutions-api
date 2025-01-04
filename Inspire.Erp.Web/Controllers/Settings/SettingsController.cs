@@ -132,7 +132,7 @@ namespace Inspire.Erp.Web.Controllers.Settings
                 c.GeneralSettingsTextValue,
                 GeneralSettingsKeyValue = c.GeneralSettingsKeyValue.Trim(),
                 c.GeneralSettingsBoolValue
-            }).ToList();
+            }).OrderBy(x => x.GeneralSettingsTextValue).ToList();
             var OptionSettings = _optionMasterRepo.GetAsQueryable().Where(o => o.OptionsMasterDescription == "DEFAULT_VAT").Select(s=> new
             {
                 s.OptionsMasterId,

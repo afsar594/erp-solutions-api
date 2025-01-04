@@ -172,7 +172,7 @@ namespace Inspire.Erp.Application.MODULE
 
 
 
-                 }).ToList();
+                 }).OrderBy(x => x.StockRegisterRefVoucherNo).ToList();
             _stockRegisterRepository.DeleteList(stockTrans);
             //_stockRegisterRepository.UpdateList(stockTrans);
 

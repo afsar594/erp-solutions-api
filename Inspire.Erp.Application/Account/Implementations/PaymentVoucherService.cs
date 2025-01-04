@@ -75,7 +75,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                         }
 
                         return k;
-                    }).ToList();
+                    }).OrderBy(x => x.AccountsTransactionsVoucherType).ToList();
                     _accountTransactionRepository.UpdateList(accountsTransactions);
                     _paymentVoucherDetailsRepository.UpdateList(paymentVoucherDetails);
 
@@ -268,7 +268,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     k.PaymentVocherDetailsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.PaymentVoucherDetailsVoucherNo).ToList();
                 _paymentVoucherDetailsRepository.UpdateList(paymentVoucherDetails);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
@@ -326,7 +326,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     x.PaymentVoucherDetailsCrAmount = x.PaymentVoucherDetailsCrAmount ?? 0;
                     x.PaymentVoucherDetailsCrFcAmount = x.PaymentVoucherDetailsCrFcAmount ?? 0;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.PaymentVoucherDetailsVoucherNo).ToList();
                 _paymentVoucherDetailsRepository.InsertList(paymentVoucherDetails);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
@@ -334,7 +334,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsVoucherType = VoucherType.Payment;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
                 _paymentVoucherRepository.Insert(paymentVoucher);
                 //UserTracking trackingData = new UserTracking();
@@ -468,7 +468,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                 Balance = dtl.AccountsTransactionsAllocBalance,
                                 AllocAmount = dtl.AccountsTransactionsFcRate,
                                 NetAllocation = dtl.AccountsTransactionsVatableAmount,
-                            }).ToList();
+                            }).OrderBy(x => x.VoucherNo).ToList();
                 return ApiResponse<List<AllocationDetails>>.Success(data, "Data Found");
             }
             catch (System.Exception ex)

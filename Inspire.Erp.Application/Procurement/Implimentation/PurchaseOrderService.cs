@@ -138,7 +138,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     k.PurchaseOrderId = purchaseOrder.PurchaseOrderId;
                     k.PurchaseOrderDetailsNo = purchaseOrder.PurchaseOrderNo;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.PurchaseOrderDetailsNo).ToList();
                 _purchaseOrderRepository.Update(purchaseOrder);
 
                 accountsTransactions = accountsTransactions.Select((k) =>
@@ -268,7 +268,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
                 _purchaseOrderRepository.Update(purchaseOrder);
@@ -313,7 +313,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     x.PurchaseOrderId = maxcount;
                     x.PurchaseOrderDetailsNo = purchaseOrderNumber;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.PurchaseOrderDetailsSno).ToList();
 
                 purchaseOrder.PurchaseOrderDetails.Clear();
                 foreach (var item in purchaseOrderDetails)
@@ -330,7 +330,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     k.AccountsTransactionsVoucherType = VoucherType.PurchaseOrder_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherType).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
                 _purchaseOrderRepository.Insert(purchaseOrder);
 
@@ -607,7 +607,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     c.UnitMasterUnitId,
                     c.UnitMasterUnitShortName,
                     c.UnitMasterUnitFullName
-                }).ToList();
+                }).OrderBy(x => x.UnitMasterUnitShortName).ToList();
                 var detailList = _purchaseOrderDetailsRepository.GetAsQueryable().ToList();
                 var details = _purchaseOrderRepository.GetAsQueryable().Where(a => a.PurchaseOrderDelStatus != true && a.PurchaseOrderPartyId == id).ToList();
                 var data = details.Select(o => new PurchaseOrderDTO

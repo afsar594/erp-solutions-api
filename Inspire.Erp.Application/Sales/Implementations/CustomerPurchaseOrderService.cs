@@ -454,7 +454,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                         d.CustomerDeliveryNoteDeliveryDate,
                                         s.CustomerDeliveryNoteDetailsDeliveryDetailId,
                                         d.CustomerDeliveryNoteDeliveryID,
-                                    }).ToList();
+                                    }).OrderBy(x => x.CustomerDeliveryNoteDeliveryDate).ToList();
 
                 var purchaseorder = (from pod in _Context.CustomerPurchaseOrderDetails
                                      join po in _Context.CustomerPurchaseOrder

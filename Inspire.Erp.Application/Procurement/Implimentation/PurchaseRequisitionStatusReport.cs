@@ -72,7 +72,7 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
                                 issueQty = g.Sum(x => x.d.AvIssueVoucherDetailsSoldQuantity),
                                 BalToIssue = g.Sum(x => (x.s.StockRegisterSIN - x.s.StockRegisterSout) / 1 - (decimal)x.d.AvIssueVoucherDetailsSoldQuantity),
                                 stock = g.Sum(x => x.s.StockRegisterSIN - x.s.StockRegisterSout)
-                            }).ToList();
+                            }).OrderBy(x => x.ImId).ToList();
 
 
                 //var res4 = from a in res1.Select(x=>x.pd).ToList()

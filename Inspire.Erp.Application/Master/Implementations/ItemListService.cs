@@ -80,7 +80,7 @@ namespace Inspire.Erp.Application.Master
                                  ItemMasterAccountNo = IM.ItemMasterAccountNo ?? 0,
                                  ItemSize = Convert.ToString(IM.ItemMasterItemSize) ?? "",
                                  isUpdated = false
-                             }).ToList();
+                             }).OrderBy(x => x.Item_Name).ToList();
                 if (filteModle == null)
                 {
                     return query;

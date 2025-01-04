@@ -81,7 +81,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     k.CustomerContactsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.CustomerContactsName).ToList();
 
                 _customerContactsRepository.UpdateList(customerContacts);
 
@@ -89,7 +89,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     k.CustomerDepartmentsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.CustomerDepartmentsDelStatus).ToList();
                 _customerDepartmentsRepository.UpdateList(customerDepartments);
 
                 var account = _masterAccountTable.GetAsQueryable().Where(a => a.MaAccNo == customerMaster.CustomerMasterCustomerReffAcNo).FirstOrDefault();
@@ -164,7 +164,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     {
                         x.CustomerDepartmentsCustomerId = mxc;
                         return x;
-                    }).ToList();
+                    }).OrderBy(x => x.CustomerDepartmentsCustomerId).ToList();
 
                     _customerDepartmentsRepository.InsertList(customerDepartments);
 

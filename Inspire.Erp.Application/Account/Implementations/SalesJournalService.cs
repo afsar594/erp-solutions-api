@@ -112,7 +112,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     //}
 
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.SalesJournalDetailsVno).ToList();
 
                 _salesJournalRepository.Update(salesJournal);
 
@@ -130,7 +130,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     }
 
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherType).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
 
@@ -234,7 +234,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsVoucherType = VoucherType.SalesJournal_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
                 _salesJournalRepository.TransactionCommit();

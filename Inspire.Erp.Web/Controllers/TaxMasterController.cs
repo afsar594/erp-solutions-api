@@ -95,7 +95,7 @@ namespace Inspire.Erp.Web.Controllers
                 TmSgst = k.TmSgst,
                 TmDelStatus = k.TmDelStatus
 
-            }).ToList();
+            }).OrderBy(x => x.TmName).ToList();
         }
 
         [HttpPost]
@@ -112,7 +112,7 @@ namespace Inspire.Erp.Web.Controllers
                 TmCgst = k.TmCgst,
                 TmSgst = k.TmSgst,
                 TmDelStatus = k.TmDelStatus
-            }).ToList();
+            }).OrderBy(x => x.TmName).ToList();
         }
     }
 }
