@@ -3157,8 +3157,6 @@ namespace Inspire.Erp.Infrastructure.Database
             modelBuilder.Entity<BankPaymentVoucher>(entity =>
                             {
                                 entity.HasKey(e => e.BankPaymentVoucherSno);
-                                //entity.ToTable("Bank_Receipt_Voucher_SNo");
-                                entity.HasKey(e => e.BankPaymentVoucherVoucherNo);                              
                                 entity.ToTable("Bank_Payment_Voucher");
                                 entity.Property(e => e.BankPaymentVoucherSno)
                                     .HasColumnName("Bank_Payment_Voucher_SNo")
@@ -3236,6 +3234,10 @@ namespace Inspire.Erp.Infrastructure.Database
             modelBuilder.Entity<BankPaymentVoucherDetails>(entity =>
             {
                 entity.ToTable("Bank_Payment_Voucher_Details");
+                entity.Property(e => e.BankPaymentVoucherSno)
+                                  .HasColumnName("Bank_Payment_Voucher_SNo")
+                                  .HasMaxLength(30)
+                                  .IsUnicode(false);
 
                 entity.Property(e => e.BankPaymentVoucherDetailsId).HasColumnName("Bank_Payment_Voucher_Details_ID");
 
@@ -3303,7 +3305,7 @@ namespace Inspire.Erp.Infrastructure.Database
             modelBuilder.Entity<BankReceiptVoucher>(entity =>
              {
                  entity.HasKey(e => e.BankReceiptVoucherSno);
-                                entity.HasKey(e => e.BankReceiptVoucherVoucherNo);
+                //entity.HasKey(e => e.BankReceiptVoucherVoucherNo);
                  entity.ToTable("Bank_Receipt_Voucher");
                  entity.Property(e => e.BankReceiptVoucherSno).HasColumnName("Bank_Receipt_Voucher_SNo");
                  entity.Property(e => e.BankReceiptVoucherVoucherNo).HasColumnName("Bank_Receipt_Voucher_Voucher_NO");
@@ -14068,6 +14070,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.RFQEntryDetailsRemarks).HasColumnName("RFQ_Entry_Details_Remarks");
                 entity.Property(e => e.RFQEntryDetailsDelStatus).HasColumnName("RFQ_Entry_Details_DelStatus");
                 entity.Property(e => e.RFQ_EntryvouchaseNo).HasColumnName("RFQ_EntryvouchaseNo");
+                entity.Property(e => e.RFQ_Entry_ID).HasColumnName("RFQ_Entry_ID");
             });
 
             modelBuilder.Entity<SalesJournal>(entity =>
