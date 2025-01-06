@@ -98,14 +98,21 @@ namespace Inspire.Erp.WebReport.ReportEngine
         }
 
 
-        public ReportDocument PrepareReport(string reportPath)
+        public ReportDocument PrepareReport( string reportPath,string commonReportPath = "")
         {
             ReportDocument crReportDocument;
             crReportDocument = new ReportDocument();
             //
             try
             {
-                crReportDocument.Load(reportPath, CrystalDecisions.Shared.OpenReportMethod.OpenReportByTempCopy);
+                if (!string.IsNullOrEmpty(commonReportPath) && File.Exists(commonReportPath))
+                {
+                    crReportDocument.Load(commonReportPath, CrystalDecisions.Shared.OpenReportMethod.OpenReportByTempCopy);
+                }
+                else
+                {
+                    crReportDocument.Load(reportPath, CrystalDecisions.Shared.OpenReportMethod.OpenReportByTempCopy);
+                }
                 SetConnectionDB(crReportDocument);
             }
             catch (Exception ex)
@@ -789,13 +796,18 @@ namespace Inspire.Erp.WebReport.ReportEngine
 
 
 
-        public HttpResponseMessage RenderReport(string PathReport, string SelectionFormula, string Namefile, List<Models.ReportParameters> reportParameters, DbConnectionModel dbSettings)
+        public HttpResponseMessage RenderReport(string CommonReportPath, string PathReport, string SelectionFormula, string Namefile, List<Models.ReportParameters> reportParameters,
+            DbConnectionModel dbSettings)
         {
             ReportDocument reportDoc;
             SetConnectionInfo(dbSettings.ServerName, dbSettings.UserName, dbSettings.Password, dbSettings.DBName, "");
             SetDefaults();
 
-            reportDoc = PrepareReport(PathReport);
+            reportDoc = PrepareReport( PathReport, CommonReportPath);
+
+            reportDoc.VerifyDatabase();
+            reportDoc.Refresh();
+
             if (reportDoc.ParameterFields.Count > 0 && reportParameters.Count > 0)
             {
                 var dt = new DataTable();
@@ -862,6 +874,27 @@ namespace Inspire.Erp.WebReport.ReportEngine
             return result;
         }
 
+
+        // Modify SQL Expression Fields
+        private void ModifySqlExpressionFields(ReportDocument reportDoc)
+        {
+            try
+            {
+                // Check if the SQL Expression Field exists in the report
+                foreach (FormulaFieldDefinition formula in reportDoc.DataDefinition.SQLExpressionFields)
+                {
+                    if (formula.Name == "SQL_Expression_Field1")
+                    {
+                        formula.Text = "{YourTable.FieldName} + ' UpdatedValue'";
+                        break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error modifying SQL Expression Field: {ex.Message}");
+            }
+        }
 
         public DbConnectionModel getDbSettingsFromJSonFle(string filePath)
         {
