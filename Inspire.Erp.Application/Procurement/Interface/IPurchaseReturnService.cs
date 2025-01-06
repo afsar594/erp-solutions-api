@@ -44,7 +44,7 @@ namespace Inspire.Erp.Application.Procurement.Interface
         decimal? CurrencyConversion(PurchaseReturn purchaseReturn);
         decimal? GetCurrencyRate(PurchaseReturn pr);
 
-        Task<bool> SendEmailAlerts(EmailRequestViewModel mailRequest);
+       // Task<bool> SendEmailAlerts(EmailRequestViewModel mailRequest);
 
     }
 }
