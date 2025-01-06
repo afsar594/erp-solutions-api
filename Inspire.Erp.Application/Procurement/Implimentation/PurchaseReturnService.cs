@@ -6,14 +6,18 @@ using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Modals.Procurement;
+using Inspire.Erp.Domain.Models.Common;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.EntityFrameworkCore;
+using SendGrid.Helpers.Mail;
+using SendGrid;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace Inspire.Erp.Application.Procurement.Implementation
 {
@@ -40,6 +44,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private readonly IUtilityService _utilityService;
         private IRepository<UnitDetails> _UnitDetailsRepository;
 
+        private readonly ILogger<UtilityService> _logger;
+        private readonly EmailSettingViewModel _mailSettings;
+
 
         private IRepository<ProgramSettings> _programsettingsRepository;
         public PurchaseReturnService(IRepository<PurchaseReturnVoucher> purchaseReturn, IUtilityService utilityService,
@@ -51,7 +58,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<CurrencyMaster> currencyMasterRepository, IRepository<ProgramSettings> programsettingsRepository,
             IRepository<VouchersNumbers> voucherNumber,
             IRepository<PurchaseOrder> purchaseOrderRepo,
-            IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepo, IRepository<UnitDetails> unitDetailsRepository)
+            IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepo, IRepository<UnitDetails> unitDetailsRepository, ILogger<UtilityService> logger, EmailSettingViewModel mailSettings)
         {
             _purchaseReturn = purchaseReturn;
             _purchaseReturnDetail = purchaseReturnDetail;
@@ -71,6 +78,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _purchaseOrderRepo = purchaseOrderRepo;
             _purchaseOrderDetailsRepo = purchaseOrderDetailsRepo;
             _UnitDetailsRepository = unitDetailsRepository;
+            _mailSettings = mailSettings;
+            _logger = logger;
         }
         public async Task<Response<List<DropdownResponse>>> GetLocationMasterDropdown()
         {
@@ -1108,6 +1117,32 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             }
 
             return Convert.ToDecimal(currencyMaster.CurrencyMasterCurrencyRate);
+        }
+        public async Task<bool> SendEmailAlerts(EmailRequestViewModel mailRequest)
+        {
+            try
+            {              
+                var client = new SendGridClient(_mailSettings.Key);
+                var from = new EmailAddress(_mailSettings.Mail, _mailSettings.DisplayName);
+                var subject = mailRequest.Subject;
+                var emails = new List<EmailAddress>();
+                foreach (var email in mailRequest.Emails)
+                {
+                    emails.Add(new EmailAddress(email));
+                }
+                var plainTextContent = "";
+                var htmlContent = mailRequest.Body;
+                var msg = MailHelper.CreateSingleEmailToMultipleRecipients(from, emails, subject, plainTextContent, htmlContent);
+                var response = await client.SendEmailAsync(msg);
+                _logger.LogInformation(@$"Message send successfully.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                return false;
+            }
+
         }
     }
 }
