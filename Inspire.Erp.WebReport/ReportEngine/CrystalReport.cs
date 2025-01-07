@@ -844,10 +844,17 @@ namespace Inspire.Erp.WebReport.ReportEngine
             return result;
         }
 
-        public HttpResponseMessage RenderReport(string reportPath, ReportFilterModel reportFilterModel, DbConnectionModel dbConnection)
+        public HttpResponseMessage RenderReport(string commonFilePath, string reportPath, ReportFilterModel reportFilterModel, DbConnectionModel dbConnection)
         {
             ReportDocument mainReport = new ReportDocument();
-            mainReport.Load(reportPath, CrystalDecisions.Shared.OpenReportMethod.OpenReportByTempCopy);
+            if (!string.IsNullOrEmpty(commonFilePath) && File.Exists(commonFilePath))
+            {
+                mainReport.Load(commonFilePath, CrystalDecisions.Shared.OpenReportMethod.OpenReportByTempCopy);
+            }
+            else
+            {
+                mainReport.Load(reportPath, CrystalDecisions.Shared.OpenReportMethod.OpenReportByTempCopy);
+            }
             DataSet dataSet = new DataSet();
             GeneralQueryExcutor queryExcutor = new GeneralQueryExcutor(dbConnection);
 

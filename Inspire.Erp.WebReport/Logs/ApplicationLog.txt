@@ -144,3 +144,32 @@ StackTrace:    at Inspire.Erp.WebReport.ReportEngine.CrystalReport.PrepareReport
    at Inspire.Erp.WebReport.Controllers.CrReportsController.getReportPrint(String folderName, ReportFilterModel reportFilterModel)
 2025-01-07 03:31:46 [INFO] getReportPrint called with folderName: CustomerA and ReportName: HR_PAYROLL_LIST
 2025-01-07 03:32:09 [INFO] Report successfully generated for HR_PAYROLL_LIST
+2025-01-07 09:48:39 [INFO] getPrintByQuery called with folderName: CustomerA and ReportName: HR_Slip
+2025-01-07 09:48:53 [ERROR] Failed to generate report in getPrintByQuery - Exception: Load report failed.
+StackTrace:    at CrystalDecisions.ReportAppServer.ReportClientDocumentWrapper.EnsureDocumentIsOpened()
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.Load(String filename, OpenReportMethod openMethod, Int16 parentJob)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.Load(String filename, OpenReportMethod openMethod)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String commonFilePath, String reportPath, ReportFilterModel reportFilterModel, DbConnectionModel dbConnection) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\CrystalReport.cs:line 856
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getPrintByQuery(String folderName, ReportFilterModel reportFilterModel) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\Controllers\CrReportsController.cs:line 80
+2025-01-07 09:49:38 [INFO] getPrintByQuery called with folderName: CustomerA and ReportName: HR_Payslip
+2025-01-07 09:49:56 [ERROR] Failed to generate report in getPrintByQuery - Exception: Invalid object name 'table1'.
+StackTrace:    at System.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at System.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at System.Data.SqlClient.SqlDataReader.TryConsumeMetaData()
+   at System.Data.SqlClient.SqlDataReader.get_MetaData()
+   at System.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString, Boolean isInternal, Boolean forDescribeParameterEncryption, Boolean shouldCacheForAlwaysEncrypted)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReaderTds(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, Boolean async, Int32 timeout, Task& task, Boolean asyncWrite, Boolean inRetry, SqlDataReader ds, Boolean describeParameterEncryptionRequest)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReader(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, String method, TaskCompletionSource`1 completion, Int32 timeout, Task& task, Boolean& usedCache, Boolean asyncWrite, Boolean inRetry)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReader(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, String method)
+   at System.Data.SqlClient.SqlCommand.ExecuteReader(CommandBehavior behavior, String method)
+   at System.Data.SqlClient.SqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at System.Data.Common.DbCommand.System.Data.IDbCommand.ExecuteReader(CommandBehavior behavior)
+   at System.Data.Common.DbDataAdapter.FillInternal(DataSet dataset, DataTable[] datatables, Int32 startRecord, Int32 maxRecords, String srcTable, IDbCommand command, CommandBehavior behavior)
+   at System.Data.Common.DbDataAdapter.Fill(DataTable[] dataTables, Int32 startRecord, Int32 maxRecords, IDbCommand command, CommandBehavior behavior)
+   at System.Data.Common.DbDataAdapter.Fill(DataTable dataTable)
+   at Inspire.Erp.WebReport.ReportEngine.GeneralQueryExcutor.FetchDataTable(String strSelectQury) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\GeneralQueryExcutor.cs:line 77
+   at Inspire.Erp.WebReport.ReportEngine.GeneralQueryExcutor.getFilledDataSet(List`1 queries) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\GeneralQueryExcutor.cs:line 31
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String commonFilePath, String reportPath, ReportFilterModel reportFilterModel, DbConnectionModel dbConnection) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\CrystalReport.cs:line 861
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getPrintByQuery(String folderName, ReportFilterModel reportFilterModel) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\Controllers\CrReportsController.cs:line 80

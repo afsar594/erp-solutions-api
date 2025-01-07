@@ -70,13 +70,14 @@ namespace Inspire.Erp.WebReport.Controllers
 
                 string driPath = AppDomain.CurrentDomain.BaseDirectory;
                 CrystalReport report = new CrystalReport();
-
                 var folderPath = Path.Combine(driPath, "bin", folderName);
+                var commonFolderPath = Path.Combine(driPath, "bin", "CommonReports");
                 var dsnName = Path.Combine(folderPath, "DSN.json");
                 var dbSettings = report.getDbSettingsFromJSonFle(dsnName);
                 string filePath = Path.Combine(folderPath, "Reports", $"{reportFilterModel.ReportName}.rpt");
+                string commonFilePath = Path.Combine(commonFolderPath, $"{reportFilterModel.ReportName}.rpt");
 
-                result = report.RenderReport(filePath, reportFilterModel, dbSettings);
+                result = report.RenderReport(commonFilePath, filePath, reportFilterModel, dbSettings);
 
                 Logger.LogInfo($"Report successfully generated for {reportFilterModel.ReportName}");
                 return result;
