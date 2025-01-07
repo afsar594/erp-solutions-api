@@ -12,6 +12,7 @@ namespace Inspire.Erp.Domain.Entities
         public int? WorkGroupId { get; set; }
         public string Password { get; set; }
         public string Token { get; set; }
+        public string UserImage { get; set; }
         public string RefreshToken { get; set; }
         public DateTime? RefreshTokenExpiryTime { get; set; }
         public string Salt { get; set; }
@@ -28,6 +29,9 @@ namespace Inspire.Erp.Domain.Entities
         public int? FinancialPeriodsFsno { get; set; }
         public int? Loginfailure { get; set; }
         public DateTime? PasswordUpdateDate { get; set; }
+       
+
+        
     }
 
     [NotMapped]

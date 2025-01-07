@@ -237,6 +237,7 @@ namespace Inspire.Erp.Application.Authentication.Implementations
                     user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
                     user.PasswordUpdateDate = DateTime.Now;
                     user.Loginfailure = 0;
+                    user.UserImage = user.UserImage ?? "";
                     userFileRepository.Update(user);
 
                     userFileRepository.TransactionCommit();
@@ -335,6 +336,7 @@ namespace Inspire.Erp.Application.Authentication.Implementations
                     user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
                     user.PasswordUpdateDate = DateTime.Now;
                     user.Loginfailure = 0;
+                    user.UserImage = user.UserImage ?? "";
                     userFileRepository.Insert(user);
                     userFileRepository.TransactionCommit();
 

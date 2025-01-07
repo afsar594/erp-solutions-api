@@ -17336,6 +17336,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.Token).HasColumnName("Token");
                 entity.Property(e => e.RefreshToken).HasColumnName("RefreshToken");
                 entity.Property(e => e.RefreshTokenExpiryTime).HasColumnName("RefreshTokenExpiryTime");
+                entity.Property(e => e.UserImage).HasColumnName("UserImage");
             });
 
             modelBuilder.Entity<UserPermission>(entity =>
