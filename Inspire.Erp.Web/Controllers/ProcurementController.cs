@@ -109,7 +109,7 @@ namespace Inspire.Erp.Web.Controllers
             return Ok(await _purchaseReturn.AddEditPurchaseReturn(model));
         }
         [HttpPost("SendEmailAlerts")]
-        public async Task<IActionResult> SendEmailAsync(EmailRequest model)
+        public async Task<IActionResult> SendEmailAlerts(EmailRequest model)
         {
             return Ok(await _purchaseReturn.SendEmailAlerts(model));
         }
