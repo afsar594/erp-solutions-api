@@ -175,9 +175,10 @@ namespace Inspire.Erp.Web.Controllers
             }
             else
             {
+                userdata = _mapper.Map<UserFileViewModel>(xs);
                 apiResponse = new ApiResponse<UserFileViewModel>
                 {
-                    Valid = false,
+                    Valid = true,
                     Result = userdata,
                     Message = xs.Message
                 };
