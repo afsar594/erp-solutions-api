@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inspire.Erp.Domain.Entities
 {
-    public partial class UserFile
+    public class UserFile
     {
         public long UserId { get; set; }
         public string LogInId { get; set; }
