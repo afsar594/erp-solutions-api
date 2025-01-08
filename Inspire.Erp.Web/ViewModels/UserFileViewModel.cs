@@ -16,6 +16,7 @@ namespace Inspire.Erp.Web.ViewModels
             public bool Deleted { get; set; }
             public bool System { get; set; }
             public bool? Freeze { get; set; }
-       
+        public string UserImage { get; set; }
+
     }
 }
