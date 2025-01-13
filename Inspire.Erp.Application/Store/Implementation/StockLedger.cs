@@ -158,7 +158,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 }
                 else
                 {
-                    var minFDate = _fP.GetAsQueryable().Select(x => x.FinancialPeriodsStartDate).SingleOrDefault();
+                    //var minFDate = _fP.GetAsQueryable().Select(x => x.FinancialPeriodsStartDate).SingleOrDefault();
 
                     var query = _iMster.GetAsQueryable();
 
