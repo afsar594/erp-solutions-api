@@ -174,7 +174,7 @@ namespace Inspire.Erp.Application.Account.Implementations
         public JournalVoucher GetSavedJournalVoucherDetails(int pvno)
         {
             JournalVoucher journalVoucherModel = new JournalVoucher();
-            journalVoucherModel = _journalVoucherRepository.GetAsQueryable().Where(k => k.JournalVoucherSno == pvno).SingleOrDefault();
+            journalVoucherModel = _journalVoucherRepository.GetAsQueryable().Where(k => k.JournalVoucherId == pvno).FirstOrDefault();
             if (journalVoucherModel != null)
             {
                 journalVoucherModel.JournalVoucherDetails = _journalVoucherDetailsRepository.GetAsQueryable().Where(x => x.JournalVoucherDetailVrefNo == journalVoucherModel.JournalVoucherVrefNo && x.JournalVoucherDetailsDelStatus == false).ToList();
