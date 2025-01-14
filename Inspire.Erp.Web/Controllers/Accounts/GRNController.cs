@@ -163,7 +163,7 @@ namespace Inspire.Erp.Web.Controllers
                                   item.ItemMasterVenderId,
                                   item.ItemMasterItemSize,
                                   itemMasterBarcode = unit.UnitDetailsBarcode ?? ""
-                              }).Distinct().OrderBy(x=>x.ItemMasterItemName).ToList();
+                              }).Distinct().OrderBy(x => x.ItemMasterItemName).ToList();
 
             var SuppliersMaster = supplierrepository.GetAsQueryable().AsNoTracking().Where(a => a.SuppliersMasterSupplierDelStatus != true).Select(c => new
             {
@@ -176,55 +176,55 @@ namespace Inspire.Erp.Web.Controllers
                 c.SuppliersMasterSupplierEmail,
                 c.SuppliersMasterSupplierMobile,
                 c.SuppliersMasterSupplierTel1,
-            }).OrderBy(x=>x.SuppliersMasterSupplierName).ToList();
+            }).OrderBy(x => x.SuppliersMasterSupplierName).ToList();
 
             var unitMasters = unitrepository.GetAsQueryable().AsNoTracking().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
             {
                 x.UnitMasterUnitId,
                 UnitMasterUnitFullName = x.UnitMasterUnitFullName.Trim(),
                 UnitMasterUnitShortName = x.UnitMasterUnitShortName.Trim(),
-            }).OrderBy(x=>x.UnitMasterUnitFullName).ToList();
+            }).OrderBy(x => x.UnitMasterUnitFullName).ToList();
 
             var jobMasters = jobrepository.GetAsQueryable().AsNoTracking().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
             {
                 c.JobMasterJobId,
                 c.JobMasterJobName,
-            }).OrderBy(x=>x.JobMasterJobName).ToList();
+            }).OrderBy(x => x.JobMasterJobName).ToList();
             var currencyMasters = currencyrepository.GetAsQueryable().AsNoTracking().Where(a => a.CurrencyMasterCurrencyDelStatus != true).Select(c => new
             {
                 c.CurrencyMasterCurrencyId,
                 c.CurrencyMasterCurrencyName,
                 c.CurrencyMasterCurrencyRate
-            }).OrderBy(x=>x.CurrencyMasterCurrencyName).ToList();
+            }).OrderBy(x => x.CurrencyMasterCurrencyName).ToList();
             var masterAccountsTables = chartofAccountsService.GetAllAccounts().Where(a => a.MaDelStatus != true).Select(c => new
             {
                 c.MaAccNo,
                 c.MaAccName,
                 c.MaRelativeNo,
                 c.MaSno
-            }).OrderBy(x=>x.MaAccName).ToList();
+            }).OrderBy(x => x.MaAccName).ToList();
             var costcenterMasters = costcenterrepository.GetAsQueryable().AsNoTracking().Where(a => a.CostCenterMasterCostCenterDelStatus != true).Select(c => new
             {
                 c.CostCenterMasterCostCenterId,
                 c.CostCenterMasterCostCenterName,
-            }).OrderBy(x=>x.CostCenterMasterCostCenterName).ToList();
+            }).OrderBy(x => x.CostCenterMasterCostCenterName).ToList();
             var LocationMaster = locationrepository.GetAsQueryable().AsNoTracking().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
             {
                 c.LocationMasterLocationId,
                 c.LocationMasterLocationName,
                 c.LocationMasterLocationStatus,
-            }).OrderBy(x=>x.LocationMasterLocationName).ToList();
+            }).OrderBy(x => x.LocationMasterLocationName).ToList();
             var BrandMasters = Brandrepository.GetAsQueryable().AsNoTracking().Where(a => a.VendorMasterVendorDelStatus != true).Select(c => new
             {
                 c.VendorMasterVendorId,
                 c.VendorMasterVendorName,
-            }).OrderBy(x=>x.VendorMasterVendorName).ToList();
+            }).OrderBy(x => x.VendorMasterVendorName).ToList();
             var accountsSettings = _accountsSettingsRepo.GetAsQueryable().AsNoTracking().Where(a => a.AccountSettingsAccountDelStatus != true).Select(c => new
             {
                 c.AccountSettingsAccountId,
                 AccountSettingsAccountDescription = c.AccountSettingsAccountDescription.Trim(),
                 c.AccountSettingsAccountTextValue
-            }).OrderBy(x=>x.AccountSettingsAccountTextValue).ToList();
+            }).OrderBy(x => x.AccountSettingsAccountTextValue).ToList();
 
             objectresponse.ResultSet = new
             {
@@ -243,6 +243,258 @@ namespace Inspire.Erp.Web.Controllers
             objectresponse.IsSuccess = true;
             return objectresponse;
         }
+
+        [HttpGet]
+        [Route("LoadDropdown_NWE")]
+        public ResponseInfo LoadDropdown_NEW()
+        {
+            var objectresponse = new ResponseInfo();
+            var itemMaster = LoadDropdownItemMaster();
+            var SuppliersMaster = LoadDropdownSuppliersMaster();
+            var unitMasters = LoadDropdownunitMasters();
+            var jobMasters = LoadDropdowjobMasters();
+            var currencyMasters = LoadDropdowCurrencyMaster();
+            var masterAccountsTables = LoadDropdowchartofAccounts();
+            var costcenterMasters = LoadDropdowncostcenterMasters();
+            var LocationMaster = LoadDropdownLocationMaster();
+            var BrandMasters = LoadDropdownBrandMasters();
+            var accountsSettings = LoadDropdownaccountsSettings();
+            objectresponse.ResultSet = new
+            {
+                itemMaster = itemMaster,
+                SuppliersMaster = SuppliersMaster,
+                unitMasters = unitMasters,
+                jobMasters = jobMasters,
+                currencyMasters = currencyMasters,
+                masterAccountsTables = masterAccountsTables,
+                costcenterMasters = costcenterMasters,
+                LocationMaster = LocationMaster,
+                accountsSettings = accountsSettings,
+                BrandMasters = BrandMasters
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
+
+        [HttpGet]
+        [Route("LoadDropdownItemMaster")]
+        public ResponseInfo LoadDropdownItemMaster()
+        {
+            var objectresponse = new ResponseInfo();
+            var itemMaster = (from item in itemrepository.GetAsQueryable().AsNoTracking()
+                              join unit in unitDetailRepository.GetAsQueryable().AsNoTracking()
+                              on item.ItemMasterItemId equals unit.UnitDetailsItemId
+                              where item.ItemMasterAccountNo != 0
+                              && item.ItemMasterDelStatus != true
+                              && item.ItemMasterItemType != ItemMasterStatus.Group
+                              select new
+                              {
+                                  item.ItemMasterItemId,
+                                  item.ItemMasterItemName,
+                                  item.ItemMasterVenderId,
+                                  item.ItemMasterItemSize,
+                                  itemMasterBarcode = unit.UnitDetailsBarcode ?? ""
+                              }).Distinct().OrderBy(x => x.ItemMasterItemName).ToList();
+
+            objectresponse.ResultSet = new
+            {
+                itemMaster = itemMaster
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
+
+        [HttpGet]
+        [Route("LoadDropdownSuppliersMaster")]
+        public ResponseInfo LoadDropdownSuppliersMaster()
+        {
+            var objectresponse = new ResponseInfo();
+            var SuppliersMaster = supplierrepository.GetAsQueryable().AsNoTracking().Where(a => a.SuppliersMasterSupplierDelStatus != true).Select(c => new
+            {
+                c.SuppliersMasterSupplierId,
+                c.SuppliersMasterSupplierName,
+                c.SuppliersMasterSupplierVatNo,
+                c.SuppliersMasterSupplierReffAcNo,
+                c.SuppliersMasterSupplierAddress,
+                c.SuppliersMasterSupplierContactPerson,
+                c.SuppliersMasterSupplierEmail,
+                c.SuppliersMasterSupplierMobile,
+                c.SuppliersMasterSupplierTel1,
+            }).OrderBy(x => x.SuppliersMasterSupplierName).ToList();
+            objectresponse.ResultSet = new
+            {
+                suppliersMaster = SuppliersMaster
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
+
+        [HttpGet]
+        [Route("LoadDropdownunitMasters")]
+        public ResponseInfo LoadDropdownunitMasters()
+        {
+            var objectresponse = new ResponseInfo();
+            var unitMasters = unitrepository.GetAsQueryable().AsNoTracking().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
+            {
+                x.UnitMasterUnitId,
+                UnitMasterUnitFullName = x.UnitMasterUnitFullName.Trim(),
+                UnitMasterUnitShortName = x.UnitMasterUnitShortName.Trim(),
+            }).OrderBy(x => x.UnitMasterUnitFullName).ToList();
+
+            objectresponse.ResultSet = new
+            {
+                unitMasters = unitMasters
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
+
+
+        [HttpGet]
+        [Route("LoadDropdowjobMasters")]
+        public ResponseInfo LoadDropdowjobMasters()
+        {
+            var objectresponse = new ResponseInfo();
+            var jobMasters = jobrepository.GetAsQueryable().AsNoTracking().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
+            {
+                c.JobMasterJobId,
+                c.JobMasterJobName,
+            }).OrderBy(x => x.JobMasterJobName).ToList();
+            objectresponse.ResultSet = new
+            {
+                jobMasters = jobMasters
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
+
+        [HttpGet]
+        [Route("LoadDropdowCurrencyMaster")]
+        public ResponseInfo LoadDropdowCurrencyMaster()
+        {
+            var objectresponse = new ResponseInfo();
+            var currencyMasters = currencyrepository.GetAsQueryable().AsNoTracking().Where(a => a.CurrencyMasterCurrencyDelStatus != true).Select(c => new
+            {
+                c.CurrencyMasterCurrencyId,
+                c.CurrencyMasterCurrencyName,
+                c.CurrencyMasterCurrencyRate
+            }).OrderBy(x => x.CurrencyMasterCurrencyName).ToList();
+            objectresponse.ResultSet = new
+            {
+                CurrencyMasters = currencyMasters
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
+
+        [HttpGet]
+        [Route("LoadDropdowchartofAccounts")]
+        public ResponseInfo LoadDropdowchartofAccounts()
+        {
+            var objectresponse = new ResponseInfo();
+            var masterAccountsTables = chartofAccountsService.GetAllAccounts().Where(a => a.MaDelStatus != true).Select(c => new
+            {
+                c.MaAccNo,
+                c.MaAccName,
+                c.MaRelativeNo,
+                c.MaSno
+            }).OrderBy(x => x.MaAccName).ToList();
+            objectresponse.ResultSet = new
+            {
+                MasterAccountsTables = masterAccountsTables
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
+
+        [HttpGet]
+        [Route("LoadDropdowncostcenterMasters")]
+        public ResponseInfo LoadDropdowncostcenterMasters()
+        {
+            var objectresponse = new ResponseInfo();
+            var costcenterMasters = costcenterrepository.GetAsQueryable().AsNoTracking().Where(a => a.CostCenterMasterCostCenterDelStatus != true).Select(c => new
+            {
+                c.CostCenterMasterCostCenterId,
+                c.CostCenterMasterCostCenterName,
+            }).OrderBy(x => x.CostCenterMasterCostCenterName).ToList();
+            objectresponse.ResultSet = new
+            {
+                CostcenterMasters = costcenterMasters
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
+
+        [HttpGet]
+        [Route("LoadDropdownLocationMaster")]
+        public ResponseInfo LoadDropdownLocationMaster()
+        {
+            var objectresponse = new ResponseInfo();
+            var LocationMaster = locationrepository.GetAsQueryable().AsNoTracking().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
+            {
+                c.LocationMasterLocationId,
+                c.LocationMasterLocationName,
+                c.LocationMasterLocationStatus,
+            }).OrderBy(x => x.LocationMasterLocationName).ToList();
+            objectresponse.ResultSet = new
+            {
+                LocationMaster = LocationMaster
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
+
+        [HttpGet]
+        [Route("LoadDropdownBrandMasters")]
+        public ResponseInfo LoadDropdownBrandMasters()
+        {
+            var objectresponse = new ResponseInfo();
+
+            var BrandMasters = Brandrepository.GetAsQueryable().AsNoTracking().Where(a => a.VendorMasterVendorDelStatus != true).Select(c => new
+            {
+                c.VendorMasterVendorId,
+                c.VendorMasterVendorName,
+            }).OrderBy(x => x.VendorMasterVendorName).ToList();
+            objectresponse.ResultSet = new
+            {
+                BrandMasters = BrandMasters
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
+
+        [HttpGet]
+        [Route("LoadDropdownaccountsSettings")]
+        public ResponseInfo LoadDropdownaccountsSettings()
+        {
+            var objectresponse = new ResponseInfo();
+
+
+            var accountsSettings = _accountsSettingsRepo.GetAsQueryable().AsNoTracking().Where(a => a.AccountSettingsAccountDelStatus != true).Select(c => new
+            {
+                c.AccountSettingsAccountId,
+                AccountSettingsAccountDescription = c.AccountSettingsAccountDescription.Trim(),
+                c.AccountSettingsAccountTextValue
+            }).OrderBy(x => x.AccountSettingsAccountTextValue).ToList();
+            objectresponse.ResultSet = new
+            {
+                accountsSettings = accountsSettings
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
+
 
         [HttpGet]
         [Route("GetSupplierById/{id}")]
