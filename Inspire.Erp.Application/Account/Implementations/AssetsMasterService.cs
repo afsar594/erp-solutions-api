@@ -136,7 +136,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     var topAcc = _masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaAccNo.Trim() == topAccNo);
 
                     var AccNo = await _masterAccountTable.GetAsQueryable()
-                                               .Where(x => Convert.ToInt64(x.MaAccNo.Trim()) > 0 && x.MaRelativeNo.Trim() == topAcc.MaRelativeNo.Trim())
+                                               .Where(x => Convert.ToInt64(x.MaAccNo.Trim()) > 0 && x.MaRelativeNo.Trim() == topAcc.MaAccNo.Trim())
                                                .DefaultIfEmpty()
                                                .MaxAsync(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Trim().Substring(o.MaAccNo.Trim().Length - 3, 3))) + 1;
 
@@ -145,21 +145,9 @@ namespace Inspire.Erp.Application.Account.Implementations
                     masterAccFixed.MaAccName = model.GroupName + " Assets";
                     masterAccFixed.MaMainHead = topAcc.MaMainHead ?? "";
                     masterAccFixed.MaSubHead = topAcc.MaSubHead ?? "";
-                    masterAccFixed.MaAccType = model.AccountType;
+                    masterAccFixed.MaAccType = "S";
                     masterAccFixed.MaRelativeNo = topAcc.MaAccNo.Trim();
                     masterAccFixed.MaStatus = AccountStatus.AccStatus;
-
-                    if (model.AccountType == ItemMasterStatus.Group || model.AccountType == AccountMasterStatus.SubItem)
-                    {
-
-                        masterAccFixed.MaImageKey = ItemMasterStatus.GroupItem;
-                    }
-                    else
-                    {
-                        masterAccFixed.MaImageKey = ItemMasterStatus.SubItem;
-                    }
-
-                    masterAccFixed.MaSystemAcc = "U";
                     masterAccFixed.MaFsno = 1;
                     masterAccFixed.MaStatus = "R";
                     masterAccFixed.MaUserId = 1;
@@ -184,7 +172,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     topAccNo = "03002";
                     topAcc = _masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaAccNo.Trim() == topAccNo);
                     AccNo = _masterAccountTable.GetAsQueryable()
-                                               .Where(x => Convert.ToInt64(x.MaAccNo.Trim()) > 0 && x.MaRelativeNo.Trim() == topAcc.MaRelativeNo.Trim())
+                                               .Where(x => Convert.ToInt64(x.MaAccNo.Trim()) > 0 && x.MaRelativeNo.Trim() == topAcc.MaAccNo.Trim())
                                                .DefaultIfEmpty()
                                                .Max(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Trim().Substring(o.MaAccNo.Trim().Length - 3, 3))) + 1;
 
@@ -193,21 +181,9 @@ namespace Inspire.Erp.Application.Account.Implementations
                     masterAccLiabilities.MaAccName = model.GroupName + " Liabilities";
                     masterAccLiabilities.MaMainHead = topAcc.MaMainHead ?? "";
                     masterAccLiabilities.MaSubHead = topAcc.MaSubHead ?? "";
-                    masterAccLiabilities.MaAccType = model.AccountType;
+                    masterAccLiabilities.MaAccType = "S";
                     masterAccLiabilities.MaRelativeNo = topAcc.MaAccNo.Trim();
                     masterAccLiabilities.MaStatus = AccountStatus.AccStatus;
-
-                    if (model.AccountType == ItemMasterStatus.Group || model.AccountType == AccountMasterStatus.SubItem)
-                    {
-
-                        masterAccLiabilities.MaImageKey = ItemMasterStatus.GroupItem;
-                    }
-                    else
-                    {
-                        masterAccLiabilities.MaImageKey = ItemMasterStatus.SubItem;
-                    }
-
-                    masterAccLiabilities.MaSystemAcc = "U";
                     masterAccLiabilities.MaFsno = 1;
                     masterAccLiabilities.MaStatus = "R";
                     masterAccLiabilities.MaUserId = 1;
@@ -233,7 +209,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     topAccNo = "04002";
                     topAcc = _masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaAccNo.Trim() == topAccNo);
                     AccNo = _masterAccountTable.GetAsQueryable()
-                                               .Where(x => Convert.ToInt64(x.MaAccNo.Trim()) > 0 && x.MaRelativeNo.Trim() == topAcc.MaRelativeNo.Trim())
+                                               .Where(x => Convert.ToInt64(x.MaAccNo.Trim()) > 0 && x.MaRelativeNo.Trim() == topAcc.MaAccNo.Trim())
                                                .DefaultIfEmpty()
                                                .Max(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Trim().Substring(o.MaAccNo.Trim().Length - 3, 3))) + 1;
 
@@ -242,20 +218,10 @@ namespace Inspire.Erp.Application.Account.Implementations
                     masterAccExpenses.MaAccName = model.GroupName + " Expenses";
                     masterAccExpenses.MaMainHead = topAcc.MaMainHead ?? "";
                     masterAccExpenses.MaSubHead = topAcc.MaSubHead ?? "";
-                    masterAccExpenses.MaAccType = model.AccountType;
+                    masterAccExpenses.MaAccType = "S";
                     masterAccExpenses.MaRelativeNo = topAcc.MaAccNo.Trim();
                     masterAccExpenses.MaStatus = AccountStatus.AccStatus;
-                    if (model.AccountType == ItemMasterStatus.Group || model.AccountType == AccountMasterStatus.SubItem)
-                    {
-
-                        masterAccExpenses.MaImageKey = ItemMasterStatus.GroupItem;
-                    }
-                    else
-                    {
-                        masterAccExpenses.MaImageKey = ItemMasterStatus.SubItem;
-                    }
-
-                    masterAccExpenses.MaSystemAcc = "U";
+                  
                     masterAccExpenses.MaFsno = 1;
                     masterAccExpenses.MaStatus = "R";
                     masterAccExpenses.MaUserId = 1;
@@ -575,6 +541,23 @@ namespace Inspire.Erp.Application.Account.Implementations
             catch (Exception ex)
             {
                 return Response<List<AssetCodes>>.Fail(new List<AssetCodes>(), ex.Message);
+            }
+        }
+
+        public async Task<Response<List<AssetMaster>>> GetAllAssets()
+        {
+            try
+            {
+                var result =  this._asetMaster.GetAsQueryable()
+                                                                       .Where(x => x.AssetMasterAssetType == ItemMasterStatus.SubItem)
+                                                                       .OrderBy(x => x.AssetMasterAssetName)
+                                                                       .ToList();
+                return Response<List<AssetMaster>>.Success(result, "Data found");
+
+            }
+            catch (Exception ex)
+            {
+                return Response<List<AssetMaster>>.Fail(new List<AssetMaster>(), ex.Message);
             }
         }
     }

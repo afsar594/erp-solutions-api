@@ -441,6 +441,12 @@ namespace Inspire.Erp.Web.Controllers.Accounts
             return Ok(await _assetsMasterService.SaveNewAssetHead(model));
         }
 
+        [HttpGet("GetAllAssets")]
+        public async Task<IActionResult> GetAllAssets()
+        {
+            return Ok(_assetsMasterService.GetAllAssets());
+        }
+
 
         #endregion
 
