@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Inspire.Erp.Domain.Modals.Stock;
+using Inspire.Erp.Application.MODULE;
 
 namespace Inspire.Erp.Application.Store.Implementation
 {
@@ -46,7 +47,7 @@ namespace Inspire.Erp.Application.Store.Implementation
             try
             {
                 _stockAdjustmentVoucherRepo.BeginTransaction();
-                string stockVoucherNumber = this.GenerateVoucherNo(stockAdjustmentVoucher.StockAdjustmentVoucherSaDate.Value).VouchersNumbersVNo;
+                string stockVoucherNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.StockAdjustmentVoucher_TYPE, Prefix.StockAdjustment_Prefix, _programsettingsRepository, _VoucherNumberRepo);
                 stockAdjustmentVoucher.StockAdjustmentVoucherSaNo = stockVoucherNumber;
 
 
@@ -69,7 +70,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 _stockAdjustmentVoucherRepo.Insert(stockAdjustmentVoucher);
                 _stockAdjustmentVoucherDetailsRepo.InsertList(stockAdjustmentVoucherDetails);
                 _stockAdjustmentVoucherRepo.TransactionCommit();
-                return this.GetSavedStockAdjustmentferDetails(stockAdjustmentVoucher.StockAdjustmentVoucherSaNo);
+                return this.GetSavedStockAdjustmentferDetails((int)stockAdjustmentVoucher.StockAdjustmentVoucherSaId);
 
             }
             catch (Exception ex)
@@ -113,11 +114,11 @@ namespace Inspire.Erp.Application.Store.Implementation
 
         }
 
-        public StockAdjustmentVoucher GetSavedStockAdjustmentferDetails(string sano)
+        public StockAdjustmentVoucher GetSavedStockAdjustmentferDetails(int sano)
         {
             StockAdjustmentVoucher stockAdjustmentVoucher = new StockAdjustmentVoucher();
-            stockAdjustmentVoucher = _stockAdjustmentVoucherRepo.GetAsQueryable().Where(k => k.StockAdjustmentVoucherSaNo == sano).SingleOrDefault();
-            stockAdjustmentVoucher.stockAdjustmentVoucherDetails = _stockAdjustmentVoucherDetailsRepo.GetAsQueryable().Where(x => x.StockAdjustmentVoucherDetailsSaNo == sano).ToList();
+            stockAdjustmentVoucher = _stockAdjustmentVoucherRepo.GetAsQueryable().Where(k => k.StockAdjustmentVoucherSaId == sano).SingleOrDefault();
+            stockAdjustmentVoucher.stockAdjustmentVoucherDetails = _stockAdjustmentVoucherDetailsRepo.GetAsQueryable().Where(x => x.StockAdjustmentVoucherDetailsSaNo == stockAdjustmentVoucher.StockAdjustmentVoucherSaNo).ToList();
             return stockAdjustmentVoucher;
         }
 
@@ -131,7 +132,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                 _stockAdjustmentVoucherRepo.TransactionCommit();
 
-                return this.GetSavedStockAdjustmentferDetails(stockAdjustmentVoucher.StockAdjustmentVoucherSaNo);
+                return this.GetSavedStockAdjustmentferDetails((int)stockAdjustmentVoucher.StockAdjustmentVoucherSaId);
             }
             catch (Exception ex)
             {

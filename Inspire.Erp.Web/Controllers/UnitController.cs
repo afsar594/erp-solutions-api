@@ -40,7 +40,7 @@ namespace Inspire.Erp.Web.Controllers
                  UnitMasterUnitStatus = k.UnitMasterUnitStatus,
                 UnitMasterUnitDelStatus=k.UnitMasterUnitDelStatus,
                 UnitDetailsConversionType = k.UnitDetails.Select(x => x.UnitDetailsConversionType).FirstOrDefault()
-            }).OrderBy(x => x.UnitMasterUnitShortName).ToList();
+            }).AsEnumerable().OrderBy(x => x.UnitMasterUnitShortName).ToList();
         }
 
         [HttpGet]

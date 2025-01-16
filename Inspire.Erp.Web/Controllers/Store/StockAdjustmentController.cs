@@ -88,7 +88,7 @@ namespace Inspire.Erp.Web.Controllers.Store
 
         [HttpGet]
         [Route("GetSavedStockAdjustmentDetails/{id}")]
-        public ApiResponse<StockAdjustmentVoucher> GetSavedStockAdjustmentDetails(string id)
+        public ApiResponse<StockAdjustmentVoucher> GetSavedStockAdjustmentDetails(int id)
         {
             StockAdjustmentVoucher stockAdjustmentVoucher = _sa.GetSavedStockAdjustmentferDetails(id);
             if (stockAdjustmentVoucher != null)
