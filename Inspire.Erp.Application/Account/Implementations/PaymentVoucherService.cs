@@ -75,7 +75,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                         }
 
                         return k;
-                    }).OrderBy(x => x.AccountsTransactionsVoucherType).ToList();
+                    }).OrderBy(x => x.AccountsTransactionsVoucherType).AsEnumerable().ToList();
                     _accountTransactionRepository.UpdateList(accountsTransactions);
                     _paymentVoucherDetailsRepository.UpdateList(paymentVoucherDetails);
 
@@ -268,13 +268,13 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     k.PaymentVocherDetailsDelStatus = true;
                     return k;
-                }).OrderBy(x => x.PaymentVoucherDetailsVoucherNo).ToList();
+                }).OrderBy(x => x.PaymentVoucherDetailsVoucherNo).AsEnumerable().ToList();
                 _paymentVoucherDetailsRepository.UpdateList(paymentVoucherDetails);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 _paymentVoucherRepository.Update(paymentVoucher);
                 var vchrnumer = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == paymentVoucher.PaymentVoucherVoucherNo).FirstOrDefault();
@@ -326,7 +326,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     x.PaymentVoucherDetailsCrAmount = x.PaymentVoucherDetailsCrAmount ?? 0;
                     x.PaymentVoucherDetailsCrFcAmount = x.PaymentVoucherDetailsCrFcAmount ?? 0;
                     return x;
-                }).OrderBy(x => x.PaymentVoucherDetailsVoucherNo).ToList();
+                }).OrderBy(x => x.PaymentVoucherDetailsVoucherNo).AsEnumerable().ToList();
                 _paymentVoucherDetailsRepository.InsertList(paymentVoucherDetails);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
@@ -334,7 +334,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsVoucherType = VoucherType.Payment;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
                 _paymentVoucherRepository.Insert(paymentVoucher);
                 //UserTracking trackingData = new UserTracking();
@@ -468,7 +468,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                 Balance = dtl.AccountsTransactionsAllocBalance,
                                 AllocAmount = dtl.AccountsTransactionsFcRate,
                                 NetAllocation = dtl.AccountsTransactionsVatableAmount,
-                            }).OrderBy(x => x.VoucherNo).ToList();
+                            }).OrderBy(x => x.VoucherNo).AsEnumerable().ToList();
                 return ApiResponse<List<AllocationDetails>>.Success(data, "Data Found");
             }
             catch (System.Exception ex)

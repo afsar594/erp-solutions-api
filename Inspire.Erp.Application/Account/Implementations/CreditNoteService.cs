@@ -47,7 +47,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.CreditNoteId = creditNote.CreditNoteId;
                     k.CreditNoteDetailsVno = creditNote.CreditNoteVno;
                     return k;
-                }).OrderBy(x => x.CreditNoteDetailsVno).ToList();
+                }).OrderBy(x => x.CreditNoteDetailsVno).AsEnumerable().ToList();
                 _creditNoteRepository.Update(creditNote);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
@@ -57,7 +57,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                         k.AccountsTransactionsStatus = AccountStatus.Approved;
                     }
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherType).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherType).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 UserTracking trackingData = new UserTracking();
                 trackingData.UserTrackingUserUserId = 1;
@@ -88,12 +88,12 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     k.CreditNoteDetailsDelStatus = true;
                     return k;
-                }).OrderBy(x => x.CreditNoteDetailsVno).ToList();
+                }).OrderBy(x => x.CreditNoteDetailsVno).AsEnumerable().ToList();
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 creditNote.CreditNoteDetails = creditNoteDetails;
                 _creditNoteRepository.Update(creditNote);
@@ -139,7 +139,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     x.CreditNoteId = maxcount;
                     x.CreditNoteDetailsVno = creditNote.CreditNoteVno;
                     return x;
-                }).OrderBy(x => x.CreditNoteDetailsVno).ToList();
+                }).OrderBy(x => x.CreditNoteDetailsVno).AsEnumerable().ToList();
                 _creditNoteDetailsRepository.InsertList(creditNoteDetails);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
@@ -147,7 +147,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsVoucherType = VoucherType.CreditNote_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
                 _creditNoteRepository.Insert(creditNote);
                 UserTracking trackingData = new UserTracking();

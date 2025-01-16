@@ -78,7 +78,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsFcAllocCredit = 0;
                     k.AccountsTransactionsFcAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 List<PdcDetails> _pdcDetails = new List<PdcDetails>();
                 foreach (var item in bankReceiptVoucherDetails)
@@ -167,13 +167,13 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     k.BankReceiptVoucherDetailsDelStatus = true;
                     return k;
-                }).OrderBy(x => x.BankReceiptVoucherDetailsVoucherNo).ToList();
+                }).OrderBy(x => x.BankReceiptVoucherDetailsVoucherNo).AsEnumerable().ToList();
                 _bankReceiptVoucherDetailsRepository.UpdateList(bankReceiptVoucherDetails);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 _bankReceiptVoucherRepository.Update(bankReceiptVoucher);
                 var vchrnumer = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == bankReceiptVoucher.BankReceiptVoucherVoucherNo).FirstOrDefault();
@@ -214,7 +214,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     //x.BankReceiptVoucherDetailsSno = null;
                     x.BankReceiptVoucherDetailsVoucherNo = bankReceiptVoucher.BankReceiptVoucherVoucherNo;
                     return x;
-                }).OrderBy(x => x.BankReceiptVoucherDetailsVoucherNo).ToList();
+                }).OrderBy(x => x.BankReceiptVoucherDetailsVoucherNo).AsEnumerable().ToList();
                 _bankReceiptVoucherDetailsRepository.InsertList(bankReceiptVoucherDetails);
 
                 accountsTransactions = accountsTransactions.Select((k) =>
@@ -229,7 +229,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsFcAllocCredit = 0;
                     k.AccountsTransactionsFcAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 List<PdcDetails> _pdcDetails = new List<PdcDetails>();
                 foreach (var item in bankReceiptVoucherDetails)
                 {
@@ -485,7 +485,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                        Date = hdr.UserTrackingUserChangeDt.Value.ToString("dd/MM/yyyy"),
                                        Time = hdr.UserTrackingUserChangeTime.Value.ToString("hh:mm t"),
                                        VNo = hdr.UserTrackingUserVpNo,
-                                   }).OrderBy(x => x.Name).ToList();
+                                   }).OrderBy(x => x.Name).AsEnumerable().ToList();
             voucherdata.UserTrackingData = userTrackngData;
             voucherdata.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == voucherdata.BankReceiptVoucherVoucherNo).ToList();
             voucherdata.BankReceiptVoucherDetails = _bankReceiptVoucherDetailsRepository.GetAsQueryable().Where(x => x.BankReceiptVoucherDetailsVoucherNo == voucherdata.BankReceiptVoucherVoucherNo).ToList();

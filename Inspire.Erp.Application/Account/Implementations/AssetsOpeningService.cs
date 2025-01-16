@@ -124,7 +124,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     x.AstPurchaseID = maxcount;
                     x.AssetPurchaseDetailsVoucherNo = assetPurchaseVoucherNumber;
                     return x;
-                }).OrderBy(x => x.AssetPurchaseDetailsVoucherNo).ToList();
+                }).OrderBy(x => x.AssetPurchaseDetailsVoucherNo).AsEnumerable().ToList();
 
                 //var currency = await _currencyMaster.GetAsQueryable().Where(x => x.CurrencyMasterCurrencyId == assetPurchaseVoucher.CurrencyId).FirstOrDefaultAsync();
                 //accountsTransactions = accountsTransactions.Select((k) =>
@@ -271,7 +271,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     }
 
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 
                 _assetopening.TransactionCommit();
@@ -302,13 +302,13 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     k.AssetPurchaseVoucherDetailsDelStatus = true;
                     return k;
-                }).OrderBy(x => x.AssetPurchaseDetailsVoucherNo).ToList();
+                }).OrderBy(x => x.AssetPurchaseDetailsVoucherNo).AsEnumerable().ToList();
 
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
                 _assetopening.Update(assetPurchaseVoucher);
@@ -616,7 +616,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                             AstID =(int) x.AstID,
                             AstPurRefNo = x.AstPurRefNo,
                             BatchCode = x.BatchCode,
-                        }).OrderBy(x => x.AssetPurchaseDetailsVoucherNo).ToList();
+                        }).OrderBy(x => x.AssetPurchaseDetailsVoucherNo).AsEnumerable().ToList();
 
                 });
                 return Response<AddEditAssetPurchaseVoucher>.Success(model, "Records FOund.");

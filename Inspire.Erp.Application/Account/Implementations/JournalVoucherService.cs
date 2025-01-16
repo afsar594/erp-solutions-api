@@ -57,7 +57,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                         k.AccountsTransactionsStatus = AccountStatus.Approved;
                     }
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherType).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherType).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 _journalVoucherDetailsRepository.UpdateList(journalVoucherDetails);
                 _journalVoucherRepository.Update(journalVoucher);
@@ -83,13 +83,13 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     k.JournalVoucherDetailsDelStatus = true;
                     return k;
-                }).OrderBy(x => x.JournalVoucherDetailsReferenceNo).ToList();
+                }).OrderBy(x => x.JournalVoucherDetailsReferenceNo).AsEnumerable().ToList();
                 _journalVoucherDetailsRepository.UpdateList(journalVoucherDetails);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 _journalVoucherRepository.Update(journalVoucher);
                 var vchrnumer = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == journalVoucher.JournalVoucherVrefNo).FirstOrDefault();
@@ -133,7 +133,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     x.JournalVoucherID = maxcount;
                     x.JournalVoucherDetailVrefNo = journalVoucher.JournalVoucherVrefNo;
                     return x;
-                }).OrderBy(x => x.JournalVoucherDetailVrefNo).ToList();
+                }).OrderBy(x => x.JournalVoucherDetailVrefNo).AsEnumerable().ToList();
                 _journalVoucherDetailsRepository.InsertList(journalVoucherDetails);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
@@ -141,7 +141,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsVoucherType = VoucherType.JournalVoucher_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
                 //UserTracking trackingData = new UserTracking();

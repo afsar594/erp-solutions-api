@@ -80,7 +80,7 @@ namespace Inspire.Erp.Application.Administration.Implementations
             {
                 await Task.Delay(1000);
                 return Response<List<StationMaster>>.Success(
-                    this.stationMaster.GetAll().OrderBy(x => x.AccountName).ToList(),
+                    this.stationMaster.GetAll().OrderBy(x => x.AccountName).AsEnumerable().ToList(),
                     "Data found"
                     );
             }

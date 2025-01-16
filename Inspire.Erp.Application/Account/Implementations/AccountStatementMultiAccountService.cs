@@ -283,7 +283,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                                    VoucherNo = o.AccountsTransactionsVoucherNo,
                                                    Description =o.AccountsTransactionsDescription,
                                                    RefNo = o.RefNo
-                                               }).OrderBy(x=>x.AccountName).ToList();
+                                               }).OrderBy(x=>x.AccountName).AsEnumerable().ToList();
 
                 foreach(var account in AccountTrans)
                 {
@@ -332,7 +332,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                                    TotalDebit = Convert.ToDouble(o.Sum(pc => pc.AccountsTransactionsFcDebit ?? 0)),
                                                    TotalCredit = Convert.ToDouble(o.Sum(pc => pc.AccountsTransactionsFcCredit ?? 0)),
 
-                                               }).OrderBy(x=>x.AccountName).ToList();
+                                               }).OrderBy(x=>x.AccountName).AsEnumerable().ToList();
 
                 //var AccountTrans = _accountTransaction.GetAsQueryable()
                 //                                       .Where(x => (model.FromDate == null || x.AccountsTransactionsTransDate >= model.FromDate)

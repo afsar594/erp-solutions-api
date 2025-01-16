@@ -61,7 +61,7 @@ namespace Inspire.Erp.Application.Approvals.Implementation
                             ApprovedAt = c.ApprovedAt,
                             Status = c.Status,
                             UserId = c.UserId,
-                        }).OrderBy(x => x.ApprovedAt).ToList() : new List<ApprovalDetailResponse>(),
+                        }).OrderBy(x => x.ApprovedAt).AsEnumerable().ToList() : new List<ApprovalDetailResponse>(),
 
                     }).Skip(model.Skip).Take(model.Take).ToListAsync();
                 var gridResult = new GridWrapperResponse<List<ApprovalResponse>>();

@@ -130,7 +130,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     }
 
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherType).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherType).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
 
@@ -180,7 +180,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
                 _salesJournalRepository.Update(salesJournal);
@@ -222,7 +222,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 
                      x.SalesJournalDetailsVno = salesJournalNumber;
                     return x;
-                }).OrderBy(x => x.SalesJournalDetailsVno).ToList();
+                }).OrderBy(x => x.SalesJournalDetailsVno).AsEnumerable().ToList();
                 _salesJournalRepository.Insert(salesJournal);
 
 
@@ -234,7 +234,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsVoucherType = VoucherType.SalesJournal_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
                 _salesJournalRepository.TransactionCommit();

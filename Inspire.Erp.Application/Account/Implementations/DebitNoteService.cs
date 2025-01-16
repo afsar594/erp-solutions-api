@@ -49,7 +49,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                     k.DebitNoteId = debitNote.DebitNoteId;
                     k.DebitNoteDetailsVno = debitNote.DebitNoteVno;
                     return k;
-                }).OrderBy(x => x.DebitNoteDetailsVno).ToList();
+                }).OrderBy(x => x.DebitNoteDetailsVno).AsEnumerable().ToList();
                 _debitNoteRepository.Update(debitNote);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
@@ -59,7 +59,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                         k.AccountsTransactionsStatus = AccountStatus.Approved;
                     }
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherType).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherType).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 UserTracking trackingData = new UserTracking();
                 trackingData.UserTrackingUserUserId = 1;
@@ -91,12 +91,12 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 {
                     k.DebitNoteDetailsDelStatus = true;
                     return k;
-                }).OrderBy(x => x.DebitNoteDetailsAccNo).ToList();
+                }).OrderBy(x => x.DebitNoteDetailsAccNo).AsEnumerable().ToList();
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 debitNote.DebitNoteDetails = debitNoteDetails;
                 _debitNoteRepository.Update(debitNote);
@@ -141,7 +141,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                     x.DebitNoteId = maxcount;
                     x.DebitNoteDetailsVno = debitNote.DebitNoteVno;
                     return x;
-                }).OrderBy(x => x.DebitNoteDetailsVno).ToList();
+                }).OrderBy(x => x.DebitNoteDetailsVno).AsEnumerable().ToList();
                 _debitNoteDetailsRepository.InsertList(debitNoteDetails);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
@@ -149,7 +149,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                     k.AccountsTransactionsVoucherType = VoucherType.DebitNote_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
                 _debitNoteRepository.Insert(debitNote);
                 UserTracking trackingData = new UserTracking();

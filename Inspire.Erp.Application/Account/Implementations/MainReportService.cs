@@ -302,7 +302,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 AccChqDate = l.AccChqDate,
                 AccVatNo = l.AccVatNo,
                 AccVatAmt = l.AccVatAmt,
-            }).OrderBy(x => x.AccName).ToList();
+            }).OrderBy(x => x.AccName).AsEnumerable().ToList();
             _tempReportAccStatementRepository.DeleteList(tempReport);
             //_accountTransactionRepository.UpdateList(accttrans);
         }
@@ -434,7 +434,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                    && (accountStatementParameters.rptDescription.Trim() == "" ? true : (k.AccountsTransactionsDescription.Trim() == accountStatementParameters.rptDescription.Trim()))
                    && (k.AccountstransactionsDelStatus == false || k.AccountstransactionsDelStatus == null)
                     && (voucherTypes.Count > 0 ? voucherTypes.Contains(k.AccountsTransactionsVoucherType.Trim()) : true)
-                    )).OrderBy(x => x.AccountsTransactionsTransDate).ToList();
+                    )).OrderBy(x => x.AccountsTransactionsTransDate).AsEnumerable().ToList();
 
                 if (accountStatementParameters.rptDateRange == true)
                 {
@@ -738,7 +738,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
         {
             //return _itemMasterRepository.GetAll();
 
-            List<ItemMaster> reportItemMaster = _itemMasterRepository.GetAsQueryable().Where(k => k.ItemMasterItemType.Trim() == "A").OrderBy(x => x.ItemMasterItemName).ToList();
+            List<ItemMaster> reportItemMaster = _itemMasterRepository.GetAsQueryable().Where(k => k.ItemMasterItemType.Trim() == "A").OrderBy(x => x.ItemMasterItemName).AsEnumerable().ToList();
 
             return reportItemMaster;
 
@@ -750,7 +750,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
             //return _itemMasterRepository.GetAll();
 
 
-            List<ItemMaster> reportItemMaster = _itemMasterRepository.GetAsQueryable().Where(k => k.ItemMasterItemType.Trim() == "G").OrderBy(x => x.ItemMasterItemName).ToList();
+            List<ItemMaster> reportItemMaster = _itemMasterRepository.GetAsQueryable().Where(k => k.ItemMasterItemType.Trim() == "G").OrderBy(x => x.ItemMasterItemName).AsEnumerable().ToList();
 
             return reportItemMaster;
         }
@@ -807,7 +807,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                                                                        //StockRegisterAmount = grp.Sum(x => x.StockRegisterAmount),
                                                                        //LocationMasterLocationName = "",
                                                                        //StockRegisterLocationID = 0,
-                                                                   }).OrderBy(x => x.SalesVoucherNo).ToList();
+                                                                   }).OrderBy(x => x.SalesVoucherNo).AsEnumerable().ToList();
 
                 return reportSalesVoucher_ALL;
             }
@@ -856,7 +856,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
 
 
 
-                  }).OrderBy(x => x.SalesVoucherNo).ToList();
+                  }).OrderBy(x => x.SalesVoucherNo).AsEnumerable().ToList();
                 return reportSalesVoucher_ALL;
             }
 
@@ -920,7 +920,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                                                                                  PurchaseVoucherDetailsGrossAmount = grp.Key.PurchaseVoucherTotalGrossAmt,                                                                                 
 
 
-                                                                             }).OrderBy(x => x.PurchaseVoucherPoNo).ToList();
+                                                                             }).OrderBy(x => x.PurchaseVoucherPoNo).AsEnumerable().ToList();
 
                     return reportPurchaseVoucher_ALL;
                 }
@@ -969,7 +969,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                             PurchaseVoucherVatNo = c.PurchaseVoucherVatNo,
                             PurchaseVoucherPurchaseType = c.PurchaseVoucherPurchaseType,
 
-                        }).OrderBy(x => x.PurchaseVoucherVoucherNo).ToList();
+                        }).OrderBy(x => x.PurchaseVoucherVoucherNo).AsEnumerable().ToList();
 
                     return reportPurchaseVoucher_ALL;
                 }
@@ -1031,7 +1031,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                                                                          PurchaseOrderVatRountAmt = grp.Key.PurchaseOrderVatRountAmt,
                                                                          PurchaseOrderNetAmount = grp.Key.PurchaseOrderNetAmount,
                                                                          
-                                                                     }).OrderBy(x => x.PurchaseOrderNo).ToList();
+                                                                     }).OrderBy(x => x.PurchaseOrderNo).AsEnumerable().ToList();
 
                 return reportPurchaseOrder_ALL;
             }
@@ -1050,7 +1050,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                    //&& (purchasevoucherreportParameters.rptBrand == -1 ? true : (k.ItemBrandId == purchasevoucherreportParameters.rptBrand))
                    //  && (purchasevoucherreportParameters.rptItemGroup == -1 ? true : (k.ItemGroupId == purchasevoucherreportParameters.rptItemGroup))
                   
-                  && (k.PurchaseOrderDelStatus == false || k.PurchaseOrderDelStatus == null)))).OrderBy(x => x.PurchaseOrderId).ToList();
+                  && (k.PurchaseOrderDelStatus == false || k.PurchaseOrderDelStatus == null)))).OrderBy(x => x.PurchaseOrderId).AsEnumerable().ToList();
 
                 return reportPurchaseOrder_ALL;
             }
@@ -1105,7 +1105,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                             PurchaseRequisitionVatRountAmt = grp.Key.PurchaseRequisitionVatRountAmt,
                             PurchaseRequisitionNetAmount = grp.Key.PurchaseRequisitionNetAmount,
                      
-                        }).OrderBy(x => x.PurchaseRequisitionNo).ToList();
+                        }).OrderBy(x => x.PurchaseRequisitionNo).AsEnumerable().ToList();
 
                         return reportPurchaseRequisition_ALL;
             }
@@ -1123,7 +1123,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                         && (purchaserequisitionReportParameters.rptItem == -1 ? true : (k.PurchaseRequisitionDetailsMatId == purchaserequisitionReportParameters.rptItem))
                         && (purchaserequisitionReportParameters.rptDateRange == false ? true : (k.PurchaseRequisitionDate.Date >= purchaserequisitionReportParameters.rptDtpFrom.Value.Date)
                         && (k.PurchaseRequisitionDate.Date <= purchaserequisitionReportParameters.rptDtpTo.Value.Date))
-                        && (k.PurchaseRequisitionDelStatus == false || k.PurchaseRequisitionDelStatus == null)))).OrderBy(x => x.PurchaseRequisitionId).ToList();
+                        && (k.PurchaseRequisitionDelStatus == false || k.PurchaseRequisitionDelStatus == null)))).OrderBy(x => x.PurchaseRequisitionId).AsEnumerable().ToList();
                 return reportPurchaseRequisition_ALL;
             }
         }

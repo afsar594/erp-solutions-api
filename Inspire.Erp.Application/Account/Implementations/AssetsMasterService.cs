@@ -534,7 +534,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                 SubAssetID = assetSubMaster.SubAssetID,
                                 AssetMasterAssetName = assetMaster.AssetMasterAssetName
 
-                             }).OrderBy(x => x.AssetMasterAssetName).ToList();
+                             }).OrderBy(x => x.AssetMasterAssetName).AsEnumerable().ToList();
                 return Response<List<AssetCodes>>.Success(result, "Data found");
 
             }
