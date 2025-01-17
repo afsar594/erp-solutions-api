@@ -85,7 +85,7 @@ namespace Inspire.Erp.Web.Controllers
                 CostCenterMasterCostCenterIsSystem = k.CostCenterMasterCostCenterIsSystem,
                 CostCenterMasterCostCenterSortOrder = k.CostCenterMasterCostCenterSortOrder,
                 CostCenterMasterCostCenterDelStatus = k.CostCenterMasterCostCenterDelStatus
-            }).OrderBy(x => x.CostCenterMasterCostCenterName).ToList();
+            }).OrderBy(x => x.CostCenterMasterCostCenterName).AsEnumerable().ToList();
         }
 
         [HttpPost]

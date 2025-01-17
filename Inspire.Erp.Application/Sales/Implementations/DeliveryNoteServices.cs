@@ -135,7 +135,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 {
                     k.CustomerDeliveryNoteDetailsDelStatus = true;
                     return k;
-                }).OrderBy(x => x.CustomerDeliveryNoteDetailsDeliveryNo).ToList();
+                }).OrderBy(x => x.CustomerDeliveryNoteDetailsDeliveryNo).AsEnumerable().ToList();
 
                 deliveryNote.CustomerDeliveryNoteDetails = deliveryNoteDetails;
 
@@ -228,7 +228,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
         public IEnumerable<CustomerDeliveryNote> GetDeliveryNote()
         {
 
-            var customerDeliveryNotes = _deliveryNoteRepository.GetAll().Where(a => a.CustomerDeliveryNoteDelStatus == false || a.CustomerDeliveryNoteDelStatus == null).OrderBy(x => x.CustomerDeliveryNoteCustomerName).ToList();
+            var customerDeliveryNotes = _deliveryNoteRepository.GetAll().Where(a => a.CustomerDeliveryNoteDelStatus == false || a.CustomerDeliveryNoteDelStatus == null).OrderBy(x => x.CustomerDeliveryNoteCustomerName).AsEnumerable().ToList();
             return customerDeliveryNotes;
         }
 
@@ -311,7 +311,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 {
                     x.CustomerDeliveryNoteDetailsDeliveryDetailId = maxcount;
                     return x;
-                }).OrderBy(x => x.CustomerDeliveryNoteDetailsDeliveryNo).ToList();
+                }).OrderBy(x => x.CustomerDeliveryNoteDetailsDeliveryNo).AsEnumerable().ToList();
                 _deliveryNoteDetailsRepository.InsertList(deliveryNoteDetails);
 
                 _deliveryNoteRepository.Insert(deliveryNote);

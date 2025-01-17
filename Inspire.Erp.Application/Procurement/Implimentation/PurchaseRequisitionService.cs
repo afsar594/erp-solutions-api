@@ -81,7 +81,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                     }
                     return k;
-                }).OrderBy(x => x.PurchaseRequisitionDetailsItemName).ToList();
+                }).OrderBy(x => x.PurchaseRequisitionDetailsItemName).AsEnumerable().ToList();
 
                 _purchaseRequisitionRepository.Update(purchaseRequisition);
 
@@ -96,7 +96,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     }
 
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
                 //PermissionApprovalDetail by zaid              
@@ -168,7 +168,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 {
                     k.PurchaseRequisitionDetailsDelStatus = true;
                     return k;
-                }).OrderBy(x => x.PurchaseRequisitionDetailsItemName).ToList();
+                }).OrderBy(x => x.PurchaseRequisitionDetailsItemName).AsEnumerable().ToList();
 
                 //_purchaseRequisitionDetailsRepository.UpdateList(purchaseRequisitionDetails);
 
@@ -176,7 +176,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
 
@@ -315,7 +315,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
 
 
-                 }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                 }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
 
             this._accountTransactionRepository.UpdateList(accttrans);
         }
@@ -343,7 +343,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     x.PurchaseRequisitionId = maxcount;
                     x.PurchaseRequisitionDetailsNo = purchaseRequisitionNumber;
                     return x;
-                }).OrderBy(x => x.PurchaseRequisitionDetailsId).ToList();
+                }).OrderBy(x => x.PurchaseRequisitionDetailsId).AsEnumerable().ToList();
 
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
@@ -351,7 +351,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     k.AccountsTransactionsVoucherType = VoucherType.PurchaseRequisition_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
                 _purchaseRequisitionRepository.Insert(purchaseRequisition);

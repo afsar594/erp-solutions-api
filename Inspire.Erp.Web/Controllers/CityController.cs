@@ -56,7 +56,7 @@ namespace Inspire.Erp.Web.Controllers
                 CityMasterCityStatus = k.CityMasterCityStatus,
                 CityMasterCityDelStatus = k.CityMasterCityDelStatus
 
-            }).OrderBy(x => x.CityMasterCityName).ToList();
+            }).OrderBy(x => x.CityMasterCityName).AsEnumerable().ToList();
         }
 
         [HttpPost]

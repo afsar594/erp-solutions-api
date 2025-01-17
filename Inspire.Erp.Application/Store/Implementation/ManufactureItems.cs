@@ -140,7 +140,7 @@ namespace Inspire.Erp.Application.Store.implementations
             {
                 var ManufactureItemsMaster = new ManufactureItemsMaster();
                 ManufactureItemsMaster = _ManufactureItemsMastererepo.GetAsQueryable().FirstOrDefault(x => x.MI_Id_N == id);
-                ManufactureItemsMaster.ManufactureItemsMasterDetails = _ManufactureItemsMasterDetailsrepo.GetAsQueryable().Where(i => i.MI_Id_N == id).OrderBy(x => x.MI_Details_VocherNo).ToList();
+                ManufactureItemsMaster.ManufactureItemsMasterDetails = _ManufactureItemsMasterDetailsrepo.GetAsQueryable().Where(i => i.MI_Id_N == id).OrderBy(x => x.MI_Details_VocherNo).AsEnumerable().ToList();
                 return ManufactureItemsMaster;
 
             }
@@ -156,7 +156,7 @@ namespace Inspire.Erp.Application.Store.implementations
 
                 ManufactureItemsMaster ManufactureItem = new ManufactureItemsMaster();
                 ManufactureItem = _ManufactureItemsMastererepo.GetAsQueryable().Where(k => k.MI_VocherNo == VNo).SingleOrDefault();
-                ManufactureItem.ManufactureItemsMasterDetails = _ManufactureItemsMasterDetailsrepo.GetAsQueryable().Where(x => x.MI_Details_VocherNo == VNo).OrderBy(x => x.MI_Details_VocherNo).ToList();
+                ManufactureItem.ManufactureItemsMasterDetails = _ManufactureItemsMasterDetailsrepo.GetAsQueryable().Where(x => x.MI_Details_VocherNo == VNo).OrderBy(x => x.MI_Details_VocherNo).AsEnumerable().ToList();
                 return ManufactureItem;
             }
             catch (Exception ex)
@@ -224,7 +224,7 @@ namespace Inspire.Erp.Application.Store.implementations
                 {
                     l.LocationMasterLocationId,
                     l.LocationMasterLocationName,
-                } ).OrderBy(x => x.LocationMasterLocationName).ToList();
+                }  ).OrderBy(x => x.LocationMasterLocationName).ToList();
 
                 var itemMaster = (from item in _itemMasterRepository.GetAsQueryable().AsNoTracking()
                                   join unitdetail in _unitDetailRepository.GetAsQueryable().AsNoTracking()

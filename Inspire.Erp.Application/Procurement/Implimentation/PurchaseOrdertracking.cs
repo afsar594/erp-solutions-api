@@ -507,7 +507,7 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
                             Change_Dt = ut.UserTrackingUserChangeDt,
                             Change_Time = ut.UserTrackingUserChangeTime,
                             User_VP_NO = ut.UserTrackingUserVpNo
-                        }).OrderBy(x => x.UserName).ToList();
+                        }).OrderBy(x => x.UserName).AsEnumerable().ToList();
 
                 return new Response<List<UserTrackingDetails>>()
                 {

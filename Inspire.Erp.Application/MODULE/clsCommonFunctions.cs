@@ -125,7 +125,7 @@ namespace Inspire.Erp.Application.MODULE
 
 
 
-                 }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                 }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
             _accountTransactionRepository.DeleteList(accttrans);
             //_accountTransactionRepository.UpdateList(accttrans);
         }
@@ -172,7 +172,7 @@ namespace Inspire.Erp.Application.MODULE
 
 
 
-                 }).OrderBy(x => x.StockRegisterRefVoucherNo).ToList();
+                 }).OrderBy(x => x.StockRegisterRefVoucherNo).AsEnumerable().ToList();
             _stockRegisterRepository.DeleteList(stockTrans);
             //_stockRegisterRepository.UpdateList(stockTrans);
 

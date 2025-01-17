@@ -150,7 +150,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
 
                     return k;
-                }).OrderBy(x => x.SalesVoucherDetailsItemName).ToList();
+                }).OrderBy(x => x.SalesVoucherDetailsItemName).AsEnumerable().ToList();
 
                 _salesVoucherRepository.Update(salesVoucher);
 
@@ -165,7 +165,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     }
 
                     return k;
-                }).Where(x => x.AccountsTransactionsTransSno == 0).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).Where(x => x.AccountsTransactionsTransSno == 0).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
                 var currencyRate = clsCommonFunctions.getConverionCurrencyRate(salesVoucher.SalesVoucherCurrencyId, _currencyMasterRepository);
@@ -258,7 +258,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 {
                     k.SalesVoucherDetailsDelStatus = true;
                     return k;
-                }).OrderBy(x => x.SalesVoucherDetailsItemName).ToList();
+                }).OrderBy(x => x.SalesVoucherDetailsItemName).AsEnumerable().ToList();
 
                 //_salesVoucherDetailsRepository.UpdateList(salesVoucherDetails);
 
@@ -266,14 +266,14 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
                 stockRegister = stockRegister.Select((k) =>
                 {
                     k.StockRegisterDelStatus = true;
                     return k;
-                }).OrderBy(x => x.StockRegisterRefVoucherNo).ToList();
+                }).OrderBy(x => x.StockRegisterRefVoucherNo).AsEnumerable().ToList();
                 _stockRegisterRepository.UpdateList(stockRegister);
                 salesVoucher.SalesVoucherDetails = salesVoucherDetails;
                 _salesVoucherRepository.Update(salesVoucher);
@@ -336,7 +336,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     x.SalesVoucherDetailsNo = salesVoucherNumber;
                     salesVoucher.SalesVoucherDetails.Add(x);
                     return x;
-                }).OrderBy(x => x.SalesVoucherDetailsItemName).ToList();
+                }).OrderBy(x => x.SalesVoucherDetailsItemName).AsEnumerable().ToList();
 
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
@@ -345,7 +345,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     k.AccountsTransactionsVoucherType = VoucherType.SalesVoucher_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
                 var currencyRate = clsCommonFunctions.getConverionCurrencyRate(salesVoucher.SalesVoucherCurrencyId, _currencyMasterRepository);
@@ -555,7 +555,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 k.AccountsTransactionsLpoNo = string.Empty; // change it to desired option if needed
                 k.AccountsTransactionsDeptId = -1; // change it to desired option if needed
                 return k;
-            }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+            }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
             _accountTransactionRepository.InsertList(accountsTransactions);
         }
         private string getAccountNoByPartyName(string partyName)
@@ -650,7 +650,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                             SalesVoucherShippinAddress = s.SalesVoucherShippinAddress,
                             SalesVoucherDelStatus = s.SalesVoucherDelStatus,
                             SalesVoucherShortNo = s.SalesVoucherShortNo,
-                        }).OrderBy(x => x.SalesVoucherNo).ToList();
+                        }).OrderBy(x => x.SalesVoucherNo).AsEnumerable().ToList();
 
             return salV;
         }
@@ -662,7 +662,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
             if (salesVoucherModel.salesVoucher != null)
             {
-                salesVoucherModel.salesVoucherDetails = _salesVoucherDetailsRepository.GetAsQueryable().Where(x => x.SalesVoucherDetailsNo == salesVoucherModel.salesVoucher.SalesVoucherNo && (x.SalesVoucherDetailsDelStatus == false || x.SalesVoucherDetailsDelStatus == null)).OrderBy(x => x.SalesVoucherDetailsItemName).ToList();
+                salesVoucherModel.salesVoucherDetails = _salesVoucherDetailsRepository.GetAsQueryable().Where(x => x.SalesVoucherDetailsNo == salesVoucherModel.salesVoucher.SalesVoucherNo && (x.SalesVoucherDetailsDelStatus == false || x.SalesVoucherDetailsDelStatus == null)).OrderBy(x => x.SalesVoucherDetailsItemName).AsEnumerable().ToList();
 
                 salesVoucherModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(x => x.AccountsTransactionsVoucherNo == salesVoucherModel.salesVoucher.SalesVoucherNo && x.AccountstransactionsDelStatus != true).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
 
@@ -742,7 +742,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             {
                 SalesVoucher voucherModel = new SalesVoucher();
                 voucherModel = _salesVoucherRepository.GetAsQueryable().Where(a => a.SalesVoucherNo == SalesVoucherNo).FirstOrDefault();
-                voucherModel.SalesVoucherDetails = _salesVoucherDetailsRepository.GetAsQueryable().Where(o => o.SalesVoucherDetailsNo == SalesVoucherNo && o.SalesVoucherDetailsDelStatus != true).OrderBy(x => x.SalesVoucherDetailsItemName).ToList();
+                voucherModel.SalesVoucherDetails = _salesVoucherDetailsRepository.GetAsQueryable().Where(o => o.SalesVoucherDetailsNo == SalesVoucherNo && o.SalesVoucherDetailsDelStatus != true).OrderBy(x => x.SalesVoucherDetailsItemName).AsEnumerable().ToList();
 
 
                 if (voucherModel.SalesVoucherDetails.Count > 0)
@@ -789,7 +789,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 {
                     SalesVoucherId = (decimal)x.SalesVoucherId,
                     SalesVoucherNo = x.SalesVoucherNo
-                }).OrderBy(x => x.SalesVoucherNo).ToList());
+                }).OrderBy(x => x.SalesVoucherNo).AsEnumerable().ToList());
                 var gridResponse = new GridWrapperResponse<List<GetSalesVoucherResponse>>();
                 gridResponse.Data = response;
                 gridResponse.Total = 0;
@@ -819,7 +819,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 {
                     SalesReturnDetailsNo = o.Key.SalesReturnDetailsNo,
                     SalRetAmt = o.Sum(s => s.SalRetAmt)
-                }).OrderBy(x => x.SalesReturnDetailsNo).ToList();
+                }).OrderBy(x => x.SalesReturnDetailsNo).AsEnumerable().ToList();
 
                 var SalesReturnMaster = _salesReturn.GetAll().Select(o => new
                 {
@@ -858,7 +858,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                      SalRetAmt = retMstr != null ? retMstr.SalRetAmt : 0,
                                      VATAmount = hdr.SalesVoucherVat_AMT - (retMstr != null ? (decimal)retMstr.SalRetVatAmt : 0),
                                      NetAmount = hdr.SalesVoucherNetAmount - (retMstr != null ? (decimal)retMstr.SalRetAmt : 0),
-                                 }).OrderBy(x => x.voucherNo).ToList();
+                                 }).OrderBy(x => x.voucherNo).AsEnumerable().ToList();
 
                     var data2 = (from hdr in SalesVoucherList
                                  join mstr in SalesReturnMaster on hdr.SalesVoucherNo equals mstr.SalesReturnNo into lmstr
@@ -877,7 +877,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                      SalRetAmt = retMstr != null ? retMstr.SalRetAmt : 0,
                                      VATAmount = hdr.SalesVoucherVat_AMT - (retMstr != null ? (decimal)retMstr.SalRetVatAmt : 0),
                                      NetAmount = hdr.SalesVoucherNetAmount - (retMstr != null ? (decimal)retMstr.SalRetAmt : 0),
-                                 }).OrderBy(x => x.voucherNo).ToList();
+                                 }).OrderBy(x => x.voucherNo).AsEnumerable().ToList();
 
 
                     var finalData = data1.Union(data2).AsQueryable();
@@ -1037,7 +1037,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     x.SNO = maxcount;
                     x.VoucherNo = salesVoucherNumber;
                     return x;
-                }).OrderBy(x => x.VoucherNo).ToList();
+                }).OrderBy(x => x.VoucherNo).AsEnumerable().ToList();
 
                 salesHold.SalesHoldDetails.Clear();
 
@@ -1085,7 +1085,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     _salesHoldRepository.TransactionCommit();
                 }
 
-                return _salesHoldRepository.GetAll().Where(a => a.V_ID > 0).OrderBy(x => x.VoucherNo).ToList();
+                return _salesHoldRepository.GetAll().Where(a => a.V_ID > 0).OrderBy(x => x.VoucherNo).AsEnumerable().ToList();
             }
             catch (Exception ex)
             {
@@ -1104,7 +1104,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 SalesHold = _salesHoldRepository.GetAsQueryable().Where(k => k.V_ID == id).FirstOrDefault();
                 if (SalesHold != null)
                 {
-                    SalesHold.SalesHoldDetails = _salesHoldDetailsRepository.GetAsQueryable().Where(x => x.SNO == id).OrderBy(x => x.VoucherNo).ToList();
+                    SalesHold.SalesHoldDetails = _salesHoldDetailsRepository.GetAsQueryable().Where(x => x.SNO == id).OrderBy(x => x.VoucherNo).AsEnumerable().ToList();
                 }
                 return SalesHold;
             }

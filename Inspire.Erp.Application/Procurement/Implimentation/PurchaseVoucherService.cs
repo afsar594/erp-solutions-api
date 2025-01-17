@@ -125,7 +125,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                     k.AccountsTransactionsVoucherType = VoucherType.PurchaseVoucher_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
                 decimal stockRegCount = 0;
@@ -389,7 +389,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                         k.AccountsTransactionsStatus = AccountStatus.Approved;
                     }
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
                 List<StockRegister> stockRegisters = new List<StockRegister>();
@@ -466,7 +466,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                 {
                     k.PurchaseVoucherDetailsDelStatus = true;
                     return k;
-                }).OrderBy(x => x.PurchaseVoucherDetailsItemName).ToList();
+                }).OrderBy(x => x.PurchaseVoucherDetailsItemName).AsEnumerable().ToList();
 
                 //_salesVoucherDetailsRepository.UpdateList(salesVoucherDetails);
 
@@ -477,7 +477,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                 {
                     k.StockRegisterDelStatus = true;
                     return k;
-                }).OrderBy(x => x.StockRegisterRefVoucherNo).ToList();
+                }).OrderBy(x => x.StockRegisterRefVoucherNo).AsEnumerable().ToList();
                 _stockRegisterRepository.UpdateList(stockRegister);
 
 
@@ -528,7 +528,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                                        PurchaseVoucherDisAmount = pm.PurchaseVoucherDisAmount,
                                        PurchaseVoucherVatAmount = pm.PurchaseVoucherVATAmount,
                                        PurchaseVoucherNetAmount = pm.PurchaseVoucherNetAmount
-                                   }).OrderBy(x => x.PurchaseVoucherVoucherNo).ToList();
+                                   }).OrderBy(x => x.PurchaseVoucherVoucherNo).AsEnumerable().ToList();
 
                 // response.AddRange(loj);
 
@@ -578,7 +578,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                     x.PurchaseVoucherDetailsPrId = maxcount;
                     x.PurchaseVoucherDetailsVoucherNo = vnumber;
                     return x;
-                }).OrderBy(x => x.PurchaseVoucherDetailsVoucherNo).ToList();
+                }).OrderBy(x => x.PurchaseVoucherDetailsVoucherNo).AsEnumerable().ToList();
                 _PurchaseVoucherDetails.InsertList(purchaseVoucherDetails);
 
                 accountsTransactions = accountsTransactions.Select((k) =>
@@ -588,7 +588,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                     k.AccountsTransactionsVoucherType = VoucherType.PurchaseVoucher_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
                 List<StockRegister> stockRegisters = new List<StockRegister>();
 
@@ -649,7 +649,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                         k.AccountsTransactionsStatus = AccountStatus.Approved;
                     }
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _PurchaseVoucher.Update(purchaseVoucher);
                 _PurchaseVoucherDetails.UpdateList(purchaseVoucherDetails);
                 _accountTransactionRepository.UpdateList(accountsTransactions);

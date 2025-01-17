@@ -47,7 +47,7 @@ namespace Inspire.Erp.Application.RFQ.Implementation
             {
                 RfqEntry Rfq = new RfqEntry();
                 Rfq = _rfqEntry.GetAsQueryable().FirstOrDefault(x => x.RFQEntryID == Convert.ToInt32(id));
-                Rfq.RfqEntryDetails = _rfqEntryDetails.GetAsQueryable().Where(x => x.RFQ_Entry_ID == Convert.ToInt32(id) && x.RFQEntryDetailsDelStatus != true).OrderBy(x => x.RFQEntryDetailsDetID).ToList();
+                Rfq.RfqEntryDetails = _rfqEntryDetails.GetAsQueryable().Where(x => x.RFQ_Entry_ID == Convert.ToInt32(id) && x.RFQEntryDetailsDelStatus != true).OrderBy(x => x.RFQEntryDetailsDetID).AsEnumerable().ToList();
                 return Rfq;
 
             }
@@ -154,7 +154,7 @@ namespace Inspire.Erp.Application.RFQ.Implementation
             {
                 var dataObj = _rfqEntry.GetAsQueryable().Where(o => o.RFQ_EntryvouchaseNo == vouchaseNo).FirstOrDefault();
                 dataObj.RfqEntryDelStatus = true;
-                var detailData = _rfqEntryDetails.GetAsQueryable().Where(o => o.RFQ_EntryvouchaseNo == vouchaseNo).OrderBy(x => x.RFQ_EntryvouchaseNo).ToList();
+                var detailData = _rfqEntryDetails.GetAsQueryable().Where(o => o.RFQ_EntryvouchaseNo == vouchaseNo).OrderBy(x => x.RFQ_EntryvouchaseNo).AsEnumerable().ToList();
                 detailData.ForEach(elemt =>
                 {
                     elemt.RFQEntryDetailsDelStatus = true;
@@ -178,7 +178,7 @@ namespace Inspire.Erp.Application.RFQ.Implementation
 
                 RfqEntry Rfq = new RfqEntry();
                 Rfq = _rfqEntry.GetAsQueryable().Where(k => k.RFQ_EntryvouchaseNo == VNo).FirstOrDefault();
-                Rfq.RfqEntryDetails = _rfqEntryDetails.GetAsQueryable().Where(x => x.RFQ_EntryvouchaseNo == VNo && (x.RFQEntryDetailsDelStatus == false || x.RFQEntryDetailsDelStatus == null)).OrderBy(x => x.RFQ_EntryvouchaseNo).ToList();
+                Rfq.RfqEntryDetails = _rfqEntryDetails.GetAsQueryable().Where(x => x.RFQ_EntryvouchaseNo == VNo && (x.RFQEntryDetailsDelStatus == false || x.RFQEntryDetailsDelStatus == null)).OrderBy(x => x.RFQ_EntryvouchaseNo).AsEnumerable().ToList();
                 return Rfq;
             }
             catch (Exception ex)

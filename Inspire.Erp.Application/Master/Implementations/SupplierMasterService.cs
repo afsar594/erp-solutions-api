@@ -207,7 +207,7 @@ namespace Inspire.Erp.Application.Master
                 //currencyrepository.Dispose();
             }
 
-            SuppliersMaster = SuppliersMaster.OrderBy(sm => sm.SuppliersMasterSupplierName).OrderBy(x => x.SuppliersMasterSupplierName).ToList();
+            SuppliersMaster = SuppliersMaster.OrderBy(sm => sm.SuppliersMasterSupplierName).AsEnumerable().ToList();
             return SuppliersMaster;
         }
         public SuppliersMaster GetAllSupplierById(int id)

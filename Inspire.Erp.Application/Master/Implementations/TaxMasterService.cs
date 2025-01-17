@@ -106,7 +106,7 @@ namespace Inspire.Erp.Application.Master.Implementations
             {
                 //cityrepository.Dispose();
             }
-            taxMasters = taxMasters.OrderBy(sm => sm.TmName).OrderBy(x => x.TmName).ToList();
+            taxMasters = taxMasters.OrderBy(sm => sm.TmName).AsEnumerable().ToList();
             return taxMasters;
         }
 

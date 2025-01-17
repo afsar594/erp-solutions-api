@@ -227,7 +227,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                             PurchaseReturnVoucherDetailsSno = x.PurchaseReturnVoucherDetailsSno,
                             PurchaseReturnVoucherDetailsRate = x.PurchaseReturnVoucherDetailsRate,
                             PurchaseReturnVoucherDetailsVoucherNo = x.PurchaseReturnVoucherDetailsVoucherNo
-                        }).OrderBy(x => x.MaterialName).ToList();
+                        }).OrderBy(x => x.MaterialName).AsEnumerable().ToList();
 
                 });
                 return Response<PurchaseReturnVoucherResponse>.Success(model, "Records FOund.");
@@ -453,7 +453,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     StockRegisterTransType = "Purchase Return",
                     StockRegisterRemarks = x.PurchaseReturnVoucherDetailsRemarks,
 
-                }).OrderBy(x => x.StockRegisterRefVoucherNo).ToList();
+                }).OrderBy(x => x.StockRegisterRefVoucherNo).AsEnumerable().ToList();
                 _stockRegister.InsertList(stockRegister);
                 #region ADD ACTIVITY LOGS
                 AddActivityLogViewModel Detaillogs = new AddActivityLogViewModel()
@@ -645,7 +645,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     StockRegisterTransType = "Purchase Return",
                     StockRegisterRemarks = x.PurchaseReturnVoucherDetailsRemarks,
 
-                }).OrderBy(x => x.StockRegisterRefVoucherNo).ToList();
+                }).OrderBy(x => x.StockRegisterRefVoucherNo).AsEnumerable().ToList();
                 _stockRegister.InsertList(stockRegister);
 
                 _stockRegister.SaveChangesAsync();
@@ -831,19 +831,19 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 {
                     k.PurchaseReturnDetailsDelStatus = true;
                     return k;
-                }).OrderBy(x => x.PurchaseReturnDetailsItemName).ToList();
+                }).OrderBy(x => x.PurchaseReturnDetailsItemName).AsEnumerable().ToList();
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransaction.UpdateList(accountsTransactions);
 
                 stockRegister = stockRegister.Select((k) =>
                 {
                     k.StockRegisterDelStatus = true;
                     return k;
-                }).OrderBy(x => x.StockRegisterRefVoucherNo).ToList();
+                }).OrderBy(x => x.StockRegisterRefVoucherNo).AsEnumerable().ToList();
                 _stockRegister.UpdateList(stockRegister);
                 purchaseReturn.PurchaseReturnDetails = purchaseReturnDetails;
                 _purchaseReturnRepo.Update(purchaseReturn);
@@ -880,7 +880,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     k.PurchaseReturnId = purchaseReturn.PurchaseReturnId;
                     k.PurchaseReturnDetailsNo = purchaseReturn.PurchaseReturnNo;
                     return k;
-                }).OrderBy(x => x.PurchaseReturnDetailsNo).ToList();
+                }).OrderBy(x => x.PurchaseReturnDetailsNo).AsEnumerable().ToList();
 
                 _purchaseReturnRepo.Update(purchaseReturn);
 
@@ -892,7 +892,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     k.AccountsTransactionsVoucherType = VoucherType.PurchaseReturn_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransaction.InsertList(accountsTransactions);
 
                 //stockRegister = stockRegister.Select((k) =>
@@ -1002,7 +1002,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     x.PurchaseReturnDetailsNo = purchaseReturnNumber;
                     x.PurchaseReturnDetailsId = 0;
                     return x;
-                }).OrderBy(x => x.PurchaseReturnDetailsNo).ToList();
+                }).OrderBy(x => x.PurchaseReturnDetailsNo).AsEnumerable().ToList();
                 //_purchaseReturnDetailsRepo.InsertList(purchaseReturnDetails);
 
                 accountsTransactions = accountsTransactions.Select((k) =>
@@ -1011,7 +1011,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     k.AccountsTransactionsVoucherType = VoucherType.PurchaseReturn_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransaction.InsertList(accountsTransactions);
                 var currencyRate = clsCommonFunctions.getConverionCurrencyRate(purchaseReturn.PurchaseReturnCurrencyId, _currencyMasterRepository);
                 var rate = (decimal)currencyRate;

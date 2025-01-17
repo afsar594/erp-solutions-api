@@ -383,7 +383,7 @@ namespace Inspire.Erp.Web.Controllers
                 c.CurrencyMasterCurrencyId,
                 c.CurrencyMasterCurrencyName,
                 c.CurrencyMasterCurrencyRate
-            }).OrderBy(x => x.CurrencyMasterCurrencyName).ToList();
+            }).OrderBy(x => x.CurrencyMasterCurrencyName).AsEnumerable().ToList();
             objectresponse.ResultSet = new
             {
                 CurrencyMasters = currencyMasters

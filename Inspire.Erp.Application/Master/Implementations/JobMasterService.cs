@@ -143,62 +143,62 @@ namespace Inspire.Erp.Application.Master
                     x.JobMasterBudgetDetailsJobId = jobId;
                     x.JobMasterNo = vNumber;
                     return x;
-                }).OrderBy(x => x.JobMasterNo).ToList();
+                }).OrderBy(x => x.JobMasterNo).AsEnumerable().ToList();
 
                 jobMaster.JobMasterJobDetails.Select((x) =>
                 {
                     x.JobMasterJobDetailsJobId = jobId;
                     x.JobMasterNo = vNumber;
                     return x;
-                }).OrderBy(x => x.JobMasterNo).ToList();
+                }).OrderBy(x => x.JobMasterNo).AsEnumerable().ToList();
 
                 jobMaster.JobMasterJobWiseBankGuarantees.Select((x) =>
                 {
                     x.JobMasterJobWiseBankGuaranteesJobId = jobId;
                     x.JobMasterNo = vNumber;
                     return x;
-                }).OrderBy(x => x.JobMasterNo).ToList();
+                }).OrderBy(x => x.JobMasterNo).AsEnumerable().ToList();
 
                 // job staff , equipment and execution related updation
                 jobMaster.JobStaff.Select((x) =>
                 {
                     x.JobMasterJobId = jobId;
                     return x;
-                }).OrderBy(x => x.JobMasterJobId).ToList();
+                }).OrderBy(x => x.JobMasterJobId).AsEnumerable().ToList();
 
                 jobMaster.JobEquipment.Select((x) =>
                 {
                     x.JobMasterJobId = jobId;
                     return x;
-                }).OrderBy(x => x.JobMasterJobId).ToList();
+                }).OrderBy(x => x.JobMasterJobId).AsEnumerable().ToList();
                 jobMaster.JobExcutionDetails.Select((x) =>
                 {
                     x.JobMasterJobId = jobId;
                     return x;
-                }).OrderBy(x => x.JobMasterJobId).ToList();
+                }).OrderBy(x => x.JobMasterJobId).AsEnumerable().ToList();
                 /// end 
                 /// 
                 jobMaster.JobTimesheetDesc.Select((x) =>
                 {
                     x.JobId = jobId;
                     return x;
-                }).OrderBy(x => x.JobId).ToList();
+                }).OrderBy(x => x.JobId).AsEnumerable().ToList();
 
                 jobMaster.JobTimeSheetEquip.Select((x) =>
                 {
                     x.JobId = jobId;
                     return x;
-                }).OrderBy(x => x.JobId).ToList();
+                }).OrderBy(x => x.JobId).AsEnumerable().ToList();
                 jobMaster.JobTimesheetMaster.Select((x) =>
                 {
                     x.JobId = jobId;
                     return x;
-                }).OrderBy(x => x.JobId).ToList();
+                }).OrderBy(x => x.JobId).AsEnumerable().ToList();
                 jobMaster.JobTimeSheetStaff.Select((x) =>
                 {
                     x.JobId = jobId;
                     return x;
-                }).OrderBy(x => x.JobId).ToList();
+                }).OrderBy(x => x.JobId).AsEnumerable().ToList();
                 /// 
 
                 jobrepository.Insert(jobMaster);
@@ -285,7 +285,7 @@ namespace Inspire.Erp.Application.Master
                                             CrAmt = at.AccountsTransactionsCredit,
                                             DrAmt = at.AccountsTransactionsDebit,
                                             CostName = cos.CostCenterMasterCostCenterName
-                                        }).OrderBy(x => x.accName).ToList();
+                                        }).OrderBy(x => x.accName).AsEnumerable().ToList();
                 jobMasterData.JobTimeSheetStaff = _jobTimeSheetStaff.GetAsQueryable().AsNoTracking().Where(a => a.JobId == jobMasterData.JobMasterJobId).ToList();
                 jobMasterData.JobTimesheetMaster = _jobTimesheetMaster.GetAsQueryable().AsNoTracking().Where(a => a.JobId == jobMasterData.JobMasterJobId).ToList();
                 jobMasterData.JobTimeSheetEquip = _jobTimeSheetEquip.GetAsQueryable().AsNoTracking().Where(a => a.JobId == jobMasterData.JobMasterJobId).OrderBy(x => x.JobMasterJobJob).ToList();

@@ -176,7 +176,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         GrossAmount = g.Where(x => x.PaymentMode == "CASH" || x.PaymentMode == "CARD").Sum(x => (decimal?)x.Amount) ?? 0m,
                         VatAmount = g.Where(x => x.PaymentMode == "VAT").Sum(x => (decimal?)x.Amount) ?? 0m,
                         VoucherDate = g.Key.VoucherDate
-                    }).OrderBy(x => x.CustomerName).ToList();
+                    }).OrderBy(x => x.CustomerName).AsEnumerable().ToList();
 
 
                 var result1 = await (from c in _dbContext.POS_SalesVoucher
@@ -305,7 +305,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         Sales = g.Sum(x => x.Sales),
                         Vat = g.Sum(x => x.Vat)
 
-                    }).OrderBy(x => x.CounterName).ToList();
+                    }).OrderBy(x => x.CounterName).AsEnumerable().ToList();
 
                 return result;
             }

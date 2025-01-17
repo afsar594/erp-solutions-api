@@ -114,7 +114,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     //}
 
                     return k;
-                }).OrderBy(x => x.PurchaseQuotationDetailsNo).ToList();
+                }).OrderBy(x => x.PurchaseQuotationDetailsNo).AsEnumerable().ToList();
 
                 _purchaseQuotationRepository.Update(purchaseQuotation);
 
@@ -186,7 +186,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 {
                     k.PurchaseQuotationDetailsDelStatus = true;
                     return k;
-                }).OrderBy(x => x.PurchaseQuotationDetailsItemName).ToList();
+                }).OrderBy(x => x.PurchaseQuotationDetailsItemName).AsEnumerable().ToList();
 
                 //_purchaseQuotationDetailsRepository.UpdateList(purchaseQuotationDetails);
 
@@ -260,7 +260,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     x.PurchaseQuotationId = maxcount;
                     x.PurchaseQuotationDetailsNo = purchaseQuotationNumber;
                     return x;
-                }).OrderBy(x => x.PurchaseQuotationDetailsNo).ToList();
+                }).OrderBy(x => x.PurchaseQuotationDetailsNo).AsEnumerable().ToList();
                 //_purchaseQuotationDetailsRepository.InsertList(purchaseQuotationDetails);
 
                 accountsTransactions = accountsTransactions.Select((k) =>
@@ -270,7 +270,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     k.AccountsTransactionsVoucherType = VoucherType.PurchaseQuotation_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
 
