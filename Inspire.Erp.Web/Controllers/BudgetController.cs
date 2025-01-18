@@ -48,7 +48,7 @@ namespace Inspire.Erp.Web.Controllers
                 BudgetMasterBudgetName = k.BudgetMasterBudgetName,
                 BudgetMasterBudgetDelStatus = k.BudgetMasterBudgetDelStatus
 
-            }).OrderBy(x => x.BudgetMasterBudgetName).ToList();
+            }).OrderBy(x => x.BudgetMasterBudgetName).AsEnumerable().ToList();
         }
 
 

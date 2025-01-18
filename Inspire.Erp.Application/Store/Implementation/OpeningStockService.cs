@@ -104,7 +104,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 stockRegister = stockRegister.Select((k) => {
                     k.StockRegisterDelStatus = true;
                     return k;
-                }).OrderBy(x => x.StockRegisterRefVoucherNo).ToList();
+                }).OrderBy(x => x.StockRegisterRefVoucherNo).AsEnumerable().ToList();
 
                 _stockRegisterRepository.UpdateList(stockRegister);
 

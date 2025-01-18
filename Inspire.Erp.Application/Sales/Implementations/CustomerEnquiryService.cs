@@ -111,7 +111,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 {
                     k.EnquiryDetailsEnquiryDetailsDelStatus = true;
                     return k;
-                }).OrderBy(x => x.EnquiryDetailsEnquiryDetailsDescription).ToList();
+                }).OrderBy(x => x.EnquiryDetailsEnquiryDetailsDescription).AsEnumerable().ToList();
 
                 _customerEnquiryDetailsRepository.UpdateList(customerEnquiryDetails);
 
@@ -147,7 +147,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     x.EnquiryDetailsEnquiryDetailsId = 0;
                     x.EnquiryDetailsEnquiryDetailsEquiryId = customerEnquiryNumber;
                     return x;
-                }).OrderBy(x => x.EnquiryDetailsEnquiryDetailsId).ToList();
+                }).OrderBy(x => x.EnquiryDetailsEnquiryDetailsId).AsEnumerable().ToList();
                 _customerEnquiryDetailsRepository.InsertList(customerEnquiryDetails);
 
                 _customerEnquiryRepository.Insert(customerEnquiry);
@@ -166,7 +166,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
         {
             IEnumerable<EnquiryMaster> customerEnquiry = _customerEnquiryRepository.GetAll().Where(k => k.EnquiryMasterDelStatus == false || k.EnquiryMasterDelStatus == null);
 
-            customerEnquiry = customerEnquiry.OrderBy(sm => sm.EnquiryMasterContactName).OrderBy(x => x.EnquiryMasterContactName).ToList();
+            customerEnquiry = customerEnquiry.OrderBy(sm => sm.EnquiryMasterContactName).AsEnumerable().ToList();
             return customerEnquiry;
         }
         public CustomerEnquiryModel GetSavedCustEnquiryDetails(string Qtno)

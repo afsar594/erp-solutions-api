@@ -23,7 +23,7 @@ namespace Inspire.Erp.Application.Sales.Implementation
             {
                 var dataObj = repository.GetAsQueryable().Where(o => o.ProformaInvoiceId == Id).FirstOrDefault();
                 dataObj.ProformaInvoiceDelStatus = true;
-                var detailData = detailrepository.GetAsQueryable().Where(o => o.ProformaInvoiceDetailsSlNo == Id).OrderBy(x => x.ProformaInvoiceDetailsSlNo).ToList();
+                var detailData = detailrepository.GetAsQueryable().Where(o => o.ProformaInvoiceDetailsSlNo == Id).OrderBy(x => x.ProformaInvoiceDetailsSlNo).AsEnumerable().ToList();
                 detailData.ForEach(elemt =>
                 {
                     elemt.ProformaInvoiceDetailsDelStatus = true;
@@ -57,12 +57,12 @@ namespace Inspire.Erp.Application.Sales.Implementation
         {
             try
             {
-                var detailList = detailrepository.GetAll().OrderBy(x => x.ProformaInvoiceDetailsSlNo).ToList();
+                var detailList = detailrepository.GetAll().OrderBy(x => x.ProformaInvoiceDetailsSlNo).AsEnumerable().ToList();
                 var data = repository.GetAll().Select(o => new
                 {
                     ProformaInvoice = o,
                     ProformaInvoiceDetails = detailList.Where(a => a.ProformaInvoiceDetailsSlNo == o.ProformaInvoiceId).ToList()
-                }).OrderBy(x => x.ProformaInvoice).ToList();
+                }).OrderBy(x => x.ProformaInvoice).AsEnumerable().ToList();
                 return repository.GetAll();
             }
             catch (Exception ex)

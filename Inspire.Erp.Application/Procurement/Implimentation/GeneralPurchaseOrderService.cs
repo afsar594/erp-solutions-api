@@ -120,7 +120,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     }
 
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
 
@@ -150,7 +150,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 {
                     k.GeneralPurchaseOrderDetailsDelStatus = true;
                     return k;
-                }).OrderBy(x => x.GeneralPurchaseOrder).ToList();
+                }).OrderBy(x => x.GeneralPurchaseOrder).AsEnumerable().ToList();
 
                 _GeneralpurchaseOrderDetailsRepository.UpdateList(GeneralpurchaseOrderDetails);
 
@@ -158,7 +158,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
                 GeneralpurchaseOrder.GeneralPurchaseOrderDetails = GeneralpurchaseOrderDetails;
@@ -203,7 +203,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     x.GeneralPurchaseOrderId = maxcount;
                     x.GeneralPurchaseOrderPono = purchaseOrderNumber;// purchaseOrder.PurchaseOrderNo;
                     return x;
-                }).OrderBy(x => x.GeneralPurchaseOrderPono).ToList();
+                }).OrderBy(x => x.GeneralPurchaseOrderPono).AsEnumerable().ToList();
 
                 GeneralpurchaseOrder.GeneralPurchaseOrderDetails.Clear();
 
@@ -227,12 +227,12 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     k.AccountsTransactionsVoucherType = VoucherType.PurchaseOrder_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherType).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherType).AsEnumerable().ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
                 _GeneralpurchaseOrderRepository.Insert(GeneralpurchaseOrder);
 
-                var permsionApproval = _permissionApprovalRepo.GetAsQueryable().Where(x => x.VoucherType == "General Purchase Order").OrderBy(x => x.LevelOrder).ToList();
+                var permsionApproval = _permissionApprovalRepo.GetAsQueryable().Where(x => x.VoucherType == "General Purchase Order").OrderBy(x => x.LevelOrder).AsEnumerable().ToList();
                 var approvals = new Approval()
                 {
                     CreatedBy = 0,
@@ -248,7 +248,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     UserId = x.UserId,
                     LevelOrder = x.LevelOrder,
                     ApprovedAt = DateTime.Now,
-                }).OrderBy(x => x.LevelOrder).ToList());
+                }).OrderBy(x => x.LevelOrder).AsEnumerable().ToList());
                 _GeneralpurchaseOrderRepository.TransactionCommit();
                 return this.GetSavedGeneralPurchaseOrderDetails(GeneralpurchaseOrder.GeneralPurchaseOrderPono);
 

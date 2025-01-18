@@ -83,7 +83,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     k.StockRequisitionId = StockRequisition.StockRequisitionId;
                     k.StockRequisitionDetailsNo = StockRequisition.StockRequisitionNo;
                     return k;
-                }).OrderBy(x => x.StockRequisitionDetailsItemName).ToList();
+                }).OrderBy(x => x.StockRequisitionDetailsItemName).AsEnumerable().ToList();
 
                 _StockRequisitionRepository.Update(StockRequisition);
                 //_StockRequisitionRepository.Update(StockRequisition);
@@ -127,7 +127,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 {
                     k.StockRequisitionDetailsDelStatus = true;
                     return k;
-                }).OrderBy(x => x.StockRequisitionDetailsItemName).ToList();
+                }).OrderBy(x => x.StockRequisitionDetailsItemName).AsEnumerable().ToList();
 
                 _StockRequisitionDetailsRepository.UpdateList(StockRequisitionDetails);
 
@@ -135,7 +135,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
                 StockRequisition.StockRequisitionDetails = StockRequisitionDetails;
@@ -181,7 +181,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     x.StockRequisitionId = maxcount;
                     x.StockRequisitionDetailsNo = StockRequisitionNumber;
                     return x;
-                }).OrderBy(x => x.StockRequisitionDetailsNo).ToList();
+                }).OrderBy(x => x.StockRequisitionDetailsNo).AsEnumerable().ToList();
 
                 StockRequisition.StockRequisitionDetails.Clear();
 
@@ -206,11 +206,11 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     k.AccountsTransactionsVoucherType = VoucherType.StockRequisition_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
                 _StockRequisitionRepository.Insert(StockRequisition);
-                var permsionApproval = _permissionApprovalRepo.GetAsQueryable().Where(x => x.VoucherType == VoucherType.StockRequisition_TYPE).OrderBy(x => x.LevelOrder).ToList();
+                var permsionApproval = _permissionApprovalRepo.GetAsQueryable().Where(x => x.VoucherType == VoucherType.StockRequisition_TYPE).OrderBy(x => x.LevelOrder).AsEnumerable().ToList();
                 var approvals = new Approval()
                 {
                     CreatedBy = 0,
@@ -226,7 +226,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     UserId = x.UserId,
                     LevelOrder = x.LevelOrder,
                     ApprovedAt = DateTime.Now,
-                }).OrderBy(x => x.LevelOrder).ToList());
+                }).OrderBy(x => x.LevelOrder).AsEnumerable().ToList());
 
                 _StockRequisitionRepository.TransactionCommit();
                 return this.GetSavedStockRequisitionDetails(StockRequisition.StockRequisitionNo);
@@ -252,7 +252,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         {
             StockRequisitionModel StockRequisitionModel = new StockRequisitionModel();
             StockRequisitionModel.StockRequisition = _StockRequisitionRepository.GetAsQueryable().Where(k => k.StockRequisitionNo == pvno).SingleOrDefault();
-            StockRequisitionModel.StockRequisitionDetails = _StockRequisitionDetailsRepository.GetAsQueryable().Where(x => x.StockRequisitionDetailsNo == pvno && (x.StockRequisitionDetailsDelStatus == false || x.StockRequisitionDetailsDelStatus == null)).OrderBy(x => x.StockRequisitionDetailsItemName).ToList();
+            StockRequisitionModel.StockRequisitionDetails = _StockRequisitionDetailsRepository.GetAsQueryable().Where(x => x.StockRequisitionDetailsNo == pvno && (x.StockRequisitionDetailsDelStatus == false || x.StockRequisitionDetailsDelStatus == null)).OrderBy(x => x.StockRequisitionDetailsItemName).AsEnumerable().ToList();
             return StockRequisitionModel;
 
         }

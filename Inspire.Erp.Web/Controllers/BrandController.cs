@@ -58,7 +58,7 @@ namespace Inspire.Erp.Web.Controllers
                 VendorMasterVendorEmail = k.VendorMasterVendorEmail,
                 VendorMasterVendorDelStatus = k.VendorMasterVendorDelStatus
 
-            }).OrderBy(x => x.VendorMasterVendorName).ToList();
+            }).OrderBy(x => x.VendorMasterVendorName).AsEnumerable().ToList();
         }
 
 

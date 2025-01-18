@@ -100,7 +100,7 @@ namespace Inspire.Erp.Application.Master
             {
                 //currencyrepository.Dispose();
             }
-            currencyMasters = currencyMasters.OrderBy(sm => sm.CurrencyMasterCurrencyName).AsEnumerable() .OrderBy(x => x.CurrencyMasterCurrencyShortName).ToList();
+            currencyMasters = currencyMasters.OrderBy(sm => sm.CurrencyMasterCurrencyName).AsEnumerable().OrderBy(x => x.CurrencyMasterCurrencyShortName).ToList();
             return currencyMasters;
         }
 

@@ -138,7 +138,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     k.PurchaseOrderId = purchaseOrder.PurchaseOrderId;
                     k.PurchaseOrderDetailsNo = purchaseOrder.PurchaseOrderNo;
                     return k;
-                }).OrderBy(x => x.PurchaseOrderDetailsNo).ToList();
+                }).OrderBy(x => x.PurchaseOrderDetailsNo).AsEnumerable().ToList();
                 _purchaseOrderRepository.Update(purchaseOrder);
 
                 accountsTransactions = accountsTransactions.Select((k) =>
@@ -152,7 +152,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     }
 
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
                 //insert tracking register
@@ -262,13 +262,13 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 {
                     k.PurchaseOrderDetailsDelStatus = true;
                     return k;
-                }).OrderBy(x => x.PurchaseOrderDetailsItemName).ToList();
+                }).OrderBy(x => x.PurchaseOrderDetailsItemName).AsEnumerable().ToList();
 
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
                 _purchaseOrderRepository.Update(purchaseOrder);
@@ -313,7 +313,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     x.PurchaseOrderId = maxcount;
                     x.PurchaseOrderDetailsNo = purchaseOrderNumber;
                     return x;
-                }).OrderBy(x => x.PurchaseOrderDetailsSno).ToList();
+                }).OrderBy(x => x.PurchaseOrderDetailsSno).AsEnumerable().ToList();
 
                 purchaseOrder.PurchaseOrderDetails.Clear();
                 foreach (var item in purchaseOrderDetails)
@@ -330,7 +330,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     k.AccountsTransactionsVoucherType = VoucherType.PurchaseOrder_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherType).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherType).AsEnumerable().ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
                 _purchaseOrderRepository.Insert(purchaseOrder);
 
@@ -607,7 +607,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     c.UnitMasterUnitId,
                     c.UnitMasterUnitShortName,
                     c.UnitMasterUnitFullName
-                }).OrderBy(x => x.UnitMasterUnitShortName).ToList();
+                }).OrderBy(x => x.UnitMasterUnitShortName).AsEnumerable().ToList();
                 var detailList = _purchaseOrderDetailsRepository.GetAsQueryable().ToList();
                 var details = _purchaseOrderRepository.GetAsQueryable().Where(a => a.PurchaseOrderDelStatus != true && a.PurchaseOrderPartyId == id).ToList();
                 var data = details.Select(o => new PurchaseOrderDTO
@@ -622,7 +622,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         price = materialList.Where(m => m.ItemMasterItemId == (long?)d.PurchaseOrderDetailsMatId).Select(c => (decimal?)c.ItemMasterLastPurchasePrice).FirstOrDefault() ?? 0,
                         poQty = d.PurchaseOrderDetailsQuantity ?? 0,
                     }).ToList()
-                }).OrderBy(x => x.PurchaseOrder).ToList();
+                }).OrderBy(x => x.PurchaseOrder).AsEnumerable().ToList();
                 return data;
             }
             catch (System.Exception ex)

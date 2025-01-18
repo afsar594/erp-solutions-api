@@ -195,7 +195,7 @@ namespace Inspire.Erp.Application.Master
                 {
                     k.ItemImagesItemImageId = null;
                     return k;
-                }).OrderBy(x => x.ItemImagesItemImageId).ToList();
+                }).OrderBy(x => x.ItemImagesItemImageId).AsEnumerable().ToList();
                 itemrepository.Insert(itemMaster);
                 return itemMaster;
             }
@@ -222,7 +222,7 @@ namespace Inspire.Erp.Application.Master
                 {
                     k.ItemImagesItemImageId = null;
                     return k;
-                }).OrderBy(x => x.ItemImagesItemImageId).ToList();
+                }).OrderBy(x => x.ItemImagesItemImageId).AsEnumerable().ToList();
 
                 itemrepository.Update(itemMaster);
                 valid = true;
@@ -301,7 +301,7 @@ namespace Inspire.Erp.Application.Master
                 {
                     ItemMasterItemId = k.ItemMasterItemId,
                     ItemMasterItemName = k.ItemMasterItemName
-                }).OrderBy(x => x.ItemMasterItemName).ToList();
+                }).OrderBy(x => x.ItemMasterItemName).AsEnumerable().ToList();
 
 
             }
@@ -332,7 +332,7 @@ namespace Inspire.Erp.Application.Master
                     ItemMasterVenderId = k.ItemMasterVenderId,
                     ItemMasterItemSize = k.ItemMasterItemSize,
                     ItemMasterAccountNo = k.ItemMasterAccountNo,
-                }).AsEnumerable().OrderBy(x => x.ItemMasterAliasName).ToList();
+                }).AsEnumerable().OrderBy(x => x.ItemMasterAliasName).AsEnumerable().ToList();
 
                 var allUnitDetails = _unitDetailsRepo.GetAll().ToList();
                 foreach (var item in itemMaster)
@@ -1379,7 +1379,7 @@ namespace Inspire.Erp.Application.Master
                                   InvoiceCode = og.Key.InvoiceCode,
                                   InvoiceCodeName = og.Key.MaAccName,
                                   CreditAccountNumber = og.Key.CreditAccountNumber
-                              }).OrderBy(x => x.AccountCodeName).ToList();
+                              }).OrderBy(x => x.AccountCodeName).AsEnumerable().ToList();
                 if (result.Count > 0)
                 {
 
@@ -2535,7 +2535,7 @@ namespace Inspire.Erp.Application.Master
                                          CustomerName = sv.CustomerName,
                                          Discount = sv.Discount,
                                          Amount = pst.Amount
-                                     }).OrderBy(x => x.CustomerName).ToList();
+                                     }).OrderBy(x => x.CustomerName).AsEnumerable().ToList();
 
 
 
@@ -2582,7 +2582,7 @@ namespace Inspire.Erp.Application.Master
                                             CustomerName = sv.CustomerName,
                                             Discount = sv.Discount,
                                             Amount = pst.Amount
-                                        }).OrderBy(x => x.CustomerName).ToList();
+                                        }).OrderBy(x => x.CustomerName).AsEnumerable().ToList();
 
 
                 StrRen.AppendLine(eBigCharOff + eLeft + "Net Cash".PadRight(20) + Convert.ToDecimal(cashSales).ToString("0.00").PadLeft(25));
@@ -2669,7 +2669,7 @@ namespace Inspire.Erp.Application.Master
                                               CustomerName = sv.CustomerName,
                                               Discount = sv.Discount,
                                               Amount = pst.Amount
-                                          }).OrderBy(x => x.CustomerName).OrderBy(x => x.CustomerName).ToList();
+                                          }).OrderBy(x => x.CustomerName).AsEnumerable().ToList();
                     decimal totalCCardSale = 0;
                     foreach (var creditAmn in stdCreditSales)
                     {
@@ -2712,7 +2712,7 @@ namespace Inspire.Erp.Application.Master
                                            CustomerName = sv.CustomerName,
                                            Discount = sv.Discount,
                                            Amount = pst.Amount
-                                       }).OrderBy(x => x.CustomerName).ToList();
+                                       }).OrderBy(x => x.CustomerName).AsEnumerable().ToList();
 
                 decimal ccTotal = 0;
                 decimal ccDisc = 0;
@@ -2826,7 +2826,7 @@ namespace Inspire.Erp.Application.Master
                                        Amount = og.Sum(item => item.NetAmount),
                                        UserName = og.Key.LogInId,
                                        ShiftName = og.Key.WorkPeriodName
-                                   }).OrderBy(x => x.UserName).ToList();
+                                   }).OrderBy(x => x.UserName).AsEnumerable().ToList();
 
                 decimal totalUserCash = 0;
                 foreach (var creditAmn in svdUserFile)
