@@ -23,11 +23,14 @@ namespace Inspire.Erp.Application.Store.Implementation
         private readonly IRepository<VouchersNumbers> _VoucherNumberRepo;
         private IRepository<ItemMaster> _itemMaster;
         private readonly IRepository<JobMaster> _jobMaster;
+        private readonly IRepository<StockRegister> _stockRegisterRepo;
         public StockAdjustmentService(IRepository<StockAdjustmentVoucher> stockAdjustmentVoucherRepo,
             IRepository<VouchersNumbers> voucherNumberRepo, IRepository<StockAdjustmentVoucherDetails> stockAdjustmentVoucherDetailsRepo, 
             IRepository<ProgramSettings> programsettingsRepository,
             IRepository<JobMaster> jobMaster,
-            IRepository<ItemMaster> itemMasterRepository)
+            IRepository<ItemMaster> itemMasterRepository,
+            IRepository<StockRegister> stockRegisterRepo )
+
         {
             _stockAdjustmentVoucherRepo = stockAdjustmentVoucherRepo;
             _VoucherNumberRepo = voucherNumberRepo;
@@ -35,6 +38,7 @@ namespace Inspire.Erp.Application.Store.Implementation
             _programsettingsRepository = programsettingsRepository;
             _jobMaster = jobMaster;
             _itemMaster = itemMasterRepository;
+            _stockRegisterRepo = stockRegisterRepo;
         }
         public IEnumerable<StockAdjustmentVoucher> GetStockAdjustment()
         {
@@ -221,5 +225,22 @@ namespace Inspire.Erp.Application.Store.Implementation
             }
         }
 
+
+       public ResponseInfo GetStockByLocation(int id)
+        {
+            var res = new ResponseInfo();
+            var data = _stockRegisterRepo.GetAsQueryable().AsNoTracking().Where(i=> i.StockRegisterLocationID == id && i.StockRegisterDelStatus != true &&i.StockRegisterUnitID != null&& i.StockRegisterUnitID != null).Select(s=> new
+            {
+                s.StockRegisterMaterialID,
+                s.StockRegisterUnitID,
+                s.StockRegisterJobID,
+                s.StockRegisterRate,
+                s.StockRegisterQuantity,
+
+            }).ToList();
+            res.ResultSet = data;
+            res.IsSuccess = true;
+            return res;
+        }
     }
 }

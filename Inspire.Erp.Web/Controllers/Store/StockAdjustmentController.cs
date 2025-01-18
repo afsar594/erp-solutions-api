@@ -179,5 +179,16 @@ namespace Inspire.Erp.Web.Controllers.Store
             };
             return objresponse;
         }
+
+        [HttpGet]
+        [Route("GetStockByLocation/{id}")]
+        public ResponseInfo GetStockByLocation(int id)
+        {
+                    var objresponse = new ResponseInfo();
+            objresponse = _sa.GetStockByLocation(id);
+
+            return objresponse;
+        }
+
     }
 }
