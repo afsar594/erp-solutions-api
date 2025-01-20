@@ -33,6 +33,7 @@ namespace Inspire.Erp.Domain.Entities
         public int? IssueReturnDetailsPrId { get; set; }
         public int? IssueReturnDetailsPrdId { get; set; }
         public int? IssueReturnDetailsPoId { get; set; }
+        public int? IssueReturnDetailsJobID { get; set; }
         public int? IssueReturnDetailsPodId { get; set; }
         public int? IssueReturnDetailsQtnId { get; set; }
         public int? IssueReturnDetailsQtndId { get; set; }
