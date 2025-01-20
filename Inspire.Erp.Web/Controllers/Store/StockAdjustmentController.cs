@@ -30,6 +30,7 @@ namespace Inspire.Erp.Web.Controllers.Store
         private IRepository<UnitMaster> _unitrepository;
         private IRepository<UnitDetails> _unitDetailRepository;
         private IRepository<StockRegister> _stockRegisterRepository;
+
         public StockAdjustmentController(IStockAdjustmentService sa, IMapper mapper, IRepository<UnitMaster> unitrepository,
             IRepository<JobMaster> jobrepository, IRepository<LocationMaster> locationrepository, IRepository<ItemMaster> itemrepository, IRepository<UnitDetails> unitDetailRepository, IRepository<StockRegister> stockRegisterRepository)
         {
