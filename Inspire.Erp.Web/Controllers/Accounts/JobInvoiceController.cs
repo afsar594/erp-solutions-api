@@ -259,7 +259,7 @@ namespace Inspire.Erp.Web.Controllers
                 query = query.Where(a => a.JobInvoiceVoucherDate >= model.fromdate && a.JobInvoiceVoucherDate <= model.todate);
             }
 
-            var list = query.OrderBy(x => x.JobInvoiceCustomerName).OrderBy(x => x.JobInvoiceCustomerName).ToList();
+            var list = query.OrderBy(x => x.JobInvoiceCustomerName).AsEnumerable().ToList();
 
             var detail = _jobdetailsrepo.GetAsQueryable().AsNoTracking()
                                         .Where(a => a.JobInvoiceDetailsDelStatus != true);
@@ -277,7 +277,7 @@ namespace Inspire.Erp.Web.Controllers
                             y.JobInvoiceDetailsGrossAmount,
                             y.JobInvoiceDetailsDiscount,
                             y.JobInvoiceDetailsNetAmount
-                        }).OrderBy(x => x.JobInvoiceVoucherDate).ToList();
+                        }).OrderBy(x => x.JobInvoiceVoucherDate).AsEnumerable().ToList();
 
             objresponse.ResultSet = data;
             return objresponse;
@@ -374,7 +374,7 @@ namespace Inspire.Erp.Web.Controllers
                 c.AccountSettingsAccountId,
                 AccountSettingsAccountDescription = c.AccountSettingsAccountDescription.Trim(),
                 c.AccountSettingsAccountTextValue
-            }).OrderBy(x => x.AccountSettingsAccountTextValue).ToList();
+            }).OrderBy(x => x.AccountSettingsAccountTextValue).AsEnumerable().ToList();
             var locationMasterTask = await locationrepository.GetAsQueryable().AsNoTracking()
                 .Where(a => !a.LocationMasterLocationDelStatus != true)
                 .Select(c => new

@@ -313,7 +313,7 @@ namespace Inspire.Erp.Web.Controllers
                 c.CurrencyMasterCurrencyId,
                 c.CurrencyMasterCurrencyName,
                 c.CurrencyMasterCurrencyRate
-            }).OrderBy(x=>x.CurrencyMasterCurrencyName).ToList();
+            }).OrderBy(x=>x.CurrencyMasterCurrencyName).AsEnumerable().ToList();
             var countryMasters = countryrepository.GetAsQueryable().Where(a => a.CountryMasterCountryDelStatus != true).Select(c => new
             {
                 c.CountryMasterCountryId,

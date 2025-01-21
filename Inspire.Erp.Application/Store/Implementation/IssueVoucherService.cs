@@ -269,7 +269,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     return x;
                 }).OrderBy(x => x.IssueVoucherDetailsItemName).AsEnumerable().ToList();
                 _issueVoucherRepository.Insert(issueVoucher);
-                var accounts = _accountsSettingssvcs.GetAsQueryable().AsNoTracking().Where(x => x.AccountSettingsAccountDescription.Trim().Contains("Purchase Account") || x.AccountSettingsAccountDescription.Trim().Contains("Cost Of Finished Goods A/C")).OrderBy(x => x.AccountSettingsAccountTableName).ToList();
+                var accounts = _accountsSettingssvcs.GetAsQueryable().AsNoTracking().Where(x => x.AccountSettingsAccountDescription.Trim().Contains("Purchase Account") || x.AccountSettingsAccountDescription.Trim().Contains("Cost Of Finished Goods A/C")).OrderBy(x => x.AccountSettingsAccountTableName).AsEnumerable().ToList();
 
                 var credit = accounts.Where(a => a.AccountSettingsAccountDescription.Trim() == "Purchase Account").Select(x => x.AccountSettingsAccountTextValue).FirstOrDefault();
                 string[] parts = credit.Split(new string[] { "::" }, StringSplitOptions.None);
@@ -403,7 +403,7 @@ namespace Inspire.Erp.Application.Store.Implementation
             issueVoucherModel.issueVoucher = _issueVoucherRepository.GetAsQueryable().Where(k => k.IssueVoucherId == pvno).SingleOrDefault();
 
             issueVoucherModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == issueVoucherModel.issueVoucher.IssueVoucherNo && c.AccountsTransactionsVoucherType == VoucherType.IssueVoucher_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
-            issueVoucherModel.issueVoucherDetails = _issueVoucherDetailsRepository.GetAsQueryable().Where(x => x.IssueVoucherDetailsNo == issueVoucherModel.issueVoucher.IssueVoucherNo && (x.IssueVoucherDetailsDelStatus == false || x.IssueVoucherDetailsDelStatus == null)).OrderBy(x => x.IssueVoucherDetailsItemName).ToList();
+            issueVoucherModel.issueVoucherDetails = _issueVoucherDetailsRepository.GetAsQueryable().Where(x => x.IssueVoucherDetailsNo == issueVoucherModel.issueVoucher.IssueVoucherNo && (x.IssueVoucherDetailsDelStatus == false || x.IssueVoucherDetailsDelStatus == null)).OrderBy(x => x.IssueVoucherDetailsItemName).AsEnumerable().ToList();
             return issueVoucherModel;
         }
 

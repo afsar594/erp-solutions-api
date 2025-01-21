@@ -82,7 +82,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     x.StockAdjustmentVoucherDetailsSaId = maxcount;
                     x.StockAdjustmentVoucherDetailsLocationId = stockAdjustmentVoucher.StockAdjustmentVoucherLocationId;
                     return x;
-                }).OrderBy(x => x.StockAdjustmentVoucherDetailsSaNo).ToList();
+                }).OrderBy(x => x.StockAdjustmentVoucherDetailsSaNo).AsEnumerable().ToList();
 
                 _stockAdjustmentVoucherRepo.Insert(stockAdjustmentVoucher);
                 _stockAdjustmentVoucherDetailsRepo.InsertList(stockAdjustmentVoucherDetails);
@@ -224,7 +224,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 {
                     k.StockAdjustmentVoucherDetailsDelStatus = true;
                     return k;
-                }).OrderBy(x => x.StockAdjustmentVoucherDetailsSaNo).ToList();
+                }).OrderBy(x => x.StockAdjustmentVoucherDetailsSaNo).AsEnumerable().ToList();
             
           
                 _stockAdjustmentVoucherRepo.Update(stockAdjustmentVoucher);

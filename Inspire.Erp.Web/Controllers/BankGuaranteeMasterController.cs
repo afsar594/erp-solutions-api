@@ -37,7 +37,7 @@ namespace Inspire.Erp.Web.Controllers
                 BankGuaranteeMasterDeleted = k.BankGuaranteeMasterDeleted,
                 BankGuaranteeMasterStatus = k.BankGuaranteeMasterStatus
             }).OrderBy(x => x.BankGuaranteeMasterBgname) // Order by BankGuaranteeMasterBgname
-                .OrderBy(x => x.BankGuaranteeMasterBgname).ToList();
+                .AsEnumerable().ToList();
         }
 
         [HttpPost]
@@ -52,7 +52,7 @@ namespace Inspire.Erp.Web.Controllers
                 BankGuaranteeMasterUserId = k.BankGuaranteeMasterUserId,
                 BankGuaranteeMasterDeleted = k.BankGuaranteeMasterDeleted,
                 BankGuaranteeMasterStatus = k.BankGuaranteeMasterStatus
-            }).OrderBy(x => x.BankGuaranteeMasterBgname).ToList();
+            }).OrderBy(x => x.BankGuaranteeMasterBgname).AsEnumerable().ToList();
         }
 
         [HttpPost]
@@ -67,7 +67,7 @@ namespace Inspire.Erp.Web.Controllers
                 BankGuaranteeMasterUserId = k.BankGuaranteeMasterUserId,
                 BankGuaranteeMasterDeleted = k.BankGuaranteeMasterDeleted,
                 BankGuaranteeMasterStatus = k.BankGuaranteeMasterStatus
-            }).OrderBy(x => x.BankGuaranteeMasterBgname).ToList();
+            }).OrderBy(x => x.BankGuaranteeMasterBgname).AsEnumerable().ToList();
         }
 
         [HttpPost]
@@ -82,7 +82,7 @@ namespace Inspire.Erp.Web.Controllers
                 BankGuaranteeMasterUserId = k.BankGuaranteeMasterUserId,
                 BankGuaranteeMasterDeleted = k.BankGuaranteeMasterDeleted,
                 BankGuaranteeMasterStatus = k.BankGuaranteeMasterStatus
-            }).OrderBy(x => x.BankGuaranteeMasterBgname).ToList();
+            }).OrderBy(x => x.BankGuaranteeMasterBgname).AsEnumerable().ToList();
         }
     }
 }

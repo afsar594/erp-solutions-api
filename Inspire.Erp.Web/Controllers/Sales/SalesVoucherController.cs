@@ -521,7 +521,7 @@ namespace Inspire.Erp.Web.Controllers
                 a.CustomerMasterCustomerMobile,
                 a.CustomerMasterCustomerTel1,
                 a.CustomerMasterCustomerFax
-            }).OrderBy(x => x.CustomerMasterCustomerName).ToList();
+            }).OrderBy(x => x.CustomerMasterCustomerName).AsEnumerable().ToList();
 
             var unitMasters = unitrepository.GetAsQueryable().AsNoTracking().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
             {

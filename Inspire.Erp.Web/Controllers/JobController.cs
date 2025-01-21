@@ -285,7 +285,7 @@ namespace Inspire.Erp.Web.Controllers
                 c.MaAccName,
                 c.MaRelativeNo,
                 c.MaSno
-            }).OrderBy(x => x.MaAccName).ToList();
+            }).OrderBy(x => x.MaAccName).AsEnumerable().ToList();
             var customerMasters = _customerMasterRepository.GetAsQueryable().Where(k => k.CustomerMasterCustomerDelStatus != true).Select(a => new
             {
                 a.CustomerMasterCustomerNo,

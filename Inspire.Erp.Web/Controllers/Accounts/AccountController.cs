@@ -463,13 +463,13 @@ namespace Inspire.Erp.Web.Controllers.Accounts
             {
                 c.SalesManMasterSalesManId,
                 c.SalesManMasterSalesManName,
-            }).OrderBy(o=>o.SalesManMasterSalesManName).ToList();
+            }).OrderBy(o=>o.SalesManMasterSalesManName).AsEnumerable().ToList();
             
             var customerMasters = _customerMasterRepository.GetAsQueryable().AsNoTracking().Where(k => k.CustomerMasterCustomerDelStatus != true).Select(a => new
             {
                 a.CustomerMasterCustomerNo,
                 a.CustomerMasterCustomerName,
-            }).OrderBy(o => o.CustomerMasterCustomerName).ToList();
+            }).OrderBy(o => o.CustomerMasterCustomerName).AsEnumerable().ToList();
             objresponse.ResultSet = new
             {
                 customerMasters = customerMasters,
@@ -501,7 +501,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
                 c.AccountSettingsAccountId,
                 AccountSettingsAccountDescription = c.AccountSettingsAccountDescription.Trim(),
                 c.AccountSettingsAccountTextValue
-            }).OrderBy(x => x.AccountSettingsAccountTextValue).ToList();
+            }).OrderBy(x => x.AccountSettingsAccountTextValue).AsEnumerable().ToList();
             List<string> ids = new List<string>();
             string sale = "";
             string cost = "";
@@ -542,7 +542,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
 
             if (model.isDate)
             {
-                acc = acc.Where(a => a.AccountsTransactionsTransDate.Value.Date >= model.fromdate.Value.Date && a.AccountsTransactionsTransDate.Value.Date <= model.todate.Value.Date).OrderBy(x => x.AccountsTransactionsAccNo).ToList();
+                acc = acc.Where(a => a.AccountsTransactionsTransDate.Value.Date >= model.fromdate.Value.Date && a.AccountsTransactionsTransDate.Value.Date <= model.todate.Value.Date).OrderBy(x => x.AccountsTransactionsAccNo).AsEnumerable().ToList();
             }
 
             var account = acc.Where(a => ids.Any(id =>

@@ -836,7 +836,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     SalRetVatAmt = o.Sum(s => s.SalRetVatAmt),
                     SalRetAmt = o.FirstOrDefault().SalRetAmt,
                     SalRetRountAmt = o.FirstOrDefault().SalRetRountAmt,
-                }).OrderBy(x => x.SalesReturnNo).ToList();
+                }).OrderBy(x => x.SalesReturnNo).AsEnumerable().ToList();
                 var Include_Sales_Return_Details_In_Reports = _optionMaster.GetAsQueryable().FirstOrDefault(o => o.OptionsMasterDescription == "Include_Sales_Return_Details_In_Reports" && o.OptionsMasterType == "Yes");
                 if (Include_Sales_Return_Details_In_Reports != null)
                 {

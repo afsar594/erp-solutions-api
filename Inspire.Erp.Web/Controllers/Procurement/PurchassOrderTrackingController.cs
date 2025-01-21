@@ -153,7 +153,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                      {
                          k.ItemMasterItemId,
                          k.ItemMasterItemName
-                     }).OrderBy(x => x.ItemMasterItemName).ToList();
+                     }).OrderBy(x => x.ItemMasterItemName).AsEnumerable().ToList();
 
             var SuppliersMaster = supplierrepository.GetAsQueryable().Where(a => a.SuppliersMasterSupplierDelStatus != true).Select(c => new
             {

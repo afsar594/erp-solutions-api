@@ -216,7 +216,7 @@ namespace Inspire.Erp.Web.Controllers
             {
                 c.JobMasterJobId,
                 c.JobMasterJobName,
-            }).OrderBy(x => x.JobMasterJobName).ToList();
+            }).OrderBy(x => x.JobMasterJobName).AsEnumerable().ToList();
             var currencyMasters = currencyrepository.GetAsQueryable().Where(a => a.CurrencyMasterCurrencyDelStatus != true).Select(c => new
             {
                 c.CurrencyMasterCurrencyId,

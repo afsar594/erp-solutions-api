@@ -122,7 +122,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                                 ItemName = g.Max(x => x.Item_Name),
                                                 unitName = g.Max(x => x.unitName),
                                                 StockRate = (decimal)g.Max(x => x.StockInAmount),
-                                            }).OrderBy(x => x.ItemName).ToList();
+                                            }).OrderBy(x => x.ItemName).AsEnumerable().ToList();
 
                     var openValues = getOpenValues(sFilter.fromDate, (int?)sFilter.ItemId);
                     if (openValues.Count > 0)
@@ -231,7 +231,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                                 ItemName = g.Max(x => x.Item_Name),
                                                 unitName = g.Max(x => x.unitName),
                                                 StockRate = (decimal)g.Max(x => x.StockInAmount),
-                                            }).OrderBy(x => x.ItemName).ToList();
+                                            }).OrderBy(x => x.ItemName).AsEnumerable().ToList();
 
                     var openValues = getOpenValues(DateTime.Now, (int?)sFilter.ItemId);
                     if (openValues.Count > 0)
@@ -331,7 +331,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                {
                                    ItemId = g.Key,
                                    TotalQty = g.Sum(x => x.PurchaseVoucherDetailsQuantity)
-                               }).OrderBy(x => x.ItemId).ToList();
+                               }).OrderBy(x => x.ItemId).AsEnumerable().ToList();
 
 
             var result = itemDetails.Select((x) => new StockValueResult
@@ -339,7 +339,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 MatId = (long)x.ItemId,
                 StockRate = (decimal)x.TotalQty > 0 ? getQuantityValue((long)x.ItemId) / (decimal)x.TotalQty : 0,
                 StockValue = (decimal)x.TotalQty * ((decimal)x.TotalQty > 0 ? getQuantityValue((long)x.ItemId) / (decimal)x.TotalQty : 0)
-            }).OrderBy(x => x.MatId).ToList();
+            }).OrderBy(x => x.MatId).AsEnumerable().ToList();
 
             return result;
         }

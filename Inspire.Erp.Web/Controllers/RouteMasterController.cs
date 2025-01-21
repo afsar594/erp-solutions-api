@@ -54,7 +54,7 @@ namespace Inspire.Erp.Web.Controllers
                 RmStatus = k.RmStatus,
                 RmDelStatus = k.RmDelStatus
 
-            }).OrderBy(x => x.RmName).ToList();
+            }).OrderBy(x => x.RmName).AsEnumerable().ToList();
         }
 
         [HttpPost]

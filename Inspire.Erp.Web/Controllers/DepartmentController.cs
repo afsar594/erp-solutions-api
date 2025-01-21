@@ -53,7 +53,7 @@ namespace Inspire.Erp.Web.Controllers
                 DepartmentMasterDepartmentName = k.DepartmentMasterDepartmentName,
                 DepartmentMasterDepartmentStatus = k.DepartmentMasterDepartmentStatus,
                 DepartmentMasterDepartmentDelStatus = k.DepartmentMasterDepartmentDelStatus
-            }).OrderBy(x => x.DepartmentMasterDepartmentName).ToList();
+            }).OrderBy(x => x.DepartmentMasterDepartmentName).AsEnumerable().ToList();
         }
 
         [HttpPost]

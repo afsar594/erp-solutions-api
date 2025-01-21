@@ -65,7 +65,7 @@ namespace Inspire.Erp.Web.Controllers.Administration
                 BankBranch=k.BankBranch,
                 BankCurrency=k.BankCurrency,
                 logotype = k.logotype
-            }).OrderBy(x => x.StationMasterStationName).ToList();
+            }).OrderBy(x => x.StationMasterStationName).AsEnumerable().ToList();
         }
 
         [HttpPost]
@@ -103,7 +103,7 @@ namespace Inspire.Erp.Web.Controllers.Administration
         public List<PosStationSettings> GetAllCounter()
         {
 
-            return PosStationSettingsServices.GetAllCounter().OrderBy(x => x.StationName).ToList();
+            return PosStationSettingsServices.GetAllCounter().OrderBy(x => x.StationName).AsEnumerable().ToList();
         }
 
         [HttpPost]
