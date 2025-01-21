@@ -15,6 +15,7 @@ namespace Inspire.Erp.Domain.Entities
         public double? GeneralPurchaseOrderDetailsAmount { get; set; }
         public double? GeneralPurchaseOrderDetailsFcAmount { get; set; }
         public int? GeneralPurchaseOrderDetailsUnitId { get; set; }
+        public int? GeneralPurchaseOrderDetailsJobID { get; set; }
         public int? GeneralPurchaseOrderDetailsMaterialId { get; set; }
         public int? GeneralPurchaseOrderDetailsPreqId { get; set; }
         public bool? GeneralPurchaseOrderDetailsIsEdit { get; set; }
