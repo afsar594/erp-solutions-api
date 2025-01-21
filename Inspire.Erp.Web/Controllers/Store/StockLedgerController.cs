@@ -53,7 +53,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 c.LocationMasterLocationId,
                 c.LocationMasterLocationName,
                 c.LocationMasterLocationStatus
-            }).OrderBy(x => x.LocationMasterLocationName).ToList();
+            }).OrderBy(x => x.LocationMasterLocationName).AsEnumerable().ToList();
             var itemMasterGroup = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo == 0 && (k.ItemMasterDelStatus != true)
                 && k.ItemMasterItemType == ItemMasterStatus.Group).Select(k => new
                 {

@@ -73,7 +73,7 @@ namespace Inspire.Erp.Web.Controllers
                 SalesManMasterSalesManContactNo = k.SalesManMasterSalesManContactNo,
                 SalesManMasterSalesManLocationId = k.SalesManMasterSalesManLocationId,
                 SalesManMasterSalesManDelStatus = k.SalesManMasterSalesManDelStatus
-            }).OrderBy(x => x.SalesManMasterSalesManName).ToList();
+            }).OrderBy(x => x.SalesManMasterSalesManName).AsEnumerable().ToList();
         }
 
         [HttpPost]

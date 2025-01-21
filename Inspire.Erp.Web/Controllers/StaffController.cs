@@ -51,7 +51,7 @@ namespace Inspire.Erp.Web.Controllers
                 StaffMasterStaffCode = k.StaffMasterStaffCode,
                 StaffMasterStaffName = k.StaffMasterStaffName,
                 StaffMasterStaffDelStatus = k.StaffMasterStaffDelStatus
-            }).OrderBy(x => x.StaffMasterStaffName).ToList();
+            }).OrderBy(x => x.StaffMasterStaffName).AsEnumerable().ToList();
         }
 
 

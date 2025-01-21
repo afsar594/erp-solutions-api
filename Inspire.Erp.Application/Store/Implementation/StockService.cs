@@ -514,7 +514,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                     SaleInAmount = am.SaleInAmount,
                                     SaleOutQty = am.SaleOutQty,
                                     SaleOutAmount = am.SaleOutAmount,
-                                }).OrderBy(x => x.ItemName).ToList();
+                                }).OrderBy(x => x.ItemName).AsEnumerable().ToList();
 
                 stockMov.StockMovementInOutGroupWise = stockInOutGW;
 
@@ -597,7 +597,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                  QtyOut = am.QtyOut,
                                  QtyOutAmount = am.QtyOutTotAmt,
                                  LPO = am.LPO
-                             }).OrderBy(x => x.Ref_Vocher_No).ToList();
+                             }).OrderBy(x => x.Ref_Vocher_No).AsEnumerable().ToList();
 
                 stockMov.StockMovementInOut = queryInOut;
                 return Response<StockMovementReportResponse>.Success(stockMov, "Data found");
@@ -705,7 +705,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     AVGRATE = g.Average(x => x.StockRegisterRate ?? 0),
                     AMOUNT = g.Sum(x => x.StockRegisterAmount ?? 0),
                     AVGPURCHASEValue = g.Where(x => x.StockRegisterSIN > 0).Average(a => (decimal)a.StockRegisterRate),
-                }).OrderBy(x => x.ItemName).ToList();
+                }).OrderBy(x => x.ItemName).AsEnumerable().ToList();
 
 
 
@@ -762,7 +762,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                        ItemId = (long)g.Key,
                                        TotalQty = g.Sum(x => x.StockRegisterSIN - x.StockRegisterSout),
                                        TotalAmount = g.Sum(x => (x.StockRegisterSIN - x.StockRegisterSout) * x.StockRegisterRate)
-                                   }).OrderBy(x => x.ItemId).ToList();
+                                   }).OrderBy(x => x.ItemId).AsEnumerable().ToList();
 
 
                 var results = (from im in query
@@ -838,7 +838,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                    Rate = y != null && y.StockRegisterSIN > 0 && y.StockRegisterVoucherDate.Value.Date >= model.fromDate.Date && y.StockRegisterVoucherDate.Value.Date <= model.toDate.Date ? y.StockRegisterRate : 0,
                                    Qty = y != null && y.StockRegisterSIN > 0 && y.StockRegisterVoucherDate.Value.Date >= model.fromDate.Date && y.StockRegisterVoucherDate.Value.Date <= model.toDate.Date ? y.StockRegisterSIN : 0,
                                    QtyAmount = y != null && y.StockRegisterSIN > 0 && y.StockRegisterVoucherDate.Value.Date >= model.fromDate.Date && y.StockRegisterVoucherDate.Value.Date <= model.toDate.Date ? y.StockRegisterAmount : 0,
-                               }).OrderBy(x => x.Ref_Vocher_No).ToList();
+                               }).OrderBy(x => x.Ref_Vocher_No).AsEnumerable().ToList();
 
                 var indexedStockMovementIn = StockIn.Where(x => x.Qty > 0)
                                      .Select((x, index) =>
@@ -869,7 +869,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                     Rate = y != null && y.StockRegisterSout > 0 && y.StockRegisterVoucherDate.Value.Date >= model.fromDate.Date && y.StockRegisterVoucherDate.Value.Date <= model.toDate.Date ? y.StockRegisterRate : 0,
                                     Qty = y != null && y.StockRegisterSout > 0 && y.StockRegisterVoucherDate.Value.Date >= model.fromDate.Date && y.StockRegisterVoucherDate.Value.Date <= model.toDate.Date ? y.StockRegisterSout : 0,
                                     QtyAmount = y != null && y.StockRegisterSout > 0 && y.StockRegisterVoucherDate.Value.Date >= model.fromDate.Date && y.StockRegisterVoucherDate.Value.Date <= model.toDate.Date ? y.StockRegisterAmount : 0,
-                                }).OrderBy(x => x.Ref_Vocher_No).ToList();
+                                }).OrderBy(x => x.Ref_Vocher_No).AsEnumerable().ToList();
 
                 var indexedStockMovementOut = StockOut.Where(x => x.Qty > 0)
                                      .Select((x, index) =>

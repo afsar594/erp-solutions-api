@@ -57,7 +57,7 @@ namespace Inspire.Erp.Web.Controllers
                 CountryMasterCountryStatus = k.CountryMasterCountryStatus,
                 CountryMasterCountryAmount = k.CountryMasterCountryAmount,
                 CountryMasterCountryDelStatus = k.CountryMasterCountryDelStatus
-            }).OrderBy(x => x.CountryMasterCountryName).ToList();
+            }).OrderBy(x => x.CountryMasterCountryName).AsEnumerable().ToList();
         }
 
         [HttpPost]
@@ -74,7 +74,7 @@ namespace Inspire.Erp.Web.Controllers
                 CountryMasterCountryStatus = k.CountryMasterCountryStatus,
                 CountryMasterCountryAmount = k.CountryMasterCountryAmount,
                 CountryMasterCountryDelStatus = k.CountryMasterCountryDelStatus
-            }).OrderBy(x => x.CountryMasterCountryName).ToList();
+            }).OrderBy(x => x.CountryMasterCountryName).AsEnumerable().ToList();
         }
 
         [HttpPost]
@@ -91,7 +91,7 @@ namespace Inspire.Erp.Web.Controllers
                 CountryMasterCountryStatus = k.CountryMasterCountryStatus,
                 CountryMasterCountryAmount = k.CountryMasterCountryAmount,
                 CountryMasterCountryDelStatus = k.CountryMasterCountryDelStatus
-            }).OrderBy(x => x.CountryMasterCountryName).ToList();
+            }).OrderBy(x => x.CountryMasterCountryName).AsEnumerable().ToList();
         }
 
         [HttpPost]
@@ -108,7 +108,7 @@ namespace Inspire.Erp.Web.Controllers
                 CountryMasterCountryStatus = k.CountryMasterCountryStatus,
                 CountryMasterCountryAmount = k.CountryMasterCountryAmount,
                 CountryMasterCountryDelStatus = k.CountryMasterCountryDelStatus
-            }).OrderBy(x => x.CountryMasterCountryName).ToList();
+            }).OrderBy(x => x.CountryMasterCountryName).AsEnumerable().ToList();
         }
     }
 }

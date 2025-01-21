@@ -137,7 +137,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     x.StockTransferDetailsSNo = openingstockVoucherNumber;
 
                     return x;
-                }).OrderBy(x => x.StockTransferDetailsSNo).ToList();
+                }).OrderBy(x => x.StockTransferDetailsSNo).AsEnumerable().ToList();
 
                 //stockRegister = stockRegister.Select((k) =>
                 //{
@@ -250,7 +250,7 @@ namespace Inspire.Erp.Application.Store.Implementation
         {
             StockTransferModel issueVoucherModel = new StockTransferModel();            
             issueVoucherModel.stockTransfer = _StockTransferRepo.GetAsQueryable().Where(k => k.StockTransferId == pvno).SingleOrDefault();
-            issueVoucherModel.stockTransferDetails = _StockTransferDetailRepo.GetAsQueryable().Where(x => x.StockTransferDetailsSNo == issueVoucherModel.stockTransfer.StockTransferVoucherNo && (x.StockTransferDetailsDelStatus == false || x.StockTransferDetailsDelStatus == null)).OrderBy(x => x.StockTransferDetailsSNo).ToList();
+            issueVoucherModel.stockTransferDetails = _StockTransferDetailRepo.GetAsQueryable().Where(x => x.StockTransferDetailsSNo == issueVoucherModel.stockTransfer.StockTransferVoucherNo && (x.StockTransferDetailsDelStatus == false || x.StockTransferDetailsDelStatus == null)).OrderBy(x => x.StockTransferDetailsSNo).AsEnumerable().ToList();
             return issueVoucherModel;
         }
 
@@ -347,14 +347,14 @@ namespace Inspire.Erp.Application.Store.Implementation
             {
                 k.StockTransferDetailsDelStatus = true;
                 return k;
-            }).OrderBy(x => x.StockTransferDetailsSNo).ToList();
+            }).OrderBy(x => x.StockTransferDetailsSNo).AsEnumerable().ToList();
 
 
                 stockRegister = stockRegister.Select((k) =>
                 {
                     k.StockRegisterDelStatus = true;
                     return k;
-                }).OrderBy(x => x.StockRegisterRefVoucherNo).ToList();
+                }).OrderBy(x => x.StockRegisterRefVoucherNo).AsEnumerable().ToList();
                 _StockRegisterRepo.UpdateList(stockRegister);
 
                 _StockTransferRepo.UpdateAsync(stockTransfer);
@@ -402,7 +402,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                         x.StockTransferDetailsSNo = stockTransfer.StockTransferVoucherNo;
 
                         return x;
-                    }).OrderBy(x => x.StockTransferDetailsSNo).ToList();
+                    }).OrderBy(x => x.StockTransferDetailsSNo).AsEnumerable().ToList();
 
                 //stockRegister = stockRegister.Select((k) =>
                 //{

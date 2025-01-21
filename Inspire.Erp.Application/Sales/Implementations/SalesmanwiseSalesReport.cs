@@ -73,7 +73,7 @@ namespace Inspire.Erp.Application.Sales.Implementation
                 {
                     Name=x.CustomerMasterCustomerName,
                     Value=x.CustomerMasterCustomerReffAcNo
-                }).OrderBy(x=>x.Name).ToList());
+                }).OrderBy(x=>x.Name).AsEnumerable().ToList());
                 response.AddRange(response.OrderBy(x => x.Name)); // Order by Name
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
             }

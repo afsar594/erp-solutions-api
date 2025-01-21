@@ -421,8 +421,8 @@ namespace Inspire.Erp.Application.Account.Implementations
             salesReturnModel.salesReturn = _salesReturnRepository.GetAsQueryable().Where(k => k.SalesReturnId == pvno && k.SalesReturnDelStatus != true).FirstOrDefault();
             if (salesReturnModel.salesReturn != null)
             {
-                salesReturnModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == salesReturnModel.salesReturn.SalesReturnNo && c.AccountsTransactionsVoucherType == VoucherType.SalesReturn_TYPE && (c.AccountstransactionsDelStatus != true)).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
-                salesReturnModel.salesReturnDetails = _salesReturnDetailsRepository.GetAsQueryable().Where(x => x.SalesReturnDetailsNo == salesReturnModel.salesReturn.SalesReturnNo && (x.SalesReturnDetailsDelStatus != true)).OrderBy(x => x.SalesReturnDetailsItemName).ToList();
+                salesReturnModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == salesReturnModel.salesReturn.SalesReturnNo && c.AccountsTransactionsVoucherType == VoucherType.SalesReturn_TYPE && (c.AccountstransactionsDelStatus != true)).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
+                salesReturnModel.salesReturnDetails = _salesReturnDetailsRepository.GetAsQueryable().Where(x => x.SalesReturnDetailsNo == salesReturnModel.salesReturn.SalesReturnNo && (x.SalesReturnDetailsDelStatus != true)).OrderBy(x => x.SalesReturnDetailsItemName).AsEnumerable().ToList();
 
                 foreach (var item in salesReturnModel.salesReturnDetails)
                 {

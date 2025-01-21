@@ -224,7 +224,7 @@ namespace Inspire.Erp.Application.Store.implementations
                 {
                     l.LocationMasterLocationId,
                     l.LocationMasterLocationName,
-                }  ).OrderBy(x => x.LocationMasterLocationName).ToList();
+                }  ).OrderBy(x => x.LocationMasterLocationName).AsEnumerable().ToList();
 
                 var itemMaster = (from item in _itemMasterRepository.GetAsQueryable().AsNoTracking()
                                   join unitdetail in _unitDetailRepository.GetAsQueryable().AsNoTracking()
@@ -239,7 +239,7 @@ namespace Inspire.Erp.Application.Store.implementations
                                       item.ItemMasterVenderId,
                                       item.ItemMasterItemSize,
                                       itemMasterBarcode = unitdetail.UnitDetailsBarcode ?? ""
-                                  }).Distinct().OrderBy(x => x.ItemMasterItemName).ToList();
+                                  }).Distinct().OrderBy(x => x.ItemMasterItemName).AsEnumerable().ToList();
 
                 var unit = _unitMasterRepository.GetAsQueryable().Where(u => u.UnitMasterUnitDelStatus != true).Select(i => new
                 {

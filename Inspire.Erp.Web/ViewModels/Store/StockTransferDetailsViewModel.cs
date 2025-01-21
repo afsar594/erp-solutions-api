@@ -9,6 +9,7 @@ namespace Inspire.Erp.Web.ViewModels.Store
         public string StockTransferDetailsSno { get; set; }
         public int? StockTransferDetailsMaterialId { get; set; }
         public int? StockTransferDetailsUnitId { get; set; }
+        public int? StockTransferDetailsJobID { get; set; }
         public double? StockTransferDetailsQty { get; set; }
         public double? StockTransferDetailsRate { get; set; }
         public string StockTransferDetailsRemarks { get; set; }

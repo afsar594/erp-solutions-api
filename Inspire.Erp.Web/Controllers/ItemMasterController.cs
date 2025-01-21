@@ -378,7 +378,7 @@ namespace Inspire.Erp.Web.Controllers
                      {
                          k.ItemMasterItemId,
                          k.ItemMasterItemName
-                     }).OrderBy(x => x.ItemMasterItemName).ToList();
+                     }).OrderBy(x => x.ItemMasterItemName).AsEnumerable().ToList();
 
             var VendorMasters = Brandrepository.GetAsQueryable().Where(c => c.VendorMasterVendorDelStatus != true).Select(a => new
             {
@@ -412,7 +412,7 @@ namespace Inspire.Erp.Web.Controllers
                 x.UnitMasterUnitId,
                 x.UnitMasterUnitFullName,
                 x.UnitMasterUnitShortName
-            }).OrderBy(x => x.UnitMasterUnitShortName).ToList();
+            }).OrderBy(x => x.UnitMasterUnitShortName).AsEnumerable().ToList();
             objectresponse.ResultSet = new
             {
                 itemMaster = itemMaster,

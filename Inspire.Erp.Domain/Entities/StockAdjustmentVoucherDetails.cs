@@ -9,7 +9,7 @@ namespace Inspire.Erp.Domain.Entities
         public string StockAdjustmentVoucherDetailsSaNo { get; set; }
         public int? StockAdjustmentVoucherDetailsMaterialId { get; set; }
         public double? StockAdjustmentVoucherDetailsManualQty { get; set; }
-        public double? StockAdjustmentVoucherDetailsAdjQty { get; set; }
+        public decimal? StockAdjustmentVoucherDetailsAdjQty { get; set; }
         public int? StockAdjustmentVoucherDetailsLocationId { get; set; }
         public int? StockAdjustmentVoucherDetailsJobId { get; set; }
         public int? StockAdjustmentVoucherDetailsSaId { get; set; }

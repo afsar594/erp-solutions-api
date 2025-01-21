@@ -75,7 +75,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                     VatAmount = c.VatAmount ?? 0m
                                 }).ToListAsync();
 
-                var result = ab.Union(ac).OrderBy(a => a.VoucherNo).ToList();
+                var result = ab.Union(ac).OrderBy(a => a.VoucherNo).AsEnumerable().ToList();
                 return result;
             }
             catch (Exception ex)
@@ -118,7 +118,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                     VatAmount = c.VatAmount ?? 0m
                                 }).ToListAsync();
 
-                var result = ab.Union(ac).OrderBy(a => a.VoucherNo).ToList();
+                var result = ab.Union(ac).OrderBy(a => a.VoucherNo).AsEnumerable().ToList();
                 return result;
             }
             catch (Exception ex)

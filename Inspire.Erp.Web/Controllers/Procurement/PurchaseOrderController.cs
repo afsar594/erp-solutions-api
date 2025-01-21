@@ -317,7 +317,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                 c.UnitMasterUnitId,
                 UnitMasterUnitShortName = c.UnitMasterUnitShortName.Trim(),
                 c.UnitMasterUnitFullName
-            }).OrderBy(x => x.UnitMasterUnitShortName).ToList();
+            }).OrderBy(x => x.UnitMasterUnitShortName).AsEnumerable().ToList();
             var tracking = _purOrderRegisterRepository.GetAsQueryable().Where(a => a.PurOrderRegisterDelStatus != true).OrderBy(x => x.PurOrderRegisterOrderNo).ToList();
             var detailList = _purchaseOrderDetailsRepository.GetAsQueryable().OrderBy(x => x.PurchaseOrderDetailsUnitName).ToList();
             var details = _purchaseOrderRepository.GetAsQueryable().Where(a => a.PurchaseOrderDelStatus != true && a.PurchaseOrderPartyId == id).Select(c => new

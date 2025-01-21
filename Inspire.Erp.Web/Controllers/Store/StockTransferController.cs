@@ -248,7 +248,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 c.LocationMasterLocationId,
                 c.LocationMasterLocationStatus,
                 LocationMasterLocationName = c.LocationMasterLocationName.Trim(),
-            }).OrderBy(x => x.LocationMasterLocationName).ToList();
+            }).OrderBy(x => x.LocationMasterLocationName).AsEnumerable().ToList();
 
             var customerMasters = _customerMasterRepository.GetAsQueryable().Where(k => k.CustomerMasterCustomerDelStatus != true).Select(a => new
             {

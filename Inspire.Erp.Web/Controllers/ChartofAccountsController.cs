@@ -359,7 +359,7 @@ namespace Inspire.Erp.Web.Controllers
                 MaIsAsset = k.MaIsAsset,
                 //MaDelStatus = k.MaDelStatus
 
-            }).OrderBy(x => x.MaAccName).ToList();
+            }).OrderBy(x => x.MaAccName).AsEnumerable().ToList();
         }
 
         [HttpPost]
@@ -404,7 +404,7 @@ namespace Inspire.Erp.Web.Controllers
                 MaAssetDate = k.MaAssetDate,
                 MaIsAsset = k.MaIsAsset,
                 //MaDelStatus = k.MaDelStatus
-            }).OrderBy(x => x.MaAccName).ToList();
+            }).OrderBy(x => x.MaAccName).AsEnumerable().ToList();
         }
 
         [HttpPost]
@@ -449,7 +449,7 @@ namespace Inspire.Erp.Web.Controllers
                 MaAssetDate = k.MaAssetDate,
                 MaIsAsset = k.MaIsAsset,
                 //MaDelStatus = k.MaDelStatus
-            }).OrderBy(x => x.MaAccName).ToList();
+            }).OrderBy(x => x.MaAccName).AsEnumerable().ToList();
         }
 
         [HttpPost]
@@ -492,7 +492,7 @@ namespace Inspire.Erp.Web.Controllers
                 MaIsSeaAcc = k.MaIsSeaAcc,
                 MaIsAirAcc = k.MaIsAirAcc,
                 //MaDelStatus = k.MaDelStatus
-            }).OrderBy(x => x.MaAccName).ToList();
+            }).OrderBy(x => x.MaAccName).AsEnumerable().ToList();
         }
     }
 }

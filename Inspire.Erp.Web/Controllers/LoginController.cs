@@ -277,7 +277,7 @@ namespace Inspire.Erp.Web.Controllers
             {
                 c.LocationMasterLocationId,
                 c.LocationMasterLocationName
-            }).OrderBy(x=>x.LocationMasterLocationName).ToList();
+            }).AsEnumerable().OrderBy(x=>x.LocationMasterLocationName).ToList();
             var FinancialPeriods = financialrepository.GetAsQueryable().Where(x => x.FinancialPeriodsFsno != null).Select(k => new
             {
                 k.FinancialPeriodsFsno,

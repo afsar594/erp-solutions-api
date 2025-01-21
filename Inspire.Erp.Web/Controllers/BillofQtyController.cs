@@ -161,20 +161,20 @@ namespace Inspire.Erp.Web.Controllers
             {
                 c.JobMasterJobId,
                 JobMasterJobName = c.JobMasterJobName.Trim(),
-            }).OrderBy(x=>x.JobMasterJobName).ToList();
+            }).OrderBy(x=>x.JobMasterJobName).AsEnumerable().ToList();
             var itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
                     && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
                     {
                         k.ItemMasterItemId,
                         k.ItemMasterPartNo,
                         ItemMasterItemName = k.ItemMasterItemName.Trim()
-                    }).OrderBy(x => x.ItemMasterItemName).ToList();
+                    }).OrderBy(x => x.ItemMasterItemName).AsEnumerable().ToList();
             var unitMasters = unitrepository.GetAsQueryable().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
             {
                 x.UnitMasterUnitId,
                 UnitMasterUnitFullName = x.UnitMasterUnitFullName.Trim(),
                 UnitMasterUnitShortName = x.UnitMasterUnitShortName.Trim()
-            }).OrderBy(x => x.UnitMasterUnitShortName).ToList();
+            }).OrderBy(x => x.UnitMasterUnitShortName).AsEnumerable().ToList();
             objresponse.ResultSet = new
             {
                 jobMasters = jobMasters,
@@ -193,7 +193,7 @@ namespace Inspire.Erp.Web.Controllers
             var details = _BillofQtyMasterRepository.GetAsQueryable().AsNoTracking().OrderBy(x => x.BillofqtyNo).ToList();
             if (customerEnqId != 0)
             {
-                details = details.Where(a => a.CustomerEnqId == customerEnqId).OrderBy(x => x.BillofqtyNo).ToList();
+                details = details.Where(a => a.CustomerEnqId == customerEnqId).OrderBy(x => x.BillofqtyNo).AsEnumerable().ToList();
             }
             // Filtering detailList based on PurchaseOrderNos and customerEnqId
             var data = (from d in detailList
@@ -211,7 +211,7 @@ namespace Inspire.Erp.Web.Controllers
                             Qty = d.Qty,
                             UnitCode = d.UnitCode
                         }).OrderBy(x => x.dId)
-                .OrderBy(x => x.BillofqtyNo).ToList();
+                .OrderBy(x => x.BillofqtyNo).AsEnumerable().ToList();
 
             objResponse.ResultSet = new
             {

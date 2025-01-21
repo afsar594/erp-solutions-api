@@ -79,12 +79,12 @@ namespace Inspire.Erp.Web.Controllers
             {
                 x.UserId,
                 x.UserName
-            }).OrderBy(o=>o.UserName).ToList();
+            }).OrderBy(o=>o.UserName).AsEnumerable().ToList();
             var forms = _approvalforms.GetAsQueryable().AsNoTracking().Where(x => x.is_active == true).Select(a => new
             {
                 a.id,
                 a.Voucher_Type
-            }).OrderBy(o => o.Voucher_Type).ToList();
+            }).OrderBy(o => o.Voucher_Type).AsEnumerable().ToList();
 
             objresponse.ResultSet = new
             {

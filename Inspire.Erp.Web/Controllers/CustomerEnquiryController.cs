@@ -244,7 +244,7 @@ namespace Inspire.Erp.Web.Controllers
                      {
                          k.ItemMasterItemId,
                          k.ItemMasterItemName
-                     }).OrderBy(x => x.ItemMasterItemName).ToList();
+                     }).OrderBy(x => x.ItemMasterItemName).AsEnumerable().ToList();
 
             var customerMasters = _customerMasterRepository.GetAsQueryable().Where(k => k.CustomerMasterCustomerDelStatus != true).Select(a => new
             {

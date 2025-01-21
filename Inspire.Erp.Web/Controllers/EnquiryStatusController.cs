@@ -68,7 +68,7 @@ namespace Inspire.Erp.Web.Controllers
                 EnquiryStatusEnquiryStatusDelStatus = k.EnquiryStatusEnquiryStatusDelStatus
 
 
-            }).OrderBy(x => x.EnquiryStatusEnquiryStatus).ToList();
+            }).OrderBy(x => x.EnquiryStatusEnquiryStatus).AsEnumerable().ToList();
         }
 
         [HttpPost]

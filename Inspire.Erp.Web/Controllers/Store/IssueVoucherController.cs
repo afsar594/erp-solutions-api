@@ -373,7 +373,7 @@ namespace Inspire.Erp.Web.Controllers.Store
             {
                 c.JobMasterJobId,
                 c.JobMasterJobName,
-            }).OrderBy(x => x.JobMasterJobName).ToList();
+            }).OrderBy(x => x.JobMasterJobName).AsEnumerable().ToList();
             var currencyMasters = currencyrepository.GetAsQueryable().AsNoTracking().Where(a => a.CurrencyMasterCurrencyDelStatus != true).Select(c => new
             {
                 c.CurrencyMasterCurrencyId,
@@ -385,7 +385,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 x.UnitMasterUnitId,
                 x.UnitMasterUnitFullName,
                 UnitMasterUnitShortName = x.UnitMasterUnitShortName.Trim()
-            }).OrderBy(x => x.UnitMasterUnitShortName).ToList();
+            }).OrderBy(x => x.UnitMasterUnitShortName).AsEnumerable().ToList();
             var costcenterMasters = costcenterrepository.GetAsQueryable().AsNoTracking().Where(a => a.CostCenterMasterCostCenterDelStatus != true).Select(c => new
             {
                 c.CostCenterMasterCostCenterId,
