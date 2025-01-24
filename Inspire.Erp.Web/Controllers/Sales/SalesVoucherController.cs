@@ -491,6 +491,75 @@ namespace Inspire.Erp.Web.Controllers
 
 
         [HttpGet]
+        [Route("LoadDepartmentDropdown")]
+        public ResponseInfo LoadDepartmentDropdown()
+        {
+            var objectresponse = new ResponseInfo();
+            var DepartmentsList = departmentrepository.GetAsQueryable().AsNoTracking().Where(a => a.DepartmentMasterDepartmentDelStatus != true).Select(k => new
+            {
+                k.DepartmentMasterDepartmentId,
+                k.DepartmentMasterDepartmentName,
+
+            }).OrderBy(x => x.DepartmentMasterDepartmentName).ToList();
+            objectresponse.ResultSet = new
+            {
+                DepartmentsList = DepartmentsList
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
+
+        [HttpGet]
+        [Route("LoadSaleManDropdown")]
+        public ResponseInfo LoadSaleManDropdown()
+        {
+            var objectresponse = new ResponseInfo();
+            var SaleManList = salesmanrepository.GetAsQueryable().AsNoTracking().Where(a => a.SalesManMasterSalesManDelStatus != true).Select(c => new
+            {
+                c.SalesManMasterSalesManId,
+                c.SalesManMasterSalesManName,
+            }).OrderBy(x => x.SalesManMasterSalesManName).ToList();
+
+            objectresponse.ResultSet = new
+            {
+                SaleManList = SaleManList
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
+        [HttpGet]
+        [Route("LoadCustomerDropdown")]
+        public ResponseInfo LoadCustomerDropdown()
+        {
+            var objectresponse = new ResponseInfo();
+            var customerMasters = _customerMasterRepository.GetAsQueryable().AsNoTracking().Where(k => k.CustomerMasterCustomerDelStatus != true).Select(a => new
+            {
+                a.CustomerMasterCustomerNo,
+                a.CustomerMasterCustomerName,
+                a.CustomerMasterCustomerVatNo,
+                a.CustomerMasterCustomerContactPerson,
+                a.CustomerMasterCustomerAddress,
+                a.CustomerMasterCustomerReffAcNo,
+                a.CustomerMasterCustomerEmail,
+                a.CustomerMasterCustomerMobile,
+                a.CustomerMasterCustomerTel1,
+                a.CustomerMasterCustomerFax
+            }).OrderBy(x => x.CustomerMasterCustomerName).AsEnumerable().ToList();
+
+
+            objectresponse.ResultSet = new
+            {
+               customerMasters = customerMasters,
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
+        
+
+        [HttpGet]
         [Route("LoadDropdown")]
         public ResponseInfo LoadDropdown()
         {
@@ -507,7 +576,7 @@ namespace Inspire.Erp.Web.Controllers
                                   item.ItemMasterItemName,
                                   item.ItemMasterVenderId,
                                   item.ItemMasterItemSize,
-                                  itemMasterBarcode =unit.UnitDetailsBarcode ?? ""
+                                  itemMasterBarcode = unit.UnitDetailsBarcode ?? ""
                               }).Distinct().OrderBy(x => x.ItemMasterItemName).ToList();
             var customerMasters = _customerMasterRepository.GetAsQueryable().AsNoTracking().Where(k => k.CustomerMasterCustomerDelStatus != true).Select(a => new
             {
@@ -601,6 +670,11 @@ namespace Inspire.Erp.Web.Controllers
             objectresponse.IsSuccess = true;
             return objectresponse;
         }
+
+
+
+
+
         [HttpGet]
         [Route("GetCustomerById/{id}")]
         public ResponseInfo GetCustomerById(int id)

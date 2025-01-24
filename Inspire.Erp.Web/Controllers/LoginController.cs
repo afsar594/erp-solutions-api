@@ -273,11 +273,11 @@ namespace Inspire.Erp.Web.Controllers
         {
             var objectresponse = new ResponseInfo();
 
-            var LocationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
-            {
-                c.LocationMasterLocationId,
-                c.LocationMasterLocationName
-            }).AsEnumerable().OrderBy(x=>x.LocationMasterLocationName).ToList();
+            //var LocationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
+            //{
+            //    c.LocationMasterLocationId,
+            //    c.LocationMasterLocationName
+            //}).AsEnumerable().OrderBy(x=>x.LocationMasterLocationName).ToList();
             var FinancialPeriods = financialrepository.GetAsQueryable().Where(x => x.FinancialPeriodsFsno != null).Select(k => new
             {
                 k.FinancialPeriodsFsno,
@@ -287,13 +287,43 @@ namespace Inspire.Erp.Web.Controllers
 
             objectresponse.ResultSet = new
             {
-                LocationMaster = LocationMaster,
+               //LocationMaster = LocationMaster,
                 FinancialPeriods = FinancialPeriods
             };
 
             objectresponse.IsSuccess = true;
             return objectresponse;
         }
+
+        [AllowAnonymous]
+        [HttpGet]
+        [Route("LoadDropdownFPeriod")]
+        public ResponseInfo LoadDropdownFPeriod()
+        {
+            var objectresponse = new ResponseInfo();
+
+            //var LocationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
+            //{
+            //    c.LocationMasterLocationId,
+            //    c.LocationMasterLocationName
+            //}).AsEnumerable().OrderBy(x=>x.LocationMasterLocationName).ToList();
+            var FinancialPeriods = financialrepository.GetAsQueryable().Where(x => x.FinancialPeriodsFsno != null).Select(k => new
+            {
+                k.FinancialPeriodsFsno,
+                k.FinancialPeriodsStartDate,
+                k.FinancialPeriodsEndDate
+            });
+
+            objectresponse.ResultSet = new
+            {
+                // LocationMaster = LocationMaster,
+                FinancialPeriods = FinancialPeriods
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
+
 
         [HttpGet]
         [Route("GetAllUser")]
