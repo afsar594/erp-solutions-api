@@ -296,16 +296,37 @@ namespace Inspire.Erp.Application.Store.Implementation
 
        public ResponseInfo GetStockByLocation(int id)
         {
-            var res = new ResponseInfo();
-            var data = _stockRegisterRepo.GetAsQueryable().AsNoTracking().Where(i=> i.StockRegisterLocationID == id && i.StockRegisterDelStatus != true &&i.StockRegisterUnitID != null&& i.StockRegisterUnitID != null).Select(s=> new
-            {
-                s.StockRegisterMaterialID,
-                s.StockRegisterUnitID,
-                s.StockRegisterJobID,
-                s.StockRegisterRate,
-                s.StockRegisterQuantity,
+            //var res = new ResponseInfo();
+            //var data = _stockRegisterRepo.GetAsQueryable().AsNoTracking().Where(i=> i.StockRegisterLocationID == id && i.StockRegisterDelStatus != true &&i.StockRegisterUnitID != null&& i.StockRegisterUnitID != null).Select(s=> new
+            //{
+            //    s.StockRegisterMaterialID,
+            //    s.StockRegisterUnitID,
+            //    s.StockRegisterJobID,
+            //    s.StockRegisterRate,
+            //    s.StockRegisterQuantity,
 
-            }).ToList();
+            //}).ToList();
+            //res.ResultSet = data;
+            //res.IsSuccess = true;
+            //return res;
+            var res = new ResponseInfo();
+            var data = _stockRegisterRepo.GetAsQueryable()
+                .AsNoTracking()
+                .Where(i => i.StockRegisterLocationID == id
+                            && i.StockRegisterDelStatus != true
+                            && i.StockRegisterUnitID != null)
+                .AsEnumerable() // Switch to LINQ-to-Objects for client-side processing
+                .GroupBy(s => s.StockRegisterMaterialID) // Group by StockRegisterMaterialID
+                .Select(g => new
+                {
+                    StockRegisterMaterialID = g.Key, // Group key
+                    StockRegisterQuantity = g.Sum(x => x.StockRegisterQuantity), // Aggregate quantity
+                    StockRegisterRate = g.Average(x => x.StockRegisterRate), // Calculate average rate
+                    StockRegisterUnitID = g.Select(x => x.StockRegisterUnitID).Distinct().ToList(), // List of distinct unit IDs
+                    StockRegisterJobID = g.Select(x => x.StockRegisterJobID).Distinct().ToList() // List of distinct job IDs
+                })
+                .ToList();
+
             res.ResultSet = data;
             res.IsSuccess = true;
             return res;
