@@ -68,6 +68,8 @@ namespace Inspire.Erp.Application.Store.Implementation
                 stockAdjustmentVoucher.StockAdjustmentVoucherSaNo = stockVoucherNumber;
 
 
+                decimal SSIN = 0;
+                decimal Sout = 0;
                 int maxcount = 0;
                 maxcount = Convert.ToInt32(
                     await _stockAdjustmentVoucherRepo.GetAsQueryable()
@@ -87,47 +89,47 @@ namespace Inspire.Erp.Application.Store.Implementation
                 _stockAdjustmentVoucherRepo.Insert(stockAdjustmentVoucher);
                 _stockAdjustmentVoucherDetailsRepo.InsertList(stockAdjustmentVoucherDetails);
 
-                //stock register           
-                var stockReg = new List<StockRegister>();
-                foreach (var item in stockAdjustmentVoucher.stockAdjustmentVoucherDetails)
+                //stock register
+                //
+
+                var stockReg = stockAdjustmentVoucher.stockAdjustmentVoucherDetails.Select(item =>
                 {
                     var avgrate = item.StockAdjustmentVoucherDetailsCosePrice ?? 1;
                     var converontype = this.getConverionTypebyUnitId(item.StockAdjustmentVoucherDetailsMaterialId, item.StockAdjustmentVoucherDetailsUnitId);
 
-                    decimal SSIN = 0;
-                    decimal Sout = 0;
-                    if (item.StockAdjustmentVoucherDetailsAdjQty > 0)
-                    {
-                        Sout = 0;
-                        SSIN = item.StockAdjustmentVoucherDetailsAdjQty * (decimal)(converontype) ?? 1;
-                     }
-                    else
-                    {
-                        Sout = item.StockAdjustmentVoucherDetailsAdjQty * (decimal)(converontype) ?? 1;
-                        SSIN = 0;
-                    }
-                    stockReg.Add(new StockRegister()
+                    // Calculate SSIN and Sout using ternary operators
+                    var SSIN = item.StockAdjustmentVoucherDetailsAdjQty > 0
+                        ? item.StockAdjustmentVoucherDetailsAdjQty * (decimal)(converontype)
+                        : 0;
+
+                    var Sout = item.StockAdjustmentVoucherDetailsAdjQty <= 0
+                        ? item.StockAdjustmentVoucherDetailsAdjQty * (decimal)(converontype)
+                        : 0;
+
+                    return new StockRegister
                     {
                         StockRegisterPurchaseID = stockAdjustmentVoucher.StockAdjustmentVoucherSaNo,
                         StockRegisterRefVoucherNo = stockAdjustmentVoucher.StockAdjustmentVoucherSaNo,
                         StockRegisterVoucherDate = stockAdjustmentVoucher.StockAdjustmentVoucherSaDate,
                         StockRegisterMaterialID = item.StockAdjustmentVoucherDetailsMaterialId,
-                        StockRegisterQuantity = item.StockAdjustmentVoucherDetailsAdjQty * (decimal)(converontype) ?? 0,
+                        StockRegisterQuantity = item.StockAdjustmentVoucherDetailsAdjQty * (decimal)(converontype),
                         StockRegisterSIN = SSIN,
                         StockRegisterSout = Sout,
                         StockRegisterRate = Convert.ToDecimal(avgrate),
-                        StockRegisterAmount = item.StockAdjustmentVoucherDetailsAdjQty * (decimal)(converontype) ?? 0,
-                        StockRegisterFCAmount = item.StockAdjustmentVoucherDetailsAdjQty * (decimal)(converontype) ?? 0,
+                        StockRegisterAmount = item.StockAdjustmentVoucherDetailsAdjQty * (decimal)(converontype),
+                        StockRegisterFCAmount = item.StockAdjustmentVoucherDetailsAdjQty * (decimal)(converontype),
                         StockRegisterAssignedDate = DateTime.Now.Date,
                         StockRegisterStatus = "A",
                         StockRegisterTransType = VoucherType.StockAdjustmentVoucher_TYPE,
                         StockRegisterUnitID = item.StockAdjustmentVoucherDetailsUnitId,
                         StockRegisterLocationID = stockAdjustmentVoucher.StockAdjustmentVoucherLocationId,
                         StockRegisterDelStatus = false,
-                    });
-                }
+                    };
+                }).ToList();
+
                 _stockRegisterRepo.InsertList(stockReg);
 
+                
                 //
 
                 _stockAdjustmentVoucherRepo.TransactionCommit();
