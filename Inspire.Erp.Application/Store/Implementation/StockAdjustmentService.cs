@@ -99,11 +99,11 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                     // Calculate SSIN and Sout using ternary operators
                     var SSIN = item.StockAdjustmentVoucherDetailsAdjQty > 0
-                        ? item.StockAdjustmentVoucherDetailsAdjQty * (decimal)(converontype)
+                        ? (decimal)item.StockAdjustmentVoucherDetailsAdjQty * (decimal)(converontype)
                         : 0;
 
                     var Sout = item.StockAdjustmentVoucherDetailsAdjQty <= 0
-                        ? item.StockAdjustmentVoucherDetailsAdjQty * (decimal)(converontype)
+                        ? (decimal)item.StockAdjustmentVoucherDetailsAdjQty * (decimal)(converontype)
                         : 0;
 
                     return new StockRegister
@@ -112,12 +112,12 @@ namespace Inspire.Erp.Application.Store.Implementation
                         StockRegisterRefVoucherNo = stockAdjustmentVoucher.StockAdjustmentVoucherSaNo,
                         StockRegisterVoucherDate = stockAdjustmentVoucher.StockAdjustmentVoucherSaDate,
                         StockRegisterMaterialID = item.StockAdjustmentVoucherDetailsMaterialId,
-                        StockRegisterQuantity = item.StockAdjustmentVoucherDetailsAdjQty * (decimal)(converontype),
+                        StockRegisterQuantity = (decimal)item.StockAdjustmentVoucherDetailsAdjQty * (decimal)(converontype),
                         StockRegisterSIN = SSIN,
                         StockRegisterSout = Sout,
                         StockRegisterRate = Convert.ToDecimal(avgrate),
-                        StockRegisterAmount = item.StockAdjustmentVoucherDetailsAdjQty * (decimal)(converontype),
-                        StockRegisterFCAmount = item.StockAdjustmentVoucherDetailsAdjQty * (decimal)(converontype),
+                        StockRegisterAmount = (decimal)item.StockAdjustmentVoucherDetailsAdjQty * (decimal)(converontype),
+                        StockRegisterFCAmount = (decimal)item.StockAdjustmentVoucherDetailsAdjQty * (decimal)(converontype),
                         StockRegisterAssignedDate = DateTime.Now.Date,
                         StockRegisterStatus = "A",
                         StockRegisterTransType = VoucherType.StockAdjustmentVoucher_TYPE,
@@ -278,11 +278,11 @@ namespace Inspire.Erp.Application.Store.Implementation
                                   SANumber = sav.StockAdjustmentVoucherSaNo,
                                   JobName= sbgj.JobMasterJobName,
                                   ItemName=imsvg.ItemMasterItemName,
-                                  ManualQuantity =savdg.StockAdjustmentVoucherDetailsManualQty,
-                                  CostPrice = savdg.StockAdjustmentVoucherDetailsCosePrice,
+                                  ManualQuantity =(double)savdg.StockAdjustmentVoucherDetailsManualQty,
+                                  CostPrice = (double)savdg.StockAdjustmentVoucherDetailsCosePrice,
                                   AdjustedQuantity = (double) savdg.StockAdjustmentVoucherDetailsAdjQty,
-                                  AdjustedValue=savdg.StockAdjustmentVoucherDetailsCosePrice * (double)savdg.StockAdjustmentVoucherDetailsAdjQty,
-                                  ExistingQuantity=savdg.StockAdjustmentVoucherDetailsManualQty-(double)savdg.StockAdjustmentVoucherDetailsAdjQty
+                                  AdjustedValue= (double)(savdg.StockAdjustmentVoucherDetailsCosePrice * savdg.StockAdjustmentVoucherDetailsAdjQty??0),
+                                  ExistingQuantity= (double)(savdg.StockAdjustmentVoucherDetailsManualQty-savdg.StockAdjustmentVoucherDetailsAdjQty??0)
                               })
 
                      .OrderBy(t => t.JobName).ToListAsync();
