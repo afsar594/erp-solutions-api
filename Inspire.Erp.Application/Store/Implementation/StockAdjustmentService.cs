@@ -92,7 +92,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 //stock register
                 //
 
-                var stockReg = stockAdjustmentVoucher.stockAdjustmentVoucherDetails.Select(item =>
+                var stockReg = stockAdjustmentVoucherDetails.Select(item =>
                 {
                     var avgrate = item.StockAdjustmentVoucherDetailsCosePrice ?? 1;
                     var converontype = this.getConverionTypebyUnitId(item.StockAdjustmentVoucherDetailsMaterialId, item.StockAdjustmentVoucherDetailsUnitId);
@@ -112,18 +112,19 @@ namespace Inspire.Erp.Application.Store.Implementation
                         StockRegisterRefVoucherNo = stockAdjustmentVoucher.StockAdjustmentVoucherSaNo,
                         StockRegisterVoucherDate = stockAdjustmentVoucher.StockAdjustmentVoucherSaDate,
                         StockRegisterMaterialID = item.StockAdjustmentVoucherDetailsMaterialId,
-                        StockRegisterQuantity = (decimal)item.StockAdjustmentVoucherDetailsAdjQty * (decimal)(converontype),
+                        StockRegisterQuantity = Convert.ToDecimal(item.StockAdjustmentVoucherDetailsAdjQty??0) * (decimal)(converontype),
                         StockRegisterSIN = SSIN,
                         StockRegisterSout = Sout,
                         StockRegisterRate = Convert.ToDecimal(avgrate),
-                        StockRegisterAmount = (decimal)item.StockAdjustmentVoucherDetailsAdjQty * (decimal)(converontype),
-                        StockRegisterFCAmount = (decimal)item.StockAdjustmentVoucherDetailsAdjQty * (decimal)(converontype),
+                        StockRegisterAmount = Convert.ToDecimal(item.StockAdjustmentVoucherDetailsAdjQty??0) * (decimal)(converontype),
+                        StockRegisterFCAmount = Convert.ToDecimal(item.StockAdjustmentVoucherDetailsAdjQty??0) * (decimal)(converontype),
                         StockRegisterAssignedDate = DateTime.Now.Date,
                         StockRegisterStatus = "A",
                         StockRegisterTransType = VoucherType.StockAdjustmentVoucher_TYPE,
                         StockRegisterUnitID = item.StockAdjustmentVoucherDetailsUnitId,
                         StockRegisterLocationID = stockAdjustmentVoucher.StockAdjustmentVoucherLocationId,
                         StockRegisterDelStatus = false,
+                        StockRegisterStoreID=0
                     };
                 }).ToList();
 
@@ -146,7 +147,12 @@ namespace Inspire.Erp.Application.Store.Implementation
         {
             try
             {
-                return (decimal)_UnitDetailsRepository.GetAsQueryable().FirstOrDefault(x => x.UnitDetailsItemId == itemid && x.UnitDetailsUnitId == unitDetailsid).UnitDetailsConversionType;
+                var convT = _UnitDetailsRepository.GetAsQueryable().FirstOrDefault(x => x.UnitDetailsItemId == itemid && x.UnitDetailsUnitId == unitDetailsid);
+                if( convT == null )
+                {
+                    return 0;
+                }
+                return (decimal)convT.UnitDetailsConversionType;
             }
             catch
             {
