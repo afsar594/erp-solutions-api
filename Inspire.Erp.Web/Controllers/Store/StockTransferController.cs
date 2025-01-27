@@ -296,9 +296,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 departmentMasters = departmentMasters
             };
             return objresponse;
-        }
-
-        
+        }        
         [HttpGet]
         [Route("getStockTransferReport")]
         public async Task<ResponseInfo> getStockTransferReport(int tolocation, int fromlocation)

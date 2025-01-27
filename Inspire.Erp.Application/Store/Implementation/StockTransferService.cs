@@ -492,7 +492,7 @@ namespace Inspire.Erp.Application.Store.Implementation
         {
             var objresponse = new ResponseInfo();
             var query = (from st in _StockTransferResp.GetAsQueryable()
-                         join sd in _StockTransferDetailRepo.GetAsQueryable() on st.StockTransferId equals sd.StockTransferDetailsStId
+                         join sd in _StockTransferDetailRepo.GetAsQueryable() on st.StockTransferId equals sd.StockTransferId
                          join im in _itemMasterRepo.GetAsQueryable() on (int)sd.StockTransferDetailsMaterialId equals im.ItemMasterItemId
                          where (
                             (tolocation == 0 || st.StockTransferLocationIdFrom >= fromlocation) &&
@@ -501,7 +501,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                          select new StockTransferReport
                          {
                              StockTransferVoucherNo = st.StockTransferVoucherNo,
-                             StockTransferStDate = st.StockTransferApprovedDate,
+                             StockTransferStDate = st.StockTransferStDate,
                              ItemMasteritemName = im.ItemMasterItemName,
                          }).ToList();
 
