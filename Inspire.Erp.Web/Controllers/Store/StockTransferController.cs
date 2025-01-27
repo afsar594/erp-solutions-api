@@ -296,7 +296,7 @@ namespace Inspire.Erp.Web.Controllers.Store
             return objresponse;
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("StockTransferReport")]
         public ResponseInfo StockTransferReport(string? tolocation, string? fromlocation)
         {
