@@ -26,6 +26,7 @@ namespace Inspire.Erp.Application.Store.Implementation
         private readonly IRepository<VouchersNumbers> _VoucherNumberRepo;
         private readonly IRepository<StockItemResponse> _StockItemResponse;
         private readonly IRepository<StockTransferResponseModel> _StockTransferResponse;
+        private readonly IRepository<StockTransfer> _StockTransferResp;
         private readonly IRepository<StockTransferDetails> _StockTransferDetailRepo;
         private readonly IRepository<StockRegister> _StockRegisterRepo;
         private readonly IRepository<ItemMaster> _itemMasterRepo;
@@ -43,7 +44,7 @@ namespace Inspire.Erp.Application.Store.Implementation
             IRepository<ProgramSettings> programsettingsRepository,
             InspireErpDBContext context,
             IRepository<ItemMaster> itemMasterRepository,
-            IUtilityService utilityService, IRepository<ItemMaster> itemMasterRepo)
+            IUtilityService utilityService, IRepository<ItemMaster> itemMasterRepo, IRepository<StockTransfer> StockTransferResp)
         {
             _StockRegisterRepo = StockRegisterRepo;
             _VoucherNumberRepo = VoucherNumberRepo;
@@ -57,6 +58,7 @@ namespace Inspire.Erp.Application.Store.Implementation
             _itemMasterRepository = itemMasterRepository;
             _utilityService = utilityService;
             _itemMasterRepo = itemMasterRepo;
+            _StockTransferResp  = StockTransferResp;
 
         }
       
@@ -502,7 +504,28 @@ namespace Inspire.Erp.Application.Store.Implementation
             }
         }
 
-       
+        public async Task<ResponseInfo> getStockTransferReport(int tolocation, int fromlocation)
+        {
+            var objresponse = new ResponseInfo();
+            var query = (from st in _StockTransferResp.GetAsQueryable()
+                         join sd in _StockTransferDetailRepo.GetAsQueryable() on st.StockTransferId equals sd.StockTransferId
+                         join im in _itemMasterRepo.GetAsQueryable() on (int)sd.StockTransferDetailsMaterialId equals im.ItemMasterItemId
+                         where (
+                            (tolocation == 0 || st.StockTransferLocationIdFrom >= fromlocation) &&
+                            (fromlocation == 0 || st.StockTransferLocationIdTo <= tolocation))
+
+                         select new StockTransferReport
+                         {
+                             StockTransferVoucherNo = st.StockTransferVoucherNo,
+                             StockTransferStDate = st.StockTransferStDate,
+                             ItemMasteritemName = im.ItemMasterItemName,
+                         }).ToList();
+
+
+            objresponse.ResultSet = query;
+            return objresponse;
+        }   
+
     }
   
 }

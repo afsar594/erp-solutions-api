@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inspire.Erp.Domain.Entities
 {
-    public partial class StockTransferReport
+    public  class StockTransferReport
     {
 
         public string StockTransferVoucherNo { get; set; }
@@ -14,11 +14,5 @@ namespace Inspire.Erp.Domain.Entities
      
 
     }
-    public partial class StockTransferParamter
-    {
-
-      
-        public string? StocklcationTo { get; set; }
-        public string? StocklcationFrom { get; set; }
-    }
+   
 }
