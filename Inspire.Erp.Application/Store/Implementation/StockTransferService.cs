@@ -254,20 +254,50 @@ namespace Inspire.Erp.Application.Store.Implementation
         public ResponseInfo getStockitembyId(int id)
         {
             var obj = new ResponseInfo();
-           var data = _StockRegisterRepo.GetAsQueryable().Where(i=>i.StockRegisterMaterialID == id).Select(m=> new {
-           m.StockRegisterMaterialID,
-           m.StockRegisterQuantity,
-           m.StockRegisterRate,
-           m.StockRegisterUnitID,           
-           }).FirstOrDefault();
-            obj.IsSuccess = true;   
+            var data = _StockRegisterRepo.GetAsQueryable().Where(i => i.StockRegisterMaterialID == id).Select(m => new
+            {
+                m.StockRegisterMaterialID,
+                m.StockRegisterQuantity,
+                m.StockRegisterRate,
+                m.StockRegisterUnitID,
+            }).FirstOrDefault();
+            obj.IsSuccess = true;
             obj.ResultSet = data;
             return obj;
         }
 
+        public List<stockRegisterClass> getStockitembyIds(int ids)
+        {
+            List<stockRegisterClass> itemMaster;
+            try
+            {
+                itemMaster = _StockRegisterRepo.GetAsQueryable().Where(k => k.StockRegisterMaterialID == Convert.ToInt32(ids)
+               ).Select(k => new stockRegisterClass
+                {
+                   StockRegisterMaterialID = (int)k.StockRegisterMaterialID,
+                   StockRegisterQuantity = (int)k.StockRegisterQuantity,
+                   StockRegisterRate = (int)k.StockRegisterRate,
+                   StockRegisterUnitID = (int)k.StockRegisterUnitID
+                   
+                }).AsEnumerable().OrderBy(x => x.StockRegisterMaterialID).AsEnumerable().ToList();
 
+                var allUnitDetails = _UnitDetailsRepository.GetAll().ToList();
+                foreach (var item in itemMaster)
+                {
+                    item.UnitDetails = allUnitDetails.Where(c => c.UnitDetailsItemId == item.StockRegisterMaterialID).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
 
-
+            }
+            finally
+            {
+            }
+            itemMaster = itemMaster.OrderBy(sm => sm.StockRegisterMaterialID).ToList();
+            return itemMaster;
+        }
         public StockTransferModel GetSavedStockTransferDetails(int pvno)
         {
             StockTransferModel issueVoucherModel = new StockTransferModel();            
