@@ -11,7 +11,9 @@ namespace Inspire.Erp.Domain.Entities
         public string StockTransferVoucherNo { get; set; }
         public DateTime? StockTransferStDate { get; set; }
         public string ItemMasteritemName { get; set; }
-     
+        public int? StockTransferLocationIdTo { get; set; }
+        public int? StockTransferLocationIdFrom { get; set; }
+        public string StockTransferStatus { get; set; }
 
     }
    
