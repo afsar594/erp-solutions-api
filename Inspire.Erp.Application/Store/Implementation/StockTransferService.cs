@@ -58,10 +58,10 @@ namespace Inspire.Erp.Application.Store.Implementation
             _itemMasterRepository = itemMasterRepository;
             _utilityService = utilityService;
             _itemMasterRepo = itemMasterRepo;
-            _StockTransferResp  = StockTransferResp;
+            _StockTransferResp = StockTransferResp;
 
         }
-      
+
         public async Task<Response<decimal>> getStockItemResponse(int? itemId, int? locationId)
         {
             try
@@ -76,9 +76,9 @@ namespace Inspire.Erp.Application.Store.Implementation
                 {
                     list = list.Where(a => a.StockRegisterLocationID == locationId);
                 }
-                 currStock = list.Select(x => new 
+                currStock = list.Select(x => new
                 {
-                    x.StockRegisterMaterialID,                    
+                    x.StockRegisterMaterialID,
                     StockIn = x.StockRegisterSIN,
                     StockOut = x.StockRegisterSout
                 }).Sum(x => (x.StockIn ?? 0) - (x.StockOut ?? 0));
@@ -228,7 +228,7 @@ namespace Inspire.Erp.Application.Store.Implementation
         public IEnumerable<StockTransfer> DeleteStockTransfers(string Id)
         {
             try
-            {                
+            {
                 var dataObj = _StockTransferRepo.GetAsQueryable().Where(o => o.StockTransferVoucherNo == Id).FirstOrDefault();
                 dataObj.StockTransferDelStatus = true;
                 var detailData = _StockTransferDetailRepo.GetAsQueryable().Where(o => o.StockTransferDetailsSNo == Id).ToList();
@@ -300,7 +300,7 @@ namespace Inspire.Erp.Application.Store.Implementation
         }
         public StockTransferModel GetSavedStockTransferDetails(int pvno)
         {
-            StockTransferModel issueVoucherModel = new StockTransferModel();            
+            StockTransferModel issueVoucherModel = new StockTransferModel();
             issueVoucherModel.stockTransfer = _StockTransferRepo.GetAsQueryable().Where(k => k.StockTransferId == pvno).SingleOrDefault();
             issueVoucherModel.stockTransferDetails = _StockTransferDetailRepo.GetAsQueryable().Where(x => x.StockTransferDetailsSNo == issueVoucherModel.stockTransfer.StockTransferVoucherNo && (x.StockTransferDetailsDelStatus == false || x.StockTransferDetailsDelStatus == null)).OrderBy(x => x.StockTransferDetailsSNo).AsEnumerable().ToList();
             return issueVoucherModel;
@@ -534,28 +534,33 @@ namespace Inspire.Erp.Application.Store.Implementation
             }
         }
 
-        public async Task<ResponseInfo> getStockTransferReport(int tolocation, int fromlocation)
+        public async Task<ResponseInfo> getStockTransferReport(reportModel model)
         {
             var objresponse = new ResponseInfo();
             var query = (from st in _StockTransferResp.GetAsQueryable()
                          join sd in _StockTransferDetailRepo.GetAsQueryable() on st.StockTransferId equals sd.StockTransferId
                          join im in _itemMasterRepo.GetAsQueryable() on (int)sd.StockTransferDetailsMaterialId equals im.ItemMasterItemId
                          where (
-                            (tolocation == 0 || st.StockTransferLocationIdFrom >= fromlocation) &&
-                            (fromlocation == 0 || st.StockTransferLocationIdTo <= tolocation))
+                            (model.fromLocation == 0 || st.StockTransferLocationIdFrom >= model.fromLocation) &&
+                            (model.toLocation == 0 || st.StockTransferLocationIdTo <= model.toLocation)
+                            && (model.fromdate == null || st.StockTransferStDate >= model.fromdate)
+                            && (model.todate == null || st.StockTransferStDate <= model.todate) && st.StockTransferDelStatus != true)
 
                          select new StockTransferReport
                          {
                              StockTransferVoucherNo = st.StockTransferVoucherNo,
                              StockTransferStDate = st.StockTransferStDate,
                              ItemMasteritemName = im.ItemMasterItemName,
+                             StockTransferLocationIdFrom = st.StockTransferLocationIdFrom,
+                             StockTransferLocationIdTo = st.StockTransferLocationIdTo,
+                             StockTransferStatus = st.StockTransferStatus,
                          }).ToList();
 
 
             objresponse.ResultSet = query;
             return objresponse;
-        }   
+        }
 
     }
-  
+
 }

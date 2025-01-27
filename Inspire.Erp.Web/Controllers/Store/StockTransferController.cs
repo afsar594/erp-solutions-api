@@ -299,11 +299,11 @@ namespace Inspire.Erp.Web.Controllers.Store
             };
             return objresponse;
         }        
-        [HttpGet]
+        [HttpPost]
         [Route("getStockTransferReport")]
-        public async Task<ResponseInfo> getStockTransferReport(int tolocation, int fromlocation)
+        public async Task<ResponseInfo> getStockTransferReport(reportModel model) 
         {
-            return await _st.getStockTransferReport(tolocation, fromlocation);
+            return await _st.getStockTransferReport(model);
         }
 
         [HttpGet]
