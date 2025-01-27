@@ -21,6 +21,9 @@ namespace Inspire.Erp.Domain.Entities
         public bool? StockTransferDetailsDelStatus { get; set; }
         
         public decimal? StockTransferDetailsCostPrice { get; set; }
+
+        public bool transferstatus { get; set; }
+        public decimal? balanceqty { get; set; }
         [NotMapped]
         public virtual StockTransfer StockTransferDetailsNoNavigation { get; set; }
     }

@@ -15540,6 +15540,8 @@ namespace Inspire.Erp.Infrastructure.Database
                    .HasPrincipalKey(p => p.StockTransferVoucherNo)
                    .HasForeignKey(d => d.StockTransferDetailsSNo)
                    .HasConstraintName("FK_Stock_Transfer_Details_IssueVoucher1");
+                entity.Property(e => e.transferstatus).HasColumnName("transferstatus");
+                entity.Property(e => e.balanceqty).HasColumnName("balanceqty");
 
             });
 
