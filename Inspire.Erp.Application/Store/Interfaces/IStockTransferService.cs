@@ -1,6 +1,7 @@
 ﻿using Inspire.Erp.Application.Common;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Modals;
+using Inspire.Erp.Domain.Modals.Common;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -26,5 +27,6 @@ namespace Inspire.Erp.Application.Store.Interface
         public IEnumerable<StockTransfer> GetStockTransfer();
         public StockTransferModel GetSavedStockTransferDetails(int pvno);
         public IEnumerable<StockTransfer> DeleteStockTransfers(string Id);
+        public ResponseInfo getStockitembyId(int Id);
     }
 }

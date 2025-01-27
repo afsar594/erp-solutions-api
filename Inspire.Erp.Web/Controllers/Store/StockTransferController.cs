@@ -131,6 +131,7 @@ namespace Inspire.Erp.Web.Controllers.Store
 
             return apiResponse;
         }
+
         [HttpDelete]
         [Route("DeleteStockTransfers")]
         public IActionResult DeleteStockTransfers(string Id)
@@ -325,5 +326,14 @@ namespace Inspire.Erp.Web.Controllers.Store
 
         }
 
-      }
+        [HttpGet]
+        [Route("getStockitembyId")]
+        public ResponseInfo getStockitembyId(int Id)
+        {
+            var objresponse = new ResponseInfo();
+            objresponse = _st.getStockitembyId(Id);
+            return objresponse;
+        }
+
+    }
  }

@@ -5,6 +5,7 @@ using Inspire.Erp.Domain.DTO;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Domain.Modals;
+using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Infrastructure.Database;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.AspNetCore.Mvc;
@@ -247,6 +248,22 @@ namespace Inspire.Erp.Application.Store.Implementation
                 throw ex;
             }
         }
+
+        public ResponseInfo getStockitembyId(int id)
+        {
+            var obj = new ResponseInfo();
+           var data = _StockRegisterRepo.GetAsQueryable().Where(i=>i.StockRegisterMaterialID == id).Select(m=> new {
+           m.StockRegisterMaterialID,
+           m.StockRegisterQuantity,
+           m.StockRegisterRate,
+           m.StockRegisterUnitID,           
+           }).FirstOrDefault();
+            obj.IsSuccess = true;   
+            obj.ResultSet = data;
+            return obj;
+        }
+
+
 
 
         public StockTransferModel GetSavedStockTransferDetails(int pvno)
