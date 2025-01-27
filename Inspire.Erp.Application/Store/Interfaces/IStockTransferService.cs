@@ -27,6 +27,7 @@ namespace Inspire.Erp.Application.Store.Interface
         public IEnumerable<StockTransfer> GetStockTransfer();
         public StockTransferModel GetSavedStockTransferDetails(int pvno);
         public IEnumerable<StockTransfer> DeleteStockTransfers(string Id);
+        public ResponseInfo getStockitembyId(int Id);
         public Task<ResponseInfo> getStockTransferReport(int tolocation, int fromlocatio);
     }
 }

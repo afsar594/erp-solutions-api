@@ -305,5 +305,13 @@ namespace Inspire.Erp.Web.Controllers.Store
             return await _st.getStockTransferReport(tolocation, fromlocation);
         }
 
+        [HttpGet]
+        [Route("getStockitembyId")]
+        public ResponseInfo getStockitembyId(int Id)
+        {
+            var objresponse = new ResponseInfo();
+            objresponse = _st.getStockitembyId(Id);
+            return objresponse;
+        }
     }
  }
