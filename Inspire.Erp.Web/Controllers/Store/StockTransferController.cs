@@ -28,6 +28,7 @@ namespace Inspire.Erp.Web.Controllers.Store
         private IStockTransferService _st;
         private readonly IMapper _mapper;
         private readonly IRepository<StockTransferResponseModel> _StockTransferResponse;
+        private readonly IRepository<StockTransfer> _StockTransferRespons;
         private readonly IRepository<StockTransferDetails> _StockTransferDetailRepo;
         private readonly IRepository<ItemMaster> _itemMasterRepo;
         private IRepository<JobMaster> jobrepository; private IRepository<CustomerMaster> _customerMasterRepository; private IRepository<DepartmentMaster> departmentrepository;
@@ -35,7 +36,7 @@ namespace Inspire.Erp.Web.Controllers.Store
         public StockTransferController(IStockTransferService st, IMapper mapper, IRepository<JobMaster> _jobrepository, IRepository<LocationMaster> _locationrepository
             , IRepository<CustomerMaster> customerMasterRepository, IRepository<DepartmentMaster> _departmentrepository
             , IRepository<ItemMaster> _itemrepository, IRepository<UnitMaster> _unitrepository, IRepository<StockTransferResponseModel> StockTransferResponse,
-            IRepository<StockTransferDetails> StockTransferDetailRepo, IRepository<ItemMaster> itemMasterRepo)
+            IRepository<StockTransferDetails> StockTransferDetailRepo, IRepository<ItemMaster> itemMasterRepo, IRepository<StockTransfer> StockTransferRespons)
         {
             _st = st;
             _mapper = mapper;
@@ -44,6 +45,7 @@ namespace Inspire.Erp.Web.Controllers.Store
             _StockTransferResponse = StockTransferResponse;
             _StockTransferDetailRepo = StockTransferDetailRepo;
             _itemMasterRepo = itemMasterRepo;
+            _StockTransferRespons = StockTransferRespons;
         }
 
         [HttpGet("getStockItemsList")]
@@ -297,25 +299,26 @@ namespace Inspire.Erp.Web.Controllers.Store
         }
 
         [HttpGet]
-        [Route("StockTransferReport")]
-        public ResponseInfo StockTransferReport(string? tolocation, string? fromlocation)
+        [Route("getStockTransferReport")]
+        public ResponseInfo getStockTransferReport(int tolocation, int fromlocation)
         {
             var objresponse = new ResponseInfo();
 
-            var query = (from st in _StockTransferResponse.GetAsQueryable().Where(a =>
-                         (tolocation == null || a.Stock_Transfer_Location_ID_To.CompareTo(tolocation) >= 0) &&
-                         (fromlocation == null || a.Stock_Transfer_Location_ID_To.CompareTo(fromlocation) <= 0))
 
-                         join sd in _StockTransferDetailRepo.GetAsQueryable() on st.Stock_Transfer_STID equals sd.StockTransferId
-                         join im in _itemMasterRepo.GetAsQueryable() on (long)sd.StockTransferDetailsMaterialId equals im.ItemMasterItemId
-                          select new StockTransferReport
-                         {
-                             StockTransferVoucherNo = st.Stock_Transfer_STVNo,
-                             StockTransferStDate = st.Stock_Transfer_ST_DATE,
-                             ItemMasteritemName = im.ItemMasterItemName,
-                         })
-                        .OrderBy(x => x.ItemMasteritemName)
-                        .ToList();
+
+            var query = (from st in _StockTransferRespons.GetAsQueryable().AsTracking()
+                        join sd in _StockTransferDetailRepo.GetAsQueryable().AsTracking() on st.StockTransferId equals sd.StockTransferDetailsStId
+                        join im in _itemMasterRepo.GetAsQueryable().AsTracking() on (int)sd.StockTransferDetailsMaterialId equals im.ItemMasterItemId
+                        where (
+                           (tolocation == 0 || st.StockTransferLocationIdFrom >= fromlocation) &&
+                           (fromlocation == 0 || st.StockTransferLocationIdTo <= tolocation))
+
+                        select new StockTransferReport
+                        {
+                            StockTransferVoucherNo = st.StockTransferVoucherNo,
+                            StockTransferStDate = st.StockTransferApprovedDate,
+                            ItemMasteritemName = im.ItemMasterItemName,
+                        }).ToList();
 
              objresponse.ResultSet = query;
             return objresponse;
