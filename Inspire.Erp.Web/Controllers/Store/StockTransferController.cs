@@ -298,32 +298,13 @@ namespace Inspire.Erp.Web.Controllers.Store
             return objresponse;
         }
 
+        
         [HttpGet]
         [Route("getStockTransferReport")]
-        public ResponseInfo getStockTransferReport(int tolocation, int fromlocation)
+        public async Task<ResponseInfo> getStockTransferReport(int tolocation, int fromlocation)
         {
-            var objresponse = new ResponseInfo();
-
-
-
-            var query = (from st in _StockTransferRespons.GetAsQueryable().AsTracking()
-                        join sd in _StockTransferDetailRepo.GetAsQueryable().AsTracking() on st.StockTransferId equals sd.StockTransferDetailsStId
-                        join im in _itemMasterRepo.GetAsQueryable().AsTracking() on (int)sd.StockTransferDetailsMaterialId equals im.ItemMasterItemId
-                        where (
-                           (tolocation == 0 || st.StockTransferLocationIdFrom >= fromlocation) &&
-                           (fromlocation == 0 || st.StockTransferLocationIdTo <= tolocation))
-
-                        select new StockTransferReport
-                        {
-                            StockTransferVoucherNo = st.StockTransferVoucherNo,
-                            StockTransferStDate = st.StockTransferApprovedDate,
-                            ItemMasteritemName = im.ItemMasterItemName,
-                        }).ToList();
-
-             objresponse.ResultSet = query;
-            return objresponse;
-
+            return await _st.getStockTransferReport(tolocation, fromlocation);
         }
 
-      }
+    }
  }
