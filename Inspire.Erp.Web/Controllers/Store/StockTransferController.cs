@@ -13,6 +13,7 @@ using Inspire.Erp.Web.ViewModels;
 using Inspire.Erp.Web.ViewModels.Store;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,16 +27,23 @@ namespace Inspire.Erp.Web.Controllers.Store
     {
         private IStockTransferService _st;
         private readonly IMapper _mapper;
+        private readonly IRepository<StockTransferResponseModel> _StockTransferResponse;
+        private readonly IRepository<StockTransferDetails> _StockTransferDetailRepo;
+        private readonly IRepository<ItemMaster> _itemMasterRepo;
         private IRepository<JobMaster> jobrepository; private IRepository<CustomerMaster> _customerMasterRepository; private IRepository<DepartmentMaster> departmentrepository;
         private IRepository<LocationMaster> locationrepository; private IRepository<ItemMaster> itemrepository; private IRepository<UnitMaster> unitrepository;
         public StockTransferController(IStockTransferService st, IMapper mapper, IRepository<JobMaster> _jobrepository, IRepository<LocationMaster> _locationrepository
             , IRepository<CustomerMaster> customerMasterRepository, IRepository<DepartmentMaster> _departmentrepository
-            , IRepository<ItemMaster> _itemrepository, IRepository<UnitMaster> _unitrepository)
+            , IRepository<ItemMaster> _itemrepository, IRepository<UnitMaster> _unitrepository, IRepository<StockTransferResponseModel> StockTransferResponse,
+            IRepository<StockTransferDetails> StockTransferDetailRepo, IRepository<ItemMaster> itemMasterRepo)
         {
             _st = st;
             _mapper = mapper;
             jobrepository = _jobrepository; locationrepository = _locationrepository; _customerMasterRepository = customerMasterRepository;
             itemrepository = _itemrepository; unitrepository = _unitrepository; departmentrepository = _departmentrepository;
+            _StockTransferResponse = StockTransferResponse;
+            _StockTransferDetailRepo = StockTransferDetailRepo;
+            _itemMasterRepo = itemMasterRepo;
         }
 
         [HttpGet("getStockItemsList")]
@@ -287,5 +295,32 @@ namespace Inspire.Erp.Web.Controllers.Store
             };
             return objresponse;
         }
-    }
-}
+
+        [HttpPost]
+        [Route("StockTransferReport")]
+        public ResponseInfo StockTransferReport(string? tolocation, string? fromlocation)
+        {
+            var objresponse = new ResponseInfo();
+
+            var query = (from st in _StockTransferResponse.GetAsQueryable().Where(a =>
+                         (tolocation == null || a.Stock_Transfer_Location_ID_To.CompareTo(tolocation) >= 0) &&
+                         (fromlocation == null || a.Stock_Transfer_Location_ID_To.CompareTo(fromlocation) <= 0))
+
+                         join sd in _StockTransferDetailRepo.GetAsQueryable() on st.Stock_Transfer_STID equals sd.StockTransferId
+                         join im in _itemMasterRepo.GetAsQueryable() on (long)sd.StockTransferDetailsMaterialId equals im.ItemMasterItemId
+                          select new StockTransferReport
+                         {
+                             StockTransferVoucherNo = st.Stock_Transfer_STVNo,
+                             StockTransferStDate = st.Stock_Transfer_ST_DATE,
+                             ItemMasteritemName = im.ItemMasterItemName,
+                         })
+                        .OrderBy(x => x.ItemMasteritemName)
+                        .ToList();
+
+             objresponse.ResultSet = query;
+            return objresponse;
+
+        }
+
+      }
+ }

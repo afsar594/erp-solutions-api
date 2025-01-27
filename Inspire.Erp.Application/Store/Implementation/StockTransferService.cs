@@ -27,6 +27,7 @@ namespace Inspire.Erp.Application.Store.Implementation
         private readonly IRepository<StockTransferResponseModel> _StockTransferResponse;
         private readonly IRepository<StockTransferDetails> _StockTransferDetailRepo;
         private readonly IRepository<StockRegister> _StockRegisterRepo;
+        private readonly IRepository<ItemMaster> _itemMasterRepo;
         private IRepository<ProgramSettings> _programsettingsRepository;
         private static string prefix;
         private InspireErpDBContext _context; private IRepository<UnitDetails> _UnitDetailsRepository;
@@ -41,7 +42,7 @@ namespace Inspire.Erp.Application.Store.Implementation
             IRepository<ProgramSettings> programsettingsRepository,
             InspireErpDBContext context,
             IRepository<ItemMaster> itemMasterRepository,
-            IUtilityService utilityService)
+            IUtilityService utilityService, IRepository<ItemMaster> itemMasterRepo)
         {
             _StockRegisterRepo = StockRegisterRepo;
             _VoucherNumberRepo = VoucherNumberRepo;
@@ -54,6 +55,8 @@ namespace Inspire.Erp.Application.Store.Implementation
             prefix = _programsettingsRepository.GetAsQueryable().Where(k => k.ProgramSettingsKeyValue == "HIDE_STOCKTRANSFER").FirstOrDefault().ProgramSettingsTextValue;
             _itemMasterRepository = itemMasterRepository;
             _utilityService = utilityService;
+            _itemMasterRepo = itemMasterRepo;
+
         }
       
         public async Task<Response<decimal>> getStockItemResponse(int? itemId, int? locationId)
@@ -481,5 +484,8 @@ namespace Inspire.Erp.Application.Store.Implementation
 
             }
         }
+
+       
     }
+  
 }
