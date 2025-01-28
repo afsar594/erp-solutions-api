@@ -457,6 +457,7 @@ namespace Inspire.Erp.Infrastructure.Database
             {
                 optionsBuilder.UseSqlServer(this.Configuration["ApplicationSettings:ConnectionString"]);
             }
+            //optionsBuilder.EnableSensitiveDataLogging();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
