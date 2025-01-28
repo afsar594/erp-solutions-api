@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Inspire.Erp.Application.Common;
 using Inspire.Erp.Application.Master;
+using Inspire.Erp.Application.Master.Interfaces;
 using Inspire.Erp.Application.Store.Interface;
 using Inspire.Erp.Application.StoreWareHouse.Interface;
 using Inspire.Erp.Domain.Entities;
@@ -314,15 +315,14 @@ namespace Inspire.Erp.Web.Controllers.Store
             objresponse = _st.getStockitembyId(Id);
             return objresponse;
         }
-
         [HttpGet]
         [Route("getStockitembyIds")]
-        public ApiResponse<stockRegisterClass> getStockitembyIds(int id)
+        public ApiResponse<List<stockRegisterViewModels>> getStockitembyIds(int id)
         {
-            List<stockRegisterClass> listItemnater = _st.getStockitembyIds(id);
+            IEnumerable<stocktransferRegister> listItemnater = _st.getStockitembyIds(id);
 
-            var x = _mapper.Map<stockRegisterClass>(listItemnater);
-            ApiResponse<stockRegisterClass> apiResponse = new ApiResponse<stockRegisterClass>
+            var x = _mapper.Map<List<stockRegisterViewModels>>(listItemnater);
+            ApiResponse<List<stockRegisterViewModels>> apiResponse = new ApiResponse<List<stockRegisterViewModels>>
             {
                 Valid = true,
                 Result = x,
@@ -332,8 +332,5 @@ namespace Inspire.Erp.Web.Controllers.Store
             return apiResponse;
 
         }
-
-
-        
     }
  }
