@@ -316,7 +316,7 @@ namespace Inspire.Erp.Web.Controllers.Store
         }
 
         [HttpGet]
-        [Route("getStockitembyIds/{id}")]
+        [Route("getStockitembyIds")]
         public ApiResponse<stockRegisterClass> getStockitembyIds(int id)
         {
             List<stockRegisterClass> listItemnater = _st.getStockitembyIds(id);
