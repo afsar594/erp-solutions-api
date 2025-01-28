@@ -22,6 +22,7 @@ namespace Inspire.Erp.Domain.Entities
         
         public decimal? StockTransferDetailsCostPrice { get; set; }
 
+        public int? PurchaseRequisitionId { get; set; }
         public bool transferstatus { get; set; }
         public decimal? balanceqty { get; set; }
         [NotMapped]
