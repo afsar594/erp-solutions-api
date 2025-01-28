@@ -315,22 +315,19 @@ namespace Inspire.Erp.Web.Controllers.Store
             objresponse = _st.getStockitembyId(Id);
             return objresponse;
         }
-        [HttpGet]
-        [Route("getStockitembyIds")]
-        public ApiResponse<List<stockRegisterViewModels>> getStockitembyIds(int id)
-        {
-            IEnumerable<stocktransferRegister> listItemnater = _st.getStockitembyIds(id);
-
-            var x = _mapper.Map<List<stockRegisterViewModels>>(listItemnater);
-            ApiResponse<List<stockRegisterViewModels>> apiResponse = new ApiResponse<List<stockRegisterViewModels>>
-            {
-                Valid = true,
-                Result = x,
-                Message = ""
-            };
-
-            return apiResponse;
-
-        }
+        //[HttpGet]
+        //[Route("getStockitembyIds")]
+        //public ApiResponse<List<SRTransferViewModel>> getStockitembyIds(int id)
+        //{
+        //    IEnumerable<stocktransferRegister> listItemnater = _st.getStockitembyIds(id);
+        //    var x = _mapper.Map<List<SRTransferViewModel>>(listItemnater);
+        //    ApiResponse<List<SRTransferViewModel>> apiResponse = new ApiResponse<List<SRTransferViewModel>>
+        //    {
+        //        Valid = true,
+        //        Result = x,
+        //        Message = ""
+        //    };
+        //    return apiResponse;
+        //}
     }
  }

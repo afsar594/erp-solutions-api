@@ -268,10 +268,10 @@ namespace Inspire.Erp.Application.Store.Implementation
 
         public List<stocktransferRegister> getStockitembyIds(int ids)
         {
-            List<stocktransferRegister> itemMaster;
+            List<stocktransferRegister> stockMaster;
             try
             {
-                itemMaster = _StockRegisterRepo.GetAsQueryable().Where(k => k.StockRegisterMaterialID == Convert.ToInt32(ids)
+                stockMaster = _StockRegisterRepo.GetAsQueryable().Where(k => k.StockRegisterMaterialID == Convert.ToInt32(ids)
                ).Select(k => new stocktransferRegister
                {
                    StockRegisterMaterialID = (int)k.StockRegisterMaterialID,
@@ -282,7 +282,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 }).AsEnumerable().OrderBy(x => x.StockRegisterMaterialID).AsEnumerable().ToList();
 
                 var allUnitDetails = _UnitDetailsRepository.GetAll().ToList();
-                foreach (var item in itemMaster)
+                foreach (var item in stockMaster)
                 {
                     item.UnitDetails = allUnitDetails.Where(c => c.UnitDetailsItemId == item.StockRegisterMaterialID).ToList();
                 }
@@ -290,13 +290,12 @@ namespace Inspire.Erp.Application.Store.Implementation
             catch (Exception ex)
             {
                 throw ex;
-
             }
             finally
             {
             }
-            itemMaster = itemMaster.OrderBy(sm => sm.StockRegisterMaterialID).ToList();
-            return itemMaster;
+            stockMaster = stockMaster.OrderBy(sm => sm.StockRegisterMaterialID).ToList();
+            return stockMaster;
         }
         public StockTransferModel GetSavedStockTransferDetails(int pvno)
         {
