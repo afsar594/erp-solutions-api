@@ -271,8 +271,8 @@ namespace Inspire.Erp.Application.Store.Implementation
             List<stocktransferRegister> stockMaster;
             try
             {
-                stockMaster = _StockRegisterRepo.GetAsQueryable().Where(k => k.StockRegisterMaterialID == Convert.ToInt32(ids)
-               ).Select(k => new stocktransferRegister
+                stockMaster = _StockRegisterRepo.GetAsQueryable().Where(k => k.StockRegisterMaterialID == Convert.ToInt32(ids) && (k.StockRegisterDelStatus == false || k.StockRegisterDelStatus == null)
+               && k.StockRegisterTransType != ItemMasterStatus.Group).Select(k => new stocktransferRegister
                {
                    StockRegisterMaterialID = (int)k.StockRegisterMaterialID,
                    StockRegisterQuantity = (int)k.StockRegisterQuantity,
@@ -284,7 +284,8 @@ namespace Inspire.Erp.Application.Store.Implementation
                 var allUnitDetails = _UnitDetailsRepository.GetAll().ToList();
                 foreach (var item in stockMaster)
                 {
-                    item.UnitDetails = allUnitDetails.Where(c => c.UnitDetailsItemId == item.StockRegisterMaterialID).ToList();
+                    item.UnitDetails = allUnitDetails.Where(c => c.UnitDetailsItemId == item.StockRegisterMaterialID)
+                        .ToList();
                 }
             }
             catch (Exception ex)
