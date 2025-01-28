@@ -443,6 +443,9 @@ namespace Inspire.Erp.Infrastructure.Database
         public DbSet<BillofQtyMaster> BillofQtyMaster { get; set; }
         public DbSet<BillOfQTyDetails> BillOfQTyDetails { get; set; }
 
+        public DbSet<FinishedProductMaster> Finish_Product_Master { get; set; }
+        public DbSet<FinishedProductDetails> Finish_Product_Detail { get; set; }
+
         //Hr Document 
         public virtual DbSet<DocumentMaster> DocumentMaster { get; set; }
         public virtual DbSet<HrDocumentStatusMaster> HrDocumentStatusMaster { get; set; }
@@ -18803,6 +18806,81 @@ namespace Inspire.Erp.Infrastructure.Database
                       .WithMany(p => p.BillOfQTyDetails)
                       .HasForeignKey(d => d.BillQtyId)
                       .HasConstraintName("FK_BillofQty_Details_BillofQty_Master");
+            });
+            modelBuilder.Entity<FinishedProductMaster>(entity =>
+            {
+                entity.ToTable("Finish_Product_Master");
+
+                entity.HasKey(e => e.Finish_Product_MasterId);
+
+                entity.Property(e => e.Finish_Product_MasterId)
+                      .HasColumnType("int");
+
+                entity.Property(e => e.Finish_Product_MasterVoucherNo)
+                      .HasMaxLength(50)
+                      .IsUnicode(false);
+
+                entity.Property(e => e.Finish_Product_MasterDate)
+                      .HasColumnType("datetime");
+
+                entity.Property(e => e.Finish_Product_MasterLocationId)
+                      .HasColumnType("int");
+
+                entity.Property(e => e.Finish_Product_MasterNarration)
+                      .HasMaxLength(50)
+                      .IsUnicode(false);
+
+                entity.Property(e => e.Finish_Product_MasterDelStatus)
+                      .HasColumnType("int");
+            });
+
+            modelBuilder.Entity<FinishedProductDetails>(entity =>
+            {
+                entity.ToTable("Finish_Product_Detail");
+
+                entity.HasKey(e => e.Finish_Product_DetailId);
+
+                entity.Property(e => e.Finish_Product_DetailId)
+                      .HasColumnType("int");
+
+                entity.Property(e => e.Finish_Product_MasterId)
+                      .HasColumnType("int");
+
+                entity.Property(e => e.Finish_ProductDetail_itemId)
+                      .HasMaxLength(50) // Corrected to match `nvarchar(50)`
+                      .IsUnicode(false);
+
+                entity.Property(e => e.Finish_Product_Detail_UnitId)
+                      .HasColumnType("int");
+
+                entity.Property(e => e.Finish_Product_Detail_Qty)
+                      .HasColumnType("int");
+
+                entity.Property(e => e.Finish_Product_Detail_Rate)
+                      .HasColumnType("int");
+
+                entity.Property(e => e.Finish_Product_Detail_Amount)
+                      .HasColumnType("int");
+
+                entity.Property(e => e.Finish_ProductDetail_VoucherNo)
+                      .HasMaxLength(50) // Corrected to match `nvarchar(50)`
+                      .IsUnicode(false);
+
+                entity.Property(e => e.Finish_ProductDetail_PartNo)
+                      .HasMaxLength(50) // Corrected to match `nvarchar(50)`
+                      .IsUnicode(false);
+
+                entity.Property(e => e.Finish_Product_Detail_Sno)
+                      .HasColumnType("int");
+
+                entity.Property(e => e.Finish_Product_Detail_DelStatus)
+                      .HasColumnType("int");
+
+                // Configure the foreign key relationship with Finish_Product_Master
+                entity.HasOne(d => d.FinishedProductMaster)
+                      .WithMany(p => p.FinishedProductDetails)
+                      .HasForeignKey(d => d.Finish_Product_MasterId)
+                      .HasConstraintName("FK_Finish_Product_Detail_Finish_Product_Master");
             });
 
             OnModelCreatingPartial(modelBuilder);
