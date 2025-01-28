@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using static Inspire.Erp.Domain.Entities.StoreWareHouse;
 
 namespace Inspire.Erp.Domain.Entities
 {
-    public partial class stockRegisterClass
+    public partial class stocktransferRegister
     {
-        public stockRegisterClass()
+        public stocktransferRegister()
         {
 
             UnitDetails = new List<UnitDetails>();
@@ -20,4 +21,6 @@ namespace Inspire.Erp.Domain.Entities
         public virtual ICollection<UnitDetails> UnitDetails { get; set; }
 
     }
+
+   
 }

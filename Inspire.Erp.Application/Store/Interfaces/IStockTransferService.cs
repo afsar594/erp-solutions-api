@@ -29,7 +29,7 @@ namespace Inspire.Erp.Application.Store.Interface
         public IEnumerable<StockTransfer> DeleteStockTransfers(string Id);
         public ResponseInfo getStockitembyId(int Id);
         public Task<ResponseInfo> getStockTransferReport(reportModel model);
-        public List<stockRegisterClass> getStockitembyIds(int ids);
+        public List<stocktransferRegister> getStockitembyIds(int ids);
 
         
     }

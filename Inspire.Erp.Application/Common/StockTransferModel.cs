@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using static Inspire.Erp.Domain.Entities.StoreWareHouse;
 
 namespace Inspire.Erp.Application.Common
 {
@@ -12,5 +13,14 @@ namespace Inspire.Erp.Application.Common
 
         public List<StockTransferDetails> stockTransferDetails { get; set; }
         public List<StockRegister> stockRegister { get; set; }
+    }
+    public partial class stockRegisterViewModels
+    {
+        public int StockRegisterMaterialID { get; set; }
+        public int? StockRegisterQuantity { get; set; }
+        public int? StockRegisterRate { get; set; }
+        public int? StockRegisterUnitID { get; set; }
+        public List<UnitDetailsViewModel> UnitDetails { get; set; }
+
     }
 }

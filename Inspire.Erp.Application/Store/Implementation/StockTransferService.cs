@@ -266,14 +266,14 @@ namespace Inspire.Erp.Application.Store.Implementation
             return obj;
         }
 
-        public List<stockRegisterClass> getStockitembyIds(int ids)
+        public List<stocktransferRegister> getStockitembyIds(int ids)
         {
-            List<stockRegisterClass> itemMaster;
+            List<stocktransferRegister> itemMaster;
             try
             {
                 itemMaster = _StockRegisterRepo.GetAsQueryable().Where(k => k.StockRegisterMaterialID == Convert.ToInt32(ids)
-               ).Select(k => new stockRegisterClass
-                {
+               ).Select(k => new stocktransferRegister
+               {
                    StockRegisterMaterialID = (int)k.StockRegisterMaterialID,
                    StockRegisterQuantity = (int)k.StockRegisterQuantity,
                    StockRegisterRate = (int)k.StockRegisterRate,
