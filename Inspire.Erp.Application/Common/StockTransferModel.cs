@@ -13,14 +13,5 @@ namespace Inspire.Erp.Application.Common
 
         public List<StockTransferDetails> stockTransferDetails { get; set; }
         public List<StockRegister> stockRegister { get; set; }
-    }
-    public partial class SRTransferViewModel
-    {
-        public int StockRegisterMaterialID { get; set; }
-        public int? StockRegisterQuantity { get; set; }
-        public int? StockRegisterRate { get; set; }
-        public int? StockRegisterUnitID { get; set; }
-        public List<UnitDetailsViewModel> UnitDetails { get; set; }
-
-    }
+    }    
 }
