@@ -15509,6 +15509,7 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnName("Stock_Transfer_Details_BatchCode")
                     .HasMaxLength(50)
                     .IsUnicode(false);
+                entity.Property(e => e.PurchaseRequisitionId).HasColumnName("PurchaseRequisitionId");
 
                 entity.Property(e => e.StockTransferDetailsDelStatus).HasColumnName("Stock_Transfer_Details_DelStatus");
 
