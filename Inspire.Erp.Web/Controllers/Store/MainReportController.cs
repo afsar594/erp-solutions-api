@@ -179,7 +179,7 @@ namespace Inspire.Erp.Web.Controllers.Store
         [HttpPost]
         [Route("MainReport_GetReportPurchaseRequisition_PARAM_CLASS")]
         public ApiResponse<List<ReportPurchaseRequisition>> MainReport_GetReportPurchaseRequisition_PARAM_CLASS([FromBody] PurchaserequisitionReportParametersViewModel voucherCompositeView)
-        {
+       {
             var param1 = _mapper.Map<PurchaserequisitionReportParameters>(voucherCompositeView);
             var param2 = _mapper.Map<List<ViewStockTransferType>>(voucherCompositeView.viewStockTransferType);
 

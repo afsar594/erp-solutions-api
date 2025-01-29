@@ -15,8 +15,8 @@ using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Web.Common;
 using Inspire.Erp.Web.MODULE;
 
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Inspire.Erp.WebReport.ReportEngine;
+//using Microsoft.AspNetCore.Mvc.Rendering;
+//using Inspire.Erp.WebReport.ReportEngine;
 using Inspire.Erp.Domain.Modals.Sales;
 using Inspire.Erp.Web.ViewModels.Accounts;
 using NPOI.SS.Formula.Functions;
