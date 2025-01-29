@@ -922,7 +922,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                             from itemmaster in litemm.DefaultIfEmpty()
                             join um in _unitMasterRepository.GetAll() on svd.SalesVoucherDetailsUnitId equals um.UnitMasterUnitId into lum
                             from unitMaster in lum.DefaultIfEmpty()
-                            join unitDet in _UnitDetailsRepository.GetAll() on new { UnitId = (int)svd.SalesVoucherDetailsUnitId, ItemId = (int)svd.SalesVoucherDetailsMatId }
+                            join unitDet in _UnitDetailsRepository.GetAll() 
+                            on new { UnitId = (int)svd.SalesVoucherDetailsUnitId, ItemId = (int)svd.SalesVoucherDetailsMatId }
                             equals new { UnitId = unitDet.UnitDetailsUnitId, ItemId = (int)unitDet.UnitDetailsItemId } into lud
                             from unitDetail in lud.DefaultIfEmpty()
                             where svd.SalesVoucherDetailsNo != null

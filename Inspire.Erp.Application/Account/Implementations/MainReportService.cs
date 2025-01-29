@@ -17,6 +17,9 @@ using DinkToPdf;
 using SendGrid.Helpers.Mail;
 using Inspire.Erp.Domain.Modals;
 using System.Linq.Dynamic.Core;
+using Inspire.Erp.Application.Settings.Interfaces;
+using System.Diagnostics;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Inspire.Erp.Application.Account.Implementations
 {
@@ -44,14 +47,19 @@ namespace Inspire.Erp.Application.Account.Implementations
         private IRepository<ViewAccountsTransactionsVoucherType> _viewAccountsTransactionsVoucherTypeRepository;
         private IRepository<ReportAccountsTransactions> _reportAccountsTransactionsRepository;
         private IRepository<ReportPurchaseRequisition> _reportPurchaseRequisitionRepository;
+        private IRepository<PurchaseRequisition> _purchaseRequisitionRepository;
+        private IRepository<PurchaseRequisitionDetails> _purchaseRequisitionDRepository;
         private IRepository<ReportPurchaseOrder> _reportPurchaseOrderRepository;
+        private IRepository<LocationMaster> _locMasterRepository;
+        private IRepository<StockTransferDetails> _stdRepository;
+        private IRepository<JobMaster> _jmRepository;
         public MainReportService(
               IRepository<ItemMaster> itemMasterRepository,
               IRepository<ReportStockBaseUnit> reportStockBaseUnitRepository,
             IRepository<ReportStockBaseUnit> reportStockBaseUnitLocationRepository,
+            IRepository<PurchaseRequisition> purchaseRequisitionRepository,
 
-
-
+            IRepository<PurchaseRequisitionDetails> purchaseRequisitionDRepository,
 
               IRepository<ReportSalesVoucher> reportSalesVoucherRepository,
                IRepository<ReportPurchaseVoucher> reportPurchaseVoucherRepository,
@@ -64,7 +72,10 @@ namespace Inspire.Erp.Application.Account.Implementations
                    IRepository<ReportPurchaseOrder> reportPurchaseOderRepository,
                  IRepository<StockRegister> stockRegisterRepository,
                 IRepository<UnitDetails> unitDetailsRepository,
-                IRepository<UnitMaster> unitMasterRepository
+                IRepository<UnitMaster> unitMasterRepository,
+                IRepository<LocationMaster> locMasterRepository,
+                IRepository<StockTransferDetails> stdRepository,
+                IRepository<JobMaster> jmRepository
 
                   )
         {
@@ -87,6 +98,11 @@ namespace Inspire.Erp.Application.Account.Implementations
             _stockRegisterRepository = stockRegisterRepository;
             _unitDetailsRepository = unitDetailsRepository;
             _unitMasterRepository = unitMasterRepository;
+            _purchaseRequisitionRepository = purchaseRequisitionRepository;
+            _purchaseRequisitionDRepository = purchaseRequisitionDRepository;
+            _locMasterRepository = locMasterRepository;
+            _stdRepository = stdRepository;
+            _jmRepository = jmRepository;
         }
 
         public IEnumerable<ReportStockBaseUnit> MainReport_GetReportStockLedger_PARAM_CLASS(StockLedgerParameters stockLedgerParameters, List<ViewStockTransferType> viewStockTransferType)
@@ -1125,6 +1141,66 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                         && (k.PurchaseRequisitionDate.Date <= purchaserequisitionReportParameters.rptDtpTo.Value.Date))
                         && (k.PurchaseRequisitionDelStatus == false || k.PurchaseRequisitionDelStatus == null)))).OrderBy(x => x.PurchaseRequisitionId).AsEnumerable().ToList();
                 return reportPurchaseRequisition_ALL;
+            }
+        }
+
+
+
+        public async Task<IQueryable> GetReportPurchaseRequisition()
+        {
+            try
+            {
+
+                var data = (from pr in _purchaseRequisitionRepository.GetAsQueryable()
+                            join prd in _purchaseRequisitionDRepository.GetAsQueryable() on pr.PurchaseRequisitionId equals prd.PurchaseRequisitionId
+                            join im in _itemMasterRepository.GetAsQueryable() on prd.PurchaseRequisitionDetailsMatId equals im.ItemMasterItemId
+                            join lm in _locMasterRepository.GetAsQueryable() on pr.PurchaseRequisitionLocationId equals lm.LocationMasterLocationId
+                            join std in _stdRepository.GetAsQueryable() 
+
+                            on new { unitId = (decimal)pr.PurchaseRequisitionId, itemId = im.ItemMasterItemId } 
+                            equals new { unitId = (decimal)std.PurchaseRequisitionId, itemId = (long)std.StockTransferDetailsMaterialId }
+                             into stdi
+                            from stdij in stdi.DefaultIfEmpty()
+                            join jm in _jmRepository.GetAll() on prd.PurchaseRequisitionDetailsJobId equals jm.JobMasterJobId into jmprd
+                            from jmprdg in jmprd.DefaultIfEmpty()
+
+                            group  new { prd, stdij,lm } by new
+                                   
+                            
+                            {
+                                pr.PurchaseRequisitionId,
+                                pr.PurchaseRequisitionNo,
+                                pr.PurchaseRequisitionDate,
+                                prd.PurchaseRequisitionDetailsMatId,
+                                im.ItemMasterItemName,
+                                prd.PurchaseRequisitionDetailsRate
+
+                            } into grp
+                       
+                             select new
+                            {
+                                 Location =  grp.Max(pc => pc.lm.LocationMasterLocationName),
+                               
+                                 PurchaseRequisitionId =grp.Key.PurchaseRequisitionId,
+                                 PurchaseRequisitionNo = grp.Key.PurchaseRequisitionNo,
+                                 PurchaseRequisitionDate = grp.Key.PurchaseRequisitionDate,
+                                 PurchaseRequisitionDetailsMatId = grp.Key.PurchaseRequisitionDetailsMatId,
+                                 ItemMasterItemName = grp.Key.ItemMasterItemName,
+                                 Qty = grp.Sum(x => x.prd.PurchaseRequisitionDetailsQuantity??0),
+                                 PurchaseRequisitionDetailsRate = grp.Key.PurchaseRequisitionDetailsRate??0,
+                                 Amount = grp.Sum(x => x.prd.PurchaseRequisitionDetailsQuantity ?? 0) * grp.Key.PurchaseRequisitionDetailsRate??0,
+                                // DelvQty= _stdRepository.GetAsQueryable().Where(x=>x.PurchaseRequisitionId==(int)x.PurchaseRequisitionId).Select(y=>y.StockTransferDetailsQty??0),
+                                 DelvQty = grp.Sum(x=>x.stdij.StockTransferDetailsQty??0),
+                                 BalanceQty = (double)grp.Sum(x => x.prd.PurchaseRequisitionDetailsQuantity ?? 0) - grp.Sum(x => x.stdij.StockTransferDetailsQty ?? 0)
+                             }).AsQueryable();
+
+                return data;
+
+             
+            }
+            catch (System.Exception ex)
+            {
+                throw ex;
             }
         }
     }
