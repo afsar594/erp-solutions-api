@@ -617,6 +617,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 {
                     query = query.Where(a => a.PurchaseRequisitionJobId == model.JobId);
                 }
+                if (model.locationId > 0)
+                {
+                    query = query.Where(a => a.PurchaseRequisitionLocationId == model.locationId);
+                }
                 if (model.IsDateChecked)
                 {
                     query = query.Where(a => a.PurchaseRequisitionDate.Date >= model.fromDate.Value && a.PurchaseRequisitionDate.Date <= model.toDate.Value);
