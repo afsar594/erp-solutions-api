@@ -18,7 +18,7 @@ namespace Inspire.Erp.Domain.Entities
         public DateTime? Finish_Product_MasterDate { get; set; }
         public decimal? Finish_Product_MasterLocationId { get; set; }
         public string Finish_Product_MasterNarration { get; set; }
-        public string Finish_Product_MasterDelStatus { get; set; }
+        public decimal Finish_Product_MasterDelStatus { get; set; }
 
         [NotMapped]
         public virtual ICollection<FinishedProductDetails> FinishedProductDetails { get; set; }
