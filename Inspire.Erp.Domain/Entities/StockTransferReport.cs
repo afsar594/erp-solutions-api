@@ -14,6 +14,7 @@ namespace Inspire.Erp.Domain.Entities
         public int? StockTransferLocationIdTo { get; set; }
         public int? StockTransferLocationIdFrom { get; set; }
         public string StockTransferStatus { get; set; }
+        public double? StockTransfertotal { get; set; }
 
     }
    

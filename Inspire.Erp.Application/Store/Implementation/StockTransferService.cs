@@ -10,12 +10,14 @@ using Inspire.Erp.Infrastructure.Database;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Intrinsics.X86;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Inspire.Erp.Application.Store.Implementation
@@ -268,32 +270,64 @@ namespace Inspire.Erp.Application.Store.Implementation
 
         public List<stocktransferRegister> getStockitembyIds(int ids)
         {
+            //List<stocktransferRegister> stockMaster;
+            //try
+            //{
+            //    stockMaster = _StockRegisterRepo.GetAsQueryable()
+            //        .Where(k => k.StockRegisterMaterialID == ids &&
+            //        (k.StockRegisterDelStatus != true || k.StockRegisterDelStatus != null) &&
+            //        k.StockRegisterTransType != ItemMasterStatus.Group).GroupBy(a => a.StockRegisterMaterialID)
+            //        .Select(k => new stocktransferRegister
+            //        {
+            //            StockRegisterMaterialID =(int)k.Key,
+            //            StockRegisterQuantity = (int)k.Sum(x => x.StockRegisterSIN - x.StockRegisterSout),
+            //            StockRegisterRate =(int)k.FirstOrDefault().StockRegisterRate, 
+            //            StockRegisterUnitID = (int)k.FirstOrDefault().StockRegisterUnitID
+            //        })
+            //        .AsEnumerable().OrderBy(x => x.StockRegisterMaterialID)
+            //        .ToList();
+
+            //    var allUnitDetails = _UnitDetailsRepository.GetAsQueryable().Where(a => a.UnitDetailsDelStatus != true && a.UnitDetailsItemId == ids)
+            //        .Select(c=> new
+            //        {
+            //            c.UnitDetailsId,
+            //            c.UnitDetailsUnitId,
+            //            c.UnitDetailsRate,
+            //            c.UnitDetailsConversionType,
+
+            //        }).ToList();               
+            //}
             List<stocktransferRegister> stockMaster;
             try
             {
-                stockMaster = _StockRegisterRepo.GetAsQueryable().Where(k => k.StockRegisterMaterialID == Convert.ToInt32(ids) && (k.StockRegisterDelStatus == false || k.StockRegisterDelStatus == null)
-               && k.StockRegisterTransType != ItemMasterStatus.Group).Select(k => new stocktransferRegister
-               {
-                   StockRegisterMaterialID = (int)k.StockRegisterMaterialID,
-                   StockRegisterQuantity = (int)k.StockRegisterQuantity,
-                   StockRegisterRate = (int)k.StockRegisterRate,
-                   StockRegisterUnitID = (int)k.StockRegisterUnitID
-                   
-                }).AsEnumerable().OrderBy(x => x.StockRegisterMaterialID).AsEnumerable().ToList();
+                 stockMaster = _StockRegisterRepo.GetAsQueryable()
+                    .Where(k =>
+                        k.StockRegisterMaterialID == ids &&
+                        (k.StockRegisterDelStatus != true || k.StockRegisterDelStatus == null) &&
+                        k.StockRegisterTransType != ItemMasterStatus.Group)
+                    .AsEnumerable().GroupBy(k => k.StockRegisterMaterialID ?? 0)
+                    .Select(group => new stocktransferRegister
+                    {
+                        StockRegisterMaterialID = (int)group.Key,
+                        StockRegisterQuantity = (int)group.Sum(x => x.StockRegisterSIN - x.StockRegisterSout),
+                        StockRegisterRate = (int)(group.FirstOrDefault()?.StockRegisterRate ?? 0),
+                        StockRegisterUnitID = (int)(group.FirstOrDefault()?.StockRegisterUnitID ?? 0)
+                    })
+                    .OrderBy(x => x.StockRegisterMaterialID).ToList();
 
-                var allUnitDetails = _UnitDetailsRepository.GetAll().ToList();
-                foreach (var item in stockMaster)
-                {
-                    item.UnitDetails = allUnitDetails.Where(c => c.UnitDetailsItemId == item.StockRegisterMaterialID)
-                        .ToList();
-                }
+                var allUnitDetails = _UnitDetailsRepository.GetAsQueryable().Where(a =>  a.UnitDetailsItemId == ids)
+                    .Select(c => new
+                    {
+                        c.UnitDetailsId,
+                        c.UnitDetailsUnitId,
+                        c.UnitDetailsRate,
+                        c.UnitDetailsConversionType
+                    }).ToList();
             }
+           
             catch (Exception ex)
             {
                 throw ex;
-            }
-            finally
-            {
             }
             stockMaster = stockMaster.OrderBy(sm => sm.StockRegisterMaterialID).ToList();
             return stockMaster;
@@ -556,6 +590,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                              StockTransferLocationIdFrom = st.StockTransferLocationIdFrom,
                              StockTransferLocationIdTo = st.StockTransferLocationIdTo,
                              StockTransferStatus = st.StockTransferStatus,
+                             StockTransfertotal =  sd.StockTransferDetailsQty ?? 0
                          }).ToList();
 
 
