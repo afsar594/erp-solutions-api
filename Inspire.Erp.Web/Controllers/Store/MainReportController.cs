@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Inspire.Erp.Application.Account;
+using Inspire.Erp.Application.Account.Implementations;
 using Inspire.Erp.Application.Account.Interfaces;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Modals.Common;
@@ -9,8 +10,10 @@ using Inspire.Erp.Web.ViewModels;
 using Inspire.Erp.Web.ViewModels.Procurement;
 using Inspire.Erp.Web.ViewModels.Store;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers.Store
 {
@@ -182,7 +185,6 @@ namespace Inspire.Erp.Web.Controllers.Store
        {
             var param1 = _mapper.Map<PurchaserequisitionReportParameters>(voucherCompositeView);
             var param2 = _mapper.Map<List<ViewStockTransferType>>(voucherCompositeView.viewStockTransferType);
-
             ApiResponse<List<ReportPurchaseRequisition>> apiResponse = new ApiResponse<List<ReportPurchaseRequisition>>
             {
                 Valid = true,
@@ -192,7 +194,21 @@ namespace Inspire.Erp.Web.Controllers.Store
                 Message = ""
             };
             return apiResponse;
+        }
 
+        
+        [HttpGet("GetReportPurchaseRequisition")]
+        public async Task<IActionResult> GetReportPurchaseRequisition()
+        {
+            try
+            {
+                return Ok(await _mainReportService.GetReportPurchaseRequisition());
+            }
+            catch (Exception ex)
+            {
+                // Log the full exception details here
+                return StatusCode(500, $"An error occurred while retrieving GetReportPurchaseRequisition: {ex.Message}");
+            }
         }
 
         [HttpGet]
@@ -257,6 +273,9 @@ namespace Inspire.Erp.Web.Controllers.Store
             };
             return objectresponse;
         }
+
+
+
     }
 }
 
