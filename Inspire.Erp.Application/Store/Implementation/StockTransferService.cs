@@ -315,7 +315,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     })
                     .OrderBy(x => x.StockRegisterMaterialID).ToList();
 
-                var allUnitDetails = _UnitDetailsRepository.GetAsQueryable().Where(a => a.UnitDetailsDelStatus != true &&  a.UnitDetailsItemId == ids)
+                var allUnitDetails = _UnitDetailsRepository.GetAsQueryable().Where(a =>  a.UnitDetailsItemId == ids)
                     .Select(c => new
                     {
                         c.UnitDetailsId,
