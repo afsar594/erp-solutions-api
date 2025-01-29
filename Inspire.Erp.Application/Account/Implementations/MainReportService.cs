@@ -1065,7 +1065,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                     && (purchaserequisitionReportParameters.rptCurrency == -1 ? true : ((k.PurchaseRequisitionCurrencyId == purchaserequisitionReportParameters.rptCurrency)
                     && (purchaserequisitionReportParameters.rptLocation == -1 ? true : (k.PurchaseRequisitionLocationId == purchaserequisitionReportParameters.rptLocation))
                     && (purchaserequisitionReportParameters.rptJob == -1 ? true : (k.PurchaseRequisitionJobId == purchaserequisitionReportParameters.rptJob))
-                    && (purchaserequisitionReportParameters.rptSuppInvNo.Trim() == "" ? true : (k.PurchaseRequisitionSupInvNo.Trim() == purchaserequisitionReportParameters.rptSuppInvNo.Trim()))
+                    && (purchaserequisitionReportParameters.rptSuppInvNo == "" ? true : (k.PurchaseRequisitionSupInvNo == purchaserequisitionReportParameters.rptSuppInvNo))
                      && (purchaserequisitionReportParameters.rptInvoiceType == "ALL" ? true : (k.PurchaseRequisitionType == purchaserequisitionReportParameters.rptInvoiceType))
                     && (purchaserequisitionReportParameters.rptBrand == -1 ? true : (k.ItemBrandId == purchaserequisitionReportParameters.rptBrand))
                     && (purchaserequisitionReportParameters.rptItemGroup == -1 ? true : (k.ItemGroupId == purchaserequisitionReportParameters.rptItemGroup))
@@ -1111,12 +1111,14 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
             }
             else
             {
-                List<ReportPurchaseRequisition> reportPurchaseRequisition_ALL = _reportPurchaseRequisitionRepository.GetAsQueryable().Where(k =>
+                List<ReportPurchaseRequisition> reportPurchaseRequisition_ALL = new List<ReportPurchaseRequisition>();
+                //List<ReportPurchaseRequisition> 
+                    reportPurchaseRequisition_ALL = _reportPurchaseRequisitionRepository.GetAsQueryable().Where(k =>
                 (purchaserequisitionReportParameters.rptSupplier == -1 ? true : (k.PurchaseRequisitionPartyId == purchaserequisitionReportParameters.rptSupplier))
                         && (purchaserequisitionReportParameters.rptCurrency == -1 ? true : ((k.PurchaseRequisitionCurrencyId == purchaserequisitionReportParameters.rptCurrency)
                         && (purchaserequisitionReportParameters.rptLocation == -1 ? true : (k.PurchaseRequisitionLocationId == purchaserequisitionReportParameters.rptLocation))
                         && (purchaserequisitionReportParameters.rptJob == -1 ? true : (k.PurchaseRequisitionJobId == purchaserequisitionReportParameters.rptJob))
-                        && (purchaserequisitionReportParameters.rptSuppInvNo.Trim() == "" ? true : (k.PurchaseRequisitionSupInvNo.Trim() == purchaserequisitionReportParameters.rptSuppInvNo.Trim()))
+                        && (purchaserequisitionReportParameters.rptSuppInvNo == "" ? true : (k.PurchaseRequisitionSupInvNo == purchaserequisitionReportParameters.rptSuppInvNo))
                         && (purchaserequisitionReportParameters.rptInvoiceType == "ALL" ? true : (k.PurchaseRequisitionType == purchaserequisitionReportParameters.rptInvoiceType))
                         && (purchaserequisitionReportParameters.rptBrand == -1 ? true : (k.ItemBrandId == purchaserequisitionReportParameters.rptBrand))
                         && (purchaserequisitionReportParameters.rptItemGroup == -1 ? true : (k.ItemGroupId == purchaserequisitionReportParameters.rptItemGroup))
@@ -1125,6 +1127,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                         && (k.PurchaseRequisitionDate.Date <= purchaserequisitionReportParameters.rptDtpTo.Value.Date))
                         && (k.PurchaseRequisitionDelStatus == false || k.PurchaseRequisitionDelStatus == null)))).OrderBy(x => x.PurchaseRequisitionId).AsEnumerable().ToList();
                 return reportPurchaseRequisition_ALL;
+
             }
         }
     }
