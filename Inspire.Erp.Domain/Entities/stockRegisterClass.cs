@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using static Inspire.Erp.Domain.Entities.StoreWareHouse;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -19,5 +18,5 @@ namespace Inspire.Erp.Domain.Entities
         public int StockRegisterUnitID { get; set; }
         public virtual ICollection<UnitDetails> UnitDetails { get; set; }
 
-    }  
+    }
 }
