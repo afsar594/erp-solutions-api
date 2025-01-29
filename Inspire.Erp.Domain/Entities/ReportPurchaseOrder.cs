@@ -85,5 +85,9 @@ namespace Inspire.Erp.Domain.Entities
         public string? UnitName { get; set; }
         public string? CurrencyName { get; set; }
 
+        public string? purchaseOrderOrdertype { get; set; }
+
+        
+
     }
 }

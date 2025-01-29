@@ -2652,6 +2652,10 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.PurchaseOrderDetailsRate).HasColumnType("numeric(18, 4)");
 
+                entity.Property(e => e.purchaseOrderOrdertype)
+                .HasMaxLength(200)
+                .IsUnicode(false);
+
                 entity.Property(e => e.PurchaseOrderExcludeVat).HasColumnName("PurchaseOrderExcludeVAT");
 
                 entity.Property(e => e.PurchaseOrderFcRate)
