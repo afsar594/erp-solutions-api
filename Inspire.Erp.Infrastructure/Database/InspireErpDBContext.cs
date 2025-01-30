@@ -14695,6 +14695,8 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnName("Stock_Adjustment_Voucher_ST_VNO")
                     .HasMaxLength(20)
                     .IsUnicode(false);
+                entity.Property(e => e.StockAdjusmentVoucherTotQty).HasColumnName("Stock_Adjusment_Voucher_TotQty");
+                entity.Property(e => e.StockAdjusmentVoucherTotAmount).HasColumnName("Stock_Adjusment_Voucher_TotAmount");
             });
 
             modelBuilder.Entity<StockAdjustmentVoucherDetails>(entity =>
