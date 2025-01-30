@@ -1256,8 +1256,6 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
             return data;
 
         }
-
-
         public async Task<IQueryable> GetReportPurchaseRequisition(ReportPRVM voucherCompositeView)
         {
             try
