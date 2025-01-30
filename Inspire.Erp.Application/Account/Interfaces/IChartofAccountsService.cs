@@ -20,5 +20,9 @@ namespace Inspire.Erp.Application.Account
 
         DrCrAccounts GetDefaultCreditDebitAccounts();
 
+        //IEnumerable<AccountSettings> GetAllAccountSettings();
+        //IEnumerable<AccountSettings> GetAllAccountStock();
+
     }
 }
+

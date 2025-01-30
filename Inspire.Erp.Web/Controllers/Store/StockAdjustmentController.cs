@@ -61,7 +61,8 @@ namespace Inspire.Erp.Web.Controllers.Store
             ApiResponse<StockAdjustmentVoucher> apiResponse = new ApiResponse<StockAdjustmentVoucher>();
             var param1 = _mapper.Map<StockAdjustmentVoucher>(voucherCompositeView);
             var param2 = _mapper.Map<List<StockAdjustmentVoucherDetails>>(voucherCompositeView.stockAdjustmentVoucherDetails);
-            var xs = await _sa.InsertStockAdjustmentVoucher(param1, param2);
+            var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
+            var xs = await _sa.InsertStockAdjustmentVoucher(param1, param2, param3);
             apiResponse = new ApiResponse<StockAdjustmentVoucher>
             {
                 Valid = true,

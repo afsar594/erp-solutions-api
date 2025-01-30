@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Inspire.Erp.Domain.Modals.Stock;
 using Inspire.Erp.Application.MODULE;
+using Inspire.Erp.Application.Account;
 
 namespace Inspire.Erp.Application.Store.Implementation
 {
@@ -26,7 +27,10 @@ namespace Inspire.Erp.Application.Store.Implementation
         private readonly IRepository<StockRegister> _stockRegisterRepo;
         private readonly IRepository<CurrencyMaster> _currencyMasterRepo;
         private IRepository<UnitDetails> _UnitDetailsRepository;
-
+        private IRepository<AccountsTransactions> _accountTransactionRepository;
+        private IChartofAccountsService chartofAccountsService;
+        private IRepository<AccountSettings> _accountSettingsrepository;
+        
 
         public StockAdjustmentService(IRepository<StockAdjustmentVoucher> stockAdjustmentVoucherRepo,
             IRepository<VouchersNumbers> voucherNumberRepo, IRepository<StockAdjustmentVoucherDetails> stockAdjustmentVoucherDetailsRepo, 
@@ -35,11 +39,10 @@ namespace Inspire.Erp.Application.Store.Implementation
             IRepository<ItemMaster> itemMasterRepository,
             IRepository<StockRegister> stockRegisterRepo,
             IRepository<CurrencyMaster> currencyMasterRepo,
-             IRepository<UnitDetails> unitDetailsRepos
-
-
-
-
+            IRepository<UnitDetails> unitDetailsRepos,
+           IRepository<AccountsTransactions> accountTransactionRepository,
+           IChartofAccountsService _chartofAccountsService,
+           IRepository<AccountSettings> accountSettingsrepository
             )
 
         {
@@ -52,6 +55,9 @@ namespace Inspire.Erp.Application.Store.Implementation
             _stockRegisterRepo = stockRegisterRepo;
             _currencyMasterRepo = currencyMasterRepo;
             _UnitDetailsRepository = unitDetailsRepos;
+            _accountTransactionRepository = accountTransactionRepository;
+            _chartofAccountsService = chartofAccountsService;
+            _accountSettingsrepository = accountSettingsrepository;
         }
         public IEnumerable<StockAdjustmentVoucher> GetStockAdjustment()
         {
@@ -59,7 +65,7 @@ namespace Inspire.Erp.Application.Store.Implementation
             return stockAdjusment;
         }
 
-        public async Task<StockAdjustmentVoucher> InsertStockAdjustmentVoucher(StockAdjustmentVoucher stockAdjustmentVoucher, List<StockAdjustmentVoucherDetails> stockAdjustmentVoucherDetails)
+        public async Task<StockAdjustmentVoucher> InsertStockAdjustmentVoucher(StockAdjustmentVoucher stockAdjustmentVoucher, List<StockAdjustmentVoucherDetails> stockAdjustmentVoucherDetails, List<AccountsTransactions> AccountsTransactions)
         {
             try
             {
@@ -74,6 +80,10 @@ namespace Inspire.Erp.Application.Store.Implementation
                 maxcount = Convert.ToInt32(
                     await _stockAdjustmentVoucherRepo.GetAsQueryable()
                     .DefaultIfEmpty().MaxAsync(o => o == null ? 0 : o.StockAdjustmentVoucherSaId) + 1);
+
+
+
+
 
                 stockAdjustmentVoucher.StockAdjustmentVoucherSaId = maxcount;
 
@@ -127,11 +137,98 @@ namespace Inspire.Erp.Application.Store.Implementation
                         StockRegisterStoreID=0
                     };
                 }).ToList();
-
                 _stockRegisterRepo.InsertList(stockReg);
 
-                
-                //
+                //Accounts setting                
+                var masterAccountsTables = GetAllAccountSettings().Select
+                    (c => new
+                    {
+                       c.AccountSettingsAccountNumberValue
+                    }).AsEnumerable().ToList();
+
+                //Accounts Stock                
+                var accountStock = GetAllAccountStock().Select(c => new
+                {
+                    c.AccountSettingsAccountNumberValue
+                }).OrderBy(x => x.AccountSettingsAccountNumberValue).AsEnumerable().ToList();
+
+
+                AccountsTransactions creditData = new AccountsTransactions();
+                AccountsTransactions creditDataStcok = new AccountsTransactions();
+
+                if (stockAdjustmentVoucher.StockAdjusmentVoucherTotAmount > 0)
+                {
+                    creditData.AccountsTransactionsAccNo = masterAccountsTables[0].AccountSettingsAccountNumberValue.ToString();
+                    creditData.AccountsTransactionsFcCredit = 0;
+                    creditData.AccountsTransactionsCredit = 0;
+                    creditData.AccountsTransactionsDebit = (stockAdjustmentVoucher.StockAdjusmentVoucherTotAmount ?? 0);
+                    creditData.AccountsTransactionsFcDebit = (decimal)(stockAdjustmentVoucher.StockAdjusmentVoucherTotAmount ?? 0);
+                    creditData.AccountsTransactionsTransDate = (DateTime)stockAdjustmentVoucher.StockAdjustmentVoucherSaDate.Value.Date;
+                    creditData.AccountsTransactionsParticulars = stockAdjustmentVoucher.StockAdjustmentVoucherSaRemarks ?? null;
+                    creditData.AccountsTransactionsVoucherType = VoucherType.StockAdjustmentVoucher_TYPE;
+                    creditData.AccountsTransactionsTstamp = DateTime.Now;
+                    creditData.AccountsTransactionsVoucherNo = stockVoucherNumber;
+                    creditData.AccountsTransactionsDescription = stockAdjustmentVoucher.StockAdjustmentVoucherSaRemarks ?? null;
+                    creditData.AccountsTransactionsStatus = AccountStatus.Approved;
+                    creditData.AccountsTransactionsUserId = 1;
+                }
+                else
+                {
+                    creditData.AccountsTransactionsAccNo = masterAccountsTables[0].AccountSettingsAccountNumberValue.ToString();
+                    creditData.AccountsTransactionsFcCredit = (decimal)(stockAdjustmentVoucher.StockAdjusmentVoucherTotAmount ?? 0); 
+                    creditData.AccountsTransactionsCredit = (decimal)(stockAdjustmentVoucher.StockAdjusmentVoucherTotAmount ?? 0);
+                    creditData.AccountsTransactionsDebit = 0;
+                    creditData.AccountsTransactionsFcDebit = 0;
+                    creditData.AccountsTransactionsTransDate = (DateTime)stockAdjustmentVoucher.StockAdjustmentVoucherSaDate.Value.Date;
+                    creditData.AccountsTransactionsParticulars = stockAdjustmentVoucher.StockAdjustmentVoucherSaRemarks ?? null;
+                    creditData.AccountsTransactionsVoucherType = VoucherType.StockAdjustmentVoucher_TYPE;
+                    creditData.AccountsTransactionsTstamp = DateTime.Now;
+                    creditData.AccountsTransactionsVoucherNo = stockVoucherNumber;
+                    creditData.AccountsTransactionsDescription = stockAdjustmentVoucher.StockAdjustmentVoucherSaRemarks ?? null;
+                    creditData.AccountsTransactionsStatus = AccountStatus.Approved;
+                    creditData.AccountsTransactionsUserId = 1;
+                }
+                _accountTransactionRepository.Insert(creditData);
+
+
+                // account Stock 
+                if (stockAdjustmentVoucher.StockAdjusmentVoucherTotAmount > 0)
+                {
+                    creditDataStcok.AccountsTransactionsAccNo = accountStock[0].AccountSettingsAccountNumberValue.ToString();
+                    creditDataStcok.AccountsTransactionsFcCredit = (decimal)(stockAdjustmentVoucher.StockAdjusmentVoucherTotAmount ?? 0);
+                    creditDataStcok.AccountsTransactionsCredit = (decimal)(stockAdjustmentVoucher.StockAdjusmentVoucherTotAmount ?? 0);
+                    creditDataStcok.AccountsTransactionsDebit = 0;
+                    creditDataStcok.AccountsTransactionsFcDebit = 0;
+                    creditDataStcok.AccountsTransactionsTransDate = (DateTime)stockAdjustmentVoucher.StockAdjustmentVoucherSaDate.Value.Date;
+                    creditDataStcok.AccountsTransactionsParticulars = stockAdjustmentVoucher.StockAdjustmentVoucherSaRemarks ?? null;
+                    creditDataStcok.AccountsTransactionsVoucherType = VoucherType.StockAdjustmentVoucher_TYPE;
+                    creditDataStcok.AccountsTransactionsTstamp = DateTime.Now;
+                    creditDataStcok.AccountsTransactionsVoucherNo = stockVoucherNumber;
+                    creditDataStcok.AccountsTransactionsDescription = stockAdjustmentVoucher.StockAdjustmentVoucherSaRemarks ?? null;
+                    creditDataStcok.AccountsTransactionsStatus = AccountStatus.Approved;
+                    creditDataStcok.AccountsTransactionsUserId = 1;
+
+                }
+                else
+                {
+                    creditDataStcok.AccountsTransactionsAccNo = accountStock[0].AccountSettingsAccountNumberValue.ToString();
+                    creditDataStcok.AccountsTransactionsFcCredit = 0;
+                    creditDataStcok.AccountsTransactionsCredit = 0;
+                    creditDataStcok.AccountsTransactionsDebit = (decimal)(stockAdjustmentVoucher.StockAdjusmentVoucherTotAmount ?? 0);
+                    creditDataStcok.AccountsTransactionsFcDebit = (stockAdjustmentVoucher.StockAdjusmentVoucherTotAmount ?? 0);
+                    creditDataStcok.AccountsTransactionsTransDate = (DateTime)stockAdjustmentVoucher.StockAdjustmentVoucherSaDate.Value.Date;
+                    creditDataStcok.AccountsTransactionsParticulars = stockAdjustmentVoucher.StockAdjustmentVoucherSaRemarks?? null;
+                    creditDataStcok.AccountsTransactionsVoucherType = VoucherType.StockAdjustmentVoucher_TYPE;
+                    creditDataStcok.AccountsTransactionsTstamp = DateTime.Now;
+                    creditDataStcok.AccountsTransactionsVoucherNo = stockVoucherNumber;
+                    creditDataStcok.AccountsTransactionsDescription = stockAdjustmentVoucher.StockAdjustmentVoucherSaRemarks ?? null;
+                    creditDataStcok.AccountsTransactionsStatus = AccountStatus.Approved;
+                    creditDataStcok.AccountsTransactionsUserId = 1;
+                }
+
+                _accountTransactionRepository.Insert(creditDataStcok);
+                //End
+
 
                 _stockAdjustmentVoucherRepo.TransactionCommit();
                 return this.GetSavedStockAdjustmentferDetails((int)stockAdjustmentVoucher.StockAdjustmentVoucherSaId);
@@ -338,6 +435,20 @@ namespace Inspire.Erp.Application.Store.Implementation
             res.ResultSet = data;
             res.IsSuccess = true;
             return res;
+        }
+
+        public IEnumerable<AccountSettings> GetAllAccountSettings()
+        {
+            var AccountSettingstable = _accountSettingsrepository.GetAsQueryable().Where(k => k.AccountSettingsAccountKeyValue.Trim() == "STOCK_ADJUSTMENT")
+            .Select(k => k);
+            return AccountSettingstable;
+        }
+        public IEnumerable<AccountSettings> GetAllAccountStock()
+        {
+            var AccountStock = _accountSettingsrepository.GetAsQueryable().Where(k => k.AccountSettingsAccountKeyValue == "STOCK_AC_NO"
+             ).Select(k => k);
+
+            return AccountStock;
         }
     }
 }
