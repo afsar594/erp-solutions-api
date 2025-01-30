@@ -7,6 +7,7 @@ using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Inspire.Erp.Web.Common;
 using Inspire.Erp.Web.ViewModels;
+using Inspire.Erp.Domain.Models.ViewModels;
 using Inspire.Erp.Web.ViewModels.Procurement;
 using Inspire.Erp.Web.ViewModels.Store;
 using Microsoft.AspNetCore.Mvc;
@@ -179,30 +180,49 @@ namespace Inspire.Erp.Web.Controllers.Store
 
         }
 
-        [HttpPost]
-        [Route("MainReport_GetReportPurchaseRequisition_PARAM_CLASS")]
-        public ApiResponse<List<ReportPurchaseRequisition>> MainReport_GetReportPurchaseRequisition_PARAM_CLASS([FromBody] PurchaserequisitionReportParametersViewModel voucherCompositeView)
-       {
-            var param1 = _mapper.Map<PurchaserequisitionReportParameters>(voucherCompositeView);
-            var param2 = _mapper.Map<List<ViewStockTransferType>>(voucherCompositeView.viewStockTransferType);
-            ApiResponse<List<ReportPurchaseRequisition>> apiResponse = new ApiResponse<List<ReportPurchaseRequisition>>
-            {
-                Valid = true,
-                Result = _mapper.Map<List<ReportPurchaseRequisition>>(_mainReportService.MainReport_GetReportPurchaseRequisition_PARAM_CLASS(
-                     param1, param2
-                )),
-                Message = ""
-            };
-            return apiResponse;
-        }
+       // [HttpPost]
+       // [Route("MainReport_GetReportPurchaseRequisition_PARAM_CLASS")]
+       // public ApiResponse<List<ReportPurchaseRequisition>> MainReport_GetReportPurchaseRequisition_PARAM_CLASS([FromBody] PurchaserequisitionReportParametersViewModel voucherCompositeView)
+       //{
+       //     var param1 = _mapper.Map<PurchaserequisitionReportParameters>(voucherCompositeView);
+       //     var param2 = _mapper.Map<List<ViewStockTransferType>>(voucherCompositeView.viewStockTransferType);
+       //     ApiResponse<List<ReportPurchaseRequisition>> apiResponse = new ApiResponse<List<ReportPurchaseRequisition>>
+       //     {
+       //         Valid = true,
+       //         Result = _mapper.Map<List<ReportPurchaseRequisition>>(_mainReportService.MainReport_GetReportPurchaseRequisition_PARAM_CLASS(
+       //              param1, param2
+       //         )),
+       //         Message = ""
+       //     };
+       //     return apiResponse;
+       // }
 
-        
-        [HttpGet("GetReportPurchaseRequisition")]
-        public async Task<IActionResult> GetReportPurchaseRequisition()
+        [HttpPost]
+        [Route("MainReport_GetReportPurchaseRequisition")]
+        public async Task<IActionResult> MainReport_GetReportPurchaseRequisition([FromBody] PurchaserequisitionReportParametersViewModel voucherCompositeView)
         {
             try
             {
-                return Ok(await _mainReportService.GetReportPurchaseRequisition());
+                var param1 = _mapper.Map<PurchaserequisitionReportParameters>(voucherCompositeView);
+                var param2 = _mapper.Map<List<ViewStockTransferType>>(voucherCompositeView.viewStockTransferType);
+                return Ok(await _mainReportService.MainReport_GetReportPurchaseRequisition(param1, param2));
+            }
+            catch (Exception ex)
+            {
+                // Log the full exception details here
+                return StatusCode(500, $"An error occurred while retrieving GetReportPurchaseRequisition: {ex.Message}");
+            }
+        }
+
+
+     
+        [HttpPost]
+        [Route("GetReportPurchaseRequisition")]
+        public async Task<IActionResult> GetReportPurchaseRequisition([FromBody] ReportPRVM voucherCompositeView)
+        {
+            try
+            {
+                return Ok(await _mainReportService.GetReportPurchaseRequisition(voucherCompositeView));
             }
             catch (Exception ex)
             {
