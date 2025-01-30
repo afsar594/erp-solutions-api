@@ -1088,7 +1088,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                     && (purchaserequisitionReportParameters.rptItem == -1 ? true : (k.PurchaseRequisitionDetailsMatID == purchaserequisitionReportParameters.rptItem))
                     && (purchaserequisitionReportParameters.rptDateRange == false ? true : (k.PurchaseRequisitionDate.Value.Date >= purchaserequisitionReportParameters.rptDtpFrom.Value.Date)
                     && (k.PurchaseRequisitionDate.Value.Date <= purchaserequisitionReportParameters.rptDtpTo.Value.Date))
-                    && (k.PurchaseRequisitionDelStatus == false || k.PurchaseRequisitionDelStatus == null))))
+                    && (k.PurchaseRequisitionDelStatus!=null ))))
                         group k by new
                         {
                             k.PurchaseRequisitionNo,
@@ -1186,7 +1186,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
              purchaserequisitionReportParameters.rptDtpTo.HasValue &&
              k.PurchaseRequisitionDate.Value.Date >= purchaserequisitionReportParameters.rptDtpFrom.Value.Date &&
              k.PurchaseRequisitionDate.Value.Date <= purchaserequisitionReportParameters.rptDtpTo.Value.Date)) &&
-        (k.PurchaseRequisitionDelStatus == null || k.PurchaseRequisitionDelStatus == false) // Handle string comparison
+        (k.PurchaseRequisitionDelStatus!= null) // Handle string comparison
     )
     .OrderBy(x => x.PurchaseRequisitionId)
     .AsEnumerable()

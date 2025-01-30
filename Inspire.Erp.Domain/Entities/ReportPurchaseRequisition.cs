@@ -159,7 +159,7 @@ public class ReportPurchaseRequisition
     public decimal? PurchaseRequisitionHandlingcharges { get; set; }
     public int? PurchaseRequisitionIssueID { get; set; }
     public bool? PurchaseRequisitionJobDirectPur { get; set; }
-    public bool PurchaseRequisitionDelStatus { get; set; }
+    public string PurchaseRequisitionDelStatus { get; set; }
     public DateTime? PurchaseRequisitionDetailsReqDate { get; set; }
     public string PurchaseRequisitionDetailsReqStatus { get; set; }
     public string Currency_Master_Currency_Name { get; set; }
