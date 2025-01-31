@@ -16,12 +16,12 @@ namespace Inspire.Erp.Web.ViewModels.Procurement
         public DateTime? rptDtpFrom { get; set; }
         public DateTime? rptDtpTo { get; set; }
 
-        public long? rptBrand { get; set; }
-        public long? rptItemGroup { get; set; }
-        public decimal? rptItem { get; set; }
+        public int? rptBrand { get; set; }
+        public int? rptItemGroup { get; set; }
+        public int? rptItem { get; set; }
         public string? rptPartNo { get; set; }
         public int? rptLocation { get; set; }
-        public long? rptJob { get; set; }
+        public int? rptJob { get; set; }
 
         public int? rptSalesMan { get; set; }
         public int? rptDpt { get; set; }
@@ -29,7 +29,7 @@ namespace Inspire.Erp.Web.ViewModels.Procurement
         public int? rptCurrency { get; set; }
 
         public string? rptInvoiceType { get; set; }
-        public decimal? rptSupplier { get; set; }
+        public int? rptSupplier { get; set; }
 
         public string? rptSupplierName { get; set; }
 

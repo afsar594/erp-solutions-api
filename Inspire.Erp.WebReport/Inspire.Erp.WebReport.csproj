@@ -290,6 +290,7 @@
     <Compile Include="ReportEngine\CrystalReport.cs" />
     <Compile Include="Views\Report\ReportViewer.aspx.cs">
       <DependentUpon>ReportViewer.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Views\Report\ReportViewer.aspx.designer.cs">
       <DependentUpon>ReportViewer.aspx</DependentUpon>
