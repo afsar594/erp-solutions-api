@@ -1209,25 +1209,25 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                 var query = _reportPurchaseRequisitionRepository.GetAsQueryable();
 
               
-                if (purchaserequisitionReportParameters.rptSupplier != -1)
+                if (purchaserequisitionReportParameters.rptSupplier != -1 && purchaserequisitionReportParameters.rptSupplier !=null)
                 {
                     query = query.Where(k => k.PurchaseRequisitionPartyId == purchaserequisitionReportParameters.rptSupplier);
                 }
 
               
-                if (purchaserequisitionReportParameters.rptCurrency != -1)
+                if (purchaserequisitionReportParameters.rptCurrency != -1 && purchaserequisitionReportParameters.rptCurrency !=null)
                 {
                     query = query.Where(k => k.PurchaseRequisitionCurrencyId == purchaserequisitionReportParameters.rptCurrency);
                 }
 
               
-                if (purchaserequisitionReportParameters.rptLocation != -1)
+                if (purchaserequisitionReportParameters.rptLocation != -1 && purchaserequisitionReportParameters.rptLocation !=null)
                 {
                     query = query.Where(k => k.PurchaseRequisitionLocationID == purchaserequisitionReportParameters.rptLocation);
                 }
 
                
-                if (purchaserequisitionReportParameters.rptJob != -1)
+                if (purchaserequisitionReportParameters.rptJob != -1 && purchaserequisitionReportParameters.rptJob != null)
                 {
                     query = query.Where(k => k.PurchaseRequisitionJobId == purchaserequisitionReportParameters.rptJob);
                 }
@@ -1245,19 +1245,19 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                 }
 
                
-                if (purchaserequisitionReportParameters.rptBrand != -1)
+                if (purchaserequisitionReportParameters.rptBrand != -1 && purchaserequisitionReportParameters.rptBrand !=null)
                 {
                     query = query.Where(k => k.Item_Brand_ID == purchaserequisitionReportParameters.rptBrand);
                 }
 
                
-                if (purchaserequisitionReportParameters.rptItemGroup != -1)
+                if (purchaserequisitionReportParameters.rptItemGroup != -1 && purchaserequisitionReportParameters.rptItemGroup !=null)
                 {
                     query = query.Where(k => k.Item_Group_ID == purchaserequisitionReportParameters.rptItemGroup);
                 }
 
                
-                if (purchaserequisitionReportParameters.rptItem != -1)
+                if (purchaserequisitionReportParameters.rptItem != -1 && purchaserequisitionReportParameters.rptItem !=null)
                 {
                     query = query.Where(k => k.PurchaseRequisitionDetailsMatID == purchaserequisitionReportParameters.rptItem);
                 }
