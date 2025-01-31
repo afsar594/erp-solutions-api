@@ -1632,7 +1632,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.PurchaseRequisitionExcludeVat).HasColumnName("PurchaseRequisitionExcludeVAT");
 
                 entity.Property(e => e.PurchaseRequisitionFcRate)
-                    .HasColumnName("PurchaseRequisitionFc_Rate")
+                    .HasColumnName("PurchaseRequisitionFcRate")
                     .HasColumnType("numeric(18, 4)");
 
                 entity.Property(e => e.PurchaseRequisitionFsno)
@@ -1733,19 +1733,19 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.PurchaseRequisitionUserId).HasColumnName("PurchaseRequisitionUserID");
 
                 entity.Property(e => e.PurchaseRequisitionVatAmt)
-                    .HasColumnName("PurchaseRequisitionVat_AMT")
+                    .HasColumnName("PurchaseRequisitionVatAmt")
                     .HasColumnType("numeric(18, 4)");
 
                 entity.Property(e => e.PurchaseRequisitionVatPer)
-                    .HasColumnName("PurchaseRequisitionVat_Per")
+                    .HasColumnName("PurchaseRequisitionVatPer")
                     .HasColumnType("numeric(18, 4)");
 
                 entity.Property(e => e.PurchaseRequisitionVatRoundSign)
-                    .HasColumnName("PurchaseRequisitionVat_RoundSign")
+                    .HasColumnName("PurchaseRequisitionVatRoundSign")
                     .HasMaxLength(1);
 
                 entity.Property(e => e.PurchaseRequisitionVatRountAmt)
-                    .HasColumnName("PurchaseRequisitionVat_RountAmt")
+                    .HasColumnName("PurchaseRequisitionVatRountAmt")
                     .HasColumnType("numeric(18, 4)");
 
                 entity.Property(e => e.SuppliersMasterSupplierCityId).HasColumnName("Suppliers_Master_Supplier_City_ID");
