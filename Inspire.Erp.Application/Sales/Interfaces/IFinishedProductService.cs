@@ -13,7 +13,7 @@ namespace Inspire.Erp.Application.Sales.Interfaces
 {
     public interface IFinishedProduct
     {
-        //public BillofQtyMaster InsertBillofQty(BillofQtyMaster customerQuotation, List<FinishedProductDetails> customerQuotationDetails );
+        public FinishedProductMaster InsertFinishProduct(FinishedProductMaster customerQuotation, List<FinishedProductDetails> customerQuotationDetails );
         //public BillofQtyMaster UpdateBillofQty(BillofQtyMaster customerQuotation, List<FinishedProductDetails> customerQuotationDetails);
         //public int DeleteBillofQty(decimal id);
         //public BillofQtyMaster GetSavedBillofQty(decimal id); 

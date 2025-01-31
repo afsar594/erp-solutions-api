@@ -42,50 +42,57 @@ namespace Inspire.Erp.Web.Controllers
             jobrepository = _jobrepository; itemrepository = _itemrepository; unitrepository = _unitrepository;
             _BillofQtyMasterRepository = BillofQtyMasterRepository; _BillOfQTyDetailsRepository = BillOfQTyDetailsRepository;
         }
-        //[HttpPost]
-        //[Route("InsertBillofQty")]
-        //public ApiResponse<BillofQtyMasterModel> InsertBillofQty([FromBody] BillofQtyMasterModel customerQuotationCompositeView)
-        //{
-        //    ApiResponse<BillofQtyMasterModel> apiResponse = new ApiResponse<BillofQtyMasterModel>();
+        [HttpPost]
+        [Route("InsertFinishedProduct")]
+        public ApiResponse<FinishedProductMasterModel> InsertFinishProduct([FromBody] FinishedProductMasterModel customerQuotationCompositeView)
+        {
+            ApiResponse<FinishedProductMasterModel> apiResponse = new ApiResponse<FinishedProductMasterModel>();
 
-        //    try
-        //    {
-        //        var param1 = _mapper.Map<BillofQtyMaster>(customerQuotationCompositeView);
-        //        var param2 = _mapper.Map<List<BillOfQTyDetails>>(customerQuotationCompositeView.BillOfQTyDetails);
-        //        var xs = _customerQuotationService.InsertBillofQty(param1, param2);
+            try
+            {
+                // Mapping input to entities
+                var param1 = _mapper.Map<FinishedProductMaster>(customerQuotationCompositeView);
+                var param2 = _mapper.Map<List<FinishedProductDetails>>(customerQuotationCompositeView.FinishedProductDetails);
 
-        //        BillofQtyMasterModel CustomerQuotationViewModel = new BillofQtyMasterModel();
+                // Calling the service to insert the data
+                var xs = FinishedProductService.InsertFinishProduct(param1, param2);
 
-        //        if (xs != null)
-        //        {
-        //            CustomerQuotationViewModel = _mapper.Map<BillofQtyMasterModel>(xs);
-        //            CustomerQuotationViewModel.BillOfQTyDetails = _mapper.Map<List<BillOfQTyDetailsModel>>(xs.BillOfQTyDetails);
+                if (xs != null)
+                {
+                    var finishedProductMasterModel = _mapper.Map<FinishedProductMasterModel>(xs);
+                    //finishedProductMasterModel.FinishedProductDetails = _mapper.Map<List<FinishedProductDetailsModel>>(xs.FinishedProductDetails);
 
-        //            apiResponse = new ApiResponse<BillofQtyMasterModel>
-        //            {
-        //                Valid = true,
-        //                Result = CustomerQuotationViewModel,
-        //                Message = BillofQtyMessage.SaveBillofQty
-        //            };
-        //        }
-        //        else
-        //        {
-        //            return null;
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        apiResponse = new ApiResponse<BillofQtyMasterModel>
-        //        {
-        //            Valid = false,
-        //            Error = true,
-        //            Exception = ex.Message,
-        //            Message = BillofQtyMessage.BillofQtyError
-        //        };
-        //    }
-        //    return apiResponse;
+                    apiResponse = new ApiResponse<FinishedProductMasterModel>
+                    {
+                        Valid = true,
+                        Result = finishedProductMasterModel,
+                        Message = BillofQtyMessage.SaveBillofQty
+                    };
+                }
+                else
+                {
+                    apiResponse = new ApiResponse<FinishedProductMasterModel>
+                    {
+                        Valid = false,
+                        Error = true,
+                        Message = "Failed to insert the Bill of Quantity."
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                apiResponse = new ApiResponse<FinishedProductMasterModel>
+                {
+                    Valid = false,
+                    Error = true,
+                    Exception = ex.ToString(),
+                    Message = BillofQtyMessage.BillofQtyError
+                };
+            }
 
-        //}
+            return apiResponse;
+        }
+
         //[HttpPost]
         //[Route("UpdateBillofQty")]
         //public ApiResponse<BillofQtyMasterModel> UpdateBillofQty([FromBody] BillofQtyMasterModel customerQuotationCompositeView)
