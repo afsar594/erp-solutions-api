@@ -1118,6 +1118,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                                                                                      k.PurchaseRequisitionVatRountAmt,
                                                                                      k.PurchaseRequisitionNetAmount,
                                                                                  } into grp
+
                                                                                  select new ReportPurchaseRequisition
                                                                                  {
                                                                                      PurchaseRequisitionNo = grp.Key.PurchaseRequisitionNo,
