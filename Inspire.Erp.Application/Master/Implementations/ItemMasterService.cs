@@ -332,7 +332,7 @@ namespace Inspire.Erp.Application.Master
                     ItemMasterVenderId = k.ItemMasterVenderId,
                     ItemMasterItemSize = k.ItemMasterItemSize,
                     ItemMasterAccountNo = k.ItemMasterAccountNo,
-                }).AsEnumerable().OrderBy(x => x.ItemMasterAliasName).AsEnumerable().ToList();
+                }).AsEnumerable().ToList();
 
                 var allUnitDetails = _unitDetailsRepo.GetAll().ToList();
                 foreach (var item in itemMaster)
