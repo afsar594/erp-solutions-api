@@ -59,6 +59,9 @@ namespace Inspire.Erp.Application.Account.Implementations
         private readonly IRepository<CityMaster> _cityMasterrepository;
         private readonly IRepository<CountryMaster> _counrtyMasterrepository;
         private readonly IRepository<CurrencyMaster> _currMasterrepository;
+        private readonly IRepository<UnitMaster> _unitMastersepository;
+
+        
         public MainReportService(
               IRepository<ItemMaster> itemMasterRepository,
               IRepository<ReportStockBaseUnit> reportStockBaseUnitRepository,
@@ -85,7 +88,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                 IRepository<SuppliersMaster> supplierrepository,
             IRepository<CityMaster> cityMasterrepository,
                                      IRepository<CountryMaster> counrtyMasterrepository,
-                                           IRepository<CurrencyMaster> currMasterrepository
+                                           IRepository<CurrencyMaster> currMasterrepository,
+                                           IRepository<UnitMaster> unitMastersepository
                   )
         {
 
@@ -116,6 +120,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             _cityMasterrepository = cityMasterrepository;
             _counrtyMasterrepository = counrtyMasterrepository;
             _currMasterrepository = currMasterrepository;
+            _unitMastersepository = unitMastersepository;
         }
 
         public IEnumerable<ReportStockBaseUnit> MainReport_GetReportStockLedger_PARAM_CLASS(StockLedgerParameters stockLedgerParameters, List<ViewStockTransferType> viewStockTransferType)
@@ -1219,48 +1224,43 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
             try
             {
 
-                var data = (from pr in _purchaseRequisitionRepository.GetAsQueryable()
-                            join prd in _purchaseRequisitionDRepository.GetAsQueryable() on pr.PurchaseRequisitionId equals prd.PurchaseRequisitionId
-                            join im in _itemMasterRepository.GetAsQueryable() on prd.PurchaseRequisitionDetailsMatId equals im.ItemMasterItemId
-                            join lm in _locMasterRepository.GetAsQueryable() on pr.PurchaseRequisitionLocationId equals lm.LocationMasterLocationId
-                            join std in _stdRepository.GetAsQueryable()
+   
+                var data = from a in _purchaseRequisitionRepository.GetAsQueryable()
+                           join b in _purchaseRequisitionDRepository.GetAsQueryable() on a.PurchaseRequisitionId equals b.PurchaseRequisitionId
+                            join c in _itemMasterRepository.GetAsQueryable() on b.PurchaseRequisitionDetailsMatId equals c.ItemMasterItemId
+                            join d in _locMasterRepository.GetAsQueryable() on a.PurchaseRequisitionLocationId equals d.LocationMasterLocationId
+                            join g in _unitMastersepository.GetAsQueryable() on b.PurchaseRequisitionDetailsUnitId equals g.UnitMasterUnitId
+                            join f in _jmRepository.GetAsQueryable() on b.PurchaseRequisitionDetailsJobId equals f.JobMasterJobId into jobGroup
+                            from f in jobGroup.DefaultIfEmpty()
 
-                            on new { unitId = (decimal)pr.PurchaseRequisitionId, itemId = im.ItemMasterItemId }
-                            equals new { unitId = (decimal)std.PurchaseRequisitionId, itemId = (long)std.StockTransferDetailsMaterialId }
-                             into stdi
-                            from stdij in stdi.DefaultIfEmpty()
-                            join jm in _jmRepository.GetAll() on prd.PurchaseRequisitionDetailsJobId equals jm.JobMasterJobId into jmprd
-                            from jmprdg in jmprd.DefaultIfEmpty()
-                            where ((voucherCompositeView.LocationId == null || voucherCompositeView.LocationId == 0) || pr.PurchaseRequisitionLocationId == voucherCompositeView.LocationId)
-                            && (voucherCompositeView.DateFrom == null || pr.PurchaseRequisitionDate >= voucherCompositeView.DateFrom)
-                            && (voucherCompositeView.DateTo == null || pr.PurchaseRequisitionDate <= voucherCompositeView.DateTo)
-                            group new { prd, stdij, lm } by new
+                           where ((voucherCompositeView.LocationId == null || voucherCompositeView.LocationId == 0) || a.PurchaseRequisitionLocationId == voucherCompositeView.LocationId)
+                           && (voucherCompositeView.DateFrom == null || a.PurchaseRequisitionDate >= voucherCompositeView.DateFrom)
+                           && (voucherCompositeView.DateTo == null || a.PurchaseRequisitionDate <= voucherCompositeView.DateTo)
+                           select new
                             {
-                                pr.PurchaseRequisitionId,
-                                pr.PurchaseRequisitionNo,
-                                pr.PurchaseRequisitionDate,
-                                prd.PurchaseRequisitionDetailsMatId,
-                                im.ItemMasterItemName,
-                                prd.PurchaseRequisitionDetailsRate,
-                                prd.PurchaseRequisitionDetailsUnitName
-                            } into grp
+                                Location = d.LocationMasterLocationName,
+                                a.PurchaseRequisitionId,
+                                a.PurchaseRequisitionNo,
+                                a.PurchaseRequisitionDate,
+                                JobName = f != null ? f.JobMasterJobName : "",
+                                b.PurchaseRequisitionDetailsMatId,
+                                ItemMasterItemName = c.ItemMasterItemName,
+                                Unit = g.UnitMasterUnitShortName,
+                                Qty = b.PurchaseRequisitionDetailsQuantity,
+                                b.PurchaseRequisitionDetailsRate,
+                                Amount = b.PurchaseRequisitionDetailsQuantity * b.PurchaseRequisitionDetailsRate,
+                                DelvQty = (from e in _stdRepository.GetAsQueryable()
+                                                   where e.PurchaseRequisitionId == a.PurchaseRequisitionId &&
+                                                 e.StockTransferDetailsMaterialId == b.PurchaseRequisitionDetailsMatId
+                                           select e.StockTransferDetailsQty).Sum() ?? 0,
+                                BalanceQty = (double)b.PurchaseRequisitionDetailsQuantity -
+                                             ((from e in _stdRepository.GetAsQueryable()
+                                               where e.PurchaseRequisitionId == a.PurchaseRequisitionId &&
+                                                     e.StockTransferDetailsMaterialId == b.PurchaseRequisitionDetailsMatId
+                                               select e.StockTransferDetailsQty).Sum() ?? 0)
+                            };
 
-                            select new
-                            {
-                                Location = grp.Max(pc => pc.lm.LocationMasterLocationName),
-                                Unit = grp.Key.PurchaseRequisitionDetailsUnitName,
-                                PurchaseRequisitionId = grp.Key.PurchaseRequisitionId,
-                                PurchaseRequisitionNo = grp.Key.PurchaseRequisitionNo,
-                                PurchaseRequisitionDate = grp.Key.PurchaseRequisitionDate,
-                                PurchaseRequisitionDetailsMatId = grp.Key.PurchaseRequisitionDetailsMatId,
-                                ItemMasterItemName = grp.Key.ItemMasterItemName,
-                                Qty = grp.Sum(x => x.prd.PurchaseRequisitionDetailsQuantity ?? 0),
-                                PurchaseRequisitionDetailsRate = grp.Key.PurchaseRequisitionDetailsRate ?? 0,
-                                Amount = grp.Sum(x => x.prd.PurchaseRequisitionDetailsQuantity ?? 0) * grp.Key.PurchaseRequisitionDetailsRate ?? 0,
-                                // DelvQty= _stdRepository.GetAsQueryable().Where(x=>x.PurchaseRequisitionId==(int)x.PurchaseRequisitionId).Select(y=>y.StockTransferDetailsQty??0),
-                                DelvQty = grp.Sum(x => x.stdij.StockTransferDetailsQty ?? 0),
-                                BalanceQty = (double)grp.Sum(x => x.prd.PurchaseRequisitionDetailsQuantity ?? 0) - grp.Sum(x => x.stdij.StockTransferDetailsQty ?? 0)
-                            }).AsQueryable();
+
 
                 return data;
 
