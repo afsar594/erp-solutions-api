@@ -1241,14 +1241,14 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                                 pr.PurchaseRequisitionDate,
                                 prd.PurchaseRequisitionDetailsMatId,
                                 im.ItemMasterItemName,
-                                prd.PurchaseRequisitionDetailsRate
-
+                                prd.PurchaseRequisitionDetailsRate,
+                                prd.PurchaseRequisitionDetailsUnitName
                             } into grp
 
                             select new
                             {
                                 Location = grp.Max(pc => pc.lm.LocationMasterLocationName),
-
+                                Unit = grp.Key.PurchaseRequisitionDetailsUnitName,
                                 PurchaseRequisitionId = grp.Key.PurchaseRequisitionId,
                                 PurchaseRequisitionNo = grp.Key.PurchaseRequisitionNo,
                                 PurchaseRequisitionDate = grp.Key.PurchaseRequisitionDate,
