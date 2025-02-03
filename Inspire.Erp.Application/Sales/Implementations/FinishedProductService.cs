@@ -132,73 +132,80 @@ namespace Inspire.Erp.Application.Sales.Implementations
         //    return i;
 
         //}
-        //public BillofQtyMaster InsertBillofQty(BillofQtyMaster BillofQty, List<BillOfQTyDetails> BillOfQTyDetails)
-        //{
-        //    try
-        //    {
-        //        _BillofQtyMasterRepository.BeginTransaction();
-        //        //string customerQuotationNumber = clsCommonFunctions.GenerateVoucherNo(BillofQty.Date
-        //        //   , VoucherType.BOQ, Prefix.BOQ_Prefix
-        //        //   , _programsettingsRepository, _voucherNumbersRepository).VouchersNumbersVNo;
-        //        string customerQuotationNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.BOQ, Prefix.BOQ_Prefix,
-        //            _programsettingsRepository, _voucherNumbersRepository);
-        //        BillofQty.BillofqtyNo = customerQuotationNumber;
+        public FinishedProductMaster InsertFinishProduct(FinishedProductMaster FinishedProductMaster, List<FinishedProductDetails> FinishedProductDetails)
+        {
+            try
+            {
+                _FinishedProductMasterRepository.BeginTransaction();
 
-        //        BillofQty.BillOfQTyDetails.Clear();
-        //        decimal maxcount = 0;
-        //        maxcount = (
-        //            _BillofQtyMasterRepository.GetAsQueryable()
-        //            .DefaultIfEmpty().Max(o => o == null ? 0 : o.Id) + 1);
+                // Generate unique voucher number
+                string customerQuotationNumber = clsCommonFunctions.GenrateVoucherNo(
+                    VoucherType.BOQ, Prefix.BOQ_Prefix,
+                    _programsettingsRepository, _voucherNumbersRepository);
 
-        //        BillofQty.Id = maxcount;
+                FinishedProductMaster.Finish_Product_MasterVoucherNo = customerQuotationNumber;
 
-        //        decimal maxCount1 = 0;
-        //        maxCount1 = _BillOfQTyDetailsRepository.GetAsQueryable()
-        //             .DefaultIfEmpty()
-        //             .Max(o => o == null ? 0 : (decimal)o.Id) + 1;
-        //        foreach (var x in BillOfQTyDetails)
-        //        {
+                // Ensure FinishedProductDetails is initialized
+                if (FinishedProductMaster.FinishedProductDetails == null)
+                {
+                    FinishedProductMaster.FinishedProductDetails = new List<FinishedProductDetails>();
+                }
 
-        //            x.Id = maxCount1;
-        //            x.BillQtyId = maxcount;
-        //            BillofQty.BillOfQTyDetails.Add(x);
-        //            maxCount1++;
-        //        }
+                // Get next ID for FinishedProductMaster
+                decimal nextMasterId = _FinishedProductMasterRepository
+                    .GetAsQueryable()
+                    .DefaultIfEmpty()
+                    .Max(o => o == null ? 0 : o.Finish_Product_MasterId) + 1;
 
-        //        _BillofQtyMasterRepository.Insert(BillofQty);
-        //        _BillofQtyMasterRepository.TransactionCommit();
+                FinishedProductMaster.Finish_Product_MasterId = nextMasterId;
 
-        //        return this.GetSavedBillofQty(BillofQty.Id);
+                // Assign IDs to details
+                decimal nextDetailId = 1; // Start detail ID from 1
+                foreach (var detail in FinishedProductDetails)
+                {
+                    detail.Finish_Product_MasterId = nextMasterId;
+                    detail.Finish_Product_DetailId = nextDetailId;
+                    FinishedProductMaster.FinishedProductDetails.Add(detail);
+                    nextDetailId++;
+                }
 
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _BillofQtyMasterRepository.TransactionRollback();
-        //        throw ex;
-        //    }
-        //}
+                // Insert into database
+                _FinishedProductMasterRepository.Insert(FinishedProductMaster);
+                _FinishedProductMasterRepository.TransactionCommit();
+
+                return GetSavedBillofQty(FinishedProductMaster.Finish_Product_MasterId);
+            }
+            catch (Exception ex)
+            {
+                _FinishedProductMasterRepository.TransactionRollback();
+                throw; // Preserves the stack trace
+            }
+        }
+
+        // Retrieve all finished products
         public IEnumerable<FinishedProductMaster> GetIFinishedProduct()
         {
-            IEnumerable<FinishedProductMaster> finishedProdut = _FinishedProductMasterRepository.GetAll();
-            return finishedProdut;
+            return _FinishedProductMasterRepository.GetAll() ?? new List<FinishedProductMaster>();
         }
-        //public BillofQtyMaster GetSavedBillofQty(decimal id)
-        //{
 
-        //    BillofQtyMaster voucherdata = new BillofQtyMaster();
-        //    voucherdata = _BillofQtyMasterRepository.GetAsQueryable().Where(k => k.Id == id).FirstOrDefault();
-        //    if (voucherdata != null)
-        //    {
-        //        voucherdata.BillOfQTyDetails = _BillOfQTyDetailsRepository.GetAsQueryable().Where(qd => qd.BillQtyId == id).ToList();
-        //        return voucherdata;
+        // Retrieve a saved finished product by ID
+        public FinishedProductMaster GetSavedBillofQty(decimal id)
+        {
+            var voucherData = _FinishedProductMasterRepository
+                .GetAsQueryable()
+                .FirstOrDefault(k => k.Finish_Product_MasterId == id);
 
-        //    }
-        //    else
-        //    {
-        //        return null;
-        //    }
+            if (voucherData != null)
+            {
+                voucherData.FinishedProductDetails = FinishedProductDetailsRepository
+                    .GetAsQueryable()
+                    .Where(qd => qd.Finish_Product_MasterId == id)
+                    .ToList();
+            }
 
-        //}
+            return voucherData; // Return null if not found
+        }
+
         //public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
         //{
         //    try
