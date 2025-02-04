@@ -12,6 +12,7 @@ namespace Inspire.Erp.Web.ViewModels
         public long? UserId { get; set; }
         public string? LogInId { get; set; }
         public string? UserName { get; set; }
+        public int? LocationId { get; set; }
         public int? WorkGroupId { get; set; }
         public string? Password { get; set; }
         public string? Token { get; set; }

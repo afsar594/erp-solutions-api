@@ -17348,6 +17348,8 @@ namespace Inspire.Erp.Infrastructure.Database
                     .IsRequired()
                     .HasMaxLength(60)
                     .IsUnicode(false);
+                entity.Property(e => e.LocationId).HasColumnName("LocationId");
+
                 entity.Property(e => e.Salt).HasColumnName("Salt");
                 entity.Property(e => e.Token).HasColumnName("Token");
                 entity.Property(e => e.RefreshToken).HasColumnName("RefreshToken");
