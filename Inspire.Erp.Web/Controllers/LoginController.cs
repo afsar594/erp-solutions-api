@@ -162,7 +162,7 @@ namespace Inspire.Erp.Web.Controllers
 
             var xs = loginsvc.InsertUser(param1);
             UserFileViewModel userdata = new UserFileViewModel();
-            if (xs.IsValid == true)
+            if (xs.IsValid == true )
             {
                 userdata = _mapper.Map<UserFileViewModel>(xs);
 
@@ -198,7 +198,7 @@ namespace Inspire.Erp.Web.Controllers
             var xs = loginsvc.UpdateUser(param1);
 
             UserFileViewModel userdata = new UserFileViewModel();
-            if (xs.IsValid == true)
+            if (xs.IsValid == true || xs.IsValid == null)
             {
                 userdata = _mapper.Map<UserFileViewModel>(xs);
 
@@ -211,6 +211,7 @@ namespace Inspire.Erp.Web.Controllers
             }
             else
             {
+                userdata = _mapper.Map<UserFileViewModel>(xs);
                 apiResponse = new ApiResponse<UserFileViewModel>
                 {
                     Valid = false,

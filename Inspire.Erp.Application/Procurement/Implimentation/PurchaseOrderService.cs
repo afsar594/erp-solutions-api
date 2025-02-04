@@ -322,8 +322,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     item.PurchaseOrderDetailsNo = purchaseOrderNumber;
                     purchaseOrder.PurchaseOrderDetails.Add(item);
                 }
-
-
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     k.AccountsTransactionsVoucherNo = purchaseOrder.PurchaseOrderNo;
@@ -432,6 +430,36 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             }
 
         }
+       // public PurchaseOrderModel GetPorderDetails(int id)
+        //{
+        //    PurchaseOrderModel purchaseOrderModel = new PurchaseOrderModel();
+        //    purchaseOrderModel.purchaseOrderDetails = _purchaseOrderDetailsRepository.GetAsQueryable().Where(x => x.PurchaseOrderDetailsNo == purchaseOrderModel.purchaseOrder.PurchaseOrderNo && (x.PurchaseOrderDetailsDelStatus == false || x.PurchaseOrderDetailsDelStatus == null)).ToList();
+
+        //    foreach (var purchaseOrderDetail in purchaseOrderModel.purchaseOrderDetails)
+        //    {
+        //        if (_stockRegisterRepository.GetAsQueryable().Where(c => c.StockRegisterRefVoucherNo == purchaseOrderDetail.PurchaseOrderDetailsNo).FirstOrDefault() != null)
+        //        {
+        //            purchaseOrderDetail.PurchaseOrderNetStock = _stockRegisterRepository.GetAsQueryable().Where(c => c.StockRegisterRefVoucherNo == purchaseOrderDetail.PurchaseOrderDetailsNo).FirstOrDefault().StockRegisterSIN;
+
+
+
+        //            var BalanceQuantity = 
+                        
+        //                (int)g.Key.PurchaseOrderDetailsQuantity - (_purchaseVoucherDetailsRepo.GetAsQueryable()
+        //                                         .Where(pr => pr.PurchaseVoucherDetailsPodId == g.Key.PurchaseOrderDetailsId
+        //                                                 && pr.PurchaseVoucherDetailsMaterialId == g.Key.PurchaseOrderDetailsMatId)
+        //                                         .Sum(prdq => (int?)prdq.PurchaseVoucherDetailsQuantity) ?? 0
+        //                                 ),
+        //                                 DeliveredQuantity = _purchaseVoucherDetailsRepo.GetAsQueryable()
+        //                                     .Where(pr => pr.PurchaseVoucherDetailsPodId == g.Key.PurchaseOrderDetailsId
+        //                                             && pr.PurchaseVoucherDetailsMaterialId == g.Key.PurchaseOrderDetailsMatId)
+        //                                     .Sum(prdq => (int?)prdq.PurchaseVoucherDetailsQuantity) ?? 0
+        //                            )
+        //        }
+        //    }
+        //    return purchaseOrderModel;
+
+        //}
         public IEnumerable<AccountsTransactions> GetAllTransaction()
         {
             return _accountTransactionRepository.GetAll();
