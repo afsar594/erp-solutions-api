@@ -485,7 +485,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                        Date = hdr.UserTrackingUserChangeDt.Value.ToString("dd/MM/yyyy"),
                                        Time = hdr.UserTrackingUserChangeTime.Value.ToString("hh:mm t"),
                                        VNo = hdr.UserTrackingUserVpNo,
-                                   }).OrderBy(x => x.Name).AsEnumerable().ToList();
+                                   }).ToList();
             voucherdata.UserTrackingData = userTrackngData;
             voucherdata.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == voucherdata.BankReceiptVoucherVoucherNo).ToList();
             voucherdata.BankReceiptVoucherDetails = _bankReceiptVoucherDetailsRepository.GetAsQueryable().Where(x => x.BankReceiptVoucherDetailsVoucherNo == voucherdata.BankReceiptVoucherVoucherNo).ToList();
