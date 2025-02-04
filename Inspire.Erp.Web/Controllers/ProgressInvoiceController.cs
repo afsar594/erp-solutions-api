@@ -45,7 +45,9 @@ namespace Inspire.Erp.Web.Controllers.Procurement
 
             var param1 = _mapper.Map<ProgressiveInvoice>(progressiveInvoice);
             var param2 = _mapper.Map<List<AccountsTransactions>>(progressiveInvoice.AccountsTransactions);
-            var response = _ProgressiveInvoice.InsertProgressInvoice(param1,param2);
+            var param3 = _mapper.Map<List<ProgressiveInvoiceDetails>>(progressiveInvoice.progressiveInvoiceDetails);
+
+            var response = _ProgressiveInvoice.InsertProgressInvoice(param1,param2,param3);
             var res = new ApiResponse<ProgressiveInvoice>
             {
                 Valid = true,
@@ -60,7 +62,9 @@ namespace Inspire.Erp.Web.Controllers.Procurement
         {
             var param1 = _mapper.Map<ProgressiveInvoice>(progressiveInvoice);
             var param2 = _mapper.Map<List<AccountsTransactions>>(progressiveInvoice.AccountsTransactions);
-            var response = _ProgressiveInvoice.UpdateProgressInvoice(param1, param2);
+            var param3 = _mapper.Map<List<ProgressiveInvoiceDetails>>(progressiveInvoice.progressiveInvoiceDetails);
+
+            var response = _ProgressiveInvoice.UpdateProgressInvoice(param1, param2, param3);
             var res = new ApiResponse<ProgressiveInvoice>
             {
                 Valid = true,
@@ -77,7 +81,9 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             var param1 = _mapper.Map<ProgressiveInvoice>(dataObj);
             var param2 = _mapper.Map<List<AccountsTransactions>>(dataObj.AccountsTransactions);
             param2 = new List<AccountsTransactions>();
-            var xs = _ProgressiveInvoice.DeleteProgressInvoice(param1, param2);
+            var param3 = _mapper.Map<List<ProgressiveInvoiceDetails>>(dataObj.progressiveInvoiceDetails);
+
+            var xs = _ProgressiveInvoice.DeleteProgressInvoice(param1, param2, param3);
             
             ApiResponse<int> apiResponse = new ApiResponse<int>
             {

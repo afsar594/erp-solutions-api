@@ -34,7 +34,7 @@ namespace Inspire.Erp.Application.Master.Implementations
             _programsettingsRepository = programsettingsRepository;
             _voucherNumbersRepository = voucherNumbersRepository;
         }
-        public ProgressiveInvoice InsertProgressInvoice(ProgressiveInvoice progressiveInvoice, List<AccountsTransactions> accountsTransactions)
+        public ProgressiveInvoice InsertProgressInvoice(ProgressiveInvoice progressiveInvoice, List<AccountsTransactions> accountsTransactions, List<ProgressiveInvoiceDetails> progressiveInvoiceDetails)
         {
             try
             {
@@ -47,6 +47,15 @@ namespace Inspire.Erp.Application.Master.Implementations
                 maxcount = Convert.ToInt32(
                     _progressiveInvoice.GetAsQueryable()
                     .DefaultIfEmpty().Max(o => o == null ? 0 : o.ProgressiveInvoiceId) + 1);
+
+                progressiveInvoiceDetails = progressiveInvoiceDetails.Select((x) =>
+                {
+                    x.ProgressiveInvoiceDetailsPrDetId = maxcount;
+                    return x;
+
+                }).ToList();
+
+                _progressiveInvoiceDetails.InsertList(progressiveInvoiceDetails);
 
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
@@ -61,6 +70,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                     return k;
                 }).ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
+                
 
                 _progressiveInvoice.Insert(progressiveInvoice);
 
@@ -74,7 +84,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                 throw ex;
             }
         }
-        public ProgressiveInvoice UpdateProgressInvoice(ProgressiveInvoice progressiveInvoice, List<AccountsTransactions> accountsTransactions)
+        public ProgressiveInvoice UpdateProgressInvoice(ProgressiveInvoice progressiveInvoice, List<AccountsTransactions> accountsTransactions, List<ProgressiveInvoiceDetails> progressiveInvoiceDetails)
         {
             try
             {
@@ -82,7 +92,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                 _progressiveInvoice.BeginTransaction();
                 clsCommonFunctions.Delete_OldEntry_AccountsTransactions(progressiveInvoice.ProgressiveInvoiceInvNo, progressiveInvoice.ProgressiveInvoiceInvoiceType, _accountTransactionRepository);
                 _progressiveInvoice.Update(progressiveInvoice);
-
+                _progressiveInvoiceDetails.UpdateList(progressiveInvoiceDetails);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     if (k.AccountsTransactionsTransSno == 0)
@@ -106,7 +116,7 @@ namespace Inspire.Erp.Application.Master.Implementations
 
             return this.GetSavedProgressiveInoices(progressiveInvoice.ProgressiveInvoiceInvNo);
         }
-        public int DeleteProgressInvoice(ProgressiveInvoice progressiveInvoice, List<AccountsTransactions> accountsTransactions)
+        public int DeleteProgressInvoice(ProgressiveInvoice progressiveInvoice, List<AccountsTransactions> accountsTransactions, List<ProgressiveInvoiceDetails> progressiveInvoiceDetails)
         {
             int i = 0;
             try
@@ -120,6 +130,12 @@ namespace Inspire.Erp.Application.Master.Implementations
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
+                }).ToList();
+
+                progressiveInvoiceDetails = progressiveInvoiceDetails.Select((x) =>
+                {
+                    x.ProgressiveInvoiceDetailsDelStatus = true;
+                    return x;
                 }).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 _progressiveInvoice.Update(progressiveInvoice);
@@ -141,6 +157,8 @@ namespace Inspire.Erp.Application.Master.Implementations
         {
             ProgressiveInvoice voucherModel = new ProgressiveInvoice();
             voucherModel = _progressiveInvoice.GetAsQueryable().Where(k => k.ProgressiveInvoiceInvNo == pvno).SingleOrDefault();
+
+            //voucherModel.progressiveInvoiceDetails = _progressiveInvoiceDetails.GetAsQueryable().Where(x => x.)
             return voucherModel;
         }
         public IQueryable GetProgressInvoiceReport()

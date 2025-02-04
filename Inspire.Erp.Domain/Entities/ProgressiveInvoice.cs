@@ -40,5 +40,8 @@ namespace Inspire.Erp.Domain.Entities
         [NotMapped]
         public List<AccountsTransactions> AccountsTransactions { get; set; }
 
+        [NotMapped]
+        public  List<ProgressiveInvoiceDetails> progressiveInvoiceDetails { get; set; }
+
     }
 }

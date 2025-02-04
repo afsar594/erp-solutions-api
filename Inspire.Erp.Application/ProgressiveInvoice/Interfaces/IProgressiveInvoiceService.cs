@@ -12,11 +12,11 @@ namespace Inspire.Erp.Application.Master.Interfaces
 {
     public interface IProgressiveInvoiceService
     {
-     public ProgressiveInvoice InsertProgressInvoice(ProgressiveInvoice progressiveInvoice,List<AccountsTransactions> accountsTransactions);
-    public ProgressiveInvoice UpdateProgressInvoice(ProgressiveInvoice progressiveInvoice, List<AccountsTransactions> accountsTransactions);
-    public int DeleteProgressInvoice(ProgressiveInvoice progressiveInvoice, List<AccountsTransactions> accountsTransactions);
+     public ProgressiveInvoice InsertProgressInvoice(ProgressiveInvoice progressiveInvoice,List<AccountsTransactions> accountsTransactions,List<ProgressiveInvoiceDetails> progressiveInvoiceDetails);
+     public ProgressiveInvoice UpdateProgressInvoice(ProgressiveInvoice progressiveInvoice, List<AccountsTransactions> accountsTransactions, List<ProgressiveInvoiceDetails> progressiveInvoiceDetails);
+     public int DeleteProgressInvoice(ProgressiveInvoice progressiveInvoice, List<AccountsTransactions> accountsTransactions,List<ProgressiveInvoiceDetails> progressiveInvoiceDetails);
      public IQueryable GetProgressInvoiceReport();
-    public ProgressiveInvoice GetSavedProgressiveInoices(string id);
+     public ProgressiveInvoice GetSavedProgressiveInoices(string id);
 
     }
 }
