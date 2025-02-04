@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -7,15 +8,32 @@ namespace Inspire.Erp.Web.ViewModels
 {
     public class UserFileViewModel
     {
-      
-            public long UserId { get; set; }
-            public string LogInId { get; set; }
-            public string UserName { get; set; }
-            public int WorkGroupId { get; set; }
-            public string Password { get; set; }
-            public bool Deleted { get; set; }
-            public bool System { get; set; }
-            public bool? Freeze { get; set; }
-       
+
+        public long? UserId { get; set; }
+        public string? LogInId { get; set; }
+        public string? UserName { get; set; }
+        public int? LocationId { get; set; }
+        public int? WorkGroupId { get; set; }
+        public string? Password { get; set; }
+        public string? Token { get; set; }
+        public string? UserImage { get; set; }
+        public string? RefreshToken { get; set; }
+        public DateTime? RefreshTokenExpiryTime { get; set; }
+        public string Salt { get; set; }
+        public bool? Deleted { get; set; }
+        public bool? System { get; set; }
+        public bool? Freeze { get; set; }
+        [NotMapped]
+        public bool? IsValid { get; set; }
+        [NotMapped]
+        public int? LocId { get; set; }
+        [NotMapped]
+        public string? Message { get; set; }
+        [NotMapped]
+        public int? FinancialPeriodsFsno { get; set; }
+        public int? Loginfailure { get; set; }
+        public DateTime? PasswordUpdateDate { get; set; }
+
+
     }
 }

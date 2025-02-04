@@ -68,7 +68,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                     k.AccountsTransactionsFcDebit = 0;
                     k.AccountsTransactionsStatus = "A";
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
                 
 
@@ -103,7 +103,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                         k.AccountsTransactionsStatus = AccountStatus.Approved;
                     }
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
                 _progressiveInvoice.TransactionCommit();
 

@@ -20,6 +20,7 @@ using Inspire.Erp.Infrastructure.Database;
 using SendGrid.Helpers.Mail;
 using System.Linq.Dynamic.Core;
 using Inspire.Erp.Domain.Entities.POS;
+using Inspire.Erp.Application.MODULE;
 
 namespace Inspire.Erp.Application.Procurement.Implementation
 {
@@ -80,7 +81,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                     }
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.PurchaseRequisitionDetailsItemName).AsEnumerable().ToList();
 
                 _purchaseRequisitionRepository.Update(purchaseRequisition);
 
@@ -95,7 +96,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     }
 
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
                 //PermissionApprovalDetail by zaid              
@@ -149,7 +150,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 throw ex;
             }
 
-            return this.GetSavedPurchaseRequisitionDetails(purchaseRequisition.PurchaseRequisitionNo);
+            return this.GetSavedPurchaseRequisitionDetails((int)purchaseRequisition.PurchaseRequisitionId);
         }
 
         public int DeletePurchaseRequisition(PurchaseRequisition purchaseRequisition, List<AccountsTransactions> accountsTransactions,
@@ -167,7 +168,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 {
                     k.PurchaseRequisitionDetailsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.PurchaseRequisitionDetailsItemName).AsEnumerable().ToList();
 
                 //_purchaseRequisitionDetailsRepository.UpdateList(purchaseRequisitionDetails);
 
@@ -175,7 +176,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
 
@@ -314,7 +315,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
 
 
-                 }).ToList();
+                 }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
 
             this._accountTransactionRepository.UpdateList(accttrans);
         }
@@ -325,7 +326,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             try
             {
                 _purchaseRequisitionRepository.BeginTransaction();
-                string purchaseRequisitionNumber = this.GenerateVoucherNo(purchaseRequisition.PurchaseRequisitionDate.Date).VouchersNumbersVNo;
+                string purchaseRequisitionNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.PurchaseRequisition_TYPE, Prefix.PurchaseRequisition_Prefix,
+                    _programsettingsRepository, _voucherNumbersRepository); 
                 purchaseRequisition.PurchaseRequisitionNo = purchaseRequisitionNumber;
 
                 int maxcount = 0;
@@ -341,7 +343,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     x.PurchaseRequisitionId = maxcount;
                     x.PurchaseRequisitionDetailsNo = purchaseRequisitionNumber;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.PurchaseRequisitionDetailsId).AsEnumerable().ToList();
 
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
@@ -349,7 +351,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     k.AccountsTransactionsVoucherType = VoucherType.PurchaseRequisition_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
                 _purchaseRequisitionRepository.Insert(purchaseRequisition);
@@ -408,7 +410,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     }
                 }
                 _purchaseRequisitionRepository.TransactionCommit();
-                return this.GetSavedPurchaseRequisitionDetails(purchaseRequisition.PurchaseRequisitionNo);
+                return this.GetSavedPurchaseRequisitionDetails((int)purchaseRequisition.PurchaseRequisitionId);
 
             }
             catch (Exception ex)
@@ -429,16 +431,16 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IEnumerable<PurchaseRequisition> purchaseRequisition_ALL = _purchaseRequisitionRepository.GetAll().Where(k => k.PurchaseRequisitionDelStatus == false || k.PurchaseRequisitionDelStatus == null);
             return purchaseRequisition_ALL;
         }
-        public PurchaseRequisitionModel GetSavedPurchaseRequisitionDetails(string pvno)
+        public PurchaseRequisitionModel GetSavedPurchaseRequisitionDetails(int pvno)
         {
             PurchaseRequisitionModel purchaseRequisitionModel = new PurchaseRequisitionModel();
 
-            purchaseRequisitionModel.purchaseRequisition = _purchaseRequisitionRepository.GetAsQueryable().Where(k => k.PurchaseRequisitionNo == pvno).FirstOrDefault();
+            purchaseRequisitionModel.purchaseRequisition = _purchaseRequisitionRepository.GetAsQueryable().Where(k => k.PurchaseRequisitionId == pvno).FirstOrDefault();
 
-            purchaseRequisitionModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.PurchaseRequisition_TYPE && (c.AccountstransactionsDelStatus != true)).ToList();
-            purchaseRequisitionModel.purchaseRequisitionDetails = _purchaseRequisitionDetailsRepository.GetAsQueryable().Where(x => x.PurchaseRequisitionDetailsNo == pvno && (x.PurchaseRequisitionDetailsDelStatus != true)).ToList();
+            purchaseRequisitionModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == purchaseRequisitionModel.purchaseRequisition.PurchaseRequisitionNo && c.AccountsTransactionsVoucherType == VoucherType.PurchaseRequisition_TYPE && (c.AccountstransactionsDelStatus != true)).ToList();
+            purchaseRequisitionModel.purchaseRequisitionDetails = _purchaseRequisitionDetailsRepository.GetAsQueryable().Where(x => x.PurchaseRequisitionDetailsNo == purchaseRequisitionModel.purchaseRequisition.PurchaseRequisitionNo && (x.PurchaseRequisitionDetailsDelStatus != true)).ToList();
 
-            var approvals = _permissionApprovalDetailRepo.GetAsQueryable().AsNoTracking().Where(a => a.VoucherId == pvno).ToList();
+            var approvals = _permissionApprovalDetailRepo.GetAsQueryable().AsNoTracking().Where(a => a.VoucherId == purchaseRequisitionModel.purchaseRequisition.PurchaseRequisitionNo).ToList();
             if (approvals.Count > 0)
             {
                 if(approvals.Any(a=>a.Status.Contains("Approved")))
@@ -614,6 +616,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 if (model.JobId > 0)
                 {
                     query = query.Where(a => a.PurchaseRequisitionJobId == model.JobId);
+                }
+                if (model.locationId > 0)
+                {
+                    query = query.Where(a => a.PurchaseRequisitionLocationId == model.locationId);
                 }
                 if (model.IsDateChecked)
                 {

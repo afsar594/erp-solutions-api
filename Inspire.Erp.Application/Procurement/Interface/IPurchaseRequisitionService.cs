@@ -34,15 +34,10 @@ namespace Inspire.Erp.Application.Procurement.Interfaces
             //, List<StockRegister> stockRegister
             );
         public IEnumerable<AccountsTransactions> GetAllTransaction();
-  
-
-        
-        public PurchaseRequisitionModel GetSavedPurchaseRequisitionDetails(string pvno);
+        public PurchaseRequisitionModel GetSavedPurchaseRequisitionDetails(int pvno);
         public IEnumerable<PurchaseRequisition> GetPurchaseRequisition();
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
-
         public VouchersNumbers GetVouchersNumbers(string pvno);
-
         public Task<Response<List<PurChaseRequisitionStatus>>> GetPurchaseRequisitionStatus(PurChaseRequisitionStatusFilterReport filter);
         public Task<Response<List<PurChaseReqFields>>> GetPurchaseReqJobId(PurChaseRequisitionFilterReport filter);
     }

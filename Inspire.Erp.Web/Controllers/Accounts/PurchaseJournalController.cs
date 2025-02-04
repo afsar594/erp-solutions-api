@@ -125,7 +125,7 @@ namespace Inspire.Erp.Web.Controllers
            }
         [HttpGet]
         [Route("GetSavedPurchaseJournalDetails/{id}")]
-        public ApiResponse<PurchaseJournal> GetSavedPurchaseJournalDetails(string id)
+        public ApiResponse<PurchaseJournal> GetSavedPurchaseJournalDetails(int id)
         {
             PurchaseJournal purchaseJournal = _purchaseJournalService.GetSavedPurchaseJournalDetails(id);
 
@@ -176,23 +176,23 @@ namespace Inspire.Erp.Web.Controllers
                 c.MaAccName,
                 c.MaRelativeNo,
                 c.MaSno
-            }).ToList();
+            }).OrderBy(x => x.MaAccName).AsEnumerable().ToList();
             var costcenterMasters = costcenterrepository.GetAsQueryable().AsNoTracking().Where(a => a.CostCenterMasterCostCenterDelStatus != true).Select(c => new
             {
                 c.CostCenterMasterCostCenterId,
                 CostCenterMasterCostCenterName=c.CostCenterMasterCostCenterName.Trim(),
-            }).ToList();
+            }).OrderBy(x => x.CostCenterMasterCostCenterName).AsEnumerable().ToList();
             var jobMasters = jobrepository.GetAsQueryable().AsNoTracking().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
             {
                 c.JobMasterJobId,
                 JobMasterJobName=c.JobMasterJobName.Trim(),
-            }).ToList();
+            }).OrderBy(x => x.JobMasterJobName).AsEnumerable().ToList();
             var currencyMasters = currencyrepository.GetAsQueryable().AsNoTracking().Where(a => a.CurrencyMasterCurrencyDelStatus != true).Select(c => new
             {
                 c.CurrencyMasterCurrencyId,
                 CurrencyMasterCurrencyName = c.CurrencyMasterCurrencyName.Trim(),
                 c.CurrencyMasterCurrencyRate
-            }).ToList();
+            }).OrderBy(x => x.CurrencyMasterCurrencyName).AsEnumerable().ToList();
 
             objresponse.ResultSet = new
             {

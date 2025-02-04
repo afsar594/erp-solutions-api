@@ -125,7 +125,7 @@ namespace Inspire.Erp.Application.MODULE
 
 
 
-                 }).ToList();
+                 }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
             _accountTransactionRepository.DeleteList(accttrans);
             //_accountTransactionRepository.UpdateList(accttrans);
         }
@@ -172,7 +172,7 @@ namespace Inspire.Erp.Application.MODULE
 
 
 
-                 }).ToList();
+                 }).OrderBy(x => x.StockRegisterRefVoucherNo).AsEnumerable().ToList();
             _stockRegisterRepository.DeleteList(stockTrans);
             //_stockRegisterRepository.UpdateList(stockTrans);
 
@@ -272,7 +272,7 @@ namespace Inspire.Erp.Application.MODULE
                     && v.VouchersNumbersVoucherDate.Value.Month == date.Month
                     ).AsEnumerable().Select(a => a.VouchersNumbersVNoNu).DefaultIfEmpty(0).Max() + 1;
 
-                    vnoPrefix = prefix + prefixSeprator + date.Year.ToString() + prefixSeprator + date.Month.ToString() + prefixSeprator + vNoMax.ToString();
+                    vnoPrefix = prefix + prefixSeprator + date.ToString("yy")  + date.ToString("MM") + prefixSeprator + Convert.ToInt32(vNoMax).ToString("D3");
                 }
                 else if (program.Equals("2"))  // yearly
                 {
@@ -282,14 +282,14 @@ namespace Inspire.Erp.Application.MODULE
                     && v.VouchersNumbersVoucherDate.Value.Year == date.Year
                     ).AsEnumerable().Select(a => a.VouchersNumbersVNoNu).DefaultIfEmpty(0).Max() + 1;
 
-                    vnoPrefix = prefix + prefixSeprator + date.Year.ToString() + prefixSeprator + date.Month.ToString() + prefixSeprator + vNoMax.ToString();
+                    vnoPrefix = prefix + prefixSeprator + date.ToString("yy")  + date.ToString("MM") + prefixSeprator + Convert.ToInt32(vNoMax).ToString("D3");
                 }
                 else
                 {
                     vNoMax = _voucherNosRepo.GetAsQueryable().Where(v => v.VouchersNumbersVNoNu > 0 && v.VouchersNumbersVType.Equals(voucherType)).AsEnumerable().
                         Select(a => a.VouchersNumbersVNoNu).DefaultIfEmpty(0).Max() + 1;
 
-                    vnoPrefix = prefix + prefixSeprator + vNoMax.ToString();
+                    vnoPrefix = prefix + prefixSeprator + Convert.ToInt32(vNoMax).ToString("D3");
 
                 }
                 VouchersNumbers vocherNumber = new VouchersNumbers

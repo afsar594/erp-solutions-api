@@ -26,5 +26,7 @@ namespace Inspire.Erp.Application.Account.Interfaces
         Task<Response<bool>> SaveNewAssetHead(AssetHeaderViewModel model);
         Task<Response<bool>> EditAssetHead(AssetGroupEditViewModel model);
 
+        Task<Response<List<AssetMaster>>> GetAllAssets();
+
     }
 }

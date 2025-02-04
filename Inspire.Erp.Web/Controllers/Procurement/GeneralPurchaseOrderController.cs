@@ -158,7 +158,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             ApiResponse<List<GeneralPurchaseOrder>> apiResponse = new ApiResponse<List<GeneralPurchaseOrder>>
             {
                 Valid = true,
-                Result = _GeneralpurchaseOrderService.GetGeneralPurchaseOrder().ToList(),
+                Result = _GeneralpurchaseOrderService.GetGeneralPurchaseOrder().OrderBy(x=>x.GeneralPurchaseOrderJobId).ToList(),
                 Message = ""
             };
             return apiResponse;

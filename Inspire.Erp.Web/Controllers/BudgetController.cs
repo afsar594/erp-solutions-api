@@ -34,7 +34,7 @@ namespace Inspire.Erp.Web.Controllers
                 BudgetMasterBudgetId = k.BudgetMasterBudgetId,
                 BudgetMasterBudgetName = k.BudgetMasterBudgetName,
                 BudgetMasterBudgetDelStatus = k.BudgetMasterBudgetDelStatus
-            }).ToList();
+            }).OrderBy(x => x.BudgetMasterBudgetName).AsEnumerable().ToList();
         }
 
         [HttpGet]
@@ -48,7 +48,7 @@ namespace Inspire.Erp.Web.Controllers
                 BudgetMasterBudgetName = k.BudgetMasterBudgetName,
                 BudgetMasterBudgetDelStatus = k.BudgetMasterBudgetDelStatus
 
-            }).ToList();
+            }).OrderBy(x => x.BudgetMasterBudgetName).AsEnumerable().ToList();
         }
 
 
@@ -62,7 +62,7 @@ namespace Inspire.Erp.Web.Controllers
                 BudgetMasterBudgetId = k.BudgetMasterBudgetId,
                 BudgetMasterBudgetName = k.BudgetMasterBudgetName,
                 BudgetMasterBudgetDelStatus = k.BudgetMasterBudgetDelStatus
-            }).ToList();
+            }).OrderBy(x => x.BudgetMasterBudgetName).AsEnumerable().ToList();
         }
 
         [HttpPost]
@@ -75,7 +75,7 @@ namespace Inspire.Erp.Web.Controllers
                 BudgetMasterBudgetId = k.BudgetMasterBudgetId,
                 BudgetMasterBudgetName = k.BudgetMasterBudgetName,
                 BudgetMasterBudgetDelStatus = k.BudgetMasterBudgetDelStatus
-            }).ToList();
+            }).OrderBy(x => x.BudgetMasterBudgetName).AsEnumerable().ToList();
         }
 
         [HttpPost]
@@ -88,7 +88,7 @@ namespace Inspire.Erp.Web.Controllers
                 BudgetMasterBudgetId = k.BudgetMasterBudgetId,
                 BudgetMasterBudgetName = k.BudgetMasterBudgetName,
                 BudgetMasterBudgetDelStatus = k.BudgetMasterBudgetDelStatus
-            }).ToList();
+            }).OrderBy(x => x.BudgetMasterBudgetName).AsEnumerable().ToList();
         }
     }
 }

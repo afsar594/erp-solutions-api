@@ -44,7 +44,7 @@ namespace Inspire.Erp.Application.Sales.Implementation
                 response.AddRange(result.Select(x => new DropdownResponse { 
                 Id=x.SalesManMasterSalesManId != null? Convert.ToInt32(x.SalesManMasterSalesManId):0,
                 Name=x.SalesManMasterSalesManName
-                }).OrderBy(x=>x.Name).ToList());
+                }).ToList());
                 response.AddRange(response.OrderBy(x => x.Name)); // Order by Name
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
             }
@@ -73,7 +73,7 @@ namespace Inspire.Erp.Application.Sales.Implementation
                 {
                     Name=x.CustomerMasterCustomerName,
                     Value=x.CustomerMasterCustomerReffAcNo
-                }).OrderBy(x=>x.Name).ToList());
+                }).ToList());
                 response.AddRange(response.OrderBy(x => x.Name)); // Order by Name
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
             }

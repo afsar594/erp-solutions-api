@@ -245,7 +245,7 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("GetSavedSalesOrderDetails/{id}")]
-        public ApiResponse<CustomerPurchaseOrderViewModel> GetSavedSalesOrderDetails(string id)
+        public ApiResponse<CustomerPurchaseOrderViewModel> GetSavedSalesOrderDetails(int id)
         {
             CustomerPurchaseOrderModel xs = _salesOrderService.GetSavedCustomerPurchaseOrderDetails(id);
 

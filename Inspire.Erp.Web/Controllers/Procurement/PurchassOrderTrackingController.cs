@@ -135,7 +135,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                 LogInId = ut.UserId,
                 username = ut.UserName
 
-            }).Distinct().ToList();
+            }).Distinct().OrderBy(x => x.username).ToList();
             objectresponse.ResultSet = new
             {
                 response = response
@@ -153,7 +153,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                      {
                          k.ItemMasterItemId,
                          k.ItemMasterItemName
-                     }).OrderBy(x => x.ItemMasterItemName).ToList();
+                     }).OrderBy(x => x.ItemMasterItemName).AsEnumerable().ToList();
 
             var SuppliersMaster = supplierrepository.GetAsQueryable().Where(a => a.SuppliersMasterSupplierDelStatus != true).Select(c => new
             {
@@ -171,6 +171,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             {
                 c.LocationMasterLocationId,
                 c.LocationMasterLocationName,
+                c.LocationMasterLocationStatus,
             }).OrderBy(x => x.LocationMasterLocationName).ToList();
 
             var purchaseOrder = _purchaseOrderRepository.GetAsQueryable().Where(k => k.PurchaseOrderDelStatus != true).Select(c => new

@@ -11,6 +11,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Microsoft.Extensions.Logging;
+using Inspire.Erp.Application.MODULE;
 namespace Inspire.Erp.Application.Account.Implementations
 {
     public class SalesJournalService : ISalesJournalService
@@ -111,7 +112,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     //}
 
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.SalesJournalDetailsVno).ToList();
 
                 _salesJournalRepository.Update(salesJournal);
 
@@ -129,7 +130,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     }
 
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherType).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
 
@@ -155,7 +156,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 throw ex;
             }
 
-            return this.GetSavedSalesJournalDetails(salesJournal.SalesJournalVno);
+            return this.GetSavedSalesJournalDetails((int)salesJournal.SalesJournalId);
         }
 
         public int DeleteSalesJournal(SalesJournal salesJournal, List<AccountsTransactions> accountsTransactions, List<SalesJournalDetails> salesJournalDetails)
@@ -179,7 +180,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
                 _salesJournalRepository.Update(salesJournal);
@@ -207,7 +208,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             try
             {
                 _salesJournalRepository.BeginTransaction();
-                string salesJournalNumber = this.GenerateVoucherNo(salesJournal.SalesJournalDate.Value).VouchersNumbersVNo;
+                string salesJournalNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.SalesJournal_TYPE, Prefix.SalesJournal_Prefix, _programsettingsRepository, _voucherNumbersRepository);
                 salesJournal.SalesJournalVno = salesJournalNumber;
                
 
@@ -221,21 +222,11 @@ namespace Inspire.Erp.Application.Account.Implementations
                 
                      x.SalesJournalDetailsVno = salesJournalNumber;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.SalesJournalDetailsVno).AsEnumerable().ToList();
                 _salesJournalRepository.Insert(salesJournal);
 
 
 
-
-                //salesJournalDetails = salesJournalDetails.Select((x) =>
-                //{
-                //    x.SalesJournalId = maxcount;
-                //    x.SalesJournalDetailsVno = salesJournalNumber;
-                //    return x;
-                //}).ToList();
-
-                //_salesJournalDetailsRepository.Update(salesJournalDetails);
-                //_salesJournalDetailsRepository.InsertList(salesJournalDetails);
 
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
@@ -243,11 +234,11 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsVoucherType = VoucherType.SalesJournal_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
                 _salesJournalRepository.TransactionCommit();
-                return this.GetSavedSalesJournalDetails(salesJournal.SalesJournalVno);
+                return this.GetSavedSalesJournalDetails((int)salesJournal.SalesJournalId);
 
             }
             catch (Exception ex)
@@ -268,17 +259,17 @@ namespace Inspire.Erp.Application.Account.Implementations
             IEnumerable<SalesJournal> salesJournal_ALL = _salesJournalRepository.GetAll().Where(k => k.SalesJournalDelStatus == false || k.SalesJournalDelStatus == null);
             return salesJournal_ALL;
         }
-        public SalesJournalModel GetSavedSalesJournalDetails(string pvno)
+        public SalesJournalModel GetSavedSalesJournalDetails(int pvno)
         {
             SalesJournalModel salesJournalModel = new SalesJournalModel();
             //salesJournalModel.salesJournal = _salesJournalRepository.GetAsQueryable().Where(k => k.SalesJournalVno == pvno && k.SalesJournalDelStatus == false).SingleOrDefault();
 
-            salesJournalModel.salesJournal = _salesJournalRepository.GetAsQueryable().Where(k => k.SalesJournalVno == pvno).SingleOrDefault();
+            salesJournalModel.salesJournal = _salesJournalRepository.GetAsQueryable().Where(k => k.SalesJournalId == pvno).SingleOrDefault();
 
 
 
-            salesJournalModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.SalesJournal_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
-            salesJournalModel.salesJournalDetails = _salesJournalDetailsRepository.GetAsQueryable().Where(x => x.SalesJournalDetailsVno == pvno && (x.SalesJournalDetailsDelStatus == false || x.SalesJournalDetailsDelStatus == null)).ToList();
+            salesJournalModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == salesJournalModel.salesJournal.SalesJournalVno && c.AccountsTransactionsVoucherType == VoucherType.SalesJournal_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
+            salesJournalModel.salesJournalDetails = _salesJournalDetailsRepository.GetAsQueryable().Where(x => x.SalesJournalDetailsVno == salesJournalModel.salesJournal.SalesJournalVno && (x.SalesJournalDetailsDelStatus == false || x.SalesJournalDetailsDelStatus == null)).ToList();
             return salesJournalModel;
 
 

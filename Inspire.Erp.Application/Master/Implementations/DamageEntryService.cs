@@ -51,7 +51,8 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
         {
             try
             {
-                string openingstockVoucherNumber = this.GenerateVoucherNo(DamageMaster.DamageMasterVdate.Value).VouchersNumbersVNo;
+                string openingstockVoucherNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.DamageEntry_TYPE, Prefix.DE_Prefix,
+                    _programsettingsRepository, _voucherNumbersRepository);
                 DamageMaster.DamageMasterVoucherNumber = openingstockVoucherNumber;
 
                 _DamageMasterRepo.BeginTransaction();
@@ -226,7 +227,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 {
                     DamageMaster = o,
                     _DamageDetailsRepo = detailList.Where(a => Convert.ToInt32(a.DamageDetailsId) == Convert.ToInt32(o.DamageMasterId)).ToList()
-                }).ToList();
+                }).OrderBy(x => x.DamageMaster).AsEnumerable().ToList();
                 return _DamageMasterRepo.GetAll();
 
             }

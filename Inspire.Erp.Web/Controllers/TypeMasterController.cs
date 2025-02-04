@@ -38,7 +38,7 @@ namespace Inspire.Erp.Web.Controllers
                 TypeMasterDeleted = k.TypeMasterDeleted,
                 TypeMasterStatus = k.TypeMasterStatus,
                 TypeMasterDelStatus=k.TypeMasterDelStatus
-            }).ToList();
+            }).OrderBy(x=>x.TypeMasterTypeName).ToList();
         }
 
 
@@ -55,7 +55,7 @@ namespace Inspire.Erp.Web.Controllers
                 TypeMasterDeleted = k.TypeMasterDeleted,
                 TypeMasterStatus = k.TypeMasterStatus,
                 TypeMasterDelStatus = k.TypeMasterDelStatus
-            }).ToList();
+            }).OrderBy(x => x.TypeMasterTypeName).ToList();
         }
 
 
@@ -73,7 +73,7 @@ namespace Inspire.Erp.Web.Controllers
                 TypeMasterDeleted = k.TypeMasterDeleted,
                 TypeMasterStatus = k.TypeMasterStatus,
                 TypeMasterDelStatus = k.TypeMasterDelStatus
-            }).ToList();
+            }).OrderBy(x => x.TypeMasterTypeName).ToList();
         }
 
         [HttpPost]
@@ -90,7 +90,7 @@ namespace Inspire.Erp.Web.Controllers
                 TypeMasterDeleted = k.TypeMasterDeleted,
                 TypeMasterStatus = k.TypeMasterStatus,
                 TypeMasterDelStatus = k.TypeMasterDelStatus
-            }).ToList();
+            }).OrderBy(x => x.TypeMasterTypeName).ToList();
         }
 
         [HttpPost]
@@ -107,7 +107,7 @@ namespace Inspire.Erp.Web.Controllers
                 TypeMasterDeleted = k.TypeMasterDeleted,
                 TypeMasterStatus = k.TypeMasterStatus,
                 TypeMasterDelStatus = k.TypeMasterDelStatus
-            }).ToList();
+            }).OrderBy(x => x.TypeMasterTypeName).ToList();
         }
     }
 }

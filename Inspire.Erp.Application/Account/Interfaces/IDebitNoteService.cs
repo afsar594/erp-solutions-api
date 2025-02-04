@@ -12,7 +12,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Interface
         public DebitNote UpdateDebitNote(DebitNote debitNote, List<AccountsTransactions> accountsTransactions, List<DebitNoteDetails> debitNoteDetails);
         public int DeleteDebitNote(DebitNote debitNote, List<AccountsTransactions> accountsTransactions, List<DebitNoteDetails> debitNoteDetails);
         public IEnumerable<AccountsTransactions> GetAllTransaction();
-        public DebitNote GetSavedDebitNoteDetails(string pvno);
+        public DebitNote GetSavedDebitNoteDetails(int pvno);
         public IEnumerable<DebitNote> GetDebitNote();
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
         public VouchersNumbers GetVouchersNumbers(string pvno);

@@ -104,7 +104,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     AccountsTransactionsAllocDebit = x.AccountsTransactionsAllocDebit,
                     AccountsTransactionsAllocCredit = x.AccountsTransactionsAllocCredit
                     // Rest of the properties...
-                }).OrderBy(x => x.AccountsTransactionsAccName).ToList();
+                }).OrderBy(x => x.AccountsTransactionsAccName).AsEnumerable().ToList();
 
                 string accName = string.Empty;
                 string accno = string.Empty;

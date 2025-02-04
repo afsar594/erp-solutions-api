@@ -9,6 +9,7 @@ namespace Inspire.Erp.Web.ViewModels.Store
         public string StockTransferDetailsSno { get; set; }
         public int? StockTransferDetailsMaterialId { get; set; }
         public int? StockTransferDetailsUnitId { get; set; }
+        public int? StockTransferDetailsJobID { get; set; }
         public double? StockTransferDetailsQty { get; set; }
         public double? StockTransferDetailsRate { get; set; }
         public string StockTransferDetailsRemarks { get; set; }
@@ -16,6 +17,8 @@ namespace Inspire.Erp.Web.ViewModels.Store
         public DateTime? StockTransferDetailsExpDate { get; set; }
         public bool? StockTransferDetailsDelStatus { get; set; }
         public int? VoucherNumber { get; set; }
+
+        public int? PurchaseRequisitionId { get; set; }
         public decimal? StockTransferDetailsCostPrice { get; set; }
 
 

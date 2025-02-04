@@ -6,6 +6,7 @@ namespace Inspire.Erp.Domain.Entities
 {
     public partial class BankReceiptVoucherDetails
     {
+        public int BankReceiptVoucherSno { get; set; }
         public int BankReceiptVoucherDetailsId { get; set; }
         public string BankReceiptVoucherDetailsVoucherNo { get; set; }
         public int? BankReceiptVoucherDetailsSno { get; set; }

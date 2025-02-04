@@ -36,7 +36,7 @@ namespace Inspire.Erp.Web.Controllers
                 EnquiryStatusEnquiryStatus = k.EnquiryStatusEnquiryStatus,
                 EnquiryStatusEnquiryStatusDelStatus = k.EnquiryStatusEnquiryStatusDelStatus
 
-            }).ToList();
+            }).OrderBy(x => x.EnquiryStatusEnquiryStatus).ToList();
         }
 
 
@@ -52,7 +52,7 @@ namespace Inspire.Erp.Web.Controllers
                 EnquiryStatusEnquiryStatusDelStatus = k.EnquiryStatusEnquiryStatusDelStatus
 
 
-            }).ToList();
+            }).OrderBy(x => x.EnquiryStatusEnquiryStatus).ToList();
         }
 
         [HttpPost]
@@ -68,7 +68,7 @@ namespace Inspire.Erp.Web.Controllers
                 EnquiryStatusEnquiryStatusDelStatus = k.EnquiryStatusEnquiryStatusDelStatus
 
 
-            }).ToList();
+            }).OrderBy(x => x.EnquiryStatusEnquiryStatus).AsEnumerable().ToList();
         }
 
         [HttpPost]
@@ -82,7 +82,7 @@ namespace Inspire.Erp.Web.Controllers
                 EnquiryStatusEnquiryStatus = k.EnquiryStatusEnquiryStatus,
                 EnquiryStatusEnquiryStatusDelStatus = k.EnquiryStatusEnquiryStatusDelStatus
 
-            }).ToList();
+            }).OrderBy(x => x.EnquiryStatusEnquiryStatus).ToList();
         }
 
         [HttpPost]
@@ -97,7 +97,7 @@ namespace Inspire.Erp.Web.Controllers
                 EnquiryStatusEnquiryStatusDelStatus = k.EnquiryStatusEnquiryStatusDelStatus
 
 
-            }).ToList();
+            }).OrderBy(x => x.EnquiryStatusEnquiryStatus).ToList();
         }
     }
 }

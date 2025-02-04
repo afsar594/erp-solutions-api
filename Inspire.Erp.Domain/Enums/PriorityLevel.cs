@@ -136,6 +136,8 @@ namespace Inspire.Erp.Domain.Enums
         public static String OBVoucher_Prefix { get { return "OBVoucher_Prefix"; } }
 
         public static String RFQ_Prefix { get { return "RFQ_Prefix"; } }
+        public static String StockAdjustment_Prefix { get { return "StockAdjustment_Prefix"; } }
+
     }
 
     public static class ItemMasterStatus

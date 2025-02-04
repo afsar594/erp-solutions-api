@@ -1,6 +1,8 @@
-﻿using Inspire.Erp.Application.Procurement.Interface;
+﻿using Inspire.Erp.Application.Common;
+using Inspire.Erp.Application.Procurement.Interface;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Modals.Procurement;
+using Inspire.Erp.Domain.Models.Common;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -20,6 +22,7 @@ namespace Inspire.Erp.Web.Controllers
         {
             _approvalService = approvalService;
             _purchaseReturn = purchaseReturn;
+   
         }
         #region PO Approval 
         [HttpGet("GetDistinctPOApprovalStatus")]
@@ -105,7 +108,11 @@ namespace Inspire.Erp.Web.Controllers
         {
             return Ok(await _purchaseReturn.AddEditPurchaseReturn(model));
         }
+        [HttpPost("SendEmailAlerts")]
+        public async Task<IActionResult> SendEmailAlerts(EmailRequest model)
+        {
+            return Ok(await _purchaseReturn.SendEmailAlerts(model));
+        }
         #endregion
-
     }
 }

@@ -162,7 +162,7 @@ namespace Inspire.Erp.Web.Controllers
 
             var xs = loginsvc.InsertUser(param1);
             UserFileViewModel userdata = new UserFileViewModel();
-            if (xs.IsValid == true)
+            if (xs.IsValid == true )
             {
                 userdata = _mapper.Map<UserFileViewModel>(xs);
 
@@ -175,9 +175,10 @@ namespace Inspire.Erp.Web.Controllers
             }
             else
             {
+                userdata = _mapper.Map<UserFileViewModel>(xs);
                 apiResponse = new ApiResponse<UserFileViewModel>
                 {
-                    Valid = false,
+                    Valid = true,
                     Result = userdata,
                     Message = xs.Message
                 };
@@ -197,7 +198,7 @@ namespace Inspire.Erp.Web.Controllers
             var xs = loginsvc.UpdateUser(param1);
 
             UserFileViewModel userdata = new UserFileViewModel();
-            if (xs.IsValid == true)
+            if (xs.IsValid == true || xs.IsValid == null)
             {
                 userdata = _mapper.Map<UserFileViewModel>(xs);
 
@@ -210,6 +211,7 @@ namespace Inspire.Erp.Web.Controllers
             }
             else
             {
+                userdata = _mapper.Map<UserFileViewModel>(xs);
                 apiResponse = new ApiResponse<UserFileViewModel>
                 {
                     Valid = false,
@@ -272,11 +274,11 @@ namespace Inspire.Erp.Web.Controllers
         {
             var objectresponse = new ResponseInfo();
 
-            var LocationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
-            {
-                c.LocationMasterLocationId,
-                c.LocationMasterLocationName
-            }).OrderBy(x=>x.LocationMasterLocationName).ToList();
+            //var LocationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
+            //{
+            //    c.LocationMasterLocationId,
+            //    c.LocationMasterLocationName
+            //}).AsEnumerable().OrderBy(x=>x.LocationMasterLocationName).ToList();
             var FinancialPeriods = financialrepository.GetAsQueryable().Where(x => x.FinancialPeriodsFsno != null).Select(k => new
             {
                 k.FinancialPeriodsFsno,
@@ -286,13 +288,43 @@ namespace Inspire.Erp.Web.Controllers
 
             objectresponse.ResultSet = new
             {
-                LocationMaster = LocationMaster,
+               //LocationMaster = LocationMaster,
                 FinancialPeriods = FinancialPeriods
             };
 
             objectresponse.IsSuccess = true;
             return objectresponse;
         }
+
+        [AllowAnonymous]
+        [HttpGet]
+        [Route("LoadDropdownFPeriod")]
+        public ResponseInfo LoadDropdownFPeriod()
+        {
+            var objectresponse = new ResponseInfo();
+
+            //var LocationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
+            //{
+            //    c.LocationMasterLocationId,
+            //    c.LocationMasterLocationName
+            //}).AsEnumerable().OrderBy(x=>x.LocationMasterLocationName).ToList();
+            var FinancialPeriods = financialrepository.GetAsQueryable().Where(x => x.FinancialPeriodsFsno != null).Select(k => new
+            {
+                k.FinancialPeriodsFsno,
+                k.FinancialPeriodsStartDate,
+                k.FinancialPeriodsEndDate
+            });
+
+            objectresponse.ResultSet = new
+            {
+                // LocationMaster = LocationMaster,
+                FinancialPeriods = FinancialPeriods
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
+
 
         [HttpGet]
         [Route("GetAllUser")]

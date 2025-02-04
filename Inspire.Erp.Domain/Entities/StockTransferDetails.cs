@@ -12,6 +12,7 @@ namespace Inspire.Erp.Domain.Entities
         public string StockTransferDetailsSNo { get; set; }
         public int? StockTransferDetailsMaterialId { get; set; }
         public int? StockTransferDetailsUnitId { get; set; }
+        public int? StockTransferDetailsJobID { get; set; }
         public double? StockTransferDetailsQty { get; set; }
         public double? StockTransferDetailsRate { get; set; }
         public string StockTransferDetailsRemarks { get; set; }
@@ -20,6 +21,10 @@ namespace Inspire.Erp.Domain.Entities
         public bool? StockTransferDetailsDelStatus { get; set; }
         
         public decimal? StockTransferDetailsCostPrice { get; set; }
+
+        public int? PurchaseRequisitionId { get; set; }
+        public bool transferstatus { get; set; }
+        public decimal? balanceqty { get; set; }
         [NotMapped]
         public virtual StockTransfer StockTransferDetailsNoNavigation { get; set; }
     }

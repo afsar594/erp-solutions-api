@@ -65,10 +65,7 @@ namespace Inspire.Erp.Web.Controllers
         public List<LocationMaster> SalesVoucher_GetAllLocationMaster()
         {
             return _mapper.Map<List<LocationMaster>>(_salesVoucherService.SalesVoucher_GetAllLocationMaster());
-
-
         }
-
         [HttpGet]
         [Route("GetSalesVoucherDetailsByMasterNo")]
         public ApiResponse<SalesVoucher> GetSalesVoucherDetailsByMasterNo(string SalesVoucherNo)
@@ -81,64 +78,43 @@ namespace Inspire.Erp.Web.Controllers
                 Message = ""
             };
             return apiResponse;
-
         }
         [HttpGet]
         [Route("SalesVoucher_GetAllSalesManMaster")]
         public List<CustomerMaster> SalesVoucher_GetAllSalesManMaster()
         {
             return _mapper.Map<List<CustomerMaster>>(_salesVoucherService.SalesVoucher_GetAllSalesManMaster());
-
-
         }
-
-
         [HttpGet]
         [Route("SalesVoucher_GetAllCustomerMaster")]
         public List<CustomerMaster> SalesVoucher_GetAllCustomerMaster()
         {
             return _mapper.Map<List<CustomerMaster>>(_salesVoucherService.SalesVoucher_GetAllCustomerMaster());
-
-
         }
-
         [HttpGet]
         [Route("SalesVoucher_GetAllDepartmentMaster")]
         public List<DepartmentMaster> SalesVoucher_GetAllDepartmentMaster()
         {
             return _mapper.Map<List<DepartmentMaster>>(_salesVoucherService.SalesVoucher_GetAllDepartmentMaster());
-
-
         }
-
         [HttpGet]
         [Route("SalesVoucher_GetAllSuppliersMaster")]
         public List<SuppliersMaster> SalesVoucher_GetAllSuppliersMaster()
         {
             return _mapper.Map<List<SuppliersMaster>>(_salesVoucherService.SalesVoucher_GetAllSuppliersMaster());
-
-
         }
-
-
         [HttpGet]
         [Route("SalesVoucher_GetAllUnitMaster")]
         public List<UnitMaster> SalesVoucher_GetAllUnitMaster()
         {
             return _mapper.Map<List<UnitMaster>>(_salesVoucherService.SalesVoucher_GetAllUnitMaster());
-
-
         }
-
         [HttpGet]
         [Route("SalesVoucher_GetAllItemMaster")]
         public List<ItemMaster> SalesVoucher_GetAllItemMaster()
         {
             return _mapper.Map<List<ItemMaster>>(_salesVoucherService.SalesVoucher_GetAllItemMaster());
-
-
         }
-
         [HttpPost]
         [Route("InsertSalesVoucher")]
         public async Task<ApiResponse<SalesVoucherViewModel>> InsertSalesVoucher([FromBody] SalesVoucherViewModel voucherCompositeView)
@@ -150,15 +126,10 @@ namespace Inspire.Erp.Web.Controllers
                 var param2 = _mapper.Map<List<SalesVoucherDetails>>(voucherCompositeView.SalesVoucherDetails);
                 var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
                 List<StockRegister> param4 = new List<StockRegister>();
-
                 var xs = await _salesVoucherService.InsertSalesVoucher(param1, param3, param2, param4);
-
                 //costprice=itemAvgPrice * quantity * Conversion rate
-
                 SalesVoucherViewModel salesVoucherViewModel = new SalesVoucherViewModel
                 {
-
-
                     SalesVoucherId = xs.salesVoucher.SalesVoucherId,
                     SalesVoucherNo = xs.salesVoucher.SalesVoucherNo,
                     SalesVoucherDate = xs.salesVoucher.SalesVoucherDate,
@@ -232,15 +203,9 @@ namespace Inspire.Erp.Web.Controllers
                     Exception = null,
                     Message = SalesVoucherMessage.VoucherAlreadyExist
                 };
-
             }
-
-
             return apiResponse;
-
-
         }
-
         [HttpPost]
         [Route("UpdateSalesVoucher")]
         public async Task<ApiResponse<SalesVoucherViewModel>> UpdateSalesVoucher([FromBody] SalesVoucherViewModel voucherCompositeView)
@@ -252,7 +217,6 @@ namespace Inspire.Erp.Web.Controllers
             //var xs = _salesVoucherService.UpdateSalesVoucher(param1, param3, param2
             //    //, param4
             //    );
-
             //==============
             //param3 = new List<AccountsTransactions>();
             List<StockRegister> param4 = new List<StockRegister>();
@@ -264,16 +228,11 @@ namespace Inspire.Erp.Web.Controllers
             //    unitDetails = _UnitDetailsRepository.GetAsQueryable().Where(c => c.UnitDetailsUnitId == item.SalesVoucherDetailsUnitId).FirstOrDefault();
             //    allUnits.Add(unitDetails);
             //}
-
-
             //clsAccountAndStock.SalesVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3, allUnits);
-
             var xs = await _salesVoucherService.UpdateSalesVoucher(param1, param3, param2
            , param4
            );
             //========================
-
-
             SalesVoucherViewModel salesVoucherViewModel = new SalesVoucherViewModel
             {
                 SalesVoucherId = xs.salesVoucher.SalesVoucherId,
@@ -342,7 +301,6 @@ namespace Inspire.Erp.Web.Controllers
             };
 
             return apiResponse;
-
         }
 
         [HttpPost]
@@ -366,8 +324,6 @@ namespace Inspire.Erp.Web.Controllers
            , param4
            );
             //========================
-
-
             ApiResponse<int> apiResponse = new ApiResponse<int>
             {
                 Valid = true,
@@ -376,17 +332,11 @@ namespace Inspire.Erp.Web.Controllers
             };
 
             return apiResponse;
-
         }
-
-
         [HttpGet]
         [Route("GetAllAccountTransaction")]
         public ApiResponse<List<AccountsTransactions>> GetAllAccountTransaction()
         {
-
-
-
             ApiResponse<List<AccountsTransactions>> apiResponse = new ApiResponse<List<AccountsTransactions>>
             {
                 Valid = true,
@@ -394,12 +344,7 @@ namespace Inspire.Erp.Web.Controllers
                 Message = ""
             };
             return apiResponse;
-
-
-
-
         }
-
         [HttpGet]
         [Route("GetSalesVoucher")]
         public ApiResponse<IEnumerable<SalesVoucher>> GetAllSalesVoucher()
@@ -513,7 +458,6 @@ namespace Inspire.Erp.Web.Controllers
                 apiResponse.Result = false;
                 apiResponse.Message = "";
             }
-
             return apiResponse;
         }
 
@@ -547,6 +491,75 @@ namespace Inspire.Erp.Web.Controllers
 
 
         [HttpGet]
+        [Route("LoadDepartmentDropdown")]
+        public ResponseInfo LoadDepartmentDropdown()
+        {
+            var objectresponse = new ResponseInfo();
+            var DepartmentsList = departmentrepository.GetAsQueryable().AsNoTracking().Where(a => a.DepartmentMasterDepartmentDelStatus != true).Select(k => new
+            {
+                k.DepartmentMasterDepartmentId,
+                k.DepartmentMasterDepartmentName,
+
+            }).OrderBy(x => x.DepartmentMasterDepartmentName).ToList();
+            objectresponse.ResultSet = new
+            {
+                DepartmentsList = DepartmentsList
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
+
+        [HttpGet]
+        [Route("LoadSaleManDropdown")]
+        public ResponseInfo LoadSaleManDropdown()
+        {
+            var objectresponse = new ResponseInfo();
+            var SaleManList = salesmanrepository.GetAsQueryable().AsNoTracking().Where(a => a.SalesManMasterSalesManDelStatus != true).Select(c => new
+            {
+                c.SalesManMasterSalesManId,
+                c.SalesManMasterSalesManName,
+            }).OrderBy(x => x.SalesManMasterSalesManName).ToList();
+
+            objectresponse.ResultSet = new
+            {
+                SaleManList = SaleManList
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
+        [HttpGet]
+        [Route("LoadCustomerDropdown")]
+        public ResponseInfo LoadCustomerDropdown()
+        {
+            var objectresponse = new ResponseInfo();
+            var customerMasters = _customerMasterRepository.GetAsQueryable().AsNoTracking().Where(k => k.CustomerMasterCustomerDelStatus != true).Select(a => new
+            {
+                a.CustomerMasterCustomerNo,
+                a.CustomerMasterCustomerName,
+                a.CustomerMasterCustomerVatNo,
+                a.CustomerMasterCustomerContactPerson,
+                a.CustomerMasterCustomerAddress,
+                a.CustomerMasterCustomerReffAcNo,
+                a.CustomerMasterCustomerEmail,
+                a.CustomerMasterCustomerMobile,
+                a.CustomerMasterCustomerTel1,
+                a.CustomerMasterCustomerFax
+            }).OrderBy(x => x.CustomerMasterCustomerName).AsEnumerable().ToList();
+
+
+            objectresponse.ResultSet = new
+            {
+               customerMasters = customerMasters,
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
+        
+
+        [HttpGet]
         [Route("LoadDropdown")]
         public ResponseInfo LoadDropdown()
         {
@@ -563,7 +576,7 @@ namespace Inspire.Erp.Web.Controllers
                                   item.ItemMasterItemName,
                                   item.ItemMasterVenderId,
                                   item.ItemMasterItemSize,
-                                  itemMasterBarcode =unit.UnitDetailsBarcode ?? ""
+                                  itemMasterBarcode = unit.UnitDetailsBarcode ?? ""
                               }).Distinct().OrderBy(x => x.ItemMasterItemName).ToList();
             var customerMasters = _customerMasterRepository.GetAsQueryable().AsNoTracking().Where(k => k.CustomerMasterCustomerDelStatus != true).Select(a => new
             {
@@ -577,7 +590,7 @@ namespace Inspire.Erp.Web.Controllers
                 a.CustomerMasterCustomerMobile,
                 a.CustomerMasterCustomerTel1,
                 a.CustomerMasterCustomerFax
-            }).OrderBy(x => x.CustomerMasterCustomerName).ToList();
+            }).OrderBy(x => x.CustomerMasterCustomerName).AsEnumerable().ToList();
 
             var unitMasters = unitrepository.GetAsQueryable().AsNoTracking().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
             {
@@ -607,6 +620,7 @@ namespace Inspire.Erp.Web.Controllers
             var LocationMaster = locationrepository.GetAsQueryable().AsNoTracking().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
             {
                 c.LocationMasterLocationId,
+                c.LocationMasterLocationStatus,
                 c.LocationMasterLocationName,
             }).OrderBy(x => x.LocationMasterLocationName).ToList();
             var BrandMasters = Brandrepository.GetAsQueryable().AsNoTracking().Where(a => a.VendorMasterVendorDelStatus != true).Select(c => new
@@ -656,6 +670,11 @@ namespace Inspire.Erp.Web.Controllers
             objectresponse.IsSuccess = true;
             return objectresponse;
         }
+
+
+
+
+
         [HttpGet]
         [Route("GetCustomerById/{id}")]
         public ResponseInfo GetCustomerById(int id)

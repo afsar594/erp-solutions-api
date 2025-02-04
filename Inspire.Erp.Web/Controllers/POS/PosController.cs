@@ -370,7 +370,7 @@ namespace Inspire.Erp.Web.Controllers.POS
                 Discount = x.Discount,
                 VatAmount = x.VatAmount,
                 NetAmount = x.NetAmount
-            }).ToList();
+            }).OrderBy(x => x.CustomerName).ToList();
             ApiResponse<List<SalesHoldList>> apiResponse = new ApiResponse<List<SalesHoldList>>
             {
                 Valid = true,

@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 namespace Inspire.Erp.Web.Controllers
 {
     [Route("api/master/item")]
-    [Produces("application/json")]   
+    [Produces("application/json")]
     [ApiController]
     public class ItemMasterController : ControllerBase
     {
@@ -378,12 +378,13 @@ namespace Inspire.Erp.Web.Controllers
                      {
                          k.ItemMasterItemId,
                          k.ItemMasterItemName
-                     }).OrderBy(x => x.ItemMasterItemName).ToList();
+                     }).OrderBy(x => x.ItemMasterItemName).AsEnumerable().ToList();
 
             var VendorMasters = Brandrepository.GetAsQueryable().Where(c => c.VendorMasterVendorDelStatus != true).Select(a => new
             {
                 a.VendorMasterVendorId,
-                a.VendorMasterVendorName
+                a.VendorMasterVendorName,
+                a.VendorMasterVendorStatus,
             }).OrderBy(x => x.VendorMasterVendorName).ToList();
             var Stocktype = itemStockRepository.GetAsQueryable().Where(c => c.ItemStockTypeDelStatus != 1).Select(a => new
             {
@@ -411,7 +412,7 @@ namespace Inspire.Erp.Web.Controllers
                 x.UnitMasterUnitId,
                 x.UnitMasterUnitFullName,
                 x.UnitMasterUnitShortName
-            }).OrderBy(x => x.UnitMasterUnitShortName).ToList();
+            }).OrderBy(x => x.UnitMasterUnitShortName).AsEnumerable().ToList();
             objectresponse.ResultSet = new
             {
                 itemMaster = itemMaster,
@@ -421,6 +422,87 @@ namespace Inspire.Erp.Web.Controllers
                 taxMasters = taxMasters,
                 priceLevelMasters = priceLevelMasters,
                 unitMasters = unitMasters
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
+
+        [HttpGet]
+        [Route("LoadDropdownTaxMaster")]
+        public ResponseInfo LoadDropdownTaxMaster()
+        {
+            var objectresponse = new ResponseInfo();
+            var taxMasters = taxrepository.GetAsQueryable().Where(a => a.TmDelStatus != true).Select(c => new
+            {
+                c.TmId,
+                c.TmName,
+                c.TmPercentage
+            }).OrderBy(x => x.TmName).ToList();
+
+            objectresponse.ResultSet = new
+            {
+                taxMasters = taxMasters
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
+
+        [HttpGet]
+        [Route("LoadDropdownStockType")]
+        public ResponseInfo LoadDropdownStockType()
+        {
+            var objectresponse = new ResponseInfo();
+            var Stocktype = itemStockRepository.GetAsQueryable().Where(c => c.ItemStockTypeDelStatus != 1).Select(a => new
+            {
+                a.ItemStockTypeId,
+                a.ItemStockTypeDescription
+            }).OrderBy(x => x.ItemStockTypeDescription).ToList();
+            objectresponse.ResultSet = new
+            {
+                StockTypes = Stocktype
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
+
+        [HttpGet]
+        [Route("LoadDropdownPriceleverMaster")]
+        public ResponseInfo LoadDropdownPriceleverMaster()
+        {
+            var objectresponse = new ResponseInfo();
+            var priceLevelMasters = priceLevelrepository.GetAsQueryable().Where(a => a.PriveLevelMasterPriceLevelDelStatus != true).Select(c => new
+            {
+                c.PriceLevelMasterPriceLevelId,
+                c.PriceLevelMasterPriceLevelName
+            }).OrderBy(x => x.PriceLevelMasterPriceLevelName).ToList();
+
+            objectresponse.ResultSet = new
+            {
+                priceLevelMasters = priceLevelMasters
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
+
+        [HttpGet]
+        [Route("LoadDropdownVendorMaster")]
+        public ResponseInfo LoadDropdownVendorMaster()
+        {
+            var objectresponse = new ResponseInfo();
+            var VendorMasters = Brandrepository.GetAsQueryable().Where(c => c.VendorMasterVendorDelStatus != true).Select(a => new
+            {
+                a.VendorMasterVendorId,
+                a.VendorMasterVendorName,
+                a.VendorMasterVendorStatus,
+            }).OrderBy(x => x.VendorMasterVendorName).ToList();
+
+            objectresponse.ResultSet = new
+            {
+                VendorMasters = VendorMasters
             };
 
             objectresponse.IsSuccess = true;
@@ -438,7 +520,7 @@ namespace Inspire.Erp.Web.Controllers
                      {
                          k.ItemMasterItemId,
                          k.ItemMasterItemName
-                     }).ToList();
+                     }).OrderBy(x => x.ItemMasterItemName).ToList();
 
             objectresponse.ResultSet = new
             {
@@ -453,7 +535,7 @@ namespace Inspire.Erp.Web.Controllers
         {
             var objectresponse = new ResponseInfo();
             var listItemnater = itemrepository.GetAsQueryable().Where(a => a.ItemMasterItemId == id && a.ItemMasterDelStatus != true).ToList();
-            var unitlist = _unitDetailsRepo.GetAsQueryable().Where(a => a.UnitDetailsItemId == id && a.UnitDetailsDelStatus != true).ToList();
+            var unitlist = _unitDetailsRepo.GetAsQueryable().Where(a => a.UnitDetailsItemId == id && a.UnitDetailsDelStatus != true).OrderBy(x => x.UnitDetailsItem).ToList();
 
             var data = listItemnater.Select(a => new
             {

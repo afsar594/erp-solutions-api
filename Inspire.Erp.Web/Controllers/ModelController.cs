@@ -39,7 +39,7 @@ namespace Inspire.Erp.Web.Controllers
                 ModelMasterStatus =k.ModelMasterStatus,
                 ModelMasterDelStatus = k.ModelMasterDelStatus
 
-            }).ToList();
+            }).OrderBy(x => x.ModelMasterName).ToList();
         }
 
 
@@ -57,7 +57,7 @@ namespace Inspire.Erp.Web.Controllers
                 ModelMasterDeleted = k.ModelMasterDeleted,
                 ModelMasterStatus = k.ModelMasterStatus,
                 ModelMasterDelStatus = k.ModelMasterDelStatus
-            }).ToList();
+            }).OrderBy(x => x.ModelMasterName).ToList();
         }
 
 
@@ -75,7 +75,7 @@ namespace Inspire.Erp.Web.Controllers
                 ModelMasterDeleted = k.ModelMasterDeleted,
                 ModelMasterStatus = k.ModelMasterStatus,
                 ModelMasterDelStatus = k.ModelMasterDelStatus
-            }).ToList();
+            }).OrderBy(x => x.ModelMasterName).ToList();
         }
 
         [HttpPost]
@@ -92,7 +92,7 @@ namespace Inspire.Erp.Web.Controllers
                 ModelMasterDeleted = k.ModelMasterDeleted,
                 ModelMasterStatus = k.ModelMasterStatus,
                 ModelMasterDelStatus = k.ModelMasterDelStatus
-            }).ToList();
+            }).OrderBy(x => x.ModelMasterName).ToList();
         }
 
         [HttpPost]
@@ -109,7 +109,7 @@ namespace Inspire.Erp.Web.Controllers
                 ModelMasterDeleted = k.ModelMasterDeleted,
                 ModelMasterStatus = k.ModelMasterStatus,
                 ModelMasterDelStatus = k.ModelMasterDelStatus
-            }).ToList();
+            }).OrderBy(x => x.ModelMasterName).ToList();
         }
     }
 }

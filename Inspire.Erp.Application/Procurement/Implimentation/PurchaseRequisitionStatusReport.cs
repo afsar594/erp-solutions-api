@@ -45,7 +45,7 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
             try
             {
 
-                var res45 = _pRequisition.GetAll().ToList();
+                var res45 = _pRequisition.GetAll().OrderBy(x => x.PurchaseRequisitionPartyName).AsEnumerable().ToList();
                 var res1 = (from pd in _pRDetails.GetAsQueryable()
                             join pm in _pRequisition.GetAsQueryable() on pd.PurchaseRequisitionId equals pm.PurchaseRequisitionId
                             join im in _itemMaster.GetAsQueryable() on pd.PurchaseRequisitionDetailsMatId equals im.ItemMasterItemId
@@ -61,7 +61,7 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
                                 PReqId = g.Key.PurchaseOrderDetailsPrId,
                                 Quantity = g.Sum(x => x.PurchaseOrderDetailsQuantity),
                                 PoStatus = g.Key.PurchaseOrderStatus
-                            }).ToList();
+                            }).OrderBy(x => x.PReqId).AsEnumerable().ToList();
                 var res3 = (from d in _avIssueDetails.GetAll()
                             join i in _avIssueVoucher.GetAll() on d.AvIssueVoucherDetailsAvSvNo equals i.AvIssueVoucherAvsvNo
                             join s in _stockRegister.GetAll() on d.AvIssueVoucherDetailsMaterialId equals s.StockRegisterMaterialID
@@ -72,7 +72,7 @@ namespace Inspire.Erp.Application.Procurement.Implimentation
                                 issueQty = g.Sum(x => x.d.AvIssueVoucherDetailsSoldQuantity),
                                 BalToIssue = g.Sum(x => (x.s.StockRegisterSIN - x.s.StockRegisterSout) / 1 - (decimal)x.d.AvIssueVoucherDetailsSoldQuantity),
                                 stock = g.Sum(x => x.s.StockRegisterSIN - x.s.StockRegisterSout)
-                            }).ToList();
+                            }).OrderBy(x => x.ImId).AsEnumerable().ToList();
 
 
                 //var res4 = from a in res1.Select(x=>x.pd).ToList()

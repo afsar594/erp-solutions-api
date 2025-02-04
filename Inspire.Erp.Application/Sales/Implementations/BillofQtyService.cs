@@ -137,10 +137,11 @@ namespace Inspire.Erp.Application.Sales.Implementations
             try
             {
                 _BillofQtyMasterRepository.BeginTransaction();
-                string customerQuotationNumber = clsCommonFunctions.GenerateVoucherNo(BillofQty.Date
-                   , VoucherType.BOQ, Prefix.BOQ_Prefix
-                   , _programsettingsRepository, _voucherNumbersRepository).VouchersNumbersVNo;
-
+                //string customerQuotationNumber = clsCommonFunctions.GenerateVoucherNo(BillofQty.Date
+                //   , VoucherType.BOQ, Prefix.BOQ_Prefix
+                //   , _programsettingsRepository, _voucherNumbersRepository).VouchersNumbersVNo;
+                string customerQuotationNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.BOQ, Prefix.BOQ_Prefix,
+                    _programsettingsRepository, _voucherNumbersRepository);
                 BillofQty.BillofqtyNo = customerQuotationNumber;
 
                 BillofQty.BillOfQTyDetails.Clear();

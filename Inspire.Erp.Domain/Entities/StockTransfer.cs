@@ -26,4 +26,14 @@ namespace Inspire.Erp.Domain.Entities
         [NotMapped]
         public List<StockTransferDetails> StockTransferDetails { get; set; }
     }
+
+    public class reportModel
+    {
+        public int?  toLocation { get; set; }
+        public int? fromLocation { get; set; }
+
+        public DateTime? todate { get; set; }
+        public DateTime? fromdate { get; set; }
+    }
+
 }

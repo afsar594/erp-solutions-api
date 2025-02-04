@@ -138,7 +138,7 @@ namespace Inspire.Erp.Application.Master
                 //workGrouprepository.Dispose();
             }
 
-            workGroupMasters = workGroupMasters.OrderBy(sm => sm.WorkGroupMasterWorkGroupName).ToList();
+            workGroupMasters = workGroupMasters.OrderBy(sm => sm.WorkGroupMasterWorkGroupName).AsEnumerable().ToList();
             return workGroupMasters;
         }
         public IEnumerable<WorkGroupMaster> GetAllWorkGroupById(int id)

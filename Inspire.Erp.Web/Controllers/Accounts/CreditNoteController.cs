@@ -110,7 +110,7 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("GetSavedCreditNoteDetails/{id}")]
-        public ApiResponse<CreditNote> GetSavedCreditNoteDetails(string id)
+        public ApiResponse<CreditNote> GetSavedCreditNoteDetails(int id)
         {
             CreditNote creditNote = _creditNoteService.GetSavedCreditNoteDetails(id);
 

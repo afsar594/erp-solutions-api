@@ -152,7 +152,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             ApiResponse<List<PurchaseOrder>> apiResponse = new ApiResponse<List<PurchaseOrder>>
             {
                 Valid = true,
-                Result = _purchaseOrderService.GetPurchaseOrder().ToList(),
+                Result = _purchaseOrderService.GetPurchaseOrder().OrderBy(x=>x.PurchaseOrderPartyName).ToList(),
                 Message = ""
             };
             return apiResponse;
@@ -160,7 +160,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
 
         [HttpGet]
         [Route("GetSavedPurchaseOrderDetails/{id}")]
-        public ApiResponse<PurchaseOrderViewModel> GetSavedPurchaseOrderDetails(string id)
+        public ApiResponse<PurchaseOrderViewModel> GetSavedPurchaseOrderDetails(int id)
         {
             PurchaseOrderModel purchaseOrder = _purchaseOrderService.GetSavedPurchaseOrderDetails(id);
             if (purchaseOrder != null)
@@ -234,6 +234,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                     PurchaseOrderDelivToDate = purchaseOrder.purchaseOrder.PurchaseOrderDelivToDate,
                     PurchaseOrderDelivStatus = purchaseOrder.purchaseOrder.PurchaseOrderDelivStatus,
                     PurchaseOrderDelivPlace = purchaseOrder.purchaseOrder.PurchaseOrderDelivPlace,
+                    purchaseOrderOrdertype=purchaseOrder.purchaseOrder.purchaseOrderOrdertype
                 };
                 purchaseOrderViewModel.PurchaseOrderDetails = _mapper.Map<List<PurchaseOrderDetailsViewModel>>(purchaseOrder.purchaseOrderDetails);
                 purchaseOrderViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(purchaseOrder.accountsTransactions);
@@ -317,15 +318,15 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                 c.UnitMasterUnitId,
                 UnitMasterUnitShortName = c.UnitMasterUnitShortName.Trim(),
                 c.UnitMasterUnitFullName
-            }).ToList();
-            var tracking = _purOrderRegisterRepository.GetAsQueryable().Where(a => a.PurOrderRegisterDelStatus != true).ToList();
-            var detailList = _purchaseOrderDetailsRepository.GetAsQueryable().ToList();
+            }).OrderBy(x => x.UnitMasterUnitShortName).AsEnumerable().ToList();
+            var tracking = _purOrderRegisterRepository.GetAsQueryable().Where(a => a.PurOrderRegisterDelStatus != true).OrderBy(x => x.PurOrderRegisterOrderNo).ToList();
+            var detailList = _purchaseOrderDetailsRepository.GetAsQueryable().OrderBy(x => x.PurchaseOrderDetailsUnitName).ToList();
             var details = _purchaseOrderRepository.GetAsQueryable().Where(a => a.PurchaseOrderDelStatus != true && a.PurchaseOrderPartyId == id).Select(c => new
             {
                 c.PurchaseOrderId,
                 c.PurchaseOrderNo,
                 c.PurchaseOrderDate
-            }).ToList();
+            }).OrderBy(x => x.PurchaseOrderNo).ToList();
             var purchaseOrderNos = details.Select(d => d.PurchaseOrderNo).ToList();
 
             // Filtering detailList based on PurchaseOrderNos
@@ -353,7 +354,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                             QtyIUssued = tracking.Where(a => a.PurOrderRegisterOrderNo == d.PurchaseOrderDetailsNo)
                     .Sum(c => c.PurOrderRegisterQtyIssued ?? 0),
                         })
-                .ToList();
+                .OrderBy(x => x.itemname).ToList();
 
             objResponse.ResultSet = new
             {
@@ -377,6 +378,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             var LocationMaster = locationrepository.GetAsQueryable().AsNoTracking().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
             {
                 c.LocationMasterLocationId,
+                c.LocationMasterLocationDelStatus,
                 LocationMasterLocationName = c.LocationMasterLocationName.Trim(),
             }).OrderBy(x=>x.LocationMasterLocationName).ToList();
 
@@ -440,7 +442,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             {
                 x.UserId,
                 x.UserName,
-            }).ToList();
+            }).OrderBy(x => x.UserName).ToList();
             objresponse.ResultSet = new
             {
                 result = data,
@@ -471,7 +473,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                                   permission.UserId
                               };
 
-            var rights = rightsQuery.ToList();
+            var rights = rightsQuery.OrderBy(x => x.LevelId).ToList();
 
 
             if (model.isDate)
@@ -493,20 +495,20 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                                        where detail.Status == "Pending"
                                        group detail by new { detail.VoucherId, detail.VoucherType } into grouped
                                        select new
-                                       {
+                                       {    
                                            grouped.Key.VoucherId,
                                            grouped.Key.VoucherType,
                                            LowestPendingLevel = grouped.Min(d => d.LevelId)
-                                       }).ToList();
+                                       }).AsNoTracking().OrderBy(x => x.VoucherId).ToList();
 
             var pendingRecords = data
                 .Where(a => a.Status == "Pending" &&
                  lowestPendingLevels.Any(l => l.VoucherId == a.VoucherId && l.VoucherType == a.VoucherType && l.LowestPendingLevel == a.LevelId))
-                 .ToList();
+                 .OrderBy(x => x.VoucherDate).ToList();
 
             var approvedRecords = data
                 .Where(a => a.Status == "Approved")
-                .ToList();
+                .OrderBy(x => x.VoucherDate).ToList();
 
             var combinedData = pendingRecords.Concat(approvedRecords).ToList();
 
@@ -576,7 +578,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                     apprevedby = user.Where(a => a.UserId == c.ApprovedBy).Select(x => x.UserName).FirstOrDefault() ?? string.Empty,
                     Createdby = user.Where(a => a.UserId == c.CreatedBy).Select(x => x.UserName).FirstOrDefault() ?? string.Empty,
 
-                }).ToList();
+                }).OrderBy(x => x.VoucherDate).ToList();
                 objresponse.IsSuccess = true;
                 objresponse.ResultSet = data;
             }

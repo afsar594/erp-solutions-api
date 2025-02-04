@@ -181,7 +181,7 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("GetJobInvoiceVoucherNo/{id}")]
-        public ApiResponse<JobInvoiceViewModel> GetJobInvoiceVoucherNo(string id)
+        public ApiResponse<JobInvoiceViewModel> GetJobInvoiceVoucherNo(int id)
         {
             JobInvoiceModel xs = _invoice.GetJobInvoiceVoucherNo(id);
 
@@ -259,7 +259,7 @@ namespace Inspire.Erp.Web.Controllers
                 query = query.Where(a => a.JobInvoiceVoucherDate >= model.fromdate && a.JobInvoiceVoucherDate <= model.todate);
             }
 
-            var list = query.ToList();
+            var list = query.OrderBy(x => x.JobInvoiceCustomerName).AsEnumerable().ToList();
 
             var detail = _jobdetailsrepo.GetAsQueryable().AsNoTracking()
                                         .Where(a => a.JobInvoiceDetailsDelStatus != true);
@@ -277,7 +277,7 @@ namespace Inspire.Erp.Web.Controllers
                             y.JobInvoiceDetailsGrossAmount,
                             y.JobInvoiceDetailsDiscount,
                             y.JobInvoiceDetailsNetAmount
-                        }).ToList();
+                        }).OrderBy(x => x.JobInvoiceVoucherDate).AsEnumerable().ToList();
 
             objresponse.ResultSet = data;
             return objresponse;
@@ -367,20 +367,21 @@ namespace Inspire.Erp.Web.Controllers
                     c.MaRelativeNo,
                     c.MaSno
                 })
-                .ToList();
+                .OrderBy(x => x.MaAccName).ToList();
 
             var accountsSettings = _accountsSettingsRepo.GetAsQueryable().AsNoTracking().Where(a => a.AccountSettingsAccountDelStatus != true).Select(c => new
             {
                 c.AccountSettingsAccountId,
                 AccountSettingsAccountDescription = c.AccountSettingsAccountDescription.Trim(),
                 c.AccountSettingsAccountTextValue
-            }).ToList();
+            }).OrderBy(x => x.AccountSettingsAccountTextValue).AsEnumerable().ToList();
             var locationMasterTask = await locationrepository.GetAsQueryable().AsNoTracking()
                 .Where(a => !a.LocationMasterLocationDelStatus != true)
                 .Select(c => new
                 {
                     c.LocationMasterLocationId,
                     c.LocationMasterLocationName,
+                    c.LocationMasterLocationStatus,
                 })
                 .ToListAsync();
 

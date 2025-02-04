@@ -125,14 +125,14 @@ namespace Inspire.Erp.Web.Controllers.Settings
 
             var GeneralSettings = _generalSettingsRepo.GetAsQueryable().Where(k => k.GeneralSettingsKeyValue.Trim() == "DEFAULTCURRENCY" || k.GeneralSettingsKeyValue.Trim() == "VAT_Calculation" ||
             k.GeneralSettingsKeyValue.Trim() == "DEFAULT_LOCATION" || k.GeneralSettingsKeyValue.Trim() == "DEFAULT_COST_CENTER" || k.GeneralSettingsKeyValue.Trim() == "DEFAULTINTIALACCOUNT" || k.GeneralSettingsKeyValue.Trim() == "DEFAULT_Type"
-            || k.GeneralSettingsKeyValue.Trim() == "HIDE_JOBCOST"
+            || k.GeneralSettingsKeyValue.Trim() == "HIDE_JOBCOST" || k.GeneralSettingsKeyValue.Trim() == "VAT_EXLUDE_IN_SALES"
             ).Select(c => new
             {
                 c.GeneralSettingsId,
                 c.GeneralSettingsTextValue,
                 GeneralSettingsKeyValue = c.GeneralSettingsKeyValue.Trim(),
                 c.GeneralSettingsBoolValue
-            }).ToList();
+            }).OrderBy(x => x.GeneralSettingsTextValue).ToList();
             var OptionSettings = _optionMasterRepo.GetAsQueryable().Where(o => o.OptionsMasterDescription == "DEFAULT_VAT").Select(s=> new
             {
                 s.OptionsMasterId,

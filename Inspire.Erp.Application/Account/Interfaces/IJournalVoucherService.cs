@@ -13,7 +13,7 @@ namespace Inspire.Erp.Application.Account.Interfaces
         public JournalVoucher UpdateJournalVoucher(JournalVoucher journalVoucher, List<AccountsTransactions> accountsTransactions, List<JournalVoucherDetails> journalVoucherDetails);
         public int DeleteJournalVoucher(JournalVoucher journalVoucher, List<AccountsTransactions> accountsTransactions, List<JournalVoucherDetails> journalVoucherDetails);
         public IEnumerable<AccountsTransactions> GetAllTransaction();
-        public JournalVoucher GetSavedJournalVoucherDetails(string pvno);
+        public JournalVoucher GetSavedJournalVoucherDetails(int pvno);
         public IEnumerable<JournalVoucher> GetJournalVoucher();
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
         public VouchersNumbers GetVouchersNumbers(string pvno);

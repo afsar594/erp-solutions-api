@@ -66,17 +66,17 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
             }
         }
 
-        public PurchaseVoucher GetByID(string voucherNo)
+        public PurchaseVoucher GetByID(int id)
         {
             try
             {
                 PurchaseVoucher pv = new PurchaseVoucher();
              
 
-                pv = _purchaseVoucherRepository.GetAll().FirstOrDefault(o => o.PurchaseVoucherPurID == Convert.ToInt64(voucherNo));
+                pv = _purchaseVoucherRepository.GetAll().FirstOrDefault(o => o.PurchaseVoucherPurID == Convert.ToInt64(id));
                 if (pv != null)
                 {
-                    var userTrackngData = (from hdr in _context.UserTracking.Where(o => o.UserTrackingUserVpType == "GRN" && o.UserTrackingUserVpNo == voucherNo)
+                    var userTrackngData = (from hdr in _context.UserTracking.Where(o => o.UserTrackingUserVpType == "GRN" && o.UserTrackingUserVpNo == pv.PurchaseVoucherVoucherNo)
                                            join dtl in _context.UserFile on (long)hdr.UserTrackingUserUserId equals dtl.UserId
                                            select new UserTrackingDisplay()
                                            {
@@ -87,7 +87,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                                                Date = Convert.ToDateTime(hdr.UserTrackingUserChangeDt).ToString("dd/MMM/yyyy"),
                                                Time = Convert.ToDateTime(hdr.UserTrackingUserChangeTime).ToShortTimeString(),
                                                VNo = hdr.UserTrackingUserVpNo,
-                                           }).ToList();
+                                           }).OrderBy(x => x.VType).AsEnumerable().ToList();
 
 
                     pv.PurchaseVoucherDetails = _purchaseVoucherDetailsRepository.GetAll().Where(o => o.PurchaseVoucherDetailsVoucherNo == pv.PurchaseVoucherVoucherNo).ToList();
@@ -346,13 +346,11 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                     item.PurchaseVoucherDetailsDelStatus = true;
                 }
                 _purchaseVoucherDetailsRepository.UpdateList(pvd);
-                clsCommonFunctions.Delete_OldEntry_AccountsTransactions(grn.PurchaseVoucherVoucherNo, grn.PurchaseVoucherPurchaseType, _accountTransactionRepository);
+                clsCommonFunctions.Delete_OldEntry_AccountsTransactions(grn.PurchaseVoucherVoucherNo, VoucherType.PurchaseVoucher_TYPE, _accountTransactionRepository);
                 clsCommonFunctions.Delete_OldEntryOf_StockRegister(grn.PurchaseVoucherVoucherNo, VoucherType.PurchaseVoucher_TYPE, _stockRegisterRepository);
-                //clsCommonFunctions.Delete_OldEntry_vouchernumber(grn.PurchaseVoucherVoucherNo, VoucherType.PurchaseVoucher_TYPE, _voucherNumbersRepository);
                 UserTracking trackingData = new UserTracking();
                 trackingData.UserTrackingUserUserId = 1;
                 trackingData.UserTrackingUserVpAction = "Delete";
-                // trackingData.UserTrackingUserVpNo = grn.PurchaseVoucherVoucherNo;
                 trackingData.UserTrackingUserChangeDt = DateTime.Now;
                 trackingData.UserTrackingUserChangeTime = DateTime.Now;
                 trackingData.UserTrackingUserVpType = "GRN";

@@ -4,14 +4,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inspire.Erp.Domain.Entities
 {
-    public partial class UserFile
+    public class UserFile
     {
         public long UserId { get; set; }
         public string LogInId { get; set; }
+        public int? LocationId { get; set; }
         public string UserName { get; set; }
         public int? WorkGroupId { get; set; }
         public string Password { get; set; }
         public string Token { get; set; }
+        public string UserImage { get; set; }
         public string RefreshToken { get; set; }
         public DateTime? RefreshTokenExpiryTime { get; set; }
         public string Salt { get; set; }
@@ -28,6 +30,9 @@ namespace Inspire.Erp.Domain.Entities
         public int? FinancialPeriodsFsno { get; set; }
         public int? Loginfailure { get; set; }
         public DateTime? PasswordUpdateDate { get; set; }
+       
+
+        
     }
 
     [NotMapped]

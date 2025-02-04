@@ -59,7 +59,7 @@ namespace Inspire.Erp.Domain.Entities
         public long? LocationId { get; set; }
         public long? CardNo { get; set; }
         public DateTime? StatusChangeDate { get; set; }
-        public DateTime? NormalHr { get; set; }
+        public int? NormalHr { get; set; }
         public bool? Oteligible { get; set; }
         public long? AgentId { get; set; }
         public long? SuperVisorId { get; set; }

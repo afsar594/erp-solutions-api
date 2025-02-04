@@ -61,12 +61,27 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpGet]
         [Route("GetJobMaster")]
+        //public ApiResponse<List<JobMaster>> GetAllJob()
+        //{
+        //    ApiResponse<List<JobMaster>> apiResponse = new ApiResponse<List<JobMaster>>
+        //    {
+        //        Valid = true,
+        //        Result = _mapper.Map<List<JobMaster>>(jobMasterService.GetAllJob()),
+        //        Message = ""
+        //    };
+        //    return apiResponse;
+        //}
+
         public ApiResponse<List<JobMaster>> GetAllJob()
         {
+            var jobs = jobMasterService.GetAllJob()
+                .OrderBy(job => job.JobMasterJobName) // Assuming 'Name' is the property you want to order by
+                .OrderBy(x => x.JobMasterJobName).ToList();
+
             ApiResponse<List<JobMaster>> apiResponse = new ApiResponse<List<JobMaster>>
             {
                 Valid = true,
-                Result = _mapper.Map<List<JobMaster>>(jobMasterService.GetAllJob()),
+                Result = _mapper.Map<List<JobMaster>>(jobs),
                 Message = ""
             };
             return apiResponse;
@@ -196,7 +211,7 @@ namespace Inspire.Erp.Web.Controllers
                 //JobMasterJobDelStatus = k.JobMasterJobDelStatus
 
 
-            }).ToList();
+            }).OrderBy(x => x.JobMasterJobName).ToList();
         }
 
 
@@ -270,7 +285,7 @@ namespace Inspire.Erp.Web.Controllers
                 c.MaAccName,
                 c.MaRelativeNo,
                 c.MaSno
-            }).OrderBy(x => x.MaAccName).ToList();
+            }).OrderBy(x => x.MaAccName).AsEnumerable().ToList();
             var customerMasters = _customerMasterRepository.GetAsQueryable().Where(k => k.CustomerMasterCustomerDelStatus != true).Select(a => new
             {
                 a.CustomerMasterCustomerNo,

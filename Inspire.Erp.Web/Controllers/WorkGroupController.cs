@@ -34,7 +34,7 @@ namespace Inspire.Erp.Web.Controllers
                 WorkGroupMasterWorkGroupId = k.WorkGroupMasterWorkGroupId,
                 WorkGroupMasterWorkGroupName = k.WorkGroupMasterWorkGroupName,
                 WorkGroupMasterWorkGroupDelStatus=k.WorkGroupMasterWorkGroupDelStatus
-            }).ToList();
+            }).OrderBy(x=>x.WorkGroupMasterWorkGroupName).OrderBy(x=>x.WorkGroupMasterWorkGroupName).ToList();
         }
 
         [HttpGet]
@@ -46,7 +46,7 @@ namespace Inspire.Erp.Web.Controllers
                 WorkGroupMasterWorkGroupId = k.WorkGroupMasterWorkGroupId,
                 WorkGroupMasterWorkGroupName = k.WorkGroupMasterWorkGroupName,
                 WorkGroupMasterWorkGroupDelStatus = k.WorkGroupMasterWorkGroupDelStatus
-            }).ToList();
+            }).OrderBy(x => x.WorkGroupMasterWorkGroupName).ToList();
         }
 
 
@@ -59,7 +59,7 @@ namespace Inspire.Erp.Web.Controllers
                 WorkGroupMasterWorkGroupId = k.WorkGroupMasterWorkGroupId,
                 WorkGroupMasterWorkGroupName = k.WorkGroupMasterWorkGroupName,
                 WorkGroupMasterWorkGroupDelStatus = k.WorkGroupMasterWorkGroupDelStatus
-            }).ToList();
+            }).OrderBy(x => x.WorkGroupMasterWorkGroupName).ToList();
         }
 
         [HttpPost]
@@ -72,7 +72,7 @@ namespace Inspire.Erp.Web.Controllers
                 WorkGroupMasterWorkGroupId = k.WorkGroupMasterWorkGroupId,
                 WorkGroupMasterWorkGroupName = k.WorkGroupMasterWorkGroupName,
                 WorkGroupMasterWorkGroupDelStatus = k.WorkGroupMasterWorkGroupDelStatus
-            }).ToList();
+            }).OrderBy(x => x.WorkGroupMasterWorkGroupName).ToList();
 
         }
 
@@ -86,7 +86,7 @@ namespace Inspire.Erp.Web.Controllers
                 WorkGroupMasterWorkGroupId = k.WorkGroupMasterWorkGroupId,
                 WorkGroupMasterWorkGroupName = k.WorkGroupMasterWorkGroupName,
                 WorkGroupMasterWorkGroupDelStatus = k.WorkGroupMasterWorkGroupDelStatus
-            }).ToList();
+            }).OrderBy(x => x.WorkGroupMasterWorkGroupName).ToList();
         }
     }
 }

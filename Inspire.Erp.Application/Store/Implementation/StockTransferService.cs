@@ -5,16 +5,19 @@ using Inspire.Erp.Domain.DTO;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Domain.Modals;
+using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Infrastructure.Database;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Intrinsics.X86;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Inspire.Erp.Application.Store.Implementation
@@ -25,8 +28,10 @@ namespace Inspire.Erp.Application.Store.Implementation
         private readonly IRepository<VouchersNumbers> _VoucherNumberRepo;
         private readonly IRepository<StockItemResponse> _StockItemResponse;
         private readonly IRepository<StockTransferResponseModel> _StockTransferResponse;
+        private readonly IRepository<StockTransfer> _StockTransferResp;
         private readonly IRepository<StockTransferDetails> _StockTransferDetailRepo;
         private readonly IRepository<StockRegister> _StockRegisterRepo;
+        private readonly IRepository<ItemMaster> _itemMasterRepo;
         private IRepository<ProgramSettings> _programsettingsRepository;
         private static string prefix;
         private InspireErpDBContext _context; private IRepository<UnitDetails> _UnitDetailsRepository;
@@ -41,7 +46,7 @@ namespace Inspire.Erp.Application.Store.Implementation
             IRepository<ProgramSettings> programsettingsRepository,
             InspireErpDBContext context,
             IRepository<ItemMaster> itemMasterRepository,
-            IUtilityService utilityService)
+            IUtilityService utilityService, IRepository<ItemMaster> itemMasterRepo, IRepository<StockTransfer> StockTransferResp)
         {
             _StockRegisterRepo = StockRegisterRepo;
             _VoucherNumberRepo = VoucherNumberRepo;
@@ -54,8 +59,11 @@ namespace Inspire.Erp.Application.Store.Implementation
             prefix = _programsettingsRepository.GetAsQueryable().Where(k => k.ProgramSettingsKeyValue == "HIDE_STOCKTRANSFER").FirstOrDefault().ProgramSettingsTextValue;
             _itemMasterRepository = itemMasterRepository;
             _utilityService = utilityService;
+            _itemMasterRepo = itemMasterRepo;
+            _StockTransferResp = StockTransferResp;
+
         }
-      
+
         public async Task<Response<decimal>> getStockItemResponse(int? itemId, int? locationId)
         {
             try
@@ -70,9 +78,9 @@ namespace Inspire.Erp.Application.Store.Implementation
                 {
                     list = list.Where(a => a.StockRegisterLocationID == locationId);
                 }
-                 currStock = list.Select(x => new 
+                currStock = list.Select(x => new
                 {
-                    x.StockRegisterMaterialID,                    
+                    x.StockRegisterMaterialID,
                     StockIn = x.StockRegisterSIN,
                     StockOut = x.StockRegisterSout
                 }).Sum(x => (x.StockIn ?? 0) - (x.StockOut ?? 0));
@@ -120,7 +128,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                 _StockTransferRepo.BeginTransaction();
 
-                string openingstockVoucherNumber = this.GenerateVoucherNo(stockTransfer.StockTransferStDate.Value).VouchersNumbersVNo;
+                string openingstockVoucherNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.StockTransferVoucher_TYPE, Prefix.StockTransfer_Prefix, _programsettingsRepository, _VoucherNumberRepo);
                 stockTransfer.StockTransferVoucherNo = openingstockVoucherNumber;
 
 
@@ -137,7 +145,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     x.StockTransferDetailsSNo = openingstockVoucherNumber;
 
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.StockTransferDetailsSNo).AsEnumerable().ToList();
 
                 //stockRegister = stockRegister.Select((k) =>
                 //{
@@ -207,7 +215,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                 _StockTransferRepo.Insert(stockTransfer);
                 _StockTransferRepo.TransactionCommit();
-                return this.GetSavedStockTransferDetails(stockTransfer.StockTransferVoucherNo);
+                return this.GetSavedStockTransferDetails((int)stockTransfer.StockTransferId);
 
 
             }
@@ -222,7 +230,7 @@ namespace Inspire.Erp.Application.Store.Implementation
         public IEnumerable<StockTransfer> DeleteStockTransfers(string Id)
         {
             try
-            {                
+            {
                 var dataObj = _StockTransferRepo.GetAsQueryable().Where(o => o.StockTransferVoucherNo == Id).FirstOrDefault();
                 dataObj.StockTransferDelStatus = true;
                 var detailData = _StockTransferDetailRepo.GetAsQueryable().Where(o => o.StockTransferDetailsSNo == Id).ToList();
@@ -245,12 +253,90 @@ namespace Inspire.Erp.Application.Store.Implementation
             }
         }
 
-
-        public StockTransferModel GetSavedStockTransferDetails(string pvno)
+        public ResponseInfo getStockitembyId(int id)
         {
-            StockTransferModel issueVoucherModel = new StockTransferModel();            
-            issueVoucherModel.stockTransfer = _StockTransferRepo.GetAsQueryable().Where(k => k.StockTransferVoucherNo == pvno).SingleOrDefault();
-            issueVoucherModel.stockTransferDetails = _StockTransferDetailRepo.GetAsQueryable().Where(x => x.StockTransferDetailsSNo == pvno && (x.StockTransferDetailsDelStatus == false || x.StockTransferDetailsDelStatus == null)).ToList();
+            var obj = new ResponseInfo();
+            var data = _StockRegisterRepo.GetAsQueryable().Where(i => i.StockRegisterMaterialID == id).Select(m => new
+            {
+                m.StockRegisterMaterialID,
+                m.StockRegisterQuantity,
+                m.StockRegisterRate,
+                m.StockRegisterUnitID,
+            }).FirstOrDefault();
+            obj.IsSuccess = true;
+            obj.ResultSet = data;
+            return obj;
+        }
+
+        public List<stocktransferRegister> getStockitembyIds(int ids)
+        {
+            //List<stocktransferRegister> stockMaster;
+            //try
+            //{
+            //    stockMaster = _StockRegisterRepo.GetAsQueryable()
+            //        .Where(k => k.StockRegisterMaterialID == ids &&
+            //        (k.StockRegisterDelStatus != true || k.StockRegisterDelStatus != null) &&
+            //        k.StockRegisterTransType != ItemMasterStatus.Group).GroupBy(a => a.StockRegisterMaterialID)
+            //        .Select(k => new stocktransferRegister
+            //        {
+            //            StockRegisterMaterialID =(int)k.Key,
+            //            StockRegisterQuantity = (int)k.Sum(x => x.StockRegisterSIN - x.StockRegisterSout),
+            //            StockRegisterRate =(int)k.FirstOrDefault().StockRegisterRate, 
+            //            StockRegisterUnitID = (int)k.FirstOrDefault().StockRegisterUnitID
+            //        })
+            //        .AsEnumerable().OrderBy(x => x.StockRegisterMaterialID)
+            //        .ToList();
+
+            //    var allUnitDetails = _UnitDetailsRepository.GetAsQueryable().Where(a => a.UnitDetailsDelStatus != true && a.UnitDetailsItemId == ids)
+            //        .Select(c=> new
+            //        {
+            //            c.UnitDetailsId,
+            //            c.UnitDetailsUnitId,
+            //            c.UnitDetailsRate,
+            //            c.UnitDetailsConversionType,
+
+            //        }).ToList();               
+            //}
+            List<stocktransferRegister> stockMaster;
+            try
+            {
+                 stockMaster = _StockRegisterRepo.GetAsQueryable()
+                    .Where(k =>
+                        k.StockRegisterMaterialID == ids &&
+                        (k.StockRegisterDelStatus != true || k.StockRegisterDelStatus == null) &&
+                        k.StockRegisterTransType != ItemMasterStatus.Group)
+                    .AsEnumerable().GroupBy(k => k.StockRegisterMaterialID ?? 0)
+                    .Select(group => new stocktransferRegister
+                    {
+                        StockRegisterMaterialID = (int)group.Key,
+                        StockRegisterQuantity = (int)group.Sum(x => x.StockRegisterSIN - x.StockRegisterSout),
+                        StockRegisterRate = (int)(group.FirstOrDefault()?.StockRegisterRate ?? 0),
+                        StockRegisterUnitID = (int)(group.FirstOrDefault()?.StockRegisterUnitID ?? 0)
+                    })
+                    .OrderBy(x => x.StockRegisterMaterialID).ToList();
+
+                var allUnitDetails = _UnitDetailsRepository.GetAsQueryable().Where(a =>  a.UnitDetailsItemId == ids)
+                    .Select(c => new
+                    {
+                        c.UnitDetailsId,
+                        c.UnitDetailsUnitId,
+                        c.UnitDetailsRate,
+                        c.UnitDetailsConversionType
+                    }).ToList();
+            }
+           
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            stockMaster = stockMaster.OrderBy(sm => sm.StockRegisterMaterialID).ToList();
+            return stockMaster;
+        }
+        public StockTransferModel GetSavedStockTransferDetails(int pvno)
+        {
+            StockTransferModel issueVoucherModel = new StockTransferModel();
+            issueVoucherModel.stockTransfer = _StockTransferRepo.GetAsQueryable().Where(k => k.StockTransferId == pvno).SingleOrDefault();
+            issueVoucherModel.stockTransferDetails = _StockTransferDetailRepo.GetAsQueryable().Where(x => x.StockTransferDetailsSNo == issueVoucherModel.stockTransfer.StockTransferVoucherNo && (x.StockTransferDetailsDelStatus == false || x.StockTransferDetailsDelStatus == null)).OrderBy(x => x.StockTransferDetailsSNo).AsEnumerable().ToList();
             return issueVoucherModel;
         }
 
@@ -347,14 +433,14 @@ namespace Inspire.Erp.Application.Store.Implementation
             {
                 k.StockTransferDetailsDelStatus = true;
                 return k;
-            }).ToList();
+            }).OrderBy(x => x.StockTransferDetailsSNo).AsEnumerable().ToList();
 
 
                 stockRegister = stockRegister.Select((k) =>
                 {
                     k.StockRegisterDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.StockRegisterRefVoucherNo).AsEnumerable().ToList();
                 _StockRegisterRepo.UpdateList(stockRegister);
 
                 _StockTransferRepo.UpdateAsync(stockTransfer);
@@ -402,7 +488,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                         x.StockTransferDetailsSNo = stockTransfer.StockTransferVoucherNo;
 
                         return x;
-                    }).ToList();
+                    }).OrderBy(x => x.StockTransferDetailsSNo).AsEnumerable().ToList();
 
                 //stockRegister = stockRegister.Select((k) =>
                 //{
@@ -470,7 +556,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                 _StockTransferRepo.Update(stockTransfer);
                 _StockTransferRepo.TransactionCommit();
-                return this.GetSavedStockTransferDetails(stockTransfer.StockTransferVoucherNo);
+                return this.GetSavedStockTransferDetails((int)stockTransfer.StockTransferId);
 
             }
             catch (Exception ex)
@@ -481,5 +567,37 @@ namespace Inspire.Erp.Application.Store.Implementation
 
             }
         }
+
+        public async Task<ResponseInfo> getStockTransferReport(reportModel model)
+        {
+            var objresponse = new ResponseInfo();
+            var query = (from st in _StockTransferResp.GetAsQueryable()
+                         join sd in _StockTransferDetailRepo.GetAsQueryable() on st.StockTransferId equals sd.StockTransferId
+                         join im in _itemMasterRepo.GetAsQueryable() on (int)sd.StockTransferDetailsMaterialId equals im.ItemMasterItemId
+                         where (
+                            (model.fromLocation == 0 || st.StockTransferLocationIdFrom >= model.fromLocation) &&
+                            (model.toLocation == 0 || st.StockTransferLocationIdTo <= model.toLocation)
+                            &&
+                            (model.fromdate == null || st.StockTransferStDate >= model.fromdate)
+                            && (model.todate == null || st.StockTransferStDate <= model.todate)
+                            && st.StockTransferDelStatus != true)
+
+                         select new StockTransferReport
+                         {
+                             StockTransferVoucherNo = st.StockTransferVoucherNo,
+                             StockTransferStDate = st.StockTransferStDate,
+                             ItemMasteritemName = im.ItemMasterItemName,
+                             StockTransferLocationIdFrom = st.StockTransferLocationIdFrom,
+                             StockTransferLocationIdTo = st.StockTransferLocationIdTo,
+                             StockTransferStatus = st.StockTransferStatus,
+                             StockTransfertotal =  sd.StockTransferDetailsQty ?? 0
+                         }).ToList();
+
+
+            objresponse.ResultSet = query;
+            return objresponse;
+        }
+
     }
+
 }

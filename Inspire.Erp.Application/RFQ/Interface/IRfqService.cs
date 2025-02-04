@@ -16,9 +16,9 @@ namespace Inspire.Erp.Application.RFQ.Interface
     public interface IRfqService
     {
         public IEnumerable<RfqEntry> GetRfq();
-        public RFQViewModel GetRfqById(int id);
-        public Task<RFQViewModel> InsertRfq(RfqEntry RfqEntry,List<RfqEntryDetails> RfqEntryDetails);
-        public Task<RFQViewModel> UpdatetRfq(RfqEntry RfqEntry, List<RfqEntryDetails> RfqEntryDetails);
+        public RfqEntry GetRfqById(int id);
+        public Task<RfqEntry> InsertRfq(RfqEntry RfqEntry,List<RfqEntryDetails> RfqEntryDetails);
+        public Task<RfqEntry> UpdatetRfq(RfqEntry RfqEntry, List<RfqEntryDetails> RfqEntryDetails);
 
         public IEnumerable<RfqEntry> DeleteRfq(string vouchaseNo);
         

@@ -64,7 +64,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                         k.AccountsTransactionsStatus = AccountStatus.Approved;
                     }
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
 
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 foreach (var x in purchaseJournal.PurchaseJournalDetails)
@@ -93,7 +93,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 throw ex;
             }
 
-            return this.GetSavedPurchaseJournalDetails(purchaseJournal.PurchaseJournalVno);
+            return this.GetSavedPurchaseJournalDetails((int)purchaseJournal.PurchaseJournalId);
         }
 
         public int DeletePurchaseJournal(PurchaseJournal purchaseJournal, List<AccountsTransactions> accountsTransactions, List<PurchaseJournalDetails> purchaseJournalDetails)
@@ -143,7 +143,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             {
                 _purchaseJournalRepository.BeginTransaction();
 
-                string purchaseJournalNumber = this.GenerateVoucherNo(purchaseJournal.PurchaseJournalDate.Value).VouchersNumbersVNo;
+                string purchaseJournalNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.PurchaseJournal_TYPE, Prefix.PurchaseJournal_Prefix, _programsettingsRepository, _voucherNumbersRepository);
                 purchaseJournal.PurchaseJournalVno = purchaseJournalNumber;
 
 
@@ -170,7 +170,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsVoucherType = VoucherType.PurchaseJournal_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
 
@@ -184,7 +184,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _UserTracking.Insert(trackingData);
 
                 _purchaseJournalRepository.TransactionCommit();
-                return this.GetSavedPurchaseJournalDetails(purchaseJournal.PurchaseJournalVno);
+                return this.GetSavedPurchaseJournalDetails((int)purchaseJournal.PurchaseJournalId);
 
             }
             catch (Exception ex)
@@ -203,13 +203,13 @@ namespace Inspire.Erp.Application.Account.Implementations
             IEnumerable<PurchaseJournal> purchaseJournal_ALL = _purchaseJournalRepository.GetAll().Where(k => k.PurchaseJournalDelStatus == false || k.PurchaseJournalDelStatus == null);
             return purchaseJournal_ALL;
         }
-        public PurchaseJournal GetSavedPurchaseJournalDetails(string pvno)
+        public PurchaseJournal GetSavedPurchaseJournalDetails(int pvno)
         {
             
-           var purchaseJournal = _purchaseJournalRepository.GetAsQueryable().Where(k => k.PurchaseJournalVno == pvno).SingleOrDefault();
+           var purchaseJournal = _purchaseJournalRepository.GetAsQueryable().Where(k => k.PurchaseJournalId == pvno).SingleOrDefault();
 
-            purchaseJournal.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.PurchaseJournal_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
-            purchaseJournal.PurchaseJournalDetails = _purchaseJournalDetailsRepository.GetAsQueryable().Where(x => x.PurchaseJournalDetailsVno == pvno && (x.PurchaseJournalDetailsDelStatus == false || x.PurchaseJournalDetailsDelStatus == null)).ToList();
+            purchaseJournal.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == purchaseJournal.PurchaseJournalVno && c.AccountsTransactionsVoucherType == VoucherType.PurchaseJournal_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
+            purchaseJournal.PurchaseJournalDetails = _purchaseJournalDetailsRepository.GetAsQueryable().Where(x => x.PurchaseJournalDetailsVno == purchaseJournal.PurchaseJournalVno && (x.PurchaseJournalDetailsDelStatus == false || x.PurchaseJournalDetailsDelStatus == null)).ToList();
             return purchaseJournal;
 
 

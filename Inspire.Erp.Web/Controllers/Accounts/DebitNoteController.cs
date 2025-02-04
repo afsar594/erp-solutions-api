@@ -107,7 +107,7 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("GetSavedDebitNoteDetails/{id}")]
-        public ApiResponse<DebitNote> GetSavedDebitNoteDetails(string id)
+        public ApiResponse<DebitNote> GetSavedDebitNoteDetails(int id)
         {
             DebitNote debitNote = _debitNoteService.GetSavedDebitNoteDetails(id);
 

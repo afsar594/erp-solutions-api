@@ -441,6 +441,12 @@ namespace Inspire.Erp.Web.Controllers.Accounts
             return Ok(await _assetsMasterService.SaveNewAssetHead(model));
         }
 
+        //[HttpGet("GetAllAssets")]
+        //public async Task<IActionResult> GetAllAssets()
+        //{
+        //    return Ok(_assetsMasterService.GetAllAssets());
+        //}
+
 
         #endregion
 
@@ -457,13 +463,13 @@ namespace Inspire.Erp.Web.Controllers.Accounts
             {
                 c.SalesManMasterSalesManId,
                 c.SalesManMasterSalesManName,
-            }).OrderBy(o=>o.SalesManMasterSalesManName).ToList();
+            }).OrderBy(o=>o.SalesManMasterSalesManName).AsEnumerable().ToList();
             
             var customerMasters = _customerMasterRepository.GetAsQueryable().AsNoTracking().Where(k => k.CustomerMasterCustomerDelStatus != true).Select(a => new
             {
                 a.CustomerMasterCustomerNo,
                 a.CustomerMasterCustomerName,
-            }).OrderBy(o => o.CustomerMasterCustomerName).ToList();
+            }).OrderBy(o => o.CustomerMasterCustomerName).AsEnumerable().ToList();
             objresponse.ResultSet = new
             {
                 customerMasters = customerMasters,
@@ -489,13 +495,13 @@ namespace Inspire.Erp.Web.Controllers.Accounts
                 query = query.Where(c => c.SalesVoucherDate.Value.Date >= model.fromdate.Value.Date && c.SalesVoucherDate.Value.Date <= model.todate.Value.Date);
             }
 
-            var result = query.ToList();
+            var result = query.OrderBy(x => x.CurrencyMasterCurrencyName).ToList();
             var accountsSettings = _accountsSettingsRepo.GetAsQueryable().AsNoTracking().Where(a => a.AccountSettingsAccountDelStatus != true && (a.AccountSettingsAccountDescription.Contains("Cost Of Finished Goods A/C") || a.AccountSettingsAccountDescription.Contains("Sales Account"))).Select(c => new
             {
                 c.AccountSettingsAccountId,
                 AccountSettingsAccountDescription = c.AccountSettingsAccountDescription.Trim(),
                 c.AccountSettingsAccountTextValue
-            }).ToList();
+            }).OrderBy(x => x.AccountSettingsAccountTextValue).AsEnumerable().ToList();
             List<string> ids = new List<string>();
             string sale = "";
             string cost = "";
@@ -532,16 +538,16 @@ namespace Inspire.Erp.Web.Controllers.Accounts
             var acc = _accountTransactionRepository.GetAsQueryable().AsNoTracking()
                 .Where(a => a.AccountstransactionsDelStatus != true
                             && a.AccountsTransactionsVoucherType == "SalesVoucher")
-                .ToList();
+                .OrderBy(x => x.AccountsTransactionsAccNo).ToList();
 
             if (model.isDate)
             {
-                acc = acc.Where(a => a.AccountsTransactionsTransDate.Value.Date >= model.fromdate.Value.Date && a.AccountsTransactionsTransDate.Value.Date <= model.todate.Value.Date).ToList();
+                acc = acc.Where(a => a.AccountsTransactionsTransDate.Value.Date >= model.fromdate.Value.Date && a.AccountsTransactionsTransDate.Value.Date <= model.todate.Value.Date).OrderBy(x => x.AccountsTransactionsAccNo).AsEnumerable().ToList();
             }
 
             var account = acc.Where(a => ids.Any(id =>
                             string.Equals(a.AccountsTransactionsAccNo.Trim(), id.Trim(), StringComparison.OrdinalIgnoreCase)))
-                            .ToList();
+                            .OrderBy(x => x.AccountsTransactionsAccNo).ToList();
 
             var data = from q in result
                        join s in _salesVoucherDetailsRepository.GetAsQueryable().AsNoTracking()
@@ -578,7 +584,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
 
             objresponse.ResultSet = new
             {
-                result = data.ToList()
+                result = data.OrderBy(x => x.InvoiceNo).ToList()
             };
             return objresponse;
         }

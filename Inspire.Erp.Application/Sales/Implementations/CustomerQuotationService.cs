@@ -134,7 +134,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
               {
                   x.CustomerQuotationDetailsDelStatus = true;
                   return x;
-              }).ToList();
+              }).OrderBy(x => x.CustomerQuotationDetailsVoucherNo).AsEnumerable().ToList();
                 //_customerQuotationDetailsRepository.UpdateList();
                 _customerQuotationRepository.Update(customerQuotation);
 
@@ -206,7 +206,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 trackingData.UserTrackingUserChangeTime = DateTime.Now;
                 trackingData.UserTrackingUserVpType = "CustomerQuotation";
                 _userTrackingRepository.Insert(trackingData);
-                var permsionApproval = _permissionApprovalRepo.GetAsQueryable().Where(x => x.VoucherType == "CustomerQuotation").OrderBy(x => x.LevelOrder).ToList();
+                var permsionApproval = _permissionApprovalRepo.GetAsQueryable().Where(x => x.VoucherType == "CustomerQuotation").OrderBy(x => x.LevelOrder).AsEnumerable().ToList();
                 var approvals = new Approval()
                 {
                     CreatedBy = 0,
@@ -246,7 +246,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             voucherdata = _customerQuotationRepository.GetAsQueryable().Where(k => k.CustomerQuotationQid == id && k.CustomerQuotationDelStatus != true).FirstOrDefault();
             if (voucherdata != null)
             {
-                voucherdata.CustomerQuotationDetails = _customerQuotationDetailsRepository.GetAsQueryable().Where(qd => qd.CustomerQuotationDetailsQuotationId == id).ToList();
+                voucherdata.CustomerQuotationDetails = _customerQuotationDetailsRepository.GetAsQueryable().Where(qd => qd.CustomerQuotationDetailsQuotationId == id).OrderBy(x => x.CustomerQuotationDetailsVoucherNo).AsEnumerable().ToList();
                 return voucherdata;
 
             }

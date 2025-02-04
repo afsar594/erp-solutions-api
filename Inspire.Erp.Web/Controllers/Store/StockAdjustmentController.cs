@@ -30,6 +30,7 @@ namespace Inspire.Erp.Web.Controllers.Store
         private IRepository<UnitMaster> _unitrepository;
         private IRepository<UnitDetails> _unitDetailRepository;
         private IRepository<StockRegister> _stockRegisterRepository;
+
         public StockAdjustmentController(IStockAdjustmentService sa, IMapper mapper, IRepository<UnitMaster> unitrepository,
             IRepository<JobMaster> jobrepository, IRepository<LocationMaster> locationrepository, IRepository<ItemMaster> itemrepository, IRepository<UnitDetails> unitDetailRepository, IRepository<StockRegister> stockRegisterRepository)
         {
@@ -60,7 +61,8 @@ namespace Inspire.Erp.Web.Controllers.Store
             ApiResponse<StockAdjustmentVoucher> apiResponse = new ApiResponse<StockAdjustmentVoucher>();
             var param1 = _mapper.Map<StockAdjustmentVoucher>(voucherCompositeView);
             var param2 = _mapper.Map<List<StockAdjustmentVoucherDetails>>(voucherCompositeView.stockAdjustmentVoucherDetails);
-            var xs = await _sa.InsertStockAdjustmentVoucher(param1, param2);
+            var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
+            var xs = await _sa.InsertStockAdjustmentVoucher(param1, param2, param3);
             apiResponse = new ApiResponse<StockAdjustmentVoucher>
             {
                 Valid = true,
@@ -88,7 +90,7 @@ namespace Inspire.Erp.Web.Controllers.Store
 
         [HttpGet]
         [Route("GetSavedStockAdjustmentDetails/{id}")]
-        public ApiResponse<StockAdjustmentVoucher> GetSavedStockAdjustmentDetails(string id)
+        public ApiResponse<StockAdjustmentVoucher> GetSavedStockAdjustmentDetails(int id)
         {
             StockAdjustmentVoucher stockAdjustmentVoucher = _sa.GetSavedStockAdjustmentferDetails(id);
             if (stockAdjustmentVoucher != null)
@@ -142,6 +144,7 @@ namespace Inspire.Erp.Web.Controllers.Store
             var LocationMaster = _locationrepository.GetAsQueryable().AsNoTracking().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
             {
                 c.LocationMasterLocationId,
+                c.LocationMasterLocationStatus,
                 LocationMasterLocationName = c.LocationMasterLocationName.Trim(),
             }).OrderBy(x => x.LocationMasterLocationName).ToList();
 
@@ -178,5 +181,16 @@ namespace Inspire.Erp.Web.Controllers.Store
             };
             return objresponse;
         }
+
+        [HttpGet]
+        [Route("GetStockByLocation/{id}")]
+        public ResponseInfo GetStockByLocation(int id)
+        {
+                    var objresponse = new ResponseInfo();
+            objresponse = _sa.GetStockByLocation(id);
+
+            return objresponse;
+        }
+
     }
 }

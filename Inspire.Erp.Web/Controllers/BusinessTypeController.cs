@@ -35,7 +35,7 @@ namespace Inspire.Erp.Web.Controllers
                 BusinessTypeMasterBusinessTypeName = k.BusinessTypeMasterBusinessTypeName,
                 BusinessTypeMasterBusinessTypeStatus = k.BusinessTypeMasterBusinessTypeStatus,
                 BusinessTypeMasterBusinessTypeDelStatus=k.BusinessTypeMasterBusinessTypeDelStatus
-            }).ToList();
+            }).OrderBy(x => x.BusinessTypeMasterBusinessTypeName).AsEnumerable().ToList();
         }
 
         [HttpGet]
@@ -49,7 +49,7 @@ namespace Inspire.Erp.Web.Controllers
                 BusinessTypeMasterBusinessTypeName = k.BusinessTypeMasterBusinessTypeName,
                 BusinessTypeMasterBusinessTypeStatus = k.BusinessTypeMasterBusinessTypeStatus,
                 BusinessTypeMasterBusinessTypeDelStatus = k.BusinessTypeMasterBusinessTypeDelStatus
-            }).ToList();
+            }).OrderBy(x => x.BusinessTypeMasterBusinessTypeName).AsEnumerable().ToList();
         }
 
         [HttpPost]
@@ -63,7 +63,7 @@ namespace Inspire.Erp.Web.Controllers
                 BusinessTypeMasterBusinessTypeName = k.BusinessTypeMasterBusinessTypeName,
                 BusinessTypeMasterBusinessTypeStatus = k.BusinessTypeMasterBusinessTypeStatus,
                 BusinessTypeMasterBusinessTypeDelStatus = k.BusinessTypeMasterBusinessTypeDelStatus
-            }).ToList();
+            }).OrderBy(x => x.BusinessTypeMasterBusinessTypeName).AsEnumerable().ToList();
         }
 
         [HttpPost]
@@ -77,7 +77,7 @@ namespace Inspire.Erp.Web.Controllers
                 BusinessTypeMasterBusinessTypeName = k.BusinessTypeMasterBusinessTypeName,
                 BusinessTypeMasterBusinessTypeStatus = k.BusinessTypeMasterBusinessTypeStatus,
                 BusinessTypeMasterBusinessTypeDelStatus = k.BusinessTypeMasterBusinessTypeDelStatus
-            }).ToList();
+            }).OrderBy(x => x.BusinessTypeMasterBusinessTypeName).AsEnumerable().ToList();
         }
 
         [HttpPost]
@@ -91,7 +91,7 @@ namespace Inspire.Erp.Web.Controllers
                 BusinessTypeMasterBusinessTypeName = k.BusinessTypeMasterBusinessTypeName,
                 BusinessTypeMasterBusinessTypeStatus = k.BusinessTypeMasterBusinessTypeStatus,
                 BusinessTypeMasterBusinessTypeDelStatus = k.BusinessTypeMasterBusinessTypeDelStatus
-            }).ToList();
+            }).OrderBy(x => x.BusinessTypeMasterBusinessTypeName).AsEnumerable().ToList();
         }
     }
 }

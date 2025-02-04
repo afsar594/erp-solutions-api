@@ -11,16 +11,17 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Microsoft.Extensions.Logging;
-using Inspire.Erp.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Spire.Pdf.Exporting.XPS.Schema;
 using DinkToPdf;
 using SendGrid.Helpers.Mail;
 using Inspire.Erp.Domain.Modals;
 using System.Linq.Dynamic.Core;
+using Inspire.Erp.Application.Settings.Interfaces;
+using System.Diagnostics;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using Inspire.Erp.Application.Master;
+using Inspire.Erp.Domain.Models.ViewModels;
 
 namespace Inspire.Erp.Application.Account.Implementations
 {
@@ -48,14 +49,26 @@ namespace Inspire.Erp.Application.Account.Implementations
         private IRepository<ViewAccountsTransactionsVoucherType> _viewAccountsTransactionsVoucherTypeRepository;
         private IRepository<ReportAccountsTransactions> _reportAccountsTransactionsRepository;
         private IRepository<ReportPurchaseRequisition> _reportPurchaseRequisitionRepository;
+        private IRepository<PurchaseRequisition> _purchaseRequisitionRepository;
+        private IRepository<PurchaseRequisitionDetails> _purchaseRequisitionDRepository;
         private IRepository<ReportPurchaseOrder> _reportPurchaseOrderRepository;
+        private IRepository<LocationMaster> _locMasterRepository;
+        private IRepository<StockTransferDetails> _stdRepository;
+        private IRepository<JobMaster> _jmRepository;
+        private readonly IRepository<SuppliersMaster> _supplierrepository;
+        private readonly IRepository<CityMaster> _cityMasterrepository;
+        private readonly IRepository<CountryMaster> _counrtyMasterrepository;
+        private readonly IRepository<CurrencyMaster> _currMasterrepository;
+        private readonly IRepository<UnitMaster> _unitMastersepository;
+
+        
         public MainReportService(
               IRepository<ItemMaster> itemMasterRepository,
               IRepository<ReportStockBaseUnit> reportStockBaseUnitRepository,
             IRepository<ReportStockBaseUnit> reportStockBaseUnitLocationRepository,
+            IRepository<PurchaseRequisition> purchaseRequisitionRepository,
 
-
-
+            IRepository<PurchaseRequisitionDetails> purchaseRequisitionDRepository,
 
               IRepository<ReportSalesVoucher> reportSalesVoucherRepository,
                IRepository<ReportPurchaseVoucher> reportPurchaseVoucherRepository,
@@ -68,8 +81,15 @@ namespace Inspire.Erp.Application.Account.Implementations
                    IRepository<ReportPurchaseOrder> reportPurchaseOderRepository,
                  IRepository<StockRegister> stockRegisterRepository,
                 IRepository<UnitDetails> unitDetailsRepository,
-                IRepository<UnitMaster> unitMasterRepository
-
+                IRepository<UnitMaster> unitMasterRepository,
+                IRepository<LocationMaster> locMasterRepository,
+                IRepository<StockTransferDetails> stdRepository,
+                IRepository<JobMaster> jmRepository,
+                IRepository<SuppliersMaster> supplierrepository,
+            IRepository<CityMaster> cityMasterrepository,
+                                     IRepository<CountryMaster> counrtyMasterrepository,
+                                           IRepository<CurrencyMaster> currMasterrepository,
+                                           IRepository<UnitMaster> unitMastersepository
                   )
         {
 
@@ -91,6 +111,16 @@ namespace Inspire.Erp.Application.Account.Implementations
             _stockRegisterRepository = stockRegisterRepository;
             _unitDetailsRepository = unitDetailsRepository;
             _unitMasterRepository = unitMasterRepository;
+            _purchaseRequisitionRepository = purchaseRequisitionRepository;
+            _purchaseRequisitionDRepository = purchaseRequisitionDRepository;
+            _locMasterRepository = locMasterRepository;
+            _stdRepository = stdRepository;
+            _jmRepository = jmRepository;
+            _supplierrepository = supplierrepository;
+            _cityMasterrepository = cityMasterrepository;
+            _counrtyMasterrepository = counrtyMasterrepository;
+            _currMasterrepository = currMasterrepository;
+            _unitMastersepository = unitMastersepository;
         }
 
         public IEnumerable<ReportStockBaseUnit> MainReport_GetReportStockLedger_PARAM_CLASS(StockLedgerParameters stockLedgerParameters, List<ViewStockTransferType> viewStockTransferType)
@@ -306,7 +336,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 AccChqDate = l.AccChqDate,
                 AccVatNo = l.AccVatNo,
                 AccVatAmt = l.AccVatAmt,
-            }).ToList();
+            }).OrderBy(x => x.AccName).AsEnumerable().ToList();
             _tempReportAccStatementRepository.DeleteList(tempReport);
             //_accountTransactionRepository.UpdateList(accttrans);
         }
@@ -438,7 +468,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                    && (accountStatementParameters.rptDescription.Trim() == "" ? true : (k.AccountsTransactionsDescription.Trim() == accountStatementParameters.rptDescription.Trim()))
                    && (k.AccountstransactionsDelStatus == false || k.AccountstransactionsDelStatus == null)
                     && (voucherTypes.Count > 0 ? voucherTypes.Contains(k.AccountsTransactionsVoucherType.Trim()) : true)
-                    )).OrderBy(x => x.AccountsTransactionsTransDate).ToList();
+                    )).OrderBy(x => x.AccountsTransactionsTransDate).AsEnumerable().ToList();
 
                 if (accountStatementParameters.rptDateRange == true)
                 {
@@ -742,7 +772,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
         {
             //return _itemMasterRepository.GetAll();
 
-            List<ItemMaster> reportItemMaster = _itemMasterRepository.GetAsQueryable().Where(k => k.ItemMasterItemType.Trim() == "A").OrderBy(x => x.ItemMasterItemName).ToList();
+            List<ItemMaster> reportItemMaster = _itemMasterRepository.GetAsQueryable().Where(k => k.ItemMasterItemType.Trim() == "A").OrderBy(x => x.ItemMasterItemName).AsEnumerable().ToList();
 
             return reportItemMaster;
 
@@ -754,7 +784,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
             //return _itemMasterRepository.GetAll();
 
 
-            List<ItemMaster> reportItemMaster = _itemMasterRepository.GetAsQueryable().Where(k => k.ItemMasterItemType.Trim() == "G").OrderBy(x => x.ItemMasterItemName).ToList();
+            List<ItemMaster> reportItemMaster = _itemMasterRepository.GetAsQueryable().Where(k => k.ItemMasterItemType.Trim() == "G").OrderBy(x => x.ItemMasterItemName).AsEnumerable().ToList();
 
             return reportItemMaster;
         }
@@ -811,7 +841,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                                                                        //StockRegisterAmount = grp.Sum(x => x.StockRegisterAmount),
                                                                        //LocationMasterLocationName = "",
                                                                        //StockRegisterLocationID = 0,
-                                                                   }).ToList();
+                                                                   }).OrderBy(x => x.SalesVoucherNo).AsEnumerable().ToList();
 
                 return reportSalesVoucher_ALL;
             }
@@ -860,7 +890,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
 
 
 
-                  }).ToList();
+                  }).OrderBy(x => x.SalesVoucherNo).AsEnumerable().ToList();
                 return reportSalesVoucher_ALL;
             }
 
@@ -904,7 +934,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                                                                                  k.PurchaseVoucherVatAmount,
                                                                                  k.PurchaseVoucherVatRoundAmount,
                                                                                  k.PurchaseVoucherNetAmount,
-                                                                                 
+
                                                                              } into grp
                                                                              select new ReportPurchaseVoucher
                                                                              {
@@ -921,10 +951,10 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                                                                                  PurchaseVoucherVatAmount = grp.Key.PurchaseVoucherVatAmount,
                                                                                  PurchaseVoucherVatRoundAmount = grp.Key.PurchaseVoucherVatRoundAmount,
                                                                                  PurchaseVoucherNetAmount = grp.Key.PurchaseVoucherNetAmount,
-                                                                                 PurchaseVoucherDetailsGrossAmount = grp.Key.PurchaseVoucherTotalGrossAmt,                                                                                 
+                                                                                 PurchaseVoucherDetailsGrossAmount = grp.Key.PurchaseVoucherTotalGrossAmt,
 
 
-                                                                             }).ToList();
+                                                                             }).OrderBy(x => x.PurchaseVoucherPoNo).AsEnumerable().ToList();
 
                     return reportPurchaseVoucher_ALL;
                 }
@@ -966,14 +996,14 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                             PurchaseVoucherDetailsNetAmount = c.PurchaseVoucherDetailsNetAmount,
                             PurchaseVoucherDetailsDiscountAmoutPurchase = c.PurchaseVoucherDetailsDiscountAmoutPurchase,
                             PurchaseVoucherDetailsMaterialId = c.PurchaseVoucherDetailsMaterialId,
-                            PurchaseVoucherLocationId= c.PurchaseVoucherLocationId,
+                            PurchaseVoucherLocationId = c.PurchaseVoucherLocationId,
                             LocationMasterLocationName = c.LocationMasterLocationName,
                             PurchaseVoucherFcNetAmount = c.PurchaseVoucherFcNetAmount,
-                            PurchaseVoucherDetailsGrossAmount= c.PurchaseVoucherDetailsGrossAmount,
+                            PurchaseVoucherDetailsGrossAmount = c.PurchaseVoucherDetailsGrossAmount,
                             PurchaseVoucherVatNo = c.PurchaseVoucherVatNo,
                             PurchaseVoucherPurchaseType = c.PurchaseVoucherPurchaseType,
 
-                        }).ToList();
+                        }).OrderBy(x => x.PurchaseVoucherVoucherNo).AsEnumerable().ToList();
 
                     return reportPurchaseVoucher_ALL;
                 }
@@ -989,27 +1019,27 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
         {
             if (purchaseOrderreportParameters.rptSummary == true)
             {
-              List<ReportPurchaseOrder> reportPurchaseOrder_ALL = (from k in _reportPurchaseOrderRepository.GetAsQueryable()
-                                where ((purchaseOrderreportParameters.rptSupplier == -1 ? true : (k.PurchaseOrderPartyId == purchaseOrderreportParameters.rptSupplier))
-                                && (purchaseOrderreportParameters.rptInvoiceType == "ALL" ? true : (k.PurchaseOrderType == purchaseOrderreportParameters.rptInvoiceType.Trim()))
-                                && (purchaseOrderreportParameters.rptLocation == -1 ? true : (k.PurchaseOrderLocationId == purchaseOrderreportParameters.rptLocation))
-                                && (purchaseOrderreportParameters.rptDateRange == false ? true : (k.PurchaseOrderDate.Value.Date >= purchaseOrderreportParameters.rptDtpFrom.Value.Date)
-                                && (k.PurchaseOrderDate.Value.Date <= purchaseOrderreportParameters.rptDtpTo.Value.Date))
-                                && (purchaseOrderreportParameters.rptCurrency == -1 ? true : ((k.PurchaseOrderCurrencyId == purchaseOrderreportParameters.rptCurrency)
-                                && (purchaseOrderreportParameters.rptItem == -1 ? true : (k.ItemMasterItemId == purchaseOrderreportParameters.rptItem))
-                                && (purchaseOrderreportParameters.rptJob == -1 ? true : (k.PurchaseOrderJobId == purchaseOrderreportParameters.rptJob))
-                                && (purchaseOrderreportParameters.rptSuppInvNo.Trim() == "" ? true : (k.PurchaseOrderSupInvNo.Trim() == purchaseOrderreportParameters.rptSuppInvNo.Trim()))
-                     ////&& (purchasevoucherreportParameters.rptBrand == -1 ? true : (k.ItemBrandId == purchasevoucherreportParameters.rptBrand))
-                     ////      && (purchasevoucherreportParameters.rptItemGroup == -1 ? true : (k.ItemGroupId == purchasevoucherreportParameters.rptItemGroup))
-              
-                    && (k.PurchaseOrderDelStatus == false || k.PurchaseOrderDelStatus == null))))
+                List<ReportPurchaseOrder> reportPurchaseOrder_ALL = (from k in _reportPurchaseOrderRepository.GetAsQueryable()
+                                                                     where ((purchaseOrderreportParameters.rptSupplier == -1 ? true : (k.PurchaseOrderPartyId == purchaseOrderreportParameters.rptSupplier))
+                                                                     && (purchaseOrderreportParameters.rptInvoiceType == "ALL" ? true : (k.PurchaseOrderType == purchaseOrderreportParameters.rptInvoiceType.Trim()))
+                                                                     && (purchaseOrderreportParameters.rptLocation == -1 ? true : (k.PurchaseOrderLocationId == purchaseOrderreportParameters.rptLocation))
+                                                                     && (purchaseOrderreportParameters.rptDateRange == false ? true : (k.PurchaseOrderDate.Value.Date >= purchaseOrderreportParameters.rptDtpFrom.Value.Date)
+                                                                     && (k.PurchaseOrderDate.Value.Date <= purchaseOrderreportParameters.rptDtpTo.Value.Date))
+                                                                     && (purchaseOrderreportParameters.rptCurrency == -1 ? true : ((k.PurchaseOrderCurrencyId == purchaseOrderreportParameters.rptCurrency)
+                                                                     && (purchaseOrderreportParameters.rptItem == -1 ? true : (k.ItemMasterItemId == purchaseOrderreportParameters.rptItem))
+                                                                     && (purchaseOrderreportParameters.rptJob == -1 ? true : (k.PurchaseOrderJobId == purchaseOrderreportParameters.rptJob))
+                                                                     && (purchaseOrderreportParameters.rptSuppInvNo.Trim() == "" ? true : (k.PurchaseOrderSupInvNo.Trim() == purchaseOrderreportParameters.rptSuppInvNo.Trim()))
+                                                         ////&& (purchasevoucherreportParameters.rptBrand == -1 ? true : (k.ItemBrandId == purchasevoucherreportParameters.rptBrand))
+                                                         ////      && (purchasevoucherreportParameters.rptItemGroup == -1 ? true : (k.ItemGroupId == purchasevoucherreportParameters.rptItemGroup))
+
+                                                         && (k.PurchaseOrderDelStatus == false || k.PurchaseOrderDelStatus == null))))
                                                                      group k by new
                                                                      {
                                                                          k.PurchaseOrderNo,
                                                                          k.PurchaseOrderDate,
                                                                          k.PurchaseOrderType,
                                                                          k.PurchaseOrderSupInvNo,
-                                                                          k.LocationName,
+                                                                         k.LocationName,
                                                                          k.SuppliersMasterSupplierName,
                                                                          k.PurchaseOrderTotalGrossAmount,
                                                                          k.PurchaseOrderTotalItemDisAmount,
@@ -1034,8 +1064,8 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                                                                          PurchaseOrderVatAmt = grp.Key.PurchaseOrderVatAmt,
                                                                          PurchaseOrderVatRountAmt = grp.Key.PurchaseOrderVatRountAmt,
                                                                          PurchaseOrderNetAmount = grp.Key.PurchaseOrderNetAmount,
-                                                                         
-                                                                     }).ToList();
+
+                                                                     }).OrderBy(x => x.PurchaseOrderNo).AsEnumerable().ToList();
 
                 return reportPurchaseOrder_ALL;
             }
@@ -1051,10 +1081,10 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                          && (purchaseOrderreportParameters.rptCurrency == -1 ? true : ((k.PurchaseOrderCurrencyId == purchaseOrderreportParameters.rptCurrency)
                          && (purchaseOrderreportParameters.rptJob == -1 ? true : (k.PurchaseOrderJobId == purchaseOrderreportParameters.rptJob))
                          && (purchaseOrderreportParameters.rptSuppInvNo.Trim() == "" ? true : (k.PurchaseOrderSupInvNo.Trim() == purchaseOrderreportParameters.rptSuppInvNo.Trim()))
-                   //&& (purchasevoucherreportParameters.rptBrand == -1 ? true : (k.ItemBrandId == purchasevoucherreportParameters.rptBrand))
-                   //  && (purchasevoucherreportParameters.rptItemGroup == -1 ? true : (k.ItemGroupId == purchasevoucherreportParameters.rptItemGroup))
-                  
-                  && (k.PurchaseOrderDelStatus == false || k.PurchaseOrderDelStatus == null)))).OrderBy(x => x.PurchaseOrderId).ToList();
+                  //&& (purchasevoucherreportParameters.rptBrand == -1 ? true : (k.ItemBrandId == purchasevoucherreportParameters.rptBrand))
+                  //  && (purchasevoucherreportParameters.rptItemGroup == -1 ? true : (k.ItemGroupId == purchasevoucherreportParameters.rptItemGroup))
+
+                  && (k.PurchaseOrderDelStatus == false || k.PurchaseOrderDelStatus == null)))).OrderBy(x => x.PurchaseOrderId).AsEnumerable().ToList();
 
                 return reportPurchaseOrder_ALL;
             }
@@ -1065,70 +1095,180 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
             if (purchaserequisitionReportParameters.rptSummary == true)
             {
                 List<ReportPurchaseRequisition> reportPurchaseRequisition_ALL = (from k in _reportPurchaseRequisitionRepository.GetAsQueryable()
-                    where ((purchaserequisitionReportParameters.rptSupplier == -1 ? true : (k.PurchaseRequisitionPartyId == purchaserequisitionReportParameters.rptSupplier))
-                    && (purchaserequisitionReportParameters.rptCurrency == -1 ? true : ((k.PurchaseRequisitionCurrencyId == purchaserequisitionReportParameters.rptCurrency)
-                    && (purchaserequisitionReportParameters.rptLocation == -1 ? true : (k.PurchaseRequisitionLocationId == purchaserequisitionReportParameters.rptLocation))
-                    && (purchaserequisitionReportParameters.rptJob == -1 ? true : (k.PurchaseRequisitionJobId == purchaserequisitionReportParameters.rptJob))
-                    && (purchaserequisitionReportParameters.rptSuppInvNo.Trim() == "" ? true : (k.PurchaseRequisitionSupInvNo.Trim() == purchaserequisitionReportParameters.rptSuppInvNo.Trim()))
-                     && (purchaserequisitionReportParameters.rptInvoiceType == "ALL" ? true : (k.PurchaseRequisitionType == purchaserequisitionReportParameters.rptInvoiceType))
-                    && (purchaserequisitionReportParameters.rptBrand == -1 ? true : (k.ItemBrandId == purchaserequisitionReportParameters.rptBrand))
-                    && (purchaserequisitionReportParameters.rptItemGroup == -1 ? true : (k.ItemGroupId == purchaserequisitionReportParameters.rptItemGroup))
-                    && (purchaserequisitionReportParameters.rptItem == -1 ? true : (k.PurchaseRequisitionDetailsMatId == purchaserequisitionReportParameters.rptItem))
-                    && (purchaserequisitionReportParameters.rptDateRange == false ? true : (k.PurchaseRequisitionDate.Date >= purchaserequisitionReportParameters.rptDtpFrom.Value.Date)
-                    && (k.PurchaseRequisitionDate.Date <= purchaserequisitionReportParameters.rptDtpTo.Value.Date))
-                    && (k.PurchaseRequisitionDelStatus == false || k.PurchaseRequisitionDelStatus == null))))
-                        group k by new
-                        {
-                            k.PurchaseRequisitionNo,
-                            k.PurchaseRequisitionDate,
-                            k.PurchaseRequisitionType,
-                            k.PurchaseRequisitionSupInvNo,
-                            k.LocationMasterLocationName,
-                            k.SuppliersMasterSupplierName,
-                            k.PurchaseRequisitionTotalGrossAmount,
-                            k.PurchaseRequisitionTotalItemDisAmount,
-                            k.PurchaseRequisitionNetDisAmount,
-                            k.PurchaseRequisitionTotalDisAmount,
-                            k.PurchaseRequisitionVatAmt,
-                            k.PurchaseRequisitionVatRountAmt,
-                            k.PurchaseRequisitionNetAmount,
-                        } into grp
-                        select new ReportPurchaseRequisition
-                        {
-                            PurchaseRequisitionNo = grp.Key.PurchaseRequisitionNo,
-                            PurchaseRequisitionDate = grp.Key.PurchaseRequisitionDate,
-                            PurchaseRequisitionType = grp.Key.PurchaseRequisitionType,
-                            PurchaseRequisitionSupInvNo = grp.Key.PurchaseRequisitionSupInvNo,
-                            LocationMasterLocationName = grp.Key.LocationMasterLocationName,
-                            SuppliersMasterSupplierName = grp.Key.SuppliersMasterSupplierName,
-                            PurchaseRequisitionTotalGrossAmount = grp.Key.PurchaseRequisitionTotalGrossAmount,
-                            PurchaseRequisitionTotalItemDisAmount = grp.Key.PurchaseRequisitionTotalItemDisAmount,
-                            PurchaseRequisitionNetDisAmount = grp.Key.PurchaseRequisitionNetDisAmount,
-                            PurchaseRequisitionTotalDisAmount = grp.Key.PurchaseRequisitionTotalDisAmount,
-                            PurchaseRequisitionVatAmt = grp.Key.PurchaseRequisitionVatAmt,
-                            PurchaseRequisitionVatRountAmt = grp.Key.PurchaseRequisitionVatRountAmt,
-                            PurchaseRequisitionNetAmount = grp.Key.PurchaseRequisitionNetAmount,
-                     
-                        }).ToList();
+                                                                                 where ((purchaserequisitionReportParameters.rptSupplier == -1 ? true : (k.PurchaseRequisitionPartyId == purchaserequisitionReportParameters.rptSupplier))
+                                                                                 && (purchaserequisitionReportParameters.rptCurrency == -1 ? true : ((k.PurchaseRequisitionCurrencyId == purchaserequisitionReportParameters.rptCurrency)
+                                                                                 && (purchaserequisitionReportParameters.rptLocation == -1 ? true : (k.PurchaseRequisitionLocationId == purchaserequisitionReportParameters.rptLocation))
+                                                                                 && (purchaserequisitionReportParameters.rptJob == -1 ? true : (k.PurchaseRequisitionJobId == purchaserequisitionReportParameters.rptJob))
+                                                                                 && (purchaserequisitionReportParameters.rptSuppInvNo == "" ? true : (k.PurchaseRequisitionSupInvNo == purchaserequisitionReportParameters.rptSuppInvNo))
+                                                                                  && (purchaserequisitionReportParameters.rptInvoiceType == "ALL" ? true : (k.PurchaseRequisitionType == purchaserequisitionReportParameters.rptInvoiceType))
+                                                                                 && (purchaserequisitionReportParameters.rptBrand == -1 ? true : (k.ItemBrandId == purchaserequisitionReportParameters.rptBrand))
+                                                                                 && (purchaserequisitionReportParameters.rptItemGroup == -1 ? true : (k.ItemGroupId == purchaserequisitionReportParameters.rptItemGroup))
+                                                                                 && (purchaserequisitionReportParameters.rptItem == -1 ? true : (k.PurchaseRequisitionDetailsMatId == purchaserequisitionReportParameters.rptItem))
+                                                                                 && (purchaserequisitionReportParameters.rptDateRange == false ? true : (k.PurchaseRequisitionDate.Date >= purchaserequisitionReportParameters.rptDtpFrom.Value.Date)
+                                                                                 && (k.PurchaseRequisitionDate.Date <= purchaserequisitionReportParameters.rptDtpTo.Value.Date))
+                                                                                 && (k.PurchaseRequisitionDelStatus != null))))
+                                                                                 group k by new
+                                                                                 {
+                                                                                     k.PurchaseRequisitionNo,
+                                                                                     k.PurchaseRequisitionDate,
+                                                                                     k.PurchaseRequisitionType,
+                                                                                     k.PurchaseRequisitionSupInvNo,
+                                                                                     k.LocationMasterLocationName,
+                                                                                     k.SuppliersMasterSupplierName,
+                                                                                     k.PurchaseRequisitionTotalGrossAmount,
+                                                                                     k.PurchaseRequisitionTotalItemDisAmount,
+                                                                                     k.PurchaseRequisitionNetDisAmount,
+                                                                                     k.PurchaseRequisitionTotalDisAmount,
+                                                                                     k.PurchaseRequisitionDetailsVatAmt,
+                                                                                     k.PurchaseRequisitionVatRountAmt,
+                                                                                     k.PurchaseRequisitionNetAmount,
+                                                                                 } into grp
 
-                        return reportPurchaseRequisition_ALL;
+                                                                                 select new ReportPurchaseRequisition
+                                                                                 {
+                                                                                     PurchaseRequisitionNo = grp.Key.PurchaseRequisitionNo,
+                                                                                     PurchaseRequisitionDate = grp.Key.PurchaseRequisitionDate,
+                                                                                     PurchaseRequisitionType = grp.Key.PurchaseRequisitionType,
+                                                                                     PurchaseRequisitionSupInvNo = grp.Key.PurchaseRequisitionSupInvNo,
+                                                                                     LocationMasterLocationName = grp.Key.LocationMasterLocationName,
+                                                                                     SuppliersMasterSupplierName = grp.Key.SuppliersMasterSupplierName,
+                                                                                     PurchaseRequisitionTotalGrossAmount = grp.Key.PurchaseRequisitionTotalGrossAmount,
+                                                                                     PurchaseRequisitionTotalItemDisAmount = grp.Key.PurchaseRequisitionTotalItemDisAmount,
+                                                                                     PurchaseRequisitionNetDisAmount = grp.Key.PurchaseRequisitionNetDisAmount,
+                                                                                     PurchaseRequisitionTotalDisAmount = grp.Key.PurchaseRequisitionTotalDisAmount,
+                                                                                     PurchaseRequisitionDetailsVatAmt = grp.Key.PurchaseRequisitionDetailsVatAmt,
+                                                                                     PurchaseRequisitionVatRountAmt = grp.Key.PurchaseRequisitionVatRountAmt,
+                                                                                     PurchaseRequisitionNetAmount = grp.Key.PurchaseRequisitionNetAmount,
+
+                                                                                 }).OrderBy(x => x.PurchaseRequisitionNo).AsEnumerable().ToList();
+
+                return reportPurchaseRequisition_ALL;
             }
             else
             {
-                List<ReportPurchaseRequisition> reportPurchaseRequisition_ALL = _reportPurchaseRequisitionRepository.GetAsQueryable().Where(k =>
-                (purchaserequisitionReportParameters.rptSupplier == -1 ? true : (k.PurchaseRequisitionPartyId == purchaserequisitionReportParameters.rptSupplier))
-                        && (purchaserequisitionReportParameters.rptCurrency == -1 ? true : ((k.PurchaseRequisitionCurrencyId == purchaserequisitionReportParameters.rptCurrency)
-                        && (purchaserequisitionReportParameters.rptLocation == -1 ? true : (k.PurchaseRequisitionLocationId == purchaserequisitionReportParameters.rptLocation))
-                        && (purchaserequisitionReportParameters.rptJob == -1 ? true : (k.PurchaseRequisitionJobId == purchaserequisitionReportParameters.rptJob))
-                        && (purchaserequisitionReportParameters.rptSuppInvNo.Trim() == "" ? true : (k.PurchaseRequisitionSupInvNo.Trim() == purchaserequisitionReportParameters.rptSuppInvNo.Trim()))
-                        && (purchaserequisitionReportParameters.rptInvoiceType == "ALL" ? true : (k.PurchaseRequisitionType == purchaserequisitionReportParameters.rptInvoiceType))
-                        && (purchaserequisitionReportParameters.rptBrand == -1 ? true : (k.ItemBrandId == purchaserequisitionReportParameters.rptBrand))
-                        && (purchaserequisitionReportParameters.rptItemGroup == -1 ? true : (k.ItemGroupId == purchaserequisitionReportParameters.rptItemGroup))
-                        && (purchaserequisitionReportParameters.rptItem == -1 ? true : (k.PurchaseRequisitionDetailsMatId == purchaserequisitionReportParameters.rptItem))
-                        && (purchaserequisitionReportParameters.rptDateRange == false ? true : (k.PurchaseRequisitionDate.Date >= purchaserequisitionReportParameters.rptDtpFrom.Value.Date)
-                        && (k.PurchaseRequisitionDate.Date <= purchaserequisitionReportParameters.rptDtpTo.Value.Date))
-                        && (k.PurchaseRequisitionDelStatus == false || k.PurchaseRequisitionDelStatus == null)))).OrderBy(x => x.PurchaseRequisitionId).ToList();
+                List<ReportPurchaseRequisition> reportPurchaseRequisition_ALL = new List<ReportPurchaseRequisition>();
+                //List<ReportPurchaseRequisition> 
+                  reportPurchaseRequisition_ALL = _reportPurchaseRequisitionRepository.GetAsQueryable()
+          .Where(k =>
+        (purchaserequisitionReportParameters.rptSupplier == -1 ? true : (k.PurchaseRequisitionPartyId == purchaserequisitionReportParameters.rptSupplier)) &&
+        (purchaserequisitionReportParameters.rptCurrency == -1 ? true : (k.PurchaseRequisitionCurrencyId == purchaserequisitionReportParameters.rptCurrency)) &&
+        (purchaserequisitionReportParameters.rptLocation == -1 ? true : (k.PurchaseRequisitionLocationId == purchaserequisitionReportParameters.rptLocation)) &&
+        (purchaserequisitionReportParameters.rptJob == -1 ? true : (k.PurchaseRequisitionJobId == purchaserequisitionReportParameters.rptJob)) &&
+        (string.IsNullOrEmpty(purchaserequisitionReportParameters.rptSuppInvNo) ? true : (k.PurchaseRequisitionSupInvNo == purchaserequisitionReportParameters.rptSuppInvNo)) &&
+        (purchaserequisitionReportParameters.rptInvoiceType == "ALL" ? true : (k.PurchaseRequisitionType == purchaserequisitionReportParameters.rptInvoiceType)) &&
+        (purchaserequisitionReportParameters.rptBrand == -1 ? true : (k.ItemBrandId == purchaserequisitionReportParameters.rptBrand)) &&
+        (purchaserequisitionReportParameters.rptItemGroup == -1 ? true : (k.ItemGroupId == purchaserequisitionReportParameters.rptItemGroup)) &&
+        (purchaserequisitionReportParameters.rptItem == -1 ? true : (k.PurchaseRequisitionDetailsMatId == purchaserequisitionReportParameters.rptItem)) 
+       && (purchaserequisitionReportParameters.rptDateRange == null || !purchaserequisitionReportParameters.rptDateRange.Value
+                            ? true
+                            : (k.PurchaseRequisitionDate >= purchaserequisitionReportParameters.rptDtpFrom.Value.Date
+                               && k.PurchaseRequisitionDate <= purchaserequisitionReportParameters.rptDtpTo.Value.Date))
+                        && (k.PurchaseRequisitionDelStatus == false || k.PurchaseRequisitionDelStatus == null)
+                    )
+                    .OrderBy(x => x.PurchaseRequisitionId)
+                    .AsEnumerable()
+                    .ToList();
                 return reportPurchaseRequisition_ALL;
+
+            }
+        }
+        public async Task<IQueryable> MainReport_GetReportPurchaseRequisition(PurchaserequisitionReportParameters purchaserequisitionReportParameters, List<ViewStockTransferType> viewStockTransferType)
+        {
+
+
+            var data = (from pr in _purchaseRequisitionRepository.GetAsQueryable()
+                        join prd in _purchaseRequisitionDRepository.GetAsQueryable() on pr.PurchaseRequisitionId equals prd.PurchaseRequisitionId into prdin
+                        from prdg in prdin.DefaultIfEmpty()
+                        join jm in _jmRepository.GetAll() on prdg.PurchaseRequisitionDetailsJobId equals jm.JobMasterJobId into jmprd
+                        from jmprdg in jmprd.DefaultIfEmpty()
+                        join im in _itemMasterRepository.GetAsQueryable() on prdg.PurchaseRequisitionDetailsMatId equals im.ItemMasterItemId into imi
+                        from imd in imi.DefaultIfEmpty()
+                        join um in _unitMasterRepository.GetAsQueryable() on prdg.PurchaseRequisitionDetailsUnitId equals um.UnitMasterUnitId into umi
+                        from umd in umi.DefaultIfEmpty()
+                        join lm in _locMasterRepository.GetAsQueryable() on pr.PurchaseRequisitionLocationId equals lm.LocationMasterLocationId into lmi
+                        from lmd in lmi.DefaultIfEmpty()
+                        join sm in _supplierrepository.GetAll() on pr.PurchaseRequisitionPartyId equals sm.SuppliersMasterSupplierId into smi
+                        from smd in smi.DefaultIfEmpty()
+                        join currm in _currMasterrepository.GetAll() on pr.PurchaseRequisitionCurrencyId equals currm.CurrencyMasterCurrencyId into currmi
+                        from currmd in currmi.DefaultIfEmpty()
+                        join citym in _cityMasterrepository.GetAll() on smd.SuppliersMasterSupplierCityId equals citym.CityMasterCityId into citymi
+                        from citymd in citymi.DefaultIfEmpty()
+                        join cm in _counrtyMasterrepository.GetAll() on smd.SuppliersMasterSupplierCountryId equals cm.CountryMasterCountryId into cmi
+                        from cmd in cmi.DefaultIfEmpty()
+
+                        where ((purchaserequisitionReportParameters.rptSupplier == -1 ? true : (pr.PurchaseRequisitionPartyId == purchaserequisitionReportParameters.rptSupplier))
+       && (purchaserequisitionReportParameters.rptCurrency == -1 ? true : (pr.PurchaseRequisitionCurrencyId == purchaserequisitionReportParameters.rptCurrency)
+       && (purchaserequisitionReportParameters.rptLocation == -1 ? true : (pr.PurchaseRequisitionLocationId == purchaserequisitionReportParameters.rptLocation))
+       && (purchaserequisitionReportParameters.rptJob == -1 ? true : (pr.PurchaseRequisitionJobId == purchaserequisitionReportParameters.rptJob))
+       && (purchaserequisitionReportParameters.rptSuppInvNo == "" ? true : (pr.PurchaseRequisitionSupInvNo == purchaserequisitionReportParameters.rptSuppInvNo))
+        && (purchaserequisitionReportParameters.rptInvoiceType == "ALL" ? true : (pr.PurchaseRequisitionType == purchaserequisitionReportParameters.rptInvoiceType))
+       && (purchaserequisitionReportParameters.rptBrand == -1 ? true : (imd.ItemMasterItemId == purchaserequisitionReportParameters.rptBrand))
+       && (purchaserequisitionReportParameters.rptItemGroup == -1 ? true : (imd.ItemMasterItemId == purchaserequisitionReportParameters.rptItemGroup))
+       && (purchaserequisitionReportParameters.rptItem == -1 ? true : (prdg.PurchaseRequisitionDetailsMatId == purchaserequisitionReportParameters.rptItem))
+       && (purchaserequisitionReportParameters.rptDateRange == false ? true : (pr.PurchaseRequisitionDate.Date >= purchaserequisitionReportParameters.rptDtpFrom.Value.Date)
+       && (pr.PurchaseRequisitionDate.Date <= purchaserequisitionReportParameters.rptDtpTo.Value.Date))
+       && (pr.PurchaseRequisitionDelStatus == false || pr.PurchaseRequisitionDelStatus == null)))
+                        select new { pr, prdg, jmprdg, imd });
+            //select new
+            //{
+            //    PurchaseRequisitionId = pr.PurchaseRequisitionId
+            //}).AsQueryable();
+
+
+
+            return data;
+
+        }
+        public async Task<IQueryable> GetReportPurchaseRequisition(ReportPRVM voucherCompositeView)
+        {
+            try
+            {
+
+   
+                var data = from a in _purchaseRequisitionRepository.GetAsQueryable()
+                           join b in _purchaseRequisitionDRepository.GetAsQueryable() on a.PurchaseRequisitionId equals b.PurchaseRequisitionId
+                            join c in _itemMasterRepository.GetAsQueryable() on b.PurchaseRequisitionDetailsMatId equals c.ItemMasterItemId
+                            join d in _locMasterRepository.GetAsQueryable() on a.PurchaseRequisitionLocationId equals d.LocationMasterLocationId
+                            join g in _unitMastersepository.GetAsQueryable() on b.PurchaseRequisitionDetailsUnitId equals g.UnitMasterUnitId
+                            join f in _jmRepository.GetAsQueryable() on b.PurchaseRequisitionDetailsJobId equals f.JobMasterJobId into jobGroup
+                            from f in jobGroup.DefaultIfEmpty()
+
+                           where ((voucherCompositeView.LocationId == null || voucherCompositeView.LocationId == 0) || a.PurchaseRequisitionLocationId == voucherCompositeView.LocationId)
+                           && (voucherCompositeView.DateFrom == null || a.PurchaseRequisitionDate >= voucherCompositeView.DateFrom)
+                           && (voucherCompositeView.DateTo == null || a.PurchaseRequisitionDate <= voucherCompositeView.DateTo)
+                           select new
+                            {
+                                Location = d.LocationMasterLocationName,
+                                a.PurchaseRequisitionId,
+                                a.PurchaseRequisitionNo,
+                                a.PurchaseRequisitionDate,
+                                JobName = f != null ? f.JobMasterJobName : "",
+                                b.PurchaseRequisitionDetailsMatId,
+                                ItemMasterItemName = c.ItemMasterItemName,
+                                Unit = g.UnitMasterUnitShortName,
+                                Qty = b.PurchaseRequisitionDetailsQuantity,
+                                b.PurchaseRequisitionDetailsRate,
+                                Amount = b.PurchaseRequisitionDetailsQuantity * b.PurchaseRequisitionDetailsRate,
+                                DelvQty = (from e in _stdRepository.GetAsQueryable()
+                                                   where e.PurchaseRequisitionId == a.PurchaseRequisitionId &&
+                                                 e.StockTransferDetailsMaterialId == b.PurchaseRequisitionDetailsMatId
+                                           select e.StockTransferDetailsQty).Sum() ?? 0,
+                                BalanceQty = (double)b.PurchaseRequisitionDetailsQuantity -
+                                             ((from e in _stdRepository.GetAsQueryable()
+                                               where e.PurchaseRequisitionId == a.PurchaseRequisitionId &&
+                                                     e.StockTransferDetailsMaterialId == b.PurchaseRequisitionDetailsMatId
+                                               select e.StockTransferDetailsQty).Sum() ?? 0)
+                            };
+
+
+
+                return data;
+
+
+            }
+            catch (System.Exception ex)
+            {
+                throw ex;
             }
         }
     }
