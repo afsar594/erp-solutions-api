@@ -461,8 +461,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                      on pod.CustomerPurchaseOrderId equals po.CustomerPurchaseOrderId
                                      where po.CustomerPurchaseOrderDelStatus != true
                                      where po.CustomerPurchaseOrderCustomerId != null
-                                    && (model.CustomerId == null || model.CustomerId == 0 || po.CustomerPurchaseOrderCustomerId == model.CustomerId)
-                                   && (model.LocacationId == null || model.LocacationId == 0 || po.CustomerPurchaseOrderLocationId == model.LocacationId)
+                                     && (model.CustomerId == null || model.CustomerId == 0 || po.CustomerPurchaseOrderCustomerId == model.CustomerId)
+                                     && (model.LocacationId == null || model.LocacationId == 0 || po.CustomerPurchaseOrderLocationId == model.LocacationId)
                                      select new
                                      {
                                          po.CustomerPurchaseOrderId,
@@ -497,7 +497,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                from umg in uminto.DefaultIfEmpty()
 
                                join srq in subqueryDRQD
-                               on cpod.CustomerPurchaseOrderDetailsId equals srq.CustomerDeliveryNoteDetailsPodId
+                               on cpod.CustomerPurchaseOrderDetailsId equals srq.CustomerDeliveryNoteDetailsPodId into srqGroup
+                               from srqdr in srqGroup.DefaultIfEmpty()
 
                                select new GetCustomerPurchaseOrderTrackingResponse
                                {
@@ -512,10 +513,10 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                    UnitId = umg.UnitMasterUnitId,
                                    Quantity = cpod.CustomerPurchaseOrderDetailsQty,
                                    UnitPrice = cpod.CustomerPurchaseOrderDetailsUnitPrice,
-                                   DeliveredQuantity = srq.CustomerDeliveryNoteDetailsQty ?? 0,
-                                   BalancedQuantity = (cpod.CustomerPurchaseOrderDetailsQty - (srq.CustomerDeliveryNoteDetailsQty ?? 0)),
-                                   DeliveryDate = srq.CustomerDeliveryNoteDeliveryDate,
-                                   DeliveredId = srq.CustomerDeliveryNoteDeliveryID,
+                                   DeliveredQuantity = srqdr?.CustomerDeliveryNoteDetailsQty ?? 0,
+                                   BalancedQuantity = (cpod.CustomerPurchaseOrderDetailsQty - (srqdr?.CustomerDeliveryNoteDetailsQty ?? 0)),
+                                   DeliveryDate = srqdr?.CustomerDeliveryNoteDeliveryDate,
+                                   DeliveredId = srqdr?.CustomerDeliveryNoteDeliveryID,
                                    ItemId = (int)cpod.CustomerPurchaseOrderDetailsItemId,
                                    LocationId = (int)cpod.CustomerPurchaseOrderLocationId
                                }).OrderBy(x => x.VoucherNo).AsEnumerable().ToList();
