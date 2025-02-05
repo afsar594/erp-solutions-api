@@ -664,15 +664,15 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                    Amount = cpod.CustomerPurchaseOrderDetailsAmount,
                                    Quantity = cpod.CustomerPurchaseOrderDetailsQty,
                                    UnitPrice = cpod.CustomerPurchaseOrderDetailsUnitPrice,
-                                   //BalancedQuantity = (int)cpod.CustomerPurchaseOrderDetailsQty - (_Context.SalesVoucherDetails.AsQueryable().Where(pr =>
-                                   //    (pr.SalesVoucherDetailsSodId == cpod.CustomerPurchaseOrderDetailsId
-                                   //       && pr.SalesVoucherDetailsMatId == cpod.CustomerPurchaseOrderDetailsItemId))
-                                   //     .Sum(prdq => (int)((prdq.SalesVoucherDetailsQuantity) ?? 0))),
+                                   BalancedQuantity = (int)cpod.CustomerPurchaseOrderDetailsQty - (_Context.CustomerDeliveryNoteDetails.AsQueryable().Where(pr =>
+                                       pr.CustomerDeliveryNoteDetailsPodId == cpod.CustomerPurchaseOrderDetailsId)
+                                        .Sum(prdq => (int)((prdq.CustomerDeliveryNoteDetailsQty) ?? 0))),
 
-                                   DeliveredQuantity = (_Context.SalesVoucherDetails.AsQueryable().Where(pr =>
-                                           (pr.SalesVoucherDetailsSodId == cpod.CustomerPurchaseOrderDetailsId
-                                            && pr.SalesVoucherDetailsMatId == cpod.CustomerPurchaseOrderDetailsItemId))
-                                        .Sum(prdq => (int)((prdq.SalesVoucherDetailsQuantity) ?? 0)))
+                                   DeliveredQuantity = (_Context.CustomerDeliveryNoteDetails.AsQueryable().Where(pr =>
+                                       pr.CustomerDeliveryNoteDetailsPodId == cpod.CustomerPurchaseOrderDetailsId)
+                                        .Sum(prdq => (int)((prdq.CustomerDeliveryNoteDetailsQty) ?? 0)))
+
+
                                })
                                 .OrderBy(x => x.CPODate).ThenBy(x => x.VoucherNo)
                                 .ToList();
