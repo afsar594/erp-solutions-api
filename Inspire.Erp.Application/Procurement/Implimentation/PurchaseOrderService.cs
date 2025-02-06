@@ -337,10 +337,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 var listTrackPurchOrderReg = new List<PurOrderRegister>();
                 foreach (var purOrderDet in purchaseOrder.PurchaseOrderDetails)
                 {
-
-                    // var converontype = this.getConverionTypebyUnitId(Convert.ToInt32(purOrderDet.PurchaseOrderDetailsUnitId));
-
-
                     var tr = new TrackingRegister
                     {
                         TrackingRegisterDetailsId = (int)purOrderDet.PurchaseOrderDetailsId,
@@ -378,27 +374,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 _trackingRegisterRepository.InsertList(listTrackRegs);
                 _purOrderRegisterRepository.InsertList(listTrackPurchOrderReg);
-                //var permsionApproval = _permissionApprovalRepo.GetAsQueryable().Where(x => x.VoucherType == "Purchase Order").OrderBy(x => x.LevelOrder).ToList();
-                //var approvals = new Approval()
-                //{
-                //    CreatedBy = 0,
-                //    LocationId = null,
-                //    Status = false,
-                //    VoucherType = "Purchase Order"
-                //};
-                //_approvalRepo.Insert(approvals);
-                //_approvalDetailRepo.InsertList(permsionApproval.Select(x => new ApprovalDetail()
-                //{
-                //    ApprovalId = approvals.Id,
-                //    Status = false,
-                //    UserId = x.UserId,
-                //    LevelOrder = x.LevelOrder,
-                //    ApprovedAt = DateTime.Now,
-                //}).ToList());
-
-                // PermissionApprovalDetail by zaid
-
-                //var permsionApproval = _context.Permissionapproval.AsNoTracking().Select(x => x.LevelId).Distinct().ToList();
                 var rights = _context.tbl_approvalforms.Where(a => a.Voucher_Type.Contains("Purchase Order") && a.is_active == true).AsNoTracking().ToList();
                 if (rights.Count > 0)
                 {
@@ -421,46 +396,14 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 }
                 _purchaseOrderRepository.TransactionCommit();
                 return this.GetSavedPurchaseOrderDetails((int)purchaseOrder.PurchaseOrderId);
-
             }
             catch (Exception ex)
             {
                 _purchaseOrderRepository.TransactionRollback();
                 throw ex;
             }
-
         }
-       // public PurchaseOrderModel GetPorderDetails(int id)
-        //{
-        //    PurchaseOrderModel purchaseOrderModel = new PurchaseOrderModel();
-        //    purchaseOrderModel.purchaseOrderDetails = _purchaseOrderDetailsRepository.GetAsQueryable().Where(x => x.PurchaseOrderDetailsNo == purchaseOrderModel.purchaseOrder.PurchaseOrderNo && (x.PurchaseOrderDetailsDelStatus == false || x.PurchaseOrderDetailsDelStatus == null)).ToList();
-
-        //    foreach (var purchaseOrderDetail in purchaseOrderModel.purchaseOrderDetails)
-        //    {
-        //        if (_stockRegisterRepository.GetAsQueryable().Where(c => c.StockRegisterRefVoucherNo == purchaseOrderDetail.PurchaseOrderDetailsNo).FirstOrDefault() != null)
-        //        {
-        //            purchaseOrderDetail.PurchaseOrderNetStock = _stockRegisterRepository.GetAsQueryable().Where(c => c.StockRegisterRefVoucherNo == purchaseOrderDetail.PurchaseOrderDetailsNo).FirstOrDefault().StockRegisterSIN;
-
-
-
-        //            var BalanceQuantity = 
-                        
-        //                (int)g.Key.PurchaseOrderDetailsQuantity - (_purchaseVoucherDetailsRepo.GetAsQueryable()
-        //                                         .Where(pr => pr.PurchaseVoucherDetailsPodId == g.Key.PurchaseOrderDetailsId
-        //                                                 && pr.PurchaseVoucherDetailsMaterialId == g.Key.PurchaseOrderDetailsMatId)
-        //                                         .Sum(prdq => (int?)prdq.PurchaseVoucherDetailsQuantity) ?? 0
-        //                                 ),
-        //                                 DeliveredQuantity = _purchaseVoucherDetailsRepo.GetAsQueryable()
-        //                                     .Where(pr => pr.PurchaseVoucherDetailsPodId == g.Key.PurchaseOrderDetailsId
-        //                                             && pr.PurchaseVoucherDetailsMaterialId == g.Key.PurchaseOrderDetailsMatId)
-        //                                     .Sum(prdq => (int?)prdq.PurchaseVoucherDetailsQuantity) ?? 0
-        //                            )
-        //        }
-        //    }
-        //    return purchaseOrderModel;
-
-        //}
-        public IEnumerable<AccountsTransactions> GetAllTransaction()
+       public IEnumerable<AccountsTransactions> GetAllTransaction()
         {
             return _accountTransactionRepository.GetAll();
         }
