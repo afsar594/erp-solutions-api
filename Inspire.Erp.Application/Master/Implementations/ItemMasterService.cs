@@ -317,13 +317,73 @@ namespace Inspire.Erp.Application.Master
             return itemMaster;
         }
 
+        //public List<ItemMaster> GetAllItemNotGroup()
+        //{
+        //    List<ItemMaster> itemMaster;
+        //    try
+        //    {
+        //        itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus == false || k.ItemMasterDelStatus == null)
+        //        && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new ItemMaster
+        //        {
+        //            ItemMasterItemId = k.ItemMasterItemId,
+        //            ItemMasterItemName = k.ItemMasterItemName,
+        //            ItemMasterPartNo = k.ItemMasterPartNo,
+        //            ItemMasterPacking = k.ItemMasterPacking,
+        //            ItemMasterVenderId = k.ItemMasterVenderId,
+        //            ItemMasterItemSize = k.ItemMasterItemSize,
+        //            ItemMasterAccountNo = k.ItemMasterAccountNo,
+        //        }).AsEnumerable().ToList();
+
+        //        var allUnitDetails = _unitDetailsRepo.GetAll().ToList();
+        //        foreach (var item in itemMaster)
+        //        {
+        //            item.UnitDetails = allUnitDetails.Where(c => c.UnitDetailsItemId == item.ItemMasterItemId).ToList();
+
+        //        }
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+
+        //    }
+        //    finally
+        //    {
+        //        //cityrepository.Dispose();
+        //    }
+
+        //    itemMaster = itemMaster.OrderBy(sm => sm.ItemMasterItemName).ToList();
+        //    return itemMaster;
+        //}
+
         public List<ItemMaster> GetAllItemNotGroup()
         {
-            List<ItemMaster> itemMaster;
             try
             {
-                itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus == false || k.ItemMasterDelStatus == null)
-                && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new ItemMaster
+                // Fetch the item master data
+                var itemMasterQuery = itemrepository.GetAsQueryable()
+                    .Where(k => k.ItemMasterAccountNo != 0
+                                && (k.ItemMasterDelStatus == false || k.ItemMasterDelStatus == null)
+                                && k.ItemMasterItemType != ItemMasterStatus.Group)
+                    .Select(k => new
+                    {
+                        k.ItemMasterItemId,
+                        k.ItemMasterItemName,
+                        k.ItemMasterPartNo,
+                        k.ItemMasterPacking,
+                        k.ItemMasterVenderId,
+                        k.ItemMasterItemSize,
+                        k.ItemMasterAccountNo
+                    })
+                    .ToList(); // Execute the query and fetch the data
+
+                // Fetch all unit details once
+                var allUnitDetails = _unitDetailsRepo.GetAll()
+                    .Where(c => itemMasterQuery.Any(im => im.ItemMasterItemId == c.UnitDetailsItemId))
+                    .ToList();
+
+                // Map the item masters to their unit details
+                var itemMaster = itemMasterQuery.Select(k => new ItemMaster
                 {
                     ItemMasterItemId = k.ItemMasterItemId,
                     ItemMasterItemName = k.ItemMasterItemName,
@@ -332,29 +392,20 @@ namespace Inspire.Erp.Application.Master
                     ItemMasterVenderId = k.ItemMasterVenderId,
                     ItemMasterItemSize = k.ItemMasterItemSize,
                     ItemMasterAccountNo = k.ItemMasterAccountNo,
-                }).AsEnumerable().ToList();
+                    UnitDetails = allUnitDetails.Where(c => c.UnitDetailsItemId == k.ItemMasterItemId).ToList() // Filter once, not inside loop
+                }).ToList();
 
-                var allUnitDetails = _unitDetailsRepo.GetAll().ToList();
-                foreach (var item in itemMaster)
-                {
-                    item.UnitDetails = allUnitDetails.Where(c => c.UnitDetailsItemId == item.ItemMasterItemId).ToList();
+                // Order the result
+                itemMaster = itemMaster.OrderBy(sm => sm.ItemMasterItemName).ToList();
 
-                }
-
+                return itemMaster;
             }
             catch (Exception ex)
             {
                 throw ex;
-
             }
-            finally
-            {
-                //cityrepository.Dispose();
-            }
-            
-            itemMaster = itemMaster.OrderBy(sm => sm.ItemMasterItemName).ToList();
-            return itemMaster;
         }
+
 
         public IEnumerable<ItemMaster> GetAllItemById(int id)
         {
