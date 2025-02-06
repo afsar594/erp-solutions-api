@@ -33,13 +33,18 @@ namespace Inspire.Erp.Web.Controllers.Store
         private readonly IMapper _mapper;
         private IRepository<ItemMaster> itemrepository;
         private readonly IRepository<SuppliersMaster> supplierrepository;
-        private IRepository<UnitMaster> unitrepository; private IRepository<VendorMaster> Brandrepository;
+        private IRepository<UnitMaster> unitrepository;
+        private IRepository<VendorMaster> Brandrepository;
         private IRepository<CostCenterMaster> costcenterrepository;
-        private IRepository<JobMaster> jobrepository; private IRepository<LocationMaster> locationrepository;
-        private IRepository<CurrencyMaster> currencyrepository; private IRepository<CustomerMaster> _customerMasterRepository;
-        private IChartofAccountsService chartofAccountsService; private IRepository<SalesManMaster> salesmanrepository;
+        private IRepository<JobMaster> jobrepository;
+        private IRepository<LocationMaster> locationrepository;
+        private IRepository<CurrencyMaster> currencyrepository;
+        private IRepository<CustomerMaster> _customerMasterRepository;
+        private IChartofAccountsService chartofAccountsService;
+        private IRepository<SalesManMaster> salesmanrepository;
         private IRepository<DepartmentMaster> departmentrepository;
-        private IRepository<UnitDetails> _UnitDetailsRepository; private IRepository<IssueVoucher> _issueVoucherRepository;
+        private IRepository<UnitDetails> _UnitDetailsRepository;
+        private IRepository<IssueVoucher> _issueVoucherRepository;
         private IRepository<UnitDetails> unitDetailRepository;
         public IssueVoucherController(IIssueVoucherService issueVoucherService, IMapper mapper,
              IRepository<ItemMaster> _itemrepository, IRepository<UnitDetails> unitDetailsRepository,
@@ -146,11 +151,11 @@ namespace Inspire.Erp.Web.Controllers.Store
             var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
             param3 = new List<AccountsTransactions>();
             List<StockRegister> param4 = new List<StockRegister>();
-            
+
             var xs = _issueVoucherService.UpdateIssueVoucher(param1, param3, param2
            , param4
            );
-         
+
             IssueVoucherViewModel issueVoucherViewModel = new IssueVoucherViewModel
             {
                 IssueVoucherId = xs.issueVoucher.IssueVoucherId,
@@ -220,12 +225,12 @@ namespace Inspire.Erp.Web.Controllers.Store
             var param2 = _mapper.Map<List<IssueVoucherDetails>>(voucherCompositeView.IssueVoucherDetails);
             var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
             param3 = new List<AccountsTransactions>();
-            List<StockRegister> param4 = new List<StockRegister>();            
+            List<StockRegister> param4 = new List<StockRegister>();
 
             var xs = _issueVoucherService.DeleteIssueVoucher(param1, param3, param2
            , param4
            );
-            
+
             ApiResponse<int> apiResponse = new ApiResponse<int>
             {
                 Valid = true,
@@ -404,7 +409,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 k.DepartmentMasterDepartmentName,
 
             }).OrderBy(x => x.DepartmentMasterDepartmentName).ToList();
-            var masterAccountsTables = chartofAccountsService.GetAllAccounts().Where(a => a.MaDelStatus != true).Select(c => new
+            var masterAccountsTables = chartofAccountsService.GetAllAccounts().Where(a => a.MaDelStatus != true && a.MaMainHead == "Expenses").Select(c => new
             {
                 c.MaAccNo,
                 c.MaAccName,
@@ -427,7 +432,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 DepartmentsList = DepartmentsList,
                 unitMasters = unitMasters,
                 masterAccountsTables = masterAccountsTables,
-                issueVoucher= issueVoucher
+                issueVoucher = issueVoucher
             };
 
             objectresponse.IsSuccess = true;
