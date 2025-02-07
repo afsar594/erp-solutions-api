@@ -741,7 +741,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<AccountSettings>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(x => x.AccountSettingsAccountId);
 
                 entity.ToTable("Account_Settings");
 
