@@ -60,7 +60,10 @@ namespace Inspire.Erp.Application.Account.Implementations
             var obj = new ResponseInfo();
             try
             {
-                var data = _accountsSettingsRepo.GetAsQueryable().Where(a => a.AccountSettingsAccountKeyValue.Trim() == "COSTOF_FINISHEDGOODS_AC_NO" && a.AccountSettingsAccountKeyValue.Trim() == "STOCK_AC_NO").ToList();
+                var data = _accountsSettingsRepo.GetAsQueryable().
+                    Where(a =>
+                    a.AccountSettingsAccountKeyValue.Trim().ToUpper() == "COSTOF_FINISHEDGOODS_AC_NO" &&
+                    a.AccountSettingsAccountKeyValue.Trim().ToUpper() == "STOCK_AC_NO").ToList();
                 obj.ResultSet = data;
                 obj.IsSuccess = true;
             }
