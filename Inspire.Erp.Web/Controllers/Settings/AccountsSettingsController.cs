@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Inspire.Erp.Web.ViewModels;
+using Inspire.Erp.Domain.Modals.Common;
 
 namespace Inspire.Erp.Web.Controllers.Settings
 {
@@ -66,6 +67,15 @@ namespace Inspire.Erp.Web.Controllers.Settings
             };
 
             return apiResponse;
+        }
+
+        [HttpGet]
+        [Route("DEFAULTACC")]
+        public ResponseInfo DEFAULTACC()
+        {
+            var obj = new ResponseInfo();
+            obj = _accountssettingSvc.DEFAULTACC();
+                return obj;
         }
 
     }
