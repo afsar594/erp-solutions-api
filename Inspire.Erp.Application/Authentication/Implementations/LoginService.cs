@@ -324,8 +324,8 @@ namespace Inspire.Erp.Application.Authentication.Implementations
                     user.LogInId = maxcount.ToString();
                 }
                 string errorMessage;
-
-                bool isValid = ValidatePassword(user.Password, out errorMessage);
+                bool isValid = true;
+                //bool isValid = ValidatePassword(user.Password, out errorMessage);  // sir ki fasmish ka uper validation remove ki han
                 if (isValid)
                 {
                     var jwtToken = generateJwtToken(user);
