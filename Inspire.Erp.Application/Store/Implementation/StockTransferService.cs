@@ -598,6 +598,18 @@ namespace Inspire.Erp.Application.Store.Implementation
             return objresponse;
         }
 
+        public ResponseInfo StockTransferChangeStatus(string stockTransferVoucherNo)
+        {
+            var objresponse = new ResponseInfo();
+            var model = _StockTransferRepo.GetAsQueryable().Where(x => x.StockTransferVoucherNo == stockTransferVoucherNo).FirstOrDefault();
+            if(model != null) {
+
+                 model.StockTransferStatus = "test";
+                _StockTransferRepo.Update(model);
+                objresponse.IsSuccess = true;
+            }
+            return objresponse;
+        }
     }
 
 }

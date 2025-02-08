@@ -1,8 +1,10 @@
-﻿using Inspire.Erp.Application.Account.Interfaces;
+﻿using Inspire.Erp.Application.Account.Implementations;
+using Inspire.Erp.Application.Account.Interfaces;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Modals.AccountStatement;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Models;
+using Inspire.Erp.Domain.Models.ViewModels;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -599,5 +601,22 @@ namespace Inspire.Erp.Web.Controllers.Accounts
             return Ok(await _assetsMasterService.GetAssetsCodes());
         }
         #endregion
+
+
+
+        [HttpPost]
+        [Route("ASSummReport")]
+        public async Task<IActionResult> ASSummReport([FromBody] AccStReport voucherCompositeView)
+        {
+            try
+            {
+                return Ok(await _accountStatService.AccountStatementSummaryReport(voucherCompositeView));
+            }
+            catch (Exception ex)
+            {
+                // Log the full exception details here
+                return StatusCode(500, $"An error occurred while retrieving AliAnsariReport: {ex.Message}");
+            }
+        }
     }
 }

@@ -12,4 +12,16 @@ namespace Inspire.Erp.Domain.Models.ViewModels
         public DateTime? DateFrom { get; set; }
         public DateTime? DateTo { get; set; }
     }
+
+    public partial class AccStReport
+    {
+
+        public bool? CheckDate { get; set; }
+        public int? JobId { get; set; }
+        public DateTime? DateFrom { get; set; }
+        public DateTime? DateTo { get; set; }
+        public string Description { get; set; }
+
+        public string AccNo { get; set; }
+    }
 }

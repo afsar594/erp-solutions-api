@@ -10505,6 +10505,9 @@ namespace Inspire.Erp.Infrastructure.Database
                       .HasColumnName("Remarks")
                       .HasMaxLength(500)
                       .IsUnicode(true);
+                
+                entity.Property(e => e.LocationName)
+                .HasColumnName("Location_Name");
             });
 
 

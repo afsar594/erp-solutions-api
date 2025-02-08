@@ -315,6 +315,16 @@ namespace Inspire.Erp.Web.Controllers.Store
             objresponse = _st.getStockitembyId(Id);
             return objresponse;
         }
+
+        [HttpPost]
+        [Route("StockTransferChangeStatus")]
+        public ResponseInfo ChangeStatus(string stockTransferVoucherNo)
+        {
+            var objresponse = new ResponseInfo();
+            objresponse = _st.StockTransferChangeStatus(stockTransferVoucherNo);
+            return objresponse;
+        }
+
         [HttpGet]
         [Route("getStockitembyIds")]
         public ApiResponse<List<stocktransferRegister>> getStockitembyIds(int id)
