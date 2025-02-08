@@ -257,25 +257,58 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpGet]
         [Route("GetAllAccounts")]
-        public ApiResponse<List<ChartofAccountsViewModel>> GetAllAccounts()
+
+        public async Task<ApiResponse<List<ChartofAccountsViewModel>>> GetAllAccounts()
         {
             try
             {
-                IEnumerable<MasterAccountsTable> masterAccountsTables = chartofAccountsService.GetAllAccounts();
-                ApiResponse<List<ChartofAccountsViewModel>> apiResponse = new ApiResponse<List<ChartofAccountsViewModel>>
+                // Use asynchronous call for the database service if possible.
+                IEnumerable<MasterAccountsTable> masterAccountsTables =  chartofAccountsService.GetAllAccounts();
+
+                // Use async mapper (if your mapping library supports it, such as AutoMapper in async scenarios)
+                var result = _mapper.Map<List<ChartofAccountsViewModel>>(masterAccountsTables);
+
+                // Construct the ApiResponse
+                var apiResponse = new ApiResponse<List<ChartofAccountsViewModel>>
                 {
                     Valid = true,
-                    Result = _mapper.Map<List<ChartofAccountsViewModel>>(masterAccountsTables),
+                    Result = result,
                     Message = ""
                 };
                 return apiResponse;
             }
             catch (Exception ex)
             {
+                // Log exception for diagnostics purposes
+                // logger.LogError(ex, "Error fetching accounts.");
 
-                throw ex;
+                return new ApiResponse<List<ChartofAccountsViewModel>>
+                {
+                    Valid = false,
+                    Message = "An error occurred while fetching accounts."
+                };
             }
         }
+
+        //public ApiResponse<List<ChartofAccountsViewModel>> GetAllAccounts()
+        //{
+        //    try
+        //    {
+        //        IEnumerable<MasterAccountsTable> masterAccountsTables = chartofAccountsService.GetAllAccounts();
+        //        ApiResponse<List<ChartofAccountsViewModel>> apiResponse = new ApiResponse<List<ChartofAccountsViewModel>>
+        //        {
+        //            Valid = true,
+        //            Result = _mapper.Map<List<ChartofAccountsViewModel>>(masterAccountsTables),
+        //            Message = ""
+        //        };
+        //        return apiResponse;
+        //    }
+        //    catch (Exception ex)
+        //    {
+
+        //        throw ex;
+        //    }
+        //}
 
         [HttpGet]
         [Route("GetAllBankAccounts")]
