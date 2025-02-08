@@ -24,7 +24,7 @@ namespace Inspire.Erp.Domain.Entities
         public int? CreatedBy { get; set; }
         public int? LevelId { get; set; }
         public string Status { get; set; }
-        public string? LocationName { get; set; }
+        public string LocationName { get; set; }
         public int? ApprovedBy { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public string Remarks { get; set; }

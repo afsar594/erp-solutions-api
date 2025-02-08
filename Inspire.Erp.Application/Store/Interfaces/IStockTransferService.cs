@@ -30,7 +30,6 @@ namespace Inspire.Erp.Application.Store.Interface
         public ResponseInfo getStockitembyId(int Id);
         public Task<ResponseInfo> getStockTransferReport(reportModel model);
         public List<stocktransferRegister> getStockitembyIds(int ids);
-
-        
+        public ResponseInfo StockTransferChangeStatus(string stockTransferVoucherNo);
     }
 }

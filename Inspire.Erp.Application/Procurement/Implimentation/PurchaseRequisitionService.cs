@@ -392,6 +392,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                             POList.LevelId = level;
                             POList.Status = "Pending";
                             POList.Remarks = purchaseRequisition.PurchaseRequisitionDescription;
+                            POList.LocationName = _context.LocationMaster
+                                                .FirstOrDefault(l => l.LocationMasterLocationId == purchaseRequisition.PurchaseRequisitionLocationId)?.LocationMasterLocationName;
+
                             _permissionApprovalDetailRepo.Insert(POList);
                         }
                     }
