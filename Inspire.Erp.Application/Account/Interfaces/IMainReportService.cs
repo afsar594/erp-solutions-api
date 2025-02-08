@@ -32,5 +32,7 @@ namespace Inspire.Erp.Application.Account.Interfaces
         public Task<IQueryable> MainReport_GetReportPurchaseRequisition(PurchaserequisitionReportParameters purchaserequisitionReportParameters, List<ViewStockTransferType> viewStockTransferType);
 
         public Task<IQueryable> GetReportPurchaseRequisition(ReportPRVM voucherCompositeView);
+
+      
     }
 }

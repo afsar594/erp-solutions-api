@@ -5,6 +5,7 @@ using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.AccountStatement;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Modals.File;
+using Inspire.Erp.Domain.Models.ViewModels;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -253,6 +254,43 @@ namespace Inspire.Erp.Application.Account.Implementations
                             </body>
                         </html>");
             return sb.ToString();
+        }
+
+
+
+        public async Task<AccountStatementSummayResponse> AccountStatementSummaryReport(AccStReport model)
+        {
+            try
+            {
+
+                AccountStatementSummayResponse response = new AccountStatementSummayResponse();
+
+
+                var AccountTrans = await _accountTransaction.GetAsQueryable()
+                                                          .Where(x => (model.DateFrom == null || x.AccountsTransactionsTransDate >= model.DateFrom)
+                                            && (model.DateTo == null || x.AccountsTransactionsTransDate <= model.DateTo)
+                                             //&&  model.accountNos.Contains(x.AccountsTransactionsAccNo)
+                                             && x.AccountsTransactionsAccNo.ToLower() == model.AccNo.ToLower()
+                                            )
+                                                         .GroupBy(r => r.AccountsTransactionsAccNo).Select(o =>
+
+                                            new AccountStatementSummayResponse
+                                            {
+                                                AccNo = o.Key,
+                                                Debit = Convert.ToDouble(o.Sum(pc => pc.AccountsTransactionsDebit)),
+                                                Credit = Convert.ToDouble(o.Sum(pc => pc.AccountsTransactionsCredit)),
+
+                                            }).FirstOrDefaultAsync();
+
+
+                return AccountTrans;
+
+
+            }
+            catch (System.Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

@@ -231,6 +231,9 @@ namespace Inspire.Erp.Web.Controllers.Store
             }
         }
 
+
+    
+
         [HttpGet]
         [Route("MainReport_GetAllItemMaster")]
         public List<ItemMaster> MainReport_GetAllItemMaster()

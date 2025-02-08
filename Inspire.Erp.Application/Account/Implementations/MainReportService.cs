@@ -1271,5 +1271,7 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                 throw ex;
             }
         }
+
+
     }
 }

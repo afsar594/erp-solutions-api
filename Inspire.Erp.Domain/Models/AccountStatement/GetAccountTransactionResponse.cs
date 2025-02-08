@@ -95,4 +95,16 @@ namespace Inspire.Erp.Domain.Modals.AccountStatement
         public string CreditBalance { get; set; }
         public string Total { get; set; }
     }
+
+
+    public class AccountStatementSummayResponse
+    {
+      
+        public double? OpeningBalance { get; set; }
+        public double? Debit { get; set; }
+        public double? Credit { get; set; }
+
+        public string? AccNo { get; set; }
+
+    }
 }
