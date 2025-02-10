@@ -198,8 +198,8 @@ namespace Inspire.Erp.Application.MIS.Implementations
                                     from grd in g.DefaultIfEmpty()
                                     group grd by new
                                     {
-                                        //grd.AccountsTransactionsAccNo,
-                                        //ma.MaAccName,
+                                        grd.AccountsTransactionsAccNo,
+                                        ma.MaAccName,
                                         ma.MaMainHead,
                                         ma.MaRelativeNo,
                                         ma.MaSubHead
@@ -209,8 +209,8 @@ namespace Inspire.Erp.Application.MIS.Implementations
                                     {
                                         MA_MainHead = gp.Key.MaMainHead,
                                         MA_SubHead = gp.Key.MaSubHead,
-                                        //MA_AccNo = gp.Key.AccountsTransactionsAccNo,
-                                        //MA_AccName = gp.Key.MaAccName,
+                                        MA_AccNo = gp.Key.AccountsTransactionsAccNo,
+                                        MA_AccName = gp.Key.MaAccName,
                                         MA_RelativeNo = gp.Key.MaRelativeNo,
                                         MA_RelativeName = _masterAccount.GetAsQueryable().Where(y => y.MaAccNo.ToUpper() == gp.Key.MaRelativeNo.ToUpper()).Select(y => y.MaAccName).FirstOrDefault(),
                                         Debit = gp.Sum(pc => pc.AccountsTransactionsDebit),
