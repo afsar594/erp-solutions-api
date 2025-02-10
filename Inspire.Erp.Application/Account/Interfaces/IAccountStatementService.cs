@@ -18,5 +18,9 @@ namespace Inspire.Erp.Application.Account.Interfaces
         Task<Response<ReturnPrintResponse>> AccountSTatementPrint(GenericGridViewModel model);
 
         Task<AccountStatementSummayResponse> AccountStatementSummaryReport(AccStReport voucherCompositeView);
+
+        Task<AccountStatementDetailResponse> AccountStatementDetailReport(AccStReport voucherCompositeView);
+
+        Task SaveTempStatement(TempStatementModel voucherCompositeView);
     }
 }
