@@ -885,23 +885,51 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 }
                 else
                 {
+                    //var data = (from hdr in SalesVoucherList
+                    //            join saleman in SalesManMasterList on hdr.SalesVoucherSalesManID equals saleman.SalesManMasterSalesManId into lsmm
+                    //            from smm in lsmm.DefaultIfEmpty()
+                    //            where hdr.SalesVoucherNo != null
+                    //            select new
+                    //            {
+                    //                SalesmanName = SalesManMasterList.FirstOrDefault(o => o.SalesManMasterSalesManId == hdr.SalesVoucherSalesManID) != null ? SalesManMasterList.FirstOrDefault(o => o.SalesManMasterSalesManId == hdr.SalesVoucherSalesManID).SalesManMasterSalesManName : "",
+                    //                voucherNo = hdr.SalesVoucherNo,
+                    //                voucherDate = hdr.SalesVoucherDate,
+                    //                voucherType = hdr.SalesVoucherType,
+                    //                CustomerName = _customerMasterRepository.GetAsQueryable().FirstOrDefault(x => x.CustomerMasterCustomerNo == hdr.SalesVoucherPartyId).CustomerMasterCustomerName,//  hdr.SalesVoucherPartyName,// hdr.SalesVoucherContPerson == null ? hdr.SalesVoucherPartyName : hdr.SalesVoucherContPerson,
+                    //                GrossAmount = hdr.SalesVoucherTotalGrossAmount,
+                    //                Discount = hdr.SalesVoucherNetDisAmount ?? 0 + hdr.SalesVoucherTotalDisAmount ?? 0,
+                    //                SalRetAmt = 0,
+                    //                VATAmount = hdr.SalesVoucherVat_AMT,
+                    //                NetAmount = hdr.SalesVoucherNetAmount,
+                    //            }).AsQueryable();
+
+                    // Load SalesManMasterList data into a dictionary for quick lookup
+                    var salesmanDict = SalesManMasterList.ToDictionary(o => o.SalesManMasterSalesManId, o => o.SalesManMasterSalesManName);
+
+                    // Load CustomerMaster data into a dictionary for quick lookup
+                    var customerDict = _customerMasterRepository.GetAsQueryable()
+                                                                  .ToDictionary(x => x.CustomerMasterCustomerNo, x => x.CustomerMasterCustomerName);
+
                     var data = (from hdr in SalesVoucherList
-                                join saleman in SalesManMasterList on hdr.SalesVoucherSalesManID equals saleman.SalesManMasterSalesManId into lsmm
-                                from smm in lsmm.DefaultIfEmpty()
                                 where hdr.SalesVoucherNo != null
                                 select new
                                 {
-                                    SalesmanName = SalesManMasterList.FirstOrDefault(o => o.SalesManMasterSalesManId == hdr.SalesVoucherSalesManID) != null ? SalesManMasterList.FirstOrDefault(o => o.SalesManMasterSalesManId == hdr.SalesVoucherSalesManID).SalesManMasterSalesManName : "",
+                                    SalesmanName = salesmanDict.ContainsKey(hdr.SalesVoucherSalesManID)
+                                                   ? salesmanDict[hdr.SalesVoucherSalesManID]
+                                                   : "", // If SalesManMasterSalesManId is not found, return an empty string
                                     voucherNo = hdr.SalesVoucherNo,
-                                    voucherDate = hdr.SalesVoucherDate,
+                                    voucherDate = Convert.ToDateTime(hdr.SalesVoucherDate).ToString("dd/MM/yyyy"),
                                     voucherType = hdr.SalesVoucherType,
-                                    CustomerName = _customerMasterRepository.GetAsQueryable().FirstOrDefault(x => x.CustomerMasterCustomerNo == hdr.SalesVoucherPartyId).CustomerMasterCustomerName,//  hdr.SalesVoucherPartyName,// hdr.SalesVoucherContPerson == null ? hdr.SalesVoucherPartyName : hdr.SalesVoucherContPerson,
+                                  //  CustomerName = customerDict.ContainsKey(hdr.SalesVoucherPartyId)
+                                                  // ? customerDict[hdr.SalesVoucherPartyId]
+                                                  // : "", // If CustomerMasterCustomerNo is not found, return an empty string
                                     GrossAmount = hdr.SalesVoucherTotalGrossAmount,
-                                    Discount = hdr.SalesVoucherNetDisAmount ?? 0 + hdr.SalesVoucherTotalDisAmount ?? 0,
+                                    Discount = (hdr.SalesVoucherNetDisAmount ?? 0) + (hdr.SalesVoucherTotalDisAmount ?? 0),
                                     SalRetAmt = 0,
                                     VATAmount = hdr.SalesVoucherVat_AMT,
                                     NetAmount = hdr.SalesVoucherNetAmount,
                                 }).AsQueryable();
+
                     return data;
                 }
             }
@@ -915,6 +943,35 @@ namespace Inspire.Erp.Application.Sales.Implementations
         {
             try
             {
+                //var data = (from svd in _salesVoucherDetailsRepository.GetAll()
+                //            join sv in _salesVoucherRepository.GetAll() on svd.SalesVoucherDetailsNo equals sv.SalesVoucherNo into lsv
+                //            from salesVou in lsv.DefaultIfEmpty()
+                //            join itemMas in _itemMasterRepository.GetAll() on (long)svd.SalesVoucherDetailsMatId equals itemMas.ItemMasterItemId into litemm
+                //            from itemmaster in litemm.DefaultIfEmpty()
+                //            join um in _unitMasterRepository.GetAll() on svd.SalesVoucherDetailsUnitId equals um.UnitMasterUnitId into lum
+                //            from unitMaster in lum.DefaultIfEmpty()
+                //            join unitDet in _UnitDetailsRepository.GetAll() 
+                //            on new { UnitId = (int)svd.SalesVoucherDetailsUnitId, ItemId = (int)svd.SalesVoucherDetailsMatId }
+                //            equals new { UnitId = unitDet.UnitDetailsUnitId, ItemId = (int)unitDet.UnitDetailsItemId } into lud
+                //            from unitDetail in lud.DefaultIfEmpty()
+                //            where svd.SalesVoucherDetailsNo != null
+                //            select new
+                //            {
+                //                NetAmount = svd.SalesVoucherDetailsNetAmt,
+                //                Discount = svd.SalesVoucherDetailsDiscAmount,
+                //                GrossAmt = svd.SalesVoucherDetailsGrossAmount,
+                //                UnitPrice = svd.SalesVoucherDetailsCostPrice,
+                //                UnitDes = unitMaster.UnitMasterUnitShortName,
+                //                //MatDes = itemmaster.ItemMasterItemName,
+                //                //PartNo = itemmaster.ItemMasterPartNo,
+                //                VoucherDate = Convert.ToDateTime(salesVou.SalesVoucherDate).ToString("MM-dd-yyyy"),
+
+                //                VoucherNo = salesVou.SalesVoucherNo,
+                //                QuantitySold = svd.SalesVoucherDetailsQuantity ?? 0,
+                //                //unitPrice = itemmaster.ItemMasterUnitPrice ?? 0,
+                //                baseUnit = svd.SalesVoucherDetailsQuantity * (decimal)(unitDetail == null ? 1 : unitDetail.UnitDetailsConversionType ?? 1)   //SD.Sold_Qty * ISNULL(UD.ConversionType, 1)
+                //                // ItemGroup = 
+                //            }).AsQueryable();
                 var data = (from svd in _salesVoucherDetailsRepository.GetAll()
                             join sv in _salesVoucherRepository.GetAll() on svd.SalesVoucherDetailsNo equals sv.SalesVoucherNo into lsv
                             from salesVou in lsv.DefaultIfEmpty()
@@ -922,7 +979,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                             from itemmaster in litemm.DefaultIfEmpty()
                             join um in _unitMasterRepository.GetAll() on svd.SalesVoucherDetailsUnitId equals um.UnitMasterUnitId into lum
                             from unitMaster in lum.DefaultIfEmpty()
-                            join unitDet in _UnitDetailsRepository.GetAll() 
+                            join unitDet in _UnitDetailsRepository.GetAll()
                             on new { UnitId = (int)svd.SalesVoucherDetailsUnitId, ItemId = (int)svd.SalesVoucherDetailsMatId }
                             equals new { UnitId = unitDet.UnitDetailsUnitId, ItemId = (int)unitDet.UnitDetailsItemId } into lud
                             from unitDetail in lud.DefaultIfEmpty()
@@ -932,17 +989,16 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                 NetAmount = svd.SalesVoucherDetailsNetAmt,
                                 Discount = svd.SalesVoucherDetailsDiscAmount,
                                 GrossAmt = svd.SalesVoucherDetailsGrossAmount,
-                                //UnitPrice = svd.SalesVoucherDetailsCostPrice,
-                                UnitDes = unitMaster.UnitMasterUnitShortName,
-                                MatDes = itemmaster.ItemMasterItemName,
-                                //PartNo = itemmaster.ItemMasterPartNo,
-                                VoucherDate = salesVou.SalesVoucherDate,
+                                UnitPrice = svd.SalesVoucherDetailsCostPrice,
+                                UnitDes = unitMaster?.UnitMasterUnitShortName,  // Safe navigation to avoid null reference
+                                MatDes = itemmaster?.ItemMasterItemName ?? "Unknown",  // Default value if null
+                                PartNo = itemmaster?.ItemMasterPartNo ?? "N/A",  // Default value if null
+                                VoucherDate = Convert.ToDateTime(salesVou.SalesVoucherDate).ToString("dd/MM/yyyy"),
                                 VoucherNo = salesVou.SalesVoucherNo,
                                 QuantitySold = svd.SalesVoucherDetailsQuantity ?? 0,
-                                //unitPrice = itemmaster.ItemMasterUnitPrice ?? 0,
-                                baseUnit = svd.SalesVoucherDetailsQuantity * (decimal)(unitDetail == null ? 1 : unitDetail.UnitDetailsConversionType ?? 1)   //SD.Sold_Qty * ISNULL(UD.ConversionType, 1)
-                                // ItemGroup = 
+                                baseUnit = svd.SalesVoucherDetailsQuantity * (decimal)(unitDetail?.UnitDetailsConversionType ?? 1)  // Handle null conversionType
                             }).AsQueryable();
+
                 return data;
             }
             catch (System.Exception ex)

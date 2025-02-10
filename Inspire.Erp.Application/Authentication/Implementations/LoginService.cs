@@ -226,10 +226,10 @@ namespace Inspire.Erp.Application.Authentication.Implementations
             {
                 userFileRepository.BeginTransaction();
 
-                string errorMessage;
-                bool isValid = ValidatePassword(user.Password, out errorMessage);
-                if (isValid)
-                {
+                //string errorMessage;
+                //bool isValid = ValidatePassword(user.Password, out errorMessage);
+                //if (isValid)
+                //{
                     var jwtToken = generateJwtToken(user);
                     var refreshToken = generateRefreshToken(user);
                     user.Token = jwtToken;
@@ -243,13 +243,13 @@ namespace Inspire.Erp.Application.Authentication.Implementations
                     userFileRepository.TransactionCommit();
 
                     return this.GetUserById(user.UserId);
-                }
-                else
-                {
-                    user.IsValid = false;
-                    user.Message = errorMessage;
-                    return user;
-                }
+                //}
+                //else
+                //{
+                //    user.IsValid = false;
+                //    user.Message = errorMessage;
+                //    return user;
+                //}
 
             }
             catch (Exception ex)
@@ -323,11 +323,11 @@ namespace Inspire.Erp.Application.Authentication.Implementations
                     user.UserId = maxcount;
                     user.LogInId = maxcount.ToString();
                 }
-                string errorMessage;
-
-                bool isValid = ValidatePassword(user.Password, out errorMessage);
-                if (isValid)
-                {
+                //string errorMessage;
+                bool isValid = true;
+                //bool isValid = ValidatePassword(user.Password, out errorMessage);  // sir ki fasmish ka uper validation remove ki han
+                //if (isValid)
+                //{
                     var jwtToken = generateJwtToken(user);
                     var refreshToken = generateRefreshToken(user);
 
@@ -341,13 +341,13 @@ namespace Inspire.Erp.Application.Authentication.Implementations
                     userFileRepository.TransactionCommit();
 
                     return this.GetUserById(user.UserId);
-                }
-                else
-                {
-                    user.IsValid = false;
-                    user.Message = errorMessage;
-                    return user;
-                }
+                //}
+                //else
+                //{
+                //    user.IsValid = false;
+                //    user.Message = errorMessage;
+                //    return user;
+                //}
 
             }
             catch (Exception ex)
