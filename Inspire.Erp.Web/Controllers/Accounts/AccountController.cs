@@ -618,5 +618,37 @@ namespace Inspire.Erp.Web.Controllers.Accounts
                 return StatusCode(500, $"An error occurred while retrieving AliAnsariReport: {ex.Message}");
             }
         }
+
+
+        [HttpPost]
+        [Route("ASDetailReport")]
+        public async Task<IActionResult> ASDetailReport([FromBody] AccStReport voucherCompositeView)
+        {
+            try
+            {
+                return Ok(await _accountStatService.AccountStatementDetailReport(voucherCompositeView));
+            }
+            catch (Exception ex)
+            {
+                // Log the full exception details here
+                return StatusCode(500, $"An error occurred while retrieving AliAnsariReport: {ex.Message}");
+            }
+        }
+
+
+        [HttpPost]
+        [Route("SaveTempStatement")]
+        public async Task<IActionResult> SaveTempStatement([FromBody] TempStatementModel voucherCompositeView)
+        {
+            try
+            {
+                return Ok( _accountStatService.SaveTempStatement(voucherCompositeView));
+            }
+            catch (Exception ex)
+            {
+                // Log the full exception details here
+                return StatusCode(500, $"An error occurred while retrieving AliAnsariReport: {ex.Message}");
+            }
+        }
     }
 }

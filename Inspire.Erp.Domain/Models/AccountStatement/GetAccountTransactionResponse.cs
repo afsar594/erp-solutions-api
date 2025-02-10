@@ -100,11 +100,69 @@ namespace Inspire.Erp.Domain.Modals.AccountStatement
     public class AccountStatementSummayResponse
     {
       
-        public double? OpeningBalance { get; set; }
+        public AccountStatementOpenBalResponse OpeningBalance { get; set; }
         public double? Debit { get; set; }
         public double? Credit { get; set; }
 
         public string? AccNo { get; set; }
+
+    }
+
+    public class AccountStatementDetailResponse
+    {
+
+        public AccountStatementOpenBalResponse OpeningBalance { get; set; }
+      
+       public List<AccountStatementDetails> ASDetails { get; set; }
+
+    }
+
+    public class AccountStatementOpenBalResponse
+    {
+
+        
+        public double? Debit { get; set; }
+        public double? Credit { get; set; }
+
+    }
+
+    public class AccountStatementDetails
+    {
+
+        public double? Debit { get; set; }
+        public double? Credit { get; set; }
+        public string VoucherType { get; set; }
+        public string AccountName { get; set; }
+        public string AccNo { get; set; }
+
+        public string VoucherNo { get; set; }
+        public string Description { get; set; }
+        public string Particulars { get; set; }
+        public DateTime? TransDate { get; set; }
+        public string RefNo { get; set; }
+    }
+
+
+    public class TempStatementModel
+    {
+
+
+
+        public int Sno { get; set; }
+        public string VoucherNo { get; set; }
+        public DateTime? VoucherDate { get; set; }
+        public string? VoucherType { get; set; }
+        public string Description { get; set; }
+        public double? Debit { get; set; }
+        public double? Credit { get; set; }
+
+        public double? Balance { get; set; }
+        public string AccNo { get; set; }
+
+       
+
+        public string JobName { get; set; }
+
 
     }
 }
