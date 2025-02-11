@@ -203,7 +203,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 var rights = _context.tbl_approvalforms.Where(a => a.Voucher_Type.Contains("Purchase Order") && a.is_active == true).AsNoTracking().ToList();
                 if (rights.Count > 0)
                 {
-                    var existdata = _permissionApprovalDetailRepo.GetAsQueryable().Where(a => a.VoucherId == purchaseOrder.PurchaseOrderNo && a.VoucherType == "Purchase Order").ToList();
+                    var existdata = _permissionApprovalDetailRepo.GetAsQueryable().Where(a => a.VoucherId == purchaseOrder.PurchaseOrderId && a.VoucherType == "Purchase Order").ToList();
 
                     if (existdata.Count > 0)
                     {
@@ -215,7 +215,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         {
                             PermissionApprovalDetail POList = new PermissionApprovalDetail();
                             POList.VoucherType = "Purchase Order";
-                            POList.VoucherId = purchaseOrder.PurchaseOrderNo;
+                            POList.VoucherNo = purchaseOrder.PurchaseOrderNo;
+                            POList.VoucherId = (int)purchaseOrder.PurchaseOrderId;
                             POList.VoucherDate = purchaseOrder.PurchaseOrderDate;
                             POList.Amount = (double)purchaseOrder.PurchaseOrderNetAmount;
                             POList.CreatedBy = (int?)purchaseOrder.PurchaseOrderUserId ?? 1;
@@ -383,7 +384,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         {
                             PermissionApprovalDetail POList = new PermissionApprovalDetail();
                             POList.VoucherType = "Purchase Order";
-                            POList.VoucherId = purchaseOrder.PurchaseOrderNo;
+                            POList.VoucherNo = purchaseOrder.PurchaseOrderNo;
+                            POList.VoucherId = (int)purchaseOrder.PurchaseOrderId;
                             POList.VoucherDate = purchaseOrder.PurchaseOrderDate;
                             POList.Amount = (double)purchaseOrder.PurchaseOrderNetAmount;
                             POList.CreatedBy = (int?)purchaseOrder.PurchaseOrderUserId ?? 1;
@@ -439,7 +441,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 purchaseOrderDetail.PurchaseOrderTillNowQTY = GetTillNowQTY(purchaseOrderModel.purchaseOrder.PurchaseOrderNo);
             }
 
-            var approvals = _permissionApprovalDetailRepo.GetAsQueryable().AsNoTracking().Where(a => a.VoucherId == purchaseOrderModel.purchaseOrder.PurchaseOrderNo).Select(x => new { x.Status, x.ApprovedBy }).ToList();
+            var approvals = _permissionApprovalDetailRepo.GetAsQueryable().AsNoTracking().Where(a => a.VoucherId == purchaseOrderModel.purchaseOrder.PurchaseOrderId).Select(x => new { x.Status, x.ApprovedBy }).ToList();
             if (approvals.Count > 0)
             {
                 if (approvals.Any(a => a.Status == "Approved"))
@@ -616,7 +618,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 if (check?.Count > 0)
                 {
                     result = await (from po in _purchaseOrderRepository.GetAsQueryable()
-                                    join per in _permissionApprovalDetailRepo.GetAsQueryable() on po.PurchaseOrderNo equals per.VoucherId
+                                    join per in _permissionApprovalDetailRepo.GetAsQueryable() on po.PurchaseOrderId equals per.VoucherId
                                     join pod in _purchaseOrderDetailsRepository.GetAsQueryable() on po.PurchaseOrderId equals pod.PurchaseOrderId
                                     join sm in _suppliersMasterRepository.GetAsQueryable() on po.PurchaseOrderPartyId equals sm.SuppliersMasterSupplierId
                                     join im in _itemMasterRepository.GetAsQueryable() on (long)pod.PurchaseOrderDetailsMatId equals im.ItemMasterItemId

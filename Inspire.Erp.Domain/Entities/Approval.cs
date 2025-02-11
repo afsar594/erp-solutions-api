@@ -18,7 +18,8 @@ namespace Inspire.Erp.Domain.Entities
     {
         public int Id { get; set; }
         public string VoucherType { get; set; }
-        public string VoucherId { get; set; }
+        public string? VoucherNo { get; set; }
+        public int VoucherId { get; set; }
         public DateTime? VoucherDate { get; set; }
         public double? Amount { get; set; }
         public int? CreatedBy { get; set; }
