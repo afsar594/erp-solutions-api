@@ -337,7 +337,7 @@ namespace Inspire.Erp.Application.Master
         {
             try
             {
-                var dataObj = _jobDocumentsRepository.GetAsQueryable().Where(o => o.JobDocumentJobId == Id).FirstOrDefault();
+                var dataObj = _jobDocumentsRepository.GetAsQueryable().Where(o => o.JobDocumentId == Id).FirstOrDefault();
                 dataObj.JobDocumentDelStatus = true;
                 _jobDocumentsRepository.Update(dataObj);
                 return _jobDocumentsRepository.GetAll();
