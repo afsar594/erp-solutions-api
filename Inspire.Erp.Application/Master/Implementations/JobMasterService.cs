@@ -333,5 +333,19 @@ namespace Inspire.Erp.Application.Master
                 throw ex;
             }
         }
+        public IEnumerable<JobDocuments> DeleteJobDocument(int Id)
+        {
+            try
+            {
+                var dataObj = _jobDocumentsRepository.GetAsQueryable().Where(o => o.JobDocumentJobId == Id).FirstOrDefault();
+                dataObj.JobDocumentDelStatus = true;
+                _jobDocumentsRepository.Update(dataObj);
+                return _jobDocumentsRepository.GetAll();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

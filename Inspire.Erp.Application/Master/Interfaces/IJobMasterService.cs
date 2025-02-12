@@ -22,8 +22,10 @@ namespace Inspire.Erp.Application.Master
 
         public void SaveJobDocument(JobDocuments jobDocumnet);
 
-        public IEnumerable<JobDocuments> GetAllJobDocumentById(int id);  
-        
+        public IEnumerable<JobDocuments> GetAllJobDocumentById(int id);
+        public IEnumerable<JobDocuments> DeleteJobDocument(int id);
+
 
     }
 }
+
