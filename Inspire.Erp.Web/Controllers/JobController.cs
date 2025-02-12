@@ -227,12 +227,12 @@ namespace Inspire.Erp.Web.Controllers
             return File(pdfBytes.Result, "application/pdf", "generated.pdf");
         }
         [HttpPost]
-        [Route("readpdffile")]
-        public async Task<IActionResult> PostPdfFile()
+        [Route("readpdffile/{Id}")]
+        public async Task<IActionResult> PostPdfFile(int Id)
         {
             List<string> uploadedFiles = new List<string>();
             var files = Request.Form.Files;
-
+            
             if (files.Count == 0)
                 return Content("File Not Selected");
 
@@ -242,13 +242,13 @@ namespace Inspire.Erp.Web.Controllers
                 int count = rn.Next(1111, 9999);
                 var fileName = count + file.FileName;
 
-                string fileExtension = Path.GetExtension(file.FileName);
-                var pathBuilt = Path.Combine(Directory.GetCurrentDirectory(), "Upload\\Pdfs");
+                //string fileExtension = Path.GetExtension(file.FileName);
+                //var pathBuilt = Path.Combine(Directory.GetCurrentDirectory(), "Upload\\Pdfs");
 
-                if (!Directory.Exists(pathBuilt))
-                {
-                    Directory.CreateDirectory(pathBuilt);
-                }
+                //if (!Directory.Exists(pathBuilt))
+                //{
+                //    Directory.CreateDirectory(pathBuilt);
+                //}
 
                 var path = Path.Combine(Directory.GetCurrentDirectory(), "Upload/Pdfs/",
                    fileName);
@@ -261,7 +261,7 @@ namespace Inspire.Erp.Web.Controllers
                 jobDocuments.JobDocumentName = "/Upload/Pdfs/" + fileName;
 
                 jobDocuments.JobDocumentDelStatus = false;
-                jobDocuments.JobDocumentJobId = 97;
+                jobDocuments.JobDocumentJobId = Id;
                // jobDocuments.JobDocumentId = 1;
                 jobMasterService.SaveJobDocument(jobDocuments);
             }
