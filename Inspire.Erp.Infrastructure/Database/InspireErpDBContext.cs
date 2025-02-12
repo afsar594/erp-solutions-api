@@ -10476,6 +10476,10 @@ namespace Inspire.Erp.Infrastructure.Database
                       .HasColumnName("voucherid")
                       .HasMaxLength(25)
                       .IsUnicode(false);
+                entity.Property(e => e.VoucherNo)
+                     .HasColumnName("voucherNo")
+                     .HasMaxLength(25)
+                     .IsUnicode(false);
 
                 entity.Property(e => e.VoucherDate)
                       .HasColumnName("voucher_date")

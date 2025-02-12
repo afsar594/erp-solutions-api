@@ -558,7 +558,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
 
         [HttpGet]
         [Route("POApprovalById")]
-        public ResponseInfo POApprovalById(string VoucherId)
+        public ResponseInfo POApprovalById(int VoucherId)
         {
             var objresponse = new ResponseInfo();
             try
@@ -569,6 +569,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                     c.Id,
                     c.VoucherType,
                     c.VoucherId,
+                    c.VoucherNo,
                     c.LevelId,
                     c.VoucherDate,
                     c.Status,
