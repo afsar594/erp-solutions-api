@@ -325,7 +325,7 @@ namespace Inspire.Erp.Application.Master
         {
             try
             {
-                var Jobdoc = _jobDocumentsRepository.GetAsQueryable().Where(k => k.JobDocumentJobId == Convert.ToInt32(id)).ToList();
+                var Jobdoc = _jobDocumentsRepository.GetAsQueryable().Where(k => k.JobDocumentJobId == Convert.ToInt32(id) && k.JobDocumentDelStatus==false).ToList();
                 return Jobdoc;
             }
             catch (Exception ex)
