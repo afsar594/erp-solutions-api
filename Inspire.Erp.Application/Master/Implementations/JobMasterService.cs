@@ -22,7 +22,7 @@ namespace Inspire.Erp.Application.Master
         private IRepository<JobMasterBudgetDetails> jobbudgetRepository;
         private IRepository<JobMasterJobDetails> jobdetailsRepository;
         private IRepository<JobMasterJobWiseBankGuarantees> jobBankGuaruRepository;
-        private IRepository<JobDocuments> jobDocumentsRepository;
+        private IRepository<JobDocuments> _jobDocumentsRepository;
         private IRepository<ProgramSettings> programsettingsRepository;
         private IRepository<VouchersNumbers> voucherNumbersRepository;
         private IRepository<JobStaff> jobstaffrepository;
@@ -44,7 +44,8 @@ namespace Inspire.Erp.Application.Master
             IRepository<JobEquipment> _jobEquipmentrepository, IRepository<JobExcutionDetails> _jobexecrepository,
             IRepository<JobTimeSheetEquip> jobTimeSheetEquip,
         IRepository<JobTimesheetMaster> jobTimesheetMaster,
-            IRepository<JobTimeSheetStaff> jobTimeSheetStaff, IRepository<JobTimesheetDesc> jobTimesheetDesc
+            IRepository<JobTimeSheetStaff> jobTimeSheetStaff, IRepository<JobTimesheetDesc> jobTimesheetDesc,
+            IRepository<JobDocuments> jobDocumentsRepository
             )
         {
             jobrepository = _jobrepository;
@@ -60,6 +61,7 @@ namespace Inspire.Erp.Application.Master
             jobexecrepository = _jobexecrepository;
             _jobTimesheetDesc = jobTimesheetDesc; _jobTimesheetMaster = jobTimesheetMaster;
             _jobTimeSheetEquip = jobTimeSheetEquip; _jobTimeSheetStaff = jobTimeSheetStaff;
+            _jobDocumentsRepository = jobDocumentsRepository;
         }
         public IEnumerable<JobMaster> DeleteJob(JobMaster jobMaster)
         {
@@ -257,8 +259,6 @@ namespace Inspire.Erp.Application.Master
                         item.JobMasterBudgetDetailsVariance = -result.TotalDrAmt;
                     }
                 }
-
-
                 jobMasterData.JobMasterJobDetails = jobdetailsRepository.GetAsQueryable().Where(x => x.JobMasterNo == jbno && x.JobMasterJobDetailsDelStatus == false).ToList();
                 jobMasterData.JobMasterJobWiseBankGuarantees = jobBankGuaruRepository.GetAsQueryable().Where(x => x.JobMasterNo == jbno && x.JobMasterJobWiseBankGuaranteesDelStatus == false).ToList();
                 jobMasterData.AccountsTransactions = accountsTransactionsRepository.GetAsQueryable().Where(x => x.AccountsTransactionsJobNo == jobMasterData.JobMasterJobId).ToList();
@@ -291,13 +291,15 @@ namespace Inspire.Erp.Application.Master
                 jobMasterData.JobTimeSheetEquip = _jobTimeSheetEquip.GetAsQueryable().AsNoTracking().Where(a => a.JobId == jobMasterData.JobMasterJobId).OrderBy(x => x.JobMasterJobJob).ToList();
                 jobMasterData.JobTimesheetDesc = _jobTimesheetDesc.GetAsQueryable().AsNoTracking().Where(a => a.JobId == jobMasterData.JobMasterJobId).ToList();
                 return jobMasterData;
+
+               
             }
             return null;
         }
 
         public void SaveJobDocument(JobDocuments jobDocumnet)
         {
-            jobDocumentsRepository.Insert(jobDocumnet);
+            _jobDocumentsRepository.Insert(jobDocumnet);
         }
 
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
@@ -331,6 +333,19 @@ namespace Inspire.Erp.Application.Master
         public Task<string> GetJobHTML(int id)
         {
             throw new NotImplementedException();
+        }
+        public IEnumerable<JobDocuments> GetAllJobDocumentById(int id)
+        {
+            try
+            {
+                var Jobdoc = _jobDocumentsRepository.GetAsQueryable().Where(k => k.JobDocumentJobId == Convert.ToInt32(id)).ToList();
+                return Jobdoc;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

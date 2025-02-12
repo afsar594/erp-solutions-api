@@ -105,7 +105,6 @@ namespace Inspire.Erp.Web.Controllers
             }
             return null;
         }
-
         [HttpPost]
         [Route("InsertJobMaster")]
         public ApiResponse<JobMaster> InsertJob([FromBody] JobMasterViewModel jobMaster)
@@ -243,13 +242,13 @@ namespace Inspire.Erp.Web.Controllers
                 int count = rn.Next(1111, 9999);
                 var fileName = count + file.FileName;
 
-                //string fileExtension = Path.GetExtension(file.FileName);
-                //var pathBuilt = Path.Combine(Directory.GetCurrentDirectory() ,"Upload\\Pdfs");
+                string fileExtension = Path.GetExtension(file.FileName);
+                var pathBuilt = Path.Combine(Directory.GetCurrentDirectory(), "Upload\\Pdfs");
 
-                //if (!Directory.Exists(pathBuilt))
-                //{
-                //    Directory.CreateDirectory(pathBuilt);
-                //}
+                if (!Directory.Exists(pathBuilt))
+                {
+                    Directory.CreateDirectory(pathBuilt);
+                }
 
                 var path = Path.Combine(Directory.GetCurrentDirectory(), "Upload/Pdfs/",
                    fileName);
@@ -258,9 +257,13 @@ namespace Inspire.Erp.Web.Controllers
                 {
                     await file.CopyToAsync(stream);
                 }
-                //JobDocuments jobDocuments = new JobDocuments();
-                //jobDocuments.JobDocumentName = "/Upload/Pdfs/" + fileName;
-                //jobMasterService.SaveJobDocument(jobDocuments);
+                JobDocuments jobDocuments = new JobDocuments();
+                jobDocuments.JobDocumentName = "/Upload/Pdfs/" + fileName;
+
+                jobDocuments.JobDocumentDelStatus = false;
+                jobDocuments.JobDocumentJobId = 97;
+               // jobDocuments.JobDocumentId = 1;
+                jobMasterService.SaveJobDocument(jobDocuments);
             }
 
 
@@ -335,6 +338,20 @@ namespace Inspire.Erp.Web.Controllers
 
             };
             return objresponse;
+        }
+        [HttpGet]
+        [Route("GetAllJobDocumentById")]
+        public IActionResult GetAllJobDocumentById(int id)
+        {
+            try
+            {
+                var item = jobMasterService.GetAllJobDocumentById(id);
+                return Ok(item);
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
         }
     }
 }

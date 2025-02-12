@@ -8713,9 +8713,11 @@ namespace Inspire.Erp.Infrastructure.Database
             });
             modelBuilder.Entity<JobDocuments>(entity =>
             {
-                entity.HasKey(e => e.JobDocumentId);
+
 
                 entity.ToTable("Job_Documents");
+
+                entity.HasKey(e => e.JobDocumentId);
 
                 entity.Property(e => e.JobDocumentId)
                     .HasColumnName("Job_Document_ID");
@@ -8724,7 +8726,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.JobDocumentName)
                     .HasColumnName("Job_Document_Name")
-                    .HasMaxLength(50)
+                    .HasMaxLength(500)
                     .IsUnicode(false);
 
                 entity.Property(e => e.JobDocumentDelStatus).HasColumnName("Job_Document_DelStatus");
