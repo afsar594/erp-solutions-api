@@ -353,5 +353,18 @@ namespace Inspire.Erp.Web.Controllers
                 return StatusCode(500, ex.Message.ToString());
             }
         }
+        [HttpGet]
+        [Route("DeleteJobDocument")]
+        public IActionResult DeleteJobDocument(int Id)
+        {
+            try
+            {
+                return Ok(jobMasterService.DeleteJobDocument(Id));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
+        }
     }
 }
