@@ -25,5 +25,13 @@ namespace Inspire.Erp.Web.Controllers.Sales
         {
             return Ok(await _deliveryNoteServices.DeliveryNoteReportDetails(filter));
         }
+        [HttpPost]
+        [Route("DeliveryNoteByFilter")]
+        public async Task<IActionResult> DeliveryNoteByFilter(DeliveryNotefilter filter)
+        {
+            return Ok(await _deliveryNoteServices.DeliveryNoteByFilter(filter));
+        }
+
+        
     }
 }

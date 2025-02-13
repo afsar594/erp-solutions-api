@@ -34,7 +34,8 @@ namespace Inspire.Erp.Application.Sales.Interfaces
         public IEnumerable<CustomerDeliveryNote> GetDeliveryNote();
         ////public VouchersNumbers GetVouchersNumbers(long pvno);
         public Task<Response<List<DNReportDetails>>> DeliveryNoteReportDetails(DeliveryNoteReportFilter filter);
-
+        public Task<Response<List<DeliveryNotes>>> DeliveryNoteByFilter(DeliveryNotefilter filter);
+        
         public CustomerDeliveryNote InsertCustomerDeliveryNote(CustomerDeliveryNote deliveryNote, List<CustomerDeliveryNoteDetails> deliveryNoteDetails);
         public CustomerDeliveryNote UpdateCustomerDeliveryNote(CustomerDeliveryNote deliveryNote, List<CustomerDeliveryNoteDetails> deliveryNoteDetails);
         public CustomerDeliveryNote GetSavedDeliveryNoteDetailsV2(long pvno);

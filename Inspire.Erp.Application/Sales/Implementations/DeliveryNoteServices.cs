@@ -39,11 +39,11 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<UnitMaster> _unitMasterRepository;
         private IRepository<SuppliersMaster> _suppliersMasterRepository;
         private IRepository<LocationMaster> _locationMasterRepository;
-
+        private IRepository<LocationMaster> _locationMasterRepo;        
         private IRepository<CustomerMaster> _customerMasterRepository;
         private IRepository<CustomerMaster> _salesManMasterRepository;
         private IRepository<DepartmentMaster> _departmentMasterRepository;
-        private IRepository<LocationMaster> _locationMasterRepo;
+        private IRepository<SalesVoucherDetails> _salesVoucherDetailsRepo;
 
 
 
@@ -60,7 +60,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
 
             IRepository<CustomerDeliveryNote> deliveryNoteRepository, IRepository<CustomerDeliveryNoteDetails> deliveryNoteDetailsRepository
-            , IRepository<LocationMaster> locationMasterRepo)
+            , IRepository<LocationMaster> locationMasterRepo, IRepository<SalesVoucherDetails> salesVoucherDetailsRepo)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository;
@@ -75,7 +75,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             _customerMasterRepository = customerMasterRepository;
             _salesManMasterRepository = salesManMasterRepository;
             _departmentMasterRepository = departmentMasterRepository;
-            _locationMasterRepo = locationMasterRepo;
+            _salesVoucherDetailsRepo = salesVoucherDetailsRepo;
 
         }
 
@@ -283,6 +283,48 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 {
                     Valid = true,
                     Result = reportDetails,
+                    Message = "Delivery Note Data Fonud"
+                };
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+        public async Task<Response<List<DeliveryNotes>>> DeliveryNoteByFilter(DeliveryNotefilter filter)
+        {
+            string filteredValue = " && 1 == 1";
+
+            try
+            {
+                if (filter.Customercode > 0)
+                {
+                    filteredValue += $" && CustomerDeliveryNoteCustomerCode = {filter.Customercode} ";
+                }
+                if (filter.ischeck == true)
+                {
+                    filteredValue += $" &&  CustomerDeliveryNoteDeliveryDate >= {filter.fromDate.Value.Date} && CustomerDeliveryNoteDeliveryDate <= {filter.toDate.Value.Date} ";
+                }
+                
+                var query = await (from dn in _deliveryNoteRepository.GetAsQueryable().Where($"1 == 1 {filteredValue}")
+
+                                   join lm in _customerMasterRepository.GetAsQueryable() on dn.CustomerDeliveryNoteCustomerCode equals (long)lm.CustomerMasterCustomerNo into lmGroup
+                                   from lm in lmGroup.DefaultIfEmpty()
+                                   where (dn.CustomerDeliveryNoteCustomerCode ?? 0) > 0 && !_salesVoucherDetailsRepo.GetAsQueryable().Select(s => (long)s.SalesVoucherDetailsDlvId).Contains((long)dn.CustomerDeliveryNoteDeliveryID)
+                                 
+                                   select new DeliveryNotes
+                                  {
+                                     CustomerDeliveryNoteDeliveryId =  dn.CustomerDeliveryNoteDeliveryID,
+                                      CustomerDeliveryNoteDeliveryDate = dn.CustomerDeliveryNoteDeliveryDate ,
+                                      CustomerName =  lm != null ? lm.CustomerMasterCustomerArabicName : null
+                                   }).ToListAsync();
+
+                return new Response<List<DeliveryNotes>>
+                {
+                    Valid = true,
+                    Result = query,
                     Message = "Delivery Note Data Fonud"
                 };
             }
