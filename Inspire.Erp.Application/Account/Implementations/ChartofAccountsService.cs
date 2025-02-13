@@ -163,7 +163,7 @@ namespace Inspire.Erp.Application.Account
         public ChartofAccountsService(IRepository<MasterAccountsTable> _chartofAccountsrepository, IRepository<AccountSettings> _accountSettingsrepository)
         {
             chartofAccountsrepository = _chartofAccountsrepository;
-
+            accountSettingsrepository = _accountSettingsrepository;
         }
         public IEnumerable<MasterAccountsTable> InsertAccounts(MasterAccountsTable masterAccountsTable)
         {

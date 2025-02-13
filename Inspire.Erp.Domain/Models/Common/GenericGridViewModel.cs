@@ -55,6 +55,21 @@ namespace Inspire.Erp.Domain.Modals.Common
         public string Formate { get; set; }
 
     }
+    public class DeliveryNotefilter
+    {
+        public long? Customercode { get; set; }
+        public DateTime? fromDate { get; set; }
+        public DateTime? toDate { get; set; }
+        public bool ischeck  { get; set; }
+
+    }
+    public class DeliveryNotes
+    {
+        public long CustomerDeliveryNoteDeliveryId { get; set; }
+        public DateTime? CustomerDeliveryNoteDeliveryDate { get; set; }
+        public string? CustomerName { get; set; }
+     
+    }
 
     public class StockAdjustmentReportFilter
     {

@@ -105,7 +105,6 @@ namespace Inspire.Erp.Web.Controllers
             }
             return null;
         }
-
         [HttpPost]
         [Route("InsertJobMaster")]
         public ApiResponse<JobMaster> InsertJob([FromBody] JobMasterViewModel jobMaster)
@@ -228,12 +227,12 @@ namespace Inspire.Erp.Web.Controllers
             return File(pdfBytes.Result, "application/pdf", "generated.pdf");
         }
         [HttpPost]
-        [Route("readpdffile")]
-        public async Task<IActionResult> PostPdfFile()
+        [Route("readpdffile/{Id}")]
+        public async Task<IActionResult> PostPdfFile(int Id)
         {
             List<string> uploadedFiles = new List<string>();
             var files = Request.Form.Files;
-
+            
             if (files.Count == 0)
                 return Content("File Not Selected");
 
@@ -244,7 +243,7 @@ namespace Inspire.Erp.Web.Controllers
                 var fileName = count + file.FileName;
 
                 //string fileExtension = Path.GetExtension(file.FileName);
-                //var pathBuilt = Path.Combine(Directory.GetCurrentDirectory() ,"Upload\\Pdfs");
+                //var pathBuilt = Path.Combine(Directory.GetCurrentDirectory(), "Upload\\Pdfs");
 
                 //if (!Directory.Exists(pathBuilt))
                 //{
@@ -258,9 +257,13 @@ namespace Inspire.Erp.Web.Controllers
                 {
                     await file.CopyToAsync(stream);
                 }
-                //JobDocuments jobDocuments = new JobDocuments();
-                //jobDocuments.JobDocumentName = "/Upload/Pdfs/" + fileName;
-                //jobMasterService.SaveJobDocument(jobDocuments);
+                JobDocuments jobDocuments = new JobDocuments();
+                jobDocuments.JobDocumentName = "/Upload/Pdfs/" + fileName;
+
+                jobDocuments.JobDocumentDelStatus = false;
+                jobDocuments.JobDocumentJobId = Id;
+               // jobDocuments.JobDocumentId = 1;
+                jobMasterService.SaveJobDocument(jobDocuments);
             }
 
 
@@ -335,6 +338,33 @@ namespace Inspire.Erp.Web.Controllers
 
             };
             return objresponse;
+        }
+        [HttpGet]
+        [Route("GetAllJobDocumentById")]
+        public IActionResult GetAllJobDocumentById(int id)
+        {
+            try
+            {
+                var item = jobMasterService.GetAllJobDocumentById(id);
+                return Ok(item);
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
+        }
+        [HttpGet]
+        [Route("DeleteJobDocument")]
+        public IActionResult DeleteJobDocument(int Id)
+        {
+            try
+            {
+                return Ok(jobMasterService.DeleteJobDocument(Id));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
         }
     }
 }

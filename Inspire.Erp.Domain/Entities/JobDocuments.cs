@@ -8,7 +8,7 @@ namespace Inspire.Erp.Domain.Entities
     {
         public int JobDocumentId { get; set; }
         public int JobDocumentJobId { get; set; }
-        public string JobDocumentName { get; set; }
+        public string? JobDocumentName { get; set; }
         public bool? JobDocumentDelStatus { get; set; }
     }
 }
