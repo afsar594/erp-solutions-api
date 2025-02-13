@@ -293,47 +293,97 @@ namespace Inspire.Erp.Application.Sales.Implementations
             }
 
         }
+        //public async Task<Response<List<DeliveryNotes>>> DeliveryNoteByFilter(DeliveryNotefilter filter)
+        //{
+        //    string filteredValue = " && 1 == 1";
+
+        //    try
+        //    {
+        //        if (filter.Customercode > 0)
+        //        {
+        //            filteredValue += $" && CustomerDeliveryNoteCustomerCode = {filter.Customercode} ";
+        //        }
+        //        if (filter.ischeck == true)
+        //        {
+        //            filteredValue += $" &&  CustomerDeliveryNoteDeliveryDate >= {filter.fromDate.Value.Date} && CustomerDeliveryNoteDeliveryDate <= {filter.toDate.Value.Date} ";
+        //        }
+
+        //        var query = await (from dn in _deliveryNoteRepository.GetAsQueryable().Where($"1 == 1 (dn.CustomerDeliveryNoteCustomerCode ?? 0) > 0 && !_salesVoucherDetailsRepo.GetAsQueryable().Select(s => (long)s.SalesVoucherDetailsDlvId).Contains((long)dn.CustomerDeliveryNoteDeliveryID) {filteredValue}")
+
+        //                           join lm in _customerMasterRepository.GetAsQueryable() on dn.CustomerDeliveryNoteCustomerCode equals (long)lm.CustomerMasterCustomerNo into lmGroup
+        //                           from lm in lmGroup.DefaultIfEmpty()
+        //                          // where (dn.CustomerDeliveryNoteCustomerCode ?? 0) > 0 && !_salesVoucherDetailsRepo.GetAsQueryable().Select(s => (long)s.SalesVoucherDetailsDlvId).Contains((long)dn.CustomerDeliveryNoteDeliveryID)
+
+        //                           select new DeliveryNotes
+        //                          {
+        //                             CustomerDeliveryNoteDeliveryId =  dn.CustomerDeliveryNoteDeliveryID,
+        //                              CustomerDeliveryNoteDeliveryDate = dn.CustomerDeliveryNoteDeliveryDate ,
+        //                              CustomerName =  lm != null ? lm.CustomerMasterCustomerArabicName : null
+        //                           }).ToListAsync();
+
+        //        return new Response<List<DeliveryNotes>>
+        //        {
+        //            Valid = true,
+        //            Result = query,
+        //            Message = "Delivery Report Data Fonud"
+        //        };
+        //    }
+        //    catch (Exception ex)
+        //    {
+
+        //        throw ex;
+        //    }
+
+        //}
         public async Task<Response<List<DeliveryNotes>>> DeliveryNoteByFilter(DeliveryNotefilter filter)
         {
-            string filteredValue = " && 1 == 1";
-
             try
             {
+                var query = _deliveryNoteRepository.GetAsQueryable();
+                    //.Where(dn => (dn.CustomerDeliveryNoteCustomerCode ?? 0) > 0 &&
+                    //             !_salesVoucherDetailsRepo.GetAsQueryable()
+                    //                .Select(s => (long)s.SalesVoucherDetailsDlvId)
+                    //                .Contains((long)dn.CustomerDeliveryNoteDeliveryID));
+
+                // Apply filters dynamically
                 if (filter.Customercode > 0)
                 {
-                    filteredValue += $" && CustomerDeliveryNoteCustomerCode = {filter.Customercode} ";
+                    query = query.Where(dn => dn.CustomerDeliveryNoteCustomerCode == filter.Customercode);
                 }
-                if (filter.ischeck == true)
-                {
-                    filteredValue += $" &&  CustomerDeliveryNoteDeliveryDate >= {filter.fromDate.Value.Date} && CustomerDeliveryNoteDeliveryDate <= {filter.toDate.Value.Date} ";
-                }
-                
-                var query = await (from dn in _deliveryNoteRepository.GetAsQueryable().Where($"1 == 1 {filteredValue}")
 
-                                   join lm in _customerMasterRepository.GetAsQueryable() on dn.CustomerDeliveryNoteCustomerCode equals (long)lm.CustomerMasterCustomerNo into lmGroup
-                                   from lm in lmGroup.DefaultIfEmpty()
-                                   where (dn.CustomerDeliveryNoteCustomerCode ?? 0) > 0 && !_salesVoucherDetailsRepo.GetAsQueryable().Select(s => (long)s.SalesVoucherDetailsDlvId).Contains((long)dn.CustomerDeliveryNoteDeliveryID)
-                                 
-                                   select new DeliveryNotes
-                                  {
-                                     CustomerDeliveryNoteDeliveryId =  dn.CustomerDeliveryNoteDeliveryID,
-                                      CustomerDeliveryNoteDeliveryDate = dn.CustomerDeliveryNoteDeliveryDate ,
-                                      CustomerName =  lm != null ? lm.CustomerMasterCustomerArabicName : null
-                                   }).ToListAsync();
+                if (filter.ischeck)
+                {
+                    query = query.Where(dn => dn.CustomerDeliveryNoteDeliveryDate >= filter.fromDate.Value.Date &&
+                                              dn.CustomerDeliveryNoteDeliveryDate <= filter.toDate.Value.Date);
+                }
+
+                var result = await (from dn in query
+                                    join lm in _customerMasterRepository.GetAsQueryable()
+                                    on dn.CustomerDeliveryNoteCustomerCode equals (long?)lm.CustomerMasterCustomerNo into lmGroup
+                                    from lm in lmGroup.DefaultIfEmpty() // Left Outer Join
+                                    select new DeliveryNotes
+                                    {
+                                        CustomerDeliveryNoteDeliveryId = dn.CustomerDeliveryNoteDeliveryID,
+                                        CustomerDeliveryNoteDeliveryDate = dn.CustomerDeliveryNoteDeliveryDate,
+                                        CustomerName = lm != null ? lm.CustomerMasterCustomerArabicName : null
+                                    }).ToListAsync();
 
                 return new Response<List<DeliveryNotes>>
                 {
                     Valid = true,
-                    Result = query,
-                    Message = "Delivery Note Data Fonud"
+                    Result = result,
+                    Message = "Delivery Report Data Found"
                 };
             }
             catch (Exception ex)
             {
-
-                throw ex;
+                return new Response<List<DeliveryNotes>>
+                {
+                    Valid = false,
+                    Result = null,
+                    Message = $"Error: {ex.Message}"
+                };
             }
-
         }
 
         public CustomerDeliveryNote InsertCustomerDeliveryNote(CustomerDeliveryNote deliveryNote, List<CustomerDeliveryNoteDetails> deliveryNoteDetails)
