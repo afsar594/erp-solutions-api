@@ -8473,6 +8473,41 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnType("numeric(18, 4)")
                     .HasDefaultValueSql("((0))");
 
+
+                entity.Property(e => e.JobMasterDepartmentId)
+                      .HasColumnName("Job_Master_Department_ID");
+
+                entity.Property(e => e.JobMasterSiteLocation)
+                  .HasColumnName("Job_Master_Site_Location")
+                  .HasMaxLength(250)
+                  .IsUnicode(false);
+
+                entity.Property(e => e.JobMasterMEPContractor)
+                  .HasColumnName("Job_Master_MEP_Contractor")
+                  .HasMaxLength(250)
+                  .IsUnicode(false);
+
+                entity.Property(e => e.JobMasterCapacity)
+                  .HasColumnName("Job_Master_Capacity")
+                  .HasMaxLength(250)
+                  .IsUnicode(false);
+
+                entity.Property(e => e.JobMasterPlantType)
+                  .HasColumnName("Job_Master_Plant_Type")
+                  .HasMaxLength(250)
+                  .IsUnicode(false);
+
+                entity.Property(e => e.JobMasterScheme)
+                  .HasColumnName("Job_Master_Scheme")
+                  .HasMaxLength(250)
+                  .IsUnicode(false);
+
+                entity.Property(e => e.JobMasterPaymentTerms)
+                  .HasColumnName("Job_Master_Payment_Terms")
+                  .HasMaxLength(250)
+                  .IsUnicode(false);
+
+
                 entity.Property(e => e.JobMasterJobWorkingDays).HasColumnName("Job_Master_Job_Working_Days");
             });
 

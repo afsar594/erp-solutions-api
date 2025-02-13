@@ -85,6 +85,13 @@ namespace Inspire.Erp.Domain.Entities
         public int? JobMasterJobComplientId { get; set; }
         public int? JobMasterJobCustQtnId { get; set; }
         public bool? JobMasterJobDelStatus { get; set; }
+        public int? JobMasterDepartmentId { get; set; }
+        public string JobMasterSiteLocation { get; set; }
+        public string JobMasterMEPContractor { get; set; }
+        public string JobMasterPlantType { get; set; }
+        public string JobMasterCapacity { get; set; }
+        public string JobMasterScheme { get; set; }
+        public string JobMasterPaymentTerms { get; set; }
 
         [NotMapped]
         public List<JobMasterBudgetDetails> JobMasterBudgetDetails { get; set; }
