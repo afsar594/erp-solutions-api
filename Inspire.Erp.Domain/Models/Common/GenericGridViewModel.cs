@@ -63,6 +63,20 @@ namespace Inspire.Erp.Domain.Modals.Common
         public bool ischeck  { get; set; }
 
     }
+    public class DeliveryNoteDetailsModule
+    {
+        public long? DNDId { get; set; }
+        public long? DetailsItemId { get; set; }
+        public long? DetailsUnitId { get; set; }
+        public string? remarks { get; set; }
+        public decimal? DetailsQTY { get; set; }
+
+    }
+    public class DeliverybyId
+    {
+        public long DNDId { get; set; }
+    }
+
     public class DeliveryNotes
     {
         public long CustomerDeliveryNoteDeliveryId { get; set; }

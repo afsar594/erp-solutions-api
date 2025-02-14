@@ -6,6 +6,8 @@ using Inspire.Erp.Application.StoreWareHouse.Interface;
 using Inspire.Erp.Application.Sales.Interfaces;
 using Inspire.Erp.Domain.Modals.Common;
 using Microsoft.AspNetCore.Authorization;
+using Inspire.Erp.Domain.Modals;
+using System.Collections.Generic;
 
 namespace Inspire.Erp.Web.Controllers.Sales
 {   
@@ -32,6 +34,11 @@ namespace Inspire.Erp.Web.Controllers.Sales
             return Ok(await _deliveryNoteServices.DeliveryNoteByFilter(filter));
         }
 
-        
+        [HttpPost]
+        [Route("DeliveryNoteByFilterbyId")]
+        public async Task<IActionResult> DeliveryNoteByFilterbyId(List<DeliverybyId> detail)
+        {
+            return Ok(await _deliveryNoteServices.DeliveryNoteByFilterbyId(detail));
+        }
     }
 }

@@ -22,6 +22,10 @@ using Inspire.Erp.Domain.Models.Procurement.PurchaseOrderTracking;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
+using Inspire.Erp.Application.Master;
+using Microsoft.AspNetCore.Mvc;
+using Spire.Pdf.Exporting.XPS.Schema;
+using System.Collections.Immutable;
 
 namespace Inspire.Erp.Application.Sales.Implementations
 {
@@ -385,7 +389,45 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 };
             }
         }
+        public async Task<Response<List<DeliveryNoteDetailsModule>>> DeliveryNoteByFilterbyId(List<DeliverybyId> detail)
+        {
+            try
+            {
+                // Extracting delivery IDs from detail list
+                var deliveryIds = detail.Select(d => d.DNDId).ToList();
 
+                var query = from cn in _deliveryNoteRepository.GetAsQueryable()
+                            join cd in _deliveryNoteDetailsRepository.GetAsQueryable()
+                                on cn.CustomerDeliveryNoteDeliveryID equals cd.CustomerDeliveryNoteDetailsDeliveryNo
+                            where deliveryIds.Contains(cn.CustomerDeliveryNoteDeliveryID)
+                            select new DeliveryNoteDetailsModule
+                            {
+                                DNDId = cn.CustomerDeliveryNoteDeliveryID,
+                                DetailsItemId = cd.CustomerDeliveryNoteDetailsItemId ?? 0,
+                                DetailsUnitId = cd.CustomerDeliveryNoteDetailsUnitId ?? 0,
+                                remarks = cd.CustomerDeliveryNoteDetailsDescription,
+                                DetailsQTY = cd.CustomerDeliveryNoteDetailsQty ?? 0
+                            };
+
+                var result = await query.ToListAsync(); // Ensuring async execution
+
+                return new Response<List<DeliveryNoteDetailsModule>>
+                {
+                    Valid = true,
+                    Result = result,
+                    Message = result.Any() ? "Delivery Note Data Found" : "No Data Found"
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Response<List<DeliveryNoteDetailsModule>>
+                {
+                    Valid = false,
+                    Result = null,
+                    Message = $"Error: {ex.Message}"
+                };
+            }
+        }
         public CustomerDeliveryNote InsertCustomerDeliveryNote(CustomerDeliveryNote deliveryNote, List<CustomerDeliveryNoteDetails> deliveryNoteDetails)
         {
             try
