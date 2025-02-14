@@ -66,6 +66,10 @@ namespace Inspire.Erp.Web.ViewModels.Procurement
         public decimal? PurchaseRequisitionVatAmt { get; set; }
         public decimal? PurchaseRequisitionVatPer { get; set; }
         public string PurchaseRequisitionVatRoundSign { get; set; }
+        public string? paymentTerms { get; set; }
+        public string confirmationemaildetails { get; set; }
+        public string deliveryatsite { get; set; }
+        public string deliveryterms { get; set; }
         public decimal? PurchaseRequisitionVatRountAmt { get; set; }
         [NotMapped]
         public bool PurchaseRequisitionApproveEnable { get; set; }

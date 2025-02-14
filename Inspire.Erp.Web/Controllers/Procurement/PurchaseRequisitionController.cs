@@ -21,7 +21,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers
 {
-   
+
     [Route("api/PurchaseRequisition")]
     [Produces("application/json")]
     [ApiController]
@@ -97,6 +97,10 @@ namespace Inspire.Erp.Web.Controllers
                     PurchaseRequisitionIssueId = xs.purchaseRequisition.PurchaseRequisitionIssueId,
                     PurchaseRequisitionJobDirectPur = xs.purchaseRequisition.PurchaseRequisitionJobDirectPur,
                     PurchaseRequisitionDelStatus = xs.purchaseRequisition.PurchaseRequisitionDelStatus,
+                    deliveryterms = xs.purchaseRequisition.deliveryterms,
+                    deliveryatsite = xs.purchaseRequisition.deliveryatsite,
+                    confirmationemaildetails = xs.purchaseRequisition.confirmationemaildetails,
+                    paymentTerms = xs.purchaseRequisition.paymentTerms,
 
                 };
 
@@ -129,14 +133,14 @@ namespace Inspire.Erp.Web.Controllers
         {
             var param1 = _mapper.Map<PurchaseRequisition>(voucherCompositeView);
             var param2 = _mapper.Map<List<PurchaseRequisitionDetails>>(voucherCompositeView.PurchaseRequisitionDetails);
-           var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
+            var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
             List<AccountsTransactions> accountsTransactions = new List<AccountsTransactions>();
 
             //var param4 = _mapper.Map<List<StockRegister>>(voucherCompositeView.StockRegister);
             var xs = _purchaseRequisitionService.UpdatePurchaseRequisition(param1, accountsTransactions, param2
                 //, param4
                 );
-            
+
             //var xs = _purchaseRequisitionService.UpdatePurchaseRequisition(param1, param3, param2
             //    //, param4
             //    );
@@ -188,7 +192,10 @@ namespace Inspire.Erp.Web.Controllers
                 PurchaseRequisitionIssueId = xs.purchaseRequisition.PurchaseRequisitionIssueId,
                 PurchaseRequisitionJobDirectPur = xs.purchaseRequisition.PurchaseRequisitionJobDirectPur,
                 PurchaseRequisitionDelStatus = xs.purchaseRequisition.PurchaseRequisitionDelStatus,
-               
+                deliveryterms = xs.purchaseRequisition.deliveryterms,
+                deliveryatsite = xs.purchaseRequisition.deliveryatsite,
+                confirmationemaildetails = xs.purchaseRequisition.confirmationemaildetails,
+                paymentTerms = xs.purchaseRequisition.paymentTerms,
             };
 
             purchaseRequisitionViewModel.PurchaseRequisitionDetails = _mapper.Map<List<PurchaseRequisitionDetailsViewModel>>(xs.purchaseRequisitionDetails);
@@ -327,9 +334,12 @@ namespace Inspire.Erp.Web.Controllers
                     PurchaseRequisitionIssueId = purchaseRequisition.purchaseRequisition.PurchaseRequisitionIssueId,
                     PurchaseRequisitionJobDirectPur = purchaseRequisition.purchaseRequisition.PurchaseRequisitionJobDirectPur,
                     PurchaseRequisitionDelStatus = purchaseRequisition.purchaseRequisition.PurchaseRequisitionDelStatus,
-                    PurchaseRequisitionApprovedBy=purchaseRequisition.purchaseRequisition.PurchaseRequisitionApprovedBy,
-                    PurchaseRequisitionApproveEnable=purchaseRequisition.purchaseRequisition.PurchaseRequisitionApproveEnable
-
+                    PurchaseRequisitionApprovedBy = purchaseRequisition.purchaseRequisition.PurchaseRequisitionApprovedBy,
+                    PurchaseRequisitionApproveEnable = purchaseRequisition.purchaseRequisition.PurchaseRequisitionApproveEnable,
+                    deliveryterms = purchaseRequisition.purchaseRequisition.deliveryterms,
+                    deliveryatsite = purchaseRequisition.purchaseRequisition.deliveryatsite,
+                    confirmationemaildetails = purchaseRequisition.purchaseRequisition.confirmationemaildetails,
+                    paymentTerms = purchaseRequisition.purchaseRequisition.paymentTerms,
                 };
                 purchaseRequisitionViewModel.PurchaseRequisitionDetails = _mapper.Map<List<PurchaseRequisitionDetailsViewModel>>(purchaseRequisition.purchaseRequisitionDetails);
                 purchaseRequisitionViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(purchaseRequisition.accountsTransactions);
@@ -386,21 +396,21 @@ namespace Inspire.Erp.Web.Controllers
             };
             return Ok(apiResponse);
         }
-    
-    [HttpPost]
-    [Route("GetPurchaseReqJobId")]
-    public async Task<IActionResult> GetPurchaseReqJobId(PurChaseRequisitionFilterReport model)
-    {
 
-        var response = await _purchaseRequisitionService.GetPurchaseReqJobId(model);
-        ApiResponse<List<PurChaseReqFields>> apiResponse = new ApiResponse<List<PurChaseReqFields>>
+        [HttpPost]
+        [Route("GetPurchaseReqJobId")]
+        public async Task<IActionResult> GetPurchaseReqJobId(PurChaseRequisitionFilterReport model)
         {
-            Valid = true,
-            Result = response.Result,
-            Message = ""
-        };
-        return Ok(apiResponse);
+
+            var response = await _purchaseRequisitionService.GetPurchaseReqJobId(model);
+            ApiResponse<List<PurChaseReqFields>> apiResponse = new ApiResponse<List<PurChaseReqFields>>
+            {
+                Valid = true,
+                Result = response.Result,
+                Message = ""
+            };
+            return Ok(apiResponse);
+        }
     }
-  }
 
 }
