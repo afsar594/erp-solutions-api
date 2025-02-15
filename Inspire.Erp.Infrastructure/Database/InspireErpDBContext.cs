@@ -533,9 +533,10 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<JobfilesStatus>(e =>
             {
-                //e.HasKey(e => e.job_id);
-                e.HasNoKey();
+                e.HasKey(e => e.job_id);
+                //e.HasNoKey();
                 e.ToTable("job_files_Status");
+                //e.Property(e => e.job_id).HasColumnName("job_id");
                 e.Property(e => e.job_filename).HasColumnName("job_filename");
                 e.Property(e => e.job_fileStatus).HasColumnName("job_fileStatus");
                 e.Property(e => e.job_IsDeleted).HasColumnName("job_IsDeleted");
@@ -718,7 +719,7 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnName("Asset_Master_Asset_Code")
                     .HasMaxLength(50)
                     .IsUnicode(false);
-
+                 
                 entity.Property(e => e.AssetMasterAssetCreatedDate)
                     .HasColumnName("Asset_Master_Asset_Created_Date")
                     .HasColumnType("datetime");
@@ -729,6 +730,7 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnName("Asset_Master_Asset_DepExp_Account")
                     .HasMaxLength(20)
                     .IsUnicode(false);
+
 
                 entity.Property(e => e.AssetMasterAssetDepLibAccount)
                     .HasColumnName("Asset_Master_Asset_DepLib_Account")

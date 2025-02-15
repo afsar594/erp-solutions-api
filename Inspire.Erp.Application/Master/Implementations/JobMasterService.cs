@@ -198,6 +198,7 @@ namespace Inspire.Erp.Application.Master
                 // job file 
                 jobMaster.JobfilesStatus.Select((x) =>
                 {
+                    //x.job_id = jobMaster.JobfilesStatus[0].job_id;
                     x.job_id = jobId;
                     x.job_filename = jobMaster.JobfilesStatus[0].job_filename;
                     x.job_fileStatus = jobMaster.JobfilesStatus[0].job_fileStatus;
