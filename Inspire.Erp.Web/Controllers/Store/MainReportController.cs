@@ -75,6 +75,21 @@ namespace Inspire.Erp.Web.Controllers.Store
             };
             return apiResponse;
         }
+        [HttpPost]
+        [Route("CustomerStattemnetbySummery")]
+        public ApiResponse<List<ReportAccountsTransactions>> CustomerStattemnetbySummery([FromBody] AccountStatementParametersViewModels voucherCompositeView)
+        {
+            var param1 = _mapper.Map<AccountStatementParameters>(voucherCompositeView);
+            ApiResponse<List<ReportAccountsTransactions>> apiResponse = new ApiResponse<List<ReportAccountsTransactions>>
+            {
+                Valid = true,
+                Result = _mapper.Map<List<ReportAccountsTransactions>>(_mainReportService.CustomerStattemnetbySummery(
+                     param1
+                )),
+                Message = ""
+            };
+            return apiResponse;
+        }
 
         [HttpGet]
         [Route("MainReport_GetReportStockRegister")]
