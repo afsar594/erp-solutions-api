@@ -533,7 +533,8 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<JobfilesStatus>(e =>
             {
-                e.HasKey(e => e.job_id);
+                //e.HasKey(e => e.job_id);
+                e.HasNoKey();
                 e.ToTable("job_files_Status");
                 e.Property(e => e.job_filename).HasColumnName("job_filename");
                 e.Property(e => e.job_fileStatus).HasColumnName("job_fileStatus");

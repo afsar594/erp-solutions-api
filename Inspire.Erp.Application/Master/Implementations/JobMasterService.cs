@@ -199,14 +199,18 @@ namespace Inspire.Erp.Application.Master
                 jobMaster.JobfilesStatus.Select((x) =>
                 {
                     x.job_id = jobId;
-                    return x;
-                }).OrderBy(x => x.job_id).AsEnumerable().ToList();
-                /// 
-                
+                    x.job_filename = jobMaster.JobfilesStatus[0].job_filename;
+                    x.job_fileStatus = jobMaster.JobfilesStatus[0].job_fileStatus;
+                    x.job_IsDeleted = false;
+                    return  x;
+                });
+                _JobfilesStatus.InsertList(jobMaster.JobfilesStatus);
+                // end
                 jobrepository.Insert(jobMaster);
                 jobrepository.TransactionCommit();
 
                 return this.GetSavedJobMasterDetails(jobMaster.JobMasterJobNo);
+                
             }
             catch (Exception ex)
             {
@@ -303,7 +307,7 @@ namespace Inspire.Erp.Application.Master
         public void JobfilesStatus(JobfilesStatus JobfilesStatus)
         {
 
-             JobfilesStatus.job_filename = JobfilesStatus.job_filename;
+            JobfilesStatus.job_filename = JobfilesStatus.job_filename;
             JobfilesStatus.job_fileStatus = false;
             JobfilesStatus.job_id = JobfilesStatus.job_id;
             _JobfilesStatus.Insert(JobfilesStatus);

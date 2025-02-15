@@ -127,7 +127,7 @@ namespace Inspire.Erp.Domain.Entities
     {
         public int job_id { get; set; }
         public string job_filename { get; set; }
-        public bool job_fileStatus { get; set; }
+        public bool? job_fileStatus { get; set; }
         public bool job_IsDeleted { get; set; }
     }
 
