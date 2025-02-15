@@ -121,7 +121,8 @@ namespace Inspire.Erp.Web.Controllers
             var param9 = _mapper.Map<List<JobTimeSheetEquip>>(jobMaster.JobTimeSheetEquip);
             var param10 = _mapper.Map<List<JobTimesheetMaster>>(jobMaster.JobTimesheetMaster);
             var param11 = _mapper.Map<List<JobTimeSheetStaff>>(jobMaster.JobTimeSheetStaff);
-            var respone = jobMasterService.InsertJobMaster(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11);
+            var param12 = _mapper.Map<List<JobfilesStatus>>(jobMaster.JobfilesStatus);
+            var respone = jobMasterService.InsertJobMaster(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12);
 
             apiResponse = new ApiResponse<JobMaster>
             {

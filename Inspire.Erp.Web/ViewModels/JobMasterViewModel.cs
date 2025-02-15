@@ -69,6 +69,7 @@ namespace Inspire.Erp.Web.ViewModels
         public List<JobTimeSheetEquipViewModels> JobTimeSheetEquip { get; set; }
         public List<JobTimesheetMasterViewModels> JobTimesheetMaster { get; set; }
         public List<JobTimeSheetStaffViewModels> JobTimeSheetStaff { get; set; }
+        public List<JobfilesStatus> JobfilesStatus { get; set; }
     }
     public class JobStaffViewModels
     {

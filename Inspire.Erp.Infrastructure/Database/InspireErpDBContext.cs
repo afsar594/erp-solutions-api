@@ -452,6 +452,8 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<HrDocumentType> HrDocumentType { get; set; }
 
         public DbSet<ReportName> ReportName { get; set; }
+        public virtual DbSet<JobfilesStatus> JobfilesStatus { get; set; }
+        
         // hr Staffmaster
         public virtual DbSet<HrStaffMaster> HrStaffMasters { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -529,6 +531,15 @@ namespace Inspire.Erp.Infrastructure.Database
                 e.Property(e => e.WpsIban).HasColumnName("WPS_IBAN");
             });
 
+            modelBuilder.Entity<JobfilesStatus>(e =>
+            {
+                e.HasKey(e => e.job_id);
+                e.ToTable("job_files_Status");
+                e.Property(e => e.job_filename).HasColumnName("job_filename");
+                e.Property(e => e.job_fileStatus).HasColumnName("job_fileStatus");
+                e.Property(e => e.job_IsDeleted).HasColumnName("job_IsDeleted");
+            });
+
             modelBuilder.Entity<HrDocumentType>(entity =>
             {
                 entity.HasKey(e => e.DocumentTypeId);
@@ -548,7 +559,7 @@ namespace Inspire.Erp.Infrastructure.Database
                   .HasMaxLength(50)
                   .IsUnicode(false);
             });
-
+    
             #region If the db table and entity has same name
             //modelBuilder.Entity<SalesVoucherResponse>().HasNoKey();
             //modelBuilder.Entity<PONumber>().HasNoKey();

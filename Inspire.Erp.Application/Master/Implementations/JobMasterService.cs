@@ -32,6 +32,8 @@ namespace Inspire.Erp.Application.Master
         private IRepository<JobTimeSheetEquip> _jobTimeSheetEquip;
         private IRepository<JobTimesheetMaster> _jobTimesheetMaster;
         private IRepository<JobTimeSheetStaff> _jobTimeSheetStaff;
+        private IRepository<JobfilesStatus> _JobfilesStatus;
+        
         private IRepository<AccountsTransactions> accountsTransactionsRepository;
         private readonly InspireErpDBContext context;
         public JobMasterService(IRepository<JobMaster> _jobrepository,
@@ -45,7 +47,7 @@ namespace Inspire.Erp.Application.Master
             IRepository<JobTimeSheetEquip> jobTimeSheetEquip,
             IRepository<JobTimesheetMaster> jobTimesheetMaster,
             IRepository<JobTimeSheetStaff> jobTimeSheetStaff, IRepository<JobTimesheetDesc> jobTimesheetDesc,
-            IRepository<JobDocuments> jobDocumentsRepository)
+            IRepository<JobDocuments> jobDocumentsRepository, IRepository<JobfilesStatus> jobfilesStatus)
         {
             jobrepository = _jobrepository;
             jobbudgetRepository = _jobbudgetRepository;
@@ -61,6 +63,7 @@ namespace Inspire.Erp.Application.Master
             _jobTimesheetDesc = jobTimesheetDesc; _jobTimesheetMaster = jobTimesheetMaster;
             _jobTimeSheetEquip = jobTimeSheetEquip; _jobTimeSheetStaff = jobTimeSheetStaff;
             _jobDocumentsRepository = jobDocumentsRepository;
+            _JobfilesStatus = jobfilesStatus;
         }
         public IEnumerable<JobMaster> DeleteJob(JobMaster jobMaster)
         {
@@ -116,7 +119,7 @@ namespace Inspire.Erp.Application.Master
             }
             return jobMasters;
         }
-        public JobMaster InsertJobMaster(JobMaster jobMaster, List<JobMasterBudgetDetails> jobMasterBudgetDetails, List<JobMasterJobDetails> jobMasterJobDetails, List<JobMasterJobWiseBankGuarantees> jobMasterJobWiseBankGuarantees, List<JobStaff> jobStaff, List<JobEquipment> jobEquipment, List<JobExcutionDetails> jobExcutionDetails, List<JobTimesheetDesc> JobTimesheetDesc, List<JobTimeSheetEquip> JobTimeSheetEquip, List<JobTimesheetMaster> JobTimesheetMaster, List<JobTimeSheetStaff> JobTimeSheetStaff)
+        public JobMaster InsertJobMaster(JobMaster jobMaster, List<JobMasterBudgetDetails> jobMasterBudgetDetails, List<JobMasterJobDetails> jobMasterJobDetails, List<JobMasterJobWiseBankGuarantees> jobMasterJobWiseBankGuarantees, List<JobStaff> jobStaff, List<JobEquipment> jobEquipment, List<JobExcutionDetails> jobExcutionDetails, List<JobTimesheetDesc> JobTimesheetDesc, List<JobTimeSheetEquip> JobTimeSheetEquip, List<JobTimesheetMaster> JobTimesheetMaster, List<JobTimeSheetStaff> JobTimeSheetStaff, List<JobfilesStatus> JobfilesStatus)
         {
             try
             {
@@ -192,8 +195,14 @@ namespace Inspire.Erp.Application.Master
                     x.JobId = jobId;
                     return x;
                 }).OrderBy(x => x.JobId).AsEnumerable().ToList();
+                // job file 
+                jobMaster.JobfilesStatus.Select((x) =>
+                {
+                    x.job_id = jobId;
+                    return x;
+                }).OrderBy(x => x.job_id).AsEnumerable().ToList();
                 /// 
-
+                
                 jobrepository.Insert(jobMaster);
                 jobrepository.TransactionCommit();
 
@@ -280,6 +289,7 @@ namespace Inspire.Erp.Application.Master
                 jobMasterData.JobTimesheetMaster = _jobTimesheetMaster.GetAsQueryable().AsNoTracking().Where(a => a.JobId == jobMasterData.JobMasterJobId).ToList();
                 jobMasterData.JobTimeSheetEquip = _jobTimeSheetEquip.GetAsQueryable().AsNoTracking().Where(a => a.JobId == jobMasterData.JobMasterJobId).OrderBy(x => x.JobMasterJobJob).ToList();
                 jobMasterData.JobTimesheetDesc = _jobTimesheetDesc.GetAsQueryable().AsNoTracking().Where(a => a.JobId == jobMasterData.JobMasterJobId).ToList();
+                jobMasterData.JobfilesStatus = _JobfilesStatus.GetAsQueryable().AsNoTracking().Where(a => a.job_id == jobMasterData.JobMasterJobId).ToList();
                 return jobMasterData;
 
                
@@ -289,6 +299,14 @@ namespace Inspire.Erp.Application.Master
         public void SaveJobDocument(JobDocuments jobDocumnet)
         {
             _jobDocumentsRepository.Insert(jobDocumnet);
+        }
+        public void JobfilesStatus(JobfilesStatus JobfilesStatus)
+        {
+
+             JobfilesStatus.job_filename = JobfilesStatus.job_filename;
+            JobfilesStatus.job_fileStatus = false;
+            JobfilesStatus.job_id = JobfilesStatus.job_id;
+            _JobfilesStatus.Insert(JobfilesStatus);
         }
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
         {
