@@ -125,12 +125,15 @@ namespace Inspire.Erp.Domain.Entities
     }
     public class JobfilesStatus
     {
-        public int job_id { get; set; }
+        public int Id { get; set; }
+        public int JobMasterJobId { get; set; }
         public string job_filename { get; set; }
         public bool? job_fileStatus { get; set; }
         public bool job_IsDeleted { get; set; }
-    }
+        [JsonIgnore]
+        public virtual JobMaster JobMasterJobJob { get; set; }
 
+    }
     public class JobStaff
     {
         public int Id { get; set; }
