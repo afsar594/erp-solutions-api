@@ -34,6 +34,6 @@ namespace Inspire.Erp.Web.ViewModels
         public int? Loginfailure { get; set; }
         public DateTime? PasswordUpdateDate { get; set; }
 
-
+        public string? emailId { get; set; }
     }
 }
