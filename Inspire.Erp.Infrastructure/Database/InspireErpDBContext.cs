@@ -18133,6 +18133,9 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnName("AccountsTransactions_Particulars")
                     .HasMaxLength(100);
 
+                modelBuilder.Entity<GetAccountTransactionBalanceSheetResponse>()
+       .Ignore(e => e.AccountsTransactionsCreditSum);  // Ignore the calculated property
+
                 entity.Property(e => e.AccountsTransactionsStatus)
                     .IsRequired()
                     .HasColumnName("AccountsTransactions_Status")
