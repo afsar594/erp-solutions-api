@@ -238,6 +238,8 @@ namespace Inspire.Erp.Application.Authentication.Implementations
                     user.PasswordUpdateDate = DateTime.Now;
                     user.Loginfailure = 0;
                     user.UserImage = user.UserImage ?? "";
+                    user.emailId = user.emailId ?? "";
+
                     userFileRepository.Update(user);
 
                     userFileRepository.TransactionCommit();
@@ -337,6 +339,7 @@ namespace Inspire.Erp.Application.Authentication.Implementations
                     user.PasswordUpdateDate = DateTime.Now;
                     user.Loginfailure = 0;
                     user.UserImage = user.UserImage ?? "";
+                    user.emailId = user.emailId ?? "";
                     userFileRepository.Insert(user);
                     userFileRepository.TransactionCommit();
 

@@ -341,7 +341,6 @@ namespace Inspire.Erp.Application.Account.Implementations
             //_accountTransactionRepository.UpdateList(accttrans);
         }
         public void PrintReport_TempTableEntry(AccountStatementParameters accountStatementParameters, List<ReportAccountsTransactions> DTLS)
-
         {
             Delete_OldEntry_TempReportAccStatement();
             List<TempReportAccStatement> Temp = new List<TempReportAccStatement>();
@@ -349,8 +348,8 @@ namespace Inspire.Erp.Application.Account.Implementations
             for (int i = 0; i < DTLS.Count; i++)
             {
                 Temp.Add(AddNewEntry_To_TempReportAccStatement(
- i + 1,    //int ? AccSlNo,
-         accountStatementParameters.rptAccount, //string AccAccNo,
+            i + 1,    //int ? AccSlNo,
+            accountStatementParameters.rptAccount, //string AccAccNo,
                                       DTLS[i].AccName,         //string AccName,
                                       DTLS[i].AccountsTransactionsVoucherNo,    //string AccVchNo,
                                            DTLS[i].AccountsTransactionsTransDate,     //DateTime ? AccVchDate ,
@@ -361,24 +360,24 @@ namespace Inspire.Erp.Application.Account.Implementations
                                            (DTLS[i].AccountsTransactionsDebit - DTLS[i].AccountsTransactionsCredit) < 0 ? 0 : (DTLS[i].AccountsTransactionsDebit - DTLS[i].AccountsTransactionsCredit),  //decimal ? AccTotDebit ,
                                               (DTLS[i].AccountsTransactionsDebit - DTLS[i].AccountsTransactionsCredit) < 0 ? (DTLS[i].AccountsTransactionsDebit - DTLS[i].AccountsTransactionsCredit) * -1 : 0, //decimal ? AccTotCredit ,  
 
- RunningCalc(DTLS[i].AccountsTransactionsDebit - DTLS[i].AccountsTransactionsCredit), //decimal ? AccRunning ,
-   DTLS[i].AccountsTransactionsCredit, //decimal ? AccDateDiff ,
-  DTLS[i].RefNo,  //string AccRefNo,
-DTLS[i].CostCenterMasterCostCenterName,//string AccCostcenter,
-DTLS[i].AccountsTransactionsOpposEntryDesc,//string AccVchAgainst,
-DTLS[i].LocationMasterLocationName,//string AccLocation,
-DTLS[i].JobMasterJobName, //string AccJob,
-DTLS[i].DepartmentMasterDepartmentName, //string AccDepartment,
-DTLS[i].AccountsTransactionsLpoNo,//string AccLpoNo,
-DTLS[i].AccountsTransactionsCheqNo, //string AccChqNo,
-DTLS[i].AccountsTransactionsCheqDate, //DateTime ? AccChqDate ,
-DTLS[i].AccountsTransactionsVatno,//string AccVatNo,
-DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
- accountStatementParameters.rptLocation, //long ? AccLocationId,
-   accountStatementParameters.rptJob, //            long ? AccJobId,
-   accountStatementParameters.rptCostCenter, //            long ? AccCostcenterId,
-   0 //            long ? AccDepartmentId
-));
+             RunningCalc(DTLS[i].AccountsTransactionsDebit - DTLS[i].AccountsTransactionsCredit), //decimal ? AccRunning ,
+            DTLS[i].AccountsTransactionsCredit, //decimal ? AccDateDiff ,
+            DTLS[i].RefNo,  //string AccRefNo,
+            DTLS[i].CostCenterMasterCostCenterName,//string AccCostcenter,
+            DTLS[i].AccountsTransactionsOpposEntryDesc,//string AccVchAgainst,
+            DTLS[i].LocationMasterLocationName,//string AccLocation,
+            DTLS[i].JobMasterJobName, //string AccJob,
+            DTLS[i].DepartmentMasterDepartmentName, //string AccDepartment,
+            DTLS[i].AccountsTransactionsLpoNo,//string AccLpoNo,
+            DTLS[i].AccountsTransactionsCheqNo, //string AccChqNo,
+            DTLS[i].AccountsTransactionsCheqDate, //DateTime ? AccChqDate ,
+            DTLS[i].AccountsTransactionsVatno,//string AccVatNo,
+            DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
+             accountStatementParameters.rptLocation, //long ? AccLocationId,
+               accountStatementParameters.rptJob, //            long ? AccJobId,
+               accountStatementParameters.rptCostCenter, //            long ? AccCostcenterId,
+               0 //            long ? AccDepartmentId
+            ));
             }
             _tempReportAccStatementRepository.InsertList(Temp);
         }
@@ -561,15 +560,19 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                 List<ReportAccountsTransactions> reportAccountsTransactions_ALL = new List<ReportAccountsTransactions>();
                 DateTime StartDate;
                 string date_Range;
-                if (accountStatementParameters.rptAsOnDate == true)
-                {
-                    StartDate = accountStatementParameters.rptDtpAson.Value.Date;
-                    date_Range = "As On" + StartDate.ToString("dd/MM/yyyy HH:mm:ss");
-                }
-                else
-                {
-                    StartDate = accountStatementParameters.rptDtpFrom.Value.Date;
-                    date_Range = " From " + StartDate.ToString("dd/MMM/yyyy") + " To " + accountStatementParameters.rptDtpTo.Value.Date.ToString("dd/MMM/yyyy");
+                
+                    if (accountStatementParameters.rptAsOnDate == true)
+                    {
+                        StartDate = accountStatementParameters.rptDtpAson.Value.Date;
+                        date_Range = "As On" + StartDate.ToString("dd/MM/yyyy HH:mm:ss");
+                    }
+                    else
+                    {
+                    if (accountStatementParameters.rptDateRange == true)
+                    {
+                        StartDate = accountStatementParameters.rptDtpFrom.Value.Date;
+                        date_Range = " From " + StartDate.ToString("dd/MMM/yyyy") + " To " + accountStatementParameters.rptDtpTo.Value.Date.ToString("dd/MMM/yyyy");
+                    }
                 }
                 var Debit = (_reportAccountsTransactionsRepository.GetAsQueryable().Where(k =>
                            ((k.AccountsTransactionsAccNo == accountStatementParameters.rptAccount)
@@ -614,8 +617,318 @@ DTLS[i].AccountsTransactionsVatableAmount,//decimal ? AccVatAmt
                     CurrencyMasterCurrencyName = null,
                     AccountsTransactionsTransSno = 0,
                     AccountsTransactionsAccNo = null,
-                    AccountsTransactionsTransDate = StartDate.Date,
-                    AccountsTransactionsParticulars = date_Range,
+                    AccountsTransactionsTransDate = DateTime.Now,
+                    AccountsTransactionsParticulars = null,
+                    //AccountsTransactionsTransDate = StartDate.Date,
+                    //AccountsTransactionsParticulars = date_Range,
+                    AccountsTransactionsDebit = Debit,
+                    AccountsTransactionsCredit = Credit,
+                    AccountsTransactionsFcDebit = null,
+                    AccountsTransactionsFcCredit = null,
+                    AccountsTransactionsVoucherType = null,
+                    AccountsTransactionsVoucherNo = null,
+                    AccountsTransactionsDescription = null,
+                    AccountsTransactionsUserId = 0,
+                    AccountsTransactionsStatus = null,
+                    AccountsTransactionsTstamp = DateTime.Now,
+                    RefNo = null,
+                    AccountsTransactionsFsno = 0,
+                    AccountsTransactionsAllocDebit = null,
+                    AccountsTransactionsAllocCredit = null,
+                    AccountsTransactionsAllocBalance = null,
+                    AccountsTransactionsFcAllocDebit = null,
+                    AccountsTransactionsFcAllocCredit = null,
+                    AccountsTransactionsFcAllocBalance = null,
+                    AccountsTransactionsLocation = null,
+                    AccountsTransactionsJobNo = null,
+                    AccountsTransactionsCostCenterId = null,
+                    AccountsTransactionsApprovalDt = null,
+                    AccountsTransactionsDepartment = null,
+                    AccountsTransactionsFcRate = null,
+                    AccountsTransactionsCompanyId = null,
+                    AccountsTransactionsCurrencyId = null,
+                    AccountsTransactionsDrGram = null,
+                    AccountsTransactionsCrGram = null,
+                    AccountsTransactionsCheqNo = null,
+                    AccountsTransactionsLpoNo = null,
+                    AccountsTransactionsCheqDate = null,
+                    AccountsTransactionsOpposEntryDesc = null,
+                    AccountsTransactionsAllocUpdateBal = null,
+                    AccountsTransactionsDeptId = null,
+                    AccountsTransactionsVatno = null,
+                    AccountsTransactionsVatableAmount = null,
+                    AccountstransactionsDelStatus = null,
+                    DepartmentMasterDepartmentName = null,
+                };
+                var DiffCreditDebit = (_reportAccountsTransactionsRepository.GetAsQueryable().Where(k =>
+                             ((k.AccountsTransactionsAccNo == accountStatementParameters.rptAccount)
+                             && (accountStatementParameters.rptLocation == -1 ? true : (k.AccountsTransactionsLocation == accountStatementParameters.rptLocation))
+                             && (accountStatementParameters.rptJob == -1 ? true : (k.AccountsTransactionsJobNo == accountStatementParameters.rptJob))
+                             && (accountStatementParameters.rptCostCenter == -1 ? true : (k.AccountsTransactionsCostCenterId == accountStatementParameters.rptCostCenter))
+                             //&& (accountStatementParameters.rptAsOnDate == false ? true : k.AccountsTransactionsTransDate.Date <= accountStatementParameters.rptDtpAson.Value.Date)
+                             && (accountStatementParameters.rptDateRange == false ? true : (k.AccountsTransactionsTransDate.Date < accountStatementParameters.rptDtpFrom.Value.Date))
+                             && (accountStatementParameters.rptNarration.Trim() == "" ? true : (k.AccountsTransactionsOpposEntryDesc.Trim() == accountStatementParameters.rptNarration.Trim()))
+                             && (accountStatementParameters.rptDescription.Trim() == "" ? true : (k.AccountsTransactionsDescription.Trim() == accountStatementParameters.rptDescription.Trim()))
+                             && (k.AccountstransactionsDelStatus == false || k.AccountstransactionsDelStatus == null)
+                             && (voucherTypes.Count > 0 ? voucherTypes.Contains(k.AccountsTransactionsVoucherType) : true)
+
+                             )).Select(c =>
+                             new { difference = c.AccountsTransactionsDebit - c.AccountsTransactionsCredit }))
+                                   .Sum(b => b.difference);
+                if (accountStatementParameters.rptDateRange == true)
+                {
+                    if (accountStatementParameters.rptHideOpeningBalance == false)
+                    {
+                        decimal dblOpeningBalCredit = 0;
+                        decimal dblOpeningBalDebit = 0;
+                        if (DiffCreditDebit < 0)
+                        {
+                            dblOpeningBalCredit = DiffCreditDebit * -1;
+                        }
+                        else
+                        {
+
+                            dblOpeningBalDebit = DiffCreditDebit;
+                        }
+                        ReportAccountsTransactions OB_ReportAccountsTransactions = new ReportAccountsTransactions
+                        {
+                            AccName = null,
+                            AccGroupNo = null,
+                            AccGroup = null,
+                            LocationMasterLocationName = null,
+                            JobMasterJobName = null,
+                            CostCenterMasterCostCenterName = null,
+                            CurrencyMasterCurrencyName = null,
+                            AccountsTransactionsTransSno = 0,
+                            AccountsTransactionsAccNo = null,
+                            AccountsTransactionsTransDate = accountStatementParameters.rptDtpFrom.Value.Date,
+                            AccountsTransactionsParticulars = "OPENING BALANCE",
+                            AccountsTransactionsDebit = dblOpeningBalDebit,
+                            AccountsTransactionsCredit = dblOpeningBalCredit,
+                            AccountsTransactionsFcDebit = null,
+                            AccountsTransactionsFcCredit = null,
+                            AccountsTransactionsVoucherType = null,
+                            AccountsTransactionsVoucherNo = null,
+                            AccountsTransactionsDescription = null,
+                            AccountsTransactionsUserId = 0,
+                            AccountsTransactionsStatus = null,
+                            AccountsTransactionsTstamp = DateTime.Now,
+                            RefNo = null,
+                            AccountsTransactionsFsno = 0,
+                            AccountsTransactionsAllocDebit = null,
+                            AccountsTransactionsAllocCredit = null,
+                            AccountsTransactionsAllocBalance = null,
+                            AccountsTransactionsFcAllocDebit = null,
+                            AccountsTransactionsFcAllocCredit = null,
+                            AccountsTransactionsFcAllocBalance = null,
+                            AccountsTransactionsLocation = null,
+                            AccountsTransactionsJobNo = null,
+                            AccountsTransactionsCostCenterId = null,
+                            AccountsTransactionsApprovalDt = null,
+                            AccountsTransactionsDepartment = null,
+                            AccountsTransactionsFcRate = null,
+                            AccountsTransactionsCompanyId = null,
+                            AccountsTransactionsCurrencyId = null,
+                            AccountsTransactionsDrGram = null,
+                            AccountsTransactionsCrGram = null,
+                            AccountsTransactionsCheqNo = null,
+                            AccountsTransactionsLpoNo = null,
+                            AccountsTransactionsCheqDate = null,
+                            AccountsTransactionsOpposEntryDesc = null,
+                            AccountsTransactionsAllocUpdateBal = null,
+                            AccountsTransactionsDeptId = null,
+                            AccountsTransactionsVatno = null,
+                            AccountsTransactionsVatableAmount = null,
+                            AccountstransactionsDelStatus = null,
+                            DepartmentMasterDepartmentName = null,
+                        };
+                        reportAccountsTransactions_ALL.Insert(0, OB_ReportAccountsTransactions);
+                        reportAccountsTransactions_ALL.Insert(1, Summ_ReportAccountsTransactions);
+                        PrintReport_TempTableEntry(accountStatementParameters, reportAccountsTransactions_ALL);
+                        return reportAccountsTransactions_ALL;
+                    }
+                }
+                reportAccountsTransactions_ALL.Insert(0, Summ_ReportAccountsTransactions);
+                PrintReport_TempTableEntry(accountStatementParameters, reportAccountsTransactions_ALL);
+                return reportAccountsTransactions_ALL;
+            }
+        }
+        public List<ReportAccountsTransactions> CustomerStattemnetbySummery(AccountStatementParameters accountStatementParameters)
+        {
+            var voucherTypes = accountStatementParameters.ViewAccountsTransactionsVoucherType.Select((k) =>
+            {
+                return k;
+            }).ToList();
+
+
+            if (accountStatementParameters.rptDetails == true)
+            {
+                List<ReportAccountsTransactions> reportAccountsTransactions_ALL = _reportAccountsTransactionsRepository.GetAsQueryable().Where(k =>
+                     ((k.AccountsTransactionsAccNo == accountStatementParameters.rptAccount)
+                    && (accountStatementParameters.rptLocation == -1 ? true : (k.AccountsTransactionsLocation == accountStatementParameters.rptLocation))
+                    && (accountStatementParameters.rptJob == -1 ? true : (k.AccountsTransactionsJobNo == accountStatementParameters.rptJob))
+                    && (accountStatementParameters.rptCostCenter == -1 ? true : (k.AccountsTransactionsCostCenterId == accountStatementParameters.rptCostCenter))
+                    && (accountStatementParameters.rptAsOnDate == false ? true : k.AccountsTransactionsTransDate.Date <= accountStatementParameters.rptDtpAson.Value.Date)
+                   && (accountStatementParameters.rptDateRange == false ? true : (k.AccountsTransactionsTransDate.Date >= accountStatementParameters.rptDtpFrom.Value.Date)
+                   && (k.AccountsTransactionsTransDate.Date <= accountStatementParameters.rptDtpTo.Value.Date))
+                   && (accountStatementParameters.rptNarration.Trim() == "" ? true : (k.AccountsTransactionsOpposEntryDesc.Trim() == accountStatementParameters.rptNarration.Trim()))
+                   && (accountStatementParameters.rptDescription.Trim() == "" ? true : (k.AccountsTransactionsDescription.Trim() == accountStatementParameters.rptDescription.Trim()))
+                   && (k.AccountstransactionsDelStatus == false || k.AccountstransactionsDelStatus == null)
+                    && (voucherTypes.Count > 0 ? voucherTypes.Contains(k.AccountsTransactionsVoucherType.Trim()) : true)
+                    )).OrderBy(x => x.AccountsTransactionsTransDate).AsEnumerable().ToList();
+
+                if (accountStatementParameters.rptDateRange == true)
+                {
+                    if (accountStatementParameters.rptHideOpeningBalance == false)
+                    {
+                        var DiffCreditDebit = (_reportAccountsTransactionsRepository.GetAsQueryable().Where(k =>
+                              ((k.AccountsTransactionsAccNo == accountStatementParameters.rptAccount)
+                              && (accountStatementParameters.rptLocation == -1 ? true : (k.AccountsTransactionsLocation == accountStatementParameters.rptLocation))
+                              && (accountStatementParameters.rptJob == -1 ? true : (k.AccountsTransactionsJobNo == accountStatementParameters.rptJob))
+                              && (accountStatementParameters.rptCostCenter == -1 ? true : (k.AccountsTransactionsCostCenterId == accountStatementParameters.rptCostCenter))
+                              //&& (accountStatementParameters.rptAsOnDate == false ? true : k.AccountsTransactionsTransDate.Date <= accountStatementParameters.rptDtpAson.Value.Date)
+                              && (accountStatementParameters.rptDateRange == false ? true : (k.AccountsTransactionsTransDate.Date < accountStatementParameters.rptDtpFrom.Value.Date))
+                              && (accountStatementParameters.rptNarration.Trim() == "" ? true : (k.AccountsTransactionsOpposEntryDesc.Trim() == accountStatementParameters.rptNarration.Trim()))
+                              && (accountStatementParameters.rptDescription.Trim() == "" ? true : (k.AccountsTransactionsDescription.Trim() == accountStatementParameters.rptDescription.Trim()))
+                              && (k.AccountstransactionsDelStatus == false || k.AccountstransactionsDelStatus == null)
+                              && (voucherTypes.Count > 0 ? voucherTypes.Contains(k.AccountsTransactionsVoucherType) : true)
+                              )).Select(c =>
+                              new { difference = c.AccountsTransactionsDebit - c.AccountsTransactionsCredit }))
+                                    .Sum(b => b.difference);
+                        decimal dblOpeningBalCredit = 0;
+                        decimal dblOpeningBalDebit = 0;
+                        if (DiffCreditDebit < 0)
+                        {
+                            dblOpeningBalCredit = DiffCreditDebit;
+                        }
+                        else
+                        {
+                            dblOpeningBalDebit = DiffCreditDebit;
+                        }
+                        ReportAccountsTransactions OB_ReportAccountsTransactions = new ReportAccountsTransactions
+                        {
+                            AccName = null,
+                            AccGroupNo = null,
+                            AccGroup = null,
+                            LocationMasterLocationName = null,
+                            JobMasterJobName = null,
+                            CostCenterMasterCostCenterName = null,
+                            CurrencyMasterCurrencyName = null,
+                            AccountsTransactionsTransSno = 0,
+                            AccountsTransactionsAccNo = null,
+                            AccountsTransactionsTransDate = accountStatementParameters.rptDtpFrom.Value.Date,
+                            AccountsTransactionsParticulars = null,
+                            AccountsTransactionsDebit = dblOpeningBalDebit,
+                            AccountsTransactionsCredit = dblOpeningBalCredit,
+                            AccountsTransactionsFcDebit = null,
+                            AccountsTransactionsFcCredit = null,
+                            AccountsTransactionsVoucherType = "OPENING BALANCE",
+                            AccountsTransactionsVoucherNo = null,
+                            AccountsTransactionsDescription = null,
+                            AccountsTransactionsUserId = 0,
+                            AccountsTransactionsStatus = null,
+                            AccountsTransactionsTstamp = DateTime.Now,
+                            RefNo = null,
+                            AccountsTransactionsFsno = 0,
+                            AccountsTransactionsAllocDebit = null,
+                            AccountsTransactionsAllocCredit = null,
+                            AccountsTransactionsAllocBalance = null,
+                            AccountsTransactionsFcAllocDebit = null,
+                            AccountsTransactionsFcAllocCredit = null,
+                            AccountsTransactionsFcAllocBalance = null,
+                            AccountsTransactionsLocation = null,
+                            AccountsTransactionsJobNo = null,
+                            AccountsTransactionsCostCenterId = null,
+                            AccountsTransactionsApprovalDt = null,
+                            AccountsTransactionsDepartment = null,
+                            AccountsTransactionsFcRate = null,
+                            AccountsTransactionsCompanyId = null,
+                            AccountsTransactionsCurrencyId = null,
+                            AccountsTransactionsDrGram = null,
+                            AccountsTransactionsCrGram = null,
+                            AccountsTransactionsCheqNo = null,
+                            AccountsTransactionsLpoNo = null,
+                            AccountsTransactionsCheqDate = null,
+                            AccountsTransactionsOpposEntryDesc = null,
+                            AccountsTransactionsAllocUpdateBal = null,
+                            AccountsTransactionsDeptId = null,
+                            AccountsTransactionsVatno = null,
+                            AccountsTransactionsVatableAmount = null,
+                            AccountstransactionsDelStatus = null,
+                            DepartmentMasterDepartmentName = null,
+                        };
+                        reportAccountsTransactions_ALL.Insert(0, OB_ReportAccountsTransactions);
+                    }
+                }
+                PrintReport_TempTableEntry(accountStatementParameters, reportAccountsTransactions_ALL);
+                return reportAccountsTransactions_ALL;
+            }
+            else
+            {
+                List<ReportAccountsTransactions> reportAccountsTransactions_ALL = new List<ReportAccountsTransactions>();
+                DateTime StartDate;
+                string date_Range;
+
+                if (accountStatementParameters.rptAsOnDate == true)
+                {
+                    StartDate = accountStatementParameters.rptDtpAson.Value.Date;
+                    date_Range = "As On" + StartDate.ToString("dd/MM/yyyy HH:mm:ss");
+                }
+                else
+                {
+                    if (accountStatementParameters.rptDateRange == true)
+                    {
+                        StartDate = accountStatementParameters.rptDtpFrom.Value.Date;
+                        date_Range = " From " + StartDate.ToString("dd/MMM/yyyy") + " To " + accountStatementParameters.rptDtpTo.Value.Date.ToString("dd/MMM/yyyy");
+                    }
+                }
+                var Debit = (_reportAccountsTransactionsRepository.GetAsQueryable().Where(k =>
+                           ((k.AccountsTransactionsAccNo == accountStatementParameters.rptAccount)
+                       && (accountStatementParameters.rptLocation == -1 ? true : (k.AccountsTransactionsLocation == accountStatementParameters.rptLocation))
+                       && (accountStatementParameters.rptJob == -1 ? true : (k.AccountsTransactionsJobNo == accountStatementParameters.rptJob))
+                       && (accountStatementParameters.rptCostCenter == -1 ? true : (k.AccountsTransactionsCostCenterId == accountStatementParameters.rptCostCenter))
+                       && (accountStatementParameters.rptAsOnDate == false ? true : k.AccountsTransactionsTransDate.Date <= accountStatementParameters.rptDtpAson.Value.Date)
+                       && (accountStatementParameters.rptDateRange == false ? true : (k.AccountsTransactionsTransDate.Date >= accountStatementParameters.rptDtpFrom.Value.Date)
+                            && (k.AccountsTransactionsTransDate.Date <= accountStatementParameters.rptDtpTo.Value.Date))
+                       && (accountStatementParameters.rptNarration.Trim() == "" ? true : (k.AccountsTransactionsOpposEntryDesc.Trim() == accountStatementParameters.rptNarration.Trim()))
+                       && (accountStatementParameters.rptDescription.Trim() == "" ? true : (k.AccountsTransactionsDescription.Trim() == accountStatementParameters.rptDescription.Trim()))
+                            && (k.AccountstransactionsDelStatus == false || k.AccountstransactionsDelStatus == null)
+                            && (voucherTypes.Count > 0 ? voucherTypes.Contains(k.AccountsTransactionsVoucherType) : true)
+                            )).Select(c =>
+                            new { difference = c.AccountsTransactionsDebit }))
+                                  .Sum(b => b.difference);
+
+                var Credit = (_reportAccountsTransactionsRepository.GetAsQueryable().Where(k =>
+                           ((k.AccountsTransactionsAccNo == accountStatementParameters.rptAccount)
+                      && (accountStatementParameters.rptLocation == -1 ? true : (k.AccountsTransactionsLocation == accountStatementParameters.rptLocation))
+                      && (accountStatementParameters.rptJob == -1 ? true : (k.AccountsTransactionsJobNo == accountStatementParameters.rptJob))
+                      && (accountStatementParameters.rptCostCenter == -1 ? true : (k.AccountsTransactionsCostCenterId == accountStatementParameters.rptCostCenter))
+                      && (accountStatementParameters.rptAsOnDate == false ? true : k.AccountsTransactionsTransDate.Date <= accountStatementParameters.rptDtpAson.Value.Date)
+                      && (accountStatementParameters.rptDateRange == false ? true : (k.AccountsTransactionsTransDate.Date >= accountStatementParameters.rptDtpFrom.Value.Date)
+                           && (k.AccountsTransactionsTransDate.Date <= accountStatementParameters.rptDtpTo.Value.Date))
+                      && (accountStatementParameters.rptNarration.Trim() == "" ? true : (k.AccountsTransactionsOpposEntryDesc.Trim() == accountStatementParameters.rptNarration.Trim()))
+                      && (accountStatementParameters.rptDescription.Trim() == "" ? true : (k.AccountsTransactionsDescription.Trim() == accountStatementParameters.rptDescription.Trim()))
+                           && (k.AccountstransactionsDelStatus == false || k.AccountstransactionsDelStatus == null)
+                           && (voucherTypes.Count > 0 ? voucherTypes.Contains(k.AccountsTransactionsVoucherType) : true)
+                           )).Select(c =>
+                           new { difference = c.AccountsTransactionsCredit }))
+                                 .Sum(b => b.difference);
+
+                ReportAccountsTransactions Summ_ReportAccountsTransactions = new ReportAccountsTransactions
+                {
+                    AccName = null,
+                    AccGroupNo = null,
+                    AccGroup = null,
+                    LocationMasterLocationName = null,
+                    JobMasterJobName = null,
+                    CostCenterMasterCostCenterName = null,
+                    CurrencyMasterCurrencyName = null,
+                    AccountsTransactionsTransSno = 0,
+                    AccountsTransactionsAccNo = null,
+                    AccountsTransactionsTransDate = DateTime.Now,
+                    AccountsTransactionsParticulars = null,
+                    //AccountsTransactionsTransDate = StartDate.Date,
+                    //AccountsTransactionsParticulars = date_Range,
                     AccountsTransactionsDebit = Debit,
                     AccountsTransactionsCredit = Credit,
                     AccountsTransactionsFcDebit = null,

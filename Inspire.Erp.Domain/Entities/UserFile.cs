@@ -30,9 +30,7 @@ namespace Inspire.Erp.Domain.Entities
         public int? FinancialPeriodsFsno { get; set; }
         public int? Loginfailure { get; set; }
         public DateTime? PasswordUpdateDate { get; set; }
-       
-
-        
+        public string? emailId { get; set; }
     }
 
     [NotMapped]
