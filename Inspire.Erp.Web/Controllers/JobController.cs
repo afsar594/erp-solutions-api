@@ -19,6 +19,7 @@ using Inspire.Erp.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NPOI.SS.Formula.Functions;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -368,6 +369,23 @@ namespace Inspire.Erp.Web.Controllers
                 return StatusCode(500, ex.Message.ToString());
             }
         }
+        [HttpGet]
+        [Route("GetJobDocumentstById")]
+        public IActionResult GetJobDocumentstById(int jobDocumentJobId,int jobDocumentId)
+        {
+            try
+            {
+                var item = jobMasterService.GetJobDocumentstById(jobDocumentJobId, jobDocumentId);
+                return Ok(item);
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
+        }
+
+        
+
         [HttpGet]
         [Route("DeleteJobDocument")]
         public IActionResult DeleteJobDocument(int Id)

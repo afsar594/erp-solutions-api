@@ -413,6 +413,12 @@ namespace Inspire.Erp.Application.Master
             }
             return null;
         }
+
+       public IEnumerable<JobDocuments> GetJobDocumentstById(int jobDocumentJobId, int jobDocumentId)
+       {            
+            var Jobdoc = _jobDocumentsRepository.GetAsQueryable().AsNoTracking().Where(a => a.JobDocumentJobId == jobDocumentJobId && a.JobDocumentId == jobDocumentId).ToList();
+            return Jobdoc;
+        }
         public void SaveJobDocument(JobDocuments jobDocumnet)
         {
             _jobDocumentsRepository.Insert(jobDocumnet);
