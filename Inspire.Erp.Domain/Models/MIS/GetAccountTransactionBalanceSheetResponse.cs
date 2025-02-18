@@ -6,6 +6,7 @@ namespace Inspire.Erp.Domain.Modals.MIS
 {
    public class GetAccountTransactionBalanceSheetResponse
     {
+
         public string MasterAccountsTableHead { get; set; }
         public string MasterAccountsTableMainHead { get; set; }
         public string MasterAccountsTableSubHead { get; set; }
