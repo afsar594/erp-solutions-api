@@ -137,18 +137,32 @@ namespace Inspire.Erp.Web.Controllers
         public ApiResponse<JobMaster> UpdateJob([FromBody] JobMasterViewModel jobMaster)
         {
 
+            //ApiResponse<JobMaster> apiResponse = new ApiResponse<JobMaster>();
+            //var param1 = _mapper.Map<JobMaster>(jobMaster);
+            //var param2 = _mapper.Map<List<JobMasterBudgetDetails>>(jobMaster.JobMasterBudgetDetails);
+            //var param3 = _mapper.Map<List<JobMasterJobDetails>>(jobMaster.JobMasterJobDetails);
+            //var param4 = _mapper.Map<List<JobMasterJobWiseBankGuarantees>>(jobMaster.JobMasterJobWiseBankGuarantees);
+
+            //var xs = jobMasterService.UpdateJobMaster(param1, param2, param3, param4);
             ApiResponse<JobMaster> apiResponse = new ApiResponse<JobMaster>();
             var param1 = _mapper.Map<JobMaster>(jobMaster);
             var param2 = _mapper.Map<List<JobMasterBudgetDetails>>(jobMaster.JobMasterBudgetDetails);
             var param3 = _mapper.Map<List<JobMasterJobDetails>>(jobMaster.JobMasterJobDetails);
             var param4 = _mapper.Map<List<JobMasterJobWiseBankGuarantees>>(jobMaster.JobMasterJobWiseBankGuarantees);
-
-            var xs = jobMasterService.UpdateJobMaster(param1, param2, param3, param4);
+            var param5 = _mapper.Map<List<JobStaff>>(jobMaster.JobStaff);
+            var param6 = _mapper.Map<List<JobEquipment>>(jobMaster.JobEquipment);
+            var param7 = _mapper.Map<List<JobExcutionDetails>>(jobMaster.JobExcutionDetails);
+            var param8 = _mapper.Map<List<JobTimesheetDesc>>(jobMaster.JobTimesheetDesc);
+            var param9 = _mapper.Map<List<JobTimeSheetEquip>>(jobMaster.JobTimeSheetEquip);
+            var param10 = _mapper.Map<List<JobTimesheetMaster>>(jobMaster.JobTimesheetMaster);
+            var param11 = _mapper.Map<List<JobTimeSheetStaff>>(jobMaster.JobTimeSheetStaff);
+            var param12 = _mapper.Map<List<JobfilesStatus>>(jobMaster.JobfilesStatus);
+            var respone = jobMasterService.UpdateJobMaster(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12);
 
             apiResponse = new ApiResponse<JobMaster>
             {
                 Valid = true,
-                Result = xs,
+                Result = respone,
                 Message = "Updated"
             };
             return apiResponse;

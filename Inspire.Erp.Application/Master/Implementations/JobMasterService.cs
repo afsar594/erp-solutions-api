@@ -219,20 +219,132 @@ namespace Inspire.Erp.Application.Master
                 throw ex;
             }
         }
-        public JobMaster UpdateJobMaster(JobMaster jobMaster, List<JobMasterBudgetDetails> jobMasterBudgetDetails, List<JobMasterJobDetails> jobMasterJobDetails, List<JobMasterJobWiseBankGuarantees> jobMasterJobWiseBankGuarantees)
+        //public JobMaster UpdateJobMaster(JobMaster jobMaster, List<JobMasterBudgetDetails> jobMasterBudgetDetails, List<JobMasterJobDetails> jobMasterJobDetails, List<JobMasterJobWiseBankGuarantees> jobMasterJobWiseBankGuarantees)
+        //{
+        //    try
+        //    {
+
+        //        jobrepository.Update(jobMaster);
+
+
+        //        return this.GetSavedJobMasterDetails(jobMaster.JobMasterJobNo);
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw;
+        //    }
+        //}
+        public JobMaster UpdateJobMaster(JobMaster jobMaster, List<JobMasterBudgetDetails> jobMasterBudgetDetails, List<JobMasterJobDetails> jobMasterJobDetails, List<JobMasterJobWiseBankGuarantees> jobMasterJobWiseBankGuarantees, List<JobStaff> jobStaff, List<JobEquipment> jobEquipment, List<JobExcutionDetails> jobExcutionDetails, List<JobTimesheetDesc> JobTimesheetDesc, List<JobTimeSheetEquip> JobTimeSheetEquip, List<JobTimesheetMaster> JobTimesheetMaster, List<JobTimeSheetStaff> JobTimeSheetStaff, List<JobfilesStatus> JobfilesStatus)
         {
             try
             {
+                int jobId = 0;
+                jobrepository.BeginTransaction();
+                jobId = jobMaster.JobMasterJobId;
 
+                string vNumber = jobMaster.JobMasterJobNo;
+
+                jobMaster.JobMasterBudgetDetails.Select((x) =>
+                {
+                    x.JobMasterBudgetDetailsJobId = jobId;
+                    x.JobMasterNo = vNumber;
+                    return x;
+                }).OrderBy(x => x.JobMasterNo).AsEnumerable().ToList();
+
+                jobMaster.JobMasterJobDetails.Select((x) =>
+                {
+                    x.JobMasterJobDetailsJobId = jobId;
+                    x.JobMasterNo = vNumber;
+                    return x;
+                }).OrderBy(x => x.JobMasterNo).AsEnumerable().ToList();
+
+                jobMaster.JobMasterJobWiseBankGuarantees.Select((x) =>
+                {
+                    x.JobMasterJobWiseBankGuaranteesJobId = jobId;
+                    x.JobMasterNo = vNumber;
+                    return x;
+                }).OrderBy(x => x.JobMasterNo).AsEnumerable().ToList();
+
+                // job staff , equipment and execution related updation
+                jobMaster.JobStaff.Select((x) =>
+                {
+                    x.JobMasterJobId = jobId;
+                    return x;
+                }).OrderBy(x => x.JobMasterJobId).AsEnumerable().ToList();
+
+                jobMaster.JobEquipment.Select((x) =>
+                {
+                    x.JobMasterJobId = jobId;
+                    return x;
+                }).OrderBy(x => x.JobMasterJobId).AsEnumerable().ToList();
+                jobMaster.JobExcutionDetails.Select((x) =>
+                {
+                    x.JobMasterJobId = jobId;
+                    return x;
+                }).OrderBy(x => x.JobMasterJobId).AsEnumerable().ToList();
+                /// end 
+                /// 
+                jobMaster.JobTimesheetDesc.Select((x) =>
+                {
+                    x.JobId = jobId;
+                    return x;
+                }).OrderBy(x => x.JobId).AsEnumerable().ToList();
+
+                jobMaster.JobTimeSheetEquip.Select((x) =>
+                {
+                    x.JobId = jobId;
+                    return x;
+                }).OrderBy(x => x.JobId).AsEnumerable().ToList();
+                jobMaster.JobTimesheetMaster.Select((x) =>
+                {
+                    x.JobId = jobId;
+                    return x;
+                }).OrderBy(x => x.JobId).AsEnumerable().ToList();
+                jobMaster.JobTimeSheetStaff.Select((x) =>
+                {
+                    x.JobId = jobId;
+                    return x;
+                }).OrderBy(x => x.JobId).AsEnumerable().ToList();
+
+                jobMaster.JobfilesStatus.Select((x) =>
+                {
+                    x.JobMasterJobId = jobId;
+                    return x;
+                }).OrderBy(x => x.JobMasterJobId).AsEnumerable().ToList();
+
+                // job file 
+                //jobMaster.JobfilesStatus.Select((x) =>
+                //{
+                //    x.JobMasterJobId = jobId;
+                //    x.job_filename = jobMaster.JobfilesStatus[0].job_filename;
+                //    x.job_fileStatus = jobMaster.JobfilesStatus[0].job_fileStatus;
+                //    x.job_IsDeleted = false;
+                //    return x;
+                //});
+                //_JobfilesStatus.GetAsQueryable().Where(e => e.JobMasterJobId == jobId).ToList();
+                //jobMaster.JobfilesStatus.Select((x) =>
+                //{
+                //    x.JobMasterJobId = jobId;
+                //    x.job_filename = jobMaster.JobfilesStatus[0].job_filename;
+                //    x.job_fileStatus = jobMaster.JobfilesStatus[0].job_fileStatus;
+                //    x.job_IsDeleted = false;
+                //    return x;
+                //});
+                
                 jobrepository.Update(jobMaster);
+                jobrepository.TransactionCommit();
+
                 return this.GetSavedJobMasterDetails(jobMaster.JobMasterJobNo);
 
             }
             catch (Exception ex)
             {
-                throw;
+                jobrepository.TransactionRollback();
+                throw ex;
             }
         }
+
         public JobMaster GetSavedJobMasterDetails(string jbno)
         {
             JobMaster jobMasterData = new JobMaster();
