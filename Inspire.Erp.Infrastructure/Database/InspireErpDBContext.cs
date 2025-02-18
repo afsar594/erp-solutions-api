@@ -533,13 +533,19 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<JobfilesStatus>(e =>
             {
-                e.HasKey(e => e.job_id);
+                e.HasKey(e => e.Id);
                 //e.HasNoKey();
                 e.ToTable("job_files_Status");
-                //e.Property(e => e.job_id).HasColumnName("job_id");
+                e.Property(e => e.JobMasterJobId).HasColumnName("Job_id");
                 e.Property(e => e.job_filename).HasColumnName("job_filename");
                 e.Property(e => e.job_fileStatus).HasColumnName("job_fileStatus");
                 e.Property(e => e.job_IsDeleted).HasColumnName("job_IsDeleted");
+
+                e.HasOne(d => d.JobMasterJobJob)
+                 .WithMany(p => p.JobfilesStatus)
+                 .HasForeignKey(d => d.JobMasterJobId)
+                 .HasConstraintName("FK_Job_file_Status1");
+
             });
 
             modelBuilder.Entity<HrDocumentType>(entity =>
@@ -8688,7 +8694,8 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.HasKey(e => e.Id);
                 entity.ToTable("tblJobPEExcDtl");
                 entity.Property(e => e.JobMasterJobId).HasColumnName("Job_ID");
-                entity.Property(e => e.JobMasterExecDate).HasColumnName("Exec_Date");
+                entity.Property(e => e.JobMasterExecDate).HasColumnName("Exec_Date")
+                      .HasMaxLength(500);
                 entity.Property(e => e.JobMasterExecDescription).HasColumnName("Exec_Description")
                       .HasMaxLength(500)
                       .IsRequired(false);

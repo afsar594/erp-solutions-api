@@ -62,7 +62,7 @@ namespace Inspire.Erp.Application.Sales.Implementation
                 {
                     ProformaInvoice = o,
                     ProformaInvoiceDetails = detailList.Where(a => a.ProformaInvoiceDetailsSlNo == o.ProformaInvoiceId).ToList()
-                }).OrderBy(x => x.ProformaInvoice).AsEnumerable().ToList();
+                });
                 return repository.GetAll();
             }
             catch (Exception ex)

@@ -199,13 +199,13 @@ namespace Inspire.Erp.Application.Master
                 jobMaster.JobfilesStatus.Select((x) =>
                 {
                     //x.job_id = jobMaster.JobfilesStatus[0].job_id;
-                    x.job_id = jobId;
+                    x.JobMasterJobId = jobId;
                     x.job_filename = jobMaster.JobfilesStatus[0].job_filename;
                     x.job_fileStatus = jobMaster.JobfilesStatus[0].job_fileStatus;
                     x.job_IsDeleted = false;
                     return  x;
                 });
-                _JobfilesStatus.InsertList(jobMaster.JobfilesStatus);
+              //  _JobfilesStatus.InsertList(jobMaster.JobfilesStatus);
                 // end
                 jobrepository.Insert(jobMaster);
                 jobrepository.TransactionCommit();
@@ -294,7 +294,7 @@ namespace Inspire.Erp.Application.Master
                 jobMasterData.JobTimesheetMaster = _jobTimesheetMaster.GetAsQueryable().AsNoTracking().Where(a => a.JobId == jobMasterData.JobMasterJobId).ToList();
                 jobMasterData.JobTimeSheetEquip = _jobTimeSheetEquip.GetAsQueryable().AsNoTracking().Where(a => a.JobId == jobMasterData.JobMasterJobId).OrderBy(x => x.JobMasterJobJob).ToList();
                 jobMasterData.JobTimesheetDesc = _jobTimesheetDesc.GetAsQueryable().AsNoTracking().Where(a => a.JobId == jobMasterData.JobMasterJobId).ToList();
-                jobMasterData.JobfilesStatus = _JobfilesStatus.GetAsQueryable().AsNoTracking().Where(a => a.job_id == jobMasterData.JobMasterJobId).ToList();
+                jobMasterData.JobfilesStatus = _JobfilesStatus.GetAsQueryable().AsNoTracking().Where(a => a.JobMasterJobId == jobMasterData.JobMasterJobId).ToList();
                 return jobMasterData;
 
                
@@ -310,7 +310,7 @@ namespace Inspire.Erp.Application.Master
 
             JobfilesStatus.job_filename = JobfilesStatus.job_filename;
             JobfilesStatus.job_fileStatus = false;
-            JobfilesStatus.job_id = JobfilesStatus.job_id;
+            JobfilesStatus.JobMasterJobId = JobfilesStatus.JobMasterJobId;
             _JobfilesStatus.Insert(JobfilesStatus);
         }
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
