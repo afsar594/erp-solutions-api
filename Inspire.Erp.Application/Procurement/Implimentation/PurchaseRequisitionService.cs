@@ -492,7 +492,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             {
                 throw ex;
             }
-
         }
         public VouchersNumbers GetVouchersNumbers(string pvno)
         {
@@ -506,9 +505,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 _logger.LogError(ex.Message);
                 throw ex;
             }
-
-        }
-       
+        }       
         public async Task<Response<List<PurChaseRequisitionStatus>>> GetPurchaseRequisitionStatus(PurChaseRequisitionStatusFilterReport model)
         {
             List<PurChaseRequisitionStatus> data = new List<PurChaseRequisitionStatus>();
@@ -759,27 +756,43 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             var obj = new ResponseInfo();
             try
             {
+               var budgetQuery = from b in _budgetDetailsrepository.GetAsQueryable()
+                                  where b.JobMasterBudgetDetailsJobId == JobId
+                                  group b by b.JobMasterBudgetDetailsJobId into g
+                                  select new
+                                  {
+                                      JobId = g.Key,
+                                      TotalBudget = g.Sum(x => x.JobMasterBudgetDetailsBudAmount)
+                                  };
 
-                var data =
-                   (from jmb in _budgetDetailsrepository.GetAsQueryable()
-                    join pr in _purchaseRequisitionRepository.GetAsQueryable()
-                    on jmb.JobMasterBudgetDetailsJobId equals pr.PurchaseRequisitionJobId into prGroup
-                    from pr in prGroup.DefaultIfEmpty()
-                    where jmb.JobMasterBudgetDetailsJobId == JobId
-                    select (jmb.JobMasterBudgetDetailsBudAmount ?? 0) - (pr.PurchaseRequisitionNetAmount ?? 0))
-                   .Sum();
+                var requisitionQuery = from r in _purchaseRequisitionRepository.GetAsQueryable()
+                                       where r.PurchaseRequisitionJobId == JobId
+                                       group r by r.PurchaseRequisitionJobId into g
+                                       select new
+                                       {
+                                           JobId = g.Key,
+                                           TotalPurchaseRequisition = g.Sum(x => x.PurchaseRequisitionNetAmount)
+                                       };
 
-                obj.ResultSet = data;
+                var result = from b in budgetQuery
+                             join r in requisitionQuery on b.JobId equals r.JobId into br
+                             from r in br.DefaultIfEmpty()
+                             select new
+                             {
+                                 BalanceAmount = (b.TotalBudget ?? 0) - (r.TotalPurchaseRequisition ?? 0)
+                             };
+
+                var balanceAmount = result.FirstOrDefault();
+
+
+                obj.ResultSet = balanceAmount;
                 obj.IsSuccess = true;
             }
             catch (Exception ex)
             {
                 obj.IsSuccess = false;
             }
-
-
             return obj;
-
         }
     }
 }
