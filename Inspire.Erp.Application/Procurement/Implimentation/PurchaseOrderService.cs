@@ -622,7 +622,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                     join pod in _purchaseOrderDetailsRepository.GetAsQueryable() on po.PurchaseOrderId equals pod.PurchaseOrderId
                                     join sm in _suppliersMasterRepository.GetAsQueryable() on po.PurchaseOrderPartyId equals sm.SuppliersMasterSupplierId
                                     join im in _itemMasterRepository.GetAsQueryable() on (long)pod.PurchaseOrderDetailsMatId equals im.ItemMasterItemId
-                                    where (supplierId == null || supplierId == 0 || sm.SuppliersMasterSupplierId == supplierId) && per.Status == "Approved"
+                                    //where (supplierId == null || supplierId == 0 || sm.SuppliersMasterSupplierId == supplierId) && per.Status == "Approved"
+                                    where (supplierId == null || supplierId == 0 || sm.SuppliersMasterSupplierId == supplierId) && _permissionApprovalDetailRepo.GetAsQueryable().Where(p => p.VoucherNo == po.PurchaseOrderNo)
+                                   .Any(p => p.Status == "Approved" && p.Status != "Rejected")
                                     group new { po, pod, sm, im } by new
                                     {
                                         pod.PurchaseOrderDetailsId,
