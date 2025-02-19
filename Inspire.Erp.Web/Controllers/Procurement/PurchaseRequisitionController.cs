@@ -411,6 +411,14 @@ namespace Inspire.Erp.Web.Controllers
             };
             return Ok(apiResponse);
         }
+        [HttpGet]
+        [Route("GetBalanceAmount")]
+        public ResponseInfo GetBalanceAmount(int jobId)
+        {
+            var obj = new ResponseInfo();
+            obj = _purchaseRequisitionService.GetBalanceAmount(jobId);
+            return obj;
+        }
     }
 
 }

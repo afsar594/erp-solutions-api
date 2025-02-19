@@ -38,6 +38,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private IRepository<AvIssueVoucherDetails> _AvIssueVoucherDetails;
         private IRepository<AvIssueVoucher> _AvIssueVoucher; private IRepository<PermissionApprovalDetail> _permissionApprovalDetailRepo;
         private IRepository<JobMaster> jobrepository;
+        private IRepository<JobMasterBudgetDetails> _budgetDetailsrepository;
+        
         private IRepository<LocationMaster> locationrepository; private IRepository<BillOfQTyDetails> _BillOfQTyDetailsRepository;
         private IRepository<TrackingRegister> _trackingRegisterRepository; private IRepository<ItemMaster> _itemMasterRepository; private IRepository<UnitMaster> _unitMasterRepository; private IRepository<SuppliersMaster> _suppliersMasterRepository; private IRepository<LocationMaster> _locationMasterRepository;
 
@@ -47,7 +49,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
             IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger, IRepository<JobMaster> _jobrepository, IRepository<BillOfQTyDetails> BillOfQTyDetailsRepository,
              IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo,
-        IRepository<PurchaseRequisition> purchaseRequisitionRepository, InspireErpDBContext context, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository)
+        IRepository<PurchaseRequisition> purchaseRequisitionRepository, InspireErpDBContext context, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository, IRepository<JobMasterBudgetDetails> budgetDetailsrepository)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository; _context = context;
@@ -55,6 +57,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             this._purchaseRequisitionDetailsRepository = purchaseRequisitionDetailsRepository; _BillOfQTyDetailsRepository = BillOfQTyDetailsRepository;
             _programsettingsRepository = programsettingsRepository; _voucherNumbersRepository = voucherNumbers; _approvalDetailRepo = approvalDetailRepo; _permissionApprovalRepo = permissionApprovalRepo; _approvalRepo = approvalRepo; locationrepository = _locationrepository;
             jobrepository = _jobrepository; _itemMasterRepository = itemMasterRepository; _unitMasterRepository = unitMasterRepository; _suppliersMasterRepository = suppliersMasterRepository; _locationMasterRepository = locationMasterRepository; _trackingRegisterRepository = trackingRegisterRepository;
+            _budgetDetailsrepository = budgetDetailsrepository;
         }
         public PurchaseRequisitionModel UpdatePurchaseRequisition(PurchaseRequisition purchaseRequisition, List<AccountsTransactions> accountsTransactions,
             List<PurchaseRequisitionDetails> purchaseRequisitionDetails
@@ -505,6 +508,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             }
 
         }
+       
         public async Task<Response<List<PurChaseRequisitionStatus>>> GetPurchaseRequisitionStatus(PurChaseRequisitionStatusFilterReport model)
         {
             List<PurChaseRequisitionStatus> data = new List<PurChaseRequisitionStatus>();
@@ -748,6 +752,34 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             {
                 return Response<List<PurChaseReqFields>>.Fail(new List<PurChaseReqFields>(), ex.Message);
             }
+        }
+       
+        public ResponseInfo GetBalanceAmount(int JobId)
+        {
+            var obj = new ResponseInfo();
+            try
+            {
+
+                var data =
+                   (from jmb in _budgetDetailsrepository.GetAsQueryable()
+                    join pr in _purchaseRequisitionRepository.GetAsQueryable()
+                    on jmb.JobMasterBudgetDetailsJobId equals pr.PurchaseRequisitionJobId into prGroup
+                    from pr in prGroup.DefaultIfEmpty()
+                    where jmb.JobMasterBudgetDetailsJobId == JobId
+                    select (jmb.JobMasterBudgetDetailsBudAmount ?? 0) - (pr.PurchaseRequisitionNetAmount ?? 0))
+                   .Sum();
+
+                obj.ResultSet = data;
+                obj.IsSuccess = true;
+            }
+            catch (Exception ex)
+            {
+                obj.IsSuccess = false;
+            }
+
+
+            return obj;
+
         }
     }
 }
