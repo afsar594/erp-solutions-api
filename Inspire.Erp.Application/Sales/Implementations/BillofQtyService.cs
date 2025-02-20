@@ -24,6 +24,7 @@ using Inspire.Erp.Domain.Modals.Stock;
 using Microsoft.AspNetCore.Mvc;
 using Inspire.Erp.Domain.Models;
 using Inspire.Erp.Domain.Entities.POS;
+using Microsoft.AspNetCore.DataProtection.XmlEncryption;
 
 namespace Inspire.Erp.Application.Sales.Implementations
 {

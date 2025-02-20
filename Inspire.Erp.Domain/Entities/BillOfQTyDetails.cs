@@ -15,6 +15,8 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? Qty { get; set; }
         public string Remarks { get; set; }
         public bool? IsEdit { get; set; }
+        public decimal? Rate { get; set; }
+        public decimal? Amount { get; set; }
         public virtual BillofQtyMaster BillofQtyMaster { get; set; }
 
     }

@@ -18880,6 +18880,12 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.Qty)
                       .HasColumnType("numeric(18, 0)");
+                
+                entity.Property(e => e.Rate)
+                      .HasColumnType("numeric(18, 0)");
+                
+                entity.Property(e => e.Amount)
+                      .HasColumnType("numeric(18, 0)");
 
                 entity.Property(e => e.Remarks)
                       .HasMaxLength(250)
