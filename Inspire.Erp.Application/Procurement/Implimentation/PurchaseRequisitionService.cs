@@ -38,6 +38,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private IRepository<AvIssueVoucherDetails> _AvIssueVoucherDetails;
         private IRepository<AvIssueVoucher> _AvIssueVoucher; private IRepository<PermissionApprovalDetail> _permissionApprovalDetailRepo;
         private IRepository<JobMaster> jobrepository;
+        private IRepository<JobMasterBudgetDetails> _budgetDetailsrepository;
+        
         private IRepository<LocationMaster> locationrepository; private IRepository<BillOfQTyDetails> _BillOfQTyDetailsRepository;
         private IRepository<TrackingRegister> _trackingRegisterRepository; private IRepository<ItemMaster> _itemMasterRepository; private IRepository<UnitMaster> _unitMasterRepository; private IRepository<SuppliersMaster> _suppliersMasterRepository; private IRepository<LocationMaster> _locationMasterRepository;
 
@@ -47,7 +49,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
             IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger, IRepository<JobMaster> _jobrepository, IRepository<BillOfQTyDetails> BillOfQTyDetailsRepository,
              IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo,
-        IRepository<PurchaseRequisition> purchaseRequisitionRepository, InspireErpDBContext context, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository)
+        IRepository<PurchaseRequisition> purchaseRequisitionRepository, InspireErpDBContext context, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository, IRepository<JobMasterBudgetDetails> budgetDetailsrepository)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository; _context = context;
@@ -55,6 +57,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             this._purchaseRequisitionDetailsRepository = purchaseRequisitionDetailsRepository; _BillOfQTyDetailsRepository = BillOfQTyDetailsRepository;
             _programsettingsRepository = programsettingsRepository; _voucherNumbersRepository = voucherNumbers; _approvalDetailRepo = approvalDetailRepo; _permissionApprovalRepo = permissionApprovalRepo; _approvalRepo = approvalRepo; locationrepository = _locationrepository;
             jobrepository = _jobrepository; _itemMasterRepository = itemMasterRepository; _unitMasterRepository = unitMasterRepository; _suppliersMasterRepository = suppliersMasterRepository; _locationMasterRepository = locationMasterRepository; _trackingRegisterRepository = trackingRegisterRepository;
+            _budgetDetailsrepository = budgetDetailsrepository;
         }
         public PurchaseRequisitionModel UpdatePurchaseRequisition(PurchaseRequisition purchaseRequisition, List<AccountsTransactions> accountsTransactions,
             List<PurchaseRequisitionDetails> purchaseRequisitionDetails
@@ -489,7 +492,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             {
                 throw ex;
             }
-
         }
         public VouchersNumbers GetVouchersNumbers(string pvno)
         {
@@ -503,8 +505,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 _logger.LogError(ex.Message);
                 throw ex;
             }
-
-        }
+        }       
         public async Task<Response<List<PurChaseRequisitionStatus>>> GetPurchaseRequisitionStatus(PurChaseRequisitionStatusFilterReport model)
         {
             List<PurChaseRequisitionStatus> data = new List<PurChaseRequisitionStatus>();
@@ -646,10 +647,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                   join iv in _context.IssueVoucherDetails.AsNoTracking()
                                       on sd.PurchaseRequisitionDetailsId equals iv.IssueVoucherDetailsReqDId into ivGroup
                                   from srq in ivGroup.DefaultIfEmpty()
-                                  where per.Status == "Approved"
-                                  //&& !_permissionApprovalDetailRepo.GetAsQueryable()
-                                  //      .Where(p => p.VoucherId == sm.PurchaseRequisitionNo)
-                                  //      .Any(p => p.Status == "Approved")
+                                  where ( _permissionApprovalDetailRepo.GetAsQueryable().Where(p => p.VoucherNo == sm.PurchaseRequisitionNo)
+                                  .Any(p => p.Status == "Approved" && p.Status != "Rejected"))
                                   group new { sm, sd, im, um, srq } by new
                                   {
                                       sd.PurchaseRequisitionDetailsId,
@@ -750,6 +749,50 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             {
                 return Response<List<PurChaseReqFields>>.Fail(new List<PurChaseReqFields>(), ex.Message);
             }
+        }
+       
+        public ResponseInfo GetBalanceAmount(int JobId)
+        {
+            var obj = new ResponseInfo();
+            try
+            {
+               var budgetQuery = from b in _budgetDetailsrepository.GetAsQueryable()
+                                  where b.JobMasterBudgetDetailsJobId == JobId
+                                  group b by b.JobMasterBudgetDetailsJobId into g
+                                  select new
+                                  {
+                                      JobId = g.Key,
+                                      TotalBudget = g.Sum(x => x.JobMasterBudgetDetailsBudAmount)
+                                  };
+
+                var requisitionQuery = from r in _purchaseRequisitionRepository.GetAsQueryable()
+                                       where r.PurchaseRequisitionJobId == JobId
+                                       group r by r.PurchaseRequisitionJobId into g
+                                       select new
+                                       {
+                                           JobId = g.Key,
+                                           TotalPurchaseRequisition = g.Sum(x => x.PurchaseRequisitionNetAmount)
+                                       };
+
+                var result = from b in budgetQuery
+                             join r in requisitionQuery on b.JobId equals r.JobId into br
+                             from r in br.DefaultIfEmpty()
+                             select new
+                             {
+                                 BalanceAmount = (b.TotalBudget ?? 0) - (r.TotalPurchaseRequisition ?? 0)
+                             };
+
+                var balanceAmount = result.FirstOrDefault();
+
+
+                obj.ResultSet = balanceAmount;
+                obj.IsSuccess = true;
+            }
+            catch (Exception ex)
+            {
+                obj.IsSuccess = false;
+            }
+            return obj;
         }
     }
 }

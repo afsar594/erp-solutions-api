@@ -10527,6 +10527,10 @@ namespace Inspire.Erp.Infrastructure.Database
                       .HasColumnName("Voucher_Type")
                       .HasMaxLength(100)
                       .IsUnicode(false);
+                entity.Property(e => e.RejectionRemarks)
+                   .HasColumnName("rejectionremarks")
+                   .HasMaxLength(100)
+                   .IsUnicode(false);
 
                 entity.Property(e => e.VoucherId)
                       .HasColumnName("voucherid")

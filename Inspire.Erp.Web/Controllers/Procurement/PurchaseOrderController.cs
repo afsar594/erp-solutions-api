@@ -505,12 +505,14 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                 .Where(a => a.Status == "Pending" &&
                  lowestPendingLevels.Any(l => l.VoucherId == a.VoucherId && l.VoucherType == a.VoucherType && l.LowestPendingLevel == a.LevelId))
                  .OrderBy(x => x.VoucherDate).ToList();
-
+            var RejectedRecords = data
+                .Where(a => a.Status == "Rejected")
+                 .OrderBy(x => x.VoucherDate).ToList();
             var approvedRecords = data
                 .Where(a => a.Status == "Approved")
                 .OrderBy(x => x.VoucherDate).ToList();
 
-            var combinedData = pendingRecords.Concat(approvedRecords).ToList();
+            var combinedData = pendingRecords.Concat(approvedRecords).Concat(RejectedRecords).ToList();
 
             if (!string.IsNullOrEmpty(model.status) && model.status != "All")
             {
@@ -542,10 +544,11 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                 foreach (var voucherType in model)
                 {
                     voucherType.ModifiedDate = currentDateTime;
-                    voucherType.Status = "Approved";
+                    //voucherType.Status = "Approved";
                     _permissionApprovalDetailRepo.Update(voucherType);
                 }
                 _permissionApprovalDetailRepo.TransactionCommit();
+        
                 objresponse.Message = "Approved Successfully";
             }
             catch (Exception ex)

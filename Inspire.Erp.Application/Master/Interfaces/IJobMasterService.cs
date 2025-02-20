@@ -11,12 +11,19 @@ namespace Inspire.Erp.Application.Master
     public interface IJobMasterService
     {
         public JobMaster InsertJobMaster(JobMaster jobMaster, List<JobMasterBudgetDetails> jobMasterBudgetDetails, List<JobMasterJobDetails> jobMasterJobDetails , List<JobMasterJobWiseBankGuarantees> jobMasterJobWiseBankGuarantees,List<JobStaff> jobStaff, List<JobEquipment> jobEquipment, List<JobExcutionDetails> jobExcutionDetails, List<JobTimesheetDesc> JobTimesheetDesc, List<JobTimeSheetEquip> JobTimeSheetEquip,List<JobTimesheetMaster> JobTimesheetMaster,List<JobTimeSheetStaff> JobTimeSheetStaff, List<JobfilesStatus> JobfilesStatus);
-        public JobMaster UpdateJobMaster(JobMaster jobMaster, List<JobMasterBudgetDetails> jobMasterBudgetDetails, List<JobMasterJobDetails> jobMasterJobDetails , List<JobMasterJobWiseBankGuarantees> jobMasterJobWiseBankGuarantees);
+        //public JobMaster UpdateJobMaster(JobMaster jobMaster, List<JobMasterBudgetDetails> jobMasterBudgetDetails, List<JobMasterJobDetails> jobMasterJobDetails , List<JobMasterJobWiseBankGuarantees> jobMasterJobWiseBankGuarantees);
+        public JobMaster UpdateJobMaster(JobMaster jobMaster, List<JobMasterBudgetDetails> jobMasterBudgetDetails, List<JobMasterJobDetails> jobMasterJobDetails, List<JobMasterJobWiseBankGuarantees> jobMasterJobWiseBankGuarantees, List<JobStaff> jobStaff, List<JobEquipment> jobEquipment, List<JobExcutionDetails> jobExcutionDetails, List<JobTimesheetDesc> JobTimesheetDesc, List<JobTimeSheetEquip> JobTimeSheetEquip, List<JobTimesheetMaster> JobTimesheetMaster, List<JobTimeSheetStaff> JobTimeSheetStaff, List<JobfilesStatus> JobfilesStatus);
+
         public JobMaster GetSavedJobMasterDetails(string jbno);
 
         public IEnumerable<JobMaster> DeleteJob(JobMaster jobMaster);
         public IEnumerable<JobMaster> GetAllJob();
         public IEnumerable<JobMaster> GetAllJobById(int id);
+
+        public IEnumerable<JobDocuments> GetJobDocumentstById(int jobDocumentJobId, int jobDocumentId);
+
+
+        
 
         public Task<string>  GetJobHTML(int id);
 
