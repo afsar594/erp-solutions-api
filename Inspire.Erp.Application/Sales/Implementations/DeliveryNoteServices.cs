@@ -327,6 +327,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                     {
                                         CustomerDeliveryNoteDeliveryId = dn.CustomerDeliveryNoteDeliveryID,
                                         CustomerDeliveryNoteDeliveryDate = dn.CustomerDeliveryNoteDeliveryDate,
+                                        CustomerId = dn.CustomerDeliveryNoteCustomerCode,
                                         CustomerName = lm != null ? lm.CustomerMasterCustomerArabicName : null
                                     }).ToListAsync();
 

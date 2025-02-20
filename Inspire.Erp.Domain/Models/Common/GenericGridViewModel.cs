@@ -82,10 +82,11 @@ namespace Inspire.Erp.Domain.Modals.Common
         public long CustomerDeliveryNoteDeliveryId { get; set; }
         public DateTime? CustomerDeliveryNoteDeliveryDate { get; set; }
         public string? CustomerName { get; set; }
-     
-    }
+        public long? CustomerId { get; set; }
 
-    public class StockAdjustmentReportFilter
+}
+
+public class StockAdjustmentReportFilter
     {
         public int? JobId { get; set; }
         public DateTime? FromDate { get; set; }
