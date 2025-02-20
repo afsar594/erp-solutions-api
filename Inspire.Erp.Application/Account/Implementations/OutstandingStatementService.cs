@@ -72,7 +72,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             try
             {
                 OutStandingStatementResponse gridmodel = new OutStandingStatementResponse();
-                string query = @$" AccountsTransactionsAllocBalance >0  {model.Filter}";
+                string query = @$" AccountsTransactionsAllocBalance >0 && AccountstransactionsDelStatus == false  {model.Filter}";
                 //var a = await _accountTransaction.GetAsQueryable().Where(x =>( x.AccountsTransactionsTransDate >= Convert.ToDateTime("02/21/2022")) && (x.AccountsTransactionsTransDate <= Convert.ToDateTime("02/21/2023")))
                 //    .ToListAsync();
                 var result = await _accountTransaction.GetAsQueryable().Where(query).OrderBy(row => row.AccountsTransactionsTransDate ?? DateTime.MaxValue)

@@ -192,6 +192,13 @@ namespace Inspire.Erp.Web.Controllers.Accounts
             return Ok(await _accountTransactionsServices.GetReceiptVoucherAllocations(accNo, refNO, vType));
         }
 
+        [HttpPost]
+        [Route("GetAllocationDetailsByAccNoRefNoPayment")]
+        public async Task<IActionResult> GetAllocationDetailsByAccNoRefNoPayment(string accNo, string refNO, string vType)
+        {
+            return Ok(await _accountTransactionsServices.GetReceiptVoucherAllocations(accNo, refNO, vType));
+        }
+
         [HttpGet]
         [Route("getAllocationforPrint")]
         public async Task<ResponseInfo> getAllocationforPrint(int? Id)
