@@ -11,4 +11,9 @@ namespace Inspire.Erp.Domain.Entities
         public string? JobDocumentName { get; set; }
         public bool? JobDocumentDelStatus { get; set; }
     }
+    public class FileResultDto
+    {
+        public string FileName { get; set; }
+        public byte[] FileBytes { get; set; }
+    }
 }

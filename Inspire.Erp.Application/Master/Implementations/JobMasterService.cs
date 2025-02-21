@@ -13,9 +13,11 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using DinkToPdf.Contracts;
+using System.IO;
 
 namespace Inspire.Erp.Application.Master
 {
+    
     public class JobMasterService : IJobMasterService
     {
         private IRepository<JobMaster> jobrepository;
@@ -461,6 +463,28 @@ namespace Inspire.Erp.Application.Master
         public Task<string> GetJobHTML(int id)
         {
             throw new NotImplementedException();
+
+        }
+        private readonly string _pdfDirectory = @"Upload//Pdfs"; // Change this to your actual PDF directory
+        public async Task<FileResultDto> GetJobPdfById(int id)
+        {
+
+            // Search for the PDF file by ID (assuming the naming convention is "Job123.pdf")
+            var filePath = Directory.EnumerateFiles(_pdfDirectory, "*.pdf")
+                .FirstOrDefault(f => Path.GetFileNameWithoutExtension(f).StartsWith($"{id}"));
+
+            if (filePath == null)
+            {
+                return null;
+            }
+
+            var fileBytes = await File.ReadAllBytesAsync(filePath);
+
+            return new FileResultDto
+            {
+                FileName = Path.GetFileName(filePath),
+                FileBytes = fileBytes
+            };
         }
         public IEnumerable<JobDocuments> GetAllJobDocumentById(int id)
         {
