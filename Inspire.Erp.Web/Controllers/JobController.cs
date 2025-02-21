@@ -267,15 +267,7 @@ namespace Inspire.Erp.Web.Controllers
             {
                 Random rn = new Random();
                 int count = rn.Next(1111, 9999);
-                var fileName = Id + file.FileName;
-
-                //string fileExtension = Path.GetExtension(file.FileName);
-                //var pathBuilt = Path.Combine(Directory.GetCurrentDirectory(), "Upload\\Pdfs");
-
-                //if (!Directory.Exists(pathBuilt))
-                //{
-                //    Directory.CreateDirectory(pathBuilt);
-                //}
+                var fileName = count + file.FileName;
 
                 var path = Path.Combine(Directory.GetCurrentDirectory(), "Upload/Pdfs/",
                    fileName);
@@ -289,11 +281,8 @@ namespace Inspire.Erp.Web.Controllers
 
                 jobDocuments.JobDocumentDelStatus = false;
                 jobDocuments.JobDocumentJobId = Id;
-               // jobDocuments.JobDocumentId = 1;
                 jobMasterService.SaveJobDocument(jobDocuments);
             }
-
-
             return Ok(true);
         }
 
