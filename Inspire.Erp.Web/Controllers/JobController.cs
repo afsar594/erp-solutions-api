@@ -228,18 +228,6 @@ namespace Inspire.Erp.Web.Controllers
 
             }).OrderBy(x => x.JobMasterJobName).ToList();
         }
-        //[HttpGet("GetJobPdfById/{id}")]
-        //public async Task<IActionResult> GetJobPdfById(int id)
-        //{
-        //    var fileData = await jobMasterService.GetJobPdfById(id);
-
-        //    if (fileData == null)
-        //    {
-        //        return NotFound("File not found.");
-        //    }
-
-        //    return File(fileData.FileBytes, "application/pdf", fileData.FileName);
-        //}
         [HttpGet("GetJobPdfById/{id}")]
         public async Task<IActionResult> GetJobPdfById(int id)
         {
@@ -252,18 +240,6 @@ namespace Inspire.Erp.Web.Controllers
 
             return File(fileData.FileBytes, fileData.ContentType, fileData.FileName);
         }
-        //[HttpGet("GetJobFile/{id}")]
-        //public async Task<IActionResult> GetJobFile(int id)
-        //{
-        //    var fileData = await jobMasterService.GetJobPdfById(id);
-
-        //    if (fileData == null)
-        //    {
-        //        return NotFound("File not found.");
-        //    }
-
-        //    return File(fileData.FileBytes, fileData.ContentType, fileData.FileName);
-        //}
 
         [HttpGet]
         [Route("GetJobCost/{id}")]
@@ -293,7 +269,15 @@ namespace Inspire.Erp.Web.Controllers
                 int count = rn.Next(1111, 9999);
                 var fileName = Id + file.FileName;
 
-                    var path = Path.Combine(Directory.GetCurrentDirectory(), "Upload/Pdfs/",
+                //string fileExtension = Path.GetExtension(file.FileName);
+                //var pathBuilt = Path.Combine(Directory.GetCurrentDirectory(), "Upload\\Pdfs");
+
+                //if (!Directory.Exists(pathBuilt))
+                //{
+                //    Directory.CreateDirectory(pathBuilt);
+                //}
+
+                var path = Path.Combine(Directory.GetCurrentDirectory(), "Upload/Pdfs/",
                    fileName);
 
                 using (var stream = new FileStream(path, FileMode.Create))
@@ -305,6 +289,7 @@ namespace Inspire.Erp.Web.Controllers
 
                 jobDocuments.JobDocumentDelStatus = false;
                 jobDocuments.JobDocumentJobId = Id;
+               // jobDocuments.JobDocumentId = 1;
                 jobMasterService.SaveJobDocument(jobDocuments);
             }
 
