@@ -52,6 +52,9 @@
 	  <Folder Include="ViewModels\Dashboard\" />
 	  <Folder Include="wwwroot\Images\" />
 	</ItemGroup>
+	<ItemGroup>
+	  <None Include="Upload\Pdfs\2396PGMI-Test.docx" />
+	</ItemGroup>
 	<ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 
 </Project>
