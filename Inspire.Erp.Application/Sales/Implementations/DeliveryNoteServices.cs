@@ -146,7 +146,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 _deliveryNoteRepository.Update(deliveryNote);
 
                 _deliveryNoteRepository.TransactionCommit();
-                i = 1;
+                i = 1; 
             }
             catch (Exception ex)
             {
@@ -327,6 +327,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                     {
                                         CustomerDeliveryNoteDeliveryId = dn.CustomerDeliveryNoteDeliveryID,
                                         CustomerDeliveryNoteDeliveryDate = dn.CustomerDeliveryNoteDeliveryDate,
+                                        CustomerId = dn.CustomerDeliveryNoteCustomerCode,
                                         CustomerName = lm != null ? lm.CustomerMasterCustomerArabicName : null
                                     }).ToListAsync();
 

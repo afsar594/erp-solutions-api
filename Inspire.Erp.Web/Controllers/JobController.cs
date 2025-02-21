@@ -228,7 +228,18 @@ namespace Inspire.Erp.Web.Controllers
 
             }).OrderBy(x => x.JobMasterJobName).ToList();
         }
+        [HttpGet("GetJobPdfById/{id}")]
+        public async Task<IActionResult> GetJobPdfById(int id)
+        {
+            var fileData = await jobMasterService.GetJobPdfById(id);
 
+            if (fileData == null)
+            {
+                return NotFound("File not found.");
+            }
+
+            return File(fileData.FileBytes, "application/pdf", fileData.FileName);
+        }
 
         [HttpGet]
         [Route("GetJobCost/{id}")]

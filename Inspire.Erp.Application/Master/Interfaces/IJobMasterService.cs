@@ -23,7 +23,8 @@ namespace Inspire.Erp.Application.Master
         public IEnumerable<JobDocuments> GetJobDocumentstById(int jobDocumentJobId, int jobDocumentId);
 
 
-        
+        Task<FileResultDto> GetJobPdfById(int id);
+
 
         public Task<string>  GetJobHTML(int id);
 
