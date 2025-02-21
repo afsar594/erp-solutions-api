@@ -12031,6 +12031,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.PurchaseRequisitionDetailsQuantity).HasColumnType("numeric(18, 4)");
 
                 entity.Property(e => e.PurchaseRequisitionDetailsRate).HasColumnType("numeric(18, 4)");
+                entity.Property(e => e.PurchaseRequisitionDetailsSupplierId).HasColumnType("PurchaseRequisitionDetails_Supplier_Id");
 
                 entity.Property(e => e.PurchaseRequisitionDetailsRemarks)
                     .HasMaxLength(100)

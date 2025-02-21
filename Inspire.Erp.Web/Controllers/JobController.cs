@@ -228,7 +228,18 @@ namespace Inspire.Erp.Web.Controllers
 
             }).OrderBy(x => x.JobMasterJobName).ToList();
         }
+        [HttpGet("GetJobPdfById/{id}")]
+        public async Task<IActionResult> GetJobPdfById(int id)
+        {
+            var fileData = await jobMasterService.GetJobPdfById(id);
 
+            if (fileData == null)
+            {
+                return NotFound("File not found.");
+            }
+
+            return File(fileData.FileBytes, fileData.ContentType, fileData.FileName);
+        }
 
         [HttpGet]
         [Route("GetJobCost/{id}")]
@@ -256,7 +267,7 @@ namespace Inspire.Erp.Web.Controllers
             {
                 Random rn = new Random();
                 int count = rn.Next(1111, 9999);
-                var fileName = count + file.FileName;
+                var fileName = Id + file.FileName;
 
                 //string fileExtension = Path.GetExtension(file.FileName);
                 //var pathBuilt = Path.Combine(Directory.GetCurrentDirectory(), "Upload\\Pdfs");
