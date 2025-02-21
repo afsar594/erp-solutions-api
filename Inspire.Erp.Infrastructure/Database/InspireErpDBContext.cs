@@ -12023,6 +12023,9 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.PurchaseRequisitionDetailsQtnId).HasColumnName("PurchaseRequisitionDetailsQTN_Id");
 
+                entity.Property(e => e.PurchaseRequisitionDetailsSupplierId).HasColumnName("PurchaseRequisitionDetailsSupplierId");
+
+
                 entity.Property(e => e.PurchaseRequisitionDetailsQtndId).HasColumnName("PurchaseRequisitionDetailsQTND_Id");
 
                 entity.Property(e => e.PurchaseRequisitionDetailsQuantity).HasColumnType("numeric(18, 4)");

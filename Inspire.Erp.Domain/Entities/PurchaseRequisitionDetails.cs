@@ -44,5 +44,9 @@ namespace Inspire.Erp.Domain.Entities
         public virtual PurchaseRequisition PurchaseRequisitionDetailsNoNavigation { get; set; }
         [NotMapped]
         public int? boqdId { get; set; }
+        public int? PurchaseRequisitionDetailsSupplierId { get; set; }
+
+
+        
     }
 }
