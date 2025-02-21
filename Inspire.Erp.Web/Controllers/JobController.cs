@@ -238,7 +238,7 @@ namespace Inspire.Erp.Web.Controllers
                 return NotFound("File not found.");
             }
 
-            return File(fileData.FileBytes, "application/pdf", fileData.FileName);
+            return File(fileData.FileBytes, fileData.ContentType, fileData.FileName);
         }
 
         [HttpGet]

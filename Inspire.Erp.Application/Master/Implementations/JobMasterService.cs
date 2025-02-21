@@ -465,19 +465,10 @@ namespace Inspire.Erp.Application.Master
             throw new NotImplementedException();
 
         }
-       // private readonly string _fileDirectory;
-
-
-        // Get absolute path (assuming "Upload/Pdfs" is inside the project folder)
-        //private readonly string _pdfDirectory = @"Upload//Pdfs"; // Change this to your actual PDF directory
-
-        private readonly string _fileDirectory = @"Upload//Pdfs";//Path.Combine(Directory.GetCurrentDirectory(), @"Upload//Pdfs", "Pdfs");
-
-
-
+        private readonly string _pdfDirectory = @"Upload//Pdfs"; // Change this to your actual PDF directory
         public async Task<FileResultDto> GetJobPdfById(int id)
         {
-            if (!Directory.Exists(_fileDirectory))
+            if (!Directory.Exists(_pdfDirectory))
             {
                 return null; // Directory does not exist
             }
@@ -486,7 +477,7 @@ namespace Inspire.Erp.Application.Master
             string[] allowedExtensions = { ".pdf", ".docx", ".xlsx" };
 
             // Search for the first file that contains the ID and has a valid extension
-            var filePath = Directory.EnumerateFiles(_fileDirectory)
+            var filePath = Directory.EnumerateFiles(_pdfDirectory)
                 .FirstOrDefault(f => allowedExtensions.Contains(Path.GetExtension(f).ToLower()) &&
                                      Path.GetFileName(f).Contains(id.ToString()));
 
@@ -504,6 +495,8 @@ namespace Inspire.Erp.Application.Master
                 ContentType = GetMimeType(filePath) // Get the correct MIME type
             };
         }
+
+        // Helper method to get the correct MIME type
         private string GetMimeType(string filePath)
         {
             var extension = Path.GetExtension(filePath).ToLower();
@@ -516,7 +509,6 @@ namespace Inspire.Erp.Application.Master
                 _ => "application/octet-stream" // Default binary file type
             };
         }
-        //private readonly string _pdfDirectory = @"Upload//Pdfs"; // Change this to your actual PDF directory
         //public async Task<FileResultDto> GetJobPdfById(int id)
         //{
 
