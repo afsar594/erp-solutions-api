@@ -4221,6 +4221,10 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnName("Customer_Contacts_Email")
                     .HasMaxLength(50);
 
+                entity.Property(e => e.Customer_Contacts_Designation)
+                 .HasColumnName("Customer_Contacts_Designation")
+                 .HasMaxLength(50);
+
 
                 entity.Property(e => e.CustomerContactsId)
                     .HasColumnName("Customer_Contacts_ID")
@@ -12022,6 +12026,9 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.PurchaseRequisitionDetailsPrdId).HasColumnName("PurchaseRequisitionDetailsPRD_Id");
 
                 entity.Property(e => e.PurchaseRequisitionDetailsQtnId).HasColumnName("PurchaseRequisitionDetailsQTN_Id");
+
+                entity.Property(e => e.PurchaseRequisitionDetailsSupplierId).HasColumnName("PurchaseRequisitionDetailsSupplierId");
+
 
                 entity.Property(e => e.PurchaseRequisitionDetailsQtndId).HasColumnName("PurchaseRequisitionDetailsQTND_Id");
 
