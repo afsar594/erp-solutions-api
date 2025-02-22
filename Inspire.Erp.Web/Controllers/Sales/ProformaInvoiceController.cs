@@ -67,7 +67,7 @@ namespace Inspire.Erp.Web.Controllers
                 return StatusCode(500, ex.Message.ToString());
             }
         }
-        [HttpPut]
+        [HttpPost]
         [Route("UpdateProformaInvoice")]
         public IActionResult UpdateProformaInvoices([FromBody] ProformaInvoice proformaInvoiceViewModel)
         {
