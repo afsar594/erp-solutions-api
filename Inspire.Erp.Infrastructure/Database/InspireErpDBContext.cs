@@ -4205,7 +4205,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<CustomerContacts>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => e.CustomerContactsId);
 
                 entity.ToTable("Customer_Contacts");
 
