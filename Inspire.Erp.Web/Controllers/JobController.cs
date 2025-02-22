@@ -238,7 +238,7 @@ namespace Inspire.Erp.Web.Controllers
                 return NotFound("File not found.");
             }
 
-            return File(fileData.FileBytes, "application/pdf", fileData.FileName);
+            return File(fileData.FileBytes, fileData.ContentType, fileData.FileName);
         }
 
         [HttpGet]
@@ -269,14 +269,6 @@ namespace Inspire.Erp.Web.Controllers
                 int count = rn.Next(1111, 9999);
                 var fileName = count + file.FileName;
 
-                //string fileExtension = Path.GetExtension(file.FileName);
-                //var pathBuilt = Path.Combine(Directory.GetCurrentDirectory(), "Upload\\Pdfs");
-
-                //if (!Directory.Exists(pathBuilt))
-                //{
-                //    Directory.CreateDirectory(pathBuilt);
-                //}
-
                 var path = Path.Combine(Directory.GetCurrentDirectory(), "Upload/Pdfs/",
                    fileName);
 
@@ -289,11 +281,8 @@ namespace Inspire.Erp.Web.Controllers
 
                 jobDocuments.JobDocumentDelStatus = false;
                 jobDocuments.JobDocumentJobId = Id;
-               // jobDocuments.JobDocumentId = 1;
                 jobMasterService.SaveJobDocument(jobDocuments);
             }
-
-
             return Ok(true);
         }
 

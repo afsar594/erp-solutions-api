@@ -468,14 +468,22 @@ namespace Inspire.Erp.Application.Master
         private readonly string _pdfDirectory = @"Upload//Pdfs"; // Change this to your actual PDF directory
         public async Task<FileResultDto> GetJobPdfById(int id)
         {
+            if (!Directory.Exists(_pdfDirectory))
+            {
+                return null; // Directory does not exist
+            }
 
-            // Search for the PDF file by ID (assuming the naming convention is "Job123.pdf")
-            var filePath = Directory.EnumerateFiles(_pdfDirectory, "*.pdf")
-                .FirstOrDefault(f => Path.GetFileNameWithoutExtension(f).StartsWith($"{id}"));
+            // Allowed file types
+            string[] allowedExtensions = { ".pdf", ".docx", ".xlsx" };
+
+            // Search for the first file that contains the ID and has a valid extension
+            var filePath = Directory.EnumerateFiles(_pdfDirectory)
+                .FirstOrDefault(f => allowedExtensions.Contains(Path.GetExtension(f).ToLower()) &&
+                                     Path.GetFileName(f).Contains(id.ToString()));
 
             if (filePath == null)
             {
-                return null;
+                return null; // No matching file found
             }
 
             var fileBytes = await File.ReadAllBytesAsync(filePath);
@@ -483,9 +491,44 @@ namespace Inspire.Erp.Application.Master
             return new FileResultDto
             {
                 FileName = Path.GetFileName(filePath),
-                FileBytes = fileBytes
+                FileBytes = fileBytes,
+                ContentType = GetMimeType(filePath) // Get the correct MIME type
             };
         }
+
+        // Helper method to get the correct MIME type
+        private string GetMimeType(string filePath)
+        {
+            var extension = Path.GetExtension(filePath).ToLower();
+
+            return extension switch
+            {
+                ".pdf" => "application/pdf",
+                ".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                ".xlsx" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                _ => "application/octet-stream" // Default binary file type
+            };
+        }
+        //public async Task<FileResultDto> GetJobPdfById(int id)
+        //{
+
+        //    // Search for the PDF file by ID (assuming the naming convention is "Job123.pdf")
+        //    var filePath = Directory.EnumerateFiles(_pdfDirectory, "*.pdf")
+        //        .FirstOrDefault(f => Path.GetFileNameWithoutExtension(f).StartsWith($"{id}"));
+
+        //    if (filePath == null)
+        //    {
+        //        return null;
+        //    }
+
+        //    var fileBytes = await File.ReadAllBytesAsync(filePath);
+
+        //    return new FileResultDto
+        //    {
+        //        FileName = Path.GetFileName(filePath),
+        //        FileBytes = fileBytes
+        //    };
+        //}
         public IEnumerable<JobDocuments> GetAllJobDocumentById(int id)
         {
             try
