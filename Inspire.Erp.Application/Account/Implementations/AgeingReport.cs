@@ -88,6 +88,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                             .FirstOrDefaultAsync();
                         if(account.MaAccName=="Supplier")
                         {
+
                             UnAllocated -= accounts.AccountsTransactionsAllocBalance.Value;
                         }
 
@@ -95,6 +96,19 @@ namespace Inspire.Erp.Application.Account.Implementations
                         {
                             UnAllocated += accounts.AccountsTransactionsAllocBalance.Value;
                         }
+
+                        if (account.MaAccName == "Supplier")
+                        {
+
+                            outBalance += accounts.AccountsTransactionsCredit.Value - accounts.AccountsTransactionsDebit.Value;
+                        }
+                        else
+                        {
+                            outBalance += accounts.AccountsTransactionsDebit.Value - accounts.AccountsTransactionsCredit.Value;
+
+                        }
+
+
                         //decimal totalDebit = accounts.AccountsTransactionsDebit;
                         //decimal totalCredit = accounts.AccountsTransactionsCredit;
                         //runningBalance = (totalDebit - totalCredit) + (runningBalance);

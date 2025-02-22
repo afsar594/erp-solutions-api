@@ -148,6 +148,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                         AccountsTransactionsDescription= accounts.AccountsTransactionsDescription != null ? accounts.AccountsTransactionsDescription:"",
                         AccountsTransactionsAllocBalance= accounts.AccountsTransactionsAllocBalance != null ? accounts.AccountsTransactionsAllocBalance:0,
                         AccountsTransactionsAllocDebit= accounts.AccountsTransactionsAllocDebit != null ? accounts.AccountsTransactionsAllocDebit:0,
+                        AccountsTransactionsAllocCredit= accounts.AccountsTransactionsAllocCredit != null ? accounts.AccountsTransactionsAllocCredit : 0,
+                        
                         RefNo=accounts.RefNo != null? accounts.RefNo:"",
                         AccountstransactionsTotalDays= Math.Round(((DateTime.Now- Convert.ToDateTime(accounts.AccountsTransactionsTransDate)).TotalDays)).ToString(),
                         AccountsTransactionsAccNo = accounts.AccountsTransactionsAccNo != null ? accounts.AccountsTransactionsAccNo:"",
