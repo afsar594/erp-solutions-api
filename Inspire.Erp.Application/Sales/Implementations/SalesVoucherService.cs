@@ -152,6 +152,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     return k;
                 }).OrderBy(x => x.SalesVoucherDetailsItemName).AsEnumerable().ToList();
 
+                _salesVoucherDetailsRepository.UpdateList(salesVoucherDetails);
+
                 _salesVoucherRepository.Update(salesVoucher);
 
                 accountsTransactions = accountsTransactions.Select((k) =>
