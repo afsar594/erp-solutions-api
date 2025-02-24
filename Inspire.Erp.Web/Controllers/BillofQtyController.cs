@@ -209,7 +209,9 @@ namespace Inspire.Erp.Web.Controllers
                             CustomerEnqId = c.CustomerEnqId,
                             ItemCode = d.ItemCode,
                             Qty = d.Qty,
-                            UnitCode = d.UnitCode
+                            UnitCode = d.UnitCode,
+                            Rate =d.Rate,
+                            Amount =d.Amount
                         }).OrderBy(x => x.dId)
                 .OrderBy(x => x.BillofqtyNo).AsEnumerable().ToList();
 
