@@ -398,7 +398,7 @@ namespace Inspire.Erp.Web.Controllers
         public ResponseInfo LoadDropdowchartofAccounts()
         {
             var objectresponse = new ResponseInfo();
-            var masterAccountsTables = chartofAccountsService.GetAllAccounts().Where(a => a.MaDelStatus != true).Select(c => new
+            var masterAccountsTables = chartofAccountsService.GetAllAccounts().Where(a => a.MaDelStatus != true && a.MaAccType == "A" ).Select(c => new
             {
                 c.MaAccNo,
                 c.MaAccName,
