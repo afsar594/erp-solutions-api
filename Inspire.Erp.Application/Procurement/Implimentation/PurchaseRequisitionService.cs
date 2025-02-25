@@ -21,6 +21,7 @@ using SendGrid.Helpers.Mail;
 using System.Linq.Dynamic.Core;
 using Inspire.Erp.Domain.Entities.POS;
 using Inspire.Erp.Application.MODULE;
+using System.Threading;
 
 namespace Inspire.Erp.Application.Procurement.Implementation
 {
@@ -163,6 +164,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         }
                     }
                 }
+                Thread.Sleep(2000);
                 _purchaseRequisitionRepository.TransactionCommit();
 
             }
@@ -457,6 +459,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         }
                     }
                 }
+                Thread.Sleep(2000);
                 _purchaseRequisitionRepository.TransactionCommit();
                 return this.GetSavedPurchaseRequisitionDetails((int)purchaseRequisition.PurchaseRequisitionId);
 
