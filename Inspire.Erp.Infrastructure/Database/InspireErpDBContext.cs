@@ -4225,7 +4225,10 @@ namespace Inspire.Erp.Infrastructure.Database
                  .HasColumnName("Customer_Contacts_Designation")
                  .HasMaxLength(50);
 
-
+                entity.Property(e => e.Customer_Contacts_Department)
+               .HasColumnName("Customer_Contacts_Department")
+               .HasMaxLength(50);
+               
                 entity.Property(e => e.CustomerContactsId)
                     .HasColumnName("Customer_Contacts_ID")
                     .ValueGeneratedOnAdd();

@@ -14,7 +14,7 @@ namespace Inspire.Erp.Domain.Entities
         public bool? CustomerContactsActive { get; set; }
         public string CustomerContactsEmail { get; set; }
         public string Customer_Contacts_Designation { get; set; }
-        
+        public string Customer_Contacts_Department { get; set; }
         public bool? CustomerContactsDelStatus { get; set; }
     }
 }
