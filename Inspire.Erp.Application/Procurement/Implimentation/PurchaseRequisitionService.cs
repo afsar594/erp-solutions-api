@@ -132,6 +132,24 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     }
 
                 }
+                // Item Master SupplierId is updated.
+                foreach (var item in purchaseRequisitionDetails)
+                {
+                    if (item.PurchaseRequisitionDetailsSupplierId > 0)
+                    {
+                        if (item.PurchaseRequisitionDetailsMatId > 0)
+                        {
+                            var entity = _itemMasterRepository.GetAsQueryable().FirstOrDefault(x => x.ItemMasterItemId == item.PurchaseRequisitionDetailsMatId);
+
+                            if (entity != null)
+                            {
+                                entity.ItemMasterVenderId = (int)item.PurchaseRequisitionDetailsSupplierId;
+                                _itemMasterRepository.UpdateAsync(entity);
+                            }
+                        }
+                    }
+                }
+                //End
 
                 foreach (var item in purchaseRequisitionDetails)
                 {
@@ -360,6 +378,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 _purchaseRequisitionRepository.Insert(purchaseRequisition);
 
+                
+
+
                 //var permsionApproval = _permissionApprovalRepo.GetAsQueryable().AsNoTracking().Where(x => x.VoucherType == "Purchase Requisition").OrderBy(x => x.LevelOrder).ToList();
                 //var approvals = new Approval()
                 //{
@@ -404,6 +425,25 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         }
                     }
                 }
+                // Item Master SupplierId is updated.
+                foreach (var item in purchaseRequisitionDetails)
+                {
+                    if (item.PurchaseRequisitionDetailsSupplierId > 0)
+                    { 
+                        if (item.PurchaseRequisitionDetailsMatId > 0)
+                        {
+                            var entity = _itemMasterRepository.GetAsQueryable().FirstOrDefault(x => x.ItemMasterItemId == item.PurchaseRequisitionDetailsMatId);
+
+                            if (entity != null)
+                            {
+                                entity.ItemMasterVenderId = (int)item.PurchaseRequisitionDetailsSupplierId;
+                                _itemMasterRepository.UpdateAsync(entity);
+                            }
+                        }
+                    }
+                }
+                //End
+
 
                 foreach (var item in purchaseRequisitionDetails)
                 {

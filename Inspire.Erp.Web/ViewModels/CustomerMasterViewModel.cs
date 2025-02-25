@@ -50,6 +50,8 @@ namespace Inspire.Erp.Web.ViewModels
         public double? CustomerMasterCustomerRedeemEarnPoints { get; set; }
         public string CustomerMasterCustomerArabicName { get; set; }
         public string CustomerMasterCustomerGroupAccNo { get; set; }
+        public string Customer_Contacts_Department { get; set; }
+
         public int? CustomerMasterCustomerCtTypeId { get; set; }
         [NotMapped]
         public int? CustomerMasterCustomerRouteID { get; set; }
