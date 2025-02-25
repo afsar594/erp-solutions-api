@@ -578,8 +578,8 @@ namespace Inspire.Erp.Application.Store.Implementation
                             (model.fromLocation == 0 || st.StockTransferLocationIdFrom >= model.fromLocation) &&
                             (model.toLocation == 0 || st.StockTransferLocationIdTo <= model.toLocation)
                             &&
-                            (model.fromdate == null || st.StockTransferStDate >= model.fromdate)
-                            && (model.todate == null || st.StockTransferStDate <= model.todate)
+                            (model.fromdate == null || st.StockTransferStDate.Value.Date >= model.fromdate.Value.Date)
+                            && (model.todate == null || st.StockTransferStDate.Value.Date <= model.todate.Value.Date)
                             && st.StockTransferDelStatus != true)
 
                          select new StockTransferReport

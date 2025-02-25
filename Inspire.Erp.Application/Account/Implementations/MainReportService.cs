@@ -1268,8 +1268,9 @@ namespace Inspire.Erp.Application.Account.Implementations
                                     PurchaseVoucherNetAmount = grp.Key.PurchaseVoucherNetAmount,
                                     PurchaseVoucherDetailsGrossAmount = grp.Key.PurchaseVoucherTotalGrossAmt,
                                     UnitMasterUnitShortName = grp.Key.UnitMasterUnitShortName,
-                                    ItemMasterItemName = grp.Key.ItemMasterItemName
-                                };
+                                    ItemMasterItemName = grp.Key.ItemMasterItemName,
+                                    PurchaseVoucherDetailsSummery =true
+    };
 
                     // Step 2: Execute the query and bring the results into memory
                     reportPurchaseVoucher_ALL = query.AsEnumerable()
@@ -1375,8 +1376,10 @@ namespace Inspire.Erp.Application.Account.Implementations
                             PurchaseVoucherDetailsGrossAmount = c.PurchaseVoucherDetailsGrossAmount,
                             PurchaseVoucherVatNo = c.PurchaseVoucherVatNo,
                             PurchaseVoucherPurchaseType = c.PurchaseVoucherPurchaseType,
+                             PurchaseVoucherDetailsDetail=true,
 
-                        }).OrderBy(x => x.PurchaseVoucherVoucherNo).AsEnumerable().ToList();
+
+    }).OrderBy(x => x.PurchaseVoucherVoucherNo).AsEnumerable().ToList();
 
                     return reportPurchaseVoucher_ALL;
                 }

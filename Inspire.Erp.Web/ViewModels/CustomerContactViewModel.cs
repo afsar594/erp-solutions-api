@@ -16,6 +16,7 @@ namespace Inspire.Erp.Web.ViewModels
         public bool? CustomerContactsActive { get; set; }
         public string CustomerContactsEmail { get; set; }
         public bool? CustomerContactsDelStatus { get; set; }
+        public string Customer_Contacts_Department { get; set; }
 
         public string? Customer_Contacts_Designation { get; set; }
 

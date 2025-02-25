@@ -43,6 +43,8 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? CustomerEnqId { get; set; }
         public decimal? ItemCode { get; set; }
         public decimal? Qty { get; set; }
+        public decimal? Rate { get; set; }
+        public decimal? Amount { get; set; }
         public decimal? UnitCode { get; set; }
     }
 

@@ -4225,7 +4225,10 @@ namespace Inspire.Erp.Infrastructure.Database
                  .HasColumnName("Customer_Contacts_Designation")
                  .HasMaxLength(50);
 
-
+                entity.Property(e => e.Customer_Contacts_Department)
+               .HasColumnName("Customer_Contacts_Department")
+               .HasMaxLength(50);
+               
                 entity.Property(e => e.CustomerContactsId)
                     .HasColumnName("Customer_Contacts_ID")
                     .ValueGeneratedOnAdd();
@@ -8659,6 +8662,13 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasForeignKey(d => d.JobMasterJobWiseBankGuaranteesJobId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Job_Master_JobWiseBankGuarantees_Job_Master");
+
+                entity.Property(e => e.Job_Master_JobWiseBankGuarantees_Valid_From_Date).HasColumnName("Job_Master_JobWiseBankGuarantees_Valid_From_Date");
+
+
+                entity.Property(e => e.Job_Master_JobWiseBankGuarantees_Valid_To_Date).HasColumnName("Job_Master_JobWiseBankGuarantees_Valid_To_Date");
+
+                entity.Property(e => e.Job_Master_JobWiseBankGuarantees_Remarks).HasColumnName("Job_Master_JobWiseBankGuarantees_Remarks");
             });
 
             modelBuilder.Entity<JobStaff>(entity =>

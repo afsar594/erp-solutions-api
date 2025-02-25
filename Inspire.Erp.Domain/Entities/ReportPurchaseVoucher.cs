@@ -215,5 +215,10 @@ namespace Inspire.Erp.Domain.Entities
         public string LocationMasterLocationName { get; set; }
         public string JobMasterJobName { get; set; }
 
+        public bool? PurchaseVoucherDetailsSummery { get; set; }
+        public bool? PurchaseVoucherDetailsDetail { get; set; }
+
+
+
     }
 }
