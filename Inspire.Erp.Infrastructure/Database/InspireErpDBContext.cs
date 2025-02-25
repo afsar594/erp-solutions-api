@@ -8662,6 +8662,9 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.Job_Master_JobWiseBankGuarantees_Valid_From_Date).HasColumnName("Job_Master_JobWiseBankGuarantees_Valid_From_Date");
 
+
+                entity.Property(e => e.Job_Master_JobWiseBankGuarantees_Valid_To_Date).HasColumnName("Job_Master_JobWiseBankGuarantees_Valid_To_Date");
+
                 entity.Property(e => e.Job_Master_JobWiseBankGuarantees_Remarks).HasColumnName("Job_Master_JobWiseBankGuarantees_Remarks");
             });
 
