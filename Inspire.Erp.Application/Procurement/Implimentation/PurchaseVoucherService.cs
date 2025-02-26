@@ -636,9 +636,7 @@ namespace Inspire.Erp.Application.Master.Implementations
             {
 
                 _accountTransactionRepository.BeginTransaction();
-
                 clsCommonFunctions.Delete_OldEntryOf_StockRegister(purchaseVoucher.PurchaseVoucherVoucherNo, VoucherType.PurchaseVoucher_TYPE, _stockRegisterRepository);
-
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     if (k.AccountsTransactionsTransSno == 0)
@@ -650,10 +648,19 @@ namespace Inspire.Erp.Application.Master.Implementations
                     }
                     return k;
                 }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
-                _PurchaseVoucher.Update(purchaseVoucher);
-                _PurchaseVoucherDetails.UpdateList(purchaseVoucherDetails);
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
+                //delete old record
+                var existingPurchaseList = _PurchaseVoucherDetails.GetAll().Where(o => o.PurchaseVoucherDetailsVoucherNo == purchaseVoucher.PurchaseVoucherVoucherNo).ToList();
+                _PurchaseVoucherDetails.DeleteList(existingPurchaseList);
+
+                foreach (var xx in purchaseVoucher.PurchaseVoucherDetails)
+                {
+                    xx.PurchaseVoucherDetailsVoucherNo = purchaseVoucher.PurchaseVoucherVoucherNo;
+                };
+                _PurchaseVoucherDetails.InsertList(purchaseVoucherDetails);
+
+               _PurchaseVoucher.Update(purchaseVoucher);
 
                 List<StockRegister> stockRegisters = new List<StockRegister>();
 
