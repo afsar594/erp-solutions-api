@@ -144,8 +144,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                             if (entity != null)
                             {
-                                entity.ItemMasterVenderId = (int)item.PurchaseRequisitionDetailsSupplierId;
-                                _itemMasterRepository.UpdateAsync(entity);
+                                entity.ItemMasterSupplierId = (int)item.PurchaseRequisitionDetailsSupplierId;
+                                _itemMasterRepository.Update(entity);
                             }
                         }
                     }
@@ -438,8 +438,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                             if (entity != null)
                             {
-                                entity.ItemMasterVenderId = (int)item.PurchaseRequisitionDetailsSupplierId;
-                                _itemMasterRepository.UpdateAsync(entity);
+                                entity.ItemMasterSupplierId = (int)item.PurchaseRequisitionDetailsSupplierId;
+                                _itemMasterRepository.Update(entity);
                             }
                         }
                     }
