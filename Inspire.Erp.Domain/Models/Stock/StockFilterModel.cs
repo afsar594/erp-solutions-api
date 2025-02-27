@@ -31,8 +31,8 @@ namespace Inspire.Erp.Domain.Modals.Stock
     public class QuotationFilterModel
     {
         public bool IsDateChecked { get; set; }
-        public DateTime fromDate { get; set; }
-        public DateTime toDate { get; set; }
+        public DateTime? fromDate { get; set; }
+        public DateTime? toDate { get; set; }
         public long? CustomerId { get; set; }
         public bool? Status { get; set; }
 

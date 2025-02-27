@@ -363,7 +363,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                     join c in _Context.CustomerMaster.AsQueryable() on s.CustomerQuotationCustomerId equals c.CustomerMasterCustomerNo
                                     where s.CustomerQuotationDelStatus != true && (FilterModel.CustomerId == null || s.CustomerQuotationCustomerId == FilterModel.CustomerId)
                                     && (FilterModel.Status == null || s.CustomerQuotationIsClose == FilterModel.Status)
-                                    && (s.CustomerQuotationQuotationDate >= FilterModel.fromDate && s.CustomerQuotationQuotationDate <= FilterModel.toDate)
+                                    && (s.CustomerQuotationQuotationDate.Value.Date >= FilterModel.fromDate.Value.Date && s.CustomerQuotationQuotationDate.Value.Date <= FilterModel.toDate.Value.Date)
                                     select new GetCustomerQuotationDetail
                                     {
                                         QuotationId = s.CustomerQuotationQid,
