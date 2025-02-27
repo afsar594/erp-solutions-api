@@ -51,7 +51,7 @@ namespace Inspire.Erp.Application.Sales.Implementation
             {
                 var proformaInvoice = new ProformaInvoice();
                 proformaInvoice = repository.GetAsQueryable().FirstOrDefault(x => x.ProformaInvoiceId == id);
-                proformaInvoice.ProformaInvoiceDetails = detailrepository.GetAsQueryable().Where(x => x.ProformaInvoiceDetailsSlNo == id).ToList();
+                proformaInvoice.ProformaInvoiceDetails = detailrepository.GetAsQueryable().Where(x => x.ProformaInvoiceDetailsSlNo == id && x.ProformaInvoiceDetailsVoucherno!=null).ToList();
                 return proformaInvoice;
             }
             catch (Exception ex)
