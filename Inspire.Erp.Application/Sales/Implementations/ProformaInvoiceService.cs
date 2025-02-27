@@ -5,17 +5,24 @@ using System.Threading.Tasks;
 using Inspire.Erp.Application.Sales.Interface;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Application.MODULE;
+using Inspire.Erp.Domain.Enums;
 namespace Inspire.Erp.Application.Sales.Implementation
 {
     public class ProformaInvoiceService : IProformaInvoice
     {
         private IRepository<ProformaInvoice> repository;
         private IRepository<ProformaInvoiceDetails> detailrepository;
+        private IRepository<Domain.Entities.ProgramSettings> _programsettingsRepository;
+        private IRepository<VouchersNumbers> _voucherNumbersRepository;
 
-        public ProformaInvoiceService(IRepository<ProformaInvoice> repository, IRepository<ProformaInvoiceDetails> _detailrepository)
+        public ProformaInvoiceService(IRepository<ProformaInvoice> repository, IRepository<ProformaInvoiceDetails> _detailrepository, IRepository<Domain.Entities.ProgramSettings> programsettingsRepository, IRepository<VouchersNumbers> voucherNumbersRepository)
         {
             this.repository = repository;
             detailrepository = _detailrepository;
+            _programsettingsRepository = programsettingsRepository;
+            _voucherNumbersRepository = voucherNumbersRepository;
+
         }
         public IEnumerable<ProformaInvoice> DeleteProformaInvoice(int Id)
         {
@@ -77,6 +84,10 @@ namespace Inspire.Erp.Application.Sales.Implementation
             {
 
                 repository.BeginTransaction();
+
+                string proformaVoucherNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.ProformaInvoiceVoucher_TYPE, Prefix.ProformaInvouce_PREFIX, _programsettingsRepository, _voucherNumbersRepository);
+                proformaInvoice.ProformaInvoiceVoucherno = proformaVoucherNumber;
+
                 int maxcount = 0;
                 maxcount = Convert.ToInt32(
                     repository.GetAsQueryable()
@@ -87,6 +98,8 @@ namespace Inspire.Erp.Application.Sales.Implementation
                 proformaInvoice.ProformaInvoiceDetails.ForEach(elemt =>
                 {
                     elemt.ProformaInvoiceDetailsSlNo = maxcount;
+                    elemt.ProformaInvoiceDetailsVoucherno = proformaVoucherNumber;
+
                 });
                 detailrepository.InsertList(proformaInvoice.ProformaInvoiceDetails);
                 repository.TransactionCommit();
@@ -109,6 +122,8 @@ namespace Inspire.Erp.Application.Sales.Implementation
                 proformaInvoice.ProformaInvoiceDetails.ForEach(elemt =>
                 {
                     elemt.ProformaInvoiceDetailsSlNo = proformaInvoice.ProformaInvoiceId;
+                    elemt.ProformaInvoiceDetailsVoucherno = proformaInvoice.ProformaInvoiceVoucherno;
+
                 });
                 detailrepository.UpdateList(proformaInvoice.ProformaInvoiceDetails);
                 repository.TransactionCommit();
@@ -117,6 +132,35 @@ namespace Inspire.Erp.Application.Sales.Implementation
             catch (Exception ex)
             {
                 repository.TransactionRollback();
+                throw ex;
+            }
+        }
+
+        public VouchersNumbers GetVouchersNumbers(string pvno)
+        {
+            try
+            {
+                VouchersNumbers vouchersNumbers = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == pvno).SingleOrDefault();
+                return vouchersNumbers;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+        public ProformaInvoice GetProformaInvoiceDetailsByNo(string ProformaInvoiceVoucherNo)
+        {
+            try
+            {
+                ProformaInvoice voucherModel = new ProformaInvoice();
+                voucherModel = repository.GetAsQueryable().Where(a => a.ProformaInvoiceVoucherno == ProformaInvoiceVoucherNo).FirstOrDefault();
+                voucherModel.ProformaInvoiceDetails = detailrepository.GetAsQueryable().Where(o => o.ProformaInvoiceDetailsVoucherno == ProformaInvoiceVoucherNo && o.ProformaInvoiceDetailsDelStatus != true).ToList();
+                return voucherModel;
+            }
+
+            catch (System.Exception ex)
+            {
                 throw ex;
             }
         }

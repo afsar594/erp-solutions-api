@@ -57,8 +57,8 @@ namespace Inspire.Erp.Domain.Enums
         public static String GeneralPurchaseOrder_TYPE { get { return "GeneralPurchaseOrder"; } }
         public static String StockRequisition_TYPE { get { return "StockRequisition"; } }
         public static String ProgressiveInvoice_TYPE { get { return "ProgressiveInvoice"; } }
+        public static String DamageVoucher_TYPE { get { return "DamageVoucher"; } }
 
-        public static String DocumentVoucher_TYPE { get { return "DocumentVoucher"; } }
         public static String RFQ_TYPE { get { return "RFQ"; } }
         public static String StockAdjustmentVoucher_TYPE
         {
@@ -75,7 +75,9 @@ namespace Inspire.Erp.Domain.Enums
         public static String PosSalesVoucher_TYPE { get { return "PosSalesVoucher"; } }
         public static String JobMasterVoucher_TYPE { get { return "JobMasterVoucher"; } }
         public static String ManufactureItem_TYPE { get { return "ManufactureItem"; } }
-        public static String DamageVoucher_TYPE { get { return "DamageVoucher"; } }
+        public static String DocumentVoucher_TYPE { get { return "DocumentVoucher"; } }
+
+        public static String ProformaInvoiceVoucher_TYPE { get { return "ProformaInvoiceVoucher"; } }
     }
 
     public static class AccountStatus
@@ -137,6 +139,8 @@ namespace Inspire.Erp.Domain.Enums
 
         public static String RFQ_Prefix { get { return "RFQ_Prefix"; } }
         public static String StockAdjustment_Prefix { get { return "StockAdjustment_Prefix"; } }
+
+        public static String ProformaInvouce_PREFIX { get { return "ProformaInvouce_PREFIX"; } }
 
     }
 

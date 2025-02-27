@@ -10850,6 +10850,12 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnName("Proforma_Invoice_Warranty")
                     .HasMaxLength(150)
                     .IsUnicode(false);
+
+                entity.Property(e => e.ProformaInvoiceVatPer).HasColumnName("Proforma_Invoice_Vat_Per");
+                entity.Property(e => e.ProformaInvoiceVatAmount).HasColumnName("Proforma_Invoice_Vat_Amount");
+                entity.Property(e => e.ProformaInvoiceVoucherno).HasColumnName("Proforma_Invoice_Voucherno");
+
+
             });
 
             modelBuilder.Entity<ProformaInvoiceDetails>(entity =>
@@ -10897,6 +10903,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.ProformaInvoiceDetailsUnitId).HasColumnName("Proforma_Invoice_Details_Unit_ID");
 
                 entity.Property(e => e.ProformaInvoiceDetailsUnitPrice).HasColumnName("Proforma_Invoice_Details_Unit_Price");
+                entity.Property(e => e.ProformaInvoiceDetailsVoucherno).HasColumnName("Proforma_Invoice_Details_Voucherno");
             });
 
             modelBuilder.Entity<Inspire.Erp.Domain.Entities.ProgramSettings>(entity =>

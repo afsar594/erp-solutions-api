@@ -21,5 +21,6 @@ namespace Inspire.Erp.Domain.Entities
         public int? ProformaInvoiceDetailsQuotationDetId { get; set; }
         public string ProformaInvoiceDetailsRemarks { get; set; }
         public bool? ProformaInvoiceDetailsDelStatus { get; set; }
+        public string? ProformaInvoiceDetailsVoucherno { get; set; }
     }
 }
