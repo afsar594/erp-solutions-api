@@ -258,8 +258,12 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                    && (filter.StatusId == null || a.EnquiryMasterEnquiryStatusId == filter.StatusId)
                                    && (filter.Enquiry_No == null || a.EnquiryMasterEnquiryId == filter.Enquiry_No)
 
-                                   && (filter.fromDate.Value.Date == null || a.EnquiryMasterEnquiryDate >= filter.fromDate.Value.Date)
-                                   && (filter.toDate.Value.Date == null || a.EnquiryMasterEnquiryDate < filter.toDate.Value.Date)) 
+                                  // && (filter.fromDate == null || a.EnquiryMasterEnquiryDate.Value.Date >= filter.fromDate.Value.Date)
+                                   //&& (filter.toDate == null || a.EnquiryMasterEnquiryDate.Value.Date < filter.toDate.Value.Date)
+                                    &&  (filter.fromDate == null || a.EnquiryMasterEnquiryDate.Value.Date >= filter.fromDate.Value.Date)
+                                    && (filter.toDate == null || a.EnquiryMasterEnquiryDate.Value.Date <= filter.toDate.Value.Date)
+
+                                   )
 
                                            join lm in _locationMasterRepository.GetAsQueryable() on ce.EnquiryMasterLocationId equals (long)lm.LocationMasterLocationId into lmGroup
                                            from lm in lmGroup.DefaultIfEmpty()
