@@ -363,8 +363,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         .Where(a => (filter.CustomerId == null || a.EnquiryMasterSalesManId == filter.CustomerId)
                                    && (filter.StatusId == null || a.EnquiryMasterEnquiryStatusId == filter.StatusId)
 
-                                   && (filter.fromDate == null || a.EnquiryMasterEnquiryDate.Value.Date>= filter.fromDate.Value)
-                                   && (filter.toDate == null || a.EnquiryMasterEnquiryDate.Value.Date <= filter.toDate.Value))
+                                   && (filter.fromDate == null || a.EnquiryMasterEnquiryDate.Value.Date>= filter.fromDate.Value.Date)
+                                   && (filter.toDate == null || a.EnquiryMasterEnquiryDate.Value.Date <= filter.toDate.Value.Date))
 
                                            join lm in _locationMasterRepository.GetAsQueryable() on ce.EnquiryMasterLocationId equals (long)lm.LocationMasterLocationId into lmGroup
                                            from lm in lmGroup.DefaultIfEmpty()
