@@ -413,6 +413,46 @@ namespace Inspire.Erp.Web.Controllers
             objectresponse.IsSuccess = true;
             return objectresponse;
         }
+        [HttpGet]
+        [Route("LoaAccountsforbank")]
+        public ResponseInfo LoaAccountsforbank()
+        {
+            var objectresponse = new ResponseInfo();
+            var masterAccountsTables = chartofAccountsService.GetAllAccounts().Where(a => a.MaDelStatus != true && a.MaAccNo == "01001002").Select(c => new
+            {
+                c.MaAccNo,
+                c.MaAccName,
+                c.MaRelativeNo,
+                c.MaSno
+            }).OrderBy(x => x.MaAccName).AsEnumerable().ToList();
+            objectresponse.ResultSet = new
+            {
+                MasterAccountsTables = masterAccountsTables
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
+        [HttpGet]
+        [Route("LoaAccountsforcash")]
+        public ResponseInfo LoaAccountsforcash()
+        {
+            var objectresponse = new ResponseInfo();
+            var masterAccountsTables = chartofAccountsService.GetAllAccounts().Where(a => a.MaDelStatus != true && a.MaAccNo == "01001004").Select(c => new
+            {
+                c.MaAccNo,
+                c.MaAccName,
+                c.MaRelativeNo,
+                c.MaSno
+            }).OrderBy(x => x.MaAccName).AsEnumerable().ToList();
+            objectresponse.ResultSet = new
+            {
+                MasterAccountsTables = masterAccountsTables
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
 
         [HttpGet]
         [Route("LoadDropdowncostcenterMasters")]

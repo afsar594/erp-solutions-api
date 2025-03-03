@@ -670,11 +670,6 @@ namespace Inspire.Erp.Web.Controllers
             objectresponse.IsSuccess = true;
             return objectresponse;
         }
-
-
-
-
-
         [HttpGet]
         [Route("GetCustomerById/{id}")]
         public ResponseInfo GetCustomerById(int id)

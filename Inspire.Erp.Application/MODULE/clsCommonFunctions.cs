@@ -17,7 +17,55 @@ namespace Inspire.Erp.Application.MODULE
 {
     public static class clsCommonFunctions
     {
-
+        public static void UpdateAccountsTransactions(string AccountsTransactionsVoucherNo, string AccountsTransactionsVoucherType, IRepository<AccountsTransactions> _accountTransactionRepository)
+        {
+            List<AccountsTransactions> accttrans = _accountTransactionRepository.GetAsQueryable()
+                .Where(k => k.AccountsTransactionsVoucherNo == AccountsTransactionsVoucherNo && k.AccountsTransactionsVoucherType == AccountsTransactionsVoucherType && k.AccountstransactionsDelStatus != true).Select((l) => new AccountsTransactions
+                {
+                     AccountsTransactionsTransSno = l.AccountsTransactionsTransSno,
+                     AccountstransactionsDelStatus = false,
+                     AccountsTransactionsAccNo = l.AccountsTransactionsAccNo,
+                     AccountsTransactionsTransDate = l.AccountsTransactionsTransDate,
+                     AccountsTransactionsParticulars = l.AccountsTransactionsParticulars,
+                     AccountsTransactionsDebit = l.AccountsTransactionsDebit,
+                     AccountsTransactionsCredit = l.AccountsTransactionsCredit,
+                     AccountsTransactionsFcDebit = l.AccountsTransactionsFcDebit,
+                     AccountsTransactionsFcCredit = l.AccountsTransactionsFcCredit,
+                     AccountsTransactionsVoucherType = l.AccountsTransactionsVoucherType,
+                     AccountsTransactionsVoucherNo = l.AccountsTransactionsVoucherNo,
+                     AccountsTransactionsDescription = l.AccountsTransactionsDescription,
+                     AccountsTransactionsUserId = l.AccountsTransactionsUserId,
+                     AccountsTransactionsStatus = l.AccountsTransactionsStatus,
+                     AccountsTransactionsTstamp = l.AccountsTransactionsTstamp,
+                     RefNo = l.RefNo,
+                     AccountsTransactionsFsno = l.AccountsTransactionsFsno,
+                     AccountsTransactionsAllocDebit = l.AccountsTransactionsAllocDebit,
+                     AccountsTransactionsAllocCredit = l.AccountsTransactionsAllocCredit,
+                     AccountsTransactionsAllocBalance = l.AccountsTransactionsAllocBalance,
+                     AccountsTransactionsFcAllocDebit = l.AccountsTransactionsFcAllocDebit,
+                     AccountsTransactionsFcAllocCredit = l.AccountsTransactionsFcAllocCredit,
+                     AccountsTransactionsFcAllocBalance = l.AccountsTransactionsFcAllocBalance,
+                     AccountsTransactionsLocation = l.AccountsTransactionsLocation,
+                     AccountsTransactionsJobNo = l.AccountsTransactionsJobNo,
+                     AccountsTransactionsCostCenterId = l.AccountsTransactionsCostCenterId,
+                     AccountsTransactionsApprovalDt = l.AccountsTransactionsApprovalDt,
+                     AccountsTransactionsDepartment = l.AccountsTransactionsDepartment,
+                     AccountsTransactionsFcRate = l.AccountsTransactionsFcRate,
+                     AccountsTransactionsCompanyId = l.AccountsTransactionsCompanyId,
+                     AccountsTransactionsCurrencyId = l.AccountsTransactionsCurrencyId,
+                     AccountsTransactionsDrGram = l.AccountsTransactionsDrGram,
+                     AccountsTransactionsCrGram = l.AccountsTransactionsCrGram,
+                     AccountsTransactionsCheqNo = l.AccountsTransactionsCheqNo,
+                     AccountsTransactionsLpoNo = l.AccountsTransactionsLpoNo,
+                     AccountsTransactionsCheqDate = l.AccountsTransactionsCheqDate,
+                     AccountsTransactionsOpposEntryDesc = l.AccountsTransactionsOpposEntryDesc,
+                     AccountsTransactionsAllocUpdateBal = l.AccountsTransactionsAllocUpdateBal,
+                     AccountsTransactionsDeptId = l.AccountsTransactionsDeptId,
+                     AccountsTransactionsVatno = l.AccountsTransactionsVatno,
+                     AccountsTransactionsVatableAmount = l.AccountsTransactionsVatableAmount,
+                 }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
+            _accountTransactionRepository.UpdateList(accttrans);
+        }
         public static void Delete_OldEntry_AccountsTransactions(string AccountsTransactionsVoucherNo, string AccountsTransactionsVoucherType, IRepository<AccountsTransactions> _accountTransactionRepository)
 
         {
@@ -29,7 +77,7 @@ namespace Inspire.Erp.Application.MODULE
                  .Where(k => k.AccountsTransactionsVoucherNo == AccountsTransactionsVoucherNo && k.AccountsTransactionsVoucherType == AccountsTransactionsVoucherType && k.AccountstransactionsDelStatus != true).Select((l) => new AccountsTransactions
                  {
                      AccountsTransactionsTransSno = l.AccountsTransactionsTransSno,
-                     AccountstransactionsDelStatus = true,
+                    // AccountstransactionsDelStatus = true,
 
                      AccountsTransactionsAccNo = l.AccountsTransactionsAccNo,
                      AccountsTransactionsTransDate = l.AccountsTransactionsTransDate,
@@ -129,7 +177,6 @@ namespace Inspire.Erp.Application.MODULE
             _accountTransactionRepository.DeleteList(accttrans);
             //_accountTransactionRepository.UpdateList(accttrans);
         }
-
         public static void Delete_OldEntry_StockRegister(string StockRegisterVoucherNo, string StockRegisterTransType, IRepository<StockRegister> _stockRegisterRepository)
         {
             List<StockRegister> stockTrans = _stockRegisterRepository.GetAsQueryable()
@@ -177,8 +224,6 @@ namespace Inspire.Erp.Application.MODULE
             //_stockRegisterRepository.UpdateList(stockTrans);
 
         }
-
-
         public static void Delete_OldEntryOf_StockRegister(string Vno, string StockRegisterTransType, IRepository<StockRegister> _stockRegisterRepository)
         {
             var data = _stockRegisterRepository.GetAsQueryable().Where(a => a.StockRegisterPurchaseID == Vno && a.StockRegisterTransType.Trim() == StockRegisterTransType).ToList();
@@ -187,7 +232,6 @@ namespace Inspire.Erp.Application.MODULE
                 _stockRegisterRepository.DeleteList(data);
             }
         }
-
         public static void Delete_OldEntry_vouchernumber(string Vno, string StockRegisterTransType, IRepository<VouchersNumbers> _VoucherNumberRepo)
         {
             var data = _VoucherNumberRepo.GetAsQueryable().Where(a => a.VouchersNumbersVNo == Vno && a.VouchersNumbersVType.Trim() == StockRegisterTransType).ToList();
@@ -196,7 +240,6 @@ namespace Inspire.Erp.Application.MODULE
                 _VoucherNumberRepo.DeleteList(data);
             }
         }
-
         public static VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate, string voucherType, string voucherPrefix,
                 IRepository<ProgramSettings> _programsettingsRepository,
          IRepository<VouchersNumbers> _voucherNumbersRepository)
@@ -234,7 +277,6 @@ namespace Inspire.Erp.Application.MODULE
             }
 
         }
-
         public static double getConverionCurrencyRate(int? itemid, IRepository<CurrencyMaster> _currencyMasterRepository)
         {
             try
@@ -246,7 +288,6 @@ namespace Inspire.Erp.Application.MODULE
                 return 1;
             }
         }
-
         public static string GenrateVoucherNo(string voucherType, string voucherprefix, IRepository<ProgramSettings> _progrramSettingRepo, IRepository<VouchersNumbers> _voucherNosRepo)
         {
             try
@@ -310,9 +351,5 @@ namespace Inspire.Erp.Application.MODULE
 
             }
         }
-
-
-
-
     }
 }

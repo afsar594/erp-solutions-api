@@ -140,7 +140,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 //=================================
                 clsCommonFunctions.Delete_OldEntryOf_StockRegister(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _stockRegisterRepository);
-                clsCommonFunctions.Delete_OldEntry_AccountsTransactions(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _accountTransactionRepository);
+                 clsCommonFunctions.UpdateAccountsTransactions(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _accountTransactionRepository);
                 //=================================
                 salesVoucher.SalesVoucherDetails = salesVoucherDetails.Select((k) =>
                 {
@@ -156,20 +156,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 _salesVoucherRepository.Update(salesVoucher);
 
-                accountsTransactions = accountsTransactions.Select((k) =>
-                {
-                    if (k.AccountsTransactionsTransSno == 0)
-                    {
-                        k.AccountsTransactionsTransDate = salesVoucher.SalesVoucherDate;
-                        k.AccountsTransactionsVoucherNo = salesVoucher.SalesVoucherNo;
-                        k.AccountsTransactionsVoucherType = VoucherType.SalesVoucher_TYPE;
-                        k.AccountsTransactionsStatus = AccountStatus.Approved;
-                    }
-
-                    return k;
-                }).Where(x => x.AccountsTransactionsTransSno == 0).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
-                _accountTransactionRepository.UpdateList(accountsTransactions);
-
+                
                 var currencyRate = clsCommonFunctions.getConverionCurrencyRate(salesVoucher.SalesVoucherCurrencyId, _currencyMasterRepository);
                 var rate = (decimal)currencyRate;
 
@@ -250,7 +237,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 //=================================
                 clsCommonFunctions.Delete_OldEntry_StockRegister(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _stockRegisterRepository);
                 clsCommonFunctions.Delete_OldEntry_AccountsTransactions(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _accountTransactionRepository);
-                //clsCommonFunctions.Delete_OldEntry_vouchernumber(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _voucherNumbersRepository);
                 //=================================
 
 
@@ -263,13 +249,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 }).OrderBy(x => x.SalesVoucherDetailsItemName).AsEnumerable().ToList();
 
                 //_salesVoucherDetailsRepository.UpdateList(salesVoucherDetails);
-
-                accountsTransactions = accountsTransactions.Select((k) =>
-                {
-                    k.AccountstransactionsDelStatus = true;
-                    return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
-                _accountTransactionRepository.UpdateList(accountsTransactions);
 
                 stockRegister = stockRegister.Select((k) =>
                 {
