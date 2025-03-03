@@ -429,7 +429,15 @@ namespace Inspire.Erp.Web.Controllers
                     .Where(m => m.MaAccNo == "01001002" && (m.MaDelStatus == false || m.MaDelStatus == null))
                     .Select(m => m.MaAccNo)
                     .Contains(ma.MaRelativeNo))
-                .ToList();
+                  .Select(ma => new
+                  {
+                      ma.MaAccNo,
+                      ma.MaAccName,
+                      ma.MaRelativeNo,
+                      ma.MaSno
+                  })
+                 .ToList();
+               
 
             objectresponse.ResultSet = new
             {
@@ -449,8 +457,15 @@ namespace Inspire.Erp.Web.Controllers
                     .Where(m => m.MaAccNo == "01001004" && (m.MaDelStatus == false || m.MaDelStatus == null))
                     .Select(m => m.MaAccNo)
                     .Contains(ma.MaRelativeNo))
-                .ToList();
-
+                 .Select(ma => new
+                 {
+                     ma.MaAccNo,
+                     ma.MaAccName,
+                     ma.MaRelativeNo,
+                     ma.MaSno
+                 })
+                 .ToList();
+          
             objectresponse.ResultSet = new
             {
                 MasterAccountsTables = masterAccountsTables
