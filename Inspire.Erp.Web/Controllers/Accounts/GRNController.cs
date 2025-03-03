@@ -35,11 +35,14 @@ namespace Inspire.Erp.Web.Controllers
         private IRepository<JobMaster> jobrepository; private IRepository<LocationMaster> locationrepository;
         private IRepository<CurrencyMaster> currencyrepository; private IRepository<AccountSettings> _accountsSettingsRepo;
         private IChartofAccountsService chartofAccountsService;
+        private IRepository<MasterAccountsTable> chartofAccountsrepository;
+
         public GRNController(IGRNService grn, IMapper mapper, IRepository<ItemMaster> _itemrepository,
             IRepository<SuppliersMaster> _supplierrepository, IRepository<VendorMaster> _Brandrepository,
             IRepository<UnitMaster> _unitrepository, IRepository<UnitDetails> _unitDetailRepository, IRepository<LocationMaster> _locationrepository
             , IRepository<CostCenterMaster> _countryrepository, IRepository<AccountSettings> accountsSettingsRepo
-            , IRepository<JobMaster> _jobrepository, IRepository<CurrencyMaster> _currencyrepository, IChartofAccountsService _chartofAccountsService
+            , IRepository<JobMaster> _jobrepository, IRepository<CurrencyMaster> _currencyrepository, IChartofAccountsService _chartofAccountsService,
+            IRepository<MasterAccountsTable> _chartofAccountsrepository
             )
         {
             _grn = grn;
@@ -398,6 +401,9 @@ namespace Inspire.Erp.Web.Controllers
         public ResponseInfo LoadDropdowchartofAccounts()
         {
             var objectresponse = new ResponseInfo();
+
+           
+
             var masterAccountsTables = chartofAccountsService.GetAllAccounts().Where(a => a.MaDelStatus != true && a.MaAccType == "A" ).Select(c => new
             {
                 c.MaAccNo,
@@ -418,13 +424,13 @@ namespace Inspire.Erp.Web.Controllers
         public ResponseInfo LoaAccountsforbank()
         {
             var objectresponse = new ResponseInfo();
-            var masterAccountsTables = chartofAccountsService.GetAllAccounts().Where(a => a.MaDelStatus != true && a.MaAccNo == "01001002").Select(c => new
-            {
-                c.MaAccNo,
-                c.MaAccName,
-                c.MaRelativeNo,
-                c.MaSno
-            }).OrderBy(x => x.MaAccName).AsEnumerable().ToList();
+            var masterAccountsTables = chartofAccountsService.GetAllAccounts()
+                .Where(ma => chartofAccountsService.GetAllAccounts()
+                    .Where(m => m.MaAccNo == "01001002" && (m.MaDelStatus == false || m.MaDelStatus == null))
+                    .Select(m => m.MaAccNo)
+                    .Contains(ma.MaRelativeNo))
+                .ToList();
+
             objectresponse.ResultSet = new
             {
                 MasterAccountsTables = masterAccountsTables
@@ -438,13 +444,13 @@ namespace Inspire.Erp.Web.Controllers
         public ResponseInfo LoaAccountsforcash()
         {
             var objectresponse = new ResponseInfo();
-            var masterAccountsTables = chartofAccountsService.GetAllAccounts().Where(a => a.MaDelStatus != true && a.MaAccNo == "01001004").Select(c => new
-            {
-                c.MaAccNo,
-                c.MaAccName,
-                c.MaRelativeNo,
-                c.MaSno
-            }).OrderBy(x => x.MaAccName).AsEnumerable().ToList();
+            var masterAccountsTables = chartofAccountsService.GetAllAccounts()
+                .Where(ma => chartofAccountsService.GetAllAccounts()
+                    .Where(m => m.MaAccNo == "01001004" && (m.MaDelStatus == false || m.MaDelStatus == null))
+                    .Select(m => m.MaAccNo)
+                    .Contains(ma.MaRelativeNo))
+                .ToList();
+
             objectresponse.ResultSet = new
             {
                 MasterAccountsTables = masterAccountsTables
