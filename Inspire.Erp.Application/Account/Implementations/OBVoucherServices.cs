@@ -142,6 +142,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsVoucherType = VoucherType.OBVoucher;
                     k.AccountsTransactionsVoucherNo = openingVoucher.OpeningVoucherNo; 
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
+                    k.AccountsTransactionsAllocBalance = k.AccountsTransactionsDebit;
                     return k;
                 }).OrderBy(x => x.AccountsTransactionsVoucherType).AsEnumerable().ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
