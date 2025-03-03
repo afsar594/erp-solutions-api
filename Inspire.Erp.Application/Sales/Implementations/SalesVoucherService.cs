@@ -825,7 +825,23 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                  join dtl in SalesReturnDetails on hdr.SalesVoucherNo equals dtl.SalesReturnDetailsNo into ldtl
                                  from retDtl in ldtl.DefaultIfEmpty()
                                  join mstr in SalesReturnMaster on hdr.SalesVoucherNo equals mstr.SalesReturnNo into lmstr
-                                 from retMstr in lmstr.DefaultIfEmpty()
+
+
+                                 join c in _customerMasterRepository.GetAsQueryable() on hdr.SalesVoucherPartyId equals c.CustomerMasterCustomerNo
+                                 //join cr in _currencyMasterRepository.GetAsQueryable() on s.SalesVoucherCurrencyId equals cr.CurrencyMasterCurrencyId
+                                 //where s.SalesVoucherDelStatus == null || s.SalesVoucherDelStatus == false
+                                 //select new SalesVoucher()
+                                 //{
+                                 //    SalesVoucherId = s.SalesVoucherId,
+                                 //    SalesVoucherNo = s.SalesVoucherNo,
+                                 //    SalesVoucherDate = s.SalesVoucherDate,
+                                 //    SalesVoucherType = s.SalesVoucherType,
+                                 //    SalesVoucherPartyId = c.CustomerMasterCustomerNo,
+                                 //    SalesVoucherPartyName = c.CustomerMasterCustomerName,
+
+
+
+                                     from retMstr in lmstr.DefaultIfEmpty()
                                  where hdr.SalesVoucherNo != null
                                  select new
                                  {
@@ -839,6 +855,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                      SalRetAmt = retMstr != null ? retMstr.SalRetAmt : 0,
                                      VATAmount = hdr.SalesVoucherVat_AMT - (retMstr != null ? (decimal)retMstr.SalRetVatAmt : 0),
                                      NetAmount = hdr.SalesVoucherNetAmount - (retMstr != null ? (decimal)retMstr.SalRetAmt : 0),
+                                    // SalesVoucherPartyName = c.CustomerMasterCustomerName,
+                                     //CustomerName = c.CustomerMasterCustomerName,
                                  }).OrderBy(x => x.voucherNo).AsEnumerable().ToList();
 
                     var data2 = (from hdr in SalesVoucherList
@@ -901,9 +919,12 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                     voucherNo = hdr.SalesVoucherNo,
                                     voucherDate = Convert.ToDateTime(hdr.SalesVoucherDate).ToString("dd/MM/yyyy"),
                                     voucherType = hdr.SalesVoucherType,
-                                  //  CustomerName = customerDict.ContainsKey(hdr.SalesVoucherPartyId)
-                                                  // ? customerDict[hdr.SalesVoucherPartyId]
-                                                  // : "", // If CustomerMasterCustomerNo is not found, return an empty string
+                                                                                                                                                                                              // .ToDictionary(x => x.CustomerMasterCustomerNo, x => x.CustomerMasterCustomerName).FirstOrDefault(),
+
+                                    CustomerName = customerDict.ContainsKey(Convert.ToInt32(hdr.SalesVoucherPartyId))
+                               ? customerDict[Convert.ToInt32(hdr.SalesVoucherPartyId)]
+                               : "", // If customer is not found, return an empty string
+
                                     GrossAmount = hdr.SalesVoucherTotalGrossAmount,
                                     Discount = (hdr.SalesVoucherNetDisAmount ?? 0) + (hdr.SalesVoucherTotalDisAmount ?? 0),
                                     SalRetAmt = 0,
