@@ -72,11 +72,20 @@ namespace Inspire.Erp.Application.Account.implementations
         {
             try
             {
-                string openingstockVoucherNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.JobInoviceVoucher_TYPE, Prefix.JobInoviceVoucher_Prefix, _programsettingsRepository, _voucherNumbersRepository);
+                var vno = "";
+                if (JobInvoice.JobInvoiceVoucherNo != null)
+                {
+                    vno = JobInvoice.JobInvoiceVoucherNo;
+                }
+                else
+                {
+                    vno = clsCommonFunctions.GenrateVoucherNo(VoucherType.JobInoviceVoucher_TYPE, Prefix.JobInoviceVoucher_Prefix, _programsettingsRepository, _voucherNumbersRepository);
+
+                }
 
 
                 //string openingstockVoucherNumber = this.GenerateVoucherNo(JobInvoice.JobInvoiceVoucherDate.Value).VouchersNumbersVNo;
-                JobInvoice.JobInvoiceVoucherNo = openingstockVoucherNumber;
+                JobInvoice.JobInvoiceVoucherNo = vno;
 
                 _jobinvoicerepo.BeginTransaction();
                 int maxcount = 0;
@@ -101,7 +110,7 @@ namespace Inspire.Erp.Application.Account.implementations
 
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
-                    k.AccountsTransactionsVoucherNo = openingstockVoucherNumber;
+                    k.AccountsTransactionsVoucherNo = vno;
                     k.AccountsTransactionsAccNo = k.AccountsTransactionsAccNo ?? string.Empty;
                     k.AccountsTransactionsVoucherType = VoucherType.JobInoviceVoucher_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
