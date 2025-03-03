@@ -29,7 +29,7 @@ namespace Inspire.Erp.Application.Account.Implementations
         private readonly IRepository<TempStatement> _tempStrMaster;
         private readonly IFileService _fileService;
         public AccountStatementService(IRepository<MasterAccountsTable> masterAccountsTable, IRepository<JobMaster> jobMaster,
-            IRepository<AccountsTransactions> accountTransaction,IFileService fileService, IRepository<StationMaster> locationMaster,
+            IRepository<AccountsTransactions> accountTransaction, IFileService fileService, IRepository<StationMaster> locationMaster,
             IRepository<TempStatement> tempStrMaster)
         {
             _masterAccountsTable = masterAccountsTable;
@@ -74,7 +74,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 //});
                 response.AddRange(await _jobMaster.ListSelectAsync(x => 1 == 1, x => new DropdownResponse
                 {
-                    Id = x.JobMasterJobId != 0 ? Convert.ToInt32(x.JobMasterJobId):0,
+                    Id = x.JobMasterJobId != 0 ? Convert.ToInt32(x.JobMasterJobId) : 0,
                     Name = x.JobMasterJobName
                 }));
                 response = response.OrderBy(r => r.Name).ToList();
@@ -92,7 +92,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 GetAccountStatementResponse gridModel = new GetAccountStatementResponse();
                 var location = await _locationMaster.GetAsQueryable().FirstOrDefaultAsync();
                 gridModel.Details = new List<GetAccountTransactionResponse>();
-                var resultData =  _accountTransaction.GetBySP(@$" exec GetAccountTransactions {model.Skip},{model.Take},{model.Search},{model.Field},{model.Dir},{model.Filter},{model.Total}");
+                var resultData = _accountTransaction.GetBySP(@$" exec GetAccountTransactions {model.Skip},{model.Take},{model.Search},{model.Field},{model.Dir},{model.Filter},{model.Total}");
                 var result = resultData.Select(x => new GetAccountTransactionResponse
                 {
                     AccountsTransactionsAccNo = x.AccountsTransactionsAccNo,
@@ -121,7 +121,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     totalCredit += x.AccountsTransactionsCredit;
                     total += Convert.ToDecimal(x.AccountsTransactionsAllocBalance);
                     var accounts = _masterAccountsTable.GetAsQueryable().FirstOrDefault(c => c.MaAccNo == x.AccountsTransactionsAccNo);
-                    accName = accounts != null?accounts.MaAccName:"";
+                    accName = accounts != null ? accounts.MaAccName : "";
                     gridModel.Details.Add(new GetAccountTransactionResponse()
                     {
                         AccountsTransactionsAccNo = x.AccountsTransactionsAccNo,
@@ -143,7 +143,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 gridModel.AccNo = accno;
                 gridModel.Total = total.ToString();
                 gridModel.CreditBalance = totalCredit.ToString();
-                gridModel.StationMasterStationName = location != null?location.StationMasterStationName:"";
+                gridModel.StationMasterStationName = location != null ? location.StationMasterStationName : "";
                 gridModel.StationMasterEmail = location != null ? location.StationMasterEmail : "";
                 gridModel.StationMasterFax = location != null ? location.StationMasterFax : "";
                 gridModel.StationMasterTele1 = location != null ? location.StationMasterTele1 : "";
@@ -267,22 +267,22 @@ namespace Inspire.Erp.Application.Account.Implementations
             try
             {
 
-                AccountStatementSummayResponse res=new AccountStatementSummayResponse();
+                AccountStatementSummayResponse res = new AccountStatementSummayResponse();
 
-                        var openingBal = await _accountTransaction.GetAsQueryable()
-                                                              .Where(x => (model.DateFrom == null || x.AccountsTransactionsTransDate < model.DateFrom)
-                                               
-                                                 && x.AccountsTransactionsAccNo.ToLower() == model.AccNo.ToLower()
-                                                )
-                                                             .GroupBy(r => r.AccountsTransactionsAccNo).Select(o =>
+                var openingBal = await _accountTransaction.GetAsQueryable()
+                                                      .Where(x => (model.DateFrom == null || x.AccountsTransactionsTransDate < model.DateFrom)
 
-                                                new AccountStatementSummayResponse
-                                                {
-                                                    AccNo = o.Key,
-                                                    Debit = Convert.ToDouble(o.Sum(pc => pc.AccountsTransactionsDebit)),
-                                                    Credit = Convert.ToDouble(o.Sum(pc => pc.AccountsTransactionsCredit)),
+                                         && x.AccountsTransactionsAccNo.ToLower() == model.AccNo.ToLower()
+                                        )
+                                                     .GroupBy(r => r.AccountsTransactionsAccNo).Select(o =>
 
-                                                }).FirstOrDefaultAsync();
+                                        new AccountStatementSummayResponse
+                                        {
+                                            AccNo = o.Key,
+                                            Debit = Convert.ToDouble(o.Sum(pc => pc.AccountsTransactionsDebit)),
+                                            Credit = Convert.ToDouble(o.Sum(pc => pc.AccountsTransactionsCredit)),
+
+                                        }).FirstOrDefaultAsync();
 
                 res.OpeningBalance = new AccountStatementOpenBalResponse();
                 if (openingBal != null)
@@ -308,18 +308,18 @@ namespace Inspire.Erp.Application.Account.Implementations
 
                                      }).FirstOrDefaultAsync();
 
-                if(AccountTrans != null)
+                if (AccountTrans != null)
                 {
-                   
+
                     res.Debit = AccountTrans.Debit;
                     res.Credit = AccountTrans.Credit;
                 }
-               
-                
+
+
                 return res;
 
-               
-               
+
+
 
 
             }
@@ -356,7 +356,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 if (openingBal != null)
                 {
 
-                  
+
                     res.OpeningBalance.Credit = openingBal.Credit;
                     res.OpeningBalance.Debit = openingBal.Debit;
                 }
@@ -376,12 +376,12 @@ namespace Inspire.Erp.Application.Account.Implementations
                                      new AccountStatementDetails
                                      {
                                          AccNo = o.AccountsTransactionsAccNo,
-                                         TransDate=o.AccountsTransactionsTransDate,
+                                         TransDate = o.AccountsTransactionsTransDate,
                                          Particulars = o.AccountsTransactionsParticulars,
                                          VoucherType = o.AccountsTransactionsVoucherType,
-                                         VoucherNo=o.AccountsTransactionsVoucherNo,
-                                         Description=o.AccountsTransactionsDescription,
-                                         RefNo=o.RefNo,
+                                         VoucherNo = o.AccountsTransactionsVoucherNo,
+                                         Description = o.AccountsTransactionsDescription,
+                                         RefNo = o.RefNo,
                                          Debit = (double)o.AccountsTransactionsDebit,
                                          Credit = (double)o.AccountsTransactionsCredit,
 
@@ -391,11 +391,11 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
 
                     res.ASDetails = AccountTrans;
-                   
+
                 }
                 return res;
 
-           }
+            }
             catch (System.Exception ex)
             {
                 throw ex;
@@ -440,29 +440,39 @@ namespace Inspire.Erp.Application.Account.Implementations
         {
             try
             {
-                
-                    var result = new TempStatement()
-                    {
-        
-        TempStatementSno=model.Sno,
-        TempStatementVno=model.VoucherNo,
-        TempStatementVdate = model.VoucherDate,
-                        TempStatementVtype = model.VoucherType,
-                        TempStatementDesc = model.Description,
-                        TempStatementDebit = model.Debit,
-                        TempStatementCredit = model.Credit,
-                        TempStatementBalance = model.Balance,
-                        TempStatementAccNo = model.AccNo,
-                    };
+                var existingRecord = await _tempStrMaster.FirstOrDefaultAsync(
+                    x => x.TempStatementVno == model.VoucherNo && x.TempStatementAccNo == model.AccNo,
+                    x => x);
+
+                // If a record exists, delete it
+                if (existingRecord != null)
+                {
+                    _tempStrMaster.Delete(existingRecord);
+                }
+
+                var result = new TempStatement()
+                {
+
+                    TempStatementSno = model.Sno,
+                    TempStatementVno = model.VoucherNo,
+                    TempStatementVdate = model.VoucherDate,
+                    TempStatementVtype = model.VoucherType,
+                    TempStatementDesc = model.Description,
+                    TempStatementDebit = model.Debit,
+                    TempStatementCredit = model.Credit,
+                    TempStatementBalance = model.Balance,
+                    TempStatementAccNo = model.AccNo,
+                };
+
 
                 _tempStrMaster.Insert(result);
-               
 
-                
+
+
             }
             catch (Exception ex)
             {
-                
+
             }
         }
     }

@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Inspire.Erp.Domain.Entities
 {
     public partial class TempStatement
     {
+        [Key]
         public int? TempStatementSno { get; set; }
         public string TempStatementVno { get; set; }
         public DateTime? TempStatementVdate { get; set; }
