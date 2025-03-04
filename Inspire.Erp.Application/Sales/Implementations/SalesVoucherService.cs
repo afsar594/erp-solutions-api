@@ -827,7 +827,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                  join mstr in SalesReturnMaster on hdr.SalesVoucherNo equals mstr.SalesReturnNo into lmstr
 
 
-                                 join c in _customerMasterRepository.GetAsQueryable() on hdr.SalesVoucherPartyId equals c.CustomerMasterCustomerNo
+                                 //join c in _customerMasterRepository.GetAsQueryable() on hdr.SalesVoucherPartyId equals c.CustomerMasterCustomerNo
                                  //join cr in _currencyMasterRepository.GetAsQueryable() on s.SalesVoucherCurrencyId equals cr.CurrencyMasterCurrencyId
                                  //where s.SalesVoucherDelStatus == null || s.SalesVoucherDelStatus == false
                                  //select new SalesVoucher()
@@ -974,6 +974,10 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 //                baseUnit = svd.SalesVoucherDetailsQuantity * (decimal)(unitDetail == null ? 1 : unitDetail.UnitDetailsConversionType ?? 1)   //SD.Sold_Qty * ISNULL(UD.ConversionType, 1)
                 //                // ItemGroup = 
                 //            }).AsQueryable();
+
+                var customerDict = _customerMasterRepository.GetAsQueryable()
+                                                                  .ToDictionary(x => x.CustomerMasterCustomerNo, x => x.CustomerMasterCustomerName);
+
                 var data = (from svd in _salesVoucherDetailsRepository.GetAll()
                             join sv in _salesVoucherRepository.GetAll() on svd.SalesVoucherDetailsNo equals sv.SalesVoucherNo into lsv
                             from salesVou in lsv.DefaultIfEmpty()
@@ -998,7 +1002,13 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                 VoucherDate = Convert.ToDateTime(salesVou.SalesVoucherDate).ToString("dd/MM/yyyy"),
                                 VoucherNo = salesVou.SalesVoucherNo,
                                 QuantitySold = svd.SalesVoucherDetailsQuantity ?? 0,
-                                baseUnit = svd.SalesVoucherDetailsQuantity * (decimal)(unitDetail?.UnitDetailsConversionType ?? 1)  // Handle null conversionType
+                                baseUnit = svd.SalesVoucherDetailsQuantity * (decimal)(unitDetail?.UnitDetailsConversionType ?? 1),  // Handle null conversionType
+                                Customer = customerDict.ContainsKey(Convert.ToInt32(salesVou.SalesVoucherPartyId))
+                               ? customerDict[Convert.ToInt32(salesVou.SalesVoucherPartyId)]
+                               : "", // If customer is not found, return an empty string
+
+
+
                             }).AsQueryable();
 
                 return data;
