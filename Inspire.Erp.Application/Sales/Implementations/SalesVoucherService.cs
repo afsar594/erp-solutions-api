@@ -140,7 +140,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 //=================================
                 clsCommonFunctions.Delete_OldEntryOf_StockRegister(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _stockRegisterRepository);
-                clsCommonFunctions.Delete_OldEntry_AccountsTransactions(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _accountTransactionRepository);
+                 clsCommonFunctions.UpdateAccountsTransactions(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _accountTransactionRepository);
                 //=================================
                 salesVoucher.SalesVoucherDetails = salesVoucherDetails.Select((k) =>
                 {
@@ -156,20 +156,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 _salesVoucherRepository.Update(salesVoucher);
 
-                accountsTransactions = accountsTransactions.Select((k) =>
-                {
-                    if (k.AccountsTransactionsTransSno == 0)
-                    {
-                        k.AccountsTransactionsTransDate = salesVoucher.SalesVoucherDate;
-                        k.AccountsTransactionsVoucherNo = salesVoucher.SalesVoucherNo;
-                        k.AccountsTransactionsVoucherType = VoucherType.SalesVoucher_TYPE;
-                        k.AccountsTransactionsStatus = AccountStatus.Approved;
-                    }
-
-                    return k;
-                }).Where(x => x.AccountsTransactionsTransSno == 0).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
-                _accountTransactionRepository.UpdateList(accountsTransactions);
-
+                
                 var currencyRate = clsCommonFunctions.getConverionCurrencyRate(salesVoucher.SalesVoucherCurrencyId, _currencyMasterRepository);
                 var rate = (decimal)currencyRate;
 
@@ -250,7 +237,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 //=================================
                 clsCommonFunctions.Delete_OldEntry_StockRegister(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _stockRegisterRepository);
                 clsCommonFunctions.Delete_OldEntry_AccountsTransactions(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _accountTransactionRepository);
-                //clsCommonFunctions.Delete_OldEntry_vouchernumber(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _voucherNumbersRepository);
                 //=================================
 
 
@@ -263,13 +249,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 }).OrderBy(x => x.SalesVoucherDetailsItemName).AsEnumerable().ToList();
 
                 //_salesVoucherDetailsRepository.UpdateList(salesVoucherDetails);
-
-                accountsTransactions = accountsTransactions.Select((k) =>
-                {
-                    k.AccountstransactionsDelStatus = true;
-                    return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
-                _accountTransactionRepository.UpdateList(accountsTransactions);
 
                 stockRegister = stockRegister.Select((k) =>
                 {
@@ -846,7 +825,23 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                  join dtl in SalesReturnDetails on hdr.SalesVoucherNo equals dtl.SalesReturnDetailsNo into ldtl
                                  from retDtl in ldtl.DefaultIfEmpty()
                                  join mstr in SalesReturnMaster on hdr.SalesVoucherNo equals mstr.SalesReturnNo into lmstr
-                                 from retMstr in lmstr.DefaultIfEmpty()
+
+
+                                 //join c in _customerMasterRepository.GetAsQueryable() on hdr.SalesVoucherPartyId equals c.CustomerMasterCustomerNo
+                                 //join cr in _currencyMasterRepository.GetAsQueryable() on s.SalesVoucherCurrencyId equals cr.CurrencyMasterCurrencyId
+                                 //where s.SalesVoucherDelStatus == null || s.SalesVoucherDelStatus == false
+                                 //select new SalesVoucher()
+                                 //{
+                                 //    SalesVoucherId = s.SalesVoucherId,
+                                 //    SalesVoucherNo = s.SalesVoucherNo,
+                                 //    SalesVoucherDate = s.SalesVoucherDate,
+                                 //    SalesVoucherType = s.SalesVoucherType,
+                                 //    SalesVoucherPartyId = c.CustomerMasterCustomerNo,
+                                 //    SalesVoucherPartyName = c.CustomerMasterCustomerName,
+
+
+
+                                     from retMstr in lmstr.DefaultIfEmpty()
                                  where hdr.SalesVoucherNo != null
                                  select new
                                  {
@@ -860,6 +855,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                      SalRetAmt = retMstr != null ? retMstr.SalRetAmt : 0,
                                      VATAmount = hdr.SalesVoucherVat_AMT - (retMstr != null ? (decimal)retMstr.SalRetVatAmt : 0),
                                      NetAmount = hdr.SalesVoucherNetAmount - (retMstr != null ? (decimal)retMstr.SalRetAmt : 0),
+                                    // SalesVoucherPartyName = c.CustomerMasterCustomerName,
+                                     //CustomerName = c.CustomerMasterCustomerName,
                                  }).OrderBy(x => x.voucherNo).AsEnumerable().ToList();
 
                     var data2 = (from hdr in SalesVoucherList
@@ -922,9 +919,12 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                     voucherNo = hdr.SalesVoucherNo,
                                     voucherDate = Convert.ToDateTime(hdr.SalesVoucherDate).ToString("dd/MM/yyyy"),
                                     voucherType = hdr.SalesVoucherType,
-                                  //  CustomerName = customerDict.ContainsKey(hdr.SalesVoucherPartyId)
-                                                  // ? customerDict[hdr.SalesVoucherPartyId]
-                                                  // : "", // If CustomerMasterCustomerNo is not found, return an empty string
+                                                                                                                                                                                              // .ToDictionary(x => x.CustomerMasterCustomerNo, x => x.CustomerMasterCustomerName).FirstOrDefault(),
+
+                                    CustomerName = customerDict.ContainsKey(Convert.ToInt32(hdr.SalesVoucherPartyId))
+                               ? customerDict[Convert.ToInt32(hdr.SalesVoucherPartyId)]
+                               : "", // If customer is not found, return an empty string
+
                                     GrossAmount = hdr.SalesVoucherTotalGrossAmount,
                                     Discount = (hdr.SalesVoucherNetDisAmount ?? 0) + (hdr.SalesVoucherTotalDisAmount ?? 0),
                                     SalRetAmt = 0,
@@ -974,6 +974,10 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 //                baseUnit = svd.SalesVoucherDetailsQuantity * (decimal)(unitDetail == null ? 1 : unitDetail.UnitDetailsConversionType ?? 1)   //SD.Sold_Qty * ISNULL(UD.ConversionType, 1)
                 //                // ItemGroup = 
                 //            }).AsQueryable();
+
+                var customerDict = _customerMasterRepository.GetAsQueryable()
+                                                                  .ToDictionary(x => x.CustomerMasterCustomerNo, x => x.CustomerMasterCustomerName);
+
                 var data = (from svd in _salesVoucherDetailsRepository.GetAll()
                             join sv in _salesVoucherRepository.GetAll() on svd.SalesVoucherDetailsNo equals sv.SalesVoucherNo into lsv
                             from salesVou in lsv.DefaultIfEmpty()
@@ -998,7 +1002,13 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                 VoucherDate = Convert.ToDateTime(salesVou.SalesVoucherDate).ToString("dd/MM/yyyy"),
                                 VoucherNo = salesVou.SalesVoucherNo,
                                 QuantitySold = svd.SalesVoucherDetailsQuantity ?? 0,
-                                baseUnit = svd.SalesVoucherDetailsQuantity * (decimal)(unitDetail?.UnitDetailsConversionType ?? 1)  // Handle null conversionType
+                                baseUnit = svd.SalesVoucherDetailsQuantity * (decimal)(unitDetail?.UnitDetailsConversionType ?? 1),  // Handle null conversionType
+                                Customer = customerDict.ContainsKey(Convert.ToInt32(salesVou.SalesVoucherPartyId))
+                               ? customerDict[Convert.ToInt32(salesVou.SalesVoucherPartyId)]
+                               : "", // If customer is not found, return an empty string
+
+
+
                             }).AsQueryable();
 
                 return data;

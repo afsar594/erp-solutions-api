@@ -50,9 +50,12 @@ namespace Inspire.Erp.Domain.Modals.Common
         public int LocationId { get; set; }
         public long CustomerId { get; set; }
         public string InvioceStatus { get; set; }
-        public string fromDate { get; set; }
-        public string toDate { get; set; }
+        public DateTime fromDate { get; set; }
+        public DateTime toDate { get; set; }
+        public bool IsDateCheck { get; set; }
         public string Formate { get; set; }
+
+        public string type { get; set; }
 
     }
     public class DeliveryNotefilter

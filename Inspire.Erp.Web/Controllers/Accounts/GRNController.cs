@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NPOI.SS.Formula.Functions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,11 +36,14 @@ namespace Inspire.Erp.Web.Controllers
         private IRepository<JobMaster> jobrepository; private IRepository<LocationMaster> locationrepository;
         private IRepository<CurrencyMaster> currencyrepository; private IRepository<AccountSettings> _accountsSettingsRepo;
         private IChartofAccountsService chartofAccountsService;
+        private IRepository<MasterAccountsTable> chartofAccountsrepository;
+
         public GRNController(IGRNService grn, IMapper mapper, IRepository<ItemMaster> _itemrepository,
             IRepository<SuppliersMaster> _supplierrepository, IRepository<VendorMaster> _Brandrepository,
             IRepository<UnitMaster> _unitrepository, IRepository<UnitDetails> _unitDetailRepository, IRepository<LocationMaster> _locationrepository
             , IRepository<CostCenterMaster> _countryrepository, IRepository<AccountSettings> accountsSettingsRepo
-            , IRepository<JobMaster> _jobrepository, IRepository<CurrencyMaster> _currencyrepository, IChartofAccountsService _chartofAccountsService
+            , IRepository<JobMaster> _jobrepository, IRepository<CurrencyMaster> _currencyrepository, IChartofAccountsService _chartofAccountsService,
+            IRepository<MasterAccountsTable> _chartofAccountsrepository
             )
         {
             _grn = grn;
@@ -398,6 +402,9 @@ namespace Inspire.Erp.Web.Controllers
         public ResponseInfo LoadDropdowchartofAccounts()
         {
             var objectresponse = new ResponseInfo();
+
+           
+
             var masterAccountsTables = chartofAccountsService.GetAllAccounts().Where(a => a.MaDelStatus != true && a.MaAccType == "A" ).Select(c => new
             {
                 c.MaAccNo,
@@ -413,7 +420,70 @@ namespace Inspire.Erp.Web.Controllers
             objectresponse.IsSuccess = true;
             return objectresponse;
         }
+        [HttpGet]
+        [Route("LoaAccountsforbank")]
+        public ResponseInfo LoaAccountsforbank()
+        {
+            var objectresponse = new ResponseInfo();
+            var bankacc = _accountsSettingsRepo.GetAsQueryable().AsNoTracking().Where(a => a.AccountSettingsAccountKeyValue.Trim() == "BANK_MASTER_AC_NO").Select(x => x.AccountSettingsAccountTextValue).FirstOrDefault();
+            string[] parts = bankacc.Split(new string[] { "::" }, StringSplitOptions.None);
 
+            string accountNumber = parts.Length > 1 ? parts[1].Trim() : string.Empty;
+
+            var masterAccountsTables = chartofAccountsService.GetAllAccounts()
+                .Where(ma => chartofAccountsService.GetAllAccounts()
+                    .Where(m => m.MaAccNo == accountNumber && (m.MaDelStatus == false || m.MaDelStatus == null))
+                    .Select(m => m.MaAccNo)
+                    .Contains(ma.MaRelativeNo))
+                  .Select(ma => new
+                  {
+                      ma.MaAccNo,
+                      ma.MaAccName,
+                      ma.MaRelativeNo,
+                      ma.MaSno
+                  })
+                 .ToList();              
+
+            objectresponse.ResultSet = new
+            {
+                MasterAccountsTables = masterAccountsTables
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
+        [HttpGet]
+        [Route("LoaAccountsforcash")]
+        public ResponseInfo LoaAccountsforcash()
+        {
+            var objectresponse = new ResponseInfo();
+
+            var cashacc = _accountsSettingsRepo.GetAsQueryable().AsNoTracking().Where(a => a.AccountSettingsAccountKeyValue.Trim() == "CASH_MASTER_AC_NO").Select(x => x.AccountSettingsAccountTextValue).FirstOrDefault();
+            string[] parts = cashacc.Split(new string[] { "::" }, StringSplitOptions.None);
+
+            string accountNumber = parts.Length > 1 ? parts[1].Trim() : string.Empty;
+            var masterAccountsTables = chartofAccountsService.GetAllAccounts()
+                .Where(ma => chartofAccountsService.GetAllAccounts()
+                    .Where(m => m.MaAccNo == accountNumber && (m.MaDelStatus == false || m.MaDelStatus == null))
+                    .Select(m => m.MaAccNo)
+                    .Contains(ma.MaRelativeNo))
+                 .Select(ma => new
+                 {
+                     ma.MaAccNo,
+                     ma.MaAccName,
+                     ma.MaRelativeNo,
+                     ma.MaSno
+                 })
+                 .ToList();
+          
+            objectresponse.ResultSet = new
+            {
+                MasterAccountsTables = masterAccountsTables
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
         [HttpGet]
         [Route("LoadDropdowncostcenterMasters")]
         public ResponseInfo LoadDropdowncostcenterMasters()

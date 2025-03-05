@@ -16869,9 +16869,11 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<TempStatement>(entity =>
             {
-                entity.HasNoKey();
+               // entity.HasNoKey();
 
                 entity.ToTable("Temp_Statement_");
+                modelBuilder.Entity<TempStatement>()
+                .HasKey(t => t.TempStatementSno);
 
                 entity.Property(e => e.TempStatementAccNo)
                     .HasColumnName("Temp_Statement_AccNo")

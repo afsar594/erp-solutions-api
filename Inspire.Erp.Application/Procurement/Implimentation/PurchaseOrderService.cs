@@ -155,6 +155,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
+                //clsCommonFunctions.UpdateAccountsTransactions(purchaseOrder.PurchaseOrderNo, VoucherType.PurchaseOrder_TYPE, _accountTransactionRepository);
+
+
                 //insert tracking register
                 var listTrackRegs = new List<TrackingRegister>();
                 var listTrackPurchOrderReg = new List<PurOrderRegister>();
@@ -265,12 +268,14 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     return k;
                 }).OrderBy(x => x.PurchaseOrderDetailsItemName).AsEnumerable().ToList();
 
-                accountsTransactions = accountsTransactions.Select((k) =>
-                {
-                    k.AccountstransactionsDelStatus = true;
-                    return k;
-                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
-                _accountTransactionRepository.UpdateList(accountsTransactions);
+                //accountsTransactions = accountsTransactions.Select((k) =>
+                //{
+                //    k.AccountstransactionsDelStatus = true;
+                //    return k;
+                //}).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
+                //_accountTransactionRepository.UpdateList(accountsTransactions);
+
+                clsCommonFunctions.Delete_OldEntry_AccountsTransactions(purchaseOrder.PurchaseOrderNo, VoucherType.PurchaseOrder_TYPE, _accountTransactionRepository);
 
                 _purchaseOrderRepository.Update(purchaseOrder);
 

@@ -434,9 +434,6 @@ namespace Inspire.Erp.Web.Controllers
                 return apiResponse;
             }
             return null;
-
-
-
         }
 
         [HttpGet]
@@ -670,11 +667,6 @@ namespace Inspire.Erp.Web.Controllers
             objectresponse.IsSuccess = true;
             return objectresponse;
         }
-
-
-
-
-
         [HttpGet]
         [Route("GetCustomerById/{id}")]
         public ResponseInfo GetCustomerById(int id)

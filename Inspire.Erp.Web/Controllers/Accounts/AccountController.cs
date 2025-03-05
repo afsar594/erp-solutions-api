@@ -644,20 +644,23 @@ namespace Inspire.Erp.Web.Controllers.Accounts
             }
         }
 
-
         [HttpPost]
         [Route("SaveTempStatement")]
-        public async Task<IActionResult> SaveTempStatement([FromBody] TempStatementModel voucherCompositeView)
+        public async Task<IActionResult> SaveTempStatement([FromBody] List<TempStatementModel> tempStatements)
         {
             try
             {
-                return Ok( _accountStatService.SaveTempStatement(voucherCompositeView));
+                foreach (var tempStatement in tempStatements)
+                {
+                   await _accountStatService.SaveTempStatement(tempStatement);
+                }
+                return Ok();
             }
             catch (Exception ex)
             {
-                // Log the full exception details here
                 return StatusCode(500, $"An error occurred while retrieving AliAnsariReport: {ex.Message}");
             }
         }
+       
     }
 }

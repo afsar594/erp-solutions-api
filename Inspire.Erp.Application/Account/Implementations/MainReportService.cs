@@ -1611,8 +1611,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                            from f in jobGroup.DefaultIfEmpty()
 
                            where ((voucherCompositeView.LocationId == null || voucherCompositeView.LocationId == 0) || a.PurchaseRequisitionLocationId == voucherCompositeView.LocationId)
-                           && (voucherCompositeView.DateFrom == null || a.PurchaseRequisitionDate >= voucherCompositeView.DateFrom)
-                           && (voucherCompositeView.DateTo == null || a.PurchaseRequisitionDate <= voucherCompositeView.DateTo)
+                           && (voucherCompositeView.DateFrom == null || a.PurchaseRequisitionDate.Date >= voucherCompositeView.DateFrom.Value.Date)
+                           && (voucherCompositeView.DateTo == null || a.PurchaseRequisitionDate.Date <= voucherCompositeView.DateTo.Value.Date)
                            select new
                            {
                                Location = d.LocationMasterLocationName,
