@@ -434,9 +434,6 @@ namespace Inspire.Erp.Web.Controllers
                 return apiResponse;
             }
             return null;
-
-
-
         }
 
         [HttpGet]
