@@ -784,8 +784,12 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
         public IQueryable GetSalesReportSummaryWise()
         {
+            var location = _locationMasterRepository.GetAsQueryable()
+                                                                 .ToDictionary(x => x.LocationMasterLocationName, x => x.LocationMasterLocationName);
+
             try
             {
+               
                 var SalesVoucherList = _salesVoucherRepository.GetAll();
                 var SalesManMasterList = _salesManMasterRepository.GetAll();// context.SalesManMaster.ToList();
 
@@ -855,8 +859,11 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                      SalRetAmt = retMstr != null ? retMstr.SalRetAmt : 0,
                                      VATAmount = hdr.SalesVoucherVat_AMT - (retMstr != null ? (decimal)retMstr.SalRetVatAmt : 0),
                                      NetAmount = hdr.SalesVoucherNetAmount - (retMstr != null ? (decimal)retMstr.SalRetAmt : 0),
-                                    // SalesVoucherPartyName = c.CustomerMasterCustomerName,
+                                     // SalesVoucherPartyName = c.CustomerMasterCustomerName,
                                      //CustomerName = c.CustomerMasterCustomerName,
+                                     LocationMasterName = location.ContainsKey(Convert.ToInt32(hdr.SalesVoucherLocationID).ToString())
+                               ? location[Convert.ToInt32(hdr.SalesVoucherLocationID).ToString()]
+                               : "",
                                  }).OrderBy(x => x.voucherNo).AsEnumerable().ToList();
 
                     var data2 = (from hdr in SalesVoucherList
@@ -876,6 +883,9 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                      SalRetAmt = retMstr != null ? retMstr.SalRetAmt : 0,
                                      VATAmount = hdr.SalesVoucherVat_AMT - (retMstr != null ? (decimal)retMstr.SalRetVatAmt : 0),
                                      NetAmount = hdr.SalesVoucherNetAmount - (retMstr != null ? (decimal)retMstr.SalRetAmt : 0),
+                                     LocationMasterName = location.ContainsKey(Convert.ToInt32(hdr.SalesVoucherLocationID).ToString())
+                               ? location[Convert.ToInt32(hdr.SalesVoucherLocationID).ToString()]
+                               : "",
                                  }).OrderBy(x => x.voucherNo).AsEnumerable().ToList();
 
 
@@ -908,7 +918,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     // Load CustomerMaster data into a dictionary for quick lookup
                     var customerDict = _customerMasterRepository.GetAsQueryable()
                                                                   .ToDictionary(x => x.CustomerMasterCustomerNo, x => x.CustomerMasterCustomerName);
-
+                  
                     var data = (from hdr in SalesVoucherList
                                 where hdr.SalesVoucherNo != null
                                 select new
@@ -925,6 +935,11 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                ? customerDict[Convert.ToInt32(hdr.SalesVoucherPartyId)]
                                : "", // If customer is not found, return an empty string
 
+                                    
+                                     //LocationMasterId = location?. ?? 0,
+                                    LocationMasterName = location.ContainsKey(Convert.ToInt32(hdr.SalesVoucherLocationID).ToString())
+                               ? location[Convert.ToInt32(hdr.SalesVoucherLocationID).ToString()]
+                               : "",
                                     GrossAmount = hdr.SalesVoucherTotalGrossAmount,
                                     Discount = (hdr.SalesVoucherNetDisAmount ?? 0) + (hdr.SalesVoucherTotalDisAmount ?? 0),
                                     SalRetAmt = 0,
@@ -985,6 +1000,10 @@ namespace Inspire.Erp.Application.Sales.Implementations
                             from itemmaster in litemm.DefaultIfEmpty()
                             join um in _unitMasterRepository.GetAll() on svd.SalesVoucherDetailsUnitId equals um.UnitMasterUnitId into lum
                             from unitMaster in lum.DefaultIfEmpty()
+
+                            join um1 in _locationMasterRepository.GetAll() on salesVou.SalesVoucherLocationID equals um1.LocationMasterLocationId into lum1
+                            from locationMater in lum1.DefaultIfEmpty()
+
                             join unitDet in _UnitDetailsRepository.GetAll()
                             on new { UnitId = (int)svd.SalesVoucherDetailsUnitId, ItemId = (int)svd.SalesVoucherDetailsMatId }
                             equals new { UnitId = unitDet.UnitDetailsUnitId, ItemId = (int)unitDet.UnitDetailsItemId } into lud
@@ -1003,10 +1022,11 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                 VoucherNo = salesVou.SalesVoucherNo,
                                 QuantitySold = svd.SalesVoucherDetailsQuantity ?? 0,
                                 baseUnit = svd.SalesVoucherDetailsQuantity * (decimal)(unitDetail?.UnitDetailsConversionType ?? 1),  // Handle null conversionType
-                                Customer = customerDict.ContainsKey(Convert.ToInt32(salesVou.SalesVoucherPartyId))
+                                CustomerName = customerDict.ContainsKey(Convert.ToInt32(salesVou.SalesVoucherPartyId))
                                ? customerDict[Convert.ToInt32(salesVou.SalesVoucherPartyId)]
                                : "", // If customer is not found, return an empty string
-
+                                LocationMasterId= locationMater?.LocationMasterLocationId ?? 0,
+                                LocationMasterName= locationMater?.LocationMasterLocationName ?? "N/A"
 
 
                             }).AsQueryable();
