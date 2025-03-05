@@ -504,7 +504,9 @@ namespace Inspire.Erp.Web.Controllers.Accounts
                 query = query.Where(c => c.SalesVoucherDate.Value.Date >= model.fromdate.Value.Date && c.SalesVoucherDate.Value.Date <= model.todate.Value.Date);
             }
 
-            var result = query.OrderBy(x => x.CurrencyMasterCurrencyName).ToList();
+            //var result = query.OrderBy(x => x.CurrencyMasterCurrencyName).ToList();
+            var result = query.ToList();
+
             var accountsSettings = _accountsSettingsRepo.GetAsQueryable().AsNoTracking().Where(a => a.AccountSettingsAccountDelStatus != true && (a.AccountSettingsAccountDescription.Contains("Cost Of Finished Goods A/C") || a.AccountSettingsAccountDescription.Contains("Sales Account"))).Select(c => new
             {
                 c.AccountSettingsAccountId,

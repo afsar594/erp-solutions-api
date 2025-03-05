@@ -58,7 +58,7 @@ namespace Inspire.Erp.Application.Account.Implementation
                 //C  or // R
                 var result = await (from pdc in _pdcDetails.GetAsQueryable()
                                     join acc in _MasterAccountsTableRepo.GetAsQueryable()
-                                    on pdc.PDC_Details_PartyAccNo equals acc.MaAccNo into accGroup
+                                    on pdc.PDC_Details_Bank_Account_No equals acc.MaAccNo into accGroup
                                     from acc in accGroup.DefaultIfEmpty()
                                     where pdc.PDC_Details_Cheque_Status == chequeStatus
                                     select new PDCPostedList
@@ -226,7 +226,7 @@ namespace Inspire.Erp.Application.Account.Implementation
                         //Credit
                         accountsTransactions.Add(new AccountsTransactions()
                         {
-                            AccountsTransactionsAccNo = item.BAccNo,
+                            AccountsTransactionsAccNo = item.PartyName,
                             AccountsTransactionsCheqNo = item.CNO,
                             AccountsTransactionsDebit = (decimal)item.CAmount,
                             AccountsTransactionsFcDebit = (decimal)item.CAmount,
@@ -266,7 +266,7 @@ namespace Inspire.Erp.Application.Account.Implementation
                         //Credit
                         accountsTransactions.Add(new AccountsTransactions()
                         {
-                            AccountsTransactionsAccNo = item.BAccNo,
+                            AccountsTransactionsAccNo = item.PartyName,
                             AccountsTransactionsCheqNo = item.CNO,
                             AccountsTransactionsCredit = (decimal)item.CAmount,
                             AccountsTransactionsFcCredit = (decimal)item.CAmount,
