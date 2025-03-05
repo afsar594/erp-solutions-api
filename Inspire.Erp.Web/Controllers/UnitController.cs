@@ -149,11 +149,11 @@ namespace Inspire.Erp.Web.Controllers
             return unitMasterService.DeleteUnit(result).Select(k => new UnitMasterViewModel
             {
                 UnitMasterUnitId = k.UnitMasterUnitId,
-                UnitMasterUnitShortName = k.UnitMasterUnitShortName.Trim(),
-                UnitMasterUnitFullName = k.UnitMasterUnitFullName.Trim(),
-                UnitMasterUnitDescription = k.UnitMasterUnitDescription,
+                UnitMasterUnitShortName = k.UnitMasterUnitShortName != null ? k.UnitMasterUnitShortName.Trim() : string.Empty,
+                UnitMasterUnitFullName = k.UnitMasterUnitFullName != null ? k.UnitMasterUnitFullName.Trim() : string.Empty,
+                UnitMasterUnitDescription = k.UnitMasterUnitDescription ?? string.Empty, // Prevent null issues
                 UnitMasterUnitStatus = k.UnitMasterUnitStatus,
-                UnitMasterUnitDelStatus = k.UnitMasterUnitDelStatus
+                UnitMasterUnitDelStatus = k.UnitMasterUnitDelStatus,
             }).OrderBy(x => x.UnitMasterUnitShortName).ToList();
         }
     }
