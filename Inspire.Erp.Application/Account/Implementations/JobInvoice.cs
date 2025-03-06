@@ -67,6 +67,12 @@ namespace Inspire.Erp.Application.Account.implementations
             _programsettingsRepository = programsettingsRepository;
             _voucherNumbersRepository = voucherNumbers;
         }
+        public bool CheckVoucherExists(string voucherType, string voucherNumber)
+        {
+            return _accountTransactionRepository.GetAsQueryable()
+                .Any(at => at.AccountsTransactionsVoucherType == voucherType
+                        && at.AccountsTransactionsVoucherNo == voucherNumber);
+        }
 
         public async Task<JobInvoiceModel> InsertJobInvoice(JobInvoice JobInvoice, List<JobInvoiceDetails> jobInvoiceDetails, List<AccountsTransactions> accountsTransactions)
         {
