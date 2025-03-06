@@ -27,20 +27,40 @@ namespace Inspire.Erp.Web.Controllers
             unitMasterService = _unitMasterService;
             _mapper = mapper;
         }
+        //[HttpGet]
+        //[Route("GetAllUnit")]
+        //public List<UnitMasterViewModel> GetAllUnit()
+        //{
+        //    return unitMasterService.GetAllUnit().Select(k => new UnitMasterViewModel
+        //    {
+        //         UnitMasterUnitId = k.UnitMasterUnitId,
+        //         UnitMasterUnitShortName = k.UnitMasterUnitShortName.Trim(),
+        //         UnitMasterUnitFullName = k.UnitMasterUnitFullName.Trim(),
+        //         UnitMasterUnitDescription = k.UnitMasterUnitDescription,
+        //         UnitMasterUnitStatus = k.UnitMasterUnitStatus,
+        //        UnitMasterUnitDelStatus=k.UnitMasterUnitDelStatus,
+        //        UnitDetailsConversionType = k.UnitDetails.Select(x => x.UnitDetailsConversionType).FirstOrDefault()
+        //    }).AsEnumerable().OrderBy(x => x.UnitMasterUnitShortName).ToList();
+        //}
         [HttpGet]
         [Route("GetAllUnit")]
         public List<UnitMasterViewModel> GetAllUnit()
         {
-            return unitMasterService.GetAllUnit().Select(k => new UnitMasterViewModel
-            {
-                 UnitMasterUnitId = k.UnitMasterUnitId,
-                 UnitMasterUnitShortName = k.UnitMasterUnitShortName.Trim(),
-                 UnitMasterUnitFullName = k.UnitMasterUnitFullName.Trim(),
-                 UnitMasterUnitDescription = k.UnitMasterUnitDescription,
-                 UnitMasterUnitStatus = k.UnitMasterUnitStatus,
-                UnitMasterUnitDelStatus=k.UnitMasterUnitDelStatus,
-                UnitDetailsConversionType = k.UnitDetails.Select(x => x.UnitDetailsConversionType).FirstOrDefault()
-            }).AsEnumerable().OrderBy(x => x.UnitMasterUnitShortName).ToList();
+            return unitMasterService.GetAllUnit()
+                .Select(k => new UnitMasterViewModel
+                {
+                    UnitMasterUnitId = k.UnitMasterUnitId,
+                    UnitMasterUnitShortName = k.UnitMasterUnitShortName != null ? k.UnitMasterUnitShortName.Trim() : string.Empty,
+                    UnitMasterUnitFullName = k.UnitMasterUnitFullName != null ? k.UnitMasterUnitFullName.Trim() : string.Empty,
+                    UnitMasterUnitDescription = k.UnitMasterUnitDescription ?? string.Empty, // Prevent null issues
+                    UnitMasterUnitStatus = k.UnitMasterUnitStatus,
+                    UnitMasterUnitDelStatus = k.UnitMasterUnitDelStatus,
+                    UnitDetailsConversionType = k.UnitDetails != null && k.UnitDetails.Any()
+                        ? k.UnitDetails.Select(x => x.UnitDetailsConversionType).FirstOrDefault()
+                        : null
+                })
+                .OrderBy(x => x.UnitMasterUnitShortName) // Ordering after null check
+                .ToList();
         }
 
         [HttpGet]
@@ -88,12 +108,20 @@ namespace Inspire.Erp.Web.Controllers
             var result = _mapper.Map<UnitMaster>(unitMaster);
             return unitMasterService.InsertUnit(result).Select(k => new UnitMasterViewModel
             {
+                
+
+
                 UnitMasterUnitId = k.UnitMasterUnitId,
-                UnitMasterUnitShortName = k.UnitMasterUnitShortName.Trim(),
-                UnitMasterUnitFullName = k.UnitMasterUnitFullName.Trim(),
-                UnitMasterUnitDescription = k.UnitMasterUnitDescription,
+                UnitMasterUnitShortName = k.UnitMasterUnitShortName != null ? k.UnitMasterUnitShortName.Trim() : string.Empty,
+                UnitMasterUnitFullName = k.UnitMasterUnitFullName != null ? k.UnitMasterUnitFullName.Trim() : string.Empty,
+                UnitMasterUnitDescription = k.UnitMasterUnitDescription ?? string.Empty, // Prevent null issues
                 UnitMasterUnitStatus = k.UnitMasterUnitStatus,
-                UnitMasterUnitDelStatus = k.UnitMasterUnitDelStatus
+                UnitMasterUnitDelStatus = k.UnitMasterUnitDelStatus,
+                UnitDetailsConversionType = k.UnitDetails != null && k.UnitDetails.Any()
+                        ? k.UnitDetails.Select(x => x.UnitDetailsConversionType).FirstOrDefault()
+                        : null
+
+
             }).OrderBy(x => x.UnitMasterUnitShortName).ToList();
         }
 
@@ -105,11 +133,11 @@ namespace Inspire.Erp.Web.Controllers
             return unitMasterService.UpdateUnit(result).Select(k => new UnitMasterViewModel
             {
                 UnitMasterUnitId = k.UnitMasterUnitId,
-                UnitMasterUnitShortName = k.UnitMasterUnitShortName.Trim(),
-                UnitMasterUnitFullName = k.UnitMasterUnitFullName.Trim(),
-                UnitMasterUnitDescription = k.UnitMasterUnitDescription,
+                UnitMasterUnitShortName = k.UnitMasterUnitShortName != null ? k.UnitMasterUnitShortName.Trim() : string.Empty,
+                UnitMasterUnitFullName = k.UnitMasterUnitFullName != null ? k.UnitMasterUnitFullName.Trim() : string.Empty,
+                UnitMasterUnitDescription = k.UnitMasterUnitDescription ?? string.Empty, // Prevent null issues
                 UnitMasterUnitStatus = k.UnitMasterUnitStatus,
-                UnitMasterUnitDelStatus = k.UnitMasterUnitDelStatus
+                UnitMasterUnitDelStatus = k.UnitMasterUnitDelStatus,
             }).OrderBy(x => x.UnitMasterUnitShortName).ToList();
         }
 
@@ -121,11 +149,11 @@ namespace Inspire.Erp.Web.Controllers
             return unitMasterService.DeleteUnit(result).Select(k => new UnitMasterViewModel
             {
                 UnitMasterUnitId = k.UnitMasterUnitId,
-                UnitMasterUnitShortName = k.UnitMasterUnitShortName.Trim(),
-                UnitMasterUnitFullName = k.UnitMasterUnitFullName.Trim(),
-                UnitMasterUnitDescription = k.UnitMasterUnitDescription,
+                UnitMasterUnitShortName = k.UnitMasterUnitShortName != null ? k.UnitMasterUnitShortName.Trim() : string.Empty,
+                UnitMasterUnitFullName = k.UnitMasterUnitFullName != null ? k.UnitMasterUnitFullName.Trim() : string.Empty,
+                UnitMasterUnitDescription = k.UnitMasterUnitDescription ?? string.Empty, // Prevent null issues
                 UnitMasterUnitStatus = k.UnitMasterUnitStatus,
-                UnitMasterUnitDelStatus = k.UnitMasterUnitDelStatus
+                UnitMasterUnitDelStatus = k.UnitMasterUnitDelStatus,
             }).OrderBy(x => x.UnitMasterUnitShortName).ToList();
         }
     }
