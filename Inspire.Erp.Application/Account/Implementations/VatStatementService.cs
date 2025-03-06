@@ -165,19 +165,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 }
                 modelWrapper.Details = gridmodel;
                 modelWrapper.Total = grandTotal.ToString();
-                modelWrapper.StationMasterStationName = location != null ? location.StationMasterStationName : "";
-                modelWrapper.StationMasterEmail = location != null ? location.StationMasterEmail : "";
-                modelWrapper.StationMasterFax = location != null ? location.StationMasterFax : "";
-                modelWrapper.StationMasterTele1 = location != null ? location.StationMasterTele1 : "";
-                modelWrapper.StationMasterAddress = location != null ? location.StationMasterAddress : "";
-                modelWrapper.StationMasterCity = location != null ? location.StationMasterCity : "";
-                modelWrapper.StationMasterCode = location != null ? location.StationMasterCode : 0;
-                modelWrapper.StationMasterCountry = location != null ? location.StationMasterCountry : "";
-                modelWrapper.StationMasterLogoPath = location != null ? location.StationMasterLogoPath : "";
-                modelWrapper.StationMasterPostOffice = location != null ? location.StationMasterPostOffice : "";
-                modelWrapper.StationMasterSignPath = location != null ? location.StationMasterSignPath : "";
-                modelWrapper.StationMasterVatNo = location != null ? location.StationMasterVatNo : "";
-                modelWrapper.StationMasterWebSite = location != null ? location.StationMasterWebSite : "";
+                
                 return Response<GetVatStatementSummaryResponse>.Success(modelWrapper, "Data found");
             }
             catch (Exception ex)
@@ -218,19 +206,7 @@ namespace Inspire.Erp.Application.Account.Implementations
 
                 modelWrapper.Details = gridmodel;
                 modelWrapper.Total = grandTotal.ToString();
-                modelWrapper.StationMasterStationName = location != null ? location.StationMasterStationName : "";
-                modelWrapper.StationMasterEmail = location != null ? location.StationMasterEmail : "";
-                modelWrapper.StationMasterFax = location != null ? location.StationMasterFax : "";
-                modelWrapper.StationMasterTele1 = location != null ? location.StationMasterTele1 : "";
-                modelWrapper.StationMasterAddress = location != null ? location.StationMasterAddress : "";
-                modelWrapper.StationMasterCity = location != null ? location.StationMasterCity : "";
-                modelWrapper.StationMasterCode = location != null ? location.StationMasterCode : 0;
-                modelWrapper.StationMasterCountry = location != null ? location.StationMasterCountry : "";
-                modelWrapper.StationMasterLogoPath = location != null ? location.StationMasterLogoPath : "";
-                modelWrapper.StationMasterPostOffice = location != null ? location.StationMasterPostOffice : "";
-                modelWrapper.StationMasterSignPath = location != null ? location.StationMasterSignPath : "";
-                modelWrapper.StationMasterVatNo = location != null ? location.StationMasterVatNo : "";
-                modelWrapper.StationMasterWebSite = location != null ? location.StationMasterWebSite : "";
+              
                 return Response<GetVatStatementDetailResponse>.Success(modelWrapper, "Data found");
             }
             catch (Exception ex)
