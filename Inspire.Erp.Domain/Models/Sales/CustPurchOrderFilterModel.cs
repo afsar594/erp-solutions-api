@@ -22,5 +22,7 @@ namespace Inspire.Erp.Domain.Modals.Sales
         public DateTime? DateTo { get; set; }
         public bool isDataChecked { get; set; }
 
+        public string type { get; set; }
+
     }
 }

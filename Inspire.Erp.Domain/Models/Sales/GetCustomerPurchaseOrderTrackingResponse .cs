@@ -29,8 +29,10 @@ namespace Inspire.Erp.Domain.Modals.Sales
         public long? DeliveredId { get; set; }
         public int? CustomerId { get; set; }
         public int? LocationId { get; set; }
+        public string? type { get; set; }
 
-    }   
+
+    }
 
 
 }

@@ -482,45 +482,99 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 {
                     purchaseorder = purchaseorder.Where(a => a.CustomerPurchaseOrderDate.Value.Date >= model.DateFrom.Value.Date && a.CustomerPurchaseOrderDate.Value.Date <= model.DateTo.Value.Date).OrderBy(x => x.CustomerPurchaseOrderVoucherNo).AsEnumerable().ToList();
                 }
+                if (model.type == "Summary")
+                {
+                    var results = (from cpod in purchaseorder
+                                   join cm in _Context.CustomerMaster
+                                   on cpod.CustomerPurchaseOrderCustomerId equals cm.CustomerMasterCustomerNo into gum
+                                   from cmg in gum.DefaultIfEmpty()
 
-                var results = (from cpod in purchaseorder
-                               join cm in _Context.CustomerMaster
-                               on cpod.CustomerPurchaseOrderCustomerId equals cm.CustomerMasterCustomerNo into gum
-                               from cmg in gum.DefaultIfEmpty()
+                                   join im in _Context.ItemMaster
+                                   on cpod.CustomerPurchaseOrderDetailsItemId equals im.ItemMasterItemId into iminto
+                                   from img in iminto.DefaultIfEmpty()
 
-                               join im in _Context.ItemMaster
-                               on cpod.CustomerPurchaseOrderDetailsItemId equals im.ItemMasterItemId into iminto
-                               from img in iminto.DefaultIfEmpty()
+                                   join um in _Context.UnitMaster
+                                   on cpod.CustomerPurchaseOrderDetailsUnitId equals um.UnitMasterUnitId into uminto
+                                   from umg in uminto.DefaultIfEmpty()
 
-                               join um in _Context.UnitMaster
-                               on cpod.CustomerPurchaseOrderDetailsUnitId equals um.UnitMasterUnitId into uminto
-                               from umg in uminto.DefaultIfEmpty()
+                                   join srq in subqueryDRQD
+                                   on cpod.CustomerPurchaseOrderDetailsId equals srq.CustomerDeliveryNoteDetailsPodId into srqGroup
+                                   from srqdr in srqGroup.DefaultIfEmpty()
 
-                               join srq in subqueryDRQD
-                               on cpod.CustomerPurchaseOrderDetailsId equals srq.CustomerDeliveryNoteDetailsPodId into srqGroup
-                               from srqdr in srqGroup.DefaultIfEmpty()
+                                   group new { cpod, srqdr } by new
+                                   {
+                                       cpod.CustomerPurchaseOrderId,
+                                       cpod.CustomerPurchaseOrderDetailsId,
+                                       cpod.CustomerPurchaseOrderDate,
+                                       cpod.CustomerPurchaseOrderLpoNo,
+                                       cmg.CustomerMasterCustomerName,
+                                       img.ItemMasterPartNo,
+                                       img.ItemMasterItemName,
+                                       umg.UnitMasterUnitShortName,
+                                       umg.UnitMasterUnitId,
+                                       cpod.CustomerPurchaseOrderDetailsUnitPrice,
+                                       cpod.CustomerPurchaseOrderDetailsItemId,
+                                       cpod.CustomerPurchaseOrderLocationId
+                                   } into groupedData
 
-                               select new GetCustomerPurchaseOrderTrackingResponse
-                               {
-                                   CPOId = cpod.CustomerPurchaseOrderId,
-                                   CPODId = cpod.CustomerPurchaseOrderDetailsId,
-                                   CPODate = cpod.CustomerPurchaseOrderDate,
-                                   VoucherNo = cpod.CustomerPurchaseOrderLpoNo ?? "",
-                                   CustomerName = cmg.CustomerMasterCustomerName,
-                                   PartNo = img.ItemMasterPartNo ?? "",
-                                   MatDes = cpod.CustomerPurchaseOrderDetailsDescription ?? img.ItemMasterItemName,
-                                   UnitName = umg.UnitMasterUnitShortName.Trim(),
-                                   UnitId = umg.UnitMasterUnitId,
-                                   Quantity = cpod.CustomerPurchaseOrderDetailsQty,
-                                   UnitPrice = cpod.CustomerPurchaseOrderDetailsUnitPrice,
-                                   DeliveredQuantity = srqdr?.CustomerDeliveryNoteDetailsQty ?? 0,
-                                   BalancedQuantity = (cpod.CustomerPurchaseOrderDetailsQty - (srqdr?.CustomerDeliveryNoteDetailsQty ?? 0)),
-                                   DeliveryDate = srqdr?.CustomerDeliveryNoteDeliveryDate,
-                                   DeliveredId = srqdr?.CustomerDeliveryNoteDeliveryID,
-                                   ItemId = (int)cpod.CustomerPurchaseOrderDetailsItemId,
-                                   LocationId = (int)cpod.CustomerPurchaseOrderLocationId
-                               }).OrderBy(x => x.VoucherNo).AsEnumerable().ToList();
-                return Response<List<GetCustomerPurchaseOrderTrackingResponse>>.Success(results, "Data found");
+                                   select new GetCustomerPurchaseOrderTrackingResponse
+                                   {
+                                       CPOId = groupedData.Key.CustomerPurchaseOrderId,
+                                       CPODId = groupedData.Key.CustomerPurchaseOrderDetailsId,
+                                       CPODate = groupedData.Key.CustomerPurchaseOrderDate,
+                                       VoucherNo = groupedData.Key.CustomerPurchaseOrderLpoNo ?? "",
+                                       CustomerName = groupedData.Key.CustomerMasterCustomerName,
+                                       Quantity = groupedData.Sum(x => x.cpod.CustomerPurchaseOrderDetailsQty),
+                                       DeliveredQuantity = groupedData.Sum(x => x.srqdr?.CustomerDeliveryNoteDetailsQty ?? 0), 
+                                       type="Summery",
+                                       BalancedQuantity = groupedData.Sum(x => x.cpod.CustomerPurchaseOrderDetailsQty - (x.srqdr?.CustomerDeliveryNoteDetailsQty ?? 0)), 
+                                   }).OrderBy(x => x.VoucherNo).ToList();
+
+
+                    return Response<List<GetCustomerPurchaseOrderTrackingResponse>>.Success(results, "Data found");
+                }            
+                else
+                {
+                    var results = (from cpod in purchaseorder
+                                   join cm in _Context.CustomerMaster
+                                   on cpod.CustomerPurchaseOrderCustomerId equals cm.CustomerMasterCustomerNo into gum
+                                   from cmg in gum.DefaultIfEmpty()
+
+                                   join im in _Context.ItemMaster
+                                   on cpod.CustomerPurchaseOrderDetailsItemId equals im.ItemMasterItemId into iminto
+                                   from img in iminto.DefaultIfEmpty()
+
+                                   join um in _Context.UnitMaster
+                                   on cpod.CustomerPurchaseOrderDetailsUnitId equals um.UnitMasterUnitId into uminto
+                                   from umg in uminto.DefaultIfEmpty()
+
+                                   join srq in subqueryDRQD
+                                   on cpod.CustomerPurchaseOrderDetailsId equals srq.CustomerDeliveryNoteDetailsPodId into srqGroup
+                                   from srqdr in srqGroup.DefaultIfEmpty()
+
+                                   select new GetCustomerPurchaseOrderTrackingResponse
+                                   {
+                                       CPOId = cpod.CustomerPurchaseOrderId,
+                                       CPODId = cpod.CustomerPurchaseOrderDetailsId,
+                                       CPODate = cpod.CustomerPurchaseOrderDate,
+                                       VoucherNo = cpod.CustomerPurchaseOrderLpoNo ?? "",
+                                       CustomerName = cmg.CustomerMasterCustomerName,
+                                       PartNo = img.ItemMasterPartNo ?? "",
+                                       MatDes = cpod.CustomerPurchaseOrderDetailsDescription ?? img.ItemMasterItemName,
+                                       UnitName = umg.UnitMasterUnitShortName.Trim(),
+                                       UnitId = umg.UnitMasterUnitId,
+                                       Quantity = cpod.CustomerPurchaseOrderDetailsQty,
+                                       UnitPrice = cpod.CustomerPurchaseOrderDetailsUnitPrice,
+                                       DeliveredQuantity = srqdr?.CustomerDeliveryNoteDetailsQty ?? 0,
+                                       BalancedQuantity = (cpod.CustomerPurchaseOrderDetailsQty - (srqdr?.CustomerDeliveryNoteDetailsQty ?? 0)),
+                                       DeliveryDate = srqdr?.CustomerDeliveryNoteDeliveryDate,
+                                       DeliveredId = srqdr?.CustomerDeliveryNoteDeliveryID,
+                                       ItemId = (int)cpod.CustomerPurchaseOrderDetailsItemId,
+                                       LocationId = (int)cpod.CustomerPurchaseOrderLocationId
+                                   }).OrderBy(x => x.VoucherNo).AsEnumerable().ToList();
+
+                    return Response<List<GetCustomerPurchaseOrderTrackingResponse>>.Success(results, "Data found");
+                }
             }
             catch (Exception ex)
             {

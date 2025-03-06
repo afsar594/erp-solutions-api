@@ -16,5 +16,7 @@ namespace Inspire.Erp.Application.Account.Interface
         public JobInvoiceModel GetJobInvoiceVoucherNo(int id);
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
 
+        bool CheckVoucherExists(string voucherType, string voucherNumber);
+
     }
 }

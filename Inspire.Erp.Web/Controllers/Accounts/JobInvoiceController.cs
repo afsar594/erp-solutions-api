@@ -240,6 +240,12 @@ namespace Inspire.Erp.Web.Controllers
                 return StatusCode(500, ex.Message.ToString());
             }
         }
+        [HttpGet("CheckVoucherExists")]
+        public IActionResult CheckVoucherExists([FromQuery] string voucherType, [FromQuery] string voucherNumber)
+        {
+            bool exists = _invoice.CheckVoucherExists(voucherType, voucherNumber);
+            return Ok(new { exists });
+        }
 
         [HttpPost]
         [Route("JobInvoiceReport")]
