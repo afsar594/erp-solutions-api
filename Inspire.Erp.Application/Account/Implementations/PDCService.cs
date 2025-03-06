@@ -402,7 +402,42 @@ namespace Inspire.Erp.Application.Account.Implementation
                 var result = await (from pdc in _pdcDetails.GetAsQueryable()
                                     join acc in _MasterAccountsTableRepo.GetAsQueryable()
                                     on pdc.PDC_Details_Bank_Account_No equals acc.MaAccNo
-                                    where pdc.PDC_Details_Cheque_Status == "R"
+                                    where pdc.PDC_Details_Trans_Type == "RECEIVED"
+                                    select new PDCPostedList
+                                    {
+                                        BAccNo = acc.MaAccName, // Assuming AccountName is the field in Accounts table
+                                        CAmount = pdc.PDC_Details_Cheque_Amount,
+                                        CBName = pdc.PDC_Details_Cheque_Bank_Name,
+                                        CNO = pdc.PDC_Details_Cheque_No,
+                                        PartyName = pdc.PDC_Details_PartyAccNo,
+                                        PDate = pdc.PDC_Details_PDC_Date,
+                                        PID = pdc.PDC_Details_ID,
+                                        POSTDt = pdc.PDC_Details_PDC_Voucher_Date,
+                                        TDate = pdc.PDC_Details_Trans_Date,
+                                        VNO = pdc.PDC_Details_V_No,
+                                        VType = pdc.PDC_Details_V_Type,
+                                        PDCVNO = pdc.PDC_Details_V_No,
+                                        Tran_Type = pdc.PDC_Details_Trans_Type,
+                                    }).ToListAsync();
+
+                return result;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<IEnumerable<PDCPostedList>> PDCissuedLists()
+        {
+            try
+            {
+                //R
+                var result = await (from pdc in _pdcDetails.GetAsQueryable()
+                                    join acc in _MasterAccountsTableRepo.GetAsQueryable()
+                                    on pdc.PDC_Details_Bank_Account_No equals acc.MaAccNo
+                                    where pdc.PDC_Details_Trans_Type == "ISSUED"
                                     select new PDCPostedList
                                     {
                                         BAccNo = acc.MaAccName, // Assuming AccountName is the field in Accounts table
