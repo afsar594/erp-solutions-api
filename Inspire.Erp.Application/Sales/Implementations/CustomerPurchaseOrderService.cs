@@ -526,6 +526,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                        CustomerName = groupedData.Key.CustomerMasterCustomerName,
                                        Quantity = groupedData.Sum(x => x.cpod.CustomerPurchaseOrderDetailsQty),
                                        DeliveredQuantity = groupedData.Sum(x => x.srqdr?.CustomerDeliveryNoteDetailsQty ?? 0), 
+                                       type="Summery",
                                        BalancedQuantity = groupedData.Sum(x => x.cpod.CustomerPurchaseOrderDetailsQty - (x.srqdr?.CustomerDeliveryNoteDetailsQty ?? 0)), 
                                    }).OrderBy(x => x.VoucherNo).ToList();
 
