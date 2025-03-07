@@ -367,6 +367,7 @@ namespace Inspire.Erp.Web.Controllers
             {
                 c.JobMasterJobId,
                 c.JobMasterJobName,
+                c.JobMasterJobNumber,
             }).OrderBy(x => x.JobMasterJobName).AsEnumerable().ToList();
             objectresponse.ResultSet = new
             {
