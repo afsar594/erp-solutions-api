@@ -161,6 +161,7 @@ namespace Inspire.Erp.Web.Controllers
             {
                 c.JobMasterJobId,
                 JobMasterJobName = c.JobMasterJobName.Trim(),
+                c.JobMasterJobNumber
             }).OrderBy(x=>x.JobMasterJobName).AsEnumerable().ToList();
             var itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
                     && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new

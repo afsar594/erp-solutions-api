@@ -19,6 +19,7 @@ namespace Inspire.Erp.Web.ViewModels.Sales
         public long? CustomerDeliveryNoteDetailsCustomerPoNo { get; set; }
         public long? CustomerDeliveryNoteDetailsCpoSlno { get; set; }
         public long? CustomerDeliveryNoteDetailsPodId { get; set; }
+        public int? CustomerDeliveryNoteDetailsRate { get; set; }
         public int CustomerDeliveryNoteDetailsDeliveryDetailId { get; set; }
         public long? CustomerDeliveryNoteDetailsMatId2 { get; set; }
         public long? CustomerDeliveryNoteDetailsUnitId2 { get; set; }

@@ -13,6 +13,7 @@ namespace Inspire.Erp.Domain.ModelsNew
         public long? CustomerDeliveryNoteDetailsUnitId { get; set; }
         public decimal? CustomerDeliveryNoteDetailsQty { get; set; }
         public bool? CustomerDeliveryNoteDetailsIsEdited { get; set; }
+        public int CustomerDeliveryNoteDetailsRate { get; set; }
         public long? CustomerDeliveryNoteDetailsFsno { get; set; }
         public long? CustomerDeliveryNoteDetailsCustomerPoNo { get; set; }
         public long? CustomerDeliveryNoteDetailsCpoSlno { get; set; }

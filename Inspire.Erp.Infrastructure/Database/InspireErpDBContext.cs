@@ -453,7 +453,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
         public DbSet<ReportName> ReportName { get; set; }
         public virtual DbSet<JobfilesStatus> JobfilesStatus { get; set; }
-        
+
         // hr Staffmaster
         public virtual DbSet<HrStaffMaster> HrStaffMasters { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -567,7 +567,7 @@ namespace Inspire.Erp.Infrastructure.Database
                   .HasMaxLength(50)
                   .IsUnicode(false);
             });
-    
+
             #region If the db table and entity has same name
             //modelBuilder.Entity<SalesVoucherResponse>().HasNoKey();
             //modelBuilder.Entity<PONumber>().HasNoKey();
@@ -725,7 +725,7 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnName("Asset_Master_Asset_Code")
                     .HasMaxLength(50)
                     .IsUnicode(false);
-                 
+
                 entity.Property(e => e.AssetMasterAssetCreatedDate)
                     .HasColumnName("Asset_Master_Asset_Created_Date")
                     .HasColumnType("datetime");
@@ -4228,7 +4228,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.Customer_Contacts_Department)
                .HasColumnName("Customer_Contacts_Department")
                .HasMaxLength(50);
-               
+
                 entity.Property(e => e.CustomerContactsId)
                     .HasColumnName("Customer_Contacts_ID")
                     .ValueGeneratedOnAdd();
@@ -4385,7 +4385,8 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.CustomerDeliveryNoteDetailsFsno)
                       .HasColumnName("Customer_Delivery_Note_Details_FSNO");
-
+                entity.Property(e => e.CustomerDeliveryNoteDetailsRate)
+                .HasColumnName("Customer_Delivery_Note_Details_Rate");
                 entity.Property(e => e.CustomerDeliveryNoteDetailsCustomerPONo)
                       .HasColumnName("Customer_Delivery_Note_Details_Customer_PO_NO");
 
@@ -10585,7 +10586,7 @@ namespace Inspire.Erp.Infrastructure.Database
                       .HasColumnName("Remarks")
                       .HasMaxLength(500)
                       .IsUnicode(true);
-                
+
                 entity.Property(e => e.LocationName)
                 .HasColumnName("Location_Name");
             });
@@ -16869,7 +16870,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<TempStatement>(entity =>
             {
-               // entity.HasNoKey();
+                // entity.HasNoKey();
 
                 entity.ToTable("Temp_Statement_");
                 modelBuilder.Entity<TempStatement>()
@@ -18907,10 +18908,10 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.Qty)
                       .HasColumnType("numeric(18, 0)");
-                
+
                 entity.Property(e => e.Rate)
                       .HasColumnType("numeric(18, 0)");
-                
+
                 entity.Property(e => e.Amount)
                       .HasColumnType("numeric(18, 0)");
 
