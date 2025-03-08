@@ -454,6 +454,13 @@ namespace Inspire.Erp.Infrastructure.Database
         public DbSet<ReportName> ReportName { get; set; }
         public virtual DbSet<JobfilesStatus> JobfilesStatus { get; set; }
 
+
+        public virtual DbSet<EstimationCostCenter> EstimationCostCenter { get; set; }
+
+
+
+        
+
         // hr Staffmaster
         public virtual DbSet<HrStaffMaster> HrStaffMasters { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -18882,6 +18889,19 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.CustomerEnqId)
                       .HasColumnType("numeric(18, 0)");
+                
+                entity.Property(e => e.ProftPercentage)
+                      .HasColumnType("numeric(18, 0)");
+                entity.Property(e => e.ProfitAmount)
+                      .HasColumnType("numeric(18, 0)");
+                entity.Property(e => e.QuoteAmount)
+                      .HasColumnType("numeric(18, 0)");
+                entity.Property(e => e.TotalAmount)
+                      .HasColumnType("numeric(18, 0)");
+                entity.Property(e => e.BOQAmount)
+                      .HasColumnType("numeric(18, 0)");
+                entity.Property(e => e.CostantsAmount)
+                      .HasColumnType("numeric(18, 0)");
 
                 entity.Property(e => e.Remarks)
                       .HasMaxLength(500)
@@ -18928,6 +18948,28 @@ namespace Inspire.Erp.Infrastructure.Database
                       .HasForeignKey(d => d.BillQtyId)
                       .HasConstraintName("FK_BillofQty_Details_BillofQty_Master");
             });
+
+
+            modelBuilder.Entity<EstimationCostCenter>(entity =>
+            {
+                entity.ToTable("Estimation_CostCenter");
+
+                entity.HasKey(e => e.Id);
+                
+                entity.Property(e => e.Amount)
+                      .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.Remarks)
+                    .HasMaxLength(500)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.BillQtyId);
+               
+
+              
+            });
+
+
             modelBuilder.Entity<FinishedProductMaster>(entity =>
             {
                 entity.ToTable("Finish_Product_Master");
@@ -19003,6 +19045,9 @@ namespace Inspire.Erp.Infrastructure.Database
                       .HasForeignKey(d => d.Finish_Product_MasterId)
                       .HasConstraintName("FK_Finish_Product_Detail_Finish_Product_Master");
             });
+
+
+
 
             OnModelCreatingPartial(modelBuilder);
         }
