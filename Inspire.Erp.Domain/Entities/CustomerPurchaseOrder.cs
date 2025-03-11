@@ -29,6 +29,9 @@ namespace Inspire.Erp.Domain.Entities
 
 
         public double? CustomerPurchaseOrderVat { get; set; }
+        public double? CustomerPurchaseOrderNetAmount { get; set; }      
+        public double? CustomerPurchaseOrderDiscount { get; set; }
+        public double? CustomerPurchaseOrderGossAmount { get; set; }
         public double? CustomerPurchaseOrderVAT_Percen { get; set; }
 
         public long? CustomerPurchaseOrderFsno { get; set; }
