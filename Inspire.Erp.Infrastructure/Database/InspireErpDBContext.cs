@@ -1520,7 +1520,7 @@ namespace Inspire.Erp.Infrastructure.Database
             {
                 entity.HasNoKey();
 
-                entity.ToView("REPORT_PurchaseRequisition");
+                entity.ToView("REPORT_PurchaseRequisition_New");
 
                 entity.Property(e => e.CityMasterCityId).HasColumnName("City_Master_City_ID");
 
