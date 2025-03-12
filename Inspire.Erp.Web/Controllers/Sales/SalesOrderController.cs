@@ -78,6 +78,10 @@ namespace Inspire.Erp.Web.Controllers
                 CustomerPurchaseOrderTotal = xs.customerPurchaseOrder.CustomerPurchaseOrderTotal,
 
                 CustomerPurchaseOrderVat = xs.customerPurchaseOrder.CustomerPurchaseOrderVat,
+                CustomerPurchaseOrderNetAmount = xs.customerPurchaseOrder.CustomerPurchaseOrderNetAmount,
+                CustomerPurchaseOrderDiscount = xs.customerPurchaseOrder.CustomerPurchaseOrderDiscount,
+                CustomerPurchaseOrderGossAmount = xs.customerPurchaseOrder.CustomerPurchaseOrderGossAmount,
+
                 CustomerPurchaseOrderVAT_Percen = xs.customerPurchaseOrder.CustomerPurchaseOrderVAT_Percen,
                 CustomerPurchaseOrderGrandTotal = xs.customerPurchaseOrder.CustomerPurchaseOrderGrandTotal,
                 CustomerPurchaseOrderFsno = xs.customerPurchaseOrder.CustomerPurchaseOrderFsno,
@@ -157,6 +161,13 @@ namespace Inspire.Erp.Web.Controllers
                 CustomerPurchaseOrderCurrencyId = xs.customerPurchaseOrder.CustomerPurchaseOrderCurrencyId,
                 CustomerPurchaseOrderRemarks = xs.customerPurchaseOrder.CustomerPurchaseOrderRemarks,
                 CustomerPurchaseOrderDiscountPercentage = xs.customerPurchaseOrder.CustomerPurchaseOrderDiscountPercentage,
+
+                CustomerPurchaseOrderVat = xs.customerPurchaseOrder.CustomerPurchaseOrderVat,
+                CustomerPurchaseOrderNetAmount = xs.customerPurchaseOrder.CustomerPurchaseOrderNetAmount,
+                CustomerPurchaseOrderDiscount = xs.customerPurchaseOrder.CustomerPurchaseOrderDiscount,
+                CustomerPurchaseOrderGossAmount = xs.customerPurchaseOrder.CustomerPurchaseOrderGossAmount,
+
+
                 CustomerPurchaseOrderDiscountAmount = xs.customerPurchaseOrder.CustomerPurchaseOrderDiscountAmount,
                 CustomerPurchaseOrderTotal = xs.customerPurchaseOrder.CustomerPurchaseOrderTotal,
                 CustomerPurchaseOrderGrandTotal = xs.customerPurchaseOrder.CustomerPurchaseOrderGrandTotal,

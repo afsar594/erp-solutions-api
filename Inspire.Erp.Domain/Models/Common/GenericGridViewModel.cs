@@ -73,7 +73,7 @@ namespace Inspire.Erp.Domain.Modals.Common
         public long? DetailsUnitId { get; set; }
         public string? remarks { get; set; }
         public decimal? DetailsQTY { get; set; }
-
+        public decimal? DetailsRate { get; set; }
     }
     public class DeliverybyId
     {

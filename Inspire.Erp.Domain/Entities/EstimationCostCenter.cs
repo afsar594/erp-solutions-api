@@ -9,7 +9,7 @@ namespace Inspire.Erp.Domain.Entities
             public int Id { get; set; }
             public string Remarks { get; set; }
             public decimal? Amount { get; set; }
-            public int BillQtyId { get; set;}
-
+            public int BillQtyId { get; set;}           
+           public int costcenter { get; set; }
     }
 }

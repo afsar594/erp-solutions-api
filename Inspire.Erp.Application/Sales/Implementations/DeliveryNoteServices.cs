@@ -388,7 +388,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                 DetailsItemId = cd.CustomerDeliveryNoteDetailsItemId ?? 0,
                                 DetailsUnitId = cd.CustomerDeliveryNoteDetailsUnitId ?? 0,
                                 remarks = cd.CustomerDeliveryNoteDetailsDescription,
-                                DetailsQTY = cd.CustomerDeliveryNoteDetailsQty ?? 0
+                                DetailsQTY = cd.CustomerDeliveryNoteDetailsQty ?? 0,
+                                DetailsRate = (int)cd.CustomerDeliveryNoteDetailsRate 
                             };
 
                 var result = await query.ToListAsync(); // Ensuring async execution
