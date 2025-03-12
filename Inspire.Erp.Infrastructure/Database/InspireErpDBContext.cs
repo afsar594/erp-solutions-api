@@ -18964,9 +18964,10 @@ namespace Inspire.Erp.Infrastructure.Database
                     .IsUnicode(false);
 
                 entity.Property(e => e.BillQtyId);
-               
+                entity.Property(e => e.costcenter);
 
-              
+
+
             });
 
 
