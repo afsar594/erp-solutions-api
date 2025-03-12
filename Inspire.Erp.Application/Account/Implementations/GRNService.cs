@@ -279,7 +279,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 string issueVoucherNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.IssueVoucher_TYPE, Prefix.IssueVoucher_Prefix, _programsettingsRepository, _voucherNumbersRepository);
 
 
-                var accounts = _accountsSettingssvcs.GetAsQueryable().AsNoTracking().Where(x => x.AccountSettingsAccountDescription.Trim().Contains("Purchase Account") || x.AccountSettingsAccountDescription.Trim().Contains("Cost Of Finished Goods A/C")).OrderBy(x => x.AccountSettingsAccountTableName).AsEnumerable().ToList();
+                var accounts = _accountsSettingssvcs.GetAsQueryable().AsNoTracking().Where(x => x.AccountSettingsAccountDescription.Trim().Contains("Stock Account") || x.AccountSettingsAccountDescription.Trim().Contains("Cost Of Finished Goods A/C")).OrderBy(x => x.AccountSettingsAccountTableName).AsEnumerable().ToList();
 
                 var credit = accounts.Where(a => a.AccountSettingsAccountDescription.Trim() == "Stock Account").Select(x => x.AccountSettingsAccountTextValue).FirstOrDefault();
                 string[] parts = credit.Split(new string[] { "::" }, StringSplitOptions.None);
@@ -346,8 +346,8 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                     
                     
                 }
-                issueObj.AccountsTransactions = new List<AccountsTransactions>();
-                issueObj.AccountsTransactions.Add(new AccountsTransactions
+                List<AccountsTransactions> accountsTransactionslist = new List<AccountsTransactions>();
+                accountsTransactionslist.Add(new AccountsTransactions
                 {
                     AccountsTransactionsTransDate = issueObj.IssueVoucherDate,
                     AccountsTransactionsTstamp = DateTime.Now,
@@ -367,7 +367,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                     AccountstransactionsDelStatus = false,
 
                 });
-                issueObj.AccountsTransactions.Add(new AccountsTransactions
+                accountsTransactionslist.Add(new AccountsTransactions
                 {
                     AccountsTransactionsTransDate = issueObj.IssueVoucherDate,
                     AccountsTransactionsVoucherNo = issueVoucherNumber,
@@ -387,7 +387,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                     AccountstransactionsDelStatus = false,
 
                 });
-                //_accountTransactionRepository.InsertList(issueObj.AccountsTransactions);
+                _accountTransactionRepository.InsertList(accountsTransactionslist);
                 _issueVoucherRepository.Insert(issueObj);
                 return grn;
             }
