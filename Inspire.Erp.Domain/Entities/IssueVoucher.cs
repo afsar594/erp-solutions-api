@@ -58,6 +58,7 @@ namespace Inspire.Erp.Domain.Entities
         public bool? IssueVoucherDelStatus { get; set; }
 
         [JsonIgnore]
+        public List<AccountsTransactions> AccountsTransactions { get; set; }
         public virtual ICollection<IssueVoucherDetails> IssueVoucherDetails { get; set; }
     }
 }
