@@ -10,6 +10,7 @@ using Inspire.Erp.Domain.Models.ViewModels;
 using Inspire.Erp.Infrastructure.Database;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Inspire.Erp.Domain.Modals.Common;
+using Microsoft.EntityFrameworkCore;
 
 namespace Inspire.Erp.Application.Account.Implementations
 {
@@ -22,16 +23,23 @@ namespace Inspire.Erp.Application.Account.Implementations
         private readonly IRepository<IssueWithStockTransfer> _IssueWithStockTransfer;
         private readonly IRepository<StockTransferDetailsJobWise> _StockTransferDetailsJobWise;
         private readonly IRepository<StockTransferJobWise> _StockTransferJobWise;
+        private readonly IRepository<GeneralSettings> _generalSettingsrepo;
         private readonly InspireErpDBContext _context;
-        public AvIssueVoucherService(IRepository<AvIssueVoucher> AvIssueVoucher, IRepository<AvIssueVoucherDetails> AvIssueVoucherDetails,
-        IRepository<ItemMaster> ItemMaster, IRepository<JobMaster> JobMaster, IRepository<IssueWithStockTransfer> IssueWithStockTransfer,
-        IRepository<StockTransferDetailsJobWise> StockTransferDetailsJobWise, IRepository<StockTransferJobWise> StockTransferJobWise,
+        public AvIssueVoucherService(IRepository<AvIssueVoucher> AvIssueVoucher, 
+            IRepository<AvIssueVoucherDetails> AvIssueVoucherDetails,
+        IRepository<ItemMaster> ItemMaster, 
+        IRepository<JobMaster> JobMaster, 
+        IRepository<IssueWithStockTransfer> IssueWithStockTransfer,
+        IRepository<StockTransferDetailsJobWise> StockTransferDetailsJobWise, 
+        IRepository<StockTransferJobWise> StockTransferJobWise,
+           IRepository<GeneralSettings> generalSettings,
         InspireErpDBContext context)
         {
             _AvIssueVoucher = AvIssueVoucher;
             _AvIssueVoucherDetails = AvIssueVoucherDetails;
             _ItemMaster = ItemMaster;
             _JobMaster = JobMaster;
+            _generalSettingsrepo = generalSettings;
             _IssueWithStockTransfer = IssueWithStockTransfer;
             _StockTransferDetailsJobWise = StockTransferDetailsJobWise;
             _StockTransferJobWise = StockTransferJobWise;
@@ -42,6 +50,8 @@ namespace Inspire.Erp.Application.Account.Implementations
         {
             try
             {
+                var jobcost = _generalSettingsrepo.GetAsQueryable().AsNoTracking().Where(x => x.GeneralSettingsKeyValue.Trim().Contains("HIDE_JOBCOST")).FirstOrDefault().GeneralSettingsBoolValue;
+
                 var objresponse = new ResponseInfo();
                 var StockTransferDetailsJobWiseList = _context.StockTransferDetailsJobWise.ToList();
                 var StockTransferJobWiseList = _context.StockTransferJobWise.ToList();
@@ -63,7 +73,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                                 ItemName = immaster != null ? immaster.ItemMasterItemName : "",
                                 Quantity = dtl.IssueVoucherDetailsQuantity != null ? (int?)dtl.IssueVoucherDetailsQuantity : 0,
                                 Rate = dtl.IssueVoucherDetailsRate != null ? (int?)dtl.IssueVoucherDetailsRate : 0,
-                                Amount = (double?)((dtl.IssueVoucherDetailsRate != null && dtl.IssueVoucherDetailsQuantity != null) ? (int?)dtl.IssueVoucherDetailsRate * dtl.IssueVoucherDetailsQuantity : 0)
+                                Amount = (double?)((dtl.IssueVoucherDetailsRate != null && dtl.IssueVoucherDetailsQuantity != null) ? (int?)dtl.IssueVoucherDetailsRate * dtl.IssueVoucherDetailsQuantity : 0),
+                                detailjobId = dtl.IssueVoucherDetailsJobID
                             }).OrderBy(o => o.ItemName).AsQueryable().ToList();
 
                 var data2 = (from dtl in StockTransferDetailsJobWiseList
@@ -85,6 +96,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                  Quantity = dtl.StockTransferDetailsJobWiseQty ?? 0, // Handles null Quantity
                                  Rate = dtl.StockTransferDetailsJobWiseRate ?? 0, // Handles null Rate
                                  Amount = (dtl.StockTransferDetailsJobWiseQty ?? 0) * (dtl.StockTransferDetailsJobWiseRate ?? 0) // Safe calculation
+
                              }).AsQueryable().ToList();
 
 
@@ -115,11 +127,19 @@ namespace Inspire.Erp.Application.Account.Implementations
                 if (finalData != null && finalData.Count() > 0)
                 {
                     finalData = finalData.Where(o => (model.itemId == null ? true : o.ItemId == model.itemId) && (model.partNo == "" ? true : o.PartNo == model.partNo) && (model.departmentId == null ? true : o.DepartmentId == model.departmentId)
-                    && (model.jobId == null ? true : o.JobId == model.jobId)).AsQueryable().ToList();
+                    ).AsQueryable().ToList();
 
                     if (model.isDate == true)
                     {
                         finalData = finalData.Where(a => a.IssueDate.Value.Date >= model.dateFrom.Value.Date && a.IssueDate.Value.Date <= model.toDate.Value.Date).ToList();
+                    }
+                    if ((bool)jobcost)
+                    {
+                        finalData.Where(j => model.jobId == null ? true : j.JobId == model.jobId);
+                    }
+                    else
+                    {
+                        finalData.Where(jd => model.jobId == null ? true : jd.detailjobId == model.jobId);
                     }
                 }
                 Console.WriteLine("**********************" + finalData.Count());
@@ -136,6 +156,8 @@ namespace Inspire.Erp.Application.Account.Implementations
         {
             try
             {
+                var jobcost = _generalSettingsrepo.GetAsQueryable().AsNoTracking().Where(x => x.GeneralSettingsKeyValue.Trim().Contains("HIDE_JOBCOST")).FirstOrDefault().GeneralSettingsBoolValue;
+
                 var objresponse = new ResponseInfo();
                 var data = (from dtl in _context.IssueVoucherDetails
                             join hdr in _context.IssueVoucher on dtl.IssueVoucherDetailsNo equals hdr.IssueVoucherNo
@@ -162,15 +184,24 @@ namespace Inspire.Erp.Application.Account.Implementations
                                 DepId = hdr.IssueVoucherDepartmentId,
                                 CostCenter = hdr.IssueVoucherCostCenterId,
                                 Services = immaster != null ? immaster.ItemMasterServices : false,
+                                detailjobId = dtl.IssueVoucherDetailsJobID
                             }).AsQueryable().ToList();
 
                 if (data != null && data.Count() > 0)
                 {
                     data = data.Where(o => (model.itemId == null ? true : o.ItemId == model.itemId) && (model.partNo == "" ? true : o.PartNo == model.partNo) && (model.departmentId == null ? true : o.DepId == model.departmentId)
-                    && (model.jobId == null ? true : o.JobId == model.jobId)).AsQueryable().ToList();
+                   ).AsQueryable().ToList();
                     if (model.isDate == true)
                     {
                         data = data.Where(a => a.IssueDate >= model.dateFrom && a.IssueDate <= model.toDate).ToList();
+                    }
+                    if (!(bool)jobcost)
+                    {
+                        data.Where(j => model.jobId == null ? true : j.JobId == model.jobId);
+                    }
+                    else
+                    {
+                        data.Where(jd => model.jobId == null ? true : jd.detailjobId == model.jobId);
                     }
                 }
                 objresponse.ResultSet = data;
@@ -186,6 +217,8 @@ namespace Inspire.Erp.Application.Account.Implementations
         {
             try
             {
+                var jobcost = _generalSettingsrepo.GetAsQueryable().AsNoTracking().Where(x => x.GeneralSettingsKeyValue.Trim().Contains("HIDE_JOBCOST")).FirstOrDefault().GeneralSettingsBoolValue;
+
                 var data = _IssueWithStockTransfer.GetAll().Where(o => o.AV_Issue_Voucher_AVSV_NO == null && o.Item_Master_Item_ID == 714).Select(o => new
                 {
                     SV_NO = o.AV_Issue_Voucher_AVSV_NO,
@@ -199,7 +232,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                     JobName = o.Job_Master_Job_Number,
                     DepId = o.DepId,
                     ItemId = o.Item_Master_Item_ID,
-                    JobId = o.AV_Issue_Voucher_Job_ID
+                    JobId = o.AV_Issue_Voucher_Job_ID,
+                    //detailjobId = dtl.IssueVoucherDetailsJobID
                 }).OrderBy(o => o.SV_NO).ThenBy(o => o.SV_Dt).ThenBy(o => o.JobName).ThenBy(o => o.JobNumber).AsQueryable();
                 if (data != null && data.Count() > 0)
                 {
@@ -213,5 +247,67 @@ namespace Inspire.Erp.Application.Account.Implementations
                 throw ex;
             }
         }
+        public ResponseInfo GetJobDetailsWiseReport(DTOIssueReportParam model)
+        {
+            try
+            {
+                var jobcost = _generalSettingsrepo.GetAsQueryable().AsNoTracking().Where(x => x.GeneralSettingsKeyValue.Trim().Contains("HIDE_JOBCOST")).FirstOrDefault().GeneralSettingsBoolValue;
+
+                var objresponse = new ResponseInfo();
+                var data = (from dtl in _context.IssueVoucherDetails
+                            join hdr in _context.IssueVoucher on dtl.IssueVoucherDetailsNo equals hdr.IssueVoucherNo
+                            join itemmaster in _ItemMaster.GetAll() on (long)dtl.IssueVoucherDetailsMatId equals itemmaster.ItemMasterItemId
+                            into itm
+                            from immaster in itm.DefaultIfEmpty()
+                            join jobmaster in _JobMaster.GetAll() on hdr.IssueVoucherJobId equals jobmaster.JobMasterJobId
+                            into jobm
+                            from jobmas in jobm.DefaultIfEmpty()
+
+                            select new
+                            {
+                                IssueNo = hdr.IssueVoucherNo,
+                                IssueDate = hdr.IssueVoucherDate,
+                                PartNo = immaster != null ? immaster.ItemMasterPartNo : "",
+                                ItemName = immaster != null ? immaster.ItemMasterItemName : "",
+                                Quantity = dtl.IssueVoucherDetailsQuantity,
+                                Rate = dtl.IssueVoucherDetailsRate,
+                                Amount = dtl.IssueVoucherDetailsRate * dtl.IssueVoucherDetailsQuantity,
+                                JobName = jobmas != null ? jobmas.JobMasterJobName : "",
+                                JobNumber = jobmas != null ? jobmas.JobMasterJobNo : "",
+                                JobId = hdr.IssueVoucherJobId,
+                                RelativeNo = immaster != null ? immaster.ItemMasterRef1 : "",
+                                ItemId = immaster != null ? (long?)immaster.ItemMasterItemId : null,
+                                DepId = hdr.IssueVoucherDepartmentId,
+                                CostCenter = hdr.IssueVoucherCostCenterId,
+                                Services = immaster != null ? immaster.ItemMasterServices : false,
+                                detailjobId = dtl.IssueVoucherDetailsJobID
+                            }).AsQueryable().ToList();
+
+                if (data != null && data.Count() > 0)
+                {
+                    data = data.Where(o => (model.itemId == null ? true : o.ItemId == model.itemId) && (model.partNo == "" ? true : o.PartNo == model.partNo) && (model.departmentId == null ? true : o.DepId == model.departmentId)
+                    && (model.jobId == null ? true : o.JobId == model.jobId) && (model.jobId == null ? true : o.detailjobId == model.jobId)).AsQueryable().ToList();
+                    if (model.isDate == true)
+                    {
+                        data = data.Where(a => a.IssueDate >= model.dateFrom && a.IssueDate <= model.toDate).ToList();
+                    }
+                    if ((bool)jobcost)
+                    {
+                        data.Where(j => model.jobId == null ? true : j.JobId == model.jobId);
+                    }
+                    else
+                    {
+                        data.Where(jd => model.jobId == null ? true : jd.detailjobId == model.jobId);
+                    }
+                }
+                objresponse.ResultSet = data;
+                return objresponse;
+            }
+            catch (System.Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 }
