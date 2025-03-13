@@ -32,6 +32,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
         private readonly InspireErpDBContext _context;
         public static string prefix;
         private IRepository<AccountSettings> _accountsSettingssvcs;
+      
         private IRepository<IssueVoucher> _issueVoucherRepository;
         private IRepository<IssueVoucherDetails> _issueVoucherDetailsRepository;
         private IAccountsSettingsService _accountssettingSvc;
@@ -271,124 +272,159 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 trackingData.UserTrackingUserVpType = "GRN";
                 _context.UserTracking.Add(trackingData);
                 _context.SaveChanges();
-                //var data = _accountssettingSvc.GetAccountsSettings();
-                //var stock = data..Where(i => i?.accountSettingsAccountKeyValue.trim() == 'STOCK_AC_NO')?.accountSettingsAccountTextValue;
-              
-
-                var issueObj = new IssueVoucher();
-                string issueVoucherNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.IssueVoucher_TYPE, Prefix.IssueVoucher_Prefix, _programsettingsRepository, _voucherNumbersRepository);
-
-
-                var accounts = _accountsSettingssvcs.GetAsQueryable().AsNoTracking().Where(x => x.AccountSettingsAccountDescription.Trim().Contains("Stock Account") || x.AccountSettingsAccountDescription.Trim().Contains("Cost Of Finished Goods A/C")).OrderBy(x => x.AccountSettingsAccountTableName).AsEnumerable().ToList();
-
-                var credit = accounts.Where(a => a.AccountSettingsAccountDescription.Trim() == "Stock Account").Select(x => x.AccountSettingsAccountTextValue).FirstOrDefault();
-                string[] parts = credit.Split(new string[] { "::" }, StringSplitOptions.None);
-                issueObj.IssueVoucherDebitAccNo = parts.Length > 1 ? parts[1].Trim() : string.Empty;
-
-                var debit = accounts.Where(a => a.AccountSettingsAccountDescription.Trim() == "Cost Of Finished Goods A/C").Select(x => x.AccountSettingsAccountTextValue).FirstOrDefault();
-                string[] parts1 = debit.Split(new string[] { "::" }, StringSplitOptions.None);
-                issueObj.IssueVoucherCreditAccNo = parts1.Length > 1 ? parts1[1].Trim() : string.Empty;
-
-                int maxcount = 0;
-                maxcount = Convert.ToInt32(
-                    _issueVoucherRepository.GetAsQueryable()
-                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.IssueVoucherId) + 1);
-                //issueObj.IssueVoucherId = maxcount;
-                issueObj.IssueVoucherNo = issueVoucherNumber;
-                issueObj.IssueVoucherDate = grn.PurchaseVoucherPurchaseDate;
-                issueObj.IssueVoucherCurrencyId = grn.PurchaseVoucherCurrencyID;
-                //issueObj.IssueVoucherDepartmentId= grn.d
-                issueObj.IssueVoucherDescription = grn.PurchaseVoucherDescription;
-                issueObj.IssueVoucherGrdate = grn.PurchaseVoucherGRDate;
-                issueObj.IssueVoucherGrno = grn.PurchaseVoucherGRNo;
-                //issueObj.IssueVoucherIvDateForRet=grn.PurchaseVoucherPurchaseRef
-                //issueObj.IssueVoucherIvNoForRet
-                issueObj.IssueVoucherJobId = grn.PurchaseVoucherJobID;
-                issueObj.IssueVoucherLocationId = grn.PurchaseVoucherJobID;
-                issueObj.IssueVoucherLpono = grn.PurchaseVoucherLPONo;
-                issueObj.IssueVoucherLpodate = grn.PurchaseVoucherLPODate;
-                issueObj.IssueVoucherNetAmount = grn.PurchaseVoucherNetAmount;
-                //issueObj.IssueVoucherQtnDate
-                //issueObj.IssueVoucherQtnNo
-                //issueObj.IssueVoucherRefNo = grn.PurchaseVoucherPurchaseRef;
-                //issueObj.IssueVoucherReqDate= grn.
-                issueObj.IssueVoucherTotalActualAmount = grn.PurchaseVoucherActualAmount;
-                issueObj.IssueVoucherNetDisAmount = grn.PurchaseVoucherDisAmount;
-                issueObj.IssueVoucherTotalDisPer = grn.PurchaseVoucherDiscountPercentage;
-                issueObj.IssueVoucherVatAmt = grn.PurchaseVoucherVATAmount;
-                issueObj.IssueVoucherVatPer = grn.PurchaseVoucherVATPercentage;
-                issueObj.IssueVoucherVatRoundSign = grn.PurchaseVoucherVATRoundSign;
-                issueObj.IssueVoucherVatRountAmt = grn.PurchaseVoucherVATRoundAmount;
-
-                issueObj.IssueVoucherDetails = new List<IssueVoucherDetails>();
-                foreach (var item in grn.PurchaseVoucherDetails)
+                var autoCreateIssue = _programsettingsRepository.GetAsQueryable().AsNoTracking().Where(x => x.ProgramSettingsDescription.Trim().Contains("Automatically Create Issue Voucher on Purchasae")).FirstOrDefault().ProgramSettingsBoolValue ;
+                if ((bool)autoCreateIssue)
                 {
-                    item.PurchaseVoucherDetailsVoucherNo = grn.PurchaseVoucherVoucherNo;
+                    var issueObj = new IssueVoucher();
+                    string issueVoucherNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.IssueVoucher_TYPE, Prefix.IssueVoucher_Prefix, _programsettingsRepository, _voucherNumbersRepository);
 
-                    var converontype = this.getConverionTypebyUnitId(item.PurchaseVoucherDetailsMaterialId, item.PurchaseVoucherDetailsUnitId);
-                    issueObj.IssueVoucherDetails.Add(new IssueVoucherDetails
+
+                    var accounts = _accountsSettingssvcs.GetAsQueryable().AsNoTracking().Where(x => x.AccountSettingsAccountDescription.Trim().Contains("Stock Account") || x.AccountSettingsAccountDescription.Trim().Contains("Cost Of Finished Goods A/C")).OrderBy(x => x.AccountSettingsAccountTableName).AsEnumerable().ToList();
+
+                    var credit = accounts.Where(a => a.AccountSettingsAccountDescription.Trim() == "Stock Account").Select(x => x.AccountSettingsAccountTextValue).FirstOrDefault();
+                    string[] parts = credit.Split(new string[] { "::" }, StringSplitOptions.None);
+                    issueObj.IssueVoucherDebitAccNo = parts.Length > 1 ? parts[1].Trim() : string.Empty;
+
+                    var debit = accounts.Where(a => a.AccountSettingsAccountDescription.Trim() == "Cost Of Finished Goods A/C").Select(x => x.AccountSettingsAccountTextValue).FirstOrDefault();
+                    string[] parts1 = debit.Split(new string[] { "::" }, StringSplitOptions.None);
+                    issueObj.IssueVoucherCreditAccNo = parts1.Length > 1 ? parts1[1].Trim() : string.Empty;
+
+                    int maxcount = 0;
+                    maxcount = Convert.ToInt32(
+                        _issueVoucherRepository.GetAsQueryable()
+                        .DefaultIfEmpty().Max(o => o == null ? 0 : o.IssueVoucherId) + 1);
+                    issueObj.IssueVoucherId = maxcount;
+                    issueObj.IssueVoucherNo = issueVoucherNumber;
+                    issueObj.IssueVoucherDate = grn.PurchaseVoucherPurchaseDate;
+                    issueObj.IssueVoucherCurrencyId = grn.PurchaseVoucherCurrencyID;
+                    //issueObj.IssueVoucherDepartmentId= grn.d
+                    issueObj.IssueVoucherDescription = grn.PurchaseVoucherDescription;
+                    issueObj.IssueVoucherGrdate = grn.PurchaseVoucherGRDate;
+                    issueObj.IssueVoucherGrno = grn.PurchaseVoucherGRNo;
+                    //issueObj.IssueVoucherIvDateForRet=grn.PurchaseVoucherPurchaseRef
+                    //issueObj.IssueVoucherIvNoForRet
+                    issueObj.IssueVoucherJobId = grn.PurchaseVoucherJobID;
+                    issueObj.IssueVoucherLocationId = grn.PurchaseVoucherJobID;
+                    issueObj.IssueVoucherLpono = grn.PurchaseVoucherLPONo;
+                    issueObj.IssueVoucherLpodate = grn.PurchaseVoucherLPODate;
+                    issueObj.IssueVoucherNetAmount = grn.PurchaseVoucherNetAmount;
+                    //issueObj.IssueVoucherQtnDate
+                    //issueObj.IssueVoucherQtnNo
+                    //issueObj.IssueVoucherRefNo = grn.PurchaseVoucherPurchaseRef;
+                    //issueObj.IssueVoucherReqDate= grn.
+                    issueObj.IssueVoucherTotalGrossAmount = grn.PurchaseVoucherTotalGrossAmt;
+                    issueObj.IssueVoucherTotalActualAmount = grn.PurchaseVoucherActualAmount;
+                    issueObj.IssueVoucherNetDisAmount = grn.PurchaseVoucherDisAmount;
+                    issueObj.IssueVoucherTotalDisPer = grn.PurchaseVoucherDiscountPercentage;
+                    issueObj.IssueVoucherVatAmt = grn.PurchaseVoucherVATAmount;
+                    issueObj.IssueVoucherVatPer = grn.PurchaseVoucherVATPercentage;
+                    issueObj.IssueVoucherVatRoundSign = grn.PurchaseVoucherVATRoundSign;
+                    issueObj.IssueVoucherVatRountAmt = grn.PurchaseVoucherVATRoundAmount;
+
+                    issueObj.IssueVoucherDetails = new List<IssueVoucherDetails>();
+                    foreach (var item in grn.PurchaseVoucherDetails)
                     {
+                        item.PurchaseVoucherDetailsVoucherNo = grn.PurchaseVoucherVoucherNo;
 
-                        IssueVoucherDetailsId = 0,
-                        IssueVoucherId = maxcount,
-                        IssueVoucherDetailsNo = issueVoucherNumber,
-                        IssueVoucherDetailsMatId = item.PurchaseVoucherDetailsMaterialId,
-                        IssueVoucherDetailsQuantity = item.PurchaseVoucherDetailsQuantity,
-                        IssueVoucherDetailsRate = item.PurchaseVoucherDetailsRate,
-                        IssueVoucherDetailsNetAmt = item.PurchaseVoucherDetailsNetAmount,
-                        IssueVoucherDetailsGrossAmount = item.PurchaseVoucherDetailsGrossAmount,
-                        IssueVoucherDetailsSno = 0,
-                        //IssueVoucherDetailsSalesPrice=item.sa,
-                        IssueVoucherDetailsUnitId = item.PurchaseVoucherDetailsUnitId,
-                        IssueVoucherDetailsDelStatus = false,
-                        IssueVoucherDetailsJobID = item.PurchaseVoucherDetailsJobID,
+                        var converontype = this.getConverionTypebyUnitId(item.PurchaseVoucherDetailsMaterialId, item.PurchaseVoucherDetailsUnitId);
+                        issueObj.IssueVoucherDetails.Add(new IssueVoucherDetails
+                        {
+
+                            IssueVoucherDetailsId = 0,
+                            IssueVoucherId = maxcount,
+                            IssueVoucherDetailsNo = issueVoucherNumber,
+                            IssueVoucherDetailsMatId = item.PurchaseVoucherDetailsMaterialId,
+                            IssueVoucherDetailsQuantity = item.PurchaseVoucherDetailsQuantity,
+                            IssueVoucherDetailsRate = item.PurchaseVoucherDetailsRate,
+                            IssueVoucherDetailsNetAmt = item.PurchaseVoucherDetailsNetAmount,
+                            IssueVoucherDetailsGrossAmount = item.PurchaseVoucherDetailsQuantity * item.PurchaseVoucherDetailsRate,
+                            //IssueVoucherDetailsGrossAmount = item.PurchaseVoucherDetailsGrossAmount,
+                            IssueVoucherDetailsSno = 0,
+                            //IssueVoucherDetailsSalesPrice=item.sa,
+                            IssueVoucherDetailsUnitId = item.PurchaseVoucherDetailsUnitId,
+                            IssueVoucherDetailsDelStatus = false,
+                            IssueVoucherDetailsJobID = item.PurchaseVoucherDetailsJobID,
+                        });
+
+
+                    }
+                    List<StockRegister> stockRegister = new List<StockRegister>();
+
+                    foreach (var item in issueObj.IssueVoucherDetails)
+                    {
+                        var avgrate = item.IssueVoucherDetailsSalesPrice ?? 1;
+
+                        var converontype = this.getConverionTypebyUnitId(item.IssueVoucherDetailsMatId, item.IssueVoucherDetailsUnitId);
+                        stockRegister.Add(new StockRegister
+                        {
+                            StockRegisterMaterialID = item.IssueVoucherDetailsMatId,
+                            StockRegisterPurchaseID = issueVoucherNumber,
+                            StockRegisterRefVoucherNo = issueVoucherNumber,
+                            StockRegisterQuantity = item.IssueVoucherDetailsQuantity * (decimal)converontype ?? 0,
+                            StockRegisterRate = avgrate,
+                            StockRegisterSout = item.IssueVoucherDetailsQuantity * (decimal)converontype ?? 0,
+                            StockRegisterAmount = item.IssueVoucherDetailsQuantity * (decimal)converontype * avgrate ?? 0,
+                            StockRegisterFCAmount = item.IssueVoucherDetailsQuantity * (decimal)converontype * avgrate * rate ?? 0,
+                            StockRegisterVoucherDate = issueObj.IssueVoucherDate,
+                            StockRegisterTransType = VoucherType.IssueVoucher_TYPE,
+                            StockRegisterStatus = AccountStatus.Approved,
+                            StockRegisterAssignedDate = issueObj.IssueVoucherDate,
+                            StockRegisterExpDate = null,
+                            //StockRegisterDepID = (int?)issueObj.IssueVoucherDepartmentId,
+                            StockRegisterDelStatus = false,
+                            StockRegisterUnitID = item.IssueVoucherDetailsUnitId,
+                            StockRegisterLocationID = issueObj.IssueVoucherLocationId,
+                            StockRegisterJobID = item.IssueVoucherDetailsJobID,
+
+                        });
+                    }
+                    _stockRegisterRepository.InsertList(stockRegister);
+
+                    List<AccountsTransactions> accountsTransactionslist = new List<AccountsTransactions>();
+                    accountsTransactionslist.Add(new AccountsTransactions
+                    {
+                        AccountsTransactionsTransDate = issueObj.IssueVoucherDate,
+                        AccountsTransactionsTstamp = DateTime.Now,
+                        AccountsTransactionsVoucherNo = issueVoucherNumber,
+                        AccountsTransactionsVoucherType = VoucherType.IssueVoucher_TYPE,
+                        AccountsTransactionsStatus = AccountStatus.Approved,
+                        AccountsTransactionsAccNo = issueObj.IssueVoucherCreditAccNo,
+                        AccountsTransactionsCredit = (decimal)issueObj.IssueVoucherTotalGrossAmount,
+                        AccountsTransactionsFcCredit = (decimal)issueObj.IssueVoucherTotalGrossAmount * rate,
+                        AccountsTransactionsAllocBalance = (decimal)issueObj.IssueVoucherTotalGrossAmount,
+                        AccountsTransactionsFcAllocBalance = (decimal)issueObj.IssueVoucherTotalGrossAmount * rate,
+                        AccountsTransactionsLocation = issueObj.IssueVoucherLocationId,
+                        AccountsTransactionsJobNo = issueObj.IssueVoucherJobId,
+                        //AccountsTransactionsCostCenterId = (int)issueObj.IssueVoucherCostCenterId,
+                        AccountsTransactionsCurrencyId = issueObj.IssueVoucherCurrencyId,
+                        AccountsTransactionsUserId = 1,
+                        AccountstransactionsDelStatus = false,
+
                     });
-                    
-                    
+                    accountsTransactionslist.Add(new AccountsTransactions
+                    {
+                        AccountsTransactionsTransDate = issueObj.IssueVoucherDate,
+                        AccountsTransactionsVoucherNo = issueVoucherNumber,
+                        AccountsTransactionsTstamp = DateTime.Now,
+                        AccountsTransactionsVoucherType = VoucherType.IssueVoucher_TYPE,
+                        AccountsTransactionsStatus = AccountStatus.Approved,
+                        AccountsTransactionsAccNo = issueObj.IssueVoucherDebitAccNo,
+                        AccountsTransactionsDebit = (decimal)issueObj.IssueVoucherTotalGrossAmount,
+                        AccountsTransactionsFcDebit = (decimal)issueObj.IssueVoucherTotalGrossAmount * rate,
+                        AccountsTransactionsAllocBalance = (decimal)issueObj.IssueVoucherTotalGrossAmount,
+                        AccountsTransactionsFcAllocBalance = (decimal)issueObj.IssueVoucherTotalGrossAmount * rate,
+                        AccountsTransactionsLocation = issueObj.IssueVoucherLocationId,
+                        AccountsTransactionsJobNo = issueObj.IssueVoucherJobId,
+                        //AccountsTransactionsCostCenterId = (int)issueObj.IssueVoucherCostCenterId,
+                        AccountsTransactionsCurrencyId = issueObj.IssueVoucherCurrencyId,
+                        AccountsTransactionsUserId = 1,
+                        AccountstransactionsDelStatus = false,
+
+                    });
+                    _accountTransactionRepository.InsertList(accountsTransactionslist);
+
+                    _issueVoucherRepository.Insert(issueObj);
                 }
-                List<AccountsTransactions> accountsTransactionslist = new List<AccountsTransactions>();
-                accountsTransactionslist.Add(new AccountsTransactions
-                {
-                    AccountsTransactionsTransDate = issueObj.IssueVoucherDate,
-                    AccountsTransactionsTstamp = DateTime.Now,
-                    AccountsTransactionsVoucherNo = issueVoucherNumber,
-                    AccountsTransactionsVoucherType = VoucherType.IssueVoucher_TYPE,
-                    AccountsTransactionsStatus = AccountStatus.Approved,
-                    AccountsTransactionsAccNo = issueObj.IssueVoucherCreditAccNo,
-                    AccountsTransactionsCredit = (decimal)issueObj.IssueVoucherTotalGrossAmount,
-                    AccountsTransactionsFcCredit = (decimal)issueObj.IssueVoucherTotalGrossAmount * rate,
-                    AccountsTransactionsAllocBalance = (decimal)issueObj.IssueVoucherTotalGrossAmount,
-                    AccountsTransactionsFcAllocBalance = (decimal)issueObj.IssueVoucherTotalGrossAmount * rate,
-                    AccountsTransactionsLocation = issueObj.IssueVoucherLocationId,
-                    AccountsTransactionsJobNo = issueObj.IssueVoucherJobId,
-                    AccountsTransactionsCostCenterId = (int)issueObj.IssueVoucherCostCenterId,
-                    AccountsTransactionsCurrencyId = issueObj.IssueVoucherCurrencyId,
-                    AccountsTransactionsUserId = 1,
-                    AccountstransactionsDelStatus = false,
-
-                });
-                accountsTransactionslist.Add(new AccountsTransactions
-                {
-                    AccountsTransactionsTransDate = issueObj.IssueVoucherDate,
-                    AccountsTransactionsVoucherNo = issueVoucherNumber,
-                    AccountsTransactionsTstamp = DateTime.Now,
-                    AccountsTransactionsVoucherType = VoucherType.IssueVoucher_TYPE,
-                    AccountsTransactionsStatus = AccountStatus.Approved,
-                    AccountsTransactionsAccNo = issueObj.IssueVoucherDebitAccNo,
-                    AccountsTransactionsDebit = (decimal)issueObj.IssueVoucherTotalGrossAmount,
-                    AccountsTransactionsFcDebit = (decimal)issueObj.IssueVoucherTotalGrossAmount * rate,
-                    AccountsTransactionsAllocBalance = (decimal)issueObj.IssueVoucherTotalGrossAmount,
-                    AccountsTransactionsFcAllocBalance = (decimal)issueObj.IssueVoucherTotalGrossAmount * rate,
-                    AccountsTransactionsLocation = issueObj.IssueVoucherLocationId,
-                    AccountsTransactionsJobNo = issueObj.IssueVoucherJobId,
-                    AccountsTransactionsCostCenterId = (int)issueObj.IssueVoucherCostCenterId,
-                    AccountsTransactionsCurrencyId = issueObj.IssueVoucherCurrencyId,
-                    AccountsTransactionsUserId = 1,
-                    AccountstransactionsDelStatus = false,
-
-                });
-                _accountTransactionRepository.InsertList(accountsTransactionslist);
-                _issueVoucherRepository.Insert(issueObj);
                 return grn;
             }
             catch (Exception ex)
