@@ -18935,6 +18935,32 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.Amount)
                       .HasColumnType("numeric(18, 0)");
 
+                entity.Property(e => e.Freight_Charges)
+                     .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.Packing_Charges)
+                     .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.Clearance_Charges)
+                     .HasColumnType("numeric(18, 0)");
+                entity.Property(e => e.Duty)
+                    .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.Mofa)
+                    .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.Others)
+                   .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.Currency_TypeId)
+                   .HasColumnType("int");
+
+                entity.Property(e => e.FinalAmount)
+                   .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.CurrencyRate)
+                   .HasColumnType("numeric(18, 0)");
+
                 entity.Property(e => e.Remarks)
                       .HasMaxLength(250)
                       .IsUnicode(false);
