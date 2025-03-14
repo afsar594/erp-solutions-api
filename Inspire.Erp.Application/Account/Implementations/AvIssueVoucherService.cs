@@ -186,29 +186,54 @@ namespace Inspire.Erp.Application.Account.Implementations
                                 Services = immaster != null ? immaster.ItemMasterServices : false,
                                 DetailjobId = dtl.IssueVoucherDetailsJobID != null ? dtl.IssueVoucherDetailsJobID : -1
                                 
-                            }).AsEnumerable();
+                            }).AsQueryable();
 
                 if (data != null && data.Count() > 0)
                 {
-
-
-                    if (!(bool)jobcost)
-                    {
-                        data.Where(j => model.jobId == null ? true : j.JobId == model.jobId).AsQueryable();
-                    }
-                    else
-                    {
-                        data.Where(jd => jd.DetailjobId == model.jobId).AsQueryable();
-                    }
-
-                   // data = data.Where(o => (model.itemId == null ? true : o.ItemId == model.itemId) && (model.partNo == "" ? true : o.PartNo == model.partNo) && (model.departmentId == null ? true : o.DepId == model.departmentId)
-                   //).AsQueryable();
+                    data = data.Where(o => (model.itemId == null ? true : o.ItemId == model.itemId) && (model.partNo == "" ? true : o.PartNo == model.partNo) && (model.departmentId == null ? true : o.DepId == model.departmentId)
+                   ).AsQueryable();
                     if (model.isDate == true)
                     {
                         data = data.Where(a => a.IssueDate >= model.dateFrom && a.IssueDate <= model.toDate).AsQueryable();
                     }
-                  
+                    if (!(bool)jobcost)
+                    {
+                       data =  data.Where(j => model.jobId == null ? true : j.JobId == model.jobId).AsQueryable();
+                    }
+                    else
+                    {
+                       data =  data.Where(jd => jd.DetailjobId == model.jobId).AsQueryable();
+                    }
                 }
+
+
+                //if (data != null && data.Any()) 
+                //{
+                   
+                //    data = data.Where(o =>
+                //        (model.itemId == null || o.ItemId == model.itemId) &&
+                //        (string.IsNullOrEmpty(model.partNo) || o.PartNo == model.partNo) &&
+                //        (model.departmentId == null || o.DepId == model.departmentId)
+                //    ).AsQueryable();
+
+                  
+                //    if (model.isDate == true)
+                //    {
+                //        data = data.Where(a => a.IssueDate >= model.dateFrom && a.IssueDate <= model.toDate).AsQueryable();
+                //    }
+
+                //    if (!(bool)jobcost)
+                //    {
+                        
+                //        data = data.Where(j => model.jobId == null || j.JobId == model.jobId).AsQueryable();
+                //    }
+                //    else
+                //    {
+                        
+                //        data = data.Where(jd => jd.DetailjobId == model.jobId).AsQueryable();
+                //    }
+                //}
+
                 objresponse.ResultSet = data.ToList();
                 return objresponse;
             }
