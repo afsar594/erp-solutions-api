@@ -22,7 +22,7 @@ namespace Inspire.Erp.Domain.DTO
         public int? JobId { get; set; }
         public int? DepartmentId { get; set; }
         public long? ItemId { get; set; }
-        public long? detailjobId { get; set; }
+        public long? DetailjobId { get; set; }
         public string IssueNo { get; set; }
         public DateTime? IssueDate { get; set; }
         public string PartNo { get; set; }

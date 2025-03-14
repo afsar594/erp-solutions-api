@@ -74,7 +74,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                 Quantity = dtl.IssueVoucherDetailsQuantity != null ? (int?)dtl.IssueVoucherDetailsQuantity : 0,
                                 Rate = dtl.IssueVoucherDetailsRate != null ? (int?)dtl.IssueVoucherDetailsRate : 0,
                                 Amount = (double?)((dtl.IssueVoucherDetailsRate != null && dtl.IssueVoucherDetailsQuantity != null) ? (int?)dtl.IssueVoucherDetailsRate * dtl.IssueVoucherDetailsQuantity : 0),
-                                detailjobId = dtl.IssueVoucherDetailsJobID
+                                DetailjobId = dtl.IssueVoucherDetailsJobID
                             }).OrderBy(o => o.ItemName).AsQueryable().ToList();
 
                 var data2 = (from dtl in StockTransferDetailsJobWiseList
@@ -139,7 +139,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     }
                     else
                     {
-                        finalData.Where(jd => model.jobId == null ? true : jd.detailjobId == model.jobId);
+                        finalData.Where(jd => model.jobId == null ? true : jd.DetailjobId == model.jobId);
                     }
                 }
                 Console.WriteLine("**********************" + finalData.Count());
@@ -167,7 +167,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                             join jobmaster in _JobMaster.GetAll() on hdr.IssueVoucherJobId equals jobmaster.JobMasterJobId
                             into jobm
                             from jobmas in jobm.DefaultIfEmpty()
-                            select new
+                            select new 
                             {
                                 IssueNo = hdr.IssueVoucherNo,
                                 IssueDate = hdr.IssueVoucherDate,
@@ -184,25 +184,30 @@ namespace Inspire.Erp.Application.Account.Implementations
                                 DepId = hdr.IssueVoucherDepartmentId,
                                 CostCenter = hdr.IssueVoucherCostCenterId,
                                 Services = immaster != null ? immaster.ItemMasterServices : false,
-                                detailjobId = dtl.IssueVoucherDetailsJobID
-                            }).AsQueryable();
+                                DetailjobId = dtl.IssueVoucherDetailsJobID != null ? dtl.IssueVoucherDetailsJobID : -1
+                                
+                            }).AsEnumerable();
 
                 if (data != null && data.Count() > 0)
                 {
-                    data = data.Where(o => (model.itemId == null ? true : o.ItemId == model.itemId) && (model.partNo == "" ? true : o.PartNo == model.partNo) && (model.departmentId == null ? true : o.DepId == model.departmentId)
-                   ).AsQueryable();
-                    if (model.isDate == true)
-                    {
-                        data = data.Where(a => a.IssueDate >= model.dateFrom && a.IssueDate <= model.toDate).AsQueryable();
-                    }
+
+
                     if (!(bool)jobcost)
                     {
                         data.Where(j => model.jobId == null ? true : j.JobId == model.jobId).AsQueryable();
                     }
                     else
                     {
-                        data.Where(jd =>jd.detailjobId == model.jobId).AsQueryable();
+                        data.Where(jd => jd.DetailjobId == model.jobId).AsQueryable();
                     }
+
+                   // data = data.Where(o => (model.itemId == null ? true : o.ItemId == model.itemId) && (model.partNo == "" ? true : o.PartNo == model.partNo) && (model.departmentId == null ? true : o.DepId == model.departmentId)
+                   //).AsQueryable();
+                    if (model.isDate == true)
+                    {
+                        data = data.Where(a => a.IssueDate >= model.dateFrom && a.IssueDate <= model.toDate).AsQueryable();
+                    }
+                  
                 }
                 objresponse.ResultSet = data.ToList();
                 return objresponse;
