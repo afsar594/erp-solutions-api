@@ -79,7 +79,7 @@ namespace Inspire.Erp.Domain.Entities
         public DateTime? PurchaseOrderDelivToDate { get; set; }
         public string PurchaseOrderDelivStatus { get; set; }
         public string PurchaseOrderDelivPlace { get; set; }
-        public string? PurchaseOrderOrdertype { get; set; }
+        public string PurchaseOrderOrdertype { get; set; }
 
         // [NotMapped]
         // public List<PurchaseOrderDetails>? purchaseOrderDetails { get; set; }
