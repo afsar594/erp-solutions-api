@@ -2610,7 +2610,7 @@ namespace Inspire.Erp.Infrastructure.Database
             {
                 entity.HasNoKey();
 
-                entity.ToView("REPORT_PurchaseOrder");
+                entity.ToView("REPORT_PurchaseOrder_New");
 
                 entity.Property(e => e.ItemMasterItemId).HasColumnName("Item_Master_Item_ID");
 
@@ -2680,7 +2680,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.PurchaseOrderDetailsRate).HasColumnType("numeric(18, 4)");
 
-                entity.Property(e => e.purchaseOrderOrdertype)
+                entity.Property(e => e.PurchaseOrderOrdertype)
                 .HasMaxLength(200)
                 .IsUnicode(false);
 
