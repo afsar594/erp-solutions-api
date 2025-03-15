@@ -41,13 +41,14 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private readonly IRepository<Approval> _approvalRepo;
         private readonly IRepository<ApprovalDetail> _approvalDetailRepo;
         private IRepository<ItemMaster> _itemMasterRepository;
+        private IRepository<EstimationCostCenter> _EstimationCostCenterRepository;
 
         public BillofQtyService(ILogger<CustomerQuotationService> logger, IRepository<PermissionApproval> permissionApprovalRepo,
             IRepository<Approval> approvalRepo, IRepository<ApprovalDetail> approvalDetailRepo,
             IRepository<BillofQtyMaster> BillofQtyMasterRepository, IRepository<VouchersNumbers> voucherNumbersRepository, IRepository<Domain.Entities.ProgramSettings> programsettingsRepository,
             IRepository<BillOfQTyDetails> BillOfQTyDetailsRepository,
             IRepository<UserTracking> userTrackingRepository,
-            InspireErpDBContext Context)
+            InspireErpDBContext Context, IRepository<EstimationCostCenter> estimationCostCenterRepository)
         {
 
             _BillofQtyMasterRepository = BillofQtyMasterRepository;
@@ -62,9 +63,10 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
 
             _Context = Context;
+            _EstimationCostCenterRepository = estimationCostCenterRepository;
         }
 
-        public BillofQtyMaster UpdateBillofQty(BillofQtyMaster BillofQty, List<BillOfQTyDetails> BillOfQTyDetails)
+        public BillofQtyMaster UpdateBillofQty(BillofQtyMaster BillofQty, List<BillOfQTyDetails> BillOfQTyDetails,List<EstimationCostCenter> EstimationCostCenter)
         {
 
             try
@@ -96,6 +98,22 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         _BillOfQTyDetailsRepository.Update(x);
                     }
                 }
+                foreach (var xx in EstimationCostCenter)
+                {
+                    xx.BillQtyId =(int)BillofQty.Id;
+
+                    if (xx.Id == 0)
+                    {
+                        xx.Id = (int)maxcount1;
+                        xx.BillQtyId = (int)BillofQty.Id;
+                        _EstimationCostCenterRepository.Insert(xx);
+                        maxcount1++;
+                    }
+                    else
+                    {
+                        _EstimationCostCenterRepository.Update(xx);
+                    }
+                }
                 _BillofQtyMasterRepository.TransactionCommit();
             }
             catch (Exception ex)
@@ -118,6 +136,9 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 var BillofQtydt = _BillOfQTyDetailsRepository.GetAsQueryable().Where(x => x.BillQtyId == id).ToList();
                 _BillOfQTyDetailsRepository.DeleteList(BillofQtydt);
 
+                var EstimationQtydt = _EstimationCostCenterRepository.GetAsQueryable().Where(x => x.BillQtyId == id).ToList();
+                _EstimationCostCenterRepository.DeleteList(EstimationQtydt);
+
                 _BillofQtyMasterRepository.Delete(BillofQty);
                 _BillofQtyMasterRepository.TransactionCommit();
                 i = 1;
@@ -133,19 +154,77 @@ namespace Inspire.Erp.Application.Sales.Implementations
             return i;
 
         }
-        public BillofQtyMaster InsertBillofQty(BillofQtyMaster BillofQty, List<BillOfQTyDetails> BillOfQTyDetails)
+        //public BillofQtyMaster InsertBillofQty(BillofQtyMaster BillofQty, List<BillOfQTyDetails> BillOfQTyDetails,List<EstimationCostCenter> EstimationCostCenter)
+        //{
+        //    try
+        //    {
+        //        _BillofQtyMasterRepository.BeginTransaction();
+
+        //        string customerQuotationNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.BOQ, Prefix.BOQ_Prefix,
+        //            _programsettingsRepository, _voucherNumbersRepository);
+        //        BillofQty.BillofqtyNo = customerQuotationNumber;
+
+        //        BillofQty.BillOfQTyDetails.Clear();
+        //        BillofQty.EstimationCostCenter.Clear();
+
+        //        decimal maxcount = 0;
+        //        maxcount = (
+        //            _BillofQtyMasterRepository.GetAsQueryable()
+        //            .DefaultIfEmpty().Max(o => o == null ? 0 : o.Id) + 1);
+
+        //        BillofQty.Id = maxcount;
+
+        //        decimal maxCount1 = 0;
+        //        maxCount1 = _BillOfQTyDetailsRepository.GetAsQueryable()
+        //             .DefaultIfEmpty()
+        //             .Max(o => o == null ? 0 : (decimal)o.Id) + 1;
+
+        //        foreach (var x in BillOfQTyDetails)
+        //        {
+
+        //            x.Id = maxCount1;
+        //            x.BillQtyId = maxcount;
+        //            BillofQty.BillOfQTyDetails.Add(x);
+        //            maxCount1++;
+        //        }
+
+        //        int maxCountEstimation = 0;
+        //        maxCountEstimation = _EstimationCostCenterRepository.GetAsQueryable()
+        //             .DefaultIfEmpty()
+        //             .Max(o => o == null ? 0 : (int)o.Id) + 1;
+
+        //        foreach (var xx in EstimationCostCenter)
+        //        {
+        //            xx.Id = maxCountEstimation;
+        //            xx.BillQtyId =(int)maxcount;
+        //            BillofQty.EstimationCostCenter.Add(xx);
+        //            maxCountEstimation++;
+        //        }
+        //        _BillofQtyMasterRepository.Insert(BillofQty);
+
+        //        _BillofQtyMasterRepository.TransactionCommit();
+
+        //        return this.GetSavedBillofQty(BillofQty.Id);
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _BillofQtyMasterRepository.TransactionRollback();
+        //        throw ex;
+        //    }
+        //}
+        public BillofQtyMaster InsertBillofQty(BillofQtyMaster BillofQty, List<BillOfQTyDetails> BillOfQTyDetails, List<EstimationCostCenter> EstimationCostCenter)
         {
             try
             {
                 _BillofQtyMasterRepository.BeginTransaction();
-                //string customerQuotationNumber = clsCommonFunctions.GenerateVoucherNo(BillofQty.Date
-                //   , VoucherType.BOQ, Prefix.BOQ_Prefix
-                //   , _programsettingsRepository, _voucherNumbersRepository).VouchersNumbersVNo;
-                string customerQuotationNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.BOQ, Prefix.BOQ_Prefix,
-                    _programsettingsRepository, _voucherNumbersRepository);
+
+                string customerQuotationNumber = clsCommonFunctions.GenrateVoucherNo(
+                    VoucherType.BOQ, Prefix.BOQ_Prefix, _programsettingsRepository, _voucherNumbersRepository);
                 BillofQty.BillofqtyNo = customerQuotationNumber;
 
-                BillofQty.BillOfQTyDetails.Clear();
+                BillofQty.BillOfQTyDetails = new List<BillOfQTyDetails>();
+                BillofQty.EstimationCostCenter = new List<EstimationCostCenter>();
                 decimal maxcount = 0;
                 maxcount = (
                     _BillofQtyMasterRepository.GetAsQueryable()
@@ -153,31 +232,40 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 BillofQty.Id = maxcount;
 
-                decimal maxCount1 = 0;
-                maxCount1 = _BillOfQTyDetailsRepository.GetAsQueryable()
+                decimal maxDetailId = 0;
+                maxDetailId = _BillOfQTyDetailsRepository.GetAsQueryable()
                      .DefaultIfEmpty()
                      .Max(o => o == null ? 0 : (decimal)o.Id) + 1;
-                foreach (var x in BillOfQTyDetails)
-                {
 
-                    x.Id = maxCount1;
-                    x.BillQtyId = maxcount;
-                    BillofQty.BillOfQTyDetails.Add(x);
-                    maxCount1++;
+                foreach (var detail in BillOfQTyDetails)
+                {
+                    detail.Id = maxDetailId++;
+                    detail.BillQtyId = BillofQty.Id;
+                    BillofQty.BillOfQTyDetails.Add(detail);
+                }
+
+                int maxEstimationId = _EstimationCostCenterRepository.GetAsQueryable()
+                    .Select(o => (int?)o.Id).Max() ?? 0 + 1;
+
+                foreach (var estimation in EstimationCostCenter)
+                {
+                    estimation.Id = maxEstimationId++;
+                    estimation.BillQtyId = (int)BillofQty.Id;
+                    BillofQty.EstimationCostCenter.Add(estimation);
                 }
 
                 _BillofQtyMasterRepository.Insert(BillofQty);
                 _BillofQtyMasterRepository.TransactionCommit();
 
                 return this.GetSavedBillofQty(BillofQty.Id);
-
             }
             catch (Exception ex)
             {
                 _BillofQtyMasterRepository.TransactionRollback();
-                throw ex;
+                throw;
             }
         }
+
         public IEnumerable<BillofQtyMaster> GetBillofQty()
         {
             IEnumerable<BillofQtyMaster> customerQuotation = _BillofQtyMasterRepository.GetAll();
@@ -191,6 +279,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
             if (voucherdata != null)
             {
                 voucherdata.BillOfQTyDetails = _BillOfQTyDetailsRepository.GetAsQueryable().Where(qd => qd.BillQtyId == id).ToList();
+                voucherdata.EstimationCostCenter = _EstimationCostCenterRepository.GetAsQueryable().Where(qd => qd.BillQtyId == id).ToList();
+
                 return voucherdata;
 
             }

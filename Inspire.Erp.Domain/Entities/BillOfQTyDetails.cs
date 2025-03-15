@@ -28,6 +28,17 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? CurrencyRate { get; set; }
         public virtual BillofQtyMaster BillofQtyMaster { get; set; }
 
+
+    }
+    public class EstimationCostCenterModel
+    {
+        public int Id { get; set; }
+        public string Remarks { get; set; }
+        public decimal? Amount { get; set; }
+        public int BillQtyId { get; set; }
+        public int costcenter { get; set; }
+
+
     }
 
     public class BillOfQTyDetailsModel
