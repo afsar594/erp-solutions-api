@@ -13,8 +13,8 @@ namespace Inspire.Erp.Application.Sales.Interfaces
 {
     public interface IBillofQtyService
     {        
-        public BillofQtyMaster InsertBillofQty(BillofQtyMaster customerQuotation, List<BillOfQTyDetails> customerQuotationDetails );
-        public BillofQtyMaster UpdateBillofQty(BillofQtyMaster customerQuotation, List<BillOfQTyDetails> customerQuotationDetails);
+        public BillofQtyMaster InsertBillofQty(BillofQtyMaster customerQuotation, List<BillOfQTyDetails> customerQuotationDetails, List<EstimationCostCenter> EstimationCostCenter);
+        public BillofQtyMaster UpdateBillofQty(BillofQtyMaster customerQuotation, List<BillOfQTyDetails> customerQuotationDetails, List<EstimationCostCenter> EstimationCostCenter);
         public int DeleteBillofQty(decimal id);
         public BillofQtyMaster GetSavedBillofQty(decimal id); 
         public IEnumerable<BillofQtyMaster> GetBillofQty();

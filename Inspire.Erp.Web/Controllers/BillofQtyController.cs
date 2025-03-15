@@ -51,7 +51,9 @@ namespace Inspire.Erp.Web.Controllers
             {
                 var param1 = _mapper.Map<BillofQtyMaster>(customerQuotationCompositeView);
                 var param2 = _mapper.Map<List<BillOfQTyDetails>>(customerQuotationCompositeView.BillOfQTyDetails);
-                var xs = _customerQuotationService.InsertBillofQty(param1, param2);
+                var param3 = _mapper.Map<List<EstimationCostCenter>>(customerQuotationCompositeView.EstimationCostCenter);
+
+                var xs = _customerQuotationService.InsertBillofQty(param1, param2, param3);
 
                 BillofQtyMasterModel CustomerQuotationViewModel = new BillofQtyMasterModel();
 
@@ -59,6 +61,8 @@ namespace Inspire.Erp.Web.Controllers
                 {
                     CustomerQuotationViewModel = _mapper.Map<BillofQtyMasterModel>(xs);
                     CustomerQuotationViewModel.BillOfQTyDetails = _mapper.Map<List<BillOfQTyDetailsModel>>(xs.BillOfQTyDetails);
+                    CustomerQuotationViewModel.EstimationCostCenter = _mapper.Map<List<EstimationCostCenterModel>>(xs.EstimationCostCenter);
+
 
                     apiResponse = new ApiResponse<BillofQtyMasterModel>
                     {
@@ -91,12 +95,16 @@ namespace Inspire.Erp.Web.Controllers
         {
             var param1 = _mapper.Map<BillofQtyMaster>(customerQuotationCompositeView);
             var param2 = _mapper.Map<List<BillOfQTyDetails>>(customerQuotationCompositeView.BillOfQTyDetails);
-            var xs = _customerQuotationService.UpdateBillofQty(param1, param2);
+            var param3 = _mapper.Map<List<EstimationCostCenter>>(customerQuotationCompositeView.EstimationCostCenter);
+
+            var xs = _customerQuotationService.UpdateBillofQty(param1, param2, param3);
             if (xs != null)
             {
                 BillofQtyMasterModel CustomerQuotationViewModel = new BillofQtyMasterModel();
                 CustomerQuotationViewModel = _mapper.Map<BillofQtyMasterModel>(xs);
                 CustomerQuotationViewModel.BillOfQTyDetails = _mapper.Map<List<BillOfQTyDetailsModel>>(xs.BillOfQTyDetails);
+                CustomerQuotationViewModel.EstimationCostCenter = _mapper.Map<List<EstimationCostCenterModel>>(xs.EstimationCostCenter);
+
 
                 ApiResponse<BillofQtyMasterModel> apiResponse = new ApiResponse<BillofQtyMasterModel>
                 {

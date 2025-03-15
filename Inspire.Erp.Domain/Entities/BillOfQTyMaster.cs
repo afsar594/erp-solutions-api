@@ -11,6 +11,7 @@ namespace Inspire.Erp.Domain.Entities
         public BillofQtyMaster()
         {
             BillOfQTyDetails = new HashSet<BillOfQTyDetails>();
+            EstimationCostCenter = new HashSet<EstimationCostCenter>();
         }
 
         public decimal Id { get; set; }
@@ -27,6 +28,8 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? QuoteAmount { get; set; }
         [NotMapped]
         public virtual ICollection<BillOfQTyDetails> BillOfQTyDetails { get; set; }
+        [NotMapped]
+        public virtual ICollection<EstimationCostCenter> EstimationCostCenter { get; set; }
     }
 
     public class BillofQtyMasterModel
@@ -39,6 +42,8 @@ namespace Inspire.Erp.Domain.Entities
         public string Remarks { get; set; }
         public string Status { get; set; }
         public virtual List<BillOfQTyDetailsModel> BillOfQTyDetails { get; set; }
+        public virtual List<EstimationCostCenterModel> EstimationCostCenter { get; set; }
+
     }
     public class BoqDetailDto
     {

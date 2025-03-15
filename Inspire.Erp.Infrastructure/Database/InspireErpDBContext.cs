@@ -18969,10 +18969,10 @@ namespace Inspire.Erp.Infrastructure.Database
                       .HasColumnType("bit");
 
                 // Configure the foreign key relationship with BillofQty_Master
-                entity.HasOne(d => d.BillofQtyMaster)
-                      .WithMany(p => p.BillOfQTyDetails)
-                      .HasForeignKey(d => d.BillQtyId)
-                      .HasConstraintName("FK_BillofQty_Details_BillofQty_Master");
+                //entity.HasOne(d => d.BillofQtyMaster)
+                //      .WithMany(p => p.BillOfQTyDetails)
+                //      .HasForeignKey(d => d.BillQtyId)
+                //      .HasConstraintName("FK_BillofQty_Details_BillofQty_Master");
             });
 
 
@@ -18982,18 +18982,11 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.HasKey(e => e.Id);
                 
-                entity.Property(e => e.Amount)
-                      .HasColumnType("numeric(18, 0)");
+                entity.Property(e => e.Amount).HasColumnName("Amount");
+                entity.Property(e => e.Remarks).HasColumnName("Remarks");
 
-                entity.Property(e => e.Remarks)
-                    .HasMaxLength(500)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.BillQtyId);
-                entity.Property(e => e.costcenter);
-
-
-
+                entity.Property(e => e.BillQtyId).HasColumnName("BillQtyId");
+                entity.Property(e => e.costcenter).HasColumnName("cost_center");
             });
 
 
