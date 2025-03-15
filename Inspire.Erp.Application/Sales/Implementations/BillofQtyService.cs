@@ -245,7 +245,11 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 }
 
                 int maxEstimationId = _EstimationCostCenterRepository.GetAsQueryable()
-                    .Select(o => (int?)o.Id).Max() ?? 0 + 1;
+                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.Id) + 1;
+
+
+
+
 
                 foreach (var estimation in EstimationCostCenter)
                 {
