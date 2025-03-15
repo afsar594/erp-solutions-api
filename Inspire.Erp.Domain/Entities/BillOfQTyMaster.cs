@@ -28,6 +28,7 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? QuoteAmount { get; set; }
         [NotMapped]
         public virtual ICollection<BillOfQTyDetails> BillOfQTyDetails { get; set; }
+        [NotMapped]
         public virtual ICollection<EstimationCostCenter> EstimationCostCenter { get; set; }
     }
 
