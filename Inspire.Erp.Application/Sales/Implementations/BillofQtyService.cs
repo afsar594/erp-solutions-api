@@ -25,6 +25,7 @@ using Microsoft.AspNetCore.Mvc;
 using Inspire.Erp.Domain.Models;
 using Inspire.Erp.Domain.Entities.POS;
 using Microsoft.AspNetCore.DataProtection.XmlEncryption;
+using Inspire.Erp.Infrastructure;
 
 namespace Inspire.Erp.Application.Sales.Implementations
 {
@@ -237,28 +238,45 @@ namespace Inspire.Erp.Application.Sales.Implementations
                      .DefaultIfEmpty()
                      .Max(o => o == null ? 0 : (decimal)o.Id) + 1;
 
-                foreach (var detail in BillOfQTyDetails)
+                //foreach (var detail in BillOfQTyDetails)
+                //{
+                //    detail.Id = maxDetailId++;
+                //    detail.BillQtyId = BillofQty.Id;
+                //    BillofQty.BillOfQTyDetails.Add(detail);
+                //}
+
+
+                BillOfQTyDetails = BillOfQTyDetails.Select((k) =>
                 {
-                    detail.Id = maxDetailId++;
-                    detail.BillQtyId = BillofQty.Id;
-                    BillofQty.BillOfQTyDetails.Add(detail);
-                }
+                    k.Id = maxDetailId++;
+                    k.BillQtyId = BillofQty.Id;
+                    return k;
+                }).OrderBy(x => x.Id).AsEnumerable().ToList();
+                _BillOfQTyDetailsRepository.InsertList(BillOfQTyDetails);
+
 
                 int maxEstimationId = _EstimationCostCenterRepository.GetAsQueryable()
                     .DefaultIfEmpty().Max(o => o == null ? 0 : o.Id) + 1;
 
 
-
-
-
-                foreach (var estimation in EstimationCostCenter)
+                EstimationCostCenter = EstimationCostCenter.Select((estimation) =>
                 {
-                    estimation.Id = maxEstimationId++;
+                    //estimation.Id = maxEstimationId++;
                     estimation.BillQtyId = (int)BillofQty.Id;
-                    BillofQty.EstimationCostCenter.Add(estimation);
-                }
+                    return estimation;
+                }).OrderBy(x => x.Id).AsEnumerable().ToList();
+                _EstimationCostCenterRepository.InsertList(EstimationCostCenter);
+
+
+                //foreach (var estimation in EstimationCostCenter)
+                //{
+                //    estimation.Id = maxEstimationId++;
+                //    estimation.BillQtyId = (int)BillofQty.Id;
+                //    BillofQty.EstimationCostCenter.Add(estimation);
+                //}
 
                 _BillofQtyMasterRepository.Insert(BillofQty);
+
                 _BillofQtyMasterRepository.TransactionCommit();
 
                 return this.GetSavedBillofQty(BillofQty.Id);
