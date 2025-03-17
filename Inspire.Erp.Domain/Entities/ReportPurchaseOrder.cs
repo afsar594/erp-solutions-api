@@ -7,7 +7,7 @@ namespace Inspire.Erp.Domain.Entities
     {
         public decimal PurchaseOrderId { get; set; }
         public string PurchaseOrderNo { get; set; }
-        public DateTime? PurchaseOrderDate { get; set; }
+        public DateTime PurchaseOrderDate { get; set; }
         public string PurchaseOrderType { get; set; }
         public decimal? PurchaseOrderPartyId { get; set; }
         public string PurchaseOrderPartyName { get; set; }

@@ -500,6 +500,9 @@ namespace Inspire.Erp.Web.Common
             CreateMap<BillOfQTyDetailsModel, BillOfQTyDetails>();
             CreateMap<BillOfQTyDetails, BillOfQTyDetailsModel>();
 
+            CreateMap<EstimationCostCenterModel, EstimationCostCenter>();
+            CreateMap<EstimationCostCenter, EstimationCostCenterModel>();
+
 
             CreateMap<RFQViewModel, RfqEntry>();
             CreateMap<RfqEntry, RFQViewModel>();
