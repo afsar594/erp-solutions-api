@@ -123,26 +123,57 @@ namespace Inspire.Erp.Application.Account.Implementations
 
 
                 var finalData = data.Union(data2).Union(data3).AsQueryable().ToList();
-
                 if (finalData != null && finalData.Count() > 0)
                 {
-                    finalData = finalData.Where(o => (model.itemId == null ? true : o.ItemId == model.itemId) && (model.partNo == "" ? true : o.PartNo == model.partNo) && (model.departmentId == null ? true : o.DepartmentId == model.departmentId)
-                    ).AsQueryable().ToList();
+                    finalData = finalData
+                           .Where(o =>
+                               (model.itemId == null || o.ItemId == model.itemId) &&
+                               (string.IsNullOrEmpty(model.partNo) || o.PartNo == model.partNo) &&
+                               (model.departmentId == null || o.DepartmentId == model.departmentId)
+                           )
+                           .ToList();
+                    if ((bool)model.isDate)
+                    {
+                        finalData = finalData
+                            .Where(a => a.IssueDate.Value.Date >= model.dateFrom.Value.Date &&
+                                         a.IssueDate.Value.Date <= model.toDate.Value.Date)
+                            .ToList();
+                    }
 
-                    if (model.isDate == true)
+                    if (model.jobId.HasValue)
                     {
-                        finalData = finalData.Where(a => a.IssueDate.Value.Date >= model.dateFrom.Value.Date && a.IssueDate.Value.Date <= model.toDate.Value.Date).ToList();
-                    }
-                    if (!(bool)jobcost)
-                    {
-                        finalData.Where(j => model.jobId == null ? true : j.JobId == model.jobId);
-                    }
-                    else
-                    {
-                        finalData.Where(jd => model.jobId == null ? true : jd.DetailjobId == model.jobId);
+                        if (!(bool)jobcost)
+                        {
+                            finalData = finalData
+                                .Where(j => j.JobId == model.jobId)
+                                .ToList();
+                        }
+                        else
+                        {
+                            finalData = finalData
+                                .Where(jd => jd.DetailjobId == model.jobId)
+                                .ToList();
+                        }
                     }
                 }
-                Console.WriteLine("**********************" + finalData.Count());
+                //if (finalData != null && finalData.Count() > 0)
+                //{
+                //    finalData = finalData.Where(o => (model.itemId == null ? true : o.ItemId == model.itemId) && (model.partNo == "" ? true : o.PartNo == model.partNo) && (model.departmentId == null ? true : o.DepartmentId == model.departmentId)
+                //    ).AsQueryable().ToList();
+
+                //    if (model.isDate == true)
+                //    {
+                //        finalData = finalData.Where(a => a.IssueDate.Value.Date >= model.dateFrom.Value.Date && a.IssueDate.Value.Date <= model.toDate.Value.Date).AsQueryable().ToList();
+                //    }
+                //    if (!(bool)jobcost)
+                //    {
+                //        finalData.Where(j => model.jobId == null ? true : j.JobId == model.jobId).AsQueryable().ToList(); ;
+                //    }
+                //    else
+                //    {
+                //        finalData.Where(jd => model.jobId == null ? true : jd.DetailjobId == model.jobId).AsQueryable().ToList(); ;
+                //    }
+                //}
                 objresponse.ResultSet = finalData;
                 return objresponse;
             }
