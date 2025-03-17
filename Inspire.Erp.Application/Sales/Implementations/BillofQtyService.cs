@@ -105,7 +105,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                     if (xx.Id == 0)
                     {
-                        xx.Id = (int)maxcount1;
+                        //xx.Id = (int)maxcount1;
                         xx.BillQtyId = (int)BillofQty.Id;
                         _EstimationCostCenterRepository.Insert(xx);
                         maxcount1++;
@@ -155,65 +155,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
             return i;
 
         }
-        //public BillofQtyMaster InsertBillofQty(BillofQtyMaster BillofQty, List<BillOfQTyDetails> BillOfQTyDetails,List<EstimationCostCenter> EstimationCostCenter)
-        //{
-        //    try
-        //    {
-        //        _BillofQtyMasterRepository.BeginTransaction();
-
-        //        string customerQuotationNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.BOQ, Prefix.BOQ_Prefix,
-        //            _programsettingsRepository, _voucherNumbersRepository);
-        //        BillofQty.BillofqtyNo = customerQuotationNumber;
-
-        //        BillofQty.BillOfQTyDetails.Clear();
-        //        BillofQty.EstimationCostCenter.Clear();
-
-        //        decimal maxcount = 0;
-        //        maxcount = (
-        //            _BillofQtyMasterRepository.GetAsQueryable()
-        //            .DefaultIfEmpty().Max(o => o == null ? 0 : o.Id) + 1);
-
-        //        BillofQty.Id = maxcount;
-
-        //        decimal maxCount1 = 0;
-        //        maxCount1 = _BillOfQTyDetailsRepository.GetAsQueryable()
-        //             .DefaultIfEmpty()
-        //             .Max(o => o == null ? 0 : (decimal)o.Id) + 1;
-
-        //        foreach (var x in BillOfQTyDetails)
-        //        {
-
-        //            x.Id = maxCount1;
-        //            x.BillQtyId = maxcount;
-        //            BillofQty.BillOfQTyDetails.Add(x);
-        //            maxCount1++;
-        //        }
-
-        //        int maxCountEstimation = 0;
-        //        maxCountEstimation = _EstimationCostCenterRepository.GetAsQueryable()
-        //             .DefaultIfEmpty()
-        //             .Max(o => o == null ? 0 : (int)o.Id) + 1;
-
-        //        foreach (var xx in EstimationCostCenter)
-        //        {
-        //            xx.Id = maxCountEstimation;
-        //            xx.BillQtyId =(int)maxcount;
-        //            BillofQty.EstimationCostCenter.Add(xx);
-        //            maxCountEstimation++;
-        //        }
-        //        _BillofQtyMasterRepository.Insert(BillofQty);
-
-        //        _BillofQtyMasterRepository.TransactionCommit();
-
-        //        return this.GetSavedBillofQty(BillofQty.Id);
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _BillofQtyMasterRepository.TransactionRollback();
-        //        throw ex;
-        //    }
-        //}
         public BillofQtyMaster InsertBillofQty(BillofQtyMaster BillofQty, List<BillOfQTyDetails> BillOfQTyDetails, List<EstimationCostCenter> EstimationCostCenter)
         {
             try
@@ -238,14 +179,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                      .DefaultIfEmpty()
                      .Max(o => o == null ? 0 : (decimal)o.Id) + 1;
 
-                //foreach (var detail in BillOfQTyDetails)
-                //{
-                //    detail.Id = maxDetailId++;
-                //    detail.BillQtyId = BillofQty.Id;
-                //    BillofQty.BillOfQTyDetails.Add(detail);
-                //}
-
-
                 BillOfQTyDetails = BillOfQTyDetails.Select((k) =>
                 {
                     k.Id = maxDetailId++;
@@ -266,14 +199,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     return estimation;
                 }).OrderBy(x => x.Id).AsEnumerable().ToList();
                 _EstimationCostCenterRepository.InsertList(EstimationCostCenter);
-
-
-                //foreach (var estimation in EstimationCostCenter)
-                //{
-                //    estimation.Id = maxEstimationId++;
-                //    estimation.BillQtyId = (int)BillofQty.Id;
-                //    BillofQty.EstimationCostCenter.Add(estimation);
-                //}
 
                 _BillofQtyMasterRepository.Insert(BillofQty);
 
