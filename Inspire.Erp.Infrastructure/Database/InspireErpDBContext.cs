@@ -6843,6 +6843,8 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.IssueVoucherBufferRemark13)
                     .HasMaxLength(50)
                     .IsUnicode(false);
+                entity.Property(e => e.IssueVoucherPurchaseVoucherID)
+                   .HasColumnName("PurchaseVoucherID").IsUnicode(false);
 
                 entity.Property(e => e.IssueVoucherBufferReqNo)
                     .HasColumnName("IssueVoucherBuffer_REQ_NO")
