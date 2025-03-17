@@ -213,6 +213,24 @@ namespace Inspire.Erp.Web.Controllers.Store
         }
 
         [HttpPost]
+        [Route("MainReport_GetReportProjectStatus_PARAM_CLASS")]
+        public ApiResponse<List<ReportProjectStatus>> MainReport_GetReportProjectStatus_PARAM_CLASS([FromBody] ProjectStatusReportParametersViewModel projectStatusCompositeView)
+        {
+            var param1 = _mapper.Map<ProjectStatusReportParameters>(projectStatusCompositeView);
+          ApiResponse<List<ReportProjectStatus>> apiResponse = new ApiResponse<List<ReportProjectStatus>>
+            {
+                Valid = true,
+                Result = _mapper.Map<List<ReportProjectStatus>>(_mainReportService.MainReport_GetReportProjectStatus_PARAM_CLASS(
+                     param1
+                )),
+                Message = ""
+            };
+            return apiResponse;
+        }
+
+
+
+        [HttpPost]
         [Route("MainReport_GetReportPurchaseRequisition")]
         public async Task<IActionResult> MainReport_GetReportPurchaseRequisition([FromBody] PurchaserequisitionReportParametersViewModel voucherCompositeView)
         {

@@ -423,6 +423,9 @@ namespace Inspire.Erp.Web.Common
             CreateMap<ReportPurchaseRequisition, ReportPurchaseRequisitionViewModel>();
             CreateMap<ReportPurchaseRequisitionViewModel, ReportPurchaseRequisition>();
 
+            CreateMap<ReportProjectStatus, ProjectStatusReportParametersViewModel>();
+            CreateMap<ProjectStatusReportParametersViewModel, ReportProjectStatus>();
+
             CreateMap<PurchaserequisitionReportParameters, PurchaserequisitionReportParametersViewModel>();
             CreateMap<PurchaserequisitionReportParametersViewModel, PurchaserequisitionReportParameters>();
 

@@ -49,6 +49,7 @@ namespace Inspire.Erp.Application.Account.Implementations
         private IRepository<ViewAccountsTransactionsVoucherType> _viewAccountsTransactionsVoucherTypeRepository;
         private IRepository<ReportAccountsTransactions> _reportAccountsTransactionsRepository;
         private IRepository<ReportPurchaseRequisition> _reportPurchaseRequisitionRepository;
+        private IRepository<ReportProjectStatus> _reportReportProjectStatusRepository;
         private IRepository<PurchaseRequisition> _purchaseRequisitionRepository;
         private IRepository<PurchaseRequisitionDetails> _purchaseRequisitionDRepository;
         private IRepository<ReportPurchaseOrder> _reportPurchaseOrderRepository;
@@ -78,6 +79,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                    IRepository<ViewAccountsTransactionsVoucherType> viewAccountsTransactionsVoucherTypeRepository,
                    IRepository<TempReportAccStatement> tempReportAccStatementRepository,
                    IRepository<ReportPurchaseRequisition> reportPurchaseRequisitionRepository,
+                   IRepository<ReportProjectStatus> reportReportProjectStatusRepository,
                    IRepository<ReportPurchaseOrder> reportPurchaseOderRepository,
                  IRepository<StockRegister> stockRegisterRepository,
                 IRepository<UnitDetails> unitDetailsRepository,
@@ -107,6 +109,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             _tempReportAccStatementRepository = tempReportAccStatementRepository;
             _viewAccountsTransactionsVoucherTypeRepository = viewAccountsTransactionsVoucherTypeRepository;
             _reportPurchaseRequisitionRepository = reportPurchaseRequisitionRepository;
+            _reportReportProjectStatusRepository = reportReportProjectStatusRepository;
             _reportPurchaseOrderRepository = reportPurchaseOderRepository;
             _stockRegisterRepository = stockRegisterRepository;
             _unitDetailsRepository = unitDetailsRepository;
@@ -1582,6 +1585,28 @@ namespace Inspire.Erp.Application.Account.Implementations
 
            // }
         }
+
+
+
+        public IEnumerable<ReportProjectStatus> MainReport_GetReportProjectStatus_PARAM_CLASS(ProjectStatusReportParameters projectStatusReportParameters)
+        {
+                     List<ReportProjectStatus> reportProjectStatus_ALL;
+            reportProjectStatus_ALL = _reportReportProjectStatusRepository.GetAsQueryable()
+    .Where(k =>
+   (projectStatusReportParameters.CustomerId == -1 ? true : (k.CustomerMasterCustomerId == projectStatusReportParameters.CustomerId)) &&
+  (projectStatusReportParameters.JobId == -1 ? true : (k.JobMasterJobId == projectStatusReportParameters.JobId))
+              )
+              .OrderBy(x => x.CustomerMasterCustomerName)
+              .AsEnumerable()
+              .ToList();
+            return reportProjectStatus_ALL;
+
+            // }
+        }
+
+
+
+
         public async Task<IQueryable> MainReport_GetReportPurchaseRequisition(PurchaserequisitionReportParameters purchaserequisitionReportParameters, List<ViewStockTransferType> viewStockTransferType)
         {
 

@@ -27,6 +27,8 @@ namespace Inspire.Erp.Application.Account.Interfaces
         public IEnumerable<ReportPurchaseOrder> MainReport_GetReportPurchaseOrder_PARAM_CLASS(PurchaseOrderReportParameters purchaseOrderreportParameters, List<ViewStockTransferType> viewStockTransferType);
         public IEnumerable<ReportPurchaseRequisition> MainReport_GetReportPurchaseRequisition_PARAM_CLASS(PurchaserequisitionReportParameters purchaserequisitionReportParameters, List<ViewStockTransferType> viewStockTransferType);
 
+        public IEnumerable<ReportProjectStatus> MainReport_GetReportProjectStatus_PARAM_CLASS(ProjectStatusReportParameters projectStatusReportParameters);
+
 
         public Task<IQueryable> MainReport_GetReportPurchaseRequisition(PurchaserequisitionReportParameters purchaserequisitionReportParameters, List<ViewStockTransferType> viewStockTransferType);
 

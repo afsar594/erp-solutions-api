@@ -1820,6 +1820,87 @@ namespace Inspire.Erp.Infrastructure.Database
                     .IsUnicode(false);
             });
 
+
+
+            modelBuilder.Entity<ReportProjectStatus>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToView("vw_ProjectStatus");
+
+                entity.Property(e => e.JobMasterJobNo)
+               .HasColumnName("job_master_job_no")
+               .HasMaxLength(50)
+               .IsUnicode(false);
+
+                entity.Property(e => e.A)
+                    .HasColumnName("A")
+                    .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.CustomerMasterCustomerId)
+                  .HasColumnName("Customer_Master_Customer_No")
+                  .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.JobMasterJobId)
+                  .HasColumnName("Job_Master_Job_ID")
+                  .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.CustomerMasterCustomerName)
+                    .HasColumnName("Customer_Master_Customer_Name")
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+                entity.Property(e => e.JobMasterJobName)
+                   .HasColumnName("job_master_job_name")
+                   .HasMaxLength(50)
+                   .IsUnicode(false);
+
+                entity.Property(e => e.StartDate).HasColumnName("StartDate")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.EndDate).HasColumnName("EndDate")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.JobMasterJobValue).HasColumnName("job_master_job_value")
+                    .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.JobMasterJobVariationAmount).HasColumnName("Job_Master_Job_VariationAmount")
+                    .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.RevisedValue).HasColumnName("RevisedValue")
+                    .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.CumValue).HasColumnName("CumValue")
+                    .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.DirectCost).HasColumnName("DirectCost")
+                    .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.GrossProfit).HasColumnName("GrossProfit")
+                    .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.RetAmount).HasColumnName("RetAmount")
+                    .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.AdvInvoice).HasColumnName("AdvInvoice")
+                    .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.AdvRecovery).HasColumnName("AdvRecovery")
+                    .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.Receivable).HasColumnName("Receivable")
+                    .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.VatAmount).HasColumnName("VatAmount")
+                    .HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.Received).HasColumnName("Received")
+                    .HasColumnType("numeric(18, 0)");
+                entity.Property(e => e.Balance).HasColumnName("Balance")
+                   .HasColumnType("numeric(18, 0)");
+            });
+
+
+
             modelBuilder.Entity<ReportPurchaseVoucher>(entity =>
             {
                 entity.HasNoKey();
