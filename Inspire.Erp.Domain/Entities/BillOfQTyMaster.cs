@@ -41,6 +41,12 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? CustomerEnqId { get; set; }
         public string Remarks { get; set; }
         public string Status { get; set; }
+        public decimal? BOQAmount { get; set; }
+        public decimal? CostantsAmount { get; set; }
+        public decimal? TotalAmount { get; set; }
+        public decimal? ProftPercentage { get; set; }
+        public decimal? ProfitAmount { get; set; }
+        public decimal? QuoteAmount { get; set; }
         public virtual List<BillOfQTyDetailsModel> BillOfQTyDetails { get; set; }
         public virtual List<EstimationCostCenterModel> EstimationCostCenter { get; set; }
 
