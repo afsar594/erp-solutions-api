@@ -5,11 +5,13 @@ using Inspire.Erp.Domain.Modals.AccountStatement;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Models;
 using Inspire.Erp.Domain.Models.ViewModels;
+using Inspire.Erp.Infrastructure.Database;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SendGrid.Helpers.Mail;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,11 +42,12 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         private IRepository<SalesVoucher> _salesVoucherRepository;
         private readonly IAccountTransactionsServices _accountTransactionsServices;
         private IRepository<ItemMaster> _itemrepository;
+        public readonly InspireErpDBContext _Context;
         public AccountController(IAccountStatementService accountStatService, IDaybookService daybookService, IAssetsOpeningService assetsOpeningService, IRepository<AccountsTransactions> accountTransactionRepository,
             IVoucherAllocationService voucherAllocation, IOutstandingStatementService outstandingStatement, IOldBalanceSheetService oldBalanceSheet, IRepository<CustomerMaster> customerMasterRepository,
             IVoucherPrintService iVoucherPrintService, IAccountStatementMultiAccountService multiAccountService, IAgeingReport ageingReport, IRepository<SalesManMaster> _salesmanrepository,
             IVatStatementService vatStatementService, IAssetsMasterService assetsMasterService, IAccountTransactionsServices accountTransactionsServices, IRepository<AccountSettings> accountsSettingsRepo,
-            IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository, IRepository<ItemMaster> itemrepository)
+            IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository, IRepository<ItemMaster> itemrepository, InspireErpDBContext Context)
         {
             _accountStatService = accountStatService;
             _iVoucherPrintService = iVoucherPrintService;
@@ -59,6 +62,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
             _salesVoucherDetailsRepository = salesVoucherDetailsRepository;
             _assetsMasterService = assetsMasterService; _itemrepository = itemrepository;
             _accountTransactionsServices = accountTransactionsServices;
+            _Context = Context;
         }
 
         #region Account Statement 
@@ -77,6 +81,23 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         {
             return Ok(await _accountStatService.GetAccountTransactions(model));
         }
+        [HttpGet("AccountTransactionsHistory")]
+        public void AccountTransactionsHistory(string accountNumber, string dateFrom, string dateTo)
+        {
+            try
+            {
+                _Context.Database.ExecuteSqlRaw(
+                    "EXEC sp_InsertAccountTransactions {0}, {1}, {2}",
+                    accountNumber, dateFrom, dateTo
+                );
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"SQL Error: {ex.Message}");
+                throw;  
+            }
+        }
+
         [HttpPost("DownloadAccountStatement")]
         public async Task<IActionResult> DownloadAccountStatement(GenericGridViewModel model)
         {
