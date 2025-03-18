@@ -33,6 +33,7 @@ namespace Inspire.Erp.Application.Store.Implementation
         private IRepository<LocationMaster> _locationMasterRepository;
         private IRepository<AccountSettings> _accountsSettingssvcs;
         private IRepository<JobMasterBudgetDetails> _jobbudgetRepository;
+        private IRepository<JobMaster> _JobMastertRepository;
 
 
         public IssueVoucherService(
@@ -41,7 +42,7 @@ namespace Inspire.Erp.Application.Store.Implementation
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, IRepository<UnitDetails> unitDetailsRepository, ILogger<PaymentVoucherService> logger, IRepository<CurrencyMaster> currencyMasterRepository,
             IRepository<IssueVoucher> issueVoucherRepository, IRepository<IssueVoucherDetails> issueVoucherDetailsRepository, IRepository<AccountSettings> accountsSettingssvcsRepository,
-            IRepository<JobMasterBudgetDetails> jobbudgetRepository)
+            IRepository<JobMasterBudgetDetails> jobbudgetRepository, IRepository<JobMaster> JobMastertRepository)
         {
             _UnitDetailsRepository = unitDetailsRepository;
             this._accountTransactionRepository = accountTransactionRepository;
@@ -57,6 +58,7 @@ namespace Inspire.Erp.Application.Store.Implementation
             _locationMasterRepository = locationMasterRepository;
             _accountsSettingssvcs = accountsSettingssvcsRepository;
             _jobbudgetRepository = jobbudgetRepository;
+            _JobMastertRepository = JobMastertRepository;
         }
 
 
@@ -358,11 +360,13 @@ namespace Inspire.Erp.Application.Store.Implementation
                 _stockRegisterRepository.InsertList(stockRegister);
                 if (issueVoucher.IssueVoucherJobId > 0)
                 {
-                    var jobbuget = _jobbudgetRepository.GetAsQueryable().Where(s => s.JobMasterBudgetDetailsJobId == issueVoucher.IssueVoucherJobId).FirstOrDefault()?.JobMasterNo;
+                    // var jobbuget = _jobbudgetRepository.GetAsQueryable().Where(s => s.JobMasterBudgetDetailsJobId == issueVoucher.IssueVoucherJobId).FirstOrDefault()?.JobMasterNo;
+
+                    var jobNo = _JobMastertRepository.GetAsQueryable().Where(s => s.JobMasterJobId == issueVoucher.IssueVoucherJobId).FirstOrDefault();
 
                     var newBudgetDetail = new JobMasterBudgetDetails
                     {
-                        JobMasterNo = jobbuget ?? "",
+                        JobMasterNo = jobNo.JobMasterJobNo,
                         JobMasterBudgetDetailsBudAmount = 0,
                         JobMasterBudgetDetailsJobId = issueVoucher.IssueVoucherJobId,
                         JobMasterBudgetDetailsBudId = (int)issueVoucher.IssueVoucherCostCenterId,
