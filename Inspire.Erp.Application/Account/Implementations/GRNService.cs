@@ -191,8 +191,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 _context.SaveChanges();
 
 
-                var autoCreateIssue = _programsettingsRepository.GetAsQueryable().AsNoTracking().Where(x => x.ProgramSettingsDescription.Trim().Contains("Automatically Create Issue Voucher on Purchasae")).FirstOrDefault().ProgramSettingsBoolValue;
-                if ((bool)autoCreateIssue)
+                if ((bool)grn.PurchaseVoucherJobDirectPurchase == true)
                 {
                     var data = _issueVoucherRepository.GetAsQueryable().Where(i => i.IssueVoucherPurchaseVoucherID == grn.PurchaseVoucherPurID).FirstOrDefault();
                     var detaildata = _issueVoucherDetailsRepository.GetAll().Where(i => i.IssueVoucherId == data.IssueVoucherId).ToList();
@@ -421,8 +420,8 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 trackingData.UserTrackingUserVpType = "GRN";
                 _context.UserTracking.Add(trackingData);
                 _context.SaveChanges();
-                var autoCreateIssue = _programsettingsRepository.GetAsQueryable().AsNoTracking().Where(x => x.ProgramSettingsDescription.Trim().Contains("Automatically Create Issue Voucher on Purchasae")).FirstOrDefault().ProgramSettingsBoolValue ;
-                if ((bool)autoCreateIssue)
+                //var autoCreateIssue = _programsettingsRepository.GetAsQueryable().AsNoTracking().Where(x => x.ProgramSettingsDescription.Trim().Contains("Automatically Create Issue Voucher on Purchasae")).FirstOrDefault().ProgramSettingsBoolValue ;
+                if ((bool)grn.PurchaseVoucherJobDirectPurchase == true)
                 {
                     var issueObj = new IssueVoucher();
                     string issueVoucherNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.IssueVoucher_TYPE, Prefix.IssueVoucher_Prefix, _programsettingsRepository, _voucherNumbersRepository);
