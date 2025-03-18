@@ -1835,15 +1835,15 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.A)
                     .HasColumnName("A")
-                    .HasColumnType("numeric(18, 0)");
+                    .HasColumnType("bigint");
 
                 entity.Property(e => e.CustomerMasterCustomerId)
                   .HasColumnName("Customer_Master_Customer_No")
-                  .HasColumnType("numeric(18, 0)");
+                  .HasColumnType("int");
 
                 entity.Property(e => e.JobMasterJobId)
                   .HasColumnName("Job_Master_Job_ID")
-                  .HasColumnType("numeric(18, 0)");
+                  .HasColumnType("int");
 
                 entity.Property(e => e.CustomerMasterCustomerName)
                     .HasColumnName("Customer_Master_Customer_Name")

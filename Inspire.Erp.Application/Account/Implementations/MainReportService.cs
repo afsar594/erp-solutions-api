@@ -1592,12 +1592,13 @@ namespace Inspire.Erp.Application.Account.Implementations
         {
                      List<ReportProjectStatus> reportProjectStatus_ALL;
             reportProjectStatus_ALL = _reportReportProjectStatusRepository.GetAsQueryable()
-    .Where(k =>
-   (projectStatusReportParameters.CustomerId == -1 ? true : (k.CustomerMasterCustomerId == projectStatusReportParameters.CustomerId)) &&
-  (projectStatusReportParameters.JobId == -1 ? true : (k.JobMasterJobId == projectStatusReportParameters.JobId))
-              )
-              .OrderBy(x => x.CustomerMasterCustomerName)
-              .AsEnumerable()
+  //  .Where(k =>
+  //// (projectStatusReportParameters.CustomerId == -1 ? true : (k.CustomerMasterCustomerId == projectStatusReportParameters.CustomerId)) &&
+  ////(projectStatusReportParameters.JobId == -1 ? true : (k.JobMasterJobId == projectStatusReportParameters.JobId))
+  
+  //            )
+  //            .OrderBy(x => x.CustomerMasterCustomerName)
+  //            .AsEnumerable()
               .ToList();
             return reportProjectStatus_ALL;
 

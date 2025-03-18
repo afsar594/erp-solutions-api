@@ -7,8 +7,8 @@ namespace Inspire.Erp.Domain.Entities
     {
 
         public long? A { get; set; }
-        public long? CustomerMasterCustomerId { get; set; }
-        public long? JobMasterJobId { get; set; }
+        public int? CustomerMasterCustomerId { get; set; }
+        public int? JobMasterJobId { get; set; }
         public string JobMasterJobNo { get; set; }
         public string CustomerMasterCustomerName { get; set; }
         public string JobMasterJobName { get; set; }
