@@ -1590,6 +1590,7 @@ namespace Inspire.Erp.Application.Account.Implementations
 
         public IEnumerable<ReportProjectStatus> MainReport_GetReportProjectStatus_PARAM_CLASS(ProjectStatusReportParameters projectStatusReportParameters)
         {
+
                      List<ReportProjectStatus> reportProjectStatus_ALL;
             reportProjectStatus_ALL = _reportReportProjectStatusRepository.GetAsQueryable()
     .Where(k =>
@@ -1598,7 +1599,7 @@ namespace Inspire.Erp.Application.Account.Implementations
   
               )
               .OrderBy(x => x.CustomerMasterCustomerName)
-  /            .AsEnumerable()
+              .AsEnumerable()
               .ToList();
             return reportProjectStatus_ALL;
 
