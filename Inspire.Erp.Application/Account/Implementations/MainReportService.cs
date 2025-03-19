@@ -22,6 +22,7 @@ using System.Diagnostics;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using Inspire.Erp.Application.Master;
 using Inspire.Erp.Domain.Models.ViewModels;
+using Inspire.Erp.Infrastructure.Database;
 
 namespace Inspire.Erp.Application.Account.Implementations
 {
@@ -39,7 +40,7 @@ namespace Inspire.Erp.Application.Account.Implementations
         private IRepository<UnitMaster> _unitMasterRepository;
         private IRepository<ReportStockBaseUnit> _reportStockBaseUnitRepository;
         private IRepository<ReportStockBaseUnit> _reportStockBaseUnitLocationRepository;
-
+        public readonly InspireErpDBContext _Context;
         private IRepository<ReportSalesVoucher> _reportSalesVoucherRepository;
 
         private IRepository<ReportPurchaseVoucher> _reportPurchaseVoucherRepository;
@@ -1590,24 +1591,22 @@ namespace Inspire.Erp.Application.Account.Implementations
 
         public IEnumerable<ReportProjectStatus> MainReport_GetReportProjectStatus_PARAM_CLASS(ProjectStatusReportParameters projectStatusReportParameters)
         {
+            if (projectStatusReportParameters.JobId !=null && projectStatusReportParameters.JobId !=-1)
+            {
+                _Context.Database.ExecuteSqlRaw("EXEC Spr_UpdateProjectStatus {0}", projectStatusReportParameters.JobId);
+            }
+            
 
-                     List<ReportProjectStatus> reportProjectStatus_ALL;
-            reportProjectStatus_ALL = _reportReportProjectStatusRepository.GetAsQueryable()
-    .Where(k =>
-   (projectStatusReportParameters.CustomerId == -1 ? true : (k.CustomerMasterCustomerId == projectStatusReportParameters.CustomerId)) &&
-  (projectStatusReportParameters.JobId == -1 ? true : (k.JobMasterJobId == projectStatusReportParameters.JobId))
-  
-              )
+            List<ReportProjectStatus> reportProjectStatus_ALL;
+            reportProjectStatus_ALL = _reportReportProjectStatusRepository.GetAsQueryable().Where(k =>
+            (projectStatusReportParameters.CustomerId == -1 ? true : (k.CustomerMasterCustomerId == projectStatusReportParameters.CustomerId)) &&
+            (projectStatusReportParameters.JobId == -1 ? true : (k.JobMasterJobId == projectStatusReportParameters.JobId)))
               .OrderBy(x => x.CustomerMasterCustomerName)
               .AsEnumerable()
               .ToList();
             return reportProjectStatus_ALL;
-
-            // }
+                      
         }
-
-
-
 
         public async Task<IQueryable> MainReport_GetReportPurchaseRequisition(PurchaserequisitionReportParameters purchaserequisitionReportParameters, List<ViewStockTransferType> viewStockTransferType)
         {
