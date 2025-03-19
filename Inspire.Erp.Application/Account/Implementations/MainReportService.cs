@@ -1598,7 +1598,7 @@ namespace Inspire.Erp.Application.Account.Implementations
   
               )
               .OrderBy(x => x.CustomerMasterCustomerName)
-              .AsEnumerable()
+  /            .AsEnumerable()
               .ToList();
             return reportProjectStatus_ALL;
 
