@@ -18,22 +18,68 @@ namespace Inspire.Erp.WebReport.ReportEngine
             _dbSettings = dbSettings;
         }
 
-        public DataSet getFilledDataSet(List<string> queries)
+        public DataSet getFilledDataSet(ReportFilterModel reportFilterModel)
         {
             DataSet DsPrint = new DataSet();
             DsPrint = new DataSet();
 
             DataTable dt = null;
 
-            foreach (var query in queries)
+            if (reportFilterModel.SP_Queries.Any())
+                ExecuteStoredProcedures(reportFilterModel.SP_Queries);
+
+            reportFilterModel.Queries.ForEach(x =>
             {
                 dt = new DataTable();
-                dt = FetchDataTable(query).Copy();
-                dt.TableName = $"{GetTableNameFromQuery(query)}";
+                dt = FetchDataTable(x).Copy();
+                dt.TableName = $"{GetTableNameFromQuery(x)}";
                 DsPrint.Merge(dt);
-            }
+            });
 
             return DsPrint;
+        }
+        public void ExecuteStoredProcedures(List<SPQueries> sP_Queries)
+        {
+            if (sP_Queries == null || sP_Queries.Count == 0)
+                return;
+
+            var connStr = $"Server={_dbSettings.ServerName};Database={_dbSettings.DBName};Trusted_Connection=False;MultipleActiveResultSets=true;User Id={_dbSettings.UserName};Password={_dbSettings.Password};";
+
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                    conn.Open();
+                    using (SqlTransaction transaction = conn.BeginTransaction())
+                    {
+                        try
+                        {
+                            foreach (var query in sP_Queries)
+                            {
+                                using (SqlCommand cmd = new SqlCommand(query.SP_Name, conn, transaction))
+                                {
+                                    cmd.CommandType = CommandType.StoredProcedure;
+
+                                    if (query.Parameters != null && query.Parameters.Any())
+                                    {
+                                        foreach (var param in query.Parameters)
+                                        {
+                                            cmd.Parameters.Add(new SqlParameter(param.Key, param.Value ));
+                                        }
+                                    }
+
+                                    cmd.ExecuteNonQuery();
+                                }
+                            }
+                            transaction.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            transaction.Rollback();
+                            Console.WriteLine($"Error executing stored procedure: {ex.Message}");
+                            throw;
+                        }
+                    }
+               
+            }
         }
 
         private string GetTableNameFromQuery(string query)
@@ -46,7 +92,7 @@ namespace Inspire.Erp.WebReport.ReportEngine
                 return match.Groups["TableName"].Value;
             }
 
-            return string.Empty; 
+            return string.Empty;
         }
         public void ExecuteNonQurey(string query)
         {

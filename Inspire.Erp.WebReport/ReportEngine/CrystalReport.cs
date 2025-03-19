@@ -269,20 +269,36 @@ namespace Inspire.Erp.WebReport.ReportEngine
             {
                 tmpParam = parameterDataTable;
                 count = tmpParam.Rows.Count;
+
                 for (int li = 0; li < count; li++)
                 {
                     currentName = tmpParam.Rows[li][0].ToString();
                     currentValue = tmpParam.Rows[li][1].ToString();
-                    if (currentName != "" && currentName != null)
+
+                    if (!string.IsNullOrEmpty(currentName))
                     {
-                        crReportDocument.SetParameterValue(currentName, currentValue);
-                    }
-                    else
-                    {
-                        break;
+                        ParameterFieldDefinition paramField = crReportDocument.DataDefinition.ParameterFields[currentName];
+
+                        if (paramField != null)
+                        {
+                            if (paramField.ParameterValueKind   == ParameterValueKind.DateParameter ||
+                                paramField.ParameterValueKind == ParameterValueKind.DateTimeParameter)
+                            {
+                                crReportDocument.SetParameterValue(currentName, Convert.ToDateTime(currentValue));
+                            }
+                            else if (paramField.ParameterValueKind == ParameterValueKind.NumberParameter)
+                            {
+                                crReportDocument.SetParameterValue(currentName, Convert.ToInt32(currentValue));
+                            }
+                            else
+                            {
+                                crReportDocument.SetParameterValue(currentName, currentValue);
+                            }
+                        }
                     }
                 }
             }
+
             return crReportDocument;
         }
 
@@ -858,9 +874,23 @@ namespace Inspire.Erp.WebReport.ReportEngine
             DataSet dataSet = new DataSet();
             GeneralQueryExcutor queryExcutor = new GeneralQueryExcutor(dbConnection);
 
-            dataSet = queryExcutor.getFilledDataSet(reportFilterModel.Queries);
-
+            dataSet = queryExcutor.getFilledDataSet(reportFilterModel);
             mainReport.SetDataSource(dataSet);
+
+            if (mainReport.ParameterFields.Count > 0 && reportFilterModel.Parameters.Count > 0)
+            {
+                var dt = new DataTable();
+                dt.Columns.Add("Name", typeof(string));
+                dt.Columns.Add("Value", typeof(string));
+                reportFilterModel.Parameters.ForEach(x =>
+                {
+                    DataRow newRow = dt.NewRow();
+                    newRow["Name"] = x.Key;
+                    newRow["Value"] = x.Value;
+                    dt.Rows.Add(newRow);
+                });
+                mainReport = SetArrayParameterValue(mainReport, dt);
+            }
             MemoryStream ms = new MemoryStream();
             using (var stream = mainReport.ExportToStream(ExportFormatType.PortableDocFormat))
             {
