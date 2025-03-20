@@ -24,6 +24,17 @@ using Inspire.Erp.Application.Master;
 using Inspire.Erp.Domain.Models.ViewModels;
 using Inspire.Erp.Infrastructure.Database;
 
+
+using Inspire.Erp.Application.Account.Implementations;
+
+using Inspire.Erp.Domain.Modals.AccountStatement;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+
 namespace Inspire.Erp.Application.Account.Implementations
 {
     public class MainReportService : IMainReportService
@@ -1591,17 +1602,22 @@ namespace Inspire.Erp.Application.Account.Implementations
 
         public IEnumerable<ReportProjectStatus> MainReport_GetReportProjectStatus_PARAM_CLASS(ProjectStatusReportParameters projectStatusReportParameters)
         {
-            if (projectStatusReportParameters.JobId !=null && projectStatusReportParameters.JobId !=-1)
-            {
-                _Context.Database.ExecuteSqlRaw("EXEC Spr_UpdateProjectStatus {0}", projectStatusReportParameters.JobId);
-            }
+            //if (projectStatusReportParameters.JobId !=null && projectStatusReportParameters.JobId !=-1)
+            //{
+            //    _Context.Database.ExecuteSqlRaw("EXEC Spr_UpdateProjectStatus {0}", projectStatusReportParameters.JobId);
+            //}
             
 
             List<ReportProjectStatus> reportProjectStatus_ALL;
             reportProjectStatus_ALL = _reportReportProjectStatusRepository.GetAsQueryable().Where(k =>
-            (projectStatusReportParameters.CustomerId == -1 ? true : (k.CustomerMasterCustomerId == projectStatusReportParameters.CustomerId)) &&
-            (projectStatusReportParameters.JobId == -1 ? true : (k.JobMasterJobId == projectStatusReportParameters.JobId)))
-              .OrderBy(x => x.CustomerMasterCustomerName)
+           
+            //(projectStatusReportParameters.CustomerId == -1 ? true : (k.CustomerMasterCustomerId == projectStatusReportParameters.CustomerId)) &&
+            //(projectStatusReportParameters.JobId == -1 ? true : (k.JobMasterJobId == projectStatusReportParameters.JobId)))
+               (projectStatusReportParameters.CustomerId == null || projectStatusReportParameters.CustomerId == -1 || k.CustomerMasterCustomerId == projectStatusReportParameters.CustomerId) &&
+        (projectStatusReportParameters.JobId == null || projectStatusReportParameters.JobId == -1 || k.JobMasterJobId == projectStatusReportParameters.JobId))
+
+
+                .OrderBy(x => x.CustomerMasterCustomerName)
               .AsEnumerable()
               .ToList();
             return reportProjectStatus_ALL;
