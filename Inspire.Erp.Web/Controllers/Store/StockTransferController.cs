@@ -254,6 +254,7 @@ namespace Inspire.Erp.Web.Controllers.Store
             var jobMasters = jobrepository.GetAsQueryable().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
             {
                 c.JobMasterJobId,
+                c.JobMasterJobNumber,
                 JobMasterJobName = c.JobMasterJobName.Trim(),
             }).OrderBy(x=>x.JobMasterJobName).ToList();
             var LocationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new

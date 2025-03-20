@@ -157,6 +157,8 @@ public class StockAdjustmentReportFilter
         public bool IsdateSelected { get; set; }
         public string fromDate { get; set; }
         public string toDate { get; set; }
+
+        public bool IsSummaryChecked { get; set; }    
     }
 
     public class ItemBarCodeSearchFilter
