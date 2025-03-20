@@ -1,0 +1,405 @@
+2025-01-03 02:24:23 [INFO] getReportPrint called with folderName: CustomerA and ReportName: string
+2025-01-03 02:24:24 [ERROR] Failed to generate report in getReportPrint - Exception: CrystalReport.PrepareReport: Load report failed.
+StackTrace:    at Inspire.Erp.WebReport.ReportEngine.CrystalReport.PrepareReport(String reportPath) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\CrystalReport.cs:line 113
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String PathReport, String SelectionFormula, String Namefile, List`1 reportParameters, DbConnectionModel dbSettings) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\CrystalReport.cs:line 798
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getReportPrint(String folderName, ReportFilterModel reportFilterModel) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\Controllers\CrReportsController.cs:line 37
+2025-01-03 10:52:11 [INFO] getReportPrint called with folderName: CustomerA and ReportName: string
+2025-01-03 10:52:12 [ERROR] Failed to generate report in getReportPrint - Exception: CrystalReport.PrepareReport: Load report failed.
+StackTrace:    at Inspire.Erp.WebReport.ReportEngine.CrystalReport.PrepareReport(String reportPath) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\CrystalReport.cs:line 113
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String PathReport, String SelectionFormula, String Namefile, List`1 reportParameters, DbConnectionModel dbSettings) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\CrystalReport.cs:line 798
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getReportPrint(String folderName, ReportFilterModel reportFilterModel) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\Controllers\CrReportsController.cs:line 37
+2025-01-03 11:14:21 [INFO] getReportPrint called with folderName: CustomerA and ReportName: HR_StaffInfo
+2025-01-03 11:14:23 [ERROR] Failed to generate report in getReportPrint - Exception: Error in File HR_StaffInfo 14060_1288_{B7A65B2B-E244-42CF-9BAF-B4F66C663D27}.rpt:
+Error in formula  Record_Selection: 
+'VW_STAFFINFO.StaffID = 100'
+The remaining text does not appear to be part of the formula.
+Details: errorKind
+StackTrace:    at CrystalDecisions.ReportAppServer.ConvertDotNetToErom.ThrowDotNetException(Exception e)
+   at CrystalDecisions.ReportSource.EromReportSourceBase.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.FormatEngine.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportOptions options)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportFormatType formatType)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String PathReport, String SelectionFormula, String Namefile, List`1 reportParameters, DbConnectionModel dbSettings) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\CrystalReport.cs:line 816
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getReportPrint(String folderName, ReportFilterModel reportFilterModel) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\Controllers\CrReportsController.cs:line 37
+2025-01-03 11:17:40 [INFO] getReportPrint called with folderName: CustomerA and ReportName: HR_StaffInfo
+2025-01-03 11:17:41 [ERROR] Failed to generate report in getReportPrint - Exception: Error in File HR_StaffInfo 14060_22724_{8E2F8D35-BEC8-4D63-8C7D-1C7F2FD5BF7E}.rpt:
+Failed to retrieve data from the database.
+Details:  [Database Vendor Code: 156 ]
+StackTrace:    at CrystalDecisions.ReportAppServer.ConvertDotNetToErom.ThrowDotNetException(Exception e)
+   at CrystalDecisions.ReportSource.EromReportSourceBase.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.FormatEngine.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportOptions options)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportFormatType formatType)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String PathReport, String SelectionFormula, String Namefile, List`1 reportParameters, DbConnectionModel dbSettings) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\CrystalReport.cs:line 816
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getReportPrint(String folderName, ReportFilterModel reportFilterModel) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\Controllers\CrReportsController.cs:line 37
+2025-01-03 11:18:44 [INFO] getReportPrint called with folderName: CustomerA and ReportName: HR_StaffInfo
+2025-01-03 11:20:49 [ERROR] Failed to generate report in getReportPrint - Exception: Error in File HR_StaffInfo 14060_12972_{831A3A39-D80B-4798-899C-AF59FF4D520E}.rpt:
+Failed to retrieve data from the database.
+Details:  [Database Vendor Code: 156 ]
+StackTrace:    at CrystalDecisions.ReportAppServer.ConvertDotNetToErom.ThrowDotNetException(Exception e)
+   at CrystalDecisions.ReportSource.EromReportSourceBase.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.FormatEngine.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportOptions options)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportFormatType formatType)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String PathReport, String SelectionFormula, String Namefile, List`1 reportParameters, DbConnectionModel dbSettings) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\CrystalReport.cs:line 816
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getReportPrint(String folderName, ReportFilterModel reportFilterModel) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\Controllers\CrReportsController.cs:line 37
+2025-01-03 11:20:59 [INFO] getReportPrint called with folderName: CustomerA and ReportName: HR_StaffInfo
+2025-01-03 11:21:00 [ERROR] Failed to generate report in getReportPrint - Exception: Error in File HR_StaffInfo 14060_12972_{825956EF-3ACE-4970-955E-ABDFAD68F14B}.rpt:
+Failed to retrieve data from the database.
+Details:  [Database Vendor Code: 156 ]
+StackTrace:    at CrystalDecisions.ReportAppServer.ConvertDotNetToErom.ThrowDotNetException(Exception e)
+   at CrystalDecisions.ReportSource.EromReportSourceBase.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.FormatEngine.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportOptions options)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportFormatType formatType)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String PathReport, String SelectionFormula, String Namefile, List`1 reportParameters, DbConnectionModel dbSettings) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\CrystalReport.cs:line 816
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getReportPrint(String folderName, ReportFilterModel reportFilterModel) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\Controllers\CrReportsController.cs:line 37
+2025-01-03 11:21:15 [INFO] getReportPrint called with folderName: CustomerA and ReportName: HR_StaffInfo
+2025-01-03 11:22:39 [ERROR] Failed to generate report in getReportPrint - Exception: Error in File HR_StaffInfo 14060_12972_{C4ACDAC9-48B3-4245-A091-E4EDFF527ADB}.rpt:
+Failed to retrieve data from the database.
+Details:  [Database Vendor Code: 156 ]
+StackTrace:    at CrystalDecisions.ReportAppServer.ConvertDotNetToErom.ThrowDotNetException(Exception e)
+   at CrystalDecisions.ReportSource.EromReportSourceBase.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.FormatEngine.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportOptions options)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportFormatType formatType)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String PathReport, String SelectionFormula, String Namefile, List`1 reportParameters, DbConnectionModel dbSettings) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\CrystalReport.cs:line 816
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getReportPrint(String folderName, ReportFilterModel reportFilterModel) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\Controllers\CrReportsController.cs:line 37
+2025-01-03 11:27:01 [INFO] getReportPrint called with folderName: CustomerA and ReportName: HR_StaffInfo
+2025-01-03 11:28:40 [ERROR] Failed to generate report in getReportPrint - Exception: Error in File HR_StaffInfo 14060_17676_{0786F159-26DF-4238-B00B-91051F37E4B3}.rpt:
+Failed to retrieve data from the database.
+Details:  [Database Vendor Code: 156 ]
+StackTrace:    at CrystalDecisions.ReportAppServer.ConvertDotNetToErom.ThrowDotNetException(Exception e)
+   at CrystalDecisions.ReportSource.EromReportSourceBase.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.FormatEngine.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportOptions options)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportFormatType formatType)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String PathReport, String SelectionFormula, String Namefile, List`1 reportParameters, DbConnectionModel dbSettings) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\CrystalReport.cs:line 816
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getReportPrint(String folderName, ReportFilterModel reportFilterModel) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\Controllers\CrReportsController.cs:line 37
+2025-01-03 11:28:57 [INFO] getReportPrint called with folderName: CustomerA and ReportName: HR_StaffInfo
+2025-01-03 11:29:41 [ERROR] Failed to generate report in getReportPrint - Exception: Error in File HR_StaffInfo 14060_17676_{ED8EBA31-A02C-4833-9A1E-58C31E00634C}.rpt:
+Failed to retrieve data from the database.
+Details:  [Database Vendor Code: 156 ]
+StackTrace:    at CrystalDecisions.ReportAppServer.ConvertDotNetToErom.ThrowDotNetException(Exception e)
+   at CrystalDecisions.ReportSource.EromReportSourceBase.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.FormatEngine.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportOptions options)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportFormatType formatType)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String PathReport, String SelectionFormula, String Namefile, List`1 reportParameters, DbConnectionModel dbSettings) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\CrystalReport.cs:line 816
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getReportPrint(String folderName, ReportFilterModel reportFilterModel) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\Controllers\CrReportsController.cs:line 37
+2025-01-03 11:36:28 [INFO] getReportPrint called with folderName: CustomerA and ReportName: HR_PAYROLL_LIST
+2025-01-03 11:36:44 [INFO] Report successfully generated for HR_PAYROLL_LIST
+2025-01-03 11:49:51 [INFO] getReportPrint called with folderName: CustomerA and ReportName: HR_StaffInfo
+2025-01-03 11:57:49 [ERROR] Failed to generate report in getReportPrint - Exception: Error in File HR_StaffInfo 10224_31460_{A988DF41-E42E-4528-B709-82FA0608BBA9}.rpt:
+Failed to retrieve data from the database.
+Details:  [Database Vendor Code: 156 ]
+StackTrace:    at CrystalDecisions.ReportAppServer.ConvertDotNetToErom.ThrowDotNetException(Exception e)
+   at CrystalDecisions.ReportSource.EromReportSourceBase.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.FormatEngine.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportOptions options)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportFormatType formatType)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String PathReport, String SelectionFormula, String Namefile, List`1 reportParameters, DbConnectionModel dbSettings)
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getReportPrint(String folderName, ReportFilterModel reportFilterModel)
+2025-01-03 11:58:23 [INFO] getReportPrint called with folderName: CustomerA and ReportName: HR_StaffInfo
+2025-01-03 11:59:17 [ERROR] Failed to generate report in getReportPrint - Exception: Error in File HR_StaffInfo 10224_30460_{31A4AC4C-794C-4D7D-B486-F433ED052355}.rpt:
+Failed to retrieve data from the database.
+Details:  [Database Vendor Code: 156 ]
+StackTrace:    at CrystalDecisions.ReportAppServer.ConvertDotNetToErom.ThrowDotNetException(Exception e)
+   at CrystalDecisions.ReportSource.EromReportSourceBase.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.FormatEngine.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportOptions options)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportFormatType formatType)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String PathReport, String SelectionFormula, String Namefile, List`1 reportParameters, DbConnectionModel dbSettings)
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getReportPrint(String folderName, ReportFilterModel reportFilterModel)
+2025-01-03 11:59:42 [INFO] getReportPrint called with folderName: CustomerA and ReportName: HR_PAYROLL_LIST
+2025-01-03 11:59:50 [INFO] Report successfully generated for HR_PAYROLL_LIST
+2025-01-03 12:01:48 [INFO] getReportPrint called with folderName: CustomerA and ReportName: HR_Payslip
+2025-01-03 12:02:01 [ERROR] Failed to generate report in getReportPrint - Exception: Error in File HR_Payslip 10224_30460_{F4EEEFD9-A2F1-4047-8402-38734E4DBD84}.rpt:
+Failed to retrieve data from the database.
+Details:  [Database Vendor Code: 156 ]
+StackTrace:    at CrystalDecisions.ReportAppServer.ConvertDotNetToErom.ThrowDotNetException(Exception e)
+   at CrystalDecisions.ReportSource.EromReportSourceBase.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.FormatEngine.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportOptions options)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportFormatType formatType)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String PathReport, String SelectionFormula, String Namefile, List`1 reportParameters, DbConnectionModel dbSettings)
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getReportPrint(String folderName, ReportFilterModel reportFilterModel)
+2025-01-03 12:10:45 [INFO] getReportPrint called with folderName: CustomerA and ReportName: HR_Payslip
+2025-01-03 12:10:55 [INFO] Report successfully generated for HR_Payslip
+2025-01-03 12:14:44 [INFO] getReportPrint called with folderName: CustomerA and ReportName: HR_Payslip
+2025-01-03 12:14:49 [INFO] Report successfully generated for HR_Payslip
+2025-01-03 12:16:05 [INFO] getPrintByQuery called with folderName: CustomerA and ReportName: string
+2025-01-03 12:16:05 [ERROR] Failed to generate report in getPrintByQuery - Exception: Load report failed.
+StackTrace:    at CrystalDecisions.ReportAppServer.ReportClientDocumentWrapper.EnsureDocumentIsOpened()
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.Load(String filename, OpenReportMethod openMethod, Int16 parentJob)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.Load(String filename, OpenReportMethod openMethod)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String reportPath, ReportFilterModel reportFilterModel, DbConnectionModel dbConnection)
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getPrintByQuery(String folderName, ReportFilterModel reportFilterModel)
+2025-01-06 12:00:48 [INFO] getReportPrint called with folderName: CustomerA and ReportName: HR_Payslip
+2025-01-06 12:01:01 [INFO] Report successfully generated for HR_Payslip
+2025-01-07 03:29:41 [INFO] getReportPrint called with folderName: CustomerA and ReportName: string
+2025-01-07 03:31:12 [ERROR] Failed to generate report in getReportPrint - Exception: CrystalReport.PrepareReport: Load report failed.
+StackTrace:    at Inspire.Erp.WebReport.ReportEngine.CrystalReport.PrepareReport(String reportPath, String commonReportPath)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String CommonReportPath, String PathReport, String SelectionFormula, String Namefile, List`1 reportParameters, DbConnectionModel dbSettings)
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getReportPrint(String folderName, ReportFilterModel reportFilterModel)
+2025-01-07 03:31:46 [INFO] getReportPrint called with folderName: CustomerA and ReportName: HR_PAYROLL_LIST
+2025-01-07 03:32:09 [INFO] Report successfully generated for HR_PAYROLL_LIST
+2025-01-07 09:48:39 [INFO] getPrintByQuery called with folderName: CustomerA and ReportName: HR_Slip
+2025-01-07 09:48:53 [ERROR] Failed to generate report in getPrintByQuery - Exception: Load report failed.
+StackTrace:    at CrystalDecisions.ReportAppServer.ReportClientDocumentWrapper.EnsureDocumentIsOpened()
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.Load(String filename, OpenReportMethod openMethod, Int16 parentJob)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.Load(String filename, OpenReportMethod openMethod)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String commonFilePath, String reportPath, ReportFilterModel reportFilterModel, DbConnectionModel dbConnection) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\CrystalReport.cs:line 856
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getPrintByQuery(String folderName, ReportFilterModel reportFilterModel) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\Controllers\CrReportsController.cs:line 80
+2025-01-07 09:49:38 [INFO] getPrintByQuery called with folderName: CustomerA and ReportName: HR_Payslip
+2025-01-07 09:49:56 [ERROR] Failed to generate report in getPrintByQuery - Exception: Invalid object name 'table1'.
+StackTrace:    at System.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at System.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at System.Data.SqlClient.SqlDataReader.TryConsumeMetaData()
+   at System.Data.SqlClient.SqlDataReader.get_MetaData()
+   at System.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString, Boolean isInternal, Boolean forDescribeParameterEncryption, Boolean shouldCacheForAlwaysEncrypted)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReaderTds(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, Boolean async, Int32 timeout, Task& task, Boolean asyncWrite, Boolean inRetry, SqlDataReader ds, Boolean describeParameterEncryptionRequest)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReader(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, String method, TaskCompletionSource`1 completion, Int32 timeout, Task& task, Boolean& usedCache, Boolean asyncWrite, Boolean inRetry)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReader(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, String method)
+   at System.Data.SqlClient.SqlCommand.ExecuteReader(CommandBehavior behavior, String method)
+   at System.Data.SqlClient.SqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at System.Data.Common.DbCommand.System.Data.IDbCommand.ExecuteReader(CommandBehavior behavior)
+   at System.Data.Common.DbDataAdapter.FillInternal(DataSet dataset, DataTable[] datatables, Int32 startRecord, Int32 maxRecords, String srcTable, IDbCommand command, CommandBehavior behavior)
+   at System.Data.Common.DbDataAdapter.Fill(DataTable[] dataTables, Int32 startRecord, Int32 maxRecords, IDbCommand command, CommandBehavior behavior)
+   at System.Data.Common.DbDataAdapter.Fill(DataTable dataTable)
+   at Inspire.Erp.WebReport.ReportEngine.GeneralQueryExcutor.FetchDataTable(String strSelectQury) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\GeneralQueryExcutor.cs:line 77
+   at Inspire.Erp.WebReport.ReportEngine.GeneralQueryExcutor.getFilledDataSet(List`1 queries) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\GeneralQueryExcutor.cs:line 31
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String commonFilePath, String reportPath, ReportFilterModel reportFilterModel, DbConnectionModel dbConnection) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\CrystalReport.cs:line 861
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getPrintByQuery(String folderName, ReportFilterModel reportFilterModel) in C:\Users\irfan\Desktop\InspireSystems\ERP.APISV2.0.0\Inspire.Erp.WebReport\Controllers\CrReportsController.cs:line 80
+2025-03-19 12:48:20 [INFO] getPrintByQuery called with folderName: Demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 12:51:51 [ERROR] Failed to generate report in getPrintByQuery - Exception: Database logon failed.
+StackTrace:    at CrystalDecisions.ReportAppServer.ConvertDotNetToErom.ThrowDotNetException(Exception e)
+   at CrystalDecisions.ReportSource.EromReportSourceBase.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.FormatEngine.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportOptions options)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportFormatType formatType)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String commonFilePath, String reportPath, ReportFilterModel reportFilterModel, DbConnectionModel dbConnection) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\CrystalReport.cs:line 865
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getPrintByQuery(String folderName, ReportFilterModel reportFilterModel) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\Controllers\CrReportsController.cs:line 80
+2025-03-19 12:52:06 [INFO] getPrintByQuery called with folderName: Demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 12:52:52 [ERROR] Failed to generate report in getPrintByQuery - Exception: Missing parameter values.
+StackTrace:    at CrystalDecisions.ReportAppServer.ConvertDotNetToErom.ThrowDotNetException(Exception e)
+   at CrystalDecisions.ReportSource.EromReportSourceBase.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.FormatEngine.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportOptions options)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportFormatType formatType)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String commonFilePath, String reportPath, ReportFilterModel reportFilterModel, DbConnectionModel dbConnection) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\CrystalReport.cs:line 865
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getPrintByQuery(String folderName, ReportFilterModel reportFilterModel) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\Controllers\CrReportsController.cs:line 80
+2025-03-19 12:53:03 [INFO] getPrintByQuery called with folderName: Demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 12:55:50 [ERROR] Failed to generate report in getPrintByQuery - Exception: Missing parameter values.
+StackTrace:    at CrystalDecisions.ReportAppServer.ConvertDotNetToErom.ThrowDotNetException(Exception e)
+   at CrystalDecisions.ReportSource.EromReportSourceBase.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.FormatEngine.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportOptions options)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportFormatType formatType)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String commonFilePath, String reportPath, ReportFilterModel reportFilterModel, DbConnectionModel dbConnection)
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getPrintByQuery(String folderName, ReportFilterModel reportFilterModel)
+2025-03-19 12:57:04 [INFO] getPrintByQuery called with folderName: Demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 13:02:32 [INFO] getPrintByQuery called with folderName: demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 13:03:39 [ERROR] Failed to generate report in getPrintByQuery - Exception: Missing parameter values.
+StackTrace:    at CrystalDecisions.ReportAppServer.ConvertDotNetToErom.ThrowDotNetException(Exception e)
+   at CrystalDecisions.ReportSource.EromReportSourceBase.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.FormatEngine.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportOptions options)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportFormatType formatType)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String commonFilePath, String reportPath, ReportFilterModel reportFilterModel, DbConnectionModel dbConnection) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\CrystalReport.cs:line 878
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getPrintByQuery(String folderName, ReportFilterModel reportFilterModel) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\Controllers\CrReportsController.cs:line 80
+2025-03-19 13:04:26 [INFO] getPrintByQuery called with folderName: demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 13:04:31 [ERROR] Failed to generate report in getPrintByQuery - Exception: Missing parameter values.
+StackTrace:    at CrystalDecisions.ReportAppServer.ConvertDotNetToErom.ThrowDotNetException(Exception e)
+   at CrystalDecisions.ReportSource.EromReportSourceBase.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.FormatEngine.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportOptions options)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportFormatType formatType)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String commonFilePath, String reportPath, ReportFilterModel reportFilterModel, DbConnectionModel dbConnection) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\CrystalReport.cs:line 878
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getPrintByQuery(String folderName, ReportFilterModel reportFilterModel) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\Controllers\CrReportsController.cs:line 80
+2025-03-19 13:04:48 [INFO] getPrintByQuery called with folderName: demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 13:06:13 [ERROR] Failed to generate report in getPrintByQuery - Exception: Missing parameter values.
+StackTrace:    at CrystalDecisions.ReportAppServer.ConvertDotNetToErom.ThrowDotNetException(Exception e)
+   at CrystalDecisions.ReportSource.EromReportSourceBase.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.FormatEngine.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportOptions options)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportFormatType formatType)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String commonFilePath, String reportPath, ReportFilterModel reportFilterModel, DbConnectionModel dbConnection)
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getPrintByQuery(String folderName, ReportFilterModel reportFilterModel)
+2025-03-19 13:06:33 [INFO] getPrintByQuery called with folderName: demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 13:10:31 [ERROR] Failed to generate report in getPrintByQuery - Exception: Missing parameter values.
+StackTrace:    at CrystalDecisions.ReportAppServer.ConvertDotNetToErom.ThrowDotNetException(Exception e)
+   at CrystalDecisions.ReportSource.EromReportSourceBase.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.FormatEngine.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportOptions options)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportFormatType formatType)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String commonFilePath, String reportPath, ReportFilterModel reportFilterModel, DbConnectionModel dbConnection)
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getPrintByQuery(String folderName, ReportFilterModel reportFilterModel)
+2025-03-19 13:10:39 [INFO] getPrintByQuery called with folderName: demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 13:15:23 [INFO] getPrintByQuery called with folderName: demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 13:20:15 [ERROR] Failed to generate report in getPrintByQuery - Exception: Error converting data type nvarchar to date.
+StackTrace:    at System.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at System.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at System.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString, Boolean isInternal, Boolean forDescribeParameterEncryption, Boolean shouldCacheForAlwaysEncrypted)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReaderTds(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, Boolean async, Int32 timeout, Task& task, Boolean asyncWrite, Boolean inRetry, SqlDataReader ds, Boolean describeParameterEncryptionRequest)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReader(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, String method, TaskCompletionSource`1 completion, Int32 timeout, Task& task, Boolean& usedCache, Boolean asyncWrite, Boolean inRetry)
+   at System.Data.SqlClient.SqlCommand.InternalExecuteNonQuery(TaskCompletionSource`1 completion, String methodName, Boolean sendToPipe, Int32 timeout, Boolean& usedCache, Boolean asyncWrite, Boolean inRetry)
+   at System.Data.SqlClient.SqlCommand.ExecuteNonQuery()
+   at Inspire.Erp.WebReport.ReportEngine.GeneralQueryExcutor.ExecuteStoredProcedures1(List`1 sP_Queries) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\GeneralQueryExcutor.cs:line 87
+   at Inspire.Erp.WebReport.ReportEngine.GeneralQueryExcutor.getFilledDataSet(ReportFilterModel reportFilterModel) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\GeneralQueryExcutor.cs:line 29
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String commonFilePath, String reportPath, ReportFilterModel reportFilterModel, DbConnectionModel dbConnection) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\CrystalReport.cs:line 861
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getPrintByQuery(String folderName, ReportFilterModel reportFilterModel) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\Controllers\CrReportsController.cs:line 80
+2025-03-19 13:20:37 [INFO] getPrintByQuery called with folderName: demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 13:21:17 [ERROR] Failed to generate report in getPrintByQuery - Exception: Conversion failed when converting date and/or time from character string.
+StackTrace:    at System.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at System.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at System.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at System.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString, Boolean isInternal, Boolean forDescribeParameterEncryption, Boolean shouldCacheForAlwaysEncrypted)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReaderTds(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, Boolean async, Int32 timeout, Task& task, Boolean asyncWrite, Boolean inRetry, SqlDataReader ds, Boolean describeParameterEncryptionRequest)
+   at System.Data.SqlClient.SqlCommand.RunExecuteReader(CommandBehavior cmdBehavior, RunBehavior runBehavior, Boolean returnStream, String method, TaskCompletionSource`1 completion, Int32 timeout, Task& task, Boolean& usedCache, Boolean asyncWrite, Boolean inRetry)
+   at System.Data.SqlClient.SqlCommand.InternalExecuteNonQuery(TaskCompletionSource`1 completion, String methodName, Boolean sendToPipe, Int32 timeout, Boolean& usedCache, Boolean asyncWrite, Boolean inRetry)
+   at System.Data.SqlClient.SqlCommand.ExecuteNonQuery()
+   at Inspire.Erp.WebReport.ReportEngine.GeneralQueryExcutor.ExecuteStoredProcedures1(List`1 sP_Queries) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\GeneralQueryExcutor.cs:line 87
+   at Inspire.Erp.WebReport.ReportEngine.GeneralQueryExcutor.getFilledDataSet(ReportFilterModel reportFilterModel) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\GeneralQueryExcutor.cs:line 29
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String commonFilePath, String reportPath, ReportFilterModel reportFilterModel, DbConnectionModel dbConnection) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\CrystalReport.cs:line 861
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getPrintByQuery(String folderName, ReportFilterModel reportFilterModel) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\Controllers\CrReportsController.cs:line 80
+2025-03-19 13:21:31 [INFO] getPrintByQuery called with folderName: demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 13:22:34 [ERROR] Failed to generate report in getPrintByQuery - Exception: Missing parameter values.
+StackTrace:    at CrystalDecisions.ReportAppServer.ConvertDotNetToErom.ThrowDotNetException(Exception e)
+   at CrystalDecisions.ReportSource.EromReportSourceBase.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.FormatEngine.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportOptions options)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportFormatType formatType)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String commonFilePath, String reportPath, ReportFilterModel reportFilterModel, DbConnectionModel dbConnection) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\CrystalReport.cs:line 878
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getPrintByQuery(String folderName, ReportFilterModel reportFilterModel) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\Controllers\CrReportsController.cs:line 80
+2025-03-19 13:51:32 [INFO] getPrintByQuery called with folderName: demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 13:53:15 [INFO] getPrintByQuery called with folderName: demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 13:58:17 [ERROR] Failed to generate report in getPrintByQuery - Exception: Missing parameter values.
+StackTrace:    at CrystalDecisions.ReportAppServer.ConvertDotNetToErom.ThrowDotNetException(Exception e)
+   at CrystalDecisions.ReportSource.EromReportSourceBase.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.FormatEngine.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportOptions options)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportFormatType formatType)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String commonFilePath, String reportPath, ReportFilterModel reportFilterModel, DbConnectionModel dbConnection) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\CrystalReport.cs:line 878
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getPrintByQuery(String folderName, ReportFilterModel reportFilterModel) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\Controllers\CrReportsController.cs:line 80
+2025-03-19 13:59:16 [INFO] getPrintByQuery called with folderName: demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 13:59:56 [ERROR] Failed to generate report in getPrintByQuery - Exception: Missing parameter values.
+StackTrace:    at CrystalDecisions.ReportAppServer.ConvertDotNetToErom.ThrowDotNetException(Exception e)
+   at CrystalDecisions.ReportSource.EromReportSourceBase.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.FormatEngine.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportOptions options)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportFormatType formatType)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String commonFilePath, String reportPath, ReportFilterModel reportFilterModel, DbConnectionModel dbConnection) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\CrystalReport.cs:line 878
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getPrintByQuery(String folderName, ReportFilterModel reportFilterModel) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\Controllers\CrReportsController.cs:line 80
+2025-03-19 14:00:12 [INFO] getPrintByQuery called with folderName: demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 14:02:15 [ERROR] Failed to generate report in getPrintByQuery - Exception: Missing parameter values.
+StackTrace:    at CrystalDecisions.ReportAppServer.ConvertDotNetToErom.ThrowDotNetException(Exception e)
+   at CrystalDecisions.ReportSource.EromReportSourceBase.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.FormatEngine.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportOptions options)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportFormatType formatType)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String commonFilePath, String reportPath, ReportFilterModel reportFilterModel, DbConnectionModel dbConnection) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\CrystalReport.cs:line 878
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getPrintByQuery(String folderName, ReportFilterModel reportFilterModel) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\Controllers\CrReportsController.cs:line 80
+2025-03-19 14:02:34 [INFO] getPrintByQuery called with folderName: demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 14:04:22 [ERROR] Failed to generate report in getPrintByQuery - Exception: Missing parameter values.
+StackTrace:    at CrystalDecisions.ReportAppServer.ConvertDotNetToErom.ThrowDotNetException(Exception e)
+   at CrystalDecisions.ReportSource.EromReportSourceBase.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.FormatEngine.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportOptions options)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportFormatType formatType)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String commonFilePath, String reportPath, ReportFilterModel reportFilterModel, DbConnectionModel dbConnection) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\CrystalReport.cs:line 878
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getPrintByQuery(String folderName, ReportFilterModel reportFilterModel) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\Controllers\CrReportsController.cs:line 80
+2025-03-19 14:04:52 [INFO] getPrintByQuery called with folderName: demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 14:05:09 [ERROR] Failed to generate report in getPrintByQuery - Exception: Missing parameter values.
+StackTrace:    at CrystalDecisions.ReportAppServer.ConvertDotNetToErom.ThrowDotNetException(Exception e)
+   at CrystalDecisions.ReportSource.EromReportSourceBase.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.FormatEngine.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportOptions options)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportFormatType formatType)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String commonFilePath, String reportPath, ReportFilterModel reportFilterModel, DbConnectionModel dbConnection) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\CrystalReport.cs:line 878
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getPrintByQuery(String folderName, ReportFilterModel reportFilterModel) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\Controllers\CrReportsController.cs:line 80
+2025-03-19 14:05:11 [INFO] getPrintByQuery called with folderName: demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 14:06:28 [INFO] getPrintByQuery called with folderName: demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 14:06:31 [ERROR] Failed to generate report in getPrintByQuery - Exception: Missing parameter values.
+StackTrace:    at CrystalDecisions.ReportAppServer.ConvertDotNetToErom.ThrowDotNetException(Exception e)
+   at CrystalDecisions.ReportSource.EromReportSourceBase.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.FormatEngine.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportOptions options)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportFormatType formatType)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String commonFilePath, String reportPath, ReportFilterModel reportFilterModel, DbConnectionModel dbConnection) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\CrystalReport.cs:line 880
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getPrintByQuery(String folderName, ReportFilterModel reportFilterModel) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\Controllers\CrReportsController.cs:line 80
+2025-03-19 14:06:52 [INFO] getPrintByQuery called with folderName: demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 14:06:52 [ERROR] Failed to generate report in getPrintByQuery - Exception: Missing parameter values.
+StackTrace:    at CrystalDecisions.ReportAppServer.ConvertDotNetToErom.ThrowDotNetException(Exception e)
+   at CrystalDecisions.ReportSource.EromReportSourceBase.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.FormatEngine.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportOptions options)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportFormatType formatType)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String commonFilePath, String reportPath, ReportFilterModel reportFilterModel, DbConnectionModel dbConnection) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\CrystalReport.cs:line 880
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getPrintByQuery(String folderName, ReportFilterModel reportFilterModel) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\Controllers\CrReportsController.cs:line 80
+2025-03-19 14:07:09 [INFO] getPrintByQuery called with folderName: demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 14:07:48 [ERROR] Failed to generate report in getPrintByQuery - Exception: Missing parameter values.
+StackTrace:    at CrystalDecisions.ReportAppServer.ConvertDotNetToErom.ThrowDotNetException(Exception e)
+   at CrystalDecisions.ReportSource.EromReportSourceBase.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.FormatEngine.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportOptions options)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportFormatType formatType)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String commonFilePath, String reportPath, ReportFilterModel reportFilterModel, DbConnectionModel dbConnection)
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getPrintByQuery(String folderName, ReportFilterModel reportFilterModel)
+2025-03-19 14:07:50 [INFO] getPrintByQuery called with folderName: demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 14:12:24 [ERROR] Failed to generate report in getPrintByQuery - Exception: CrystalReport.PrepareReport: CrystalReport.SetConnectionDB: String reference not set to an instance of a String.
+Parameter name: s
+StackTrace:    at Inspire.Erp.WebReport.ReportEngine.CrystalReport.PrepareReport(String reportPath, String commonReportPath)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String commonFilePath, String reportPath, ReportFilterModel reportFilterModel, DbConnectionModel dbConnection)
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getPrintByQuery(String folderName, ReportFilterModel reportFilterModel)
+2025-03-19 14:12:27 [INFO] getPrintByQuery called with folderName: demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 14:13:03 [ERROR] Failed to generate report in getPrintByQuery - Exception: CrystalReport.PrepareReport: CrystalReport.SetConnectionDB: String reference not set to an instance of a String.
+Parameter name: s
+StackTrace:    at Inspire.Erp.WebReport.ReportEngine.CrystalReport.PrepareReport(String reportPath, String commonReportPath)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String commonFilePath, String reportPath, ReportFilterModel reportFilterModel, DbConnectionModel dbConnection)
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getPrintByQuery(String folderName, ReportFilterModel reportFilterModel)
+2025-03-19 14:13:06 [INFO] getPrintByQuery called with folderName: demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 14:13:44 [ERROR] Failed to generate report in getPrintByQuery - Exception: Missing parameter values.
+StackTrace:    at CrystalDecisions.ReportAppServer.ConvertDotNetToErom.ThrowDotNetException(Exception e)
+   at CrystalDecisions.ReportSource.EromReportSourceBase.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.FormatEngine.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportOptions options)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportFormatType formatType)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String commonFilePath, String reportPath, ReportFilterModel reportFilterModel, DbConnectionModel dbConnection)
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getPrintByQuery(String folderName, ReportFilterModel reportFilterModel)
+2025-03-19 14:21:43 [INFO] getPrintByQuery called with folderName: demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 14:24:14 [ERROR] Failed to generate report in getPrintByQuery - Exception: Missing parameter values.
+StackTrace:    at CrystalDecisions.ReportAppServer.ConvertDotNetToErom.ThrowDotNetException(Exception e)
+   at CrystalDecisions.ReportSource.EromReportSourceBase.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.FormatEngine.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportOptions options)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportFormatType formatType)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String commonFilePath, String reportPath, ReportFilterModel reportFilterModel, DbConnectionModel dbConnection) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\ReportEngine\CrystalReport.cs:line 896
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getPrintByQuery(String folderName, ReportFilterModel reportFilterModel) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\Controllers\CrReportsController.cs:line 80
+2025-03-19 14:24:22 [INFO] getPrintByQuery called with folderName: demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 14:25:57 [ERROR] Failed to generate report in getPrintByQuery - Exception: Missing parameter values.
+StackTrace:    at CrystalDecisions.ReportAppServer.ConvertDotNetToErom.ThrowDotNetException(Exception e)
+   at CrystalDecisions.ReportSource.EromReportSourceBase.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.FormatEngine.ExportToStream(ExportRequestContext reqContext)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportOptions options)
+   at CrystalDecisions.CrystalReports.Engine.ReportDocument.ExportToStream(ExportFormatType formatType)
+   at Inspire.Erp.WebReport.ReportEngine.CrystalReport.RenderReport(String commonFilePath, String reportPath, ReportFilterModel reportFilterModel, DbConnectionModel dbConnection)
+   at Inspire.Erp.WebReport.Controllers.CrReportsController.getPrintByQuery(String folderName, ReportFilterModel reportFilterModel)
+2025-03-19 14:26:00 [INFO] getPrintByQuery called with folderName: demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 14:26:06 [INFO] Report successfully generated for AccountSatementSummaryfromtable
+2025-03-19 14:26:29 [INFO] getPrintByQuery called with folderName: demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 14:27:41 [INFO] getPrintByQuery called with folderName: demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 14:27:57 [INFO] Report successfully generated for AccountSatementSummaryfromtable
+2025-03-19 14:28:13 [INFO] getPrintByQuery called with folderName: demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 14:28:16 [INFO] Report successfully generated for AccountSatementSummaryfromtable
+2025-03-19 14:28:29 [INFO] getPrintByQuery called with folderName: demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 14:28:31 [INFO] Report successfully generated for AccountSatementSummaryfromtable
+2025-03-19 14:29:02 [INFO] getPrintByQuery called with folderName: demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 14:29:04 [INFO] Report successfully generated for AccountSatementSummaryfromtable
+2025-03-19 14:29:28 [INFO] getPrintByQuery called with folderName: demo and ReportName: AccountSatementSummaryfromtable
+2025-03-19 14:29:30 [INFO] Report successfully generated for AccountSatementSummaryfromtable
