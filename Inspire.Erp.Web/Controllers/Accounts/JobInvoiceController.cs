@@ -351,6 +351,7 @@ namespace Inspire.Erp.Web.Controllers
                 {
                     c.JobMasterJobId,
                     c.JobMasterJobName,
+                    c.JobMasterJobNumber,
                 })
                 .ToListAsync();
 
