@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -98,7 +99,7 @@ namespace Inspire.Erp.WebReport.ReportEngine
         }
 
 
-        public ReportDocument PrepareReport( string reportPath,string commonReportPath = "")
+        public ReportDocument PrepareReport(string reportPath, string commonReportPath = "")
         {
             ReportDocument crReportDocument;
             crReportDocument = new ReportDocument();
@@ -277,23 +278,30 @@ namespace Inspire.Erp.WebReport.ReportEngine
 
                     if (!string.IsNullOrEmpty(currentName))
                     {
-                        ParameterFieldDefinition paramField = crReportDocument.DataDefinition.ParameterFields[currentName];
-
-                        if (paramField != null)
+                        try
                         {
-                            if (paramField.ParameterValueKind   == ParameterValueKind.DateParameter ||
-                                paramField.ParameterValueKind == ParameterValueKind.DateTimeParameter)
+                            ParameterFieldDefinition paramField = crReportDocument.DataDefinition.ParameterFields[currentName];
+
+                            if (paramField != null)
                             {
-                                crReportDocument.SetParameterValue(currentName, Convert.ToDateTime(currentValue));
+                                if (paramField.ParameterValueKind == ParameterValueKind.DateParameter ||
+                                    paramField.ParameterValueKind == ParameterValueKind.DateTimeParameter)
+                                {
+                                    crReportDocument.SetParameterValue(currentName, Convert.ToDateTime(currentValue));
+                                }
+                                else if (paramField.ParameterValueKind == ParameterValueKind.NumberParameter)
+                                {
+                                    crReportDocument.SetParameterValue(currentName, Convert.ToInt32(currentValue));
+                                }
+                                else
+                                {
+                                    crReportDocument.SetParameterValue(currentName, currentValue);
+                                }
                             }
-                            else if (paramField.ParameterValueKind == ParameterValueKind.NumberParameter)
-                            {
-                                crReportDocument.SetParameterValue(currentName, Convert.ToInt32(currentValue));
-                            }
-                            else
-                            {
-                                crReportDocument.SetParameterValue(currentName, currentValue);
-                            }
+                        }
+                        catch
+                        {
+
                         }
                     }
                 }
@@ -810,36 +818,24 @@ namespace Inspire.Erp.WebReport.ReportEngine
         }
 
 
-        public static HttpResponseMessage RenderReport(string reportPath, string reportFileName, string exportFilename)
-        {
-            var rd = new ReportDocument();
-            string path = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath(reportPath), reportFileName);
-            rd.Load(path);
-            MemoryStream ms = new MemoryStream();
-            using (var stream = rd.ExportToStream(ExportFormatType.PortableDocFormat))
-            {
-                stream.CopyTo(ms);
-            }
 
-
-        public HttpResponseMessage RenderReport(string CommonReportPath, string PathReport, string SelectionFormula, string Namefile, List<Models.ReportParameters> reportParameters,
-            DbConnectionModel dbSettings)
+        public HttpResponseMessage RenderReport(string CommonReportPath, string PathReport, ReportFilterModel reportFilterModel, DbConnectionModel dbSettings)
         {
             ReportDocument reportDoc;
             SetConnectionInfo(dbSettings.ServerName, dbSettings.UserName, dbSettings.Password, dbSettings.DBName, "");
             SetDefaults();
 
-            reportDoc = PrepareReport( PathReport, CommonReportPath);
+            reportDoc = PrepareReport(PathReport, CommonReportPath);
 
             reportDoc.VerifyDatabase();
             reportDoc.Refresh();
 
-            if (reportDoc.ParameterFields.Count > 0 && reportParameters.Count > 0)
+            if (reportDoc.ParameterFields.Count > 0 && reportFilterModel.Parameters.Count > 0)
             {
                 var dt = new DataTable();
                 dt.Columns.Add("Name", typeof(string));
                 dt.Columns.Add("Value", typeof(string));
-                foreach (Models.ReportParameters item in reportParameters)
+                foreach (Models.ReportParameters item in reportFilterModel.Parameters)
                 {
                     DataRow newRow = dt.NewRow();
                     newRow["Name"] = item.Key;
@@ -848,29 +844,11 @@ namespace Inspire.Erp.WebReport.ReportEngine
                 }
                 reportDoc = SetArrayParameterValue(reportDoc, dt);
             }
-            reportDoc = AddSelectionFormula(reportDoc, SelectionFormula);
-
-            MemoryStream ms = new MemoryStream();
-            using (var stream = reportDoc.ExportToStream(ExportFormatType.PortableDocFormat))
-            {
-                stream.CopyTo(ms);
-            }
-
-            var result = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new ByteArrayContent(ms.ToArray())
-            };
-            result.Content.Headers.ContentDisposition =
-                new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
-                {
-                    FileName = Namefile
-                };
-            result.Content.Headers.ContentType =
-                new System.Net.Http.Headers.MediaTypeHeaderValue("application/pdf");
-            return result;
+            reportDoc = AddSelectionFormula(reportDoc, reportFilterModel.SelectionFormula);
+            return  GetFormatedReport(reportFilterModel, reportDoc, reportFilterModel.ExportType);
         }
 
-        public HttpResponseMessage RenderReport(string commonFilePath, string reportPath, ReportFilterModel reportFilterModel, DbConnectionModel dbConnection)
+        public HttpResponseMessage RenderReportByQueries(string commonFilePath, string reportPath, ReportFilterModel reportFilterModel, DbConnectionModel dbConnection)
         {
             ReportDocument mainReport = new ReportDocument();
             if (!string.IsNullOrEmpty(commonFilePath) && File.Exists(commonFilePath))
@@ -901,8 +879,15 @@ namespace Inspire.Erp.WebReport.ReportEngine
                 });
                 mainReport = SetArrayParameterValue(mainReport, dt);
             }
+
+            HttpResponseMessage result = GetFormatedReport(reportFilterModel, mainReport, reportFilterModel.ExportType);
+            return result;
+        }
+
+        private static HttpResponseMessage GetFormatedReport(ReportFilterModel reportFilterModel, ReportDocument mainReport, ExportFormatType exportFormatType)
+        {
             MemoryStream ms = new MemoryStream();
-            using (var stream = mainReport.ExportToStream(ExportFormatType.PortableDocFormat))
+            using (var stream = mainReport.ExportToStream(exportFormatType))
             {
                 stream.CopyTo(ms);
             }
@@ -911,15 +896,76 @@ namespace Inspire.Erp.WebReport.ReportEngine
             {
                 Content = new ByteArrayContent(ms.ToArray())
             };
+
+            string fileExtension = GetDocExtention(exportFormatType);
+            string mimeType = GetMimeType(exportFormatType);
+
             result.Content.Headers.ContentDisposition =
                 new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
                 {
-                    FileName = $"{reportFilterModel.ReportName}.pdf"
+                    FileName = $"{reportFilterModel.ReportName}{fileExtension}"
                 };
-            result.Content.Headers.ContentType =
-                new System.Net.Http.Headers.MediaTypeHeaderValue("application/pdf");
+            result.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(mimeType);
+
             return result;
         }
+
+        private static string GetDocExtention(ExportFormatType exportFormatType)
+        {
+            switch (exportFormatType)
+            {
+                case ExportFormatType.PortableDocFormat:
+                    return ".pdf";
+                case ExportFormatType.Excel:
+                case ExportFormatType.ExcelRecord:
+                    return ".xls";
+                case ExportFormatType.RichText:
+                    return ".rtf";
+                case ExportFormatType.Text:
+                    return ".txt";
+                case ExportFormatType.CrystalReport:
+                    return ".rpt";
+                case ExportFormatType.HTML32:
+                case ExportFormatType.HTML40:
+                    return ".html";
+                case ExportFormatType.CharacterSeparatedValues:
+                    return ".csv";
+                case ExportFormatType.ExcelWorkbook:
+                case ExportFormatType.XLSXPagebased:
+                case ExportFormatType.XLSXRecord:
+                    return ".xlsx";
+                default:
+                    return ".pdf";
+            }
+        }
+
+        private static string GetMimeType(ExportFormatType exportFormatType)
+        {
+            string fileExtension = GetDocExtention(exportFormatType);
+
+            switch (fileExtension)
+            {
+                case ".pdf":
+                    return "application/pdf";
+                case ".xls":
+                    return "application/vnd.ms-excel";
+                case ".xlsx":
+                    return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                case ".rtf":
+                    return "application/rtf";
+                case ".txt":
+                    return "text/plain";
+                case ".rpt":
+                    return "application/octet-stream";
+                case ".html":
+                    return "text/html";
+                case ".csv":
+                    return "text/csv";
+                default:
+                    return "application/octet-stream";
+            }
+        }
+
 
 
         // Modify SQL Expression Fields

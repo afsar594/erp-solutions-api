@@ -37,11 +37,9 @@ namespace Inspire.Erp.WebReport.Controllers
                 string commonFilePath = Path.Combine(commonFolderPath, $"{reportFilterModel.ReportName}.rpt");
 
                 result = report.RenderReport(
-                    commonFilePath,
+                    CommonReportPath: commonFilePath,
                     PathReport: filePath,
-                    SelectionFormula: reportFilterModel.SelectionFormula,
-                    Namefile: reportFilterModel.ReportName + ".pdf",
-                    reportFilterModel.Parameters,
+                    reportFilterModel: reportFilterModel,
                     dbSettings
                 );
 
@@ -77,7 +75,7 @@ namespace Inspire.Erp.WebReport.Controllers
                 string filePath = Path.Combine(folderPath, "Reports", $"{reportFilterModel.ReportName}.rpt");
                 string commonFilePath = Path.Combine(commonFolderPath, $"{reportFilterModel.ReportName}.rpt");
 
-                result = report.RenderReport(commonFilePath, filePath, reportFilterModel, dbSettings);
+                result = report.RenderReportByQueries(commonFilePath, filePath, reportFilterModel, dbSettings);
 
                 Logger.LogInfo($"Report successfully generated for {reportFilterModel.ReportName}");
                 return result;

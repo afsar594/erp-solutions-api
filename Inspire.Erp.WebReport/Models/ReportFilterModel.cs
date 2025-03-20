@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CrystalDecisions.Shared;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -12,6 +13,7 @@ namespace Inspire.Erp.WebReport.Models
         public List<ReportParameters> Parameters { get; set; }
         public List<string> Queries { get; set; }
         public List<SPQueries> SP_Queries { get; set; }
+        public ExportFormatType ExportType { get; set; } = ExportFormatType.PortableDocFormat;
     }
 
     public class ReportParameters
