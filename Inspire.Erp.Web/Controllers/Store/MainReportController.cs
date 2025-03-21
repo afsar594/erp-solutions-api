@@ -214,7 +214,7 @@ namespace Inspire.Erp.Web.Controllers.Store
 
         [HttpPost]
         [Route("MainReport_GetReportProjectStatus_PARAM_CLASS")]
-        public ApiResponse<List<ReportProjectStatus>> MainReport_GetReportProjectStatus_PARAM_CLASS([FromBody] ProjectStatusReportParametersViewModel projectStatusCompositeView)
+        public ApiResponse<List<ReportProjectStatus>> MainReport_GetReportProjectStatus_PARAM_CLASS([FromBody] ProjectStatusReportParameters projectStatusCompositeView)
         {
             var param1 = _mapper.Map<ProjectStatusReportParameters>(projectStatusCompositeView);
           ApiResponse<List<ReportProjectStatus>> apiResponse = new ApiResponse<List<ReportProjectStatus>>
