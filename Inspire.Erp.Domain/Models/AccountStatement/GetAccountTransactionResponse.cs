@@ -141,7 +141,10 @@ namespace Inspire.Erp.Domain.Modals.AccountStatement
         public DateTime? TransDate { get; set; }
         public string RefNo { get; set; }
     }
-
+    public class InvoiceAmountResult
+    {
+        public decimal InvoiceAmount { get; set; }
+    }
 
     public class TempStatementModel
     {
