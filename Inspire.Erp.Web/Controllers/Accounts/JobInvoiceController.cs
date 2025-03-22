@@ -25,6 +25,9 @@ using Inspire.Erp.Web.ViewModels.sales;
 using Newtonsoft.Json;
 using System.Net.Http;
 using System.Text;
+using SendGrid.Helpers.Mail;
+using Inspire.Erp.Infrastructure.Database;
+using Inspire.Erp.Domain.Modals.AccountStatement;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -38,13 +41,16 @@ namespace Inspire.Erp.Web.Controllers
         private IRepository<UnitMaster> unitrepository; private IRepository<JobMaster> jobrepository; private IRepository<CurrencyMaster> currencyrepository;
         private IRepository<CustomerMaster> _customerMasterRepository; private IRepository<SalesManMaster> salesmanrepository; private IRepository<ItemMaster> itemrepository;
         private readonly IRepository<JobInvoice> _jobinvoicerepo; private readonly IRepository<JobInvoiceDetails> _jobdetailsrepo; IRepository<UnitDetails> unitDetailRepository;
+        public readonly InspireErpDBContext _context;
+  
         public JobInvoiceController(IJobInvoice invoice, IMapper mapper, IRepository<JobInvoice> jobinvoicerepo, IRepository<UnitMaster> _unitrepository, IRepository<AccountSettings> accountsSettingsRepo, IRepository<JobMaster> _jobrepository, IRepository<ItemMaster> _itemrepository
-            , IRepository<CurrencyMaster> _currencyrepository, IRepository<UnitDetails> _unitDetailRepository, IRepository<JobInvoiceDetails> jobdetailsrepo, IRepository<SalesManMaster> _salesmanrepository, IRepository<CustomerMaster> customerMasterRepository, IRepository<LocationMaster> _locationrepository, IChartofAccountsService _chartofAccountsService)
+            , IRepository<CurrencyMaster> _currencyrepository, IRepository<UnitDetails> _unitDetailRepository, IRepository<JobInvoiceDetails> jobdetailsrepo, IRepository<SalesManMaster> _salesmanrepository, IRepository<CustomerMaster> customerMasterRepository, IRepository<LocationMaster> _locationrepository, IChartofAccountsService _chartofAccountsService, InspireErpDBContext context)
         {
             _invoice = invoice;
             _mapper = mapper; locationrepository = _locationrepository; chartofAccountsService = _chartofAccountsService; _jobdetailsrepo = jobdetailsrepo;
             unitrepository = _unitrepository; jobrepository = _jobrepository; currencyrepository = _currencyrepository; _jobinvoicerepo = jobinvoicerepo; _accountsSettingsRepo = accountsSettingsRepo;
             _customerMasterRepository = customerMasterRepository; salesmanrepository = _salesmanrepository; itemrepository = _itemrepository; unitDetailRepository = _unitDetailRepository;
+            _context = context;
         }
         [HttpGet]
         [Route("GetJobInvoice")]
@@ -302,7 +308,7 @@ namespace Inspire.Erp.Web.Controllers
                 {
                     c.LocationMasterLocationId,
                     LocationMasterLocationName = c.LocationMasterLocationName.Trim(),
-                }).OrderBy(x=>x.LocationMasterLocationName).ToListAsync();
+                }).OrderBy(x => x.LocationMasterLocationName).ToListAsync();
 
             var customerMastersTask = await _customerMasterRepository.GetAsQueryable().AsNoTracking()
                 .Where(k => !k.CustomerMasterCustomerDelStatus != true)
@@ -318,7 +324,7 @@ namespace Inspire.Erp.Web.Controllers
                 {
                     c.SalesManMasterSalesManId,
                     SalesManMasterSalesManName = c.SalesManMasterSalesManName.Trim(),
-                }).OrderBy(x=>x.SalesManMasterSalesManName).ToListAsync();
+                }).OrderBy(x => x.SalesManMasterSalesManName).ToListAsync();
 
             objresponse.ResultSet = new
             {
@@ -342,7 +348,7 @@ namespace Inspire.Erp.Web.Controllers
                     x.UnitMasterUnitId,
                     UnitMasterUnitFullName = x.UnitMasterUnitFullName.Trim(),
                     UnitMasterUnitShortName = x.UnitMasterUnitShortName.Trim(),
-                }).OrderBy(x=>x.UnitMasterUnitShortName)
+                }).OrderBy(x => x.UnitMasterUnitShortName)
                 .ToListAsync();
 
             var jobMastersTask = await jobrepository.GetAsQueryable().AsNoTracking()
@@ -453,7 +459,7 @@ namespace Inspire.Erp.Web.Controllers
         {
             var objresponse = new ResponseInfo();
 
-            var requestUrl = "http://103.74.54.207:8104/api/cr/DynamicReportCall";            
+            var requestUrl = "http://103.74.54.207:8104/api/cr/DynamicReportCall";
             var _httpClient = new HttpClient();
             // Prepare the request body
             var requestBody = new
@@ -485,7 +491,7 @@ namespace Inspire.Erp.Web.Controllers
                     var pdfBytes = await response.Content.ReadAsByteArrayAsync();
 
                     // Return the PDF file as a response
-                    return File(pdfBytes, "application/pdf", "TestReport1.pdf");                    
+                    return File(pdfBytes, "application/pdf", "TestReport1.pdf");
                 }
                 else
                 {
@@ -498,5 +504,23 @@ namespace Inspire.Erp.Web.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+        [HttpGet("GetInvoiceAmount")]
+        public IActionResult GetInvoiceAmount(int jobId)
+        {
+            try
+            {
+                var result = _context.Set<InvoiceAmountResult>()
+                    .FromSqlRaw("SELECT dbo.GetInvoiceAmount(@p0) AS InvoiceAmount", jobId)
+                    .AsEnumerable()
+                    .FirstOrDefault();
+
+                return Ok(result?.InvoiceAmount ?? -1); // Return -1 if null
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal Server Error: {ex.Message}");
+            }
+        }
     }
+    
 }

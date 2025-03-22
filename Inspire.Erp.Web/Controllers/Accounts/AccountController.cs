@@ -682,6 +682,6 @@ namespace Inspire.Erp.Web.Controllers.Accounts
                 return StatusCode(500, $"An error occurred while retrieving AliAnsariReport: {ex.Message}");
             }
         }
-       
+        
     }
 }
