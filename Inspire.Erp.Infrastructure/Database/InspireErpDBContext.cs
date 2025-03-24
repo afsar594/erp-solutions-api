@@ -458,7 +458,7 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<EstimationCostCenter> EstimationCostCenter { get; set; }
 
 
-
+        public virtual DbSet<DocsAttachment> DocsAttachment { get; set; }
         
 
         // hr Staffmaster
@@ -471,9 +471,14 @@ namespace Inspire.Erp.Infrastructure.Database
             }
             //optionsBuilder.EnableSensitiveDataLogging();
         }
-
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<DocsAttachment>(entity =>
+            {
+                entity.HasKey(e => e.DocumentId);
+                entity.ToTable("DocsAttachments");
+            });
             modelBuilder.Entity<DocumentMaster>(entity =>
             {
                 entity.HasKey(e => e.DocumentId);
