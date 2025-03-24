@@ -15,6 +15,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Inspire.Erp.Infrastructure.Database;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using SendGrid.Helpers.Mail;
+
+
+
 
 namespace Inspire.Erp.Web.Controllers.Store
 {
@@ -26,18 +34,21 @@ namespace Inspire.Erp.Web.Controllers.Store
     {
         private IMainReportService _mainReportService;
         private readonly IMapper _mapper;
+        public readonly InspireErpDBContext _Context;
         private IRepository<CostCenterMaster> costcenterrepository;
         private IRepository<JobMaster> jobrepository; private IRepository<LocationMaster> locationrepository; private IRepository<CurrencyMaster> currencyrepository;
         private IChartofAccountsService chartofAccountsService; private IRepository<ViewAccountsTransactionsVoucherType> _viewAccountsTransactionsVoucherTypeRepository;
         public MainReportController(IMainReportService mainReportService, IMapper mapper, IRepository<CostCenterMaster> _countryrepository
             , IRepository<JobMaster> _jobrepository, IRepository<LocationMaster> _locationrepository, IChartofAccountsService _chartofAccountsService,
-            IRepository<ViewAccountsTransactionsVoucherType> viewAccountsTransactionsVoucherTypeRepository)
+            IRepository<ViewAccountsTransactionsVoucherType> viewAccountsTransactionsVoucherTypeRepository, InspireErpDBContext Context)
         {
             _mainReportService = mainReportService;
             _mapper = mapper; _viewAccountsTransactionsVoucherTypeRepository = viewAccountsTransactionsVoucherTypeRepository;
             costcenterrepository = _countryrepository;
             jobrepository = _jobrepository; locationrepository = _locationrepository;
             chartofAccountsService = _chartofAccountsService;
+            _Context = Context;
+
         }
 
         [HttpGet]
@@ -216,8 +227,15 @@ namespace Inspire.Erp.Web.Controllers.Store
         [Route("MainReport_GetReportProjectStatus_PARAM_CLASS")]
         public ApiResponse<List<ReportProjectStatus>> MainReport_GetReportProjectStatus_PARAM_CLASS([FromBody] ProjectStatusReportParameters projectStatusCompositeView)
         {
+              if (projectStatusCompositeView.JobId != null && projectStatusCompositeView.JobId != -1)
+                {
+                    _Context.Database.ExecuteSqlRaw("EXEC Spr_UpdateProjectStatus {0}", projectStatusCompositeView.JobId);
+                }
+           
             var param1 = _mapper.Map<ProjectStatusReportParameters>(projectStatusCompositeView);
-          ApiResponse<List<ReportProjectStatus>> apiResponse = new ApiResponse<List<ReportProjectStatus>>
+           
+
+            ApiResponse<List<ReportProjectStatus>> apiResponse = new ApiResponse<List<ReportProjectStatus>>
             {
                 Valid = true,
                 Result = _mapper.Map<List<ReportProjectStatus>>(_mainReportService.MainReport_GetReportProjectStatus_PARAM_CLASS(

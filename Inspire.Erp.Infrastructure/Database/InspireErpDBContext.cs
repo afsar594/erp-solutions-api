@@ -457,6 +457,10 @@ namespace Inspire.Erp.Infrastructure.Database
 
         public virtual DbSet<EstimationCostCenter> EstimationCostCenter { get; set; }
 
+        public DbSet<InvoiceAmountResult> InvoiceAmounts { get; set; } // Register it
+
+
+
 
         public virtual DbSet<DocsAttachment> DocsAttachment { get; set; }
         
@@ -474,6 +478,9 @@ namespace Inspire.Erp.Infrastructure.Database
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
+            modelBuilder.Entity<InvoiceAmountResult>().HasNoKey(); // No primary key
+
             modelBuilder.Entity<DocsAttachment>(entity =>
             {
                 entity.HasKey(e => e.DocumentId);
