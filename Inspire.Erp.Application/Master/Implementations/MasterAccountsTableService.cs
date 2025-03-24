@@ -488,7 +488,7 @@ namespace Inspire.Erp.Application.Master
                 var AccNo = masteraccountstablerepository.GetAsQueryable()
                                              .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == masterAccountsTable.MaRelativeNo)
                                              .DefaultIfEmpty()
-                                             .Max(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length - 3, 3))) + 1;
+                                             .Max(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length - 2, 2))) + 1;
                
                 if (masterAccountsTable.MaRelativeNo != null && masterAccountsTable.MaRelativeNo != "0")
                 {

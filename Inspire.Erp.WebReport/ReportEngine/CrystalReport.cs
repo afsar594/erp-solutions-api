@@ -916,9 +916,6 @@ namespace Inspire.Erp.WebReport.ReportEngine
             {
                 case ExportFormatType.PortableDocFormat:
                     return ".pdf";
-                case ExportFormatType.Excel:
-                case ExportFormatType.ExcelRecord:
-                    return ".xls";
                 case ExportFormatType.RichText:
                     return ".rtf";
                 case ExportFormatType.Text:
@@ -930,6 +927,8 @@ namespace Inspire.Erp.WebReport.ReportEngine
                     return ".html";
                 case ExportFormatType.CharacterSeparatedValues:
                     return ".csv";
+                case ExportFormatType.Excel:
+                case ExportFormatType.ExcelRecord:
                 case ExportFormatType.ExcelWorkbook:
                 case ExportFormatType.XLSXPagebased:
                 case ExportFormatType.XLSXRecord:
