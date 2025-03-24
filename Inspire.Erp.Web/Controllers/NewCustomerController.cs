@@ -37,9 +37,9 @@ namespace Inspire.Erp.Web.Controllers.Accounts
             ApiResponse<CustomerMasterViewModel> apiResponse = new ApiResponse<CustomerMasterViewModel>();
 
             ////if (_newCustomerService.GetVouchersNumbers(Convert.ToString(voucherCompositeView.CustomerMasterCustomerNo)) == null)
-            if ( voucherCompositeView.CustomerMasterCustomerNo == 0)
-                {
-                    var param1 = _mapper.Map<CustomerMaster>(voucherCompositeView);
+            if (voucherCompositeView.CustomerMasterCustomerNo == 0)
+            {
+                var param1 = _mapper.Map<CustomerMaster>(voucherCompositeView);
                 var param2 = _mapper.Map<List<CustomerContacts>>(voucherCompositeView.CustomerContacts);
                 var param3 = _mapper.Map<List<CustomerDepartments>>(voucherCompositeView.CustomerDepartment);
                 var xs = _newCustomerService.InsertNewCustomer(param1, param2, param3);

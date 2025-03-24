@@ -38,7 +38,8 @@ namespace Inspire.Erp.Application.Account.Implementations
         public NewCustomerService(IRepository<CustomerMaster> customerMasterRepository, IRepository<CustomerContacts> customerContactsRepository,
             IRepository<CustomerDepartments> customerDepartmentsRepository, IRepository<MasterAccountsTable> masterAccountTable, ILogger<NewCustomerService> logger)
         {
-            this._customerMasterRepository = customerMasterRepository; _masterAccountTable = masterAccountTable;
+            this._customerMasterRepository = customerMasterRepository;
+            this._masterAccountTable = masterAccountTable;
             this._customerContactsRepository = customerContactsRepository;
             this._customerDepartmentsRepository = customerDepartmentsRepository;
             _logger = logger;
@@ -169,6 +170,43 @@ namespace Inspire.Erp.Application.Account.Implementations
                     _customerDepartmentsRepository.InsertList(customerDepartments);
 
                 }
+
+                if (customerMaster.IsCreateAccount)
+                {
+                    var MaSno = Convert.ToInt32(this._masterAccountTable.GetAsQueryable()
+                                      .Where(x => Convert.ToInt32(x.MaSno) > 0)
+                                      .DefaultIfEmpty()
+                                      .Max(o => o == null ? 0 : o.MaSno)) + 1;
+                    var debtorAcc = this._masterAccountTable.GetAsQueryable()
+                                                                                         .FirstOrDefault(x => x.MaAccName.ToUpper() == "Debtors".ToUpper());
+
+                    var custMasterAccNo = this._masterAccountTable.GetAsQueryable()
+                                                                                                     .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == debtorAcc.MaAccNo)
+                                                                                                     .DefaultIfEmpty()
+                                                                                                     .Max(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length - 3, 3))) + 1;
+                    var custMasterAcc = new MasterAccountsTable
+                    {
+                        MaSno = MaSno,
+                        MaRelativeNo = debtorAcc.MaAccNo,
+                        MaAccNo = debtorAcc.MaAccNo + String.Format("{0:000}", custMasterAccNo),
+                        MaAccName = customerMaster.CustomerMasterCustomerName,
+                        MaAccType = AccountMasterStatus.Account,
+                        MaMainHead = debtorAcc.MaMainHead,
+                        MaSubHead = debtorAcc.MaSubHead,
+                        MaFsno = 1,
+                        MaStatus = AccountStatus.AccStatus,
+                        MaUserId = 0,
+                        MaDateCreated = DateTime.Now,
+                        MaOpenBalance = 0,//need to add this 
+                        MaTotalDebit = 0,//need to add this
+                        MaTotalCredit = 0, //need to add this 
+                        MaAssetDate = DateTime.Now
+                    };
+
+                    this._masterAccountTable.Insert(custMasterAcc);
+                    customerMaster.CustomerMasterCustomerReffAcNo = custMasterAcc.MaAccNo;
+                }
+
                 _customerMasterRepository.Insert(customerMaster);
                 _customerMasterRepository.TransactionCommit();
 
@@ -204,3 +242,5 @@ namespace Inspire.Erp.Application.Account.Implementations
         }
     }
 }
+
+
