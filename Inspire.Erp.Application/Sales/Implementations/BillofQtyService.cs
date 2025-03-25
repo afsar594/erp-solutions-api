@@ -31,6 +31,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 {
     public class BillofQtyService : IBillofQtyService
     {
+        private const int @false = 0;
         private IRepository<BillofQtyMaster> _BillofQtyMasterRepository;
         private IRepository<BillOfQTyDetails> _BillOfQTyDetailsRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
@@ -43,13 +44,16 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private readonly IRepository<ApprovalDetail> _approvalDetailRepo;
         private IRepository<ItemMaster> _itemMasterRepository;
         private IRepository<EstimationCostCenter> _EstimationCostCenterRepository;
+        private IRepository<JobMasterBudgetDetails> jobbudgetRepository;
+        private IRepository<JobMaster> JobMasterRepository;
 
         public BillofQtyService(ILogger<CustomerQuotationService> logger, IRepository<PermissionApproval> permissionApprovalRepo,
             IRepository<Approval> approvalRepo, IRepository<ApprovalDetail> approvalDetailRepo,
             IRepository<BillofQtyMaster> BillofQtyMasterRepository, IRepository<VouchersNumbers> voucherNumbersRepository, IRepository<Domain.Entities.ProgramSettings> programsettingsRepository,
             IRepository<BillOfQTyDetails> BillOfQTyDetailsRepository,
             IRepository<UserTracking> userTrackingRepository,
-            InspireErpDBContext Context, IRepository<EstimationCostCenter> estimationCostCenterRepository)
+            IRepository<JobMasterBudgetDetails> _jobbudgetRepository,
+            InspireErpDBContext Context, IRepository<EstimationCostCenter> estimationCostCenterRepository, IRepository<JobMaster> jobMasterRepository)
         {
 
             _BillofQtyMasterRepository = BillofQtyMasterRepository;
@@ -65,9 +69,11 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
             _Context = Context;
             _EstimationCostCenterRepository = estimationCostCenterRepository;
+            jobbudgetRepository = _jobbudgetRepository;
+            JobMasterRepository = jobMasterRepository;
         }
 
-        public BillofQtyMaster UpdateBillofQty(BillofQtyMaster BillofQty, List<BillOfQTyDetails> BillOfQTyDetails,List<EstimationCostCenter> EstimationCostCenter)
+        public BillofQtyMaster UpdateBillofQty(BillofQtyMaster BillofQty, List<BillOfQTyDetails> BillOfQTyDetails, List<EstimationCostCenter> EstimationCostCenter)
         {
 
             try
@@ -101,7 +107,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 }
                 foreach (var xx in EstimationCostCenter)
                 {
-                    xx.BillQtyId =(int)BillofQty.Id;
+                    xx.BillQtyId = (int)BillofQty.Id;
 
                     if (xx.Id == 0)
                     {
@@ -132,7 +138,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             {
                 _BillofQtyMasterRepository.BeginTransaction();
 
-                var BillofQty = _BillofQtyMasterRepository.GetAsQueryable().Where(x => x.Id == id).FirstOrDefault();                
+                var BillofQty = _BillofQtyMasterRepository.GetAsQueryable().Where(x => x.Id == id).FirstOrDefault();
 
                 var BillofQtydt = _BillOfQTyDetailsRepository.GetAsQueryable().Where(x => x.BillQtyId == id).ToList();
                 _BillOfQTyDetailsRepository.DeleteList(BillofQtydt);
@@ -187,6 +193,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 }).OrderBy(x => x.Id).AsEnumerable().ToList();
                 _BillOfQTyDetailsRepository.InsertList(BillOfQTyDetails);
 
+                var jobNum = JobMasterRepository.GetAsQueryable().Where(e => e.JobMasterJobId == BillofQty.CustomerEnqId).FirstOrDefault()?.JobMasterJobNo;
 
                 int maxEstimationId = _EstimationCostCenterRepository.GetAsQueryable()
                     .DefaultIfEmpty().Max(o => o == null ? 0 : o.Id) + 1;
@@ -197,11 +204,35 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     //estimation.Id = maxEstimationId++;
                     estimation.BillQtyId = (int)BillofQty.Id;
                     return estimation;
-                }).OrderBy(x => x.Id).AsEnumerable().ToList();
+                }
+
+                ).OrderBy(x => x.Id).AsEnumerable().ToList();
+
+
                 _EstimationCostCenterRepository.InsertList(EstimationCostCenter);
 
-                _BillofQtyMasterRepository.Insert(BillofQty);
+                //ali ansari
+                int maxjobbudgetid = jobbudgetRepository.GetAsQueryable()
+                .DefaultIfEmpty().Max(o => o == null ? 0 : o.JobMasterBudgetDetailsDtlId) + 1;
 
+                var JobMasterBudget = EstimationCostCenter
+                    .Where(estimation => estimation.Amount > 0)
+                    .Select((estimation, index) => new JobMasterBudgetDetails()
+                    {
+                        JobMasterBudgetDetailsJobId = (int)BillofQty.CustomerEnqId,
+                        JobMasterBudgetDetailsBudId = estimation.costcenter,
+                        JobMasterBudgetDetailsBudAmount = estimation.Amount ?? 0,
+                        JobMasterBudgetDetailsDelStatus = false,
+                        JobMasterNo = jobNum ?? null
+                    })
+                    .ToList();
+
+                if (JobMasterBudget.Any())
+
+                {
+                    jobbudgetRepository.InsertList(JobMasterBudget);
+                }
+                _BillofQtyMasterRepository.Insert(BillofQty);
                 _BillofQtyMasterRepository.TransactionCommit();
 
                 return this.GetSavedBillofQty(BillofQty.Id);
