@@ -122,6 +122,8 @@ namespace Inspire.Erp.Domain.Entities
         public List<JobTimeSheetStaff> JobTimeSheetStaff { get; set; }
         [NotMapped]
         public List<JobfilesStatus> JobfilesStatus { get; set; }
+        [NotMapped]
+        public List<JobItemEquipment> JobItemEquipments { get; set; }
     }
     public class JobfilesStatus
     {
@@ -209,5 +211,13 @@ namespace Inspire.Erp.Domain.Entities
         [JsonIgnore]
         public virtual JobMaster JobMasterJobJob { get; set; }
     }
+     public class JobItemEquipment
+    {
+        public long Id { get; set; }
+        public string Name { get; set; } 
+        [JsonIgnore]
+        public virtual JobMaster JobMasterJobJob { get; set; }
+    }
+
 
 }
