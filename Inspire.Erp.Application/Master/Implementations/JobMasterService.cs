@@ -17,7 +17,7 @@ using System.IO;
 
 namespace Inspire.Erp.Application.Master
 {
-    
+
     public class JobMasterService : IJobMasterService
     {
         private IRepository<JobMaster> jobrepository;
@@ -35,7 +35,9 @@ namespace Inspire.Erp.Application.Master
         private IRepository<JobTimesheetMaster> _jobTimesheetMaster;
         private IRepository<JobTimeSheetStaff> _jobTimeSheetStaff;
         private IRepository<JobfilesStatus> _JobfilesStatus;
-        
+        private IRepository<ItemMaster> _itemMaster;
+
+
         private IRepository<AccountsTransactions> accountsTransactionsRepository;
         private readonly InspireErpDBContext context;
         public JobMasterService(IRepository<JobMaster> _jobrepository,
@@ -49,7 +51,7 @@ namespace Inspire.Erp.Application.Master
             IRepository<JobTimeSheetEquip> jobTimeSheetEquip,
             IRepository<JobTimesheetMaster> jobTimesheetMaster,
             IRepository<JobTimeSheetStaff> jobTimeSheetStaff, IRepository<JobTimesheetDesc> jobTimesheetDesc,
-            IRepository<JobDocuments> jobDocumentsRepository, IRepository<JobfilesStatus> jobfilesStatus)
+            IRepository<JobDocuments> jobDocumentsRepository, IRepository<JobfilesStatus> jobfilesStatus, IRepository<ItemMaster> itemMaster)
         {
             jobrepository = _jobrepository;
             jobbudgetRepository = _jobbudgetRepository;
@@ -66,6 +68,7 @@ namespace Inspire.Erp.Application.Master
             _jobTimeSheetEquip = jobTimeSheetEquip; _jobTimeSheetStaff = jobTimeSheetStaff;
             _jobDocumentsRepository = jobDocumentsRepository;
             _JobfilesStatus = jobfilesStatus;
+            _itemMaster = itemMaster;
         }
         public IEnumerable<JobMaster> DeleteJob(JobMaster jobMaster)
         {
@@ -207,13 +210,13 @@ namespace Inspire.Erp.Application.Master
                     x.job_IsDeleted = false;
                     return  x;
                 });
-              //  _JobfilesStatus.InsertList(jobMaster.JobfilesStatus);
+                //  _JobfilesStatus.InsertList(jobMaster.JobfilesStatus);
                 // end
                 jobrepository.Insert(jobMaster);
                 jobrepository.TransactionCommit();
 
                 return this.GetSavedJobMasterDetails(jobMaster.JobMasterJobNo);
-                
+
             }
             catch (Exception ex)
             {
@@ -333,7 +336,7 @@ namespace Inspire.Erp.Application.Master
                 //    x.job_IsDeleted = false;
                 //    return x;
                 //});
-                
+
                 jobrepository.Update(jobMaster);
                 jobrepository.TransactionCommit();
 
@@ -409,16 +412,17 @@ namespace Inspire.Erp.Application.Master
                 jobMasterData.JobTimeSheetEquip = _jobTimeSheetEquip.GetAsQueryable().AsNoTracking().Where(a => a.JobId == jobMasterData.JobMasterJobId).OrderBy(x => x.JobMasterJobJob).ToList();
                 jobMasterData.JobTimesheetDesc = _jobTimesheetDesc.GetAsQueryable().AsNoTracking().Where(a => a.JobId == jobMasterData.JobMasterJobId).ToList();
                 jobMasterData.JobfilesStatus = _JobfilesStatus.GetAsQueryable().AsNoTracking().Where(a => a.JobMasterJobId == jobMasterData.JobMasterJobId).ToList();
+                jobMasterData.JobItemEquipments = _itemMaster.GetAsQueryable().AsNoTracking().Where(x => x.ItemMasterDelStatus != null).Select(x => new JobItemEquipment() { Id = x.ItemMasterItemId, Name = x.ItemMasterItemName }).ToList();
 
                 return jobMasterData;
 
-               
+
             }
             return null;
         }
 
-       public IEnumerable<JobDocuments> GetJobDocumentstById(int jobDocumentJobId, int jobDocumentId)
-       {            
+        public IEnumerable<JobDocuments> GetJobDocumentstById(int jobDocumentJobId, int jobDocumentId)
+        {
             var Jobdoc = _jobDocumentsRepository.GetAsQueryable().AsNoTracking().Where(a => a.JobDocumentJobId == jobDocumentJobId && a.JobDocumentId == jobDocumentId).ToList();
             return Jobdoc;
         }
@@ -534,7 +538,7 @@ namespace Inspire.Erp.Application.Master
         {
             try
             {
-                var Jobdoc = _jobDocumentsRepository.GetAsQueryable().Where(k => k.JobDocumentJobId == Convert.ToInt32(id) && k.JobDocumentDelStatus==false).ToList();
+                var Jobdoc = _jobDocumentsRepository.GetAsQueryable().Where(k => k.JobDocumentJobId == Convert.ToInt32(id) && k.JobDocumentDelStatus == false).ToList();
                 return Jobdoc;
             }
             catch (Exception ex)

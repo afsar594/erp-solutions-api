@@ -26,7 +26,7 @@ namespace Inspire.Erp.WebReport.ReportEngine
         protected DataTable csSubReportModify;
         protected bool initParametersToEmptyString;
         protected bool csForceDbPropertiesChange;
-
+       private  GeneralQueryExcutor queryExcutor;
         public bool ForceDbPropertiesChange
         {
             get
@@ -822,6 +822,12 @@ namespace Inspire.Erp.WebReport.ReportEngine
         public HttpResponseMessage RenderReport(string CommonReportPath, string PathReport, ReportFilterModel reportFilterModel, DbConnectionModel dbSettings)
         {
             ReportDocument reportDoc;
+            if (reportFilterModel.SP_Queries.Any())
+            {
+                queryExcutor = new GeneralQueryExcutor(dbSettings);
+                queryExcutor.ExecuteStoredProcedures(reportFilterModel.SP_Queries);
+            }
+
             SetConnectionInfo(dbSettings.ServerName, dbSettings.UserName, dbSettings.Password, dbSettings.DBName, "");
             SetDefaults();
 
@@ -860,7 +866,7 @@ namespace Inspire.Erp.WebReport.ReportEngine
                 mainReport.Load(reportPath, CrystalDecisions.Shared.OpenReportMethod.OpenReportByTempCopy);
             }
             DataSet dataSet = new DataSet();
-            GeneralQueryExcutor queryExcutor = new GeneralQueryExcutor(dbConnection);
+            queryExcutor = new GeneralQueryExcutor(dbConnection);
 
             dataSet = queryExcutor.getFilledDataSet(reportFilterModel);
             mainReport.SetDataSource(dataSet);
