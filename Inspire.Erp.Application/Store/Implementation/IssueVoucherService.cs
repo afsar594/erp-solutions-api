@@ -370,7 +370,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                             //JobMasterBudgetDetailsBudAmount = 0,
                             JobMasterBudgetDetailsJobId = issueVoucher.IssueVoucherJobId,
                             JobMasterBudgetDetailsBudId = (int)issueVoucher.IssueVoucherCostCenterId,
-                            JobMasterBudgetDetailsActual = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
+                            JobMasterBudgetDetailsBudAmount = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
                             JobMasterBudgetDetailsVariance = -(decimal)issueVoucher.IssueVoucherTotalGrossAmount,
                             JobMasterBudgetDetailsDelStatus = false,
 
@@ -382,10 +382,9 @@ namespace Inspire.Erp.Application.Store.Implementation
                         var newBudgetDetail = new JobMasterBudgetDetails
                         {
                             JobMasterNo = jobNo,
-                            JobMasterBudgetDetailsBudAmount = 0,
                             JobMasterBudgetDetailsJobId = issueVoucher.IssueVoucherJobId,
                             JobMasterBudgetDetailsBudId = (int)issueVoucher.IssueVoucherCostCenterId,
-                            JobMasterBudgetDetailsActual = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
+                            JobMasterBudgetDetailsBudAmount = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
                             JobMasterBudgetDetailsVariance = -(decimal)issueVoucher.IssueVoucherTotalGrossAmount,
                             JobMasterBudgetDetailsDelStatus = false,
 

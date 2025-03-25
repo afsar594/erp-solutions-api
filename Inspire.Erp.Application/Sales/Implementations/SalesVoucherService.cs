@@ -1011,6 +1011,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                             where svd.SalesVoucherDetailsNo != null
                             select new
                             {
+                               // InvoiceType = salesVou.
                                 NetAmount = svd.SalesVoucherDetailsNetAmt,
                                 Discount = svd.SalesVoucherDetailsDiscAmount,
                                 GrossAmt = svd.SalesVoucherDetailsGrossAmount,
@@ -1018,7 +1019,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                 UnitDes = unitMaster?.UnitMasterUnitShortName,  // Safe navigation to avoid null reference
                                 MatDes = itemmaster?.ItemMasterItemName ?? "Unknown",  // Default value if null
                                 PartNo = itemmaster?.ItemMasterPartNo ?? "N/A",  // Default value if null
-                                VoucherDate = Convert.ToDateTime(salesVou.SalesVoucherDate).ToString("dd/MM/yyyy"),
+                                                                               // VoucherDate = Convert.ToDateTime(salesVou.SalesVoucherDate).ToString("dd/MM/yyyy"),
+                                VoucherDate = salesVou.SalesVoucherDate,
                                 VoucherNo = salesVou.SalesVoucherNo,
                                 QuantitySold = svd.SalesVoucherDetailsQuantity ?? 0,
                                 baseUnit = svd.SalesVoucherDetailsQuantity * (decimal)(unitDetail?.UnitDetailsConversionType ?? 1),  // Handle null conversionType
