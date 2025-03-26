@@ -113,7 +113,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     AccountsTransactionsVoucherNo = issueVoucher.IssueVoucherNo,
                     AccountsTransactionsVoucherType = VoucherType.IssueVoucher_TYPE,
                     AccountsTransactionsStatus = AccountStatus.Approved,
-                    AccountsTransactionsAccNo = issueVoucher.IssueVoucherCreditAccNo,
+                    AccountsTransactionsAccNo = issueVoucher.IssueVoucherDebitAccNo,
                     AccountsTransactionsCredit = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
                     AccountsTransactionsFcCredit = (decimal)issueVoucher.IssueVoucherTotalGrossAmount * rate,
                     AccountsTransactionsAllocBalance = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
@@ -132,7 +132,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     AccountsTransactionsTstamp = DateTime.Now,
                     AccountsTransactionsVoucherType = VoucherType.IssueVoucher_TYPE,
                     AccountsTransactionsStatus = AccountStatus.Approved,
-                    AccountsTransactionsAccNo = issueVoucher.IssueVoucherDebitAccNo,
+                    AccountsTransactionsAccNo = issueVoucher.IssueVoucherCreditAccNo,
                     AccountsTransactionsDebit = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
                     AccountsTransactionsFcDebit = (decimal)issueVoucher.IssueVoucherTotalGrossAmount * rate,
                     AccountsTransactionsAllocBalance = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
@@ -291,7 +291,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     AccountsTransactionsVoucherNo = issueVoucherNumber,
                     AccountsTransactionsVoucherType = VoucherType.IssueVoucher_TYPE,
                     AccountsTransactionsStatus = AccountStatus.Approved,
-                    AccountsTransactionsAccNo = issueVoucher.IssueVoucherCreditAccNo,
+                    AccountsTransactionsAccNo = issueVoucher.IssueVoucherDebitAccNo,
                     AccountsTransactionsCredit = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
                     AccountsTransactionsFcCredit = (decimal)issueVoucher.IssueVoucherTotalGrossAmount * rate,
                     AccountsTransactionsAllocBalance = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
@@ -311,7 +311,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     AccountsTransactionsTstamp = DateTime.Now,
                     AccountsTransactionsVoucherType = VoucherType.IssueVoucher_TYPE,
                     AccountsTransactionsStatus = AccountStatus.Approved,
-                    AccountsTransactionsAccNo = issueVoucher.IssueVoucherDebitAccNo,
+                    AccountsTransactionsAccNo = issueVoucher.IssueVoucherCreditAccNo,                    
                     AccountsTransactionsDebit = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
                     AccountsTransactionsFcDebit = (decimal)issueVoucher.IssueVoucherTotalGrossAmount * rate,
                     AccountsTransactionsAllocBalance = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
@@ -371,7 +371,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                             JobMasterBudgetDetailsJobId = issueVoucher.IssueVoucherJobId,
                             JobMasterBudgetDetailsBudId = (int)issueVoucher.IssueVoucherCostCenterId,
                             JobMasterBudgetDetailsBudAmount = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
-                            JobMasterBudgetDetailsVariance = -(decimal)issueVoucher.IssueVoucherTotalGrossAmount,
+                            //JobMasterBudgetDetailsVariance = -(decimal)issueVoucher.IssueVoucherTotalGrossAmount,
                             JobMasterBudgetDetailsDelStatus = false,
 
                         };
@@ -385,7 +385,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                             JobMasterBudgetDetailsJobId = issueVoucher.IssueVoucherJobId,
                             JobMasterBudgetDetailsBudId = (int)issueVoucher.IssueVoucherCostCenterId,
                             JobMasterBudgetDetailsBudAmount = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
-                            JobMasterBudgetDetailsVariance = -(decimal)issueVoucher.IssueVoucherTotalGrossAmount,
+                            //JobMasterBudgetDetailsVariance = -(decimal)issueVoucher.IssueVoucherTotalGrossAmount,
                             JobMasterBudgetDetailsDelStatus = false,
 
                         };
