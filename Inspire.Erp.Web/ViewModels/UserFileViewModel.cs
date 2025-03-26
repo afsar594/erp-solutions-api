@@ -29,6 +29,7 @@ namespace Inspire.Erp.Web.ViewModels
         public int? LocId { get; set; }
         [NotMapped]
         public string? Message { get; set; }
+        public string? SignImg { get; set; }
         [NotMapped]
         public int? FinancialPeriodsFsno { get; set; }
         public int? Loginfailure { get; set; }
