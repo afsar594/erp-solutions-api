@@ -37,6 +37,8 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
         private IRepository<IssueVoucher> _issueVoucherRepository;
         private IRepository<IssueVoucherDetails> _issueVoucherDetailsRepository;
         private IAccountsSettingsService _accountssettingSvc;
+        private IRepository<JobMasterBudgetDetails> _jobbudgetRepository;
+        private IRepository<JobMaster> _jobMastertRepository;
         public GRNService(
             ILogger<PaymentVoucherService> logger,
             IRepository<GRNResponse> grnRepository,
@@ -49,7 +51,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
             IRepository<PurchaseVoucherDetails> purchaseVoucherDetailsRepository,
             IAccountsSettingsService accountssettingSvc,
             IRepository<AccountSettings> accountsSettingssvcsRepository,
-            InspireErpDBContext context)
+            InspireErpDBContext context, IRepository<JobMasterBudgetDetails> jobbudgetRepository, IRepository<JobMaster> JobMastertRepository)
         {
             _accountTransactionRepository = accountTransactionRepository;
             _stockRegisterRepository = stockRegisterRepository;
@@ -64,6 +66,9 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
             this._issueVoucherDetailsRepository = issueVoucherDetailsRepository;
             _accountssettingSvc = accountssettingSvc;
             _accountsSettingssvcs = accountsSettingssvcsRepository;
+            _jobbudgetRepository = jobbudgetRepository;
+            _jobMastertRepository = JobMastertRepository;
+
             prefix = programsettingsRepository.GetAsQueryable().Where(k => k.ProgramSettingsKeyValue == Prefix.PurchaseVoucher_Prefix).FirstOrDefault().ProgramSettingsTextValue;
         }
 
@@ -572,6 +577,42 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                     _accountTransactionRepository.InsertList(accountsTransactionslist);
 
                     _issueVoucherRepository.Insert(issueObj);
+
+                    if (issueObj.IssueVoucherJobId > 0)
+                    {
+                        var jobbuget = _jobbudgetRepository.GetAsQueryable().Where(s => s.JobMasterBudgetDetailsJobId == issueObj.IssueVoucherJobId && s.JobMasterBudgetDetailsBudId == issueObj.IssueVoucherCostCenterId).FirstOrDefault();
+                        var jobNo = _jobMastertRepository.GetAsQueryable().Where(s => s.JobMasterJobId == issueObj.IssueVoucherJobId).FirstOrDefault()?.JobMasterJobNo;
+
+                        if (jobbuget != null && !string.IsNullOrEmpty(jobbuget.JobMasterNo) && jobbuget.JobMasterNo == jobNo)
+                        {
+                            _jobbudgetRepository.Delete(jobbuget);
+
+                            var newBudgetDetail = new JobMasterBudgetDetails
+                            {
+                                JobMasterNo = jobbuget.JobMasterNo,
+                                JobMasterBudgetDetailsJobId = issueObj.IssueVoucherJobId,
+                                JobMasterBudgetDetailsBudId = (int)issueObj.IssueVoucherCostCenterId,
+                                JobMasterBudgetDetailsBudAmount = jobbuget.JobMasterBudgetDetailsBudAmount + (decimal)issueObj.IssueVoucherTotalGrossAmount,
+                                JobMasterBudgetDetailsDelStatus = false,
+
+                            };
+                            _jobbudgetRepository.Update(newBudgetDetail);
+                        }
+                        else
+                        {
+                            var newBudgetDetail = new JobMasterBudgetDetails
+                            {
+                                JobMasterNo = jobNo,
+                                JobMasterBudgetDetailsJobId = issueObj.IssueVoucherJobId,
+                                JobMasterBudgetDetailsBudId = (int)issueObj.IssueVoucherCostCenterId,
+                                JobMasterBudgetDetailsBudAmount = (decimal)issueObj.IssueVoucherTotalGrossAmount,
+                                JobMasterBudgetDetailsDelStatus = false,
+
+                            };
+                            _jobbudgetRepository.Insert(newBudgetDetail);
+                        }
+                    }
+
                 }
                 return grn;
             }

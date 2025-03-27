@@ -113,7 +113,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     AccountsTransactionsVoucherNo = issueVoucher.IssueVoucherNo,
                     AccountsTransactionsVoucherType = VoucherType.IssueVoucher_TYPE,
                     AccountsTransactionsStatus = AccountStatus.Approved,
-                    AccountsTransactionsAccNo = issueVoucher.IssueVoucherCreditAccNo,
+                    AccountsTransactionsAccNo = issueVoucher.IssueVoucherDebitAccNo,
                     AccountsTransactionsCredit = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
                     AccountsTransactionsFcCredit = (decimal)issueVoucher.IssueVoucherTotalGrossAmount * rate,
                     AccountsTransactionsAllocBalance = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
@@ -132,7 +132,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     AccountsTransactionsTstamp = DateTime.Now,
                     AccountsTransactionsVoucherType = VoucherType.IssueVoucher_TYPE,
                     AccountsTransactionsStatus = AccountStatus.Approved,
-                    AccountsTransactionsAccNo = issueVoucher.IssueVoucherDebitAccNo,
+                    AccountsTransactionsAccNo = issueVoucher.IssueVoucherCreditAccNo,
                     AccountsTransactionsDebit = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
                     AccountsTransactionsFcDebit = (decimal)issueVoucher.IssueVoucherTotalGrossAmount * rate,
                     AccountsTransactionsAllocBalance = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
@@ -291,7 +291,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     AccountsTransactionsVoucherNo = issueVoucherNumber,
                     AccountsTransactionsVoucherType = VoucherType.IssueVoucher_TYPE,
                     AccountsTransactionsStatus = AccountStatus.Approved,
-                    AccountsTransactionsAccNo = issueVoucher.IssueVoucherCreditAccNo,
+                    AccountsTransactionsAccNo = issueVoucher.IssueVoucherDebitAccNo,
                     AccountsTransactionsCredit = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
                     AccountsTransactionsFcCredit = (decimal)issueVoucher.IssueVoucherTotalGrossAmount * rate,
                     AccountsTransactionsAllocBalance = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
@@ -311,7 +311,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     AccountsTransactionsTstamp = DateTime.Now,
                     AccountsTransactionsVoucherType = VoucherType.IssueVoucher_TYPE,
                     AccountsTransactionsStatus = AccountStatus.Approved,
-                    AccountsTransactionsAccNo = issueVoucher.IssueVoucherDebitAccNo,
+                    AccountsTransactionsAccNo = issueVoucher.IssueVoucherCreditAccNo,                    
                     AccountsTransactionsDebit = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
                     AccountsTransactionsFcDebit = (decimal)issueVoucher.IssueVoucherTotalGrossAmount * rate,
                     AccountsTransactionsAllocBalance = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
@@ -360,18 +360,19 @@ namespace Inspire.Erp.Application.Store.Implementation
                 _stockRegisterRepository.InsertList(stockRegister);
                 if (issueVoucher.IssueVoucherJobId > 0)
                 {
-                    var jobbuget = _jobbudgetRepository.GetAsQueryable().Where(s => s.JobMasterBudgetDetailsJobId == issueVoucher.IssueVoucherJobId).FirstOrDefault();
+                    var jobbuget = _jobbudgetRepository.GetAsQueryable().Where(s => s.JobMasterBudgetDetailsJobId == issueVoucher.IssueVoucherJobId && s.JobMasterBudgetDetailsBudId == issueVoucher.IssueVoucherCostCenterId ).FirstOrDefault();
                     var jobNo = _JobMastertRepository.GetAsQueryable().Where(s => s.JobMasterJobId == issueVoucher.IssueVoucherJobId).FirstOrDefault()?.JobMasterJobNo;
-                    if(jobbuget.JobMasterNo != "" || jobbuget.JobMasterNo != null)
+
+                    if (jobbuget != null && !string.IsNullOrEmpty(jobbuget.JobMasterNo) && jobbuget.JobMasterNo == jobNo)
                     {
+                        _jobbudgetRepository.Delete(jobbuget);
+
                         var newBudgetDetail = new JobMasterBudgetDetails
                         {
                             JobMasterNo = jobbuget.JobMasterNo,
-                            //JobMasterBudgetDetailsBudAmount = 0,
                             JobMasterBudgetDetailsJobId = issueVoucher.IssueVoucherJobId,
                             JobMasterBudgetDetailsBudId = (int)issueVoucher.IssueVoucherCostCenterId,
-                            JobMasterBudgetDetailsBudAmount = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
-                            JobMasterBudgetDetailsVariance = -(decimal)issueVoucher.IssueVoucherTotalGrossAmount,
+                            JobMasterBudgetDetailsBudAmount = jobbuget.JobMasterBudgetDetailsBudAmount + (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
                             JobMasterBudgetDetailsDelStatus = false,
 
                         };
@@ -385,7 +386,6 @@ namespace Inspire.Erp.Application.Store.Implementation
                             JobMasterBudgetDetailsJobId = issueVoucher.IssueVoucherJobId,
                             JobMasterBudgetDetailsBudId = (int)issueVoucher.IssueVoucherCostCenterId,
                             JobMasterBudgetDetailsBudAmount = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
-                            JobMasterBudgetDetailsVariance = -(decimal)issueVoucher.IssueVoucherTotalGrossAmount,
                             JobMasterBudgetDetailsDelStatus = false,
 
                         };

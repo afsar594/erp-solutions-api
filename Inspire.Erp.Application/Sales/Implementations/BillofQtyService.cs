@@ -121,6 +121,32 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         _EstimationCostCenterRepository.Update(xx);
                     }
                 }
+
+                var jobNum = JobMasterRepository.GetAsQueryable().Where(e => e.JobMasterJobId == BillofQty.CustomerEnqId).FirstOrDefault()?.JobMasterJobNo;
+                //ali ansari 
+                int maxjobbudgetid = jobbudgetRepository.GetAsQueryable()
+                .DefaultIfEmpty().Max(o => o == null ? 0 : o.JobMasterBudgetDetailsDtlId) + 1;
+
+                var JobMasterBudget = EstimationCostCenter
+                    .Where(estimation => estimation.Amount > 0)
+                    .Select((estimation, index) => new JobMasterBudgetDetails()
+                    {
+                        JobMasterBudgetDetailsJobId = (int)BillofQty.CustomerEnqId,
+                        JobMasterBudgetDetailsBudId = estimation.costcenter,
+                        JobMasterBudgetDetailsBudAmount = estimation.Amount ?? 0,
+                        JobMasterBudgetDetailsDelStatus = false,
+                        JobMasterNo = jobNum ?? null
+                    })
+                    .ToList();
+
+                if (JobMasterBudget.Any())
+
+                {
+                    jobbudgetRepository.UpdateList(JobMasterBudget);
+                }
+
+
+
                 _BillofQtyMasterRepository.TransactionCommit();
             }
             catch (Exception ex)
