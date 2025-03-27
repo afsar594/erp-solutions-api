@@ -35,7 +35,6 @@ namespace Inspire.Erp.Application.Master
         private IRepository<JobTimesheetMaster> _jobTimesheetMaster;
         private IRepository<JobTimeSheetStaff> _jobTimeSheetStaff;
         private IRepository<JobfilesStatus> _JobfilesStatus;
-        private IRepository<ItemMaster> _itemMaster;
 
 
         private IRepository<AccountsTransactions> accountsTransactionsRepository;
@@ -51,7 +50,7 @@ namespace Inspire.Erp.Application.Master
             IRepository<JobTimeSheetEquip> jobTimeSheetEquip,
             IRepository<JobTimesheetMaster> jobTimesheetMaster,
             IRepository<JobTimeSheetStaff> jobTimeSheetStaff, IRepository<JobTimesheetDesc> jobTimesheetDesc,
-            IRepository<JobDocuments> jobDocumentsRepository, IRepository<JobfilesStatus> jobfilesStatus, IRepository<ItemMaster> itemMaster)
+            IRepository<JobDocuments> jobDocumentsRepository, IRepository<JobfilesStatus> jobfilesStatus)
         {
             jobrepository = _jobrepository;
             jobbudgetRepository = _jobbudgetRepository;
@@ -68,7 +67,6 @@ namespace Inspire.Erp.Application.Master
             _jobTimeSheetEquip = jobTimeSheetEquip; _jobTimeSheetStaff = jobTimeSheetStaff;
             _jobDocumentsRepository = jobDocumentsRepository;
             _JobfilesStatus = jobfilesStatus;
-            _itemMaster = itemMaster;
         }
         public IEnumerable<JobMaster> DeleteJob(JobMaster jobMaster)
         {
@@ -166,9 +164,9 @@ namespace Inspire.Erp.Application.Master
                     x.JobMasterJobId = jobId;
                     return x;
                 }).OrderBy(x => x.JobMasterJobId).AsEnumerable().ToList();
-
                 jobMaster.JobEquipment.Select((x) =>
                 {
+                    x.Id =0;
                     x.JobMasterJobId = jobId;
                     return x;
                 }).OrderBy(x => x.JobMasterJobId).AsEnumerable().ToList();
@@ -208,7 +206,7 @@ namespace Inspire.Erp.Application.Master
                     x.job_filename = jobMaster.JobfilesStatus[0].job_filename;
                     x.job_fileStatus = jobMaster.JobfilesStatus[0].job_fileStatus;
                     x.job_IsDeleted = false;
-                    return  x;
+                    return x;
                 });
                 //  _JobfilesStatus.InsertList(jobMaster.JobfilesStatus);
                 // end
@@ -412,7 +410,7 @@ namespace Inspire.Erp.Application.Master
                 jobMasterData.JobTimeSheetEquip = _jobTimeSheetEquip.GetAsQueryable().AsNoTracking().Where(a => a.JobId == jobMasterData.JobMasterJobId).OrderBy(x => x.JobMasterJobJob).ToList();
                 jobMasterData.JobTimesheetDesc = _jobTimesheetDesc.GetAsQueryable().AsNoTracking().Where(a => a.JobId == jobMasterData.JobMasterJobId).ToList();
                 jobMasterData.JobfilesStatus = _JobfilesStatus.GetAsQueryable().AsNoTracking().Where(a => a.JobMasterJobId == jobMasterData.JobMasterJobId).ToList();
-                jobMasterData.JobItemEquipments = _itemMaster.GetAsQueryable().AsNoTracking().Where(x => x.ItemMasterDelStatus != null).Select(x => new JobItemEquipment() { Id = x.ItemMasterItemId, Name = x.ItemMasterItemName }).ToList();
+                jobMasterData.JobEquipment = jobEquipmentrepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterJobId == jobMasterData.JobMasterJobId).Select(x => new JobEquipment() { Id = x.Id, JobMasterEquipId = x.JobMasterEquipId, JobMasterJobId = x.JobMasterJobId, JobMasterJobJob = x.JobMasterJobJob, JobMasterEquipName = x.JobMasterEquipName }).ToList();
 
                 return jobMasterData;
 

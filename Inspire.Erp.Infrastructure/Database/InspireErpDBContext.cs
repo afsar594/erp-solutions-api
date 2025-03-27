@@ -8794,6 +8794,7 @@ namespace Inspire.Erp.Infrastructure.Database
             {
                 entity.HasKey(e => e.Id);
                 entity.ToTable("tblJobPEEqp");
+                entity.Property(e => e.Id).ValueGeneratedOnAdd();
                 entity.Property(e => e.JobMasterJobId).HasColumnName("Job_Id");
                 entity.Property(e => e.JobMasterEquipId).HasColumnName("Eqp_ID");
                 entity.Property(e => e.JobMasterEquipName).HasColumnName("Eqp_Name")
