@@ -360,18 +360,17 @@ namespace Inspire.Erp.Application.Store.Implementation
                 _stockRegisterRepository.InsertList(stockRegister);
                 if (issueVoucher.IssueVoucherJobId > 0)
                 {
-                    var jobbuget = _jobbudgetRepository.GetAsQueryable().Where(s => s.JobMasterBudgetDetailsJobId == issueVoucher.IssueVoucherJobId).FirstOrDefault();
+                    var jobbuget = _jobbudgetRepository.GetAsQueryable().Where(s => s.JobMasterBudgetDetailsJobId == issueVoucher.IssueVoucherJobId && s.JobMasterBudgetDetailsBudId == issueVoucher.IssueVoucherCostCenterId ).FirstOrDefault();
                     var jobNo = _JobMastertRepository.GetAsQueryable().Where(s => s.JobMasterJobId == issueVoucher.IssueVoucherJobId).FirstOrDefault()?.JobMasterJobNo;
-                    if(jobbuget.JobMasterNo != "" || jobbuget.JobMasterNo != null)
+                   
+                    if(jobbuget.JobMasterNo == jobNo)
                     {
                         var newBudgetDetail = new JobMasterBudgetDetails
                         {
                             JobMasterNo = jobbuget.JobMasterNo,
-                            //JobMasterBudgetDetailsBudAmount = 0,
                             JobMasterBudgetDetailsJobId = issueVoucher.IssueVoucherJobId,
                             JobMasterBudgetDetailsBudId = (int)issueVoucher.IssueVoucherCostCenterId,
-                            JobMasterBudgetDetailsBudAmount = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
-                            //JobMasterBudgetDetailsVariance = -(decimal)issueVoucher.IssueVoucherTotalGrossAmount,
+                            JobMasterBudgetDetailsBudAmount = jobbuget.JobMasterBudgetDetailsBudAmount + (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
                             JobMasterBudgetDetailsDelStatus = false,
 
                         };
@@ -385,7 +384,6 @@ namespace Inspire.Erp.Application.Store.Implementation
                             JobMasterBudgetDetailsJobId = issueVoucher.IssueVoucherJobId,
                             JobMasterBudgetDetailsBudId = (int)issueVoucher.IssueVoucherCostCenterId,
                             JobMasterBudgetDetailsBudAmount = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
-                            //JobMasterBudgetDetailsVariance = -(decimal)issueVoucher.IssueVoucherTotalGrossAmount,
                             JobMasterBudgetDetailsDelStatus = false,
 
                         };
