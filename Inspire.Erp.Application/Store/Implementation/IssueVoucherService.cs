@@ -362,9 +362,11 @@ namespace Inspire.Erp.Application.Store.Implementation
                 {
                     var jobbuget = _jobbudgetRepository.GetAsQueryable().Where(s => s.JobMasterBudgetDetailsJobId == issueVoucher.IssueVoucherJobId && s.JobMasterBudgetDetailsBudId == issueVoucher.IssueVoucherCostCenterId ).FirstOrDefault();
                     var jobNo = _JobMastertRepository.GetAsQueryable().Where(s => s.JobMasterJobId == issueVoucher.IssueVoucherJobId).FirstOrDefault()?.JobMasterJobNo;
-                   
-                    if(jobbuget.JobMasterNo == jobNo)
+
+                    if (jobbuget != null && !string.IsNullOrEmpty(jobbuget.JobMasterNo) && jobbuget.JobMasterNo == jobNo)
                     {
+                        _jobbudgetRepository.Delete(jobbuget);
+
                         var newBudgetDetail = new JobMasterBudgetDetails
                         {
                             JobMasterNo = jobbuget.JobMasterNo,

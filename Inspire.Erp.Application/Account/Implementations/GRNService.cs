@@ -580,18 +580,19 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
 
                     if (issueObj.IssueVoucherJobId > 0)
                     {
-                        var jobbuget = _jobbudgetRepository.GetAsQueryable().Where(s => s.JobMasterBudgetDetailsJobId == issueObj.IssueVoucherJobId).FirstOrDefault();
+                        var jobbuget = _jobbudgetRepository.GetAsQueryable().Where(s => s.JobMasterBudgetDetailsJobId == issueObj.IssueVoucherJobId && s.JobMasterBudgetDetailsBudId == issueObj.IssueVoucherCostCenterId).FirstOrDefault();
                         var jobNo = _jobMastertRepository.GetAsQueryable().Where(s => s.JobMasterJobId == issueObj.IssueVoucherJobId).FirstOrDefault()?.JobMasterJobNo;
-                        if (jobbuget.JobMasterNo != "" || jobbuget.JobMasterNo != null)
+
+                        if (jobbuget != null && !string.IsNullOrEmpty(jobbuget.JobMasterNo) && jobbuget.JobMasterNo == jobNo)
                         {
+                            _jobbudgetRepository.Delete(jobbuget);
+
                             var newBudgetDetail = new JobMasterBudgetDetails
                             {
                                 JobMasterNo = jobbuget.JobMasterNo,
-                                //JobMasterBudgetDetailsBudAmount = 0,
                                 JobMasterBudgetDetailsJobId = issueObj.IssueVoucherJobId,
-                                JobMasterBudgetDetailsBudId = 1,
-                                JobMasterBudgetDetailsBudAmount = (decimal)issueObj.IssueVoucherTotalGrossAmount,
-                                JobMasterBudgetDetailsVariance = -(decimal)issueObj.IssueVoucherTotalGrossAmount,
+                                JobMasterBudgetDetailsBudId = (int)issueObj.IssueVoucherCostCenterId,
+                                JobMasterBudgetDetailsBudAmount = jobbuget.JobMasterBudgetDetailsBudAmount + (decimal)issueObj.IssueVoucherTotalGrossAmount,
                                 JobMasterBudgetDetailsDelStatus = false,
 
                             };
@@ -603,9 +604,8 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                             {
                                 JobMasterNo = jobNo,
                                 JobMasterBudgetDetailsJobId = issueObj.IssueVoucherJobId,
-                                JobMasterBudgetDetailsBudId = 1,
+                                JobMasterBudgetDetailsBudId = (int)issueObj.IssueVoucherCostCenterId,
                                 JobMasterBudgetDetailsBudAmount = (decimal)issueObj.IssueVoucherTotalGrossAmount,
-                                JobMasterBudgetDetailsVariance = -(decimal)issueObj.IssueVoucherTotalGrossAmount,
                                 JobMasterBudgetDetailsDelStatus = false,
 
                             };
