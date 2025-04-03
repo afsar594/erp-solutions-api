@@ -16,6 +16,9 @@ namespace Inspire.Erp.Domain.Entities
         public bool? JobMasterBudgetDetailsDelStatus { get; set; }
         public decimal? JobMasterBudgetDetailsActual { get; set; }
         public decimal? JobMasterBudgetDetailsVariance { get; set; }
+
+        public string RefVoucherNo { get; set; }
+        
         [JsonIgnore]
         public virtual JobMaster JobMasterBudgetDetailsJob { get; set; }
     }

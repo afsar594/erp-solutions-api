@@ -235,6 +235,10 @@ namespace Inspire.Erp.Application.Store.Implementation
                 _voucherNumbersRepository.Update(vchrnumer);
                 _issueVoucherRepository.TransactionCommit();
                 i = 1;
+                // Budget Details
+                var budget = _jobbudgetRepository.GetAsQueryable().Where(b => b.RefVoucherNo == issueVoucher.IssueVoucherNo).ToList();
+                _jobbudgetRepository.DeleteList(budget);
+
             }
             catch (Exception ex)
             {
@@ -374,6 +378,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                             JobMasterBudgetDetailsBudId = (int)issueVoucher.IssueVoucherCostCenterId,
                             JobMasterBudgetDetailsBudAmount = jobbuget.JobMasterBudgetDetailsBudAmount + (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
                             JobMasterBudgetDetailsDelStatus = false,
+                            RefVoucherNo = issueVoucher.IssueVoucherNo
 
                         };
                         _jobbudgetRepository.Update(newBudgetDetail);
@@ -387,6 +392,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                             JobMasterBudgetDetailsBudId = (int)issueVoucher.IssueVoucherCostCenterId,
                             JobMasterBudgetDetailsBudAmount = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
                             JobMasterBudgetDetailsDelStatus = false,
+                            RefVoucherNo = issueVoucher.IssueVoucherNo
 
                         };
                         _jobbudgetRepository.Insert(newBudgetDetail);

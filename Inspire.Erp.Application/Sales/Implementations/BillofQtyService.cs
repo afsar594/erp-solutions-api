@@ -135,7 +135,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         JobMasterBudgetDetailsBudId = estimation.costcenter,
                         JobMasterBudgetDetailsBudAmount = estimation.Amount ?? 0,
                         JobMasterBudgetDetailsDelStatus = false,
-                        JobMasterNo = jobNum ?? null
+                        JobMasterNo = jobNum ?? null,
+                        RefVoucherNo = BillofQty.BillofqtyNo
                     })
                     .ToList();
 
@@ -171,7 +172,10 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 var EstimationQtydt = _EstimationCostCenterRepository.GetAsQueryable().Where(x => x.BillQtyId == id).ToList();
                 _EstimationCostCenterRepository.DeleteList(EstimationQtydt);
-                //var budget = jobbudgetRepository.GetAsQueryable().Where(b=> b.JobMasterBudgetDetailsJobId == BillofQty.CustomerEnqId).
+
+                var budget = jobbudgetRepository.GetAsQueryable().Where(b => b.RefVoucherNo == BillofQty.BillofqtyNo).ToList();
+                jobbudgetRepository.DeleteList(budget);
+
                 _BillofQtyMasterRepository.Delete(BillofQty);
                 _BillofQtyMasterRepository.TransactionCommit();
                 i = 1;
@@ -249,7 +253,9 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         JobMasterBudgetDetailsBudId = estimation.costcenter,
                         JobMasterBudgetDetailsBudAmount = estimation.Amount ?? 0,
                         JobMasterBudgetDetailsDelStatus = false,
-                        JobMasterNo = jobNum ?? null
+                        JobMasterNo = jobNum ?? null,
+                        RefVoucherNo = BillofQty.BillofqtyNo
+
                     })
                     .ToList();
 

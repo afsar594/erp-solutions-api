@@ -8662,6 +8662,8 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.JobMasterBudgetDetailsSno).HasColumnName("Job_Master_BudgetDetails_SNO");
 
+                entity.Property(e => e.RefVoucherNo).HasColumnName("Ref_VoucherNo");
+
                 entity.Property(e => e.JobMasterNo)
                     .HasColumnName("Job_Master_No")
                     .HasMaxLength(20)
