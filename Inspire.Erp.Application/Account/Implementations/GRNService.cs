@@ -580,26 +580,27 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
 
                     if (issueObj.IssueVoucherJobId > 0)
                     {
-                        var jobbuget = _jobbudgetRepository.GetAsQueryable().Where(s => s.JobMasterBudgetDetailsJobId == issueObj.IssueVoucherJobId && s.JobMasterBudgetDetailsBudId == issueObj.IssueVoucherCostCenterId).FirstOrDefault();
+                       // var jobbuget = _jobbudgetRepository.GetAsQueryable().Where(s => s.JobMasterBudgetDetailsJobId == issueObj.IssueVoucherJobId && s.JobMasterBudgetDetailsBudId == issueObj.IssueVoucherCostCenterId).FirstOrDefault();
                         var jobNo = _jobMastertRepository.GetAsQueryable().Where(s => s.JobMasterJobId == issueObj.IssueVoucherJobId).FirstOrDefault()?.JobMasterJobNo;
 
-                        if (jobbuget != null && !string.IsNullOrEmpty(jobbuget.JobMasterNo) && jobbuget.JobMasterNo == jobNo)
+                       // if (jobbuget != null && !string.IsNullOrEmpty(jobbuget.JobMasterNo) && jobbuget.JobMasterNo == jobNo)
                         {
-                            _jobbudgetRepository.Delete(jobbuget);
+                          ///  _jobbudgetRepository.Delete(jobbuget);
 
-                            var newBudgetDetail = new JobMasterBudgetDetails
-                            {
-                                JobMasterNo = jobbuget.JobMasterNo,
-                                JobMasterBudgetDetailsJobId = issueObj.IssueVoucherJobId,
-                                JobMasterBudgetDetailsBudId = (int)issueObj.IssueVoucherCostCenterId,
-                                JobMasterBudgetDetailsBudAmount = jobbuget.JobMasterBudgetDetailsBudAmount + (decimal)issueObj.IssueVoucherTotalGrossAmount,
-                                JobMasterBudgetDetailsDelStatus = false,
+                        //    if(jobNo!=null) {
+                        //    var newBudgetDetail = new JobMasterBudgetDetails
+                        //    {
+                        //        JobMasterNo = jobNo,
+                        //        JobMasterBudgetDetailsJobId = issueObj.IssueVoucherJobId,
+                        //        JobMasterBudgetDetailsBudId = (int)issueObj.IssueVoucherCostCenterId,
+                        //        JobMasterBudgetDetailsBudAmount = jobbuget.JobMasterBudgetDetailsBudAmount,
+                        //        JobMasterBudgetDetailsDelStatus = false,
 
-                            };
-                            _jobbudgetRepository.Update(newBudgetDetail);
-                        }
-                        else
-                        {
+                        //    };
+                        //    _jobbudgetRepository.Insert(newBudgetDetail);
+                        //}
+                        //else
+                        //{
                             var newBudgetDetail = new JobMasterBudgetDetails
                             {
                                 JobMasterNo = jobNo,
