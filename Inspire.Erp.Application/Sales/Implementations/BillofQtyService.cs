@@ -171,7 +171,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 var EstimationQtydt = _EstimationCostCenterRepository.GetAsQueryable().Where(x => x.BillQtyId == id).ToList();
                 _EstimationCostCenterRepository.DeleteList(EstimationQtydt);
-
+                //var budget = jobbudgetRepository.GetAsQueryable().Where(b=> b.JobMasterBudgetDetailsJobId == BillofQty.CustomerEnqId).
                 _BillofQtyMasterRepository.Delete(BillofQty);
                 _BillofQtyMasterRepository.TransactionCommit();
                 i = 1;

@@ -10692,6 +10692,8 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.LocationName)
                 .HasColumnName("Location_Name");
+                entity.Property(e => e.IsDeleted)
+               .HasColumnName("IsDeleted");
             });
 
 
@@ -18692,7 +18694,7 @@ namespace Inspire.Erp.Infrastructure.Database
             });
             modelBuilder.Entity<TransactionCodes>(e =>
             {
-                e.ToTable("TransactionCodes");
+                e.ToTable("Transaction_Codes");
                 e.HasKey(x => x.Id);
             });
 

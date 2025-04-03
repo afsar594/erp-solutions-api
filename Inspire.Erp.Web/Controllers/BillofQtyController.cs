@@ -119,7 +119,7 @@ namespace Inspire.Erp.Web.Controllers
                 return null;
             }
         }
-        [HttpDelete]
+        [HttpGet]
         [Route("DeleteBillofQty/{id}")]
         public ApiResponse<int> DeleteBillofQty(decimal id)
         {

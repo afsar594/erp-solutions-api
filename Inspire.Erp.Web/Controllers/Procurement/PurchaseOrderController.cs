@@ -567,7 +567,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             try
             {
                 var user = _context.UserFile.AsNoTracking();
-                var data = _permissionApprovalDetailRepo.GetAsQueryable().Where(a => a.VoucherId == VoucherId).Select(c => new
+                var data = _permissionApprovalDetailRepo.GetAsQueryable().Where(a => a.VoucherId == VoucherId && a.IsDeleted != true).Select(c => new
                 {
                     c.Id,
                     c.VoucherType,

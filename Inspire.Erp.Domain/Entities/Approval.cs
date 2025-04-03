@@ -30,6 +30,8 @@ namespace Inspire.Erp.Domain.Entities
         public DateTime? ModifiedDate { get; set; }
         public string Remarks { get; set; }
         public string? RejectionRemarks { get; set; }
+
+        public bool? IsDeleted { get; set; }
     }
     public class tbl_approvalforms
     {

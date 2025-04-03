@@ -224,6 +224,14 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 _voucherNumbersRepository.Update(vchrnumer);
 
+                var detailsToDelete = _permissionApprovalDetailRepo
+               .GetAsQueryable().Where(a => a.VoucherNo == purchaseRequisition.PurchaseRequisitionNo).ToList();
+                foreach (var detail in detailsToDelete)
+                {
+                    detail.IsDeleted = true;
+                    _permissionApprovalDetailRepo.Update(detail);
+                }
+
                 _purchaseRequisitionRepository.TransactionCommit();
                 i = 1;
             }

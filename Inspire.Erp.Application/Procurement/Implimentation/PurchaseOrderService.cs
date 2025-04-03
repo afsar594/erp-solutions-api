@@ -276,7 +276,14 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 //_accountTransactionRepository.UpdateList(accountsTransactions);
 
                 clsCommonFunctions.Delete_OldEntry_AccountsTransactions(purchaseOrder.PurchaseOrderNo, VoucherType.PurchaseOrder_TYPE, _accountTransactionRepository);
-
+                var detailsToDelete = _permissionApprovalDetailRepo
+                .GetAsQueryable().Where(a => a.VoucherNo == purchaseOrder.PurchaseOrderNo).ToList();
+                foreach (var detail in detailsToDelete)
+                {
+                    detail.IsDeleted = true;
+                    _permissionApprovalDetailRepo.Update(detail);
+                }
+                
                 _purchaseOrderRepository.Update(purchaseOrder);
 
                 var vchrnumer = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == purchaseOrder.PurchaseOrderNo).FirstOrDefault();
@@ -399,7 +406,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                             POList.Remarks = purchaseOrder.PurchaseOrderDescription;
                             POList.LocationName = _context.LocationMaster
                                         .FirstOrDefault(l => l.LocationMasterLocationId == purchaseOrder.PurchaseOrderLocationId)?.LocationMasterLocationName;
-                            
+
                             _permissionApprovalDetailRepo.Insert(POList);
                         }
                     }
@@ -413,7 +420,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 throw ex;
             }
         }
-       public IEnumerable<AccountsTransactions> GetAllTransaction()
+        public IEnumerable<AccountsTransactions> GetAllTransaction()
         {
             return _accountTransactionRepository.GetAll();
         }
