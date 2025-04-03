@@ -178,6 +178,27 @@ namespace Inspire.Erp.Application.Store.Implementation
                     });
                 }
                 _stockRegisterRepository.InsertList(stockRegister);
+
+
+
+                //var jobNo = _JobMastertRepository.GetAsQueryable().Where(s => s.JobMasterJobId == issueVoucher.IssueVoucherJobId).FirstOrDefault()?.JobMasterJobNo;
+
+
+
+
+                //var newBudgetDetail = new JobMasterBudgetDetails
+                //{
+                //    JobMasterNo = jobNo,
+                //    JobMasterBudgetDetailsJobId = issueVoucher.IssueVoucherJobId,
+                //    JobMasterBudgetDetailsBudId = (int)issueVoucher.IssueVoucherCostCenterId,
+                //    JobMasterBudgetDetailsBudAmount = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
+                //    JobMasterBudgetDetailsDelStatus = false,
+
+                //};
+                //_jobbudgetRepository.Insert(newBudgetDetail);
+
+
+
                 _issueVoucherRepository.TransactionCommit();
 
             }
@@ -362,42 +383,55 @@ namespace Inspire.Erp.Application.Store.Implementation
                     });
                 }
                 _stockRegisterRepository.InsertList(stockRegister);
+
                 if (issueVoucher.IssueVoucherJobId > 0)
                 {
-                    var jobbuget = _jobbudgetRepository.GetAsQueryable().Where(s => s.JobMasterBudgetDetailsJobId == issueVoucher.IssueVoucherJobId && s.JobMasterBudgetDetailsBudId == issueVoucher.IssueVoucherCostCenterId ).FirstOrDefault();
                     var jobNo = _JobMastertRepository.GetAsQueryable().Where(s => s.JobMasterJobId == issueVoucher.IssueVoucherJobId).FirstOrDefault()?.JobMasterJobNo;
 
-                    if (jobbuget != null && !string.IsNullOrEmpty(jobbuget.JobMasterNo) && jobbuget.JobMasterNo == jobNo)
+                    var newBudgetDetail = new JobMasterBudgetDetails
                     {
-                        _jobbudgetRepository.Delete(jobbuget);
+                        JobMasterNo = jobNo,
+                        JobMasterBudgetDetailsJobId = issueVoucher.IssueVoucherJobId,
+                        JobMasterBudgetDetailsBudId = (int)issueVoucher.IssueVoucherCostCenterId,
+                        JobMasterBudgetDetailsBudAmount = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
+                        JobMasterBudgetDetailsDelStatus = false,
 
-                        var newBudgetDetail = new JobMasterBudgetDetails
-                        {
-                            JobMasterNo = jobbuget.JobMasterNo,
-                            JobMasterBudgetDetailsJobId = issueVoucher.IssueVoucherJobId,
-                            JobMasterBudgetDetailsBudId = (int)issueVoucher.IssueVoucherCostCenterId,
-                            JobMasterBudgetDetailsBudAmount = jobbuget.JobMasterBudgetDetailsBudAmount + (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
-                            JobMasterBudgetDetailsDelStatus = false,
-                            RefVoucherNo = issueVoucher.IssueVoucherNo
+                    };
+                    _jobbudgetRepository.Insert(newBudgetDetail);
 
-                        };
-                        _jobbudgetRepository.Update(newBudgetDetail);
-                    }
-                    else
-                    {
-                        var newBudgetDetail = new JobMasterBudgetDetails
-                        {
-                            JobMasterNo = jobNo,
-                            JobMasterBudgetDetailsJobId = issueVoucher.IssueVoucherJobId,
-                            JobMasterBudgetDetailsBudId = (int)issueVoucher.IssueVoucherCostCenterId,
-                            JobMasterBudgetDetailsBudAmount = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
-                            JobMasterBudgetDetailsDelStatus = false,
-                            RefVoucherNo = issueVoucher.IssueVoucherNo
+                    //var jobbuget = _jobbudgetRepository.GetAsQueryable().Where(s => s.JobMasterBudgetDetailsJobId == issueVoucher.IssueVoucherJobId && s.JobMasterBudgetDetailsBudId == issueVoucher.IssueVoucherCostCenterId ).FirstOrDefault();
+                    
+                    //if (jobbuget != null && !string.IsNullOrEmpty(jobbuget.JobMasterNo) && jobbuget.JobMasterNo == jobNo)
+                    //{
+                    //    _jobbudgetRepository.Delete(jobbuget);
 
-                        };
-                        _jobbudgetRepository.Insert(newBudgetDetail);
-                    }
-                 }
+                    //    var newBudgetDetail = new JobMasterBudgetDetails
+                    //    {
+                    //        JobMasterNo = jobbuget.JobMasterNo,
+                    //        JobMasterBudgetDetailsJobId = issueVoucher.IssueVoucherJobId,
+                    //        JobMasterBudgetDetailsBudId = (int)issueVoucher.IssueVoucherCostCenterId,
+                    //        JobMasterBudgetDetailsBudAmount = jobbuget.JobMasterBudgetDetailsBudAmount + (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
+                    //        JobMasterBudgetDetailsDelStatus = false,
+                    //        RefVoucherNo = issueVoucher.IssueVoucherNo
+
+                    //    };
+                    //    _jobbudgetRepository.Update(newBudgetDetail);
+                    //}
+                    //else
+                    //{
+                    //    var newBudgetDetail = new JobMasterBudgetDetails
+                    //    {
+                    //        JobMasterNo = jobNo,
+                    //        JobMasterBudgetDetailsJobId = issueVoucher.IssueVoucherJobId,
+                    //        JobMasterBudgetDetailsBudId = (int)issueVoucher.IssueVoucherCostCenterId,
+                    //        JobMasterBudgetDetailsBudAmount = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
+                    //        JobMasterBudgetDetailsDelStatus = false,
+                    //        RefVoucherNo = issueVoucher.IssueVoucherNo
+
+                    //    };
+                    //    _jobbudgetRepository.Insert(newBudgetDetail);
+                    //}
+                }
                 _issueVoucherRepository.TransactionCommit();
                 return this.GetSavedIssueVoucherDetails((int)issueVoucher.IssueVoucherId);
 
