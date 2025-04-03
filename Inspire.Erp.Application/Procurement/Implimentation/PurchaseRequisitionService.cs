@@ -698,7 +698,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                   join iv in _context.IssueVoucherDetails.AsNoTracking()
                                       on sd.PurchaseRequisitionDetailsId equals iv.IssueVoucherDetailsReqDId into ivGroup
                                   from srq in ivGroup.DefaultIfEmpty()
-                                  where ( _permissionApprovalDetailRepo.GetAsQueryable().Where(p => p.VoucherNo == sm.PurchaseRequisitionNo)
+                                  where ( _permissionApprovalDetailRepo.GetAsQueryable().Where(p => p.VoucherNo == sm.PurchaseRequisitionNo && (p.IsDeleted == null || (bool)!p.IsDeleted)
                                   .Any(p => p.Status == "Approved" && p.Status != "Rejected"))
                                   group new { sm, sd, im, um, srq } by new
                                   {
