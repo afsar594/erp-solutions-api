@@ -516,7 +516,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
 
             if (!string.IsNullOrEmpty(model.status) && model.status != "All")
             {
-                combinedData = combinedData.Where(a => a.Status == model.status).ToList();
+                combinedData = combinedData.Where(a => a.Status == model.status && (a.IsDeleted == null || (bool)!a.IsDeleted) ).ToList();
             }
 
             objresponse.ResultSet = new
