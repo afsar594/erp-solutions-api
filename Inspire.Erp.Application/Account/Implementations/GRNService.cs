@@ -608,6 +608,8 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                                 JobMasterBudgetDetailsBudId = (int)issueObj.IssueVoucherCostCenterId,
                                 JobMasterBudgetDetailsBudAmount = (decimal)issueObj.IssueVoucherTotalGrossAmount,
                                 JobMasterBudgetDetailsDelStatus = false,
+                                JobMasterBudgetDetailsActual = issueObj.IssueVoucherTotalActualAmount
+
 
                             };
                             _jobbudgetRepository.Insert(newBudgetDetail);
