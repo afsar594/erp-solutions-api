@@ -48,7 +48,7 @@ namespace Inspire.Erp.Web.ViewModels
 
         public decimal? JobMasterJobAdvPerc { get; set; }
 
-        public decimal? JobMasterJobAdvAmount { get; set; }
+        public decimal? JobMasterJobAdvAmountTotal { get; set; }
         public int? JobMasterDepartmentId { get; set; }
         public string JobMasterSiteLocation { get; set; }
         public string JobMasterMEPContractor { get; set; }
