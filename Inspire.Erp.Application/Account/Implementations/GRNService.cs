@@ -197,10 +197,11 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 _context.UserTracking.Add(trackingData);
                 _context.SaveChanges();
 
+                var data = _issueVoucherRepository.GetAsQueryable().Where(i => i.IssueVoucherPurchaseVoucherID == grn.PurchaseVoucherPurID).FirstOrDefault();
 
-                if ((bool)grn.PurchaseVoucherJobDirectPurchase == true)
+                if ((bool)grn.PurchaseVoucherJobDirectPurchase == true && data != null)
                 {
-                    var data = _issueVoucherRepository.GetAsQueryable().Where(i => i.IssueVoucherPurchaseVoucherID == grn.PurchaseVoucherPurID).FirstOrDefault();
+
                     var detaildata = _issueVoucherDetailsRepository.GetAll().Where(i => i.IssueVoucherId == data.IssueVoucherId).ToList();
                     clsCommonFunctions.Delete_OldEntry_AccountsTransactions(data.IssueVoucherNo, VoucherType.IssueVoucher_TYPE, _accountTransactionRepository);
                     clsCommonFunctions.Delete_OldEntryOf_StockRegister(data.IssueVoucherNo, VoucherType.IssueVoucher_TYPE, _stockRegisterRepository);
@@ -339,6 +340,29 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                     _accountTransactionRepository.InsertList(accountsTransactionslist);
                     _issueVoucherRepository.Insert(issueObj);
 
+                }
+
+                if (grn.PurchaseVoucherJobID > 0)
+                {
+                    var jobNo = _jobMastertRepository.GetAsQueryable().Where(s => s.JobMasterJobId == grn.PurchaseVoucherJobID).FirstOrDefault()?.JobMasterJobNo;
+
+                    var costCenterId = Convert.ToInt32(this._generalSettings.GetAsQueryable()
+                            .AsNoTracking()
+                            .FirstOrDefault(x => x.GeneralSettingsKeyValue.ToUpper() == "COSTCENTER_AGAINST_BOQ".ToUpper())
+                            .GeneralSettingsTextValue);
+
+                    var jobMasterBudgetDetailsToUpdate = this._jobbudgetRepository.GetAsQueryable().Where(x => x.RefVoucherNo == grn.PurchaseVoucherVoucherNo).ToList();
+                    jobMasterBudgetDetailsToUpdate.ForEach(x =>
+                    {
+                        x.JobMasterNo = jobNo;
+                        x.JobMasterBudgetDetailsJobId = grn.PurchaseVoucherJobID;
+                        x.JobMasterBudgetDetailsBudId = costCenterId;
+                        x.JobMasterBudgetDetailsActual = (decimal)grn.PurchaseVoucherTotalGrossAmt;
+                        x.JobMasterBudgetDetailsDelStatus = false;
+                        x.RefVoucherNo = grn.PurchaseVoucherVoucherNo;
+                    });
+
+                    _jobbudgetRepository.UpdateList(jobMasterBudgetDetailsToUpdate);
                 }
 
 
@@ -620,16 +644,17 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                                 {
                                     JobMasterNo = jobNo,
                                     JobMasterBudgetDetailsJobId = issueObj.IssueVoucherJobId,
-                                    JobMasterBudgetDetailsBudId = costCenterId , //(int)issueObj.IssueVoucherCostCenterId,
+                                    JobMasterBudgetDetailsBudId = costCenterId, //(int)issueObj.IssueVoucherCostCenterId,
                                     JobMasterBudgetDetailsActual = (decimal)issueObj.IssueVoucherTotalGrossAmount,
                                     JobMasterBudgetDetailsDelStatus = false,
-
+                                    RefVoucherNo = issueVoucherNumber
                                 };
                                 _jobbudgetRepository.Insert(newBudgetDetail);
                             }
                         }
 
                     }
+
                     trnScope.Complete();
                     return grn;
                 }

@@ -34,6 +34,7 @@ namespace Inspire.Erp.Application.Store.Implementation
         private IRepository<AccountSettings> _accountsSettingssvcs;
         private IRepository<JobMasterBudgetDetails> _jobbudgetRepository;
         private IRepository<JobMaster> _JobMastertRepository;
+        private readonly IRepository<GeneralSettings> _generalSettings;
 
 
         public IssueVoucherService(
@@ -42,7 +43,7 @@ namespace Inspire.Erp.Application.Store.Implementation
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, IRepository<UnitDetails> unitDetailsRepository, ILogger<PaymentVoucherService> logger, IRepository<CurrencyMaster> currencyMasterRepository,
             IRepository<IssueVoucher> issueVoucherRepository, IRepository<IssueVoucherDetails> issueVoucherDetailsRepository, IRepository<AccountSettings> accountsSettingssvcsRepository,
-            IRepository<JobMasterBudgetDetails> jobbudgetRepository, IRepository<JobMaster> JobMastertRepository)
+            IRepository<JobMasterBudgetDetails> jobbudgetRepository, IRepository<JobMaster> JobMastertRepository, IRepository<GeneralSettings> generalSettings)
         {
             _UnitDetailsRepository = unitDetailsRepository;
             this._accountTransactionRepository = accountTransactionRepository;
@@ -59,6 +60,7 @@ namespace Inspire.Erp.Application.Store.Implementation
             _accountsSettingssvcs = accountsSettingssvcsRepository;
             _jobbudgetRepository = jobbudgetRepository;
             _JobMastertRepository = JobMastertRepository;
+            _generalSettings = generalSettings;
         }
 
 
@@ -106,6 +108,13 @@ namespace Inspire.Erp.Application.Store.Implementation
                 var currencyRate = clsCommonFunctions.getConverionCurrencyRate(issueVoucher.IssueVoucherCurrencyId, _currencyMasterRepository);
                 var rate = (decimal)currencyRate;
 
+
+
+                var costCenterId = Convert.ToInt32(this._generalSettings.GetAsQueryable()
+                           .AsNoTracking()
+                           .FirstOrDefault(x => x.GeneralSettingsKeyValue.ToUpper() == "COSTCENTER_AGAINST_BOQ".ToUpper())
+                           .GeneralSettingsTextValue);
+
                 accountsTransactions.Add(new AccountsTransactions
                 {
                     AccountsTransactionsTransDate = issueVoucher.IssueVoucherDate,
@@ -120,7 +129,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     AccountsTransactionsFcAllocBalance = (decimal)issueVoucher.IssueVoucherTotalGrossAmount * rate,
                     AccountsTransactionsLocation = issueVoucher.IssueVoucherLocationId,
                     AccountsTransactionsJobNo = issueVoucher.IssueVoucherJobId,
-                    AccountsTransactionsCostCenterId = (int)issueVoucher.IssueVoucherCostCenterId,
+                    AccountsTransactionsCostCenterId = issueVoucher.IssueVoucherCostCenterId != null ? (int) issueVoucher.IssueVoucherCostCenterId : costCenterId,
                     AccountsTransactionsCurrencyId = issueVoucher.IssueVoucherCurrencyId,
                     AccountsTransactionsUserId = 1,
 
@@ -139,7 +148,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     AccountsTransactionsFcAllocBalance = (decimal)issueVoucher.IssueVoucherTotalGrossAmount * rate,
                     AccountsTransactionsLocation = issueVoucher.IssueVoucherLocationId,
                     AccountsTransactionsJobNo = issueVoucher.IssueVoucherJobId,
-                    AccountsTransactionsCostCenterId = (int)issueVoucher.IssueVoucherCostCenterId,
+                    AccountsTransactionsCostCenterId = issueVoucher.IssueVoucherCostCenterId != null ? (int)issueVoucher.IssueVoucherCostCenterId : costCenterId,
                     AccountsTransactionsCurrencyId = issueVoucher.IssueVoucherCurrencyId,
                     AccountsTransactionsUserId = 1,
 
@@ -179,6 +188,23 @@ namespace Inspire.Erp.Application.Store.Implementation
                 }
                 _stockRegisterRepository.InsertList(stockRegister);
 
+                if (issueVoucher.IssueVoucherJobId > 0)
+                {
+                    var jobNo = _JobMastertRepository.GetAsQueryable().Where(s => s.JobMasterJobId == issueVoucher.IssueVoucherJobId).FirstOrDefault()?.JobMasterJobNo;
+
+                    var jobMasterBudgetDetailsToUpdate = this._jobbudgetRepository.GetAsQueryable().Where(x => x.RefVoucherNo == issueVoucher.IssueVoucherNo).ToList();
+                    jobMasterBudgetDetailsToUpdate.ForEach(x =>
+                    {
+                        x.JobMasterNo = jobNo;
+                        x.JobMasterBudgetDetailsJobId = issueVoucher.IssueVoucherJobId;
+                        x.JobMasterBudgetDetailsBudId = issueVoucher.IssueVoucherCostCenterId != null ? (int)issueVoucher.IssueVoucherCostCenterId : costCenterId;
+                        x.JobMasterBudgetDetailsBudAmount = (decimal)issueVoucher.IssueVoucherTotalGrossAmount;
+                        x.JobMasterBudgetDetailsDelStatus = false;
+                        x.JobMasterBudgetDetailsActual = issueVoucher.IssueVoucherTotalActualAmount;
+                        x.RefVoucherNo = issueVoucher.IssueVoucherNo;
+                    });
+                    _jobbudgetRepository.UpdateList(jobMasterBudgetDetailsToUpdate);
+                }
 
 
                 //var jobNo = _JobMastertRepository.GetAsQueryable().Where(s => s.JobMasterJobId == issueVoucher.IssueVoucherJobId).FirstOrDefault()?.JobMasterJobNo;
@@ -395,9 +421,9 @@ namespace Inspire.Erp.Application.Store.Implementation
                         JobMasterBudgetDetailsBudId = (int)issueVoucher.IssueVoucherCostCenterId,
                         JobMasterBudgetDetailsBudAmount = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
                         JobMasterBudgetDetailsDelStatus = false,
-                        JobMasterBudgetDetailsActual = issueVoucher.IssueVoucherTotalActualAmount
-
-                    };
+                        JobMasterBudgetDetailsActual = issueVoucher.IssueVoucherTotalActualAmount,
+                        RefVoucherNo = issueVoucher.IssueVoucherNo
+                };
                     _jobbudgetRepository.Insert(newBudgetDetail);
 
                     //var jobbuget = _jobbudgetRepository.GetAsQueryable().Where(s => s.JobMasterBudgetDetailsJobId == issueVoucher.IssueVoucherJobId && s.JobMasterBudgetDetailsBudId == issueVoucher.IssueVoucherCostCenterId ).FirstOrDefault();
@@ -433,6 +459,8 @@ namespace Inspire.Erp.Application.Store.Implementation
                     //    _jobbudgetRepository.Insert(newBudgetDetail);
                     //}
                 }
+                
+                
                 _issueVoucherRepository.TransactionCommit();
                 return this.GetSavedIssueVoucherDetails((int)issueVoucher.IssueVoucherId);
 

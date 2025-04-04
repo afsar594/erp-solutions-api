@@ -121,10 +121,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 }
 
                 var jobNum = JobMasterRepository.GetAsQueryable().Where(e => e.JobMasterJobId == BillofQty.CustomerEnqId).FirstOrDefault()?.JobMasterJobNo;
-                //ali ansari 
-                int maxjobbudgetid = jobbudgetRepository.GetAsQueryable()
-                .DefaultIfEmpty().Max(o => o == null ? 0 : o.JobMasterBudgetDetailsDtlId) + 1;
-
                 var JobMasterBudget = EstimationCostCenter
                     .Where(estimation => estimation.Amount > 0)
                     .Select((estimation, index) => new JobMasterBudgetDetails()
@@ -253,7 +249,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         JobMasterBudgetDetailsDelStatus = false,
                         JobMasterNo = jobNum ?? null,
                         RefVoucherNo = BillofQty.BillofqtyNo
-
                     })
                     .ToList();
 
