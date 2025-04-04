@@ -47,8 +47,8 @@ namespace Inspire.Erp.Web.ViewModels
         public decimal? JobMasterJobPerInv { get; set; }
 
         public decimal? JobMasterJobAdvPerc { get; set; }
-
-        public decimal? JobMasterJobAdvAmount { get; set; }
+        public decimal? JobMasterJobAdvanceAmount { get; set; }
+        public decimal? JobMasterJobAdvAmountTotal { get; set; }
         public int? JobMasterDepartmentId { get; set; }
         public string JobMasterSiteLocation { get; set; }
         public string JobMasterMEPContractor { get; set; }
@@ -111,7 +111,7 @@ namespace Inspire.Erp.Web.ViewModels
         public int? TimeSheetId { get; set; } // Nullable
         public int JobId { get; set; }
         public int? EquipmentId { get; set; } // Nullable
-        public string EquipmentDesc { get; set; }              
+        public string EquipmentDesc { get; set; }
     }
     public class JobTimesheetMasterViewModels
     {
