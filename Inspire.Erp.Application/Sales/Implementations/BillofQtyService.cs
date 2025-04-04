@@ -79,9 +79,12 @@ namespace Inspire.Erp.Application.Sales.Implementations
             try
             {
                 _BillofQtyMasterRepository.BeginTransaction();
-                BillofQty.BillOfQTyDetails.Clear();
+                //  BillofQty.BillOfQTyDetails.Clear();
 
-                _BillofQtyMasterRepository.Update(BillofQty);
+                var boqDetailsTODelete = this._BillOfQTyDetailsRepository.GetAsQueryable().Where(x => x.BillQtyId == BillofQty.Id).ToList();
+                this._BillOfQTyDetailsRepository.DeleteList(boqDetailsTODelete);
+
+                _BillofQtyMasterRepository.Update(BillofQty);   
 
                 decimal maxcount1 = 0;
                 maxcount1 = _BillOfQTyDetailsRepository.GetAsQueryable()
@@ -93,17 +96,12 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 {
                     x.BillQtyId = BillofQty.Id;
 
-                    if (x.Id == 0)
-                    {
+                    
                         x.Id = maxcount1;
                         x.BillQtyId = BillofQty.Id;
                         _BillOfQTyDetailsRepository.Insert(x);
                         maxcount1++;
-                    }
-                    else
-                    {
-                        _BillOfQTyDetailsRepository.Update(x);
-                    }
+                    
                 }
                 foreach (var xx in EstimationCostCenter)
                 {
