@@ -84,7 +84,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 var boqDetailsTODelete = this._BillOfQTyDetailsRepository.GetAsQueryable().Where(x => x.BillQtyId == BillofQty.Id).ToList();
                 this._BillOfQTyDetailsRepository.DeleteList(boqDetailsTODelete);
 
-                _BillofQtyMasterRepository.Update(BillofQty);   
+                _BillofQtyMasterRepository.Update(BillofQty);
 
                 decimal maxcount1 = 0;
                 maxcount1 = _BillOfQTyDetailsRepository.GetAsQueryable()
@@ -96,12 +96,12 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 {
                     x.BillQtyId = BillofQty.Id;
 
-                    
-                        x.Id = maxcount1;
-                        x.BillQtyId = BillofQty.Id;
-                        _BillOfQTyDetailsRepository.Insert(x);
-                        maxcount1++;
-                    
+
+                    x.Id = maxcount1;
+                    x.BillQtyId = BillofQty.Id;
+                    _BillOfQTyDetailsRepository.Insert(x);
+                    maxcount1++;
+
                 }
                 foreach (var xx in EstimationCostCenter)
                 {
@@ -120,27 +120,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     }
                 }
 
-                var jobNum = JobMasterRepository.GetAsQueryable().Where(e => e.JobMasterJobId == BillofQty.CustomerEnqId).FirstOrDefault()?.JobMasterJobNo;
-                var JobMasterBudget = EstimationCostCenter
-                    .Where(estimation => estimation.Amount > 0)
-                    .Select((estimation, index) => new JobMasterBudgetDetails()
-                    {
-                        JobMasterBudgetDetailsJobId = (int)BillofQty.CustomerEnqId,
-                        JobMasterBudgetDetailsBudId = estimation.costcenter,
-                        JobMasterBudgetDetailsBudAmount = estimation.Amount ?? 0,
-                        JobMasterBudgetDetailsDelStatus = false,
-                        JobMasterNo = jobNum ?? null,
-                        RefVoucherNo = BillofQty.BillofqtyNo
-                    })
-                    .ToList();
-
-                if (JobMasterBudget.Any())
-
-                {
-                    jobbudgetRepository.UpdateList(JobMasterBudget);
-                }
-
-
+                InsertUpdateJobBudgetDetails(BillofQty, EstimationCostCenter);
 
                 _BillofQtyMasterRepository.TransactionCommit();
             }
@@ -152,6 +132,65 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
             return this.GetSavedBillofQty(BillofQty.Id);
         }
+
+        private void InsertUpdateJobBudgetDetails(BillofQtyMaster BillofQty, List<EstimationCostCenter> EstimationCostCenter)
+        {
+            var jobNum = JobMasterRepository.GetAsQueryable()
+                .Where(e => e.JobMasterJobId == BillofQty.CustomerEnqId)
+                .FirstOrDefault()?.JobMasterJobNo;
+
+            var jobMasterBudgetDetailsExisting = jobbudgetRepository
+                .GetAsQueryable()
+                .Where(x => x.RefVoucherNo == BillofQty.BillofqtyNo)
+                .ToList();
+
+            // **Insert: Add new records that don't exist**
+            var jobMasterBudgetDetailsToAdd = EstimationCostCenter
+                .Where(estimation => estimation.Amount > 0 &&
+                                     !jobMasterBudgetDetailsExisting
+                                         .Any(existing => existing.JobMasterBudgetDetailsBudId == estimation.costcenter))
+                .Select(estimation => new JobMasterBudgetDetails
+                {
+                    JobMasterBudgetDetailsJobId = (int)BillofQty.CustomerEnqId,
+                    JobMasterBudgetDetailsBudId = estimation.costcenter,
+                    JobMasterBudgetDetailsBudAmount = estimation.Amount ?? 0,
+                    JobMasterBudgetDetailsDelStatus = false,
+                    JobMasterNo = jobNum ?? null,
+                    RefVoucherNo = BillofQty.BillofqtyNo
+                })
+                .ToList();
+
+            // **Update: Modify existing records instead of creating new ones**
+            var jobMasterBudgetDetailsToUpdate = jobMasterBudgetDetailsExisting
+                .Where(existing => EstimationCostCenter
+                    .Any(estimation => estimation.costcenter == existing.JobMasterBudgetDetailsBudId))
+                .ToList();
+
+            jobMasterBudgetDetailsToUpdate.ForEach(x =>
+            {
+                var matchingEstimation = EstimationCostCenter .First(estimation => estimation.costcenter == x.JobMasterBudgetDetailsBudId);
+                x.JobMasterBudgetDetailsBudAmount = matchingEstimation.Amount ?? 0;
+                x.JobMasterBudgetDetailsDelStatus = false;
+            });
+           
+            // **Delete: Remove records that are no longer in EstimationCostCenter**
+            var jobMasterBudgetDetailsToDelete = jobMasterBudgetDetailsExisting
+                .Where(existing => !EstimationCostCenter
+                    .Any(estimation => estimation.costcenter == existing.JobMasterBudgetDetailsBudId))
+                .ToList();
+
+            // **Apply changes to the database**
+            if (jobMasterBudgetDetailsToAdd.Any())
+                jobbudgetRepository.InsertList(jobMasterBudgetDetailsToAdd);
+
+            if (jobMasterBudgetDetailsToUpdate.Any())
+                jobbudgetRepository.UpdateList(jobMasterBudgetDetailsToUpdate); // Updates records correctly
+
+            if (jobMasterBudgetDetailsToDelete.Any())
+                jobbudgetRepository.DeleteList(jobMasterBudgetDetailsToDelete); // Deletes unused records
+
+        }
+
         public int DeleteBillofQty(decimal id)
         {
             int i = 0;
@@ -235,29 +274,10 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 _EstimationCostCenterRepository.InsertList(EstimationCostCenter);
 
-                //ali ansari
-                int maxjobbudgetid = jobbudgetRepository.GetAsQueryable()
-                .DefaultIfEmpty().Max(o => o == null ? 0 : o.JobMasterBudgetDetailsDtlId) + 1;
+                InsertUpdateJobBudgetDetails(BillofQty, EstimationCostCenter);
 
-                var JobMasterBudget = EstimationCostCenter
-                    .Where(estimation => estimation.Amount > 0)
-                    .Select((estimation, index) => new JobMasterBudgetDetails()
-                    {
-                        JobMasterBudgetDetailsJobId = (int)BillofQty.CustomerEnqId,
-                        JobMasterBudgetDetailsBudId = estimation.costcenter,
-                        JobMasterBudgetDetailsBudAmount = estimation.Amount ?? 0,
-                        JobMasterBudgetDetailsDelStatus = false,
-                        JobMasterNo = jobNum ?? null,
-                        RefVoucherNo = BillofQty.BillofqtyNo
-                    })
-                    .ToList();
-
-                if (JobMasterBudget.Any())
-
-                {
-                    jobbudgetRepository.InsertList(JobMasterBudget);
-                }
                 _BillofQtyMasterRepository.Insert(BillofQty);
+
                 _BillofQtyMasterRepository.TransactionCommit();
 
                 return this.GetSavedBillofQty(BillofQty.Id);
