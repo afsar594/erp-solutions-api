@@ -283,7 +283,7 @@ namespace Inspire.Erp.Web.Controllers
         {
             PurchaseRequisitionModel purchaseRequisition = _purchaseRequisitionService.GetSavedPurchaseRequisitionDetails(id);
 
-            if (purchaseRequisition != null)
+            if (purchaseRequisition.purchaseRequisition != null)
             {
                 PurchaseRequisitionViewModel purchaseRequisitionViewModel = new PurchaseRequisitionViewModel
                 {

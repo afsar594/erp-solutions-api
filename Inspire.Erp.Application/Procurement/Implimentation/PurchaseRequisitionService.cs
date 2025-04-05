@@ -496,10 +496,15 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
             purchaseRequisitionModel.purchaseRequisition = _purchaseRequisitionRepository.GetAsQueryable().Where(k => k.PurchaseRequisitionId == pvno).FirstOrDefault();
 
-            purchaseRequisitionModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == purchaseRequisitionModel.purchaseRequisition.PurchaseRequisitionNo && c.AccountsTransactionsVoucherType == VoucherType.PurchaseRequisition_TYPE && (c.AccountstransactionsDelStatus != true)).ToList();
-            purchaseRequisitionModel.purchaseRequisitionDetails = _purchaseRequisitionDetailsRepository.GetAsQueryable().Where(x => x.PurchaseRequisitionDetailsNo == purchaseRequisitionModel.purchaseRequisition.PurchaseRequisitionNo && (x.PurchaseRequisitionDetailsDelStatus != true)).ToList();
+            purchaseRequisitionModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable()
+             .Where(c => purchaseRequisitionModel.purchaseRequisition != null && c.AccountsTransactionsVoucherNo == purchaseRequisitionModel.purchaseRequisition.PurchaseRequisitionNo
+             && c.AccountsTransactionsVoucherType == VoucherType.PurchaseRequisition_TYPE && c.AccountstransactionsDelStatus != true).ToList();
+   
+            purchaseRequisitionModel.purchaseRequisitionDetails = _purchaseRequisitionDetailsRepository.GetAsQueryable()
+                .Where(x => purchaseRequisitionModel.purchaseRequisition != null && x.PurchaseRequisitionDetailsNo == purchaseRequisitionModel.purchaseRequisition.PurchaseRequisitionNo && (x.PurchaseRequisitionDetailsDelStatus != true)).ToList();
 
-            var approvals = _permissionApprovalDetailRepo.GetAsQueryable().AsNoTracking().Where(a => a.VoucherId == (int)purchaseRequisitionModel.purchaseRequisition.PurchaseRequisitionId).ToList();
+            var approvals = _permissionApprovalDetailRepo.GetAsQueryable().AsNoTracking().Where(a => purchaseRequisitionModel.purchaseRequisition != null 
+            && a.VoucherId == (int)purchaseRequisitionModel.purchaseRequisition.PurchaseRequisitionId).ToList();
             if (approvals.Count > 0)
             {
                 if(approvals.Any(a=>a.Status.Contains("Approved")))
