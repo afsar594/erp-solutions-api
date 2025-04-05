@@ -193,6 +193,7 @@ namespace Inspire.Erp.Web.Controllers
             {
                 c.JobMasterJobId,
                 c.JobMasterJobName,
+                c.JobMasterJobNumber,
             }).OrderBy(x => x.JobMasterJobName).AsEnumerable().ToList();
             var currencyMasters = currencyrepository.GetAsQueryable().AsNoTracking().Where(a => a.CurrencyMasterCurrencyDelStatus != true).Select(c => new
             {
