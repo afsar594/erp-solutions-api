@@ -292,21 +292,21 @@ namespace Inspire.Erp.Application.MODULE
         {
             try
             {
-                var program = _progrramSettingRepo.GetAsQueryable().Where(p => p.ProgramSettingsKeyValue.Equals("PREFIX_CLOSING_TYPE"))
+                var program = _progrramSettingRepo.GetAsQueryable().AsNoTracking().Where(p => p.ProgramSettingsKeyValue.Equals("PREFIX_CLOSING_TYPE"))
                     .Select(s => s.ProgramSettingsTextValue).FirstOrDefault();
 
-                var prefixSeprator = _progrramSettingRepo.GetAsQueryable().Where(P => P.ProgramSettingsKeyValue.Equals("PREFIX_SEPERATOR"))
+                var prefixSeprator = _progrramSettingRepo.GetAsQueryable().AsNoTracking().Where(P => P.ProgramSettingsKeyValue.Equals("PREFIX_SEPERATOR"))
                     .Select(S => S.ProgramSettingsTextValue).FirstOrDefault();
 
                 decimal vNoMax = 0;
-                var prefix = _progrramSettingRepo.GetAsQueryable().Where(p => p.ProgramSettingsKeyValue.Equals(voucherprefix))
+                var prefix = _progrramSettingRepo.GetAsQueryable().AsNoTracking().Where(p => p.ProgramSettingsKeyValue.Equals(voucherprefix))
                     .Select(v => v.ProgramSettingsTextValue).FirstOrDefault();
 
                 var date = DateTime.Now;
                 string vnoPrefix = string.Empty;
                 if (program.Equals("1")) // Monthly  
                 {
-                    vNoMax = _voucherNosRepo.GetAsQueryable().Where(v => v.VouchersNumbersVNoNu > 0
+                    vNoMax = _voucherNosRepo.GetAsQueryable().AsNoTracking().Where(v => v.VouchersNumbersVNoNu > 0
                     && v.VouchersNumbersVType.Equals(voucherType)
                     && v.VouchersNumbersVoucherDate.HasValue
                     && v.VouchersNumbersVoucherDate.Value.Year == date.Year
@@ -317,7 +317,7 @@ namespace Inspire.Erp.Application.MODULE
                 }
                 else if (program.Equals("2"))  // yearly
                 {
-                    vNoMax = _voucherNosRepo.GetAsQueryable().Where(v => v.VouchersNumbersVNoNu > 0
+                    vNoMax = _voucherNosRepo.GetAsQueryable().AsNoTracking().Where(v => v.VouchersNumbersVNoNu > 0
                     && v.VouchersNumbersVType.Equals(voucherType)
                     && v.VouchersNumbersVoucherDate.HasValue
                     && v.VouchersNumbersVoucherDate.Value.Year == date.Year
@@ -327,7 +327,7 @@ namespace Inspire.Erp.Application.MODULE
                 }
                 else
                 {
-                    vNoMax = _voucherNosRepo.GetAsQueryable().Where(v => v.VouchersNumbersVNoNu > 0 && v.VouchersNumbersVType.Equals(voucherType)).AsEnumerable().
+                    vNoMax = _voucherNosRepo.GetAsQueryable().AsNoTracking().Where(v => v.VouchersNumbersVNoNu > 0 && v.VouchersNumbersVType.Equals(voucherType)).AsEnumerable().
                         Select(a => a.VouchersNumbersVNoNu).DefaultIfEmpty(0).Max() + 1;
 
                     vnoPrefix = prefix + prefixSeprator + Convert.ToInt32(vNoMax).ToString("D3");
