@@ -350,7 +350,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                     var costCenterId = Convert.ToInt32(this._generalSettings.GetAsQueryable()
                             .AsNoTracking()
                             .FirstOrDefault(x => x.GeneralSettingsKeyValue.ToUpper() == "COSTCENTER_AGAINST_BOQ".ToUpper())
-                            .GeneralSettingsTextValue);
+                            .GeneralSettingsTextValue.Split("::")[1]);
 
                     var jobMasterBudgetDetailsToUpdate = this._jobbudgetRepository.GetAsQueryable().Where(x => x.RefVoucherNo == data.IssueVoucherNo).ToList();
                     jobMasterBudgetDetailsToUpdate.ForEach(x =>
@@ -618,7 +618,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                         var costCenterId = Convert.ToInt32(this._generalSettings.GetAsQueryable()
                             .AsNoTracking()
                             .FirstOrDefault(x => x.GeneralSettingsKeyValue.ToUpper() == "COSTCENTER_AGAINST_BOQ".ToUpper())
-                            .GeneralSettingsTextValue);
+                            .GeneralSettingsTextValue.Split("::")[1]);
 
                         var newBudgetDetail = new JobMasterBudgetDetails
                         {

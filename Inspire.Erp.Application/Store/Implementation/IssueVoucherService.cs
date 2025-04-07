@@ -76,7 +76,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                 //=================================
                 clsCommonFunctions.Delete_OldEntryOf_StockRegister(issueVoucher.IssueVoucherNo, VoucherType.IssueVoucher_TYPE, _stockRegisterRepository);
-                clsCommonFunctions.Delete_OldEntry_AccountsTransactions(issueVoucher.IssueVoucherNo, VoucherType.IssueVoucher_TYPE, _accountTransactionRepository);
+                 clsCommonFunctions.Delete_OldEntry_AccountsTransactions(issueVoucher.IssueVoucherNo, VoucherType.IssueVoucher_TYPE, _accountTransactionRepository);
                 ////=================================
                 issueVoucher.IssueVoucherDetails.Clear();
                 _issueVoucherRepository.Update(issueVoucher);
@@ -113,7 +113,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 var costCenterId = Convert.ToInt32(this._generalSettings.GetAsQueryable()
                            .AsNoTracking()
                            .FirstOrDefault(x => x.GeneralSettingsKeyValue.ToUpper() == "COSTCENTER_AGAINST_BOQ".ToUpper())
-                           .GeneralSettingsTextValue);
+                           .GeneralSettingsTextValue.Split("::")[1]);
 
                 accountsTransactions.Add(new AccountsTransactions
                 {
