@@ -198,7 +198,6 @@ namespace Inspire.Erp.Application.Store.Implementation
                         x.JobMasterNo = jobNo;
                         x.JobMasterBudgetDetailsJobId = issueVoucher.IssueVoucherJobId;
                         x.JobMasterBudgetDetailsBudId = issueVoucher.IssueVoucherCostCenterId != null ? (int)issueVoucher.IssueVoucherCostCenterId : costCenterId;
-                        x.JobMasterBudgetDetailsBudAmount = (decimal)issueVoucher.IssueVoucherTotalGrossAmount;
                         x.JobMasterBudgetDetailsDelStatus = false;
                         x.JobMasterBudgetDetailsActual = issueVoucher.IssueVoucherTotalActualAmount;
                         x.RefVoucherNo = issueVoucher.IssueVoucherNo;
@@ -419,9 +418,8 @@ namespace Inspire.Erp.Application.Store.Implementation
                         JobMasterNo = jobNo,
                         JobMasterBudgetDetailsJobId = issueVoucher.IssueVoucherJobId,
                         JobMasterBudgetDetailsBudId = (int)issueVoucher.IssueVoucherCostCenterId,
-                        JobMasterBudgetDetailsBudAmount = (decimal)issueVoucher.IssueVoucherTotalGrossAmount,
                         JobMasterBudgetDetailsDelStatus = false,
-                        JobMasterBudgetDetailsActual = issueVoucher.IssueVoucherTotalActualAmount,
+                        JobMasterBudgetDetailsActual = issueVoucher.IssueVoucherTotalGrossAmount,
                         RefVoucherNo = issueVoucher.IssueVoucherNo
                 };
                     _jobbudgetRepository.Insert(newBudgetDetail);
