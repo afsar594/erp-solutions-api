@@ -219,10 +219,10 @@ namespace Inspire.Erp.Web.Controllers
                             ItemCode = d.ItemCode,
                             Qty = d.Qty,
                             UnitCode = d.UnitCode,
-                            Rate =d.Rate,
-                            Amount =d.Amount
-                        }).OrderBy(x => x.dId)
-                .OrderBy(x => x.BillofqtyNo).AsEnumerable().ToList();
+                            Rate = d.Rate,
+                            Amount = d.Amount,
+                            CurrRate =d.CurrencyRate ?? 1
+                        }).OrderBy(x => x.BillofqtyNo).AsEnumerable().ToList();
 
             objResponse.ResultSet = new
             {
