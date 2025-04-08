@@ -22,6 +22,9 @@ using System.Linq.Dynamic.Core;
 using Inspire.Erp.Domain.Entities.POS;
 using Inspire.Erp.Application.MODULE;
 using System.Threading;
+using Inspire.Erp.Application.Email.Interfaces;
+using Inspire.Erp.Domain.Models.Common;
+using Microsoft.Extensions.Options;
 
 namespace Inspire.Erp.Application.Procurement.Implementation
 {
@@ -40,7 +43,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private IRepository<AvIssueVoucher> _AvIssueVoucher; private IRepository<PermissionApprovalDetail> _permissionApprovalDetailRepo;
         private IRepository<JobMaster> jobrepository;
         private IRepository<JobMasterBudgetDetails> _budgetDetailsrepository;
-        
+        private readonly IEmailNotificationServices _emailNotificationServices;
+        private readonly EmailSettingViewModel _mailSettings;
         private IRepository<LocationMaster> locationrepository; private IRepository<BillOfQTyDetails> _BillOfQTyDetailsRepository;
         private IRepository<TrackingRegister> _trackingRegisterRepository; private IRepository<ItemMaster> _itemMasterRepository; private IRepository<UnitMaster> _unitMasterRepository; private IRepository<SuppliersMaster> _suppliersMasterRepository; private IRepository<LocationMaster> _locationMasterRepository;
 
@@ -50,7 +54,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
             IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger, IRepository<JobMaster> _jobrepository, IRepository<BillOfQTyDetails> BillOfQTyDetailsRepository,
              IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo,
-        IRepository<PurchaseRequisition> purchaseRequisitionRepository, InspireErpDBContext context, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository, IRepository<JobMasterBudgetDetails> budgetDetailsrepository)
+        IRepository<PurchaseRequisition> purchaseRequisitionRepository, InspireErpDBContext context, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository, IRepository<JobMasterBudgetDetails> budgetDetailsrepository, IEmailNotificationServices emailNotificationServices, IOptions<EmailSettingViewModel> mailSettings)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository; _context = context;
@@ -59,6 +63,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _programsettingsRepository = programsettingsRepository; _voucherNumbersRepository = voucherNumbers; _approvalDetailRepo = approvalDetailRepo; _permissionApprovalRepo = permissionApprovalRepo; _approvalRepo = approvalRepo; locationrepository = _locationrepository;
             jobrepository = _jobrepository; _itemMasterRepository = itemMasterRepository; _unitMasterRepository = unitMasterRepository; _suppliersMasterRepository = suppliersMasterRepository; _locationMasterRepository = locationMasterRepository; _trackingRegisterRepository = trackingRegisterRepository;
             _budgetDetailsrepository = budgetDetailsrepository;
+            _emailNotificationServices = emailNotificationServices;
+            _mailSettings = mailSettings.Value;
         }
         public PurchaseRequisitionModel UpdatePurchaseRequisition(PurchaseRequisition purchaseRequisition, List<AccountsTransactions> accountsTransactions,
             List<PurchaseRequisitionDetails> purchaseRequisitionDetails
@@ -359,7 +365,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             {
                 _purchaseRequisitionRepository.BeginTransaction();
                 string purchaseRequisitionNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.PurchaseRequisition_TYPE, Prefix.PurchaseRequisition_Prefix,
-                    _programsettingsRepository, _voucherNumbersRepository); 
+                    _programsettingsRepository, _voucherNumbersRepository);
                 purchaseRequisition.PurchaseRequisitionNo = purchaseRequisitionNumber;
 
                 int maxcount = 0;
@@ -388,7 +394,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 _purchaseRequisitionRepository.Insert(purchaseRequisition);
 
-                
+
 
 
                 //var permsionApproval = _permissionApprovalRepo.GetAsQueryable().AsNoTracking().Where(x => x.VoucherType == "Purchase Requisition").OrderBy(x => x.LevelOrder).ToList();
@@ -439,7 +445,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 foreach (var item in purchaseRequisitionDetails)
                 {
                     if (item.PurchaseRequisitionDetailsSupplierId > 0)
-                    { 
+                    {
                         if (item.PurchaseRequisitionDetailsMatId > 0)
                         {
                             var entity = _itemMasterRepository.GetAsQueryable().FirstOrDefault(x => x.ItemMasterItemId == item.PurchaseRequisitionDetailsMatId);
@@ -469,6 +475,18 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 }
                 Thread.Sleep(2000);
                 _purchaseRequisitionRepository.TransactionCommit();
+
+                #region EmailNotification
+                var to = "irfanmiankhan@gmail.com";
+                var rptData = new
+                {
+                    FirstName = "Irfan",
+                    LastName = "khan"
+                };
+                var filePaths = new List<string> { "", "" };
+                this._emailNotificationServices.SendTemplatedEmailAsync(to, _mailSettings.POTemplateId, rptData, filePaths);
+                #endregion
+
                 return this.GetSavedPurchaseRequisitionDetails((int)purchaseRequisition.PurchaseRequisitionId);
 
             }
@@ -499,15 +517,15 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             purchaseRequisitionModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable()
              .Where(c => purchaseRequisitionModel.purchaseRequisition != null && c.AccountsTransactionsVoucherNo == purchaseRequisitionModel.purchaseRequisition.PurchaseRequisitionNo
              && c.AccountsTransactionsVoucherType == VoucherType.PurchaseRequisition_TYPE && c.AccountstransactionsDelStatus != true).ToList();
-   
+
             purchaseRequisitionModel.purchaseRequisitionDetails = _purchaseRequisitionDetailsRepository.GetAsQueryable()
                 .Where(x => purchaseRequisitionModel.purchaseRequisition != null && x.PurchaseRequisitionDetailsNo == purchaseRequisitionModel.purchaseRequisition.PurchaseRequisitionNo && (x.PurchaseRequisitionDetailsDelStatus != true)).ToList();
 
-            var approvals = _permissionApprovalDetailRepo.GetAsQueryable().AsNoTracking().Where(a => purchaseRequisitionModel.purchaseRequisition != null 
+            var approvals = _permissionApprovalDetailRepo.GetAsQueryable().AsNoTracking().Where(a => purchaseRequisitionModel.purchaseRequisition != null
             && a.VoucherId == (int)purchaseRequisitionModel.purchaseRequisition.PurchaseRequisitionId).ToList();
             if (approvals.Count > 0)
             {
-                if(approvals.Any(a=>a.Status.Contains("Approved")))
+                if (approvals.Any(a => a.Status.Contains("Approved")))
                 {
                     purchaseRequisitionModel.purchaseRequisition.PurchaseRequisitionApproveEnable = true;
                     purchaseRequisitionModel.purchaseRequisition.PurchaseRequisitionApprovedBy = approvals[0].ApprovedBy;
@@ -561,7 +579,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 _logger.LogError(ex.Message);
                 throw ex;
             }
-        }       
+        }
         public async Task<Response<List<PurChaseRequisitionStatus>>> GetPurchaseRequisitionStatus(PurChaseRequisitionStatusFilterReport model)
         {
             List<PurChaseRequisitionStatus> data = new List<PurChaseRequisitionStatus>();
@@ -703,7 +721,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                   join iv in _context.IssueVoucherDetails.AsNoTracking()
                                       on sd.PurchaseRequisitionDetailsId equals iv.IssueVoucherDetailsReqDId into ivGroup
                                   from srq in ivGroup.DefaultIfEmpty()
-                                  where ( _permissionApprovalDetailRepo.GetAsQueryable().Where(p => p.VoucherNo == sm.PurchaseRequisitionNo && (p.IsDeleted == null || (bool)!p.IsDeleted ))
+                                  where (_permissionApprovalDetailRepo.GetAsQueryable().Where(p => p.VoucherNo == sm.PurchaseRequisitionNo && (p.IsDeleted == null || (bool)!p.IsDeleted))
                                   .Any(p => p.Status == "Approved" && p.Status != "Rejected"))
                                   group new { sm, sd, im, um, srq } by new
                                   {
@@ -716,7 +734,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                       sd.PurchaseRequisitionDetailsRate,
                                       sd.PurchaseRequisitionDetailsQuantity,
                                       sd.PurchaseRequisitionDetailsUnitId,
-                                       sm.PurchaseRequisitionJobId
+                                      sm.PurchaseRequisitionJobId
                                   } into g
                                   select new PurChaseReqFields
                                   {
@@ -806,13 +824,13 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 return Response<List<PurChaseReqFields>>.Fail(new List<PurChaseReqFields>(), ex.Message);
             }
         }
-       
+
         public ResponseInfo GetBalanceAmount(int JobId)
         {
             var obj = new ResponseInfo();
             try
             {
-               var budgetQuery = from b in _budgetDetailsrepository.GetAsQueryable()
+                var budgetQuery = from b in _budgetDetailsrepository.GetAsQueryable()
                                   where b.JobMasterBudgetDetailsJobId == JobId
                                   group b by b.JobMasterBudgetDetailsJobId into g
                                   select new

@@ -11,5 +11,10 @@ namespace Inspire.Erp.Domain.Models.Common
         public string Password { get; set; }
         public string Key { get; set; }
         public List<string> CCEmails { get; set; }
+
+        public string PRTemplateId { get; set; }
+        public string POTemplateId { get; set; }
+        public string TemplateId { get; set; }
+
     }
 }
