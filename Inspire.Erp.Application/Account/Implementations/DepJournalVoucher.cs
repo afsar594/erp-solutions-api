@@ -56,14 +56,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 _journalVoucherDetailsRepository.UpdateList(journalVoucherDetails);
                 _journalVoucherRepository.Update(journalVoucher);
-                //UserTracking trackingData = new UserTracking();
-                //trackingData.UserTrackingUserUserId = 1;
-                //trackingData.UserTrackingUserVpAction = "Update";
-                //trackingData.UserTrackingUserVpNo = journalVoucher.JournalVoucherVrefNo;
-                //trackingData.UserTrackingUserChangeDt = DateTime.Now;
-                //trackingData.UserTrackingUserChangeTime = DateTime.Now;
-                //trackingData.UserTrackingUserVpType = "DEPJV";
-                //_UserTracking.Insert(trackingData);
+            
                 _journalVoucherRepository.TransactionCommit();
             }
             catch (Exception ex)
