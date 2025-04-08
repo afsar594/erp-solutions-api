@@ -11,7 +11,7 @@ using System.Text;
 
 namespace Inspire.Erp.Application.Account.Implementations
 {
-    public class DepJournalVoucher: IDepJournalVoucher
+    public class DepJournalVoucher : IDepJournalVoucher
     {
         private IRepository<AccountsTransactions> _accountTransactionRepository;
         private IRepository<JournalVoucher> _journalVoucherRepository;
@@ -54,7 +54,15 @@ namespace Inspire.Erp.Application.Account.Implementations
                     return k;
                 }).OrderBy(x => x.AccountsTransactionsVoucherType).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
+                journalVoucherDetails.ForEach(x => 
+                {
+                    x.JournalVoucherID = journalVoucher.JournalVoucherId;
+                    x.JournalVoucherDetailVrefNo = journalVoucher.JournalVoucherVrefNo;
+                }
+                );
                 _journalVoucherDetailsRepository.UpdateList(journalVoucherDetails);
+                journalVoucher.JournalVoucherType = "DEPJV";
+
                 _journalVoucherRepository.Update(journalVoucher);
                 //UserTracking trackingData = new UserTracking();
                 //trackingData.UserTrackingUserUserId = 1;
@@ -170,14 +178,14 @@ namespace Inspire.Erp.Application.Account.Implementations
         }
         public IEnumerable<JournalVoucher> GetDepJournalVoucher()
         {
-            IEnumerable<JournalVoucher> journalVoucher_ALL = _journalVoucherRepository.GetAll().Where(k =>( k.JournalVoucherDelStatus == false || k.JournalVoucherDelStatus == null) && k.JournalVoucherType == "DEPJV");
+            IEnumerable<JournalVoucher> journalVoucher_ALL = _journalVoucherRepository.GetAll().Where(k => (k.JournalVoucherDelStatus == false || k.JournalVoucherDelStatus == null) && k.JournalVoucherType == "DEPJV");
             return journalVoucher_ALL;
         }
         public JournalVoucher GetSavedDepJournalVoucherDetails(string pvno)
         {
             JournalVoucher journalVoucherModel = new JournalVoucher();
             journalVoucherModel = _journalVoucherRepository.GetAsQueryable().Where(k => k.JournalVoucherVrefNo == pvno).SingleOrDefault();
-            journalVoucherModel.JournalVoucherDetails = _journalVoucherDetailsRepository.GetAsQueryable().Where(x => x.JournalVoucherDetailVrefNo == pvno && x.JournalVoucherDetailsDelStatus == false).ToList();
+            journalVoucherModel.JournalVoucherDetails = _journalVoucherDetailsRepository.GetAsQueryable().Where(x => x.JournalVoucherID == journalVoucherModel.JournalVoucherId && x.JournalVoucherDetailsDelStatus == false).ToList();
             journalVoucherModel.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(x => x.AccountsTransactionsVoucherNo == pvno && x.AccountstransactionsDelStatus == false).ToList();
             return journalVoucherModel;
         }

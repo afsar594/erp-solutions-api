@@ -17,6 +17,11 @@ using Inspire.Erp.Domain.Modals;
 using System.Threading.Tasks;
 using Inspire.Erp.Infrastructure.Database;
 using Inspire.Erp.Application.MODULE;
+using Inspire.Erp.Application.Email.Interfaces;
+using Inspire.Erp.Domain.Models.Common;
+using Microsoft.Extensions.Options;
+using SendGrid.Helpers.Mail;
+using System.IO;
 
 namespace Inspire.Erp.Application.Procurement.Implementation
 {
@@ -45,8 +50,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private IRepository<UserFile> _userFileRepository;
         private IRepository<UnitDetails> _UnitDetailsRepository;
         private IRepository<PermissionApprovalDetail> _permissionApprovalDetailRepo;
-
-
+        private readonly IEmailNotificationServices _emailNotificationServices;
+        private readonly EmailSettingViewModel _mailSettings;
         // private readonly InspireErpDBContext _dbContext;
         //private IRepository<ReportPurchaseOrder> _reportPurchaseOrderRepository;
         public PurchaseOrderService(
@@ -55,15 +60,15 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<ItemMaster> itemMasterRepository, IRepository<UnitMaster> unitMasterRepository,
             IRepository<SuppliersMaster> suppliersMasterRepository, IRepository<LocationMaster> locationMasterRepository,
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
-             IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
+            IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
             IRepository<PurchaseOrder> purchaseOrderRepository, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository,
             IRepository<PurchaseReturn> purchaseReturnRepository, IRepository<PurchaseReturnDetails> purchaseReturnDetailsRepository,
             IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PurOrderRegister> purOrderRegisterRepository,
             IRepository<UnitDetails> unitDetailsRepository,
             IRepository<PurchaseVoucherDetails> purchaseVoucherDetailsRepo,
-            IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo
-
-            )
+            IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo,
+            IEmailNotificationServices emailNotificationServices
+, IOptions<EmailSettingViewModel> mailSettings)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository;
@@ -87,7 +92,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _UnitDetailsRepository = unitDetailsRepository;
             _purchaseVoucherDetailsRepo = purchaseVoucherDetailsRepo;
             _permissionApprovalDetailRepo = permissionApprovalDetailRepo;
-
+            this._emailNotificationServices = emailNotificationServices;
+            _mailSettings = mailSettings.Value;
         }
         public IEnumerable<UserFile> GetAllUserFile()
         {
@@ -283,7 +289,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     detail.IsDeleted = true;
                     _permissionApprovalDetailRepo.Update(detail);
                 }
-                
+
                 _purchaseOrderRepository.Update(purchaseOrder);
 
                 var vchrnumer = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == purchaseOrder.PurchaseOrderNo).FirstOrDefault();
@@ -411,7 +417,20 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         }
                     }
                 }
+
                 _purchaseOrderRepository.TransactionCommit();
+
+                #region EmailNotification
+                var to = "irfanmiankhan@gmail.com";
+                var rptData = new
+                {
+                    FirstName = "Irfan",
+                    LastName = "khan"
+                };
+                var filePaths = new List<string> { "", "" };
+                this._emailNotificationServices.SendTemplatedEmailAsync(to, _mailSettings.POTemplateId, rptData, filePaths);
+                #endregion
+
                 return this.GetSavedPurchaseOrderDetails((int)purchaseOrder.PurchaseOrderId);
             }
             catch (Exception ex)
@@ -630,7 +649,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 if (check?.Count > 0)
                 {
                     result = await (from po in _purchaseOrderRepository.GetAsQueryable()
-                                    join per in _permissionApprovalDetailRepo.GetAsQueryable() on po.PurchaseOrderId equals per.VoucherId 
+                                    join per in _permissionApprovalDetailRepo.GetAsQueryable() on po.PurchaseOrderId equals per.VoucherId
                                     join pod in _purchaseOrderDetailsRepository.GetAsQueryable() on po.PurchaseOrderId equals pod.PurchaseOrderId
                                     join sm in _suppliersMasterRepository.GetAsQueryable() on po.PurchaseOrderPartyId equals sm.SuppliersMasterSupplierId
                                     join im in _itemMasterRepository.GetAsQueryable() on (long)pod.PurchaseOrderDetailsMatId equals im.ItemMasterItemId
