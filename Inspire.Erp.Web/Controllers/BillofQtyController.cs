@@ -31,15 +31,20 @@ namespace Inspire.Erp.Web.Controllers
     {
         private IBillofQtyService _customerQuotationService;
         private readonly IMapper _mapper;
-        private IRepository<BillofQtyMaster> _BillofQtyMasterRepository; private IRepository<BillOfQTyDetails> _BillOfQTyDetailsRepository;
-        private IRepository<JobMaster> jobrepository; private IRepository<ItemMaster> itemrepository; private IRepository<UnitMaster> unitrepository;
+        private IRepository<BillofQtyMaster> _BillofQtyMasterRepository;
+        private IRepository<BillOfQTyDetails> _BillOfQTyDetailsRepository;
+        private IRepository<JobMaster> jobrepository;
+        private IRepository<ItemMaster> itemrepository;
+        private IRepository<UnitMaster> unitrepository;
+        private readonly IRepository<PurchaseRequisitionDetails> _purchaseRequisitionDetails;
         public BillofQtyController(IBillofQtyService customerQuotationService, IMapper mapper, IRepository<JobMaster> _jobrepository, IRepository<ItemMaster> _itemrepository, IRepository<UnitMaster> _unitrepository
-            , IRepository<BillOfQTyDetails> BillOfQTyDetailsRepository, IRepository<BillofQtyMaster> BillofQtyMasterRepository)
+            , IRepository<BillOfQTyDetails> BillOfQTyDetailsRepository, IRepository<BillofQtyMaster> BillofQtyMasterRepository, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetails)
         {
             _customerQuotationService = customerQuotationService;
             _mapper = mapper;
             jobrepository = _jobrepository; itemrepository = _itemrepository; unitrepository = _unitrepository;
             _BillofQtyMasterRepository = BillofQtyMasterRepository; _BillOfQTyDetailsRepository = BillOfQTyDetailsRepository;
+            _purchaseRequisitionDetails = purchaseRequisitionDetails;
         }
         [HttpPost]
         [Route("InsertBillofQty")]
@@ -170,7 +175,7 @@ namespace Inspire.Erp.Web.Controllers
                 c.JobMasterJobId,
                 JobMasterJobName = c.JobMasterJobName.Trim(),
                 c.JobMasterJobNumber
-            }).OrderBy(x=>x.JobMasterJobName).AsEnumerable().ToList();
+            }).OrderBy(x => x.JobMasterJobName).AsEnumerable().ToList();
             var itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
                     && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
                     {
@@ -200,14 +205,24 @@ namespace Inspire.Erp.Web.Controllers
             var objResponse = new ResponseInfo();
             var detailList = _BillOfQTyDetailsRepository.GetAsQueryable().AsNoTracking().OrderBy(x => x.BillQtyId).ToList();
             var details = _BillofQtyMasterRepository.GetAsQueryable().AsNoTracking().OrderBy(x => x.BillofqtyNo).ToList();
+
             if (customerEnqId != 0)
             {
                 details = details.Where(a => a.CustomerEnqId == customerEnqId).OrderBy(x => x.BillofqtyNo).AsEnumerable().ToList();
             }
-            // Filtering detailList based on PurchaseOrderNos and customerEnqId
+
+            var boqItems = this._purchaseRequisitionDetails.GetAsQueryable().AsNoTracking()
+                .Where(p => details.Select(x => x.Id).ToList().Contains(p.boqdId))
+                .GroupBy(x => x.PurchaseRequisitionDetailsMatId)
+                .Select(x => new
+                {
+                    ItemId = x.Key,
+                    ItemQty = x.Sum(x => x.PurchaseRequisitionDetailsQuantity)
+                }).ToList();
+
             var data = (from d in detailList
                         join c in details on d.BillQtyId equals c.Id
-                        where (customerEnqId == 0 || c.CustomerEnqId == customerEnqId)
+                        where (customerEnqId == 0 || c.CustomerEnqId == customerEnqId) 
                         where d.IsEdit == true
                         select new BoqDetailDto
                         {
@@ -221,12 +236,33 @@ namespace Inspire.Erp.Web.Controllers
                             UnitCode = d.UnitCode,
                             Rate = d.Rate,
                             Amount = d.Amount,
-                            CurrRate =d.CurrencyRate ?? 1
-                        }).OrderBy(x => x.BillofqtyNo).AsEnumerable().ToList();
+                            CurrRate = d.CurrencyRate ?? 1,
+                        }).OrderBy(x => x.BillofqtyNo).AsEnumerable().Distinct().ToList();
+
+
+            var finalData = (from d in data
+                             join b in boqItems on d.ItemCode equals b.ItemId into grData
+                             from b in grData.DefaultIfEmpty()
+                             select new BoqDetailDto
+                             {
+                                 Id = d.Id,
+                                 dId = d.Id,
+                                 BillofqtyNo = d.BillofqtyNo,
+                                 Date = d.Date,
+                                 CustomerEnqId = d.CustomerEnqId,
+                                 ItemCode = d.ItemCode,
+                                 Qty = d.Qty,
+                                 UnitCode = d.UnitCode,
+                                 Rate = d.Rate,
+                                 Amount = d.Amount,
+                                 CurrRate = d.CurrRate,
+                                 ReceivedQty = b?.ItemQty ?? 0,
+                                 BalanceQty = d.Qty ?? 0m - (b?.ItemQty ?? 0m),
+                             }).ToList();
 
             objResponse.ResultSet = new
             {
-                result = data
+                result = finalData.Where(x => x.BalanceQty > 0)
             };
             return objResponse;
         }

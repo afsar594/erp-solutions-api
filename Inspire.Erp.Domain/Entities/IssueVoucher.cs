@@ -17,7 +17,7 @@ namespace Inspire.Erp.Domain.Entities
         public string IssueVoucherCreditAccNo { get; set; }
         public string IssueVoucherDebitAccNo { get; set; }
         public decimal? IssueVoucherDepartmentId { get; set; }
-        public decimal? IssueVoucherCostCenterId { get; set; }
+        public long? IssueVoucherCostCenterId { get; set; }
         public int? IssueVoucherLocationId { get; set; }
         public int? IssueVoucherCurrencyId { get; set; }
         public int? IssueVoucherJobId { get; set; }

@@ -6,7 +6,7 @@ namespace Inspire.Erp.Domain.Models.Common
 {
     public class EmailSettingViewModel
     {
-        public string Mail { get; set; }
+        public string FromEmail { get; set; }
         public string DisplayName { get; set; }
         public string Password { get; set; }
         public string Key { get; set; }

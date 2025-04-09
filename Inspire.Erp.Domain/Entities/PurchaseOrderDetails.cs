@@ -39,7 +39,7 @@ namespace Inspire.Erp.Domain.Entities
         public int? PurchaseOrderDetailsQtndId { get; set; }
         public decimal? PurchaseOrderDetailsSalesPrice { get; set; }
         public bool? PurchaseOrderDetailsDelStatus { get; set; }
-
+        public int PurchaseRequisitionId { get; set; }
         ////public virtual PurchaseOrder PurchaseOrder { get; set; }
         public virtual PurchaseOrder PurchaseOrderDetailsNoNavigation { get; set; }
         [NotMapped]

@@ -1125,7 +1125,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             try
             {
                 var client = new SendGridClient(_mailSettings.Key);
-                var from = new EmailAddress(_mailSettings.Mail, _mailSettings.DisplayName);
+                var from = new EmailAddress(_mailSettings.FromEmail, _mailSettings.DisplayName);
                 var subject = mailRequest.Subject;
                 var emails = new List<EmailAddress>();
                 foreach (var email in mailRequest.Emails)

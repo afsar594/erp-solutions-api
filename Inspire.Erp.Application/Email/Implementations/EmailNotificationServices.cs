@@ -31,7 +31,7 @@ namespace Inspire.Erp.Application.Email.Implementations
                 var client = new SendGridClient(_mailSettings.Key);
 
                 // Create the "from" email address
-                var from = new EmailAddress(_mailSettings.Mail, _mailSettings.DisplayName);
+                var from = new EmailAddress(_mailSettings.FromEmail);
 
                 // Create the email message with dynamic template data
                 var msg = MailHelper.CreateSingleTemplateEmailToMultipleRecipients(from, toEmails, templateId, dynamicTemplateData);
@@ -101,7 +101,7 @@ namespace Inspire.Erp.Application.Email.Implementations
             try
             {
                 var client = new SendGridClient(_mailSettings.Key);
-                var from = new EmailAddress(_mailSettings.Mail, _mailSettings.DisplayName);
+                var from = new EmailAddress(_mailSettings.FromEmail, _mailSettings.DisplayName);
                 var emails = new List<EmailAddress>();
                 toEmails.ForEach(email => emails.Add(new EmailAddress(email)));
                 var plainTextContent = "";

@@ -38,7 +38,7 @@ namespace Inspire.Erp.Web.ViewModels.Procurement
         public bool? PurchaseOrderDetailsDelStatus { get; set; }
         public int? PurchaseOrderDetailsJobId { get; set; }
         public decimal? PurchaseOrderNetStock { get; set; }
-
+        public int PurchaseRequisitionId { get; set; }
         public decimal? PurchaseOrderTillNowQTY { get; set; }
         //public virtual PurchaseOrderController PurchaseOrderDetailsNoNavigation { get; set; }
     }

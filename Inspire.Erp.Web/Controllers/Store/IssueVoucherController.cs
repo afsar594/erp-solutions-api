@@ -78,9 +78,7 @@ namespace Inspire.Erp.Web.Controllers.Store
             param3 = new List<AccountsTransactions>();
             List<StockRegister> param4 = new List<StockRegister>();
 
-            var xs = _issueVoucherService.InsertIssueVoucher(param1, param3, param2
-           , param4
-           );
+            var xs = _issueVoucherService.InsertIssueVoucher(param1, param3, param2, param4);
 
             IssueVoucherViewModel issueVoucherViewModel = new IssueVoucherViewModel
             {

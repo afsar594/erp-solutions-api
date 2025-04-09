@@ -427,7 +427,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     FirstName = "Irfan",
                     LastName = "khan"
                 };
-                var filePaths = new List<string> { "", "" };
+                var filePaths = new List<string>();
                 this._emailNotificationServices.SendTemplatedEmailAsync(to, _mailSettings.POTemplateId, rptData, filePaths);
                 #endregion
 

@@ -11779,8 +11779,7 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnName("PurchaseOrderDetailsID")
                     .HasColumnType("numeric(18, 0)")
                     .ValueGeneratedOnAdd();
-                entity.Property(e => e.PurchaseOrderDetailsJobId)
- .HasColumnName("Purchase_Order_Details_Job_Id");
+                entity.Property(e => e.PurchaseOrderDetailsJobId).HasColumnName("Purchase_Order_Details_Job_Id");
                 entity.Property(e => e.PurchaseOrderDetailsActualAmount).HasColumnType("numeric(18, 4)");
 
                 entity.Property(e => e.PurchaseOrderDetailsBatchCode)
@@ -11849,6 +11848,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.PurchaseOrderDetailsVatPer).HasColumnType("numeric(18, 4)");
 
                 entity.Property(e => e.PurchaseOrderId).HasColumnType("numeric(18, 0)");
+                entity.Property(e => e.PurchaseRequisitionId);
 
 
 
@@ -12191,6 +12191,8 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.PurchaseRequisitionDetailsVatPer).HasColumnType("numeric(18, 4)");
 
                 entity.Property(e => e.PurchaseRequisitionId).HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.boqdId).HasColumnName("PurchaseRequisitionDetail_BOQD_Id");
 
                 entity.HasOne(d => d.PurchaseRequisitionDetailsNoNavigation)
                     .WithMany(p => p.PurchaseRequisitionDetails)
