@@ -579,47 +579,45 @@ namespace Inspire.Erp.Application.Account.Implementations
                 return null;
             }
         }
-        public async Task<Response<AddEditAssetPurchaseVoucher>> GetAssetOpening(int id = 0)
+        public async Task<Response<AddEditAssetPurchaseVoucher>> GetAssetOpening(int id)
         {
             try
             {
                 AddEditAssetPurchaseVoucher model = new AddEditAssetPurchaseVoucher();
-                await Task.Run(() =>
-                {
-                    var orders = _assetopening.GetAsQueryable().FirstOrDefault(x => x.AstPurID == id);
-                  
-                    model.AstPurID = orders.AstPurID;
-                    model.AstPurDt = orders.AstPurDt;
-                    model.ActualAmount = orders.ActualAmount;
-                    model.NetAmount = orders.NetAmount;
-                    model.DrAccNo = orders.DrAccNo;
-                    model.DrAmount = orders.DrAmount;
-                    model.DisAmount = orders.DisAmount;
-                    model.Description = orders.Description;
-                    model.DisPer = orders.DisPer;
-                    model.CurrencyId = orders.CurrencyId;
-                    model.AssetPurchaseVoucherDetail = _assetopeningDetail.GetAsQueryable()
-                        .Where(x => x.AstPurchaseID == id).Select(x => new AddEditAssetPurchaseVoucherDetail
-                        { 
-                            AstPurDetID = x.AstPurDetID,
-                            AstPurchaseID = x.AstPurchaseID,
-                            AssetSize = x.AssetSize,
-                            AstPurDate = (DateTime)x.AstPurDate,
-                            Amount = x.Amount,
-                            Quantity = (int)x.Quantity,
-                            BookValue = x.BookValue,
-                            AccDepAmt = x.AccDepAmt,
-                            Rate = x.Rate,
-                            LifrInYrs = x.LifrInYrs,
-                            DepMode = x.DepMode,
-                            Colour = x.Colour,
-                            AstID =(int) x.AstID,
-                            AstPurRefNo = x.AstPurRefNo,
-                            BatchCode = x.BatchCode,
-                        }).OrderBy(x => x.AssetPurchaseDetailsVoucherNo).AsEnumerable().ToList();
+                var orders = _assetopening.GetAsQueryable().FirstOrDefault(x => x.AstPurID == id);
 
-                });
-                return Response<AddEditAssetPurchaseVoucher>.Success(model, "Records FOund.");
+                model.AstPurID = orders.AstPurID;
+                model.AstPurDt = orders.AstPurDt;
+                model.ActualAmount = orders.ActualAmount;
+                model.NetAmount = orders.NetAmount;
+                model.DrAccNo = orders.DrAccNo;
+                model.DrAmount = orders.DrAmount;
+                model.DisAmount = orders.DisAmount;
+                model.Description = orders.Description;
+                model.DisPer = orders.DisPer;
+                model.CurrencyId = orders.CurrencyId;
+                model.AssetPurchaseVoucherDetail = _assetopeningDetail.GetAsQueryable()
+                    .Where(x => x.AstPurchaseID == id).Select(x => new AddEditAssetPurchaseVoucherDetail
+                    {
+                        AstPurDetID = x.AstPurDetID,
+                        AstPurchaseID = x.AstPurchaseID,
+                        AssetSize = x.AssetSize,
+                        AstPurDate = (DateTime)x.AstPurDate,
+                        Amount = x.Amount,
+                        Quantity = (int)x.Quantity,
+                        BookValue = x.BookValue,
+                        AccDepAmt = x.AccDepAmt,
+                        Rate = x.Rate,
+                        LifrInYrs = x.LifrInYrs,
+                        DepMode = x.DepMode,
+                        Colour = x.Colour,
+                        AstID = (int)x.AstID,
+                        AstPurRefNo = x.AstPurRefNo,
+                        BatchCode = x.BatchCode,
+                    }).OrderBy(x => x.AssetPurchaseDetailsVoucherNo).AsEnumerable().ToList();
+
+                
+                return Response<AddEditAssetPurchaseVoucher>.Success(model, "Records Found.");
             }
             catch (Exception ex)
             {
