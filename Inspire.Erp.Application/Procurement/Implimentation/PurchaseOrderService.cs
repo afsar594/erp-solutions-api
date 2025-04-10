@@ -53,6 +53,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private readonly IEmailNotificationServices _emailNotificationServices;
         private readonly EmailSettingViewModel _mailSettings;
         // private readonly InspireErpDBContext _dbContext;
+        private readonly IRepository<PurchaseRequisitionDetails> _purchaseRequisitionDetailsRepository;
         //private IRepository<ReportPurchaseOrder> _reportPurchaseOrderRepository;
         public PurchaseOrderService(
             IRepository<UserFile> userFileRepository, IRepository<PermissionApproval> permissionApprovalRepo,
@@ -68,7 +69,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<PurchaseVoucherDetails> purchaseVoucherDetailsRepo,
             IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo,
             IEmailNotificationServices emailNotificationServices
-, IOptions<EmailSettingViewModel> mailSettings)
+, IOptions<EmailSettingViewModel> mailSettings, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository;
@@ -94,6 +95,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _permissionApprovalDetailRepo = permissionApprovalDetailRepo;
             this._emailNotificationServices = emailNotificationServices;
             _mailSettings = mailSettings.Value;
+            _purchaseRequisitionDetailsRepository = purchaseRequisitionDetailsRepository;
         }
         public IEnumerable<UserFile> GetAllUserFile()
         {
@@ -740,6 +742,56 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             {
                 return Response<List<PODetailsViewModel>>.Fail(new List<PODetailsViewModel>(), ex.Message);
             }
+        }
+
+        public bool IsPurchaseOrderQtyExcededFromBOQ(int PurchaseReqId, List<PurchaseReqItesm> reqItems)
+        {
+            try
+            {
+                var itemIds = reqItems.Select(x => x.ItemCode).ToList();
+
+                var totalPurReqQty = this._purchaseRequisitionDetailsRepository.GetAsQueryable()
+                    .AsNoTracking()
+                    .Where(x => x.PurchaseRequisitionId == PurchaseReqId && itemIds.Contains((int)x.PurchaseRequisitionDetailsMatId))
+                    .GroupBy(x => new { x.PurchaseRequisitionId, x.PurchaseRequisitionDetailsMatId })
+                    .Select(x => new
+                    {
+                        ItemCode = x.Key.PurchaseRequisitionDetailsMatId,
+                        ItemQty = x.Sum(x => x.PurchaseRequisitionDetailsQuantity)
+                    }).ToList();
+
+                var totalPurOrdrQty = this._purchaseOrderDetailsRepository.GetAsQueryable()
+                    .Where(x => x.PurchaseRequisitionId == PurchaseReqId && itemIds.Contains((int)x.PurchaseOrderDetailsMatId))
+                    .GroupBy(x => new { x.PurchaseRequisitionId, x.PurchaseOrderDetailsMatId })
+                    .Select(x => new
+                    {
+                        ItemCode = x.Key.PurchaseOrderDetailsMatId,
+                        ItemQty = x.Sum(x => x.PurchaseOrderDetailsQuantity)
+                    }).ToList();
+
+                var result = totalPurOrdrQty.Join(reqItems,
+                    pr => pr.ItemCode,
+                    rq => rq.ItemCode,
+                    (pr, rq) => new
+                    {
+                        ItemCode = pr.ItemCode,
+                        ItemQty = pr.ItemQty + rq.ItemQty
+                    }).ToList();
+
+                if (!totalPurOrdrQty.Any())
+                    return totalPurReqQty.Any(boq => reqItems.Any(r => r.ItemCode == boq.ItemCode && r.ItemQty > boq.ItemQty));
+                if (totalPurReqQty.Any(boq => result.Any(r => r.ItemCode == boq.ItemCode && r.ItemQty > boq.ItemQty)))
+                    return true;
+                if (totalPurReqQty.Any(boq => totalPurOrdrQty.Any(r => r.ItemCode == boq.ItemCode && r.ItemQty == boq.ItemQty)))
+                    return false;
+
+                return totalPurReqQty.Any(boq => result.Any(r => r.ItemCode == boq.ItemCode && r.ItemQty > boq.ItemQty));
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
         }
     }
 }

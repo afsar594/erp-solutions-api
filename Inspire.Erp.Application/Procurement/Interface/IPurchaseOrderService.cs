@@ -31,5 +31,7 @@ namespace Inspire.Erp.Application.Procurement.Interfaces
 
 
         public Task<Response<List<PODetailsViewModel>>> GetGRMPOs(int? supplierId);
+
+        public Boolean IsPurchaseOrderQtyExcededFromBOQ(int PurchaseReqId, List<PurchaseReqItesm> reqItems);
     }
 }

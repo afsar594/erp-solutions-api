@@ -63,7 +63,7 @@ namespace Inspire.Erp.Web.Controllers
                         Error = false,
                         Result = voucherCompositeView,
                         Exception = null,
-                        Message = "Sorry You can't sve Purchase requisition as tem quantity exceded from total BoQ quantity"
+                        Message = "Sorry You can't sve Purchase requisition as item quantity exceded from total BoQ quantity"
                     };
                 }
                 var xs = _purchaseRequisitionService.InsertPurchaseRequisition(param1, param3, param2
@@ -171,7 +171,7 @@ namespace Inspire.Erp.Web.Controllers
                     Error = false,
                     Result = voucherCompositeView,
                     Exception = null,
-                    Message = "Sorry You can't update Purchase requisition as tem quantity exceded from total BoQ quantity"
+                    Message = "Sorry You can't update Purchase requisition as item quantity exceded from total BoQ quantity"
                 };
             }
 
