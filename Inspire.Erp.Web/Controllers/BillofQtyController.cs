@@ -211,25 +211,20 @@ namespace Inspire.Erp.Web.Controllers
                 details = details.Where(a => a.CustomerEnqId == customerEnqId).OrderBy(x => x.BillofqtyNo).AsEnumerable().ToList();
             }
 
-            var boqItems = this._purchaseRequisitionDetails.GetAsQueryable().AsNoTracking()
-                .Where(p => details.Select(x => x.Id).ToList().Contains(p.boqdId))
-                .GroupBy(x => x.PurchaseRequisitionDetailsMatId)
-                .Select(x => new
-                {
-                    ItemId = x.Key,
-                    ItemQty = x.Sum(x => x.PurchaseRequisitionDetailsQuantity)
-                }).ToList();
 
             var data = (from d in detailList
                         join c in details on d.BillQtyId equals c.Id
-                        where (customerEnqId == 0 || c.CustomerEnqId == customerEnqId) 
+                        join i in itemrepository.GetAll() on d.ItemCode equals i.ItemMasterItemId into igrData
+                        where (customerEnqId == 0 || c.CustomerEnqId == customerEnqId)
                         where d.IsEdit == true
+                        from i in igrData.DefaultIfEmpty()
                         select new BoqDetailDto
                         {
                             Id = c.Id,
                             dId = d.Id,
                             BillofqtyNo = c.BillofqtyNo,
                             Date = c.Date,
+                            SupplierId = i?.ItemMasterSupplierId ?? -1,
                             CustomerEnqId = c.CustomerEnqId,
                             ItemCode = d.ItemCode,
                             Qty = d.Qty,
@@ -237,33 +232,15 @@ namespace Inspire.Erp.Web.Controllers
                             Rate = d.Rate,
                             Amount = d.Amount,
                             CurrRate = d.CurrencyRate ?? 1,
+                            ReceivedQty = this._purchaseRequisitionDetails.GetAsQueryable().AsNoTracking().FirstOrDefault(p => p.boqdId == d.BillQtyId && p.PurchaseRequisitionDetailsMatId == d.ItemCode)?.PurchaseRequisitionDetailsQuantity ?? 0,
+                            BalanceQty =( d.Qty ?? 0m) - (this._purchaseRequisitionDetails.GetAsQueryable().AsNoTracking().FirstOrDefault(p => p.boqdId == d.BillQtyId && p.PurchaseRequisitionDetailsMatId == d.ItemCode)?.PurchaseRequisitionDetailsQuantity ?? 0),
                         }).OrderBy(x => x.BillofqtyNo).AsEnumerable().Distinct().ToList();
 
 
-            var finalData = (from d in data
-                             join b in boqItems on d.ItemCode equals b.ItemId into grData
-                             from b in grData.DefaultIfEmpty()
-                             select new BoqDetailDto
-                             {
-                                 Id = d.Id,
-                                 dId = d.Id,
-                                 BillofqtyNo = d.BillofqtyNo,
-                                 Date = d.Date,
-                                 CustomerEnqId = d.CustomerEnqId,
-                                 ItemCode = d.ItemCode,
-                                 //SupplierId = d.
-                                 Qty = d.Qty,
-                                 UnitCode = d.UnitCode,
-                                 Rate = d.Rate,
-                                 Amount = d.Amount,
-                                 CurrRate = d.CurrRate,
-                                 ReceivedQty = b?.ItemQty ?? 0,
-                                 BalanceQty = d.Qty ?? 0m - (b?.ItemQty ?? 0m),
-                             }).ToList();
 
             objResponse.ResultSet = new
             {
-                result = finalData.Where(x => x.BalanceQty > 0)
+                result = data.Where(x => x.BalanceQty > 0)
             };
             return objResponse;
         }
