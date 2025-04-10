@@ -42,10 +42,30 @@ namespace Inspire.Erp.Web.Controllers
             ApiResponse<PurchaseRequisitionViewModel> apiResponse = new ApiResponse<PurchaseRequisitionViewModel>();
             if (_purchaseRequisitionService.GetVouchersNumbers(voucherCompositeView.PurchaseRequisitionNo) == null)
             {
+
                 var param1 = _mapper.Map<PurchaseRequisition>(voucherCompositeView);
                 var param2 = _mapper.Map<List<PurchaseRequisitionDetails>>(voucherCompositeView.PurchaseRequisitionDetails);
                 var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
                 //var param4 = _mapper.Map<List<StockRegister>>(voucherCompositeView.StockRegister);
+
+                var boqId = param2.Select(x => x.boqdId).Distinct().FirstOrDefault();
+                var reqItems = param2.Select(x => new PurchaseReqItesm()
+                {
+                    ItemCode = (int)x.PurchaseRequisitionDetailsMatId,
+                    ItemQty = (int)x.PurchaseRequisitionDetailsQuantity
+                }).ToList();
+
+                if (_purchaseRequisitionService.IsPurchaseRequisitionQtyExcededFromBOQ(boqId, reqItems))
+                {
+                    return new ApiResponse<PurchaseRequisitionViewModel>
+                    {
+                        Valid = false,
+                        Error = false,
+                        Result = voucherCompositeView,
+                        Exception = null,
+                        Message = "Sorry You can't sve Purchase requisition as tem quantity exceded from total BoQ quantity"
+                    };
+                }
                 var xs = _purchaseRequisitionService.InsertPurchaseRequisition(param1, param3, param2
                     //, param4
                     );
@@ -135,6 +155,25 @@ namespace Inspire.Erp.Web.Controllers
             var param2 = _mapper.Map<List<PurchaseRequisitionDetails>>(voucherCompositeView.PurchaseRequisitionDetails);
             var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
             List<AccountsTransactions> accountsTransactions = new List<AccountsTransactions>();
+
+            var boqId = param2.Select(x => x.boqdId).Distinct().FirstOrDefault();
+            var reqItems = param2.Select(x => new PurchaseReqItesm()
+            {
+                ItemCode = (int)x.PurchaseRequisitionDetailsMatId,
+                ItemQty = (int)x.PurchaseRequisitionDetailsQuantity
+            }).ToList();
+
+            if (_purchaseRequisitionService.IsPurchaseRequisitionQtyExcededFromBOQ(boqId, reqItems))
+            {
+                return new ApiResponse<PurchaseRequisitionViewModel>
+                {
+                    Valid = false,
+                    Error = false,
+                    Result = voucherCompositeView,
+                    Exception = null,
+                    Message = "Sorry You can't update Purchase requisition as tem quantity exceded from total BoQ quantity"
+                };
+            }
 
             //var param4 = _mapper.Map<List<StockRegister>>(voucherCompositeView.StockRegister);
             var xs = _purchaseRequisitionService.UpdatePurchaseRequisition(param1, accountsTransactions, param2

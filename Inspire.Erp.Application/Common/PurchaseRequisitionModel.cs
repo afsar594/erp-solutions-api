@@ -12,7 +12,12 @@ namespace Inspire.Erp.Application.Common
         public PurchaseRequisition purchaseRequisition { get; set; }
         public List<AccountsTransactions> accountsTransactions { get; set; }
 
-        public List<PurchaseRequisitionDetails>purchaseRequisitionDetails { get; set; }
+        public List<PurchaseRequisitionDetails> purchaseRequisitionDetails { get; set; }
         public List<StockRegister> stockRegister { get; set; }
+    }
+
+    public class PurchaseReqItesm {
+        public int ItemCode { get; set; }
+        public int ItemQty { get; set; }
     }
 }

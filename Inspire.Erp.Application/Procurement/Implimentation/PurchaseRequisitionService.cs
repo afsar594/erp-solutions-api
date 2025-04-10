@@ -868,5 +868,55 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             }
             return obj;
         }
+
+        public bool IsPurchaseRequisitionQtyExcededFromBOQ(int BoqId, List<PurchaseReqItesm> reqItems)
+        {
+            try
+            {
+                var itemIds = reqItems.Select(x => x.ItemCode).ToList();
+
+                var totalBoqQty = this._BillOfQTyDetailsRepository.GetAsQueryable()
+                    .AsNoTracking()
+                    .Where(x => x.BillQtyId == BoqId && itemIds.Contains((int)x.ItemCode))
+                    .GroupBy(x => new { x.BillQtyId, x.ItemCode })
+                    .Select(x => new
+                    {
+                        ItemCode = x.Key.ItemCode,
+                        ItemQty = x.Sum(x => x.Qty)
+                    }).ToList();
+
+                var totalPrQty = this._purchaseRequisitionDetailsRepository.GetAsQueryable()
+                    .Where(x => x.boqdId == BoqId && itemIds.Contains((int)x.PurchaseRequisitionDetailsMatId))
+                    .GroupBy(x => new { x.boqdId, x.PurchaseRequisitionDetailsMatId })
+                    .Select(x => new
+                    {
+                        ItemCode = x.Key.PurchaseRequisitionDetailsMatId,
+                        ItemQty = x.Sum(x => x.PurchaseRequisitionDetailsQuantity)
+                    }).ToList();
+
+                var result = totalPrQty.Join(reqItems,
+                    pr => pr.ItemCode,
+                    rq => rq.ItemCode,
+                    (pr, rq) => new
+                    {
+                        ItemCode = pr.ItemCode,
+                        ItemQty = pr.ItemQty + rq.ItemQty
+                    }).ToList();
+
+                if (!totalPrQty.Any())
+                    return totalBoqQty.Any(boq => reqItems.Any(r => r.ItemCode == boq.ItemCode && r.ItemQty > boq.ItemQty));
+                if (totalBoqQty.Any(boq => result.Any(r => r.ItemCode == boq.ItemCode && r.ItemQty > boq.ItemQty)))
+                    return true;
+                if (totalBoqQty.Any(boq => totalPrQty.Any(r => r.ItemCode == boq.ItemCode && r.ItemQty == boq.ItemQty)))
+                    return false;
+
+                return totalBoqQty.Any(boq => result.Any(r => r.ItemCode == boq.ItemCode && r.ItemQty > boq.ItemQty));
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+        }
     }
 }
