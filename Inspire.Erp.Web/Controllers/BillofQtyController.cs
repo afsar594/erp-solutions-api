@@ -251,6 +251,7 @@ namespace Inspire.Erp.Web.Controllers
                                  Date = d.Date,
                                  CustomerEnqId = d.CustomerEnqId,
                                  ItemCode = d.ItemCode,
+                                 //SupplierId = d.
                                  Qty = d.Qty,
                                  UnitCode = d.UnitCode,
                                  Rate = d.Rate,

@@ -66,6 +66,7 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? CurrRate { get; set; }
         public decimal ReceivedQty { get; set; }
         public decimal BalanceQty { get; set; }
+        public int? SupplierId { get; set; }
     }
 
 }
