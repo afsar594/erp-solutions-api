@@ -31,10 +31,10 @@ namespace Inspire.Erp.Application.Email.Implementations
                 var client = new SendGridClient(_mailSettings.Key);
 
                 // Create the "from" email address
-                var from = new EmailAddress(_mailSettings.FromEmail);
+                var from = new EmailAddress(_mailSettings.FromEmail,_mailSettings.DisplayName);
 
                 // Create the email message with dynamic template data
-                var msg = MailHelper.CreateSingleTemplateEmailToMultipleRecipients(from, toEmails, templateId, dynamicTemplateData);
+                var msg = MailHelper.CreateSingleTemplateEmailToMultipleRecipients(from, toEmails, templateId, null);
                 if (filePaths != null && filePaths.Count > 0)
                     msg = GetAttachments(msg, filePaths);
 
@@ -85,7 +85,7 @@ namespace Inspire.Erp.Application.Email.Implementations
 
         public async Task<bool> SendTemplatedEmailAsync(string email, string templateId, object dynamicTemplateData, List<string> filePaths)
         {
-            var emails = new List<EmailAddress> { new EmailAddress(email) };
+            var emails = new List<EmailAddress> { new EmailAddress(email,"Irfan Khan") };
             return await SendEmailAsync(emails, templateId, dynamicTemplateData, filePaths);
         }
 

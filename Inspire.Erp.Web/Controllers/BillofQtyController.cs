@@ -21,6 +21,8 @@ using Inspire.Erp.Application.Account;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.EntityFrameworkCore;
+using SendGrid;
+using SendGrid.Helpers.Mail;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -167,9 +169,9 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("GetBillofQtyTracking")]
-        public IActionResult GetBillofQtyTracking([FromQuery] DateTime? fromDate,[FromQuery] DateTime? toDate, [FromQuery] string? jobNo)
+        public IActionResult GetBillofQtyTracking([FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate, [FromQuery] string? jobNo)
         {
-            return Ok(_billofQtyService.GetBillofQtyTracking(fromDate, toDate,jobNo));
+            return Ok(_billofQtyService.GetBillofQtyTracking(fromDate, toDate, jobNo));
         }
 
 
@@ -264,5 +266,21 @@ namespace Inspire.Erp.Web.Controllers
             return objResponse;
         }
 
+
+        [HttpGet]
+        [Route("SendEmail")]
+        public async Task<IActionResult> sendEmail()
+        {
+            var apiKey = "";
+            var client = new SendGridClient(apiKey);
+            var from = new EmailAddress("no-reply@inspire-systems.com", "Inspire Systems");
+            var subject = "Email Confirmation";
+            var to = new EmailAddress("info@inspire-systems.com", "Inspire Systems");
+            var plainTextContent = "This is to confirm that email sending is successful.";
+            var htmlContent = "<strong>Sent my Irfan</strong>";
+            var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
+            var response = await client.SendEmailAsync(msg);
+            return Ok(response);
+        }
     }
 }

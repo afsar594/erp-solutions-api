@@ -478,13 +478,13 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 _purchaseRequisitionRepository.TransactionCommit();
 
                 #region EmailNotification
-                var to = "irfanmiankhan@gmail.com";
+                var to = "info@inspire-systems.com ";
                 var rptData = new
                 {
                     FirstName = "Irfan",
                     LastName = "khan"
                 };
-                var filePaths = new List<string> { "", "" };
+                var filePaths = new List<string>();
                 this._emailNotificationServices.SendTemplatedEmailAsync(to, _mailSettings.POTemplateId, rptData, filePaths);
                 #endregion
 
