@@ -46,14 +46,14 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<EstimationCostCenter> _EstimationCostCenterRepository;
         private IRepository<JobMasterBudgetDetails> jobbudgetRepository;
         private IRepository<JobMaster> JobMasterRepository;
-
+        private readonly IRepository<BillofQtyTracking> _billofQtyTracking;
         public BillofQtyService(ILogger<CustomerQuotationService> logger, IRepository<PermissionApproval> permissionApprovalRepo,
             IRepository<Approval> approvalRepo, IRepository<ApprovalDetail> approvalDetailRepo,
             IRepository<BillofQtyMaster> BillofQtyMasterRepository, IRepository<VouchersNumbers> voucherNumbersRepository, IRepository<Domain.Entities.ProgramSettings> programsettingsRepository,
             IRepository<BillOfQTyDetails> BillOfQTyDetailsRepository,
             IRepository<UserTracking> userTrackingRepository,
             IRepository<JobMasterBudgetDetails> _jobbudgetRepository,
-            InspireErpDBContext Context, IRepository<EstimationCostCenter> estimationCostCenterRepository, IRepository<JobMaster> jobMasterRepository)
+            InspireErpDBContext Context, IRepository<EstimationCostCenter> estimationCostCenterRepository, IRepository<JobMaster> jobMasterRepository, IRepository<BillofQtyTracking> billofQtyTracking)
         {
 
             _BillofQtyMasterRepository = BillofQtyMasterRepository;
@@ -71,6 +71,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             _EstimationCostCenterRepository = estimationCostCenterRepository;
             jobbudgetRepository = _jobbudgetRepository;
             JobMasterRepository = jobMasterRepository;
+            _billofQtyTracking = billofQtyTracking;
         }
 
         public BillofQtyMaster UpdateBillofQty(BillofQtyMaster BillofQty, List<BillOfQTyDetails> BillOfQTyDetails, List<EstimationCostCenter> EstimationCostCenter)
@@ -168,11 +169,11 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
             jobMasterBudgetDetailsToUpdate.ForEach(x =>
             {
-                var matchingEstimation = EstimationCostCenter .First(estimation => estimation.costcenter == x.JobMasterBudgetDetailsBudId);
+                var matchingEstimation = EstimationCostCenter.First(estimation => estimation.costcenter == x.JobMasterBudgetDetailsBudId);
                 x.JobMasterBudgetDetailsBudAmount = matchingEstimation.Amount ?? 0;
                 x.JobMasterBudgetDetailsDelStatus = false;
             });
-           
+
             // **Delete: Remove records that are no longer in EstimationCostCenter**
             var jobMasterBudgetDetailsToDelete = jobMasterBudgetDetailsExisting
                 .Where(existing => !EstimationCostCenter
@@ -355,6 +356,22 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 throw ex;
             }
 
+        }
+
+        public Response<List<BillofQtyTracking>> GetBillofQtyTracking(DateTime? fromDate, DateTime? toDate, string? jobNo)
+        {
+            try
+            {
+                var result = this._billofQtyTracking.GetAsQueryable().Where(x =>
+                                                                                                                            (fromDate == null ? true  : ( x.BOQDate.Date >= fromDate.Value.Date && x.BOQDate.Date <= toDate.Value.Date)) && 
+                                                                                                                            (string.IsNullOrEmpty(jobNo) ? true : x.JobMasterNo.ToUpper() == jobNo.ToUpper())).ToList() ;
+                return Response<List<BillofQtyTracking>>.Success(result, "Data Found");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                throw;
+            }
         }
     }
 }

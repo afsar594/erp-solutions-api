@@ -29,7 +29,7 @@ namespace Inspire.Erp.Web.Controllers
     [ApiController]
     public class BillofQtyController : ControllerBase
     {
-        private IBillofQtyService _customerQuotationService;
+        private readonly IBillofQtyService _billofQtyService;
         private readonly IMapper _mapper;
         private IRepository<BillofQtyMaster> _BillofQtyMasterRepository;
         private IRepository<BillOfQTyDetails> _BillOfQTyDetailsRepository;
@@ -37,10 +37,11 @@ namespace Inspire.Erp.Web.Controllers
         private IRepository<ItemMaster> itemrepository;
         private IRepository<UnitMaster> unitrepository;
         private readonly IRepository<PurchaseRequisitionDetails> _purchaseRequisitionDetails;
-        public BillofQtyController(IBillofQtyService customerQuotationService, IMapper mapper, IRepository<JobMaster> _jobrepository, IRepository<ItemMaster> _itemrepository, IRepository<UnitMaster> _unitrepository
+
+        public BillofQtyController(IBillofQtyService billofQtyService, IMapper mapper, IRepository<JobMaster> _jobrepository, IRepository<ItemMaster> _itemrepository, IRepository<UnitMaster> _unitrepository
             , IRepository<BillOfQTyDetails> BillOfQTyDetailsRepository, IRepository<BillofQtyMaster> BillofQtyMasterRepository, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetails)
         {
-            _customerQuotationService = customerQuotationService;
+            _billofQtyService = billofQtyService;
             _mapper = mapper;
             jobrepository = _jobrepository; itemrepository = _itemrepository; unitrepository = _unitrepository;
             _BillofQtyMasterRepository = BillofQtyMasterRepository; _BillOfQTyDetailsRepository = BillOfQTyDetailsRepository;
@@ -58,7 +59,7 @@ namespace Inspire.Erp.Web.Controllers
                 var param2 = _mapper.Map<List<BillOfQTyDetails>>(customerQuotationCompositeView.BillOfQTyDetails);
                 var param3 = _mapper.Map<List<EstimationCostCenter>>(customerQuotationCompositeView.EstimationCostCenter);
 
-                var xs = _customerQuotationService.InsertBillofQty(param1, param2, param3);
+                var xs = _billofQtyService.InsertBillofQty(param1, param2, param3);
 
                 BillofQtyMasterModel CustomerQuotationViewModel = new BillofQtyMasterModel();
 
@@ -102,7 +103,7 @@ namespace Inspire.Erp.Web.Controllers
             var param2 = _mapper.Map<List<BillOfQTyDetails>>(customerQuotationCompositeView.BillOfQTyDetails);
             var param3 = _mapper.Map<List<EstimationCostCenter>>(customerQuotationCompositeView.EstimationCostCenter);
 
-            var xs = _customerQuotationService.UpdateBillofQty(param1, param2, param3);
+            var xs = _billofQtyService.UpdateBillofQty(param1, param2, param3);
             if (xs != null)
             {
                 BillofQtyMasterModel CustomerQuotationViewModel = new BillofQtyMasterModel();
@@ -131,7 +132,7 @@ namespace Inspire.Erp.Web.Controllers
             ApiResponse<int> apiResponse = new ApiResponse<int>
             {
                 Valid = true,
-                Result = _mapper.Map<int>(_customerQuotationService.DeleteBillofQty(id)),
+                Result = _mapper.Map<int>(_billofQtyService.DeleteBillofQty(id)),
                 Message = ""
             };
             return apiResponse;
@@ -144,7 +145,7 @@ namespace Inspire.Erp.Web.Controllers
             ApiResponse<List<BillofQtyMaster>> apiResponse = new ApiResponse<List<BillofQtyMaster>>
             {
                 Valid = true,
-                Result = _mapper.Map<List<BillofQtyMaster>>(_customerQuotationService.GetBillofQty()),
+                Result = _mapper.Map<List<BillofQtyMaster>>(_billofQtyService.GetBillofQty()),
                 Message = ""
             };
             return apiResponse;
@@ -157,11 +158,20 @@ namespace Inspire.Erp.Web.Controllers
             ApiResponse<BillofQtyMasterModel> apiResponse = new ApiResponse<BillofQtyMasterModel>
             {
                 Valid = true,
-                Result = _mapper.Map<BillofQtyMasterModel>(_customerQuotationService.GetSavedBillofQty(id)),
+                Result = _mapper.Map<BillofQtyMasterModel>(_billofQtyService.GetSavedBillofQty(id)),
                 Message = ""
             };
             return apiResponse;
         }
+
+
+        [HttpGet]
+        [Route("GetBillofQtyTracking")]
+        public IActionResult GetBillofQtyTracking([FromQuery] DateTime? fromDate,[FromQuery] DateTime? toDate, [FromQuery] string? jobNo)
+        {
+            return Ok(_billofQtyService.GetBillofQtyTracking(fromDate, toDate,jobNo));
+        }
+
 
         [HttpGet]
         [Route("BOQLoadDropdown")]
