@@ -31,6 +31,7 @@ namespace Inspire.Erp.Domain.Entities
         public string Remarks { get; set; }
         public string? RejectionRemarks { get; set; }
 
+        public int? JobId { get; set; }
         public bool? IsDeleted { get; set; }
     }
     public class tbl_approvalforms

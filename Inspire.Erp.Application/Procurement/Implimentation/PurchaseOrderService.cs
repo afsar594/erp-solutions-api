@@ -234,6 +234,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                             POList.LevelId = level;
                             POList.Status = "Pending";
                             POList.Remarks = purchaseOrder.PurchaseOrderDescription;
+                            POList.JobId = (int)purchaseOrder.PurchaseOrderJobId;
                             _permissionApprovalDetailRepo.Insert(POList);
                         }
                     }
@@ -411,6 +412,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                             POList.CreatedBy = (int?)purchaseOrder.PurchaseOrderUserId ?? 1;
                             POList.LevelId = level;
                             POList.Status = "Pending";
+                            POList.JobId = (int)purchaseOrder.PurchaseOrderJobId;
                             POList.Remarks = purchaseOrder.PurchaseOrderDescription;
                             POList.LocationName = _context.LocationMaster
                                         .FirstOrDefault(l => l.LocationMasterLocationId == purchaseOrder.PurchaseOrderLocationId)?.LocationMasterLocationName;
@@ -717,6 +719,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                         PODId = (int)pod.PurchaseOrderDetailsId,
                                         PONo = po.PurchaseOrderNo,
                                         PODate = po.PurchaseOrderDate,
+                                        //JobId = (int)po.PurchaseOrderJobId,                                        
                                         SupplierName = sm.SuppliersMasterSupplierName,
                                         Rate = pod.PurchaseOrderDetailsRate,
                                         Quantity = (int)pod.PurchaseOrderDetailsQuantity,
