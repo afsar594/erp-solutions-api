@@ -463,8 +463,8 @@ namespace Inspire.Erp.Infrastructure.Database
 
 
         public virtual DbSet<DocsAttachment> DocsAttachment { get; set; }
-        
 
+        public DbSet<BillofQtyTracking> BillofQtyTrackings { get; set; }
         // hr Staffmaster
         public virtual DbSet<HrStaffMaster> HrStaffMasters { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -478,6 +478,25 @@ namespace Inspire.Erp.Infrastructure.Database
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<BillofQtyTracking>(e =>
+            {
+                e.HasNoKey();
+                e.ToView("vw_BoqTracking");
+                e.Property(x => x.BillMasterId).HasColumnName("BillMasterId").HasColumnType("numeric(18, 0)"); ;
+                e.Property(x => x.BillofqtyNo).HasColumnName("BillofqtyNo").HasColumnType("varchar(50)"); ;
+                e.Property(x => x.BOQDate).HasColumnName("BOQDate").HasColumnType("datetime"); ;
+                e.Property(x => x.JobMasterNo).HasColumnName("job_master_job_no").HasColumnType("varchar(50)"); ;
+                e.Property(x => x.JobMasterName).HasColumnName("job_master_JOB_name").HasColumnType("varchar(150)"); ;
+                e.Property(x => x.BillDetailId).HasColumnName("BillDetailId").HasColumnType("numeric(18, 0)"); ;
+                e.Property(x => x.ItemCode).HasColumnName("ItemCode").HasColumnType("numeric(18, 0)"); ;
+                e.Property(x => x.ItemName).HasColumnName("Item_Master_ITEM_Name").HasColumnType("varchar(500)"); ;
+                e.Property(x => x.UnitShortName).HasColumnName("Unit_Master_Unit_Short_Name").HasColumnType("varchar(20)"); ;
+                e.Property(x => x.BOQQty).HasColumnName("BOQQty").HasColumnType("numeric(18, 0)"); ;
+                e.Property(x => x.PrQty).HasColumnName("prqty").HasColumnType("int"); ;
+                e.Property(x => x.BalPrQty).HasColumnName("BalPRQTY").HasColumnType("int"); ;
+                e.Property(x => x.POQty).HasColumnName("POQTY").HasColumnType("int"); ;
+                e.Property(x => x.BalPOQty).HasColumnName("BalPOQty").HasColumnType("int"); ;
+            });
 
             modelBuilder.Entity<InvoiceAmountResult>().HasNoKey(); // No primary key
 

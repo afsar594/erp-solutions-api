@@ -19,7 +19,7 @@ namespace Inspire.Erp.Application.Sales.Interfaces
         public BillofQtyMaster GetSavedBillofQty(decimal id); 
         public IEnumerable<BillofQtyMaster> GetBillofQty();
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
-
+        public Response<List<BillofQtyTracking>> GetBillofQtyTracking(DateTime? BoqDate, string? jobNo);
 
 
 
