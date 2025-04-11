@@ -167,9 +167,9 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("GetBillofQtyTracking")]
-        public IActionResult GetBillofQtyTracking([FromQuery] DateTime? boqDate, [FromQuery] string? jobNo)
+        public IActionResult GetBillofQtyTracking([FromQuery] DateTime? fromDate,[FromQuery] DateTime? toDate, [FromQuery] string? jobNo)
         {
-            return Ok(_billofQtyService.GetBillofQtyTracking(boqDate, jobNo));
+            return Ok(_billofQtyService.GetBillofQtyTracking(fromDate, toDate,jobNo));
         }
 
 

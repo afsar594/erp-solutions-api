@@ -358,12 +358,12 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
         }
 
-        public Response<List<BillofQtyTracking>> GetBillofQtyTracking(DateTime? BoqDate, string? jobNo)
+        public Response<List<BillofQtyTracking>> GetBillofQtyTracking(DateTime? fromDate, DateTime? toDate, string? jobNo)
         {
             try
             {
                 var result = this._billofQtyTracking.GetAsQueryable().Where(x =>
-                                                                                                                            (BoqDate == null ? true  : x.BOQDate.Date == BoqDate.Value.Date) && 
+                                                                                                                            (fromDate == null ? true  : ( x.BOQDate.Date >= fromDate.Value.Date && x.BOQDate.Date <= toDate.Value.Date)) && 
                                                                                                                             (string.IsNullOrEmpty(jobNo) ? true : x.JobMasterNo.ToUpper() == jobNo.ToUpper())).ToList() ;
                 return Response<List<BillofQtyTracking>>.Success(result, "Data Found");
             }
