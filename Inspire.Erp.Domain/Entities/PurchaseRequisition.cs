@@ -74,6 +74,7 @@ namespace Inspire.Erp.Domain.Entities
         public string confirmationemaildetails { get; set; }
         public string deliveryatsite { get; set; }
         public string deliveryterms { get; set; }
+ 
         [NotMapped]
         public bool PurchaseRequisitionApproveEnable { get; set; }
         public virtual ICollection<PurchaseRequisitionDetails> PurchaseRequisitionDetails { get; set; }

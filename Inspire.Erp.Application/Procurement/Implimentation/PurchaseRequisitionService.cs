@@ -942,7 +942,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     return true;
                 if (totalBoqQty.Any(boq => totalPrQty.Any(r => r.ItemCode == boq.ItemCode && r.ItemQty == boq.ItemQty)))
                     return false;
-
                 return totalBoqQty.Any(boq => result.Any(r => r.ItemCode == boq.ItemCode && r.ItemQty > boq.ItemQty));
             }
             catch (Exception ex)

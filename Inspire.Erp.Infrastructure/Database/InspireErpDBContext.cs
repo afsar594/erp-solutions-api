@@ -2698,7 +2698,6 @@ namespace Inspire.Erp.Infrastructure.Database
 
 
 
-
             modelBuilder.Entity<ReportPurchaseOrder>(entity =>
             {
                 entity.HasNoKey();
@@ -11849,6 +11848,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.PurchaseOrderId).HasColumnType("numeric(18, 0)");
                 entity.Property(e => e.PurchaseRequisitionId);
+                entity.Property(e => e.PurchaseOrderDetailsBalQty);
 
 
 
@@ -12193,6 +12193,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.PurchaseRequisitionId).HasColumnType("numeric(18, 0)");
 
                 entity.Property(e => e.boqdId).HasColumnName("PurchaseRequisitionDetail_BOQD_Id");
+                entity.Property(e => e.PurchaseRequisitionDetailsBalQty).HasColumnName("PurchaseRequisitionDetails_Bal_Qty");
 
                 entity.HasOne(d => d.PurchaseRequisitionDetailsNoNavigation)
                     .WithMany(p => p.PurchaseRequisitionDetails)

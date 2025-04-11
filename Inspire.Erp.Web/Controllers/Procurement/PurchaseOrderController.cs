@@ -69,24 +69,24 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             var param2 = _mapper.Map<List<PurchaseOrderDetails>>(voucherCompositeView.PurchaseOrderDetails);
             var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
 
-            var PurchaseReqId = param2.Select(x => x.PurchaseRequisitionId).Distinct().FirstOrDefault();
-            var reqItems = param2.Select(x => new PurchaseReqItesm()
-            {
-                ItemCode = (int)x.PurchaseOrderDetailsMatId,
-                ItemQty = (int)x.PurchaseOrderDetailsQuantity
-            }).ToList();
+            //var PurchaseReqId = param2.Select(x => x.PurchaseRequisitionId).Distinct().FirstOrDefault();
+            //var reqItems = param2.Select(x => new PurchaseReqItesm()
+            //{
+            //    ItemCode = (int)x.PurchaseOrderDetailsMatId,
+            //    ItemQty = (int)x.PurchaseOrderDetailsQuantity
+            //}).ToList();
 
-            if (_purchaseOrderService.IsPurchaseOrderQtyExcededFromBOQ(PurchaseReqId, reqItems))
-            {
-                return new ApiResponse<PurchaseOrderViewModel>
-                {
-                    Valid = false,
-                    Error = false,
-                    Result = voucherCompositeView,
-                    Exception = null,
-                    Message = "Sorry You can't save Purchase requisition as item quantity exceded from total BoQ quantity"
-                };
-            }
+            //if (_purchaseOrderService.IsPurchaseOrderQtyExcededFromBOQ(PurchaseReqId, reqItems))
+            //{
+            //    return new ApiResponse<PurchaseOrderViewModel>
+            //    {
+            //        Valid = false,
+            //        Error = false,
+            //        Result = voucherCompositeView,
+            //        Exception = null,
+            //        Message = "Sorry You can't save Purchase requisition as item quantity exceded from total BoQ quantity"
+            //    };
+            //}
 
 
             var xs = _purchaseOrderService.InsertPurchaseOrder(param1, param3, param2
@@ -114,24 +114,24 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             var param2 = _mapper.Map<List<PurchaseOrderDetails>>(voucherCompositeView.PurchaseOrderDetails);
             var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
 
-            var PurchaseReqId = param2.Select(x => x.PurchaseRequisitionId).Distinct().FirstOrDefault();
-            var reqItems = param2.Select(x => new PurchaseReqItesm()
-            {
-                ItemCode = (int)x.PurchaseOrderDetailsMatId,
-                ItemQty = (int)x.PurchaseOrderDetailsQuantity
-            }).ToList();
+            //var PurchaseReqId = param2.Select(x => x.PurchaseRequisitionId).Distinct().FirstOrDefault();
+            //var reqItems = param2.Select(x => new PurchaseReqItesm()
+            //{
+            //    ItemCode = (int)x.PurchaseOrderDetailsMatId,
+            //    ItemQty = (int)x.PurchaseOrderDetailsQuantity
+            //}).ToList();
 
-            if (_purchaseOrderService.IsPurchaseOrderQtyExcededFromBOQ(PurchaseReqId, reqItems))
-            {
-                return new ApiResponse<PurchaseOrderViewModel>
-                {
-                    Valid = false,
-                    Error = false,
-                    Result = voucherCompositeView,
-                    Exception = null,
-                    Message = "Sorry You can't update Purchase requisition as item quantity exceded from total BoQ quantity"
-                };
-            }
+            //if (_purchaseOrderService.IsPurchaseOrderQtyExcededFromBOQ(PurchaseReqId, reqItems))
+            //{
+            //    return new ApiResponse<PurchaseOrderViewModel>
+            //    {
+            //        Valid = false,
+            //        Error = false,
+            //        Result = voucherCompositeView,
+            //        Exception = null,
+            //        Message = "Sorry You can't update Purchase requisition as item quantity exceded from total BoQ quantity"
+            //    };
+            //}
 
             var xs = _purchaseOrderService.UpdatePurchaseOrder(param1, param3, param2
                 );
