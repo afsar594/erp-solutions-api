@@ -43,6 +43,7 @@ namespace Inspire.Erp.Application.Common
         public decimal? Rate { get; set; }
         public int Quantity { get; set; }
         public int BalanceQuantity { get; set; }
+        public int? JobId { get; set; }
 
         public int DeliveredQuantity { get; set; }
     }

@@ -615,6 +615,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                     c.VoucherId,
                     c.VoucherNo,
                     c.LevelId,
+                    c.JobId,
                     c.VoucherDate,
                     c.Status,
                     c.Amount,

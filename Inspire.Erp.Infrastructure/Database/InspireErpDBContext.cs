@@ -10660,7 +10660,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.Id)
                       .HasColumnName("id")
                       .ValueGeneratedOnAdd();
-
+                
                 entity.Property(e => e.VoucherType)
                       .HasColumnName("Voucher_Type")
                       .HasMaxLength(100)
@@ -10692,6 +10692,9 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.LevelId)
                       .HasColumnName("Levelid");
+                entity.Property(e => e.JobId)
+                     .HasColumnName("Job_Id");
+               
 
                 entity.Property(e => e.Status)
                       .HasColumnName("Status")

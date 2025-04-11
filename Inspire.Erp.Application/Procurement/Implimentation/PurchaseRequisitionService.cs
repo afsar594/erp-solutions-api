@@ -134,6 +134,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                             POList.CreatedBy = (int?)(purchaseRequisition.PurchaseRequisitionUserId ?? 1);
                             POList.LevelId = level;
                             POList.Status = "Pending";
+                            POList.JobId = (int)purchaseRequisition.PurchaseRequisitionJobId;
                             POList.Remarks = purchaseRequisition.PurchaseRequisitionDescription;
                             _permissionApprovalDetailRepo.Insert(POList);
                         }
@@ -434,6 +435,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                             POList.CreatedBy = (int?)(purchaseRequisition.PurchaseRequisitionUserId ?? 1);
                             POList.LevelId = level;
                             POList.Status = "Pending";
+                            POList.JobId = (int)purchaseRequisition.PurchaseRequisitionJobId;
                             POList.Remarks = purchaseRequisition.PurchaseRequisitionDescription;
                             POList.LocationName = _context.LocationMaster
                                                 .FirstOrDefault(l => l.LocationMasterLocationId == purchaseRequisition.PurchaseRequisitionLocationId)?.LocationMasterLocationName;
