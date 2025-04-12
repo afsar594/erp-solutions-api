@@ -221,7 +221,7 @@ namespace Inspire.Erp.Web.Controllers
                 details = details.Where(a => a.CustomerEnqId == customerEnqId).OrderBy(x => x.BillofqtyNo).ToList();
             }
             var billQtyIds = details.Select(x => x.Id).ToList();
-            var requisitionQuantities = _purchaseRequisitionDetails.GetAsQueryable().Where(x => billQtyIds.Contains(x.boqdId))
+            var requisitionQuantities = _purchaseRequisitionDetails.GetAsQueryable().Where(x => billQtyIds.Contains((decimal)x.boqdId))
                 .AsNoTracking()
                 .GroupBy(p => new { p.boqdId, p.PurchaseRequisitionDetailsMatId })
                 .Select(g => new
