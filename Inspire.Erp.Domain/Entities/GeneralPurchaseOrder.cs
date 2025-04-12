@@ -41,6 +41,9 @@ namespace Inspire.Erp.Domain.Entities
         public string GeneralPurchaseOrderDelivery { get; set; }
         public string GeneralPurchaseOrderIndentNo { get; set; }
         public bool? GeneralPurchaseOrderDelStatus { get; set; }
+        public decimal vatper { get; set; }
+        public decimal Vatamt { get; set; }
+
         public virtual ICollection<GeneralPurchaseOrderDetails> GeneralPurchaseOrderDetails { get; set; }
     }
 }

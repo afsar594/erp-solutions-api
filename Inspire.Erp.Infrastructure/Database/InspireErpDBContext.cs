@@ -5983,6 +5983,9 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.GeneralPurchaseOrderTotalAmount).HasColumnName("General_Purchase_Order_Total_Amount");
 
                 entity.Property(e => e.GeneralPurchaseOrderUserId).HasColumnName("General_Purchase_Order_User_ID");
+                entity.Property(e => e.vatper).HasColumnName("vat_per");
+                entity.Property(e => e.Vatamt).HasColumnName("Vat_amt");
+
             });
 
             modelBuilder.Entity<GeneralPurchaseOrderDetails>(entity =>
