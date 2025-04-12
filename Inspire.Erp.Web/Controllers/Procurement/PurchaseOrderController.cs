@@ -522,15 +522,15 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                 data = _context.PermissionApprovalDetail.AsNoTracking().AsEnumerable()
                .Where(a =>
                a.VoucherDate.Value.Date >= model.fromDate.Value.Date &&
-               a.VoucherDate.Value.Date <= model.toDate.Value.Date &&
-                (a.JobId == model.JobId && model.JobId != -1) &&
-              (!rights.Any() || rights.Any(r => r.LevelId == a.LevelId && r.Voucher_Type == a.VoucherType)));
+               a.VoucherDate.Value.Date <= model.toDate.Value.Date &&              
+              (!rights.Any() || rights.Any(r => r.LevelId == a.LevelId && r.Voucher_Type == a.VoucherType)) && (model.JobId ==-1 || a.JobId == model.JobId));
+              
             }
             else
             {
                 data = _context.PermissionApprovalDetail.AsNoTracking().AsEnumerable()
                    .Where(a =>
-                   (a.JobId == model.JobId && model.JobId !=-1) &&
+                     (model.JobId == -1 || a.JobId == model.JobId) &&
                    (!rights.Any() || rights.Any(r => r.LevelId == a.LevelId && r.Voucher_Type == a.VoucherType)));
             }
 
