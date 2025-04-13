@@ -36,6 +36,8 @@ namespace Inspire.Erp.Web.ViewModels.Procurement
         public bool? GeneralPurchaseOrderDelStatus { get; set; }
         public List<AccountTransactionViewModel> AccountsTransactions { get; set; }
         public List<GeneralPurchaseOrderDetailsViewModel> GeneralPurchaseOrderDetails { get; set; }
+        public decimal? vatper { get; set; }
+        public decimal? Vatamt { get; set; }
 
         //public List<StockRegisterViewModel> StockRegister { get; set; }
 
