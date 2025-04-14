@@ -22,6 +22,11 @@ using System.Linq.Dynamic.Core;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using NPOI.SS.UserModel;
 using Microsoft.AspNetCore.Authorization;
+using Inspire.Erp.Application.Helpers;
+using Inspire.Erp.Domain.Models.Approvals;
+using Inspire.Erp.Domain.Models.Common;
+using Inspire.Erp.Application.Email.Interfaces;
+using Microsoft.Extensions.Options;
 
 namespace Inspire.Erp.Web.Controllers.Procurement
 {
@@ -37,18 +42,25 @@ namespace Inspire.Erp.Web.Controllers.Procurement
         private IRepository<JobMaster> jobrepository; private readonly IRepository<SuppliersMaster> supplierrepository;
         private IRepository<LocationMaster> locationrepository; private IRepository<CurrencyMaster> currencyrepository;
         private IRepository<ViewAccountsTransactionsVoucherType> _viewAccountsTransactionsVoucherTypeRepository;
-
+        private PurchaseOrderRequisitionHelper purchaseOrderRequisitionHelper;
+        private readonly EmailSettingViewModel _mailSettings;
+        private readonly IEmailNotificationServices _emailNotificationServices;
+        private IPurchaseRequisitionService _purchaseRequisitionService;
         private readonly IMapper _mapper;
         public PurchaseOrderController(IPurchaseOrderService purchaseOrderService, IMapper mapper, IRepository<ItemMaster> _itemrepository, IRepository<UnitMaster> _unitrepository,
             IRepository<PurchaseOrder> purchaseOrderRepository, IRepository<PurOrderRegister> purOrderRegisterRepository, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository,
             IRepository<JobMaster> _jobrepository, IRepository<LocationMaster> _locationrepository, InspireErpDBContext context
             , IRepository<CurrencyMaster> _currencyrepository, IRepository<SuppliersMaster> _supplierrepository, IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo,
-            IRepository<ViewAccountsTransactionsVoucherType> viewAccountsTransactionsVoucherTypeRepository)
+            IRepository<ViewAccountsTransactionsVoucherType> viewAccountsTransactionsVoucherTypeRepository, IRepository<UserFile> userFile, IRepository<Permissionapproval> permissionapproval, IOptions<EmailSettingViewModel> mailSettings, IEmailNotificationServices emailNotificationServices, IPurchaseRequisitionService purchaseRequisitionService)
         {
             _purchaseOrderService = purchaseOrderService; _context = context; _permissionApprovalDetailRepo = permissionApprovalDetailRepo;
             _mapper = mapper; supplierrepository = _supplierrepository; _viewAccountsTransactionsVoucherTypeRepository = viewAccountsTransactionsVoucherTypeRepository;
             itemrepository = _itemrepository; unitrepository = _unitrepository; _purchaseOrderRepository = purchaseOrderRepository; _purOrderRegisterRepository = purOrderRegisterRepository;
             _purchaseOrderDetailsRepository = purchaseOrderDetailsRepository; jobrepository = _jobrepository; locationrepository = _locationrepository; currencyrepository = _currencyrepository;
+            purchaseOrderRequisitionHelper = new PurchaseOrderRequisitionHelper(permissionapproval, userFile);
+            _mailSettings = mailSettings.Value;
+            _emailNotificationServices = emailNotificationServices;
+            _purchaseRequisitionService = purchaseRequisitionService;
         }
 
         [HttpGet]
@@ -89,8 +101,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             //}
 
 
-            var xs = _purchaseOrderService.InsertPurchaseOrder(param1, param3, param2
-                );
+            var xs = _purchaseOrderService.InsertPurchaseOrder(param1, param3, param2);
 
             PurchaseOrderViewModel purchaseOrderViewModel = new PurchaseOrderViewModel();
             purchaseOrderViewModel = _mapper.Map<PurchaseOrderViewModel>(xs.purchaseOrder);
@@ -105,7 +116,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
 
             return apiResponse;
         }
-        
+
         [HttpPost]
         [Route("UpdatePurchaseOrder")]
         public ApiResponse<PurchaseOrderViewModel> UpdatePurchaseOrder([FromBody] PurchaseOrderViewModel voucherCompositeView)
@@ -193,7 +204,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             ApiResponse<List<PurchaseOrder>> apiResponse = new ApiResponse<List<PurchaseOrder>>
             {
                 Valid = true,
-                Result = _purchaseOrderService.GetPurchaseOrder().OrderBy(x=>x.PurchaseOrderPartyName).ToList(),
+                Result = _purchaseOrderService.GetPurchaseOrder().OrderBy(x => x.PurchaseOrderPartyName).ToList(),
                 Message = ""
             };
             return apiResponse;
@@ -275,7 +286,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                     PurchaseOrderDelivToDate = purchaseOrder.purchaseOrder.PurchaseOrderDelivToDate,
                     PurchaseOrderDelivStatus = purchaseOrder.purchaseOrder.PurchaseOrderDelivStatus,
                     PurchaseOrderDelivPlace = purchaseOrder.purchaseOrder.PurchaseOrderDelivPlace,
-                    PurchaseOrderOrdertype=purchaseOrder.purchaseOrder.PurchaseOrderOrdertype
+                    PurchaseOrderOrdertype = purchaseOrder.purchaseOrder.PurchaseOrderOrdertype
                 };
                 purchaseOrderViewModel.PurchaseOrderDetails = _mapper.Map<List<PurchaseOrderDetailsViewModel>>(purchaseOrder.purchaseOrderDetails);
                 purchaseOrderViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(purchaseOrder.accountsTransactions);
@@ -415,13 +426,13 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             {
                 c.JobMasterJobId,
                 JobMasterJobName = c.JobMasterJobName.Trim(),
-            }).OrderBy(x=>x.JobMasterJobName).ToList();
+            }).OrderBy(x => x.JobMasterJobName).ToList();
             var LocationMaster = locationrepository.GetAsQueryable().AsNoTracking().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
             {
                 c.LocationMasterLocationId,
                 c.LocationMasterLocationDelStatus,
                 LocationMasterLocationName = c.LocationMasterLocationName.Trim(),
-            }).OrderBy(x=>x.LocationMasterLocationName).ToList();
+            }).OrderBy(x => x.LocationMasterLocationName).ToList();
 
             var currencyMasters = currencyrepository.GetAsQueryable().AsNoTracking().Where(a => a.CurrencyMasterCurrencyDelStatus != true).Select(c => new
             {
@@ -493,6 +504,52 @@ namespace Inspire.Erp.Web.Controllers.Procurement
         }
 
         [HttpPost]
+        [Route("POApprovalByVno")]
+        public ResponseInfo POApprovalList([FromQuery] int voucherId)
+        {
+            var objresponse = new ResponseInfo();
+
+            IEnumerable<PermissionApprovalDetail> data;
+
+            var rightsQuery = from approval in _context.tbl_approvalforms.AsNoTracking()
+                              join permission in _context.Permissionapproval.AsNoTracking()
+                                  on approval.id equals permission.ApprovalformId
+                              select new
+                              {
+                                  approval.Voucher_Type,
+                                  permission.LevelId,
+                                  permission.ApprovalformId,
+                                  permission.UserId
+                              };
+
+            var rights = rightsQuery.OrderBy(x => x.LevelId).ToList();
+
+            data = _context.PermissionApprovalDetail.AsNoTracking().AsEnumerable()
+               .Where(a =>
+               (!rights.Any() || rights.Any(r => r.LevelId == a.LevelId && r.Voucher_Type == a.VoucherType)));
+
+            var lowestPendingLevels = (from detail in _context.PermissionApprovalDetail.AsNoTracking()
+                                       where detail.Status == "Pending" &&  detail.VoucherId == Convert.ToInt32(voucherId)
+                                       group detail by new { detail.VoucherId, detail.VoucherType } into grouped
+                                       select new
+                                       {
+                                           grouped.Key.VoucherId,
+                                           grouped.Key.VoucherType,
+                                           LowestPendingLevel = grouped.Min(d => d.LevelId)
+                                       }).AsNoTracking().OrderBy(x => x.VoucherId).ToList();
+
+            var finalData = data.Where(a => a.Status == "Pending" &&
+                                                                lowestPendingLevels.Any(l => l.VoucherId == a.VoucherId && l.VoucherType == a.VoucherType && l.LowestPendingLevel == a.LevelId))
+                 .OrderBy(x => x.VoucherDate).ToList();
+
+            objresponse.ResultSet = new
+            {
+                result = finalData,
+            };
+            return objresponse;
+        }
+
+        [HttpPost]
         [Route("POApprovalList")]
         public ResponseInfo POApprovalList(approlvalmodel model)
         {
@@ -522,10 +579,10 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                 data = _context.PermissionApprovalDetail.AsNoTracking().AsEnumerable()
                .Where(a =>
                a.VoucherDate.Value.Date >= model.fromDate.Value.Date &&
-               a.VoucherDate.Value.Date <= model.toDate.Value.Date &&              
-              (!rights.Any() || rights.Any(r => r.LevelId == a.LevelId && r.Voucher_Type == a.VoucherType)) 
-              && (model.JobId ==-1 || a.JobId == model.JobId));
-              
+               a.VoucherDate.Value.Date <= model.toDate.Value.Date &&
+              (!rights.Any() || rights.Any(r => r.LevelId == a.LevelId && r.Voucher_Type == a.VoucherType))
+              && (model.JobId == -1 || a.JobId == model.JobId));
+
             }
             else
             {
@@ -536,10 +593,10 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             }
 
             var lowestPendingLevels = (from detail in _context.PermissionApprovalDetail.AsNoTracking()
-                                       where detail.Status == "Pending"
+                                       where detail.Status == "Pending" //&& vNo == null ? true : detail.VoucherId ==(int)vNo
                                        group detail by new { detail.VoucherId, detail.VoucherType } into grouped
                                        select new
-                                       {    
+                                       {
                                            grouped.Key.VoucherId,
                                            grouped.Key.VoucherType,
                                            LowestPendingLevel = grouped.Min(d => d.LevelId)
@@ -560,7 +617,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
 
             if (!string.IsNullOrEmpty(model.status) && model.status != "All")
             {
-                combinedData = combinedData.Where(a => a.Status == model.status && (a.IsDeleted == null || (bool)!a.IsDeleted) ).ToList();
+                combinedData = combinedData.Where(a => a.Status == model.status && (a.IsDeleted == null || (bool)!a.IsDeleted)).ToList();
             }
 
             objresponse.ResultSet = new
@@ -569,6 +626,8 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             };
             return objresponse;
         }
+
+
 
         [HttpPost]
         [Route("POApprovedList")]
@@ -585,14 +644,43 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             {
                 _permissionApprovalDetailRepo.BeginTransaction();
                 var currentDateTime = DateTime.Now;
-                foreach (var voucherType in model)
+                var firstOrDefaultModel = model.FirstOrDefault();
+                List<object> rptData = new List<object>();
+                var approvers = purchaseOrderRequisitionHelper.GetApproverNameAndEmails((int)firstOrDefaultModel.LevelId + 1, 1).Result;
+                var po = firstOrDefaultModel.VoucherType.ToUpper() == "Purchase Order".ToUpper() ? _purchaseOrderService.GetSavedPurchaseOrderDetails(firstOrDefaultModel.VoucherId) : null;
+                var pr = firstOrDefaultModel.VoucherType.ToUpper() == "Purchase Requisition".ToUpper() ? _purchaseRequisitionService.GetSavedPurchaseRequisitionDetails(firstOrDefaultModel.VoucherId) : null;
+
+                model.ForEach(m =>
                 {
-                    voucherType.ModifiedDate = currentDateTime;
-                    //voucherType.Status = "Approved";
-                    _permissionApprovalDetailRepo.Update(voucherType);
-                }
+                    m.ModifiedDate = currentDateTime;
+                    _permissionApprovalDetailRepo.Update(m);
+                    approvers.ForEach(x =>
+                    {
+                        rptData.Add(new
+                        {
+                            SubTitle = po == null ? "Requisition" : "Order",
+                            ApproverName = x.Name,
+                            PONumber = po != null ? po.purchaseOrder.PurchaseOrderNo : pr.purchaseRequisition.PurchaseRequisitionNo,
+                            Date = po != null ? po.purchaseOrder.PurchaseOrderDate.ToString("MMM dd yyyy") : pr.purchaseRequisition.PurchaseRequisitionDate.ToString("MMM dd yyyy"),
+                            Supplier = po != null ? po.purchaseOrder.PurchaseOrderPartyName : pr.purchaseRequisition.PurchaseRequisitionPartyName,
+                            TotalAmount = po != null ? po.purchaseOrder.PurchaseOrderNetAmount : pr.purchaseRequisition.PurchaseRequisitionNetAmount,
+                            RequestedBy = "Irfan Khan",
+                            Department = "IT Procurement",
+                            ApprovalLink = _mailSettings.MainUrl,
+                            SupportEmail = "info@inspire-systems.com"
+                        });
+                    });
+                });
+
+
                 _permissionApprovalDetailRepo.TransactionCommit();
-        
+
+
+
+                var filePaths = new List<string>();
+                if (approvers.Any())
+                    this._emailNotificationServices.SendTemplatedEmailAsync(approvers, _mailSettings.POPRTemplateId, rptData, filePaths);
+
                 objresponse.Message = "Approved Successfully";
             }
             catch (Exception ex)

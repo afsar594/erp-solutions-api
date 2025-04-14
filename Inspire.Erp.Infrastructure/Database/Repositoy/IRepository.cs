@@ -12,6 +12,7 @@ namespace Inspire.Erp.Infrastructure.Database.Repositoy
     public interface IRepository<T> where T : class
     {
         IEnumerable<T> GetAll();
+       Task<IEnumerable<T>> GetAllAsync();
         IQueryable<T> GetAsQueryable();
         //T Get(long id);
         void Insert(T entity);

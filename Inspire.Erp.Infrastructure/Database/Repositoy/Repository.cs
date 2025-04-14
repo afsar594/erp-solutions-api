@@ -28,6 +28,10 @@ namespace Inspire.Erp.Infrastructure.Database.Repositoy
         {
             return entities.AsEnumerable();
         }
+         public async Task<IEnumerable<T>> GetAllAsync()
+        {
+            return await entities.AsNoTracking().ToListAsync();
+        }
 
         public void BeginTransaction()
         {

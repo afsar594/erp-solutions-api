@@ -22,6 +22,8 @@ using Inspire.Erp.Domain.Models.Common;
 using Microsoft.Extensions.Options;
 using SendGrid.Helpers.Mail;
 using System.IO;
+using Inspire.Erp.Application.Helpers;
+using Inspire.Erp.Domain.Models.Approvals;
 
 namespace Inspire.Erp.Application.Procurement.Implementation
 {
@@ -55,6 +57,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         // private readonly InspireErpDBContext _dbContext;
         private readonly IRepository<PurchaseRequisitionDetails> _purchaseRequisitionDetailsRepository;
         //private IRepository<ReportPurchaseOrder> _reportPurchaseOrderRepository;
+        private PurchaseOrderRequisitionHelper purchaseOrderRequisitionHelper;
         public PurchaseOrderService(
             IRepository<UserFile> userFileRepository, IRepository<PermissionApproval> permissionApprovalRepo,
             IRepository<Approval> approvalRepo, IRepository<ApprovalDetail> approvalDetailRepo, InspireErpDBContext context,
@@ -69,7 +72,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<PurchaseVoucherDetails> purchaseVoucherDetailsRepo,
             IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo,
             IEmailNotificationServices emailNotificationServices
-, IOptions<EmailSettingViewModel> mailSettings, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository)
+, IOptions<EmailSettingViewModel> mailSettings, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository, IRepository<Permissionapproval> permissionapproval)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository;
@@ -96,6 +99,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             this._emailNotificationServices = emailNotificationServices;
             _mailSettings = mailSettings.Value;
             _purchaseRequisitionDetailsRepository = purchaseRequisitionDetailsRepository;
+            this.purchaseOrderRequisitionHelper = new PurchaseOrderRequisitionHelper(permissionapproval, userFileRepository);
         }
         public IEnumerable<UserFile> GetAllUserFile()
         {
@@ -311,9 +315,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
             return i;
         }
-        public PurchaseOrderModel InsertPurchaseOrder(PurchaseOrder purchaseOrder, List<AccountsTransactions> accountsTransactions,
-            List<PurchaseOrderDetails> purchaseOrderDetails
-            )
+        public PurchaseOrderModel InsertPurchaseOrder(PurchaseOrder purchaseOrder,
+                                                                                        List<AccountsTransactions> accountsTransactions,
+                                                                                        List<PurchaseOrderDetails> purchaseOrderDetails)
         {
             try
             {
@@ -324,9 +328,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 purchaseOrder.PurchaseOrderNo = purchaseOrderNumber;
 
                 int maxcount = 0;
-                maxcount = Convert.ToInt32(
-                    _purchaseOrderRepository.GetAsQueryable()
-                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.PurchaseOrderId) + 1);
+                maxcount = Convert.ToInt32(_purchaseOrderRepository.GetAsQueryable().DefaultIfEmpty().Max(o => o == null ? 0 : o.PurchaseOrderId) + 1);
 
                 purchaseOrder.PurchaseOrderId = maxcount;
 
@@ -357,83 +359,135 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 //insert tracking register
                 var listTrackRegs = new List<TrackingRegister>();
                 var listTrackPurchOrderReg = new List<PurOrderRegister>();
-                foreach (var purOrderDet in purchaseOrder.PurchaseOrderDetails)
+                purchaseOrder.PurchaseOrderDetails.ToList().ForEach(x =>
                 {
-                    var tr = new TrackingRegister
+                    listTrackRegs.Add(new TrackingRegister
                     {
-                        TrackingRegisterDetailsId = (int)purOrderDet.PurchaseOrderDetailsId,
-                        TrackingRegisterVoucherNo = purOrderDet.PurchaseOrderDetailsNo,
-                        TrackingRegisterMaterialId = (int)purOrderDet.PurchaseOrderDetailsMatId,
+                        TrackingRegisterDetailsId = (int)x.PurchaseOrderDetailsId,
+                        TrackingRegisterVoucherNo = x.PurchaseOrderDetailsNo,
+                        TrackingRegisterMaterialId = (int)x.PurchaseOrderDetailsMatId,
                         TrackingRegisterVoucherType = purchaseOrder.PurchaseOrderType,
-                        TrackingRegisterQty = (int)purOrderDet.PurchaseOrderDetailsQuantity,
-                        TrackingRegisterQtyin = (int)purOrderDet.PurchaseOrderDetailsQuantity,
+                        TrackingRegisterQty = (int)x.PurchaseOrderDetailsQuantity,
+                        TrackingRegisterQtyin = (int)x.PurchaseOrderDetailsQuantity,
                         TrackingRegisterQtyout = 0,
-                        TrackingRegisterRate = purOrderDet.PurchaseOrderDetailsRate,
+                        TrackingRegisterRate = x.PurchaseOrderDetailsRate,
                         TrackingRegisterTrackDate = purchaseOrder.PurchaseOrderDate,
                         TrackingRegisterFsno = null,//to be alloted
+                    });
 
-                    };
-                    listTrackRegs.Add(tr);
-
-                    var poReg = new PurOrderRegister
+                    listTrackPurchOrderReg.Add(new PurOrderRegister
                     {
-                        PurOrderRegisterOrderNo = purOrderDet.PurchaseOrderDetailsId.ToString(),
-                        PurOrderRegisterRefVoucherNo = purOrderDet.PurchaseOrderDetailsNo,
-                        PurOrderRegisterMaterialId = (int)purOrderDet.PurchaseOrderDetailsMatId,
+                        PurOrderRegisterOrderNo = x.PurchaseOrderDetailsId.ToString(),
+                        PurOrderRegisterRefVoucherNo = x.PurchaseOrderDetailsNo,
+                        PurOrderRegisterMaterialId = (int)x.PurchaseOrderDetailsMatId,
                         PurOrderRegisterTransType = purchaseOrder.PurchaseOrderType,
-                        PurOrderRegisterQtyOrder = purOrderDet.PurchaseOrderDetailsQuantity,
+                        PurOrderRegisterQtyOrder = x.PurchaseOrderDetailsQuantity,
                         PurOrderRegisterQtyIssued = 0,
-                        PurOrderRegisterRate = purOrderDet.PurchaseOrderDetailsRate,
+                        PurOrderRegisterRate = x.PurchaseOrderDetailsRate,
                         PurOrderRegisterAssignedDate = DateTime.Now,
                         PurOrderRegisterFsno = null,//to be alloted,
                         PurOrderRegisterSupplierId = (int)purchaseOrder.PurchaseOrderPartyId,
                         PurOrderRegisterStatus = "A"
 
-                    };
-                    listTrackPurchOrderReg.Add(poReg);
+                    });
+                });
 
-                }
+                //foreach (var purOrderDet in purchaseOrder.PurchaseOrderDetails)
+                //{
+                //    var tr = new TrackingRegister
+                //    {
+                //        TrackingRegisterDetailsId = (int)purOrderDet.PurchaseOrderDetailsId,
+                //        TrackingRegisterVoucherNo = purOrderDet.PurchaseOrderDetailsNo,
+                //        TrackingRegisterMaterialId = (int)purOrderDet.PurchaseOrderDetailsMatId,
+                //        TrackingRegisterVoucherType = purchaseOrder.PurchaseOrderType,
+                //        TrackingRegisterQty = (int)purOrderDet.PurchaseOrderDetailsQuantity,
+                //        TrackingRegisterQtyin = (int)purOrderDet.PurchaseOrderDetailsQuantity,
+                //        TrackingRegisterQtyout = 0,
+                //        TrackingRegisterRate = purOrderDet.PurchaseOrderDetailsRate,
+                //        TrackingRegisterTrackDate = purchaseOrder.PurchaseOrderDate,
+                //        TrackingRegisterFsno = null,//to be alloted
+
+                //    };
+                //    listTrackRegs.Add(tr);
+
+                //    var poReg = new PurOrderRegister
+                //    {
+                //        PurOrderRegisterOrderNo = purOrderDet.PurchaseOrderDetailsId.ToString(),
+                //        PurOrderRegisterRefVoucherNo = purOrderDet.PurchaseOrderDetailsNo,
+                //        PurOrderRegisterMaterialId = (int)purOrderDet.PurchaseOrderDetailsMatId,
+                //        PurOrderRegisterTransType = purchaseOrder.PurchaseOrderType,
+                //        PurOrderRegisterQtyOrder = purOrderDet.PurchaseOrderDetailsQuantity,
+                //        PurOrderRegisterQtyIssued = 0,
+                //        PurOrderRegisterRate = purOrderDet.PurchaseOrderDetailsRate,
+                //        PurOrderRegisterAssignedDate = DateTime.Now,
+                //        PurOrderRegisterFsno = null,//to be alloted,
+                //        PurOrderRegisterSupplierId = (int)purchaseOrder.PurchaseOrderPartyId,
+                //        PurOrderRegisterStatus = "A"
+
+                //    };
+                //    listTrackPurchOrderReg.Add(poReg);
+
+                //}
 
                 _trackingRegisterRepository.InsertList(listTrackRegs);
                 _purOrderRegisterRepository.InsertList(listTrackPurchOrderReg);
+                List<PermissionApprovalDetail> permissionApprovalDetails = new List<PermissionApprovalDetail>();
                 var rights = _context.tbl_approvalforms.Where(a => a.Voucher_Type.Contains("Purchase Order") && a.is_active == true).AsNoTracking().ToList();
                 if (rights.Count > 0)
                 {
+                    permissionApprovalDetails.Clear();
                     foreach (var item in rights)
                     {
                         for (int level = 1; level <= item.NoOfLevel; level++)
                         {
-                            PermissionApprovalDetail POList = new PermissionApprovalDetail();
-                            POList.VoucherType = "Purchase Order";
-                            POList.VoucherNo = purchaseOrder.PurchaseOrderNo;
-                            POList.VoucherId = (int)purchaseOrder.PurchaseOrderId;
-                            POList.VoucherDate = purchaseOrder.PurchaseOrderDate;
-                            POList.Amount = (double)purchaseOrder.PurchaseOrderNetAmount;
-                            POList.CreatedBy = (int?)purchaseOrder.PurchaseOrderUserId ?? 1;
-                            POList.LevelId = level;
-                            POList.Status = "Pending";
-                            POList.JobId = (int)purchaseOrder.PurchaseOrderJobId;
-                            POList.Remarks = purchaseOrder.PurchaseOrderDescription;
-                            POList.LocationName = _context.LocationMaster
+                            PermissionApprovalDetail POApproversToAdd = new PermissionApprovalDetail();
+                            POApproversToAdd.VoucherType = "Purchase Order";
+                            POApproversToAdd.VoucherNo = purchaseOrder.PurchaseOrderNo;
+                            POApproversToAdd.VoucherId = (int)purchaseOrder.PurchaseOrderId;
+                            POApproversToAdd.VoucherDate = purchaseOrder.PurchaseOrderDate;
+                            POApproversToAdd.Amount = (double)purchaseOrder.PurchaseOrderNetAmount;
+                            POApproversToAdd.CreatedBy = (int?)purchaseOrder.PurchaseOrderUserId ?? 1;
+                            POApproversToAdd.LevelId = level;
+                            POApproversToAdd.Status = "Pending";
+                            POApproversToAdd.JobId = (int)purchaseOrder.PurchaseOrderJobId;
+                            POApproversToAdd.Remarks = purchaseOrder.PurchaseOrderDescription;
+                            POApproversToAdd.LocationName = _context.LocationMaster
                                         .FirstOrDefault(l => l.LocationMasterLocationId == purchaseOrder.PurchaseOrderLocationId)?.LocationMasterLocationName;
-
-                            _permissionApprovalDetailRepo.Insert(POList);
+                            permissionApprovalDetails.Add(POApproversToAdd);
                         }
                     }
+                    if (permissionApprovalDetails.Any())
+                        _permissionApprovalDetailRepo.InsertList(permissionApprovalDetails);
                 }
 
-                _purchaseOrderRepository.TransactionCommit();
 
                 #region EmailNotification
-                var to = "irfanmiankhan@gmail.com";
-                var rptData = new
+                var approvers =  purchaseOrderRequisitionHelper.GetApproverNameAndEmails(1, 1).Result;
+                List<object> rptData = new List<object>();
+                approvers.ForEach(x =>
                 {
-                    FirstName = "Irfan",
-                    LastName = "khan"
-                };
-                var filePaths = new List<string>();
-                this._emailNotificationServices.SendTemplatedEmailAsync(to, _mailSettings.POTemplateId, rptData, filePaths);
+                    rptData.Add(new
+                    {
+                        SubTitle = "Order",
+                        ApproverName = x.Name,
+                        PONumber = purchaseOrder.PurchaseOrderNo,
+                        Date = purchaseOrder.PurchaseOrderDate.ToString("MMM dd yyyy"),
+                        Supplier = purchaseOrder.PurchaseOrderPartyName,
+                        TotalAmount = purchaseOrder.PurchaseOrderNetAmount,
+                        RequestedBy = "Irfan Khan",
+                        Department = "IT Procurement",
+                        ApprovalLink = $"{_mailSettings.MainUrl}{purchaseOrder.PurchaseOrderId}",
+                        SupportEmail = "info@inspire-systems.com"
+                    });
+                });
+
+
+                var filePaths = new List<string>() ;
+                if (approvers.Any())
+                    this._emailNotificationServices.SendTemplatedEmailAsync(approvers, _mailSettings.POPRTemplateId, rptData, filePaths);
                 #endregion
+
+                _purchaseOrderRepository.TransactionCommit();
 
                 return this.GetSavedPurchaseOrderDetails((int)purchaseOrder.PurchaseOrderId);
             }
@@ -443,6 +497,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 throw ex;
             }
         }
+
+
+
         public IEnumerable<AccountsTransactions> GetAllTransaction()
         {
             return _accountTransactionRepository.GetAll();

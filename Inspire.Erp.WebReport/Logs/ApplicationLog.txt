@@ -900,3 +900,9 @@ StackTrace:    at System.Data.SqlClient.SqlConnection.OnError(SqlException excep
    at Inspire.Erp.WebReport.Controllers.CrReportsController.getReportPrint(String folderName, ReportFilterModel reportFilterModel) in C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.WebReport\Controllers\CrReportsController.cs:line 39
 2025-03-25 00:03:33 [INFO] getReportPrint called with folderName: demo and ReportName: JobCostingReport
 2025-03-25 00:04:15 [INFO] Report successfully generated for JobCostingReport
+2025-04-14 12:41:25 [INFO] getPrintByQuery called with folderName: Demo and ReportName: PurchaseOrder
+2025-04-14 12:41:35 [INFO] Report successfully generated for PurchaseOrder
+2025-04-14 12:44:12 [INFO] getPrintByQuery called with folderName: Demo and ReportName: PurchaseOrder
+2025-04-14 12:48:01 [INFO] Report successfully generated for PurchaseOrder
+2025-04-14 12:48:36 [INFO] getPrintByQuery called with folderName: Demo and ReportName: PurchaseOrder
+2025-04-14 12:49:11 [INFO] Report successfully generated for PurchaseOrder

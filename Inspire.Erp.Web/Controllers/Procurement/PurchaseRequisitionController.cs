@@ -326,8 +326,6 @@ namespace Inspire.Erp.Web.Controllers
             {
                 PurchaseRequisitionViewModel purchaseRequisitionViewModel = new PurchaseRequisitionViewModel
                 {
-
-
                     PurchaseRequisitionId = purchaseRequisition.purchaseRequisition.PurchaseRequisitionId,
                     PurchaseRequisitionNo = purchaseRequisition.purchaseRequisition.PurchaseRequisitionNo,
                     PurchaseRequisitionDate = purchaseRequisition.purchaseRequisition.PurchaseRequisitionDate,

@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Helpers;
 
@@ -26,7 +27,7 @@ namespace Inspire.Erp.WebReport.ReportEngine
         protected DataTable csSubReportModify;
         protected bool initParametersToEmptyString;
         protected bool csForceDbPropertiesChange;
-       private  GeneralQueryExcutor queryExcutor;
+        private GeneralQueryExcutor queryExcutor;
         public bool ForceDbPropertiesChange
         {
             get
@@ -851,7 +852,7 @@ namespace Inspire.Erp.WebReport.ReportEngine
                 reportDoc = SetArrayParameterValue(reportDoc, dt);
             }
             reportDoc = AddSelectionFormula(reportDoc, reportFilterModel.SelectionFormula);
-            return  GetFormatedReport(reportFilterModel, reportDoc, reportFilterModel.ExportType);
+            return GetFormatedReport(reportFilterModel, reportDoc, reportFilterModel.ExportType);
         }
 
         public HttpResponseMessage RenderReportByQueries(string commonFilePath, string reportPath, ReportFilterModel reportFilterModel, DbConnectionModel dbConnection)
@@ -902,6 +903,12 @@ namespace Inspire.Erp.WebReport.ReportEngine
             {
                 Content = new ByteArrayContent(ms.ToArray())
             };
+            var voucherNo = string.Empty;
+            if (reportFilterModel.Queries.Any())
+            {
+                var match = Regex.Match(reportFilterModel.Queries.FirstOrDefault(), @"=\s*'(.*?)'");
+                voucherNo = match.Success ? $"-{match.Groups[1].Value }" : string.Empty; 
+            }
 
             string fileExtension = GetDocExtention(exportFormatType);
             string mimeType = GetMimeType(exportFormatType);
@@ -909,7 +916,7 @@ namespace Inspire.Erp.WebReport.ReportEngine
             result.Content.Headers.ContentDisposition =
                 new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
                 {
-                    FileName = $"{reportFilterModel.ReportName}{fileExtension}"
+                    FileName = $"{reportFilterModel.ReportName}{voucherNo}{fileExtension}"
                 };
             result.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(mimeType);
 
