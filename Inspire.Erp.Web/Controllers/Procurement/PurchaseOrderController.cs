@@ -664,10 +664,10 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                             Date = po != null ? po.purchaseOrder.PurchaseOrderDate.ToString("MMM dd yyyy") : pr.purchaseRequisition.PurchaseRequisitionDate.ToString("MMM dd yyyy"),
                             Supplier = po != null ? po.purchaseOrder.PurchaseOrderPartyName : pr.purchaseRequisition.PurchaseRequisitionPartyName,
                             TotalAmount = po != null ? po.purchaseOrder.PurchaseOrderNetAmount : pr.purchaseRequisition.PurchaseRequisitionNetAmount,
-                            RequestedBy = "Irfan Khan",
-                            Department = "IT Procurement",
-                            ApprovalLink = _mailSettings.MainUrl,
-                            SupportEmail = "info@inspire-systems.com"
+                            RequestedBy = _mailSettings.RequestedBy,
+                            Department = _mailSettings.Department,
+                            ApprovalLink = $"{_mailSettings.MainUrl}{po.purchaseOrder.PurchaseOrderId}".Trim() ,
+                            SupportEmail = _mailSettings.SupportEmail
                         });
                     });
                 });

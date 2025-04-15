@@ -14,6 +14,9 @@ namespace Inspire.Erp.Domain.Models.Common
         public string POPRTemplateId { get; set; }
         public string TemplateId { get; set; }
         public string MainUrl { get; set; }
+        public string RequestedBy { get; set; }
+        public string Department { get; set; }
+        public string SupportEmail { get; set; }
 
     }
 }

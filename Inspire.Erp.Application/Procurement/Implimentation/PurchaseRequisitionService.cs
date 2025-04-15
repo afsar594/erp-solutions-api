@@ -509,10 +509,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         Date = purchaseRequisition.PurchaseRequisitionDate.ToString("MMM dd yyyy"),
                         Supplier = purchaseRequisition.PurchaseRequisitionPartyName,
                         TotalAmount = purchaseRequisition.PurchaseRequisitionNetAmount,
-                        RequestedBy = "Irfan Khan",
-                        Department = "IT Procurement",
-                        ApprovalLink = _mailSettings.MainUrl,
-                        SupportEmail = "info@inspire-systems.com"
+                        RequestedBy = _mailSettings.RequestedBy,
+                        Department = _mailSettings.Department,
+                        ApprovalLink = $"{_mailSettings.MainUrl}{purchaseRequisition.PurchaseRequisitionId}".Trim(),
+                        SupportEmail = _mailSettings.SupportEmail
                     });
                 });
                 var filePaths = new List<string>();

@@ -474,10 +474,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         Date = purchaseOrder.PurchaseOrderDate.ToString("MMM dd yyyy"),
                         Supplier = purchaseOrder.PurchaseOrderPartyName,
                         TotalAmount = purchaseOrder.PurchaseOrderNetAmount,
-                        RequestedBy = "Irfan Khan",
-                        Department = "IT Procurement",
-                        ApprovalLink = $"{_mailSettings.MainUrl}{purchaseOrder.PurchaseOrderId}",
-                        SupportEmail = "info@inspire-systems.com"
+                        RequestedBy = _mailSettings.RequestedBy,
+                        Department = _mailSettings.Department,
+                        ApprovalLink = $"{_mailSettings.MainUrl}{purchaseOrder.PurchaseOrderId}".Trim(),
+                        SupportEmail = _mailSettings.SupportEmail
                     });
                 });
 
