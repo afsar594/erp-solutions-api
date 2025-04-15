@@ -649,7 +649,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                 var approvers = purchaseOrderRequisitionHelper.GetApproverNameAndEmails((int)firstOrDefaultModel.LevelId + 1, 1).Result;
                 var po = firstOrDefaultModel.VoucherType.ToUpper() == "Purchase Order".ToUpper() ? _purchaseOrderService.GetSavedPurchaseOrderDetails(firstOrDefaultModel.VoucherId) : null;
                 var pr = firstOrDefaultModel.VoucherType.ToUpper() == "Purchase Requisition".ToUpper() ? _purchaseRequisitionService.GetSavedPurchaseRequisitionDetails(firstOrDefaultModel.VoucherId) : null;
-
+                var poprId = po == null ? pr.purchaseRequisition.PurchaseRequisitionId : po.purchaseOrder.PurchaseOrderId;
                 model.ForEach(m =>
                 {
                     m.ModifiedDate = currentDateTime;
@@ -662,11 +662,11 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                             ApproverName = x.Name,
                             PONumber = po != null ? po.purchaseOrder.PurchaseOrderNo : pr.purchaseRequisition.PurchaseRequisitionNo,
                             Date = po != null ? po.purchaseOrder.PurchaseOrderDate.ToString("MMM dd yyyy") : pr.purchaseRequisition.PurchaseRequisitionDate.ToString("MMM dd yyyy"),
-                            Supplier = po != null ? po.purchaseOrder.PurchaseOrderPartyName : pr.purchaseRequisition.PurchaseRequisitionPartyName,
+                            Supplier = po != null ? po.purchaseOrder.PurchaseOrderPartyName ?? "" : pr.purchaseRequisition.PurchaseRequisitionPartyName ?? "",
                             TotalAmount = po != null ? po.purchaseOrder.PurchaseOrderNetAmount : pr.purchaseRequisition.PurchaseRequisitionNetAmount,
                             RequestedBy = _mailSettings.RequestedBy,
                             Department = _mailSettings.Department,
-                            ApprovalLink = $"{_mailSettings.MainUrl}{po.purchaseOrder.PurchaseOrderId}".Trim() ,
+                            ApprovalLink = $"{_mailSettings.MainUrl}{poprId}".Trim() ,
                             SupportEmail = _mailSettings.SupportEmail
                         });
                     });
