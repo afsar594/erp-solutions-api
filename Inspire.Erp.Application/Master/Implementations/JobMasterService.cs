@@ -247,7 +247,8 @@ namespace Inspire.Erp.Application.Master
                 int jobId = 0;
                 jobrepository.BeginTransaction();
                 jobId = jobMaster.JobMasterJobId;
-
+                var existingJobDetails = this.jobdetailsRepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterJobDetailsJobId == jobId).ToList();
+                var detailsToDelete = existingJobDetails.Where(x => jobMaster.JobMasterJobDetails.All(d => x.JobMasterJobDetailsJobDetId != d.JobMasterJobDetailsJobDetId)).ToList();
                 string vNumber = jobMaster.JobMasterJobNo;
 
                 jobMaster.JobMasterBudgetDetails.Select((x) =>
@@ -336,7 +337,8 @@ namespace Inspire.Erp.Application.Master
                 //    x.job_IsDeleted = false;
                 //    return x;
                 //});
-
+                if (detailsToDelete.Any())
+                    this.jobdetailsRepository.DeleteList(detailsToDelete);
                 jobrepository.Update(jobMaster);
                 jobrepository.TransactionCommit();
 
