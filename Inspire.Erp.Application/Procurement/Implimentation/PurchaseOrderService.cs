@@ -850,6 +850,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         {
             try
             {
+                var user = _cacheMemoryService.GetUserObject(InspireConstants.UserCacheKey) as UserFile;
                 var poQuery = _purchaseOrderRepository
                 .GetWithInclude(x => true, inc => inc.OrderApprovalHierarchies)
                 .AsNoTracking();
@@ -894,7 +895,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     Amount = (decimal)x.PurchaseOrderNetAmount,
                     Status = x.PurchaseOrderApproveStatus,
                     Remarks = $"{x.PurchaseOrderRemarks1}\n{x.PurchaseOrderRemarks2}\n{x.PurchaseOrderRemarks3}",
-                    VoucherApprovers = x.OrderApprovalHierarchies.Select(oh => new VoucherApprover
+                    VoucherApprovers = x.OrderApprovalHierarchies.Where(x => user.WorkGroupId == 1 ? true : x.ApproverId == user.UserId).Select(oh => new VoucherApprover
                     {
                         ApproverId = (int)oh.ApproverId,
                         ApproverLevel = approvers.FirstOrDefault(x => x.ApproverId == oh.ApproverId && x.FormType == EnumOrderForms.PurchaseOrder)?.ApproverLevel ?? EnumApproverLevels.None,
@@ -914,7 +915,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     Amount = (decimal)x.PurchaseRequisitionNetAmount,
                     Status = x.PurchaseRequisitionStatus,
                     Remarks = x.PurchaseRequisitionRemarks,
-                    VoucherApprovers = x.OrderApprovalHierarchies.Select(oh => new VoucherApprover()
+                    VoucherApprovers = x.OrderApprovalHierarchies.Where(x => user.WorkGroupId == 1 ? true : x.ApproverId == user.UserId).Select(oh => new VoucherApprover()
                     {
                         ApproverId = (int)oh.ApproverId,
                         ApproverLevel = approvers.FirstOrDefault(x => x.ApproverId == oh.ApproverId && x.FormType == EnumOrderForms.PurchaseOrder)?.ApproverLevel ?? EnumApproverLevels.None,
