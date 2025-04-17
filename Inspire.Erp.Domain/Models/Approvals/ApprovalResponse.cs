@@ -1,4 +1,5 @@
 ﻿using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -37,5 +38,27 @@ namespace Inspire.Erp.Domain.Models.Approvals
         [NotMapped]
         public Boolean isActive { get; set; }
        
+    }
+
+
+
+    public class ApproverLevelSettingsDto
+    {
+        public ApproverLevelSettingsDto()
+        {
+            ApproverLevels = new List<Approvers>();
+        }
+        public EnumOrderForms FormType { get; set; }
+        public List<Approvers> ApproverLevels { get; set; }
+    }
+
+    public class Approvers
+    {
+        public EnumApproverLevels ApproverLevel { get; set; }
+        public long ApproverId { get; set; }
+        public bool OptEmail { get; set; }
+        public int NotificationDays { get; set; }
+        public decimal MinAmount { get; set; }
+        public decimal MaxAmount { get; set; }
     }
 }

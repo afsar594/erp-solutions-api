@@ -20,6 +20,7 @@ using Inspire.Erp.Domain.Models;
 using System.Xml.Linq;
 using Inspire.Erp.Domain.Entities.documents;
 using Inspire.Erp.Domain.Models.ViewModels;
+using Inspire.Erp.Domain.Enums;
 
 namespace Inspire.Erp.Infrastructure.Database
 {
@@ -467,6 +468,9 @@ namespace Inspire.Erp.Infrastructure.Database
         public DbSet<BillofQtyTracking> BillofQtyTrackings { get; set; }
         // hr Staffmaster
         public virtual DbSet<HrStaffMaster> HrStaffMasters { get; set; }
+
+        public DbSet<ApproverLevelSettings> ApproverLevelSettings { get; set; }
+        public DbSet<OrderApprovalHierarchy> OrderApprovalHierarchies { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -475,9 +479,30 @@ namespace Inspire.Erp.Infrastructure.Database
             }
             //optionsBuilder.EnableSensitiveDataLogging();
         }
-        
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<OrderApprovalHierarchy>(entity =>
+            {
+                entity.ToTable("OrderApprovalHierarchy");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.OrderType).HasConversion(v => v.ToString(), v => (EnumOrderForms)Enum.Parse(typeof(EnumOrderForms), v));
+                entity.Property(e => e.Status).HasConversion(v => v.ToString(), v => (EnumApprovalStatus)Enum.Parse(typeof(EnumApprovalStatus), v));
+            });
+
+            modelBuilder.Entity<ApproverLevelSettings>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.MinAmount).HasDefaultValue(0).HasColumnType("numeric(18, 2)");
+                entity.Property(e => e.MaxAmount).HasDefaultValue(0).HasColumnType("numeric(18, 2)");
+                entity.Property(e => e.OptEmail).HasDefaultValue(false);
+                entity.Property(e => e.FormType).HasConversion(v => v.ToString(), v => (EnumOrderForms)Enum.Parse(typeof(EnumOrderForms), v));
+                entity.Property(e => e.ApproverLevel).HasConversion(v => v.ToString(), v => (EnumApproverLevels)Enum.Parse(typeof(EnumApproverLevels), v));
+                entity.HasOne(e => e.Approver)
+                      .WithMany(u => u.ApproverLevelSettings)
+                      .HasForeignKey(e => e.ApproverId)
+                      .HasConstraintName("FK_UserFile_ApproverSettings");
+            });
             modelBuilder.Entity<BillofQtyTracking>(e =>
             {
                 e.HasNoKey();
@@ -10663,7 +10688,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.Id)
                       .HasColumnName("id")
                       .ValueGeneratedOnAdd();
-                
+
                 entity.Property(e => e.VoucherType)
                       .HasColumnName("Voucher_Type")
                       .HasMaxLength(100)
@@ -10697,7 +10722,7 @@ namespace Inspire.Erp.Infrastructure.Database
                       .HasColumnName("Levelid");
                 entity.Property(e => e.JobId)
                      .HasColumnName("Job_Id");
-               
+
 
                 entity.Property(e => e.Status)
                       .HasColumnName("Status")
@@ -19018,7 +19043,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.CustomerEnqId)
                       .HasColumnType("numeric(18, 0)");
-                
+
                 entity.Property(e => e.ProftPercentage)
                       .HasColumnType("numeric(18, 0)");
                 entity.Property(e => e.ProfitAmount)
@@ -19110,7 +19135,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.ToTable("Estimation_CostCenter");
 
                 entity.HasKey(e => e.Id);
-                
+
                 entity.Property(e => e.Amount).HasColumnName("Amount");
                 entity.Property(e => e.Remarks).HasColumnName("Remarks");
 

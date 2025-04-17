@@ -9,31 +9,43 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Inspire.Erp.Domain.Models.Approvals;
+using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Application.Common;
 
 namespace Inspire.Erp.Application.Helpers
 {
     public class PurchaseOrderRequisitionHelper
     {
-        private readonly IRepository<Permissionapproval> _permissionapproval;
+        private readonly IRepository<ApproverLevelSettings> _approverLevelSettings;
         private readonly IRepository<UserFile> _userFile;
 
-        public PurchaseOrderRequisitionHelper(IRepository<Permissionapproval> permissionapproval, IRepository<UserFile> userFile)
+        public PurchaseOrderRequisitionHelper(IRepository<UserFile> userFile, IRepository<ApproverLevelSettings> approverLevelSettings)
         {
-            _permissionapproval = permissionapproval;
             _userFile = userFile;
+            _approverLevelSettings = approverLevelSettings;
         }
-
-        public async Task<List<EmailAddress>> GetApproverNameAndEmails(int levelId, int formId)
+        public async Task<List<OrderApproversDto>> GetOrderApproverNameAndEmail(EnumOrderForms orderType, EnumApproverLevels approverLevel)
         {
             try
             {
-                var result = (from p in await _permissionapproval.GetAllAsync()
-                              join u in await _userFile.GetAllAsync() on (long)p.UserId equals u.UserId
-                              where p.LevelId == levelId && p.ApprovalformId == formId
-                              select new EmailAddress(u.emailId?.ToString() ?? "", u.UserName)).ToList();
+                var result = (from a in _approverLevelSettings.GetAll()
+                           join u in _userFile.GetAll() on a.ApproverId equals u.UserId
+                           where a.FormType == orderType //&& a.ApproverLevel == approverLevel
+                           group new { a, u } by new { a.FormType, a.ApproverId, u.UserName, a.ApproverLevel } into g
+                           select new OrderApproversDto()
+                           {
+                               Id = g.Key.ApproverId,
+                               Name = g.Key.UserName,
+                               Level = g.Key.ApproverLevel,
+                               Emails = g.Select(x => new ApproverOptEmail()
+                               {
+                                   OptEmail = x.a.OptEmail,
+                                   Email = new EmailAddress(x.u.emailId ?? "", x.u.UserName)
+                               }).ToList()
+                           }).ToList();
                 return result;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
                 throw;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -78,5 +79,6 @@ namespace Inspire.Erp.Domain.Entities
         [NotMapped]
         public bool PurchaseRequisitionApproveEnable { get; set; }
         public virtual ICollection<PurchaseRequisitionDetails> PurchaseRequisitionDetails { get; set; }
+        public virtual ICollection<OrderApprovalHierarchy> OrderApprovalHierarchies { get; set; }
     }
 }

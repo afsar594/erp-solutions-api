@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -23,7 +24,7 @@ namespace Inspire.Erp.Domain.Entities
         public bool? System { get; set; }
         public bool? Freeze { get; set; }
         [NotMapped]
-        public bool? IsValid { get; set; }
+        public bool? IsValid { get; set; } 
         [NotMapped]
         public int? LocId { get; set; }
         [NotMapped]
@@ -33,6 +34,8 @@ namespace Inspire.Erp.Domain.Entities
         public int? FinancialPeriodsFsno { get; set; }
         public int? Loginfailure { get; set; }
         public DateTime? PasswordUpdateDate { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<ApproverLevelSettings> ApproverLevelSettings { get; set; }
 
     }
 

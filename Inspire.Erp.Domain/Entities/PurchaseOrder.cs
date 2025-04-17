@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -89,5 +90,7 @@ namespace Inspire.Erp.Domain.Entities
         ////public virtual ICollection<PurchaseOrderDetails> PurchaseOrderDetailsPurchaseOrder { get; set; }
         ////public virtual ICollection<PurchaseOrderDetails> PurchaseOrderDetailsPurchaseOrderDetailsNoNavigation { get; set; }
         public virtual ICollection<PurchaseOrderDetails> PurchaseOrderDetails { get; set; }
+        //[JsonIgnore]
+        public virtual ICollection<OrderApprovalHierarchy> OrderApprovalHierarchies { get; set; }
     }
 }

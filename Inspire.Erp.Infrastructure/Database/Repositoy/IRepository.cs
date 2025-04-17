@@ -16,16 +16,21 @@ namespace Inspire.Erp.Infrastructure.Database.Repositoy
         IQueryable<T> GetAsQueryable();
         //T Get(long id);
         void Insert(T entity);
+        Task InsertAsync(T entity);
 
 
         IQueryable<T> GetWithInclude(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes);
+
         void InsertList(List<T> entity);
+        Task InsertListAsync(List<T> entity);
         void Update(T entity);
 
         public void UpdateAsync(T entity);
         void UpdateList(List<T> entity);
+        Task UpdateListAsync(List<T> entity);
         void Delete(T entity);
         void DeleteList(List<T> entity);
+        Task DeleteListAsync(List<T> entity);
         public void SaveChangesAsync();
         void BeginTransaction();
         void TransactionCommit();

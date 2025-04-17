@@ -93,5 +93,20 @@ namespace Inspire.Erp.Web.Controllers
             };
             return objresponse;
         }
+
+
+        #region not to remove/replace this code 
+
+        [HttpPost("SaveApproverLevelSettings")]
+        public async Task<IActionResult> SaveApproverLevelSettings([FromBody] ApproverLevelSettingsDto approverLevelSettingsDto)
+        {
+            return Ok(await this._approvalService.SaveAsync(approverLevelSettingsDto));
+        } 
+        [HttpGet("GetApproverLevelSettings")]
+        public async Task<IActionResult> GetApproverLevelSettings(EnumOrderForms fromType)
+        {
+            return Ok(await this._approvalService.GetAsync(fromType));
+        }
+        #endregion
     }
 }

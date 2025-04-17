@@ -1,9 +1,12 @@
 ﻿using Inspire.Erp.Application.Authentication.Inerfaces;
+using Inspire.Erp.Application.Common;
+using Inspire.Erp.Domain.Constants;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Infrastructure;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -20,10 +23,12 @@ namespace Inspire.Erp.Application.Authentication.Implementations
     {
         private IRepository<UserFile> userFileRepository;
         private IConfiguration Configuration;
-        public LoginService(IRepository<UserFile> _userFileRepository, IConfiguration _Configuration)
+        private readonly CacheMemoryService _cacheMemoryService;
+        public LoginService(IRepository<UserFile> _userFileRepository, IConfiguration _Configuration, IMemoryCache cache)
         {
             userFileRepository = _userFileRepository;
             Configuration = _Configuration;
+            _cacheMemoryService = new CacheMemoryService(cache);
         }
         public UserFile SignIn(UserFile userData)
         {
@@ -32,7 +37,7 @@ namespace Inspire.Erp.Application.Authentication.Implementations
         }
         public UserFile Authenticate(UserFile userData, string ipAddress)
         {
-            var user = userFileRepository.GetAsQueryable().Where(x => x.UserName == userData.UserName).FirstOrDefault();
+            var user = userFileRepository.GetWithInclude(c => c.UserName == userData.UserName,c => c.ApproverLevelSettings).FirstOrDefault();
 
             if (user == null)
             {
@@ -66,6 +71,7 @@ namespace Inspire.Erp.Application.Authentication.Implementations
                             var refreshToken = generateRefreshToken(user);
                             user.Loginfailure = 0;
                             user.Token = jwtToken;
+                            //user.IsValid = true;
                             user.RefreshToken = refreshToken.Token;
                             user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
                             userFileRepository.Update(user);
@@ -99,7 +105,7 @@ namespace Inspire.Erp.Application.Authentication.Implementations
                     };
                 }
             }
-
+            _cacheMemoryService.SaveUserObject(user,InspireConstants.UserCacheKey);
             return user;
         }
         public UserFile RefreshToken(UserFile userData)

@@ -50,8 +50,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private IRepository<PermissionApprovalDetail> _permissionApprovalDetailRepo;
         private IRepository<JobMaster> jobrepository;
         private IRepository<JobMasterBudgetDetails> _budgetDetailsrepository;
-        private readonly IEmailNotificationServices _emailNotificationServices;
-        private readonly EmailSettingViewModel _mailSettings;
+        private readonly IOrderEmailNotificationService _orderEmailNotificationService;
         private IRepository<LocationMaster> locationrepository;
         private IRepository<BillOfQTyDetails> _BillOfQTyDetailsRepository;
         private IRepository<TrackingRegister> _trackingRegisterRepository;
@@ -60,14 +59,14 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private IRepository<SuppliersMaster> _suppliersMasterRepository;
         private IRepository<LocationMaster> _locationMasterRepository;
         private readonly IRepository<PurchaseOrderDetails> _purchaseOrderDetailsRepository;
-        private PurchaseOrderRequisitionHelper purchaseOrderRequisitionHelper;
         public PurchaseRequisitionService(IRepository<ItemMaster> itemMasterRepository, IRepository<UnitMaster> unitMasterRepository,
             IRepository<SuppliersMaster> suppliersMasterRepository, IRepository<LocationMaster> _locationrepository, IRepository<LocationMaster> locationMasterRepository,
             IRepository<PermissionApproval> permissionApprovalRepo, IRepository<Approval> approvalRepo, IRepository<ApprovalDetail> approvalDetailRepo,
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
             IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger, IRepository<JobMaster> _jobrepository, IRepository<BillOfQTyDetails> BillOfQTyDetailsRepository,
              IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo,
-        IRepository<PurchaseRequisition> purchaseRequisitionRepository, InspireErpDBContext context, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository, IRepository<JobMasterBudgetDetails> budgetDetailsrepository, IEmailNotificationServices emailNotificationServices, IOptions<EmailSettingViewModel> mailSettings, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository, IRepository<UserFile> userFile, IRepository<Permissionapproval> permissionapproval)
+        IRepository<PurchaseRequisition> purchaseRequisitionRepository, InspireErpDBContext context, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository, IRepository<JobMasterBudgetDetails> budgetDetailsrepository, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository,
+        IOrderEmailNotificationService orderEmailNotificationService)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository; _context = context;
@@ -76,14 +75,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _programsettingsRepository = programsettingsRepository; _voucherNumbersRepository = voucherNumbers; _approvalDetailRepo = approvalDetailRepo; _permissionApprovalRepo = permissionApprovalRepo; _approvalRepo = approvalRepo; locationrepository = _locationrepository;
             jobrepository = _jobrepository; _itemMasterRepository = itemMasterRepository; _unitMasterRepository = unitMasterRepository; _suppliersMasterRepository = suppliersMasterRepository; _locationMasterRepository = locationMasterRepository; _trackingRegisterRepository = trackingRegisterRepository;
             _budgetDetailsrepository = budgetDetailsrepository;
-            _emailNotificationServices = emailNotificationServices;
-            _mailSettings = mailSettings.Value;
             _purchaseOrderDetailsRepository = purchaseOrderDetailsRepository;
-            purchaseOrderRequisitionHelper = new PurchaseOrderRequisitionHelper(permissionapproval, userFile);
+            _orderEmailNotificationService = orderEmailNotificationService;
         }
-        public PurchaseRequisitionModel UpdatePurchaseRequisition(PurchaseRequisition purchaseRequisition, List<AccountsTransactions> accountsTransactions,
-            List<PurchaseRequisitionDetails> purchaseRequisitionDetails
-            )
+        public PurchaseRequisitionModel UpdatePurchaseRequisition(PurchaseRequisition purchaseRequisition, List<AccountsTransactions> accountsTransactions,List<PurchaseRequisitionDetails> purchaseRequisitionDetails)
         {
 
             try
@@ -496,28 +491,15 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 _purchaseRequisitionRepository.TransactionCommit();
 
                 #region EmailNotification
-
-                var approvers = purchaseOrderRequisitionHelper.GetApproverNameAndEmails(1, 2).Result;
-                List<object> rptData = new List<object>();
-                approvers.ForEach(x =>
-                {
-                    rptData.Add(new
-                    {
-                        SubTitle = "Requisition",
-                        ApproverName = x.Name,
-                        PONumber = purchaseRequisition.PurchaseRequisitionNo,
-                        Date = purchaseRequisition.PurchaseRequisitionDate.ToString("MMM dd yyyy"),
-                        Supplier = purchaseRequisition.PurchaseRequisitionPartyName,
-                        TotalAmount = purchaseRequisition.PurchaseRequisitionNetAmount,
-                        RequestedBy = _mailSettings.RequestedBy,
-                        Department = _mailSettings.Department,
-                        ApprovalLink = $"{_mailSettings.MainUrl}{purchaseRequisition.PurchaseRequisitionId}".Trim(),
-                        SupportEmail = _mailSettings.SupportEmail
-                    });
-                });
-                var filePaths = new List<string>();
-                if (approvers.Any())
-                    this._emailNotificationServices.SendTemplatedEmailAsync(approvers, _mailSettings.POPRTemplateId, rptData, filePaths);
+                _orderEmailNotificationService.SendOrderEmailNotificationAsync(
+                                                                               EnumOrderForms.PurchaseRequisition,
+                                                                               EnumApproverLevels.Level1,
+                                                                               "Requisition",
+                                                                               purchaseRequisition.PurchaseRequisitionNo,
+                                                                               purchaseRequisition.PurchaseRequisitionDate,
+                                                                               purchaseRequisition.PurchaseRequisitionPartyName,
+                                                                               (decimal)purchaseRequisition.PurchaseRequisitionNetAmount,
+                                                                               (int)purchaseRequisition.PurchaseRequisitionId).ConfigureAwait(false);
                 #endregion
 
                 return this.GetSavedPurchaseRequisitionDetails((int)purchaseRequisition.PurchaseRequisitionId);

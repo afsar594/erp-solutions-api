@@ -7,6 +7,7 @@ using System.Text;
 using System.Linq;
 using Inspire.Erp.Domain.Modals;
 using System.Threading.Tasks;
+using Inspire.Erp.Domain.Enums;
 
 namespace Inspire.Erp.Application.Procurement.Interfaces
 {
@@ -33,5 +34,11 @@ namespace Inspire.Erp.Application.Procurement.Interfaces
         public Task<Response<List<PODetailsViewModel>>> GetGRMPOs(int? supplierId);
 
         public Boolean IsPurchaseOrderQtyExcededFromBOQ(int PurchaseReqId, List<PurchaseReqItesm> reqItems);
+
+        public Task<Response<List<VoucherApprivalDto>>> GetPOPRForApproval(ApprovalFilterModel model);
+        public Task<Response<VoucherApprivalDto>> ApprovePOPR(int orderId, EnumOrderForms orderType, EnumApprovalStatus approvalStatus);
+        public Task<Response<VoucherApprivalDto>> GetDefaultPOPR(int orderId, EnumOrderForms orderType);
+
+
     }
 }
