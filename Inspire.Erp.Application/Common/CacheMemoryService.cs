@@ -22,7 +22,7 @@ namespace Inspire.Erp.Application.Common
                 RemoveObject(key);
             _cache.Set(key, obj, new MemoryCacheEntryOptions
             {
-                SlidingExpiration = TimeSpan.FromHours(5)
+                SlidingExpiration = TimeSpan.FromDays(30)
             });
         }
 
