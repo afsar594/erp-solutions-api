@@ -143,5 +143,12 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             objresponse.ResultSet = jobMasters;
             return objresponse;
         }
+
+
+        [HttpGet("GetById")]
+        public async Task<IActionResult> GetById(int Id)
+        {
+            return Ok(await _ProgressiveInvoice.GetById(Id));
+        }
     }
 }

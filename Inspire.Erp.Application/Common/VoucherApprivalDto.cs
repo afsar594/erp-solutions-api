@@ -29,5 +29,6 @@ namespace Inspire.Erp.Application.Common
         public int ApproverId { get; set; }
         public EnumApproverLevels  ApproverLevel { get; set; }
         public EnumApprovalStatus Status { get; set; }
+        public string Remarks { get; set; }
     }
 }

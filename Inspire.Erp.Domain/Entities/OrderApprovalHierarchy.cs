@@ -20,7 +20,10 @@ namespace Inspire.Erp.Domain.Entities
 		[Required]
 		public EnumApprovalStatus Status { get; set; }
 
-		[ForeignKey("OrderId")]
+		[Required]
+        public string Remarks { get; set; }
+
+        [ForeignKey("OrderId")]
 		public virtual PurchaseOrder PurchaseOrders { get; set; }
 		[ForeignKey("OrderId")]
 		public virtual PurchaseRequisition PurchaseRequisitions { get; set; }

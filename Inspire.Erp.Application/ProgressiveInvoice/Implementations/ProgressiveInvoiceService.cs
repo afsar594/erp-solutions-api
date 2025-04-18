@@ -16,7 +16,11 @@ using Inspire.Erp.Domain.Modals.Common;
 using Microsoft.AspNetCore.Server.IIS.Core;
 using System.Linq;
 using AutoMapper.Configuration;
-
+using Inspire.Erp.Application.Common.Invoices;
+using System.Data;
+using Inspire.Erp.Infrastructure;
+using Microsoft.Extensions.Options;
+using Dapper;
 
 namespace Inspire.Erp.Application.Master.Implementations
 {
@@ -27,12 +31,15 @@ namespace Inspire.Erp.Application.Master.Implementations
         private IRepository<ProgramSettings> _programsettingsRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
         private IRepository<ProgressiveInvoiceDetails> _progressiveInvoiceDetails;
-        public ProgressiveInoiceService(IRepository<ProgressiveInvoice> progressiveInvoice, IRepository<AccountsTransactions> accountTransactionRepository, IRepository<ProgramSettings> programsettingsRepository, IRepository<VouchersNumbers> voucherNumbersRepository)
+        private readonly IDbConnection _dbConnection;
+        public ProgressiveInoiceService(Microsoft.Extensions.Configuration.IConfiguration config, IOptions<ApplicationSettings> applicationSettings, IRepository<ProgressiveInvoice> progressiveInvoice, IRepository<AccountsTransactions> accountTransactionRepository, IRepository<ProgramSettings> programsettingsRepository, IRepository<VouchersNumbers> voucherNumbersRepository)
         {
             _progressiveInvoice = progressiveInvoice;
             _accountTransactionRepository = accountTransactionRepository;
             _programsettingsRepository = programsettingsRepository;
             _voucherNumbersRepository = voucherNumbersRepository;
+            var settings = config.GetSection("ApplicationSettings").Get<ApplicationSettings>();
+            _dbConnection = new SqlConnection(settings.ConnectionString);
         }
         public ProgressiveInvoice InsertProgressInvoice(ProgressiveInvoice progressiveInvoice, List<AccountsTransactions> accountsTransactions, List<ProgressiveInvoiceDetails> progressiveInvoiceDetails)
         {
@@ -70,7 +77,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                     return k;
                 }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
-                
+
 
                 _progressiveInvoice.Insert(progressiveInvoice);
 
@@ -206,5 +213,37 @@ namespace Inspire.Erp.Application.Master.Implementations
 
         }
 
+        public async Task<Response<ProgressiveInvoiceDto>> GetById(int Id)
+        {
+            var sql = $@"SELECT CM.Customer_Master_Customer_Name AS CustomerName,
+		                        CM.Customer_Master_Customer_No As CustomerNo,JM.Job_Master_Job_Name as JobName, 
+		                        JM.Job_Master_Job_id as JobId,PI.Progressive_Invoice_ID AS ProgressiveInvoiceId,
+                                PI.Progressive_Invoice_InvNo AS ProgressiveInvoiceInvNo,PI.Progressive_Invoice_Cust_ID AS ProgressiveInvoiceCustId,
+                               PI.Progressive_Invoice_Job_ID AS ProgressiveInvoiceJobId,PI.Progressive_Invoice_InvDate AS ProgressiveInvoiceInvDate,
+                               PI.Progressive_Invoice_IsVariation AS ProgressiveInvoiceIsVariation,PI.Progressive_Invoice_Invoice_Type AS ProgressiveInvoiceInvoiceType,
+                               PI.Progressive_Invoice_Reference AS ProgressiveInvoiceReference,PI.Progressive_Invoice_TotAmount AS ProgressiveInvoiceTotAmount,
+                               PI.Progressive_Invoice_Status AS ProgressiveInvoiceStatus,PI.Progressive_Invoice_Disc_Percentage AS ProgressiveInvoiceDiscPercentage,
+                               PI.Progressive_Invoice_Discount AS ProgressiveInvoiceDiscount,PI.Progressive_Invoice_PrintInv AS ProgressiveInvoicePrintInv,
+                               PI.Progressive_Invoice_Location_ID AS ProgressiveInvoiceLocationId,PI.Progressive_Invoice_PayAppNo AS ProgressiveInvoicePayAppNo,
+                               PI.Progressive_Invoice_Description AS ProgressiveInvoiceDescription,PI.Progressive_Invoice_Progress AS ProgressiveInvoiceProgress,
+                               PI.Progressive_Invoice_Cur_Compl_Val AS ProgressiveInvoiceCurComplVal,PI.Progressive_Invoice_Cur_Compl_Per AS ProgressiveInvoiceCurComplPer,
+                               PI.Progressive_Invoice_Prev_Compl_Val AS ProgressiveInvoicePrevComplVal,PI.Progressive_Invoice_Prev_Compl_Per AS ProgressiveInvoicePrevComplPer,
+                               PI.Progressive_Invoice_Cumilative_Val AS ProgressiveInvoiceCumilativeVal,PI.Progressive_Invoice_Cumilative_Per AS ProgressiveInvoiceCumilativePer,
+                               PI.Progressive_Invoice_AmountDue AS ProgressiveInvoiceAmountDue,PI.Progressive_Invoice_Total AS ProgressiveInvoiceTotal,
+                               PI.Progressive_Invoice_FSNO AS ProgressiveInvoiceFsno,PI.Progressive_Invoice_User_ID AS ProgressiveInvoiceUserId,
+                               PI.Progressive_Invoice_Description_ID AS ProgressiveInvoiceDescriptionId,PI.Progressive_Invoice_Pl_Retention AS ProgressiveInvoicePlRetention,
+                               PI.Progressive_Invoice_Pl_Total_Amount AS ProgressiveInvoicePlTotalAmount,PI.Progressive_Invoice_DelStatus AS ProgressiveInvoiceDelStatus
+                              FROM Progressive_Invoice PI
+                              left join Customer_Master CM on CM.Customer_Master_Customer_No = PI.Progressive_Invoice_Cust_ID
+                              left join Job_Master JM on JM.Job_Master_Job_id = PI.Progressive_Invoice_Job_id   Where PI.Progressive_Invoice_ID = {Id}";
+            var progressiveInvoiceResult = await _dbConnection.QueryFirstOrDefaultAsync<ProgressiveInvoiceDto>(sql);
+            progressiveInvoiceResult.VariaAmount = await _dbConnection.QueryFirstOrDefaultAsync<VariationAmount>($"Select ISNULL(Job_Master_job_value,0) as JobAmount,ISNULL(Job_Master_Job_Advance_Amount,0) AS AdvAmount,ISNULL(Job_Master_Job_AdvAmountOnVar,0) AS AdvAmountOnVar From Job_Master Where Job_Master_Job_id ={progressiveInvoiceResult.JobId}");
+            
+            var jobSummaryWhere = progressiveInvoiceResult.ProgressiveInvoiceIsVariation ?? false  ? " and ISNULL(Progressive_Invoice_IsVariation,0) = 1 " : " and ISNULL(Progressive_Invoice_IsVariation,0) = 0";
+           jobSummaryWhere += $" and Progressive_Invoice_InvDate < {progressiveInvoiceResult.ProgressiveInvoiceInvDate.Value.ToString("dd - MMM - yyyy")}";
+            progressiveInvoiceResult.Summary = await _dbConnection.QueryFirstOrDefaultAsync<JobSummary>($"Select ISNULL(sum(Progressive_Invoice_Cur_Compl_Per),0) as TotalCompletedPer,ISNULL(Sum(Progressive_Invoice_Cur_Compl_Val),0) as TotalCompletedValue,ISNULL(SUM(Progressive_Invoice_RetAmount),0) AS TotalRetentionAmount,ISNULL(SUM(Progressive_Invoice_VariationAmount),0) AS TotalVariationAmount,ISNULL(SUM(Progressive_Invoice_AdvanceDeduction),0) AS TotalAdvanceAmount From  Progressive_Invoice Where Progressive_Invoice_Job_id = {progressiveInvoiceResult.JobId} ");
+            progressiveInvoiceResult.TotalCompletedValue = await _dbConnection.QueryFirstOrDefaultAsync<double>($"Select ISNULL(Sum(Progressive_Invoice_Cur_Compl_Val),0) as TotalCompletedValue From  Progressive_Invoice Where Progressive_Invoice_Job_id = {progressiveInvoiceResult.JobId} and Progressive_Invoice_InvDate < {progressiveInvoiceResult.ProgressiveInvoiceInvDate.Value.ToString("dd-MMM-yyyy")}");
+            return Response<ProgressiveInvoiceDto>.Success(progressiveInvoiceResult, "Data found");
+        }
     }
 }

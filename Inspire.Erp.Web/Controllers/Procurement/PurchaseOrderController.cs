@@ -554,10 +554,10 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             return Ok(await _purchaseOrderService.GetPOPRForApproval(model));
         }
 
-        [HttpGet("ApprovePOPR")]
-        public async Task<IActionResult> ApprovePOPR(int orderId, EnumOrderForms orderType, EnumApprovalStatus approvalStatus)
+        [HttpPost("ApprovePOPR")]
+        public async Task<IActionResult> ApprovePOPR([FromBody] POPRApprovalDto approvalDto)
         {
-            return Ok(await _purchaseOrderService.ApprovePOPR(orderId, orderType, approvalStatus));
+            return Ok(await _purchaseOrderService.ApprovePOPR(approvalDto));
         }
         [HttpGet("GetDefaultPOPR")]
         public async Task<IActionResult> GetDefaultPOPR(int orderId, EnumOrderForms orderType)

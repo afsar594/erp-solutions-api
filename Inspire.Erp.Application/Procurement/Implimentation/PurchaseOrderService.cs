@@ -899,7 +899,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     {
                         ApproverId = (int)oh.ApproverId,
                         ApproverLevel = approvers.FirstOrDefault(x => x.ApproverId == oh.ApproverId && x.FormType == EnumOrderForms.PurchaseOrder)?.ApproverLevel ?? EnumApproverLevels.None,
-                        Status = oh.Status
+                        Status = oh.Status,
+                        Remarks = oh.Remarks
                     }).ToList()
                 }).ToList();
 
@@ -919,7 +920,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     {
                         ApproverId = (int)oh.ApproverId,
                         ApproverLevel = approvers.FirstOrDefault(x => x.ApproverId == oh.ApproverId && x.FormType == EnumOrderForms.PurchaseOrder)?.ApproverLevel ?? EnumApproverLevels.None,
-                        Status = oh.Status
+                        Status = oh.Status,
+                        Remarks = oh.Remarks
                     }).ToList()
                 }).ToList();
 
@@ -935,26 +937,30 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             }
         }
 
-        public Task<Response<VoucherApprivalDto>> ApprovePOPR(int orderId, EnumOrderForms orderType, EnumApprovalStatus approvalStatus)
+        public Task<Response<VoucherApprivalDto>> ApprovePOPR(POPRApprovalDto approvalDto)
         {
             try
             {
                 _orderApprovalHierarchy.BeginTransaction();
                 var user = _cacheMemoryService.GetUserObject(InspireConstants.UserCacheKey) as UserFile;
                 var approvers = _approverLevelSettings.GetAsQueryable()
-                 .Where(x => x.FormType == orderType)
+                 .Where(x => x.FormType == approvalDto.OrderType)
                   .ToList();
 
-                var poprToApprove = _orderApprovalHierarchy.GetAsQueryable().Where(x => x.OrderId == orderId && x.OrderType == orderType && x.ApproverId == user.UserId).ToList();
-                poprToApprove.ForEach(x => x.Status = approvalStatus);
+                var poprToApprove = _orderApprovalHierarchy.GetAsQueryable().Where(x => x.OrderId == approvalDto.OrderId && x.OrderType == approvalDto.OrderType && x.ApproverId == user.UserId).ToList();
+                poprToApprove.ForEach(x => 
+                    { 
+                        x.Status = approvalDto.ApprovalStatus;
+                        x.Remarks = approvalDto.Remarks;
+                    });
                 _orderApprovalHierarchy.UpdateList(poprToApprove);
 
                 EnumApproverLevels nextLevelToSendEamil = GetNextApproverLevel(user.UserId, approvers);
                 if (nextLevelToSendEamil != EnumApproverLevels.None)
                 {
                     List<object> rptData = new List<object>();
-                    var po = orderType == EnumOrderForms.PurchaseOrder ? GetSavedPurchaseOrderDetails(orderId) : null;
-                    var pr = orderType == EnumOrderForms.PurchaseRequisition ? _purchaseRequisitionService.GetSavedPurchaseRequisitionDetails(orderId) : null;
+                    var po = approvalDto.OrderType == EnumOrderForms.PurchaseOrder ? GetSavedPurchaseOrderDetails(approvalDto.OrderId) : null;
+                    var pr = approvalDto.OrderType == EnumOrderForms.PurchaseRequisition ? _purchaseRequisitionService.GetSavedPurchaseRequisitionDetails(approvalDto.OrderId) : null;
 
                     _orderEmailNotificationService.SendOrderEmailNotificationAsync(
                                                                                 po != null ? EnumOrderForms.PurchaseOrder : EnumOrderForms.PurchaseRequisition,
@@ -969,7 +975,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 }
                 _orderApprovalHierarchy.TransactionCommit();
 
-                return GetDefaultPOPR(orderId, orderType);
+                return GetDefaultPOPR(approvalDto.OrderId, approvalDto.OrderType);
             }
             catch (Exception)
             {
@@ -1022,7 +1028,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         VoucherApprovers = x.OrderApprovalHierarchies.Where(ah => ah.ApproverId == user.UserId).Select(x => new VoucherApprover()
                         {
                             ApproverId = (int)x.ApproverId,
-                            Status = x.Status
+                            Status = x.Status,
+                             Remarks = x.Remarks
                         }).ToList()
                     }).FirstOrDefault();
 
@@ -1047,7 +1054,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                     VoucherApprovers = x.OrderApprovalHierarchies.Where(ah => ah.ApproverId == user.UserId).Select(oh => new VoucherApprover()
                                     {
                                         ApproverId = (int)oh.ApproverId,
-                                        Status = oh.Status
+                                        Status = oh.Status,
+                                        Remarks = oh.Remarks
                                     }).ToList()
                                 }).FirstOrDefault();
                     return Response<VoucherApprivalDto>.Success(prData, "Data found");
