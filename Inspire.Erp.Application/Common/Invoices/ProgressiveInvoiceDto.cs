@@ -6,6 +6,7 @@ namespace Inspire.Erp.Application.Common.Invoices
 {
    public class ProgressiveInvoiceDto
     {
+     
         public int? ProgressiveInvoiceId { get; set; }
         public string ProgressiveInvoiceInvNo { get; set; }
         public int? ProgressiveInvoiceCustId { get; set; }
@@ -45,7 +46,9 @@ namespace Inspire.Erp.Application.Common.Invoices
         public double? TotalCompletedValue { get; set; }
 
         public VariationAmount VariaAmount { get; set; }
-        public JobSummary Summary { get; set; }
+        public JobSummary PreviousSummary { get; set; }
+
+        public IEnumerable<PrgInvoiceDetail> PrgInvoiceDetails { get; set; }
     }
 
     public class VariationAmount
@@ -63,4 +66,17 @@ namespace Inspire.Erp.Application.Common.Invoices
         public double? TotalAdvanceAmount { get; set; }
     }
 
+    public class PrgInvoiceDetail
+    {
+        public string ProgressiveInvoiceInvNo { get; set; }
+        public string ProgressiveInvoiceProgress { get; set; }
+        public double ProgressiveInvoiceCurComplVal { get; set; }
+        public double ProgressiveInvoiceCurComplPer { get; set; }
+        public double ProgressiveInvoicePrevComplVal { get; set; }
+        public double ProgressiveInvoicePrevComplPer { get; set; }
+        public double ProgressiveInvoiceCumilativeVal { get; set; }
+        public double ProgressiveInvoiceCumilativePer { get; set; }
+        public double ProgressiveInvoiceVariationAmount { get; set; }
+        public string VariationInvoice { get; set; }
+    }
 }
