@@ -62,7 +62,7 @@ namespace Inspire.Erp.Application.Master.Implementations
 
                 }).ToList();
 
-                _progressiveInvoiceDetails.InsertList(progressiveInvoiceDetails);
+                //_progressiveInvoiceDetails.InsertList(progressiveInvoiceDetails);
 
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {

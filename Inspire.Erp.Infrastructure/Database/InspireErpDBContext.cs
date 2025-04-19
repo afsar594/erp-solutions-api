@@ -11118,7 +11118,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<ProgressiveInvoice>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(k=>k.ProgressiveInvoiceId);
 
                 entity.ToTable("Progressive_Invoice");
 
