@@ -17,6 +17,7 @@ namespace Inspire.Erp.Application.Common
         public DateTime VoucherDate { get; set; }
         public string LocationName { get; set; }
         public long? JobId { get; set; }
+        public int? LocationId { get; set; }
         public string? JobName { get; set; }
         public decimal Amount { get; set; }
         public string Status { get; set; }
