@@ -890,7 +890,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     VoucherNo = x.PurchaseOrderNo,
                     VoucherDate = x.PurchaseOrderDate,
                     LocationName = "",
-                    JobId = (int)x.PurchaseOrderJobId,
+                    JobId = x.PurchaseOrderJobId,
                     JobName = "",
                     Amount = (decimal)x.PurchaseOrderNetAmount,
                     Status = x.PurchaseOrderApproveStatus,
@@ -911,7 +911,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     VoucherNo = x.PurchaseRequisitionNo,
                     VoucherDate = x.PurchaseRequisitionDate,
                     LocationName = "",
-                    JobId = (int)x.PurchaseRequisitionJobId,
+                    JobId = x.PurchaseRequisitionJobId,
                     JobName = "",
                     Amount = (decimal)x.PurchaseRequisitionNetAmount,
                     Status = x.PurchaseRequisitionStatus,
@@ -927,6 +927,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 var CombinedData = poData.Concat(prData).ToList();
 
+                if (model.Status != EnumApprovalStatus.None)
+                    CombinedData = CombinedData.Where(x => x.VoucherApprovers.All(v => v.Status == model.Status)).ToList();
+                
                 return Response<List<VoucherApprivalDto>>.Success(CombinedData, "Data found");
 
             }

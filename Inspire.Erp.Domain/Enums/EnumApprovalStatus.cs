@@ -6,9 +6,9 @@ namespace Inspire.Erp.Domain.Enums
 {
     public enum EnumApprovalStatus
     {
+        None,
         Pending,
         Approved,
         Rejected,
-        None
     }
 }
