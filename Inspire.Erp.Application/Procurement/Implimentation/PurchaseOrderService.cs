@@ -940,7 +940,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         ApproverLevel = s.ApproverLevel
                     }).ToList();
 
-                var CombinedData = model.Type.SelectMany(type =>
+
+                var modelTypes = model.Type.Contains(EnumOrderForms.None) ? GetModelTypes() : model.Type;
+
+                var CombinedData = modelTypes.SelectMany(type =>
                 {
                     return type switch
                     {
@@ -961,21 +964,25 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             }
         }
 
+        private List<EnumOrderForms> GetModelTypes()
+        {
+            return new List<EnumOrderForms> { EnumOrderForms.CustomerQuotation, EnumOrderForms.PurchaseOrder, EnumOrderForms.PurchaseRequisition};
+        }
+
         public List<VoucherApprivalDto> GetPurchaseOrderForApproval(ApprovalFilterModel model, List<ApproverLevelSettings> approvers, UserFile user)
         {
-            var poQuery = _purchaseOrderRepository
-                            .GetWithInclude(x => true, inc => inc.OrderApprovalHierarchies)
-                            .AsNoTracking();
+            var poQuery = _purchaseOrderRepository.GetAsQueryable()
+                                     .Where(x => !model.IsDate ? true : x.PurchaseOrderDate.Date >= model.fromDate.Value.Date && x.PurchaseOrderDate.Date <= model.toDate.Value.Date
+                                     && model.JobId < 0 ? true : x.PurchaseOrderJobId == model.JobId)
+                                    .Include(inc => inc.OrderApprovalHierarchies)
+                                    .AsNoTracking()
+                                    .ToList();
+
+            poQuery.ForEach(f => f.OrderApprovalHierarchies = f.OrderApprovalHierarchies.Where(x => x.OrderType == EnumOrderForms.PurchaseRequisition).ToList());
 
             IQueryable<LocationMaster> locQuery = _locationMasterRepository.GetAsQueryable();
             IQueryable<JobMaster> jobQuery = _jobMaster.GetAsQueryable();
 
-            if (model.IsDate)
-                poQuery = poQuery.Where(x => x.PurchaseOrderDate.Date >= model.fromDate.Value.Date &&
-                                             x.PurchaseOrderDate.Date <= model.toDate.Value.Date);
-
-            if (model.JobId > 0)
-                poQuery = poQuery.Where(x => x.PurchaseOrderJobId == model.JobId);
 
             var poList = (from po in poQuery
                           join loc in locQuery on po.PurchaseOrderLocationId equals loc.LocationMasterLocationId into locJoin
@@ -1005,18 +1012,18 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 Status = x.po.PurchaseOrderApproveStatus,
                 Remarks = $"{x.po.PurchaseOrderRemarks1}\n{x.po.PurchaseOrderRemarks2}\n{x.po.PurchaseOrderRemarks3}",
                 VoucherApprovers = x.po.OrderApprovalHierarchies
-                                                    .Where(oh => (user.WorkGroupId == 1 || oh.ApproverId == user.UserId) && oh.OrderId == x.po.PurchaseOrderId && oh.OrderType == EnumOrderForms.PurchaseOrder)
+                                                    .Where(oh => (user.WorkGroupId == 1 || oh.ApproverId == user.UserId) && oh.OrderId == x.po.PurchaseOrderId)
                                                     .Select(oh => new VoucherApprover
                                                     {
                                                         ApproverId = (int)oh.ApproverId,
-                                                        ApproverLevel = approvers.FirstOrDefault(a => a.ApproverId == oh.ApproverId && a.FormType == EnumOrderForms.PurchaseOrder)?.ApproverLevel ?? 0,
+                                                        ApproverLevel = !approvers.Any(a => a.ApproverId == oh.ApproverId) ? EnumApproverLevels.None : approvers.FirstOrDefault(a => a.ApproverId == oh.ApproverId)?.ApproverLevel ?? 0,
                                                         Status = oh.Status,
                                                         Remarks = oh.Remarks
                                                     }).ToList()
             }).ToList();
 
             if (model.Status != EnumApprovalStatus.None)
-                poData = poData.Where(x => x.VoucherApprovers.All(v => v.Status == model.Status)).ToList();
+                poData = poData.Where(x => x.VoucherApprovers.Any(v => v.Status == model.Status)).ToList();
 
             return poData;
         }
@@ -1024,20 +1031,18 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
         public List<VoucherApprivalDto> GetPurchaseRequisitionForApproval(ApprovalFilterModel model, List<ApproverLevelSettings> approvers, UserFile user)
         {
-            var prQuery = _purchaseRequisitionRepository
-                            .GetWithInclude(x => true, inc => inc.OrderApprovalHierarchies)
-                            .AsNoTracking();
+            var prQuery = _purchaseRequisitionRepository.GetAsQueryable()
+                .Where(x => !model.IsDate ? true : x.PurchaseRequisitionDate.Date >= model.fromDate.Value.Date && x.PurchaseRequisitionDate.Date <= model.toDate.Value.Date
+                                     && model.JobId < 0 ? true : x.PurchaseRequisitionJobId == model.JobId)
+                .Include(inc => inc.OrderApprovalHierarchies)
+                .AsNoTracking()
+                .ToList();
 
+            prQuery.ForEach(f => f.OrderApprovalHierarchies = f.OrderApprovalHierarchies.Where(x => x.OrderType == EnumOrderForms.PurchaseRequisition).ToList());
 
             IQueryable<LocationMaster> locQuery = _locationMasterRepository.GetAsQueryable();
             IQueryable<JobMaster> jobQuery = _jobMaster.GetAsQueryable();
 
-            if (model.IsDate)
-                prQuery = prQuery.Where(x => x.PurchaseRequisitionDate.Date >= model.fromDate.Value.Date &&
-                                             x.PurchaseRequisitionDate.Date <= model.toDate.Value.Date);
-
-            if (model.JobId > 0)
-                prQuery = prQuery.Where(x => x.PurchaseRequisitionJobId == model.JobId);
 
             var prList = (from pr in prQuery
                           join loc in locQuery on pr.PurchaseRequisitionLocationId equals loc.LocationMasterLocationId into locJoin
@@ -1067,12 +1072,12 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 Status = x.pr.PurchaseRequisitionStatus,
                 Remarks = x.pr.PurchaseRequisitionRemarks,
                 VoucherApprovers = x.pr.OrderApprovalHierarchies
-                    .Where(oh => (user.WorkGroupId == 1 || oh.ApproverId == user.UserId) && oh.OrderId == x.pr.PurchaseRequisitionId && oh.OrderType == EnumOrderForms.PurchaseRequisition)
+                    .Where(oh => (user.WorkGroupId == 1 || oh.ApproverId == user.UserId) && oh.OrderId == x.pr.PurchaseRequisitionId)
                     .Select(oh => new VoucherApprover
                     {
                         ApproverId = (int)oh.ApproverId,
-                        ApproverLevel = approvers
-                            .FirstOrDefault(a => a.ApproverId == oh.ApproverId && a.FormType == EnumOrderForms.PurchaseRequisition)?.ApproverLevel ?? EnumApproverLevels.None,
+                        ApproverLevel = !approvers.Any(a => a.ApproverId == oh.ApproverId) ? EnumApproverLevels.None : approvers
+                            .FirstOrDefault(a => a.ApproverId == oh.ApproverId)?.ApproverLevel ?? EnumApproverLevels.None,
                         Status = oh.Status,
                         Remarks = oh.Remarks
                     }).ToList()
@@ -1080,25 +1085,31 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
 
             if (model.Status != EnumApprovalStatus.None)
-                prData = prData.Where(x => x.VoucherApprovers.All(v => v.Status == model.Status)).ToList();
+                prData = prData.Where(x => x.VoucherApprovers.Any(v => v.Status == model.Status)).ToList();
 
             return prData;
         }
 
         public List<VoucherApprivalDto> GetCustomerQuotationForApproval(ApprovalFilterModel model, List<ApproverLevelSettings> approvers, UserFile user)
         {
+        
+
+            var cusQQuery = _customerQuotation.GetAsQueryable()
+                 .Where(x => !model.IsDate ? true : x.CustomerQuotationQuotationDate.Value.Date >= model.fromDate.Value.Date && x.CustomerQuotationQuotationDate.Value.Date <= model.toDate.Value.Date
+                                     && model.JobId < 0 ? true : x.CustomerQuotationJobId == model.JobId)
+                .AsNoTracking()
+                .ToList();
+
+            var cQIds = cusQQuery.Select(x => (decimal)x.CustomerQuotationQid).ToList();
+
+            var filteredApprovals = _orderApprovalHierarchy.GetAsQueryable()
+                                                    .Where(o => cQIds.Contains(o.OrderId) && o.OrderType == EnumOrderForms.CustomerQuotation)
+                                                    .ToList();
+
+
             IQueryable<LocationMaster> locQuery = _locationMasterRepository.GetAsQueryable();
             IQueryable<JobMaster> jobQuery = _jobMaster.GetAsQueryable();
 
-            var cusQQuery = _customerQuotation.GetAsQueryable()
-                .AsNoTracking();
-
-            if (model.IsDate)
-                cusQQuery = cusQQuery.Where(x => x.CustomerQuotationQuotationDate.Value.Date >= model.fromDate.Value.Date && x.CustomerQuotationQuotationDate.Value.Date <= model.toDate.Value.Date);
-
-            if (model.JobId > 0)
-                cusQQuery = cusQQuery.Where(x => x.CustomerQuotationJobId == model.JobId);
-            
             var cqList = (from cq in cusQQuery
                           join loc in locQuery on cq.CustomerQuotationLocationId equals loc.LocationMasterLocationId into locJoin
                           from loc in locJoin.DefaultIfEmpty()
@@ -1126,19 +1137,19 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 Amount = (decimal)x.cq.CustomerQuotationNetTotal,
                 Status = "N/A",
                 Remarks = x.cq.CustomerQuotationRemarks,
-                //VoucherApprovers = x.OrderApprovalHierarchies
-                //    .Where(oh => (user.WorkGroupId == 1 || oh.ApproverId == user.UserId) && oh.OrderId == x.cq.CustomerQuotationQid && oh.OrderType == EnumOrderForms.CustomerQuotation)
-                //    .Select(oh => new VoucherApprover
-                //    {
-                //        ApproverId = (int)oh.ApproverId,
-                //        ApproverLevel = approvers
-                //            .FirstOrDefault(a => a.ApproverId == oh.ApproverId && a.FormType == EnumOrderForms.CustomerQuotation)?.ApproverLevel ?? 0,
-                //        Status = oh.Status,
-                //        Remarks = oh.Remarks
-                //    }).ToList()
             }).ToList();
 
-
+            cqData.ForEach(a => a.VoucherApprovers.AddRange(filteredApprovals
+                                        .Where(x=> x.OrderId == a.VoucherId)
+                                        .Select(m => new VoucherApprover()
+                                        {
+                                            ApproverId = (int)m.ApproverId,
+                                            ApproverLevel = !approvers.Any(a => a.ApproverId == m.ApproverId) ? EnumApproverLevels.None : approvers
+                                                        .FirstOrDefault(a => a.ApproverId == m.ApproverId)?.ApproverLevel ?? EnumApproverLevels.None,
+                                            Status = m.Status,
+                                            Remarks = m.Remarks
+                                        }).ToList())
+                                        );
 
             if (model.Status != EnumApprovalStatus.None)
                 cqData = cqData.Where(x => x.VoucherApprovers.All(v => v.Status == model.Status)).ToList();

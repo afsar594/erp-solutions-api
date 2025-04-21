@@ -29,20 +29,20 @@ namespace Inspire.Erp.Application.Helpers
             try
             {
                 var result = (from a in _approverLevelSettings.GetAll()
-                           join u in _userFile.GetAll() on a.ApproverId equals u.UserId
-                           where a.FormType == orderType //&& a.ApproverLevel == approverLevel
-                           group new { a, u } by new { a.FormType, a.ApproverId, u.UserName, a.ApproverLevel } into g
-                           select new OrderApproversDto()
-                           {
-                               Id = g.Key.ApproverId,
-                               Name = g.Key.UserName,
-                               Level = g.Key.ApproverLevel,
-                               Emails = g.Select(x => new ApproverOptEmail()
-                               {
-                                   OptEmail = x.a.OptEmail,
-                                   Email = new EmailAddress(x.u.emailId ?? "", x.u.UserName)
-                               }).ToList()
-                           }).ToList();
+                              join u in _userFile.GetAll() on a.ApproverId equals u.UserId
+                              where a.FormType == orderType && a.ApproverLevel == approverLevel
+                              group new { a, u } by new { a.FormType, a.ApproverId, u.UserName, a.ApproverLevel } into g
+                              select new OrderApproversDto()
+                              {
+                                  Id = g.Key.ApproverId,
+                                  Name = g.Key.UserName,
+                                  Level = g.Key.ApproverLevel,
+                                  Emails = g.Select(x => new ApproverOptEmail()
+                                  {
+                                      OptEmail = x.a.OptEmail,
+                                      Email = new EmailAddress(x.u.emailId ?? "", x.u.UserName)
+                                  }).ToList()
+                              }).ToList();
                 return result;
             }
             catch (Exception)

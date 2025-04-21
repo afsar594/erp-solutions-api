@@ -6,11 +6,11 @@ namespace Inspire.Erp.Domain.Enums
 {
     public enum EnumOrderForms
     {
+        None,
         PurchaseOrder,
         PurchaseRequisition,
         BillOfQuantity,
         SalesOrder,
-        None,
         CustomerQuotation,
 
     }

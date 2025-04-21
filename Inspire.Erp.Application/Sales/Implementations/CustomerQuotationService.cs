@@ -25,6 +25,7 @@ using Microsoft.AspNetCore.Mvc;
 using Inspire.Erp.Domain.Models;
 using Inspire.Erp.Domain.Entities.POS;
 using Inspire.Erp.Application.Email.Interfaces;
+using Inspire.Erp.Application.Common.Email;
 
 namespace Inspire.Erp.Application.Sales.Implementations
 {
@@ -168,7 +169,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
 
 
-                string customerQuotationNumber = clsCommonFunctions.GenrateVoucherNo( VoucherType.Quotation, Prefix.CQ_Prefix
+                string customerQuotationNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.Quotation, Prefix.CQ_Prefix
                    , _programsettingsRepository, _voucherNumbersRepository);
 
                 customerQuotation.CustomerQuotationVoucherNo = customerQuotationNumber;
@@ -208,34 +209,31 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 trackingData.UserTrackingUserChangeTime = DateTime.Now;
                 trackingData.UserTrackingUserVpType = "CustomerQuotation";
                 _userTrackingRepository.Insert(trackingData);
-                var permsionApproval = _permissionApprovalRepo.GetAsQueryable().Where(x => x.VoucherType == "CustomerQuotation").OrderBy(x => x.LevelOrder).AsEnumerable().ToList();
-                var approvals = new Approval()
-                {
-                    CreatedBy = 0,
-                    LocationId = null,
-                    Status = false,
-                    VoucherType = "CustomerQuotation"
-                };
-                _approvalRepo.Insert(approvals);
-                _approvalDetailRepo.InsertList(permsionApproval.Select(x => new ApprovalDetail()
-                {
-                    ApprovalId = approvals.Id,
-                    Status = false,
-                    UserId = x.UserId,
-                    LevelOrder = x.LevelOrder,
-                    ApprovedAt = DateTime.Now,
-                }).ToList());
+
+                //var permsionApproval = _permissionApprovalRepo.GetAsQueryable().Where(x => x.VoucherType == "CustomerQuotation").OrderBy(x => x.LevelOrder).AsEnumerable().ToList();
+                //var approvals = new Approval()
+                //{
+                //    CreatedBy = 0,
+                //    LocationId = null,
+                //    Status = false,
+                //    VoucherType = "CustomerQuotation"
+                //};
+                //_approvalRepo.Insert(approvals);
+                //_approvalDetailRepo.InsertList(permsionApproval.Select(x => new ApprovalDetail()
+                //{
+                //    ApprovalId = approvals.Id,
+                //    Status = false,
+                //    UserId = x.UserId,
+                //    LevelOrder = x.LevelOrder,
+                //    ApprovedAt = DateTime.Now,
+                //}).ToList());
 
                 #region EmailNotification
-                _orderEmailNotificationService.SendOrderEmailNotificationAsync(
+                _orderEmailNotificationService.SendQuotationEmailNotificationAsync(
                                                                               EnumOrderForms.CustomerQuotation,
                                                                               EnumApproverLevels.Level1,
-                                                                              "",
-                                                                              customerQuotation.CustomerQuotationVoucherNo,
-                                                                              (DateTime)customerQuotation.CustomerQuotationQuotationDate,
-                                                                              customerQuotation.CustomerQuotationCashCustomerName,
-                                                                              (decimal)customerQuotation.CustomerQuotationNetTotal,
-                                                                              (int)customerQuotation.CustomerQuotationQid).ConfigureAwait(false);
+                                                                              GetEmailModel(customerQuotation, customerQuotationDetails)
+                                                                              );
                 #endregion
                 _customerQuotationRepository.TransactionCommit();
                 return customerQuotation;
@@ -247,6 +245,32 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 throw ex;
             }
         }
+
+        private QuotationEmailModel GetEmailModel(CustomerQuotation cQout, List<CustomerQuotationDetails> customerQuotationDetails)
+        {
+            return new QuotationEmailModel()
+            {
+                OrderId = (int)cQout.CustomerQuotationQid,
+                CompanyName = "Acme Corp",
+                CustomerName = cQout.CustomerQuotationCashCustomerName,
+                SenderName = "Jane Smith",
+                SenderPosition = "Sales Executive",
+                Email = "sales@acmecorp.com",
+                Phone = "+1 (123) 456-7890",
+                Year = "2025",
+                GrandTotal = cQout.CustomerQuotationNetTotal.ToString(),
+                Items = customerQuotationDetails.Select(x => new QuotationItem()
+                {
+                    Description = x.CustomerQuotationDetailsDescription,
+                    Name = x.CustomerQuotationDetailsDescription,
+                    Quantity = (int)x.CustomerQuotationDetailsQty,
+                    Total = x.CustomerQuotationDetailsNetAmount.ToString(),
+                    Unit_Price = x.CustomerQuotationDetailsUnitPrice.ToString()
+                }).ToList()
+            };
+
+        }
+
         public IEnumerable<CustomerQuotation> GetCustomerQuotation()
         {
             IEnumerable<CustomerQuotation> customerQuotation = _customerQuotationRepository.GetAll().Where(k => k.CustomerQuotationDelStatus == false || k.CustomerQuotationDelStatus == null);
@@ -421,16 +445,16 @@ namespace Inspire.Erp.Application.Sales.Implementations
             try
             {
                 _customerQuotationRepository.BeginTransaction();
-                customerQuotation.CustomerQuotationDetails.Clear();                
+                customerQuotation.CustomerQuotationDetails.Clear();
 
                 string[] parts = customerQuotation.CustomerQuotationVoucherNo.Split('-');
-               
+
                 long? additionValue = null;
-                
-                    if (parts.Length > 1 && long.TryParse(parts[1], out long parsedValue))
-                    {
-                        additionValue = parsedValue;
-                    }                
+
+                if (parts.Length > 1 && long.TryParse(parts[1], out long parsedValue))
+                {
+                    additionValue = parsedValue;
+                }
 
                 customerQuotation.CustomerQuotationQuotationRoot = customerQuotation.CustomerQuotationQid;
                 customerQuotation.CustomerQuotationQuotationAddition = additionValue;
@@ -453,7 +477,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     x.CustomerQuotationDetailsVoucherNo = customerQuotation.CustomerQuotationVoucherNo;
                     customerQuotation.CustomerQuotationDetails.Add(x);
                     maxCount1++;
-                }                
+                }
                 _customerQuotationRepository.Insert(customerQuotation);
                 _customerQuotationRepository.TransactionCommit();
             }
