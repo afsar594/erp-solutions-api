@@ -59,6 +59,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private IRepository<SuppliersMaster> _suppliersMasterRepository;
         private IRepository<LocationMaster> _locationMasterRepository;
         private readonly IRepository<PurchaseOrderDetails> _purchaseOrderDetailsRepository;
+        private readonly IRepository<ApproverLevelSettings> _approverLevelSettings;
+        private readonly IRepository<OrderApprovalHierarchy> _orderApprovalHierarchy;
         public PurchaseRequisitionService(IRepository<ItemMaster> itemMasterRepository, IRepository<UnitMaster> unitMasterRepository,
             IRepository<SuppliersMaster> suppliersMasterRepository, IRepository<LocationMaster> _locationrepository, IRepository<LocationMaster> locationMasterRepository,
             IRepository<PermissionApproval> permissionApprovalRepo, IRepository<Approval> approvalRepo, IRepository<ApprovalDetail> approvalDetailRepo,
@@ -66,7 +68,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger, IRepository<JobMaster> _jobrepository, IRepository<BillOfQTyDetails> BillOfQTyDetailsRepository,
              IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo,
         IRepository<PurchaseRequisition> purchaseRequisitionRepository, InspireErpDBContext context, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository, IRepository<JobMasterBudgetDetails> budgetDetailsrepository, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository,
-        IOrderEmailNotificationService orderEmailNotificationService)
+        IOrderEmailNotificationService orderEmailNotificationService, IRepository<ApproverLevelSettings> approverLevelSettings, IRepository<OrderApprovalHierarchy> orderApprovalHierarchy)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository; _context = context;
@@ -77,6 +79,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _budgetDetailsrepository = budgetDetailsrepository;
             _purchaseOrderDetailsRepository = purchaseOrderDetailsRepository;
             _orderEmailNotificationService = orderEmailNotificationService;
+            _approverLevelSettings = approverLevelSettings;
+            _orderApprovalHierarchy = orderApprovalHierarchy;
         }
         public PurchaseRequisitionModel UpdatePurchaseRequisition(PurchaseRequisition purchaseRequisition, List<AccountsTransactions> accountsTransactions,List<PurchaseRequisitionDetails> purchaseRequisitionDetails)
         {
@@ -701,7 +705,161 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 return Response<List<PurChaseRequisitionStatus>>.Fail(new List<PurChaseRequisitionStatus>(), ex.Message);
             }
         }
+
         public async Task<Response<List<PurChaseReqFields>>> GetPurchaseReqJobId(PurChaseRequisitionFilterReport model)
+        {
+            try
+            {
+                var query = _purchaseRequisitionRepository.GetAsQueryable().AsNoTracking().Where(s => s.PurchaseRequisitionDelStatus != true);
+                IQueryable<OrderApprovalHierarchy> oahQuery = _orderApprovalHierarchy.GetAsQueryable();
+
+                if (model.JobId > 0)
+                    query = query.Where(a => a.PurchaseRequisitionJobId == model.JobId);
+
+                if (model.locationId > 0)
+                    query = query.Where(a => a.PurchaseRequisitionLocationId == model.locationId);
+
+                if (model.IsDateChecked && model.fromDate.HasValue && model.toDate.HasValue)
+                    query = query.Where(a => a.PurchaseRequisitionDate.Date >= model.fromDate.Value && a.PurchaseRequisitionDate.Date <= model.toDate.Value);
+
+                var purReqIdList = query.Select(x => x.PurchaseRequisitionId).ToList();
+
+                var purOrderQuantities = _purchaseOrderDetailsRepository.GetAsQueryable()
+                    .Where(x => purReqIdList.Contains(x.PurchaseRequisitionId))
+                    .AsNoTracking()
+                    .GroupBy(p => new { p.PurchaseRequisitionId, p.PurchaseOrderDetailsMatId })
+                    .Select(g => new
+                    {
+                        g.Key.PurchaseRequisitionId,
+                        g.Key.PurchaseOrderDetailsMatId,
+                        RecQty = g.Sum(x => x.PurchaseOrderDetailsQuantity)
+                    }).ToList();
+
+                var hasApproval = _approverLevelSettings.GetAsQueryable()
+                                                                                          .AsNoTracking()
+                                                                                          .Any(a => a.FormType == EnumOrderForms.PurchaseOrder);
+
+                List<PurChaseReqFields> finalData;
+
+                if (hasApproval)
+                {
+                    var data = await (from sm in query
+                                      join per in oahQuery on sm.PurchaseRequisitionId equals per.OrderId
+                                      join sd in _purchaseRequisitionDetailsRepository.GetAsQueryable().AsNoTracking() on sm.PurchaseRequisitionId equals sd.PurchaseRequisitionId
+                                      join im in _itemMasterRepository.GetAsQueryable().AsNoTracking() on sd.PurchaseRequisitionDetailsMatId equals im.ItemMasterItemId
+                                      where per.Status == EnumApprovalStatus.Approved && per.Status != EnumApprovalStatus.Rejected
+                                      group new { sm, sd, im } by new
+                                      {
+                                          sd.PurchaseRequisitionDetailsId,
+                                          sd.PurchaseRequisitionDetailsMatId,
+                                          im.ItemMasterItemName,
+                                          sm.PurchaseRequisitionId,
+                                          sm.PurchaseRequisitionNo,
+                                          sm.PurchaseRequisitionDate,
+                                          sd.PurchaseRequisitionDetailsRate,
+                                          sd.PurchaseRequisitionDetailsQuantity,
+                                          sd.PurchaseRequisitionDetailsUnitId,
+                                          sm.PurchaseRequisitionJobId
+                                      } into g
+                                      select new PurChaseReqFields
+                                      {
+                                          matId = (int)g.Key.PurchaseRequisitionDetailsMatId,
+                                          Item_Name = g.Key.ItemMasterItemName,
+                                          SRID = (int)g.Key.PurchaseRequisitionId,
+                                          SRDID = (int)g.Key.PurchaseRequisitionDetailsId,
+                                          SRNo = g.Key.PurchaseRequisitionNo,
+                                          Date = g.Key.PurchaseRequisitionDate,
+                                          Rate = g.Key.PurchaseRequisitionDetailsRate,
+                                          SRQ = (int)g.Key.PurchaseRequisitionDetailsQuantity,
+                                          unitid = g.Key.PurchaseRequisitionDetailsUnitId,
+                                          jobid = g.Key.PurchaseRequisitionJobId,
+                                          Unit = _unitMasterRepository.GetAsQueryable()
+                                                   .Where(x => x.UnitMasterUnitId == g.Key.PurchaseRequisitionDetailsUnitId)
+                                                   .Select(x => x.UnitMasterUnitFullName.Trim())
+                                                   .FirstOrDefault()
+                                      })
+                        .OrderBy(x => x.Date)
+                        .ThenBy(x => x.SRNo)
+                        .ToListAsync();
+
+                    finalData = data.Select(x =>
+                    {
+                        var receivedQty = purOrderQuantities.FirstOrDefault(pr => pr.PurchaseRequisitionId == x.SRID && pr.PurchaseOrderDetailsMatId == x.matId)?.RecQty ?? 0;
+
+                        return new PurChaseReqFields
+                        {
+                            matId = x.matId,
+                            Item_Name = x.Item_Name,
+                            SRID = x.SRID,
+                            SRDID = x.SRDID,
+                            SRNo = x.SRNo,
+                            Date = x.Date,
+                            Rate = x.Rate,
+                            SRQ = x.SRQ,
+                            unitid = x.unitid,
+                            jobid = x.jobid,
+                            Unit = x.Unit,
+                            BalQty = x.SRQ - receivedQty,
+                            DelQty = receivedQty
+                        };
+                    }).OrderBy(x => x.Date).ThenBy(x => x.SRNo).ToList();
+                }
+                else
+                {
+                    finalData = await (from sm in query
+                                       join sd in _purchaseRequisitionDetailsRepository.GetAsQueryable().AsNoTracking()
+                                           on sm.PurchaseRequisitionId equals sd.PurchaseRequisitionId
+                                       join im in _itemMasterRepository.GetAsQueryable().AsNoTracking()
+                                           on sd.PurchaseRequisitionDetailsMatId equals im.ItemMasterItemId into imGroup
+                                       from im in imGroup.DefaultIfEmpty()
+                                       join um in _unitMasterRepository.GetAsQueryable().AsNoTracking()
+                                           on sd.PurchaseRequisitionDetailsUnitId equals um.UnitMasterUnitId into umGroup
+                                       from um in umGroup.DefaultIfEmpty()
+                                       join iv in _context.IssueVoucherDetails.AsNoTracking()
+                                           on sd.PurchaseRequisitionDetailsId equals iv.IssueVoucherDetailsReqDId into ivGroup
+                                       from srq in ivGroup.DefaultIfEmpty()
+                                       select new PurChaseReqFields
+                                       {
+                                           PurchaseRequisitionPartyName = sm.PurchaseRequisitionPartyName ?? "",
+                                           purchaseRequisitionType = sm.PurchaseRequisitionType ?? "",
+                                           Item_Name = im.ItemMasterItemName ?? "",
+                                           Unit = um.UnitMasterUnitShortName ?? "",
+                                           DelQty = srq.IssueVoucherDetailsQuantity ?? 0,
+                                           SRID = sm.PurchaseRequisitionId,
+                                           SRDID = sd.PurchaseRequisitionDetailsId,
+                                           SRNo = sm.PurchaseRequisitionNo ?? "",
+                                           Date = sm.PurchaseRequisitionDate,
+                                           Rate = sd.PurchaseRequisitionDetailsRate ?? 0,
+                                           SRQ = sd.PurchaseRequisitionDetailsQuantity ?? 0,
+                                           BalQty = (sd.PurchaseRequisitionDetailsQuantity ?? 0) - (srq.IssueVoucherDetailsQuantity ?? 0),
+                                           matId = sd.PurchaseRequisitionDetailsMatId,
+                                           unitid = sd.PurchaseRequisitionDetailsUnitId,
+                                           jobid = sm.PurchaseRequisitionJobId,
+                                           Stock = srq.IssueVoucherDetailsCurrentStockQty ?? 0
+                                       })
+                        .OrderBy(x => x.SRDID)
+                        .ToListAsync();
+                }
+
+                finalData = finalData.Where(a => a.BalQty > 0).ToList();
+
+                return new Response<List<PurChaseReqFields>>
+                {
+                    Valid = true,
+                    Message = "Data Found",
+                    Result = finalData
+                };
+            }
+            catch (Exception ex)
+            {
+                return Response<List<PurChaseReqFields>>.Fail(new List<PurChaseReqFields>(), ex.Message);
+            }
+        }
+
+
+
+
+        public async Task<Response<List<PurChaseReqFields>>> GetPurchaseReqJobId11223(PurChaseRequisitionFilterReport model)
         {
             List<PurChaseReqFields> finalData = new List<PurChaseReqFields>();
             try

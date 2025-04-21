@@ -24,6 +24,7 @@ using Inspire.Erp.Domain.Modals.Stock;
 using Microsoft.AspNetCore.Mvc;
 using Inspire.Erp.Domain.Models;
 using Inspire.Erp.Domain.Entities.POS;
+using Inspire.Erp.Application.Email.Interfaces;
 
 namespace Inspire.Erp.Application.Sales.Implementations
 {
@@ -40,13 +41,13 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private readonly IRepository<Approval> _approvalRepo;
         private readonly IRepository<ApprovalDetail> _approvalDetailRepo;
         private IRepository<ItemMaster> _itemMasterRepository;
-
+        private readonly IOrderEmailNotificationService _orderEmailNotificationService;
         public CustomerQuotationService(ILogger<CustomerQuotationService> logger, IRepository<PermissionApproval> permissionApprovalRepo,
             IRepository<Approval> approvalRepo, IRepository<ApprovalDetail> approvalDetailRepo,
             IRepository<CustomerQuotation> customerQuotationRepository, IRepository<VouchersNumbers> voucherNumbersRepository, IRepository<Domain.Entities.ProgramSettings> programsettingsRepository,
             IRepository<CustomerQuotationDetails> customerQuotationDetailsRepository,
             IRepository<UserTracking> userTrackingRepository,
-            InspireErpDBContext Context)
+            InspireErpDBContext Context, IOrderEmailNotificationService orderEmailNotificationService)
         {
 
             this._customerQuotationRepository = customerQuotationRepository;
@@ -61,6 +62,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
 
             _Context = Context;
+            _orderEmailNotificationService = orderEmailNotificationService;
         }
 
         public CustomerQuotation UpdateCustomerQuotation(CustomerQuotation customerQuotation, List<CustomerQuotationDetails> customerQuotationDetails)
@@ -224,6 +226,17 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     ApprovedAt = DateTime.Now,
                 }).ToList());
 
+                #region EmailNotification
+                _orderEmailNotificationService.SendOrderEmailNotificationAsync(
+                                                                              EnumOrderForms.CustomerQuotation,
+                                                                              EnumApproverLevels.Level1,
+                                                                              "",
+                                                                              customerQuotation.CustomerQuotationVoucherNo,
+                                                                              (DateTime)customerQuotation.CustomerQuotationQuotationDate,
+                                                                              customerQuotation.CustomerQuotationCashCustomerName,
+                                                                              (decimal)customerQuotation.CustomerQuotationNetTotal,
+                                                                              (int)customerQuotation.CustomerQuotationQid).ConfigureAwait(false);
+                #endregion
                 _customerQuotationRepository.TransactionCommit();
                 return customerQuotation;
 

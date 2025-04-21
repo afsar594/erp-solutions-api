@@ -5099,6 +5099,8 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.CustomerQuotationGrossProfitTotal)
                       .HasColumnName("Customer_Quotation_Gross_Profit_Total")
                       .HasColumnType("numeric(18, 2)");
+
+          
             });
 
             modelBuilder.Entity<CustomerQuotationDetails>(entity =>

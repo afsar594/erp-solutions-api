@@ -119,7 +119,7 @@ namespace Inspire.Erp.Application.Email.Implementations
             return orderType switch
             {
                 EnumOrderForms.PurchaseRequisition => _mailSettings.POPRTemplateId,
-                //EnumOrderForms.SalesOrder => _mailSettings.SalesOrderTemplateId,
+                EnumOrderForms.CustomerQuotation=> _mailSettings.CustomerQuotationTemplateId,
                 _ => throw new ArgumentOutOfRangeException(nameof(orderType), $"No template ID configured for order type: {orderType}")
             };
         }
