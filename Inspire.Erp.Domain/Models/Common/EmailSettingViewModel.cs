@@ -12,6 +12,7 @@ namespace Inspire.Erp.Domain.Models.Common
         public string Key { get; set; }
         public List<string> CCEmails { get; set; }
         public string POPRTemplateId { get; set; }
+        public string CustomerQuotationTemplateId { get; set; }
         public string TemplateId { get; set; }
         public string MainUrl { get; set; }
         public string RequestedBy { get; set; }

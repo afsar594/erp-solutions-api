@@ -20,7 +20,7 @@ namespace Inspire.Erp.Infrastructure.Database.Repositoy
 
 
         IQueryable<T> GetWithInclude(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes);
-
+        public IQueryable<T> GetWithFilterInclude(Expression<Func<T, bool>> predicate, Func<IQueryable<T>, IQueryable<T>> includeBuilder);
         void InsertList(List<T> entity);
         Task InsertListAsync(List<T> entity);
         void Update(T entity);

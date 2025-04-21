@@ -62,5 +62,6 @@ namespace Inspire.Erp.Domain.Entities
 
         [NotMapped]
         public virtual ICollection<CustomerQuotationDetails> CustomerQuotationDetails { get; set; }
+       // public virtual ICollection<OrderApprovalHierarchy> OrderApprovalHierarchies { get; set; }
     }
 }

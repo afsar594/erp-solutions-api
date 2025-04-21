@@ -38,7 +38,7 @@ namespace Inspire.Erp.Infrastructure.Database.Repositoy
             dbContextTransaction = context.Database.BeginTransaction();
 
         }
-        public IQueryable<T> GetWithInclude(Expression<Func<T, bool>> predicate,params Expression<Func<T, object>>[] includes)
+        public IQueryable<T> GetWithInclude(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
         {
             if (predicate == null)
                 throw new ArgumentNullException(nameof(predicate));
@@ -55,6 +55,19 @@ namespace Inspire.Erp.Infrastructure.Database.Repositoy
 
             return query;
         }
+
+        public IQueryable<T> GetWithFilterInclude(Expression<Func<T, bool>> predicate, Func<IQueryable<T>, IQueryable<T>> includeBuilder)
+        {
+            if (predicate == null)
+                throw new ArgumentNullException(nameof(predicate));
+
+            IQueryable<T> query = GetAsQueryable().Where(predicate);
+
+            query = includeBuilder(query);
+
+            return query;
+        }
+
 
         public void TransactionCommit()
         {

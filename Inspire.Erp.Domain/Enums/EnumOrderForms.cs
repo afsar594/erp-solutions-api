@@ -11,6 +11,7 @@ namespace Inspire.Erp.Domain.Enums
         BillOfQuantity,
         SalesOrder,
         None,
+        CustomerQuotation,
 
     }
 }

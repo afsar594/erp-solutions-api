@@ -27,5 +27,8 @@ namespace Inspire.Erp.Domain.Entities
 		public virtual PurchaseOrder PurchaseOrders { get; set; }
 		[ForeignKey("OrderId")]
 		public virtual PurchaseRequisition PurchaseRequisitions { get; set; }
+		//[ForeignKey("OrderId")]
+		//public virtual CustomerQuotation CustomerQuotatios { get; set; }
+
 	}
 }
