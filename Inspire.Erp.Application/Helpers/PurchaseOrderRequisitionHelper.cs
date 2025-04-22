@@ -28,21 +28,35 @@ namespace Inspire.Erp.Application.Helpers
         {
             try
             {
-                var result = (from a in _approverLevelSettings.GetAll()
-                              join u in _userFile.GetAll() on a.ApproverId equals u.UserId
-                              where a.FormType == orderType //&& a.ApproverLevel == approverLevel
-                              group new { a, u } by new { a.FormType, a.ApproverId, u.UserName, a.ApproverLevel } into g
-                              select new OrderApproversDto()
+
+                var result = (from a in _approverLevelSettings.GetAsQueryable().AsNoTracking()
+                              where a.FormType == orderType
+                              join u in _userFile.GetAsQueryable().AsNoTracking()
+                                  on a.ApproverId equals u.UserId
+                              select new
                               {
-                                  Id = g.Key.ApproverId,
-                                  Name = g.Key.UserName,
-                                  Level = g.Key.ApproverLevel,
-                                  Emails = g.Select(x => new ApproverOptEmail()
-                                  {
-                                      OptEmail = x.a.OptEmail,
-                                      Email = new EmailAddress(x.u.emailId ?? "", x.u.UserName)
-                                  }).ToList()
-                              }).ToList();
+                                  a.FormType,
+                                  a.ApproverId,
+                                  a.ApproverLevel,
+                                  a.OptEmail,
+                                  u.UserName,
+                                  u.emailId
+                              })
+                 .ToList()
+                 .GroupBy(x => new { x.FormType, x.ApproverId, x.UserName, x.ApproverLevel })
+                 .Select(g => new OrderApproversDto()
+                 {
+                     Id = g.Key.ApproverId,
+                     Name = g.Key.UserName,
+                     Level = g.Key.ApproverLevel,
+                     Emails = g.Select(x => new ApproverOptEmail()
+                     {
+                         OptEmail = x.OptEmail,
+                         Email = new EmailAddress(x.emailId ?? "", x.UserName)
+                     }).ToList()
+                 })
+                 .ToList();
+
                 return result;
             }
             catch (Exception)

@@ -495,6 +495,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 _purchaseRequisitionRepository.TransactionCommit();
 
                 #region EmailNotification
+                var jobId = purchaseRequisition?.PurchaseRequisitionJobId ?? -1;
+                var jobDetail = jobrepository.GetAsQueryable().Where(x => x.JobMasterJobId == jobId).FirstOrDefault();
                 _orderEmailNotificationService.SendOrderEmailNotificationAsync(
                                                                                EnumOrderForms.PurchaseRequisition,
                                                                                EnumApproverLevels.Level1,
@@ -503,7 +505,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                                purchaseRequisition.PurchaseRequisitionDate,
                                                                                purchaseRequisition.PurchaseRequisitionPartyName,
                                                                                (decimal)purchaseRequisition.PurchaseRequisitionNetAmount,
-                                                                               (int)purchaseRequisition.PurchaseRequisitionId).ConfigureAwait(false);
+                                                                               (int)purchaseRequisition.PurchaseRequisitionId,
+                                                                               jobDetail == null ? "" : jobDetail.JobMasterJobNo,
+                                                                               jobDetail == null ? "" : jobDetail.JobMasterJobName
+                                                                               ).ConfigureAwait(false);
                 #endregion
 
                 return this.GetSavedPurchaseRequisitionDetails((int)purchaseRequisition.PurchaseRequisitionId);

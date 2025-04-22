@@ -44,7 +44,7 @@ namespace Inspire.Erp.Application.Email.Implementations
             DateTime date,
             string supplier,
             decimal totalAmount,
-            int orderId, bool IsNewEntery = true)
+            int orderId, string jobNo, string jobName, bool IsNewEntery = true)
         {
             try
             {
@@ -76,7 +76,7 @@ namespace Inspire.Erp.Application.Email.Implementations
                 var approvalUrl = $"{_mailSettings.MainUrl}procurement/po-approval?menu=184&vNo={orderId}".Trim();
                 var loginUrl = $"{_mailSettings.MainUrl}login?returnUrl={Uri.EscapeDataString(approvalUrl)}";
 
-                var toMails = approvers.Where(x=>x.Level == level)
+                var toMails = approvers.Where(x => x.Level == level)
                                  .SelectMany(x => x.Emails.Where(e => e.OptEmail).Select(e => e.Email))
                                  .Distinct()
                                  .ToList();
@@ -90,6 +90,8 @@ namespace Inspire.Erp.Application.Email.Implementations
                             ApproverName = x.Name,
                             PONumber = poNumber,
                             Date = date.ToString("MMM dd yyyy"),
+                            JobNo = jobNo,
+                            JobName = jobName,
                             Supplier = supplier,
                             TotalAmount = totalAmount,
                             RequestedBy = _mailSettings.RequestedBy,
@@ -107,7 +109,7 @@ namespace Inspire.Erp.Application.Email.Implementations
                     _logger.LogInformation("Email sent to approvers: {Emails}", string.Join(", ", toMails));
                 }
 
-              
+
 
                 _logger.LogInformation("Email notification process completed for Order ID: {OrderId}", orderId);
             }
@@ -216,7 +218,8 @@ namespace Inspire.Erp.Application.Email.Implementations
                             phone = emailModel.Phone,
                             year = emailModel.Year,
                             grand_total = emailModel.GrandTotal,
-                            items = emailModel.Items.Select(i => new {
+                            items = emailModel.Items.Select(i => new
+                            {
                                 name = i.Name,
                                 description = i.Description,
                                 quantity = i.Quantity,
@@ -266,7 +269,7 @@ namespace Inspire.Erp.Application.Email.Implementations
 
             return orderType switch
             {
-                EnumOrderForms.CustomerQuotation=> _mailSettings.CustomerQuotationTemplateId,
+                EnumOrderForms.CustomerQuotation => _mailSettings.CustomerQuotationTemplateId,
                 _ => throw new ArgumentOutOfRangeException(nameof(orderType), $"No template ID configured for order type: {orderType}")
             };
         }

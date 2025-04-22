@@ -35,6 +35,7 @@ namespace Inspire.Erp.Web.ViewModels.Procurement
         public int? PurchaseRequisitionCurrencyId { get; set; }
         public int? PurchaseRequisitionCompanyId { get; set; }
         public long? PurchaseRequisitionJobId { get; set; }
+        public string? PurchaseRequisitionJobName { get; set; }
         public decimal? PurchaseRequisitionFsno { get; set; }
         public string PurchaseRequisitionStatus { get; set; }
         public decimal? PurchaseRequisitionTotalGrossAmount { get; set; }

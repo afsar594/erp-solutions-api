@@ -472,6 +472,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
 
                 #region EmailNotification
+                var jobId = purchaseOrder?.PurchaseOrderJobId ?? -1;
+                var jobDetail = _jobMaster.GetAsQueryable().Where(x => x.JobMasterJobId == jobId).FirstOrDefault();
                 _orderEmailNotificationService.SendOrderEmailNotificationAsync(
                                                                               EnumOrderForms.PurchaseOrder,
                                                                               EnumApproverLevels.Level1,
@@ -480,7 +482,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                               purchaseOrder.PurchaseOrderDate,
                                                                               purchaseOrder.PurchaseOrderPartyName,
                                                                               (decimal)purchaseOrder.PurchaseOrderNetAmount,
-                                                                              (int)purchaseOrder.PurchaseOrderId).ConfigureAwait(false);
+                                                                              (int)purchaseOrder.PurchaseOrderId,
+                                                                              jobDetail.JobMasterJobNo, jobDetail.JobMasterJobName).ConfigureAwait(false);
                 #endregion
 
                 _purchaseOrderRepository.TransactionCommit();
@@ -1182,7 +1185,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     List<object> rptData = new List<object>();
                     var po = approvalDto.OrderType == EnumOrderForms.PurchaseOrder ? GetSavedPurchaseOrderDetails(approvalDto.OrderId) : null;
                     var pr = approvalDto.OrderType == EnumOrderForms.PurchaseRequisition ? _purchaseRequisitionService.GetSavedPurchaseRequisitionDetails(approvalDto.OrderId) : null;
-
+                    var jobId = po != null ?  po.purchaseOrder?.PurchaseOrderJobId ?? -1 :  pr.purchaseRequisition?.PurchaseRequisitionJobId ?? -1;
+                    var jobDetail = _jobMaster.GetAsQueryable().Where(x => x.JobMasterJobId == jobId).FirstOrDefault();
                     _orderEmailNotificationService.SendOrderEmailNotificationAsync(
                                                                                 po != null ? EnumOrderForms.PurchaseOrder : EnumOrderForms.PurchaseRequisition,
                                                                                 nextLevelToSendEamil,
@@ -1192,6 +1196,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                                  po != null ? po.purchaseOrder.PurchaseOrderPartyName ?? "" : pr.purchaseRequisition.PurchaseRequisitionPartyName ?? "",
                                                                                  po != null ? (decimal)po.purchaseOrder.PurchaseOrderNetAmount : (decimal)pr.purchaseRequisition.PurchaseRequisitionNetAmount,
                                                                                  po == null ? (int)pr.purchaseRequisition.PurchaseRequisitionId : (int)po.purchaseOrder.PurchaseOrderId,
+                                                                                 jobDetail.JobMasterJobNo,
+                                                                                 jobDetail.JobMasterJobName,
                                                                                  false).ConfigureAwait(false);
                 }
                 _orderApprovalHierarchy.TransactionCommit();
