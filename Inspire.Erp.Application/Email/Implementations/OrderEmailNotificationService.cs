@@ -73,7 +73,7 @@ namespace Inspire.Erp.Application.Email.Implementations
                     _logger.LogInformation("Approval hierarchy inserted for Order ID: {OrderId}", orderId);
                 }
 
-                var approvalUrl = $"{_mailSettings.MainUrl}procurement/po-approval?menu=184&vNo={orderId}".Trim();
+                var approvalUrl = $"{_mailSettings.MainUrl}procurement/po-approval?menu=184&vNo={orderId}&type={orderType}".Trim();
                 var loginUrl = $"{_mailSettings.MainUrl}login?returnUrl={Uri.EscapeDataString(approvalUrl)}";
 
                 var toMails = approvers.Where(x => x.Level == level)
