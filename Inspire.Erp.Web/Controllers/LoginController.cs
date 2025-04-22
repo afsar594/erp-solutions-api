@@ -80,7 +80,7 @@ namespace Inspire.Erp.Web.Controllers
 
         [AllowAnonymous]
         [HttpPost("authenticate")]
-        public IActionResult Authenticate([FromBody] User user)
+        public IActionResult Authenticate([FromBody] User user, string returnUrl = "/")
         {
            
             var response = loginsvc.Authenticate(new UserFile

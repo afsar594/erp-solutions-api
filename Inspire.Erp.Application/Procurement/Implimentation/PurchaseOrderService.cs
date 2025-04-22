@@ -978,7 +978,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                     .AsNoTracking()
                                     .ToList();
 
-            poQuery.ForEach(f => f.OrderApprovalHierarchies = f.OrderApprovalHierarchies.Where(x => x.OrderType == EnumOrderForms.PurchaseRequisition).ToList());
+            poQuery.ForEach(f => f.OrderApprovalHierarchies = f.OrderApprovalHierarchies.Where(x => x.OrderType == EnumOrderForms.PurchaseOrder).ToList());
 
             IQueryable<LocationMaster> locQuery = _locationMasterRepository.GetAsQueryable();
             IQueryable<JobMaster> jobQuery = _jobMaster.GetAsQueryable();
@@ -1256,7 +1256,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                     return Response<VoucherApprivalDto>.Success(poData, "Data found");
                 }
-                else if (orderType == EnumOrderForms.PurchaseOrder)
+                else if (orderType == EnumOrderForms.PurchaseRequisition)
                 {
                     var prData = _purchaseRequisitionRepository
                                 .GetWithInclude(x => true, inc => inc.OrderApprovalHierarchies)

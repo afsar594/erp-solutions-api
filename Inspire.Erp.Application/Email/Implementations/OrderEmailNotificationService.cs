@@ -56,7 +56,27 @@ namespace Inspire.Erp.Application.Email.Implementations
                     _logger.LogWarning("No approvers found for Order ID: {OrderId}, Level: {Level}", orderId, level);
                     return;
                 }
-                var toMails = approvers
+                var orderApprovers = approvers
+                  .Select(x => new OrderApprovalHierarchy
+                  {
+                      ApproverId = x.Id,
+                      OrderId = orderId,
+                      Status = EnumApprovalStatus.Pending,
+                      OrderType = orderType,
+                      Remarks = ""
+                  })
+                  .ToList();
+
+                if (orderApprovers.Any() && IsNewEntery)
+                {
+                    _orderApprovalHierarchy.InsertList(orderApprovers);
+                    _logger.LogInformation("Approval hierarchy inserted for Order ID: {OrderId}", orderId);
+                }
+
+                var approvalUrl = $"{_mailSettings.MainUrl}procurement/po-approval?menu=184&vNo={orderId}".Trim();
+                var loginUrl = $"{_mailSettings.MainUrl}login?returnUrl={Uri.EscapeDataString(approvalUrl)}";
+
+                var toMails = approvers.Where(x=>x.Level == level)
                                  .SelectMany(x => x.Emails.Where(e => e.OptEmail).Select(e => e.Email))
                                  .Distinct()
                                  .ToList();
@@ -74,7 +94,7 @@ namespace Inspire.Erp.Application.Email.Implementations
                             TotalAmount = totalAmount,
                             RequestedBy = _mailSettings.RequestedBy,
                             Department = _mailSettings.Department,
-                            ApprovalLink = $"{_mailSettings.MainUrl}{orderId}".Trim(),
+                            ApprovalLink = loginUrl,
                             SupportEmail = _mailSettings.SupportEmail
                         })
                         .Cast<object>()
@@ -87,21 +107,7 @@ namespace Inspire.Erp.Application.Email.Implementations
                     _logger.LogInformation("Email sent to approvers: {Emails}", string.Join(", ", toMails));
                 }
 
-                var orderApprovers = approvers
-                    .Select(x => new OrderApprovalHierarchy
-                    {
-                        ApproverId = x.Id,
-                        OrderId = orderId,
-                        Status = EnumApprovalStatus.Pending,
-                        OrderType = orderType
-                    })
-                    .ToList();
-
-                if (orderApprovers.Any() && IsNewEntery)
-                {
-                    _orderApprovalHierarchy.InsertList(orderApprovers);
-                    _logger.LogInformation("Approval hierarchy inserted for Order ID: {OrderId}", orderId);
-                }
+              
 
                 _logger.LogInformation("Email notification process completed for Order ID: {OrderId}", orderId);
             }
