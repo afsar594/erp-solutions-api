@@ -742,7 +742,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 var hasApproval = _approverLevelSettings.GetAsQueryable()
                                                                                           .AsNoTracking()
-                                                                                          .Any(a => a.FormType == EnumOrderForms.PurchaseOrder);
+                                                                                          .Any(a => a.FormType == EnumOrderForms.PurchaseRequisition);
 
                 List<PurChaseReqFields> finalData;
 
@@ -752,7 +752,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                       join per in oahQuery on sm.PurchaseRequisitionId equals per.OrderId
                                       join sd in _purchaseRequisitionDetailsRepository.GetAsQueryable().AsNoTracking() on sm.PurchaseRequisitionId equals sd.PurchaseRequisitionId
                                       join im in _itemMasterRepository.GetAsQueryable().AsNoTracking() on sd.PurchaseRequisitionDetailsMatId equals im.ItemMasterItemId
-                                      where per.Status == EnumApprovalStatus.Approved && per.Status != EnumApprovalStatus.Rejected
+                                      where per.OrderType == EnumOrderForms.PurchaseRequisition && per.Status == EnumApprovalStatus.Approved && per.Status != EnumApprovalStatus.Rejected
                                       group new { sm, sd, im } by new
                                       {
                                           sd.PurchaseRequisitionDetailsId,
