@@ -259,7 +259,14 @@ namespace Inspire.Erp.Application.Account.Implementations
                 //clsCommonFunctions.Delete_OldEntry_AccountsTransactions(assetPurchaseVoucher.AssetPurchaseVoucherNo, VoucherType.AssetPurchaseVoucher_TYPE, _accountTransactionRepository);
              
                 _assetopening.Update(assetPurchaseVoucher);
-             
+
+
+                assetPurchaseVoucher.AssetPurchaseVoucherDetails = assetPurchaseVoucher.AssetPurchaseVoucherDetails.Select((x) =>
+                {
+                     x.AssetPurchaseDetailsVoucherNo = assetPurchaseVoucher.AssetPurchaseVoucherNo;
+                    return x;
+                }).OrderBy(x => x.AssetPurchaseDetailsVoucherNo).AsEnumerable().ToList();
+
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     if (k.AccountsTransactionsTransSno == 0)
@@ -268,6 +275,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                         k.AccountsTransactionsVoucherNo = assetPurchaseVoucher.AssetPurchaseVoucherNo;
                         k.AccountsTransactionsVoucherType = VoucherType.AssetPurchaseVoucher_TYPE;
                         k.AccountsTransactionsStatus = AccountStatus.Approved;
+
                     }
 
                     return k;
