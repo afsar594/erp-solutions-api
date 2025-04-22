@@ -55,12 +55,12 @@ namespace Inspire.Erp.Application.Master.Implementations
                     _progressiveInvoice.GetAsQueryable()
                     .DefaultIfEmpty().Max(o => o == null ? 0 : o.ProgressiveInvoiceId) + 1);
 
-                progressiveInvoiceDetails = progressiveInvoiceDetails.Select((x) =>
-                {
-                    x.ProgressiveInvoiceDetailsPrDetId = maxcount;
-                    return x;
+                //progressiveInvoiceDetails = progressiveInvoiceDetails.Select((x) =>
+                //{
+                //    x.ProgressiveInvoiceDetailsPrDetId = maxcount;
+                //    return x;
 
-                }).ToList();
+                //}).ToList();
 
                 //_progressiveInvoiceDetails.InsertList(progressiveInvoiceDetails);
 
@@ -99,7 +99,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                 _progressiveInvoice.BeginTransaction();
                 clsCommonFunctions.Delete_OldEntry_AccountsTransactions(progressiveInvoice.ProgressiveInvoiceInvNo, progressiveInvoice.ProgressiveInvoiceInvoiceType, _accountTransactionRepository);
                 _progressiveInvoice.Update(progressiveInvoice);
-                _progressiveInvoiceDetails.UpdateList(progressiveInvoiceDetails);
+                //_progressiveInvoiceDetails.UpdateList(progressiveInvoiceDetails);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     if (k.AccountsTransactionsTransSno == 0)
