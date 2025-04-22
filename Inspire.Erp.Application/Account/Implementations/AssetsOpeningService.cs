@@ -247,7 +247,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             }
 
         }
-        public AssetPurchaseVoucherModel UpdateAssetPurchaseVoucher(AssetPurchaseVoucher assetPurchaseVoucher, List<AccountsTransactions> accountsTransactions
+        public async Task<AssetPurchaseVoucherModel> UpdateAssetPurchaseVoucher(AssetPurchaseVoucher assetPurchaseVoucher, List<AccountsTransactions> accountsTransactions
 
     )
         {
@@ -259,6 +259,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 //clsCommonFunctions.Delete_OldEntry_AccountsTransactions(assetPurchaseVoucher.AssetPurchaseVoucherNo, VoucherType.AssetPurchaseVoucher_TYPE, _accountTransactionRepository);
              
                 _assetopening.Update(assetPurchaseVoucher);
+
 
 
                 assetPurchaseVoucher.AssetPurchaseVoucherDetails = assetPurchaseVoucher.AssetPurchaseVoucherDetails.Select((x) =>

@@ -126,22 +126,50 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpPost]
         [Route("UpdateAssetPurchase")]
-        public ApiResponse<AssetPurchaseVoucherViewModel> UpdateAssetPurchase([FromBody] AssetPurchaseVoucherViewModel voucherCompositeView)
+        public async Task<IActionResult> UpdateAssetPurchase([FromBody] AssetPurchaseVoucherViewModel voucherCompositeView)
         {
+
+
+
             ApiResponse<AssetPurchaseVoucherViewModel> apiResponse = new ApiResponse<AssetPurchaseVoucherViewModel>();
-            var param1 = _mapper.Map<AssetPurchaseVoucher>(voucherCompositeView);
-      
-            var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-            var xs = _salesOrderService.UpdateAssetPurchaseVoucher(param1, param3 );
-            var apvm = new AssetPurchaseVoucherViewModel();
-            apvm = _mapper.Map<AssetPurchaseVoucherViewModel>(xs);
-            apiResponse = new ApiResponse<AssetPurchaseVoucherViewModel>
+            try
             {
-                Valid = true,
-                Result = apvm,//_mapper.Map<AssetPurchaseVoucherViewModel>(apvm),
-                Message = AssetPurchaseVoucherMessage.UpdateVoucher
-            };
-            return apiResponse;
+                var param1 = _mapper.Map<AssetPurchaseVoucher>(voucherCompositeView);
+                var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
+
+                var xs = await _salesOrderService.UpdateAssetPurchaseVoucher(param1, param3);
+                var apvm = new AssetPurchaseVoucherViewModel();
+                apvm = _mapper.Map<AssetPurchaseVoucherViewModel>(xs.assetPurchaseVoucher);
+                apiResponse = new ApiResponse<AssetPurchaseVoucherViewModel>
+                {
+                    Valid = true,
+                    Result = apvm,//_mapper.Map<AssetPurchaseVoucherViewModel>(apvm),
+                    Message = AssetPurchaseVoucherMessage.UpdateVoucher
+                };
+
+                return Ok(apiResponse);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+
+            //ApiResponse<AssetPurchaseVoucherViewModel> apiResponse = new ApiResponse<AssetPurchaseVoucherViewModel>();
+            //var param1 = _mapper.Map<AssetPurchaseVoucher>(voucherCompositeView);
+      
+            //var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
+            //var apvm = new AssetPurchaseVoucherViewModel();
+            //apvm = _mapper.Map<AssetPurchaseVoucherViewModel>(xs.assetPurchaseVoucher);
+            //var xs = await _salesOrderService.UpdateAssetPurchaseVoucher(param1);
+
+            //apiResponse = new ApiResponse<AssetPurchaseVoucherViewModel>
+            //{
+            //    Valid = true,
+            //    Result = apvm,//_mapper.Map<AssetPurchaseVoucherViewModel>(apvm),
+            //    Message = AssetPurchaseVoucherMessage.SaveVoucher
+            //};
+
+            //return apiResponse;
         }
 
         [HttpPost]
