@@ -506,7 +506,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                                purchaseRequisition.PurchaseRequisitionPartyName,
                                                                                (decimal)purchaseRequisition.PurchaseRequisitionNetAmount,
                                                                                (int)purchaseRequisition.PurchaseRequisitionId,
-                                                                               jobDetail == null ? "" : jobDetail.JobMasterJobNo,
+                                                                               jobDetail == null ? "" : jobDetail.JobMasterJobNumber  ,
                                                                                jobDetail == null ? "" : jobDetail.JobMasterJobName
                                                                                ).ConfigureAwait(false);
                 #endregion

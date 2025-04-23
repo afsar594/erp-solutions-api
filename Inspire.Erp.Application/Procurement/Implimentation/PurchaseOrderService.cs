@@ -483,7 +483,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                               purchaseOrder.PurchaseOrderPartyName,
                                                                               (decimal)purchaseOrder.PurchaseOrderNetAmount,
                                                                               (int)purchaseOrder.PurchaseOrderId,
-                                                                               jobDetail == null ? "" : jobDetail.JobMasterJobNo,
+                                                                               jobDetail == null ? "" : jobDetail.JobMasterJobNumber,
                                                                                jobDetail == null ? "" : jobDetail.JobMasterJobName
                                                                               ).ConfigureAwait(false);
                 #endregion
@@ -1198,7 +1198,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                                  po != null ? po.purchaseOrder.PurchaseOrderPartyName ?? "" : pr.purchaseRequisition.PurchaseRequisitionPartyName ?? "",
                                                                                  po != null ? (decimal)po.purchaseOrder.PurchaseOrderNetAmount : (decimal)pr.purchaseRequisition.PurchaseRequisitionNetAmount,
                                                                                  po == null ? (int)pr.purchaseRequisition.PurchaseRequisitionId : (int)po.purchaseOrder.PurchaseOrderId,
-                                                                                 jobDetail == null ? "" : jobDetail.JobMasterJobNo,
+                                                                                 jobDetail == null ? "" : jobDetail.JobMasterJobNumber,
                                                                                  jobDetail == null ? "" : jobDetail.JobMasterJobName,
                                                                                  false).ConfigureAwait(false);
                 }
