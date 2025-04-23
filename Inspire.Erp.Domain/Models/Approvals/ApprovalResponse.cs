@@ -58,7 +58,7 @@ namespace Inspire.Erp.Domain.Models.Approvals
         public long ApproverId { get; set; }
         public bool OptEmail { get; set; }
         public int NotificationDays { get; set; }
-        public decimal MinAmount { get; set; }
-        public decimal MaxAmount { get; set; }
+        public int MinAmount { get; set; }
+        public int MaxAmount { get; set; }
     }
 }

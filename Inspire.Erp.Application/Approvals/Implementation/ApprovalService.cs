@@ -201,8 +201,8 @@ namespace Inspire.Erp.Application.Approvals.Implementation
                         {
                             ApproverId = a.ApproverId,
                             ApproverLevel = a.ApproverLevel,
-                            MaxAmount = a.MaxAmount,
-                            MinAmount = a.MinAmount,
+                            MaxAmount = (int)a.MaxAmount,
+                            MinAmount = (int)a.MinAmount,
                             NotificationDays = a.NotificationDays,
                             OptEmail = a.OptEmail
                         }).ToList()

@@ -483,7 +483,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                               purchaseOrder.PurchaseOrderPartyName,
                                                                               (decimal)purchaseOrder.PurchaseOrderNetAmount,
                                                                               (int)purchaseOrder.PurchaseOrderId,
-                                                                              jobDetail.JobMasterJobNo, jobDetail.JobMasterJobName).ConfigureAwait(false);
+                                                                               jobDetail == null ? "" : jobDetail.JobMasterJobNo,
+                                                                               jobDetail == null ? "" : jobDetail.JobMasterJobName
+                                                                              ).ConfigureAwait(false);
                 #endregion
 
                 _purchaseOrderRepository.TransactionCommit();
@@ -1196,8 +1198,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                                  po != null ? po.purchaseOrder.PurchaseOrderPartyName ?? "" : pr.purchaseRequisition.PurchaseRequisitionPartyName ?? "",
                                                                                  po != null ? (decimal)po.purchaseOrder.PurchaseOrderNetAmount : (decimal)pr.purchaseRequisition.PurchaseRequisitionNetAmount,
                                                                                  po == null ? (int)pr.purchaseRequisition.PurchaseRequisitionId : (int)po.purchaseOrder.PurchaseOrderId,
-                                                                                 jobDetail.JobMasterJobNo,
-                                                                                 jobDetail.JobMasterJobName,
+                                                                                 jobDetail == null ? "" : jobDetail.JobMasterJobNo,
+                                                                                 jobDetail == null ? "" : jobDetail.JobMasterJobName,
                                                                                  false).ConfigureAwait(false);
                 }
                 _orderApprovalHierarchy.TransactionCommit();
