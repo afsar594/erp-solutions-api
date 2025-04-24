@@ -37,7 +37,7 @@ namespace Inspire.Erp.Application.Authentication.Implementations
         }
         public UserFile Authenticate(UserFile userData, string ipAddress)
         {
-            var user = userFileRepository.GetWithInclude(c => c.UserName == userData.UserName, c => c.ApproverLevelSettings).FirstOrDefault();
+            var user = userFileRepository.GetWithInclude(c => c.UserName == userData.UserName,c => c.ApproverLevelSettings).FirstOrDefault();
 
             if (user == null)
             {
@@ -105,7 +105,7 @@ namespace Inspire.Erp.Application.Authentication.Implementations
                     };
                 }
             }
-            _cacheMemoryService.SaveUserObject(user, InspireConstants.UserCacheKey);
+            _cacheMemoryService.SaveUserObject(user,InspireConstants.UserCacheKey);
             return user;
         }
         public UserFile RefreshToken(UserFile userData)
@@ -236,22 +236,21 @@ namespace Inspire.Erp.Application.Authentication.Implementations
                 //bool isValid = ValidatePassword(user.Password, out errorMessage);
                 //if (isValid)
                 //{
-                var jwtToken = generateJwtToken(user);
-                var refreshToken = generateRefreshToken(user);
-                user.Token = jwtToken;
-                user.RefreshToken = refreshToken.Token;
-                user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
-                user.PasswordUpdateDate = DateTime.Now;
-                user.Loginfailure = 0;
-                user.UserImage = user.UserImage;
-                user.SignImageBase64 = user.SignImageBase64;
-                user.emailId = user.emailId;
+                    var jwtToken = generateJwtToken(user);
+                    var refreshToken = generateRefreshToken(user);
+                    user.Token = jwtToken;
+                    user.RefreshToken = refreshToken.Token;
+                    user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+                    user.PasswordUpdateDate = DateTime.Now;
+                    user.Loginfailure = 0;
+                    user.UserImage = user.UserImage ?? "";
+                    user.emailId = user.emailId ?? "";
 
-                userFileRepository.Update(user);
+                    userFileRepository.Update(user);
 
-                userFileRepository.TransactionCommit();
+                    userFileRepository.TransactionCommit();
 
-                return this.GetUserById(user.UserId);
+                    return this.GetUserById(user.UserId);
                 //}
                 //else
                 //{
@@ -337,21 +336,20 @@ namespace Inspire.Erp.Application.Authentication.Implementations
                 //bool isValid = ValidatePassword(user.Password, out errorMessage);  // sir ki fasmish ka uper validation remove ki han
                 //if (isValid)
                 //{
-                var jwtToken = generateJwtToken(user);
-                var refreshToken = generateRefreshToken(user);
+                    var jwtToken = generateJwtToken(user);
+                    var refreshToken = generateRefreshToken(user);
 
-                user.Token = jwtToken;
-                user.RefreshToken = refreshToken.Token;
-                user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
-                user.PasswordUpdateDate = DateTime.Now;
-                user.Loginfailure = 0;
-                user.UserImage = user.UserImage;
-                user.SignImageBase64 = user.SignImageBase64;
-                user.emailId = user.emailId ?? "";
-                userFileRepository.Insert(user);
-                userFileRepository.TransactionCommit();
+                    user.Token = jwtToken;
+                    user.RefreshToken = refreshToken.Token;
+                    user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+                    user.PasswordUpdateDate = DateTime.Now;
+                    user.Loginfailure = 0;
+                    user.UserImage = user.UserImage ?? "";
+                    user.emailId = user.emailId ?? "";
+                    userFileRepository.Insert(user);
+                    userFileRepository.TransactionCommit();
 
-                return this.GetUserById(user.UserId);
+                    return this.GetUserById(user.UserId);
                 //}
                 //else
                 //{

@@ -34,8 +34,7 @@ namespace Inspire.Erp.Infrastructure.CustomExceptionHandler
                 {
                     var response = context.Response;
                     response.ContentType = "application/json";
-                var msg = error.InnerException?.Message ?? error.Message;
-                    var responseModel = ApiResponse<string>.Fail(msg);
+                    var responseModel = ApiResponse<string>.Fail(error.Message);
                     var exception = error.Message;
                     _logger.LogWarning(9999, "Inspire Erp Exception => {exception}", exception);
                     switch (error)

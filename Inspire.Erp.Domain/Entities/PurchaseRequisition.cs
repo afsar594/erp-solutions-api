@@ -39,6 +39,7 @@ namespace Inspire.Erp.Domain.Entities
         public int? PurchaseRequisitionCompanyId { get; set; }
         public long? PurchaseRequisitionJobId { get; set; }
         public decimal? PurchaseRequisitionFsno { get; set; }
+
         public string PurchaseRequisitionStatus { get; set; }
         public decimal? PurchaseRequisitionTotalGrossAmount { get; set; }
         public decimal? PurchaseRequisitionTotalItemDisAmount { get; set; }
@@ -54,11 +55,13 @@ namespace Inspire.Erp.Domain.Entities
         public bool? PurchaseRequisitionDelStatus { get; set; }
         public DateTime? PurchaseRequisitionDetailsReqDate { get; set; }
         public string PurchaseRequisitionDetailsReqStatus { get; set; }
-                public int? PurchaseRequisitionApprovedBy { get; set; }
+
+        public int? PurchaseRequisitionApprovedBy { get; set; }
         public DateTime? PurchaseRequisitionApprovedDate { get; set; }
         public decimal? PurchaseRequisitionFcRate { get; set; }
         public int? PurchaseRequisitionPurchaseRequestId { get; set; }
         public string PurchaseRequisitionRemarks { get; set; }
+
         public int? PurchaseRequisitionRequestedBy { get; set; }
         public DateTime? PurchaseRequisitionRequisitionDate { get; set; }
         public int? PurchaseRequisitionStaffCode { get; set; }

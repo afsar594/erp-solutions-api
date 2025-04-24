@@ -14,7 +14,7 @@ namespace Inspire.Erp.Domain.Entities
         public int? WorkGroupId { get; set; }
         public string Password { get; set; }
         public string Token { get; set; }
-        public byte[]? UserImage { get; set; }
+        public string UserImage { get; set; }
         public string RefreshToken { get; set; }
         public DateTime? RefreshTokenExpiryTime { get; set; }
 
@@ -29,7 +29,7 @@ namespace Inspire.Erp.Domain.Entities
         public int? LocId { get; set; }
         [NotMapped]
         public string Message { get; set; }
-        public byte[]? SignImg { get; set; }
+        public string? SignImg { get; set; }
         [NotMapped]
         public int? FinancialPeriodsFsno { get; set; }
         public int? Loginfailure { get; set; }
@@ -37,10 +37,6 @@ namespace Inspire.Erp.Domain.Entities
         [JsonIgnore]
         public virtual ICollection<ApproverLevelSettings> ApproverLevelSettings { get; set; }
 
-        [NotMapped]
-        public string UserImageBase64 { get; set; }
-        [NotMapped]
-        public string SignImageBase64 { get; set; }
     }
 
     [NotMapped]

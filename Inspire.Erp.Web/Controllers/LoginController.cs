@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Inspire.Erp.Application.Authentication.Inerfaces;
-using Inspire.Erp.Application.Helpers;
 using Inspire.Erp.Application.Master;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
@@ -162,15 +161,13 @@ namespace Inspire.Erp.Web.Controllers
             ApiResponse<UserFileViewModel> apiResponse = new ApiResponse<UserFileViewModel>();
 
             var param1 = _mapper.Map<UserFile>(user);
-            param1.UserImage = ImageHelper.Base64ImageToByteArray(user.UserImageBase64);
-            param1.SignImg = ImageHelper.Base64ImageToByteArray(user.SignImageBase64);
+
             var xs = loginsvc.InsertUser(param1);
             UserFileViewModel userdata = new UserFileViewModel();
             if (xs.IsValid == true )
             {
                 userdata = _mapper.Map<UserFileViewModel>(xs);
-                 userdata.UserImageBase64 = ImageHelper.ByteArrayToBase64Image(xs.UserImage);
-                userdata.SignImageBase64 = ImageHelper.ByteArrayToBase64Image(xs.SignImg);
+
                 apiResponse = new ApiResponse<UserFileViewModel>
                 {
                     Valid = true,
@@ -199,16 +196,14 @@ namespace Inspire.Erp.Web.Controllers
             ApiResponse<UserFileViewModel> apiResponse = new ApiResponse<UserFileViewModel>();
 
             var param1 = _mapper.Map<UserFile>(user);
-            param1.UserImage = ImageHelper.Base64ImageToByteArray(user.UserImageBase64);
-            param1.SignImg = ImageHelper.Base64ImageToByteArray(user.SignImageBase64);
+
             var xs = loginsvc.UpdateUser(param1);
 
             UserFileViewModel userdata = new UserFileViewModel();
             if (xs.IsValid == true || xs.IsValid == null)
             {
                 userdata = _mapper.Map<UserFileViewModel>(xs);
-                userdata.UserImageBase64 = ImageHelper.ByteArrayToBase64Image(xs.UserImage);
-                userdata.SignImageBase64 = ImageHelper.ByteArrayToBase64Image(xs.SignImg);
+
                 apiResponse = new ApiResponse<UserFileViewModel>
                 {
                     Valid = true,
@@ -256,15 +251,10 @@ namespace Inspire.Erp.Web.Controllers
         [Route("GetAllUserFile")]
         public ApiResponse<List<UserFile>> GetAllUserFile()
         {
-            var users = _mapper.Map<List<UserFile>>(loginsvc.GetAllUserFile());
-            users.ForEach(x => {
-                x.UserImageBase64 = ImageHelper.ByteArrayToBase64Image(x.UserImage);
-                x.SignImageBase64 = ImageHelper.ByteArrayToBase64Image(x.SignImg);
-            });
             ApiResponse<List<UserFile>> apiResponse = new ApiResponse<List<UserFile>>
             {
                 Valid = true,
-                Result = users,
+                Result = _mapper.Map<List<UserFile>>(loginsvc.GetAllUserFile()),
                 Message = ""
             };
             return apiResponse;

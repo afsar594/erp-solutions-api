@@ -16,6 +16,7 @@ namespace Inspire.Erp.Web.ViewModels
         public int? WorkGroupId { get; set; }
         public string? Password { get; set; }
         public string? Token { get; set; }
+        public string? UserImage { get; set; }
         public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenExpiryTime { get; set; }
         public string Salt { get; set; }
@@ -28,13 +29,12 @@ namespace Inspire.Erp.Web.ViewModels
         public int? LocId { get; set; }
         [NotMapped]
         public string? Message { get; set; }
+        public string? SignImg { get; set; }
         [NotMapped]
         public int? FinancialPeriodsFsno { get; set; }
         public int? Loginfailure { get; set; }
         public DateTime? PasswordUpdateDate { get; set; }
 
         public string? emailId { get; set; }
-        public string UserImageBase64 { get; set; }
-        public string SignImageBase64 { get; set; }
     }
 }

@@ -390,19 +390,47 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 purchaseRequisition.PurchaseRequisitionId = maxcount;
 
-               
-                purchaseRequisition.PurchaseRequisitionDetails.ToList().ForEach(x =>
+                purchaseRequisition.PurchaseRequisitionDetails = purchaseRequisition.PurchaseRequisitionDetails.Select((x) =>
                 {
                     x.PurchaseRequisitionDetailsId = null;
                     x.PurchaseRequisitionId = maxcount;
                     x.PurchaseRequisitionDetailsNo = purchaseRequisitionNumber;
+                    return x;
+                }).OrderBy(x => x.PurchaseRequisitionDetailsId).AsEnumerable().ToList();
 
-                });
-
-
+                accountsTransactions = accountsTransactions.Select((k) =>
+                {
+                    k.AccountsTransactionsVoucherNo = purchaseRequisitionNumber;
+                    k.AccountsTransactionsVoucherType = VoucherType.PurchaseRequisition_TYPE;
+                    k.AccountsTransactionsStatus = AccountStatus.Approved;
+                    return k;
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
+                _accountTransactionRepository.InsertList(accountsTransactions);
 
                 _purchaseRequisitionRepository.Insert(purchaseRequisition);
 
+
+
+
+                //var permsionApproval = _permissionApprovalRepo.GetAsQueryable().AsNoTracking().Where(x => x.VoucherType == "Purchase Requisition").OrderBy(x => x.LevelOrder).ToList();
+                //var approvals = new Approval()
+                //{
+                //    CreatedBy = 0,
+                //    LocationId = null,
+                //    Status = false,
+                //    VoucherType = "Purchase Requisition"
+                //};
+                //_approvalRepo.Insert(approvals);
+                //_approvalDetailRepo.InsertList(permsionApproval.Select(x => new ApprovalDetail()
+                //{
+                //    ApprovalId = approvals.Id,
+                //    Status = false,
+                //    UserId = x.UserId,
+                //    LevelOrder = x.LevelOrder,
+                //    ApprovedAt = DateTime.Now,
+                //}).ToList());
+
+                // PermissionApprovalDetail by zaid
                 List<PermissionApprovalDetail> permissionApprovalDetails = new List<PermissionApprovalDetail>();
 
                 var rights = _context.tbl_approvalforms.Where(a => a.Voucher_Type.Contains("Purchase Requisition") && a.is_active == true).AsNoTracking().ToList();
