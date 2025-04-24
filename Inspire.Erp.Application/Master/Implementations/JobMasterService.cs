@@ -217,7 +217,7 @@ namespace Inspire.Erp.Application.Master
                 {
                     x.JobMasterControlJobID = jobId;
                     x.JobMasterNo = jobMaster.JobfilesStatus[0].job_filename;
-                    x.JobMasterControlJobID = jobMaster.JobMasterBudgetDetails[0].JobMasterBudgetDetailsJobId;
+                    x.JobMasterControlCostCenerID = jobMaster.JobMasterBudgetDetails[0].JobMasterBudgetDetailsJobId;
                     x.JobMasterControlLevel1 = jobMaster.JobMasterControl[0].JobMasterControlLevel1;
                     x.JobMasterControlLevel2 = jobMaster.JobMasterControl[0].JobMasterControlLevel2;
                     x.JobMasterControlLevel3 = jobMaster.JobMasterControl[0].JobMasterControlLevel3;
@@ -453,7 +453,7 @@ namespace Inspire.Erp.Application.Master
                 jobMasterData.JobTimesheetDesc = _jobTimesheetDesc.GetAsQueryable().AsNoTracking().Where(a => a.JobId == jobMasterData.JobMasterJobId).ToList();
                 jobMasterData.JobfilesStatus = _JobfilesStatus.GetAsQueryable().AsNoTracking().Where(a => a.JobMasterJobId == jobMasterData.JobMasterJobId).ToList();
                 jobMasterData.JobEquipment = jobEquipmentrepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterJobId == jobMasterData.JobMasterJobId).Select(x => new JobEquipment() { Id = x.Id, JobMasterEquipId = x.JobMasterEquipId, JobMasterJobId = x.JobMasterJobId, JobMasterJobJob = x.JobMasterJobJob, JobMasterEquipName = x.JobMasterEquipName }).ToList();
-               // jobMasterData.JobMasterControl = _jobMasterControl.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterControlJobID == jobMasterData.JobMasterJobId).ToList();
+                jobMasterData.JobMasterControl = _jobMasterControl.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterControlJobID == jobMasterData.JobMasterJobId).ToList();
 
                 return jobMasterData;
 

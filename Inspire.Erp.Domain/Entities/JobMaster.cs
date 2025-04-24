@@ -122,6 +122,7 @@ namespace Inspire.Erp.Domain.Entities
         public List<JobTimeSheetStaff> JobTimeSheetStaff { get; set; }
         [NotMapped]
         public List<JobfilesStatus> JobfilesStatus { get; set; }
+        [NotMapped]
         public List<JobMasterControl> JobMasterControl { get; set; }
     }
     public class JobfilesStatus
