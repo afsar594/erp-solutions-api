@@ -36,6 +36,7 @@ namespace Inspire.Erp.Application.Master
         private IRepository<JobTimeSheetStaff> _jobTimeSheetStaff;
         private IRepository<JobfilesStatus> _JobfilesStatus;
         private IRepository<CostCenterMaster> _costCenterMaster;
+        private IRepository<JobMasterControl> _jobMasterControl;
 
 
         private IRepository<AccountsTransactions> accountsTransactionsRepository;
@@ -51,7 +52,7 @@ namespace Inspire.Erp.Application.Master
             IRepository<JobTimeSheetEquip> jobTimeSheetEquip,
             IRepository<JobTimesheetMaster> jobTimesheetMaster,
             IRepository<JobTimeSheetStaff> jobTimeSheetStaff, IRepository<JobTimesheetDesc> jobTimesheetDesc,
-            IRepository<JobDocuments> jobDocumentsRepository, IRepository<JobfilesStatus> jobfilesStatus, IRepository<CostCenterMaster> costCenterMaster)
+            IRepository<JobDocuments> jobDocumentsRepository, IRepository<JobfilesStatus> jobfilesStatus, IRepository<CostCenterMaster> costCenterMaster, IRepository<JobMasterControl> jobMasterControl)
         {
             jobrepository = _jobrepository;
             jobbudgetRepository = _jobbudgetRepository;
@@ -69,6 +70,7 @@ namespace Inspire.Erp.Application.Master
             _jobDocumentsRepository = jobDocumentsRepository;
             _JobfilesStatus = jobfilesStatus;
             _costCenterMaster = costCenterMaster;
+            _jobMasterControl = jobMasterControl;
         }
         public IEnumerable<JobMaster> DeleteJob(JobMaster jobMaster)
         {
@@ -124,7 +126,7 @@ namespace Inspire.Erp.Application.Master
             }
             return jobMasters;
         }
-        public JobMaster InsertJobMaster(JobMaster jobMaster, List<JobMasterBudgetDetails> jobMasterBudgetDetails, List<JobMasterJobDetails> jobMasterJobDetails, List<JobMasterJobWiseBankGuarantees> jobMasterJobWiseBankGuarantees, List<JobStaff> jobStaff, List<JobEquipment> jobEquipment, List<JobExcutionDetails> jobExcutionDetails, List<JobTimesheetDesc> JobTimesheetDesc, List<JobTimeSheetEquip> JobTimeSheetEquip, List<JobTimesheetMaster> JobTimesheetMaster, List<JobTimeSheetStaff> JobTimeSheetStaff, List<JobfilesStatus> JobfilesStatus)
+        public JobMaster InsertJobMaster(JobMaster jobMaster, List<JobMasterBudgetDetails> jobMasterBudgetDetails, List<JobMasterJobDetails> jobMasterJobDetails, List<JobMasterJobWiseBankGuarantees> jobMasterJobWiseBankGuarantees, List<JobStaff> jobStaff, List<JobEquipment> jobEquipment, List<JobExcutionDetails> jobExcutionDetails, List<JobTimesheetDesc> JobTimesheetDesc, List<JobTimeSheetEquip> JobTimeSheetEquip, List<JobTimesheetMaster> JobTimesheetMaster, List<JobTimeSheetStaff> JobTimeSheetStaff, List<JobfilesStatus> JobfilesStatus, List<JobMasterControl> JobMasterControl)
         {
             try
             {
@@ -203,14 +205,25 @@ namespace Inspire.Erp.Application.Master
                 // job file 
                 jobMaster.JobfilesStatus.Select((x) =>
                 {
-                    //x.job_id = jobMaster.JobfilesStatus[0].job_id;
+                
                     x.JobMasterJobId = jobId;
                     x.job_filename = jobMaster.JobfilesStatus[0].job_filename;
                     x.job_fileStatus = jobMaster.JobfilesStatus[0].job_fileStatus;
                     x.job_IsDeleted = false;
                     return x;
                 });
-                //  _JobfilesStatus.InsertList(jobMaster.JobfilesStatus);
+                // Job Master Control
+                jobMaster.JobMasterControl.Select((x) =>
+                {
+                    x.JobMasterControlJobID = jobId;
+                    x.JobMasterNo = jobMaster.JobfilesStatus[0].job_filename;
+                    x.JobMasterControlJobID = jobMaster.JobMasterBudgetDetails[0].JobMasterBudgetDetailsJobId;
+                    x.JobMasterControlLevel1 = jobMaster.JobMasterControl[0].JobMasterControlLevel1;
+                    x.JobMasterControlLevel2 = jobMaster.JobMasterControl[0].JobMasterControlLevel2;
+                    x.JobMasterControlLevel3 = jobMaster.JobMasterControl[0].JobMasterControlLevel3;
+                    x.JobMasterBudgetDetailsEmail = jobMaster.JobMasterControl[0].JobMasterBudgetDetailsEmail;
+                    return x;
+                });
                 // end
                 jobrepository.Insert(jobMaster);
                 jobrepository.TransactionCommit();
@@ -240,7 +253,7 @@ namespace Inspire.Erp.Application.Master
         //        throw;
         //    }
         //}
-        public JobMaster UpdateJobMaster(JobMaster jobMaster, List<JobMasterBudgetDetails> jobMasterBudgetDetails, List<JobMasterJobDetails> jobMasterJobDetails, List<JobMasterJobWiseBankGuarantees> jobMasterJobWiseBankGuarantees, List<JobStaff> jobStaff, List<JobEquipment> jobEquipment, List<JobExcutionDetails> jobExcutionDetails, List<JobTimesheetDesc> JobTimesheetDesc, List<JobTimeSheetEquip> JobTimeSheetEquip, List<JobTimesheetMaster> JobTimesheetMaster, List<JobTimeSheetStaff> JobTimeSheetStaff, List<JobfilesStatus> JobfilesStatus)
+        public JobMaster UpdateJobMaster(JobMaster jobMaster, List<JobMasterBudgetDetails> jobMasterBudgetDetails, List<JobMasterJobDetails> jobMasterJobDetails, List<JobMasterJobWiseBankGuarantees> jobMasterJobWiseBankGuarantees, List<JobStaff> jobStaff, List<JobEquipment> jobEquipment, List<JobExcutionDetails> jobExcutionDetails, List<JobTimesheetDesc> JobTimesheetDesc, List<JobTimeSheetEquip> JobTimeSheetEquip, List<JobTimesheetMaster> JobTimesheetMaster, List<JobTimeSheetStaff> JobTimeSheetStaff, List<JobfilesStatus> JobfilesStatus, List<JobMasterControl> JobMasterControl)
         {
             try
             {
@@ -318,6 +331,12 @@ namespace Inspire.Erp.Application.Master
                     x.JobMasterJobId = jobId;
                     return x;
                 }).OrderBy(x => x.JobMasterJobId).AsEnumerable().ToList();
+
+                jobMaster.JobMasterControl.Select((x) =>
+                {
+                    x.JobMasterControlJobID = jobId;
+                    return x;
+                }).OrderBy(x => x.JobMasterControlJobID).AsEnumerable().ToList();
 
                 // job file 
                 //jobMaster.JobfilesStatus.Select((x) =>
@@ -434,6 +453,7 @@ namespace Inspire.Erp.Application.Master
                 jobMasterData.JobTimesheetDesc = _jobTimesheetDesc.GetAsQueryable().AsNoTracking().Where(a => a.JobId == jobMasterData.JobMasterJobId).ToList();
                 jobMasterData.JobfilesStatus = _JobfilesStatus.GetAsQueryable().AsNoTracking().Where(a => a.JobMasterJobId == jobMasterData.JobMasterJobId).ToList();
                 jobMasterData.JobEquipment = jobEquipmentrepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterJobId == jobMasterData.JobMasterJobId).Select(x => new JobEquipment() { Id = x.Id, JobMasterEquipId = x.JobMasterEquipId, JobMasterJobId = x.JobMasterJobId, JobMasterJobJob = x.JobMasterJobJob, JobMasterEquipName = x.JobMasterEquipName }).ToList();
+                jobMasterData.JobMasterControl = _jobMasterControl.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterControlJobID == jobMasterData.JobMasterJobId).ToList();
 
                 return jobMasterData;
 

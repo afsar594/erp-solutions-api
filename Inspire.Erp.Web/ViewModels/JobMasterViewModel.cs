@@ -70,6 +70,7 @@ namespace Inspire.Erp.Web.ViewModels
         public List<JobTimesheetMasterViewModels> JobTimesheetMaster { get; set; }
         public List<JobTimeSheetStaffViewModels> JobTimeSheetStaff { get; set; }
         public List<JobfilesStatus> JobfilesStatus { get; set; }
+        public List<JobMasterControlViewModels> JobMasterControl { get; set; }
     }
     public class JobStaffViewModels
     {
@@ -131,5 +132,18 @@ namespace Inspire.Erp.Web.ViewModels
         public int JobId { get; set; }
         public string Remarks { get; set; } // Nullable
         public int TimesheetId { get; set; }
+    }
+    public partial class JobMasterControlViewModels
+    {
+
+        public int JobMasterControlDtlId { get; set; }
+        public int? JobMasterControlJobID { get; set; }
+        public string JobMasterNo { get; set; }
+        public int? JobMasterControlCostCenerID { get; set; }
+        public decimal? JobMasterControlLevel1 { get; set; }
+        public decimal? JobMasterControlLevel2 { get; set; }
+        public decimal? JobMasterControlLevel3 { get; set; }
+        public bool? JobMasterBudgetDetailsEmail { get; set; }       
+       
     }
 }
