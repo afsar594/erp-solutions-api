@@ -122,6 +122,8 @@ namespace Inspire.Erp.Domain.Entities
         public List<JobTimeSheetStaff> JobTimeSheetStaff { get; set; }
         [NotMapped]
         public List<JobfilesStatus> JobfilesStatus { get; set; }
+        [NotMapped]
+        public List<JobMasterControl> JobMasterControl { get; set; }
     }
     public class JobfilesStatus
     {
@@ -209,5 +211,19 @@ namespace Inspire.Erp.Domain.Entities
         [JsonIgnore]
         public virtual JobMaster JobMasterJobJob { get; set; }
     }
-    
+    public partial class JobMasterControl
+    {
+
+        public int JobMasterControlDtlId { get; set; }
+        public int? JobMasterControlJobID { get; set; }
+        public string JobMasterNo { get; set; }
+        public int? JobMasterControlCostCenerID { get; set; }
+        public decimal? JobMasterControlLevel1 { get; set; }
+        public decimal? JobMasterControlLevel2 { get; set; }
+        public decimal? JobMasterControlLevel3 { get; set; }
+        public bool? JobMasterBudgetDetailsEmail { get; set; }
+        [JsonIgnore]
+        public virtual JobMaster JobMasterJobJob { get; set; }
+
+    }
 }

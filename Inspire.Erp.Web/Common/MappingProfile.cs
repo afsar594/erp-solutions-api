@@ -83,6 +83,11 @@ namespace Inspire.Erp.Web.Common
             CreateMap<JobMaster, JobMasterViewModel>();
             CreateMap<JobMasterViewModel, JobMaster>();
 
+
+
+            CreateMap<JobMasterControl, JobMasterControlViewModels>();
+            CreateMap<JobMasterControlViewModels, JobMasterControl>();
+
             CreateMap<JobMasterBudgetDetails, JobMasterBudgetDetailsViewModels>();
             CreateMap<JobMasterBudgetDetailsViewModels, JobMasterBudgetDetails>();
 

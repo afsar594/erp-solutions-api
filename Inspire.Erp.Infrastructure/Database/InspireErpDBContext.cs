@@ -471,6 +471,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
         public DbSet<ApproverLevelSettings> ApproverLevelSettings { get; set; }
         public DbSet<OrderApprovalHierarchy> OrderApprovalHierarchies { get; set; }
+        public DbSet<JobMasterControl> JobMasterControl { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -8687,6 +8688,22 @@ namespace Inspire.Erp.Infrastructure.Database
 
 
                 entity.Property(e => e.JobMasterJobWorkingDays).HasColumnName("Job_Master_Job_Working_Days");
+            });
+
+
+            modelBuilder.Entity<JobMasterControl>(entity =>
+            {
+                entity.HasKey(e => e.JobMasterControlDtlId);
+
+                entity.ToTable("Job_Master_Control");
+
+                entity.Property(e => e.JobMasterControlJobID).HasColumnName("Job_Master_Control_JobID");
+                entity.Property(e => e.JobMasterNo).HasColumnName("Job_Master_No");
+                entity.Property(e => e.JobMasterControlCostCenerID).HasColumnName("Job_Master_Control_CostCenerID");
+                entity.Property(e => e.JobMasterControlLevel1).HasColumnName("Job_Master_Control_Level1");
+                entity.Property(e => e.JobMasterControlLevel2).HasColumnName("Job_Master_Control_Level2");
+                entity.Property(e => e.JobMasterControlLevel3).HasColumnName("Job_Master_Control_Level3");
+                entity.Property(e => e.JobMasterBudgetDetailsEmail).HasColumnName("Job_Master_BudgetDetails_Email");
             });
 
             modelBuilder.Entity<JobMasterBudgetDetails>(entity =>
