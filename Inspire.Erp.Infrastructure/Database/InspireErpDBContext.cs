@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Reflection.Emit;
 using System.Text;
 using static Inspire.Erp.Domain.Modals.PDCResponse;
-//using Inspire.Erp.Domain.Modals.ViewModels;
+//using Inspire.Erp.Domain.Modals.ViewModels;F
 using Inspire.Erp.Domain.Modals.Settings;
 using Inspire.Erp.Domain.Models.MIS;
 using Inspire.Erp.Domain.Entities.POS;
@@ -8696,7 +8696,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.HasKey(e => e.JobMasterControlDtlId);
 
                 entity.ToTable("Job_Master_Control");
-
+                entity.Property(e => e.JobMasterControlDtlId).HasColumnName("Job_Master_Control_DtlId");
                 entity.Property(e => e.JobMasterControlJobID).HasColumnName("Job_Master_Control_JobID");
                 entity.Property(e => e.JobMasterNo).HasColumnName("Job_Master_No");
                 entity.Property(e => e.JobMasterControlCostCenerID).HasColumnName("Job_Master_Control_CostCenerID");
