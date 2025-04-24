@@ -12158,13 +12158,18 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasForeignKey(d => d.PurchaseQuotationDetailsNo)
                     .HasConstraintName("FK_PurchaseQuotationDetails_PurchaseQuotation");
             });
+
+            //modelBuilder.Entity<PurchaseRequisition>(e => e.ToTable("purchaserequisition_irfan"));
+
             modelBuilder.Entity<PurchaseRequisitionDetails>(entity =>
             {
-                entity.ToTable("PurchaseRequisitionDetails");
+                //entity.ToTable("PurchaseRequisitionDetails_irfan");
                 entity.Property(e => e.PurchaseRequisitionDetailsId)
                     .HasColumnName("PurchaseRequisitionDetailsID")
                     .HasColumnType("numeric(18, 0)")
                     .ValueGeneratedOnAdd();
+
+
                 entity.Property(e => e.PurchaseRequisitionDetailsJobId).HasColumnName("Purchase_Requisition_Details_Job_ID");
                 entity.Property(e => e.PurchaseRequisitionDetailsActualAmount).HasColumnType("numeric(18, 4)");
 
@@ -12245,7 +12250,8 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.PurchaseRequisitionId).HasColumnType("numeric(18, 0)");
 
                 entity.Property(e => e.boqdId).HasColumnName("PurchaseRequisitionDetail_BOQD_Id");
-                entity.Property(e => e.PurchaseRequisitionDetailsBalQty).HasColumnName("PurchaseRequisitionDetails_Bal_Qty");
+                entity.Property(e => e.PurchaseRequisitionDetailsBalQty)
+                .HasColumnName("PurchaseRequisitionDetails_Bal_Qty");
 
                 entity.HasOne(d => d.PurchaseRequisitionDetailsNoNavigation)
                     .WithMany(p => p.PurchaseRequisitionDetails)
