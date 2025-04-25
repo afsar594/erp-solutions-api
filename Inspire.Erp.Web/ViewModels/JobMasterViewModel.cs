@@ -133,11 +133,11 @@ namespace Inspire.Erp.Web.ViewModels
         public string Remarks { get; set; } // Nullable
         public int TimesheetId { get; set; }
     }
-    public partial class JobMasterControlViewModels
+    public  class JobMasterControlViewModels
     {
 
         public int JobMasterControlDtlId { get; set; }
-        public int? JobMasterControlJobID { get; set; }
+        public int JobMasterControlJobID { get; set; }
         public string JobMasterNo { get; set; }
         public int? JobMasterControlCostCenerID { get; set; }
         public decimal? JobMasterControlLevel1 { get; set; }
