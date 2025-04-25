@@ -22,48 +22,48 @@ namespace Inspire.Erp.Application.MODULE
             List<AccountsTransactions> accttrans = _accountTransactionRepository.GetAsQueryable()
                 .Where(k => k.AccountsTransactionsVoucherNo == AccountsTransactionsVoucherNo && k.AccountsTransactionsVoucherType == AccountsTransactionsVoucherType && k.AccountstransactionsDelStatus != true).Select((l) => new AccountsTransactions
                 {
-                     AccountsTransactionsTransSno = l.AccountsTransactionsTransSno,
-                     AccountstransactionsDelStatus = false,
-                     AccountsTransactionsAccNo = l.AccountsTransactionsAccNo,
-                     AccountsTransactionsTransDate = l.AccountsTransactionsTransDate,
-                     AccountsTransactionsParticulars = l.AccountsTransactionsParticulars,
-                     AccountsTransactionsDebit = l.AccountsTransactionsDebit,
-                     AccountsTransactionsCredit = l.AccountsTransactionsCredit,
-                     AccountsTransactionsFcDebit = l.AccountsTransactionsFcDebit,
-                     AccountsTransactionsFcCredit = l.AccountsTransactionsFcCredit,
-                     AccountsTransactionsVoucherType = l.AccountsTransactionsVoucherType,
-                     AccountsTransactionsVoucherNo = l.AccountsTransactionsVoucherNo,
-                     AccountsTransactionsDescription = l.AccountsTransactionsDescription,
-                     AccountsTransactionsUserId = l.AccountsTransactionsUserId,
-                     AccountsTransactionsStatus = l.AccountsTransactionsStatus,
-                     AccountsTransactionsTstamp = l.AccountsTransactionsTstamp,
-                     RefNo = l.RefNo,
-                     AccountsTransactionsFsno = l.AccountsTransactionsFsno,
-                     AccountsTransactionsAllocDebit = l.AccountsTransactionsAllocDebit,
-                     AccountsTransactionsAllocCredit = l.AccountsTransactionsAllocCredit,
-                     AccountsTransactionsAllocBalance = l.AccountsTransactionsAllocBalance,
-                     AccountsTransactionsFcAllocDebit = l.AccountsTransactionsFcAllocDebit,
-                     AccountsTransactionsFcAllocCredit = l.AccountsTransactionsFcAllocCredit,
-                     AccountsTransactionsFcAllocBalance = l.AccountsTransactionsFcAllocBalance,
-                     AccountsTransactionsLocation = l.AccountsTransactionsLocation,
-                     AccountsTransactionsJobNo = l.AccountsTransactionsJobNo,
-                     AccountsTransactionsCostCenterId = l.AccountsTransactionsCostCenterId,
-                     AccountsTransactionsApprovalDt = l.AccountsTransactionsApprovalDt,
-                     AccountsTransactionsDepartment = l.AccountsTransactionsDepartment,
-                     AccountsTransactionsFcRate = l.AccountsTransactionsFcRate,
-                     AccountsTransactionsCompanyId = l.AccountsTransactionsCompanyId,
-                     AccountsTransactionsCurrencyId = l.AccountsTransactionsCurrencyId,
-                     AccountsTransactionsDrGram = l.AccountsTransactionsDrGram,
-                     AccountsTransactionsCrGram = l.AccountsTransactionsCrGram,
-                     AccountsTransactionsCheqNo = l.AccountsTransactionsCheqNo,
-                     AccountsTransactionsLpoNo = l.AccountsTransactionsLpoNo,
-                     AccountsTransactionsCheqDate = l.AccountsTransactionsCheqDate,
-                     AccountsTransactionsOpposEntryDesc = l.AccountsTransactionsOpposEntryDesc,
-                     AccountsTransactionsAllocUpdateBal = l.AccountsTransactionsAllocUpdateBal,
-                     AccountsTransactionsDeptId = l.AccountsTransactionsDeptId,
-                     AccountsTransactionsVatno = l.AccountsTransactionsVatno,
-                     AccountsTransactionsVatableAmount = l.AccountsTransactionsVatableAmount,
-                 }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
+                    AccountsTransactionsTransSno = l.AccountsTransactionsTransSno,
+                    AccountstransactionsDelStatus = false,
+                    AccountsTransactionsAccNo = l.AccountsTransactionsAccNo,
+                    AccountsTransactionsTransDate = l.AccountsTransactionsTransDate,
+                    AccountsTransactionsParticulars = l.AccountsTransactionsParticulars,
+                    AccountsTransactionsDebit = l.AccountsTransactionsDebit,
+                    AccountsTransactionsCredit = l.AccountsTransactionsCredit,
+                    AccountsTransactionsFcDebit = l.AccountsTransactionsFcDebit,
+                    AccountsTransactionsFcCredit = l.AccountsTransactionsFcCredit,
+                    AccountsTransactionsVoucherType = l.AccountsTransactionsVoucherType,
+                    AccountsTransactionsVoucherNo = l.AccountsTransactionsVoucherNo,
+                    AccountsTransactionsDescription = l.AccountsTransactionsDescription,
+                    AccountsTransactionsUserId = l.AccountsTransactionsUserId,
+                    AccountsTransactionsStatus = l.AccountsTransactionsStatus,
+                    AccountsTransactionsTstamp = l.AccountsTransactionsTstamp,
+                    RefNo = l.RefNo,
+                    AccountsTransactionsFsno = l.AccountsTransactionsFsno,
+                    AccountsTransactionsAllocDebit = l.AccountsTransactionsAllocDebit,
+                    AccountsTransactionsAllocCredit = l.AccountsTransactionsAllocCredit,
+                    AccountsTransactionsAllocBalance = l.AccountsTransactionsAllocBalance,
+                    AccountsTransactionsFcAllocDebit = l.AccountsTransactionsFcAllocDebit,
+                    AccountsTransactionsFcAllocCredit = l.AccountsTransactionsFcAllocCredit,
+                    AccountsTransactionsFcAllocBalance = l.AccountsTransactionsFcAllocBalance,
+                    AccountsTransactionsLocation = l.AccountsTransactionsLocation,
+                    AccountsTransactionsJobNo = l.AccountsTransactionsJobNo,
+                    AccountsTransactionsCostCenterId = l.AccountsTransactionsCostCenterId,
+                    AccountsTransactionsApprovalDt = l.AccountsTransactionsApprovalDt,
+                    AccountsTransactionsDepartment = l.AccountsTransactionsDepartment,
+                    AccountsTransactionsFcRate = l.AccountsTransactionsFcRate,
+                    AccountsTransactionsCompanyId = l.AccountsTransactionsCompanyId,
+                    AccountsTransactionsCurrencyId = l.AccountsTransactionsCurrencyId,
+                    AccountsTransactionsDrGram = l.AccountsTransactionsDrGram,
+                    AccountsTransactionsCrGram = l.AccountsTransactionsCrGram,
+                    AccountsTransactionsCheqNo = l.AccountsTransactionsCheqNo,
+                    AccountsTransactionsLpoNo = l.AccountsTransactionsLpoNo,
+                    AccountsTransactionsCheqDate = l.AccountsTransactionsCheqDate,
+                    AccountsTransactionsOpposEntryDesc = l.AccountsTransactionsOpposEntryDesc,
+                    AccountsTransactionsAllocUpdateBal = l.AccountsTransactionsAllocUpdateBal,
+                    AccountsTransactionsDeptId = l.AccountsTransactionsDeptId,
+                    AccountsTransactionsVatno = l.AccountsTransactionsVatno,
+                    AccountsTransactionsVatableAmount = l.AccountsTransactionsVatableAmount,
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
             _accountTransactionRepository.UpdateList(accttrans);
         }
         public static void Delete_OldEntry_AccountsTransactions(string AccountsTransactionsVoucherNo, string AccountsTransactionsVoucherType, IRepository<AccountsTransactions> _accountTransactionRepository)
@@ -77,7 +77,7 @@ namespace Inspire.Erp.Application.MODULE
                  .Where(k => k.AccountsTransactionsVoucherNo == AccountsTransactionsVoucherNo && k.AccountsTransactionsVoucherType == AccountsTransactionsVoucherType && k.AccountstransactionsDelStatus != true).Select((l) => new AccountsTransactions
                  {
                      AccountsTransactionsTransSno = l.AccountsTransactionsTransSno,
-                    // AccountstransactionsDelStatus = true,
+                     // AccountstransactionsDelStatus = true,
 
                      AccountsTransactionsAccNo = l.AccountsTransactionsAccNo,
                      AccountsTransactionsTransDate = l.AccountsTransactionsTransDate,
@@ -288,12 +288,15 @@ namespace Inspire.Erp.Application.MODULE
                 return 1;
             }
         }
-        public static string GenrateVoucherNo(string voucherType, string voucherprefix, IRepository<ProgramSettings> _progrramSettingRepo, IRepository<VouchersNumbers> _voucherNosRepo)
+        public static string GenrateVoucherNo(string voucherType, string voucherprefix, IRepository<ProgramSettings> _progrramSettingRepo, IRepository<VouchersNumbers> _voucherNosRepo, string? JobNum = null)
         {
             try
             {
                 var program = _progrramSettingRepo.GetAsQueryable().AsNoTracking().Where(p => p.ProgramSettingsKeyValue.Equals("PREFIX_CLOSING_TYPE"))
                     .Select(s => s.ProgramSettingsTextValue).FirstOrDefault();
+
+                var jonNumEnable = _progrramSettingRepo.GetAsQueryable().AsNoTracking().Where(p => p.ProgramSettingsKeyValue.Equals("JOB_WISE_PREFIX"))
+                    .Select(s => s.ProgramSettingsBoolValue).FirstOrDefault();
 
                 var prefixSeprator = _progrramSettingRepo.GetAsQueryable().AsNoTracking().Where(P => P.ProgramSettingsKeyValue.Equals("PREFIX_SEPERATOR"))
                     .Select(S => S.ProgramSettingsTextValue).FirstOrDefault();
@@ -301,7 +304,7 @@ namespace Inspire.Erp.Application.MODULE
                 decimal vNoMax = 0;
                 var prefix = _progrramSettingRepo.GetAsQueryable().AsNoTracking().Where(p => p.ProgramSettingsKeyValue.Equals(voucherprefix))
                     .Select(v => v.ProgramSettingsTextValue).FirstOrDefault();
-
+                var jobNumber =  !string.IsNullOrEmpty(JobNum) ? $"{prefixSeprator}{JobNum}" : string.Empty;
                 var date = DateTime.Now;
                 string vnoPrefix = string.Empty;
                 if (program.Equals("1")) // Monthly  
@@ -312,8 +315,16 @@ namespace Inspire.Erp.Application.MODULE
                     && v.VouchersNumbersVoucherDate.Value.Year == date.Year
                     && v.VouchersNumbersVoucherDate.Value.Month == date.Month
                     ).AsEnumerable().Select(a => a.VouchersNumbersVNoNu).DefaultIfEmpty(0).Max() + 1;
+                    if (jonNumEnable == true)
+                    {
+                        vnoPrefix = prefix + jobNumber + prefixSeprator + date.ToString("yy") + date.ToString("MM") + prefixSeprator + Convert.ToInt32(vNoMax).ToString("D3");
 
-                    vnoPrefix = prefix + prefixSeprator + date.ToString("yy")  + date.ToString("MM") + prefixSeprator + Convert.ToInt32(vNoMax).ToString("D3");
+                    }
+                    else
+                    {
+                        vnoPrefix = prefix + prefixSeprator + date.ToString("yy") + date.ToString("MM") + prefixSeprator + Convert.ToInt32(vNoMax).ToString("D3");
+
+                    }
                 }
                 else if (program.Equals("2"))  // yearly
                 {
@@ -322,15 +333,30 @@ namespace Inspire.Erp.Application.MODULE
                     && v.VouchersNumbersVoucherDate.HasValue
                     && v.VouchersNumbersVoucherDate.Value.Year == date.Year
                     ).AsEnumerable().Select(a => a.VouchersNumbersVNoNu).DefaultIfEmpty(0).Max() + 1;
+                    if (jonNumEnable == true)
+                    {
 
-                    vnoPrefix = prefix + prefixSeprator + date.ToString("yy")  + date.ToString("MM") + prefixSeprator + Convert.ToInt32(vNoMax).ToString("D3");
+                        vnoPrefix = prefix + jobNumber + prefixSeprator + date.ToString("yy") + date.ToString("MM") + prefixSeprator + Convert.ToInt32(vNoMax).ToString("D3");
+                    }
+                    else
+                    {
+                        vnoPrefix = prefix + prefixSeprator + date.ToString("yy") + date.ToString("MM") + prefixSeprator + Convert.ToInt32(vNoMax).ToString("D3");
+
+                    }
+
                 }
                 else
                 {
                     vNoMax = _voucherNosRepo.GetAsQueryable().AsNoTracking().Where(v => v.VouchersNumbersVNoNu > 0 && v.VouchersNumbersVType.Equals(voucherType)).AsEnumerable().
                         Select(a => a.VouchersNumbersVNoNu).DefaultIfEmpty(0).Max() + 1;
-
-                    vnoPrefix = prefix + prefixSeprator + Convert.ToInt32(vNoMax).ToString("D3");
+                    if (jonNumEnable == true )
+                    {
+                        vnoPrefix = prefix + jobNumber + prefixSeprator + Convert.ToInt32(vNoMax).ToString("D3");
+                    }
+                    else
+                    {
+                        vnoPrefix = prefix + prefixSeprator + Convert.ToInt32(vNoMax).ToString("D3");
+                    }
 
                 }
                 VouchersNumbers vocherNumber = new VouchersNumbers

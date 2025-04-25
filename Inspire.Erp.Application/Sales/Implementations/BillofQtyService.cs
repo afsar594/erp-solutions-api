@@ -230,9 +230,12 @@ namespace Inspire.Erp.Application.Sales.Implementations
             try
             {
                 _BillofQtyMasterRepository.BeginTransaction();
+                var jobNum = JobMasterRepository.GetAsQueryable().AsNoTracking()
+                .Where(e => e.JobMasterJobId == BillofQty.CustomerEnqId)
+                .FirstOrDefault()?.JobMasterJobNumber ?? "";
 
                 string customerQuotationNumber = clsCommonFunctions.GenrateVoucherNo(
-                    VoucherType.BOQ, Prefix.BOQ_Prefix, _programsettingsRepository, _voucherNumbersRepository);
+                    VoucherType.BOQ, Prefix.BOQ_Prefix, _programsettingsRepository, _voucherNumbersRepository, jobNum);
                 BillofQty.BillofqtyNo = customerQuotationNumber;
 
                 BillofQty.BillOfQTyDetails = new List<BillOfQTyDetails>();
@@ -257,7 +260,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 }).OrderBy(x => x.Id).AsEnumerable().ToList();
                 _BillOfQTyDetailsRepository.InsertList(BillOfQTyDetails);
 
-                var jobNum = JobMasterRepository.GetAsQueryable().Where(e => e.JobMasterJobId == BillofQty.CustomerEnqId).FirstOrDefault()?.JobMasterJobNo;
+                //var jobNum = JobMasterRepository.GetAsQueryable().Where(e => e.JobMasterJobId == BillofQty.CustomerEnqId).FirstOrDefault()?.JobMasterJobNo;
 
                 int maxEstimationId = _EstimationCostCenterRepository.GetAsQueryable()
                     .DefaultIfEmpty().Max(o => o == null ? 0 : o.Id) + 1;
