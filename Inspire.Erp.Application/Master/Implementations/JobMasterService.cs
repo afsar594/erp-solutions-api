@@ -202,35 +202,27 @@ namespace Inspire.Erp.Application.Master
                     x.JobId = jobId;
                     return x;
                 }).OrderBy(x => x.JobId).AsEnumerable().ToList();
-                // job file 
+                
+               
                 jobMaster.JobfilesStatus.Select((x) =>
                 {
-                
+
                     x.JobMasterJobId = jobId;
                     x.job_filename = jobMaster.JobfilesStatus[0].job_filename;
                     x.job_fileStatus = jobMaster.JobfilesStatus[0].job_fileStatus;
                     x.job_IsDeleted = false;
                     return x;
                 });
-                // Job Master Control
-                jobMaster.JobMasterControl.Select((x) =>
+
+                jobMaster.JobMasterControl.ForEach(x =>
                 {
-                    var firstBudgetDetail = jobMaster.JobMasterBudgetDetails.FirstOrDefault();
-                    var firstControl = jobMaster.JobMasterControl.FirstOrDefault();
-
+                    x.JobMasterNo = vNumber;
                     x.JobMasterControlJobID = jobId;
-                    x.JobMasterNo  = vNumber;             
-
-                    x.JobMasterControlCostCenerID = 2;//firstBudgetDetail?.JobMasterBudgetDetailsJobId ?? 0;
-                    x.JobMasterControlLevel1 = firstControl?.JobMasterControlLevel1 ?? 0;
-                    x.JobMasterControlLevel2 = firstControl?.JobMasterControlLevel2 ?? 0;
-                    x.JobMasterControlLevel3 = firstControl?.JobMasterControlLevel3 ?? 0;
-                    x.JobMasterBudgetDetailsEmail = firstControl?.JobMasterBudgetDetailsEmail;
-
-                    return x;
                 });
+
                 // end
                 jobrepository.Insert(jobMaster);
+                _jobMasterControl.InsertList(jobMaster.JobMasterControl);
                 jobrepository.TransactionCommit();
 
                 return this.GetSavedJobMasterDetails(jobMaster.JobMasterJobNo);
@@ -242,22 +234,7 @@ namespace Inspire.Erp.Application.Master
                 throw ex;
             }
         }
-        //public JobMaster UpdateJobMaster(JobMaster jobMaster, List<JobMasterBudgetDetails> jobMasterBudgetDetails, List<JobMasterJobDetails> jobMasterJobDetails, List<JobMasterJobWiseBankGuarantees> jobMasterJobWiseBankGuarantees)
-        //{
-        //    try
-        //    {
-
-        //        jobrepository.Update(jobMaster);
-
-
-        //        return this.GetSavedJobMasterDetails(jobMaster.JobMasterJobNo);
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw;
-        //    }
-        //}
+       
         public JobMaster UpdateJobMaster(JobMaster jobMaster, List<JobMasterBudgetDetails> jobMasterBudgetDetails, List<JobMasterJobDetails> jobMasterJobDetails, List<JobMasterJobWiseBankGuarantees> jobMasterJobWiseBankGuarantees, List<JobStaff> jobStaff, List<JobEquipment> jobEquipment, List<JobExcutionDetails> jobExcutionDetails, List<JobTimesheetDesc> JobTimesheetDesc, List<JobTimeSheetEquip> JobTimeSheetEquip, List<JobTimesheetMaster> JobTimesheetMaster, List<JobTimeSheetStaff> JobTimeSheetStaff, List<JobfilesStatus> JobfilesStatus, List<JobMasterControl> JobMasterControl)
         {
             try
@@ -266,7 +243,10 @@ namespace Inspire.Erp.Application.Master
                 jobrepository.BeginTransaction();
                 jobId = jobMaster.JobMasterJobId;
                 var existingJobDetails = this.jobdetailsRepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterJobDetailsJobId == jobId).ToList();
+                var existingJobControls = this._jobMasterControl.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterControlJobID == jobId).ToList();
                 var detailsToDelete = existingJobDetails.Where(x => jobMaster.JobMasterJobDetails.All(d => x.JobMasterJobDetailsJobDetId != d.JobMasterJobDetailsJobDetId)).ToList();
+                var jobControlsToDelete = existingJobControls.Where(x => jobMaster.JobMasterControl.All(d => x.JobMasterControlJobID != d.JobMasterControlJobID)).ToList();
+                
                 string vNumber = jobMaster.JobMasterJobNo;
 
                 jobMaster.JobMasterBudgetDetails.Select((x) =>
@@ -337,33 +317,22 @@ namespace Inspire.Erp.Application.Master
                     return x;
                 }).OrderBy(x => x.JobMasterJobId).AsEnumerable().ToList();
 
-                jobMaster.JobMasterControl.Select((x) =>
-                {
-                    x.JobMasterControlJobID = jobId;
-                    return x;
-                }).OrderBy(x => x.JobMasterControlJobID).AsEnumerable().ToList();
-
-                // job file 
-                //jobMaster.JobfilesStatus.Select((x) =>
-                //{
-                //    x.JobMasterJobId = jobId;
-                //    x.job_filename = jobMaster.JobfilesStatus[0].job_filename;
-                //    x.job_fileStatus = jobMaster.JobfilesStatus[0].job_fileStatus;
-                //    x.job_IsDeleted = false;
-                //    return x;
-                //});
-                //_JobfilesStatus.GetAsQueryable().Where(e => e.JobMasterJobId == jobId).ToList();
-                //jobMaster.JobfilesStatus.Select((x) =>
-                //{
-                //    x.JobMasterJobId = jobId;
-                //    x.job_filename = jobMaster.JobfilesStatus[0].job_filename;
-                //    x.job_fileStatus = jobMaster.JobfilesStatus[0].job_fileStatus;
-                //    x.job_IsDeleted = false;
-                //    return x;
-                //});
+               
                 if (detailsToDelete.Any())
                     this.jobdetailsRepository.DeleteList(detailsToDelete);
+
+                if (jobControlsToDelete.Any())
+                    this._jobMasterControl.InsertList(jobControlsToDelete);
+
+                jobMaster.JobMasterControl.ForEach(x =>
+                {
+                    x.JobMasterControlJobID = jobId;
+                    x.JobMasterNo = vNumber;
+                });
+
                 jobrepository.Update(jobMaster);
+                this._jobMasterControl.InsertList(jobMaster.JobMasterControl);
+
                 jobrepository.TransactionCommit();
 
                 return this.GetSavedJobMasterDetails(jobMaster.JobMasterJobNo);
