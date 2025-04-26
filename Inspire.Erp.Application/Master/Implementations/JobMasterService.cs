@@ -245,7 +245,7 @@ namespace Inspire.Erp.Application.Master
                 var existingJobDetails = this.jobdetailsRepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterJobDetailsJobId == jobId).ToList();
                 var existingJobControls = this._jobMasterControl.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterControlJobID == jobId).ToList();
                 var detailsToDelete = existingJobDetails.Where(x => jobMaster.JobMasterJobDetails.All(d => x.JobMasterJobDetailsJobDetId != d.JobMasterJobDetailsJobDetId)).ToList();
-                var jobControlsToDelete = existingJobControls.Where(x => jobMaster.JobMasterControl.All(d => x.JobMasterControlJobID != d.JobMasterControlJobID)).ToList();
+                var jobControlsToDelete = existingJobControls.Where(x => jobMaster.JobMasterControl.All(d => x.JobMasterControlJobID == d.JobMasterControlJobID)).ToList();
                 
                 string vNumber = jobMaster.JobMasterJobNo;
 
@@ -322,10 +322,11 @@ namespace Inspire.Erp.Application.Master
                     this.jobdetailsRepository.DeleteList(detailsToDelete);
 
                 if (jobControlsToDelete.Any())
-                    this._jobMasterControl.InsertList(jobControlsToDelete);
+                    this._jobMasterControl.DeleteList(jobControlsToDelete);
 
                 jobMaster.JobMasterControl.ForEach(x =>
                 {
+                    x.JobMasterControlDtlId = 0;
                     x.JobMasterControlJobID = jobId;
                     x.JobMasterNo = vNumber;
                 });
