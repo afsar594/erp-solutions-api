@@ -16,6 +16,7 @@ namespace Inspire.Erp.Application.Common
         public int UserId { get; set; }
         public int JobId { get; set; }
         public bool IsDate { get; set; }
+        public bool IsUserRequired { get; set; } = true;
         public DateTime? fromDate { get; set; }
         public DateTime? toDate { get; set; }
     }

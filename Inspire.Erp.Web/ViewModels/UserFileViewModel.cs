@@ -22,6 +22,9 @@ namespace Inspire.Erp.Web.ViewModels
         public bool? Deleted { get; set; }
         public bool? System { get; set; }
         public bool? Freeze { get; set; }
+        public int? DepartmentId { get; set; }
+        public int? DesignationId { get; set; }
+        public string? EmployeeName { get; set; }
         [NotMapped]
         public bool? IsValid { get; set; }
         [NotMapped]

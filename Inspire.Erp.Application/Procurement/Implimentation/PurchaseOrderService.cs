@@ -971,7 +971,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
         private List<EnumOrderForms> GetModelTypes()
         {
-            return new List<EnumOrderForms> { EnumOrderForms.CustomerQuotation, EnumOrderForms.PurchaseOrder, EnumOrderForms.PurchaseRequisition };
+            return new List<EnumOrderForms> {  EnumOrderForms.PurchaseOrder, EnumOrderForms.PurchaseRequisition };
         }
 
         public List<VoucherApprivalDto> GetPurchaseOrderForApproval(ApprovalFilterModel model, List<ApproverLevelSettings> approvers, UserFile user)
@@ -1017,7 +1017,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 Status = x.po.PurchaseOrderApproveStatus,
                 Remarks = $"{x.po.PurchaseOrderRemarks1}\n{x.po.PurchaseOrderRemarks2}\n{x.po.PurchaseOrderRemarks3}",
                 VoucherApprovers = x.po.OrderApprovalHierarchies
-                                                    .Where(oh => (user.WorkGroupId == 1 || oh.ApproverId == user.UserId) && oh.OrderId == x.po.PurchaseOrderId)
+                                                    .Where(oh => !model.IsUserRequired ? true :(user.WorkGroupId == 1 || oh.ApproverId == user.UserId) && oh.OrderId == x.po.PurchaseOrderId)
                                                     .Select(oh => new VoucherApprover
                                                     {
                                                         ApproverId = (int)oh.ApproverId,
@@ -1077,7 +1077,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 Status = x.pr.PurchaseRequisitionStatus,
                 Remarks = x.pr.PurchaseRequisitionRemarks,
                 VoucherApprovers = x.pr.OrderApprovalHierarchies
-                    .Where(oh => (user.WorkGroupId == 1 || oh.ApproverId == user.UserId) && oh.OrderId == x.pr.PurchaseRequisitionId)
+                    .Where(oh => !model.IsUserRequired ? true :(user.WorkGroupId == 1 || oh.ApproverId == user.UserId) && oh.OrderId == x.pr.PurchaseRequisitionId)
                     .Select(oh => new VoucherApprover
                     {
                         ApproverId = (int)oh.ApproverId,
