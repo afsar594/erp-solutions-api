@@ -17,7 +17,9 @@ namespace Inspire.Erp.Domain.Entities
         public byte[]? UserImage { get; set; }
         public string RefreshToken { get; set; }
         public DateTime? RefreshTokenExpiryTime { get; set; }
-
+        public int? DepartmentId { get; set; }
+        public int? DesignationId { get; set; }
+        public string? EmployeeName { get; set; }
         public string? emailId { get; set; }
         public string Salt { get; set; }
         public bool? Deleted { get; set; }
@@ -33,6 +35,7 @@ namespace Inspire.Erp.Domain.Entities
         [NotMapped]
         public int? FinancialPeriodsFsno { get; set; }
         public int? Loginfailure { get; set; }
+
         public DateTime? PasswordUpdateDate { get; set; }
         [JsonIgnore]
         public virtual ICollection<ApproverLevelSettings> ApproverLevelSettings { get; set; }
