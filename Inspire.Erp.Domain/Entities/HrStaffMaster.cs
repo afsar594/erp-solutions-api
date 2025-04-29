@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace Inspire.Erp.Domain.Entities
@@ -94,5 +95,7 @@ namespace Inspire.Erp.Domain.Entities
         public bool? NotEligForProcAtt { get; set; }
         public long? SubDepId { get; set; }
         public long? CmpId { get; set; }
+        //[NotMapped]
+        //public virtual HrDesignation Designation { get; set; }
     }
 }

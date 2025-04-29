@@ -472,6 +472,8 @@ namespace Inspire.Erp.Infrastructure.Database
         public DbSet<ApproverLevelSettings> ApproverLevelSettings { get; set; }
         public DbSet<OrderApprovalHierarchy> OrderApprovalHierarchies { get; set; }
         public DbSet<JobMasterControl> JobMasterControl { get; set; }
+
+        public virtual DbSet<HrDesignation> HrDesignation { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -8699,6 +8701,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.JobMasterControlDtlId).HasColumnName("Job_Master_Control_DtlId");
                 entity.Property(e => e.JobMasterControlJobID).HasColumnName("Job_Master_Control_JobID");
                 entity.Property(e => e.JobMasterNo).HasColumnName("Job_Master_No");
+                entity.Property(e => e.JobMasterControlAmount).HasColumnName("Job_Master_Control_Amount");
                 entity.Property(e => e.JobMasterControlCostCenerID).HasColumnName("Job_Master_Control_CostCenerID");
                 entity.Property(e => e.JobMasterControlLevel1).HasColumnName("Job_Master_Control_Level1");
                 entity.Property(e => e.JobMasterControlLevel2).HasColumnName("Job_Master_Control_Level2");
@@ -19245,6 +19248,23 @@ namespace Inspire.Erp.Infrastructure.Database
                       .HasConstraintName("FK_Finish_Product_Detail_Finish_Product_Master");
             });
 
+            modelBuilder.Entity<HrDesignation>(entity =>
+            {
+                entity.HasKey(e => e.DesignationId);
+
+                entity.ToTable("HR_Designation");
+
+                entity.Property(e => e.DesignationId).ValueGeneratedNever();
+
+                entity.Property(e => e.Designation)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.ShortName)
+                    .HasMaxLength(10)
+                    .IsUnicode(false)
+                    .IsFixedLength();
+            });
 
 
 
