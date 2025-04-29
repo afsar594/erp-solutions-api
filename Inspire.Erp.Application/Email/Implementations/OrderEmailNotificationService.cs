@@ -8,6 +8,7 @@ using Inspire.Erp.Domain.Models.Common;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using SendGrid.Helpers.Mail;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -93,8 +94,8 @@ namespace Inspire.Erp.Application.Email.Implementations
                             JobName = $"{jobName}/{jobNo}",
                             Supplier = supplier,
                             TotalAmount = totalAmount,
-                            RequestedBy = _mailSettings.RequestedBy,
-                            Department = _mailSettings.Department,
+                            RequestedBy = _mailSettings.RequestedBy,// need to add here the user name who had created the PR/PO
+                            Department = _mailSettings.Department,//need to add from userfile 
                             ApprovalLink = loginUrl,
                             SupportEmail = _mailSettings.SupportEmail
                         })
@@ -257,6 +258,20 @@ namespace Inspire.Erp.Application.Email.Implementations
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to send email notification for Order ID: {OrderId}, Level: {Level}", emailModel.OrderId, level);
+                throw;
+            }
+        }
+
+        public async Task<bool> SendTextEmailAsync(List<EmailAddress> toEmails, string subject, string message, List<string> filePaths)
+        {
+            try
+            {
+
+                return await _emailNotificationServices.SendTextEmailAsync(toEmails,subject,message,filePaths);
+
+            }
+            catch (Exception ex)
+            {
                 throw;
             }
         }

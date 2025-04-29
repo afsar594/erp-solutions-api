@@ -180,54 +180,6 @@ namespace Inspire.Erp.Web.Controllers
                 JobMasterJobId = k.JobMasterJobId,
                 JobMasterJobName = k.JobMasterJobName,
                 JobMasterJobDate = k.JobMasterJobDate,
-                //JobMasterJobValue = k.JobMasterJobValue,
-                //JobMasterJobRetention = k.JobMasterJobRetention,
-                //JobMasterJobBalance = k.JobMasterJobBalance,
-                //JobMasterJobStatus = k.JobMasterJobStatus,
-                //JobMasterJobConsultant = k.JobMasterJobConsultant,
-                //JobMasterJobRemarks = k.JobMasterJobRemarks,
-                //JobMasterJobCustomerId = k.JobMasterJobCustomerId,
-                //JobMasterJobCurrencyId = k.JobMasterJobCurrencyId,
-                //JobMasterJobCurVal = k.JobMasterJobCurVal,
-                //JobMasterJobOpenInv = k.JobMasterJobOpenInv,
-                //JobMasterJobPerInv = k.JobMasterJobPerInv,
-                //JobMasterJobConsultantReff = k.JobMasterJobConsultantReff,
-                //JobMasterJobStatusVal = k.JobMasterJobStatusVal,
-                //JobMasterJobType = k.JobMasterJobType,
-                //JobMasterJobRelativeNo = k.JobMasterJobRelativeNo,
-                //JobMasterJobCode = k.JobMasterJobCode,
-                //JobMasterJobSupplierId = k.JobMasterJobSupplierId,
-                //JobMasterJobSalesManId = k.JobMasterJobSalesManId,
-                //JobMasterJobNumber = k.JobMasterJobNumber,
-                //JobMasterJobIsSubJob = k.JobMasterJobIsSubJob,
-                //JobMasterJobRetentionPercentage = k.JobMasterJobRetentionPercentage,
-                //JobMasterJobSalesMan = k.JobMasterJobSalesMan,
-                //JobMasterJobBudgetMaterialCost = k.JobMasterJobBudgetMaterialCost,
-                //JobMasterJobMaterialCost = k.JobMasterJobMaterialCost,
-                //JobMasterJobMaterialCostVar = k.JobMasterJobMaterialCostVar,
-                //JobMasterJobBugetLabourCost = k.JobMasterJobBugetLabourCost,
-                //JobMasterJobLabourCost = k.JobMasterJobLabourCost,
-                //JobMasterJobLabourCostVar = k.JobMasterJobLabourCostVar,
-                //JobMasterJobBudgetOverHeadCost = k.JobMasterJobBudgetOverHeadCost,
-                //JobMasterJobOverHeadCost = k.JobMasterJobOverHeadCost,
-                //JobMasterJobOverHeadCostVar = k.JobMasterJobOverHeadCostVar,
-                //JobMasterJobMiscCost = k.JobMasterJobMiscCost,
-                //JobMasterJobTotalCost = k.JobMasterJobTotalCost,
-                //JobMasterJobProfit = k.JobMasterJobProfit,
-                //JobMasterJobTotalInvValue = k.JobMasterJobTotalInvValue,
-                //JobMasterJobTotalPayValue = k.JobMasterJobTotalPayValue,
-                //JobMasterJobTotalRecValue = k.JobMasterJobTotalRecValue,
-                //JobMasterJobTotalExpValue = k.JobMasterJobTotalExpValue,
-                //JobMasterJobContractorName = k.JobMasterJobContractorName,
-                //JobMasterJobContractType = k.JobMasterJobContractType,
-                //JobMasterJobCommenceDate = k.JobMasterJobCommenceDate,
-                //JobMasterJobWorkingDays = k.JobMasterJobWorkingDays,
-                //JobMasterJobOrgCompleteDate = k.JobMasterJobOrgCompleteDate,
-                //JobMasterJobPayTermDays = k.JobMasterJobPayTermDays,
-                //JobMasterJobAdvanceAmount = k.JobMasterJobAdvanceAmount,
-                //JobMasterJobDelStatus = k.JobMasterJobDelStatus
-
-
             }).OrderBy(x => x.JobMasterJobName).ToList();
         }
         [HttpGet("GetJobPdfById/{id}")]
@@ -261,7 +213,7 @@ namespace Inspire.Erp.Web.Controllers
         {
             List<string> uploadedFiles = new List<string>();
             var files = Request.Form.Files;
-            
+
             if (files.Count == 0)
                 return Content("File Not Selected");
 
@@ -373,7 +325,7 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpGet]
         [Route("GetJobDocumentstById")]
-        public IActionResult GetJobDocumentstById(int jobDocumentJobId,int jobDocumentId)
+        public IActionResult GetJobDocumentstById(int jobDocumentJobId, int jobDocumentId)
         {
             try
             {
@@ -386,7 +338,7 @@ namespace Inspire.Erp.Web.Controllers
             }
         }
 
-        
+
 
         [HttpGet]
         [Route("DeleteJobDocument")]

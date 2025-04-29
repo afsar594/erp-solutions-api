@@ -962,7 +962,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 return Response<List<VoucherApprivalDto>>.Success(CombinedData, "Data found");
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
                 throw;
@@ -971,7 +971,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
         private List<EnumOrderForms> GetModelTypes()
         {
-            return new List<EnumOrderForms> { EnumOrderForms.CustomerQuotation, EnumOrderForms.PurchaseOrder, EnumOrderForms.PurchaseRequisition };
+            return new List<EnumOrderForms> { EnumOrderForms.PurchaseOrder, EnumOrderForms.PurchaseRequisition };
         }
 
         public List<VoucherApprivalDto> GetPurchaseOrderForApproval(ApprovalFilterModel model, List<ApproverLevelSettings> approvers, UserFile user)

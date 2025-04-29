@@ -14,6 +14,9 @@ using System.Text;
 using Microsoft.Extensions.Logging;
 using Inspire.Erp.Application.MODULE;
 using Microsoft.AspNetCore.Mvc;
+using Inspire.Erp.Application.Email.Interfaces;
+using Inspire.Erp.Application.Email.Implementations;
+using SendGrid.Helpers.Mail;
 namespace Inspire.Erp.Application.Store.Implementation
 {
     public class IssueVoucherService : IIssueVoucherService
@@ -35,7 +38,7 @@ namespace Inspire.Erp.Application.Store.Implementation
         private IRepository<JobMasterBudgetDetails> _jobbudgetRepository;
         private IRepository<JobMaster> _JobMastertRepository;
         private readonly IRepository<GeneralSettings> _generalSettings;
-
+        private readonly IEmailNotificationServices _emailNotificationServices;
 
         public IssueVoucherService(
             IRepository<ItemMaster> itemMasterRepository, IRepository<UnitMaster> unitMasterRepository,
@@ -43,7 +46,7 @@ namespace Inspire.Erp.Application.Store.Implementation
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, IRepository<UnitDetails> unitDetailsRepository, ILogger<PaymentVoucherService> logger, IRepository<CurrencyMaster> currencyMasterRepository,
             IRepository<IssueVoucher> issueVoucherRepository, IRepository<IssueVoucherDetails> issueVoucherDetailsRepository, IRepository<AccountSettings> accountsSettingssvcsRepository,
-            IRepository<JobMasterBudgetDetails> jobbudgetRepository, IRepository<JobMaster> JobMastertRepository, IRepository<GeneralSettings> generalSettings)
+            IRepository<JobMasterBudgetDetails> jobbudgetRepository, IRepository<JobMaster> JobMastertRepository, IRepository<GeneralSettings> generalSettings, IEmailNotificationServices emailNotificationServices)
         {
             _UnitDetailsRepository = unitDetailsRepository;
             this._accountTransactionRepository = accountTransactionRepository;
@@ -61,6 +64,7 @@ namespace Inspire.Erp.Application.Store.Implementation
             _jobbudgetRepository = jobbudgetRepository;
             _JobMastertRepository = JobMastertRepository;
             _generalSettings = generalSettings;
+            _emailNotificationServices = emailNotificationServices;
         }
 
 
@@ -460,6 +464,8 @@ namespace Inspire.Erp.Application.Store.Implementation
                 
                 
                 _issueVoucherRepository.TransactionCommit();
+
+                //SendEmailOnValueExeeds((int)issueVoucher.IssueVoucherJobId);
                 return this.GetSavedIssueVoucherDetails((int)issueVoucher.IssueVoucherId);
 
             }
@@ -469,6 +475,37 @@ namespace Inspire.Erp.Application.Store.Implementation
                 throw ex;
             }
         }
+
+        private async void SendEmailOnValueExeeds(int jobId)
+        {
+            try
+            {
+                var jobDetail = _JobMastertRepository.GetAsQueryable()
+                               .AsNoTracking()
+                               .SingleOrDefault(x => x.JobMasterJobId == jobId);
+                var issueValue = _issueVoucherRepository.GetAsQueryable()
+                                .AsNoTracking()
+                                .GroupBy(x=>x.IssueVoucherJobId)
+                                .Select(x=>x.Sum(s=>s.IssueVoucherNetAmount))
+                                .FirstOrDefault() ?? 0;
+                
+                if (issueValue > jobDetail.JobMasterJobValue)
+                {
+                    var subject = $"BoQ exceeds Job Value against {jobDetail.JobMasterJobNumber}-{jobDetail.JobMasterJobName}";
+                    var msg = $"Recipient,\r\n\r\nThe Bill of Quantities (BOQ) for Job No. {jobDetail.JobMasterJobCode} ({jobDetail.JobMasterJobName}) has increased from the original value of {jobDetail.JobMasterJobValue} to {issueValue} following the revision of Purchase Requisition No. PR-24-001.\r\n\r\nYou are requested to take appropriate action.";
+                    var toMails = new List<EmailAddress>() { 
+                    
+                    };
+                    var filePaths = new List<string>();
+                    await _emailNotificationServices.SendTextEmailAsync(toMails, subject, msg, filePaths);
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         public IEnumerable<AccountsTransactions> GetAllTransaction()
         {
             return _accountTransactionRepository.GetAll();

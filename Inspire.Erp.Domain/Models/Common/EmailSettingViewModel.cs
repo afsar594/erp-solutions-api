@@ -10,7 +10,8 @@ namespace Inspire.Erp.Domain.Models.Common
         public string DisplayName { get; set; }
         public string Password { get; set; }
         public string Key { get; set; }
-        public List<string> CCEmails { get; set; }
+        public List<EmailEntry> CCEmails { get; set; }
+        public List<EmailEntry> BccEmails { get; set; }
         public string POPRTemplateId { get; set; }
         public string CustomerQuotationTemplateId { get; set; }
         public string TemplateId { get; set; }
@@ -19,5 +20,10 @@ namespace Inspire.Erp.Domain.Models.Common
         public string Department { get; set; }
         public string SupportEmail { get; set; }
 
+    }
+    public class EmailEntry
+    {
+        public string Name { get; set; }
+        public string Email { get; set; }
     }
 }

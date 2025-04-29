@@ -919,7 +919,7 @@ namespace Inspire.Erp.WebReport.ReportEngine
                     FileName = $"{reportFilterModel.ReportName}{voucherNo}{fileExtension}"
                 };
             result.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(mimeType);
-
+            result.Headers.Add("X-Report-Name", $"{reportFilterModel.ReportName}{voucherNo}{fileExtension}");
             return result;
         }
 

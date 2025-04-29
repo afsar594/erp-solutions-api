@@ -26,6 +26,8 @@ using Inspire.Erp.Domain.Models;
 using Inspire.Erp.Domain.Entities.POS;
 using Microsoft.AspNetCore.DataProtection.XmlEncryption;
 using Inspire.Erp.Infrastructure;
+using Inspire.Erp.Domain.Constants;
+using Inspire.Erp.Application.Email.Interfaces;
 
 namespace Inspire.Erp.Application.Sales.Implementations
 {
@@ -47,13 +49,14 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<JobMasterBudgetDetails> jobbudgetRepository;
         private IRepository<JobMaster> JobMasterRepository;
         private readonly IRepository<BillofQtyTracking> _billofQtyTracking;
+        private readonly IOrderEmailNotificationService _orderEmailNotificationService;
         public BillofQtyService(ILogger<CustomerQuotationService> logger, IRepository<PermissionApproval> permissionApprovalRepo,
             IRepository<Approval> approvalRepo, IRepository<ApprovalDetail> approvalDetailRepo,
             IRepository<BillofQtyMaster> BillofQtyMasterRepository, IRepository<VouchersNumbers> voucherNumbersRepository, IRepository<Domain.Entities.ProgramSettings> programsettingsRepository,
             IRepository<BillOfQTyDetails> BillOfQTyDetailsRepository,
             IRepository<UserTracking> userTrackingRepository,
             IRepository<JobMasterBudgetDetails> _jobbudgetRepository,
-            InspireErpDBContext Context, IRepository<EstimationCostCenter> estimationCostCenterRepository, IRepository<JobMaster> jobMasterRepository, IRepository<BillofQtyTracking> billofQtyTracking)
+            InspireErpDBContext Context, IRepository<EstimationCostCenter> estimationCostCenterRepository, IRepository<JobMaster> jobMasterRepository, IRepository<BillofQtyTracking> billofQtyTracking, IOrderEmailNotificationService orderEmailNotificationService)
         {
 
             _BillofQtyMasterRepository = BillofQtyMasterRepository;
@@ -72,6 +75,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             jobbudgetRepository = _jobbudgetRepository;
             JobMasterRepository = jobMasterRepository;
             _billofQtyTracking = billofQtyTracking;
+            _orderEmailNotificationService = orderEmailNotificationService;
         }
 
         public BillofQtyMaster UpdateBillofQty(BillofQtyMaster BillofQty, List<BillOfQTyDetails> BillOfQTyDetails, List<EstimationCostCenter> EstimationCostCenter)
@@ -284,11 +288,52 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 _BillofQtyMasterRepository.TransactionCommit();
 
+                #region EmailNotification
+                SendEmailOnValueExeeds((int)BillofQty.CustomerEnqId, BillofQty.BillofqtyNo);
+                #endregion
+
                 return this.GetSavedBillofQty(BillofQty.Id);
             }
             catch (Exception ex)
             {
                 _BillofQtyMasterRepository.TransactionRollback();
+                throw;
+            }
+        }
+
+        private async void SendEmailOnValueExeeds(int jobId, string prNo)
+        {
+            try
+            {
+                var jobDetail = JobMasterRepository.GetAsQueryable()
+                               .AsNoTracking()
+                               .SingleOrDefault(x => x.JobMasterJobId == jobId);
+
+                var boqValue = _BillofQtyMasterRepository.GetAsQueryable()
+                                .Where(x => x.CustomerEnqId == jobId)
+                                .AsNoTracking()
+                                .Sum(x => x.TotalAmount ?? 0);
+
+                if (boqValue > jobDetail.JobMasterJobValue)
+                {
+                    var subject = $"BoQ exceeds Job Value against {jobDetail.JobMasterJobNumber}-{jobDetail.JobMasterJobName}";
+                    var msg = InspireConstants.BOQEmailTemplate
+                                              .Replace("{{Recipient}}", "Ali Ansari")
+                                              .Replace("{{jobCode}}", jobDetail.JobMasterJobNumber)
+                                              .Replace("{{jobName}}", jobDetail.JobMasterJobName)
+                                              .Replace("{{jobValue}}", jobDetail.JobMasterJobValue?.ToString("n2"))
+                                              .Replace("{{prNetAmount}}", boqValue.ToString("n2"))
+                                              .Replace("{{prNO}}", prNo);
+                    var toMails = new List<EmailAddress>()
+                    {
+                        new EmailAddress("aliansari.inspire@gmail.com","Ali Ansari")
+                    };
+                    var filePaths = new List<string>();
+                    await _orderEmailNotificationService.SendTextEmailAsync(toMails, subject, msg, filePaths);
+                }
+            }
+            catch (Exception)
+            {
                 throw;
             }
         }
@@ -366,8 +411,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
             try
             {
                 var result = this._billofQtyTracking.GetAsQueryable().Where(x =>
-                                                                                                                            (fromDate == null ? true  : ( x.BOQDate.Date >= fromDate.Value.Date && x.BOQDate.Date <= toDate.Value.Date)) && 
-                                                                                                                            (string.IsNullOrEmpty(jobNo) ? true : x.JobMasterNo.ToUpper() == jobNo.ToUpper())).ToList() ;
+                                                                                                                            (fromDate == null ? true : (x.BOQDate.Date >= fromDate.Value.Date && x.BOQDate.Date <= toDate.Value.Date)) &&
+                                                                                                                            (string.IsNullOrEmpty(jobNo) ? true : x.JobMasterNo.ToUpper() == jobNo.ToUpper())).ToList();
                 return Response<List<BillofQtyTracking>>.Success(result, "Data Found");
             }
             catch (Exception ex)

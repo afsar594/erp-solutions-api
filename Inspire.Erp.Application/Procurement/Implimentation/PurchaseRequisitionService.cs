@@ -27,6 +27,7 @@ using Inspire.Erp.Domain.Models.Common;
 using Microsoft.Extensions.Options;
 using Inspire.Erp.Application.Helpers;
 using Inspire.Erp.Domain.Models.Approvals;
+using Inspire.Erp.Domain.Constants;
 
 namespace Inspire.Erp.Application.Procurement.Implementation
 {
@@ -481,6 +482,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                                jobDetail == null ? "" : jobDetail.JobMasterJobNumber  ,
                                                                                jobDetail == null ? "" : jobDetail.JobMasterJobName
                                                                                ).ConfigureAwait(false);
+                SendEmailOnValueExeeds((int)purchaseRequisition.PurchaseRequisitionJobId, purchaseRequisition.PurchaseRequisitionNo);
                 #endregion
 
                 return this.GetSavedPurchaseRequisitionDetails((int)purchaseRequisition.PurchaseRequisitionId);
@@ -495,6 +497,48 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
 
         }
+
+        private async void SendEmailOnValueExeeds(int jobId, string prNo)
+        {
+            try
+            {
+                var jobDetail = jobrepository.GetAsQueryable()
+                               .AsNoTracking()
+                               .SingleOrDefault(x => x.JobMasterJobId == jobId);
+
+                var prValue = _purchaseRequisitionRepository.GetAsQueryable()
+                                .AsNoTracking()
+                                .GroupBy(x => x.PurchaseRequisitionId)
+                                .Select(x => x.Sum(s => s.PurchaseRequisitionNetAmount))
+                                .FirstOrDefault() ?? 0;
+
+                if (prValue > jobDetail.JobMasterJobValue)
+                {
+                    var subject = $"BoQ exceeds Job Value against {jobDetail.JobMasterJobNumber}-{jobDetail.JobMasterJobName}";
+                    var msg = InspireConstants.PurchaseRequisitionEmailTemplate
+                                              .Replace("{{Recipient}}", "Ali Ansari")
+                                              .Replace("{{jobCode}}", jobDetail.JobMasterJobNumber)
+                                              .Replace("{{jobName}}", jobDetail.JobMasterJobName)
+                                              .Replace("{{jobValue}}", jobDetail.JobMasterJobValue?.ToString("n2"))
+                                              .Replace("{{prNetAmount}}", prValue.ToString("n2"))
+                                              .Replace("{{prNO}}",prNo);
+
+                    //$"Recipient,<br><br>The Bill of Quantities (BOQ) for Job No. {jobDetail.JobMasterJobNumber} ({jobDetail.JobMasterJobName}) has increased from the original value of {jobDetail.JobMasterJobValue?.ToString("n2")} to {issueValue.ToString("n2")} following the revision of Purchase Requisition No.{prNo}.<br>You are requested to take appropriate action.";
+                    var toMails = new List<EmailAddress>()
+                    {
+                        new EmailAddress("aliansari.inspire@gmail.com","Ali Ansari")
+                    };
+                    var filePaths = new List<string>();
+                    await _orderEmailNotificationService.SendTextEmailAsync(toMails, subject, msg, filePaths);
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+
         public IEnumerable<AccountsTransactions> GetAllTransaction()
         {
             return _accountTransactionRepository.GetAll();
