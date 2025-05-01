@@ -177,6 +177,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                       .Where(x => Convert.ToInt32(x.MaSno) > 0)
                                       .DefaultIfEmpty()
                                       .Max(o => o == null ? 0 : o.MaSno)) + 1;
+
                     var debtorAcc = this._masterAccountTable.GetAsQueryable()
                                                                                          .FirstOrDefault(x => x.MaAccName.ToUpper() == "Debtors".ToUpper());
 

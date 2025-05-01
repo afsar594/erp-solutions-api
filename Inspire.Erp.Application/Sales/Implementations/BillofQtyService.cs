@@ -28,6 +28,7 @@ using Microsoft.AspNetCore.DataProtection.XmlEncryption;
 using Inspire.Erp.Infrastructure;
 using Inspire.Erp.Domain.Constants;
 using Inspire.Erp.Application.Email.Interfaces;
+using Inspire.Erp.Application.Common.Email;
 
 namespace Inspire.Erp.Application.Sales.Implementations
 {
@@ -324,9 +325,16 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                               .Replace("{{jobValue}}", jobDetail.JobMasterJobValue?.ToString("n2"))
                                               .Replace("{{prNetAmount}}", boqValue.ToString("n2"))
                                               .Replace("{{prNO}}", prNo);
-                    var toMails = new List<EmailAddress>()
+
+                    var toMails = new List<UserEmail>()
                     {
-                        new EmailAddress("aliansari.inspire@gmail.com","Ali Ansari")
+                        new UserEmail()
+                        {
+                            Email = "irfanmiankhan@gamil.com",
+                            Name = "irfanmiankhan",
+                            BccEmails = new List<CCAndBccMailDto>(),
+                            CCEmails = new List<CCAndBccMailDto>()
+                        }
                     };
                     var filePaths = new List<string>();
                     await _orderEmailNotificationService.SendTextEmailAsync(toMails, subject, msg, filePaths);

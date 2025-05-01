@@ -25,7 +25,7 @@ namespace Inspire.Erp.Domain.Entities
         public long ApproverId { get; set; }
 
         [Required]
-        public bool OptEmail { get; set; } = false;
+        public bool OptEmail { get; set; }
 
         [Required]
         public int NotificationDays { get; set; }
@@ -37,6 +37,12 @@ namespace Inspire.Erp.Domain.Entities
         [Required]
         [Column(TypeName = "numeric(18, 2)")]
         public decimal MaxAmount { get; set; } = 0;
+
+        public int? JobId { get; set; }
+
+        [Required]
+        public string MetaData { get; set; }
+
 
         [ForeignKey("ApproverId")]
         public virtual UserFile Approver { get; set; }

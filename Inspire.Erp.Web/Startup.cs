@@ -25,6 +25,8 @@ using Inspire.Erp.Domain.Models.Common;
 using Inspire.Erp.Application.Account.Implementation;
 using Inspire.Erp.Application.NewFolder.Interfaces;
 using Inspire.Erp.Application.NewFolder.Implementations;
+using Inspire.Erp.RecurringJob;
+using Hangfire;
 
 namespace Inspire.Erp.Web
 {
@@ -47,6 +49,11 @@ namespace Inspire.Erp.Web
             services.AddApplication();
             services.AddInfrastructure(Configuration);
             services.AddTokenAuthentication(Configuration);
+
+            services.AddRecurringJob(Configuration);
+
+
+
             // Auto Mapper Configurations
             var mappingConfig = new MapperConfiguration(mc =>
             {
@@ -141,6 +148,19 @@ namespace Inspire.Erp.Web
                 endpoints.MapHub<NotificationHub>("/signal");
             });
             loggerFactory.AddFile($@"{Directory.GetCurrentDirectory()}\Logs\log.txt");
+
+            //using (var scope = app.ApplicationServices.CreateScope())
+            //{
+            //    var emailScheduler = scope.ServiceProvider.GetRequiredService<IEmailSchedulerService>();
+
+            //    // Schedule both email jobs to run daily
+            //   Hangfire.RecurringJob.AddOrUpdate("jobscops-email-job", () =>
+            //        emailScheduler.CheckAndSendEmailForJobScops(), Cron.Daily);
+
+            //    Hangfire.RecurringJob.AddOrUpdate("bankguarantees-email-job", () =>
+            //        emailScheduler.CheckAndSendEmailForJobBankGuarantees(), Cron.Daily);
+            //}
+
         }
     }
 }

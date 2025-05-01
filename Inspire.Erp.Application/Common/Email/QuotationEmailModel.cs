@@ -19,6 +19,7 @@ namespace Inspire.Erp.Application.Common.Email
         public string Phone { get; set; }
         public string Year { get; set; }
         public string GrandTotal { get; set; }
+        public int JobId { get; set; }
         public List<QuotationItem> Items { get; set; }
     }
     public class QuotationItem

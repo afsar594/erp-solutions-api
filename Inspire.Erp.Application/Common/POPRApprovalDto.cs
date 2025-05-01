@@ -11,5 +11,6 @@ namespace Inspire.Erp.Application.Common
         public EnumOrderForms OrderType { get; set; }
         public EnumApprovalStatus ApprovalStatus { get; set; }
         public string Remarks { get; set; }
+        public int JobId { get; set; }
     }
 }

@@ -49,7 +49,9 @@ namespace Inspire.Erp.Domain.Models.Approvals
             ApproverLevels = new List<Approvers>();
         }
         public EnumOrderForms FormType { get; set; }
+        public int JobId { get; set; }
         public List<Approvers> ApproverLevels { get; set; }
+        
     }
 
     public class Approvers
@@ -60,5 +62,19 @@ namespace Inspire.Erp.Domain.Models.Approvals
         public int NotificationDays { get; set; }
         public int MinAmount { get; set; }
         public int MaxAmount { get; set; }
+        public List<UserMetaDataDto> MetaData { get; set; }
     }
+    public class UserMetaDataDto
+    {
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public List<CCBccMailDto> CCEmails { get; set; }
+        public List<CCBccMailDto> BccEmails { get; set; }
+    }
+    public class CCBccMailDto
+    {
+        public string Name { get; set; }
+        public string Email { get; set; }
+    }
+
 }

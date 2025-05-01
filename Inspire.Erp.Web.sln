@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Inspire.Erp.Application", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inspire.Erp.WebReport", "Inspire.Erp.WebReport\Inspire.Erp.WebReport.csproj", "{C94039D9-D34D-43D7-9F2B-2077F1557893}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inspire.Erp.RecurringJob", "Inspire.Erp.RecurringJob\Inspire.Erp.RecurringJob.csproj", "{22D5ACC9-C125-4660-A6C3-DB750158FBFB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{C94039D9-D34D-43D7-9F2B-2077F1557893}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C94039D9-D34D-43D7-9F2B-2077F1557893}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C94039D9-D34D-43D7-9F2B-2077F1557893}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22D5ACC9-C125-4660-A6C3-DB750158FBFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22D5ACC9-C125-4660-A6C3-DB750158FBFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22D5ACC9-C125-4660-A6C3-DB750158FBFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22D5ACC9-C125-4660-A6C3-DB750158FBFB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

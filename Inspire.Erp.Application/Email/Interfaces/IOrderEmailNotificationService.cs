@@ -10,9 +10,9 @@ namespace Inspire.Erp.Application.Email.Interfaces
 {
     public interface IOrderEmailNotificationService
     {
-        Task SendOrderEmailNotificationAsync(EnumOrderForms orderType, EnumApproverLevels level, string subTitle, string poNumber, DateTime date, string supplier, decimal totalAmount, int orderId, string jobNo, string jobName, bool IsNewEntry = true);
+        Task SendOrderEmailNotificationAsync(EnumOrderForms orderType, EnumApproverLevels level, string subTitle, string poNumber, DateTime date, string supplier, decimal totalAmount, int orderId,int jobId, string jobNo, string jobName, bool IsNewEntry = true);
         Task SendQuotationEmailNotificationAsync(EnumOrderForms orderType, EnumApproverLevels level, QuotationEmailModel emailModel, bool IsNewEntry = true);
-        Task<bool> SendTextEmailAsync(List<EmailAddress> toEmails, string subject, string message, List<string> filePaths);
+        Task<bool> SendTextEmailAsync(List<UserEmail> toEmails, string subject, string message, List<string> filePaths);
     }
 
 }

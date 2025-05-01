@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 using Inspire.Erp.Application.Email.Interfaces;
 using Inspire.Erp.Application.Email.Implementations;
 using SendGrid.Helpers.Mail;
+using Inspire.Erp.Application.Common.Email;
 namespace Inspire.Erp.Application.Store.Implementation
 {
     public class IssueVoucherService : IIssueVoucherService
@@ -493,8 +494,15 @@ namespace Inspire.Erp.Application.Store.Implementation
                 {
                     var subject = $"BoQ exceeds Job Value against {jobDetail.JobMasterJobNumber}-{jobDetail.JobMasterJobName}";
                     var msg = $"Recipient,\r\n\r\nThe Bill of Quantities (BOQ) for Job No. {jobDetail.JobMasterJobCode} ({jobDetail.JobMasterJobName}) has increased from the original value of {jobDetail.JobMasterJobValue} to {issueValue} following the revision of Purchase Requisition No. PR-24-001.\r\n\r\nYou are requested to take appropriate action.";
-                    var toMails = new List<EmailAddress>() { 
-                    
+                    var toMails = new List<UserEmail>()
+                    {
+                        new UserEmail()
+                        {
+                            Email = "irfanmiankhan@gamil.com",
+                            Name = "irfanmiankhan",
+                            BccEmails = new List<CCAndBccMailDto>(),
+                            CCEmails = new List<CCAndBccMailDto>()
+                        }
                     };
                     var filePaths = new List<string>();
                     await _emailNotificationServices.SendTextEmailAsync(toMails, subject, msg, filePaths);

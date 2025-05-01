@@ -58,3 +58,6 @@ Inspire.Erp.WebReport/obj/Debug/DesignTimeResolveAssemblyReferencesInput.cache
 /Inspire.Erp.Web/appsettings.json
 /Inspire.Erp.WebReport/reports
 /Inspire.Erp.WebReport/Inspire.Erp.WebReport.csproj.user
+/Inspire.Erp.RecurringJob/bin
+/Inspire.Erp.RecurringJob/obj
+/Inspire.Erp.Web/Properties/PublishProfiles

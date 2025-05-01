@@ -11,6 +11,8 @@ using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Inspire.Erp.Domain.Models.Approvals;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Application.Common;
+using Inspire.Erp.Application.Common.Email;
+using Newtonsoft.Json;
 
 namespace Inspire.Erp.Application.Helpers
 {
@@ -18,44 +20,32 @@ namespace Inspire.Erp.Application.Helpers
     {
         private readonly IRepository<ApproverLevelSettings> _approverLevelSettings;
         private readonly IRepository<UserFile> _userFile;
+       
 
         public PurchaseOrderRequisitionHelper(IRepository<UserFile> userFile, IRepository<ApproverLevelSettings> approverLevelSettings)
         {
             _userFile = userFile;
             _approverLevelSettings = approverLevelSettings;
         }
-        public async Task<List<OrderApproversDto>> GetOrderApproverNameAndEmail(EnumOrderForms orderType, EnumApproverLevels approverLevel)
+        public async Task<List<EmailMetaDataDto>> GetOrderApproverNameAndEmail(EnumOrderForms orderType, EnumApproverLevels approverLevel, int jobId)
         {
             try
             {
-
-                var result = (from a in _approverLevelSettings.GetAsQueryable().AsNoTracking()
-                              where a.FormType == orderType
-                              join u in _userFile.GetAsQueryable().AsNoTracking()
-                                  on a.ApproverId equals u.UserId
-                              select new
+                var result = _approverLevelSettings.GetAsQueryable().AsNoTracking()
+                              .Where(x=>x.FormType == orderType && x.JobId == jobId)
+                              .Select(a => new EmailMetaDataDto()
                               {
-                                  a.FormType,
-                                  a.ApproverId,
-                                  a.ApproverLevel,
-                                  a.OptEmail,
-                                  u.UserName,
-                                  u.emailId
-                              })
-                 .ToList()
-                 .GroupBy(x => new { x.FormType, x.ApproverId, x.UserName, x.ApproverLevel })
-                 .Select(g => new OrderApproversDto()
-                 {
-                     Id = g.Key.ApproverId,
-                     Name = g.Key.UserName,
-                     Level = g.Key.ApproverLevel,
-                     Emails = g.Select(x => new ApproverOptEmail()
-                     {
-                         OptEmail = x.OptEmail,
-                         Email = new EmailAddress(x.emailId ?? "", x.UserName)
-                     }).ToList()
-                 })
-                 .ToList();
+                                  FormType = a.FormType,
+                                  ApproverId = a.ApproverId,
+                                  ApproverLevel = a.ApproverLevel,
+                                  OptEmail = a.OptEmail,
+                                  JobId = a.JobId,
+                                  NotificationDays = a.NotificationDays,
+                                  MinAmount = a.MinAmount,
+                                  MaxAmount = a.MaxAmount,
+                                  MetaData = JsonConvert.DeserializeObject<List<UserEmail>>(a.MetaData),
+                              }).ToList();
+                
 
                 return result;
             }
