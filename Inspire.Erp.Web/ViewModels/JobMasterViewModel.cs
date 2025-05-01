@@ -143,7 +143,8 @@ namespace Inspire.Erp.Web.ViewModels
         public decimal? JobMasterControlLevel1 { get; set; }
         public decimal? JobMasterControlLevel2 { get; set; }
         public decimal? JobMasterControlLevel3 { get; set; }
-        public bool? JobMasterBudgetDetailsEmail { get; set; }       
-       
+        public bool? JobMasterBudgetDetailsEmail { get; set; }
+        public decimal? JobMasterControlAmount { get; set; }
+
     }
 }
