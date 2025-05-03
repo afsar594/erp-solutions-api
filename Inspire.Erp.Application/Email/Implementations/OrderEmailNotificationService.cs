@@ -1,11 +1,15 @@
-﻿using Inspire.Erp.Application.Common.Email;
+﻿using Inspire.Erp.Application.Common;
+using Inspire.Erp.Application.Common.Email;
 using Inspire.Erp.Application.Email.Interfaces;
 using Inspire.Erp.Application.Helpers;
+using Inspire.Erp.Domain.Constants;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Domain.Models.Approvals;
 using Inspire.Erp.Domain.Models.Common;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SendGrid.Helpers.Mail;
@@ -45,22 +49,26 @@ namespace Inspire.Erp.Application.Email.Implementations
             DateTime date,
             string supplier,
             decimal totalAmount,
-            int orderId, string jobNo, string jobName, bool IsNewEntery = true)
+            int orderId,
+            int jobId,
+            string jobNo, 
+            string jobName, 
+            bool IsNewEntery = true)
         {
             try
             {
                 _logger.LogInformation("Starting email notification for Order ID: {OrderId}, Level: {Level}", orderId, level);
 
-                var approvers = await _purchaseOrderRequisitionHelper.GetOrderApproverNameAndEmail(orderType, level);
+                var approvers = await _purchaseOrderRequisitionHelper.GetOrderApproverNameAndEmail(orderType, level, jobId);
                 if (approvers == null || !approvers.Any())
                 {
-                    _logger.LogWarning("No approvers found for Order ID: {OrderId}, Level: {Level}", orderId, level);
+                    _logger.LogWarning("No approvers found for Order ID: {OrderId}, Level: {Level}, Job Name:", orderId, level,jobName);
                     return;
                 }
                 var orderApprovers = approvers
                   .Select(x => new OrderApprovalHierarchy
                   {
-                      ApproverId = x.Id,
+                      ApproverId = x.ApproverId,
                       OrderId = orderId,
                       Status = EnumApprovalStatus.Pending,
                       OrderType = orderType,
@@ -77,14 +85,14 @@ namespace Inspire.Erp.Application.Email.Implementations
                 var approvalUrl = $"{_mailSettings.MainUrl}procurement/po-approval?menu=184&vNo={orderId}&type={orderType}".Trim();
                 var loginUrl = $"{_mailSettings.MainUrl}login?returnUrl={Uri.EscapeDataString(approvalUrl)}";
 
-                var toMails = approvers.Where(x => x.Level == level)
-                                 .SelectMany(x => x.Emails.Where(e => e.OptEmail).Select(e => e.Email))
+                var toMails = approvers.Where(x => x.ApproverLevel == level && x.OptEmail)
+                                 .SelectMany(x => x.MetaData)
                                  .Distinct()
                                  .ToList();
+
                 if (toMails.Any())
                 {
-                    var rptData = approvers
-                        .Where(x => x.Level == level)
+                    var rptData = toMails
                         .Select(x => new
                         {
                             SubTitle = subTitle,
@@ -95,7 +103,7 @@ namespace Inspire.Erp.Application.Email.Implementations
                             Supplier = supplier,
                             TotalAmount = totalAmount,
                             RequestedBy = _mailSettings.RequestedBy,// need to add here the user name who had created the PR/PO
-                            Department = _mailSettings.Department,//need to add from userfile 
+                            Department =   _mailSettings.Department,//need to add from userfile 
                             ApprovalLink = loginUrl,
                             SupportEmail = _mailSettings.SupportEmail
                         })
@@ -120,94 +128,26 @@ namespace Inspire.Erp.Application.Email.Implementations
             }
         }
 
-        public async Task SendOrderEmailNotificationAsync<T>(EnumOrderForms orderType, EnumApproverLevels level, string subTitle, string poNumber, DateTime date, string supplier, decimal totalAmount, int orderId, List<T> items, bool IsNewEntry = true)
-        {
-            try
-            {
-                _logger.LogInformation("Starting email notification for Order ID: {OrderId}, Level: {Level}", orderId, level);
-
-                var approvers = await _purchaseOrderRequisitionHelper.GetOrderApproverNameAndEmail(orderType, level);
-                if (approvers == null || !approvers.Any())
-                {
-                    _logger.LogWarning("No approvers found for Order ID: {OrderId}, Level: {Level}", orderId, level);
-                    return;
-                }
-                var toMails = approvers
-                                 .SelectMany(x => x.Emails.Where(e => e.OptEmail).Select(e => e.Email))
-                                 .Distinct()
-                                 .ToList();
-                if (toMails.Any())
-                {
-                    var rptData = approvers
-                        .Where(x => x.Level == level)
-                        .Select(x => new
-                        {
-                            SubTitle = subTitle,
-                            ApproverName = x.Name,
-                            PONumber = poNumber,
-                            Date = date.ToString("MMM dd yyyy"),
-                            Supplier = supplier,
-                            TotalAmount = totalAmount,
-                            RequestedBy = _mailSettings.RequestedBy,
-                            Department = _mailSettings.Department,
-                            ApprovalLink = $"{_mailSettings.MainUrl}{orderId}".Trim(),
-                            SupportEmail = _mailSettings.SupportEmail
-                        })
-                        .Cast<object>()
-                        .ToList();
-
-                    var filePaths = new List<string>();
-
-                    string templateId = GetTemplateId(orderType);
-                    await _emailNotificationServices.SendTemplatedEmailAsync(toMails, templateId, rptData, filePaths);
-                    _logger.LogInformation("Email sent to approvers: {Emails}", string.Join(", ", toMails));
-                }
-
-                var orderApprovers = approvers
-                    .Select(x => new OrderApprovalHierarchy
-                    {
-                        ApproverId = x.Id,
-                        OrderId = orderId,
-                        Status = EnumApprovalStatus.Pending,
-                        OrderType = orderType
-                    })
-                    .ToList();
-
-                if (orderApprovers.Any() && IsNewEntry)
-                {
-                    _orderApprovalHierarchy.InsertList(orderApprovers);
-                    _logger.LogInformation("Approval hierarchy inserted for Order ID: {OrderId}", orderId);
-                }
-
-                _logger.LogInformation("Email notification process completed for Order ID: {OrderId}", orderId);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to send email notification for Order ID: {OrderId}, Level: {Level}", orderId, level);
-                throw;
-            }
-        }
-
         public async Task SendQuotationEmailNotificationAsync(EnumOrderForms orderType, EnumApproverLevels level, QuotationEmailModel emailModel, bool IsNewEntry = true)
         {
             try
             {
                 _logger.LogInformation("Starting email notification for Order ID: {OrderId}, Level: {Level}", emailModel.OrderId, level);
 
-                var approvers = await _purchaseOrderRequisitionHelper.GetOrderApproverNameAndEmail(orderType, level);
+                var approvers = await _purchaseOrderRequisitionHelper.GetOrderApproverNameAndEmail(orderType, level,emailModel.JobId);
                 if (approvers == null || !approvers.Any())
                 {
                     _logger.LogWarning("No approvers found for Order ID: {OrderId}, Level: {Level}", emailModel.OrderId, level);
                     return;
                 }
-                var toMails = approvers
-                                 .SelectMany(x => x.Emails.Where(e => e.OptEmail).Select(e => e.Email))
+                var toMails = approvers.Where(x => x.ApproverLevel == level && x.OptEmail)
+                                 .SelectMany(x => x.MetaData)
                                  .Distinct()
                                  .ToList();
                 if (toMails.Any())
                 {
                     var rptData = approvers
-                        .Where(x => x.Level == level)
+                        .Where(x => x.ApproverLevel == level)
                         .Select(x => new
                         {
                             company_name = emailModel.CompanyName,
@@ -240,7 +180,7 @@ namespace Inspire.Erp.Application.Email.Implementations
                 var orderApprovers = approvers
                     .Select(x => new OrderApprovalHierarchy
                     {
-                        ApproverId = x.Id,
+                        ApproverId = x.ApproverId,
                         OrderId = emailModel.OrderId,
                         Status = EnumApprovalStatus.Pending,
                         OrderType = orderType
@@ -262,7 +202,7 @@ namespace Inspire.Erp.Application.Email.Implementations
             }
         }
 
-        public async Task<bool> SendTextEmailAsync(List<EmailAddress> toEmails, string subject, string message, List<string> filePaths)
+        public async Task<bool> SendTextEmailAsync(List<UserEmail> toEmails, string subject, string message, List<string> filePaths)
         {
             try
             {

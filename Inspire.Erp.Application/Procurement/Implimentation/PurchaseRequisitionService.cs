@@ -28,6 +28,7 @@ using Microsoft.Extensions.Options;
 using Inspire.Erp.Application.Helpers;
 using Inspire.Erp.Domain.Models.Approvals;
 using Inspire.Erp.Domain.Constants;
+using Inspire.Erp.Application.Common.Email;
 
 namespace Inspire.Erp.Application.Procurement.Implementation
 {
@@ -83,7 +84,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _approverLevelSettings = approverLevelSettings;
             _orderApprovalHierarchy = orderApprovalHierarchy;
         }
-        public PurchaseRequisitionModel UpdatePurchaseRequisition(PurchaseRequisition purchaseRequisition, List<AccountsTransactions> accountsTransactions,List<PurchaseRequisitionDetails> purchaseRequisitionDetails)
+        public PurchaseRequisitionModel UpdatePurchaseRequisition(PurchaseRequisition purchaseRequisition, List<AccountsTransactions> accountsTransactions, List<PurchaseRequisitionDetails> purchaseRequisitionDetails)
         {
 
             try
@@ -391,7 +392,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 purchaseRequisition.PurchaseRequisitionId = maxcount;
 
-               
+
                 purchaseRequisition.PurchaseRequisitionDetails.ToList().ForEach(x =>
                 {
                     x.PurchaseRequisitionDetailsId = null;
@@ -404,34 +405,34 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 _purchaseRequisitionRepository.Insert(purchaseRequisition);
 
-                List<PermissionApprovalDetail> permissionApprovalDetails = new List<PermissionApprovalDetail>();
+                //List<PermissionApprovalDetail> permissionApprovalDetails = new List<PermissionApprovalDetail>();
 
-                var rights = _context.tbl_approvalforms.Where(a => a.Voucher_Type.Contains("Purchase Requisition") && a.is_active == true).AsNoTracking().ToList();
-                if (rights.Count > 0)
-                {
-                    foreach (var item in rights)
-                    {
-                        for (int level = 1; level <= item.NoOfLevel; level++)
-                        {
-                            PermissionApprovalDetail POList = new PermissionApprovalDetail();
-                            POList.VoucherType = "Purchase Requisition";
-                            POList.VoucherNo = purchaseRequisition.PurchaseRequisitionNo;
-                            POList.VoucherId = (int)purchaseRequisition.PurchaseRequisitionId;
-                            POList.VoucherDate = purchaseRequisition.PurchaseRequisitionDate;
-                            POList.Amount = (double)purchaseRequisition.PurchaseRequisitionNetAmount;
-                            POList.CreatedBy = (int?)(purchaseRequisition.PurchaseRequisitionUserId ?? 1);
-                            POList.LevelId = level;
-                            POList.Status = "Pending";
-                            POList.JobId = (int)purchaseRequisition.PurchaseRequisitionJobId;
-                            POList.Remarks = purchaseRequisition.PurchaseRequisitionDescription;
-                            POList.LocationName = _context.LocationMaster
-                                                .FirstOrDefault(l => l.LocationMasterLocationId == purchaseRequisition.PurchaseRequisitionLocationId)?.LocationMasterLocationName;
-                            permissionApprovalDetails.Add(POList);
-                        }
-                    }
-                    if (permissionApprovalDetails.Any())
-                        _permissionApprovalDetailRepo.InsertList(permissionApprovalDetails);
-                }
+                //var rights = _context.tbl_approvalforms.Where(a => a.Voucher_Type.Contains("Purchase Requisition") && a.is_active == true).AsNoTracking().ToList();
+                //if (rights.Count > 0)
+                //{
+                //    foreach (var item in rights)
+                //    {
+                //        for (int level = 1; level <= item.NoOfLevel; level++)
+                //        {
+                //            PermissionApprovalDetail POList = new PermissionApprovalDetail();
+                //            POList.VoucherType = "Purchase Requisition";
+                //            POList.VoucherNo = purchaseRequisition.PurchaseRequisitionNo;
+                //            POList.VoucherId = (int)purchaseRequisition.PurchaseRequisitionId;
+                //            POList.VoucherDate = purchaseRequisition.PurchaseRequisitionDate;
+                //            POList.Amount = (double)purchaseRequisition.PurchaseRequisitionNetAmount;
+                //            POList.CreatedBy = (int?)(purchaseRequisition.PurchaseRequisitionUserId ?? 1);
+                //            POList.LevelId = level;
+                //            POList.Status = "Pending";
+                //            POList.JobId = (int)purchaseRequisition.PurchaseRequisitionJobId;
+                //            POList.Remarks = purchaseRequisition.PurchaseRequisitionDescription;
+                //            POList.LocationName = _context.LocationMaster
+                //                                .FirstOrDefault(l => l.LocationMasterLocationId == purchaseRequisition.PurchaseRequisitionLocationId)?.LocationMasterLocationName;
+                //            permissionApprovalDetails.Add(POList);
+                //        }
+                //    }
+                //    if (permissionApprovalDetails.Any())
+                //        _permissionApprovalDetailRepo.InsertList(permissionApprovalDetails);
+                //}
                 // Item Master SupplierId is updated.
                 foreach (var item in purchaseRequisitionDetails)
                 {
@@ -464,7 +465,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         }
                     }
                 }
-                Thread.Sleep(2000);
                 _purchaseRequisitionRepository.TransactionCommit();
 
                 #region EmailNotification
@@ -479,7 +479,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                                purchaseRequisition.PurchaseRequisitionPartyName,
                                                                                (decimal)purchaseRequisition.PurchaseRequisitionNetAmount,
                                                                                (int)purchaseRequisition.PurchaseRequisitionId,
-                                                                               jobDetail == null ? "" : jobDetail.JobMasterJobNumber  ,
+                                                                               (int)jobId,
+                                                                               jobDetail == null ? "" : jobDetail.JobMasterJobNumber,
                                                                                jobDetail == null ? "" : jobDetail.JobMasterJobName
                                                                                ).ConfigureAwait(false);
                 SendEmailOnValueExeeds((int)purchaseRequisition.PurchaseRequisitionJobId, purchaseRequisition.PurchaseRequisitionNo);
@@ -506,11 +507,11 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                .AsNoTracking()
                                .SingleOrDefault(x => x.JobMasterJobId == jobId);
 
-                var prValue = _purchaseRequisitionRepository.GetAsQueryable()
+                var prValue = _purchaseRequisitionRepository
+                                .GetAsQueryable()
                                 .AsNoTracking()
-                                .GroupBy(x => x.PurchaseRequisitionId)
-                                .Select(x => x.Sum(s => s.PurchaseRequisitionNetAmount))
-                                .FirstOrDefault() ?? 0;
+                                .Where(w => w.PurchaseRequisitionJobId == jobId)
+                                .Sum(x => x.PurchaseRequisitionNetAmount);
 
                 if (prValue > jobDetail.JobMasterJobValue)
                 {
@@ -520,13 +521,19 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                               .Replace("{{jobCode}}", jobDetail.JobMasterJobNumber)
                                               .Replace("{{jobName}}", jobDetail.JobMasterJobName)
                                               .Replace("{{jobValue}}", jobDetail.JobMasterJobValue?.ToString("n2"))
-                                              .Replace("{{prNetAmount}}", prValue.ToString("n2"))
-                                              .Replace("{{prNO}}",prNo);
+                                              .Replace("{{prNetAmount}}", prValue?.ToString("n2"))
+                                              .Replace("{{prNO}}", prNo);
 
                     //$"Recipient,<br><br>The Bill of Quantities (BOQ) for Job No. {jobDetail.JobMasterJobNumber} ({jobDetail.JobMasterJobName}) has increased from the original value of {jobDetail.JobMasterJobValue?.ToString("n2")} to {issueValue.ToString("n2")} following the revision of Purchase Requisition No.{prNo}.<br>You are requested to take appropriate action.";
-                    var toMails = new List<EmailAddress>()
+                    var toMails = new List<UserEmail>()
                     {
-                        new EmailAddress("aliansari.inspire@gmail.com","Ali Ansari")
+                        new UserEmail()
+                        {
+                            Email = "irfanmiankhan@gmail.com",
+                            Name = "irfanmiankhan",
+                            BccEmails = new List<CCAndBccMailDto>(),
+                            CCEmails = new List<CCAndBccMailDto>()
+                        }
                     };
                     var filePaths = new List<string>();
                     await _orderEmailNotificationService.SendTextEmailAsync(toMails, subject, msg, filePaths);
@@ -732,8 +739,16 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             try
             {
                 var query = _purchaseRequisitionRepository.GetAsQueryable().AsNoTracking().Where(s => s.PurchaseRequisitionDelStatus != true);
-                IQueryable<OrderApprovalHierarchy> oahQuery = _orderApprovalHierarchy.GetAsQueryable();
 
+                var approvedOrderIds = await _orderApprovalHierarchy.GetAsQueryable().AsNoTracking()
+                                        .Where(x => x.OrderType == EnumOrderForms.PurchaseRequisition)
+                                        .ToListAsync();
+
+                var orderIdsApprovedByAll = approvedOrderIds
+                                        .GroupBy(x => x.OrderId)
+                                        .Where(g => g.All(a => a.Status == EnumApprovalStatus.Approved))
+                                        .Select(g => g.Key)
+                                        .ToList();
                 if (model.JobId > 0)
                     query = query.Where(a => a.PurchaseRequisitionJobId == model.JobId);
 
@@ -757,18 +772,17 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     }).ToList();
 
                 var hasApproval = _approverLevelSettings.GetAsQueryable()
-                                                                                          .AsNoTracking()
-                                                                                          .Any(a => a.FormType == EnumOrderForms.PurchaseRequisition);
+                                  .AsNoTracking()
+                                  .Any(a => a.FormType == EnumOrderForms.PurchaseRequisition);
 
                 List<PurChaseReqFields> finalData;
 
                 if (hasApproval)
                 {
                     var data = await (from sm in query
-                                      join per in oahQuery on sm.PurchaseRequisitionId equals per.OrderId
                                       join sd in _purchaseRequisitionDetailsRepository.GetAsQueryable().AsNoTracking() on sm.PurchaseRequisitionId equals sd.PurchaseRequisitionId
                                       join im in _itemMasterRepository.GetAsQueryable().AsNoTracking() on sd.PurchaseRequisitionDetailsMatId equals im.ItemMasterItemId
-                                      where per.OrderType == EnumOrderForms.PurchaseRequisition && per.Status == EnumApprovalStatus.Approved && per.Status != EnumApprovalStatus.Rejected
+                                      where orderIdsApprovedByAll.Contains((decimal)sm.PurchaseRequisitionId)
                                       group new { sm, sd, im } by new
                                       {
                                           sd.PurchaseRequisitionDetailsId,

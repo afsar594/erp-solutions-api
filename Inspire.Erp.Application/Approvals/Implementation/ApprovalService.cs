@@ -10,9 +10,12 @@ using Inspire.Erp.Domain.Models.Approvals;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using SendGrid.Helpers.Mail;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Linq.Dynamic.Core;
@@ -131,53 +134,80 @@ namespace Inspire.Erp.Application.Approvals.Implementation
         {
             try
             {
-                var existingSettings = await this._approverLevelSettings.GetAsQueryable().AsNoTracking()
-                                                        .Where(x => x.FormType == approverLevelSettingsDto.FormType)
-                                                        .ToListAsync();
+                var existingSettings = await _approverLevelSettings.GetAsQueryable().AsNoTracking()
+                    .Where(x => x.FormType == approverLevelSettingsDto.FormType &&
+                                x.JobId == approverLevelSettingsDto.JobId)
+                    .ToListAsync();
 
                 var incomingApprovers = approverLevelSettingsDto.ApproverLevels;
-                var settingsToAdd = incomingApprovers
-                    .Where(x => !existingSettings.Any(a =>
-                            a.ApproverLevel == x.ApproverLevel &&
-                            a.ApproverId == x.ApproverId &&
-                            a.MinAmount == x.MinAmount &&
-                            a.MaxAmount == x.MaxAmount &&
-                            a.NotificationDays == x.NotificationDays &&
-                            a.OptEmail == x.OptEmail
-                        ))
-                    .Select(x => new ApproverLevelSettings
+                var userIds = approverLevelSettingsDto.ApproverLevels.Select(x => x.ApproverId).ToList();
+                var users = _userFileRepository.GetAsQueryable()
+                                               .AsNoTracking()
+                                               .Where(x => userIds.Contains(x.UserId))
+                                               .Select(s => new
+                                               {
+                                                   Id = s.UserId,
+                                                   Name = s.UserName,
+                                                   Email = s.emailId,
+                                               }).ToList();
+
+                var settingsToDelete = new List<ApproverLevelSettings>();
+                var settingsToAdd = new List<ApproverLevelSettings>();
+                incomingApprovers.ForEach(incoming =>
+                {
+                    var user = users.FirstOrDefault(u => u.Id == incoming.ApproverId);
+                    incoming.MetaData.ForEach(x =>
                     {
-                        ApproverId = x.ApproverId,
-                        ApproverLevel = x.ApproverLevel,
-                        FormType = approverLevelSettingsDto.FormType,
-                        MinAmount = x.MinAmount,
-                        MaxAmount = x.MaxAmount,
-                        NotificationDays = x.NotificationDays,
-                        OptEmail = x.OptEmail,
-                    }).ToList();
+                        x.Name = user?.Name;
+                        x.Email = user?.Email;
+                    });
+                    var serializedMeta = JsonConvert.SerializeObject(incoming.MetaData);
 
-                var settingsToDelete = existingSettings
-                    .Where(a => !incomingApprovers.Any(x =>
-                        x.ApproverId == a.ApproverId && 
-                        x.ApproverLevel == a.ApproverLevel && 
-                        x.MinAmount == a.MinAmount &&
-                        x.MaxAmount == a.MaxAmount &&
-                        x.NotificationDays == a.NotificationDays &&
-                        x.OptEmail == a.OptEmail))
-                    .ToList();
+                    var match = existingSettings.FirstOrDefault(x =>
+                        x.ApproverId == incoming.ApproverId &&
+                        x.ApproverLevel == incoming.ApproverLevel &&
+                        x.MinAmount == incoming.MinAmount &&
+                        x.MaxAmount == incoming.MaxAmount &&
+                        x.NotificationDays == incoming.NotificationDays &&
+                        x.OptEmail == incoming.OptEmail &&
+                        x.MetaData == serializedMeta &&
+                        x.JobId == approverLevelSettingsDto.JobId);
 
-                // Insert new records
-                if (settingsToAdd.Any())
-                    await this._approverLevelSettings.InsertListAsync(settingsToAdd);
+                    if (match == null)
+                    {
+                        var toRemove = existingSettings.Where(x =>
+                            x.ApproverId == incoming.ApproverId &&
+                            x.ApproverLevel == incoming.ApproverLevel &&
+                            x.JobId == approverLevelSettingsDto.JobId).ToList();
 
-                // Delete old records if needed
+                        settingsToDelete.AddRange(toRemove);
+
+                        settingsToAdd.Add(new ApproverLevelSettings
+                        {
+                            ApproverId = incoming.ApproverId,
+                            ApproverLevel = incoming.ApproverLevel,
+                            FormType = approverLevelSettingsDto.FormType,
+                            MinAmount = incoming.MinAmount,
+                            MaxAmount = incoming.MaxAmount,
+                            NotificationDays = incoming.NotificationDays,
+                            OptEmail = incoming.OptEmail ? true : false,
+                            JobId = approverLevelSettingsDto.JobId,
+                            MetaData = serializedMeta
+                        });
+                    }
+                });
+
                 if (settingsToDelete.Any())
-                    await this._approverLevelSettings.DeleteListAsync(settingsToDelete);
+                    await _approverLevelSettings.DeleteListAsync(settingsToDelete);
+
+                if (settingsToAdd.Any())
+                    await _approverLevelSettings.InsertListAsync(settingsToAdd);
 
                 return Response<ApproverLevelSettingsDto>.Success(approverLevelSettingsDto, "Saved Successfully");
             }
             catch (Exception ex)
             {
+                // You can log ex here if needed
                 throw;
             }
         }
