@@ -353,5 +353,12 @@ namespace Inspire.Erp.Web.Controllers
                 return StatusCode(500, ex.Message.ToString());
             }
         }
+
+
+        [HttpGet("GetJobAttachedFile")]
+        public async Task<IActionResult> GetJobAttachedFile(int jobId)
+        {
+            return Ok(await jobMasterService.GetJobAttachedFiles(jobId));
+        }
     }
 }

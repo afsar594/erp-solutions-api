@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DinkToPdf.Contracts;
 using System.IO;
+using Inspire.Erp.Application.Helpers;
 
 namespace Inspire.Erp.Application.Master
 {
@@ -202,8 +203,8 @@ namespace Inspire.Erp.Application.Master
                     x.JobId = jobId;
                     return x;
                 }).OrderBy(x => x.JobId).AsEnumerable().ToList();
-                
-               
+
+
                 jobMaster.JobfilesStatus.Select((x) =>
                 {
 
@@ -234,7 +235,7 @@ namespace Inspire.Erp.Application.Master
                 throw ex;
             }
         }
-       
+
         public JobMaster UpdateJobMaster(JobMaster jobMaster, List<JobMasterBudgetDetails> jobMasterBudgetDetails, List<JobMasterJobDetails> jobMasterJobDetails, List<JobMasterJobWiseBankGuarantees> jobMasterJobWiseBankGuarantees, List<JobStaff> jobStaff, List<JobEquipment> jobEquipment, List<JobExcutionDetails> jobExcutionDetails, List<JobTimesheetDesc> JobTimesheetDesc, List<JobTimeSheetEquip> JobTimeSheetEquip, List<JobTimesheetMaster> JobTimesheetMaster, List<JobTimeSheetStaff> JobTimeSheetStaff, List<JobfilesStatus> JobfilesStatus, List<JobMasterControl> JobMasterControl)
         {
             try
@@ -246,7 +247,7 @@ namespace Inspire.Erp.Application.Master
                 var existingJobControls = this._jobMasterControl.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterControlJobID == jobId).ToList();
                 var detailsToDelete = existingJobDetails.Where(x => jobMaster.JobMasterJobDetails.All(d => x.JobMasterJobDetailsJobDetId != d.JobMasterJobDetailsJobDetId)).ToList();
                 var jobControlsToDelete = existingJobControls.Where(x => jobMaster.JobMasterControl.All(d => x.JobMasterControlJobID == d.JobMasterControlJobID)).ToList();
-                
+
                 string vNumber = jobMaster.JobMasterJobNo;
 
                 jobMaster.JobMasterBudgetDetails.Select((x) =>
@@ -317,7 +318,7 @@ namespace Inspire.Erp.Application.Master
                     return x;
                 }).OrderBy(x => x.JobMasterJobId).AsEnumerable().ToList();
 
-               
+
                 if (detailsToDelete.Any())
                     this.jobdetailsRepository.DeleteList(detailsToDelete);
 
@@ -574,6 +575,42 @@ namespace Inspire.Erp.Application.Master
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+
+        public async Task<FileResultDto> GetJobAttachedFiles(int jobId)
+        {
+            try
+            {
+                string fileName = await jobrepository.GetAsQueryable()
+                    .AsNoTracking()
+                    .Where(x => x.JobMasterJobId == jobId)
+                    .Select(x => $"{x.JobMasterJobName}_{x.JobMasterJobNumber}.pdf")
+                    .FirstOrDefaultAsync();
+
+                
+                var jobDocs = await _jobDocumentsRepository
+                                     .GetAsQueryable()
+                                     .AsNoTracking()
+                                     .Where(x => x.JobDocumentJobId == jobId)
+                                     .Select(x => x.JobDocumentName)
+                                     .ToListAsync();
+                if (!jobDocs.Any())
+                    return new FileResultDto();
+
+                //var mergedPdf = PdfFileMergeHelper.MergePdfsFromPaths(jobDocs);
+
+                return new FileResultDto
+                {
+                    FileName = fileName,
+                    FileBytes = null,
+                    ContentType = "application/pdf"
+                };
+            }
+            catch (Exception)
+            {
+
+                throw;
             }
         }
     }
