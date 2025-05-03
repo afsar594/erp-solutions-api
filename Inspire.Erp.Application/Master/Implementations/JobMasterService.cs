@@ -598,12 +598,12 @@ namespace Inspire.Erp.Application.Master
                 if (!jobDocs.Any())
                     return new FileResultDto();
 
-                //var mergedPdf = PdfFileMergeHelper.MergePdfsFromPaths(jobDocs);
+                var mergedPdf = PdfFileMergeHelper.MergePdfsFromPaths(jobDocs);
 
                 return new FileResultDto
                 {
                     FileName = fileName,
-                    FileBytes = null,
+                    FileBytes = mergedPdf,
                     ContentType = "application/pdf"
                 };
             }

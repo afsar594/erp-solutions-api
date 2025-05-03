@@ -358,7 +358,11 @@ namespace Inspire.Erp.Web.Controllers
         [HttpGet("GetJobAttachedFile")]
         public async Task<IActionResult> GetJobAttachedFile(int jobId)
         {
-            return Ok(await jobMasterService.GetJobAttachedFiles(jobId));
+            var fileData = await jobMasterService.GetJobAttachedFiles(jobId);
+            if (fileData == null)
+                return NotFound("File not found.");
+            
+            return File(fileData.FileBytes,fileData.ContentType, fileData.FileName);
         }
     }
 }
