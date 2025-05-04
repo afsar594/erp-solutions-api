@@ -280,7 +280,7 @@ namespace Inspire.Erp.Web.Controllers
                                   item.ItemMasterVenderId,
                                   item.ItemMasterItemSize,
                                   itemMasterBarcode = unit.UnitDetailsBarcode ?? ""
-                              }).Distinct().OrderBy(x => x.ItemMasterItemName).ToList();
+                              }).Distinct().OrderBy(x => x.ItemMasterItemName).AsEnumerable().ToList();
             var unitMasters = unitrepository.GetAsQueryable().AsNoTracking().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
             {
                 x.UnitMasterUnitId,
