@@ -62,7 +62,7 @@ namespace Inspire.Erp.Domain.Models.Approvals
         public int NotificationDays { get; set; }
         public int MinAmount { get; set; }
         public int MaxAmount { get; set; }
-        public List<UserMetaDataDto> MetaData { get; set; }
+        public List<UserMetaDataDto> MetaData { get; set; } = new List<UserMetaDataDto>();
     }
     public class UserMetaDataDto
     {

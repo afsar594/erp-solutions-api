@@ -242,7 +242,7 @@ namespace Inspire.Erp.Application.Approvals.Implementation
 
                 return Response<ApproverLevelSettingsDto>.Success(result, "Data found");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
                 throw;
