@@ -71,7 +71,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger, IRepository<JobMaster> _jobrepository, IRepository<BillOfQTyDetails> BillOfQTyDetailsRepository,
              IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo,
         IRepository<PurchaseRequisition> purchaseRequisitionRepository, InspireErpDBContext context, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository, IRepository<JobMasterBudgetDetails> budgetDetailsrepository, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository,
-        IOrderEmailNotificationService orderEmailNotificationService, IRepository<ApproverLevelSettings> approverLevelSettings, IRepository<OrderApprovalHierarchy> orderApprovalHierarchy)
+        IOrderEmailNotificationService orderEmailNotificationService, IRepository<ApproverLevelSettings> approverLevelSettings, IRepository<OrderApprovalHierarchy> orderApprovalHierarchy, IRepository<JobMasterJobDetails> jobMasterJobDetailsRepo)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository; _context = context;
@@ -84,6 +84,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _orderEmailNotificationService = orderEmailNotificationService;
             _approverLevelSettings = approverLevelSettings;
             _orderApprovalHierarchy = orderApprovalHierarchy;
+            _jobMasterJobDetailsRepo = jobMasterJobDetailsRepo;
         }
         public PurchaseRequisitionModel UpdatePurchaseRequisition(PurchaseRequisition purchaseRequisition, List<AccountsTransactions> accountsTransactions, List<PurchaseRequisitionDetails> purchaseRequisitionDetails)
         {
@@ -484,7 +485,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                                jobDetail == null ? "" : jobDetail.JobMasterJobNumber,
                                                                                jobDetail == null ? "" : jobDetail.JobMasterJobName
                                                                                ).ConfigureAwait(false);
-                SendEmailOnValueExceedsAsync((int) purchaseRequisition.PurchaseRequisitionJobId, purchaseRequisition.PurchaseRequisitionNo);
+                SendEmailOnValueExceedsAsync((int) purchaseRequisition.PurchaseRequisitionJobId, purchaseRequisition.PurchaseRequisitionNo).ConfigureAwait(false);
                 #endregion
 
                 return this.GetSavedPurchaseRequisitionDetails((int)purchaseRequisition.PurchaseRequisitionId);
@@ -500,7 +501,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
         }
 
-        private async void SendEmailOnValueExceedsAsync(int jobId, string prNo)
+        private async Task SendEmailOnValueExceedsAsync(int jobId, string prNo)
         {
             try
             {
