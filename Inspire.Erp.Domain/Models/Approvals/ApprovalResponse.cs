@@ -58,7 +58,7 @@ namespace Inspire.Erp.Domain.Models.Approvals
     {
         public EnumApproverLevels ApproverLevel { get; set; }
         public long ApproverId { get; set; }
-        public bool OptEmail { get; set; }
+        public bool OptEmail { get; set; } = false;
         public int NotificationDays { get; set; }
         public int MinAmount { get; set; }
         public int MaxAmount { get; set; }
@@ -68,10 +68,15 @@ namespace Inspire.Erp.Domain.Models.Approvals
     {
         public string Name { get; set; }
         public string Email { get; set; }
-        public List<CCBccMailDto> CCEmails { get; set; }
+        public List<CCEmailDto> CCEmails { get; set; }
         public List<CCBccMailDto> BccEmails { get; set; }
     }
     public class CCBccMailDto
+    {
+        public string Name { get; set; }
+        public string Email { get; set; }
+    }
+    public class CCEmailDto
     {
         public string Name { get; set; }
         public string Email { get; set; }
