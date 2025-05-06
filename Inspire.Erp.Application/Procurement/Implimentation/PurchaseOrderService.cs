@@ -955,7 +955,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     {
                         EnumOrderForms.PurchaseOrder => GetPurchaseOrderForApproval(model, approvers, user),
                         EnumOrderForms.PurchaseRequisition => GetPurchaseRequisitionForApproval(model, approvers, user),
-                        //EnumOrderForms.CustomerQuotation => GetCustomerQuotationForApproval(model, approvers, user),
+                        EnumOrderForms.CustomerQuotation => GetCustomerQuotationForApproval(model, approvers, user),
                         _ => throw new ArgumentOutOfRangeException(nameof(type), $"No form configured for order type: {type}")
                     };
                 }).ToList();
@@ -972,7 +972,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
         private List<EnumOrderForms> GetModelTypes()
         {
-            return new List<EnumOrderForms> { EnumOrderForms.PurchaseOrder, EnumOrderForms.PurchaseRequisition };
+            return new List<EnumOrderForms> { EnumOrderForms.PurchaseOrder, EnumOrderForms.PurchaseRequisition, EnumOrderForms.CustomerQuotation };
         }
 
         public List<VoucherApprivalDto> GetPurchaseOrderForApproval(ApprovalFilterModel model, List<ApproverLevelSettings> approvers, UserFile user)

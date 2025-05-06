@@ -52,6 +52,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private IRepository<PermissionApprovalDetail> _permissionApprovalDetailRepo;
         private IRepository<JobMaster> jobrepository;
         private IRepository<JobMasterBudgetDetails> _budgetDetailsrepository;
+        private IRepository<JobMasterJobDetails> _jobMasterJobDetailsRepo;
         private readonly IOrderEmailNotificationService _orderEmailNotificationService;
         private IRepository<LocationMaster> locationrepository;
         private IRepository<BillOfQTyDetails> _BillOfQTyDetailsRepository;
@@ -483,7 +484,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                                jobDetail == null ? "" : jobDetail.JobMasterJobNumber,
                                                                                jobDetail == null ? "" : jobDetail.JobMasterJobName
                                                                                ).ConfigureAwait(false);
-                SendEmailOnValueExeeds((int)purchaseRequisition.PurchaseRequisitionJobId, purchaseRequisition.PurchaseRequisitionNo);
+                SendEmailOnValueExceedsAsync((int) purchaseRequisition.PurchaseRequisitionJobId, purchaseRequisition.PurchaseRequisitionNo);
                 #endregion
 
                 return this.GetSavedPurchaseRequisitionDetails((int)purchaseRequisition.PurchaseRequisitionId);
@@ -499,50 +500,80 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
         }
 
-        private async void SendEmailOnValueExeeds(int jobId, string prNo)
+        private async void SendEmailOnValueExceedsAsync(int jobId, string prNo)
         {
             try
             {
-                var jobDetail = jobrepository.GetAsQueryable()
-                               .AsNoTracking()
-                               .SingleOrDefault(x => x.JobMasterJobId == jobId);
+                var jobDetail = GetJobDetail(jobId);
+                if (jobDetail == null)
+                    return;
 
-                var prValue = _purchaseRequisitionRepository
-                                .GetAsQueryable()
-                                .AsNoTracking()
-                                .Where(w => w.PurchaseRequisitionJobId == jobId)
-                                .Sum(x => x.PurchaseRequisitionNetAmount);
+                decimal jobValue = GetJobTotalValue(jobId);
+                decimal prValue = GetTotalPrValue(jobId);
 
-                if (prValue > jobDetail.JobMasterJobValue)
-                {
-                    var subject = $"BoQ exceeds Job Value against {jobDetail.JobMasterJobNumber}-{jobDetail.JobMasterJobName}";
-                    var msg = InspireConstants.PurchaseRequisitionEmailTemplate
-                                              .Replace("{{Recipient}}", "Ali Ansari")
-                                              .Replace("{{jobCode}}", jobDetail.JobMasterJobNumber)
-                                              .Replace("{{jobName}}", jobDetail.JobMasterJobName)
-                                              .Replace("{{jobValue}}", jobDetail.JobMasterJobValue?.ToString("n2"))
-                                              .Replace("{{prNetAmount}}", prValue?.ToString("n2"))
-                                              .Replace("{{prNO}}", prNo);
+                if (prValue <= jobValue)
+                    return;
 
-                    //$"Recipient,<br><br>The Bill of Quantities (BOQ) for Job No. {jobDetail.JobMasterJobNumber} ({jobDetail.JobMasterJobName}) has increased from the original value of {jobDetail.JobMasterJobValue?.ToString("n2")} to {issueValue.ToString("n2")} following the revision of Purchase Requisition No.{prNo}.<br>You are requested to take appropriate action.";
-                    var toMails = new List<UserEmail>()
-                    {
-                        new UserEmail()
-                        {
-                            Email = "irfanmiankhan@gmail.com",
-                            Name = "irfanmiankhan",
-                            BccEmails = new List<CCAndBccMailDto>(),
-                            CCEmails = new List<CCAndBccMailDto>()
-                        }
-                    };
-                    var filePaths = new List<string>();
-                    await _orderEmailNotificationService.SendTextEmailAsync(toMails, subject, msg, filePaths);
-                }
+                string subject = $"BoQ exceeds Job Value against {jobDetail.JobMasterJobNumber}-{jobDetail.JobMasterJobName}";
+                string messageBody = GenerateEmailBody(jobDetail, prValue, prNo);
+
+                var recipients = GetEmailRecipients();
+
+                await _orderEmailNotificationService.SendTextEmailAsync(recipients, subject, messageBody, new List<string>());
             }
             catch (Exception)
             {
+                // Consider logging here before throwing
                 throw;
             }
+        }
+
+        private JobMaster GetJobDetail(int jobId)
+        {
+            return jobrepository.GetAsQueryable()
+                                .AsNoTracking()
+                                .SingleOrDefault(x => x.JobMasterJobId == jobId);
+        }
+
+        private decimal GetJobTotalValue(int jobId)
+        {
+            return _jobMasterJobDetailsRepo.GetAsQueryable()
+                                           .AsNoTracking()
+                                           .Where(x => x.JobMasterJobDetailsJobId == jobId)
+                                           .Sum(x => x.JobMasterJobDetailsJdAmt ?? 0);
+        }
+
+        private decimal GetTotalPrValue(int jobId)
+        {
+            return _purchaseRequisitionRepository.GetAsQueryable()
+                                                 .AsNoTracking()
+                                                 .Where(x => x.PurchaseRequisitionJobId == jobId)
+                                                 .Sum(x => x.PurchaseRequisitionNetAmount ?? 0 );
+        }
+
+        private string GenerateEmailBody(JobMaster jobDetail, decimal prValue, string prNo)
+        {
+            return InspireConstants.PurchaseRequisitionEmailTemplate
+                                   .Replace("{{Recipient}}", "Ali Ansari")
+                                   .Replace("{{jobCode}}", jobDetail.JobMasterJobNumber)
+                                   .Replace("{{jobName}}", jobDetail.JobMasterJobName)
+                                   .Replace("{{jobValue}}", jobDetail.JobMasterJobValue?.ToString("n2"))
+                                   .Replace("{{prNetAmount}}", prValue.ToString("n2"))
+                                   .Replace("{{prNO}}", prNo);
+        }
+
+        private List<UserEmail> GetEmailRecipients()
+        {
+            return new List<UserEmail>
+            {
+                new UserEmail
+                {
+                    Email = "irfanmiankhan@gmail.com",
+                    Name = "irfanmiankhan",
+                    BccEmails = new List<CCAndBccMailDto>(),
+                    CCEmails = new List<CCAndBccMailDto>()
+                }
+            };
         }
 
 

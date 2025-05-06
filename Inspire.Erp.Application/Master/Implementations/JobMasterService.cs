@@ -217,6 +217,7 @@ namespace Inspire.Erp.Application.Master
 
                 jobMaster.JobMasterControl.ForEach(x =>
                 {
+                    x.JobMasterControlDtlId = 0;
                     x.JobMasterNo = vNumber;
                     x.JobMasterControlJobID = jobId;
                 });
