@@ -368,7 +368,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             {
                 new UserEmail
                 {
-                    Email = "irfanmiankhan@gamil.com",
+                    Email = "irfanmiankhan@gmail.com",
                     Name = "irfanmiankhan",
                     BccEmails = new List<CCAndBccMailDto>(),
                     CCEmails = new List<CCAndBccMailDto>()
