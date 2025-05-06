@@ -1,5 +1,6 @@
 ﻿using Inspire.Erp.Application.Approvals.Interface;
 using Inspire.Erp.Application.Common;
+using Inspire.Erp.Application.Common.Email;
 using Inspire.Erp.Domain.DTO;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Entities.POS;
@@ -20,6 +21,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Inspire.Erp.Application.Approvals.Implementation
@@ -234,7 +236,8 @@ namespace Inspire.Erp.Application.Approvals.Implementation
                             MaxAmount = (int)a.MaxAmount,
                             MinAmount = (int)a.MinAmount,
                             NotificationDays = a.NotificationDays,
-                            OptEmail = a.OptEmail
+                            OptEmail = a.OptEmail,
+                            MetaData = JsonConvert.DeserializeObject<List<UserMetaDataDto>>(a.MetaData)
                         }).ToList()
                     })
                     .FirstOrDefault();
