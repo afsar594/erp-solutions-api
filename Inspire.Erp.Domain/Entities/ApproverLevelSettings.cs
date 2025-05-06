@@ -12,38 +12,15 @@ namespace Inspire.Erp.Domain.Entities
     {
         [Key]
         public int Id { get; set; }
-
-        [Required]
-        [MaxLength(50)]
         public EnumOrderForms FormType { get; set; }
-
-        [Required]
-        [MaxLength(50)]
         public EnumApproverLevels ApproverLevel { get; set; }
-
-        [Required]
         public long ApproverId { get; set; }
-
-        [Required]
         public bool OptEmail { get; set; }
-
-        [Required]
         public int NotificationDays { get; set; }
-
-        [Required]
-        [Column(TypeName = "numeric(18, 2)")]
-        public decimal MinAmount { get; set; } = 0;
-
-        [Required]
-        [Column(TypeName = "numeric(18, 2)")]
-        public decimal MaxAmount { get; set; } = 0;
-
+        public decimal MinAmount { get; set; }
+        public decimal MaxAmount { get; set; }
         public int? JobId { get; set; }
-
-        [Required]
         public string MetaData { get; set; }
-
-
         [ForeignKey("ApproverId")]
         public virtual UserFile Approver { get; set; }
     }

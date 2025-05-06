@@ -496,9 +496,9 @@ namespace Inspire.Erp.Infrastructure.Database
             modelBuilder.Entity<ApproverLevelSettings>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.MinAmount).HasDefaultValue(0).HasColumnType("numeric(18, 2)");
-                entity.Property(e => e.MaxAmount).HasDefaultValue(0).HasColumnType("numeric(18, 2)");
-                entity.Property(e => e.OptEmail).HasDefaultValue(false);
+                entity.Property(e => e.MinAmount).HasColumnType("numeric(18, 2)");
+                entity.Property(e => e.MaxAmount).HasColumnType("numeric(18, 2)");
+                entity.Property(e => e.OptEmail);
                 entity.Property(e => e.FormType).HasConversion(v => v.ToString(), v => (EnumOrderForms)Enum.Parse(typeof(EnumOrderForms), v));
                 entity.Property(e => e.ApproverLevel).HasConversion(v => v.ToString(), v => (EnumApproverLevels)Enum.Parse(typeof(EnumApproverLevels), v));
                 entity.HasOne(e => e.Approver)

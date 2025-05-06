@@ -60,8 +60,8 @@ namespace Inspire.Erp.Domain.Models.Approvals
         public long ApproverId { get; set; }
         public bool OptEmail { get; set; } = false;
         public int NotificationDays { get; set; }
-        public int MinAmount { get; set; }
-        public int MaxAmount { get; set; }
+        public decimal MinAmount { get; set; }
+        public decimal MaxAmount { get; set; }
         public List<UserMetaDataDto> MetaData { get; set; } = new List<UserMetaDataDto>();
     }
     public class UserMetaDataDto

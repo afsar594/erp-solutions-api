@@ -132,7 +132,7 @@ namespace Inspire.Erp.Application.Approvals.Implementation
         }
 
         #region Not to remove/replace this code related to apporver level settings 
-        public async Task<Response<ApproverLevelSettingsDto>> SaveAsync(ApproverLevelSettingsDto approverLevelSettingsDto)
+        public async Task<Response<ApproverLevelSettingsDto>> SaveAsync2(ApproverLevelSettingsDto approverLevelSettingsDto)
         {
             try
             {
@@ -179,8 +179,13 @@ namespace Inspire.Erp.Application.Approvals.Implementation
                     {
                         var toRemove = existingSettings.Where(x =>
                             x.ApproverId == incoming.ApproverId &&
-                            x.ApproverLevel == incoming.ApproverLevel &&
-                            x.JobId == approverLevelSettingsDto.JobId).ToList();
+                        x.ApproverLevel == incoming.ApproverLevel &&
+                        x.MinAmount == incoming.MinAmount &&
+                        x.MaxAmount == incoming.MaxAmount &&
+                        x.NotificationDays == incoming.NotificationDays &&
+                        x.OptEmail == incoming.OptEmail &&
+                        x.MetaData == serializedMeta &&
+                        x.JobId == approverLevelSettingsDto.JobId).ToList();
 
                         settingsToDelete.AddRange(toRemove);
 
@@ -213,6 +218,98 @@ namespace Inspire.Erp.Application.Approvals.Implementation
                 throw;
             }
         }
+        public async Task<Response<ApproverLevelSettingsDto>> SaveAsync(ApproverLevelSettingsDto approverLevelSettingsDto)
+        {
+            try
+            {
+                var existingSettings = await _approverLevelSettings.GetAsQueryable().AsNoTracking()
+                    .Where(x => x.FormType == approverLevelSettingsDto.FormType &&
+                                x.JobId == approverLevelSettingsDto.JobId)
+                    .ToListAsync();
+
+                var incomingApprovers = approverLevelSettingsDto.ApproverLevels;
+                var userIds = incomingApprovers.Select(x => x.ApproverId).Distinct().ToList();
+                var users = _userFileRepository.GetAsQueryable().AsNoTracking()
+                    .Where(x => userIds.Contains(x.UserId))
+                    .Select(s => new { Id = s.UserId, Name = s.UserName, Email = s.emailId })
+                    .ToList();
+
+                var settingsToAdd = new List<ApproverLevelSettings>();
+                var incomingSerialized = new List<string>();
+
+                foreach (var incoming in incomingApprovers)
+                {
+                    var user = users.FirstOrDefault(u => u.Id == incoming.ApproverId);
+                    incoming.MetaData.ForEach(x =>
+                    {
+                        x.Name = user?.Name;
+                        x.Email = user?.Email;
+                    });
+
+                    var serializedMeta = JsonConvert.SerializeObject(incoming.MetaData);
+                    incomingSerialized.Add(serializedMeta);
+
+                    bool exists = existingSettings.Any(x =>
+                        x.ApproverId == incoming.ApproverId &&
+                        x.ApproverLevel == incoming.ApproverLevel &&
+                        x.MinAmount == incoming.MinAmount &&
+                        x.MaxAmount == incoming.MaxAmount &&
+                        x.NotificationDays == incoming.NotificationDays &&
+                        x.OptEmail == incoming.OptEmail &&
+                        x.MetaData == serializedMeta &&
+                        x.JobId == approverLevelSettingsDto.JobId);
+
+                    if (!exists)
+                    {
+                        settingsToAdd.Add(new ApproverLevelSettings
+                        {
+                            ApproverId = incoming.ApproverId,
+                            ApproverLevel = incoming.ApproverLevel,
+                            FormType = approverLevelSettingsDto.FormType,
+                            MinAmount = incoming.MinAmount,
+                            MaxAmount = incoming.MaxAmount,
+                            NotificationDays = incoming.NotificationDays,
+                            OptEmail = incoming.OptEmail,
+                            JobId = approverLevelSettingsDto.JobId,
+                            MetaData = serializedMeta
+                        });
+                    }
+                }
+
+                var settingsToDelete = existingSettings.Where(existing =>
+                    !incomingApprovers.Any(incoming =>
+                    {
+                        var user = users.FirstOrDefault(u => u.Id == incoming.ApproverId);
+                        incoming.MetaData.ForEach(x =>
+                        {
+                            x.Name = user?.Name;
+                            x.Email = user?.Email;
+                        });
+                        var serializedMeta = JsonConvert.SerializeObject(incoming.MetaData);
+                        return existing.ApproverId == incoming.ApproverId &&
+                               existing.ApproverLevel == incoming.ApproverLevel &&
+                               existing.MinAmount == incoming.MinAmount &&
+                               existing.MaxAmount == incoming.MaxAmount &&
+                               existing.NotificationDays == incoming.NotificationDays &&
+                               existing.OptEmail == incoming.OptEmail &&
+                               existing.MetaData == serializedMeta &&
+                               existing.JobId == approverLevelSettingsDto.JobId;
+                    })).ToList();
+
+                if (settingsToDelete.Any())
+                    await _approverLevelSettings.DeleteListAsync(settingsToDelete);
+
+                if (settingsToAdd.Any())
+                    await _approverLevelSettings.InsertListAsync(settingsToAdd);
+
+                return await GetAsync(approverLevelSettingsDto.FormType);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception if necessary
+                throw;
+            }
+        }
 
         public async Task<Response<ApproverLevelSettingsDto>> GetAsync(EnumOrderForms formType)
         {
@@ -238,7 +335,7 @@ namespace Inspire.Erp.Application.Approvals.Implementation
                             NotificationDays = a.NotificationDays,
                             OptEmail = a.OptEmail,
                             MetaData = JsonConvert.DeserializeObject<List<UserMetaDataDto>>(a.MetaData)
-                        }).ToList()
+                        }).OrderBy(a => a.ApproverLevel).ToList()
                     })
                     .FirstOrDefault();
 
