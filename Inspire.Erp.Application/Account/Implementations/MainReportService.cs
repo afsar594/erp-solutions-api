@@ -54,6 +54,7 @@ namespace Inspire.Erp.Application.Account.Implementations
         public readonly InspireErpDBContext _Context;
         private IRepository<ReportSalesVoucher> _reportSalesVoucherRepository;
 
+
         private IRepository<ReportPurchaseVoucher> _reportPurchaseVoucherRepository;
 
         private IRepository<TempReportAccStatement> _tempReportAccStatementRepository;
@@ -1677,17 +1678,56 @@ namespace Inspire.Erp.Application.Account.Implementations
             {
 
 
-                var data = from a in _purchaseRequisitionRepository.GetAsQueryable()
-                           join b in _purchaseRequisitionDRepository.GetAsQueryable() on a.PurchaseRequisitionId equals b.PurchaseRequisitionId
-                           join c in _itemMasterRepository.GetAsQueryable() on b.PurchaseRequisitionDetailsMatId equals c.ItemMasterItemId
-                           join d in _locMasterRepository.GetAsQueryable() on a.PurchaseRequisitionLocationId equals d.LocationMasterLocationId
-                           join g in _unitMastersepository.GetAsQueryable() on b.PurchaseRequisitionDetailsUnitId equals g.UnitMasterUnitId
-                           join f in _jmRepository.GetAsQueryable() on b.PurchaseRequisitionDetailsJobId equals f.JobMasterJobId into jobGroup
-                           from f in jobGroup.DefaultIfEmpty()
+                //var data = from a in _purchaseRequisitionRepository.GetAsQueryable()
+                //           join b in _purchaseRequisitionDRepository.GetAsQueryable() on a.PurchaseRequisitionId equals b.PurchaseRequisitionId
+                //           join c in _itemMasterRepository.GetAsQueryable() on b.PurchaseRequisitionDetailsMatId equals c.ItemMasterItemId
+                //           join d in _locMasterRepository.GetAsQueryable() on a.PurchaseRequisitionLocationId equals d.LocationMasterLocationId
+                //           join g in _unitMastersepository.GetAsQueryable() on b.PurchaseRequisitionDetailsUnitId equals g.UnitMasterUnitId
+                //           join f in _jmRepository.GetAsQueryable() on b.PurchaseRequisitionDetailsJobId equals f.JobMasterJobId into jobGroup
+                //           from f in jobGroup.DefaultIfEmpty()
 
-                           where ((voucherCompositeView.LocationId == null || voucherCompositeView.LocationId == 0) || a.PurchaseRequisitionLocationId == voucherCompositeView.LocationId)
-                           && (voucherCompositeView.DateFrom == null || a.PurchaseRequisitionDate.Date >= voucherCompositeView.DateFrom.Value.Date)
-                           && (voucherCompositeView.DateTo == null || a.PurchaseRequisitionDate.Date <= voucherCompositeView.DateTo.Value.Date)
+                //           where ((voucherCompositeView.LocationId == null || voucherCompositeView.LocationId == 0) || a.PurchaseRequisitionLocationId == voucherCompositeView.LocationId)
+                //           && (voucherCompositeView.DateFrom == null || a.PurchaseRequisitionDate.Date >= voucherCompositeView.DateFrom.Value.Date)
+                //           && (voucherCompositeView.DateTo == null || a.PurchaseRequisitionDate.Date <= voucherCompositeView.DateTo.Value.Date)
+                //           select new
+                //           {
+                //               Location = d.LocationMasterLocationName,
+                //               a.PurchaseRequisitionId,
+                //               a.PurchaseRequisitionNo,
+                //               a.PurchaseRequisitionDate,
+                //               JobName = f != null ? f.JobMasterJobName : "",
+                //               b.PurchaseRequisitionDetailsMatId,
+                //               ItemMasterItemName = c.ItemMasterItemName,
+                //               Unit = g.UnitMasterUnitShortName,
+                //               Qty = b.PurchaseRequisitionDetailsQuantity,
+                //               b.PurchaseRequisitionDetailsRate,
+                //               Amount = b.PurchaseRequisitionDetailsQuantity * b.PurchaseRequisitionDetailsRate,
+                //               DelvQty = (from e in _stdRepository.GetAsQueryable()
+                //                          where e.PurchaseRequisitionId == a.PurchaseRequisitionId &&
+                //                        e.StockTransferDetailsMaterialId == b.PurchaseRequisitionDetailsMatId
+                //                          select e.StockTransferDetailsQty).Sum() ?? 0,
+                //               BalanceQty = (double)b.PurchaseRequisitionDetailsQuantity -
+                //                             ((from e in _stdRepository.GetAsQueryable()
+                //                               where e.PurchaseRequisitionId == a.PurchaseRequisitionId &&
+                //                                     e.StockTransferDetailsMaterialId == b.PurchaseRequisitionDetailsMatId
+                //                               select e.StockTransferDetailsQty).Sum() ?? 0)
+                //           };
+                var data = from a in _purchaseRequisitionRepository.GetAsQueryable()
+                           join b in _purchaseRequisitionDRepository.GetAsQueryable()
+                               on a.PurchaseRequisitionId equals b.PurchaseRequisitionId
+                           join c in _itemMasterRepository.GetAsQueryable()
+                               on b.PurchaseRequisitionDetailsMatId equals c.ItemMasterItemId
+                           join d in _locMasterRepository.GetAsQueryable()
+                               on a.PurchaseRequisitionLocationId equals d.LocationMasterLocationId
+                           join g in _unitMastersepository.GetAsQueryable()
+                               on b.PurchaseRequisitionDetailsUnitId equals g.UnitMasterUnitId
+                           join f in _jmRepository.GetAsQueryable()
+                               on a.PurchaseRequisitionJobId equals f.JobMasterJobId into jobGroup
+                           from f in jobGroup.DefaultIfEmpty()
+                           where
+                               (voucherCompositeView.LocationId == null || voucherCompositeView.LocationId == 0 || a.PurchaseRequisitionLocationId == voucherCompositeView.LocationId) &&
+                               (!voucherCompositeView.DateFrom.HasValue || a.PurchaseRequisitionDate >= voucherCompositeView.DateFrom.Value) &&
+                               (!voucherCompositeView.DateTo.HasValue || a.PurchaseRequisitionDate <= voucherCompositeView.DateTo.Value)
                            select new
                            {
                                Location = d.LocationMasterLocationName,
@@ -1696,20 +1736,25 @@ namespace Inspire.Erp.Application.Account.Implementations
                                a.PurchaseRequisitionDate,
                                JobName = f != null ? f.JobMasterJobName : "",
                                b.PurchaseRequisitionDetailsMatId,
-                               ItemMasterItemName = c.ItemMasterItemName,
+                               Item_Master_Item_Name = c.ItemMasterItemName,
                                Unit = g.UnitMasterUnitShortName,
-                               Qty = b.PurchaseRequisitionDetailsQuantity,
-                               b.PurchaseRequisitionDetailsRate,
-                               Amount = b.PurchaseRequisitionDetailsQuantity * b.PurchaseRequisitionDetailsRate,
-                               DelvQty = (from e in _stdRepository.GetAsQueryable()
-                                          where e.PurchaseRequisitionId == a.PurchaseRequisitionId &&
-                                        e.StockTransferDetailsMaterialId == b.PurchaseRequisitionDetailsMatId
-                                          select e.StockTransferDetailsQty).Sum() ?? 0,
+                               Qty = (int)b.PurchaseRequisitionDetailsQuantity,
+                               PurchaseRequisitionDetailsRate = (int)b.PurchaseRequisitionDetailsRate,
+                               Amount = (int)(b.PurchaseRequisitionDetailsQuantity * b.PurchaseRequisitionDetailsRate),
+                               DelvQty = (
+                                   from e in _purchaseRequisitionDRepository.GetAsQueryable()
+                                   where e.PurchaseRequisitionId == a.PurchaseRequisitionId &&
+                                         e.PurchaseRequisitionDetailsMatId == b.PurchaseRequisitionDetailsMatId
+                                   select (int?)e.PurchaseRequisitionDetailsQuantity
+                               ).Sum() ?? 0,
                                BalanceQty = (double)b.PurchaseRequisitionDetailsQuantity -
-                                             ((from e in _stdRepository.GetAsQueryable()
-                                               where e.PurchaseRequisitionId == a.PurchaseRequisitionId &&
-                                                     e.StockTransferDetailsMaterialId == b.PurchaseRequisitionDetailsMatId
-                                               select e.StockTransferDetailsQty).Sum() ?? 0)
+                                            (
+                                                (from e in _purchaseRequisitionDRepository.GetAsQueryable()
+                                                 where e.PurchaseRequisitionId == a.PurchaseRequisitionId &&
+                                                       e.PurchaseRequisitionDetailsMatId == b.PurchaseRequisitionDetailsMatId
+                                                 select (int?)e.PurchaseRequisitionDetailsQuantity
+                                                ).Sum() ?? 0
+                                            )
                            };
 
 

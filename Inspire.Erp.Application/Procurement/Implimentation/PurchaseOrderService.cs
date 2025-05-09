@@ -955,7 +955,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     {
                         EnumOrderForms.PurchaseOrder => GetPurchaseOrderForApproval(model, approvers, user),
                         EnumOrderForms.PurchaseRequisition => GetPurchaseRequisitionForApproval(model, approvers, user),
-                        EnumOrderForms.CustomerQuotation => GetCustomerQuotationForApproval(model, approvers, user),
+                        //EnumOrderForms.CustomerQuotation => GetCustomerQuotationForApproval(model, approvers, user),
                         _ => throw new ArgumentOutOfRangeException(nameof(type), $"No form configured for order type: {type}")
                     };
                 }).ToList();
@@ -979,7 +979,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         {
             var poQuery = _purchaseOrderRepository.GetAsQueryable()
                                      .Where(x => !model.IsDate ? true : x.PurchaseOrderDate.Date >= model.fromDate.Value.Date && x.PurchaseOrderDate.Date <= model.toDate.Value.Date
-                                     && model.JobId < 0 ? true : x.PurchaseOrderJobId == model.JobId)
+                                     && (model.JobId == 0 || x.PurchaseOrderJobId == model.JobId))
                                     .Include(inc => inc.OrderApprovalHierarchies)
                                     .AsNoTracking()
                                     .ToList();
@@ -1029,7 +1029,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             }).ToList();
 
             if (model.Status != EnumApprovalStatus.None)
-                poData = poData.Where(x => x.VoucherApprovers.Any(v => v.Status == model.Status)).ToList();
+                poData = poData.Where(x => x.VoucherApprovers.Any(v => v.Status == model.Status) && (model.JobId == 0 || x.JobId == model.JobId)).ToList();
 
             return poData;
         }
@@ -1039,7 +1039,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         {
             var prQuery = _purchaseRequisitionRepository.GetAsQueryable()
                 .Where(x => !model.IsDate ? true : x.PurchaseRequisitionDate.Date >= model.fromDate.Value.Date && x.PurchaseRequisitionDate.Date <= model.toDate.Value.Date
-                                     && model.JobId < 0 ? true : x.PurchaseRequisitionJobId == model.JobId)
+                                     && (model.JobId == 0 ? true : x.PurchaseRequisitionJobId == model.JobId))
                 .Include(inc => inc.OrderApprovalHierarchies)
                 .AsNoTracking()
                 .ToList();
@@ -1091,7 +1091,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
 
             if (model.Status != EnumApprovalStatus.None)
-                prData = prData.Where(x => x.VoucherApprovers.Any(v => v.Status == model.Status)).ToList();
+                prData = prData.Where(x => x.VoucherApprovers.Any(v => v.Status == model.Status && (model.JobId == 0 || x.JobId == model.JobId))).ToList();
 
             return prData;
         }
@@ -1158,7 +1158,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                         );
 
             if (model.Status != EnumApprovalStatus.None)
-                cqData = cqData.Where(x => x.VoucherApprovers.All(v => v.Status == model.Status)).ToList();
+                cqData = cqData.Where(x => x.VoucherApprovers.All(v => v.Status == model.Status) && model.JobId < 0 ? true : x.JobId == model.JobId).ToList();
 
             return cqData;
         }

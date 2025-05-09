@@ -10,7 +10,7 @@
     <WebStackScaffolding_LayoutPageFile />
     <WebStackScaffolding_IsAsyncSelected>False</WebStackScaffolding_IsAsyncSelected>
     <ShowAllFiles>true</ShowAllFiles>
-    <NameOfLastUsedPublishProfile>D:\inspire solution\ERP 2024\ERP.APISV2.0.0\Inspire.Erp.Web\Properties\PublishProfiles\FolderProfile.pubxml</NameOfLastUsedPublishProfile>
+    <NameOfLastUsedPublishProfile>D:\Inspire Office\ERP_APIS\ERP.APISV2.0.0\Inspire.Erp.Web\Properties\PublishProfiles\FolderProfile.pubxml</NameOfLastUsedPublishProfile>
     <ActiveDebugProfile>IIS Express</ActiveDebugProfile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
