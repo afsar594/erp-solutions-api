@@ -955,7 +955,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     {
                         EnumOrderForms.PurchaseOrder => GetPurchaseOrderForApproval(model, approvers, user),
                         EnumOrderForms.PurchaseRequisition => GetPurchaseRequisitionForApproval(model, approvers, user),
-                        //EnumOrderForms.CustomerQuotation => GetCustomerQuotationForApproval(model, approvers, user),
+                        EnumOrderForms.CustomerQuotation => GetCustomerQuotationForApproval(model, approvers, user),
                         _ => throw new ArgumentOutOfRangeException(nameof(type), $"No form configured for order type: {type}")
                     };
                 }).ToList();
@@ -1102,7 +1102,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
             var cusQQuery = _customerQuotation.GetAsQueryable()
                  .Where(x => !model.IsDate ? true : x.CustomerQuotationQuotationDate.Value.Date >= model.fromDate.Value.Date && x.CustomerQuotationQuotationDate.Value.Date <= model.toDate.Value.Date
-                                     && model.JobId < 0 ? true : x.CustomerQuotationJobId == model.JobId)
+                                     && (model.JobId == 0 || x.CustomerQuotationJobId == model.JobId))
                 .AsNoTracking()
                 .ToList();
 
@@ -1158,7 +1158,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                         );
 
             if (model.Status != EnumApprovalStatus.None)
-                cqData = cqData.Where(x => x.VoucherApprovers.All(v => v.Status == model.Status) && model.JobId < 0 ? true : x.JobId == model.JobId).ToList();
+                cqData = cqData.Where(x => x.VoucherApprovers.All(v => v.Status == model.Status) && (model.JobId == 0 || x.JobId == model.JobId)).ToList();
 
             return cqData;
         }
