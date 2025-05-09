@@ -66,6 +66,7 @@ namespace Inspire.Erp.Application.Account.Implementations
         private IRepository<PurchaseRequisition> _purchaseRequisitionRepository;
         private IRepository<PurchaseRequisitionDetails> _purchaseRequisitionDRepository;
         private IRepository<ReportPurchaseOrder> _reportPurchaseOrderRepository;
+        private IRepository<PurchaseOrderDetails> _purchaseOrderDetails;
         private IRepository<LocationMaster> _locMasterRepository;
         private IRepository<StockTransferDetails> _stdRepository;
         private IRepository<JobMaster> _jmRepository;
@@ -104,7 +105,8 @@ namespace Inspire.Erp.Application.Account.Implementations
             IRepository<CityMaster> cityMasterrepository,
                                      IRepository<CountryMaster> counrtyMasterrepository,
                                            IRepository<CurrencyMaster> currMasterrepository,
-                                           IRepository<UnitMaster> unitMastersepository
+                                           IRepository<UnitMaster> unitMastersepository,
+                                           IRepository<PurchaseOrderDetails> purchaseOrderDetails
                   )
         {
 
@@ -137,6 +139,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             _counrtyMasterrepository = counrtyMasterrepository;
             _currMasterrepository = currMasterrepository;
             _unitMastersepository = unitMastersepository;
+            _purchaseOrderDetails = purchaseOrderDetails;
         }
 
         public IEnumerable<ReportStockBaseUnit> MainReport_GetReportStockLedger_PARAM_CLASS(StockLedgerParameters stockLedgerParameters, List<ViewStockTransferType> viewStockTransferType)
@@ -1736,32 +1739,26 @@ namespace Inspire.Erp.Application.Account.Implementations
                                a.PurchaseRequisitionDate,
                                JobName = f != null ? f.JobMasterJobName : "",
                                b.PurchaseRequisitionDetailsMatId,
-                               Item_Master_Item_Name = c.ItemMasterItemName,
+                               ItemMasterItemName = c.ItemMasterItemName,
                                Unit = g.UnitMasterUnitShortName,
                                Qty = (int)b.PurchaseRequisitionDetailsQuantity,
                                PurchaseRequisitionDetailsRate = (int)b.PurchaseRequisitionDetailsRate,
                                Amount = (int)(b.PurchaseRequisitionDetailsQuantity * b.PurchaseRequisitionDetailsRate),
+
                                DelvQty = (
-                                   from e in _purchaseRequisitionDRepository.GetAsQueryable()
+                                   from e in _purchaseOrderDetails.GetAsQueryable()
                                    where e.PurchaseRequisitionId == a.PurchaseRequisitionId &&
-                                         e.PurchaseRequisitionDetailsMatId == b.PurchaseRequisitionDetailsMatId
-                                   select (int?)e.PurchaseRequisitionDetailsQuantity
+                                         e.PurchaseOrderDetailsMatId == b.PurchaseRequisitionDetailsMatId
+                                   select (int?)e.PurchaseOrderDetailsQuantity
                                ).Sum() ?? 0,
+
                                BalanceQty = (double)b.PurchaseRequisitionDetailsQuantity -
-                                            (
-                                                (from e in _purchaseRequisitionDRepository.GetAsQueryable()
-                                                 where e.PurchaseRequisitionId == a.PurchaseRequisitionId &&
-                                                       e.PurchaseRequisitionDetailsMatId == b.PurchaseRequisitionDetailsMatId
-                                                 select (int?)e.PurchaseRequisitionDetailsQuantity
-                                                ).Sum() ?? 0
-                                            )
+                                             ((from e in _purchaseOrderDetails.GetAsQueryable()
+                                               where e.PurchaseRequisitionId == a.PurchaseRequisitionId &&
+                                                     e.PurchaseOrderDetailsMatId == b.PurchaseRequisitionDetailsMatId
+                                               select (int?)e.PurchaseOrderDetailsQuantity).Sum() ?? 0)
                            };
-
-
-
                 return data;
-
-
             }
             catch (System.Exception ex)
             {
