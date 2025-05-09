@@ -947,18 +947,30 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         ApproverLevel = s.ApproverLevel
                     }).ToList();
 
+                var validTypes = new[] {
+                    EnumOrderForms.PurchaseOrder,
+                    EnumOrderForms.PurchaseRequisition
+                };
+                var CombinedData = modelTypes
+            .Where(type => validTypes.Contains(type))
+            .SelectMany(type => type switch
+            {
+                EnumOrderForms.PurchaseOrder => GetPurchaseOrderForApproval(model, approvers, user),
+                EnumOrderForms.PurchaseRequisition => GetPurchaseRequisitionForApproval(model, approvers, user),
+                _ => throw new ArgumentOutOfRangeException(nameof(type), $"No form configured for order type: {type}")
+            })
+            .ToList();
 
-
-                var CombinedData = modelTypes.SelectMany(type =>
-                {
-                    return type switch
-                    {
-                        EnumOrderForms.PurchaseOrder => GetPurchaseOrderForApproval(model, approvers, user),
-                        EnumOrderForms.PurchaseRequisition => GetPurchaseRequisitionForApproval(model, approvers, user),
-                        EnumOrderForms.CustomerQuotation => GetCustomerQuotationForApproval(model, approvers, user),
-                        _ => throw new ArgumentOutOfRangeException(nameof(type), $"No form configured for order type: {type}")
-                    };
-                }).ToList();
+                //var CombinedData = modelTypes.SelectMany(type =>
+                //{
+                //    return type switch
+                //    {
+                //        EnumOrderForms.PurchaseOrder => GetPurchaseOrderForApproval(model, approvers, user),
+                //        EnumOrderForms.PurchaseRequisition => GetPurchaseRequisitionForApproval(model, approvers, user),
+                //        EnumOrderForms.CustomerQuotation => GetCustomerQuotationForApproval(model, approvers, user),
+                //        _ => throw new ArgumentOutOfRangeException(nameof(type), $"No form configured for order type: {type}")
+                //    };
+                //}).ToList();
 
                 return Response<List<VoucherApprivalDto>>.Success(CombinedData, "Data found");
 
