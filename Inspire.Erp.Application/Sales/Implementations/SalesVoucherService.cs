@@ -394,6 +394,49 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 throw ex;
             }
         }
+
+        public async Task<Response<(List<decimal> PurchasePrices, List<decimal> SalesPrices)>> GetLast3PurchaseAndSalesPricesAsync(int itemId, int? locationId)
+        {
+            try
+            {
+                // Get last 3 purchase prices
+                var PurchaseVoucherIds = await _context.PurchaseVoucher
+                    .Where(x => x.PurchaseVoucherStatus == "P")
+                    .Select(o => o.PurchaseVoucherPurID)
+                    .ToListAsync();
+
+                var last3PurchasePrices = await (from pvd in _context.PurchaseVoucherDetails
+                                                 join pv in _context.PurchaseVoucher on (long)pvd.PurchaseVoucherDetailsPrId equals pv.PurchaseVoucherPurID
+                                                 where pvd.PurchaseVoucherDetailsMaterialId == itemId
+                                                 && PurchaseVoucherIds.Contains((long)pvd.PurchaseVoucherDetailsPrId)
+                                                 orderby pv.PurchaseVoucherPurchaseDate descending
+                                                 select (decimal)(pvd.PurchaseVoucherDetailsRate ?? 0))
+                                                 .Take(3)
+                                                 .ToListAsync();
+
+                // Get last 3 sales prices
+                var SalesVoucherIds = await _context.SalesVoucher
+                    .Where(x => x.SalesVoucherStatus == "S")
+                    .Select(o => o.SalesVoucherId)
+                    .ToListAsync();
+
+                var last3SalesPrices = await (from svd in _context.SalesVoucherDetails
+                                              join sv in _context.SalesVoucher on (long)svd.SalesVoucherDetailsId equals sv.SalesVoucherId
+                                              where svd.SalesVoucherDetailsMatId == itemId
+                                              && SalesVoucherIds.Contains((long)svd.SalesVoucherDetailsId)
+                                              orderby sv.SalesVoucherDate descending
+                                              select (decimal)(svd.SalesVoucherDetailsRate ?? 0))
+                                              .Take(3)
+                                              .ToListAsync();
+
+                return Response<(List<decimal> PurchasePrices, List<decimal> SalesPrices)>.Success((last3PurchasePrices, last3SalesPrices), "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<(List<decimal> PurchasePrices, List<decimal> SalesPrices)>.Fail((new List<decimal>(), new List<decimal>()), ex.Message);
+            }
+        }
+
         public async Task<Response<decimal>> GetAveragePurchasePrice(int itemId, int? locationId)
         {
             try

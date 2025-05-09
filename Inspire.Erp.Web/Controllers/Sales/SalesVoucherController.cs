@@ -21,6 +21,7 @@ using Inspire.Erp.Domain.Modals.Common;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using Inspire.Erp.Domain.Modals;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -434,6 +435,14 @@ namespace Inspire.Erp.Web.Controllers
                 return apiResponse;
             }
             return null;
+        }
+
+        [HttpGet]
+        [Route("GetLast3PurchaseAndSalesPrices")]
+        public async Task<ActionResult<Response<(List<decimal> PurchasePrices, List<decimal> SalesPrices)>>> GetLast3PurchaseAndSalesPrices(int itemId, int? locationId)
+        {
+            var result = await _salesVoucherService.GetLast3PurchaseAndSalesPricesAsync(itemId, locationId);
+            return Ok(result);
         }
 
         [HttpGet]

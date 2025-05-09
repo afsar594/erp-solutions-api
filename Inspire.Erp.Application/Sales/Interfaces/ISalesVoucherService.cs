@@ -49,6 +49,7 @@ namespace Inspire.Erp.Application.Sales.Interfaces
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
         public VouchersNumbers GetVouchersNumbers(string pvno);
         public SalesVoucher GetSalesVoucherDetailsByMasterNo(string SalesVoucherNo);
+        public Task<Response<(List<decimal> PurchasePrices, List<decimal> SalesPrices)>> GetLast3PurchaseAndSalesPricesAsync(int itemId, int? locationId);
 
 
         #region POS sales voucher
