@@ -386,7 +386,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 var jobNum = jobrepository.GetAsQueryable().AsNoTracking()
                 .Where(e => e.JobMasterJobId == purchaseRequisition.PurchaseRequisitionJobId)
-                .FirstOrDefault()?.JobMasterJobNumber ?? "";
+                .FirstOrDefault()?.JobMasterJobNumber ?? "GEN";
 
                 string purchaseRequisitionNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.PurchaseRequisition_TYPE, Prefix.PurchaseRequisition_Prefix,
                     _programsettingsRepository, _voucherNumbersRepository, jobNum);

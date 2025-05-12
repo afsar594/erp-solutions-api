@@ -239,7 +239,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 _BillofQtyMasterRepository.BeginTransaction();
                 var jobNum = JobMasterRepository.GetAsQueryable().AsNoTracking()
                 .Where(e => e.JobMasterJobId == BillofQty.CustomerEnqId)
-                .FirstOrDefault()?.JobMasterJobNumber ?? "";
+                .FirstOrDefault()?.JobMasterJobNumber ?? "GEN";
 
                 string customerQuotationNumber = clsCommonFunctions.GenrateVoucherNo(
                     VoucherType.BOQ, Prefix.BOQ_Prefix, _programsettingsRepository, _voucherNumbersRepository, jobNum);
