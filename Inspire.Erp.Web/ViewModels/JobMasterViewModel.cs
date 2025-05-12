@@ -146,6 +146,7 @@ namespace Inspire.Erp.Web.ViewModels
         public bool? JobMasterBudgetDetailsEmail { get; set; }
         public decimal? JobMasterControlAmount { get; set; }
         public decimal? JobMasterControlVariance { get; set; }
-
+        public decimal? JobMasterControlActual { get; set; }
+        public string RefVoucherNo { get; set; }
     }
 }

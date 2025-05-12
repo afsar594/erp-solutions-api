@@ -224,6 +224,8 @@ namespace Inspire.Erp.Domain.Entities
         public bool? JobMasterBudgetDetailsEmail { get; set; }
         public decimal? JobMasterControlAmount { get; set; }
         public decimal? JobMasterControlVariance { get; set; }
+        public decimal? JobMasterControlActual { get; set; }
+        public string RefVoucherNo { get; set; }
         //[JsonIgnore]
         //public virtual JobMaster JobMasterJobJob { get; set; }
 

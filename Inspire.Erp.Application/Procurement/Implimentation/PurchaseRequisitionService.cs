@@ -383,8 +383,13 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             try
             {
                 _purchaseRequisitionRepository.BeginTransaction();
+
+                var jobNum = jobrepository.GetAsQueryable().AsNoTracking()
+                .Where(e => e.JobMasterJobId == purchaseRequisition.PurchaseRequisitionJobId)
+                .FirstOrDefault()?.JobMasterJobNumber ?? "";
+
                 string purchaseRequisitionNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.PurchaseRequisition_TYPE, Prefix.PurchaseRequisition_Prefix,
-                    _programsettingsRepository, _voucherNumbersRepository);
+                    _programsettingsRepository, _voucherNumbersRepository, jobNum);
                 purchaseRequisition.PurchaseRequisitionNo = purchaseRequisitionNumber;
 
                 int maxcount = 0;
