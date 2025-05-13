@@ -29,6 +29,7 @@ using Inspire.Erp.Application.Helpers;
 using Inspire.Erp.Domain.Models.Approvals;
 using Inspire.Erp.Domain.Constants;
 using Inspire.Erp.Application.Common.Email;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Inspire.Erp.Application.Procurement.Implementation
 {
@@ -64,8 +65,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private readonly IRepository<PurchaseOrderDetails> _purchaseOrderDetailsRepository;
         private readonly IRepository<ApproverLevelSettings> _approverLevelSettings;
         private readonly IRepository<OrderApprovalHierarchy> _orderApprovalHierarchy;
+        private readonly CacheMemoryService _cacheMemoryService;
         public PurchaseRequisitionService(IRepository<ItemMaster> itemMasterRepository, IRepository<UnitMaster> unitMasterRepository,
-            IRepository<SuppliersMaster> suppliersMasterRepository, IRepository<LocationMaster> _locationrepository, IRepository<LocationMaster> locationMasterRepository,
+            IRepository<SuppliersMaster> suppliersMasterRepository,
+             IMemoryCache cache, IRepository<LocationMaster> _locationrepository, IRepository<LocationMaster> locationMasterRepository,
             IRepository<PermissionApproval> permissionApprovalRepo, IRepository<Approval> approvalRepo, IRepository<ApprovalDetail> approvalDetailRepo,
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
             IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger, IRepository<JobMaster> _jobrepository, IRepository<BillOfQTyDetails> BillOfQTyDetailsRepository,
@@ -85,6 +88,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _approverLevelSettings = approverLevelSettings;
             _orderApprovalHierarchy = orderApprovalHierarchy;
             _jobMasterJobDetailsRepo = jobMasterJobDetailsRepo;
+            _cacheMemoryService = new CacheMemoryService(cache);
         }
         public PurchaseRequisitionModel UpdatePurchaseRequisition(PurchaseRequisition purchaseRequisition, List<AccountsTransactions> accountsTransactions, List<PurchaseRequisitionDetails> purchaseRequisitionDetails)
         {
@@ -475,6 +479,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 _purchaseRequisitionRepository.TransactionCommit();
 
                 #region EmailNotification
+                var user = _cacheMemoryService.GetUserObject(InspireConstants.UserCacheKey) as UserFile;
                 var jobId = purchaseRequisition?.PurchaseRequisitionJobId ?? -1;
                 var jobDetail = jobrepository.GetAsQueryable().Where(x => x.JobMasterJobId == jobId).FirstOrDefault();
                 _orderEmailNotificationService.SendOrderEmailNotificationAsync(
@@ -488,7 +493,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                                (int)purchaseRequisition.PurchaseRequisitionId,
                                                                                (int)jobId,
                                                                                jobDetail == null ? "" : jobDetail.JobMasterJobNumber,
-                                                                               jobDetail == null ? "" : jobDetail.JobMasterJobName
+                                                                               jobDetail == null ? "" : jobDetail.JobMasterJobName,
+                                                                               true,
+                                                                               user.UserName
                                                                                ).ConfigureAwait(false);
                 SendEmailOnValueExceedsAsync((int) purchaseRequisition.PurchaseRequisitionJobId, purchaseRequisition.PurchaseRequisitionNo).ConfigureAwait(false);
                 #endregion

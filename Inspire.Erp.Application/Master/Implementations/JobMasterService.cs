@@ -355,7 +355,7 @@ namespace Inspire.Erp.Application.Master
             {
                 jobMasterData = jobrepository.GetAsQueryable().AsNoTracking().Where(k => k.JobMasterJobNo == jbno).FirstOrDefault();
 
-                var jobBudgetDetailsData = this.jobbudgetRepository.GetAsQueryable()
+                var jobBudgetDetailsData = this.jobbudgetRepository.GetAsQueryable().AsNoTracking()
                                                  .Where(x => x.JobMasterNo == jbno && x.JobMasterBudgetDetailsDelStatus == false)
                                                  .Join(this._costCenterMaster.GetAsQueryable().AsNoTracking(),
                                                      j => j.JobMasterBudgetDetailsBudId,
@@ -380,6 +380,7 @@ namespace Inspire.Erp.Application.Master
                                             var first = x.FirstOrDefault()?.jdDetails;
                                             return new JobMasterBudgetDetails
                                             {
+                                                JobMasterBudgetDetailsCostCenterId = x.Key.CostCenterMasterCostCenterId,
                                                 JobMasterBudgetDetailsDtlId = first?.JobMasterBudgetDetailsDtlId ?? 0,
                                                 JobMasterBudgetDetailsJobId = first?.JobMasterBudgetDetailsJobId,
                                                 JobMasterNo = first?.JobMasterNo,
@@ -394,7 +395,14 @@ namespace Inspire.Erp.Application.Master
                                             };
                                         })
                                         .ToList();
+
+
                 jobMasterData.JobMasterControl = _jobMasterControl.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterControlJobID == jobMasterData.JobMasterJobId).ToList();
+                
+                jobMasterData.JobMasterControl.ForEach(x =>
+                {
+                    x.JobMasterControlActual = groupedData.FirstOrDefault(gd => gd.JobMasterBudgetDetailsCostCenterId == x.JobMasterControlCostCenerID)?.JobMasterBudgetDetailsActual ?? 0;
+                });
 
                 jobMasterData.JobMasterBudgetDetails = groupedData;
 

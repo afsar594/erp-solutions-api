@@ -25,20 +25,24 @@ namespace Inspire.Erp.Application.Email.Implementations
         private readonly PurchaseOrderRequisitionHelper _purchaseOrderRequisitionHelper;
         private readonly IEmailNotificationServices _emailNotificationServices;
         private readonly IRepository<OrderApprovalHierarchy> _orderApprovalHierarchy;
+        private readonly CacheMemoryService _cacheMemoryService;
+        private readonly IRepository<DepartmentMaster> _departmentMaster;
         private readonly EmailSettingViewModel _mailSettings;
         private readonly ILogger<OrderEmailNotificationService> _logger;
 
         public OrderEmailNotificationService(IEmailNotificationServices emailNotificationServices,
             IRepository<OrderApprovalHierarchy> orderApprovalHierarchy,
             IOptions<EmailSettingViewModel> mailSettings,
-            ILogger<OrderEmailNotificationService> logger,
-            IRepository<UserFile> userFile, IRepository<ApproverLevelSettings> approverLevelSettings)
+            ILogger<OrderEmailNotificationService> logger, IMemoryCache cache,
+            IRepository<UserFile> userFile, IRepository<ApproverLevelSettings> approverLevelSettings, IRepository<DepartmentMaster> departmentMaster)
         {
+            _cacheMemoryService = new CacheMemoryService(cache);
             _purchaseOrderRequisitionHelper = new PurchaseOrderRequisitionHelper(userFile, approverLevelSettings); ;
             _emailNotificationServices = emailNotificationServices;
             _orderApprovalHierarchy = orderApprovalHierarchy;
             _mailSettings = mailSettings.Value;
             _logger = logger;
+            _departmentMaster = departmentMaster;
         }
 
         public async Task SendOrderEmailNotificationAsync(
@@ -53,7 +57,8 @@ namespace Inspire.Erp.Application.Email.Implementations
             int jobId,
             string jobNo, 
             string jobName, 
-            bool IsNewEntery = true)
+            bool IsNewEntery,
+            string requestedBy)
         {
             try
             {
@@ -90,6 +95,10 @@ namespace Inspire.Erp.Application.Email.Implementations
                                  .Distinct()
                                  .ToList();
 
+                var user = _cacheMemoryService.GetUserObject(InspireConstants.UserCacheKey) as UserFile;
+
+                var deptName = GetDepartment(user.DepartmentId);
+
                 if (toMails.Any())
                 {
                     var rptData = toMails
@@ -102,8 +111,8 @@ namespace Inspire.Erp.Application.Email.Implementations
                             JobName = $"{jobName}/{jobNo}",
                             Supplier = supplier,
                             TotalAmount = totalAmount,
-                            RequestedBy = _mailSettings.RequestedBy,// need to add here the user name who had created the PR/PO
-                            Department =   _mailSettings.Department,//need to add from userfile 
+                            RequestedBy = user.UserName,// need to add here the user name who had created the PR/PO
+                            Department = deptName,//need to add from userfile 
                             ApprovalLink = loginUrl,
                             SupportEmail = _mailSettings.SupportEmail
                         })
@@ -124,6 +133,24 @@ namespace Inspire.Erp.Application.Email.Implementations
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to send email notification for Order ID: {OrderId}, Level: {Level}", orderId, level);
+                throw;
+            }
+        }
+
+        private string GetDepartment(int? dptId)
+        {
+            try
+            {
+                var deptName = _departmentMaster.GetAsQueryable()
+                                .AsNoTracking()
+                                .FirstOrDefault(d => d.DepartmentMasterDepartmentId == dptId)
+                                .DepartmentMasterDepartmentName;
+
+                return deptName ?? string.Empty;
+            }
+            catch (Exception)
+            {
+
                 throw;
             }
         }

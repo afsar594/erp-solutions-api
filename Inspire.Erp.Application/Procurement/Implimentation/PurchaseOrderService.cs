@@ -472,6 +472,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
 
                 #region EmailNotification
+                var user = _cacheMemoryService.GetUserObject(InspireConstants.UserCacheKey) as UserFile;
                 var jobId = purchaseOrder?.PurchaseOrderJobId ?? -1;
                 var jobDetail = _jobMaster.GetAsQueryable().Where(x => x.JobMasterJobId == jobId).FirstOrDefault();
                 _orderEmailNotificationService.SendOrderEmailNotificationAsync(
@@ -485,7 +486,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                               (int)purchaseOrder.PurchaseOrderId,
                                                                               (int)jobId,
                                                                                jobDetail == null ? "" : jobDetail.JobMasterJobNumber,
-                                                                               jobDetail == null ? "" : jobDetail.JobMasterJobName
+                                                                               jobDetail == null ? "" : jobDetail.JobMasterJobName,
+                                                                               true,
+                                                                               user.UserName
                                                                               ).ConfigureAwait(false);
                 #endregion
 
@@ -1214,7 +1217,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                                  (int)jobId,
                                                                                  jobDetail == null ? "" : jobDetail.JobMasterJobNumber,
                                                                                  jobDetail == null ? "" : jobDetail.JobMasterJobName,
-                                                                                 false).ConfigureAwait(false);
+                                                                                 false,"").ConfigureAwait(false);
                 }
                 _orderApprovalHierarchy.TransactionCommit();
 
