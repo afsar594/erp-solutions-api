@@ -497,7 +497,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                                true,
                                                                                user.UserName
                                                                                ).ConfigureAwait(false);
-                SendEmailOnValueExceedsAsync((int) purchaseRequisition.PurchaseRequisitionJobId, purchaseRequisition.PurchaseRequisitionNo).ConfigureAwait(false);
+                SendEmailOnValueExceedsAsync((int)purchaseRequisition.PurchaseRequisitionJobId, purchaseRequisition.PurchaseRequisitionNo).ConfigureAwait(false);
                 #endregion
 
                 return this.GetSavedPurchaseRequisitionDetails((int)purchaseRequisition.PurchaseRequisitionId);
@@ -561,7 +561,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             return _purchaseRequisitionRepository.GetAsQueryable()
                                                  .AsNoTracking()
                                                  .Where(x => x.PurchaseRequisitionJobId == jobId)
-                                                 .Sum(x => x.PurchaseRequisitionNetAmount ?? 0 );
+                                                 .Sum(x => x.PurchaseRequisitionNetAmount ?? 0);
         }
 
         private string GenerateEmailBody(JobMaster jobDetail, decimal prValue, string prNo)
@@ -581,13 +581,28 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             {
                 new UserEmail
                 {
-                    Email = "irfanmiankhan@gmail.com",
-                    Name = "irfanmiankhan",
+                    Email = "Shawn@waterbirdwtc.com",
+                    Name = "Shawn",
+                    BccEmails = new List<CCAndBccMailDto>(),
+                    CCEmails = new List<CCAndBccMailDto>()
+                },
+                new UserEmail
+                {
+                    Email = "jijit@waterbirdwtc.com",
+                    Name = "Jijit",
+                    BccEmails = new List<CCAndBccMailDto>(),
+                    CCEmails = new List<CCAndBccMailDto>()
+                },
+                new UserEmail
+                {
+                    Email = "jeevan@waterbirdwtc.com",
+                    Name = "Jeevan",
                     BccEmails = new List<CCAndBccMailDto>(),
                     CCEmails = new List<CCAndBccMailDto>()
                 }
             };
         }
+
 
 
         public IEnumerable<AccountsTransactions> GetAllTransaction()
