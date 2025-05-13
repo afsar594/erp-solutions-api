@@ -838,7 +838,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                           sd.PurchaseRequisitionDetailsRate,
                                           sd.PurchaseRequisitionDetailsQuantity,
                                           sd.PurchaseRequisitionDetailsUnitId,
-                                          sm.PurchaseRequisitionJobId
+                                          sm.PurchaseRequisitionJobId,
+                                          sd.PurchaseRequisitionDetailsSupplierId,
+                                          sm.PurchaseRequisitionCurrencyId,
                                       } into g
                                       select new PurChaseReqFields
                                       {
@@ -852,6 +854,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                           SRQ = (int)g.Key.PurchaseRequisitionDetailsQuantity,
                                           unitid = g.Key.PurchaseRequisitionDetailsUnitId,
                                           jobid = g.Key.PurchaseRequisitionJobId,
+                                          PRSupplierId= g.Key.PurchaseRequisitionDetailsSupplierId,
+                                          PRCurrId=g.Key.PurchaseRequisitionCurrencyId,
                                           Unit = _unitMasterRepository.GetAsQueryable()
                                                    .Where(x => x.UnitMasterUnitId == g.Key.PurchaseRequisitionDetailsUnitId)
                                                    .Select(x => x.UnitMasterUnitFullName.Trim())
@@ -879,7 +883,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                             jobid = x.jobid,
                             Unit = x.Unit,
                             BalQty = x.SRQ - receivedQty,
-                            DelQty = receivedQty
+                            DelQty = receivedQty,
+                            PRSupplierId = x.PRSupplierId,
+                            PRCurrId = x.PRCurrId,
+
                         };
                     }).OrderBy(x => x.Date).ThenBy(x => x.SRNo).ToList();
                 }
@@ -914,7 +921,11 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                            matId = sd.PurchaseRequisitionDetailsMatId,
                                            unitid = sd.PurchaseRequisitionDetailsUnitId,
                                            jobid = sm.PurchaseRequisitionJobId,
-                                           Stock = srq.IssueVoucherDetailsCurrentStockQty ?? 0
+                                           Stock = srq.IssueVoucherDetailsCurrentStockQty ?? 0,
+                                           PRSupplierId = sd.PurchaseRequisitionDetailsSupplierId ,
+                                           PRCurrId=sm.PurchaseRequisitionCurrencyId,
+                                           
+
                                        })
                         .OrderBy(x => x.SRDID)
                         .ToListAsync();
