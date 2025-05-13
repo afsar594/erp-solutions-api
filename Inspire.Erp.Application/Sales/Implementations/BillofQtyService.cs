@@ -354,7 +354,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private string GenerateBoqEmailBody(JobMaster jobDetail, decimal boqValue, string prNo)
         {
             return InspireConstants.BOQEmailTemplate
-                                   .Replace("{{Recipient}}", "Ali Ansari")
                                    .Replace("{{jobCode}}", jobDetail.JobMasterJobNumber)
                                    .Replace("{{jobName}}", jobDetail.JobMasterJobName)
                                    .Replace("{{jobValue}}", jobDetail.JobMasterJobValue?.ToString("n2"))
