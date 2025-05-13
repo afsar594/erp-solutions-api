@@ -369,7 +369,7 @@ namespace Inspire.Erp.Application.Master
                                                 .OrderBy(x => x.ccMaster.CostCenterMasterCostCenterId)
                                                 .ToList();
 
-                var groupedData = jobBudgetDetailsData
+                                        var groupedData = jobBudgetDetailsData
                                         .GroupBy(x => new
                                         {
                                             x.ccMaster.CostCenterMasterCostCenterId,
@@ -394,6 +394,7 @@ namespace Inspire.Erp.Application.Master
                                             };
                                         })
                                         .ToList();
+                jobMasterData.JobMasterControl = _jobMasterControl.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterControlJobID == jobMasterData.JobMasterJobId).ToList();
 
                 jobMasterData.JobMasterBudgetDetails = groupedData;
 
@@ -430,7 +431,6 @@ namespace Inspire.Erp.Application.Master
                 jobMasterData.JobTimesheetDesc = _jobTimesheetDesc.GetAsQueryable().AsNoTracking().Where(a => a.JobId == jobMasterData.JobMasterJobId).ToList();
                 jobMasterData.JobfilesStatus = _JobfilesStatus.GetAsQueryable().AsNoTracking().Where(a => a.JobMasterJobId == jobMasterData.JobMasterJobId).ToList();
                 jobMasterData.JobEquipment = jobEquipmentrepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterJobJob.JobMasterJobId == jobMasterData.JobMasterJobId).Select(x => new JobEquipment() { Id = x.Id, JobMasterEquipId = x.JobMasterEquipId, JobMasterJobId = x.JobMasterJobId, JobMasterJobJob = x.JobMasterJobJob, JobMasterEquipName = x.JobMasterEquipName }).ToList();
-                jobMasterData.JobMasterControl = _jobMasterControl.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterControlJobID == jobMasterData.JobMasterJobId).ToList();
 
                 return jobMasterData;
 
@@ -589,7 +589,7 @@ namespace Inspire.Erp.Application.Master
                     .Select(x => $"{x.JobMasterJobName}_{x.JobMasterJobNumber}.pdf")
                     .FirstOrDefaultAsync();
 
-                
+
                 var jobDocs = await _jobDocumentsRepository
                                      .GetAsQueryable()
                                      .AsNoTracking()

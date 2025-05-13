@@ -210,16 +210,16 @@ namespace Inspire.Erp.Application.Store.Implementation
                         x.RefVoucherNo = issueVoucher.IssueVoucherNo;
                     });
 
-                    var jobControl = this._jobMasterControlRepo.GetAsQueryable().Where(j => j.RefVoucherNo == issueVoucher.IssueVoucherNo).ToList();
-                    jobControl.ForEach(x =>
-                    {
-                        x.JobMasterControlJobID = (int)issueVoucher.IssueVoucherJobId;
-                        x.JobMasterControlCostCenerID = issueVoucher.IssueVoucherCostCenterId != null ? (int)issueVoucher.IssueVoucherCostCenterId : costCenterId;
+                    //var jobControl = this._jobMasterControlRepo.GetAsQueryable().Where(j => j.RefVoucherNo == issueVoucher.IssueVoucherNo).ToList();
+                    //jobControl.ForEach(x =>
+                    //{
+                    //    x.JobMasterControlJobID = (int)issueVoucher.IssueVoucherJobId;
+                    //    x.JobMasterControlCostCenerID = issueVoucher.IssueVoucherCostCenterId != null ? (int)issueVoucher.IssueVoucherCostCenterId : costCenterId;
                        
-                        x.JobMasterControlActual = issueVoucher.IssueVoucherTotalActualAmount;
-                        x.JobMasterControlVariance = (x.JobMasterControlAmount == null || x.JobMasterControlAmount == 0) ? 0 : x.JobMasterControlAmount - issueVoucher.IssueVoucherTotalActualAmount;
-                        x.RefVoucherNo = issueVoucher.IssueVoucherNo;
-                    });
+                    //    x.JobMasterControlActual = issueVoucher.IssueVoucherTotalActualAmount;
+                    //    x.JobMasterControlVariance = (x.JobMasterControlAmount == null || x.JobMasterControlAmount == 0) ? 0 : x.JobMasterControlAmount - issueVoucher.IssueVoucherTotalActualAmount;
+                    //    x.RefVoucherNo = issueVoucher.IssueVoucherNo;
+                    //});
                     _jobbudgetRepository.UpdateList(jobMasterBudgetDetailsToUpdate);
                 }
 
@@ -425,18 +425,18 @@ namespace Inspire.Erp.Application.Store.Implementation
                         RefVoucherNo = issueVoucher.IssueVoucherNo
                     };
 
-                    var newjobControls = new JobMasterControl
-                    {
-                        JobMasterNo = jobNo,
-                        JobMasterControlJobID = (int)issueVoucher.IssueVoucherJobId,
-                        JobMasterControlCostCenerID = (int)issueVoucher.IssueVoucherCostCenterId,
-                        JobMasterControlActual = (int)issueVoucher.IssueVoucherTotalGrossAmount,
-                        RefVoucherNo = issueVoucher.IssueVoucherNo
-                    };
+                    //var newjobControls = new JobMasterControl
+                    //{
+                    //    JobMasterNo = jobNo,
+                    //    JobMasterControlJobID = (int)issueVoucher.IssueVoucherJobId,
+                    //    JobMasterControlCostCenerID = (int)issueVoucher.IssueVoucherCostCenterId,
+                    //    JobMasterControlActual = (int)issueVoucher.IssueVoucherTotalGrossAmount,
+                    //    RefVoucherNo = issueVoucher.IssueVoucherNo
+                    //};
 
                     _jobbudgetRepository.Insert(newBudgetDetail);
 
-                    _jobMasterControlRepo.Insert(newjobControls);
+                    //_jobMasterControlRepo.Insert(newjobControls);
                 }
 
 
