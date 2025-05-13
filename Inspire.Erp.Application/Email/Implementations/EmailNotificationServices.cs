@@ -86,8 +86,6 @@ namespace Inspire.Erp.Application.Email.Implementations
         {
             return await SendEmailAsync(toEmails, templateId, dynamicTemplateData, filePaths);
         }
-
-       
         public async Task<bool> SendTextEmailAsync(List<UserEmail> toEmails, string subject, string message, List<string> filePaths)
         {
             try
@@ -98,25 +96,78 @@ namespace Inspire.Erp.Application.Email.Implementations
                 var plainTextContent = "";
                 var htmlContent = message;
 
-                var msg = MailHelper.CreateSingleEmailToMultipleRecipients(from, toMails, subject, plainTextContent, htmlContent);
+                var subjects = toEmails.Select(e => subject).ToList();
+                
+                var substitutions = toEmails.Select(e => new Dictionary<string, string>
+                {
+                    { "-name-", e.Name }
+                }).ToList();
+
+                var msg = MailHelper.CreateMultipleEmailsToMultipleRecipients(from, toMails, subjects, plainTextContent, htmlContent, substitutions);
+
                 if (filePaths != null && filePaths.Count > 0)
                     msg = GetAttachments(msg, filePaths);
-                
-                if (toEmails.All(x => x.CCEmails.Any()))
-                    msg.AddCcs(toEmails.SelectMany(x => x.CCEmails.Select(s => new EmailAddress(s.Email, s.Name))).ToList());
-                if (toEmails.All(x => x.BccEmails.Any()))
-                    msg.AddBccs(toEmails.SelectMany(x => x.BccEmails.Select(s => new EmailAddress(s.Email, s.Name))).ToList());
+
+                if (toEmails.Any(x => x.CCEmails?.Any() == true))
+                {
+                    var ccEmails = toEmails.SelectMany(x => x.CCEmails ?? new List<CCAndBccMailDto>())
+                                           .Select(s => new EmailAddress(s.Email, s.Name))
+                                           .ToList();
+                    msg.AddCcs(ccEmails);
+                }
+
+                if (toEmails.Any(x => x.BccEmails?.Any() == true))
+                {
+                    var bccEmails = toEmails.SelectMany(x => x.BccEmails ?? new List<CCAndBccMailDto>())
+                                            .Select(s => new EmailAddress(s.Email, s.Name))
+                                            .ToList();
+                    msg.AddBccs(bccEmails);
+                }
 
                 var response = await client.SendEmailAsync(msg);
                 _logger.LogInformation("Message sent successfully.");
-                return true;
+                return response.IsSuccessStatusCode;
             }
             catch (Exception ex)
             {
-                _logger.LogInformation(ex.Message);
+                _logger.LogError(ex, "Error sending email.");
                 return false;
             }
         }
+
+
+        //public async Task<bool> SendTextEmailAsync(List<UserEmail> toEmails, string subject, string message, List<string> filePaths)
+        //{
+        //    try
+        //    {
+        //        var toMails = toEmails.Select(email => new EmailAddress(email.Email, email.Name)).ToList();
+        //        var client = new SendGridClient(_mailSettings.Key);
+        //        var from = new EmailAddress(_mailSettings.FromEmail, _mailSettings.DisplayName);
+        //        var plainTextContent = "";
+        //        var htmlContent = message;
+
+        //        //var msg = MailHelper.CreateSingleEmailToMultipleRecipients(from, toMails, subject, plainTextContent, htmlContent);
+        //        var msg = MailHelper.CreateMultipleEmailsToMultipleRecipients(from, toMails, subject,);
+
+
+        //        if (filePaths != null && filePaths.Count > 0)
+        //            msg = GetAttachments(msg, filePaths);
+
+        //        if (toEmails.All(x => x.CCEmails.Any()))
+        //            msg.AddCcs(toEmails.SelectMany(x => x.CCEmails.Select(s => new EmailAddress(s.Email, s.Name))).ToList());
+        //        if (toEmails.All(x => x.BccEmails.Any()))
+        //            msg.AddBccs(toEmails.SelectMany(x => x.BccEmails.Select(s => new EmailAddress(s.Email, s.Name))).ToList());
+
+        //        var response = await client.SendEmailAsync(msg);
+        //        _logger.LogInformation("Message sent successfully.");
+        //        return true;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogInformation(ex.Message);
+        //        return false;
+        //    }
+        //}
 
 
     }

@@ -354,7 +354,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private string GenerateBoqEmailBody(JobMaster jobDetail, decimal boqValue, string prNo)
         {
             return InspireConstants.BOQEmailTemplate
-                                   .Replace("{{Recipient}}", "Ali Ansari")
                                    .Replace("{{jobCode}}", jobDetail.JobMasterJobNumber)
                                    .Replace("{{jobName}}", jobDetail.JobMasterJobName)
                                    .Replace("{{jobValue}}", jobDetail.JobMasterJobValue?.ToString("n2"))
@@ -368,8 +367,22 @@ namespace Inspire.Erp.Application.Sales.Implementations
             {
                 new UserEmail
                 {
-                    Email = "irfanmiankhan@gmail.com",
-                    Name = "irfanmiankhan",
+                    Email = "Shawn@waterbirdwtc.com",
+                    Name = "Shawn",
+                    BccEmails = new List<CCAndBccMailDto>(),
+                    CCEmails = new List<CCAndBccMailDto>()
+                },
+                new UserEmail
+                {
+                    Email = "jijit@waterbirdwtc.com",
+                    Name = "Jijit",
+                    BccEmails = new List<CCAndBccMailDto>(),
+                    CCEmails = new List<CCAndBccMailDto>()
+                },
+                new UserEmail
+                {
+                    Email = "jeevan@waterbirdwtc.com",
+                    Name = "Jeevan",
                     BccEmails = new List<CCAndBccMailDto>(),
                     CCEmails = new List<CCAndBccMailDto>()
                 }
