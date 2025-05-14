@@ -186,6 +186,10 @@ public class StockAdjustmentReportFilter
     {
         public string PurchaseRequisitionPartyName { get; set; }
         public string purchaseRequisitionType { get; set; }
+
+        public decimal? PRSupplierId { get; set; }
+
+        public decimal? PRCurrId { get; set; }
         public string Item_Name { get; set; }
         public string Unit { get; set; }
         public decimal DelQty { get; set; }
