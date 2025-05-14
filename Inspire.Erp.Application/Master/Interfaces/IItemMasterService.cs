@@ -9,6 +9,7 @@ using Inspire.Erp.Domain.Entities.POS;
 using System.Linq;
 using System.Transactions;
 using Inspire.Erp.Domain.Models;
+using Inspire.Erp.Domain.DTO.ItemMaster;
 
 namespace Inspire.Erp.Application.Master
 {
@@ -23,6 +24,7 @@ namespace Inspire.Erp.Application.Master
         public List<ItemMaster> GetAllItem();
         public IEnumerable<ItemMaster> GetAllItemById(int id);
         public Task<Response<itemAvgPrice>> GetAveragePrice(int id);
+        public Task<ResponseInfo> GetFilteredItems(PagedSearchRequest request);
         
         public List<ItemMaster> GetAllItemNotGroup();
         public IEnumerable<ItemStockType> GetAllStockType();

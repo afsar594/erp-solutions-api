@@ -36,6 +36,12 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Configuration;
 using Inspire.Erp.Application.Common;
 using System.Net;
+using Inspire.Erp.Domain.DTO.ItemMaster;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+
+using Inspire.Erp.Infrastructure;
+using Microsoft.Data.SqlClient;
+using Dapper;
 
 namespace Inspire.Erp.Application.Master
 {
@@ -76,7 +82,7 @@ namespace Inspire.Erp.Application.Master
         private readonly IRepository<POS_SalesReturnDetails> _saleReturnDetailsRepo;
         private readonly IRepository<CardDetails> _cardDetailsRepo;
         private readonly IRepository<MasterAccountsTable> _masterAccRepo;
-
+        private readonly System.Data.IDbConnection _dbConnection;
         private string ItemRelativeNo = "";
         private readonly IUtilityService _utilityService;
         public ItemMasterService(IRepository<ItemMaster> _itemrepository, IRepository<ItemStockType> _itemStockRepository, IRepository<UnitDetails> unitDetailsRepo
@@ -151,6 +157,8 @@ namespace Inspire.Erp.Application.Master
             _masterAccRepo = masterAccRepo;
             _utilityService = utilityService;
 
+            var settings = config.GetSection("ApplicationSettings").Get<ApplicationSettings>();
+            _dbConnection = new SqlConnection(settings.ConnectionString);
         }
         public async Task<IEnumerable<ItemMaster>> InsertItem(ItemMaster itemMaster)
         {
@@ -5718,5 +5726,89 @@ namespace Inspire.Erp.Application.Master
                 throw ex;
             }
         }
+
+        public async Task<ResponseInfo> GetFilteredItems(PagedSearchRequest request)
+        {
+            try
+            {
+                var objectresponse = new ResponseInfo();
+                var allowedSortColumns = new[]
+                   {
+                        "Item_Master_Item_Name",
+                        "Item_Master_Item_ID",
+                        "Unit_Details_Barcode"
+                    };
+
+
+                var sortColumn = allowedSortColumns.Contains(request.SortColumn) ? request.SortColumn : "Item_Master_Item_Name";
+                var sortDirection = request.SortDirection?.ToLower() == "desc" ? "DESC" : "ASC";
+
+
+                var sql = $@"
+                            SELECT COUNT(DISTINCT i.Item_Master_Item_ID)
+                            FROM Item_Master i
+                            INNER JOIN Unit_Details u ON i.Item_Master_Item_ID = u.Unit_Details_Item_ID
+                            WHERE 
+                                i.Item_Master_Account_No != 0
+                                AND ISNULL(i.Item_Master_DelStatus, 0) != 1 
+                                AND i.Item_Master_Item_Type != 'G'
+                                AND (
+                                    @SearchTerm IS NULL OR @SearchTerm = '' 
+                                    OR i.Item_Master_Item_Name LIKE '%' + @SearchTerm + '%'
+                                    OR u.Unit_Details_Barcode LIKE '%' + @SearchTerm + '%'
+                                );
+
+                            SELECT DISTINCT 
+                                i.Item_Master_Item_ID AS ItemMasterItemId,
+                                i.Item_Master_Item_Name AS ItemMasterItemName,
+                                i.Item_Master_Vender_ID AS ItemMasterVenderId,
+                                i.Item_Master_Item_Size AS ItemMasterItemSize,
+                                ISNULL(u.Unit_Details_Barcode, '') AS ItemMasterBarcode
+                            FROM 
+                                Item_Master i
+                            INNER JOIN 
+                                Unit_Details u ON i.Item_Master_Item_ID = u.Unit_Details_Item_ID	
+                            WHERE 
+                                i.Item_Master_Account_No != 0
+                                AND ISNULL(i.Item_Master_DelStatus, 0) != 1 
+                                AND i.Item_Master_Item_Type != 'G'
+                                AND (
+                                    @SearchTerm IS NULL OR @SearchTerm = '' 
+                                    OR i.Item_Master_Item_Name LIKE '%' + @SearchTerm + '%'
+                                    OR u.Unit_Details_Barcode LIKE '%' + @SearchTerm + '%'
+                                )
+                            ORDER BY {sortColumn} {sortDirection}
+                            OFFSET (@Offset) ROWS FETCH NEXT @PageSize ROWS ONLY;
+                            ";
+
+                var parameters = new
+                {
+                    SearchTerm = request.SearchTerm,
+                    PageSize = request.PageSize,
+                    Offset = (request.PageNumber - 1) * request.PageSize
+                };
+
+                using var multi = await _dbConnection.QueryMultipleAsync(sql, parameters);
+
+                var totalCount = await multi.ReadFirstAsync<int>();
+                var filteredItems = await multi.ReadAsync<ItemMasterDto>();
+
+                objectresponse.ResultSet = new
+                {
+                    itemMaster = filteredItems
+                };
+
+                objectresponse.IsSuccess = true;
+                objectresponse.TotalCount = totalCount;
+
+                return objectresponse;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
     }
 }
