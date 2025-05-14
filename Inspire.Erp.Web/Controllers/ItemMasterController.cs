@@ -28,7 +28,9 @@ namespace Inspire.Erp.Web.Controllers
         private IItemMasterService itemMasterService;
         private ILocationMasterService locationMasterService;
 
-
+        private readonly IRepository<SalesVoucher> _repoSalesVoucher;
+        private readonly IRepository<SalesVoucherDetails> _repoSalesVoucherDetails;
+        private readonly IRepository<StockRegister> _repoStockRegister;
         private IRepository<ItemMaster> itemrepository; private IRepository<VendorMaster> Brandrepository; private IRepository<ItemStockType> itemStockRepository;
         private readonly IRepository<SuppliersMaster> supplierrepository; private IRepository<TaxMaster> taxrepository; private IRepository<PriceLevelMaster> priceLevelrepository;
         private IRepository<UnitMaster> unitrepository; private IRepository<UnitDetails> _unitDetailsRepo;
@@ -36,13 +38,16 @@ namespace Inspire.Erp.Web.Controllers
         public ItemMasterController(IRepository<ItemMaster> _itemrepository, IRepository<VendorMaster> _Brandrepository, IRepository<ItemStockType> _itemStockRepository,
             IRepository<SuppliersMaster> _supplierrepository, IRepository<TaxMaster> _Taxrepository, IRepository<PriceLevelMaster> _priceLevelrepository,
             IRepository<UnitMaster> _unitrepository, IRepository<UnitDetails> unitDetailsRepo,
-            IItemMasterService _itemMasterService, ILocationMasterService _locationMasterService, IMapper mapper)
+            IItemMasterService _itemMasterService, ILocationMasterService _locationMasterService, IMapper mapper, IRepository<SalesVoucher> repoSalesVoucher, IRepository<SalesVoucherDetails> repoSalesVoucherDetails, IRepository<StockRegister> repoStockRegister)
         {
             itemMasterService = _itemMasterService;
             locationMasterService = _locationMasterService;
             _mapper = mapper; _unitDetailsRepo = unitDetailsRepo;
             Brandrepository = _Brandrepository; itemStockRepository = _itemStockRepository; supplierrepository = _supplierrepository;
             itemrepository = _itemrepository; taxrepository = _Taxrepository; priceLevelrepository = _priceLevelrepository; unitrepository = _unitrepository;
+            _repoSalesVoucher = repoSalesVoucher;
+            _repoSalesVoucherDetails = repoSalesVoucherDetails;
+            _repoStockRegister = repoStockRegister;
         }
         [HttpGet]
         [Route("GetAllItem")]
@@ -532,21 +537,34 @@ namespace Inspire.Erp.Web.Controllers
         }
 
         [HttpGet]
-        [Route("GetItemMasterById/{id}")]
-        public ResponseInfo GetItemMasterById(int id)
+        [Route("GetItemMasterById/{id}/{customerId?}")]
+        public ResponseInfo GetItemMasterById(int id, int customerId = -1)
         {
-            var objectresponse = new ResponseInfo();
-            var listItemnater = itemrepository.GetAsQueryable().Where(a => a.ItemMasterItemId == id && a.ItemMasterDelStatus != true).ToList();
-            var unitlist = _unitDetailsRepo.GetAsQueryable().Where(a => a.UnitDetailsItemId == id && a.UnitDetailsDelStatus != true).OrderBy(x => x.UnitDetailsItem).ToList();
+            var response = new ResponseInfo();
+            decimal? lastSalePrice = null;
+            decimal? CurrentItemStock = null;
+            var item = itemrepository.GetAsQueryable()
+                .Where(x => x.ItemMasterItemId == id && x.ItemMasterDelStatus != true)
+                .Select(a => new
+                {
+                    a.ItemMasterItemId,
+                    a.ItemMasterItemName,
+                    a.ItemMasterPartNo,
+                    a.ItemMasterUnitPrice,
+                    a.ItemMasterLastPurchasePrice
+                })
+                .FirstOrDefault();
 
-            var data = listItemnater.Select(a => new
+            if (item == null)
             {
-                a.ItemMasterItemId,
-                a.ItemMasterItemName,
-                a.ItemMasterPartNo,
-                a.ItemMasterUnitPrice,
-                a.ItemMasterLastPurchasePrice,
-                UnitDetails = unitlist.Select(c => new
+                response.ResultSet = null;
+                return response;
+            }
+
+            var unitDetail = _unitDetailsRepo.GetAsQueryable()
+                .Where(x => x.UnitDetailsItemId == id && x.UnitDetailsDelStatus != true)
+                .OrderBy(x => x.UnitDetailsItem)
+                .Select(c => new
                 {
                     c.UnitDetailsId,
                     c.UnitDetailsUnitId,
@@ -554,15 +572,47 @@ namespace Inspire.Erp.Web.Controllers
                     c.UnitDetailsRate,
                     c.UnitDetailsUnitPrice,
                     c.UnitDetailsUnitCost,
-                }).FirstOrDefault(),
-            }).FirstOrDefault();
-
-            objectresponse.ResultSet = new
+                })
+                .FirstOrDefault();
+            if (customerId > 0)
             {
-                itemMaster = data,
-            };
-            return objectresponse;
+                lastSalePrice = (from sv in _repoSalesVoucher.GetAsQueryable().AsNoTracking()
+                                 join svd in _repoSalesVoucherDetails.GetAsQueryable().AsNoTracking()
+                                 on sv.SalesVoucherId equals svd.SalesVoucherId
+                                 where sv.SalesVoucherPartyId == customerId && svd.SalesVoucherDetailsMatId == id
+                                 orderby sv.SalesVoucherDate descending
+                                 select svd.SalesVoucherDetailsRate)
+                                              .FirstOrDefault();
+            }
 
+            var stockData = _repoStockRegister.GetAsQueryable()
+                                              .AsNoTracking()
+                                              .Where(x => x.StockRegisterMaterialID == id && !(bool)x.StockRegisterDelStatus)
+                                              .GroupBy(x => x.StockRegisterMaterialID)
+                                              .Select(g => new
+                                              {
+                                                  StockIn = g.Sum(s => s.StockRegisterSIN ?? 0m),
+                                                  StockOut = g.Sum(s => s.StockRegisterSout ?? 0m)
+                                              })
+                                              .FirstOrDefault();
+
+            CurrentItemStock = stockData != null ? stockData.StockIn - stockData.StockOut : 0m;
+
+
+
+            var result = new
+            {
+                item.ItemMasterItemId,
+                item.ItemMasterItemName,
+                item.ItemMasterPartNo,
+                ItemMasterUnitPrice = lastSalePrice ?? item.ItemMasterUnitPrice,
+                CurrentItemStock = CurrentItemStock ?? 0m,
+                item.ItemMasterLastPurchasePrice,
+                UnitDetails = unitDetail
+            };
+
+            response.ResultSet = new { itemMaster = result };
+            return response;
         }
 
         [HttpPost("GetFilteredItems")]
