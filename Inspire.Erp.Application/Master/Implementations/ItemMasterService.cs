@@ -5810,5 +5810,83 @@ namespace Inspire.Erp.Application.Master
             }
         }
 
+        public async Task<Response<List<ItemPriceHistoryDto>>> GetLastItemThreePrices(List<int> itemIds)
+        {
+            try
+            {
+                const string sql = @"
+                                        WITH CombinedData AS (
+                                            SELECT 
+                                                im.item_master_Item_Id AS ItemId,
+                                                im.item_master_Item_Name AS ItemName,
+                                                pod.PurchaseOrderDetailsRate AS Price,
+                                                po.PurchaseOrderDate AS TransactionDate,
+                                                'Purchase' AS TransactionType,
+                                                ROW_NUMBER() OVER (PARTITION BY im.item_master_Item_Id, 'Purchase' ORDER BY po.PurchaseOrderDate DESC) AS rn
+                                            FROM PurchaseOrderDetails pod
+                                            JOIN PurchaseOrder po ON po.PurchaseOrderId = pod.PurchaseOrderId
+                                            JOIN item_master im ON pod.PurchaseOrderDetailsMatID = im.item_master_Item_Id
+                                            WHERE im.item_master_Item_Id IN @ItemIds
+
+                                            UNION ALL
+
+                                            SELECT 
+                                                im.item_master_Item_Id AS ItemId,
+                                                im.item_master_Item_Name AS ItemName,
+                                                svd.SalesVoucherDetailsRate AS Price,
+                                                sv.SalesVoucherDate AS TransactionDate,
+                                                'Sales' AS TransactionType,
+                                                ROW_NUMBER() OVER (PARTITION BY im.item_master_Item_Id, 'Sales' ORDER BY sv.SalesVoucherDate DESC) AS rn
+                                            FROM SalesVoucherDetails svd
+                                            JOIN SalesVoucher sv ON sv.SalesVoucherId = svd.SalesVoucherId
+                                            JOIN item_master im ON svd.SalesVoucherDetailsMatID = im.item_master_Item_Id
+                                            WHERE im.item_master_Item_Id IN @ItemIds
+                                        )
+                                        SELECT 
+                                            ItemId, ItemName, Price, TransactionDate, TransactionType
+                                        FROM CombinedData
+                                        WHERE rn <= 3
+                                        ORDER BY ItemId, TransactionType, TransactionDate DESC;";
+
+
+                var itemTransactions = (await _dbConnection
+                                        .QueryAsync<ItemTransactionQueryResponse>(sql, new { ItemIds = itemIds }))
+                                        .ToList();
+
+                var groupedResult = itemTransactions
+                    .GroupBy(x => new { x.ItemId, x.ItemName })
+                    .Select(group => new ItemPriceHistoryDto
+                    {
+                        ItemId = group.Key.ItemId,
+                        ItemName = group.Key.ItemName,
+                        LastPurchasePrices = group
+                            .Where(x => x.TransactionType == "Purchase")
+                            .Select(x => new PriceHistoryDto
+                            {
+                                Date = x.TransactionDate.ToString("dd MMM yyyy"),
+                                Price = x.Price
+                            })
+                            .ToList(),
+                        LastSalesPrices = group
+                            .Where(x => x.TransactionType == "Sales")
+                            .Select(x => new PriceHistoryDto
+                            {
+                                Date = x.TransactionDate.ToString("dd MMM yyyy"),
+                                Price = x.Price
+                            })
+                            .ToList()
+                    }).ToList();
+
+                return Response<List<ItemPriceHistoryDto>>.Success(groupedResult, "Data found");
+            }
+            catch (Exception ex)
+            {
+                // You can optionally log the error here
+                // logger.LogError(ex, "Error retrieving item price history");
+                throw;
+            }
+        }
+
+
     }
 }

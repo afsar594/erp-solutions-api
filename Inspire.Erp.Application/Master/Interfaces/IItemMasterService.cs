@@ -10,6 +10,7 @@ using System.Linq;
 using System.Transactions;
 using Inspire.Erp.Domain.Models;
 using Inspire.Erp.Domain.DTO.ItemMaster;
+using Inspire.Erp.Application.Common;
 
 namespace Inspire.Erp.Application.Master
 {
@@ -24,6 +25,7 @@ namespace Inspire.Erp.Application.Master
         public List<ItemMaster> GetAllItem();
         public IEnumerable<ItemMaster> GetAllItemById(int id);
         public Task<Response<itemAvgPrice>> GetAveragePrice(int id);
+        public Task<Response<List<ItemPriceHistoryDto>>> GetLastItemThreePrices(List<int> itemIds);
         public Task<ResponseInfo> GetFilteredItems(PagedSearchRequest request);
         
         public List<ItemMaster> GetAllItemNotGroup();
