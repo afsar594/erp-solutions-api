@@ -24,17 +24,17 @@ namespace Inspire.Erp.Application.Procurement.Interfaces
         //public PurchaseRequisition InsertPurchaseRequisition(PurchaseRequisition purchaseRequisition,
         //  List<PurchaseRequisitionDetails> purchaseRequisitionDetails);
 
-        public PurchaseRequisitionModel InsertPurchaseRequisition(PurchaseRequisition purchaseRequisition, List<AccountsTransactions> accountsTransactions, List<PurchaseRequisitionDetails> purchaseRequisitionDetails
+        public Task<Response<PurchaseRequisitionModel>> InsertPurchaseRequisition(PurchaseRequisition purchaseRequisition, List<AccountsTransactions> accountsTransactions, List<PurchaseRequisitionDetails> purchaseRequisitionDetails
             //, List<StockRegister> stockRegister
             );
-        public PurchaseRequisitionModel UpdatePurchaseRequisition(PurchaseRequisition purchaseRequisition, List<AccountsTransactions> accountsTransactions, List<PurchaseRequisitionDetails> purchaseRequisitionDetails
+        public Task<Response<PurchaseRequisitionModel>> UpdatePurchaseRequisition(PurchaseRequisition purchaseRequisition, List<AccountsTransactions> accountsTransactions, List<PurchaseRequisitionDetails> purchaseRequisitionDetails
             //, List<StockRegister> stockRegister
             );
-        public int DeletePurchaseRequisition(PurchaseRequisition purchaseRequisition, List<AccountsTransactions> accountsTransactions, List<PurchaseRequisitionDetails> purchaseRequisitionDetails
+        public Task<Response<int>> DeletePurchaseRequisition(PurchaseRequisition purchaseRequisition, List<AccountsTransactions> accountsTransactions, List<PurchaseRequisitionDetails> purchaseRequisitionDetails
             //, List<StockRegister> stockRegister
             );
         public IEnumerable<AccountsTransactions> GetAllTransaction();
-        public PurchaseRequisitionModel GetSavedPurchaseRequisitionDetails(int pvno);
+        public Task<Response<PurchaseRequisitionModel>> GetSavedPurchaseRequisitionDetails(int pvno);
         public IEnumerable<PurchaseRequisition> GetPurchaseRequisition();
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
         public VouchersNumbers GetVouchersNumbers(string pvno);

@@ -29,6 +29,7 @@ using Inspire.Erp.Application.Email.Interfaces;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Caching.Memory;
 using Inspire.Erp.Domain.Constants;
+using NPOI.SS.Formula.PTG;
 
 namespace Inspire.Erp.Web.Controllers.Procurement
 {
@@ -72,7 +73,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
 
         [HttpPost]
         [Route("InsertPurchaseOrder")]
-        public ApiResponse<PurchaseOrderViewModel> InsertPurchaseOrder([FromBody] PurchaseOrderViewModel voucherCompositeView)
+        public async Task<ApiResponse<PurchaseOrderViewModel>> InsertPurchaseOrder([FromBody] PurchaseOrderViewModel voucherCompositeView)
         {
 
             ApiResponse<PurchaseOrderViewModel> apiResponse = new ApiResponse<PurchaseOrderViewModel>();
@@ -100,17 +101,17 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             //}
 
 
-            var xs = _purchaseOrderService.InsertPurchaseOrder(param1, param3, param2);
+            var xs = await _purchaseOrderService.InsertPurchaseOrder(param1, param3, param2);
 
             PurchaseOrderViewModel purchaseOrderViewModel = new PurchaseOrderViewModel();
-            purchaseOrderViewModel = _mapper.Map<PurchaseOrderViewModel>(xs.purchaseOrder);
+            purchaseOrderViewModel = _mapper.Map<PurchaseOrderViewModel>(xs.Result.purchaseOrder);
 
-            purchaseOrderViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
+            purchaseOrderViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.Result.accountsTransactions);
             apiResponse = new ApiResponse<PurchaseOrderViewModel>
             {
                 Valid = true,
                 Result = purchaseOrderViewModel,
-                Message = PurchaseOrderMessage.SaveVoucher
+                Message = xs.Message
             };
 
             return apiResponse;
@@ -118,7 +119,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
 
         [HttpPost]
         [Route("UpdatePurchaseOrder")]
-        public ApiResponse<PurchaseOrderViewModel> UpdatePurchaseOrder([FromBody] PurchaseOrderViewModel voucherCompositeView)
+        public async Task<ApiResponse<PurchaseOrderViewModel>> UpdatePurchaseOrder([FromBody] PurchaseOrderViewModel voucherCompositeView)
         {
             var param1 = _mapper.Map<PurchaseOrder>(voucherCompositeView);
             var param2 = _mapper.Map<List<PurchaseOrderDetails>>(voucherCompositeView.PurchaseOrderDetails);
@@ -143,19 +144,19 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             //    };
             //}
 
-            var xs = _purchaseOrderService.UpdatePurchaseOrder(param1, param3, param2
+            var xs = await _purchaseOrderService.UpdatePurchaseOrder(param1, param3, param2
                 );
 
             PurchaseOrderViewModel purchaseOrderViewModel = new PurchaseOrderViewModel();
 
-            purchaseOrderViewModel = _mapper.Map<PurchaseOrderViewModel>(xs.purchaseOrder);
-            purchaseOrderViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
+            purchaseOrderViewModel = _mapper.Map<PurchaseOrderViewModel>(xs.Result.purchaseOrder);
+            purchaseOrderViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.Result.accountsTransactions);
 
             ApiResponse<PurchaseOrderViewModel> apiResponse = new ApiResponse<PurchaseOrderViewModel>
             {
                 Valid = true,
                 Result = purchaseOrderViewModel,
-                Message = PurchaseOrderMessage.UpdateVoucher
+                Message = xs.Message
             };
 
             return apiResponse;
@@ -211,9 +212,10 @@ namespace Inspire.Erp.Web.Controllers.Procurement
 
         [HttpGet]
         [Route("GetSavedPurchaseOrderDetails/{id}")]
-        public ApiResponse<PurchaseOrderViewModel> GetSavedPurchaseOrderDetails(int id)
+        public async Task<ApiResponse<PurchaseOrderViewModel>> GetSavedPurchaseOrderDetails(int id)
         {
-            PurchaseOrderModel purchaseOrder = _purchaseOrderService.GetSavedPurchaseOrderDetails(id);
+            var data = await _purchaseOrderService.GetSavedPurchaseOrderDetails(id);
+            PurchaseOrderModel purchaseOrder = data.Result;
             if (purchaseOrder != null)
             {
                 PurchaseOrderViewModel purchaseOrderViewModel = new PurchaseOrderViewModel

@@ -55,19 +55,23 @@ namespace Inspire.Erp.Application.Email.Implementations
             decimal totalAmount,
             int orderId,
             int jobId,
-            string jobNo, 
-            string jobName, 
+            string jobNo,
+            string jobName,
             bool IsNewEntery,
-            string requestedBy)
+            string requestedBy,
+            string settingValue)
         {
             try
             {
+                if (settingValue == InspireConstants.ApprovalAsNoApproval)
+                    return;
+
                 _logger.LogInformation("Starting email notification for Order ID: {OrderId}, Level: {Level}", orderId, level);
 
                 var approvers = await _purchaseOrderRequisitionHelper.GetOrderApproverNameAndEmail(orderType, level, jobId);
                 if (approvers == null || !approvers.Any())
                 {
-                    _logger.LogWarning("No approvers found for Order ID: {OrderId}, Level: {Level}, Job Name:", orderId, level,jobName);
+                    _logger.LogWarning("No approvers found for Order ID: {OrderId}, Level: {Level}, Job Name:", orderId, level, jobName);
                     return;
                 }
                 var orderApprovers = approvers
@@ -87,20 +91,18 @@ namespace Inspire.Erp.Application.Email.Implementations
                     _logger.LogInformation("Approval hierarchy inserted for Order ID: {OrderId}", orderId);
                 }
 
-                var approvalUrl = $"{_mailSettings.MainUrl}procurement/po-approval?menu=184&vNo={orderId}&type={orderType}".Trim();
-                var loginUrl = $"{_mailSettings.MainUrl}login?returnUrl={Uri.EscapeDataString(approvalUrl)}";
 
                 var toMails = approvers.Where(x => x.ApproverLevel == level && x.OptEmail)
                                  .SelectMany(x => x.MetaData)
                                  .Distinct()
                                  .ToList();
-
-                var user = _cacheMemoryService.GetUserObject(InspireConstants.UserCacheKey) as UserFile;
-
-                var deptName = GetDepartment(user.DepartmentId);
-
                 if (toMails.Any())
                 {
+                    var user = _cacheMemoryService.GetUserObject(InspireConstants.UserCacheKey) as UserFile;
+
+                    var deptName = GetDepartment(user.DepartmentId);
+                    var approvalUrl = $"{_mailSettings.MainUrl}procurement/po-approval?menu=184&vNo={orderId}&type={orderType}".Trim();
+                    var loginUrl = $"{_mailSettings.MainUrl}login?returnUrl={Uri.EscapeDataString(approvalUrl)}";
                     var rptData = toMails
                         .Select(x => new
                         {
@@ -111,8 +113,8 @@ namespace Inspire.Erp.Application.Email.Implementations
                             JobName = $"{jobName}/{jobNo}",
                             Supplier = supplier,
                             TotalAmount = totalAmount,
-                            RequestedBy = user.UserName,// need to add here the user name who had created the PR/PO
-                            Department = deptName,//need to add from userfile 
+                            RequestedBy = user.UserName,
+                            Department = deptName,
                             ApprovalLink = loginUrl,
                             SupportEmail = _mailSettings.SupportEmail
                         })
@@ -161,7 +163,7 @@ namespace Inspire.Erp.Application.Email.Implementations
             {
                 _logger.LogInformation("Starting email notification for Order ID: {OrderId}, Level: {Level}", emailModel.OrderId, level);
 
-                var approvers = await _purchaseOrderRequisitionHelper.GetOrderApproverNameAndEmail(orderType, level,emailModel.JobId);
+                var approvers = await _purchaseOrderRequisitionHelper.GetOrderApproverNameAndEmail(orderType, level, emailModel.JobId);
                 if (approvers == null || !approvers.Any())
                 {
                     _logger.LogWarning("No approvers found for Order ID: {OrderId}, Level: {Level}", emailModel.OrderId, level);
@@ -234,7 +236,7 @@ namespace Inspire.Erp.Application.Email.Implementations
             try
             {
 
-                return await _emailNotificationServices.SendTextEmailAsync(toEmails,subject,message,filePaths);
+                return await _emailNotificationServices.SendTextEmailAsync(toEmails, subject, message, filePaths);
 
             }
             catch (Exception ex)
