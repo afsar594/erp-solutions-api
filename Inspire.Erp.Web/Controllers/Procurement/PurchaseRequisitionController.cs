@@ -37,7 +37,7 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpPost]
         [Route("InsertPurchaseRequisition")]
-        public ApiResponse<PurchaseRequisitionViewModel> InsertPurchaseRequisition([FromBody] PurchaseRequisitionViewModel voucherCompositeView)
+        public async Task<ApiResponse<PurchaseRequisitionViewModel>> InsertPurchaseRequisition([FromBody] PurchaseRequisitionViewModel voucherCompositeView)
         {
             ApiResponse<PurchaseRequisitionViewModel> apiResponse = new ApiResponse<PurchaseRequisitionViewModel>();
             if (_purchaseRequisitionService.GetVouchersNumbers(voucherCompositeView.PurchaseRequisitionNo) == null)
@@ -66,71 +66,71 @@ namespace Inspire.Erp.Web.Controllers
                 //        Message = "Sorry You can't sve Purchase requisition as item quantity exceded from total BoQ quantity"
                 //    };
                 //}
-                var xs = _purchaseRequisitionService.InsertPurchaseRequisition(param1, param3, param2
+                var xs = await _purchaseRequisitionService.InsertPurchaseRequisition(param1, param3, param2
                     //, param4
                     );
                 PurchaseRequisitionViewModel purchaseRequisitionViewModel = new PurchaseRequisitionViewModel
                 {
 
-                    PurchaseRequisitionId = xs.purchaseRequisition.PurchaseRequisitionId,
-                    PurchaseRequisitionNo = xs.purchaseRequisition.PurchaseRequisitionNo,
-                    PurchaseRequisitionDate = xs.purchaseRequisition.PurchaseRequisitionDate,
-                    PurchaseRequisitionType = xs.purchaseRequisition.PurchaseRequisitionType,
-                    PurchaseRequisitionPartyId = xs.purchaseRequisition.PurchaseRequisitionPartyId,
-                    PurchaseRequisitionPartyName = xs.purchaseRequisition.PurchaseRequisitionPartyName,
-                    PurchaseRequisitionPartyAddress = xs.purchaseRequisition.PurchaseRequisitionPartyAddress,
-                    PurchaseRequisitionPartyVatNo = xs.purchaseRequisition.PurchaseRequisitionPartyVatNo,
-                    PurchaseRequisitionSupInvNo = xs.purchaseRequisition.PurchaseRequisitionSupInvNo,
-                    PurchaseRequisitionRefNo = xs.purchaseRequisition.PurchaseRequisitionRefNo,
-                    PurchaseRequisitionDescription = xs.purchaseRequisition.PurchaseRequisitionDescription,
-                    PurchaseRequisitionGrno = xs.purchaseRequisition.PurchaseRequisitionGrno,
-                    PurchaseRequisitionGrdate = xs.purchaseRequisition.PurchaseRequisitionGrdate,
-                    PurchaseRequisitionLpono = xs.purchaseRequisition.PurchaseRequisitionLpono,
-                    PurchaseRequisitionLpodate = xs.purchaseRequisition.PurchaseRequisitionLpodate,
-                    PurchaseRequisitionQtnNo = xs.purchaseRequisition.PurchaseRequisitionQtnNo,
-                    PurchaseRequisitionQtnDate = xs.purchaseRequisition.PurchaseRequisitionQtnDate,
-                    PurchaseRequisitionExcludeVat = xs.purchaseRequisition.PurchaseRequisitionExcludeVat,
-                    PurchaseRequisitionPono = xs.purchaseRequisition.PurchaseRequisitionPono,
-                    PurchaseRequisitionBatchCode = xs.purchaseRequisition.PurchaseRequisitionBatchCode,
-                    PurchaseRequisitionDayBookNo = xs.purchaseRequisition.PurchaseRequisitionDayBookNo,
-                    PurchaseRequisitionLocationId = xs.purchaseRequisition.PurchaseRequisitionLocationId,
-                    PurchaseRequisitionUserId = xs.purchaseRequisition.PurchaseRequisitionUserId,
-                    PurchaseRequisitionCurrencyId = xs.purchaseRequisition.PurchaseRequisitionCurrencyId,
-                    PurchaseRequisitionCompanyId = xs.purchaseRequisition.PurchaseRequisitionCompanyId,
-                    PurchaseRequisitionJobId = xs.purchaseRequisition.PurchaseRequisitionJobId,
-                    PurchaseRequisitionFsno = xs.purchaseRequisition.PurchaseRequisitionFsno,
-                    PurchaseRequisitionFcRate = xs.purchaseRequisition.PurchaseRequisitionFcRate,
-                    PurchaseRequisitionStatus = xs.purchaseRequisition.PurchaseRequisitionStatus,
-                    PurchaseRequisitionTotalGrossAmount = xs.purchaseRequisition.PurchaseRequisitionTotalGrossAmount,
-                    PurchaseRequisitionTotalItemDisAmount = xs.purchaseRequisition.PurchaseRequisitionTotalItemDisAmount,
-                    PurchaseRequisitionTotalActualAmount = xs.purchaseRequisition.PurchaseRequisitionTotalActualAmount,
-                    PurchaseRequisitionTotalDisPer = xs.purchaseRequisition.PurchaseRequisitionTotalDisPer,
-                    PurchaseRequisitionTotalDisAmount = xs.purchaseRequisition.PurchaseRequisitionTotalDisAmount,
-                    PurchaseRequisitionVatAmt = xs.purchaseRequisition.PurchaseRequisitionVatAmt,
-                    PurchaseRequisitionVatPer = xs.purchaseRequisition.PurchaseRequisitionVatPer,
-                    PurchaseRequisitionVatRoundSign = xs.purchaseRequisition.PurchaseRequisitionVatRoundSign,
-                    PurchaseRequisitionVatRountAmt = xs.purchaseRequisition.PurchaseRequisitionVatRountAmt,
-                    PurchaseRequisitionNetDisAmount = xs.purchaseRequisition.PurchaseRequisitionNetDisAmount,
-                    PurchaseRequisitionNetAmount = xs.purchaseRequisition.PurchaseRequisitionNetAmount,
-                    PurchaseRequisitionTransportCost = xs.purchaseRequisition.PurchaseRequisitionTransportCost,
-                    PurchaseRequisitionHandlingcharges = xs.purchaseRequisition.PurchaseRequisitionHandlingcharges,
-                    PurchaseRequisitionIssueId = xs.purchaseRequisition.PurchaseRequisitionIssueId,
-                    PurchaseRequisitionJobDirectPur = xs.purchaseRequisition.PurchaseRequisitionJobDirectPur,
-                    PurchaseRequisitionDelStatus = xs.purchaseRequisition.PurchaseRequisitionDelStatus,
-                    deliveryterms = xs.purchaseRequisition.deliveryterms,
-                    deliveryatsite = xs.purchaseRequisition.deliveryatsite,
-                    confirmationemaildetails = xs.purchaseRequisition.confirmationemaildetails,
-                    paymentTerms = xs.purchaseRequisition.paymentTerms,
+                    PurchaseRequisitionId = xs.Result.purchaseRequisition.PurchaseRequisitionId,
+                    PurchaseRequisitionNo = xs.Result.purchaseRequisition.PurchaseRequisitionNo,
+                    PurchaseRequisitionDate = xs.Result.purchaseRequisition.PurchaseRequisitionDate,
+                    PurchaseRequisitionType = xs.Result.purchaseRequisition.PurchaseRequisitionType,
+                    PurchaseRequisitionPartyId = xs.Result.purchaseRequisition.PurchaseRequisitionPartyId,
+                    PurchaseRequisitionPartyName = xs.Result.purchaseRequisition.PurchaseRequisitionPartyName,
+                    PurchaseRequisitionPartyAddress = xs.Result.purchaseRequisition.PurchaseRequisitionPartyAddress,
+                    PurchaseRequisitionPartyVatNo = xs.Result.purchaseRequisition.PurchaseRequisitionPartyVatNo,
+                    PurchaseRequisitionSupInvNo = xs.Result.purchaseRequisition.PurchaseRequisitionSupInvNo,
+                    PurchaseRequisitionRefNo = xs.Result.purchaseRequisition.PurchaseRequisitionRefNo,
+                    PurchaseRequisitionDescription = xs.Result.purchaseRequisition.PurchaseRequisitionDescription,
+                    PurchaseRequisitionGrno = xs.Result.purchaseRequisition.PurchaseRequisitionGrno,
+                    PurchaseRequisitionGrdate = xs.Result.purchaseRequisition.PurchaseRequisitionGrdate,
+                    PurchaseRequisitionLpono = xs.Result.purchaseRequisition.PurchaseRequisitionLpono,
+                    PurchaseRequisitionLpodate = xs.Result.purchaseRequisition.PurchaseRequisitionLpodate,
+                    PurchaseRequisitionQtnNo = xs.Result.purchaseRequisition.PurchaseRequisitionQtnNo,
+                    PurchaseRequisitionQtnDate = xs.Result.purchaseRequisition.PurchaseRequisitionQtnDate,
+                    PurchaseRequisitionExcludeVat = xs.Result.purchaseRequisition.PurchaseRequisitionExcludeVat,
+                    PurchaseRequisitionPono = xs.Result.purchaseRequisition.PurchaseRequisitionPono,
+                    PurchaseRequisitionBatchCode = xs.Result.purchaseRequisition.PurchaseRequisitionBatchCode,
+                    PurchaseRequisitionDayBookNo = xs.Result.purchaseRequisition.PurchaseRequisitionDayBookNo,
+                    PurchaseRequisitionLocationId = xs.Result.purchaseRequisition.PurchaseRequisitionLocationId,
+                    PurchaseRequisitionUserId = xs.Result.purchaseRequisition.PurchaseRequisitionUserId,
+                    PurchaseRequisitionCurrencyId = xs.Result.purchaseRequisition.PurchaseRequisitionCurrencyId,
+                    PurchaseRequisitionCompanyId = xs.Result.purchaseRequisition.PurchaseRequisitionCompanyId,
+                    PurchaseRequisitionJobId = xs.Result.purchaseRequisition.PurchaseRequisitionJobId,
+                    PurchaseRequisitionFsno = xs.Result.purchaseRequisition.PurchaseRequisitionFsno,
+                    PurchaseRequisitionFcRate = xs.Result.purchaseRequisition.PurchaseRequisitionFcRate,
+                    PurchaseRequisitionStatus = xs.Result.purchaseRequisition.PurchaseRequisitionStatus,
+                    PurchaseRequisitionTotalGrossAmount = xs.Result.purchaseRequisition.PurchaseRequisitionTotalGrossAmount,
+                    PurchaseRequisitionTotalItemDisAmount = xs.Result.purchaseRequisition.PurchaseRequisitionTotalItemDisAmount,
+                    PurchaseRequisitionTotalActualAmount = xs.Result.purchaseRequisition.PurchaseRequisitionTotalActualAmount,
+                    PurchaseRequisitionTotalDisPer = xs.Result.purchaseRequisition.PurchaseRequisitionTotalDisPer,
+                    PurchaseRequisitionTotalDisAmount = xs.Result.purchaseRequisition.PurchaseRequisitionTotalDisAmount,
+                    PurchaseRequisitionVatAmt = xs.Result.purchaseRequisition.PurchaseRequisitionVatAmt,
+                    PurchaseRequisitionVatPer = xs.Result.purchaseRequisition.PurchaseRequisitionVatPer,
+                    PurchaseRequisitionVatRoundSign = xs.Result.purchaseRequisition.PurchaseRequisitionVatRoundSign,
+                    PurchaseRequisitionVatRountAmt = xs.Result.purchaseRequisition.PurchaseRequisitionVatRountAmt,
+                    PurchaseRequisitionNetDisAmount = xs.Result.purchaseRequisition.PurchaseRequisitionNetDisAmount,
+                    PurchaseRequisitionNetAmount = xs.Result.purchaseRequisition.PurchaseRequisitionNetAmount,
+                    PurchaseRequisitionTransportCost = xs.Result.purchaseRequisition.PurchaseRequisitionTransportCost,
+                    PurchaseRequisitionHandlingcharges = xs.Result.purchaseRequisition.PurchaseRequisitionHandlingcharges,
+                    PurchaseRequisitionIssueId = xs.Result.purchaseRequisition.PurchaseRequisitionIssueId,
+                    PurchaseRequisitionJobDirectPur = xs.Result.purchaseRequisition.PurchaseRequisitionJobDirectPur,
+                    PurchaseRequisitionDelStatus = xs.Result.purchaseRequisition.PurchaseRequisitionDelStatus,
+                    deliveryterms = xs.Result.purchaseRequisition.deliveryterms,
+                    deliveryatsite = xs.Result.purchaseRequisition.deliveryatsite,
+                    confirmationemaildetails = xs.Result.purchaseRequisition.confirmationemaildetails,
+                    paymentTerms = xs.Result.purchaseRequisition.paymentTerms,
 
                 };
 
-                purchaseRequisitionViewModel.PurchaseRequisitionDetails = _mapper.Map<List<PurchaseRequisitionDetailsViewModel>>(xs.purchaseRequisitionDetails);
-                purchaseRequisitionViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
+                purchaseRequisitionViewModel.PurchaseRequisitionDetails = _mapper.Map<List<PurchaseRequisitionDetailsViewModel>>(xs.Result.purchaseRequisitionDetails);
+                purchaseRequisitionViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.Result.accountsTransactions);
                 apiResponse = new ApiResponse<PurchaseRequisitionViewModel>
                 {
                     Valid = true,
                     Result = _mapper.Map<PurchaseRequisitionViewModel>(purchaseRequisitionViewModel),
-                    Message = PurchaseRequisitionMessage.SaveVoucher
+                    Message = xs.Message
                 };
             }
             else
@@ -149,7 +149,7 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpPost]
         [Route("UpdatePurchaseRequisition")]
-        public ApiResponse<PurchaseRequisitionViewModel> UpdatePurchaseRequisition([FromBody] PurchaseRequisitionViewModel voucherCompositeView)
+        public async Task<ApiResponse<PurchaseRequisitionViewModel>> UpdatePurchaseRequisition([FromBody] PurchaseRequisitionViewModel voucherCompositeView)
         {
             var param1 = _mapper.Map<PurchaseRequisition>(voucherCompositeView);
             var param2 = _mapper.Map<List<PurchaseRequisitionDetails>>(voucherCompositeView.PurchaseRequisitionDetails);
@@ -176,7 +176,7 @@ namespace Inspire.Erp.Web.Controllers
             //}
 
             //var param4 = _mapper.Map<List<StockRegister>>(voucherCompositeView.StockRegister);
-            var xs = _purchaseRequisitionService.UpdatePurchaseRequisition(param1, accountsTransactions, param2
+            var xs = await _purchaseRequisitionService.UpdatePurchaseRequisition(param1, accountsTransactions, param2
                 //, param4
                 );
 
@@ -186,65 +186,65 @@ namespace Inspire.Erp.Web.Controllers
 
             PurchaseRequisitionViewModel purchaseRequisitionViewModel = new PurchaseRequisitionViewModel
             {
-                PurchaseRequisitionId = xs.purchaseRequisition.PurchaseRequisitionId,
-                PurchaseRequisitionNo = xs.purchaseRequisition.PurchaseRequisitionNo,
-                PurchaseRequisitionDate = xs.purchaseRequisition.PurchaseRequisitionDate,
-                PurchaseRequisitionType = xs.purchaseRequisition.PurchaseRequisitionType,
-                PurchaseRequisitionPartyId = xs.purchaseRequisition.PurchaseRequisitionPartyId,
-                PurchaseRequisitionPartyName = xs.purchaseRequisition.PurchaseRequisitionPartyName,
-                PurchaseRequisitionPartyAddress = xs.purchaseRequisition.PurchaseRequisitionPartyAddress,
-                PurchaseRequisitionPartyVatNo = xs.purchaseRequisition.PurchaseRequisitionPartyVatNo,
-                PurchaseRequisitionSupInvNo = xs.purchaseRequisition.PurchaseRequisitionSupInvNo,
-                PurchaseRequisitionRefNo = xs.purchaseRequisition.PurchaseRequisitionRefNo,
-                PurchaseRequisitionDescription = xs.purchaseRequisition.PurchaseRequisitionDescription,
-                PurchaseRequisitionGrno = xs.purchaseRequisition.PurchaseRequisitionGrno,
-                PurchaseRequisitionGrdate = xs.purchaseRequisition.PurchaseRequisitionGrdate,
-                PurchaseRequisitionLpono = xs.purchaseRequisition.PurchaseRequisitionLpono,
-                PurchaseRequisitionLpodate = xs.purchaseRequisition.PurchaseRequisitionLpodate,
-                PurchaseRequisitionQtnNo = xs.purchaseRequisition.PurchaseRequisitionQtnNo,
-                PurchaseRequisitionQtnDate = xs.purchaseRequisition.PurchaseRequisitionQtnDate,
-                PurchaseRequisitionExcludeVat = xs.purchaseRequisition.PurchaseRequisitionExcludeVat,
-                PurchaseRequisitionPono = xs.purchaseRequisition.PurchaseRequisitionPono,
-                PurchaseRequisitionBatchCode = xs.purchaseRequisition.PurchaseRequisitionBatchCode,
-                PurchaseRequisitionDayBookNo = xs.purchaseRequisition.PurchaseRequisitionDayBookNo,
-                PurchaseRequisitionLocationId = xs.purchaseRequisition.PurchaseRequisitionLocationId,
-                PurchaseRequisitionUserId = xs.purchaseRequisition.PurchaseRequisitionUserId,
-                PurchaseRequisitionCurrencyId = xs.purchaseRequisition.PurchaseRequisitionCurrencyId,
-                PurchaseRequisitionCompanyId = xs.purchaseRequisition.PurchaseRequisitionCompanyId,
-                PurchaseRequisitionJobId = xs.purchaseRequisition.PurchaseRequisitionJobId,
-                PurchaseRequisitionFsno = xs.purchaseRequisition.PurchaseRequisitionFsno,
-                PurchaseRequisitionFcRate = xs.purchaseRequisition.PurchaseRequisitionFcRate,
-                PurchaseRequisitionStatus = xs.purchaseRequisition.PurchaseRequisitionStatus,
-                PurchaseRequisitionTotalGrossAmount = xs.purchaseRequisition.PurchaseRequisitionTotalGrossAmount,
-                PurchaseRequisitionTotalItemDisAmount = xs.purchaseRequisition.PurchaseRequisitionTotalItemDisAmount,
-                PurchaseRequisitionTotalActualAmount = xs.purchaseRequisition.PurchaseRequisitionTotalActualAmount,
-                PurchaseRequisitionTotalDisPer = xs.purchaseRequisition.PurchaseRequisitionTotalDisPer,
-                PurchaseRequisitionTotalDisAmount = xs.purchaseRequisition.PurchaseRequisitionTotalDisAmount,
-                PurchaseRequisitionVatAmt = xs.purchaseRequisition.PurchaseRequisitionVatAmt,
-                PurchaseRequisitionVatPer = xs.purchaseRequisition.PurchaseRequisitionVatPer,
-                PurchaseRequisitionVatRoundSign = xs.purchaseRequisition.PurchaseRequisitionVatRoundSign,
-                PurchaseRequisitionVatRountAmt = xs.purchaseRequisition.PurchaseRequisitionVatRountAmt,
-                PurchaseRequisitionNetDisAmount = xs.purchaseRequisition.PurchaseRequisitionNetDisAmount,
-                PurchaseRequisitionNetAmount = xs.purchaseRequisition.PurchaseRequisitionNetAmount,
-                PurchaseRequisitionTransportCost = xs.purchaseRequisition.PurchaseRequisitionTransportCost,
-                PurchaseRequisitionHandlingcharges = xs.purchaseRequisition.PurchaseRequisitionHandlingcharges,
-                PurchaseRequisitionIssueId = xs.purchaseRequisition.PurchaseRequisitionIssueId,
-                PurchaseRequisitionJobDirectPur = xs.purchaseRequisition.PurchaseRequisitionJobDirectPur,
-                PurchaseRequisitionDelStatus = xs.purchaseRequisition.PurchaseRequisitionDelStatus,
-                deliveryterms = xs.purchaseRequisition.deliveryterms,
-                deliveryatsite = xs.purchaseRequisition.deliveryatsite,
-                confirmationemaildetails = xs.purchaseRequisition.confirmationemaildetails,
-                paymentTerms = xs.purchaseRequisition.paymentTerms,
+                PurchaseRequisitionId = xs.Result.purchaseRequisition.PurchaseRequisitionId,
+                PurchaseRequisitionNo = xs.Result.purchaseRequisition.PurchaseRequisitionNo,
+                PurchaseRequisitionDate = xs.Result.purchaseRequisition.PurchaseRequisitionDate,
+                PurchaseRequisitionType = xs.Result.purchaseRequisition.PurchaseRequisitionType,
+                PurchaseRequisitionPartyId = xs.Result.purchaseRequisition.PurchaseRequisitionPartyId,
+                PurchaseRequisitionPartyName = xs.Result.purchaseRequisition.PurchaseRequisitionPartyName,
+                PurchaseRequisitionPartyAddress = xs.Result.purchaseRequisition.PurchaseRequisitionPartyAddress,
+                PurchaseRequisitionPartyVatNo = xs.Result.purchaseRequisition.PurchaseRequisitionPartyVatNo,
+                PurchaseRequisitionSupInvNo = xs.Result.purchaseRequisition.PurchaseRequisitionSupInvNo,
+                PurchaseRequisitionRefNo = xs.Result.purchaseRequisition.PurchaseRequisitionRefNo,
+                PurchaseRequisitionDescription = xs.Result.purchaseRequisition.PurchaseRequisitionDescription,
+                PurchaseRequisitionGrno = xs.Result.purchaseRequisition.PurchaseRequisitionGrno,
+                PurchaseRequisitionGrdate = xs.Result.purchaseRequisition.PurchaseRequisitionGrdate,
+                PurchaseRequisitionLpono = xs.Result.purchaseRequisition.PurchaseRequisitionLpono,
+                PurchaseRequisitionLpodate = xs.Result.purchaseRequisition.PurchaseRequisitionLpodate,
+                PurchaseRequisitionQtnNo = xs.Result.purchaseRequisition.PurchaseRequisitionQtnNo,
+                PurchaseRequisitionQtnDate = xs.Result.purchaseRequisition.PurchaseRequisitionQtnDate,
+                PurchaseRequisitionExcludeVat = xs.Result.purchaseRequisition.PurchaseRequisitionExcludeVat,
+                PurchaseRequisitionPono = xs.Result.purchaseRequisition.PurchaseRequisitionPono,
+                PurchaseRequisitionBatchCode = xs.Result.purchaseRequisition.PurchaseRequisitionBatchCode,
+                PurchaseRequisitionDayBookNo = xs.Result.purchaseRequisition.PurchaseRequisitionDayBookNo,
+                PurchaseRequisitionLocationId = xs.Result.purchaseRequisition.PurchaseRequisitionLocationId,
+                PurchaseRequisitionUserId = xs.Result.purchaseRequisition.PurchaseRequisitionUserId,
+                PurchaseRequisitionCurrencyId = xs.Result.purchaseRequisition.PurchaseRequisitionCurrencyId,
+                PurchaseRequisitionCompanyId = xs.Result.purchaseRequisition.PurchaseRequisitionCompanyId,
+                PurchaseRequisitionJobId = xs.Result.purchaseRequisition.PurchaseRequisitionJobId,
+                PurchaseRequisitionFsno = xs.Result.purchaseRequisition.PurchaseRequisitionFsno,
+                PurchaseRequisitionFcRate = xs.Result.purchaseRequisition.PurchaseRequisitionFcRate,
+                PurchaseRequisitionStatus = xs.Result.purchaseRequisition.PurchaseRequisitionStatus,
+                PurchaseRequisitionTotalGrossAmount = xs.Result.purchaseRequisition.PurchaseRequisitionTotalGrossAmount,
+                PurchaseRequisitionTotalItemDisAmount = xs.Result.purchaseRequisition.PurchaseRequisitionTotalItemDisAmount,
+                PurchaseRequisitionTotalActualAmount = xs.Result.purchaseRequisition.PurchaseRequisitionTotalActualAmount,
+                PurchaseRequisitionTotalDisPer = xs.Result.purchaseRequisition.PurchaseRequisitionTotalDisPer,
+                PurchaseRequisitionTotalDisAmount = xs.Result.purchaseRequisition.PurchaseRequisitionTotalDisAmount,
+                PurchaseRequisitionVatAmt = xs.Result.purchaseRequisition.PurchaseRequisitionVatAmt,
+                PurchaseRequisitionVatPer = xs.Result.purchaseRequisition.PurchaseRequisitionVatPer,
+                PurchaseRequisitionVatRoundSign = xs.Result.purchaseRequisition.PurchaseRequisitionVatRoundSign,
+                PurchaseRequisitionVatRountAmt = xs.Result.purchaseRequisition.PurchaseRequisitionVatRountAmt,
+                PurchaseRequisitionNetDisAmount = xs.Result.purchaseRequisition.PurchaseRequisitionNetDisAmount,
+                PurchaseRequisitionNetAmount = xs.Result.purchaseRequisition.PurchaseRequisitionNetAmount,
+                PurchaseRequisitionTransportCost = xs.Result.purchaseRequisition.PurchaseRequisitionTransportCost,
+                PurchaseRequisitionHandlingcharges = xs.Result.purchaseRequisition.PurchaseRequisitionHandlingcharges,
+                PurchaseRequisitionIssueId = xs.Result.purchaseRequisition.PurchaseRequisitionIssueId,
+                PurchaseRequisitionJobDirectPur = xs.Result.purchaseRequisition.PurchaseRequisitionJobDirectPur,
+                PurchaseRequisitionDelStatus = xs.Result.purchaseRequisition.PurchaseRequisitionDelStatus,
+                deliveryterms = xs.Result.purchaseRequisition.deliveryterms,
+                deliveryatsite = xs.Result.purchaseRequisition.deliveryatsite,
+                confirmationemaildetails = xs.Result.purchaseRequisition.confirmationemaildetails,
+                paymentTerms = xs.Result.purchaseRequisition.paymentTerms,
             };
 
-            purchaseRequisitionViewModel.PurchaseRequisitionDetails = _mapper.Map<List<PurchaseRequisitionDetailsViewModel>>(xs.purchaseRequisitionDetails);
-            purchaseRequisitionViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
+            purchaseRequisitionViewModel.PurchaseRequisitionDetails = _mapper.Map<List<PurchaseRequisitionDetailsViewModel>>(xs.Result.purchaseRequisitionDetails);
+            purchaseRequisitionViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.Result.accountsTransactions);
 
             ApiResponse<PurchaseRequisitionViewModel> apiResponse = new ApiResponse<PurchaseRequisitionViewModel>
             {
                 Valid = true,
                 Result = _mapper.Map<PurchaseRequisitionViewModel>(purchaseRequisitionViewModel),
-                Message = PurchaseRequisitionMessage.UpdateVoucher
+                Message = xs.Message
             };
 
             return apiResponse;
@@ -318,9 +318,10 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("GetSavedPurchaseRequisitionDetails/{id}")]
-        public ApiResponse<PurchaseRequisitionViewModel> GetSavedPurchaseRequisitionDetails(int id)
+        public async Task<ApiResponse<PurchaseRequisitionViewModel>> GetSavedPurchaseRequisitionDetails(int id)
         {
-            PurchaseRequisitionModel purchaseRequisition = _purchaseRequisitionService.GetSavedPurchaseRequisitionDetails(id);
+            var data = await _purchaseRequisitionService.GetSavedPurchaseRequisitionDetails(id);
+            PurchaseRequisitionModel purchaseRequisition = data.Result;
 
             if (purchaseRequisition.purchaseRequisition != null)
             {
