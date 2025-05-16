@@ -4531,8 +4531,13 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.CustomerDeliveryNoteDetailsFsno)
                       .HasColumnName("Customer_Delivery_Note_Details_FSNO");
+
                 entity.Property(e => e.CustomerDeliveryNoteDetailsRate)
                 .HasColumnName("Customer_Delivery_Note_Details_Rate");
+
+                entity.Property(e => e.CustomerDeliveryNoteDetailsAmount)
+               .HasColumnName("Customer_Delivery_Note_Details_Amount");
+
                 entity.Property(e => e.CustomerDeliveryNoteDetailsCustomerPONo)
                       .HasColumnName("Customer_Delivery_Note_Details_Customer_PO_NO");
 

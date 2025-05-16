@@ -19,6 +19,7 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? CustomerDeliveryNoteDetailsRate { get; set; }
         public long? CustomerDeliveryNoteDetailsCustomerPONo { get; set; }
         public long? CustomerDeliveryNoteDetailsCpoSlno { get; set; }
+        public decimal? CustomerDeliveryNoteDetailsAmount { get; set; }
         public long? CustomerDeliveryNoteDetailsPodId { get; set; }
         public int? CustomerDeliveryNoteDetailsDeliveryDetailId { get; set; }
         public long? CustomerDeliveryNoteDetailsMatId2 { get; set; }
