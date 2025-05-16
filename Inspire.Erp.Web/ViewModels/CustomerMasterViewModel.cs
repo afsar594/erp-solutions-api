@@ -56,7 +56,7 @@ namespace Inspire.Erp.Web.ViewModels
         [NotMapped]
         public int? CustomerMasterCustomerRouteID { get; set; }
         public bool? CustomerMasterCustomerDelStatus { get; set; }
-        
+        public bool? IsCreateAccount { get; set; }
         public List<CustomerContactViewModel> CustomerContacts { get; set; }
         public List<CustomerDepartmentsViewModel> CustomerDepartment { get; set; }
     }

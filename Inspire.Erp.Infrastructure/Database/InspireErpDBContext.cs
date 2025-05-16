@@ -4536,7 +4536,8 @@ namespace Inspire.Erp.Infrastructure.Database
                 .HasColumnName("Customer_Delivery_Note_Details_Rate");
 
                 entity.Property(e => e.CustomerDeliveryNoteDetailsAmount)
-               .HasColumnName("Customer_Delivery_Note_Details_Amount");
+                      .HasColumnName("Customer_Delivery_Note_Details_Amount")
+                      .HasColumnType("numeric(18,2)");
 
                 entity.Property(e => e.CustomerDeliveryNoteDetailsCustomerPONo)
                       .HasColumnName("Customer_Delivery_Note_Details_Customer_PO_NO");

@@ -171,7 +171,7 @@ namespace Inspire.Erp.Application.Account.Implementations
 
                 }
 
-                if (customerMaster.IsCreateAccount)
+                if (customerMaster.IsCreateAccount.HasValue && (bool)customerMaster.IsCreateAccount)
                 {
                     var MaSno = Convert.ToInt32(this._masterAccountTable.GetAsQueryable()
                                       .Where(x => Convert.ToInt32(x.MaSno) > 0)
@@ -182,9 +182,10 @@ namespace Inspire.Erp.Application.Account.Implementations
                                                                                          .FirstOrDefault(x => x.MaAccName.ToUpper() == "Debtors".ToUpper());
 
                     var custMasterAccNo = this._masterAccountTable.GetAsQueryable()
-                                                                                                     .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == debtorAcc.MaAccNo)
-                                                                                                     .DefaultIfEmpty()
-                                                                                                     .Max(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length - 3, 3))) + 1;
+                        .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == debtorAcc.MaAccNo)
+                        .DefaultIfEmpty()
+                        .Max(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length - 3, o.MaAccNo.Length))) + 1;
+
                     var custMasterAcc = new MasterAccountsTable
                     {
                         MaSno = MaSno,

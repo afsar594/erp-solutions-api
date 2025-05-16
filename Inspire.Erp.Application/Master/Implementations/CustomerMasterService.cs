@@ -44,7 +44,8 @@ namespace Inspire.Erp.Application.Master
                 var masterAccount = _masterAccountTable.GetAsQueryable().AsNoTracking().Where(x => x.MaAccNo == DeptorsRelativeNo).FirstOrDefault();
                 var cusAccNo = string.Empty;
                 MasterAccountsTable masterAccountsTable = null;
-                if (customerMaster.IsCreateAccount)
+                
+                if (customerMaster.IsCreateAccount.HasValue &&  (bool)customerMaster.IsCreateAccount)
                 {
                     var count = _masterAccountTable.GetAsQueryable().AsNoTracking().Where(x => x.MaRelativeNo == DeptorsRelativeNo).ToList().Count() + 1;
                     //cusAccNo = count.ToString().Length == 1 ? "00" + count : count.ToString().Length == 2 ? "0" + count : count.ToString();
