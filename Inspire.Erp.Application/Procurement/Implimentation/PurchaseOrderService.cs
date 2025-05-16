@@ -335,21 +335,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         {
             try
             {
-                var settingValue = _generalSettings.GetValueByKey(InspireConstants.DefaultApprovalType).Result;
+                var settingValue = await _generalSettings.GetApproverStatusAsync(purchaseOrder.PurchaseOrderJobId.ToString(), nameof(EnumOrderForms.PurchaseRequisition));
 
-                if (settingValue == InspireConstants.ApprovalAsJobWise)
-                {
-                    var jobWiseStatus = await _generalSettings.GetJobWiseStatus(purchaseOrder.PurchaseOrderJobId.ToString(), nameof(EnumOrderForms.PurchaseRequisition));
-                    if (!string.IsNullOrEmpty(jobWiseStatus))
-                        return Response<PurchaseOrderModel>.Fail(null, jobWiseStatus);
-                }
-
-                if (settingValue == InspireConstants.ApprovalAsVoucherWise)
-                {
-                    var jobWiseStatus = await _generalSettings.GetVoucherWiseStatus("-1", nameof(EnumOrderForms.PurchaseRequisition));
-                    if (!string.IsNullOrEmpty(jobWiseStatus))
-                        return Response<PurchaseOrderModel>.Fail(null, jobWiseStatus);
-                }
+                if (!string.IsNullOrEmpty(settingValue.ApproverStatus))
+                    return Response<PurchaseOrderModel>.Fail(null, settingValue.ApproverStatus);
 
                 _purchaseOrderRepository.BeginTransaction();
 
@@ -461,34 +450,34 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 _trackingRegisterRepository.InsertList(listTrackRegs);
                 _purOrderRegisterRepository.InsertList(listTrackPurchOrderReg);
-                List<PermissionApprovalDetail> permissionApprovalDetails = new List<PermissionApprovalDetail>();
-                var rights = _context.tbl_approvalforms.Where(a => a.Voucher_Type.Contains("Purchase Order") && a.is_active == true).AsNoTracking().ToList();
-                if (rights.Count > 0)
-                {
-                    permissionApprovalDetails.Clear();
-                    foreach (var item in rights)
-                    {
-                        for (int level = 1; level <= item.NoOfLevel; level++)
-                        {
-                            PermissionApprovalDetail POApproversToAdd = new PermissionApprovalDetail();
-                            POApproversToAdd.VoucherType = "Purchase Order";
-                            POApproversToAdd.VoucherNo = purchaseOrder.PurchaseOrderNo;
-                            POApproversToAdd.VoucherId = (int)purchaseOrder.PurchaseOrderId;
-                            POApproversToAdd.VoucherDate = purchaseOrder.PurchaseOrderDate;
-                            POApproversToAdd.Amount = (double)purchaseOrder.PurchaseOrderNetAmount;
-                            POApproversToAdd.CreatedBy = (int?)purchaseOrder.PurchaseOrderUserId ?? 1;
-                            POApproversToAdd.LevelId = level;
-                            POApproversToAdd.Status = "Pending";
-                            POApproversToAdd.JobId = (int)purchaseOrder.PurchaseOrderJobId;
-                            POApproversToAdd.Remarks = purchaseOrder.PurchaseOrderDescription;
-                            POApproversToAdd.LocationName = _context.LocationMaster
-                                        .FirstOrDefault(l => l.LocationMasterLocationId == purchaseOrder.PurchaseOrderLocationId)?.LocationMasterLocationName;
-                            permissionApprovalDetails.Add(POApproversToAdd);
-                        }
-                    }
-                    if (permissionApprovalDetails.Any())
-                        _permissionApprovalDetailRepo.InsertList(permissionApprovalDetails);
-                }
+                //List<PermissionApprovalDetail> permissionApprovalDetails = new List<PermissionApprovalDetail>();
+                //var rights = _context.tbl_approvalforms.Where(a => a.Voucher_Type.Contains("Purchase Order") && a.is_active == true).AsNoTracking().ToList();
+                //if (rights.Count > 0)
+                //{
+                //    permissionApprovalDetails.Clear();
+                //    foreach (var item in rights)
+                //    {
+                //        for (int level = 1; level <= item.NoOfLevel; level++)
+                //        {
+                //            PermissionApprovalDetail POApproversToAdd = new PermissionApprovalDetail();
+                //            POApproversToAdd.VoucherType = "Purchase Order";
+                //            POApproversToAdd.VoucherNo = purchaseOrder.PurchaseOrderNo;
+                //            POApproversToAdd.VoucherId = (int)purchaseOrder.PurchaseOrderId;
+                //            POApproversToAdd.VoucherDate = purchaseOrder.PurchaseOrderDate;
+                //            POApproversToAdd.Amount = (double)purchaseOrder.PurchaseOrderNetAmount;
+                //            POApproversToAdd.CreatedBy = (int?)purchaseOrder.PurchaseOrderUserId ?? 1;
+                //            POApproversToAdd.LevelId = level;
+                //            POApproversToAdd.Status = "Pending";
+                //            POApproversToAdd.JobId = (int)purchaseOrder.PurchaseOrderJobId;
+                //            POApproversToAdd.Remarks = purchaseOrder.PurchaseOrderDescription;
+                //            POApproversToAdd.LocationName = _context.LocationMaster
+                //                        .FirstOrDefault(l => l.LocationMasterLocationId == purchaseOrder.PurchaseOrderLocationId)?.LocationMasterLocationName;
+                //            permissionApprovalDetails.Add(POApproversToAdd);
+                //        }
+                //    }
+                //    if (permissionApprovalDetails.Any())
+                //        _permissionApprovalDetailRepo.InsertList(permissionApprovalDetails);
+                //}
 
 
                 #region EmailNotification
@@ -509,13 +498,14 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                                jobDetail == null ? "" : jobDetail.JobMasterJobName,
                                                                                true,
                                                                                user.UserName,
-                                                                               settingValue
+                                                                               settingValue.GeneralSettingValue
                                                                               );
                 #endregion
 
                 _purchaseOrderRepository.TransactionCommit();
 
-                return await this.GetSavedPurchaseOrderDetails((int)purchaseOrder.PurchaseOrderId);
+                var res = await this.GetSavedPurchaseOrderDetails((int)purchaseOrder.PurchaseOrderId);
+                return Response<PurchaseOrderModel>.Success(res.Result, "Purchase Order Save Successfully.");
             }
             catch (Exception ex)
             {
@@ -1024,7 +1014,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         {
             var poQuery = _purchaseOrderRepository.GetAsQueryable()
                                      .Where(x => !model.IsDate ? true : x.PurchaseOrderDate.Date >= model.fromDate.Value.Date && x.PurchaseOrderDate.Date <= model.toDate.Value.Date
-                                     && (model.JobId == 0 || x.PurchaseOrderJobId == model.JobId))
+                                     && (model.JobId < 0 || x.PurchaseOrderJobId == model.JobId))
                                     .Include(inc => inc.OrderApprovalHierarchies)
                                     .AsNoTracking()
                                     .ToList();
@@ -1074,7 +1064,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             }).ToList();
 
             if (model.Status != EnumApprovalStatus.None)
-                poData = poData.Where(x => x.VoucherApprovers.Any(v => v.Status == model.Status) && (model.JobId == 0 || x.JobId == model.JobId)).ToList();
+                poData = poData.Where(x => x.VoucherApprovers.Any(v => v.Status == model.Status) && (model.JobId < 0 || x.JobId == model.JobId)).ToList();
 
             return poData;
         }
@@ -1084,7 +1074,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         {
             var prQuery = _purchaseRequisitionRepository.GetAsQueryable()
                 .Where(x => !model.IsDate ? true : x.PurchaseRequisitionDate.Date >= model.fromDate.Value.Date && x.PurchaseRequisitionDate.Date <= model.toDate.Value.Date
-                                     && (model.JobId == 0 ? true : x.PurchaseRequisitionJobId == model.JobId))
+                                     && (model.JobId < 0 ? true : x.PurchaseRequisitionJobId == model.JobId))
                 .Include(inc => inc.OrderApprovalHierarchies)
                 .AsNoTracking()
                 .ToList();
@@ -1136,7 +1126,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
 
             if (model.Status != EnumApprovalStatus.None)
-                prData = prData.Where(x => x.VoucherApprovers.Any(v => v.Status == model.Status && (model.JobId == 0 || x.JobId == model.JobId))).ToList();
+                prData = prData.Where(x => x.VoucherApprovers.Any(v => v.Status == model.Status && (model.JobId < 0 || x.JobId == model.JobId))).ToList();
 
             return prData;
         }

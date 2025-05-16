@@ -102,7 +102,15 @@ namespace Inspire.Erp.Web.Controllers.Procurement
 
 
             var xs = await _purchaseOrderService.InsertPurchaseOrder(param1, param3, param2);
-
+            if (!xs.Valid)
+            {
+                return new ApiResponse<PurchaseOrderViewModel>
+                {
+                    Valid = true,
+                    Result = voucherCompositeView,
+                    Message = xs.Message
+                };
+            }
             PurchaseOrderViewModel purchaseOrderViewModel = new PurchaseOrderViewModel();
             purchaseOrderViewModel = _mapper.Map<PurchaseOrderViewModel>(xs.Result.purchaseOrder);
 

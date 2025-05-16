@@ -22,7 +22,7 @@ namespace Inspire.Erp.Application.Approvals.Interface
         //not to remove or replace these methods otherwise may lead to an unexpected errors
 
         public Task<Response<ApproverLevelSettingsDto>> SaveAsync(ApproverLevelSettingsDto approverLevelSettingsDto);
-        public Task<Response<ApproverLevelSettingsDto>> GetAsync(EnumOrderForms formType);
+        public Task<Response<ApproverLevelSettingsDto>> GetAsync(EnumOrderForms formType, int jobId);
 
 
     }

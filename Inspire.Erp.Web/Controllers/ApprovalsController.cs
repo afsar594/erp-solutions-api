@@ -102,10 +102,10 @@ namespace Inspire.Erp.Web.Controllers
         {
             return Ok(await this._approvalService.SaveAsync(approverLevelSettingsDto));
         } 
-        [HttpGet("GetApproverLevelSettings")]
-        public async Task<IActionResult> GetApproverLevelSettings(EnumOrderForms fromType)
+        [HttpGet("GetApproverLevelSettings/{fromType}/{jobId}")]
+        public async Task<IActionResult> GetApproverLevelSettings(EnumOrderForms fromType, int jobId)
         {
-            return Ok(await this._approvalService.GetAsync(fromType));
+            return Ok(await this._approvalService.GetAsync(fromType,jobId));
         }
         #endregion
     }

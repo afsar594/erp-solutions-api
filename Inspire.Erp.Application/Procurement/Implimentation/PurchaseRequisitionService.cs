@@ -389,22 +389,26 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         {
             try
             {
+                var settingValue = await _generalSettings.GetApproverStatusAsync(purchaseRequisition.PurchaseRequisitionJobId.ToString(), nameof(EnumOrderForms.PurchaseRequisition));
 
-                var settingValue = await _generalSettings.GetValueByKey(InspireConstants.DefaultApprovalType);
+                if (!string.IsNullOrEmpty(settingValue.ApproverStatus))
+                    return Response<PurchaseRequisitionModel>.Fail(null, settingValue.ApproverStatus);
 
-                if (settingValue == InspireConstants.ApprovalAsJobWise)
-                {
-                    var jobWiseStatus = await _generalSettings.GetJobWiseStatus(purchaseRequisition.PurchaseRequisitionJobId.ToString(), nameof(EnumOrderForms.PurchaseRequisition));
-                    if (!string.IsNullOrEmpty(jobWiseStatus))
-                        return Response<PurchaseRequisitionModel>.Fail(null, jobWiseStatus);
-                }
+                //var settingValue = await _generalSettings.GetValueByKey(InspireConstants.DefaultApprovalType);
 
-                if (settingValue == InspireConstants.ApprovalAsVoucherWise)
-                {
-                    var jobWiseStatus = await _generalSettings.GetVoucherWiseStatus("-1", nameof(EnumOrderForms.PurchaseRequisition));
-                    if (!string.IsNullOrEmpty(jobWiseStatus))
-                        return Response<PurchaseRequisitionModel>.Fail(null, jobWiseStatus);
-                }
+                //if (settingValue == InspireConstants.ApprovalAsJobWise)
+                //{
+                //    var jobWiseStatus = await _generalSettings.GetApproverStatusAsync(purchaseRequisition.PurchaseRequisitionJobId.ToString(), nameof(EnumOrderForms.PurchaseRequisition),true);
+                //    if (!string.IsNullOrEmpty(jobWiseStatus))
+                //        return Response<PurchaseRequisitionModel>.Fail(null, jobWiseStatus);
+                //}
+
+                //if (settingValue == InspireConstants.ApprovalAsVoucherWise)
+                //{
+                //    var jobWiseStatus = await _generalSettings.GetApproverStatusAsync("-1", nameof(EnumOrderForms.PurchaseRequisition),false);
+                //    if (!string.IsNullOrEmpty(jobWiseStatus))
+                //        return Response<PurchaseRequisitionModel>.Fail(null, jobWiseStatus);
+                //}
 
 
 
@@ -518,12 +522,13 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                                 jobDetail == null ? "" : jobDetail.JobMasterJobName,
                                                                                 true,
                                                                                 user.UserName,
-                                                                                settingValue
+                                                                                settingValue.GeneralSettingValue
                                                                                 );
                 await SendEmailOnValueExceedsAsync((int)purchaseRequisition.PurchaseRequisitionJobId, purchaseRequisition.PurchaseRequisitionNo);
                 #endregion
 
-                return await this.GetSavedPurchaseRequisitionDetails((int)purchaseRequisition.PurchaseRequisitionId);
+                var res = await this.GetSavedPurchaseRequisitionDetails((int)purchaseRequisition.PurchaseRequisitionId);
+                return Response<PurchaseRequisitionModel>.Success(res.Result, "Purchase Requisition Save Successfully.");
 
             }
             catch (Exception ex)
@@ -555,11 +560,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 var recipients = GetEmailRecipients();
 
-                await _orderEmailNotificationService.SendTextEmailAsync(recipients, subject, messageBody, new List<string>());
+                //await _orderEmailNotificationService.SendTextEmailAsync(recipients, subject, messageBody, new List<string>());
             }
             catch (Exception)
             {
-                // Consider logging here before throwing
                 throw;
             }
         }

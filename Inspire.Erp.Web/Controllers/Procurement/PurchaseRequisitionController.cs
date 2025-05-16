@@ -69,6 +69,17 @@ namespace Inspire.Erp.Web.Controllers
                 var xs = await _purchaseRequisitionService.InsertPurchaseRequisition(param1, param3, param2
                     //, param4
                     );
+
+                if (!xs.Valid)
+                {
+                    return  new ApiResponse<PurchaseRequisitionViewModel>
+                    {
+                        Valid = true,
+                        Result = voucherCompositeView,
+                        Message = xs.Message
+                    };
+                }
+
                 PurchaseRequisitionViewModel purchaseRequisitionViewModel = new PurchaseRequisitionViewModel
                 {
 

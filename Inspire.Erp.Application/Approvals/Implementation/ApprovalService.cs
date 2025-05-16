@@ -20,6 +20,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -217,7 +218,7 @@ namespace Inspire.Erp.Application.Approvals.Implementation
                 if (settingsToAdd.Any())
                     await _approverLevelSettings.InsertListAsync(settingsToAdd);
 
-                return await GetAsync(approverLevelSettingsDto.FormType);
+                return await GetAsync(approverLevelSettingsDto.FormType, approverLevelSettingsDto.JobId);
             }
             catch (Exception ex)
             {
@@ -226,14 +227,14 @@ namespace Inspire.Erp.Application.Approvals.Implementation
             }
         }
 
-        public async Task<Response<ApproverLevelSettingsDto>> GetAsync(EnumOrderForms formType)
+        public async Task<Response<ApproverLevelSettingsDto>> GetAsync(EnumOrderForms formType,int jobId)
         {
             try
             {
                 var existingSettings = await this._approverLevelSettings
                     .GetAsQueryable()
                     .AsNoTracking()
-                    .Where(x => x.FormType == formType)
+                    .Where(x => x.FormType == formType && x.JobId == jobId)
                     .ToListAsync();
 
                 var result = existingSettings
