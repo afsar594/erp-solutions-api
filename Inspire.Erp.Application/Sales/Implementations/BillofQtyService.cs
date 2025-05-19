@@ -128,7 +128,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     }
                 }
 
-                InsertUpdateJobBudgetDetails(BillofQty, EstimationCostCenter);
+                // 5/17  disable as per instruction of ali ,no need add job budget form 
+                //InsertUpdateJobBudgetDetails(BillofQty, EstimationCostCenter);
 
                 _BillofQtyMasterRepository.TransactionCommit();
             }
@@ -285,7 +286,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 _EstimationCostCenterRepository.InsertList(EstimationCostCenter);
 
-                InsertUpdateJobBudgetDetails(BillofQty, EstimationCostCenter);
+                //InsertUpdateJobBudgetDetails(BillofQty, EstimationCostCenter);
 
                 _BillofQtyMasterRepository.Insert(BillofQty);
 

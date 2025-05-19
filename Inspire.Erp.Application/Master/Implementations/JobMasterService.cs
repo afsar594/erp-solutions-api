@@ -401,7 +401,7 @@ namespace Inspire.Erp.Application.Master
                 
                 jobMasterData.JobMasterControl.ForEach(x =>
                 {
-                    x.JobMasterControlActual = groupedData.FirstOrDefault(gd => gd.JobMasterBudgetDetailsCostCenterId == x.JobMasterControlCostCenerID)?.JobMasterBudgetDetailsActual ?? 0;
+                    x.JobMasterControlActual = groupedData.FirstOrDefault(gd => gd.JobMasterBudgetDetailsBudId == x.JobMasterControlCostCenerID)?.JobMasterBudgetDetailsActual ?? 0;
                 });
 
                 jobMasterData.JobMasterBudgetDetails = groupedData;
