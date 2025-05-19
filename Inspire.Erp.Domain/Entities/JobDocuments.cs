@@ -17,4 +17,11 @@ namespace Inspire.Erp.Domain.Entities
         public byte[] FileBytes { get; set; }
         public string ContentType { get; set; }
     }
+    public partial class JobDocumentsDto
+    {
+        public int FileId { get; set; }
+        public string FileName { get; set; }
+        public string FilePath { get; set; }
+    }
+
 }

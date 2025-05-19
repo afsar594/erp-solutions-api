@@ -82,9 +82,10 @@ namespace Inspire.Erp.Web.ViewModels.Procurement
         public decimal? PurchaseOrderNetStock { get; set; }
         public decimal? PurchaseOrderTillNowQTY { get; set; }
         public string PurchaseOrderOrdertype { get; set; }
+        public bool IsPrintEnabled { get; set; }
 
 
-        
+
         public List<AccountTransactionViewModel> AccountsTransactions { get; set; }
         public List<PurchaseOrderDetailsViewModel> PurchaseOrderDetails { get; set; }
 

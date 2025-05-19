@@ -92,5 +92,8 @@ namespace Inspire.Erp.Domain.Entities
         public virtual ICollection<PurchaseOrderDetails> PurchaseOrderDetails { get; set; }
         //[JsonIgnore]
         public virtual ICollection<OrderApprovalHierarchy> OrderApprovalHierarchies { get; set; }
+
+        [NotMapped]
+        public bool IsPrintEnabled { get; set; }
     }
 }

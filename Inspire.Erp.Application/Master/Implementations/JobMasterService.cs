@@ -656,5 +656,32 @@ namespace Inspire.Erp.Application.Master
                 throw;
             }
         }
+
+        public async Task<Response<List<JobDocumentsDto>>> GetJobDocuments(int joId)
+        {
+            try
+            {
+                var fileDirectory = System.IO.Directory.GetCurrentDirectory();
+                var docs = await this._jobDocumentsRepository
+                                     .GetAsQueryable()
+                                     .AsNoTracking()
+                                     .Where(x => x.JobDocumentJobId == joId)
+                                     .Select(x => new JobDocumentsDto
+                                     {
+                                         FileId = x.JobDocumentId,
+                                         FileName = x.JobDocumentName,
+                                         FilePath = fileDirectory + x.JobDocumentName.Replace("/", "\\")
+                                     }).ToListAsync();
+                if (!docs.Any())
+                    return Response<List<JobDocumentsDto>>.Fail(null, "No documents found.");
+
+                return Response<List<JobDocumentsDto>>.Success(docs, "documents found.");
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
     }
 }

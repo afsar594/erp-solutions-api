@@ -74,6 +74,7 @@ namespace Inspire.Erp.Web.ViewModels.Procurement
         public decimal? PurchaseRequisitionVatRountAmt { get; set; }
         [NotMapped]
         public bool PurchaseRequisitionApproveEnable { get; set; }
+        public bool IsPrintEnabled { get; set; }
         //public PurchaseRequisition()
         //{
         //    PurchaseRequisitionDetails = new HashSet<PurchaseRequisitionDetails>();

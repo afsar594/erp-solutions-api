@@ -608,21 +608,21 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             {
                 new UserEmail
                 {
-                    Email = "support@inspire-systems.com",
+                    Email = "Shawn@waterbirdwtc.com",
                     Name = "Shawn",
                     BccEmails = new List<CCAndBccMailDto>(),
                     CCEmails = new List<CCAndBccMailDto>()
                 },
                 new UserEmail
                 {
-                    Email = "m.ali.ansari.sd@gmail.com",
+                    Email = "jijit@waterbirdwtc.com",
                     Name = "Jijit",
                     BccEmails = new List<CCAndBccMailDto>(),
                     CCEmails = new List<CCAndBccMailDto>()
                 },
                 new UserEmail
                 {
-                    Email = "irfanmiankhan@gmail.com",
+                    Email = "jeevan@waterbirdwtc.com",
                     Name = "Jeevan",
                     BccEmails = new List<CCAndBccMailDto>(),
                     CCEmails = new List<CCAndBccMailDto>()
@@ -669,6 +669,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     purchaseRequisitionModel.purchaseRequisition.PurchaseRequisitionApprovedBy = approvals[0].ApprovedBy ?? 1;
                 }
             }
+            purchaseRequisitionModel.purchaseRequisition.IsPrintEnabled = await _orderApprovalHierarchy.GetAsQueryable().AsNoTracking().Where(x => x.OrderId == pvno).AllAsync(x => x.Status == EnumApprovalStatus.Approved);
             return Response<PurchaseRequisitionModel>.Success(purchaseRequisitionModel, "Data found");
 
         }
