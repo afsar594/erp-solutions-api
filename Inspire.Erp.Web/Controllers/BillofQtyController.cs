@@ -267,30 +267,5 @@ namespace Inspire.Erp.Web.Controllers
             };
             return objResponse;
         }
-
-
-        [HttpGet]
-        [Route("SendEmail")]
-        public async Task<IActionResult> sendEmail()
-        {
-            var apiKey = "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";// "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";
-            var client = new SendGridClient(apiKey);
-            var from = new EmailAddress("no-reply@inspire-systems.com", "Inspire Systems");
-            var subject = "Confirmation of Attached File";
-            var to = new EmailAddress("irfanmiankhan@gmail.com", "Irfan Mian Khan");
-            var htmlContent = "Dear Irfan,\nI hope this message finds you well.\n\nPlease find the attached file.\n\n\n\nLooking forward to your confirmation.\n\n\n\n\n\nBest regards,\nInspire Systems";
-            var filePath = @"C:\Users\irfan\Desktop\AssetOpeningsFormUIBugs.pdf";
-            var msg = MailHelper.CreateSingleEmail(from, to, subject, string.Empty, htmlContent);
-            msg.AddAttachment(
-                   new Attachment
-                   {
-                       Content = Convert.ToBase64String(System.IO.File.ReadAllBytes(filePath)),
-                       Filename = Path.GetFileName(filePath),
-                       Type = "application/pdf",
-                        Disposition = "attachment"
-                   });
-            var response = await client.SendEmailAsync(msg);
-            return Ok(response);
-        }
     }
 }

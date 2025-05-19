@@ -361,8 +361,17 @@ namespace Inspire.Erp.Web.Controllers
             var fileData = await jobMasterService.GetJobAttachedFiles(jobId);
             if (fileData == null)
                 return NotFound("File not found.");
-            
-            return File(fileData.FileBytes,fileData.ContentType, fileData.FileName);
+
+            return File(fileData.FileBytes, fileData.ContentType, fileData.FileName);
         }
+
+        [HttpGet("GetUserLevelForJob/{userId}/{jobId}")]
+        public async Task<IActionResult> GetUserLevelForJob(int userId, int jobId)
+        {
+            return Ok(await jobMasterService.GetUserLevelForJob(userId, jobId));
+        }
+
+
+
     }
 }

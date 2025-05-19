@@ -491,6 +491,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.OrderType).HasConversion(v => v.ToString(), v => (EnumOrderForms)Enum.Parse(typeof(EnumOrderForms), v));
                 entity.Property(e => e.Status).HasConversion(v => v.ToString(), v => (EnumApprovalStatus)Enum.Parse(typeof(EnumApprovalStatus), v));
+                entity.Property(e => e.ApproverLevel).HasConversion(v => v.ToString(), v => (EnumApproverLevels)Enum.Parse(typeof(EnumApproverLevels), v));
             });
 
             modelBuilder.Entity<ApproverLevelSettings>(entity =>
@@ -8808,10 +8809,16 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasMaxLength(20)
                     .IsUnicode(false);
 
+
+                entity.Property(e => e.EmailSent).HasColumnName("Email_Sent");
+
                 entity.HasOne(d => d.JobMasterJobDetailsJob)
                     .WithMany(p => p.JobMasterJobDetails)
                     .HasForeignKey(d => d.JobMasterJobDetailsJobId)
                     .HasConstraintName("FK_Job_Master_JobDetails_Jobid");
+
+
+
             });
 
             modelBuilder.Entity<JobMasterJobWiseBankGuarantees>(entity =>
@@ -8851,6 +8858,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.Job_Master_JobWiseBankGuarantees_Valid_To_Date).HasColumnName("Job_Master_JobWiseBankGuarantees_Valid_To_Date");
 
                 entity.Property(e => e.Job_Master_JobWiseBankGuarantees_Remarks).HasColumnName("Job_Master_JobWiseBankGuarantees_Remarks");
+                entity.Property(e => e.EmailSent).HasColumnName("Email_Sent");
             });
 
             modelBuilder.Entity<JobStaff>(entity =>

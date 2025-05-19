@@ -38,6 +38,7 @@ namespace Inspire.Erp.Application.Master
         private IRepository<JobfilesStatus> _JobfilesStatus;
         private IRepository<CostCenterMaster> _costCenterMaster;
         private IRepository<JobMasterControl> _jobMasterControl;
+        private IRepository<ApproverLevelSettings> _approverLevelSettings;
 
 
         private IRepository<AccountsTransactions> accountsTransactionsRepository;
@@ -53,7 +54,7 @@ namespace Inspire.Erp.Application.Master
             IRepository<JobTimeSheetEquip> jobTimeSheetEquip,
             IRepository<JobTimesheetMaster> jobTimesheetMaster,
             IRepository<JobTimeSheetStaff> jobTimeSheetStaff, IRepository<JobTimesheetDesc> jobTimesheetDesc,
-            IRepository<JobDocuments> jobDocumentsRepository, IRepository<JobfilesStatus> jobfilesStatus, IRepository<CostCenterMaster> costCenterMaster, IRepository<JobMasterControl> jobMasterControl)
+            IRepository<JobDocuments> jobDocumentsRepository, IRepository<JobfilesStatus> jobfilesStatus, IRepository<CostCenterMaster> costCenterMaster, IRepository<JobMasterControl> jobMasterControl, IRepository<ApproverLevelSettings> approverLevelSettings)
         {
             jobrepository = _jobrepository;
             jobbudgetRepository = _jobbudgetRepository;
@@ -72,6 +73,7 @@ namespace Inspire.Erp.Application.Master
             _JobfilesStatus = jobfilesStatus;
             _costCenterMaster = costCenterMaster;
             _jobMasterControl = jobMasterControl;
+            _approverLevelSettings = approverLevelSettings;
         }
         public IEnumerable<JobMaster> DeleteJob(JobMaster jobMaster)
         {
@@ -369,36 +371,36 @@ namespace Inspire.Erp.Application.Master
                                                 .OrderBy(x => x.ccMaster.CostCenterMasterCostCenterId)
                                                 .ToList();
 
-                                        var groupedData = jobBudgetDetailsData
-                                        .GroupBy(x => new
-                                        {
-                                            x.ccMaster.CostCenterMasterCostCenterId,
-                                            x.ccMaster.CostCenterMasterCostCenterName
-                                        })
-                                        .Select(x =>
-                                        {
-                                            var first = x.FirstOrDefault()?.jdDetails;
-                                            return new JobMasterBudgetDetails
-                                            {
-                                                JobMasterBudgetDetailsCostCenterId = x.Key.CostCenterMasterCostCenterId,
-                                                JobMasterBudgetDetailsDtlId = first?.JobMasterBudgetDetailsDtlId ?? 0,
-                                                JobMasterBudgetDetailsJobId = first?.JobMasterBudgetDetailsJobId,
-                                                JobMasterNo = first?.JobMasterNo,
-                                                JobMasterBudgetDetailsSno = first?.JobMasterBudgetDetailsSno,
-                                                JobMasterBudgetDetailsBudId = first?.JobMasterBudgetDetailsBudId,
-                                                JobMasterBudgetDetailsBudAmount = x.Sum(y => y.jdDetails.JobMasterBudgetDetailsBudAmount ?? 0),
-                                                JobMasterBudgetDetailsDelStatus = first?.JobMasterBudgetDetailsDelStatus,
-                                                JobMasterBudgetDetailsActual = x.Sum(y => y.jdDetails.JobMasterBudgetDetailsActual ?? 0),
-                                                JobMasterBudgetDetailsVariance = x.Sum(y => y.jdDetails.JobMasterBudgetDetailsBudAmount ?? 0) -
-                                                                                 x.Sum(y => y.jdDetails.JobMasterBudgetDetailsActual ?? 0),
-                                                RefVoucherNo = first?.RefVoucherNo
-                                            };
-                                        })
-                                        .ToList();
+                var groupedData = jobBudgetDetailsData
+                .GroupBy(x => new
+                {
+                    x.ccMaster.CostCenterMasterCostCenterId,
+                    x.ccMaster.CostCenterMasterCostCenterName
+                })
+                .Select(x =>
+                {
+                    var first = x.FirstOrDefault()?.jdDetails;
+                    return new JobMasterBudgetDetails
+                    {
+                        JobMasterBudgetDetailsCostCenterId = x.Key.CostCenterMasterCostCenterId,
+                        JobMasterBudgetDetailsDtlId = first?.JobMasterBudgetDetailsDtlId ?? 0,
+                        JobMasterBudgetDetailsJobId = first?.JobMasterBudgetDetailsJobId,
+                        JobMasterNo = first?.JobMasterNo,
+                        JobMasterBudgetDetailsSno = first?.JobMasterBudgetDetailsSno,
+                        JobMasterBudgetDetailsBudId = first?.JobMasterBudgetDetailsBudId,
+                        JobMasterBudgetDetailsBudAmount = x.Sum(y => y.jdDetails.JobMasterBudgetDetailsBudAmount ?? 0),
+                        JobMasterBudgetDetailsDelStatus = first?.JobMasterBudgetDetailsDelStatus,
+                        JobMasterBudgetDetailsActual = x.Sum(y => y.jdDetails.JobMasterBudgetDetailsActual ?? 0),
+                        JobMasterBudgetDetailsVariance = x.Sum(y => y.jdDetails.JobMasterBudgetDetailsBudAmount ?? 0) -
+                                                         x.Sum(y => y.jdDetails.JobMasterBudgetDetailsActual ?? 0),
+                        RefVoucherNo = first?.RefVoucherNo
+                    };
+                })
+                .ToList();
 
 
                 jobMasterData.JobMasterControl = _jobMasterControl.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterControlJobID == jobMasterData.JobMasterJobId).ToList();
-                
+
                 jobMasterData.JobMasterControl.ForEach(x =>
                 {
                     x.JobMasterControlActual = groupedData.FirstOrDefault(gd => gd.JobMasterBudgetDetailsCostCenterId == x.JobMasterControlCostCenerID)?.JobMasterBudgetDetailsActual ?? 0;
@@ -615,6 +617,34 @@ namespace Inspire.Erp.Application.Master
                     FileBytes = mergedPdf,
                     ContentType = "application/pdf"
                 };
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task<Response<string>> GetUserLevelForJob(int userId, int joId)
+        {
+            try
+            {
+                var formTypes = Enum.GetValues(typeof(EnumOrderForms))
+                    .Cast<EnumOrderForms>()
+                    .Where(x => x == EnumOrderForms.PurchaseOrder || x == EnumOrderForms.PurchaseRequisition)
+                    .ToList();
+
+                string userLevel = await _approverLevelSettings
+                    .GetAsQueryable()
+                    .AsNoTracking()
+                    .Where(x => x.ApproverId == userId && x.JobId == joId && formTypes.Contains(x.FormType))
+                    .Select(x => x.ApproverLevel.ToString())
+                    .FirstOrDefaultAsync();
+
+                if (string.IsNullOrEmpty(userLevel))
+                    return Response<string>.Fail(string.Empty, "User level not found.");
+
+                return Response<string>.Success(userLevel, $"User level: {userLevel} found.");
             }
             catch (Exception)
             {

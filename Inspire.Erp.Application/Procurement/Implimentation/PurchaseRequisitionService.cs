@@ -560,7 +560,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 var recipients = GetEmailRecipients();
 
-                //await _orderEmailNotificationService.SendTextEmailAsync(recipients, subject, messageBody, new List<string>());
+                await _orderEmailNotificationService.SendTextEmailAsync(recipients, subject, messageBody, new List<string>());
             }
             catch (Exception)
             {
@@ -608,21 +608,21 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             {
                 new UserEmail
                 {
-                    Email = "Shawn@waterbirdwtc.com",
+                    Email = "support@inspire-systems.com",
                     Name = "Shawn",
                     BccEmails = new List<CCAndBccMailDto>(),
                     CCEmails = new List<CCAndBccMailDto>()
                 },
                 new UserEmail
                 {
-                    Email = "jijit@waterbirdwtc.com",
+                    Email = "m.ali.ansari.sd@gmail.com",
                     Name = "Jijit",
                     BccEmails = new List<CCAndBccMailDto>(),
                     CCEmails = new List<CCAndBccMailDto>()
                 },
                 new UserEmail
                 {
-                    Email = "jeevan@waterbirdwtc.com",
+                    Email = "irfanmiankhan@gmail.com",
                     Name = "Jeevan",
                     BccEmails = new List<CCAndBccMailDto>(),
                     CCEmails = new List<CCAndBccMailDto>()

@@ -147,19 +147,20 @@ namespace Inspire.Erp.Web
                 endpoints.MapControllers();
                 endpoints.MapHub<NotificationHub>("/signal");
             });
+            app.UseHangfireDashboard("/EmailScheduler");
+            using (var scope = app.ApplicationServices.CreateScope())
+            {
+                var emailScheduler = scope.ServiceProvider.GetRequiredService<IEmailSchedulerService>();
+
+                // Schedule both email jobs to run daily
+                Hangfire.RecurringJob.AddOrUpdate("jobscops-email-job", () =>
+                     emailScheduler.CheckAndSendEmailForJobScops(), Cron.Daily);
+
+                Hangfire.RecurringJob.AddOrUpdate("bankguarantees-email-job", () =>
+                    emailScheduler.CheckAndSendEmailForJobBankGuarantees(), Cron.Daily);
+            }
+
             loggerFactory.AddFile($@"{Directory.GetCurrentDirectory()}\Logs\log.txt");
-
-            //using (var scope = app.ApplicationServices.CreateScope())
-            //{
-            //    var emailScheduler = scope.ServiceProvider.GetRequiredService<IEmailSchedulerService>();
-
-            //    // Schedule both email jobs to run daily
-            //   Hangfire.RecurringJob.AddOrUpdate("jobscops-email-job", () =>
-            //        emailScheduler.CheckAndSendEmailForJobScops(), Cron.Daily);
-
-            //    Hangfire.RecurringJob.AddOrUpdate("bankguarantees-email-job", () =>
-            //        emailScheduler.CheckAndSendEmailForJobBankGuarantees(), Cron.Daily);
-            //}
 
         }
     }

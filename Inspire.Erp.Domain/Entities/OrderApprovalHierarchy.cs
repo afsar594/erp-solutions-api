@@ -23,6 +23,8 @@ namespace Inspire.Erp.Domain.Entities
 		[Required]
         public string Remarks { get; set; }
 
+		[Required]
+        public EnumApproverLevels ApproverLevel { get; set; }
         [ForeignKey("OrderId")]
 		public virtual PurchaseOrder PurchaseOrders { get; set; }
 		[ForeignKey("OrderId")]

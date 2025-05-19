@@ -15,6 +15,7 @@ namespace Inspire.Erp.Application.Helpers
             foreach (var fPath in paths)
             {
                 var _path = fileDirectory + fPath.Replace("/","\\");
+                if (!File.Exists(_path)) continue;
                 using var stream = File.OpenRead(_path);
                 using var inputDocument = PdfReader.Open(stream, PdfDocumentOpenMode.Import);
                 

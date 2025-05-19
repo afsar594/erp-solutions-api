@@ -123,7 +123,6 @@ namespace Inspire.Erp.Application.Email.Implementations
                                             .ToList();
                     msg.AddBccs(bccEmails);
                 }
-
                 var response = await client.SendEmailAsync(msg);
                 _logger.LogInformation("Message sent successfully.");
                 return response.IsSuccessStatusCode;

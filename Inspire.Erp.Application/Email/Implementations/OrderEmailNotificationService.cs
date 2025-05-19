@@ -81,7 +81,8 @@ namespace Inspire.Erp.Application.Email.Implementations
                       OrderId = orderId,
                       Status = EnumApprovalStatus.Pending,
                       OrderType = orderType,
-                      Remarks = ""
+                      Remarks = "",
+                      ApproverLevel = x.ApproverLevel,
                   })
                   .ToList();
 

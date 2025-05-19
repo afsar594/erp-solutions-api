@@ -44,15 +44,15 @@ namespace Inspire.Erp.Application.Settings.Implementations
                                             CASE 
                                                 WHEN ApproverCount = 0 THEN 
                                                     CASE 
-                                                        WHEN GS.General_Settings_Text_Value = 'JOB_WISE' THEN 'Approver Or Job not found for orderType'
-                                                        WHEN GS.General_Settings_Text_Value = 'VOUCHER_WISE' THEN 'No approver found for the voucher'
+                                                        WHEN GS.General_Settings_Text_Value = 'JOB_WISE::1' THEN 'Approver Or Job not found for orderType'
+                                                        WHEN GS.General_Settings_Text_Value = 'VOUCHER_WISE::2' THEN 'No approver found for the voucher'
                                                         ELSE 'No approver configuration found'
                                                     END
 
                                                 WHEN ApproverCount < 3 THEN 
                                                     CASE 
-                                                        WHEN GS.General_Settings_Text_Value = 'JOB_WISE' THEN 'Insufficient job-wise approvers configured'
-                                                        WHEN GS.General_Settings_Text_Value = 'VOUCHER_WISE' THEN 'Insufficient voucher-wise approvers configured'
+                                                        WHEN GS.General_Settings_Text_Value = 'JOB_WISE::1' THEN 'Insufficient job-wise approvers configured'
+                                                        WHEN GS.General_Settings_Text_Value = 'VOUCHER_WISE::2' THEN 'Insufficient voucher-wise approvers configured'
                                                         ELSE 'Insufficient approver configuration'
                                                     END
 
@@ -70,12 +70,12 @@ namespace Inspire.Erp.Application.Settings.Implementations
                                                   AND (
                                                         ( (SELECT General_Settings_Text_Value 
                                                              FROM General_Settings 
-                                                             WHERE General_Settings_Key_Value = 'DEFAULT_APPROVAL_TYPE') = 'JOB_WISE'
+                                                             WHERE General_Settings_Key_Value = 'DEFAULT_APPROVAL_TYPE') = 'JOB_WISE::1'
                                                             AND JobId > 0 and JobId = @JobId)
                                                         OR
                                                         (  (SELECT General_Settings_Text_Value 
                                                              FROM General_Settings 
-                                                             WHERE General_Settings_Key_Value = 'DEFAULT_APPROVAL_TYPE') <> 'JOB_WISE'
+                                                             WHERE General_Settings_Key_Value = 'DEFAULT_APPROVAL_TYPE') <> 'JOB_WISE::1'
                                                             AND JobId = @JobId)
                                                     )
                                         ) AS AC;";

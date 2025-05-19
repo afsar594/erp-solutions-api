@@ -335,7 +335,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         {
             try
             {
-                var settingValue = await _generalSettings.GetApproverStatusAsync(purchaseOrder.PurchaseOrderJobId.ToString(), nameof(EnumOrderForms.PurchaseRequisition));
+                var settingValue = await _generalSettings.GetApproverStatusAsync(purchaseOrder.PurchaseOrderJobId.ToString(), nameof(EnumOrderForms.PurchaseOrder));
 
                 if (!string.IsNullOrEmpty(settingValue.ApproverStatus))
                     return Response<PurchaseOrderModel>.Fail(null, settingValue.ApproverStatus);

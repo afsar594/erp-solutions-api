@@ -18,6 +18,7 @@ namespace Inspire.Erp.Domain.Entities
 
         public string Job_Master_JobWiseBankGuarantees_Remarks { get; set; }
 
+        public bool? EmailSent { get; set; }
         [JsonIgnore]
         public virtual JobMaster JobMasterJobWiseBankGuaranteesJob { get; set; }
     }
