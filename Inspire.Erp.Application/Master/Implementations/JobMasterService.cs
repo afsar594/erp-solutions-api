@@ -39,7 +39,7 @@ namespace Inspire.Erp.Application.Master
         private IRepository<CostCenterMaster> _costCenterMaster;
         private IRepository<JobMasterControl> _jobMasterControl;
         private IRepository<ApproverLevelSettings> _approverLevelSettings;
-
+        private IRepository<EstimationCostCenter> _EstimationCostCenterRepository;
 
         private IRepository<AccountsTransactions> accountsTransactionsRepository;
         private readonly InspireErpDBContext context;
@@ -54,7 +54,9 @@ namespace Inspire.Erp.Application.Master
             IRepository<JobTimeSheetEquip> jobTimeSheetEquip,
             IRepository<JobTimesheetMaster> jobTimesheetMaster,
             IRepository<JobTimeSheetStaff> jobTimeSheetStaff, IRepository<JobTimesheetDesc> jobTimesheetDesc,
-            IRepository<JobDocuments> jobDocumentsRepository, IRepository<JobfilesStatus> jobfilesStatus, IRepository<CostCenterMaster> costCenterMaster, IRepository<JobMasterControl> jobMasterControl, IRepository<ApproverLevelSettings> approverLevelSettings)
+            IRepository<JobDocuments> jobDocumentsRepository,
+             IRepository<EstimationCostCenter> estimationCostCenterRepository,
+            IRepository<JobfilesStatus> jobfilesStatus, IRepository<CostCenterMaster> costCenterMaster, IRepository<JobMasterControl> jobMasterControl, IRepository<ApproverLevelSettings> approverLevelSettings)
         {
             jobrepository = _jobrepository;
             jobbudgetRepository = _jobbudgetRepository;
@@ -74,6 +76,7 @@ namespace Inspire.Erp.Application.Master
             _costCenterMaster = costCenterMaster;
             _jobMasterControl = jobMasterControl;
             _approverLevelSettings = approverLevelSettings;
+            _EstimationCostCenterRepository = estimationCostCenterRepository;
         }
         public IEnumerable<JobMaster> DeleteJob(JobMaster jobMaster)
         {
@@ -400,9 +403,10 @@ namespace Inspire.Erp.Application.Master
 
 
                 jobMasterData.JobMasterControl = _jobMasterControl.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterControlJobID == jobMasterData.JobMasterJobId).ToList();
-
+             
                 jobMasterData.JobMasterControl.ForEach(x =>
                 {
+                    //x.JobMasterControlAmount = _EstimationCostCenterRepository.GetAsQueryable().AsNoTracking().Where(e => e.Id == x.JobMasterControlCostCenerID).;
                     x.JobMasterControlActual = groupedData.FirstOrDefault(gd => gd.JobMasterBudgetDetailsBudId == x.JobMasterControlCostCenerID)?.JobMasterBudgetDetailsActual ?? 0;
                 });
 
