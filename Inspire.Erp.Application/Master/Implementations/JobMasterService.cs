@@ -15,12 +15,18 @@ using System.Threading.Tasks;
 using DinkToPdf.Contracts;
 using System.IO;
 using Inspire.Erp.Application.Helpers;
+using System.Data;
+using Microsoft.Data.SqlClient;
+using Inspire.Erp.Infrastructure;
+using Microsoft.Extensions.Configuration;
+using Dapper;
 
 namespace Inspire.Erp.Application.Master
 {
 
     public class JobMasterService : IJobMasterService
     {
+        private readonly IDbConnection _dbConnection;
         private IRepository<JobMaster> jobrepository;
         private IRepository<JobMasterBudgetDetails> jobbudgetRepository;
         private IRepository<JobMasterJobDetails> jobdetailsRepository;
@@ -55,6 +61,7 @@ namespace Inspire.Erp.Application.Master
             IRepository<JobTimesheetMaster> jobTimesheetMaster,
             IRepository<JobTimeSheetStaff> jobTimeSheetStaff, IRepository<JobTimesheetDesc> jobTimesheetDesc,
             IRepository<JobDocuments> jobDocumentsRepository,
+            Microsoft.Extensions.Configuration.IConfiguration config,
              IRepository<EstimationCostCenter> estimationCostCenterRepository,
             IRepository<JobfilesStatus> jobfilesStatus, IRepository<CostCenterMaster> costCenterMaster, IRepository<JobMasterControl> jobMasterControl, IRepository<ApproverLevelSettings> approverLevelSettings)
         {
@@ -77,6 +84,8 @@ namespace Inspire.Erp.Application.Master
             _jobMasterControl = jobMasterControl;
             _approverLevelSettings = approverLevelSettings;
             _EstimationCostCenterRepository = estimationCostCenterRepository;
+            var settings = config.GetSection("ApplicationSettings").Get<ApplicationSettings>();
+            _dbConnection = new SqlConnection(settings.ConnectionString);
         }
         public IEnumerable<JobMaster> DeleteJob(JobMaster jobMaster)
         {
@@ -132,7 +141,7 @@ namespace Inspire.Erp.Application.Master
             }
             return jobMasters;
         }
-        public JobMaster InsertJobMaster(JobMaster jobMaster, List<JobMasterBudgetDetails> jobMasterBudgetDetails, List<JobMasterJobDetails> jobMasterJobDetails, List<JobMasterJobWiseBankGuarantees> jobMasterJobWiseBankGuarantees, List<JobStaff> jobStaff, List<JobEquipment> jobEquipment, List<JobExcutionDetails> jobExcutionDetails, List<JobTimesheetDesc> JobTimesheetDesc, List<JobTimeSheetEquip> JobTimeSheetEquip, List<JobTimesheetMaster> JobTimesheetMaster, List<JobTimeSheetStaff> JobTimeSheetStaff, List<JobfilesStatus> JobfilesStatus, List<JobMasterControl> JobMasterControl)
+        public async Task<JobMaster> InsertJobMaster(JobMaster jobMaster, List<JobMasterBudgetDetails> jobMasterBudgetDetails, List<JobMasterJobDetails> jobMasterJobDetails, List<JobMasterJobWiseBankGuarantees> jobMasterJobWiseBankGuarantees, List<JobStaff> jobStaff, List<JobEquipment> jobEquipment, List<JobExcutionDetails> jobExcutionDetails, List<JobTimesheetDesc> JobTimesheetDesc, List<JobTimeSheetEquip> JobTimeSheetEquip, List<JobTimesheetMaster> JobTimesheetMaster, List<JobTimeSheetStaff> JobTimeSheetStaff, List<JobfilesStatus> JobfilesStatus, List<JobMasterControl> JobMasterControl)
         {
             try
             {
@@ -232,7 +241,7 @@ namespace Inspire.Erp.Application.Master
                 _jobMasterControl.InsertList(jobMaster.JobMasterControl);
                 jobrepository.TransactionCommit();
 
-                return this.GetSavedJobMasterDetails(jobMaster.JobMasterJobNo);
+                return await this.GetSavedJobMasterDetails(jobMaster.JobMasterJobNo);
 
             }
             catch (Exception ex)
@@ -242,7 +251,7 @@ namespace Inspire.Erp.Application.Master
             }
         }
 
-        public JobMaster UpdateJobMaster(JobMaster jobMaster, List<JobMasterBudgetDetails> jobMasterBudgetDetails, List<JobMasterJobDetails> jobMasterJobDetails, List<JobMasterJobWiseBankGuarantees> jobMasterJobWiseBankGuarantees, List<JobStaff> jobStaff, List<JobEquipment> jobEquipment, List<JobExcutionDetails> jobExcutionDetails, List<JobTimesheetDesc> JobTimesheetDesc, List<JobTimeSheetEquip> JobTimeSheetEquip, List<JobTimesheetMaster> JobTimesheetMaster, List<JobTimeSheetStaff> JobTimeSheetStaff, List<JobfilesStatus> JobfilesStatus, List<JobMasterControl> JobMasterControl)
+        public async Task<JobMaster> UpdateJobMaster(JobMaster jobMaster, List<JobMasterBudgetDetails> jobMasterBudgetDetails, List<JobMasterJobDetails> jobMasterJobDetails, List<JobMasterJobWiseBankGuarantees> jobMasterJobWiseBankGuarantees, List<JobStaff> jobStaff, List<JobEquipment> jobEquipment, List<JobExcutionDetails> jobExcutionDetails, List<JobTimesheetDesc> JobTimesheetDesc, List<JobTimeSheetEquip> JobTimeSheetEquip, List<JobTimesheetMaster> JobTimesheetMaster, List<JobTimeSheetStaff> JobTimeSheetStaff, List<JobfilesStatus> JobfilesStatus, List<JobMasterControl> JobMasterControl)
         {
             try
             {
@@ -343,7 +352,7 @@ namespace Inspire.Erp.Application.Master
 
                 jobrepository.TransactionCommit();
 
-                return this.GetSavedJobMasterDetails(jobMaster.JobMasterJobNo);
+                return await this.GetSavedJobMasterDetails(jobMaster.JobMasterJobNo);
 
             }
             catch (Exception ex)
@@ -353,7 +362,7 @@ namespace Inspire.Erp.Application.Master
             }
         }
 
-        public JobMaster GetSavedJobMasterDetails(string jbno)
+        public async Task<JobMaster> GetSavedJobMasterDetails(string jbno)
         {
             JobMaster jobMasterData = new JobMaster();
             if (jobrepository.GetAsQueryable().Any(x => x.JobMasterJobNo == jbno))
@@ -403,11 +412,22 @@ namespace Inspire.Erp.Application.Master
 
 
                 jobMasterData.JobMasterControl = _jobMasterControl.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterControlJobID == jobMasterData.JobMasterJobId).ToList();
-             
+
+                /*
+                 
+                 select a.cost_center as CostcenterId,SUM(isnull(amount,0)) as Amount from
+                     Estimation_CostCenter a
+                     join BillofQty_Master b on a.BillQtyId = b.id
+                     where b.CustomerEnqId = 88
+                     group by a.cost_center
+                 */
+                var summaries = await GetEstimationCostCenterSummaries(jobMasterData.JobMasterJobId);
+
                 jobMasterData.JobMasterControl.ForEach(x =>
                 {
-                    //x.JobMasterControlAmount = _EstimationCostCenterRepository.GetAsQueryable().AsNoTracking().Where(e => e.Id == x.JobMasterControlCostCenerID).;
+                    x.JobMasterControlAmount = summaries.FirstOrDefault(c => c.CostcenterId == x.JobMasterControlCostCenerID).Amount;
                     x.JobMasterControlActual = groupedData.FirstOrDefault(gd => gd.JobMasterBudgetDetailsBudId == x.JobMasterControlCostCenerID)?.JobMasterBudgetDetailsActual ?? 0;
+                    x.JobMasterControlVariance = x.JobMasterControlAmount - x.JobMasterControlActual;
                 });
 
                 jobMasterData.JobMasterBudgetDetails = groupedData;
@@ -683,5 +703,35 @@ namespace Inspire.Erp.Application.Master
                 throw;
             }
         }
+
+        private async Task<List<EstimationCostCenterSummary>> GetEstimationCostCenterSummaries(int jobId)
+        {
+            try
+            {
+                string sql = @$"select a.cost_center as CostcenterId,SUM(isnull(amount,0)) as Amount from
+                                         Estimation_CostCenter a
+                                         join BillofQty_Master b on a.BillQtyId = b.id
+                                         where b.CustomerEnqId = {jobId}
+                                         group by a.cost_center";
+
+                var summaries = (await _dbConnection.QueryAsync<EstimationCostCenterSummary>(sql)).ToList();
+
+                if (!summaries.Any())
+                    return new List<EstimationCostCenterSummary>();
+
+                return summaries;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
     }
+    public class EstimationCostCenterSummary
+    {
+        public int CostcenterId { get; set; }
+        public decimal Amount { get; set; }
+    }
+
 }

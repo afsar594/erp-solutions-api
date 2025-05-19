@@ -91,9 +91,9 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("GetAllMasterById/{id}")]
-        public ApiResponse<JobMaster> GetAllJobById(string id)
+        public async Task<ApiResponse<JobMaster>> GetAllJobById(string id)
         {
-            JobMaster jobMaster = jobMasterService.GetSavedJobMasterDetails(id);
+            JobMaster jobMaster = await jobMasterService.GetSavedJobMasterDetails(id);
             if (jobMaster != null)
             {
                 ApiResponse<JobMaster> apiResponse = new ApiResponse<JobMaster>
@@ -108,7 +108,7 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpPost]
         [Route("InsertJobMaster")]
-        public ApiResponse<JobMaster> InsertJob([FromBody] JobMasterViewModel jobMaster)
+        public async Task<ApiResponse<JobMaster>> InsertJob([FromBody] JobMasterViewModel jobMaster)
         {
             ApiResponse<JobMaster> apiResponse = new ApiResponse<JobMaster>();
             var param1 = _mapper.Map<JobMaster>(jobMaster);
@@ -124,7 +124,7 @@ namespace Inspire.Erp.Web.Controllers
             var param11 = _mapper.Map<List<JobTimeSheetStaff>>(jobMaster.JobTimeSheetStaff);
             var param12 = _mapper.Map<List<JobfilesStatus>>(jobMaster.JobfilesStatus);
             var param13 = _mapper.Map<List<JobMasterControl>>(jobMaster.JobMasterControl);
-            var respone = jobMasterService.InsertJobMaster(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12, param13);
+            var respone = await jobMasterService.InsertJobMaster(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12, param13);
 
             apiResponse = new ApiResponse<JobMaster>
             {
@@ -136,7 +136,7 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpPost]
         [Route("UpdateJobMaster")]
-        public ApiResponse<JobMaster> UpdateJob([FromBody] JobMasterViewModel jobMaster)
+        public async Task<ApiResponse<JobMaster>> UpdateJob([FromBody] JobMasterViewModel jobMaster)
         {
 
             //ApiResponse<JobMaster> apiResponse = new ApiResponse<JobMaster>();
@@ -160,7 +160,7 @@ namespace Inspire.Erp.Web.Controllers
             var param11 = _mapper.Map<List<JobTimeSheetStaff>>(jobMaster.JobTimeSheetStaff);
             var param12 = _mapper.Map<List<JobfilesStatus>>(jobMaster.JobfilesStatus);
             var param13 = _mapper.Map<List<JobMasterControl>>(jobMaster.JobMasterControl);
-            var respone = jobMasterService.UpdateJobMaster(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12, param13);
+            var respone = await jobMasterService.UpdateJobMaster(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12, param13);
 
             apiResponse = new ApiResponse<JobMaster>
             {
