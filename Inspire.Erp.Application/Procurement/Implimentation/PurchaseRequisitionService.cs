@@ -608,21 +608,21 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             {
                 new UserEmail
                 {
-                    Email = "support@inspire-systems.com",
+                    Email = "Shawn@waterbirdwtc.com",
                     Name = "Shawn",
                     BccEmails = new List<CCAndBccMailDto>(),
                     CCEmails = new List<CCAndBccMailDto>()
                 },
                 new UserEmail
                 {
-                    Email = "m.ali.ansari.sd@gmail.com",
+                    Email = "jijit@waterbirdwtc.com",
                     Name = "Jijit",
                     BccEmails = new List<CCAndBccMailDto>(),
                     CCEmails = new List<CCAndBccMailDto>()
                 },
                 new UserEmail
                 {
-                    Email = "irfanmiankhan@gmail.com",
+                    Email = "jeevan@waterbirdwtc.com",
                     Name = "Jeevan",
                     BccEmails = new List<CCAndBccMailDto>(),
                     CCEmails = new List<CCAndBccMailDto>()
