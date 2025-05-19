@@ -34,9 +34,7 @@ namespace Inspire.Erp.Application.Master
         public IEnumerable<JobDocuments> GetAllJobDocumentById(int id);
         public IEnumerable<JobDocuments> DeleteJobDocument(int id);
         public Task<Response<string>> GetUserLevelForJob(int userId, int joId);
-
-
-
+        public Task<Response<List<JobDocumentsDto>>> GetJobDocuments(int joId);
     }
 }
 

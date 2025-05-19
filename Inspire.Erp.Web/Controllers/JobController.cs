@@ -371,6 +371,12 @@ namespace Inspire.Erp.Web.Controllers
             return Ok(await jobMasterService.GetUserLevelForJob(userId, jobId));
         }
 
+        [HttpGet("GetJobDocuments/{jobId}")]
+        public async Task<IActionResult> GetJobDocuments(int jobId)
+        {
+            return Ok(await jobMasterService.GetJobDocuments(jobId));
+        }
+
 
 
     }

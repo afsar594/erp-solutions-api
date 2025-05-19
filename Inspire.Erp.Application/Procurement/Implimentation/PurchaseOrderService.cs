@@ -327,7 +327,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 throw ex;
             }
 
-            return Response<int>.Success(i,"Deledted");
+            return Response<int>.Success(i, "Deledted");
         }
         public async Task<Response<PurchaseOrderModel>> InsertPurchaseOrder(PurchaseOrder purchaseOrder,
                                                                                         List<AccountsTransactions> accountsTransactions,
@@ -567,7 +567,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         purchaseOrderModel.purchaseOrder.PurchaseOrderApproveEnable = false;
                     }
                 }
-
+                purchaseOrderModel.purchaseOrder.IsPrintEnabled = await _orderApprovalHierarchy.GetAsQueryable().AsNoTracking().Where(x => x.OrderId == id).AllAsync(x => x.Status == EnumApprovalStatus.Approved);
                 return Response<PurchaseOrderModel>.Success(purchaseOrderModel, "Data found");
             }
             catch (Exception)
@@ -1255,20 +1255,20 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             var po = await GetSavedPurchaseOrderDetails(orderId);
             var jobId = po.Result.purchaseOrder?.PurchaseOrderJobId ?? -1;
             var jobDetail = _jobMaster.GetAsQueryable().Where(x => x.JobMasterJobId == jobId).FirstOrDefault();
-           await _orderEmailNotificationService.SendOrderEmailNotificationAsync(
-                                                                            EnumOrderForms.PurchaseOrder,
-                                                                            nextLevelToSendEamil,
-                                                                            "Order",
-                                                                         po.Result.purchaseOrder.PurchaseOrderNo,
-                                                                         po.Result.purchaseOrder.PurchaseOrderDate,
-                                                                         po.Result.purchaseOrder.PurchaseOrderPartyName ?? "",
-                                                                         (decimal)po.Result.purchaseOrder.PurchaseOrderNetAmount,
-                                                                         (int)po.Result.purchaseOrder.PurchaseOrderId,
-                                                                         (int)jobId,
-                                                                         jobDetail == null ? "" : jobDetail.JobMasterJobNumber,
-                                                                         jobDetail == null ? "" : jobDetail.JobMasterJobName,
-                                                                         false, "",
-                                                                         settingValue);
+            await _orderEmailNotificationService.SendOrderEmailNotificationAsync(
+                                                                             EnumOrderForms.PurchaseOrder,
+                                                                             nextLevelToSendEamil,
+                                                                             "Order",
+                                                                          po.Result.purchaseOrder.PurchaseOrderNo,
+                                                                          po.Result.purchaseOrder.PurchaseOrderDate,
+                                                                          po.Result.purchaseOrder.PurchaseOrderPartyName ?? "",
+                                                                          (decimal)po.Result.purchaseOrder.PurchaseOrderNetAmount,
+                                                                          (int)po.Result.purchaseOrder.PurchaseOrderId,
+                                                                          (int)jobId,
+                                                                          jobDetail == null ? "" : jobDetail.JobMasterJobNumber,
+                                                                          jobDetail == null ? "" : jobDetail.JobMasterJobName,
+                                                                          false, "",
+                                                                          settingValue);
             return await GetDefaultPOPR(orderId, EnumOrderForms.PurchaseRequisition);
         }
 
@@ -1278,19 +1278,19 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             var pr = await _purchaseRequisitionService.GetSavedPurchaseRequisitionDetails(orderId);
             var jobId = pr.Result.purchaseRequisition?.PurchaseRequisitionJobId ?? -1;
             var jobDetail = _jobMaster.GetAsQueryable().Where(x => x.JobMasterJobId == jobId).FirstOrDefault();
-           await _orderEmailNotificationService.SendOrderEmailNotificationAsync(
-                                                                        EnumOrderForms.PurchaseRequisition,
-                                                                        nextLevelToSendEamil,
-                                                                        "Requisition",
-                                                                        pr.Result.purchaseRequisition.PurchaseRequisitionNo,
-                                                                        pr.Result.purchaseRequisition.PurchaseRequisitionDate,
-                                                                        pr.Result.purchaseRequisition.PurchaseRequisitionPartyName ?? "",
-                                                                        (decimal)pr.Result.purchaseRequisition.PurchaseRequisitionNetAmount,
-                                                                        (int)pr.Result.purchaseRequisition.PurchaseRequisitionId,
-                                                                         (int)jobId,
-                                                                         jobDetail == null ? "" : jobDetail.JobMasterJobNumber,
-                                                                         jobDetail == null ? "" : jobDetail.JobMasterJobName,
-                                                                         false, "", settingValue);
+            await _orderEmailNotificationService.SendOrderEmailNotificationAsync(
+                                                                         EnumOrderForms.PurchaseRequisition,
+                                                                         nextLevelToSendEamil,
+                                                                         "Requisition",
+                                                                         pr.Result.purchaseRequisition.PurchaseRequisitionNo,
+                                                                         pr.Result.purchaseRequisition.PurchaseRequisitionDate,
+                                                                         pr.Result.purchaseRequisition.PurchaseRequisitionPartyName ?? "",
+                                                                         (decimal)pr.Result.purchaseRequisition.PurchaseRequisitionNetAmount,
+                                                                         (int)pr.Result.purchaseRequisition.PurchaseRequisitionId,
+                                                                          (int)jobId,
+                                                                          jobDetail == null ? "" : jobDetail.JobMasterJobNumber,
+                                                                          jobDetail == null ? "" : jobDetail.JobMasterJobName,
+                                                                          false, "", settingValue);
 
             return await GetDefaultPOPR(orderId, EnumOrderForms.PurchaseRequisition);
         }

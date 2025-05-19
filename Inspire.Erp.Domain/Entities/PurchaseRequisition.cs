@@ -77,5 +77,8 @@ namespace Inspire.Erp.Domain.Entities
         public bool PurchaseRequisitionApproveEnable { get; set; }
         public virtual ICollection<PurchaseRequisitionDetails> PurchaseRequisitionDetails { get; set; }
         public virtual ICollection<OrderApprovalHierarchy> OrderApprovalHierarchies { get; set; }
+
+        [NotMapped]
+        public bool IsPrintEnabled { get; set; }
     }
 }

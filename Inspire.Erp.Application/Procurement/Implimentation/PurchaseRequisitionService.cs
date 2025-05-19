@@ -669,6 +669,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     purchaseRequisitionModel.purchaseRequisition.PurchaseRequisitionApprovedBy = approvals[0].ApprovedBy ?? 1;
                 }
             }
+            purchaseRequisitionModel.purchaseRequisition.IsPrintEnabled = await _orderApprovalHierarchy.GetAsQueryable().AsNoTracking().Where(x => x.OrderId == pvno).AllAsync(x => x.Status == EnumApprovalStatus.Approved);
             return Response<PurchaseRequisitionModel>.Success(purchaseRequisitionModel, "Data found");
 
         }
