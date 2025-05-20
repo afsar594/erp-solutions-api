@@ -56,8 +56,13 @@ namespace Inspire.Erp.Domain.Models.Approvals
 
     public class Approvers
     {
+        public Approvers()
+        {
+            ApproverIds = new List<long>();
+        }
         public EnumApproverLevels ApproverLevel { get; set; }
-        public long ApproverId { get; set; }
+        public List<long> ApproverIds { get; set; }
+        //public long ApproverId { get; set; }
         public bool OptEmail { get; set; } = false;
         public int NotificationDays { get; set; }
         public decimal MinAmount { get; set; }

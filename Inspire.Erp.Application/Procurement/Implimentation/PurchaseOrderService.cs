@@ -497,7 +497,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                                jobDetail == null ? "" : jobDetail.JobMasterJobNumber,
                                                                                jobDetail == null ? "" : jobDetail.JobMasterJobName,
                                                                                true,
-                                                                               user.UserName,
+                                                                               user.UserName??"",
                                                                                settingValue.GeneralSettingValue
                                                                               );
                 #endregion
@@ -724,32 +724,32 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             }
         }
 
-
         public async Task<Response<List<PODetailsViewModel>>> GetGRMPOs(int? supplierId)
         {
             try
             {
+                bool hasApprovals = _approverLevelSettings.GetAsQueryable()
+                    .AsNoTracking()
+                    .Any(a => a.FormType == EnumOrderForms.PurchaseOrder);
 
-                var hasApprovals = _approverLevelSettings.GetAsQueryable()
-                                                                                        .AsNoTracking()
-                                                                                        .Any(a => a.FormType == EnumOrderForms.PurchaseOrder);
-
-                IQueryable<PurchaseOrder> poQuery = _purchaseOrderRepository.GetAsQueryable();
-                IQueryable<PurchaseOrderDetails> podQuery = _purchaseOrderDetailsRepository.GetAsQueryable();
-                IQueryable<SuppliersMaster> smQuery = _suppliersMasterRepository.GetAsQueryable();
-                IQueryable<ItemMaster> imQuery = _itemMasterRepository.GetAsQueryable();
-                IQueryable<PurchaseVoucherDetails> pvdQuery = _purchaseVoucherDetailsRepo.GetAsQueryable();
-                IQueryable<UnitMaster> unitQuery = _unitMasterRepository.GetAsQueryable();
-                IQueryable<OrderApprovalHierarchy> oahQuery = _orderApprovalHierarchy.GetAsQueryable();
+                var poQuery = _purchaseOrderRepository.GetAsQueryable();
+                var podQuery = _purchaseOrderDetailsRepository.GetAsQueryable();
+                var smQuery = _suppliersMasterRepository.GetAsQueryable();
+                var imQuery = _itemMasterRepository.GetAsQueryable();
+                var pvdQuery = _purchaseVoucherDetailsRepo.GetAsQueryable();
+                var unitQuery = _unitMasterRepository.GetAsQueryable();
+                var oahQuery = _orderApprovalHierarchy.GetAsQueryable();
 
                 var result = await (
                     from po in poQuery
                     join pod in podQuery on po.PurchaseOrderId equals pod.PurchaseOrderId
                     join sm in smQuery on po.PurchaseOrderPartyId equals sm.SuppliersMasterSupplierId
                     join im in imQuery on (long)pod.PurchaseOrderDetailsMatId equals im.ItemMasterItemId
-                    where (supplierId == null || supplierId == 0 || sm.SuppliersMasterSupplierId == supplierId)
+                    where supplierId == null || supplierId == 0 || sm.SuppliersMasterSupplierId == supplierId
                     let isApproved = hasApprovals
-                        ? oahQuery.All(p => p.OrderId == po.PurchaseOrderId && p.Status == EnumApprovalStatus.Approved && p.Status != EnumApprovalStatus.Rejected)
+                        ? oahQuery
+                            .Where(o => o.OrderId == po.PurchaseOrderId)
+                            .All(o => o.Status == EnumApprovalStatus.Approved)
                         : true
                     where isApproved
                     select new PODetailsViewModel
@@ -765,137 +765,26 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         Quantity = (int)pod.PurchaseOrderDetailsQuantity,
                         UnitId = pod.PurchaseOrderDetailsUnitId,
                         UnitName = unitQuery
-                            .Where(x => x.UnitMasterUnitId == pod.PurchaseOrderDetailsUnitId)
-                            .Select(x => x.UnitMasterUnitFullName.Trim())
+                            .Where(u => u.UnitMasterUnitId == pod.PurchaseOrderDetailsUnitId)
+                            .Select(u => u.UnitMasterUnitFullName.Trim())
                             .FirstOrDefault(),
                         DeliveredQuantity = pvdQuery
-                            .Where(pr => pr.PurchaseVoucherDetailsPodId == pod.PurchaseOrderDetailsId &&
-                                         pr.PurchaseVoucherDetailsMaterialId == pod.PurchaseOrderDetailsMatId)
-                            .Sum(pr => (int?)pr.PurchaseVoucherDetailsQuantity) ?? 0,
+                            .Where(pvd => pvd.PurchaseVoucherDetailsPodId == pod.PurchaseOrderDetailsId &&
+                                          pvd.PurchaseVoucherDetailsMaterialId == pod.PurchaseOrderDetailsMatId)
+                            .Sum(pvd => (int?)pvd.PurchaseVoucherDetailsQuantity) ?? 0,
                         BalanceQuantity = (int)pod.PurchaseOrderDetailsQuantity -
                                           (pvdQuery
-                                            .Where(pr => pr.PurchaseVoucherDetailsPodId == pod.PurchaseOrderDetailsId &&
-                                                         pr.PurchaseVoucherDetailsMaterialId == pod.PurchaseOrderDetailsMatId)
-                                            .Sum(pr => (int?)pr.PurchaseVoucherDetailsQuantity) ?? 0)
+                                            .Where(pvd => pvd.PurchaseVoucherDetailsPodId == pod.PurchaseOrderDetailsId &&
+                                                          pvd.PurchaseVoucherDetailsMaterialId == pod.PurchaseOrderDetailsMatId)
+                                            .Sum(pvd => (int?)pvd.PurchaseVoucherDetailsQuantity) ?? 0)
                     })
-                    .OrderBy(x => x.PODate)
-                    .ThenBy(x => x.PONo)
+                    .OrderBy(po => po.PODate)
+                    .ThenBy(po => po.PONo)
                     .ToListAsync();
 
                 return Response<List<PODetailsViewModel>>.Success(result, "Data found");
             }
             catch (Exception ex)
-            {
-                return Response<List<PODetailsViewModel>>.Fail(new List<PODetailsViewModel>(), ex.Message);
-            }
-        }
-
-
-
-        //saleem
-        public async Task<Response<List<PODetailsViewModel>>> GetGRMPOs23(int? supplierId)
-        {
-            try
-            {
-                var check = _context.tbl_approvalforms.AsNoTracking().Where(a => a.Voucher_Type.Trim() == "Purchase Order" && a.is_active == true).ToList();
-                //check = null;
-
-                List<PODetailsViewModel> result = null;
-                if (check?.Count > 0)
-                {
-                    result = await (from po in _purchaseOrderRepository.GetAsQueryable()
-                                    join per in _permissionApprovalDetailRepo.GetAsQueryable() on po.PurchaseOrderId equals per.VoucherId
-                                    join pod in _purchaseOrderDetailsRepository.GetAsQueryable() on po.PurchaseOrderId equals pod.PurchaseOrderId
-                                    join sm in _suppliersMasterRepository.GetAsQueryable() on po.PurchaseOrderPartyId equals sm.SuppliersMasterSupplierId
-                                    join im in _itemMasterRepository.GetAsQueryable() on (long)pod.PurchaseOrderDetailsMatId equals im.ItemMasterItemId
-                                    //where (supplierId == null || supplierId == 0 || sm.SuppliersMasterSupplierId == supplierId) && per.Status == "Approved"
-                                    where (supplierId == null || supplierId == 0 || sm.SuppliersMasterSupplierId == supplierId)
-                                    && _permissionApprovalDetailRepo.
-                                    GetAsQueryable().
-                                    Where(p => p.VoucherNo == po.PurchaseOrderNo && (p.IsDeleted == null || (bool)!p.IsDeleted))
-                                   .Any(p => p.Status == "Approved" && p.Status != "Rejected")
-                                    group new { po, pod, sm, im } by new
-                                    {
-                                        pod.PurchaseOrderDetailsId,
-                                        pod.PurchaseOrderDetailsMatId,
-                                        im.ItemMasterItemName,
-                                        po.PurchaseOrderId,
-                                        po.PurchaseOrderNo,
-                                        po.PurchaseOrderDate,
-                                        sm.SuppliersMasterSupplierName,
-                                        pod.PurchaseOrderDetailsRate,
-                                        pod.PurchaseOrderDetailsQuantity,
-                                        pod.PurchaseOrderDetailsUnitId
-                                    } into g
-                                    select new PODetailsViewModel
-                                    {
-                                        ItemId = (int)g.Key.PurchaseOrderDetailsMatId,
-                                        ItemName = g.Key.ItemMasterItemName,
-                                        POId = (int)g.Key.PurchaseOrderId,
-                                        PODId = (int)g.Key.PurchaseOrderDetailsId,
-                                        PONo = g.Key.PurchaseOrderNo,
-                                        PODate = g.Key.PurchaseOrderDate,
-                                        SupplierName = g.Key.SuppliersMasterSupplierName,
-                                        Rate = g.Key.PurchaseOrderDetailsRate,
-                                        Quantity = (int)g.Key.PurchaseOrderDetailsQuantity,
-                                        UnitId = g.Key.PurchaseOrderDetailsUnitId,
-                                        UnitName = _unitMasterRepository.GetAsQueryable()
-                                                    .Where(x => x.UnitMasterUnitId == g.Key.PurchaseOrderDetailsUnitId)
-                                                    .Select(x => x.UnitMasterUnitFullName.Trim())
-                                                    .FirstOrDefault(),
-                                        BalanceQuantity = (int)g.Key.PurchaseOrderDetailsQuantity - (
-                                            _purchaseVoucherDetailsRepo.GetAsQueryable()
-                                                .Where(pr => pr.PurchaseVoucherDetailsPodId == g.Key.PurchaseOrderDetailsId
-                                                        && pr.PurchaseVoucherDetailsMaterialId == g.Key.PurchaseOrderDetailsMatId)
-                                                .Sum(prdq => (int?)prdq.PurchaseVoucherDetailsQuantity) ?? 0
-                                        ),
-                                        DeliveredQuantity = _purchaseVoucherDetailsRepo.GetAsQueryable()
-                                            .Where(pr => pr.PurchaseVoucherDetailsPodId == g.Key.PurchaseOrderDetailsId
-                                                    && pr.PurchaseVoucherDetailsMaterialId == g.Key.PurchaseOrderDetailsMatId)
-                                            .Sum(prdq => (int?)prdq.PurchaseVoucherDetailsQuantity) ?? 0,
-                                    })
-                                    .OrderBy(x => x.PODate)
-                                    .ThenBy(x => x.PONo)
-                                    .ToListAsync();
-                }
-                else
-                {
-                    result = await (from po in _purchaseOrderRepository.GetAsQueryable()
-                                    join pod in _purchaseOrderDetailsRepository.GetAsQueryable() on po.PurchaseOrderId equals pod.PurchaseOrderId
-                                    join sm in _suppliersMasterRepository.GetAsQueryable() on po.PurchaseOrderPartyId equals sm.SuppliersMasterSupplierId
-                                    join im in _itemMasterRepository.GetAsQueryable() on (long)pod.PurchaseOrderDetailsMatId equals im.ItemMasterItemId
-                                    where (supplierId == null || supplierId == 0 || sm.SuppliersMasterSupplierId == supplierId)
-                                    select new PODetailsViewModel
-                                    {
-                                        ItemId = (int)pod.PurchaseOrderDetailsMatId,
-                                        ItemName = im.ItemMasterItemName,
-                                        POId = (int)po.PurchaseOrderId,
-                                        PODId = (int)pod.PurchaseOrderDetailsId,
-                                        PONo = po.PurchaseOrderNo,
-                                        PODate = po.PurchaseOrderDate,
-                                        //JobId = (int)po.PurchaseOrderJobId,                                        
-                                        SupplierName = sm.SuppliersMasterSupplierName,
-                                        Rate = pod.PurchaseOrderDetailsRate,
-                                        Quantity = (int)pod.PurchaseOrderDetailsQuantity,
-                                        UnitId = pod.PurchaseOrderDetailsUnitId,
-                                        UnitName = _unitMasterRepository.GetAsQueryable().Where(x => x.UnitMasterUnitId == pod.PurchaseOrderDetailsUnitId).FirstOrDefault().UnitMasterUnitFullName.Trim(),
-                                        BalanceQuantity = (int)pod.PurchaseOrderDetailsQuantity - (_purchaseVoucherDetailsRepo.GetAsQueryable().Where(pr =>
-                                        (pr.PurchaseVoucherDetailsPodId == pod.PurchaseOrderDetailsId
-                                           && pr.PurchaseVoucherDetailsMaterialId == pod.PurchaseOrderDetailsMatId))
-                                        .Sum(prdq => (int)((prdq.PurchaseVoucherDetailsQuantity) ?? 0))),
-
-                                        DeliveredQuantity = (_purchaseVoucherDetailsRepo.GetAsQueryable().Where(pr =>
-                                                (pr.PurchaseVoucherDetailsPodId == pod.PurchaseOrderDetailsId
-                                                 && pr.PurchaseVoucherDetailsMaterialId == pod.PurchaseOrderDetailsMatId))
-                                        .Sum(prdq => (int)((prdq.PurchaseVoucherDetailsQuantity) ?? 0))),
-
-                                    })
-                                 .OrderBy(x => x.PODate).ThenBy(x => x.PONo)
-                                 .ToListAsync();
-                }
-                return Response<List<PODetailsViewModel>>.Success(result, "Data found");
-            }
-            catch (System.Exception ex)
             {
                 return Response<List<PODetailsViewModel>>.Fail(new List<PODetailsViewModel>(), ex.Message);
             }
