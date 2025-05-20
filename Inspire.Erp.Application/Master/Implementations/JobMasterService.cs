@@ -425,7 +425,7 @@ namespace Inspire.Erp.Application.Master
 
                 jobMasterData.JobMasterControl.ForEach(x =>
                 {
-                    x.JobMasterControlAmount = summaries.FirstOrDefault(c => c.CostcenterId == x.JobMasterControlCostCenerID).Amount;
+                    x.JobMasterControlAmount = summaries.FirstOrDefault(c => c.CostcenterId == x.JobMasterControlCostCenerID)?.Amount ?? 0;
                     x.JobMasterControlActual = groupedData.FirstOrDefault(gd => gd.JobMasterBudgetDetailsBudId == x.JobMasterControlCostCenerID)?.JobMasterBudgetDetailsActual ?? 0;
                     x.JobMasterControlVariance = x.JobMasterControlAmount - x.JobMasterControlActual;
                 });
@@ -682,27 +682,29 @@ namespace Inspire.Erp.Application.Master
             try
             {
                 var fileDirectory = System.IO.Directory.GetCurrentDirectory();
-                var docs = await this._jobDocumentsRepository
-                                     .GetAsQueryable()
-                                     .AsNoTracking()
-                                     .Where(x => x.JobDocumentJobId == joId)
-                                     .Select(x => new JobDocumentsDto
-                                     {
-                                         FileId = x.JobDocumentId,
-                                         FileName = x.JobDocumentName,
-                                         FilePath = fileDirectory + x.JobDocumentName.Replace("/", "\\")
-                                     }).ToListAsync();
+
+                var docs = await _jobDocumentsRepository
+                    .GetAsQueryable()
+                    .AsNoTracking()
+                    .Where(x => x.JobDocumentJobId == joId)
+                    .Select(x => new JobDocumentsDto
+                    {
+                        FileId = x.JobDocumentId,
+                        FileName = System.IO.Path.GetFileName(x.JobDocumentName), 
+                        FilePath = System.IO.Path.GetFileName(x.JobDocumentName)
+                    }).ToListAsync();
+
                 if (!docs.Any())
                     return Response<List<JobDocumentsDto>>.Fail(null, "No documents found.");
 
-                return Response<List<JobDocumentsDto>>.Success(docs, "documents found.");
+                return Response<List<JobDocumentsDto>>.Success(docs, "Documents found.");
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
+
 
         private async Task<List<EstimationCostCenterSummary>> GetEstimationCostCenterSummaries(int jobId)
         {

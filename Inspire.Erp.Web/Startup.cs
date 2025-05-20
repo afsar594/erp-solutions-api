@@ -27,6 +27,7 @@ using Inspire.Erp.Application.NewFolder.Interfaces;
 using Inspire.Erp.Application.NewFolder.Implementations;
 using Inspire.Erp.RecurringJob;
 using Hangfire;
+using Microsoft.Extensions.FileProviders;
 
 namespace Inspire.Erp.Web
 {
@@ -147,18 +148,24 @@ namespace Inspire.Erp.Web
                 endpoints.MapControllers();
                 endpoints.MapHub<NotificationHub>("/signal");
             });
-            app.UseHangfireDashboard("/EmailScheduler");
-            using (var scope = app.ApplicationServices.CreateScope())
+            app.UseStaticFiles(new StaticFileOptions
             {
-                var emailScheduler = scope.ServiceProvider.GetRequiredService<IEmailSchedulerService>();
+                FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "Upload/Pdfs")),
+                RequestPath = "/pdfs"
+            });
 
-                // Schedule both email jobs to run daily
-                Hangfire.RecurringJob.AddOrUpdate("jobscops-email-job", () =>
-                     emailScheduler.CheckAndSendEmailForJobScops(), Cron.Daily);
+            app.UseHangfireDashboard("/EmailScheduler");
+            //using (var scope = app.ApplicationServices.CreateScope())
+            //{
+            //    var emailScheduler = scope.ServiceProvider.GetRequiredService<IEmailSchedulerService>();
 
-                Hangfire.RecurringJob.AddOrUpdate("bankguarantees-email-job", () =>
-                    emailScheduler.CheckAndSendEmailForJobBankGuarantees(), Cron.Daily);
-            }
+            //    // Schedule both email jobs to run daily
+            //    Hangfire.RecurringJob.AddOrUpdate("jobscops-email-job", () =>
+            //         emailScheduler.CheckAndSendEmailForJobScops(), Cron.Daily);
+
+            //    Hangfire.RecurringJob.AddOrUpdate("bankguarantees-email-job", () =>
+            //        emailScheduler.CheckAndSendEmailForJobBankGuarantees(), Cron.Daily);
+            //}
 
             loggerFactory.AddFile($@"{Directory.GetCurrentDirectory()}\Logs\log.txt");
 
