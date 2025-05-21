@@ -1,5 +1,7 @@
 ﻿using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Entities.documents;
+using Inspire.Erp.Domain.Modals;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -18,5 +20,8 @@ namespace Inspire.Erp.Application.NewFolder.Interfaces
 
         public IEnumerable<DocsAttachment> GetAllDocumentById(int id,string type);
         public IEnumerable<DocsAttachment> DeleteDocument(int id);
+        public Task<Response<List<JobDocumentsDto>>> GetJobDocuments(int id, string type);
+        public Task<FileResultDto> DownloadAllFilesAsOnePdf(int id, string type);
+
     }
 }

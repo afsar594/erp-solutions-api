@@ -18,7 +18,7 @@ namespace Inspire.Erp.Web.Controllers
         private IDocsAttachmentService docsAttachmentService;
         public DocumentAttachmentsController(IDocsAttachmentService _docsAttachmentService)
         {
-            docsAttachmentService = _docsAttachmentService; 
+            docsAttachmentService = _docsAttachmentService;
         }
         [HttpPost]
         [Route("readpdffile")]
@@ -54,11 +54,11 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpGet]
         [Route("GetDocumentstById")]
-        public IActionResult GetDocumentstById(int DocumentId, int DocumentTypeId,String Type )
+        public IActionResult GetDocumentstById(int DocumentId, int DocumentTypeId, String Type)
         {
             try
             {
-                var item = docsAttachmentService.GetDocumentstById(DocumentId, DocumentTypeId , Type);
+                var item = docsAttachmentService.GetDocumentstById(DocumentId, DocumentTypeId, Type);
                 return Ok(item);
             }
             catch (System.Exception ex)
@@ -109,5 +109,19 @@ namespace Inspire.Erp.Web.Controllers
         }
 
 
+        [HttpGet]
+        [Route("GetDocuments")]
+        public async Task<IActionResult> GetDocuments(int id, string type)
+        {
+            return Ok(await docsAttachmentService.GetJobDocuments(id, type));
+        }
+
+        [HttpGet("DownloadAllFilesAsOnePdf/{id}/{type}")]
+        public async Task<IActionResult> DownloadAllFilesAsOnePdf(int id, string type)
+        {
+            return Ok(await docsAttachmentService.DownloadAllFilesAsOnePdf(id, type));
+        }
+
     }
+
 }

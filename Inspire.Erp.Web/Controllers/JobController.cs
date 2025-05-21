@@ -355,29 +355,11 @@ namespace Inspire.Erp.Web.Controllers
         }
 
 
-        [HttpGet("GetJobAttachedFile")]
-        public async Task<IActionResult> GetJobAttachedFile(int jobId)
-        {
-            var fileData = await jobMasterService.GetJobAttachedFiles(jobId);
-            if (fileData == null)
-                return NotFound("File not found.");
-
-            return File(fileData.FileBytes, fileData.ContentType, fileData.FileName);
-        }
 
         [HttpGet("GetUserLevelForJob/{userId}/{jobId}")]
         public async Task<IActionResult> GetUserLevelForJob(int userId, int jobId)
         {
             return Ok(await jobMasterService.GetUserLevelForJob(userId, jobId));
         }
-
-        [HttpGet("GetJobDocuments/{jobId}")]
-        public async Task<IActionResult> GetJobDocuments(int jobId)
-        {
-            return Ok(await jobMasterService.GetJobDocuments(jobId));
-        }
-
-
-
     }
 }

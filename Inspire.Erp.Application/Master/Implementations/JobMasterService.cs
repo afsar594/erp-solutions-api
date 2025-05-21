@@ -613,42 +613,7 @@ namespace Inspire.Erp.Application.Master
             }
         }
 
-        public async Task<FileResultDto> GetJobAttachedFiles(int jobId)
-        {
-            try
-            {
-                string fileName = await jobrepository.GetAsQueryable()
-                    .AsNoTracking()
-                    .Where(x => x.JobMasterJobId == jobId)
-                    .Select(x => $"{x.JobMasterJobName}_{x.JobMasterJobNumber}.pdf")
-                    .FirstOrDefaultAsync();
-
-
-                var jobDocs = await _jobDocumentsRepository
-                                     .GetAsQueryable()
-                                     .AsNoTracking()
-                                     .Where(x => x.JobDocumentJobId == jobId)
-                                     .Select(x => x.JobDocumentName)
-                                     .ToListAsync();
-                if (!jobDocs.Any())
-                    return new FileResultDto();
-
-                var mergedPdf = PdfFileMergeHelper.MergePdfsFromPaths(jobDocs);
-
-                return new FileResultDto
-                {
-                    FileName = fileName,
-                    FileBytes = mergedPdf,
-                    ContentType = "application/pdf"
-                };
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
+      
         public async Task<Response<string>> GetUserLevelForJob(int userId, int joId)
         {
             try
@@ -677,34 +642,7 @@ namespace Inspire.Erp.Application.Master
             }
         }
 
-        public async Task<Response<List<JobDocumentsDto>>> GetJobDocuments(int joId)
-        {
-            try
-            {
-                var fileDirectory = System.IO.Directory.GetCurrentDirectory();
-
-                var docs = await _jobDocumentsRepository
-                    .GetAsQueryable()
-                    .AsNoTracking()
-                    .Where(x => x.JobDocumentJobId == joId)
-                    .Select(x => new JobDocumentsDto
-                    {
-                        FileId = x.JobDocumentId,
-                        FileName = System.IO.Path.GetFileName(x.JobDocumentName), 
-                        FilePath = System.IO.Path.GetFileName(x.JobDocumentName)
-                    }).ToListAsync();
-
-                if (!docs.Any())
-                    return Response<List<JobDocumentsDto>>.Fail(null, "No documents found.");
-
-                return Response<List<JobDocumentsDto>>.Success(docs, "Documents found.");
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-
+      
 
         private async Task<List<EstimationCostCenterSummary>> GetEstimationCostCenterSummaries(int jobId)
         {
