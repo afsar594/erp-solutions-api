@@ -8,6 +8,7 @@ using Inspire.Erp.Application.NewFolder.Interfaces;
 using Inspire.Erp.Domain.Entities.documents;
 using Inspire.Erp.Application.Master;
 using Microsoft.EntityFrameworkCore.Storage;
+using Inspire.Erp.Domain.Entities;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -119,7 +120,8 @@ namespace Inspire.Erp.Web.Controllers
         [HttpGet("DownloadAllFilesAsOnePdf/{id}/{type}")]
         public async Task<IActionResult> DownloadAllFilesAsOnePdf(int id, string type)
         {
-            return Ok(await docsAttachmentService.DownloadAllFilesAsOnePdf(id, type));
+            var result = await docsAttachmentService.DownloadAllFilesAsOnePdf(id, type);
+            return File(result.FileBytes,result.ContentType , "downloadedFile.pdf");
         }
 
     }
