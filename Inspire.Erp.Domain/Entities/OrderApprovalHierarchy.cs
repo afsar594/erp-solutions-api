@@ -25,6 +25,12 @@ namespace Inspire.Erp.Domain.Entities
 
 		[Required]
         public EnumApproverLevels ApproverLevel { get; set; }
+
+        public int? ApprovedBy { get; set; }
+        public DateTime? ApprovedDate { get; set; }
+
+
+
         [ForeignKey("OrderId")]
 		public virtual PurchaseOrder PurchaseOrders { get; set; }
 		[ForeignKey("OrderId")]

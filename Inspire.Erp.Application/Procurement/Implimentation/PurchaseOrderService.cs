@@ -848,7 +848,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
 
 
-            // Step 1: Get Purchase Orders
             var purchaseOrders = _purchaseOrderRepository.GetAsQueryable()
                 .Where(po =>
                     (!model.IsDate || (po.PurchaseOrderDate.Date >= fromDate && po.PurchaseOrderDate.Date <= toDate)) &&
@@ -857,7 +856,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 .AsNoTracking()
                 .ToList();
 
-            // Step 2: Filter Approval Hierarchies
             foreach (var po in purchaseOrders)
             {
                 po.OrderApprovalHierarchies = po.OrderApprovalHierarchies
@@ -865,14 +863,12 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     .ToList();
             }
 
-            // Step 3: Fetch related data
-            var locationDict = _locationMasterRepository.GetAsQueryable()
+            var locationDict = _locationMasterRepository.GetAsQueryable().Where(x => purchaseOrders.Select(x => x.PurchaseOrderLocationId).ToList().Contains(x.LocationMasterLocationId))
                 .ToDictionary(l => l.LocationMasterLocationId, l => l.LocationMasterLocationName);
 
-            var jobDict = _jobMaster.GetAsQueryable()
+            var jobDict = _jobMaster.GetAsQueryable().Where(j => (jobIdFilter || j.JobMasterJobId == model.JobId))
                 .ToDictionary(j => j.JobMasterJobId, j => j.JobMasterJobName);
 
-            // Step 4: Projection to DTO
             var approvalData = purchaseOrders.Select(po => new VoucherApprivalDto
             {
                 VoucherId = (int)po.PurchaseOrderId,
@@ -904,7 +900,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     .ToList()
             }).ToList();
 
-            // Step 5: Filter by Approval Status
             if (model.Status != EnumApprovalStatus.None)
             {
                 approvalData = approvalData
@@ -1187,16 +1182,16 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 _orderApprovalHierarchy.BeginTransaction();
                 var user = _cacheMemoryService.GetUserObject(InspireConstants.UserCacheKey) as UserFile;
-                var approvers = _approverLevelSettings.GetAsQueryable()
+                var approvers = _approverLevelSettings.GetAsQueryable().AsNoTracking()
                  .Where(x => x.FormType == approvalDto.OrderType && x.JobId == approvalDto.JobId)
                   .ToList();
 
-                var currentApproverLevel = approvers.FirstOrDefault(x => x.ApproverId == user.UserId)?.ApproverLevel;
+
+                EnumApproverLevels currentApproverLevel = _orderApprovalHierarchy.GetAsQueryable().AsNoTracking().Where(a => a.ApproverId == user.UserId && a.OrderId == approvalDto.OrderId && a.Status == EnumApprovalStatus.Pending).FirstOrDefault()?.ApproverLevel ?? EnumApproverLevels.None;
 
                 var poprToApprove = _orderApprovalHierarchy.GetAsQueryable()
                     .Where(x => x.OrderId == approvalDto.OrderId
                         && x.OrderType == approvalDto.OrderType
-                        && x.ApproverId == user.UserId
                         && x.ApproverLevel == currentApproverLevel
                         && x.Status == EnumApprovalStatus.Pending)
                     .ToList();
@@ -1208,22 +1203,33 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     {
                         x.Status = approvalDto.ApprovalStatus;
                         x.Remarks = approvalDto.Remarks;
+                        x.ApprovedBy = (int)user.UserId;
+                        x.ApprovedDate = DateTime.Now;
                     });
 
                 _orderApprovalHierarchy.UpdateList(poprToApprove);
                 _orderApprovalHierarchy.TransactionCommit();
 
-                EnumApproverLevels nextLevelToSendEamil = GetNextApproverLevel(user.UserId, approvers);
-                if (nextLevelToSendEamil != EnumApproverLevels.None)
+                var approverLevels = approvers.GroupBy(x => x.ApproverLevel).Select(g => g.Key).ToList();
+                var nextLevelToSendEmail = approverLevels
+                                            .SkipWhile(a => a != currentApproverLevel)
+                                            .Skip(1)
+                                            .DefaultIfEmpty(EnumApproverLevels.None)
+                                            .First();
+
+
+
+                // EnumApproverLevels nextLevelToSendEamil = GetNextApproverLevel(approvers, (EnumApproverLevels)currentApproverLevel);
+                if (nextLevelToSendEmail != EnumApproverLevels.None)
                 {
                     switch (approvalDto.OrderType)
                     {
                         case EnumOrderForms.PurchaseOrder:
-                            await SendEmailPurchaseOrder(approvalDto.OrderId, nextLevelToSendEamil, settingValue);
+                            await SendEmailPurchaseOrder(approvalDto.OrderId, nextLevelToSendEmail, settingValue);
                             break;
 
                         case EnumOrderForms.PurchaseRequisition:
-                            await SendEmailPurchaseRequisition(approvalDto.OrderId, nextLevelToSendEamil, settingValue);
+                            await SendEmailPurchaseRequisition(approvalDto.OrderId, nextLevelToSendEmail, settingValue);
                             break;
 
                         default:
@@ -1291,15 +1297,14 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
 
 
-        private EnumApproverLevels GetNextApproverLevel(long userId, List<ApproverLevelSettings> approvers)
+        private EnumApproverLevels GetNextApproverLevel(List<EnumApproverLevels> approverLevels, EnumApproverLevels currentUserLevel)
         {
-            var currentApprover = approvers.FirstOrDefault(a => a.ApproverId == userId);
-            var nextLevel = approvers
-                .SkipWhile(a => a.ApproverLevel != currentApprover.ApproverLevel)
+            var nextLevel = approverLevels
+                .SkipWhile(a => a != currentUserLevel)
                 .Skip(1)
                 .FirstOrDefault();
 
-            return nextLevel?.ApproverLevel ?? EnumApproverLevels.None;
+            return nextLevel;
         }
 
         public async Task<Response<List<VoucherApprivalDto>>> GetDefaultPOPR(int orderId, EnumOrderForms orderType)
