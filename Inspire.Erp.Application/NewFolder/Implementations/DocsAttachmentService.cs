@@ -108,7 +108,9 @@ namespace Inspire.Erp.Application.NewFolder.Implementations
                 var docs = await docrepository
                     .GetAsQueryable()
                     .AsNoTracking()
-                    .Where(x => x.DocumentVocucherId == id && x.DocumentType.ToLower() == type.ToLower())
+                   .Where(x => x.DocumentVocucherId == id
+                             && x.DocumentType.ToLower() == type.ToLower()
+                             && (x.DocumentDelStatus == null || x.DocumentDelStatus == false))
                     .Select(x => new JobDocumentsDto
                     {
                         FileId = x.DocumentId,
@@ -134,7 +136,9 @@ namespace Inspire.Erp.Application.NewFolder.Implementations
                 var jobDocs = await docrepository
                                      .GetAsQueryable()
                                      .AsNoTracking()
-                                      .Where(x => x.DocumentVocucherId == id && x.DocumentType.ToLower() == type.ToLower())
+                                      .Where(x => x.DocumentVocucherId == id 
+                                                  && x.DocumentType.ToLower() == type.ToLower()
+                                                  && (x.DocumentDelStatus == null || x.DocumentDelStatus == false))
                                      .Select(x => x.DocumentName)
                                      .ToListAsync();
                 if (!jobDocs.Any())
