@@ -943,8 +943,8 @@ namespace Inspire.Erp.WebReport.ReportEngine
                 case ExportFormatType.Excel:
                 case ExportFormatType.ExcelRecord:
                 case ExportFormatType.ExcelWorkbook:
-                case ExportFormatType.XLSXPagebased:
-                case ExportFormatType.XLSXRecord:
+                //case ExportFormatType.XLSXPagebased:
+                //case ExportFormatType.XLSXRecord:
                     return ".xlsx";
                 default:
                     return ".pdf";

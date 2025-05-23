@@ -1,0 +1,17 @@
+C:\Users\Rana Sohail Ahmed\source\repos\ERP.APISV2.0.0\Inspire.Erp.RecurringJob\bin\Debug\netcoreapp3.1\Inspire.Erp.RecurringJob.deps.json
+C:\Users\Rana Sohail Ahmed\source\repos\ERP.APISV2.0.0\Inspire.Erp.RecurringJob\bin\Debug\netcoreapp3.1\Inspire.Erp.RecurringJob.dll
+C:\Users\Rana Sohail Ahmed\source\repos\ERP.APISV2.0.0\Inspire.Erp.RecurringJob\bin\Debug\netcoreapp3.1\Inspire.Erp.RecurringJob.pdb
+C:\Users\Rana Sohail Ahmed\source\repos\ERP.APISV2.0.0\Inspire.Erp.RecurringJob\bin\Debug\netcoreapp3.1\Inspire.Erp.Application.dll
+C:\Users\Rana Sohail Ahmed\source\repos\ERP.APISV2.0.0\Inspire.Erp.RecurringJob\bin\Debug\netcoreapp3.1\Inspire.Erp.Domain.dll
+C:\Users\Rana Sohail Ahmed\source\repos\ERP.APISV2.0.0\Inspire.Erp.RecurringJob\bin\Debug\netcoreapp3.1\Inspire.Erp.Infrastructure.dll
+C:\Users\Rana Sohail Ahmed\source\repos\ERP.APISV2.0.0\Inspire.Erp.RecurringJob\bin\Debug\netcoreapp3.1\Inspire.Erp.Application.pdb
+C:\Users\Rana Sohail Ahmed\source\repos\ERP.APISV2.0.0\Inspire.Erp.RecurringJob\bin\Debug\netcoreapp3.1\Inspire.Erp.Infrastructure.pdb
+C:\Users\Rana Sohail Ahmed\source\repos\ERP.APISV2.0.0\Inspire.Erp.RecurringJob\bin\Debug\netcoreapp3.1\Inspire.Erp.Domain.pdb
+C:\Users\Rana Sohail Ahmed\source\repos\ERP.APISV2.0.0\Inspire.Erp.RecurringJob\obj\Debug\netcoreapp3.1\Inspire.Erp.RecurringJob.csproj.AssemblyReference.cache
+C:\Users\Rana Sohail Ahmed\source\repos\ERP.APISV2.0.0\Inspire.Erp.RecurringJob\obj\Debug\netcoreapp3.1\Inspire.Erp.RecurringJob.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Rana Sohail Ahmed\source\repos\ERP.APISV2.0.0\Inspire.Erp.RecurringJob\obj\Debug\netcoreapp3.1\Inspire.Erp.RecurringJob.AssemblyInfoInputs.cache
+C:\Users\Rana Sohail Ahmed\source\repos\ERP.APISV2.0.0\Inspire.Erp.RecurringJob\obj\Debug\netcoreapp3.1\Inspire.Erp.RecurringJob.AssemblyInfo.cs
+C:\Users\Rana Sohail Ahmed\source\repos\ERP.APISV2.0.0\Inspire.Erp.RecurringJob\obj\Debug\netcoreapp3.1\Inspire.Erp.RecurringJob.csproj.CoreCompileInputs.cache
+C:\Users\Rana Sohail Ahmed\source\repos\ERP.APISV2.0.0\Inspire.Erp.RecurringJob\obj\Debug\netcoreapp3.1\Inspire.Erp.RecurringJob.csproj.CopyComplete
+C:\Users\Rana Sohail Ahmed\source\repos\ERP.APISV2.0.0\Inspire.Erp.RecurringJob\obj\Debug\netcoreapp3.1\Inspire.Erp.RecurringJob.dll
+C:\Users\Rana Sohail Ahmed\source\repos\ERP.APISV2.0.0\Inspire.Erp.RecurringJob\obj\Debug\netcoreapp3.1\Inspire.Erp.RecurringJob.pdb
