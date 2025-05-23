@@ -41,6 +41,7 @@ namespace Inspire.Erp.Web.ViewModels.Procurement
         ///
 
         public int PurchaseVoucherDetailsPurcahseDetailsId { get; set; }
+        public int? PurchaseVoucherDetailsJobID { get; set; }
         public string PurchaseVoucherDetailsVoucherNo { get; set; }
         public string PurchaseVoucherDetailsBatchCode { get; set; }
         public int? PurchaseVoucherDetailsSno { get; set; }

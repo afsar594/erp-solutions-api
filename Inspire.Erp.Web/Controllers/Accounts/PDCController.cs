@@ -2,6 +2,7 @@
 using Inspire.Erp.Application.Procurement.Interfaces;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Modals;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ using static Inspire.Erp.Domain.Modals.PDCResponse;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Inspire.Erp.Web.Controllers
-{
+{   
     [Route("api/[controller]")]
     [ApiController]
     public class PDCController : ControllerBase
@@ -46,6 +47,20 @@ namespace Inspire.Erp.Web.Controllers
                 throw ex;
             }
         }
+
+        [HttpGet("PDCissuedLists")]
+        public async Task<IEnumerable<PDCPostedList>> PDCissuedLists()
+        {
+            try
+            {
+                return await _pdc.PDCReturnLists();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         [HttpGet("PDCGetList")]
         public async Task<IEnumerable<PDCGetList>> PDCGetList()
         {
@@ -91,7 +106,11 @@ namespace Inspire.Erp.Web.Controllers
             return await _pdc.PostPDC(pDCGetList);
         }
 
-
+        [HttpPost("ReleasePostPDC")]
+        public async Task<bool> ReleasePostPDC([FromBody] List<PDCGetList> pDCGetList)
+        {
+            return  _pdc.ReleasePostPdc(pDCGetList);
+        }
 
     }
 }

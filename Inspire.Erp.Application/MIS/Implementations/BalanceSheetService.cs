@@ -41,11 +41,11 @@ namespace Inspire.Erp.Application.MIS.Implementations
         }
 
 
-        private  void GetBalanceSheetTotals(GenericGridViewModel model,string relativeNo, ref double totalAsset)
+        private  void GetBalanceSheetTotals(GenericGridViewModel model,string accountName, ref double totalAsset)
         {
             try
             {
-                var assets = (from ma in _masterAccount.GetAsQueryable().Where(y => y.MaRelativeNo.ToUpper() == relativeNo.ToUpper())
+                var assets = (from ma in _masterAccount.GetAsQueryable().Where(y => y.MaAccName.ToUpper() == accountName.ToUpper())
                                    join at in _accountTrans.GetAsQueryable()
                                                  .Where(x => x.AccountsTransactionsTransDate >= model.FromDate
                                    && x.AccountsTransactionsTransDate <= model.ToDate
@@ -79,7 +79,7 @@ namespace Inspire.Erp.Application.MIS.Implementations
                                                                .Where(x => x.AccountsTransactionsTransDate >= model.FromDate
                                                  && x.AccountsTransactionsTransDate <= model.ToDate).Select(o => o.AccountsTransactionsAccNo).Distinct().ToList();
 
-                var assetsNotIn =  (from ma in _masterAccount.GetAsQueryable().Where(y => y.MaRelativeNo.ToUpper() == relativeNo.ToUpper()
+                var assetsNotIn =  (from ma in _masterAccount.GetAsQueryable().Where(y => y.MaAccName.ToUpper() == accountName.ToUpper()
                                                                       && y.MaAccType == "A"
                                                                       && y.MaStatus == "R"
                                                                       && !AccountTransIds.Contains(y.MaAcAcc)
@@ -182,9 +182,12 @@ namespace Inspire.Erp.Application.MIS.Implementations
             {
                 var gridReponse = new List<BalanceSheetResponse>();
                 double Net_Capital = 0, Net_Retained = 0, Net_Owners = 0, Total_INCOME = 0, Total_Expenses = 0, Net_Profit_Loss = 0;
-                GetBalanceSheetTotals(model, "EQ5", ref Net_Capital);
-                GetBalanceSheetTotals(model, "EQ38", ref Net_Retained);
-                GetBalanceSheetTotals(model, "EQ6", ref Net_Owners);
+                //GetBalanceSheetTotals(model, "EQ5", ref Net_Capital);
+                GetBalanceSheetTotals(model, "CAPITALS", ref Net_Capital);
+                //GetBalanceSheetTotals(model, "EQ38", ref Net_Retained);
+                GetBalanceSheetTotals(model, "RETAINED EARNINGS", ref Net_Retained);
+                //GetBalanceSheetTotals(model, "EQ6", ref Net_Owners);
+                GetBalanceSheetTotals(model, "OWNERS CURRENT ACCOUNTS", ref Net_Owners);
                 GetBalanceSheetTotalsMainHead(model, "INCOME", ref Total_INCOME);
                 GetBalanceSheetTotalsMainHead(model, "EXPENSES", ref Total_Expenses);
                 Net_Profit_Loss = (Total_INCOME - Total_Expenses); //+ ClostingStock - Opening_Stock_Value;
@@ -198,8 +201,8 @@ namespace Inspire.Erp.Application.MIS.Implementations
                                     from grd in g.DefaultIfEmpty()
                                     group grd by new
                                     {
-                                        //grd.AccountsTransactionsAccNo,
-                                        //ma.MaAccName,
+                                        grd.AccountsTransactionsAccNo,
+                                        ma.MaAccName,
                                         ma.MaMainHead,
                                         ma.MaRelativeNo,
                                         ma.MaSubHead
@@ -209,8 +212,8 @@ namespace Inspire.Erp.Application.MIS.Implementations
                                     {
                                         MA_MainHead = gp.Key.MaMainHead,
                                         MA_SubHead = gp.Key.MaSubHead,
-                                        //MA_AccNo = gp.Key.AccountsTransactionsAccNo,
-                                        //MA_AccName = gp.Key.MaAccName,
+                                        MA_AccNo = gp.Key.AccountsTransactionsAccNo,
+                                        MA_AccName = gp.Key.MaAccName,
                                         MA_RelativeNo = gp.Key.MaRelativeNo,
                                         MA_RelativeName = _masterAccount.GetAsQueryable().Where(y => y.MaAccNo.ToUpper() == gp.Key.MaRelativeNo.ToUpper()).Select(y => y.MaAccName).FirstOrDefault(),
                                         Debit = gp.Sum(pc => pc.AccountsTransactionsDebit),
@@ -233,8 +236,8 @@ namespace Inspire.Erp.Application.MIS.Implementations
                                          {
                                              MA_MainHead = ma.MaMainHead,
                                              MA_SubHead = ma.MaSubHead,
-                                             //MA_AccNo = ma.MaAccNo,
-                                             //MA_AccName = ma.MaAccName,
+                                             MA_AccNo = ma.MaAccNo,
+                                             MA_AccName = ma.MaAccName,
                                              MA_RelativeNo = ma.MaRelativeNo,
                                              MA_RelativeName = _masterAccount.GetAsQueryable().Where(y => y.MaAccNo.ToUpper() == ma.MaRelativeNo.ToLower()).Select(y => y.MaAccName).FirstOrDefault(),
                                              Debit = 0,
@@ -253,8 +256,8 @@ namespace Inspire.Erp.Application.MIS.Implementations
                                         from grd in g.DefaultIfEmpty()
                                         group grd by new
                                         {
-                                            //grd.AccountsTransactionsAccNo,
-                                            //ma.MaAccName,
+                                            grd.AccountsTransactionsAccNo,
+                                            ma.MaAccName,
                                             ma.MaMainHead,
                                             ma.MaRelativeNo,
                                             ma.MaSubHead
@@ -265,8 +268,8 @@ namespace Inspire.Erp.Application.MIS.Implementations
                                         {
                                             MA_MainHead = gp.Key.MaMainHead,
                                             MA_SubHead = gp.Key.MaSubHead,
-                                            //MA_AccNo = gp.Key.AccountsTransactionsAccNo,
-                                            //MA_AccName = gp.Key.MaAccName,
+                                            MA_AccNo = gp.Key.AccountsTransactionsAccNo,
+                                            MA_AccName = gp.Key.MaAccName,
                                             MA_RelativeNo = gp.Key.MaRelativeNo,
                                             MA_RelativeName = _masterAccount.GetAsQueryable().Where(y => y.MaAccNo.ToUpper() == gp.Key.MaRelativeNo.ToUpper()).Select(y => y.MaAccName).FirstOrDefault(),
                                             Debit = gp.Sum(pc => pc.AccountsTransactionsDebit),
@@ -285,8 +288,8 @@ namespace Inspire.Erp.Application.MIS.Implementations
                                              {
                                                  MA_MainHead = ma.MaMainHead,
                                                  MA_SubHead = ma.MaSubHead,
-                                                 //MA_AccNo = ma.MaAccNo,
-                                                 //MA_AccName = ma.MaAccName,
+                                                 MA_AccNo = ma.MaAccNo,
+                                                 MA_AccName = ma.MaAccName,
                                                  MA_RelativeNo = ma.MaRelativeNo,
                                                  MA_RelativeName = _masterAccount.GetAsQueryable().Where(y => y.MaAccNo.ToUpper() == ma.MaRelativeNo.ToLower()).Select(y => y.MaAccName).FirstOrDefault(),
                                                  Debit = 0,
@@ -322,9 +325,10 @@ namespace Inspire.Erp.Application.MIS.Implementations
             {
                 var gridReponse = new List<BalanceSheetResponse>();
                 double Net_Capital=0, Net_Retained=0, Net_Owners=0, Total_INCOME=0, Total_Expenses=0, Net_Profit_Loss=0;
-                GetBalanceSheetTotals(model, "EQ5",ref Net_Capital);
-                GetBalanceSheetTotals(model, "EQ38", ref Net_Retained);
-                GetBalanceSheetTotals(model, "EQ6", ref Net_Owners);
+                //GetBalanceSheetTotals(model, "EQ5",ref Net_Capital);
+                GetBalanceSheetTotals(model, "CAPITALS", ref Net_Capital);
+                //GetBalanceSheetTotals(model, "EQ6", ref Net_Owners);
+                GetBalanceSheetTotals(model, "OWNERS CURRENT ACCOUNTS", ref Net_Owners);
                 GetBalanceSheetTotalsMainHead(model, "INCOME", ref Total_INCOME);
                 GetBalanceSheetTotalsMainHead(model, "EXPENSES", ref Total_Expenses);
                 Net_Profit_Loss = (Total_INCOME - Total_Expenses); //+ ClostingStock - Opening_Stock_Value;

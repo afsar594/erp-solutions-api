@@ -81,6 +81,11 @@ namespace Inspire.Erp.Web.ViewModels.Procurement
 
         public decimal? PurchaseOrderNetStock { get; set; }
         public decimal? PurchaseOrderTillNowQTY { get; set; }
+        public string PurchaseOrderOrdertype { get; set; }
+        public bool IsPrintEnabled { get; set; }
+
+
+
         public List<AccountTransactionViewModel> AccountsTransactions { get; set; }
         public List<PurchaseOrderDetailsViewModel> PurchaseOrderDetails { get; set; }
 
@@ -94,7 +99,8 @@ namespace Inspire.Erp.Web.ViewModels.Procurement
         public string status { get; set; }
         public List<string>? type { get; set; }
         public int userId { get; set; }
-         public bool isDate { get; set; }
+        public int JobId { get; set; }
+        public bool isDate { get; set; }
         public DateTime? fromDate { get; set; }
         public DateTime? toDate { get; set; }
     }

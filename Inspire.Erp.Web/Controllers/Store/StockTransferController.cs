@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using Inspire.Erp.Application.Common;
+using Inspire.Erp.Application.Master;
+using Inspire.Erp.Application.Master.Interfaces;
 using Inspire.Erp.Application.Store.Interface;
 using Inspire.Erp.Application.StoreWareHouse.Interface;
 using Inspire.Erp.Domain.Entities;
@@ -13,6 +15,7 @@ using Inspire.Erp.Web.ViewModels;
 using Inspire.Erp.Web.ViewModels.Store;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,40 +29,41 @@ namespace Inspire.Erp.Web.Controllers.Store
     {
         private IStockTransferService _st;
         private readonly IMapper _mapper;
+        private readonly IRepository<StockTransferResponseModel> _StockTransferResponse;
+        private readonly IRepository<StockTransfer> _StockTransferRespons;
+        private readonly IRepository<StockTransferDetails> _StockTransferDetailRepo;
+        private readonly IRepository<ItemMaster> _itemMasterRepo;
         private IRepository<JobMaster> jobrepository; private IRepository<CustomerMaster> _customerMasterRepository; private IRepository<DepartmentMaster> departmentrepository;
         private IRepository<LocationMaster> locationrepository; private IRepository<ItemMaster> itemrepository; private IRepository<UnitMaster> unitrepository;
         public StockTransferController(IStockTransferService st, IMapper mapper, IRepository<JobMaster> _jobrepository, IRepository<LocationMaster> _locationrepository
             , IRepository<CustomerMaster> customerMasterRepository, IRepository<DepartmentMaster> _departmentrepository
-            , IRepository<ItemMaster> _itemrepository, IRepository<UnitMaster> _unitrepository)
+            , IRepository<ItemMaster> _itemrepository, IRepository<UnitMaster> _unitrepository, IRepository<StockTransferResponseModel> StockTransferResponse,
+            IRepository<StockTransferDetails> StockTransferDetailRepo, IRepository<ItemMaster> itemMasterRepo, IRepository<StockTransfer> StockTransferRespons)
         {
             _st = st;
             _mapper = mapper;
             jobrepository = _jobrepository; locationrepository = _locationrepository; _customerMasterRepository = customerMasterRepository;
             itemrepository = _itemrepository; unitrepository = _unitrepository; departmentrepository = _departmentrepository;
+            _StockTransferResponse = StockTransferResponse;
+            _StockTransferDetailRepo = StockTransferDetailRepo;
+            _itemMasterRepo = itemMasterRepo;
+            _StockTransferRespons = StockTransferRespons;
         }
-        /// <summary>
-        /// Need to replace SP getStockItemsList by LINQ see from the vb.code and load it according to the reposnse 
-        /// </summary>
-        /// <returns></returns>
+
         [HttpGet("getStockItemsList")]
-        public async Task<ApiResponse<List<StockItemResponse>>> getStockItemsList()
+        public async Task<IActionResult> getStockItemsList(int? itemId, int? locationId)
         {
             try
             {
-                List<StockItemResponse> list = await _st.getStockItemResponse();
-                ApiResponse<List<StockItemResponse>> response = new ApiResponse<List<StockItemResponse>>()
-                {
-                    Result = list,
-                    Message = "Ok"
-                };
-                return response;
+               var list = await _st.getStockItemResponse(itemId, locationId);
+                return Ok(list);
+
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
-
 
         [HttpGet]
         [Route("GetAllStockTransfer")]
@@ -73,27 +77,6 @@ namespace Inspire.Erp.Web.Controllers.Store
             };
             return apiResponse;
         }
-        /// <summary>
-        ///  Need to replace SP getStockTransferReport by LINQ see from the vb.code and load it according to the reposnse  
-        /// </summary>
-        /// <returns></returns>
-        //[HttpGet("getStockTransferReport")]
-        //public async Task<ApiResponse<List<StockTransferResponseModel>>> getStockTransferReport()
-        //{
-        //    try
-        //    {
-        //        ApiResponse<List<StockTransferResponseModel>> response = new ApiResponse<List<StockTransferResponseModel>>()
-        //        {
-        //            Result = _st.getStockTransferReport().ToList(),
-        //            Message = "Ok"
-        //        };
-        //        return response;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //}
 
         [HttpPost]
         [Route("InsertStockTransfer")]
@@ -150,67 +133,13 @@ namespace Inspire.Erp.Web.Controllers.Store
 
             return apiResponse;
         }
+
         [HttpDelete]
         [Route("DeleteStockTransfers")]
         public IActionResult DeleteStockTransfers(string Id)
         {
             return Ok(_st.DeleteStockTransfers(Id));
         }
-
-        //[HttpPost]
-        //[Route("DeleteStockTransfer")]
-        //public async Task<bool> DeleteStockTransfer([FromBody] StockTransferViewModel stockTranfermodel)
-        //{
-        //    try
-        //    {
-        //        var param1 = _mapper.Map<StockTransfer>(stockTranfermodel);
-        //    var param2 = _mapper.Map<List<StockTransferDetails>>(stockTranfermodel.StockTransferDetails);
-
-        //        //==============
-        //       var  param3 = new List<AccountsTransactions>();
-        //        List<StockRegister> param4 = new List<StockRegister>();
-
-        //        var result= await _st.DeleteStockTransfer(param1, param2
-        //       , param4
-        //       );
-        //    return true;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-
-        //}
-
-        //[HttpPost("deleteStockTransfer")]
-        //public async Task<bool> deleteStockTransfer(StockTransferRequestModel obj)
-        //{
-        //    try
-        //    {
-        //        await _st.deleteStockTransfer(obj);
-        //        return true;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //}
-        //[HttpPost("UpdateStockTransfer")]
-        //public async Task<bool> UpdateStockTransfer(StockTransferRequestModel obj)
-        //{
-        //    try
-        //    {
-        //        await _st.UpdateStockTransfer(obj);
-        //        return true;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //}
-
-
-
 
         [HttpPost]
         [Route("UpdateStockTransfer")]
@@ -275,11 +204,9 @@ namespace Inspire.Erp.Web.Controllers.Store
             return apiResponse;
         }
 
-
-
         [HttpGet]
         [Route("GetSavedStockTransferDetails/{id}")]
-        public ApiResponse<StockTransferViewModel> GetSavedStockTransferDetails(string id)
+        public ApiResponse<StockTransferViewModel> GetSavedStockTransferDetails(int id)
         {
             StockTransferModel stockTransfer = _st.GetSavedStockTransferDetails(id);
 
@@ -327,13 +254,15 @@ namespace Inspire.Erp.Web.Controllers.Store
             var jobMasters = jobrepository.GetAsQueryable().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
             {
                 c.JobMasterJobId,
+                c.JobMasterJobNumber,
                 JobMasterJobName = c.JobMasterJobName.Trim(),
-            }).ToList();
+            }).OrderBy(x=>x.JobMasterJobName).ToList();
             var LocationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
             {
                 c.LocationMasterLocationId,
+                c.LocationMasterLocationStatus,
                 LocationMasterLocationName = c.LocationMasterLocationName.Trim(),
-            }).ToList();
+            }).OrderBy(x => x.LocationMasterLocationName).AsEnumerable().ToList();
 
             var customerMasters = _customerMasterRepository.GetAsQueryable().Where(k => k.CustomerMasterCustomerDelStatus != true).Select(a => new
             {
@@ -342,25 +271,25 @@ namespace Inspire.Erp.Web.Controllers.Store
                 a.CustomerMasterCustomerContactPerson,
                 a.CustomerMasterCustomerAddress,
                 a.CustomerMasterCustomerReffAcNo
-            }).ToList();
+            }).OrderBy(x => x.CustomerMasterCustomerName).ToList();
             var itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
                     && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
                     {
                         k.ItemMasterItemId,
                         k.ItemMasterPartNo,
                         ItemMasterItemName = k.ItemMasterItemName.Trim()
-                    }).ToList();
+                    }).OrderBy(x => x.ItemMasterItemName).ToList();
             var unitMasters = unitrepository.GetAsQueryable().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
             {
                 x.UnitMasterUnitId,
                 UnitMasterUnitFullName = x.UnitMasterUnitFullName.Trim(),
                 UnitMasterUnitShortName = x.UnitMasterUnitShortName.Trim()
-            }).ToList();
+            }).OrderBy(x => x.UnitMasterUnitShortName).ToList();
             var departmentMasters = departmentrepository.GetAsQueryable().Where(a => a.DepartmentMasterDepartmentDelStatus != true).Select(c => new
             {
                 c.DepartmentMasterDepartmentId,
                 DepartmentMasterDepartmentName = c.DepartmentMasterDepartmentName.Trim()
-            }).ToList();
+            }).OrderBy(x => x.DepartmentMasterDepartmentName).ToList();
             objresponse.ResultSet = new
             {
                 jobMasters = jobMasters,
@@ -368,9 +297,48 @@ namespace Inspire.Erp.Web.Controllers.Store
                 customerMasters = customerMasters,
                 itemMaster = itemMaster,
                 unitMasters = unitMasters,
-                departmentMasters= departmentMasters
+                departmentMasters = departmentMasters
             };
             return objresponse;
+        }        
+        [HttpPost]
+        [Route("getStockTransferReport")]
+        public async Task<ResponseInfo> getStockTransferReport(reportModel model) 
+        {
+            return await _st.getStockTransferReport(model);
+        }
+
+        [HttpGet]
+        [Route("getStockitembyId")]
+        public ResponseInfo getStockitembyId(int Id)
+        {
+            var objresponse = new ResponseInfo();
+            objresponse = _st.getStockitembyId(Id);
+            return objresponse;
+        }
+
+        [HttpPost]
+        [Route("StockTransferChangeStatus")]
+        public ResponseInfo ChangeStatus(string stockTransferVoucherNo)
+        {
+            var objresponse = new ResponseInfo();
+            objresponse = _st.StockTransferChangeStatus(stockTransferVoucherNo);
+            return objresponse;
+        }
+
+        [HttpGet]
+        [Route("getStockitembyIds")]
+        public ApiResponse<List<stocktransferRegister>> getStockitembyIds(int id)
+        {
+            IEnumerable<stocktransferRegister> listItemnater = _st.getStockitembyIds(id);
+            var x = _mapper.Map<List<stocktransferRegister>>(listItemnater);
+            ApiResponse<List<stocktransferRegister>> apiResponse = new ApiResponse<List<stocktransferRegister>>
+            {
+                Valid = true,
+                Result = x,
+                Message = ""
+            };
+            return apiResponse;
         }
     }
-}
+ }

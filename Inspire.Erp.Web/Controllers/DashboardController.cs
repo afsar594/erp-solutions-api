@@ -2,18 +2,22 @@
 using Inspire.Erp.Application.Dashboard.Interfaces;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Modals.Dashboard;
+using Inspire.Erp.Infrastructure.Database;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Inspire.Erp.Web.Common;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using NPOI.SS.Formula.Functions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Data;
+using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers
@@ -25,14 +29,16 @@ namespace Inspire.Erp.Web.Controllers
     {
         private readonly IMapper _mapper;
         private readonly IDashboardService _dashboardService;
+        private InspireErpDBContext _context;
         private readonly IRepository<GetSummaryResponse> _summaryService;
         private IConfiguration Configuration;
 
-        public DashboardController(IDashboardService dashboardService, IMapper mapper, IRepository<GetSummaryResponse> summaryService, IConfiguration _Configuration)
+        public DashboardController(IDashboardService dashboardService, IMapper mapper, InspireErpDBContext context, IRepository<GetSummaryResponse> summaryService, IConfiguration _Configuration)
         {
             _dashboardService = dashboardService;
             _mapper = mapper;
             _summaryService = summaryService;
+            _context = context;
             Configuration = _Configuration;
         }
         [HttpPost("GetDashboardPDCIssueRecieved")]
@@ -130,6 +136,39 @@ namespace Inspire.Erp.Web.Controllers
                     });
                 }
             }
+        }
+
+        [HttpGet("GetPdcTotal")]
+        public async Task<ResponseInfo> GetPdcTotal()
+        {
+            var obj = new ResponseInfo();
+            try
+            {
+                var data = await _context.tbl_DASHBOARD_SUMMARY.AsQueryable().ToListAsync();
+                var pendingDetails = await _context.PermissionApprovalDetail
+                                // .Where(a => a.Status == "Pending")
+                                .Distinct().ToListAsync();
+
+                var groupedData = pendingDetails
+                    .GroupBy(a => a.VoucherId)
+                    .Select(g => g.FirstOrDefault())
+                    .OrderBy(x => x.VoucherDate).ToList();
+
+
+                obj.IsSuccess = true;
+                obj.ResultSet = new
+                {
+                    data = data,
+                    groupedData = groupedData
+                };
+
+            }
+            catch (Exception ex)
+            {
+                obj.IsSuccess = false;
+                obj.ErrorMessage = ex.Message + ex.InnerException?.Message;
+            }
+            return obj;
         }
     }
 }

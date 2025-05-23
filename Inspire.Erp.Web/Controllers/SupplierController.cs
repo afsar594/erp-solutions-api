@@ -71,7 +71,7 @@ namespace Inspire.Erp.Web.Controllers
                 SuppliersMasterSupplierCreditLimit = k.SuppliersMasterSupplierCreditLimit,
                 SuppliersMasterSupplierVatNo = k.SuppliersMasterSupplierVatNo,
                 SuppliersMasterSupplierDelStatus = k.SuppliersMasterSupplierDelStatus
-            }).ToList();
+            }).OrderBy(x => x.SuppliersMasterSupplierName).ToList();
         }
 
 
@@ -313,23 +313,23 @@ namespace Inspire.Erp.Web.Controllers
                 c.CurrencyMasterCurrencyId,
                 c.CurrencyMasterCurrencyName,
                 c.CurrencyMasterCurrencyRate
-            }).ToList();
+            }).OrderBy(x=>x.CurrencyMasterCurrencyName).AsEnumerable().ToList();
             var countryMasters = countryrepository.GetAsQueryable().Where(a => a.CountryMasterCountryDelStatus != true).Select(c => new
             {
                 c.CountryMasterCountryId,
                 c.CountryMasterCountryName
-            }).ToList();
+            }).OrderBy(x => x.CountryMasterCountryName).ToList();
             var cityMasters = cityrepository.GetAsQueryable().Where(a => a.CityMasterCityDelStatus != true).Select(c => new
             {
                 c.CityMasterCityId,
                 c.CityMasterCityName,
                 c.CityMasterCityCountryId
-            }).ToList();
+            }).OrderBy(x => x.CityMasterCityName).ToList();
             var locationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
             {
                 c.LocationMasterLocationId,
                 c.LocationMasterLocationName,
-            }).ToList();
+            }).OrderBy(x => x.LocationMasterLocationName).ToList();
             objresponse.ResultSet = new
             {
                 currencyMasters = currencyMasters,

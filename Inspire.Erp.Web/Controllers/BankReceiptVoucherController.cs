@@ -139,7 +139,7 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("GetSavedBankReceiptDetails/{id}")]
-        public ApiResponse<BankReceiptVoucher> GetSavedBankPaymentDetails(string id)
+        public ApiResponse<BankReceiptVoucher> GetSavedBankPaymentDetails(int id)
         {
             BankReceiptVoucher bankReceiptVoucher = _bankReceiptVoucherService.GetSavedBankReceiptDetails(id);
             var apiResposne = new ApiResponse<BankReceiptVoucher>

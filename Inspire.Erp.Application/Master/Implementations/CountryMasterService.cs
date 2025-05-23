@@ -102,6 +102,7 @@ namespace Inspire.Erp.Application.Master
             {
                 //countryrepository.Dispose();
             }
+            countryMasters = countryMasters.OrderBy(sm => sm.CountryMasterCountryName).ToList();
             return countryMasters;
         }
 

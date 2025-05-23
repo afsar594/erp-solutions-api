@@ -19,5 +19,6 @@ namespace Inspire.Erp.Domain.Entities
         public string StockAdjustmentVoucherDetailsBatchCode { get; set; }
         public DateTime? StockAdjustmentVoucherDetailsExpDate { get; set; }
         public bool? StockAdjustmentVoucherDetailsDelStatus { get; set; }
+
     }
 }

@@ -37,7 +37,7 @@ namespace Inspire.Erp.Web.Controllers
 
                 PriveLevelMasterPriceLevelDelStatus = k.PriveLevelMasterPriceLevelDelStatus
 
-            }).ToList();
+            }).OrderBy(x => x.PriceLevelMasterPriceLevelName).ToList();
         }
 
         [HttpGet]
@@ -50,7 +50,7 @@ namespace Inspire.Erp.Web.Controllers
                 PriceLevelMasterPriceLevelId = (int)k.PriceLevelMasterPriceLevelId,
                 PriceLevelMasterPriceLevelName = k.PriceLevelMasterPriceLevelName,
                  PriveLevelMasterPriceLevelDelStatus = k.PriveLevelMasterPriceLevelDelStatus
-            }).ToList();
+            }).OrderBy(x => x.PriceLevelMasterPriceLevelName).ToList();
         }
 
 
@@ -66,7 +66,7 @@ namespace Inspire.Erp.Web.Controllers
                 PriceLevelMasterPriceLevelName = k.PriceLevelMasterPriceLevelName,
 
                  PriveLevelMasterPriceLevelDelStatus = k.PriveLevelMasterPriceLevelDelStatus
-            }).ToList();
+            }).OrderBy(x => x.PriceLevelMasterPriceLevelName).ToList();
         }
 
         [HttpPost]
@@ -80,7 +80,7 @@ namespace Inspire.Erp.Web.Controllers
                 
                 PriceLevelMasterPriceLevelName = k.PriceLevelMasterPriceLevelName,
                 PriveLevelMasterPriceLevelDelStatus = k.PriveLevelMasterPriceLevelDelStatus
-            }).ToList();
+            }).OrderBy(x => x.PriceLevelMasterPriceLevelName).ToList();
         }
 
         [HttpPost]
@@ -94,7 +94,7 @@ namespace Inspire.Erp.Web.Controllers
                 
                 PriceLevelMasterPriceLevelName = k.PriceLevelMasterPriceLevelName,
                  PriveLevelMasterPriceLevelDelStatus = k.PriveLevelMasterPriceLevelDelStatus
-            }).ToList();
+            }).OrderBy(x=>x.PriceLevelMasterPriceLevelName).ToList();
         }
     }
 }

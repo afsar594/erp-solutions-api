@@ -6,6 +6,7 @@ namespace Inspire.Erp.Web.ViewModels.Procurement
     public partial class PurchaseRequisitionDetailsViewModel
     {
         public decimal PurchaseRequisitionDetailsId { get; set; }
+        public int? PurchaseRequisitionDetailsJobId { get; set; }
         public decimal? PurchaseRequisitionId { get; set; }
         public string PurchaseRequisitionDetailsNo { get; set; }
         public decimal? PurchaseRequisitionDetailsSno { get; set; }
@@ -42,6 +43,9 @@ namespace Inspire.Erp.Web.ViewModels.Procurement
         public string? PurchaseRequisitionDetailsReqStatus { get; set; }
         public bool? PurchaseRequisitionDetailsDelStatus { get; set; }
         public int? boqdId { get; set; }
+        public int? PurchaseRequisitionDetailsSupplierId { get; set; }
+        public int PurchaseRequisitionDetailsBalQty { get; set; }
+
         //public virtual PurchaseRequisition PurchaseRequisitionDetailsNoNavigation { get; set; }
     }
 }

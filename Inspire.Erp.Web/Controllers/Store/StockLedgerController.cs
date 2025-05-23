@@ -4,6 +4,7 @@ using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Modals.Stock;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers.Store
-{
+{  
     [Route("api/StockLedger")]
     [Produces("application/json")]
     [ApiController]
@@ -46,18 +47,19 @@ namespace Inspire.Erp.Web.Controllers.Store
                      k.ItemMasterPartNo,
                      k.ItemMasterCurrentStock,
                      k.ItemMasterAccountNo
-                 }).ToList();
+                 }).OrderBy(x => x.ItemMasterItemName).ToList();
             var LocationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
             {
                 c.LocationMasterLocationId,
-                c.LocationMasterLocationName
-            }).ToList();
+                c.LocationMasterLocationName,
+                c.LocationMasterLocationStatus
+            }).OrderBy(x => x.LocationMasterLocationName).AsEnumerable().ToList();
             var itemMasterGroup = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo == 0 && (k.ItemMasterDelStatus != true)
                 && k.ItemMasterItemType == ItemMasterStatus.Group).Select(k => new
                 {
                     k.ItemMasterItemId,
                     k.ItemMasterItemName,
-                }).ToList();
+                }).OrderBy(x => x.ItemMasterItemName).ToList();
             objectresponse.ResultSet = new
             {
                 itemMaster = itemMaster,

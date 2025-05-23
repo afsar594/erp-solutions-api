@@ -306,7 +306,22 @@ namespace Inspire.Erp.Application.Account
              ).Select(k => k);
 
             return masterAccountsTable;
+
+
         }
+        //public IEnumerable<AccountSettings> GetAllAccountSettings()
+        //{
+        //    var AccountSettingstable = accountSettingsrepository.GetAsQueryable().Where(k => k.AccountSettingsAccountKeyValue.Trim() == "STOCK_ADJUSTMENT");
+          
+        //    return AccountSettingstable;
+        //  }
+        //public IEnumerable<AccountSettings> GetAllAccountStock()
+        //{
+        //    var AccountStock = accountSettingsrepository.GetAsQueryable().Where(k => k.AccountSettingsAccountKeyValue == "STOCK_AC_NO"
+        //     ).Select(k => k);
+
+        //    return AccountStock;
+        //}
     }
 }
 

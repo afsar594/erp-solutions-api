@@ -22,6 +22,10 @@ using Inspire.Erp.Domain.Models.Procurement.PurchaseOrderTracking;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
+using Inspire.Erp.Application.Master;
+using Microsoft.AspNetCore.Mvc;
+using Spire.Pdf.Exporting.XPS.Schema;
+using System.Collections.Immutable;
 
 namespace Inspire.Erp.Application.Sales.Implementations
 {
@@ -39,11 +43,11 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<UnitMaster> _unitMasterRepository;
         private IRepository<SuppliersMaster> _suppliersMasterRepository;
         private IRepository<LocationMaster> _locationMasterRepository;
-
+        //private IRepository<LocationMaster> _locationMasterRepo;        
         private IRepository<CustomerMaster> _customerMasterRepository;
         private IRepository<CustomerMaster> _salesManMasterRepository;
         private IRepository<DepartmentMaster> _departmentMasterRepository;
-        private IRepository<LocationMaster> _locationMasterRepo;
+        private IRepository<SalesVoucherDetails> _salesVoucherDetailsRepo;
 
 
 
@@ -60,7 +64,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
 
             IRepository<CustomerDeliveryNote> deliveryNoteRepository, IRepository<CustomerDeliveryNoteDetails> deliveryNoteDetailsRepository
-            , IRepository<LocationMaster> locationMasterRepo)
+            , IRepository<LocationMaster> locationMasterRepo, IRepository<SalesVoucherDetails> salesVoucherDetailsRepo)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository;
@@ -75,7 +79,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             _customerMasterRepository = customerMasterRepository;
             _salesManMasterRepository = salesManMasterRepository;
             _departmentMasterRepository = departmentMasterRepository;
-            _locationMasterRepo = locationMasterRepo;
+            _salesVoucherDetailsRepo = salesVoucherDetailsRepo;
 
         }
 
@@ -135,14 +139,14 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 {
                     k.CustomerDeliveryNoteDetailsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.CustomerDeliveryNoteDetailsDeliveryNo).AsEnumerable().ToList();
 
                 deliveryNote.CustomerDeliveryNoteDetails = deliveryNoteDetails;
 
                 _deliveryNoteRepository.Update(deliveryNote);
 
                 _deliveryNoteRepository.TransactionCommit();
-                i = 1;
+                i = 1; 
             }
             catch (Exception ex)
             {
@@ -214,7 +218,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             DeliveryNoteModel deliveryNoteModel = new DeliveryNoteModel();
 
             deliveryNoteModel.deliveryNote = _deliveryNoteRepository.GetAsQueryable().Where(k => k.CustomerDeliveryNoteDeliveryID == pvno).SingleOrDefault();
-            deliveryNoteModel.deliveryNoteDetails = _deliveryNoteDetailsRepository.GetAsQueryable().Where(x => x.CustomerDeliveryNoteDetailsDeliveryNo == pvno && (x.CustomerDeliveryNoteDetailsDelStatus == false || x.CustomerDeliveryNoteDetailsDelStatus == null)).ToList();
+            deliveryNoteModel.deliveryNoteDetails = _deliveryNoteDetailsRepository.GetAsQueryable().Where(x => x.CustomerDeliveryNoteDetailsDeliveryNo == pvno && (x.CustomerDeliveryNoteDetailsDelStatus == false || x.CustomerDeliveryNoteDetailsDelStatus == null)).OrderBy(x => x.CustomerDeliveryNoteDetailsDeliveryNo).ToList();
             return deliveryNoteModel;
         }
 
@@ -228,72 +232,185 @@ namespace Inspire.Erp.Application.Sales.Implementations
         public IEnumerable<CustomerDeliveryNote> GetDeliveryNote()
         {
 
-            var customerDeliveryNotes = _deliveryNoteRepository.GetAll().Where(a => a.CustomerDeliveryNoteDelStatus == false || a.CustomerDeliveryNoteDelStatus == null).ToList();
+            var customerDeliveryNotes = _deliveryNoteRepository.GetAll().Where(a => a.CustomerDeliveryNoteDelStatus == false || a.CustomerDeliveryNoteDelStatus == null).OrderBy(x => x.CustomerDeliveryNoteCustomerName).AsEnumerable().ToList();
             return customerDeliveryNotes;
         }
-
         public async Task<Response<List<DNReportDetails>>> DeliveryNoteReportDetails(DeliveryNoteReportFilter filter)
         {
-            List<DNReportDetails> reportDetails = new List<DNReportDetails>();
-            string filteredValue = " && 1 == 1";
-
             try
             {
+                var query = _deliveryNoteRepository.GetAsQueryable();
 
+                // Applying Filters
                 if (filter.LocationId > 0)
                 {
-                    filteredValue += $" && CustomerDeliveryNoteLocationID == {filter.LocationId} ";
+                    query = query.Where(dn => dn.CustomerDeliveryNoteLocationID == filter.LocationId);
                 }
                 if (filter.CustomerId > 0)
                 {
-                    filteredValue += $" && CustomerDeliveryNoteCustomerCode == {filter.CustomerId} ";
+                    query = query.Where(dn => dn.CustomerDeliveryNoteCustomerCode == filter.CustomerId);
                 }
-                if (!string.IsNullOrEmpty(filter.fromDate) && !string.IsNullOrEmpty(filter.toDate))
+                if (!filter.IsDateCheck)
                 {
-                    filteredValue += $" && CustomerDeliveryNoteDeliveryDate >= {Convert.ToDateTime(filter.fromDate)} && CustomerDeliveryNoteDeliveryDate <= {Convert.ToDateTime(filter.toDate)} ";
+                    if (filter.Formate == "Date")
+                    {
+                        query = query.Where(x => x.CustomerDeliveryNoteDeliveryDate.HasValue
+                             && x.CustomerDeliveryNoteDeliveryDate.Value.Date >= filter.fromDate.Date
+                             && x.CustomerDeliveryNoteDeliveryDate.Value.Date <= filter.toDate.Date);
+                    }
+                    else if (filter.Formate == "Year")
+                    {
+                        query = query.Where(x => x.CustomerDeliveryNoteDeliveryDate.HasValue
+                             && x.CustomerDeliveryNoteDeliveryDate.Value.Year >= filter.fromDate.Year
+                             && x.CustomerDeliveryNoteDeliveryDate.Value.Year <= filter.toDate.Year);
+                    }
+                    else if (filter.Formate == "Month")
+                    {
+                        query = query.Where(x => x.CustomerDeliveryNoteDeliveryDate.HasValue
+                             && ((x.CustomerDeliveryNoteDeliveryDate.Value.Year > filter.fromDate.Year ||
+                                 (x.CustomerDeliveryNoteDeliveryDate.Value.Year == filter.fromDate.Year &&
+                                  x.CustomerDeliveryNoteDeliveryDate.Value.Month >= filter.fromDate.Month))
+                             && (x.CustomerDeliveryNoteDeliveryDate.Value.Year < filter.toDate.Year ||
+                                 (x.CustomerDeliveryNoteDeliveryDate.Value.Year == filter.toDate.Year &&
+                                  x.CustomerDeliveryNoteDeliveryDate.Value.Month <= filter.toDate.Month))));
+                    }
                 }
-                reportDetails = await (from dn in _deliveryNoteRepository.GetAsQueryable().Where($"1 == 1  {filteredValue}")
-                                       join lm in _locationMasterRepo.GetAsQueryable() on dn.CustomerDeliveryNoteLocationID equals (long)lm.LocationMasterLocationId into lmGroup
-                                       from lm in lmGroup.DefaultIfEmpty()
-                                       join dnd in _deliveryNoteDetailsRepository.GetAsQueryable() on dn.CustomerDeliveryNoteDeliveryID equals (long)dnd.CustomerDeliveryNoteDetailsDeliveryDetailId into dndGroup
-                                       from dnd in dndGroup.DefaultIfEmpty()
-                                       select new DNReportDetails()
+                var reportDetails = await (from dn in query
+                                           join lm in _locationMasterRepository.GetAsQueryable()
+                                           on dn.CustomerDeliveryNoteLocationID equals lm.LocationMasterLocationId into lmGroup
+                                           from lm in lmGroup.DefaultIfEmpty()
+                                           join dnd in _deliveryNoteDetailsRepository.GetAsQueryable()
+                                           on dn.CustomerDeliveryNoteDeliveryID equals (int)dnd.CustomerDeliveryNoteDetailsDeliveryDetailId into dndGroup
+                                           from dnd in dndGroup.DefaultIfEmpty()
+                                           select new DNReportDetails
+                                           {
+                                               DaliveryDate = dn.CustomerDeliveryNoteDeliveryDate ?? null, // Nullable DateTime
+                                               CustomerName = dn.CustomerDeliveryNoteCustomerName ?? "N/A",
+                                               DeliverySatus = dn.CustomerDeliveryNoteDeliveryStatus ?? "N/A",
+                                               DelId = dn.CustomerDeliveryNoteDeliveryID,
+                                               Location = lm != null ? lm.LocationMasterLocationName ?? "N/A" : "N/A",
+                                               ItemList = dnd != null ? new List<DNItemList>
                                        {
-                                           DaliveryDate = dn.CustomerDeliveryNoteDeliveryDate,
-                                           CustomerName = dn.CustomerDeliveryNoteCustomerName,
-                                           DeliverySatus = dn.CustomerDeliveryNoteDeliveryStatus,
-                                           DelId = dn.CustomerDeliveryNoteDeliveryID,
-                                           Location = lm.LocationMasterLocationName,
-                                           ItemList = new List<DNItemList>
-                                        {
-                                            new DNItemList
-                                            {
-                                              Description   = dnd.CustomerDeliveryNoteDetailsDescription,
-                                              Qty  = dnd.CustomerDeliveryNoteDetailsQty,
-                                              MaterialId = dnd.CustomerDeliveryNoteDetailsItemId
-
-                                            }
-                                        },
-
-
-                                       }).OrderBy(x => x.DaliveryDate).ToListAsync();
-
+                                           new DNItemList
+                                           {
+                                               Description = dnd.CustomerDeliveryNoteDetailsDescription ?? "",
+                                               Qty = dnd.CustomerDeliveryNoteDetailsQty ?? 0,
+                                               MaterialId = dnd.CustomerDeliveryNoteDetailsItemId ?? 0
+                                           }
+                                       } : new List<DNItemList>()
+                                           })
+                                           .OrderBy(x => x.DaliveryDate ?? DateTime.MinValue) // Handling null DateTime
+                                           .ToListAsync();
 
                 return new Response<List<DNReportDetails>>
                 {
                     Valid = true,
                     Result = reportDetails,
-                    Message = "Delivery Note Data Fonud"
+                    Message = "Delivery Note Data Found"
                 };
             }
             catch (Exception ex)
             {
-
-                throw ex;
+                return new Response<List<DNReportDetails>>
+                {
+                    Valid = false,
+                    Result = null,
+                    Message = $"Error: {ex.Message}"
+                };
             }
-
         }
 
+        public async Task<Response<List<DeliveryNotes>>> DeliveryNoteByFilter(DeliveryNotefilter filter)
+        {
+            try
+            {
+                var query = _deliveryNoteRepository.GetAsQueryable();
+                    //.Where(dn => (dn.CustomerDeliveryNoteCustomerCode ?? 0) > 0 &&
+                    //             !_salesVoucherDetailsRepo.GetAsQueryable()
+                    //                .Select(s => (long)s.SalesVoucherDetailsDlvId)
+                    //                .Contains((long)dn.CustomerDeliveryNoteDeliveryID));
+
+                // Apply filters dynamically
+                if (filter.Customercode > 0)
+                {
+                    query = query.Where(dn => dn.CustomerDeliveryNoteCustomerCode == filter.Customercode);
+                }
+
+                if (filter.ischeck)
+                {
+                    query = query.Where(dn => dn.CustomerDeliveryNoteDeliveryDate >= filter.fromDate.Value.Date &&
+                                              dn.CustomerDeliveryNoteDeliveryDate <= filter.toDate.Value.Date);
+                }
+
+                var result = await (from dn in query
+                                    join lm in _customerMasterRepository.GetAsQueryable()
+                                    on dn.CustomerDeliveryNoteCustomerCode equals (long?)lm.CustomerMasterCustomerNo into lmGroup
+                                    from lm in lmGroup.DefaultIfEmpty() // Left Outer Join
+                                    select new DeliveryNotes
+                                    {
+                                        CustomerDeliveryNoteDeliveryId = dn.CustomerDeliveryNoteDeliveryID,
+                                        CustomerDeliveryNoteDeliveryDate = dn.CustomerDeliveryNoteDeliveryDate,
+                                        CustomerId = dn.CustomerDeliveryNoteCustomerCode,
+                                        CustomerName = lm != null ? lm.CustomerMasterCustomerArabicName : null
+                                    }).ToListAsync();
+
+                return new Response<List<DeliveryNotes>>
+                {
+                    Valid = true,
+                    Result = result,
+                    Message = "Delivery Report Data Found"
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Response<List<DeliveryNotes>>
+                {
+                    Valid = false,
+                    Result = null,
+                    Message = $"Error: {ex.Message}"
+                };
+            }
+        }
+        public async Task<Response<List<DeliveryNoteDetailsModule>>> DeliveryNoteByFilterbyId(List<DeliverybyId> detail)
+        {
+            try
+            {
+                // Extracting delivery IDs from detail list
+                var deliveryIds = detail.Select(d => d.DNDId).ToList();
+
+                var query = from cn in _deliveryNoteRepository.GetAsQueryable()
+                            join cd in _deliveryNoteDetailsRepository.GetAsQueryable()
+                                on cn.CustomerDeliveryNoteDeliveryID equals cd.CustomerDeliveryNoteDetailsDeliveryNo
+                            where deliveryIds.Contains(cn.CustomerDeliveryNoteDeliveryID)
+                            select new DeliveryNoteDetailsModule
+                            {
+                                DNDId = cn.CustomerDeliveryNoteDeliveryID,
+                                DetailsItemId = cd.CustomerDeliveryNoteDetailsItemId ?? 0,
+                                DetailsUnitId = cd.CustomerDeliveryNoteDetailsUnitId ?? 0,
+                                remarks = cd.CustomerDeliveryNoteDetailsDescription,
+                                DetailsQTY = cd.CustomerDeliveryNoteDetailsQty ?? 0,
+                                DetailsRate = (int)cd.CustomerDeliveryNoteDetailsRate 
+                            };
+
+                var result = await query.ToListAsync(); // Ensuring async execution
+
+                return new Response<List<DeliveryNoteDetailsModule>>
+                {
+                    Valid = true,
+                    Result = result,
+                    Message = result.Any() ? "Delivery Note Data Found" : "No Data Found"
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Response<List<DeliveryNoteDetailsModule>>
+                {
+                    Valid = false,
+                    Result = null,
+                    Message = $"Error: {ex.Message}"
+                };
+            }
+        }
         public CustomerDeliveryNote InsertCustomerDeliveryNote(CustomerDeliveryNote deliveryNote, List<CustomerDeliveryNoteDetails> deliveryNoteDetails)
         {
             try
@@ -311,7 +428,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 {
                     x.CustomerDeliveryNoteDetailsDeliveryDetailId = maxcount;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.CustomerDeliveryNoteDetailsDeliveryNo).AsEnumerable().ToList();
                 _deliveryNoteDetailsRepository.InsertList(deliveryNoteDetails);
 
                 _deliveryNoteRepository.Insert(deliveryNote);

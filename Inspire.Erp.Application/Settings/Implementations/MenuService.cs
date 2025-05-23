@@ -92,7 +92,7 @@ namespace Inspire.Erp.Application.Settings.Implementations
                         Title = x.Title,
                         Page = x.Page,
                         Order = x.Order,
-                    }).OrderBy(x => x.Order).ToList();
+                    }).OrderBy(x => x.Order).AsEnumerable().ToList();
 
 
                     foreach (var pageItem in topMenu)

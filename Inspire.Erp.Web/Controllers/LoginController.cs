@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Inspire.Erp.Application.Authentication.Inerfaces;
+using Inspire.Erp.Application.Helpers;
 using Inspire.Erp.Application.Master;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
@@ -17,7 +18,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Inspire.Erp.Web.Controllers
-{
+{    
     [Route("api")]
     [Produces("application/json")]
     [ApiController]
@@ -80,20 +81,28 @@ namespace Inspire.Erp.Web.Controllers
 
         [AllowAnonymous]
         [HttpPost("authenticate")]
-        public IActionResult Authenticate([FromBody] User user)
+        public IActionResult Authenticate([FromBody] User user, string returnUrl = "/")
         {
+           
             var response = loginsvc.Authenticate(new UserFile
             {
                 UserName = user.Username,
                 Password = user.Password
             }, ipAddress());
 
-            if (response == null)
-                return BadRequest(new { message = "Username or password is incorrect" });
+            if (response.IsValid != false)
+            {
+                response.IsValid = true;
+                setTokenCookie(response.RefreshToken);
+                response.FinancialPeriodsFsno = user.Financialperiod.FinancialPeriodsFsno;
+                response.LocId = (int)user.Location.LocationMasterLocationId;
+            }
+            else
+            {
+                return Ok(response);
+            }
 
-            setTokenCookie(response.RefreshToken);
-            response.FinancialPeriodsFsno = user.Financialperiod.FinancialPeriodsFsno;
-            response.LocId = (int)user.Location.LocationMasterLocationId;
+
             return Ok(ApiResponse<UserFile>.Success(response));
         }
 
@@ -153,18 +162,32 @@ namespace Inspire.Erp.Web.Controllers
             ApiResponse<UserFileViewModel> apiResponse = new ApiResponse<UserFileViewModel>();
 
             var param1 = _mapper.Map<UserFile>(user);
-
+            param1.UserImage = ImageHelper.Base64ImageToByteArray(user.UserImageBase64);
+            param1.SignImg = ImageHelper.Base64ImageToByteArray(user.SignImageBase64);
             var xs = loginsvc.InsertUser(param1);
-
             UserFileViewModel userdata = new UserFileViewModel();
-            userdata = _mapper.Map<UserFileViewModel>(xs);
-
-            apiResponse = new ApiResponse<UserFileViewModel>
+            if (xs.IsValid == true )
             {
-                Valid = true,
-                Result = userdata,
-                Message = UserFileMessage.SaveUser
-            };
+                userdata = _mapper.Map<UserFileViewModel>(xs);
+                 userdata.UserImageBase64 = ImageHelper.ByteArrayToBase64Image(xs.UserImage);
+                userdata.SignImageBase64 = ImageHelper.ByteArrayToBase64Image(xs.SignImg);
+                apiResponse = new ApiResponse<UserFileViewModel>
+                {
+                    Valid = true,
+                    Result = userdata,
+                    Message = UserFileMessage.UpdateUser
+                };
+            }
+            else
+            {
+                userdata = _mapper.Map<UserFileViewModel>(xs);
+                apiResponse = new ApiResponse<UserFileViewModel>
+                {
+                    Valid = true,
+                    Result = userdata,
+                    Message = xs.Message
+                };
+            }
             return apiResponse;
         }
 
@@ -176,18 +199,33 @@ namespace Inspire.Erp.Web.Controllers
             ApiResponse<UserFileViewModel> apiResponse = new ApiResponse<UserFileViewModel>();
 
             var param1 = _mapper.Map<UserFile>(user);
-
+            param1.UserImage = ImageHelper.Base64ImageToByteArray(user.UserImageBase64);
+            param1.SignImg = ImageHelper.Base64ImageToByteArray(user.SignImageBase64);
             var xs = loginsvc.UpdateUser(param1);
 
             UserFileViewModel userdata = new UserFileViewModel();
-            userdata = _mapper.Map<UserFileViewModel>(xs);
-
-            apiResponse = new ApiResponse<UserFileViewModel>
+            if (xs.IsValid == true || xs.IsValid == null)
             {
-                Valid = true,
-                Result = userdata,
-                Message = UserFileMessage.UpdateUser
-            };
+                userdata = _mapper.Map<UserFileViewModel>(xs);
+                userdata.UserImageBase64 = ImageHelper.ByteArrayToBase64Image(xs.UserImage);
+                userdata.SignImageBase64 = ImageHelper.ByteArrayToBase64Image(xs.SignImg);
+                apiResponse = new ApiResponse<UserFileViewModel>
+                {
+                    Valid = true,
+                    Result = userdata,
+                    Message = UserFileMessage.UpdateUser
+                };
+            }
+            else
+            {
+                userdata = _mapper.Map<UserFileViewModel>(xs);
+                apiResponse = new ApiResponse<UserFileViewModel>
+                {
+                    Valid = false,
+                    Result = userdata,
+                    Message = xs.Message
+                };
+            }
             return apiResponse;
         }
 
@@ -218,10 +256,15 @@ namespace Inspire.Erp.Web.Controllers
         [Route("GetAllUserFile")]
         public ApiResponse<List<UserFile>> GetAllUserFile()
         {
+            var users = _mapper.Map<List<UserFile>>(loginsvc.GetAllUserFile());
+            users.ForEach(x => {
+                x.UserImageBase64 = ImageHelper.ByteArrayToBase64Image(x.UserImage);
+                x.SignImageBase64 = ImageHelper.ByteArrayToBase64Image(x.SignImg);
+            });
             ApiResponse<List<UserFile>> apiResponse = new ApiResponse<List<UserFile>>
             {
                 Valid = true,
-                Result = _mapper.Map<List<UserFile>>(loginsvc.GetAllUserFile()),
+                Result = users,
                 Message = ""
             };
             return apiResponse;
@@ -236,18 +279,18 @@ namespace Inspire.Erp.Web.Controllers
 
             return user;
         }
-
+        [AllowAnonymous]
         [HttpGet]
         [Route("LoadDropdown")]
         public ResponseInfo LoadDropdown()
         {
             var objectresponse = new ResponseInfo();
 
-            var LocationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
-            {
-                c.LocationMasterLocationId,
-                c.LocationMasterLocationName
-            }).ToList();
+            //var LocationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
+            //{
+            //    c.LocationMasterLocationId,
+            //    c.LocationMasterLocationName
+            //}).AsEnumerable().OrderBy(x=>x.LocationMasterLocationName).ToList();
             var FinancialPeriods = financialrepository.GetAsQueryable().Where(x => x.FinancialPeriodsFsno != null).Select(k => new
             {
                 k.FinancialPeriodsFsno,
@@ -257,13 +300,43 @@ namespace Inspire.Erp.Web.Controllers
 
             objectresponse.ResultSet = new
             {
-                LocationMaster = LocationMaster,
+               //LocationMaster = LocationMaster,
                 FinancialPeriods = FinancialPeriods
             };
 
             objectresponse.IsSuccess = true;
             return objectresponse;
         }
+
+        [AllowAnonymous]
+        [HttpGet]
+        [Route("LoadDropdownFPeriod")]
+        public ResponseInfo LoadDropdownFPeriod()
+        {
+            var objectresponse = new ResponseInfo();
+
+            //var LocationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
+            //{
+            //    c.LocationMasterLocationId,
+            //    c.LocationMasterLocationName
+            //}).AsEnumerable().OrderBy(x=>x.LocationMasterLocationName).ToList();
+            var FinancialPeriods = financialrepository.GetAsQueryable().Where(x => x.FinancialPeriodsFsno != null).Select(k => new
+            {
+                k.FinancialPeriodsFsno,
+                k.FinancialPeriodsStartDate,
+                k.FinancialPeriodsEndDate
+            });
+
+            objectresponse.ResultSet = new
+            {
+                // LocationMaster = LocationMaster,
+                FinancialPeriods = FinancialPeriods
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
+
 
         [HttpGet]
         [Route("GetAllUser")]
@@ -276,7 +349,7 @@ namespace Inspire.Erp.Web.Controllers
             {
                 a.UserId,
                 a.UserName
-            }).ToList();
+            }).OrderBy(x=>x.UserName).ToList();
             objectresponse.ResultSet = new
             {
                 result = user,

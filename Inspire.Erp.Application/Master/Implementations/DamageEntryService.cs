@@ -46,105 +46,13 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
             _voucherNumbersRepository = voucherNumbersRepository;
             _stockRegisterRepository = stockRegisterRepository;
         }
-        //public VouchersNumbers DamageEntryPrefix()
-        //{
-        //    try
-        //    {
-        //        prefix = _programsettingsRepository.GetAsQueryable().Where(k => k.ProgramSettingsKeyValue == Prefix.DE_Prefix).FirstOrDefault().ProgramSettingsTextValue;
-        //        int vnoMaxVal = Convert.ToInt32(_VouchersNumbersRepo.GetAsQueryable()
-        //                                                .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == VoucherType.DamageEntry_TYPE)
-        //                                                .DefaultIfEmpty()
-        //                                                .Max(o => o == null ? 0 : o.VouchersNumbersVNoNu)) + 1;
-
-
-        //        //var prefix = "DE";
-        //        //int vnoMaxVal = 1;
-
-
-        //        VouchersNumbers vouchersNumbers = new VouchersNumbers
-        //        {
-        //            VouchersNumbersVNo = prefix + vnoMaxVal,
-        //            VouchersNumbersVNoNu = vnoMaxVal,
-        //            VouchersNumbersVType = VoucherType.DamageEntry_TYPE,
-        //            VouchersNumbersFsno = 1,
-        //            VouchersNumbersStatus = AccountStatus.Pending,
-        //            VouchersNumbersVoucherDate = DateTime.Now,
-
-        //        };
-        //        _VouchersNumbersRepo.Insert(vouchersNumbers);
-        //        return vouchersNumbers;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //}
-
-
-
-        //public IEnumerable<DamageEntryModel> DamageEntryResponse()
-        //{
-        //    try
-        //    {
-        //        var data = (from dm in _DamageMasterRepo.GetAsQueryable()
-        //                    join dm_dt in _DamageDetailsRepo.GetAsQueryable()
-        //                    on dm.DamageMasterVoucherNumber equals dm_dt.DamageDetailsVoucherNumber
-        //                    join stk in _StockRegisterRepo.GetAsQueryable()
-        //                    on dm.DamageMasterVoucherNumber equals stk.StockRegisterRefVoucherNo
-        //                    join itmMaster in _itemMasterRepository.GetAsQueryable()
-        //                    on stk.StockRegisterMaterialID equals Convert.ToInt32(itmMaster.ItemMasterItemId)
-        //                    join loc in _locationMasterRepository.GetAsQueryable()
-        //                    on dm.DamageMasterLocationId equals loc.LocationMasterLocationId
-        //                    where (dm.DamageMasterDelStatus == false)
-        //                    select new DamageEntryModel
-        //                    {
-        //                        LocationMasterLocationName = loc.LocationMasterLocationName,
-        //                        ItemMasterItemId = itmMaster.ItemMasterItemId,
-        //                        ItemMasterItemName = itmMaster.ItemMasterItemName,
-        //                        DamageDetailsVoucherNumber = dm_dt.DamageDetailsVoucherNumber,
-        //                        StockRegisterMaterialId = stk.StockRegisterMaterialID,
-        //                        DamageMasterID = dm.DamageMasterId,
-        //                        DamageMasterVdat = dm.DamageMasterVdate,
-        //                        DamageMasterLocationID = dm.DamageMasterLocationId,
-        //                        DamageMasterNarration = dm.DamageMasterNarration,
-        //                        DamageDetailsMaterialID = dm_dt.DamageDetailsMaterialId,
-        //                        DamageDetailsQTY = dm_dt.DamageDetailsQty,
-        //                        DamageDetailsPrice = dm_dt.DamageDetailsPrice,
-        //                        DamageDetailsAmount = dm_dt.DamageDetailsAmount,
-        //                        DamageDetailsRemarks = dm_dt.DamageDetailsRemarks,
-        //                        DamageDetailsUnitID = dm_dt.DamageDetailsUnitId
-        //                    }).Distinct().ToList();
-        //        return data;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //}
-        //public async Task<bool> submitDamageEntry(DemageRequest obj)
-        //{
-        //    try
-        //    {
-        //        _VouchersNumbersRepo.Insert(obj.voucherNumberList[0]);
-        //        _DamageMasterRepo.InsertList(obj.damageMasterList);
-        //        _DamageDetailsRepo.InsertList(obj.damageDetailsList);
-        //        _StockRegisterRepo.InsertList(obj.stockRegisterList);
-        //        return true;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //        return false;
-        //    }
-        //}
-
+        
         public DamageMaster InsertDamageEntry(DamageMaster DamageMaster)
         {
             try
             {
-
-
-                string openingstockVoucherNumber = this.GenerateVoucherNo(DamageMaster.DamageMasterVdate.Value).VouchersNumbersVNo;
+                string openingstockVoucherNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.DamageEntry_TYPE, Prefix.DE_Prefix,
+                    _programsettingsRepository, _voucherNumbersRepository);
                 DamageMaster.DamageMasterVoucherNumber = openingstockVoucherNumber;
 
                 _DamageMasterRepo.BeginTransaction();
@@ -232,7 +140,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
 
                 foreach (var item in DamageMaster.DamageDetails)
                 {
-                    if (item.DamageDetailsId == 0)
+                    if (item.DamageDetailsId == null || item.DamageDetailsId == 0)
                     {
                         item.DamageDetailsId = maxcount1;
                         item.DamageDetailsVoucherNumber = DamageMaster.DamageMasterVoucherNumber;
@@ -242,6 +150,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                     }
                     else
                     {
+                        item.DamageMasterId = DamageMaster.DamageMasterId;
                         _DamageDetailsRepo.Update(item);
                     }
                 }
@@ -318,7 +227,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 {
                     DamageMaster = o,
                     _DamageDetailsRepo = detailList.Where(a => Convert.ToInt32(a.DamageDetailsId) == Convert.ToInt32(o.DamageMasterId)).ToList()
-                }).ToList();
+                }).OrderBy(x => x.DamageMaster).AsEnumerable().ToList();
                 return _DamageMasterRepo.GetAll();
 
             }

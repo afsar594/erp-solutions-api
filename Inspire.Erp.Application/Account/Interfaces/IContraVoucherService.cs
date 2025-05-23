@@ -12,7 +12,7 @@ namespace Inspire.Erp.Application.Account.Interfaces
         public ContraVoucher UpdateContraVoucher(ContraVoucher contraVoucher, List<AccountsTransactions> accountsTransactions, List<ContraVoucherDetails> contraVoucherDetails);
         public int DeleteContraVoucher(ContraVoucher contraVoucher, List<AccountsTransactions> accountsTransactions, List<ContraVoucherDetails> contraVoucherDetails);
         public IEnumerable<AccountsTransactions> GetAllTransaction();
-        public ContraVoucher GetSavedContraVoucherDetails(string pvno);
+        public ContraVoucher GetSavedContraVoucherDetails(int pvno);
         public IEnumerable<ContraVoucher> GetContraVoucher();
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
         public VouchersNumbers GetVouchersNumbers(string pvno);

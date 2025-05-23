@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Inspire.Erp.Infrastructure.Database;
+using Microsoft.EntityFrameworkCore;
 
 namespace Inspire.Erp.Application.Store.Implementation
 {
@@ -21,14 +22,16 @@ namespace Inspire.Erp.Application.Store.Implementation
         private InspireErpDBContext _context;
         private readonly IRepository<StockRegister> _sRegister;
         private readonly IRepository<ItemMaster> _iMster;
+        private readonly IRepository<UnitMaster> _unitMaster;
         private readonly IRepository<PurchaseVoucher> _pv;
         private readonly IRepository<PurchaseVoucherDetails> _pvDetail;
         private readonly IRepository<FinancialPeriods> _fP;
 
-        public StockLedger(IRepository<StockRegister> sRegister, IRepository<ItemMaster> iMster, IRepository<PurchaseVoucherDetails> pvDetail, IRepository<PurchaseVoucher> pv, IRepository<FinancialPeriods> fP)
+        public StockLedger(IRepository<StockRegister> sRegister, IRepository<ItemMaster> iMster, IRepository<PurchaseVoucherDetails> pvDetail, IRepository<UnitMaster> unitMaster, IRepository<PurchaseVoucher> pv, IRepository<FinancialPeriods> fP)
         {
             this._sRegister = sRegister;
             this._iMster = iMster;
+            _unitMaster = unitMaster;
             _pvDetail = pvDetail;
             _pv = pv;
             _fP = fP;
@@ -64,11 +67,12 @@ namespace Inspire.Erp.Application.Store.Implementation
                     }
 
                     var stock = _sRegister.GetAsQueryable();
-
+                    var unit = _unitMaster.GetAsQueryable().AsNoTracking();
 
                     var result = (from im in query
                                   join sr in stock on im.ItemMasterItemId equals (long)sr.StockRegisterMaterialID.GetValueOrDefault() into gimV1
                                   from y in gimV1.DefaultIfEmpty()
+                                  join um in unit on y.StockRegisterUnitID equals um.UnitMasterUnitId
                                   where im.ItemMasterItemType == "A"
                                   && (sFilter.LocationId == null || y.StockRegisterLocationID == sFilter.LocationId)
                                   && (sFilter.PartNo == null || im.ItemMasterPartNo == sFilter.PartNo)
@@ -77,6 +81,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                   {
                                       im.ItemMasterItemId,
                                       im.ItemMasterItemName,
+                                      um.UnitMasterUnitFullName,
                                       y.StockRegisterSIN,
                                       y.StockRegisterSout,
                                       y.StockRegisterVoucherDate,
@@ -88,6 +93,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                    {
                                        Item_Id = x.ItemMasterItemId,
                                        Item_Name = x.ItemMasterItemName,
+                                       unitName = x.UnitMasterUnitFullName,
                                        StockIn = (x.StockRegisterSIN != null && x.StockRegisterSIN > 0 && x.StockRegisterVoucherDate >= sFilter.fromDate && x.StockRegisterVoucherDate <= sFilter.toDate) ? x.StockRegisterSIN : 0,
                                        StockInAmount = (x.StockRegisterSIN != null && x.StockRegisterSIN > 0 && x.StockRegisterVoucherDate >= sFilter.fromDate && x.StockRegisterVoucherDate <= sFilter.toDate) ? x.StockRegisterAmount ?? 0 : 0,
                                        StockOut = (x.StockRegisterSout != null && x.StockRegisterSout > 0 && x.StockRegisterVoucherDate >= sFilter.fromDate && x.StockRegisterVoucherDate <= sFilter.toDate) ? x.StockRegisterSout ?? 0 : 0,
@@ -99,23 +105,24 @@ namespace Inspire.Erp.Application.Store.Implementation
                                        ItemMasterPartNo = x.ItemMasterPartNo,
                                        ItemMasterAccountNo = x.ItemMasterAccountNo,
                                    }).GroupBy(
-                         m => new { m.Item_Id, m.Item_Name },
-                         (k, g) => new StockLedgerResponse()
-                         {
-                             ItemId = k.Item_Id.ToString(),
-                             OpenQuantity = 0,
-                             OpenValue = 0,
-                             ReceivedQuantity = (decimal)g.Sum(x => x.StockIn),
-                             ReceivedValue = (decimal)g.Sum(x => x.StockInAmount),
-                             SaledQuantity = (decimal)g.Sum(x => x.StockOut),
-                             SaledValue = (decimal)g.Sum(x => x.StockOutAmount),
-                             ClosingQuantity = (decimal)g.Sum(a => a.StockIn) - g.Sum(a => a.StockOut),
-                             ClosingValue = g.Sum(a => a.StockInAmount) - g.Sum(a => a.StockOutAmount),
-                             RelativeNo = g.Max(x => x.ItemMasterPartNo),
-                             PartNo = g.Max(x => x.ItemMasterAccountNo.ToString()),
-                             ItemName = g.Max(x => x.Item_Name),
-                             StockRate = (decimal)g.Max(x => x.StockInAmount),
-                         }).ToList();
+                                            m => new { m.Item_Id, m.Item_Name },
+                                            (k, g) => new StockLedgerResponse()
+                                            {
+                                                ItemId = k.Item_Id.ToString(),
+                                                OpenQuantity = 0,
+                                                OpenValue = 0,
+                                                ReceivedQuantity = (decimal)g.Sum(x => x.StockIn),
+                                                ReceivedValue = (decimal)g.Sum(x => x.StockInAmount),
+                                                SaledQuantity = (decimal)g.Sum(x => x.StockOut),
+                                                SaledValue = (decimal)g.Sum(x => x.StockOutAmount),
+                                                ClosingQuantity = (decimal)g.Sum(a => a.StockIn) - g.Sum(a => a.StockOut),
+                                                ClosingValue = g.Sum(a => a.StockInAmount) - g.Sum(a => a.StockOutAmount),
+                                                RelativeNo = g.Max(x => x.ItemMasterPartNo),
+                                                PartNo = g.Max(x => x.ItemMasterAccountNo.ToString()),
+                                                ItemName = g.Max(x => x.Item_Name),
+                                                unitName = g.Max(x => x.unitName),
+                                                StockRate = (decimal)g.Max(x => x.StockInAmount),
+                                            }).OrderBy(x => x.ItemName).AsEnumerable().ToList();
 
                     var openValues = getOpenValues(sFilter.fromDate, (int?)sFilter.ItemId);
                     if (openValues.Count > 0)
@@ -130,6 +137,8 @@ namespace Inspire.Erp.Application.Store.Implementation
                                 {
                                     matchedResult.OpenQuantity = opnV.OpenQty.HasValue ? Convert.ToDecimal(opnV.OpenQty.Value) : 0;
                                     matchedResult.OpenValue = opnV.OpenValue.HasValue ? Convert.ToDecimal(opnV.OpenValue.Value) : 0;
+                                    matchedResult.ClosingQuantity = (opnV.OpenQty.HasValue ? Convert.ToDecimal(opnV.OpenQty.Value) : 0) + matchedResult.ClosingQuantity;
+                                    matchedResult.ClosingValue = (opnV.OpenValue.HasValue ? Convert.ToDecimal(opnV.OpenValue.Value) : 0) + matchedResult.ClosingValue;
                                 }
 
                             }
@@ -149,7 +158,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 }
                 else
                 {
-                    var minFDate = _fP.GetAsQueryable().Select(x => x.FinancialPeriodsStartDate).SingleOrDefault();
+                    //var minFDate = _fP.GetAsQueryable().Select(x => x.FinancialPeriodsStartDate).SingleOrDefault();
 
                     var query = _iMster.GetAsQueryable();
 
@@ -168,18 +177,20 @@ namespace Inspire.Erp.Application.Store.Implementation
                                      .OrderBy(im => im.ItemMasterItemId);
                     }
                     var stock = _sRegister.GetAsQueryable();
-
+                    var unit = _unitMaster.GetAsQueryable().AsNoTracking();
 
                     var result = (from im in query
                                   join sr in stock on im.ItemMasterItemId equals (long)sr.StockRegisterMaterialID.GetValueOrDefault() into gimV1
                                   from y in gimV1.DefaultIfEmpty()
+                                  join um in unit on y.StockRegisterUnitID equals um.UnitMasterUnitId
                                   where im.ItemMasterItemType == "A"
                                   && (sFilter.LocationId == null || y.StockRegisterLocationID == sFilter.LocationId)
-                                  && (sFilter.PartNo == null || im.ItemMasterPartNo == sFilter.PartNo)                                  
+                                  && (sFilter.PartNo == null || im.ItemMasterPartNo == sFilter.PartNo)
                                   select new
                                   {
                                       im.ItemMasterItemId,
                                       im.ItemMasterItemName,
+                                      um.UnitMasterUnitFullName,
                                       y.StockRegisterSIN,
                                       y.StockRegisterSout,
                                       y.StockRegisterVoucherDate,
@@ -191,10 +202,11 @@ namespace Inspire.Erp.Application.Store.Implementation
                                   {
                                       Item_Id = x.ItemMasterItemId,
                                       Item_Name = x.ItemMasterItemName,
-                                      StockIn = (x.StockRegisterSIN != null && x.StockRegisterSIN > 0) ? x.StockRegisterSIN : 0,
-                                      StockInAmount = (x.StockRegisterSIN != null && x.StockRegisterSIN > 0) ? x.StockRegisterAmount ?? 0 : 0,
-                                      StockOut = (x.StockRegisterSout != null && x.StockRegisterSout > 0) ? x.StockRegisterSout ?? 0 : 0,
-                                      StockOutAmount = (x.StockRegisterSout != null && x.StockRegisterSout > 0) ? x.StockRegisterAmount ?? 0 : 0,
+                                      unitName = x.UnitMasterUnitFullName,
+                                      StockIn = (x.StockRegisterSIN != null && x.StockRegisterSIN > 0 && x.StockRegisterVoucherDate.Value.Date == DateTime.Today) ? x.StockRegisterSIN : 0,
+                                      StockInAmount = (x.StockRegisterSIN != null && x.StockRegisterSIN > 0 && x.StockRegisterVoucherDate.Value.Date == DateTime.Today) ? x.StockRegisterAmount ?? 0 : 0,
+                                      StockOut = (x.StockRegisterSout != null && x.StockRegisterSout > 0 && x.StockRegisterVoucherDate.Value.Date == DateTime.Today) ? x.StockRegisterSout ?? 0 : 0,
+                                      StockOutAmount = (x.StockRegisterSout != null && x.StockRegisterSout > 0 && x.StockRegisterVoucherDate.Value.Date == DateTime.Today) ? x.StockRegisterAmount ?? 0 : 0,
                                       OpenQty = 0,
                                       OpenQtyAmount = 0,
                                       TotalBal = 0,
@@ -202,24 +214,45 @@ namespace Inspire.Erp.Application.Store.Implementation
                                       ItemMasterPartNo = x.ItemMasterPartNo,
                                       ItemMasterAccountNo = x.ItemMasterAccountNo,
                                   }).GroupBy(
-                        m => new { m.Item_Id, m.Item_Name },
-                        (k, g) => new StockLedgerResponse()
-                        {
-                            ItemId = k.Item_Id.ToString(),
-                            OpenQuantity = 0,
-                            OpenValue = 0,
-                            ReceivedQuantity = (decimal)g.Sum(x => x.StockIn),
-                            ReceivedValue = (decimal)g.Sum(x => x.StockInAmount),
-                            SaledQuantity = (decimal)g.Sum(x => x.StockOut),
-                            SaledValue = (decimal)g.Sum(x => x.StockOutAmount),
-                            ClosingQuantity = (decimal)g.Sum(a => a.StockIn) - g.Sum(a => a.StockOut),
-                            ClosingValue = g.Sum(a => a.StockInAmount) - g.Sum(a => a.StockOutAmount),
-                            RelativeNo = g.Max(x => x.ItemMasterPartNo),
-                            PartNo = g.Max(x => x.ItemMasterAccountNo.ToString()),
-                            ItemName = g.Max(x => x.Item_Name),
-                            StockRate = (decimal)g.Max(x => x.StockInAmount),
-                        }).ToList();
+                                            m => new { m.Item_Id, m.Item_Name },
+                                            (k, g) => new StockLedgerResponse()
+                                            {
+                                                ItemId = k.Item_Id.ToString(),
+                                                OpenQuantity = 0,
+                                                OpenValue = 0,
+                                                ReceivedQuantity = (decimal)g.Sum(x => x.StockIn),
+                                                ReceivedValue = (decimal)g.Sum(x => x.StockInAmount),
+                                                SaledQuantity = (decimal)g.Sum(x => x.StockOut),
+                                                SaledValue = (decimal)g.Sum(x => x.StockOutAmount),
+                                                ClosingQuantity = (decimal)g.Sum(a => a.StockIn) - g.Sum(a => a.StockOut),
+                                                ClosingValue = g.Sum(a => a.StockInAmount) - g.Sum(a => a.StockOutAmount),
+                                                RelativeNo = g.Max(x => x.ItemMasterPartNo),
+                                                PartNo = g.Max(x => x.ItemMasterAccountNo.ToString()),
+                                                ItemName = g.Max(x => x.Item_Name),
+                                                unitName = g.Max(x => x.unitName),
+                                                StockRate = (decimal)g.Max(x => x.StockInAmount),
+                                            }).OrderBy(x => x.ItemName).AsEnumerable().ToList();
 
+                    var openValues = getOpenValues(DateTime.Now, (int?)sFilter.ItemId);
+                    if (openValues.Count > 0)
+                    {
+                        foreach (var opnV in openValues)
+                        {
+                            if (opnV.ItemId != null && opnV.ItemId != 0)
+                            {
+                                var matchedResult = result.FirstOrDefault(r => r.ItemId.ToString() == opnV.ItemId.ToString());
+
+                                if (matchedResult != null)
+                                {
+                                    matchedResult.OpenQuantity = opnV.OpenQty.HasValue ? Convert.ToDecimal(opnV.OpenQty.Value) : 0;
+                                    matchedResult.OpenValue = opnV.OpenValue.HasValue ? Convert.ToDecimal(opnV.OpenValue.Value) : 0;
+                                    matchedResult.ClosingQuantity = (opnV.OpenQty.HasValue ? Convert.ToDecimal(opnV.OpenQty.Value) : 0) + matchedResult.ClosingQuantity;
+                                    matchedResult.ClosingValue = (opnV.OpenValue.HasValue ? Convert.ToDecimal(opnV.OpenValue.Value) : 0) + matchedResult.ClosingValue;
+                                }
+
+                            }
+                        }
+                    }
 
                     if (sFilter.ExcludeZeroBalance == true)
                     {
@@ -241,7 +274,7 @@ namespace Inspire.Erp.Application.Store.Implementation
         private List<OpenValues> getOpenValues(DateTime? fromDate, int? itemId)
         {
             var query = _sRegister.GetAsQueryable()
-                       .Where(a => fromDate == null || a.StockRegisterVoucherDate <= fromDate);
+                       .Where(a => fromDate == null || a.StockRegisterVoucherDate.Value.Date < fromDate.Value.Date);
 
             if (itemId.HasValue)
             {
@@ -256,8 +289,8 @@ namespace Inspire.Erp.Application.Store.Implementation
                         ItemId = g.Key,
                         OpenQty = g.Where(x => (x.StockRegisterSIN ?? 0) > 0 || (x.StockRegisterSout ?? 0) > 0)
                                    .Sum(x => (x.StockRegisterSIN ?? 0)) - g.Sum(x => (x.StockRegisterSout ?? 0)),
-                        OpenValue = g.Where(x => (x.StockRegisterSIN ?? 0) > 0 || (x.StockRegisterSout ?? 0) > 0)
-                                     .Sum(x => ((x.StockRegisterSIN ?? 0) * x.StockRegisterRate) - ((x.StockRegisterSout ?? 0) * x.StockRegisterRate))
+                        OpenValue = g.Where(x => (x.StockRegisterSIN ?? 0) > 0).Sum(x => x.StockRegisterAmount ?? 0)
+                                 - g.Where(x => (x.StockRegisterSout ?? 0) > 0).Sum(x => x.StockRegisterAmount ?? 0)
                     })
                     .ToList();
 
@@ -298,7 +331,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                {
                                    ItemId = g.Key,
                                    TotalQty = g.Sum(x => x.PurchaseVoucherDetailsQuantity)
-                               }).ToList();
+                               }).OrderBy(x => x.ItemId).AsEnumerable().ToList();
 
 
             var result = itemDetails.Select((x) => new StockValueResult
@@ -306,7 +339,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 MatId = (long)x.ItemId,
                 StockRate = (decimal)x.TotalQty > 0 ? getQuantityValue((long)x.ItemId) / (decimal)x.TotalQty : 0,
                 StockValue = (decimal)x.TotalQty * ((decimal)x.TotalQty > 0 ? getQuantityValue((long)x.ItemId) / (decimal)x.TotalQty : 0)
-            }).ToList();
+            }).OrderBy(x => x.MatId).AsEnumerable().ToList();
 
             return result;
         }

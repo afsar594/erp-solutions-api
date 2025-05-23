@@ -1,7 +1,8 @@
-﻿using Inspire.Erp.Domain.Entities;
+﻿using Inspire.Erp.Application.Common;
+using Inspire.Erp.Domain.Entities;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace Inspire.Erp.Application.Account.Interface
 {
@@ -9,11 +10,13 @@ namespace Inspire.Erp.Application.Account.Interface
     {
         public IEnumerable<JobInvoice> Getjobinvoice();
         public JobInvoice GetJobInvoiceById(int? id);
-        public JobInvoice InsertJobInvoice(JobInvoice JobInvoiceViewModel);
-        public JobInvoice UpdateJobInvoice(JobInvoice JobInvoiceViewModel);
+        public Task<JobInvoiceModel> InsertJobInvoice(JobInvoice JobInvoiceViewModel, List<JobInvoiceDetails> jobInvoiceDetails, List<AccountsTransactions> accountsTransactions);
+        public Task<JobInvoiceModel> UpdateJobInvoice(JobInvoice JobInvoiceViewModel, List<JobInvoiceDetails> jobInvoiceDetails, List<AccountsTransactions> accountsTransactions);
         public IEnumerable<JobInvoice> DeleteJobInvoice(string Id);
-        public JobInvoice GetJobInvoiceVoucherNo(string? id);
+        public JobInvoiceModel GetJobInvoiceVoucherNo(int id);
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
+
+        bool CheckVoucherExists(string voucherType, string voucherNumber);
 
     }
 }

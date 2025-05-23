@@ -11,9 +11,10 @@ using System.Threading.Tasks;
 using Inspire.Erp.Application.Account;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers.Settings
-{
+{  
     [Route("api/settings")]
     [Produces("application/json")]
     [ApiController]
@@ -22,11 +23,13 @@ namespace Inspire.Erp.Web.Controllers.Settings
         private readonly IMapper _mapper;
         private IErpSettings _settingSvc;
         private IRepository<GeneralSettings> _generalSettingsRepo;
-        public SettingsController(IErpSettings settingSvc, IMapper mapper, IRepository<GeneralSettings> generalSettingsRepo)
+        private IRepository<OptionsMaster> _optionMasterRepo;
+        public SettingsController(IErpSettings settingSvc, IMapper mapper, IRepository<GeneralSettings> generalSettingsRepo, IRepository<OptionsMaster> optionMasterRepo)
         {
             _settingSvc = settingSvc;
             _mapper = mapper;
             _generalSettingsRepo = generalSettingsRepo;
+            _optionMasterRepo = optionMasterRepo;
         }
         [HttpGet]
         [Route("general")]
@@ -122,18 +125,26 @@ namespace Inspire.Erp.Web.Controllers.Settings
 
             var GeneralSettings = _generalSettingsRepo.GetAsQueryable().Where(k => k.GeneralSettingsKeyValue.Trim() == "DEFAULTCURRENCY" || k.GeneralSettingsKeyValue.Trim() == "VAT_Calculation" ||
             k.GeneralSettingsKeyValue.Trim() == "DEFAULT_LOCATION" || k.GeneralSettingsKeyValue.Trim() == "DEFAULT_COST_CENTER" || k.GeneralSettingsKeyValue.Trim() == "DEFAULTINTIALACCOUNT" || k.GeneralSettingsKeyValue.Trim() == "DEFAULT_Type"
-            || k.GeneralSettingsKeyValue.Trim() == "HIDE_JOBCOST"
+            || k.GeneralSettingsKeyValue.Trim() == "HIDE_JOBCOST" || k.GeneralSettingsKeyValue.Trim() == "VAT_EXLUDE_IN_SALES" || k.GeneralSettingsKeyValue.Trim() == "USER_LOCK_LOCATION" || k.GeneralSettingsKeyValue.Trim() == "HIDE_BOQ"
             ).Select(c => new
             {
                 c.GeneralSettingsId,
                 c.GeneralSettingsTextValue,
                 GeneralSettingsKeyValue = c.GeneralSettingsKeyValue.Trim(),
                 c.GeneralSettingsBoolValue
-            }).ToList();
+            }).OrderBy(x => x.GeneralSettingsTextValue).ToList();
+            var OptionSettings = _optionMasterRepo.GetAsQueryable().Where(o => o.OptionsMasterDescription == "DEFAULT_VAT").Select(s=> new
+            {
+                s.OptionsMasterId,
+                s.OptionsMasterDescription,
+                s.OptionsMasterType
+
+            }).OrderBy(x => x.OptionsMasterDescription).FirstOrDefault();
 
             objectresponse.ResultSet = new
             {
                 GeneralSettings = GeneralSettings,
+                OptionSettings = OptionSettings,
             };
             return objectresponse;
         }

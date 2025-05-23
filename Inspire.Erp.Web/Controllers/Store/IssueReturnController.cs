@@ -38,31 +38,6 @@ namespace Inspire.Erp.Web.Controllers.Store
             _mapper = mapper;
         }
 
-
-        //[HttpGet]
-        //[Route("IssueReturn_GetReportIssueReturn")]
-        //public ApiResponse<List<ReportIssueReturn>> IssueReturn_GetReportIssueReturn()
-        //{
-
-
-
-        //    ApiResponse<List<ReportIssueReturn>> apiResponse = new ApiResponse<List<ReportIssueReturn>>
-        //    {
-        //        Valid = true,
-        //        Result = _mapper.Map<List<ReportIssueReturn>>(_issueReturnService.IssueReturn_GetReportIssueReturn()),
-        //        Message = ""
-        //    };
-        //    return apiResponse;
-
-
-
-
-        //}
-
-
-
-
-
         [HttpPost]
         [Route("InsertIssueReturn")]
         public ApiResponse<IssueReturnViewModel> InsertIssueReturn([FromBody] IssueReturnViewModel voucherCompositeView)
@@ -75,11 +50,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 var param1 = _mapper.Map<IssueReturn>(voucherCompositeView);
                 var param2 = _mapper.Map<List<IssueReturnDetails>>(voucherCompositeView.IssueReturnDetails);
                 var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-                //List<StockRegister> param4 = new List<StockRegister>();
-                //var xs = _issueReturnService.InsertIssueReturn(param1, param3, param2
-                //    , param4
-                //    );
-
+                
                 //==============
                 param3 = new List<AccountsTransactions>();
                 List<StockRegister> param4 = new List<StockRegister>();
@@ -90,14 +61,8 @@ namespace Inspire.Erp.Web.Controllers.Store
                );
                 //========================
 
-
                 IssueReturnViewModel issueReturnViewModel = new IssueReturnViewModel
                 {
-
-
-
-
-
                     IssueReturnId = xs.issueReturn.IssueReturnId,
                     IssueReturnNo = xs.issueReturn.IssueReturnNo,
                     IssueReturnDate = xs.issueReturn.IssueReturnDate,
@@ -143,11 +108,6 @@ namespace Inspire.Erp.Web.Controllers.Store
                     IssueReturnBufferPurNo = xs.issueReturn.IssueReturnBufferPurNo,
                     IssueReturnBufferReqNo = xs.issueReturn.IssueReturnBufferReqNo,
                     IssueReturnDelStatus = xs.issueReturn.IssueReturnDelStatus,
-
-
-
-
-
                 };
 
                 issueReturnViewModel.IssueReturnDetails = _mapper.Map<List<IssueReturnDetailsViewModel>>(xs.issueReturnDetails);
@@ -170,15 +130,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 };
 
             }
-
-
             return apiResponse;
-
-
-
-
-
-
         }
 
         [HttpPost]
@@ -187,17 +139,8 @@ namespace Inspire.Erp.Web.Controllers.Store
         {
             var param1 = _mapper.Map<IssueReturn>(voucherCompositeView);
             var param2 = _mapper.Map<List<IssueReturnDetails>>(voucherCompositeView.IssueReturnDetails);
-            var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-            //List<StockRegister> param4 = new List<StockRegister>();
-            //var xs = _issueReturnService.UpdateIssueReturn(param1, param3, param2
-            //    , param4
-            //    );
+            var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);            
 
-
-
-
-
-            //==============
             param3 = new List<AccountsTransactions>();
             List<StockRegister> param4 = new List<StockRegister>();
             clsAccountAndStock.IssueReturn_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
@@ -206,15 +149,6 @@ namespace Inspire.Erp.Web.Controllers.Store
            , param4
            );
             //========================
-
-
-
-
-
-
-
-
-
 
             IssueReturnViewModel issueReturnViewModel = new IssueReturnViewModel
             {
@@ -286,15 +220,10 @@ namespace Inspire.Erp.Web.Controllers.Store
             var param1 = _mapper.Map<IssueReturn>(voucherCompositeView);
             var param2 = _mapper.Map<List<IssueReturnDetails>>(voucherCompositeView.IssueReturnDetails);
             var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-            //List<StockRegister> param4 = new List<StockRegister>();
-            //var xs = _issueReturnService.DeleteIssueReturn(  param1,    param3, param2
-            //    , param4
-            //    );
-
+           
             //==============
             param3 = new List<AccountsTransactions>();
-            List<StockRegister> param4 = new List<StockRegister>();
-            //clsAccountAndStock.IssueReturn_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
+            List<StockRegister> param4 = new List<StockRegister>();            
 
             var xs = _issueReturnService.DeleteIssueReturn(param1, param3, param2
            , param4
@@ -309,19 +238,11 @@ namespace Inspire.Erp.Web.Controllers.Store
             };
 
             return apiResponse;
-
         }
-
-
-
-
         [HttpGet]
         [Route("GetAllAccountTransaction")]
         public ApiResponse<List<AccountsTransactions>> GetAllAccountTransaction()
         {
-
-
-
             ApiResponse<List<AccountsTransactions>> apiResponse = new ApiResponse<List<AccountsTransactions>>
             {
                 Valid = true,
@@ -329,15 +250,12 @@ namespace Inspire.Erp.Web.Controllers.Store
                 Message = ""
             };
             return apiResponse;
-
         }
 
         [HttpGet]
         [Route("GetIssueReturn")]
         public ApiResponse<List<IssueReturn>> GetAllIssueReturn()
         {
-
-
             ApiResponse<List<IssueReturn>> apiResponse = new ApiResponse<List<IssueReturn>>
             {
                 Valid = true,
@@ -345,13 +263,11 @@ namespace Inspire.Erp.Web.Controllers.Store
                 Message = ""
             };
             return apiResponse;
-
-
         }
 
         [HttpGet]
         [Route("GetSavedIssueReturnDetails/{id}")]
-        public ApiResponse<IssueReturnViewModel> GetSavedIssueReturnDetails(string id)
+        public ApiResponse<IssueReturnViewModel> GetSavedIssueReturnDetails(int id)
         {
             IssueReturnModel issueReturn = _issueReturnService.GetSavedIssueReturnDetails(id);
 
@@ -359,8 +275,6 @@ namespace Inspire.Erp.Web.Controllers.Store
             {
                 IssueReturnViewModel issueReturnViewModel = new IssueReturnViewModel
                 {
-
-
                     IssueReturnId = issueReturn.issueReturn.IssueReturnId,
                     IssueReturnNo = issueReturn.issueReturn.IssueReturnNo,
                     IssueReturnDate = issueReturn.issueReturn.IssueReturnDate,
@@ -420,13 +334,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 return apiResponse;
             }
             return null;
-
-
-
         }
-
-
-
         [HttpGet]
         [Route("CheckVnoExist/{id}")]
         public ApiResponse<bool> CheckVnoExist(string id)
@@ -436,9 +344,6 @@ namespace Inspire.Erp.Web.Controllers.Store
                 Valid = true,
                 Result = true,
                 Message = IssueReturnMessage.VoucherNumberExist
-
-
-
             };
             var x = _issueReturnService.GetVouchersNumbers(id);
             if (x == null)
@@ -446,11 +351,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 apiResponse.Result = false;
                 apiResponse.Message = "";
             }
-
             return apiResponse;
         }
-
-
-
     }
 }

@@ -20,10 +20,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 namespace Inspire.Erp.Web.Controllers.POS
-{
+{   
     [Route("api/pos/item")]
-    [Produces("application/json")]
-    //[Authorize(AuthenticationSchemes = "Bearer")]
+    [Produces("application/json")]    
     [ApiController]
     public class POSController : ControllerBase
     {
@@ -371,7 +370,7 @@ namespace Inspire.Erp.Web.Controllers.POS
                 Discount = x.Discount,
                 VatAmount = x.VatAmount,
                 NetAmount = x.NetAmount
-            }).ToList();
+            }).OrderBy(x => x.CustomerName).ToList();
             ApiResponse<List<SalesHoldList>> apiResponse = new ApiResponse<List<SalesHoldList>>
             {
                 Valid = true,

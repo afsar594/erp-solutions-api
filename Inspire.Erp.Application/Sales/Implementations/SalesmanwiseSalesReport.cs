@@ -45,6 +45,7 @@ namespace Inspire.Erp.Application.Sales.Implementation
                 Id=x.SalesManMasterSalesManId != null? Convert.ToInt32(x.SalesManMasterSalesManId):0,
                 Name=x.SalesManMasterSalesManName
                 }).ToList());
+                response.AddRange(response.OrderBy(x => x.Name)); // Order by Name
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
             }
             catch (Exception ex)
@@ -73,6 +74,7 @@ namespace Inspire.Erp.Application.Sales.Implementation
                     Name=x.CustomerMasterCustomerName,
                     Value=x.CustomerMasterCustomerReffAcNo
                 }).ToList());
+                response.AddRange(response.OrderBy(x => x.Name)); // Order by Name
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
             }
             catch (Exception ex)

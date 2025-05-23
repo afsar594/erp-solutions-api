@@ -38,7 +38,8 @@ namespace Inspire.Erp.Application.Account.Implementations
         public NewCustomerService(IRepository<CustomerMaster> customerMasterRepository, IRepository<CustomerContacts> customerContactsRepository,
             IRepository<CustomerDepartments> customerDepartmentsRepository, IRepository<MasterAccountsTable> masterAccountTable, ILogger<NewCustomerService> logger)
         {
-            this._customerMasterRepository = customerMasterRepository; _masterAccountTable = masterAccountTable;
+            this._customerMasterRepository = customerMasterRepository;
+            this._masterAccountTable = masterAccountTable;
             this._customerContactsRepository = customerContactsRepository;
             this._customerDepartmentsRepository = customerDepartmentsRepository;
             _logger = logger;
@@ -81,7 +82,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     k.CustomerContactsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.CustomerContactsName).AsEnumerable().ToList();
 
                 _customerContactsRepository.UpdateList(customerContacts);
 
@@ -89,7 +90,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     k.CustomerDepartmentsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.CustomerDepartmentsDelStatus).AsEnumerable().ToList();
                 _customerDepartmentsRepository.UpdateList(customerDepartments);
 
                 var account = _masterAccountTable.GetAsQueryable().Where(a => a.MaAccNo == customerMaster.CustomerMasterCustomerReffAcNo).FirstOrDefault();
@@ -153,7 +154,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     {
                         x.CustomerContactsCustomerId = mxc;
                         return x;
-                    }).ToList();
+                    }).OrderBy(x => x.CustomerContactsName).AsEnumerable().ToList();
                     _customerContactsRepository.InsertList(customerContacts);
 
                 };
@@ -164,11 +165,50 @@ namespace Inspire.Erp.Application.Account.Implementations
                     {
                         x.CustomerDepartmentsCustomerId = mxc;
                         return x;
-                    }).ToList();
+                    }).OrderBy(x => x.CustomerDepartmentsCustomerId).AsEnumerable().ToList();
 
                     _customerDepartmentsRepository.InsertList(customerDepartments);
 
                 }
+
+                if (customerMaster.IsCreateAccount.HasValue && (bool)customerMaster.IsCreateAccount)
+                {
+                    var MaSno = Convert.ToInt32(this._masterAccountTable.GetAsQueryable()
+                                      .Where(x => Convert.ToInt32(x.MaSno) > 0)
+                                      .DefaultIfEmpty()
+                                      .Max(o => o == null ? 0 : o.MaSno)) + 1;
+
+                    var debtorAcc = this._masterAccountTable.GetAsQueryable()
+                                                                                         .FirstOrDefault(x => x.MaAccName.ToUpper() == "Debtors".ToUpper());
+
+                    var custMasterAccNo = this._masterAccountTable.GetAsQueryable()
+                        .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == debtorAcc.MaAccNo)
+                        .DefaultIfEmpty()
+                        .Max(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length - 3, o.MaAccNo.Length))) + 1;
+
+                    var custMasterAcc = new MasterAccountsTable
+                    {
+                        MaSno = MaSno,
+                        MaRelativeNo = debtorAcc.MaAccNo,
+                        MaAccNo = debtorAcc.MaAccNo + String.Format("{0:000}", custMasterAccNo),
+                        MaAccName = customerMaster.CustomerMasterCustomerName,
+                        MaAccType = AccountMasterStatus.Account,
+                        MaMainHead = debtorAcc.MaMainHead,
+                        MaSubHead = debtorAcc.MaSubHead,
+                        MaFsno = 1,
+                        MaStatus = AccountStatus.AccStatus,
+                        MaUserId = 0,
+                        MaDateCreated = DateTime.Now,
+                        MaOpenBalance = 0,//need to add this 
+                        MaTotalDebit = 0,//need to add this
+                        MaTotalCredit = 0, //need to add this 
+                        MaAssetDate = DateTime.Now
+                    };
+
+                    this._masterAccountTable.Insert(custMasterAcc);
+                    customerMaster.CustomerMasterCustomerReffAcNo = custMasterAcc.MaAccNo;
+                }
+
                 _customerMasterRepository.Insert(customerMaster);
                 _customerMasterRepository.TransactionCommit();
 
@@ -186,6 +226,7 @@ namespace Inspire.Erp.Application.Account.Implementations
         public IEnumerable<CustomerMaster> GetAllCustomers()
         {
             IEnumerable<CustomerMaster> customerMasters = _customerMasterRepository.GetAll().Where(k => k.CustomerMasterCustomerDelStatus == false || k.CustomerMasterCustomerDelStatus == null);
+            customerMasters = customerMasters.OrderBy(o => o.CustomerMasterCustomerName).ToList();
             return customerMasters;
         }
         public CustomerViewModel GetSavedCustomers(int pvno)
@@ -203,3 +244,5 @@ namespace Inspire.Erp.Application.Account.Implementations
         }
     }
 }
+
+

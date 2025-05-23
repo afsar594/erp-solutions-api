@@ -13,21 +13,40 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using DinkToPdf.Contracts;
+using System.IO;
+using Inspire.Erp.Application.Helpers;
+using System.Data;
+using Microsoft.Data.SqlClient;
+using Inspire.Erp.Infrastructure;
+using Microsoft.Extensions.Configuration;
+using Dapper;
 
 namespace Inspire.Erp.Application.Master
 {
+
     public class JobMasterService : IJobMasterService
     {
+        private readonly IDbConnection _dbConnection;
         private IRepository<JobMaster> jobrepository;
         private IRepository<JobMasterBudgetDetails> jobbudgetRepository;
         private IRepository<JobMasterJobDetails> jobdetailsRepository;
         private IRepository<JobMasterJobWiseBankGuarantees> jobBankGuaruRepository;
-        private IRepository<JobDocuments> jobDocumentsRepository;
+        private IRepository<JobDocuments> _jobDocumentsRepository;
         private IRepository<ProgramSettings> programsettingsRepository;
         private IRepository<VouchersNumbers> voucherNumbersRepository;
         private IRepository<JobStaff> jobstaffrepository;
         private IRepository<JobEquipment> jobEquipmentrepository;
         private IRepository<JobExcutionDetails> jobexecrepository;
+        private IRepository<JobTimesheetDesc> _jobTimesheetDesc;
+        private IRepository<JobTimeSheetEquip> _jobTimeSheetEquip;
+        private IRepository<JobTimesheetMaster> _jobTimesheetMaster;
+        private IRepository<JobTimeSheetStaff> _jobTimeSheetStaff;
+        private IRepository<JobfilesStatus> _JobfilesStatus;
+        private IRepository<CostCenterMaster> _costCenterMaster;
+        private IRepository<JobMasterControl> _jobMasterControl;
+        private IRepository<ApproverLevelSettings> _approverLevelSettings;
+        private IRepository<EstimationCostCenter> _EstimationCostCenterRepository;
+
         private IRepository<AccountsTransactions> accountsTransactionsRepository;
         private readonly InspireErpDBContext context;
         public JobMasterService(IRepository<JobMaster> _jobrepository,
@@ -36,7 +55,15 @@ namespace Inspire.Erp.Application.Master
             IRepository<JobMasterJobWiseBankGuarantees> _jobBankGuaruRepository,
             IRepository<AccountsTransactions> _accountsTransactionsRepository,
             InspireErpDBContext _context, IRepository<ProgramSettings> _programsettingsRepository,
-            IRepository<VouchersNumbers> _voucherNumbersRepository, IRepository<JobStaff> _jobstaffrepository, IRepository<JobEquipment> _jobEquipmentrepository, IRepository<JobExcutionDetails> _jobexecrepository)
+            IRepository<VouchersNumbers> _voucherNumbersRepository, IRepository<JobStaff> _jobstaffrepository,
+            IRepository<JobEquipment> _jobEquipmentrepository, IRepository<JobExcutionDetails> _jobexecrepository,
+            IRepository<JobTimeSheetEquip> jobTimeSheetEquip,
+            IRepository<JobTimesheetMaster> jobTimesheetMaster,
+            IRepository<JobTimeSheetStaff> jobTimeSheetStaff, IRepository<JobTimesheetDesc> jobTimesheetDesc,
+            IRepository<JobDocuments> jobDocumentsRepository,
+            Microsoft.Extensions.Configuration.IConfiguration config,
+             IRepository<EstimationCostCenter> estimationCostCenterRepository,
+            IRepository<JobfilesStatus> jobfilesStatus, IRepository<CostCenterMaster> costCenterMaster, IRepository<JobMasterControl> jobMasterControl, IRepository<ApproverLevelSettings> approverLevelSettings)
         {
             jobrepository = _jobrepository;
             jobbudgetRepository = _jobbudgetRepository;
@@ -49,43 +76,17 @@ namespace Inspire.Erp.Application.Master
             jobstaffrepository = _jobstaffrepository;
             jobEquipmentrepository = _jobEquipmentrepository;
             jobexecrepository = _jobexecrepository;
+            _jobTimesheetDesc = jobTimesheetDesc; _jobTimesheetMaster = jobTimesheetMaster;
+            _jobTimeSheetEquip = jobTimeSheetEquip; _jobTimeSheetStaff = jobTimeSheetStaff;
+            _jobDocumentsRepository = jobDocumentsRepository;
+            _JobfilesStatus = jobfilesStatus;
+            _costCenterMaster = costCenterMaster;
+            _jobMasterControl = jobMasterControl;
+            _approverLevelSettings = approverLevelSettings;
+            _EstimationCostCenterRepository = estimationCostCenterRepository;
+            var settings = config.GetSection("ApplicationSettings").Get<ApplicationSettings>();
+            _dbConnection = new SqlConnection(settings.ConnectionString);
         }
-
-        //        jobMaster.JobMasterJobId = mxc;
-        //        jobrepository.Insert(jobMaster);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        valid = false;
-        //        throw ex;
-        //    }
-        //    finally
-        //    {
-        //        //jobrepository.Dispose();
-        //    }
-        //    return this.GetAllJob();
-        //}
-        //public IEnumerable<JobMaster> UpdateJob(JobMaster jobMaster)
-        //{
-        //    bool valid = false;
-        //    try
-        //    {
-        //       jobrepository.Update(jobMaster);
-        //        valid = true;
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        valid = false;
-        //        throw ex;
-
-        //    }
-        //    finally
-        //    {
-        //        //jobrepository.Dispose();
-        //    }
-        //    return this.GetAllJob();
-        //}
         public IEnumerable<JobMaster> DeleteJob(JobMaster jobMaster)
         {
             bool valid = false;
@@ -93,17 +94,14 @@ namespace Inspire.Erp.Application.Master
             {
                 jobrepository.Delete(jobMaster);
                 valid = true;
-
             }
             catch (Exception ex)
             {
                 valid = false;
                 throw ex;
-
             }
             finally
             {
-                //jobrepository.Dispose();
             }
             return this.GetAllJob();
         }
@@ -124,35 +122,30 @@ namespace Inspire.Erp.Application.Master
             {
                 //jobrepository.Dispose();
             }
+            jobMasters = jobMasters.OrderBy(sm => sm.JobMasterJobName).ToList();
             return jobMasters;
         }
-
         public IEnumerable<JobMaster> GetAllJobById(int id)
         {
             IEnumerable<JobMaster> jobMasters;
             try
             {
                 jobMasters = jobrepository.GetAsQueryable().Where(k => k.JobMasterJobId == id).Select(k => k);
-
             }
             catch (Exception ex)
             {
                 throw ex;
-
             }
             finally
             {
-                //cityrepository.Dispose();
             }
             return jobMasters;
-
         }
-
-        public JobMaster InsertJobMaster(JobMaster jobMaster, List<JobMasterBudgetDetails> jobMasterBudgetDetails, List<JobMasterJobDetails> jobMasterJobDetails, List<JobMasterJobWiseBankGuarantees> jobMasterJobWiseBankGuarantees, List<JobStaff> jobStaff, List<JobEquipment> jobEquipment, List<JobExcutionDetails> jobExcutionDetails)
+        public async Task<JobMaster> InsertJobMaster(JobMaster jobMaster, List<JobMasterBudgetDetails> jobMasterBudgetDetails, List<JobMasterJobDetails> jobMasterJobDetails, List<JobMasterJobWiseBankGuarantees> jobMasterJobWiseBankGuarantees, List<JobStaff> jobStaff, List<JobEquipment> jobEquipment, List<JobExcutionDetails> jobExcutionDetails, List<JobTimesheetDesc> JobTimesheetDesc, List<JobTimeSheetEquip> JobTimeSheetEquip, List<JobTimesheetMaster> JobTimesheetMaster, List<JobTimeSheetStaff> JobTimeSheetStaff, List<JobfilesStatus> JobfilesStatus, List<JobMasterControl> JobMasterControl)
         {
             try
             {
-                
+
                 jobrepository.BeginTransaction();
                 int jobId = 0;
                 jobId =
@@ -168,44 +161,88 @@ namespace Inspire.Erp.Application.Master
                     x.JobMasterBudgetDetailsJobId = jobId;
                     x.JobMasterNo = vNumber;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.JobMasterNo).AsEnumerable().ToList();
 
                 jobMaster.JobMasterJobDetails.Select((x) =>
                 {
                     x.JobMasterJobDetailsJobId = jobId;
                     x.JobMasterNo = vNumber;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.JobMasterNo).AsEnumerable().ToList();
 
                 jobMaster.JobMasterJobWiseBankGuarantees.Select((x) =>
                 {
                     x.JobMasterJobWiseBankGuaranteesJobId = jobId;
                     x.JobMasterNo = vNumber;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.JobMasterNo).AsEnumerable().ToList();
 
                 // job staff , equipment and execution related updation
                 jobMaster.JobStaff.Select((x) =>
                 {
                     x.JobMasterJobId = jobId;
                     return x;
-                }).ToList();
-
+                }).OrderBy(x => x.JobMasterJobId).AsEnumerable().ToList();
                 jobMaster.JobEquipment.Select((x) =>
                 {
+                    x.Id = 0;
                     x.JobMasterJobId = jobId;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.JobMasterJobId).AsEnumerable().ToList();
                 jobMaster.JobExcutionDetails.Select((x) =>
                 {
                     x.JobMasterJobId = jobId;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.JobMasterJobId).AsEnumerable().ToList();
                 /// end 
+                /// 
+                jobMaster.JobTimesheetDesc.Select((x) =>
+                {
+                    x.JobId = jobId;
+                    return x;
+                }).OrderBy(x => x.JobId).AsEnumerable().ToList();
+
+                jobMaster.JobTimeSheetEquip.Select((x) =>
+                {
+                    x.JobId = jobId;
+                    return x;
+                }).OrderBy(x => x.JobId).AsEnumerable().ToList();
+                jobMaster.JobTimesheetMaster.Select((x) =>
+                {
+                    x.JobId = jobId;
+                    return x;
+                }).OrderBy(x => x.JobId).AsEnumerable().ToList();
+                jobMaster.JobTimeSheetStaff.Select((x) =>
+                {
+                    x.JobId = jobId;
+                    return x;
+                }).OrderBy(x => x.JobId).AsEnumerable().ToList();
+
+
+                jobMaster.JobfilesStatus.Select((x) =>
+                {
+
+                    x.JobMasterJobId = jobId;
+                    x.job_filename = jobMaster.JobfilesStatus[0].job_filename;
+                    x.job_fileStatus = jobMaster.JobfilesStatus[0].job_fileStatus;
+                    x.job_IsDeleted = false;
+                    return x;
+                });
+
+                jobMaster.JobMasterControl.ForEach(x =>
+                {
+                    x.JobMasterControlDtlId = 0;
+                    x.JobMasterNo = vNumber;
+                    x.JobMasterControlJobID = jobId;
+                });
+
+                // end
                 jobrepository.Insert(jobMaster);
+                _jobMasterControl.InsertList(jobMaster.JobMasterControl);
                 jobrepository.TransactionCommit();
 
-                return this.GetSavedJobMasterDetails(jobMaster.JobMasterJobNo);
+                return await this.GetSavedJobMasterDetails(jobMaster.JobMasterJobNo);
+
             }
             catch (Exception ex)
             {
@@ -214,56 +251,190 @@ namespace Inspire.Erp.Application.Master
             }
         }
 
-        public JobMaster UpdateJobMaster(JobMaster jobMaster, List<JobMasterBudgetDetails> jobMasterBudgetDetails, List<JobMasterJobDetails> jobMasterJobDetails, List<JobMasterJobWiseBankGuarantees> jobMasterJobWiseBankGuarantees)
+        public async Task<JobMaster> UpdateJobMaster(JobMaster jobMaster, List<JobMasterBudgetDetails> jobMasterBudgetDetails, List<JobMasterJobDetails> jobMasterJobDetails, List<JobMasterJobWiseBankGuarantees> jobMasterJobWiseBankGuarantees, List<JobStaff> jobStaff, List<JobEquipment> jobEquipment, List<JobExcutionDetails> jobExcutionDetails, List<JobTimesheetDesc> JobTimesheetDesc, List<JobTimeSheetEquip> JobTimeSheetEquip, List<JobTimesheetMaster> JobTimesheetMaster, List<JobTimeSheetStaff> JobTimeSheetStaff, List<JobfilesStatus> JobfilesStatus, List<JobMasterControl> JobMasterControl)
         {
             try
             {
-              
-                jobrepository.Update(jobMaster);
+                int jobId = 0;
+                jobrepository.BeginTransaction();
+                jobId = jobMaster.JobMasterJobId;
+                var existingJobDetails = this.jobdetailsRepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterJobDetailsJobId == jobId).ToList();
+                var existingJobControls = this._jobMasterControl.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterControlJobID == jobId).ToList();
+                var detailsToDelete = existingJobDetails.Where(x => jobMaster.JobMasterJobDetails.All(d => x.JobMasterJobDetailsJobDetId != d.JobMasterJobDetailsJobDetId)).ToList();
+                var jobControlsToDelete = existingJobControls.Where(x => jobMaster.JobMasterControl.All(d => x.JobMasterControlJobID == d.JobMasterControlJobID)).ToList();
 
-                return this.GetSavedJobMasterDetails(jobMaster.JobMasterJobNo);
+                string vNumber = jobMaster.JobMasterJobNo;
+
+                jobMaster.JobMasterBudgetDetails.Select((x) =>
+                {
+                    x.JobMasterBudgetDetailsJobId = jobId;
+                    x.JobMasterNo = vNumber;
+                    return x;
+                }).OrderBy(x => x.JobMasterNo).AsEnumerable().ToList();
+
+                jobMaster.JobMasterJobDetails.Select((x) =>
+                {
+                    x.JobMasterJobDetailsJobId = jobId;
+                    x.JobMasterNo = vNumber;
+                    return x;
+                }).OrderBy(x => x.JobMasterNo).AsEnumerable().ToList();
+
+                jobMaster.JobMasterJobWiseBankGuarantees.Select((x) =>
+                {
+                    x.JobMasterJobWiseBankGuaranteesJobId = jobId;
+                    x.JobMasterNo = vNumber;
+                    return x;
+                }).OrderBy(x => x.JobMasterNo).AsEnumerable().ToList();
+
+                // job staff , equipment and execution related updation
+                jobMaster.JobStaff.Select((x) =>
+                {
+                    x.JobMasterJobId = jobId;
+                    return x;
+                }).OrderBy(x => x.JobMasterJobId).AsEnumerable().ToList();
+
+                jobMaster.JobEquipment.Select((x) =>
+                {
+                    x.JobMasterJobId = jobId;
+                    return x;
+                }).OrderBy(x => x.JobMasterJobId).AsEnumerable().ToList();
+                jobMaster.JobExcutionDetails.Select((x) =>
+                {
+                    x.JobMasterJobId = jobId;
+                    return x;
+                }).OrderBy(x => x.JobMasterJobId).AsEnumerable().ToList();
+                /// end 
+                /// 
+                jobMaster.JobTimesheetDesc.Select((x) =>
+                {
+                    x.JobId = jobId;
+                    return x;
+                }).OrderBy(x => x.JobId).AsEnumerable().ToList();
+
+                jobMaster.JobTimeSheetEquip.Select((x) =>
+                {
+                    x.JobId = jobId;
+                    return x;
+                }).OrderBy(x => x.JobId).AsEnumerable().ToList();
+                jobMaster.JobTimesheetMaster.Select((x) =>
+                {
+                    x.JobId = jobId;
+                    return x;
+                }).OrderBy(x => x.JobId).AsEnumerable().ToList();
+                jobMaster.JobTimeSheetStaff.Select((x) =>
+                {
+                    x.JobId = jobId;
+                    return x;
+                }).OrderBy(x => x.JobId).AsEnumerable().ToList();
+
+                jobMaster.JobfilesStatus.Select((x) =>
+                {
+                    x.JobMasterJobId = jobId;
+                    return x;
+                }).OrderBy(x => x.JobMasterJobId).AsEnumerable().ToList();
+
+
+                if (detailsToDelete.Any())
+                    this.jobdetailsRepository.DeleteList(detailsToDelete);
+
+                if (jobControlsToDelete.Any())
+                    this._jobMasterControl.DeleteList(jobControlsToDelete);
+
+                jobMaster.JobMasterControl.ForEach(x =>
+                {
+                    x.JobMasterControlDtlId = 0;
+                    x.JobMasterControlJobID = jobId;
+                    x.JobMasterNo = vNumber;
+                });
+
+                jobrepository.Update(jobMaster);
+                this._jobMasterControl.InsertList(jobMaster.JobMasterControl);
+
+                jobrepository.TransactionCommit();
+
+                return await this.GetSavedJobMasterDetails(jobMaster.JobMasterJobNo);
 
             }
             catch (Exception ex)
             {
-                throw;
+                jobrepository.TransactionRollback();
+                throw ex;
             }
         }
-        public JobMaster GetSavedJobMasterDetails(string jbno)
+
+        public async Task<JobMaster> GetSavedJobMasterDetails(string jbno)
         {
             JobMaster jobMasterData = new JobMaster();
             if (jobrepository.GetAsQueryable().Any(x => x.JobMasterJobNo == jbno))
             {
-                jobMasterData = jobrepository.GetAsQueryable().Where(k => k.JobMasterJobNo == jbno).FirstOrDefault();
-                jobMasterData.JobMasterBudgetDetails = jobbudgetRepository.GetAsQueryable().Where(x => x.JobMasterNo == jbno && x.JobMasterBudgetDetailsDelStatus == false).ToList();
-                foreach (var item in jobMasterData.JobMasterBudgetDetails)
+                jobMasterData = jobrepository.GetAsQueryable().AsNoTracking().Where(k => k.JobMasterJobNo == jbno).FirstOrDefault();
+
+                var jobBudgetDetailsData = this.jobbudgetRepository.GetAsQueryable().AsNoTracking()
+                                                 .Where(x => x.JobMasterNo == jbno && x.JobMasterBudgetDetailsDelStatus == false)
+                                                 .Join(this._costCenterMaster.GetAsQueryable().AsNoTracking(),
+                                                     j => j.JobMasterBudgetDetailsBudId,
+                                                     c => c.CostCenterMasterCostCenterId,
+                                                     (j, c) => new
+                                                     {
+                                                         jdDetails = j,
+                                                         ccMaster = c
+                                                     })
+                                                 .AsNoTracking()
+                                                .OrderBy(x => x.ccMaster.CostCenterMasterCostCenterId)
+                                                .ToList();
+
+                var groupedData = jobBudgetDetailsData
+                .GroupBy(x => new
                 {
-                    var groupedResults =
-                        from at in context.AccountsTransactions
-                        join cos in context.CostCenterMaster on
-                        at.AccountsTransactionsCostCenterId equals cos.CostCenterMasterCostCenterId
-                        where at.AccountstransactionsDelStatus == false
-                        && at.AccountsTransactionsCostCenterId == item.JobMasterBudgetDetailsBudId
-                        && at.AccountsTransactionsJobNo == (long)item.JobMasterBudgetDetailsJobId
-                        group at by cos.CostCenterMasterCostCenterName into g
-                        select new
-                        {
-                            CostName = g.Key,
-                            TotalDrAmt = g.Sum(x => x.AccountsTransactionsDebit)
-                        };
-
-                    foreach (var result in groupedResults)
+                    x.ccMaster.CostCenterMasterCostCenterId,
+                    x.ccMaster.CostCenterMasterCostCenterName
+                })
+                .Select(x =>
+                {
+                    var first = x.FirstOrDefault()?.jdDetails;
+                    return new JobMasterBudgetDetails
                     {
+                        JobMasterBudgetDetailsCostCenterId = x.Key.CostCenterMasterCostCenterId,
+                        JobMasterBudgetDetailsDtlId = first?.JobMasterBudgetDetailsDtlId ?? 0,
+                        JobMasterBudgetDetailsJobId = first?.JobMasterBudgetDetailsJobId,
+                        JobMasterNo = first?.JobMasterNo,
+                        JobMasterBudgetDetailsSno = first?.JobMasterBudgetDetailsSno,
+                        JobMasterBudgetDetailsBudId = first?.JobMasterBudgetDetailsBudId,
+                        JobMasterBudgetDetailsBudAmount = x.Sum(y => y.jdDetails.JobMasterBudgetDetailsBudAmount ?? 0),
+                        JobMasterBudgetDetailsDelStatus = first?.JobMasterBudgetDetailsDelStatus,
+                        JobMasterBudgetDetailsActual = x.Sum(y => y.jdDetails.JobMasterBudgetDetailsActual ?? 0),
+                        JobMasterBudgetDetailsVariance = x.Sum(y => y.jdDetails.JobMasterBudgetDetailsBudAmount ?? 0) -
+                                                         x.Sum(y => y.jdDetails.JobMasterBudgetDetailsActual ?? 0),
+                        RefVoucherNo = first?.RefVoucherNo
+                    };
+                })
+                .ToList();
 
-                        item.JobMasterBudgetDetailsActual = result.TotalDrAmt;
-                        item.JobMasterBudgetDetailsVariance = -result.TotalDrAmt;
-                    }
-                }
 
+                jobMasterData.JobMasterControl = _jobMasterControl.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterControlJobID == jobMasterData.JobMasterJobId).ToList();
 
-                jobMasterData.JobMasterJobDetails = jobdetailsRepository.GetAsQueryable().Where(x => x.JobMasterNo == jbno && x.JobMasterJobDetailsDelStatus == false).ToList();
-                jobMasterData.JobMasterJobWiseBankGuarantees = jobBankGuaruRepository.GetAsQueryable().Where(x => x.JobMasterNo == jbno && x.JobMasterJobWiseBankGuaranteesDelStatus == false).ToList();
-                jobMasterData.AccountsTransactions = accountsTransactionsRepository.GetAsQueryable().Where(x => x.AccountsTransactionsJobNo == jobMasterData.JobMasterJobId).ToList();
+                /*
+                 
+                 select a.cost_center as CostcenterId,SUM(isnull(amount,0)) as Amount from
+                     Estimation_CostCenter a
+                     join BillofQty_Master b on a.BillQtyId = b.id
+                     where b.CustomerEnqId = 88
+                     group by a.cost_center
+                 */
+                var summaries = await GetEstimationCostCenterSummaries(jobMasterData.JobMasterJobId);
+
+                jobMasterData.JobMasterControl.ForEach(x =>
+                {
+                    x.JobMasterControlAmount = summaries.FirstOrDefault(c => c.CostcenterId == x.JobMasterControlCostCenerID)?.Amount ?? 0;
+                    //x.JobMasterControlActual = groupedData.FirstOrDefault(gd => gd.JobMasterBudgetDetailsBudId == x.JobMasterControlCostCenerID)?.JobMasterBudgetDetailsActual ?? 0;
+                    x.JobMasterControlVariance = x.JobMasterControlAmount - x.JobMasterControlActual;
+                });
+
+                jobMasterData.JobMasterBudgetDetails = groupedData;
+
+                jobMasterData.JobMasterJobDetails = jobdetailsRepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterNo == jbno && x.JobMasterJobDetailsDelStatus == false).ToList();
+                jobMasterData.JobMasterJobWiseBankGuarantees = jobBankGuaruRepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterNo == jbno && x.JobMasterJobWiseBankGuaranteesDelStatus == false).ToList();
+                jobMasterData.AccountsTransactions = accountsTransactionsRepository.GetAsQueryable().AsNoTracking().Where(x => x.AccountsTransactionsJobNo == jobMasterData.JobMasterJobId).ToList();
                 jobMasterData.JobStaff = jobstaffrepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterJobId == jobMasterData.JobMasterJobId).ToList();
                 jobMasterData.JobEquipment = jobEquipmentrepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterJobId == jobMasterData.JobMasterJobId).ToList();
                 jobMasterData.JobExcutionDetails = jobexecrepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterJobId == jobMasterData.JobMasterJobId).ToList();
@@ -287,17 +458,38 @@ namespace Inspire.Erp.Application.Master
                                             CrAmt = at.AccountsTransactionsCredit,
                                             DrAmt = at.AccountsTransactionsDebit,
                                             CostName = cos.CostCenterMasterCostCenterName
-                                        }).ToList();
+                                        }).OrderBy(x => x.accName).AsNoTracking().AsEnumerable().ToList();
+                jobMasterData.JobTimeSheetStaff = _jobTimeSheetStaff.GetAsQueryable().AsNoTracking().Where(a => a.JobId == jobMasterData.JobMasterJobId).ToList();
+                jobMasterData.JobTimesheetMaster = _jobTimesheetMaster.GetAsQueryable().AsNoTracking().Where(a => a.JobId == jobMasterData.JobMasterJobId).ToList();
+                jobMasterData.JobTimeSheetEquip = _jobTimeSheetEquip.GetAsQueryable().AsNoTracking().Where(a => a.JobId == jobMasterData.JobMasterJobId).OrderBy(x => x.JobMasterJobJob).ToList();
+                jobMasterData.JobTimesheetDesc = _jobTimesheetDesc.GetAsQueryable().AsNoTracking().Where(a => a.JobId == jobMasterData.JobMasterJobId).ToList();
+                jobMasterData.JobfilesStatus = _JobfilesStatus.GetAsQueryable().AsNoTracking().Where(a => a.JobMasterJobId == jobMasterData.JobMasterJobId).ToList();
+                jobMasterData.JobEquipment = jobEquipmentrepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterJobJob.JobMasterJobId == jobMasterData.JobMasterJobId).Select(x => new JobEquipment() { Id = x.Id, JobMasterEquipId = x.JobMasterEquipId, JobMasterJobId = x.JobMasterJobId, JobMasterJobJob = x.JobMasterJobJob, JobMasterEquipName = x.JobMasterEquipName }).ToList();
+
                 return jobMasterData;
+
+
             }
             return null;
         }
 
+        public IEnumerable<JobDocuments> GetJobDocumentstById(int jobDocumentJobId, int jobDocumentId)
+        {
+            var Jobdoc = _jobDocumentsRepository.GetAsQueryable().AsNoTracking().Where(a => a.JobDocumentJobId == jobDocumentJobId && a.JobDocumentId == jobDocumentId).ToList();
+            return Jobdoc;
+        }
         public void SaveJobDocument(JobDocuments jobDocumnet)
         {
-            jobDocumentsRepository.Insert(jobDocumnet);
+            _jobDocumentsRepository.Insert(jobDocumnet);
         }
+        public void JobfilesStatus(JobfilesStatus JobfilesStatus)
+        {
 
+            JobfilesStatus.job_filename = JobfilesStatus.job_filename;
+            JobfilesStatus.job_fileStatus = false;
+            JobfilesStatus.JobMasterJobId = JobfilesStatus.JobMasterJobId;
+            _JobfilesStatus.Insert(JobfilesStatus);
+        }
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
         {
             try
@@ -325,10 +517,161 @@ namespace Inspire.Erp.Application.Master
                 throw ex;
             }
         }
-
         public Task<string> GetJobHTML(int id)
         {
             throw new NotImplementedException();
+
         }
+        private readonly string _pdfDirectory = @"Upload//Pdfs"; // Change this to your actual PDF directory
+        public async Task<FileResultDto> GetJobPdfById(int id)
+        {
+            if (!Directory.Exists(_pdfDirectory))
+            {
+                return null; // Directory does not exist
+            }
+
+            // Allowed file types
+            string[] allowedExtensions = { ".pdf", ".docx", ".xlsx" };
+
+            // Search for the first file that contains the ID and has a valid extension
+            var filePath = Directory.EnumerateFiles(_pdfDirectory)
+                .FirstOrDefault(f => allowedExtensions.Contains(Path.GetExtension(f).ToLower()) &&
+                                     Path.GetFileName(f).Contains(id.ToString()));
+
+            if (filePath == null)
+            {
+                return null; // No matching file found
+            }
+
+            var fileBytes = await File.ReadAllBytesAsync(filePath);
+
+            return new FileResultDto
+            {
+                FileName = Path.GetFileName(filePath),
+                FileBytes = fileBytes,
+                ContentType = GetMimeType(filePath) // Get the correct MIME type
+            };
+        }
+
+        // Helper method to get the correct MIME type
+        private string GetMimeType(string filePath)
+        {
+            var extension = Path.GetExtension(filePath).ToLower();
+
+            return extension switch
+            {
+                ".pdf" => "application/pdf",
+                ".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                ".xlsx" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                _ => "application/octet-stream" // Default binary file type
+            };
+        }
+        //public async Task<FileResultDto> GetJobPdfById(int id)
+        //{
+
+        //    // Search for the PDF file by ID (assuming the naming convention is "Job123.pdf")
+        //    var filePath = Directory.EnumerateFiles(_pdfDirectory, "*.pdf")
+        //        .FirstOrDefault(f => Path.GetFileNameWithoutExtension(f).StartsWith($"{id}"));
+
+        //    if (filePath == null)
+        //    {
+        //        return null;
+        //    }
+
+        //    var fileBytes = await File.ReadAllBytesAsync(filePath);
+
+        //    return new FileResultDto
+        //    {
+        //        FileName = Path.GetFileName(filePath),
+        //        FileBytes = fileBytes
+        //    };
+        //}
+        public IEnumerable<JobDocuments> GetAllJobDocumentById(int id)
+        {
+            try
+            {
+                var Jobdoc = _jobDocumentsRepository.GetAsQueryable().Where(k => k.JobDocumentJobId == Convert.ToInt32(id) && k.JobDocumentDelStatus == false).ToList();
+                return Jobdoc;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public IEnumerable<JobDocuments> DeleteJobDocument(int Id)
+        {
+            try
+            {
+                var dataObj = _jobDocumentsRepository.GetAsQueryable().Where(o => o.JobDocumentId == Id).FirstOrDefault();
+                dataObj.JobDocumentDelStatus = true;
+                _jobDocumentsRepository.Update(dataObj);
+                return _jobDocumentsRepository.GetAll();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+      
+        public async Task<Response<string>> GetUserLevelForJob(int userId, int joId)
+        {
+            try
+            {
+                var formTypes = Enum.GetValues(typeof(EnumOrderForms))
+                    .Cast<EnumOrderForms>()
+                    .Where(x => x == EnumOrderForms.PurchaseOrder || x == EnumOrderForms.PurchaseRequisition)
+                    .ToList();
+
+                string userLevel = await _approverLevelSettings
+                    .GetAsQueryable()
+                    .AsNoTracking()
+                    .Where(x => x.ApproverId == userId && x.JobId == joId && formTypes.Contains(x.FormType))
+                    .Select(x => x.ApproverLevel.ToString())
+                    .FirstOrDefaultAsync();
+
+                if (string.IsNullOrEmpty(userLevel))
+                    return Response<string>.Fail(string.Empty, "User level not found.");
+
+                return Response<string>.Success(userLevel, $"User level: {userLevel} found.");
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+      
+
+        private async Task<List<EstimationCostCenterSummary>> GetEstimationCostCenterSummaries(int jobId)
+        {
+            try
+            {
+                string sql = @$"select a.cost_center as CostcenterId,SUM(isnull(amount,0)) as Amount from
+                                         Estimation_CostCenter a
+                                         join BillofQty_Master b on a.BillQtyId = b.id
+                                         where b.CustomerEnqId = {jobId}
+                                         group by a.cost_center";
+
+                var summaries = (await _dbConnection.QueryAsync<EstimationCostCenterSummary>(sql)).ToList();
+
+                if (!summaries.Any())
+                    return new List<EstimationCostCenterSummary>();
+
+                return summaries;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
     }
+    public class EstimationCostCenterSummary
+    {
+        public int CostcenterId { get; set; }
+        public decimal Amount { get; set; }
+    }
+
 }

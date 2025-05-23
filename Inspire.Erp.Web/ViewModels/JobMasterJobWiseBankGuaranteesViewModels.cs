@@ -14,6 +14,10 @@ namespace Inspire.Erp.Web.ViewModels
         public decimal? JobMasterJobWiseBankGuaranteesAmount { get; set; }
         public int? JobMasterJobWiseBankGuaranteesSlNo { get; set; }
         public bool? JobMasterJobWiseBankGuaranteesDelStatus { get; set; }
+        public DateTime? Job_Master_JobWiseBankGuarantees_Valid_From_Date { get; set; }
+        public DateTime? Job_Master_JobWiseBankGuarantees_Valid_To_Date { get; set; }
+
+        public string Job_Master_JobWiseBankGuarantees_Remarks { get; set; }
 
     }
 }

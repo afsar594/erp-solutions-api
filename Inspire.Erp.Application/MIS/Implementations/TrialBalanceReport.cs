@@ -106,7 +106,7 @@ namespace Inspire.Erp.Application.MIS.Implementations
                             totalAmount += Math.Round((decimal)(subHead.TotalCredit - subHead.TotalDebit), 2);
                         }
                         bb.Add(trialBalanceReportModel);
-                        //bb.Add(new GetTrialBalanceReportModel() { head = "" });
+                        bb.Add(new GetTrialBalanceReportModel() { head = "" });
                         bb.Add(new GetTrialBalanceReportModel()
                         {
                             head = "Total : " + trialBalanceReportModel.head,
@@ -118,7 +118,7 @@ namespace Inspire.Erp.Application.MIS.Implementations
                         grandTotalCredit += totalCredit;
                         grandTotalDebit += totalDebit;
                         grandTotalBalance += totalAmount;
-                        //bb.Add(trialBalanceReportModel);
+                        bb.Add(trialBalanceReportModel);
                         bb.Add(new GetTrialBalanceReportModel()
                         {
                             head = "Total : ",
@@ -203,7 +203,7 @@ namespace Inspire.Erp.Application.MIS.Implementations
                             foreach (var item in childs)
                             {
                                 var acc = new AccNameTrialBalance();
-                                //acc.subHead = item.SubHead;
+                                acc.subHead = item.SubHead;
                                 acc.accName = item.AccName;
                                 acc.totalCredit = Math.Round((decimal)item.TotalCredit, 2).ToString();
                                 acc.totalDebit = Math.Round((decimal)item.TotalDebit, 2).ToString();

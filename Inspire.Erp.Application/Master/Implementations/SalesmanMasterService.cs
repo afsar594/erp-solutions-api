@@ -100,6 +100,7 @@ namespace Inspire.Erp.Application.Master
             {
                 //salesmanrepository.Dispose();
             }
+            SalesManMaster = SalesManMaster.OrderBy(sm => sm.SalesManMasterSalesManName).ToList();
             return SalesManMaster;
         }
         public IEnumerable<SalesManMaster> GetAllSalesmanById(int id)

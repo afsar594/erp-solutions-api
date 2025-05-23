@@ -54,26 +54,54 @@ namespace Inspire.Erp.Application.Account.Implementations
 
                     
                 }
+                if (filter.IsSummaryChecked == false)
+                {
 
+                    reportDetails = await (from at in _accountsTransactionsRepository.GetAsQueryable().Where($"1 == 1  {filteredValue}")
+                                           join mat in _masterAccountsTableRepository.GetAsQueryable() on at.AccountsTransactionsAccNo equals mat.MaAccNo into jcGroup
+                                           from mat in jcGroup.DefaultIfEmpty()
+                                           join cos in _costCenterMasterRepository.GetAsQueryable() on at.AccountsTransactionsCostCenterId equals cos.CostCenterMasterCostCenterId into ccGroup
+                                           from cos in ccGroup.DefaultIfEmpty()
+                                           where (mat.MaMainHead == "Expenses" && at.AccountstransactionsDelStatus == false && mat.MaAccType == "A" && mat.MaStatus == "R")
+                                           select new JobMasterExpenseDto
+                                           {
 
-                reportDetails = await (from at in _accountsTransactionsRepository.GetAsQueryable().Where($"1 == 1  {filteredValue}")
-                       join mat in _masterAccountsTableRepository.GetAsQueryable() on at.AccountsTransactionsAccNo equals mat.MaAccNo into jcGroup
-                       from mat in jcGroup.DefaultIfEmpty()
-                       join cos in _costCenterMasterRepository.GetAsQueryable() on at.AccountsTransactionsCostCenterId equals cos.CostCenterMasterCostCenterId into ccGroup
-                       from cos in ccGroup.DefaultIfEmpty()
-                       where (mat.MaMainHead == "Expenses"  && at.AccountstransactionsDelStatus == false)
-                       select new JobMasterExpenseDto {
+                                               accNo = at.AccountsTransactionsAccNo,
+                                               accName = mat.MaAccName,
+                                               Description = at.AccountsTransactionsParticulars,
+                                               VoucherNo = at.AccountsTransactionsVoucherNo,
+                                               VoucherType = at.AccountsTransactionsVoucherType,
+                                               transDate = at.AccountsTransactionsTransDate,
+                                               CrAmt = at.AccountsTransactionsCredit,
+                                               DrAmt = at.AccountsTransactionsDebit,
+                                               CostName = cos.CostCenterMasterCostCenterName,
+                                               RunningBalance = (at.AccountsTransactionsCredit) - (at.AccountsTransactionsDebit)
+                                           }).ToListAsync();
+                        }
+                        else {
 
-                           accNo  = at.AccountsTransactionsAccNo,
-                           accName = mat.MaAccName,
-                           Description = at.AccountsTransactionsParticulars,
-                           VoucherNo = at.AccountsTransactionsVoucherNo,
-                           VoucherType = at.AccountsTransactionsVoucherType,
-                           transDate = at.AccountsTransactionsTransDate,
-                           CrAmt = at.AccountsTransactionsCredit,
-                           DrAmt = at.AccountsTransactionsDebit,
-                           CostName = cos.CostCenterMasterCostCenterName
-                       }).ToListAsync();
+                    reportDetails = await (from at in _accountsTransactionsRepository.GetAsQueryable().Where($"1 == 1  {filteredValue}")
+                                           join mat in _masterAccountsTableRepository.GetAsQueryable() on at.AccountsTransactionsAccNo equals mat.MaAccNo into jcGroup
+                                           from mat in jcGroup.DefaultIfEmpty()
+                                           join cos in _costCenterMasterRepository.GetAsQueryable() on at.AccountsTransactionsCostCenterId equals cos.CostCenterMasterCostCenterId into ccGroup
+                                           from cos in ccGroup.DefaultIfEmpty()
+                                           where (mat.MaMainHead == "Expenses" && at.AccountstransactionsDelStatus == false && mat.MaAccType == "A" && mat.MaStatus=="R" )
+                                           select new JobMasterExpenseDto
+                                           {
+
+                                               accNo = at.AccountsTransactionsAccNo,
+                                               accName = mat.MaAccName,
+                                               Description = at.AccountsTransactionsParticulars,
+                                               VoucherNo = at.AccountsTransactionsVoucherNo,
+                                               VoucherType = at.AccountsTransactionsVoucherType,
+                                               transDate = at.AccountsTransactionsTransDate,
+                                               CrAmt = at.AccountsTransactionsCredit,
+                                               DrAmt = at.AccountsTransactionsDebit,
+                                               CostName = cos.CostCenterMasterCostCenterName,
+                                               RunningBalance = (at.AccountsTransactionsCredit) - (at.AccountsTransactionsDebit),
+                                              
+                                           }).ToListAsync();
+                }
 
                 return new Response<List<JobMasterExpenseDto>>
                 {

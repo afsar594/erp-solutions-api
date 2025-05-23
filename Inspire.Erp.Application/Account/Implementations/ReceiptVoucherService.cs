@@ -1,21 +1,22 @@
 ﻿using Inspire.Erp.Application.Account.Interfaces;
 using Inspire.Erp.Application.Common;
-using Inspire.Erp.Domain.Entities;
-using Inspire.Erp.Domain.Enums;
-using Inspire.Erp.Domain.Models;
-using Inspire.Erp.Infrastructure.Database;
-using Inspire.Erp.Infrastructure.Database.Repositoy;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System;
-using System.Collections.Generic;
-using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
 using System.Text;
 
+using Inspire.Erp.Infrastructure.Database;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.EntityFrameworkCore;
+using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Domain.Models;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using Inspire.Erp.Application.MODULE;
 namespace Inspire.Erp.Application.Account.Implementations
 {
     public class ReceiptVoucherService : IReceiptVoucherService
@@ -76,9 +77,13 @@ namespace Inspire.Erp.Application.Account.Implementations
                     {
                         k.AccountsTransactionsVoucherType = VoucherType.Receipt;
                         k.AccountsTransactionsStatus = AccountStatus.Approved;
+                        k.AccountsTransactionsAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
+                        k.AccountsTransactionsFcAllocDebit = 0;
+                        k.AccountsTransactionsFcAllocCredit = 0;
+                        k.AccountsTransactionsFcAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
                     }
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 _receiptVoucherDetailsRepository.UpdateList(receiptVoucherDetails);
                 //UserTracking trackingData = new UserTracking();
@@ -90,10 +95,10 @@ namespace Inspire.Erp.Application.Account.Implementations
                 //trackingData.UserTrackingUserVpType = "RECEIPTVOUCHER";
                 //UserTracking.Insert(trackingData);
 
-                if (alloDetails.Count > 0)
-                {
-                    insertAllocations(receiptVoucher, alloDetails);
-                }
+                //if (alloDetails.Count > 0)
+                //{
+                //    insertAllocations(receiptVoucher, alloDetails);
+                //}
                 _receiptVoucherRepository.TransactionCommit();
             }
             catch (Exception ex)
@@ -101,7 +106,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _receiptVoucherRepository.TransactionRollback();
                 throw ex;
             }
-            return this.GetSavedReceiptDetails(receiptVoucher.ReceiptVoucherMasterVoucherNo);
+            return this.GetSavedReceiptDetails(receiptVoucher.ReceiptVoucherMasterSno);
         }
 
         public int DeleteReceiptVoucher(ReceiptVoucherMaster receiptVoucher, List<AccountsTransactions> accountsTransactions, List<ReceiptVoucherDetails> receiptVoucherDetails)
@@ -115,13 +120,13 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     k.ReceiptVoucherDetailsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.ReceiptVoucherDetailsVoucherNo).AsEnumerable().ToList();
                 _receiptVoucherDetailsRepository.UpdateList(receiptVoucherDetails);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 _receiptVoucherRepository.Update(receiptVoucher);
                 var vchrnumer = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == receiptVoucher.ReceiptVoucherMasterVoucherNo).FirstOrDefault();
@@ -153,7 +158,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             {
                 _receiptVoucherRepository.BeginTransaction();
                 //receiptVoucher.ReceiptVoucherMasterVoucherNo = receiptVoucher.ReceiptVoucherMasterVoucherNo;
-                string receiptVoucherNumber = this.GenerateVoucherNo(receiptVoucher.ReceiptVoucherMasterVoucherDate).VouchersNumbersVNo;
+                string receiptVoucherNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.Receipt, Prefix.RV_Prefix, _programsettingsRepository, _voucherNumbersRepository); ;
                 receiptVoucher.ReceiptVoucherMasterVoucherNo = receiptVoucherNumber;
 
                 int maxcount = 0;
@@ -165,7 +170,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     x.ReceiptVoucherDetailsSlNo = maxcount;
                     x.ReceiptVoucherDetailsVoucherNo = receiptVoucher.ReceiptVoucherMasterVoucherNo;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.ReceiptVoucherDetailsSlNo).AsEnumerable().ToList();
                 _receiptVoucherDetailsRepository.InsertList(receiptVoucherDetails);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
@@ -178,29 +183,13 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsFcAllocCredit = 0;
                     k.AccountsTransactionsFcAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
                     return k;
-                }).ToList();
-                // Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(accountsTransactions));
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
                 _receiptVoucherRepository.Insert(receiptVoucher);
-                //UserTracking trackingData = new UserTracking();
-                //trackingData.UserTrackingUserUserId = 1;
-                //trackingData.UserTrackingUserVpAction = "Insert";
-                //trackingData.UserTrackingUserVpNo = receiptVoucher.ReceiptVoucherMasterVoucherNo;
-                //trackingData.UserTrackingUserChangeDt = DateTime.Now;
-                //trackingData.UserTrackingUserChangeTime = DateTime.Now;
-                //trackingData.UserTrackingUserVpType = "RECEIPTVOUCHER";
-                //UserTracking.Insert(trackingData);
-
-                if (alloDetails.Count > 0)
-                {
-                    insertAllocations(receiptVoucher, alloDetails);
-                }
-
-
 
                 _receiptVoucherRepository.TransactionCommit();
 
-                return this.GetSavedReceiptDetails(receiptVoucher.ReceiptVoucherMasterVoucherNo);
+                return this.GetSavedReceiptDetails(receiptVoucher.ReceiptVoucherMasterSno);
             }
             catch (Exception ex)
             {
@@ -381,38 +370,41 @@ namespace Inspire.Erp.Application.Account.Implementations
             return receiptVouchers;
         }
 
-        public ReceiptVoucherMaster GetSavedReceiptDetails(string Rvno)
+        public ReceiptVoucherMaster GetSavedReceiptDetails(int Rvno)
         {
-            if (_voucherNumbersRepository.GetAsQueryable().Any(x => x.VouchersNumbersVNo == Rvno))
-            {
-                var userTrackngData = (from hdr in context.UserTracking.Where(o => o.UserTrackingUserVpType == "RECEIPTVOUCHER" && o.UserTrackingUserVpNo == Rvno)
-                                       join dtl in context.UserFile on (long)hdr.UserTrackingUserUserId equals dtl.UserId
-                                       select new Domain.Models.TrackingData()
-                                       {
-                                           VPAction = hdr.UserTrackingUserVpAction,
-                                           UserId = dtl.UserId,
-                                           UserName = dtl.UserName,
-                                           VPType = hdr.UserTrackingUserVpType,
-                                           ChangeDt = hdr.UserTrackingUserChangeDt,
-                                           ChangeTime = hdr.UserTrackingUserChangeTime,
-                                           VPNo = hdr.UserTrackingUserVpNo,
-                                       }).ToList();
-                ReceiptVoucherMaster voucherdata = _voucherNumbersRepository.GetAsQueryable().Where(x => x.VouchersNumbersVNo == Rvno)
-                                                .Include(k => k.AccountsTransactions)
-                                                .Include(k => k.ReceiptVoucherDetails).AsEnumerable()
-                                                .Select((k) => new ReceiptVoucherMaster
-                                                {
-                                                    AccountsTransactions = k.AccountsTransactions.Where(x => x.AccountstransactionsDelStatus == false).ToList(),
-                                                    ReceiptVoucherDetails = k.ReceiptVoucherDetails.Where(x => x.ReceiptVoucherDetailsDelStatus == false).ToList()
-                                                })
-                                                .SingleOrDefault();
-                voucherdata = _receiptVoucherRepository.GetAsQueryable().Where(k => k.ReceiptVoucherMasterVoucherNo == Rvno).FirstOrDefault();
-                voucherdata.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(o => o.AccountsTransactionsVoucherNo == Rvno && o.AccountstransactionsDelStatus == false).ToList();
-                voucherdata.ReceiptVoucherDetails = _receiptVoucherDetailsRepository.GetAsQueryable().Where(o => o.ReceiptVoucherDetailsVoucherNo == Rvno && o.ReceiptVoucherDetailsDelStatus == false).ToList();
-                voucherdata.TrackingData = userTrackngData;
+            //if (_voucherNumbersRepository.GetAsQueryable().Any(x => x.VouchersNumbersVNo == Rvno))
+            //{
+
+            //ReceiptVoucherMaster voucherdata = _voucherNumbersRepository.GetAsQueryable().Where(x => x.VouchersNumbersVNo == Rvno)
+            //                                .Include(k => k.AccountsTransactions)
+            //                                .Include(k => k.ReceiptVoucherDetails).AsEnumerable()
+            //                                .Select((k) => new ReceiptVoucherMaster
+            //                                {
+            //                                    AccountsTransactions = k.AccountsTransactions.Where(x => x.AccountstransactionsDelStatus == false).ToList(),
+            //                                    ReceiptVoucherDetails = k.ReceiptVoucherDetails.Where(x => x.ReceiptVoucherDetailsDelStatus == false).ToList()
+            //                                })
+            //                                .SingleOrDefault();
+            var voucherdata = new ReceiptVoucherMaster();
+                voucherdata = _receiptVoucherRepository.GetAsQueryable().Where(k => k.ReceiptVoucherMasterSno == Rvno).FirstOrDefault();
+                voucherdata.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(o => o.AccountsTransactionsVoucherNo == voucherdata.ReceiptVoucherMasterVoucherNo && o.AccountstransactionsDelStatus == false).ToList();
+                voucherdata.ReceiptVoucherDetails = _receiptVoucherDetailsRepository.GetAsQueryable().Where(o => o.ReceiptVoucherDetailsVoucherNo == voucherdata.ReceiptVoucherMasterVoucherNo && o.ReceiptVoucherDetailsDelStatus == false).ToList();
+
+            var userTrackngData = (from hdr in context.UserTracking.Where(o => o.UserTrackingUserVpType == "RECEIPTVOUCHER" && o.UserTrackingUserVpNo == voucherdata.ReceiptVoucherMasterVoucherNo)
+                                   join dtl in context.UserFile on (long)hdr.UserTrackingUserUserId equals dtl.UserId
+                                   select new Domain.Models.TrackingData()
+                                   {
+                                       VPAction = hdr.UserTrackingUserVpAction,
+                                       UserId = dtl.UserId,
+                                       UserName = dtl.UserName,
+                                       VPType = hdr.UserTrackingUserVpType,
+                                       ChangeDt = hdr.UserTrackingUserChangeDt,
+                                       ChangeTime = hdr.UserTrackingUserChangeTime,
+                                       VPNo = hdr.UserTrackingUserVpNo,
+                                   }).OrderBy(x => x.UserName).AsEnumerable().ToList();
+            voucherdata.TrackingData = userTrackngData;
                // voucherdata.rvAllocationDetails = getAllocationDetails(voucherdata.ReceiptVoucherMasterDrAcNo, voucherdata.ReceiptVoucherMasterVoucherNo); //_IPaymentVoucherService.GetAllocationDetails(voucherdata.ReceiptVoucherMasterDrAcNo, voucherdata.ReceiptVoucherMasterVoucherNo).Result   ;
                 return voucherdata;
-            }
+            //}
             return null;
         }
 
@@ -437,7 +429,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                 Balance = dtl.AccountsTransactionsAllocBalance,
                                 AllocAmount = dtl.AccountsTransactionsFcRate,
                                 NetAllocation = dtl.AccountsTransactionsVatableAmount,
-                            }).ToList();
+                            }).OrderBy(x => x.VoucherNo).AsEnumerable().ToList();
                 return data;
             }
             catch (System.Exception ex)

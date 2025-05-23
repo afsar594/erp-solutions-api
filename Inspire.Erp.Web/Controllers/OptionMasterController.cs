@@ -58,7 +58,7 @@ namespace Inspire.Erp.Web.Controllers
                     OptionsMasterFullDescription = x.OptionsMasterFullDescription,
                     OptionsMasterId = x.OptionsMasterId,
                     OptionsMasterType = x.OptionsMasterType == "Yes" || x.OptionsMasterType == "No" ? x.OptionsMasterTypeBoolean ? "Yes" : "No" : x.OptionsMasterType
-                }).ToList();
+                }).OrderBy(x => x.OptionsMasterFormName).ToList();
                 result = _optionsSvc.updateOptionsSettings(options);
             }
             ApiResponse<bool> apiResponse = new ApiResponse<bool>

@@ -55,6 +55,8 @@ namespace Inspire.Erp.Application.Sales.Implementation
                     Id = x.CustomerMasterCustomerNo,
                     Name = x.CustomerMasterCustomerName
                 });
+
+                response.AddRange(response.OrderBy(x => x.Name)); // Order by Name
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
             }
             catch (Exception ex)
@@ -71,6 +73,8 @@ namespace Inspire.Erp.Application.Sales.Implementation
                     Id = x.LocationMasterLocationId != null ? Convert.ToInt32(x.LocationMasterLocationId) : 0,
                     Name = x.LocationMasterLocationName
                 });
+
+                response.AddRange(response.OrderBy(x => x.Name)); // Order by Name
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
             }
             catch (Exception ex)
@@ -87,6 +91,8 @@ namespace Inspire.Erp.Application.Sales.Implementation
                     Id = x.JobMasterJobId != null ? Convert.ToInt32(x.JobMasterJobId) : 0,
                     Name = x.JobMasterJobName
                 });
+
+                response.AddRange(response.OrderBy(x => x.Name)); // Order by Name
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
             }
             catch (Exception ex)
@@ -103,6 +109,8 @@ namespace Inspire.Erp.Application.Sales.Implementation
                     Id = x.DepartmentMasterDepartmentId != null ? Convert.ToInt32(x.DepartmentMasterDepartmentId) : 0,
                     Name = x.DepartmentMasterDepartmentName
                 });
+
+                response.AddRange(response.OrderBy(x => x.Name)); // Order by Name
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
             }
             catch (Exception ex)
@@ -119,6 +127,7 @@ namespace Inspire.Erp.Application.Sales.Implementation
                     Id = x.CurrencyMasterCurrencyId,
                     Name = x.CurrencyMasterCurrencyName
                 });
+                response.AddRange(response.OrderBy(x => x.Name)); // Order by Name
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
             }
             catch (Exception ex)
@@ -135,6 +144,8 @@ namespace Inspire.Erp.Application.Sales.Implementation
                     Id = x.SalesManMasterSalesManId != null ? Convert.ToInt32(x.SalesManMasterSalesManId) : 0,
                     Name = x.SalesManMasterSalesManName
                 });
+
+                response.AddRange(response.OrderBy(x => x.Name)); // Order by Name
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
             }
             catch (Exception ex)
@@ -151,6 +162,7 @@ namespace Inspire.Erp.Application.Sales.Implementation
                     Id = x.UnitMasterUnitId,
                     Name = x.UnitMasterUnitShortName
                 });
+                response.AddRange(response.OrderBy(x => x.Name)); // Order by Name
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
             }
             catch (Exception ex)
@@ -164,14 +176,14 @@ namespace Inspire.Erp.Application.Sales.Implementation
             {
                 var response = await _itemMaster.ListSelectAsync(x => 1 == 1, x => new GetSalesItemMasterResponse
                 {
-                    ItemMasterItemId = x.ItemMasterItemId != null? Convert.ToInt32(x.ItemMasterItemId):0,
+                    ItemMasterItemId = x.ItemMasterItemId != null ? Convert.ToInt32(x.ItemMasterItemId) : 0,
                     ItemMasterItemName = x.ItemMasterItemName,
                     ItemMasterAccountNo = x.ItemMasterAccountNo,
                     ItemMasterBatchCode = x.ItemMasterBatchCode,
                     ItemMasterLocationId = x.ItemMasterLocationId,
                     ItemMasterUnitPrice = x.ItemMasterUnitPrice,
                     ItemMasterMaterialCode = x.ItemMasterMaterialCode,
-                    ItemMasterPartNo=x.ItemMasterPartNo
+                    ItemMasterPartNo = x.ItemMasterPartNo
                 });
                 var result = new GridWrapperResponse<List<GetSalesItemMasterResponse>>();
                 result.Data = response;
@@ -191,14 +203,14 @@ namespace Inspire.Erp.Application.Sales.Implementation
                 string message = null;
                 if (model.CustomerOrderId == null || model.CustomerOrderId == 0)
                 {
-                    
-                        message = await AddCustomerOrder(model);
-                    
+
+                    message = await AddCustomerOrder(model);
+
                 }
                 else
                 {
-                    
-                        message = await EditCustomerOrder(model);
+
+                    message = await EditCustomerOrder(model);
                 }
                 if (message == null)
                 {
@@ -232,8 +244,8 @@ namespace Inspire.Erp.Application.Sales.Implementation
                     CustomerOrderDiscountPercentage = model.CustomerOrderDiscountPercentage,
                     CustomerOrderFsno = model.CustomerOrderFsno,
                     CustomerOrderId = Orderid,
-                    CustomerOrderLpoDate=model.CustomerOrderLpoDate,
-                    CustomerOrderLpoNo=model.CustomerOrderLpoNo,
+                    CustomerOrderLpoDate = model.CustomerOrderLpoDate,
+                    CustomerOrderLpoNo = model.CustomerOrderLpoNo,
                     CustomerOrderLocationId = model.CustomerOrderLocationId,
                     CustomerOrderNetAmount = model.CustomerOrderNetAmount,
                     CustomerOrderNo = Orderid.ToString(),
@@ -264,7 +276,7 @@ namespace Inspire.Erp.Application.Sales.Implementation
                     CustomerOrderDetailsSno = Orderid,
                     CustomerOrderDetailsQuantity = x.CustomerOrderDetailsQuantity,
                     CustomerOrderDetailsUnitId = _unitMaster.GetAsQueryable().FirstOrDefault(c => c.UnitMasterUnitShortName == x.CustomerOrderDetailsUnitName).UnitMasterUnitId,
-                 //   CustomerOrderDetailsMaterialId = _itemMaster.GetAsQueryable().FirstOrDefault(c => c.ItemMasterItemName == x.CustomerOrderDetailsMaterialName).ItemMasterItemId,
+                    //   CustomerOrderDetailsMaterialId = _itemMaster.GetAsQueryable().FirstOrDefault(c => c.ItemMasterItemName == x.CustomerOrderDetailsMaterialName).ItemMasterItemId,
                     CustomerOrderDetailsFcAmount = x.CustomerOrderDetailsFcAmount
                 }));
                 _customerOrderDetails.InsertList(orderDetails);
@@ -317,7 +329,7 @@ namespace Inspire.Erp.Application.Sales.Implementation
                 #endregion
                 _customerOrder.SaveChangesAsync();
 
-                var listOrdersDetails = _customerOrderDetails.GetAsQueryable().Where(x => x.CustomerOrderDetailsSno == model.CustomerOrderId).ToList();
+                var listOrdersDetails = _customerOrderDetails.GetAsQueryable().Where(x => x.CustomerOrderDetailsSno == model.CustomerOrderId).OrderBy(x => x.CustomerOrderDetailsSno).AsEnumerable().ToList();
                 _customerOrderDetails.DeleteList(listOrdersDetails);
                 #region ADD ACTIVITY LOGS
                 AddActivityLogViewModel Deletelogs = new AddActivityLogViewModel()
@@ -386,7 +398,7 @@ namespace Inspire.Erp.Application.Sales.Implementation
                     CustomerOrderNetAmount = x.CustomerOrderNetAmount,
                     CustomerOrderNo = x.CustomerOrderNo,
                     CustomerOrderTotalAmount = x.CustomerOrderTotalAmount,
-                }).ToList());
+                }).OrderBy(x => x.CustomerOrderNo).AsEnumerable().ToList());
                 var gridResponse = new GridWrapperResponse<List<GetCustomerSalesOrderListResponse>>();
                 gridResponse.Data = response;
                 gridResponse.Total = 0;
@@ -404,39 +416,39 @@ namespace Inspire.Erp.Application.Sales.Implementation
                 GetCustomerSalesOrderListResponse model = new GetCustomerSalesOrderListResponse();
                 await Task.Run(() =>
                 {
-                var orders = _customerOrder.GetAsQueryable().FirstOrDefault(x => x.CustomerOrderId == id);
-                model.CustomerOrderCurrencyId = orders.CustomerOrderCurrencyId;
-                model.CustomerOrderCustomerId = orders.CustomerOrderCustomerId;
-                model.CustomerOrderDate = orders.CustomerOrderDate;
-                model.CustomerOrderDescription = orders.CustomerOrderDescription;
-                model.CustomerOrderDiscount = orders.CustomerOrderDiscount;
-                model.CustomerOrderDiscountPercentage = orders.CustomerOrderDiscountPercentage;
-                model.CustomerOrderFsno = orders.CustomerOrderFsno;
-                model.CustomerOrderId = orders.CustomerOrderId;
-                model.CustomerOrderLocationId = orders.CustomerOrderLocationId;
-                model.CustomerOrderLpoNo = orders.CustomerOrderLpoNo;
-                model.CustomerOrderLpoDate = orders.CustomerOrderLpoDate;
-                model.CustomerOrderNetAmount = orders.CustomerOrderNetAmount;
-                model.CustomerOrderNo = orders.CustomerOrderNo;
-                model.CustomerOrderTermsAndConditions = orders.CustomerOrderTermsAndConditions;
-                model.CustomerOrderTotalAmount = orders.CustomerOrderTotalAmount;
-                model.CustomerOrderUserId = orders.CustomerOrderUserId;
-                model.CustomerOrderDetails = _customerOrderDetails.GetAsQueryable()
-                    .Where(x => x.CustomerOrderDetailsSno == id).Select(x => new CustomerOrderDetailsListResponse
-                    {
-                        CustomerOrderDetailsAmount = x.CustomerOrderDetailsAmount,
-                        CustomerOrderDetailsDescription = x.CustomerOrderDetailsDescription,
-                        CustomerOrderDetailsId = x.CustomerOrderDetailsId,
-                        CustomerOrderDetailsMaterialDescription = x.CustomerOrderDetailsMaterialDescription,
-                        CustomerOrderDetailsRate = x.CustomerOrderDetailsRate,
-                        CustomerOrderDetailsSno = model.CustomerOrderId,
-                        CustomerOrderDetailsQuantity = x.CustomerOrderDetailsQuantity,
-                        CustomerOrderDetailsUnitId=x.CustomerOrderDetailsUnitId,
-                        CustomerOrderDetailsUnitName = _unitMaster.GetAsQueryable().FirstOrDefault(c => c.UnitMasterUnitId == x.CustomerOrderDetailsUnitId).UnitMasterUnitShortName,
-                        CustomerOrderDetailsMaterialId = x.CustomerOrderDetailsMaterialId,
-                        CustomerOrderDetailsFcAmount = x.CustomerOrderDetailsFcAmount
-                    }).ToList();
-                  
+                    var orders = _customerOrder.GetAsQueryable().FirstOrDefault(x => x.CustomerOrderId == id);
+                    model.CustomerOrderCurrencyId = orders.CustomerOrderCurrencyId;
+                    model.CustomerOrderCustomerId = orders.CustomerOrderCustomerId;
+                    model.CustomerOrderDate = orders.CustomerOrderDate;
+                    model.CustomerOrderDescription = orders.CustomerOrderDescription;
+                    model.CustomerOrderDiscount = orders.CustomerOrderDiscount;
+                    model.CustomerOrderDiscountPercentage = orders.CustomerOrderDiscountPercentage;
+                    model.CustomerOrderFsno = orders.CustomerOrderFsno;
+                    model.CustomerOrderId = orders.CustomerOrderId;
+                    model.CustomerOrderLocationId = orders.CustomerOrderLocationId;
+                    model.CustomerOrderLpoNo = orders.CustomerOrderLpoNo;
+                    model.CustomerOrderLpoDate = orders.CustomerOrderLpoDate;
+                    model.CustomerOrderNetAmount = orders.CustomerOrderNetAmount;
+                    model.CustomerOrderNo = orders.CustomerOrderNo;
+                    model.CustomerOrderTermsAndConditions = orders.CustomerOrderTermsAndConditions;
+                    model.CustomerOrderTotalAmount = orders.CustomerOrderTotalAmount;
+                    model.CustomerOrderUserId = orders.CustomerOrderUserId;
+                    model.CustomerOrderDetails = _customerOrderDetails.GetAsQueryable()
+                        .Where(x => x.CustomerOrderDetailsSno == id).Select(x => new CustomerOrderDetailsListResponse
+                        {
+                            CustomerOrderDetailsAmount = x.CustomerOrderDetailsAmount,
+                            CustomerOrderDetailsDescription = x.CustomerOrderDetailsDescription,
+                            CustomerOrderDetailsId = x.CustomerOrderDetailsId,
+                            CustomerOrderDetailsMaterialDescription = x.CustomerOrderDetailsMaterialDescription,
+                            CustomerOrderDetailsRate = x.CustomerOrderDetailsRate,
+                            CustomerOrderDetailsSno = model.CustomerOrderId,
+                            CustomerOrderDetailsQuantity = x.CustomerOrderDetailsQuantity,
+                            CustomerOrderDetailsUnitId = x.CustomerOrderDetailsUnitId,
+                            CustomerOrderDetailsUnitName = _unitMaster.GetAsQueryable().FirstOrDefault(c => c.UnitMasterUnitId == x.CustomerOrderDetailsUnitId).UnitMasterUnitShortName,
+                            CustomerOrderDetailsMaterialId = x.CustomerOrderDetailsMaterialId,
+                            CustomerOrderDetailsFcAmount = x.CustomerOrderDetailsFcAmount
+                        }).OrderBy(x => x.CustomerOrderDetailsUnitName).AsEnumerable().ToList();
+
                 });
                 return Response<GetCustomerSalesOrderListResponse>.Success(model, "Records FOund.");
             }

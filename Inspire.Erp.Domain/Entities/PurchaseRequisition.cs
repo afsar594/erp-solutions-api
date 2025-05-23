@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -37,7 +39,6 @@ namespace Inspire.Erp.Domain.Entities
         public int? PurchaseRequisitionCompanyId { get; set; }
         public long? PurchaseRequisitionJobId { get; set; }
         public decimal? PurchaseRequisitionFsno { get; set; }
-
         public string PurchaseRequisitionStatus { get; set; }
         public decimal? PurchaseRequisitionTotalGrossAmount { get; set; }
         public decimal? PurchaseRequisitionTotalItemDisAmount { get; set; }
@@ -53,13 +54,11 @@ namespace Inspire.Erp.Domain.Entities
         public bool? PurchaseRequisitionDelStatus { get; set; }
         public DateTime? PurchaseRequisitionDetailsReqDate { get; set; }
         public string PurchaseRequisitionDetailsReqStatus { get; set; }
-
-         public int? PurchaseRequisitionApprovedBy { get; set; }
+                public int? PurchaseRequisitionApprovedBy { get; set; }
         public DateTime? PurchaseRequisitionApprovedDate { get; set; }
         public decimal? PurchaseRequisitionFcRate { get; set; }
         public int? PurchaseRequisitionPurchaseRequestId { get; set; }
         public string PurchaseRequisitionRemarks { get; set; }
-
         public int? PurchaseRequisitionRequestedBy { get; set; }
         public DateTime? PurchaseRequisitionRequisitionDate { get; set; }
         public int? PurchaseRequisitionStaffCode { get; set; }
@@ -69,6 +68,17 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? PurchaseRequisitionVatPer { get; set; }
         public string PurchaseRequisitionVatRoundSign { get; set; }
         public decimal? PurchaseRequisitionVatRountAmt { get; set; }
+        public string? paymentTerms { get; set; }
+        public string confirmationemaildetails { get; set; }
+        public string deliveryatsite { get; set; }
+        public string deliveryterms { get; set; }
+ 
+        [NotMapped]
+        public bool PurchaseRequisitionApproveEnable { get; set; }
         public virtual ICollection<PurchaseRequisitionDetails> PurchaseRequisitionDetails { get; set; }
+        public virtual ICollection<OrderApprovalHierarchy> OrderApprovalHierarchies { get; set; }
+
+        [NotMapped]
+        public bool IsPrintEnabled { get; set; }
     }
 }

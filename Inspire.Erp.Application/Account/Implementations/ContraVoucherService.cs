@@ -12,6 +12,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using Inspire.Erp.Infrastructure.Database;
+using Inspire.Erp.Application.MODULE;
 
 namespace Inspire.Erp.Application.Account.Implementations
 {
@@ -55,7 +56,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                         k.AccountsTransactionsStatus = AccountStatus.Approved;
                     }
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherType).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 _contraVoucherDetailsRepository.UpdateList(contraVoucherDetails);
                 //UserTracking trackingData = new UserTracking();
@@ -73,7 +74,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _contraVoucherRepository.TransactionRollback();
                 throw ex;
             }
-            return this.GetSavedContraVoucherDetails(contraVoucher.ContraVoucherVno);
+            return this.GetSavedContraVoucherDetails(contraVoucher.ContraVoucherId);
         }
 
         public int DeleteContraVoucher(ContraVoucher contraVoucher, List<AccountsTransactions> accountsTransactions, List<ContraVoucherDetails> contraVoucherDetails)
@@ -87,13 +88,13 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     k.ContraVoucherDetailsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.ContraVoucherDetailsJobNo).AsEnumerable().ToList();
                 _contraVoucherDetailsRepository.UpdateList(contraVoucherDetails);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 _contraVoucherRepository.Update(contraVoucher);
                 var vchrnumer = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == contraVoucher.ContraVoucherVno).FirstOrDefault();
@@ -124,7 +125,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             {
                 _contraVoucherRepository.BeginTransaction();
                // contraVoucher.ContraVoucherVno = contraVoucher.ContraVoucherVno;
-                string contraVoucherNumber = this.GenerateVoucherNo(contraVoucher.ContraVoucherDate).VouchersNumbersVNo;
+                string contraVoucherNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.ContraVoucher_TYPE, Prefix.ContraVoucher_Prefix, _programsettingsRepository, _voucherNumbersRepository); 
                 contraVoucher.ContraVoucherVno = contraVoucherNumber;
 
                 int maxcount = 0;
@@ -139,7 +140,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     x.ContraVoucherId = maxcount;
                     x.ContraVoucherDetailsVno = contraVoucher.ContraVoucherVno;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.ContraVoucherDetailsVno).AsEnumerable().ToList();
                 _contraVoucherDetailsRepository.InsertList(contraVoucherDetails);
 
                 accountsTransactions = accountsTransactions.Select((k) =>
@@ -148,7 +149,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsVoucherType = VoucherType.ContraVoucher_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherType).AsEnumerable().ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
                 _contraVoucherRepository.Insert(contraVoucher);
                 //UserTracking trackingData = new UserTracking();
@@ -160,7 +161,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 //trackingData.UserTrackingUserVpType = "CONTRAVOUCHER";
                 //_UserTracking.Insert(trackingData);
                 _contraVoucherRepository.TransactionCommit();
-                return this.GetSavedContraVoucherDetails(contraVoucher.ContraVoucherVno);
+                return this.GetSavedContraVoucherDetails(contraVoucher.ContraVoucherId);
             }
             catch (Exception ex)
             {
@@ -180,25 +181,26 @@ namespace Inspire.Erp.Application.Account.Implementations
             return contraVoucher_ALL;
         }
 
-        public ContraVoucher GetSavedContraVoucherDetails(string pvno)
+        public ContraVoucher GetSavedContraVoucherDetails(int pvno)
         {
             ContraVoucher contraVoucherModel = new ContraVoucher();
+           
+            contraVoucherModel = _contraVoucherRepository.GetAsQueryable().Where(k => k.ContraVoucherId == pvno).SingleOrDefault();
             var userTrackngData = (from hdr in context.UserTracking
                                    join dtl in context.UserFile on (long)hdr.UserTrackingUserUserId equals dtl.UserId
-                                   where (hdr.UserTrackingUserVpType == "CONTRAVOUCHER" && hdr.UserTrackingUserVpNo == pvno)
+                                   where (hdr.UserTrackingUserVpType == "CONTRAVOUCHER" && hdr.UserTrackingUserVpNo == contraVoucherModel.ContraVoucherVno)
                                    select new UserTrackingDisplay()
                                    {
                                        Action = hdr.UserTrackingUserVpAction,
                                        Id = dtl.UserId.ToString(),
-                                       VType= hdr.UserTrackingUserVpType,
-                                       Date= hdr.UserTrackingUserChangeDt.Value.ToString("dd/MM/yyyy"),
+                                       VType = hdr.UserTrackingUserVpType,
+                                       Date = hdr.UserTrackingUserChangeDt.Value.ToString("dd/MM/yyyy"),
                                        Time = hdr.UserTrackingUserChangeTime.Value.ToString("hh:mm t"),
                                        VNo = hdr.UserTrackingUserVpNo,
-                                   }).ToList();
-            contraVoucherModel = _contraVoucherRepository.GetAsQueryable().Where(k => k.ContraVoucherVno == pvno).SingleOrDefault();
+                                   }).OrderBy(x => x.VType).AsEnumerable().ToList();
             contraVoucherModel.UserTrackingData = userTrackngData;
-            contraVoucherModel.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno).ToList();
-            contraVoucherModel.ContraVoucherDetails = _contraVoucherDetailsRepository.GetAsQueryable().Where(x => x.ContraVoucherDetailsVno == pvno).ToList();
+            contraVoucherModel.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == contraVoucherModel.ContraVoucherVno).ToList();
+            contraVoucherModel.ContraVoucherDetails = _contraVoucherDetailsRepository.GetAsQueryable().Where(x => x.ContraVoucherDetailsVno == contraVoucherModel.ContraVoucherVno).ToList();
             return contraVoucherModel;
         }
 

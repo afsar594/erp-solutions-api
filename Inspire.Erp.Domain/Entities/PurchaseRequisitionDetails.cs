@@ -7,6 +7,7 @@ namespace Inspire.Erp.Domain.Entities
     public partial class PurchaseRequisitionDetails
     {
         public decimal? PurchaseRequisitionDetailsId { get; set; }
+        public int? PurchaseRequisitionDetailsJobId { get; set; }
         public decimal? PurchaseRequisitionId { get; set; }
         public string PurchaseRequisitionDetailsNo { get; set; }
         public decimal? PurchaseRequisitionDetailsSno { get; set; }
@@ -40,8 +41,11 @@ namespace Inspire.Erp.Domain.Entities
         public string PurchaseRequisitionDetailsReqStatus { get; set; }
         public bool? PurchaseRequisitionDetailsDelStatus { get; set; }
         //   public int? PurchaseRequisitionDetailsItemID { get; set; }
-        public virtual PurchaseRequisition PurchaseRequisitionDetailsNoNavigation { get; set; }
-        [NotMapped]
+        public int? PurchaseRequisitionDetailsSupplierId { get; set; }
         public int? boqdId { get; set; }
+
+        public int? PurchaseRequisitionDetailsBalQty { get; set; }
+        public virtual PurchaseRequisition PurchaseRequisitionDetailsNoNavigation { get; set; }
+        
     }
 }

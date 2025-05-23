@@ -16,8 +16,7 @@ using Inspire.Erp.Web.Common;
 using Inspire.Erp.Web.MODULE;
 
 using Microsoft.AspNetCore.Mvc.Rendering;
-
-
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -33,39 +32,6 @@ namespace Inspire.Erp.Web.Controllers
             _salesReturnService = salesReturnService;
             _mapper = mapper;
         }
-
-        //[HttpGet]
-        //[Route("SalesReturn_GetReportSalesReturn")]
-
-        //public List<ReportSalesReturn> SalesReturn_GetReportSalesReturn()
-        //{
-        //    return _mapper.Map<List<ReportSalesReturn>>(_salesReturnService.SalesReturn_GetReportSalesReturn());
-
-
-        //}
-
-
-
-        //[HttpGet]
-        //[Route("SalesReturn_GetReportSalesReturn")]
-        //public ApiResponse<List<ReportSalesReturn>> SalesReturn_GetReportSalesReturn()
-        //{
-
-
-
-        //    ApiResponse<List<ReportSalesReturn>> apiResponse = new ApiResponse<List<ReportSalesReturn>>
-        //    {
-        //        Valid = true,
-        //        Result = _mapper.Map<List<ReportSalesReturn>>(_salesReturnService.SalesReturn_GetReportSalesReturn()),
-        //        Message = ""
-        //    };
-        //    return apiResponse;
-
-
-
-
-        //}
-
 
         [HttpGet]
         [Route("GenerateVoucherNo")]
@@ -154,20 +120,13 @@ namespace Inspire.Erp.Web.Controllers
                 Result = 0,
                 Message = SalesReturnMessage.DeleteVoucher
             };
-
             return apiResponse;
-
         }
-
-
 
         [HttpGet]
         [Route("GetAllAccountTransaction")]
         public ApiResponse<List<AccountsTransactions>> GetAllAccountTransaction()
         {
-
-
-
             ApiResponse<List<AccountsTransactions>> apiResponse = new ApiResponse<List<AccountsTransactions>>
             {
                 Valid = true,
@@ -175,7 +134,6 @@ namespace Inspire.Erp.Web.Controllers
                 Message = ""
             };
             return apiResponse;
-
         }
 
         [HttpGet]
@@ -191,16 +149,11 @@ namespace Inspire.Erp.Web.Controllers
                 Message = ""
             };
             return apiResponse;
-
-
-
-
-
         }
 
         [HttpGet]
         [Route("GetSavedSalesReturnDetails/{id}")]
-        public IActionResult GetSavedSalesReturnDetails(string id)
+        public IActionResult GetSavedSalesReturnDetails(int id)
         {
             try
             {

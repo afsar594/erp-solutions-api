@@ -7,6 +7,7 @@ using System.Text;
 using System.Linq;
 using Inspire.Erp.Domain.Modals;
 using System.Threading.Tasks;
+using Inspire.Erp.Domain.Enums;
 
 namespace Inspire.Erp.Application.Procurement.Interfaces
 {
@@ -17,19 +18,27 @@ namespace Inspire.Erp.Application.Procurement.Interfaces
         public IEnumerable<UnitMaster> PurchaseOrder_GetAllUnitMaster();
         public IEnumerable<SuppliersMaster> PurchaseOrder_GetAllSuppliersMaster();
         public IEnumerable<LocationMaster> PurchaseOrder_GetAllLocationMaster();
-        public PurchaseOrderModel InsertPurchaseOrder(PurchaseOrder purchaseOrder, List<AccountsTransactions> accountsTransactions, List<PurchaseOrderDetails> purchaseOrderDetails);
-        public PurchaseOrderModel UpdatePurchaseOrder(PurchaseOrder purchaseOrder, List<AccountsTransactions> accountsTransactions, List<PurchaseOrderDetails> purchaseOrderDetails );
-        public int DeletePurchaseOrder(PurchaseOrder purchaseOrder, List<AccountsTransactions> accountsTransactions, List<PurchaseOrderDetails> purchaseOrderDetails);
+        public Task<Response<PurchaseOrderModel>> InsertPurchaseOrder(PurchaseOrder purchaseOrder, List<AccountsTransactions> accountsTransactions, List<PurchaseOrderDetails> purchaseOrderDetails);
+        public Task<Response<PurchaseOrderModel>> UpdatePurchaseOrder(PurchaseOrder purchaseOrder, List<AccountsTransactions> accountsTransactions, List<PurchaseOrderDetails> purchaseOrderDetails);
+        public Task<Response<int>> DeletePurchaseOrder(PurchaseOrder purchaseOrder, List<AccountsTransactions> accountsTransactions, List<PurchaseOrderDetails> purchaseOrderDetails);
         public IEnumerable<AccountsTransactions> GetAllTransaction();
-        public PurchaseOrderModel GetSavedPurchaseOrderDetails(string pvno);
+        public Task<Response<PurchaseOrderModel>> GetSavedPurchaseOrderDetails(int pvno);
         public IEnumerable<PurchaseOrder> GetPurchaseOrder();
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
         public VouchersNumbers GetVouchersNumbers(string pvno);
-        public VouchersNumbers GetVouchersNumbers(string pvno,string vType);
+        public VouchersNumbers GetVouchersNumbers(string pvno, string vType);
         public IQueryable GetPODetailsForGRN();
         public List<PurchaseOrderDTO> GetAllPOForGRN(decimal id);
 
 
         public Task<Response<List<PODetailsViewModel>>> GetGRMPOs(int? supplierId);
+
+        public Boolean IsPurchaseOrderQtyExcededFromBOQ(int PurchaseReqId, List<PurchaseReqItesm> reqItems);
+
+        public Task<Response<List<VoucherApprivalDto>>> GetPOPRForApproval(ApprovalFilterModel model);
+        public Task<Response<List<VoucherApprivalDto>>> ApprovePOPR(POPRApprovalDto approvalDto);
+        public Task<Response<List<VoucherApprivalDto>>> GetDefaultPOPR(int orderId, EnumOrderForms orderType);
+
+
     }
 }

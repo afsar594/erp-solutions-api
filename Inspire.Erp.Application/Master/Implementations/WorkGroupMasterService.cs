@@ -100,8 +100,10 @@ namespace Inspire.Erp.Application.Master
         {
             bool valid = false;
             try
+
             {
-                workGrouprepository.Delete(workGroupMaster);
+                workGroupMaster.WorkGroupMasterWorkGroupDelStatus = true;
+                workGrouprepository.Update(workGroupMaster);
                 valid = true;
 
             }
@@ -135,6 +137,8 @@ namespace Inspire.Erp.Application.Master
             {
                 //workGrouprepository.Dispose();
             }
+
+            workGroupMasters = workGroupMasters.OrderBy(sm => sm.WorkGroupMasterWorkGroupName).AsEnumerable().ToList();
             return workGroupMasters;
         }
         public IEnumerable<WorkGroupMaster> GetAllWorkGroupById(int id)
@@ -142,7 +146,7 @@ namespace Inspire.Erp.Application.Master
             IEnumerable<WorkGroupMaster> workGroupMasters;
             try
             {
-                workGroupMasters = workGrouprepository.GetAsQueryable().Where(k => k.WorkGroupMasterWorkGroupId == id).Select(k => k);
+                workGroupMasters = workGrouprepository.GetAsQueryable().Where(k => k.WorkGroupMasterWorkGroupId == id && k.WorkGroupMasterWorkGroupDelStatus!=true).Select(k => k);
 
             }
             catch (Exception ex)

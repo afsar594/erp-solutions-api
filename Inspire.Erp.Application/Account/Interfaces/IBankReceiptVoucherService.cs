@@ -12,7 +12,7 @@ namespace Inspire.Erp.Application.Account.Interfaces
         public BankReceiptVoucher UpdateBankReceiptVoucher(BankReceiptVoucher bankReceiptVoucher, List<AccountsTransactions> accountsTransactions, List<BankReceiptVoucherDetails> bankReceiptVoucherDetails, List<Domain.Models.AllocationDetails> allocationDetails);
         public int DeleteBankReceiptVoucher(BankReceiptVoucher bankReceiptVoucher, List<AccountsTransactions> accountsTransactions, List<BankReceiptVoucherDetails> bankReceiptVoucherDetails);
         public IEnumerable<AccountsTransactions> GetAllTransaction();
-        public BankReceiptVoucher GetSavedBankReceiptDetails(string pvno);
+        public BankReceiptVoucher GetSavedBankReceiptDetails(int pvno);
         public IEnumerable<BankReceiptVoucher> GetBankReceiptVouchers();
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
         public void InsertPDCDetails(List<PdcDetails> pdcDetails);

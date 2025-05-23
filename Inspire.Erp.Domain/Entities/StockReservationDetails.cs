@@ -5,7 +5,7 @@ namespace Inspire.Erp.Domain.Entities
 {
     public partial class StockReservationDetails
     {
-        public int? StockReservationDetailsRdId { get; set; }
+        public int StockReservationDetailsRdId { get; set; }
         public int? StockReservationDetailsRId { get; set; }
         public int? StockReservationDetailsItemId { get; set; }
         public double? StockReservationDetailsSQty { get; set; }

@@ -17,35 +17,28 @@ using Inspire.Erp.Web.MODULE;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Inspire.Erp.WebReport.ReportEngine;
 using Inspire.Erp.Domain.Modals.Sales;
+using Microsoft.AspNetCore.Authorization;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.EntityFrameworkCore;
 
 namespace Inspire.Erp.Web.Controllers
 {
     [Route("api/SalesOrder")]
     [Produces("application/json")]
-    [ApiController]
     public class SalesOrderController : ControllerBase
     {
         private ICustomerPurchaseOrderService _salesOrderService;
+        private readonly IRepository<LocationMaster> _locationrepository;
+        private readonly IRepository<CustomerMaster> _customerMasterRepo;
         private readonly IMapper _mapper;
-        public SalesOrderController(ICustomerPurchaseOrderService salesOrderService, IMapper mapper)
+        public SalesOrderController(ICustomerPurchaseOrderService salesOrderService, IMapper mapper, IRepository<LocationMaster> locationrepository,
+            IRepository<CustomerMaster> customerMasterRepo)
         {
-            _salesOrderService = salesOrderService;
-            _mapper = mapper;
+            _salesOrderService = salesOrderService; _customerMasterRepo = customerMasterRepo;
+            _mapper = mapper; _locationrepository = locationrepository;
         }
-        //[HttpGet]
-        //[Route("GetSalesOrderDetailsByMasterNo")]
-        //public IActionResult GetSalesOrderDetailsByMasterNo(string SalesOrderNo)
-        //{
-        //    try
-        //    {
-        //        var item = _salesOrderService.GetSalesOrderDetailsByMasterNo(SalesOrderNo);
-        //        return Ok(item);
-        //    }
-        //    catch (System.Exception ex)
-        //    {
-        //        return StatusCode(500, ex.Message.ToString());
-        //    }
-        //}
+
         [HttpPost]
         [Route("InsertSalesOrder")]
         public ApiResponse<CustomerPurchaseOrderViewModel> InsertSalesOrder([FromBody] CustomerPurchaseOrderViewModel voucherCompositeView)
@@ -53,70 +46,74 @@ namespace Inspire.Erp.Web.Controllers
             ApiResponse<CustomerPurchaseOrderViewModel> apiResponse = new ApiResponse<CustomerPurchaseOrderViewModel>();
             //if (_salesOrderService.GetVouchersNumbers(voucherCompositeView.CustomerPurchaseOrderVoucherNo) == null)
             //{
-                var param1 = _mapper.Map<CustomerPurchaseOrder>(voucherCompositeView);
-                var param2 = _mapper.Map<List<CustomerPurchaseOrderDetails>>(voucherCompositeView.CustomerPurchaseOrderDetails);
-                var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-                //var param4 = _mapper.Map<List<StockRegister>>(voucherCompositeView.StockRegister);
-                //var xs = _salesOrderService.InsertSalesOrder(param1, param3, param2
-                //    //, param4
-                //    );
-                //==============
-                //param3 = new List<AccountsTransactions>();
-                List<StockRegister> param4 = new List<StockRegister>();
-                //clsAccountAndStock.SalesOrder_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
-                var xs = _salesOrderService.InsertSalesOrder(param1, param3, param2, param4);
-                //========================
-                CustomerPurchaseOrderViewModel salesVoucherViewModel = new CustomerPurchaseOrderViewModel
-                {
-                    CustomerPurchaseOrderId = xs.customerPurchaseOrder.CustomerPurchaseOrderId,
-                    CustomerPurchaseOrderVoucherNo = xs.customerPurchaseOrder.CustomerPurchaseOrderVoucherNo,
-                    CustomerPurchaseOrderDate = xs.customerPurchaseOrder.CustomerPurchaseOrderDate,
-                    CustomerPurchaseOrderLocationId = xs.customerPurchaseOrder.CustomerPurchaseOrderLocationId,
-                    CustomerPurchaseOrderCustomerId= xs.customerPurchaseOrder.CustomerPurchaseOrderCustomerId,
-                    CustomerPurchaseOrderDepartmentId = xs.customerPurchaseOrder.CustomerPurchaseOrderDepartmentId,
-                    CustomerPurchaseOrderCustomerName = xs.customerPurchaseOrder.CustomerPurchaseOrderCustomerName,
-                    CustomerPurchaseOrderSalesManId= xs.customerPurchaseOrder.CustomerPurchaseOrderSalesManId,
-                    CustomerPurchaseOrderLpoNo= xs.customerPurchaseOrder.CustomerPurchaseOrderLpoNo,
-                    CustomerPurchaseOrderLpoDate= xs.customerPurchaseOrder.CustomerPurchaseOrderLpoDate,
-                    CustomerPurchaseOrderCurrencyId= xs.customerPurchaseOrder.CustomerPurchaseOrderCurrencyId,
-                    CustomerPurchaseOrderRemarks= xs.customerPurchaseOrder.CustomerPurchaseOrderRemarks,
-                    CustomerPurchaseOrderDiscountPercentage= xs.customerPurchaseOrder.CustomerPurchaseOrderDiscountPercentage,
-                    CustomerPurchaseOrderDiscountAmount= xs.customerPurchaseOrder.CustomerPurchaseOrderDiscountAmount,
-                    CustomerPurchaseOrderTotal= xs.customerPurchaseOrder.CustomerPurchaseOrderTotal,
+            var param1 = _mapper.Map<CustomerPurchaseOrder>(voucherCompositeView);
+            var param2 = _mapper.Map<List<CustomerPurchaseOrderDetails>>(voucherCompositeView.CustomerPurchaseOrderDetails);
+            var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
+            //var param4 = _mapper.Map<List<StockRegister>>(voucherCompositeView.StockRegister);
+            //var xs = _salesOrderService.InsertSalesOrder(param1, param3, param2
+            //    //, param4
+            //    );
+            //==============
+            //param3 = new List<AccountsTransactions>();
+            List<StockRegister> param4 = new List<StockRegister>();
+            //clsAccountAndStock.SalesOrder_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
+            var xs = _salesOrderService.InsertSalesOrder(param1, param3, param2, param4);
+            //========================
+            CustomerPurchaseOrderViewModel salesVoucherViewModel = new CustomerPurchaseOrderViewModel
+            {
+                CustomerPurchaseOrderId = xs.customerPurchaseOrder.CustomerPurchaseOrderId,
+                CustomerPurchaseOrderVoucherNo = xs.customerPurchaseOrder.CustomerPurchaseOrderVoucherNo,
+                CustomerPurchaseOrderDate = xs.customerPurchaseOrder.CustomerPurchaseOrderDate,
+                CustomerPurchaseOrderLocationId = xs.customerPurchaseOrder.CustomerPurchaseOrderLocationId,
+                CustomerPurchaseOrderCustomerId = xs.customerPurchaseOrder.CustomerPurchaseOrderCustomerId,
+                CustomerPurchaseOrderDepartmentId = xs.customerPurchaseOrder.CustomerPurchaseOrderDepartmentId,
+                CustomerPurchaseOrderCustomerName = xs.customerPurchaseOrder.CustomerPurchaseOrderCustomerName,
+                CustomerPurchaseOrderSalesManId = xs.customerPurchaseOrder.CustomerPurchaseOrderSalesManId,
+                CustomerPurchaseOrderLpoNo = xs.customerPurchaseOrder.CustomerPurchaseOrderLpoNo,
+                CustomerPurchaseOrderLpoDate = xs.customerPurchaseOrder.CustomerPurchaseOrderLpoDate,
+                CustomerPurchaseOrderCurrencyId = xs.customerPurchaseOrder.CustomerPurchaseOrderCurrencyId,
+                CustomerPurchaseOrderRemarks = xs.customerPurchaseOrder.CustomerPurchaseOrderRemarks,
+                CustomerPurchaseOrderDiscountPercentage = xs.customerPurchaseOrder.CustomerPurchaseOrderDiscountPercentage,
+                CustomerPurchaseOrderDiscountAmount = xs.customerPurchaseOrder.CustomerPurchaseOrderDiscountAmount,
+                CustomerPurchaseOrderTotal = xs.customerPurchaseOrder.CustomerPurchaseOrderTotal,
 
-                    CustomerPurchaseOrderVat = xs.customerPurchaseOrder.CustomerPurchaseOrderVat,
-                    CustomerPurchaseOrderVAT_Percen = xs.customerPurchaseOrder.CustomerPurchaseOrderVAT_Percen,
-                    CustomerPurchaseOrderGrandTotal = xs.customerPurchaseOrder.CustomerPurchaseOrderGrandTotal,
-                    CustomerPurchaseOrderFsno= xs.customerPurchaseOrder.CustomerPurchaseOrderFsno,
-                    CustomerPurchaseOrderUserId= xs.customerPurchaseOrder.CustomerPurchaseOrderUserId,
-                    CustomerPurchaseOrderSubject= xs.customerPurchaseOrder.CustomerPurchaseOrderSubject,
-                    CustomerPurchaseOrderNote= xs.customerPurchaseOrder.CustomerPurchaseOrderNote,
-                    CustomerPurchaseOrderWarranty = xs.customerPurchaseOrder.CustomerPurchaseOrderWarranty,
-                    CustomerPurchaseOrderTraining= xs.customerPurchaseOrder.CustomerPurchaseOrderTraining,
-                    CustomerPurchaseOrderTechnicalDetails= xs.customerPurchaseOrder.CustomerPurchaseOrderTechnicalDetails,
-                    CustomerPurchaseOrderTerms= xs.customerPurchaseOrder.CustomerPurchaseOrderTerms,
-                    CustomerPurchaseOrderCpoAboutId= xs.customerPurchaseOrder.CustomerPurchaseOrderCpoAboutId,
-                    CustomerPurchaseOrderCpoDeliveryTimeDate= xs.customerPurchaseOrder.CustomerPurchaseOrderCpoDeliveryTimeDate,
-                    CustomerPurchaseOrderPacking= xs.customerPurchaseOrder.CustomerPurchaseOrderPacking,
-                    CustomerPurchaseOrderQuotationId= xs.customerPurchaseOrder.CustomerPurchaseOrderQuotationId,
-                    CustomerPurchaseOrderQuantity= xs.customerPurchaseOrder.CustomerPurchaseOrderQuantity,
-                    CustomerPurchaseOrderIslocalPurchase= xs.customerPurchaseOrder.CustomerPurchaseOrderIslocalPurchase,
-                    CustomerPurchaseOrderCpoTermsV= xs.customerPurchaseOrder.CustomerPurchaseOrderCpoTermsV,
-                    CustomerPurchaseOrderJobId= xs.customerPurchaseOrder.CustomerPurchaseOrderJobId,
-                    CustomerPurchaseOrderPoEnquiryIdN= xs.customerPurchaseOrder.CustomerPurchaseOrderPoEnquiryIdN,
-                    CustomerPurchaseOrderPoQuotationIdN= xs.customerPurchaseOrder.CustomerPurchaseOrderPoQuotationIdN,
-                    CustomerPurchaseOrderDelStatus= xs.customerPurchaseOrder.CustomerPurchaseOrderDelStatus,
-                   
-                };
+                CustomerPurchaseOrderVat = xs.customerPurchaseOrder.CustomerPurchaseOrderVat,
+                CustomerPurchaseOrderNetAmount = xs.customerPurchaseOrder.CustomerPurchaseOrderNetAmount,
+                CustomerPurchaseOrderDiscount = xs.customerPurchaseOrder.CustomerPurchaseOrderDiscount,
+                CustomerPurchaseOrderGossAmount = xs.customerPurchaseOrder.CustomerPurchaseOrderGossAmount,
 
-                salesVoucherViewModel.CustomerPurchaseOrderDetails = _mapper.Map<List<CustomerPurchaseOrderDetailsViewModel>>(xs.customerPurchaseOrderDetails);
-                salesVoucherViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
-                apiResponse = new ApiResponse<CustomerPurchaseOrderViewModel>
-                {
-                    Valid = true,
-                    Result = _mapper.Map<CustomerPurchaseOrderViewModel>(salesVoucherViewModel),
-                    Message = CustomerPurchaseOrderMessage.SavePurchaseOrder
-                };
+                CustomerPurchaseOrderVAT_Percen = xs.customerPurchaseOrder.CustomerPurchaseOrderVAT_Percen,
+                CustomerPurchaseOrderGrandTotal = xs.customerPurchaseOrder.CustomerPurchaseOrderGrandTotal,
+                CustomerPurchaseOrderFsno = xs.customerPurchaseOrder.CustomerPurchaseOrderFsno,
+                CustomerPurchaseOrderUserId = xs.customerPurchaseOrder.CustomerPurchaseOrderUserId,
+                CustomerPurchaseOrderSubject = xs.customerPurchaseOrder.CustomerPurchaseOrderSubject,
+                CustomerPurchaseOrderNote = xs.customerPurchaseOrder.CustomerPurchaseOrderNote,
+                CustomerPurchaseOrderWarranty = xs.customerPurchaseOrder.CustomerPurchaseOrderWarranty,
+                CustomerPurchaseOrderTraining = xs.customerPurchaseOrder.CustomerPurchaseOrderTraining,
+                CustomerPurchaseOrderTechnicalDetails = xs.customerPurchaseOrder.CustomerPurchaseOrderTechnicalDetails,
+                CustomerPurchaseOrderTerms = xs.customerPurchaseOrder.CustomerPurchaseOrderTerms,
+                CustomerPurchaseOrderCpoAboutId = xs.customerPurchaseOrder.CustomerPurchaseOrderCpoAboutId,
+                CustomerPurchaseOrderCpoDeliveryTimeDate = xs.customerPurchaseOrder.CustomerPurchaseOrderCpoDeliveryTimeDate,
+                CustomerPurchaseOrderPacking = xs.customerPurchaseOrder.CustomerPurchaseOrderPacking,
+                CustomerPurchaseOrderQuotationId = xs.customerPurchaseOrder.CustomerPurchaseOrderQuotationId,
+                CustomerPurchaseOrderQuantity = xs.customerPurchaseOrder.CustomerPurchaseOrderQuantity,
+                CustomerPurchaseOrderIslocalPurchase = xs.customerPurchaseOrder.CustomerPurchaseOrderIslocalPurchase,
+                CustomerPurchaseOrderCpoTermsV = xs.customerPurchaseOrder.CustomerPurchaseOrderCpoTermsV,
+                CustomerPurchaseOrderJobId = xs.customerPurchaseOrder.CustomerPurchaseOrderJobId,
+                CustomerPurchaseOrderPoEnquiryIdN = xs.customerPurchaseOrder.CustomerPurchaseOrderPoEnquiryIdN,
+                CustomerPurchaseOrderPoQuotationIdN = xs.customerPurchaseOrder.CustomerPurchaseOrderPoQuotationIdN,
+                CustomerPurchaseOrderDelStatus = xs.customerPurchaseOrder.CustomerPurchaseOrderDelStatus,
+
+            };
+
+            salesVoucherViewModel.CustomerPurchaseOrderDetails = _mapper.Map<List<CustomerPurchaseOrderDetailsViewModel>>(xs.customerPurchaseOrderDetails);
+            salesVoucherViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
+            apiResponse = new ApiResponse<CustomerPurchaseOrderViewModel>
+            {
+                Valid = true,
+                Result = _mapper.Map<CustomerPurchaseOrderViewModel>(salesVoucherViewModel),
+                Message = CustomerPurchaseOrderMessage.SavePurchaseOrder
+            };
             //}
             //else
             //{
@@ -143,12 +140,12 @@ namespace Inspire.Erp.Web.Controllers
             //==============
             param3 = new List<AccountsTransactions>();
             List<StockRegister> param4 = new List<StockRegister>();
-           // clsAccountAndStock.SalesOrder_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
+            // clsAccountAndStock.SalesOrder_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
 
             var xs = _salesOrderService.UpdateSalesOrder(param1, param3, param2
            , param4
            );
-           
+
             CustomerPurchaseOrderViewModel salesVoucherViewModel = new CustomerPurchaseOrderViewModel
             {
                 CustomerPurchaseOrderId = xs.customerPurchaseOrder.CustomerPurchaseOrderId,
@@ -164,6 +161,13 @@ namespace Inspire.Erp.Web.Controllers
                 CustomerPurchaseOrderCurrencyId = xs.customerPurchaseOrder.CustomerPurchaseOrderCurrencyId,
                 CustomerPurchaseOrderRemarks = xs.customerPurchaseOrder.CustomerPurchaseOrderRemarks,
                 CustomerPurchaseOrderDiscountPercentage = xs.customerPurchaseOrder.CustomerPurchaseOrderDiscountPercentage,
+
+                CustomerPurchaseOrderVat = xs.customerPurchaseOrder.CustomerPurchaseOrderVat,
+                CustomerPurchaseOrderNetAmount = xs.customerPurchaseOrder.CustomerPurchaseOrderNetAmount,
+                CustomerPurchaseOrderDiscount = xs.customerPurchaseOrder.CustomerPurchaseOrderDiscount,
+                CustomerPurchaseOrderGossAmount = xs.customerPurchaseOrder.CustomerPurchaseOrderGossAmount,
+
+
                 CustomerPurchaseOrderDiscountAmount = xs.customerPurchaseOrder.CustomerPurchaseOrderDiscountAmount,
                 CustomerPurchaseOrderTotal = xs.customerPurchaseOrder.CustomerPurchaseOrderTotal,
                 CustomerPurchaseOrderGrandTotal = xs.customerPurchaseOrder.CustomerPurchaseOrderGrandTotal,
@@ -236,35 +240,23 @@ namespace Inspire.Erp.Web.Controllers
             return apiResponse;
 
         }
-        //[HttpGet]
-        //[Route("GetAllAccountTransaction")]
-        //public ApiResponse<List<AccountsTransactions>> GetAllAccountTransaction()
-        //{
-        //    ApiResponse<List<AccountsTransactions>> apiResponse = new ApiResponse<List<AccountsTransactions>>
-        //    {
-        //        Valid = true,
-        //        Result = _mapper.Map<List<AccountsTransactions>>(_salesOrderService.GetAllTransaction()),
-        //        Message = ""
-        //    };
-        //    return apiResponse;
-        //}
 
         [HttpGet]
         [Route("GetAllSalesOrder")]
         public IActionResult GetAllSalesOrder()
         {
-           ApiResponse<List<CustomerPurchaseOrder>> apiResponse = new ApiResponse<List<CustomerPurchaseOrder>>
+            ApiResponse<List<CustomerPurchaseOrder>> apiResponse = new ApiResponse<List<CustomerPurchaseOrder>>
             {
                 Valid = true,
                 Result = _mapper.Map<List<CustomerPurchaseOrder>>(_salesOrderService.GetCustomerPurchaseOrders()),
                 Message = ""
             };
-             return Ok( apiResponse);
+            return Ok(apiResponse);
         }
 
         [HttpGet]
         [Route("GetSavedSalesOrderDetails/{id}")]
-        public ApiResponse<CustomerPurchaseOrderViewModel> GetSavedSalesOrderDetails(string id)
+        public ApiResponse<CustomerPurchaseOrderViewModel> GetSavedSalesOrderDetails(int id)
         {
             CustomerPurchaseOrderModel xs = _salesOrderService.GetSavedCustomerPurchaseOrderDetails(id);
 
@@ -321,36 +313,12 @@ namespace Inspire.Erp.Web.Controllers
             }
             return null;
 
-
-
         }
-        //[HttpGet]
-        //[Route("CheckVnoExist/{id}")]
-        //public ApiResponse<bool> CheckVnoExist(string id)
-        //{
-        //    ApiResponse<bool> apiResponse = new ApiResponse<bool>
-        //    {
-        //        Valid = true,
-        //        Result = true,
-        //        Message = SalesOrderMessage.VoucherNumberExist
-
-
-
-        //    };
-        //    var x = _salesOrderService.GetVouchersNumbers(id);
-        //    if (x == null)
-        //    {
-        //        apiResponse.Result = false;
-        //        apiResponse.Message = "";
-        //    }
-
-        //    return apiResponse;
-        //}
 
 
         [HttpPost]
         [Route("GetPurchaseOrderTracking")]
-        public async Task<IActionResult> GetPurchaseOrderTracking(CustPurchOrderFilterModel model)
+        public async Task<IActionResult> GetPurchaseOrderTracking([FromBody] CustPurchOrderFilterModel model)
         {
 
             var response = await _salesOrderService.GetCustomerPurchaseOrderTracking(model);
@@ -370,7 +338,7 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpPost]
         [Route("GetPurchaseOrderStatuses")]
-        public async Task<IActionResult> GetPurchaseOrderStatuses(CustPurchOrderFilterModel model)
+        public async Task<IActionResult> GetPurchaseOrderStatuses([FromBody] CustPurchOrderFilterModel model)
         {
 
             var response = await _salesOrderService.GetCustomerPOStatuses(model);
@@ -384,7 +352,7 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpPost]
         [Route("GetCustomerQuotationStatuses")]
-        public async Task<IActionResult> GetCustomerQuotationStatuses(CustQuotationFilterModel model)
+        public async Task<IActionResult> GetCustomerQuotationStatuses([FromBody] CustQuotationFilterModel model)
         {
 
             var response = await _salesOrderService.GetCustomerQuotationStatuses(model);
@@ -395,6 +363,53 @@ namespace Inspire.Erp.Web.Controllers
                 Message = ""
             };
             return Ok(apiResponse);
+        }
+
+        [HttpPost]
+        [Route("GetGRSOs")]
+        public async Task<IActionResult> GetGRSOs([FromBody] CustPurchOrderFilterModel model)
+        {
+            try
+            {
+                var item = await _salesOrderService.GetGRSOs(model);
+                return Ok(item);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message.ToString());
+            }
+        }
+
+        [HttpGet]
+        [Route("getCustomerlocation")]
+        public async Task<ResponseInfo> getCustomerlocation()
+        {
+            var obj = new ResponseInfo();
+            try
+            {
+                var data = await _locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(a => new
+                {
+                    a.LocationMasterLocationId,
+                    a.LocationMasterLocationName,
+                }).OrderBy(x=>x.LocationMasterLocationName).ToListAsync();
+                var query = await _customerMasterRepo.GetAsQueryable().Where(a => a.CustomerMasterCustomerDelStatus != true).Select(x => new
+                {
+                    x.CustomerMasterCustomerNo,
+                    x.CustomerMasterCustomerName
+                }).OrderBy(x=>x.CustomerMasterCustomerName).ToListAsync();
+                obj.IsSuccess = true;
+                obj.ResultSet = new
+                {
+                    location = data,
+                    customer = query
+                };
+            }
+            catch (Exception ex)
+            {
+                obj.IsSuccess = false;
+                obj.ErrorMessage = ex.Message + ex?.InnerException.Message;
+            }
+            return obj;
         }
     }
 }

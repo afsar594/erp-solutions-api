@@ -8,7 +8,20 @@ namespace Inspire.Erp.Domain.Entities
     {
         public int JobDocumentId { get; set; }
         public int JobDocumentJobId { get; set; }
-        public string JobDocumentName { get; set; }
+        public string? JobDocumentName { get; set; }
         public bool? JobDocumentDelStatus { get; set; }
     }
+    public class FileResultDto
+    {
+        public string FileName { get; set; }
+        public byte[] FileBytes { get; set; }
+        public string ContentType { get; set; }
+    }
+    public partial class JobDocumentsDto
+    {
+        public int FileId { get; set; }
+        public string FileName { get; set; }
+        public string FilePath { get; set; }
+    }
+
 }

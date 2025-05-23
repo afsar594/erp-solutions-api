@@ -38,7 +38,7 @@ namespace Inspire.Erp.Application.Master.Implementations
         private readonly IConfiguration _configuration;
         public PurchaseVoucherService(IRepository<PurchaseVoucher> PurchaseVoucher, IRepository<PurchaseVoucherDetails> PurchaseVoucherDetails,
         IRepository<JobMaster> JobMaster, IRepository<Suppliers> Suppliers, IRepository<LocationMaster> LocationMaster,
-        IRepository<ItemMaster> ItemMaster, IRepository<UnitMaster> UnitMaster, InspireErpDBContext context, IRepository<VouchersNumbers> voucherNumbersRepository, 
+        IRepository<ItemMaster> ItemMaster, IRepository<UnitMaster> UnitMaster, InspireErpDBContext context, IRepository<VouchersNumbers> voucherNumbersRepository,
         IRepository<ProgramSettings> programsettingsRepository, IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<CurrencyMaster> currencyMasterRepository, IConfiguration configuration)
         {
             _PurchaseVoucher = PurchaseVoucher;
@@ -97,7 +97,8 @@ namespace Inspire.Erp.Application.Master.Implementations
             try
             {
                 _PurchaseVoucher.BeginTransaction();
-                string puchaseVoucherNumber = this.GenerateVoucherNo(purchaseVoucher.PurchaseVoucherPurchaseDate.Date).VouchersNumbersVNo;
+                // string puchaseVoucherNumber = this.GenerateVoucherNo(purchaseVoucher.PurchaseVoucherPurchaseDate.Date).VouchersNumbersVNo;
+                string puchaseVoucherNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.PurchaseVoucher_TYPE, Prefix.PurchaseVoucher_Prefix, _programsettingsRepository, _voucherNumbersRepository);
                 purchaseVoucher.PurchaseVoucherVoucherNo = puchaseVoucherNumber;
 
 
@@ -106,14 +107,14 @@ namespace Inspire.Erp.Application.Master.Implementations
                     _PurchaseVoucher.GetAsQueryable()
                     .DefaultIfEmpty().Max(o => o == null ? 0 : o.PurchaseVoucherPurID) + 1);
 
-                // purchaseVoucher.PurchaseVoucherPurID = maxcount;
+                purchaseVoucher.PurchaseVoucherPurID = maxcount;
 
-                purchaseVoucherDetails = purchaseVoucherDetails.Select((x) =>
-                {
-                    x.PurchaseVoucherDetailsPrId = maxcount;
-                    x.PurchaseVoucherDetailsVoucherNo = puchaseVoucherNumber;
-                    return x;
-                }).ToList();
+                //purchaseVoucherDetails = purchaseVoucherDetails.Select((x) =>
+                //{
+                //    x.PurchaseVoucherDetailsPrId = maxcount;
+                //    x.PurchaseVoucherDetailsVoucherNo = puchaseVoucherNumber;
+                //    return x;
+                //}).ToList();
 
 
 
@@ -124,7 +125,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                     k.AccountsTransactionsVoucherType = VoucherType.PurchaseVoucher_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
                 decimal stockRegCount = 0;
@@ -133,17 +134,47 @@ namespace Inspire.Erp.Application.Master.Implementations
                     .DefaultIfEmpty().Max(o => o == null ? 0 : o.StockRegisterStoreID) + 1);
 
 
+                List<StockRegister> stockRegisters = new List<StockRegister>();
 
-                stockRegister = stockRegister.Select((k) =>
+                var currencyRate = clsCommonFunctions.getConverionCurrencyRate(purchaseVoucher.PurchaseVoucherCurrencyID, _currencyMasterRepository);
+                var rate = (decimal)currencyRate;
+
+                foreach (var item in purchaseVoucherDetails)
                 {
-                    k.StockRegisterVoucherDate = purchaseVoucher.PurchaseVoucherPurchaseDate;
-                    k.StockRegisterRefVoucherNo = puchaseVoucherNumber;
-                    k.StockRegisterTransType = VoucherType.PurchaseVoucher_TYPE;
-                    k.StockRegisterStatus = AccountStatus.Approved;
-                    //k.StockRegisterSout= purchaseVoucher.
-                    return k;
-                }).ToList();
-                _stockRegisterRepository.InsertList(stockRegister);
+                    var converontype = this.getConverionTypebyUnitId(item.PurchaseVoucherDetailsMaterialId, item.PurchaseVoucherDetailsUnitId);
+
+                    item.PurchaseVoucherDetailsVoucherNo = puchaseVoucherNumber;
+                    item.PurchaseVoucherDetailsPrId = maxcount;
+                    stockRegisters.Add(new StockRegister
+                    {
+                        StockRegisterMaterialID = item.PurchaseVoucherDetailsMaterialId,
+                        StockRegisterRefVoucherNo = puchaseVoucherNumber,
+                        StockRegisterPurchaseID = puchaseVoucherNumber,
+                        StockRegisterVoucherDate = purchaseVoucher.PurchaseVoucherPurchaseDate,
+                        StockRegisterQuantity = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 1,
+                        StockRegisterSIN = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 1,
+                        StockRegisterRate = item.PurchaseVoucherDetailsRate / converontype ?? 1,
+                        StockRegisterAmount = item.PurchaseVoucherDetailsQuantity * item.PurchaseVoucherDetailsRate,
+                        StockRegisterFCAmount = item.PurchaseVoucherDetailsQuantity * item.PurchaseVoucherDetailsRate * rate,
+                        StockRegisterTransType = VoucherType.PurchaseVoucher_TYPE,
+                        StockRegisterStatus = AccountStatus.Approved,
+                        StockRegisterUnitID = item.PurchaseVoucherDetailsUnitId,
+                        StockRegisterLocationID = purchaseVoucher.PurchaseVoucherLocationID,
+                        StockRegisterJobID = purchaseVoucher.PurchaseVoucherJobID,
+                        StockRegisterDelStatus = false
+                    });
+                }
+                _stockRegisterRepository.InsertList(stockRegisters);
+                //stockRegister = stockRegister.Select((k) =>
+                //{
+                //    k.StockRegisterVoucherDate = purchaseVoucher.PurchaseVoucherPurchaseDate;
+                //    k.StockRegisterRefVoucherNo = puchaseVoucherNumber;
+                //    k.StockRegisterTransType = VoucherType.PurchaseVoucher_TYPE;
+                //    k.StockRegisterStatus = AccountStatus.Approved;
+                //    //k.StockRegisterSout= purchaseVoucher.
+                //    return k;
+                //}).ToList();
+                //_stockRegisterRepository.InsertList(stockRegister);
 
                 _PurchaseVoucher.Insert(purchaseVoucher);
                 _PurchaseVoucherDetails.InsertList(purchaseVoucherDetails);
@@ -158,31 +189,7 @@ namespace Inspire.Erp.Application.Master.Implementations
             }
         }
 
-        //public IEnumerable<PurchaseVoucher> UpdatePurchaseVoucher(PurchaseVoucher DataObj)
-        //{
-        //    try
-        //    {
-        //        _PurchaseVoucher.Update(DataObj);
-        //        return this.GetPurchaseVoucher();
-        //    }
-        //    catch (System.Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //}
 
-        //public IEnumerable<PurchaseVoucher> DeletePurchaseVoucher(PurchaseVoucher DataObj)
-        //{
-        //    try
-        //    {
-        //        _PurchaseVoucher.Delete(DataObj);
-        //        return this.GetPurchaseVoucher();
-        //    }
-        //    catch (System.Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //}
 
         public IQueryable GetPurchaseReturnReport()
         {
@@ -274,32 +281,37 @@ namespace Inspire.Erp.Application.Master.Implementations
             // throw new NotImplementedException();
         }
 
-        public PurchaseVoucher GetSavedPurchaseVoucherDetailsV2(string pvno)
+        public PurchaseVoucher GetSavedPurchaseVoucherDetailsV2(long pvno)
         {
             PurchaseVoucher voucherModel = new PurchaseVoucher();
-            voucherModel = _PurchaseVoucher.GetAsQueryable().Where(k => k.PurchaseVoucherVoucherNo == pvno).SingleOrDefault();
-            voucherModel.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.PurchaseVoucher_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
-            voucherModel.PurchaseVoucherDetails = _PurchaseVoucherDetails.GetAsQueryable().Where(x => x.PurchaseVoucherDetailsVoucherNo == pvno && (x.PurchaseVoucherDetailsDelStatus == false || x.PurchaseVoucherDetailsDelStatus == null)).ToList();
-
-            if (voucherModel.PurchaseVoucherDetails.Count > 0)
+            voucherModel = _PurchaseVoucher.GetAsQueryable().Where(k => k.PurchaseVoucherPurID == Convert.ToInt64(pvno)).SingleOrDefault();
+            if (voucherModel != null)
             {
-                foreach (var item in voucherModel.PurchaseVoucherDetails)
+
+
+                voucherModel.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == voucherModel.PurchaseVoucherVoucherNo && c.AccountsTransactionsVoucherType == VoucherType.PurchaseVoucher_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
+                voucherModel.PurchaseVoucherDetails = _PurchaseVoucherDetails.GetAsQueryable().Where(x => x.PurchaseVoucherDetailsVoucherNo == voucherModel.PurchaseVoucherVoucherNo && (x.PurchaseVoucherDetailsDelStatus == false || x.PurchaseVoucherDetailsDelStatus == null)).ToList();
+
+                if (voucherModel.PurchaseVoucherDetails.Count > 0)
                 {
-                    decimal sumReturnedQty = 0;
-                    var stockQuery = _stockRegisterRepository.GetAsQueryable()
-                    .Where(a => a.StockRegisterMaterialID == item.PurchaseVoucherDetailsMaterialId &&
-                                a.StockRegisterTransType == "PurchaseReturn" &&
-                                a.StockRegisterRefVoucherNo == item.PurchaseVoucherDetailsVoucherNo);
-
-                    sumReturnedQty = stockQuery.Any()
-                                       ? stockQuery.Sum(s => (decimal?)s.StockRegisterSout) ?? 0
-                                       : 0;
-
-                    if (sumReturnedQty != null)
+                    foreach (var item in voucherModel.PurchaseVoucherDetails)
                     {
-                        item.PurchaseReturnQtyTill = sumReturnedQty;
-                    }
+                        decimal sumReturnedQty = 0;
+                        var stockQuery = _stockRegisterRepository.GetAsQueryable()
+                        .Where(a => a.StockRegisterMaterialID == item.PurchaseVoucherDetailsMaterialId &&
+                                    a.StockRegisterTransType == "PurchaseReturn" &&
+                                    a.StockRegisterRefVoucherNo == item.PurchaseVoucherDetailsVoucherNo);
 
+                        sumReturnedQty = stockQuery.Any()
+                                           ? stockQuery.Sum(s => (decimal?)s.StockRegisterSout) ?? 0
+                                           : 0;
+
+                        if (sumReturnedQty != null)
+                        {
+                            item.PurchaseReturnQtyTill = sumReturnedQty;
+                        }
+
+                    }
                 }
             }
             return voucherModel;
@@ -360,62 +372,12 @@ namespace Inspire.Erp.Application.Master.Implementations
             try
             {
 
-                //string connstring = _configuration["ApplicationSettings:ConnectionString"];
-
                 _PurchaseVoucher.BeginTransaction();
 
                 //=================================
                 clsCommonFunctions.Delete_OldEntryOf_StockRegister(purchaseVoucher.PurchaseVoucherVoucherNo, VoucherType.PurchaseVoucher_TYPE, _stockRegisterRepository);
                 clsCommonFunctions.Delete_OldEntry_AccountsTransactions(purchaseVoucher.PurchaseVoucherVoucherNo, purchaseVoucher.PurchaseVoucherPurchaseType, _accountTransactionRepository);
-                //=================================
-                //purchaseVoucher.PurchaseVoucherDetails = purchaseVoucherDetails.Select((k) =>
-                //{
-                //if (k.SalesVoucherDetailsId == 0)
-                //{
-                //    k.PurchaseVoucherDetailsPurcahseDetailsId = _PurchaseVoucherDetails.GetAsQueryable().Where(c => c.PurchaseVoucherDetailsVoucherNo == purchaseVoucher.PurchaseVoucherVoucherNo).FirstOrDefault().PurchaseVoucherDetailsPurcahseDetailsId; ;
-                //    k.PurchaseVoucherDetailsVoucherNo = purchaseVoucher.PurchaseVoucherVoucherNo;
-                //        k.SalesVoucherDetailsId = 0;
-                //    }
-
-                //    return k;
-                //}).ToList();
-
-                //foreach (var purchaseVoucherDetail in purchaseVoucherDetails)
-                //{
-                //    if (purchaseVoucherDetail != null && purchaseVoucher != null)
-                //    {
-                //        //purchaseVoucherDetail.PurchaseVoucherDetailsPurcahseDetailsId = _PurchaseVoucherDetails.GetAsQueryable().Where(c => c.PurchaseVoucherDetailsVoucherNo == purchaseVoucher.PurchaseVoucherVoucherNo).FirstOrDefault().PurchaseVoucherDetailsPurcahseDetailsId;
-
-                //        using (SqlConnection connection = new SqlConnection(connstring))
-                //        {
-                //            string sql = $@"Delete from [dbo].[Purchase_Voucher_Details] where [Purchase_Voucher_Details_VoucherNo] = '{purchaseVoucher.PurchaseVoucherVoucherNo}'";
-                //            using (SqlCommand command = new SqlCommand(sql, connection))
-                //            {
-                //                connection.Open();
-                //                command.ExecuteNonQuery();
-                //                connection.Close();
-                //            }
-                //        }
-                //    }
-                //}
-
-                //purchaseVoucher.PurchaseVoucherDetails = purchaseVoucherDetails;
-
-                // _PurchaseVoucherDetails.DeleteList(purchaseVoucherDetails);
-
-                //foreach (var item in purchaseVoucher.PurchaseVoucherDetails)
-                //{                   
-
-                //    purchaseVoucher.PurchaseVoucherDetails = purchaseVoucher.PurchaseVoucherDetails.Select((x) =>
-                //{
-                //    x.PurchaseVoucherDetailsPrId = Convert.ToInt32(purchaseVoucher.PurchaseVoucherPurID);
-                //    x.PurchaseVoucherDetailsVoucherNo = purchaseVoucher.PurchaseVoucherVoucherNo;
-                //    x.PurchaseVoucherDetailsPurcahseDetailsId = 0;
-                //    return x;
-                //}).ToList();
-                //purchaseVoucher.PurchaseVoucherDetails = null;
                 _PurchaseVoucher.Update(purchaseVoucher);
-                //_PurchaseVoucherDetails.UpdateList(purchaseVoucher.PurchaseVoucherDetails.ToList());
 
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
@@ -427,7 +389,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                         k.AccountsTransactionsStatus = AccountStatus.Approved;
                     }
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
                 List<StockRegister> stockRegisters = new List<StockRegister>();
@@ -450,20 +412,23 @@ namespace Inspire.Erp.Application.Master.Implementations
                         _PurchaseVoucherDetails.Insert(item);
                     }
 
-
                     stockRegisters.Add(new StockRegister
                     {
                         StockRegisterMaterialID = item.PurchaseVoucherDetailsMaterialId,
                         StockRegisterRefVoucherNo = purchaseVoucher.PurchaseVoucherVoucherNo,
                         StockRegisterPurchaseID = purchaseVoucher.PurchaseVoucherVoucherNo,
                         StockRegisterVoucherDate = purchaseVoucher.PurchaseVoucherPurchaseDate,
-                        StockRegisterQuantity = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 0,
-                        StockRegisterSIN = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 0,
-                        StockRegisterRate = item.PurchaseVoucherDetailsRate,
+                        StockRegisterQuantity = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 1,
+                        StockRegisterSIN = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 1,
+                        StockRegisterRate = item.PurchaseVoucherDetailsRate / converontype ?? 1,
                         StockRegisterAmount = item.PurchaseVoucherDetailsQuantity * item.PurchaseVoucherDetailsRate,
                         StockRegisterFCAmount = item.PurchaseVoucherDetailsQuantity * item.PurchaseVoucherDetailsRate * rate,
                         StockRegisterTransType = VoucherType.PurchaseVoucher_TYPE,
                         StockRegisterStatus = AccountStatus.Approved,
+                        StockRegisterUnitID = item.PurchaseVoucherDetailsUnitId,
+                        StockRegisterLocationID = purchaseVoucher.PurchaseVoucherLocationID,
+                        StockRegisterJobID = purchaseVoucher.PurchaseVoucherJobID,
+                        StockRegisterDelStatus = false
                     });
                 }
                 _stockRegisterRepository.InsertList(stockRegisters);
@@ -490,6 +455,8 @@ namespace Inspire.Erp.Application.Master.Implementations
                 //=================================
                 clsCommonFunctions.Delete_OldEntry_StockRegister(purchaseVoucher.PurchaseVoucherVoucherNo, VoucherType.PurchaseVoucher_TYPE, _stockRegisterRepository);
                 clsCommonFunctions.Delete_OldEntry_AccountsTransactions(purchaseVoucher.PurchaseVoucherVoucherNo, VoucherType.PurchaseVoucher_TYPE, _accountTransactionRepository);
+                //clsCommonFunctions.Delete_OldEntry_vouchernumber(purchaseVoucher.PurchaseVoucherVoucherNo, VoucherType.PurchaseVoucher_TYPE, _voucherNumbersRepository);
+
                 //=================================
 
 
@@ -499,22 +466,18 @@ namespace Inspire.Erp.Application.Master.Implementations
                 {
                     k.PurchaseVoucherDetailsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.PurchaseVoucherDetailsItemName).AsEnumerable().ToList();
 
                 //_salesVoucherDetailsRepository.UpdateList(salesVoucherDetails);
 
-                accountsTransactions = accountsTransactions.Select((k) =>
-                {
-                    k.AccountstransactionsDelStatus = true;
-                    return k;
-                }).ToList();
+                accountsTransactions = accountsTransactions.Select((k) => { k.AccountstransactionsDelStatus = true; return k; }).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
                 stockRegister = stockRegister.Select((k) =>
                 {
                     k.StockRegisterDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.StockRegisterRefVoucherNo).AsEnumerable().ToList();
                 _stockRegisterRepository.UpdateList(stockRegister);
 
 
@@ -565,7 +528,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                                        PurchaseVoucherDisAmount = pm.PurchaseVoucherDisAmount,
                                        PurchaseVoucherVatAmount = pm.PurchaseVoucherVATAmount,
                                        PurchaseVoucherNetAmount = pm.PurchaseVoucherNetAmount
-                                   }).ToList();
+                                   }).OrderBy(x => x.PurchaseVoucherVoucherNo).AsEnumerable().ToList();
 
                 // response.AddRange(loj);
 
@@ -601,7 +564,8 @@ namespace Inspire.Erp.Application.Master.Implementations
 
                 _accountTransactionRepository.BeginTransaction();
 
-                string vnumber = this.GenerateVoucherNo(purchaseVoucher.PurchaseVoucherPurchaseDate).VouchersNumbersVNo;
+                //string vnumber = this.GenerateVoucherNo(purchaseVoucher.PurchaseVoucherPurchaseDate).VouchersNumbersVNo;
+                string vnumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.PurchaseVoucher_TYPE, Prefix.PurchaseVoucher_Prefix, _programsettingsRepository, _voucherNumbersRepository);
                 purchaseVoucher.PurchaseVoucherVoucherNo = vnumber;
 
                 int maxcount = 0;
@@ -614,7 +578,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                     x.PurchaseVoucherDetailsPrId = maxcount;
                     x.PurchaseVoucherDetailsVoucherNo = vnumber;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.PurchaseVoucherDetailsVoucherNo).AsEnumerable().ToList();
                 _PurchaseVoucherDetails.InsertList(purchaseVoucherDetails);
 
                 accountsTransactions = accountsTransactions.Select((k) =>
@@ -624,7 +588,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                     k.AccountsTransactionsVoucherType = VoucherType.PurchaseVoucher_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
                 List<StockRegister> stockRegisters = new List<StockRegister>();
 
@@ -637,23 +601,27 @@ namespace Inspire.Erp.Application.Master.Implementations
                     stockRegisters.Add(new StockRegister
                     {
                         StockRegisterMaterialID = item.PurchaseVoucherDetailsMaterialId,
-                        StockRegisterRefVoucherNo = vnumber,
-                        StockRegisterPurchaseID = vnumber,
+                        StockRegisterRefVoucherNo = purchaseVoucher.PurchaseVoucherVoucherNo,
+                        StockRegisterPurchaseID = purchaseVoucher.PurchaseVoucherVoucherNo,
                         StockRegisterVoucherDate = purchaseVoucher.PurchaseVoucherPurchaseDate,
-                        StockRegisterQuantity = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 0,
-                        StockRegisterSIN = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 0,
-                        StockRegisterRate = item.PurchaseVoucherDetailsRate,
+                        StockRegisterQuantity = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 1,
+                        StockRegisterSIN = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 1,
+                        StockRegisterRate = item.PurchaseVoucherDetailsRate / converontype ?? 1,
                         StockRegisterAmount = item.PurchaseVoucherDetailsQuantity * item.PurchaseVoucherDetailsRate,
                         StockRegisterFCAmount = item.PurchaseVoucherDetailsQuantity * item.PurchaseVoucherDetailsRate * rate,
                         StockRegisterTransType = VoucherType.PurchaseVoucher_TYPE,
                         StockRegisterStatus = AccountStatus.Approved,
+                        StockRegisterUnitID = item.PurchaseVoucherDetailsUnitId,
+                        StockRegisterLocationID = purchaseVoucher.PurchaseVoucherLocationID,
+                        StockRegisterJobID = purchaseVoucher.PurchaseVoucherJobID,
+                        StockRegisterDelStatus = false
                     });
                 }
                 _stockRegisterRepository.InsertList(stockRegisters);
 
                 _accountTransactionRepository.TransactionCommit();
 
-                return this.GetSavedPurchaseVoucherDetailsV2(purchaseVoucher.PurchaseVoucherVoucherNo);
+                return this.GetSavedPurchaseVoucherDetailsV2(purchaseVoucher.PurchaseVoucherPurID);
             }
             catch (Exception ex)
             {
@@ -668,9 +636,7 @@ namespace Inspire.Erp.Application.Master.Implementations
             {
 
                 _accountTransactionRepository.BeginTransaction();
-
                 clsCommonFunctions.Delete_OldEntryOf_StockRegister(purchaseVoucher.PurchaseVoucherVoucherNo, VoucherType.PurchaseVoucher_TYPE, _stockRegisterRepository);
-
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     if (k.AccountsTransactionsTransSno == 0)
@@ -681,11 +647,20 @@ namespace Inspire.Erp.Application.Master.Implementations
                         k.AccountsTransactionsStatus = AccountStatus.Approved;
                     }
                     return k;
-                }).ToList();
-                _PurchaseVoucher.Update(purchaseVoucher);
-                _PurchaseVoucherDetails.UpdateList(purchaseVoucherDetails);
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
+                //delete old record
+                var existingPurchaseList = _PurchaseVoucherDetails.GetAll().Where(o => o.PurchaseVoucherDetailsVoucherNo == purchaseVoucher.PurchaseVoucherVoucherNo).ToList();
+                _PurchaseVoucherDetails.DeleteList(existingPurchaseList);
+
+                foreach (var xx in purchaseVoucher.PurchaseVoucherDetails)
+                {
+                    xx.PurchaseVoucherDetailsVoucherNo = purchaseVoucher.PurchaseVoucherVoucherNo;
+                };
+                _PurchaseVoucherDetails.InsertList(purchaseVoucherDetails);
+
+               _PurchaseVoucher.Update(purchaseVoucher);
 
                 List<StockRegister> stockRegisters = new List<StockRegister>();
 
@@ -701,20 +676,24 @@ namespace Inspire.Erp.Application.Master.Implementations
                         StockRegisterRefVoucherNo = purchaseVoucher.PurchaseVoucherVoucherNo,
                         StockRegisterPurchaseID = purchaseVoucher.PurchaseVoucherVoucherNo,
                         StockRegisterVoucherDate = purchaseVoucher.PurchaseVoucherPurchaseDate,
-                        StockRegisterQuantity = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 0,
-                        StockRegisterSIN = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 0,
-                        StockRegisterRate = item.PurchaseVoucherDetailsRate,
+                        StockRegisterQuantity = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 1,
+                        StockRegisterSIN = item.PurchaseVoucherDetailsQuantity * (converontype) ?? 1,
+                        StockRegisterRate = item.PurchaseVoucherDetailsRate / converontype ?? 1,
                         StockRegisterAmount = item.PurchaseVoucherDetailsQuantity * item.PurchaseVoucherDetailsRate,
                         StockRegisterFCAmount = item.PurchaseVoucherDetailsQuantity * item.PurchaseVoucherDetailsRate * rate,
                         StockRegisterTransType = VoucherType.PurchaseVoucher_TYPE,
                         StockRegisterStatus = AccountStatus.Approved,
+                        StockRegisterUnitID = item.PurchaseVoucherDetailsUnitId,
+                        StockRegisterLocationID = purchaseVoucher.PurchaseVoucherLocationID,
+                        StockRegisterJobID = purchaseVoucher.PurchaseVoucherJobID,
+                        StockRegisterDelStatus = false
                     });
                 }
                 _stockRegisterRepository.InsertList(stockRegisters);
 
 
                 _accountTransactionRepository.TransactionCommit();
-                return this.GetSavedPurchaseVoucherDetailsV2(purchaseVoucher.PurchaseVoucherVoucherNo);
+                return this.GetSavedPurchaseVoucherDetailsV2(purchaseVoucher.PurchaseVoucherPurID);
 
             }
             catch (Exception ex)

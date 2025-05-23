@@ -342,14 +342,14 @@ namespace Inspire.Erp.Application.Common
                 _logger.LogInformation(@$"{nameof(SendEmailAsync)} has been started.");
 
                 var client = new SendGridClient(_mailSettings.Key);
-                var from = new EmailAddress(_mailSettings.Mail, _mailSettings.DisplayName);
+                var from = new EmailAddress(_mailSettings.FromEmail, _mailSettings.DisplayName);
                 var subject = mailRequest.Subject;
                 var emails = new List<EmailAddress>();
                 foreach (var email in mailRequest.Emails)
                 {
                     emails.Add(new EmailAddress(email));
                 }
-                emails.AddRange(_mailSettings.CCEmails.Select(x => new EmailAddress(x)).ToList());
+                emails.AddRange(_mailSettings.CCEmails.Select(x => new EmailAddress(x.Email,x.Name)).OrderBy(x => x.Name).ToList());
                 var plainTextContent = "";
                 var htmlContent = mailRequest.Body;
                 var msg = MailHelper.CreateSingleEmailToMultipleRecipients(from, emails, subject, plainTextContent, htmlContent);

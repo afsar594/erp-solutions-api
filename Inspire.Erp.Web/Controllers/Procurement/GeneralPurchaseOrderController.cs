@@ -15,9 +15,10 @@ using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Web.Common;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Inspire.Erp.Application.Procurement.Implementation;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers.Procurement
-{
+{   
     [Route("api/GeneralPurchaseOrder")]
     [Produces("application/json")]
     [ApiController]
@@ -157,7 +158,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             ApiResponse<List<GeneralPurchaseOrder>> apiResponse = new ApiResponse<List<GeneralPurchaseOrder>>
             {
                 Valid = true,
-                Result = _GeneralpurchaseOrderService.GetGeneralPurchaseOrder().ToList(),
+                Result = _GeneralpurchaseOrderService.GetGeneralPurchaseOrder().OrderBy(x=>x.GeneralPurchaseOrderJobId).ToList(),
                 Message = ""
             };
             return apiResponse;

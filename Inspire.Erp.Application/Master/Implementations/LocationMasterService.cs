@@ -101,6 +101,8 @@ namespace Inspire.Erp.Application.Master
             {
                 //locationrepository.Dispose();
             }
+
+            LocationMaster = LocationMaster.OrderBy(sm => sm.LocationMasterLocationName).ToList();
             return LocationMaster;
         }
 

@@ -37,6 +37,10 @@ namespace Inspire.Erp.Domain.Entities
         public bool? ProformaInvoiceIsLocalPurchase { get; set; }
         public int? ProformaInvoiceJobId { get; set; }
         public bool? ProformaInvoiceDelStatus { get; set; }
+        public decimal? ProformaInvoiceVatPer { get; set; }
+        public decimal? ProformaInvoiceVatAmount { get; set; }
+        public string? ProformaInvoiceVoucherno { get; set; }
+        
 
         [NotMapped]
         public List<ProformaInvoiceDetails> ProformaInvoiceDetails { get; set; }

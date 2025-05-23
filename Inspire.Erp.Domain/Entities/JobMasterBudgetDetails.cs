@@ -8,6 +8,8 @@ namespace Inspire.Erp.Domain.Entities
     public partial class JobMasterBudgetDetails
     {
         public int JobMasterBudgetDetailsDtlId { get; set; }
+        [NotMapped]
+        public int JobMasterBudgetDetailsCostCenterId { get; set; }
         public int? JobMasterBudgetDetailsJobId { get; set; }
         public string JobMasterNo { get; set; }
         public int? JobMasterBudgetDetailsSno { get; set; }
@@ -16,6 +18,9 @@ namespace Inspire.Erp.Domain.Entities
         public bool? JobMasterBudgetDetailsDelStatus { get; set; }
         public decimal? JobMasterBudgetDetailsActual { get; set; }
         public decimal? JobMasterBudgetDetailsVariance { get; set; }
+
+        public string RefVoucherNo { get; set; }
+        
         [JsonIgnore]
         public virtual JobMaster JobMasterBudgetDetailsJob { get; set; }
     }

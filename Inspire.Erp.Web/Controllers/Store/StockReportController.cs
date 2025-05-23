@@ -1,18 +1,4 @@
-﻿////using System;
-////using System.Collections.Generic;
-////using System.Linq;
-////using System.Threading.Tasks;
-////using Microsoft.AspNetCore.Mvc;
-
-////namespace Inspire.Erp.Web.Controllers.Store
-////{
-////    public class OpeningStockController : Controller
-////    {
-
-////    }
-////}
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -34,6 +20,7 @@ using Inspire.Erp.Domain.Modals.Stock;
 using NPOI.OpenXmlFormats.Dml;
 using System.Net.Http.Headers;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers.Store
 {
@@ -67,7 +54,7 @@ namespace Inspire.Erp.Web.Controllers.Store
         public async Task<IActionResult> GetAveragePurchasePrice(int itemId)
         {
 
-            var results = await _openingStockService.GetAveragePurchasePrice(itemId,null);
+            var results = await _openingStockService.GetAveragePurchasePrice(itemId, null);
             return Ok(results);
 
         }
@@ -77,9 +64,8 @@ namespace Inspire.Erp.Web.Controllers.Store
         public async Task<IActionResult> GetAveragePurchasePriceGPC(int itemId, int unitDetailId, decimal? quantity)
         {
 
-            var results = await _openingStockService.GetAveragePurchasePriceGPC(itemId, unitDetailId,quantity);
+            var results = await _openingStockService.GetAveragePurchasePriceGPC(itemId, unitDetailId, quantity);
             return Ok(results);
-
         }
         [HttpGet]
         [Route("GetStockReportBaseUnitByItemId/{id}")]
@@ -100,13 +86,6 @@ namespace Inspire.Erp.Web.Controllers.Store
                 PrintReceivedQtyReport = false,
             });
             return Ok(results);
-            //ApiResponse<List<StockReportBaseUnitResponse>> apiResponse = new ApiResponse<List<StockReportBaseUnitResponse>>
-            //{
-            //    Valid = true,
-            //    Result = _mapper.Map<List<StockReportBaseUnitResponse>>(_openingStockService.GetStockReportBaseUnitList()),
-            //    Message = ""
-            //};
-            //return apiResponse;
         }
 
 
@@ -117,10 +96,10 @@ namespace Inspire.Erp.Web.Controllers.Store
             var results = await _openingStockService.GetStockMovementReport(model);
             return Ok(results);
         }
-
+        [SkipSpecialCharacterValidationAttribute]
         [HttpPost]
         [Route("GetStockReportBaseUnitWithValue")]
-        public async Task<IActionResult> GetStockReportBaseUnitWithValue(GenericGridViewModel model)
+        public async Task<IActionResult> GetStockReportBaseUnitWithValue(StockBaseUnitModel model)
         {
             return Ok(await _openingStockService.GetStockReportBaseUnitWithValue(model));
         }
@@ -144,13 +123,13 @@ namespace Inspire.Erp.Web.Controllers.Store
                      {
                          k.ItemMasterItemId,
                          k.ItemMasterItemName
-                     }).ToList();
+                     }).OrderBy(x => x.ItemMasterItemName).ToList();
             var itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
              && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
              {
                  k.ItemMasterItemId,
                  k.ItemMasterItemName
-             }).ToList();
+             }).OrderBy(x => x.ItemMasterItemName).ToList();
 
             objectresponse.ResultSet = new
             {
@@ -160,7 +139,6 @@ namespace Inspire.Erp.Web.Controllers.Store
             objectresponse.IsSuccess = true;
             return objectresponse;
         }
-
 
     }
 }

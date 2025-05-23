@@ -28,18 +28,46 @@ namespace Inspire.Erp.Infrastructure.Database.Repositoy
         {
             return entities.AsEnumerable();
         }
+        public async Task<IEnumerable<T>> GetAllAsync()
+        {
+            return await entities.AsNoTracking().ToListAsync();
+        }
 
         public void BeginTransaction()
         {
             dbContextTransaction = context.Database.BeginTransaction();
 
         }
-
         public IQueryable<T> GetWithInclude(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
         {
-            var query = this.GetAsQueryable().Where(predicate);
-            return includes.Aggregate(query, (current, includeProperty) => current.Include(includeProperty));
+            if (predicate == null)
+                throw new ArgumentNullException(nameof(predicate));
+
+            IQueryable<T> query = GetAsQueryable().Where(predicate);
+
+            if (includes != null && includes.Any())
+            {
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+            }
+
+            return query;
         }
+
+        public IQueryable<T> GetWithFilterInclude(Expression<Func<T, bool>> predicate, Func<IQueryable<T>, IQueryable<T>> includeBuilder)
+        {
+            if (predicate == null)
+                throw new ArgumentNullException(nameof(predicate));
+
+            IQueryable<T> query = GetAsQueryable().Where(predicate);
+
+            query = includeBuilder(query);
+
+            return query;
+        }
+
 
         public void TransactionCommit()
         {
@@ -55,7 +83,7 @@ namespace Inspire.Erp.Infrastructure.Database.Repositoy
         {
             return entities.AsQueryable();
         }
-        
+
         public void Insert(T entity)
         {
             if (entity == null)
@@ -86,6 +114,15 @@ namespace Inspire.Erp.Infrastructure.Database.Repositoy
             }
             entities.RemoveRange(entity);
             context.SaveChanges();
+        }
+        public async Task DeleteListAsync(List<T> entity)
+        {
+            if (entity == null)
+            {
+                throw new ArgumentNullException("entity");
+            }
+            entities.RemoveRange(entity);
+            await context.SaveChangesAsync();
         }
 
         public void Update(T entity)
@@ -129,7 +166,30 @@ namespace Inspire.Erp.Infrastructure.Database.Repositoy
                 }
                 throw;
             }
-            
+
+        }
+        public async Task UpdateListAsync(List<T> entity)
+        {
+            if (entity == null)
+            {
+                throw new ArgumentNullException("entity");
+            }
+            entities.UpdateRange(entity);
+            try
+            {
+                await context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Exception Message: " + ex.Message);
+                Console.WriteLine("Stack Trace: " + ex.StackTrace);
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine("Inner Exception Message: " + ex.InnerException.Message);
+                }
+                throw;
+            }
+
         }
         public void Delete(T entity)
         {
@@ -171,7 +231,7 @@ namespace Inspire.Erp.Infrastructure.Database.Repositoy
             GC.SuppressFinalize(this);
         }
 
-        public async Task<int> ExecuteSpNonQuery(string sql, params object[] parameters )
+        public async Task<int> ExecuteSpNonQuery(string sql, params object[] parameters)
         {
             return await context.Database.ExecuteSqlRawAsync("Exec " + sql, parameters);
         }
@@ -220,7 +280,7 @@ namespace Inspire.Erp.Infrastructure.Database.Repositoy
             var result = await context.Set<T>().FromSqlInterpolated(query).ToListAsync();
             return result.FirstOrDefault();
         }
-       
+
         public async Task<List<TEntity>> ListSelectAsync<TEntity>(Expression<Func<T, bool>> predicate, Expression<Func<T, TEntity>> select, List<string> includes = null)
         {
             IQueryable<T> query = entities;
@@ -251,11 +311,31 @@ namespace Inspire.Erp.Infrastructure.Database.Repositoy
         {
             context.SaveChanges();
         }
-       
+
         public async Task<List<EntityEntry>> TrackChangesAsync()
         {
 
             return await Task.FromResult(context.ChangeTracker.Entries().ToList());
+        }
+
+        public async Task InsertAsync(T entity)
+        {
+            if (entity == null)
+            {
+                throw new ArgumentNullException("entity");
+            }
+            entities.Add(entity);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task InsertListAsync(List<T> entity)
+        {
+            if (entity == null)
+            {
+                throw new ArgumentNullException("entity");
+            }
+            entities.AddRange(entity);
+            await context.SaveChangesAsync();
         }
 
 

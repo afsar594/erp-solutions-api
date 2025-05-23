@@ -21,6 +21,9 @@ using Inspire.Erp.Application.Account;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.EntityFrameworkCore;
+using SendGrid;
+using SendGrid.Helpers.Mail;
+using System.IO;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -29,17 +32,24 @@ namespace Inspire.Erp.Web.Controllers
     [ApiController]
     public class BillofQtyController : ControllerBase
     {
-        private IBillofQtyService _customerQuotationService;
+        private readonly IBillofQtyService _billofQtyService;
         private readonly IMapper _mapper;
-        private IRepository<BillofQtyMaster> _BillofQtyMasterRepository; private IRepository<BillOfQTyDetails> _BillOfQTyDetailsRepository;
-        private IRepository<JobMaster> jobrepository; private IRepository<ItemMaster> itemrepository; private IRepository<UnitMaster> unitrepository;
-        public BillofQtyController(IBillofQtyService customerQuotationService, IMapper mapper, IRepository<JobMaster> _jobrepository, IRepository<ItemMaster> _itemrepository, IRepository<UnitMaster> _unitrepository
-            , IRepository<BillOfQTyDetails> BillOfQTyDetailsRepository, IRepository<BillofQtyMaster> BillofQtyMasterRepository)
+        private IRepository<BillofQtyMaster> _BillofQtyMasterRepository;
+        private IRepository<BillOfQTyDetails> _BillOfQTyDetailsRepository;
+        private IRepository<JobMaster> jobrepository;
+        private IRepository<ItemMaster> itemrepository;
+        private IRepository<UnitMaster> unitrepository;
+        private object filePath;
+        private readonly IRepository<PurchaseRequisitionDetails> _purchaseRequisitionDetails;
+
+        public BillofQtyController(IBillofQtyService billofQtyService, IMapper mapper, IRepository<JobMaster> _jobrepository, IRepository<ItemMaster> _itemrepository, IRepository<UnitMaster> _unitrepository
+            , IRepository<BillOfQTyDetails> BillOfQTyDetailsRepository, IRepository<BillofQtyMaster> BillofQtyMasterRepository, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetails)
         {
-            _customerQuotationService = customerQuotationService;
+            _billofQtyService = billofQtyService;
             _mapper = mapper;
             jobrepository = _jobrepository; itemrepository = _itemrepository; unitrepository = _unitrepository;
             _BillofQtyMasterRepository = BillofQtyMasterRepository; _BillOfQTyDetailsRepository = BillOfQTyDetailsRepository;
+            _purchaseRequisitionDetails = purchaseRequisitionDetails;
         }
         [HttpPost]
         [Route("InsertBillofQty")]
@@ -51,7 +61,9 @@ namespace Inspire.Erp.Web.Controllers
             {
                 var param1 = _mapper.Map<BillofQtyMaster>(customerQuotationCompositeView);
                 var param2 = _mapper.Map<List<BillOfQTyDetails>>(customerQuotationCompositeView.BillOfQTyDetails);
-                var xs = _customerQuotationService.InsertBillofQty(param1, param2);
+                var param3 = _mapper.Map<List<EstimationCostCenter>>(customerQuotationCompositeView.EstimationCostCenter);
+
+                var xs = _billofQtyService.InsertBillofQty(param1, param2, param3);
 
                 BillofQtyMasterModel CustomerQuotationViewModel = new BillofQtyMasterModel();
 
@@ -59,6 +71,8 @@ namespace Inspire.Erp.Web.Controllers
                 {
                     CustomerQuotationViewModel = _mapper.Map<BillofQtyMasterModel>(xs);
                     CustomerQuotationViewModel.BillOfQTyDetails = _mapper.Map<List<BillOfQTyDetailsModel>>(xs.BillOfQTyDetails);
+                    CustomerQuotationViewModel.EstimationCostCenter = _mapper.Map<List<EstimationCostCenterModel>>(xs.EstimationCostCenter);
+
 
                     apiResponse = new ApiResponse<BillofQtyMasterModel>
                     {
@@ -91,12 +105,16 @@ namespace Inspire.Erp.Web.Controllers
         {
             var param1 = _mapper.Map<BillofQtyMaster>(customerQuotationCompositeView);
             var param2 = _mapper.Map<List<BillOfQTyDetails>>(customerQuotationCompositeView.BillOfQTyDetails);
-            var xs = _customerQuotationService.UpdateBillofQty(param1, param2);
+            var param3 = _mapper.Map<List<EstimationCostCenter>>(customerQuotationCompositeView.EstimationCostCenter);
+
+            var xs = _billofQtyService.UpdateBillofQty(param1, param2, param3);
             if (xs != null)
             {
                 BillofQtyMasterModel CustomerQuotationViewModel = new BillofQtyMasterModel();
                 CustomerQuotationViewModel = _mapper.Map<BillofQtyMasterModel>(xs);
                 CustomerQuotationViewModel.BillOfQTyDetails = _mapper.Map<List<BillOfQTyDetailsModel>>(xs.BillOfQTyDetails);
+                CustomerQuotationViewModel.EstimationCostCenter = _mapper.Map<List<EstimationCostCenterModel>>(xs.EstimationCostCenter);
+
 
                 ApiResponse<BillofQtyMasterModel> apiResponse = new ApiResponse<BillofQtyMasterModel>
                 {
@@ -111,14 +129,14 @@ namespace Inspire.Erp.Web.Controllers
                 return null;
             }
         }
-        [HttpDelete]
+        [HttpGet]
         [Route("DeleteBillofQty/{id}")]
         public ApiResponse<int> DeleteBillofQty(decimal id)
         {
             ApiResponse<int> apiResponse = new ApiResponse<int>
             {
                 Valid = true,
-                Result = _mapper.Map<int>(_customerQuotationService.DeleteBillofQty(id)),
+                Result = _mapper.Map<int>(_billofQtyService.DeleteBillofQty(id)),
                 Message = ""
             };
             return apiResponse;
@@ -131,7 +149,7 @@ namespace Inspire.Erp.Web.Controllers
             ApiResponse<List<BillofQtyMaster>> apiResponse = new ApiResponse<List<BillofQtyMaster>>
             {
                 Valid = true,
-                Result = _mapper.Map<List<BillofQtyMaster>>(_customerQuotationService.GetBillofQty()),
+                Result = _mapper.Map<List<BillofQtyMaster>>(_billofQtyService.GetBillofQty()),
                 Message = ""
             };
             return apiResponse;
@@ -144,11 +162,20 @@ namespace Inspire.Erp.Web.Controllers
             ApiResponse<BillofQtyMasterModel> apiResponse = new ApiResponse<BillofQtyMasterModel>
             {
                 Valid = true,
-                Result = _mapper.Map<BillofQtyMasterModel>(_customerQuotationService.GetSavedBillofQty(id)),
+                Result = _mapper.Map<BillofQtyMasterModel>(_billofQtyService.GetSavedBillofQty(id)),
                 Message = ""
             };
             return apiResponse;
         }
+
+
+        [HttpGet]
+        [Route("GetBillofQtyTracking")]
+        public IActionResult GetBillofQtyTracking([FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate, [FromQuery] string? jobNo)
+        {
+            return Ok(_billofQtyService.GetBillofQtyTracking(fromDate, toDate, jobNo));
+        }
+
 
         [HttpGet]
         [Route("BOQLoadDropdown")]
@@ -161,20 +188,21 @@ namespace Inspire.Erp.Web.Controllers
             {
                 c.JobMasterJobId,
                 JobMasterJobName = c.JobMasterJobName.Trim(),
-            }).ToList();
+                c.JobMasterJobNumber
+            }).OrderBy(x => x.JobMasterJobName).AsEnumerable().ToList();
             var itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
                     && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
                     {
                         k.ItemMasterItemId,
                         k.ItemMasterPartNo,
                         ItemMasterItemName = k.ItemMasterItemName.Trim()
-                    }).ToList();
+                    }).OrderBy(x => x.ItemMasterItemName).AsEnumerable().ToList();
             var unitMasters = unitrepository.GetAsQueryable().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
             {
                 x.UnitMasterUnitId,
                 UnitMasterUnitFullName = x.UnitMasterUnitFullName.Trim(),
                 UnitMasterUnitShortName = x.UnitMasterUnitShortName.Trim()
-            }).ToList();
+            }).OrderBy(x => x.UnitMasterUnitShortName).AsEnumerable().ToList();
             objresponse.ResultSet = new
             {
                 jobMasters = jobMasters,
@@ -189,33 +217,55 @@ namespace Inspire.Erp.Web.Controllers
         public ResponseInfo LoadBOQ(int customerEnqId)
         {
             var objResponse = new ResponseInfo();
-            var detailList = _BillOfQTyDetailsRepository.GetAsQueryable().AsNoTracking().ToList();
-            var details = _BillofQtyMasterRepository.GetAsQueryable().AsNoTracking().ToList();
+            var detailList = _BillOfQTyDetailsRepository.GetAsQueryable().AsNoTracking().OrderBy(x => x.BillQtyId).ToList();
+            var details = _BillofQtyMasterRepository.GetAsQueryable().AsNoTracking().OrderBy(x => x.BillofqtyNo).ToList();
 
-            // Filtering detailList based on PurchaseOrderNos and customerEnqId
+            if (customerEnqId != 0)
+            {
+                details = details.Where(a => a.CustomerEnqId == customerEnqId).OrderBy(x => x.BillofqtyNo).ToList();
+            }
+            var billQtyIds = details.Select(x => x.Id).ToList();
+            var requisitionQuantities = _purchaseRequisitionDetails.GetAsQueryable().Where(x => billQtyIds.Contains((decimal)x.boqdId))
+                .AsNoTracking()
+                .GroupBy(p => new { p.boqdId, p.PurchaseRequisitionDetailsMatId })
+                .Select(g => new
+                {
+                    BillQtyId = g.Key.boqdId,
+                    ItemCode = g.Key.PurchaseRequisitionDetailsMatId,
+                    RecQty = g.Sum(x => x.PurchaseRequisitionDetailsQuantity)
+                }).ToList();
+
             var data = (from d in detailList
                         join c in details on d.BillQtyId equals c.Id
-                        where (customerEnqId == -1 || c.CustomerEnqId == customerEnqId)
-                        && d.IsEdit == true
+                        join i in itemrepository.GetAll() on d.ItemCode equals i.ItemMasterItemId into igrData
+                        from i in igrData.DefaultIfEmpty()
+                        where (customerEnqId == 0 || c.CustomerEnqId == customerEnqId)
+                        where d.IsEdit == true
+                        let receivedQty = requisitionQuantities.FirstOrDefault(x => x.BillQtyId == d.BillQtyId && x.ItemCode == d.ItemCode)?.RecQty ?? 0
                         select new BoqDetailDto
                         {
                             Id = c.Id,
                             dId = d.Id,
                             BillofqtyNo = c.BillofqtyNo,
                             Date = c.Date,
+                            SupplierId = i?.ItemMasterSupplierId ?? -1,
                             CustomerEnqId = c.CustomerEnqId,
                             ItemCode = d.ItemCode,
                             Qty = d.Qty,
-                            UnitCode = d.UnitCode
-                        }).OrderBy(x => x.dId)
-                .ToList();
+                            UnitCode = d.UnitCode,
+                            Rate = d.Rate,
+                            Amount = d.Amount,
+                            CurrRate = d.CurrencyRate ?? 1,
+                            ReceivedQty = receivedQty,
+                            BalanceQty = (d.Qty ?? 0m) - receivedQty,
+                        }).OrderBy(x => x.BillofqtyNo).Distinct().ToList();
+
 
             objResponse.ResultSet = new
             {
-                result = data
+                result = data.Where(x => x.BalanceQty > 0)
             };
             return objResponse;
         }
-
     }
 }

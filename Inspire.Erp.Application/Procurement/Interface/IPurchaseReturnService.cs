@@ -3,6 +3,7 @@ using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Modals.Procurement;
+using Inspire.Erp.Domain.Models.Common;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -23,7 +24,7 @@ namespace Inspire.Erp.Application.Procurement.Interface
         Task<Response<List<DropdownResponse>>> GetVoucherTypeDropdown();
 
         List<PurchaseReturn> GetPurchaseReturn();
-        PurchaseReturnModel GetSavedPurchaseReturnDetails(string pvno);
+        PurchaseReturnModel GetSavedPurchaseReturnDetails(int pvno);
 
         PurchaseReturnModel InsertPurchaseReturn(PurchaseReturn purchaseReturn,
                                  List<AccountsTransactions> accountsTransactions,
@@ -42,5 +43,8 @@ namespace Inspire.Erp.Application.Procurement.Interface
 
         decimal? CurrencyConversion(PurchaseReturn purchaseReturn);
         decimal? GetCurrencyRate(PurchaseReturn pr);
+
+        Task<bool> SendEmailAlerts(EmailRequest mailRequest);
+
     }
 }

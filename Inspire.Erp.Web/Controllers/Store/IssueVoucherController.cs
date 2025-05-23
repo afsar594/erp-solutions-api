@@ -20,6 +20,7 @@ using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Inspire.Erp.Application.Account;
 using Inspire.Erp.Domain.Modals.Common;
 using Microsoft.EntityFrameworkCore;
+using DinkToPdf;
 
 namespace Inspire.Erp.Web.Controllers.Store
 {
@@ -32,19 +33,25 @@ namespace Inspire.Erp.Web.Controllers.Store
         private readonly IMapper _mapper;
         private IRepository<ItemMaster> itemrepository;
         private readonly IRepository<SuppliersMaster> supplierrepository;
-        private IRepository<UnitMaster> unitrepository; private IRepository<VendorMaster> Brandrepository;
+        private IRepository<UnitMaster> unitrepository;
+        private IRepository<VendorMaster> Brandrepository;
         private IRepository<CostCenterMaster> costcenterrepository;
-        private IRepository<JobMaster> jobrepository; private IRepository<LocationMaster> locationrepository;
-        private IRepository<CurrencyMaster> currencyrepository; private IRepository<CustomerMaster> _customerMasterRepository;
-        private IChartofAccountsService chartofAccountsService; private IRepository<SalesManMaster> salesmanrepository;
+        private IRepository<JobMaster> jobrepository;
+        private IRepository<LocationMaster> locationrepository;
+        private IRepository<CurrencyMaster> currencyrepository;
+        private IRepository<CustomerMaster> _customerMasterRepository;
+        private IChartofAccountsService chartofAccountsService;
+        private IRepository<SalesManMaster> salesmanrepository;
         private IRepository<DepartmentMaster> departmentrepository;
-        private IRepository<UnitDetails> _UnitDetailsRepository; private IRepository<IssueVoucher> _issueVoucherRepository;
+        private IRepository<UnitDetails> _UnitDetailsRepository;
+        private IRepository<IssueVoucher> _issueVoucherRepository;
+        private IRepository<UnitDetails> unitDetailRepository;
         public IssueVoucherController(IIssueVoucherService issueVoucherService, IMapper mapper,
              IRepository<ItemMaster> _itemrepository, IRepository<UnitDetails> unitDetailsRepository,
             IRepository<SuppliersMaster> _supplierrepository, IRepository<VendorMaster> _Brandrepository, IRepository<IssueVoucher> issueVoucherRepository,
             IRepository<UnitMaster> _unitrepository, IRepository<LocationMaster> _locationrepository, IRepository<SalesManMaster> _salesmanrepository
             , IRepository<CostCenterMaster> _countryrepository, IRepository<DepartmentMaster> _departmentrepository, IRepository<CustomerMaster> customerMasterRepository
-            , IRepository<JobMaster> _jobrepository, IRepository<CurrencyMaster> _currencyrepository, IChartofAccountsService _chartofAccountsService)
+            , IRepository<JobMaster> _jobrepository, IRepository<CurrencyMaster> _currencyrepository, IChartofAccountsService _chartofAccountsService, IRepository<UnitDetails> unitDetailRepository)
         {
             _issueVoucherService = issueVoucherService;
             _mapper = mapper; _issueVoucherRepository = issueVoucherRepository;
@@ -54,6 +61,7 @@ namespace Inspire.Erp.Web.Controllers.Store
             costcenterrepository = _countryrepository; departmentrepository = _departmentrepository;
             jobrepository = _jobrepository; locationrepository = _locationrepository;
             currencyrepository = _currencyrepository; chartofAccountsService = _chartofAccountsService;
+            this.unitDetailRepository = unitDetailRepository;
         }
 
 
@@ -70,13 +78,10 @@ namespace Inspire.Erp.Web.Controllers.Store
             param3 = new List<AccountsTransactions>();
             List<StockRegister> param4 = new List<StockRegister>();
 
-            var xs = _issueVoucherService.InsertIssueVoucher(param1, param3, param2
-           , param4
-           );
+            var xs = _issueVoucherService.InsertIssueVoucher(param1, param3, param2, param4);
 
             IssueVoucherViewModel issueVoucherViewModel = new IssueVoucherViewModel
             {
-
                 IssueVoucherId = xs.issueVoucher.IssueVoucherId,
                 IssueVoucherNo = xs.issueVoucher.IssueVoucherNo,
                 IssueVoucherDate = xs.issueVoucher.IssueVoucherDate,
@@ -122,8 +127,6 @@ namespace Inspire.Erp.Web.Controllers.Store
                 IssueVoucherBufferPurNo = xs.issueVoucher.IssueVoucherBufferPurNo,
                 IssueVoucherBufferReqNo = xs.issueVoucher.IssueVoucherBufferReqNo,
                 IssueVoucherDelStatus = xs.issueVoucher.IssueVoucherDelStatus,
-
-
             };
 
             issueVoucherViewModel.IssueVoucherDetails = _mapper.Map<List<IssueVoucherDetailsViewModel>>(xs.issueVoucherDetails);
@@ -134,9 +137,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 Result = _mapper.Map<IssueVoucherViewModel>(issueVoucherViewModel),
                 Message = IssueVoucherMessage.SaveVoucher
             };
-
             return apiResponse;
-
         }
 
         [HttpPost]
@@ -148,12 +149,11 @@ namespace Inspire.Erp.Web.Controllers.Store
             var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
             param3 = new List<AccountsTransactions>();
             List<StockRegister> param4 = new List<StockRegister>();
-            // clsAccountAndStock.IssueVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
 
             var xs = _issueVoucherService.UpdateIssueVoucher(param1, param3, param2
            , param4
            );
-            //========================
+
             IssueVoucherViewModel issueVoucherViewModel = new IssueVoucherViewModel
             {
                 IssueVoucherId = xs.issueVoucher.IssueVoucherId,
@@ -212,9 +212,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 Result = _mapper.Map<IssueVoucherViewModel>(issueVoucherViewModel),
                 Message = IssueVoucherMessage.UpdateVoucher
             };
-
             return apiResponse;
-
         }
 
         [HttpPost]
@@ -226,13 +224,10 @@ namespace Inspire.Erp.Web.Controllers.Store
             var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
             param3 = new List<AccountsTransactions>();
             List<StockRegister> param4 = new List<StockRegister>();
-            //clsAccountAndStock.IssueVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3);
 
             var xs = _issueVoucherService.DeleteIssueVoucher(param1, param3, param2
            , param4
            );
-            //========================
-
 
             ApiResponse<int> apiResponse = new ApiResponse<int>
             {
@@ -242,19 +237,12 @@ namespace Inspire.Erp.Web.Controllers.Store
             };
 
             return apiResponse;
-
         }
-
-
-
 
         [HttpGet]
         [Route("GetAllAccountTransaction")]
         public ApiResponse<List<AccountsTransactions>> GetAllAccountTransaction()
         {
-
-
-
             ApiResponse<List<AccountsTransactions>> apiResponse = new ApiResponse<List<AccountsTransactions>>
             {
                 Valid = true,
@@ -262,15 +250,12 @@ namespace Inspire.Erp.Web.Controllers.Store
                 Message = ""
             };
             return apiResponse;
-
         }
 
         [HttpGet]
         [Route("GetIssueVoucher")]
         public ApiResponse<List<IssueVoucher>> GetAllIssueVoucher()
         {
-
-
             ApiResponse<List<IssueVoucher>> apiResponse = new ApiResponse<List<IssueVoucher>>
             {
                 Valid = true,
@@ -278,13 +263,10 @@ namespace Inspire.Erp.Web.Controllers.Store
                 Message = ""
             };
             return apiResponse;
-
-
         }
-
         [HttpGet]
         [Route("GetSavedIssueVoucherDetails/{id}")]
-        public ApiResponse<IssueVoucherViewModel> GetSavedIssueVoucherDetails(string id)
+        public ApiResponse<IssueVoucherViewModel> GetSavedIssueVoucherDetails(int id)
         {
             IssueVoucherModel issueVoucher = _issueVoucherService.GetSavedIssueVoucherDetails(id);
 
@@ -292,8 +274,6 @@ namespace Inspire.Erp.Web.Controllers.Store
             {
                 IssueVoucherViewModel issueVoucherViewModel = new IssueVoucherViewModel
                 {
-
-
                     IssueVoucherId = issueVoucher.issueVoucher.IssueVoucherId,
                     IssueVoucherNo = issueVoucher.issueVoucher.IssueVoucherNo,
                     IssueVoucherDate = issueVoucher.issueVoucher.IssueVoucherDate,
@@ -339,8 +319,6 @@ namespace Inspire.Erp.Web.Controllers.Store
                     IssueVoucherBufferPurNo = issueVoucher.issueVoucher.IssueVoucherBufferPurNo,
                     IssueVoucherBufferReqNo = issueVoucher.issueVoucher.IssueVoucherBufferReqNo,
                     IssueVoucherDelStatus = issueVoucher.issueVoucher.IssueVoucherDelStatus,
-
-
                 };
                 issueVoucherViewModel.IssueVoucherDetails = _mapper.Map<List<IssueVoucherDetailsViewModel>>(issueVoucher.issueVoucherDetails);
                 issueVoucherViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(issueVoucher.accountsTransactions);
@@ -353,12 +331,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 return apiResponse;
             }
             return null;
-
-
-
         }
-
-
 
         [HttpGet]
         [Route("CheckVnoExist/{id}")]
@@ -369,9 +342,6 @@ namespace Inspire.Erp.Web.Controllers.Store
                 Valid = true,
                 Result = true,
                 Message = IssueVoucherMessage.VoucherNumberExist
-
-
-
             };
             var x = _issueVoucherService.GetVouchersNumbers(id);
             if (x == null)
@@ -379,7 +349,6 @@ namespace Inspire.Erp.Web.Controllers.Store
                 apiResponse.Result = false;
                 apiResponse.Message = "";
             }
-
             return apiResponse;
         }
 
@@ -388,60 +357,70 @@ namespace Inspire.Erp.Web.Controllers.Store
         public ResponseInfo LoadDropdown()
         {
             var objectresponse = new ResponseInfo();
-            var itemMaster = itemrepository.GetAsQueryable().AsNoTracking().Where(k => k.ItemMasterAccountNo != 0 && (k.ItemMasterDelStatus != true)
-                     && k.ItemMasterItemType != ItemMasterStatus.Group).Select(k => new
-                     {
-                         k.ItemMasterItemId,
-                         k.ItemMasterItemName
-                     }).ToList();
+            var itemMaster = (from item in itemrepository.GetAsQueryable().AsNoTracking()
+                              join unit in unitDetailRepository.GetAsQueryable().AsNoTracking()
+                              on item.ItemMasterItemId equals unit.UnitDetailsItemId
+                              where item.ItemMasterAccountNo != 0
+                              && item.ItemMasterDelStatus != true
+                              && item.ItemMasterItemType != ItemMasterStatus.Group
+                              select new
+                              {
+                                  item.ItemMasterItemId,
+                                  item.ItemMasterItemName,
+                                  item.ItemMasterVenderId,
+                                  item.ItemMasterItemSize,
+                                  itemMasterBarcode = unit.UnitDetailsBarcode ?? ""
+                              }).Distinct().OrderBy(x => x.ItemMasterItemName).ToList();
 
             var jobMasters = jobrepository.GetAsQueryable().AsNoTracking().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
             {
                 c.JobMasterJobId,
                 c.JobMasterJobName,
-            }).ToList();
+                c.JobMasterJobNumber,
+            }).OrderBy(x => x.JobMasterJobName).AsEnumerable().ToList();
             var currencyMasters = currencyrepository.GetAsQueryable().AsNoTracking().Where(a => a.CurrencyMasterCurrencyDelStatus != true).Select(c => new
             {
                 c.CurrencyMasterCurrencyId,
                 c.CurrencyMasterCurrencyName,
                 c.CurrencyMasterCurrencyRate
-            }).ToList();
+            }).OrderBy(x => x.CurrencyMasterCurrencyName).ToList();
             var unitMasters = unitrepository.GetAsQueryable().AsNoTracking().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
             {
                 x.UnitMasterUnitId,
                 x.UnitMasterUnitFullName,
                 UnitMasterUnitShortName = x.UnitMasterUnitShortName.Trim()
-            }).ToList();
+            }).OrderBy(x => x.UnitMasterUnitShortName).AsEnumerable().ToList();
             var costcenterMasters = costcenterrepository.GetAsQueryable().AsNoTracking().Where(a => a.CostCenterMasterCostCenterDelStatus != true).Select(c => new
             {
                 c.CostCenterMasterCostCenterId,
                 c.CostCenterMasterCostCenterName,
-            }).ToList();
+            }).OrderBy(x => x.CostCenterMasterCostCenterName).ToList();
             var LocationMaster = locationrepository.GetAsQueryable().AsNoTracking().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
             {
                 c.LocationMasterLocationId,
                 c.LocationMasterLocationName,
-            }).ToList();
+                c.LocationMasterLocationStatus,
+            }).OrderBy(x => x.LocationMasterLocationName).ToList();
 
             var DepartmentsList = departmentrepository.GetAsQueryable().AsNoTracking().Where(a => a.DepartmentMasterDepartmentDelStatus != true).Select(k => new
             {
                 k.DepartmentMasterDepartmentId,
                 k.DepartmentMasterDepartmentName,
 
-            }).ToList();
-            var masterAccountsTables = chartofAccountsService.GetAllAccounts().Where(a => a.MaDelStatus != true).Select(c => new
+            }).OrderBy(x => x.DepartmentMasterDepartmentName).ToList();
+            var masterAccountsTables = chartofAccountsService.GetAllAccounts().Where(a => a.MaDelStatus != true && a.MaMainHead == "Expenses").Select(c => new
             {
                 c.MaAccNo,
                 c.MaAccName,
                 c.MaRelativeNo,
                 c.MaSno
-            }).ToList();
+            }).OrderBy(x => x.MaAccName).ToList();
 
             var issueVoucher = _issueVoucherRepository.GetAsQueryable().AsNoTracking().Where(a => a.IssueVoucherDelStatus != true).Select(x => new
             {
                 x.IssueVoucherId,
                 x.IssueVoucherNo
-            }).ToList();
+            }).OrderBy(x => x.IssueVoucherNo).ToList();
             objectresponse.ResultSet = new
             {
                 itemMaster = itemMaster,
@@ -452,7 +431,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 DepartmentsList = DepartmentsList,
                 unitMasters = unitMasters,
                 masterAccountsTables = masterAccountsTables,
-                issueVoucher= issueVoucher
+                issueVoucher = issueVoucher
             };
 
             objectresponse.IsSuccess = true;

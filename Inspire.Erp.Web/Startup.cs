@@ -25,6 +25,9 @@ using Inspire.Erp.Domain.Models.Common;
 using Inspire.Erp.Application.Account.Implementation;
 using Inspire.Erp.Application.NewFolder.Interfaces;
 using Inspire.Erp.Application.NewFolder.Implementations;
+using Inspire.Erp.RecurringJob;
+using Hangfire;
+using Microsoft.Extensions.FileProviders;
 
 namespace Inspire.Erp.Web
 {
@@ -40,11 +43,18 @@ namespace Inspire.Erp.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMemoryCache();
+            services.AddHttpContextAccessor();
             services.AddSignalR();
             services.AddControllers();
             services.AddApplication();
             services.AddInfrastructure(Configuration);
             services.AddTokenAuthentication(Configuration);
+
+            services.AddRecurringJob(Configuration);
+
+
+
             // Auto Mapper Configurations
             var mappingConfig = new MapperConfiguration(mc =>
             {
@@ -97,17 +107,16 @@ namespace Inspire.Erp.Web
                                 .AllowAnyMethod();
                       });
             });
-
-            //  var converter = new SynchronizedConverter(new PdfTools());
-            //  services.AddSingleton(converter);
-            //  services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
+           
             services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
             services.AddScoped<INotificationHub, NotificationHub>();
-           
-            //  services.AddMvc().AddNewtonsoftJson(
-            //options => {
-            //    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-            //});
+
+            services.AddControllers(options =>
+            {
+                // Register the filter globally
+                options.Filters.Add<SpecialCharacterValidationFilter>();
+            });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -130,12 +139,7 @@ namespace Inspire.Erp.Web
 
             app.UseRouting();
             app.UseCors("AllowAllHeaders");
-            // global cors policy
-            //app.UseCors(x => x
-            //    .SetIsOriginAllowed(origin => true)
-            //    .AllowAnyMethod()
-            //    .AllowAnyHeader()
-            //    .AllowCredentials());
+            // global cors policy            
             app.UseCors(options => options.AllowAnyOrigin());
             app.UseAuthentication();
             app.UseAuthorization();
@@ -144,7 +148,27 @@ namespace Inspire.Erp.Web
                 endpoints.MapControllers();
                 endpoints.MapHub<NotificationHub>("/signal");
             });
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "Upload/Pdfs")),
+                RequestPath = "/pdfs"
+            });
+
+            app.UseHangfireDashboard("/EmailScheduler");
+            //using (var scope = app.ApplicationServices.CreateScope())
+            //{
+            //    var emailScheduler = scope.ServiceProvider.GetRequiredService<IEmailSchedulerService>();
+
+            //    // Schedule both email jobs to run daily
+            //    Hangfire.RecurringJob.AddOrUpdate("jobscops-email-job", () =>
+            //         emailScheduler.CheckAndSendEmailForJobScops(), Cron.Daily);
+
+            //    Hangfire.RecurringJob.AddOrUpdate("bankguarantees-email-job", () =>
+            //        emailScheduler.CheckAndSendEmailForJobBankGuarantees(), Cron.Daily);
+            //}
+
             loggerFactory.AddFile($@"{Directory.GetCurrentDirectory()}\Logs\log.txt");
+
         }
     }
 }

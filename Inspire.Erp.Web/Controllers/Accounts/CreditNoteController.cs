@@ -12,9 +12,11 @@ using Microsoft.AspNetCore.Mvc;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Web.Common;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers
 {
+   
     [Route("api/CreditNote")]
     [Produces("application/json")]
     [ApiController]
@@ -108,7 +110,7 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("GetSavedCreditNoteDetails/{id}")]
-        public ApiResponse<CreditNote> GetSavedCreditNoteDetails(string id)
+        public ApiResponse<CreditNote> GetSavedCreditNoteDetails(int id)
         {
             CreditNote creditNote = _creditNoteService.GetSavedCreditNoteDetails(id);
 

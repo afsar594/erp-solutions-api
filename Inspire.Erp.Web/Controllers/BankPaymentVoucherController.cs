@@ -133,7 +133,7 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("GetSavedBankPaymentDetails/{id}")]
-        public ApiResponse<BankPaymentVoucher> GetSavedBankPaymentDetails(string id)
+        public ApiResponse<BankPaymentVoucher> GetSavedBankPaymentDetails(int id)
         {
             BankPaymentVoucher bankPaymentVoucher = _bankPaymentVoucherService.GetSavedBankPaymentDetails(id);
             if (bankPaymentVoucher != null)

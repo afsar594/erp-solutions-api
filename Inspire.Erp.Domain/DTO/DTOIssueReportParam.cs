@@ -12,6 +12,7 @@ namespace Inspire.Erp.Domain.DTO
         public string partNo { get; set; }
         public long? departmentId { get; set; }
         public long? jobId { get; set; }
+        public bool? isDate { get; set; }
         public DateTime? dateFrom { get; set; }
         public DateTime? toDate { get; set; }
     }
@@ -21,6 +22,7 @@ namespace Inspire.Erp.Domain.DTO
         public int? JobId { get; set; }
         public int? DepartmentId { get; set; }
         public long? ItemId { get; set; }
+        public long? DetailjobId { get; set; }
         public string IssueNo { get; set; }
         public DateTime? IssueDate { get; set; }
         public string PartNo { get; set; }

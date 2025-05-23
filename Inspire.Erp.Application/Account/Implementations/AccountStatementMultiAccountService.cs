@@ -46,7 +46,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     {
                         Value = x.MaAccNo,
                         Name = x.MaAccName
-                    }).ToListAsync();
+                    }).OrderBy(o=>o.Name).ToListAsync();
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
             }
             catch (Exception ex)
@@ -68,7 +68,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     Value = @$" MaRelativeNo == ""{x.MaAccNo}"" ",
                     Name = x.MaAccName
-                }));
+                } )); response.AddRange(response.OrderBy(x => x.Name)); // Order by Name
+
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
             }
             catch (Exception ex)
@@ -76,7 +77,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 return Response<List<DropdownResponse>>.Fail(new List<DropdownResponse>(), ex.Message);
             }
         }
-
+        
         private async Task<List<GetAccountTransactionMutilAccountResponse>> GetAccountTransactionsMultiAccount(GenericGridViewModel model)
         {
             try
@@ -282,7 +283,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                                    VoucherNo = o.AccountsTransactionsVoucherNo,
                                                    Description =o.AccountsTransactionsDescription,
                                                    RefNo = o.RefNo
-                                               }).ToList();
+                                               }).OrderBy(x=>x.AccountName).AsEnumerable().ToList();
 
                 foreach(var account in AccountTrans)
                 {
@@ -331,7 +332,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                                    TotalDebit = Convert.ToDouble(o.Sum(pc => pc.AccountsTransactionsFcDebit ?? 0)),
                                                    TotalCredit = Convert.ToDouble(o.Sum(pc => pc.AccountsTransactionsFcCredit ?? 0)),
 
-                                               }).ToList();
+                                               }).OrderBy(x=>x.AccountName).AsEnumerable().ToList();
 
                 //var AccountTrans = _accountTransaction.GetAsQueryable()
                 //                                       .Where(x => (model.FromDate == null || x.AccountsTransactionsTransDate >= model.FromDate)

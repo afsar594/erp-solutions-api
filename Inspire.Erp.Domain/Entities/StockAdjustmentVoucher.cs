@@ -14,8 +14,12 @@ namespace Inspire.Erp.Domain.Entities
         public string? StockAdjustmentVoucherStVno { get; set; }
         public int? StockAdjustmentVoucherLocationId { get; set; }
         public bool? StockAdjustmentVoucherDelStatus { get; set; }
+        public decimal? StockAdjusmentVoucherTotQty { get; set; }
+        public decimal? StockAdjusmentVoucherTotAmount { get; set; }
 
         [NotMapped]
         public List<StockAdjustmentVoucherDetails> stockAdjustmentVoucherDetails { get; set; }
+        [NotMapped]
+        public List<AccountsTransactions> AccountsTransactions { get; set; }
     }
 }

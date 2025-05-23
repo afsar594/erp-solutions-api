@@ -13,9 +13,10 @@ using Microsoft.AspNetCore.Mvc;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Web.Common;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers
-{
+{   
     [Route("api/ContraVoucher")]
     [Produces("application/json")]
     [ApiController]
@@ -123,7 +124,7 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("GetSavedContraVoucherDetails/{id}")]
-        public ApiResponse<ContraVoucher> GetSavedContraVoucherDetails(string id)
+        public ApiResponse<ContraVoucher> GetSavedContraVoucherDetails(int id)
         {
             ContraVoucher contraVoucher = _contraVoucherService.GetSavedContraVoucherDetails(id);
             if (contraVoucher != null)

@@ -6,14 +6,19 @@ using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Modals.Procurement;
+using Inspire.Erp.Domain.Models.Common;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.EntityFrameworkCore;
+using SendGrid.Helpers.Mail;
+using SendGrid;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Inspire.Erp.Application.Procurement.Implementation
 {
@@ -40,6 +45,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private readonly IUtilityService _utilityService;
         private IRepository<UnitDetails> _UnitDetailsRepository;
 
+        private readonly ILogger<UtilityService> _logger;
+        private readonly EmailSettingViewModel _mailSettings;
+
 
         private IRepository<ProgramSettings> _programsettingsRepository;
         public PurchaseReturnService(IRepository<PurchaseReturnVoucher> purchaseReturn, IUtilityService utilityService,
@@ -51,7 +59,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<CurrencyMaster> currencyMasterRepository, IRepository<ProgramSettings> programsettingsRepository,
             IRepository<VouchersNumbers> voucherNumber,
             IRepository<PurchaseOrder> purchaseOrderRepo,
-            IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepo, IRepository<UnitDetails> unitDetailsRepository)
+            IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepo, IRepository<UnitDetails> unitDetailsRepository
+            , ILogger<UtilityService> logger, IOptions<EmailSettingViewModel> mailSettings)
         {
             _purchaseReturn = purchaseReturn;
             _purchaseReturnDetail = purchaseReturnDetail;
@@ -71,6 +80,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _purchaseOrderRepo = purchaseOrderRepo;
             _purchaseOrderDetailsRepo = purchaseOrderDetailsRepo;
             _UnitDetailsRepository = unitDetailsRepository;
+            _mailSettings = mailSettings.Value;
+            _logger = logger;
         }
         public async Task<Response<List<DropdownResponse>>> GetLocationMasterDropdown()
         {
@@ -82,6 +93,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     Id = x.LocationMasterLocationId != null ? Convert.ToInt32(x.LocationMasterLocationId) : 0,
                     Name = x.LocationMasterLocationName
                 }));
+
+                response.AddRange(response.OrderBy(x => x.Name)); // Order by Name
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
             }
             catch (Exception ex)
@@ -104,6 +117,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     Value = "CREDIT",
                     Name = "CREDIT"
                 });
+
+                response.AddRange(response.OrderBy(x => x.Name)); // Order by Name
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
             }
             catch (Exception ex)
@@ -121,6 +136,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     Id = x.JobMasterJobId != null ? Convert.ToInt32(x.JobMasterJobId) : 0,
                     Name = x.JobMasterJobName
                 }));
+
+                response.AddRange(response.OrderBy(x => x.Name)); // Order by Name
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
             }
             catch (Exception ex)
@@ -143,6 +160,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     Id = x.SuppliersMasterSupplierId != null ? Convert.ToInt32(x.SuppliersMasterSupplierId) : 0,
                     Name = x.SuppliersMasterSupplierName
                 }));
+
+                response.AddRange(response.OrderBy(x => x.Name)); // Order by Name
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
             }
             catch (Exception ex)
@@ -208,7 +227,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                             PurchaseReturnVoucherDetailsSno = x.PurchaseReturnVoucherDetailsSno,
                             PurchaseReturnVoucherDetailsRate = x.PurchaseReturnVoucherDetailsRate,
                             PurchaseReturnVoucherDetailsVoucherNo = x.PurchaseReturnVoucherDetailsVoucherNo
-                        }).ToList();
+                        }).OrderBy(x => x.MaterialName).AsEnumerable().ToList();
 
                 });
                 return Response<PurchaseReturnVoucherResponse>.Success(model, "Records FOund.");
@@ -434,7 +453,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     StockRegisterTransType = "Purchase Return",
                     StockRegisterRemarks = x.PurchaseReturnVoucherDetailsRemarks,
 
-                }).ToList();
+                }).OrderBy(x => x.StockRegisterRefVoucherNo).AsEnumerable().ToList();
                 _stockRegister.InsertList(stockRegister);
                 #region ADD ACTIVITY LOGS
                 AddActivityLogViewModel Detaillogs = new AddActivityLogViewModel()
@@ -626,7 +645,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     StockRegisterTransType = "Purchase Return",
                     StockRegisterRemarks = x.PurchaseReturnVoucherDetailsRemarks,
 
-                }).ToList();
+                }).OrderBy(x => x.StockRegisterRefVoucherNo).AsEnumerable().ToList();
                 _stockRegister.InsertList(stockRegister);
 
                 _stockRegister.SaveChangesAsync();
@@ -701,15 +720,15 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             //}
             return AllPurchaseReturn;
         }
-        public PurchaseReturnModel GetSavedPurchaseReturnDetails(string pvno)
+        public PurchaseReturnModel GetSavedPurchaseReturnDetails(int pvno)
         {
             PurchaseReturnModel purchaseReturnModel = new PurchaseReturnModel();
 
-            purchaseReturnModel.purchaseReturn = _purchaseReturnRepo.GetAsQueryable().Where(k => k.PurchaseReturnNo == pvno && k.PurchaseReturnDelStatus != true).FirstOrDefault();
+            purchaseReturnModel.purchaseReturn = _purchaseReturnRepo.GetAsQueryable().Where(k => k.PurchaseReturnId == pvno && k.PurchaseReturnDelStatus != true).FirstOrDefault();
             if (purchaseReturnModel.purchaseReturn != null)
             {
-                purchaseReturnModel.accountsTransactions = _accountTransaction.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.PurchaseReturn_TYPE && (c.AccountstransactionsDelStatus != true)).ToList();
-                purchaseReturnModel.purchaseReturnDetails = _purchaseReturnDetailsRepo.GetAsQueryable().Where(x => x.PurchaseReturnDetailsNo == pvno && (x.PurchaseReturnDetailsDelStatus == false || x.PurchaseReturnDetailsDelStatus == null)).ToList();
+                purchaseReturnModel.accountsTransactions = _accountTransaction.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == purchaseReturnModel.purchaseReturn.PurchaseReturnNo && c.AccountsTransactionsVoucherType == VoucherType.PurchaseReturn_TYPE && (c.AccountstransactionsDelStatus != true)).ToList();
+                purchaseReturnModel.purchaseReturnDetails = _purchaseReturnDetailsRepo.GetAsQueryable().Where(x => x.PurchaseReturnDetailsNo == purchaseReturnModel.purchaseReturn.PurchaseReturnNo && (x.PurchaseReturnDetailsDelStatus == false || x.PurchaseReturnDetailsDelStatus == null)).ToList();
 
                 List<PurchaseVoucherDetails> details = new List<PurchaseVoucherDetails>();
                 //purchase voucher quantity calculation
@@ -812,19 +831,19 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 {
                     k.PurchaseReturnDetailsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.PurchaseReturnDetailsItemName).AsEnumerable().ToList();
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransaction.UpdateList(accountsTransactions);
 
                 stockRegister = stockRegister.Select((k) =>
                 {
                     k.StockRegisterDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.StockRegisterRefVoucherNo).AsEnumerable().ToList();
                 _stockRegister.UpdateList(stockRegister);
                 purchaseReturn.PurchaseReturnDetails = purchaseReturnDetails;
                 _purchaseReturnRepo.Update(purchaseReturn);
@@ -861,7 +880,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     k.PurchaseReturnId = purchaseReturn.PurchaseReturnId;
                     k.PurchaseReturnDetailsNo = purchaseReturn.PurchaseReturnNo;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.PurchaseReturnDetailsNo).AsEnumerable().ToList();
 
                 _purchaseReturnRepo.Update(purchaseReturn);
 
@@ -873,7 +892,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     k.AccountsTransactionsVoucherType = VoucherType.PurchaseReturn_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransaction.InsertList(accountsTransactions);
 
                 //stockRegister = stockRegister.Select((k) =>
@@ -931,7 +950,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 throw ex;
             }
 
-            return this.GetSavedPurchaseReturnDetails(purchaseReturn.PurchaseReturnNo);
+            return this.GetSavedPurchaseReturnDetails((int)purchaseReturn.PurchaseReturnId);
         }
         public VouchersNumbers GetVouchersNumbers(string pvno)
         {
@@ -965,7 +984,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             try
             {
                 _purchaseReturnRepo.BeginTransaction();
-                string purchaseReturnNumber = this.GenerateVoucherNo(purchaseReturn.PurchaseReturnDate.Date).VouchersNumbersVNo;
+                string purchaseReturnNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.PurchaseReturn_TYPE, Prefix.PurchaseReturn_Prefix,
+                    _programsettingsRepository, _voucherNumber);
                 purchaseReturn.PurchaseReturnNo = purchaseReturnNumber;
 
 
@@ -982,7 +1002,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     x.PurchaseReturnDetailsNo = purchaseReturnNumber;
                     x.PurchaseReturnDetailsId = 0;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.PurchaseReturnDetailsNo).AsEnumerable().ToList();
                 //_purchaseReturnDetailsRepo.InsertList(purchaseReturnDetails);
 
                 accountsTransactions = accountsTransactions.Select((k) =>
@@ -991,7 +1011,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     k.AccountsTransactionsVoucherType = VoucherType.PurchaseReturn_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransaction.InsertList(accountsTransactions);
                 var currencyRate = clsCommonFunctions.getConverionCurrencyRate(purchaseReturn.PurchaseReturnCurrencyId, _currencyMasterRepository);
                 var rate = (decimal)currencyRate;
@@ -1031,7 +1051,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 _purchaseReturnRepo.Insert(purchaseReturn);
                 _purchaseReturnRepo.TransactionCommit();
-                return this.GetSavedPurchaseReturnDetails(purchaseReturn.PurchaseReturnNo);
+                return this.GetSavedPurchaseReturnDetails((int)purchaseReturn.PurchaseReturnId);
 
             }
             catch (Exception ex)
@@ -1099,6 +1119,32 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             }
 
             return Convert.ToDecimal(currencyMaster.CurrencyMasterCurrencyRate);
+        }
+        public async Task<bool> SendEmailAlerts(EmailRequest mailRequest)
+        {
+            try
+            {
+                var client = new SendGridClient(_mailSettings.Key);
+                var from = new EmailAddress(_mailSettings.FromEmail, _mailSettings.DisplayName);
+                var subject = mailRequest.Subject;
+                var emails = new List<EmailAddress>();
+                foreach (var email in mailRequest.Emails)
+                {
+                    emails.Add(new EmailAddress(email));
+                }
+                var plainTextContent = "";
+                var htmlContent = mailRequest.Body;
+                var msg = MailHelper.CreateSingleEmailToMultipleRecipients(from, emails, subject, plainTextContent, htmlContent);
+                var response = await client.SendEmailAsync(msg);
+                _logger.LogInformation(@$"Message send successfully.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                return false;
+            }
+
         }
     }
 }

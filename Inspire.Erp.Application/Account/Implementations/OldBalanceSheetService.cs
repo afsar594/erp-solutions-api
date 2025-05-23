@@ -2,12 +2,15 @@
 using Inspire.Erp.Application.Common;
 using Inspire.Erp.Application.NewFolder.Interfaces;
 using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.AccountStatement;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Modals.File;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
+using SendGrid;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -31,6 +34,10 @@ namespace Inspire.Erp.Application.Account.Implementations
         private readonly IUtilityService _utilityService;
         private readonly IRepository<FinancialPeriods> _financialPeriods;
         private readonly string Jv_Type = "JOURNAL";
+        private readonly string PB_Type = "Previous Balance Type";
+        private readonly string Jv_Na = "Opening Balance";
+
+
         public OldBalanceSheetService(IRepository<VouchersNumbers> voucherNumber, IRepository<JournalVoucher> journalVoucher, IFileService fileService
             , IRepository<OldBsMaster> oldBsMaster, IRepository<JournalVoucherDetails> journalVoucherDetail, IRepository<FinancialPeriods> financialPeriods,
             IRepository<OldBsMasterDetails> oldBsMasterDetail, IRepository<MasterAccountsTable> masterAccount, IUtilityService utilityService,
@@ -94,23 +101,25 @@ namespace Inspire.Erp.Application.Account.Implementations
                     tempJvNo = vShortNumber.ToString();
                     _voucherNumber.Insert(new VouchersNumbers()
                     {
-                        VouchersNumbersVNo = tempJvNo,
+                        VouchersNumbersVNo = "JV"+tempJvNo,
                         VouchersNumbersVNoNu = vShortNumber,
                         VouchersNumbersVType = Jv_Type,
                         VouchersNumbersFsno = null,
                         VouchersNumbersStatus = "P",
-                        VouchersNumbersLocationId = 0
+                        VouchersNumbersLocationId = 0,
+                        VouchersNumbersVoucherDate = DateTime.Now,
+                        
                     });
-                    #region ADD ACTIVITY LOGS
-                    AddActivityLogViewModel log = new AddActivityLogViewModel()
-                    {
-                        Page = "Old Balance Sheet",
-                        Section = "Add Old Balance Sheet",
-                        Entity = "Old Balance Sheet",
+                    //#region ADD ACTIVITY LOGS
+                    //AddActivityLogViewModel log = new AddActivityLogViewModel()
+                    //{
+                    //    Page = "Old Balance Sheet",
+                    //    Section = "Add Old Balance Sheet",
+                    //    Entity = "Old Balance Sheet",
 
-                    };
-                    await _utilityService.AddUserTrackingLog(log);
-                    #endregion
+                    //};
+                    //await _utilityService.AddUserTrackingLog(log);
+                    //#endregion
                     _voucherNumber.SaveChangesAsync();
                 }
 
@@ -125,13 +134,14 @@ namespace Inspire.Erp.Application.Account.Implementations
         {
             try
             {
-                if (isBsExisting)
+                if (isBsExisting==false)
                 {
-                    var result = _oldBsMaster.GetAsQueryable().FirstOrDefault(x => x.OldBsMasterId == oldbsFiD);
+                    var result = _oldBsMaster.GetAsQueryable().FirstOrDefault(x => x.OldBsMasterId == financialId);
                     result.OldBsMasterPost = "P";
                     result.OldBsMasterFsno = financialId;
                     result.OldBsMasterRefJv = tempJvNO;
                     _oldBsMaster.Update(result);
+
                     #region ADD ACTIVITY LOGS
                     AddActivityLogViewModel log = new AddActivityLogViewModel()
                     {
@@ -140,12 +150,11 @@ namespace Inspire.Erp.Application.Account.Implementations
                         Entity = "Old Balance Sheet",
 
                     };
-                    await _utilityService.AddUserTrackingLog(log);
+                    //await _utilityService.AddUserTrackingLog(log);
                     #endregion
-                    _oldBsMaster.SaveChangesAsync();
+                    //_oldBsMaster.SaveChangesAsync();
 
-                    var deleteDetails = _oldBsMasterDetail.GetAsQueryable().Where(x => x.OldBsMasterDetailsSno == oldbsFiD).ToList();
-                    _oldBsMasterDetail.DeleteList(deleteDetails);
+
                     #region ADD ACTIVITY LOGS
                     AddActivityLogViewModel Deletelog = new AddActivityLogViewModel()
                     {
@@ -154,35 +163,38 @@ namespace Inspire.Erp.Application.Account.Implementations
                         Entity = "Old Balance Sheet",
 
                     };
-                    await _utilityService.AddUserTrackingLog(Deletelog);
+                    //await _utilityService.AddUserTrackingLog(Deletelog);
                     #endregion
-                    _oldBsMasterDetail.SaveChangesAsync();
-                }
-                else
-                {
-                    Random rnd = new Random();
-                    int bs = rnd.Next();
-                    _oldBsMaster.Insert(new OldBsMaster()
-                    {
-                        OldBsMasterId = bs,
-                        OldBsMasterDescription = "Old Balance Sheet Posting",
-                        OldBsMasterPost = "NP",
-                        OldBsMasterRefJv = tempJvNO,
-                        OldBsMasterFsno = financialId
-                    });
-                    #region ADD ACTIVITY LOGS
-                    AddActivityLogViewModel log = new AddActivityLogViewModel()
-                    {
-                        Page = "Old Balance Sheet",
-                        Section = "Post Old Balance Sheet",
-                        Entity = "Old Balance Sheet",
+                    //_oldBsMasterDetail.InsertList(deleteDetails);
 
-                    };
-                    await _utilityService.AddUserTrackingLog(log);
-                    #endregion
-                    _oldBsMaster.SaveChangesAsync();
-                    oldbsFiD = bs;
                 }
+                //else
+                //{
+                //    Random rnd = new Random();
+                //    int bs = rnd.Next();
+                //    _oldBsMaster.Insert(new OldBsMaster()
+                //    {
+                //        OldBsMasterId = bs,
+                //        OldBsMasterDescription = "Old Balance Sheet Posting",
+                //        OldBsMasterPost = "NP",
+                //        OldBsMasterRefJv = tempJvNO,
+                //        OldBsMasterFsno = financialId,
+                //        OldBsMasterDelStatus = false
+                        
+                //    });
+                //    //#region ADD ACTIVITY LOGS
+                //    //AddActivityLogViewModel log = new AddActivityLogViewModel()
+                //    //{
+                //    //    Page = "Old Balance Sheet",
+                //    //    Section = "Post Old Balance Sheet",
+                //    //    Entity = "Old Balance Sheet",
+
+                //    //};
+                //    //await _utilityService.AddUserTrackingLog(log);
+                //   // #endregion
+                //    _oldBsMaster.SaveChangesAsync();
+                //    oldbsFiD = bs;
+                //}
 
                 return oldbsFiD;
             }
@@ -195,29 +207,23 @@ namespace Inspire.Erp.Application.Account.Implementations
         {
             try
             {
-                if (olDJvNO != null)
-                {
-                    var journalVoucher = _journalVoucher.GetAsQueryable().Where(x => x.JournalVoucherId == olDJvNO).ToList();
-                    _journalVoucher.DeleteList(journalVoucher);
-                    _journalVoucher.SaveChangesAsync();
 
-                    var journalVoucherDetail = _journalVoucherDetail.GetAsQueryable().Where(x => x.JournalVoucherDetailsId== olDJvNO).ToList();
-                    _journalVoucherDetail.DeleteList(journalVoucherDetail);
-                    _journalVoucherDetail.SaveChangesAsync();
+                var journalVoucher = _journalVoucher.GetAsQueryable().Where(x => x.JournalVoucherNarration == Jv_Na).ToList();
+                _journalVoucher.DeleteList(journalVoucher);
+                _journalVoucher.SaveChangesAsync();
 
-                    var accountTransaction = _accountTransaction.GetAsQueryable()
-                        .Where(x => x.AccountsTransactionsVoucherNo == olDJvNO.ToString() && x.AccountsTransactionsFsno == financialId && x.AccountsTransactionsVoucherType == Jv_Type)
+                var journalVoucherDetail = _journalVoucherDetail.GetAsQueryable().Where(x => x.JournalVoucherDetailsNarration == Jv_Na).ToList();
+                _journalVoucherDetail.DeleteList(journalVoucherDetail);
+                _journalVoucherDetail.SaveChangesAsync();
+
+                var accountTransaction = _accountTransaction.GetAsQueryable()
+                        .Where(x => x.AccountsTransactionsVoucherType == PB_Type)
                         .ToList();
                     _accountTransaction.DeleteList(accountTransaction);
                     _accountTransaction.SaveChangesAsync();
 
-                    var voucherNumber = _voucherNumber.GetAsQueryable()
-                        .FirstOrDefault(x => x.VouchersNumbersVNo == olDJvNO.ToString().Trim()
-                        && x.VouchersNumbersVType == Jv_Type);
-                    voucherNumber.VouchersNumbersStatus = "D";
-                    _voucherNumber.Delete(voucherNumber);
-                    _voucherNumber.SaveChangesAsync();
-                }
+                   
+                
 
             }
             catch (Exception)
@@ -228,28 +234,37 @@ namespace Inspire.Erp.Application.Account.Implementations
         {
             try
             {
+                List<AccountsTransactions> accountsTransactions = new List<AccountsTransactions>();
+                var financialPeriod = _financialPeriods.GetAsQueryable().FirstOrDefault(x => x.FinancialPeriodsStatus == "R");
                 Random rnd = new Random();
-                int id = rnd.Next();
+                
                 int journalVoucher = rnd.Next();
                 _journalVoucher.Insert(new JournalVoucher()
                 {
-                    JournalVoucherId = (int)tempJvNO,
-                    // JournalVoucher_ID = Convert.ToInt32(tempJvNO),
-                    JournalVoucherDate= model.FinancialPeriodsStartDate,
-                    JournalVoucherAmount = (double)model.TotalAmount,
-                    JournalVoucherNarration= "Opening Balance",
-                    // JournalVoucherFsno = model.OldBsMasterFsno,
-                    JournalVoucherRefNo = model.OldBsMasterId.ToString(),
-                    // JournalVoucher_DelStatus = "PB",
-                    JournalVoucherUserId = null,
-                    JournalVoucherType= Jv_Type
+                    //JournalVoucherId = (int)tempJvNO,
+                    JournalVoucherDate = financialPeriod.FinancialPeriodsStartDate,
+                    JournalVoucherAmount = model.TotalAmount != null ? (double)model.TotalAmount : 0,
+                    JournalVoucherNarration = "Opening Balance",
+                    JournalVoucherRefNo = model.OldBsMasterId != null ? model.OldBsMasterId.ToString() : "",
+                    JournalVoucherUserId = 1,
+                    JournalVoucherType = Jv_Type
                 });
                 _journalVoucher.SaveChangesAsync();
+
+                //delete old Details
+                var deleteDetails = _oldBsMasterDetail.GetAsQueryable().Where(x => x.OldBsMasterDetailsFsno == model.OldBsMasterFsno).ToList();
+                _oldBsMasterDetail.DeleteList(deleteDetails);
+                //
                 foreach (var details in model.OldBsMasterDetails)
                 {
                     var accountNo = details.OldBsMasterDetailsAccNo;
                     var amount = details.Debit != null ? details.Debit : details.Credit;
                     var narration = details.OldBsMasterDetailsNarration;
+                    int id = rnd.Next();
+
+                    if (accountNo != null)
+                    {
+                        
                     _oldBsMasterDetail.Insert(new OldBsMasterDetails()
                     {
                         OldBsMasterDetailsId = id,
@@ -266,7 +281,7 @@ namespace Inspire.Erp.Application.Account.Implementations
 
                     _journalVoucherDetail.Insert(new JournalVoucherDetails()
                     {
-                        JournalVoucherDetailsId = (int)tempJvNO,
+                        //JournalVoucherDetailsId = (int)tempJvNO,
                         JournalVoucherDetailsReferenceNo = journalVoucher.ToString(),
                         JournalVoucherDetailsAccNo = accountNo,
                         // JournalVoucherDetails_Narration = details.Debit != null ? "D" : "C",
@@ -275,8 +290,34 @@ namespace Inspire.Erp.Application.Account.Implementations
                         // JournalVoucherDetails_Reference_No = model.OldBsMasterFsno,
                         JournalVoucherDetailsNarration = "Opening Balance"
                     });
+
+                        accountsTransactions.Add(new AccountsTransactions()
+                        {
+                            AccountsTransactionsAccNo = accountNo,
+                            AccountsTransactionsDebit = (decimal)amount,
+                            AccountsTransactionsCredit = (decimal)amount,
+                            AccountsTransactionsVoucherNo = "PB" + tempJvNO,
+                            AccountsTransactionsVoucherType = "Previous Balance Type",
+                            AccountsTransactionsStatus = AccountStatus.Approved,
+                            AccountsTransactionsTransDate = financialPeriod.FinancialPeriodsStartDate,
+                            AccountsTransactionsParticulars = details.OldBsMasterDetailsNarration,
+                            AccountsTransactionsTstamp = DateTime.Now,
+                            AccountsTransactionsUserId = 1,
+                            AccountsTransactionsFsno = 1,
+
+                        });
+
+                    }
                     _journalVoucherDetail.SaveChangesAsync();
                 }
+                if(accountsTransactions.Count > 0)
+                {
+                    _accountTransaction.InsertList(accountsTransactions);
+                    _accountTransaction.SaveChangesAsync();
+                }
+             
+
+
                 return true;
             }
             catch (Exception ex)
@@ -289,10 +330,12 @@ namespace Inspire.Erp.Application.Account.Implementations
             try
             {
 
-                string tempJVno = await InsertVoucherNumber(model.OldBsMasterId.ToString());
-                int? returnId =await InsertOldBsMaster(model.OldBsMasterId, tempJVno, model.OldBsMasterFsno, model.IsBsExisting);
+                //string tempJVno = await InsertVoucherNumber(model.OldBsMasterId.ToString());
+
+                int? returnId =await InsertOldBsMaster(model.OldBsMasterId, model.OldBsMasterRefJv, model.OldBsMasterFsno, model.IsBsExisting==true);
+
                 CheckJVNoAndDeleteRecords(model.OldBsMasterId, model.OldBsMasterFsno);
-                AddRecordsInBalanceSheet(model, Convert.ToInt32(tempJVno), returnId);
+                AddRecordsInBalanceSheet(model, Convert.ToInt32(model.OldBsMasterId), returnId);
                 return Response<bool>.Success(true, "Changes Saved Successfully.");
             }
             catch (Exception ex)
@@ -320,7 +363,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 response.OldBsMasterDetails = new List<AddOldBalanceSheetDetailResponse>();
                 if (bs != null)
                 {
-                    var detailbs = await _oldBsMasterDetail.GetAsQueryable().Where(x => x.OldBsMasterDetailsSno == bs.OldBsMasterId).ToListAsync();
+                    var detailbs = await _oldBsMasterDetail.GetAsQueryable().Where(x => x.OldBsMasterDetailsFsno == bs.OldBsMasterId).ToListAsync();
                     foreach (var dbs in detailbs)
                     {
                         response.OldBsMasterDetails.Add(new AddOldBalanceSheetDetailResponse()
@@ -333,7 +376,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                             OldBsMasterDetailsNarration = dbs.OldBsMasterDetailsNarration,
                             OldBsMasterDetailsGroupName = dbs.OldBsMasterDetailsGroupName,
                             OldBsMasterDetailsAccNo = dbs.OldBsMasterDetailsAccNo,
-                            OldBsMasterDetailsAccName = _masterAccount.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == dbs.OldBsMasterDetailsAccNo).MaAccName
+                           // OldBsMasterDetailsAccName = _masterAccount.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == dbs.OldBsMasterDetailsAccNo).MaAccName
+                        OldBsMasterDetailsAccName=_masterAccount.GetAsQueryable().Where(y => y.MaAccNo.ToUpper() == dbs.OldBsMasterDetailsAccNo.ToUpper()).Select(y => y.MaAccName).FirstOrDefault(),
                         });
                     }
                 }

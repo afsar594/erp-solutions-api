@@ -103,6 +103,7 @@ namespace Inspire.Erp.Application.Master.Implementations
             {
                 
             }
+            modelMasters = modelMasters.OrderBy(sm => sm.ModelMasterName).ToList();
             return modelMasters;
         }
 

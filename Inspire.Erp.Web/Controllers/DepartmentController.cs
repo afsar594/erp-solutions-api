@@ -35,9 +35,10 @@ namespace Inspire.Erp.Web.Controllers
                 DepartmentMasterDepartmentId = k.DepartmentMasterDepartmentId,
                 DepartmentMasterDepartmentName = k.DepartmentMasterDepartmentName,
                 DepartmentMasterDepartmentStatus = k.DepartmentMasterDepartmentStatus,
-                DepartmentMasterDepartmentDelStatus= k.DepartmentMasterDepartmentDelStatus
+                DepartmentMasterDepartmentDelStatus= k.DepartmentMasterDepartmentDelStatus,
+                DepartmentMasterDepartmentCode=k.DepartmentMasterDepartmentCode
 
-            }).ToList();
+            }).OrderBy(x=>x.DepartmentMasterDepartmentName).ToList();
         }
 
 
@@ -52,7 +53,7 @@ namespace Inspire.Erp.Web.Controllers
                 DepartmentMasterDepartmentName = k.DepartmentMasterDepartmentName,
                 DepartmentMasterDepartmentStatus = k.DepartmentMasterDepartmentStatus,
                 DepartmentMasterDepartmentDelStatus = k.DepartmentMasterDepartmentDelStatus
-            }).ToList();
+            }).OrderBy(x => x.DepartmentMasterDepartmentName).AsEnumerable().ToList();
         }
 
         [HttpPost]
@@ -66,7 +67,7 @@ namespace Inspire.Erp.Web.Controllers
                 DepartmentMasterDepartmentName = k.DepartmentMasterDepartmentName,
                 DepartmentMasterDepartmentStatus = k.DepartmentMasterDepartmentStatus,
                 DepartmentMasterDepartmentDelStatus = k.DepartmentMasterDepartmentDelStatus
-            }).ToList();
+            }).OrderBy(x => x.DepartmentMasterDepartmentName).ToList();
         }
 
         [HttpPost]
@@ -80,7 +81,7 @@ namespace Inspire.Erp.Web.Controllers
                 DepartmentMasterDepartmentName = k.DepartmentMasterDepartmentName,
                 DepartmentMasterDepartmentStatus = k.DepartmentMasterDepartmentStatus,
                 DepartmentMasterDepartmentDelStatus = k.DepartmentMasterDepartmentDelStatus
-            }).ToList();
+            }).OrderBy(x => x.DepartmentMasterDepartmentName).ToList();
         }
 
         [HttpPost]
@@ -94,7 +95,7 @@ namespace Inspire.Erp.Web.Controllers
                 DepartmentMasterDepartmentName = k.DepartmentMasterDepartmentName,
                 DepartmentMasterDepartmentStatus = k.DepartmentMasterDepartmentStatus,
                 DepartmentMasterDepartmentDelStatus = k.DepartmentMasterDepartmentDelStatus
-            }).ToList();
+            }).OrderBy(x => x.DepartmentMasterDepartmentName).ToList();
         }
     }
 }

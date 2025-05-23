@@ -57,6 +57,7 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? VatRountAmt { get; set; }
         public string AstVatNo { get; set; }
         public bool? AssetPurchaseVoucherDelStatus { get; set; }
+        public int? SupplierId { get; set; }
 
         [NotMapped]
         public virtual VouchersNumbers AssetPurchaseVoucherNoNavigation { get; set; }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Inspire.Erp.Application.Account.Implementations;
+using Inspire.Erp.Application.Common;
+using Inspire.Erp.Application.MODULE;
 using Inspire.Erp.Application.StoreWareHouse.Interface;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
@@ -47,7 +49,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                     k.DebitNoteId = debitNote.DebitNoteId;
                     k.DebitNoteDetailsVno = debitNote.DebitNoteVno;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.DebitNoteDetailsVno).AsEnumerable().ToList();
                 _debitNoteRepository.Update(debitNote);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
@@ -57,7 +59,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                         k.AccountsTransactionsStatus = AccountStatus.Approved;
                     }
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherType).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 UserTracking trackingData = new UserTracking();
                 trackingData.UserTrackingUserUserId = 1;
@@ -75,7 +77,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 _debitNoteRepository.TransactionRollback();
                 throw ex;
             }
-            return this.GetSavedDebitNoteDetails(debitNote.DebitNoteVno);
+            return this.GetSavedDebitNoteDetails((int)debitNote.DebitNoteId);
         }
 
         public int DeleteDebitNote(DebitNote debitNote, List<AccountsTransactions> accountsTransactions, List<DebitNoteDetails> debitNoteDetails)
@@ -89,12 +91,12 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 {
                     k.DebitNoteDetailsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.DebitNoteDetailsAccNo).AsEnumerable().ToList();
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     k.AccountstransactionsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
                 debitNote.DebitNoteDetails = debitNoteDetails;
                 _debitNoteRepository.Update(debitNote);
@@ -125,7 +127,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
             {
                 _debitNoteRepository.BeginTransaction();
                 //debitNote.DebitNoteVno = debitNote.DebitNoteVno;
-                string DebitNoteName = this.GenerateVoucherNo(debitNote.DebitNoteDate).VouchersNumbersVNo;
+                string DebitNoteName = clsCommonFunctions.GenrateVoucherNo(VoucherType.DebitNote_TYPE, Prefix.DebitNote_Prefix, _programsettingsRepository, _voucherNumbersRepository);
                 debitNote.DebitNoteVno = DebitNoteName;
 
                 int maxcount = 0;
@@ -139,7 +141,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                     x.DebitNoteId = maxcount;
                     x.DebitNoteDetailsVno = debitNote.DebitNoteVno;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.DebitNoteDetailsVno).AsEnumerable().ToList();
                 _debitNoteDetailsRepository.InsertList(debitNoteDetails);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
@@ -147,7 +149,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                     k.AccountsTransactionsVoucherType = VoucherType.DebitNote_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
                 _debitNoteRepository.Insert(debitNote);
                 UserTracking trackingData = new UserTracking();
@@ -159,7 +161,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 trackingData.UserTrackingUserVpType = "DEBITNOTEVOUCHER";
                 _UserTracking.Insert(trackingData);
                 _debitNoteRepository.TransactionCommit();
-                return this.GetSavedDebitNoteDetails(debitNote.DebitNoteVno);
+                return this.GetSavedDebitNoteDetails((int)debitNote.DebitNoteId);
             }
             catch (Exception ex)
             {
@@ -179,12 +181,12 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
             return debitNote_ALL;
         }
 
-        public DebitNote GetSavedDebitNoteDetails(string pvno)
+        public DebitNote GetSavedDebitNoteDetails(int pvno)
         {
             DebitNote debitNoteModel = new DebitNote();
-            debitNoteModel = _debitNoteRepository.GetAsQueryable().Where(k => k.DebitNoteVno == pvno).SingleOrDefault();
-            debitNoteModel.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == pvno && c.AccountsTransactionsVoucherType == VoucherType.DebitNote_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
-            debitNoteModel.DebitNoteDetails = _debitNoteDetailsRepository.GetAsQueryable().Where(x => x.DebitNoteDetailsVno == pvno && (x.DebitNoteDetailsDelStatus == false || x.DebitNoteDetailsDelStatus == null)).ToList();
+            debitNoteModel = _debitNoteRepository.GetAsQueryable().Where(k => k.DebitNoteId == pvno).SingleOrDefault();
+            debitNoteModel.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == debitNoteModel.DebitNoteVno && c.AccountsTransactionsVoucherType == VoucherType.DebitNote_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
+            debitNoteModel.DebitNoteDetails = _debitNoteDetailsRepository.GetAsQueryable().Where(x => x.DebitNoteDetailsVno == debitNoteModel.DebitNoteVno && (x.DebitNoteDetailsDelStatus == false || x.DebitNoteDetailsDelStatus == null)).ToList();
             return debitNoteModel;
         }
 

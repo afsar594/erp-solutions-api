@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using Inspire.Erp.Domain.Modals.Common;
 
 namespace Inspire.Erp.Application.Account.Implementations
 {
@@ -52,6 +53,25 @@ namespace Inspire.Erp.Application.Account.Implementations
                 return false;
             }
             return true;
+        }
+
+        public ResponseInfo DEFAULTACC()
+        {
+            var obj = new ResponseInfo();
+            try
+            {
+                var data = _accountsSettingsRepo.GetAsQueryable().Where(a => a.AccountSettingsAccountKeyValue.Trim().ToUpper() == "COSTOF_FINISHEDGOODS_AC_NO" || a.AccountSettingsAccountKeyValue.Trim().ToUpper() == "STOCK_AC_NO").ToList();
+                obj.ResultSet = data;
+                obj.IsSuccess = true;
+            }
+            catch (Exception ex)
+            {
+                obj.IsSuccess = false;
+            }
+
+
+            return obj;
+
         }
 
     }

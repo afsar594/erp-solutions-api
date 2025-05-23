@@ -75,7 +75,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                     VatAmount = c.VatAmount ?? 0m
                                 }).ToListAsync();
 
-                var result = ab.Union(ac).OrderBy(a => a.VoucherNo).ToList();
+                var result = ab.Union(ac).OrderBy(a => a.VoucherNo).AsEnumerable().ToList();
                 return result;
             }
             catch (Exception ex)
@@ -118,7 +118,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                     VatAmount = c.VatAmount ?? 0m
                                 }).ToListAsync();
 
-                var result = ab.Union(ac).OrderBy(a => a.VoucherNo).ToList();
+                var result = ab.Union(ac).OrderBy(a => a.VoucherNo).AsEnumerable().ToList();
                 return result;
             }
             catch (Exception ex)
@@ -176,7 +176,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         GrossAmount = g.Where(x => x.PaymentMode == "CASH" || x.PaymentMode == "CARD").Sum(x => (decimal?)x.Amount) ?? 0m,
                         VatAmount = g.Where(x => x.PaymentMode == "VAT").Sum(x => (decimal?)x.Amount) ?? 0m,
                         VoucherDate = g.Key.VoucherDate
-                    }).ToList();
+                    }).OrderBy(x => x.CustomerName).AsEnumerable().ToList();
 
 
                 var result1 = await (from c in _dbContext.POS_SalesVoucher
@@ -305,7 +305,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         Sales = g.Sum(x => x.Sales),
                         Vat = g.Sum(x => x.Vat)
 
-                    }).ToList();
+                    }).OrderBy(x => x.CounterName).AsEnumerable().ToList();
 
                 return result;
             }

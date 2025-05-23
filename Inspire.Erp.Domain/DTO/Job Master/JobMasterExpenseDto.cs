@@ -17,5 +17,17 @@ namespace Inspire.Erp.Domain.DTO.Job_Master
         public DateTime? Chq_Date { get; set; }
         public string Chq_No { get; set; }
         public string CostName { get; set; }
+
+        public decimal? RunningBalance { get; set; }
+
+        public string? JobNo { get; set; }
+        public string? JobValue { get; set; }
+        public int? Material { get; set; }
+        public string? Labour { get; set; }
+        public string? OverHead { get; set; }
+        public string? Miscellaneous { get; set; }
+        public decimal? TotCost { get; set; }
+        public decimal? Profit { get; set; }
+        public decimal? InvoiceTot { get; set; }
     }
 }

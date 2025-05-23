@@ -7,6 +7,7 @@ namespace Inspire.Erp.Domain.Entities
     public partial class PurchaseVoucherDetails
     {
         public long PurchaseVoucherDetailsPurcahseDetailsId { get; set; }
+        public int? PurchaseVoucherDetailsJobID { get; set; }
         public string PurchaseVoucherDetailsVoucherNo { get; set; }
         public string PurchaseVoucherDetailsBatchCode { get; set; }
         public int? PurchaseVoucherDetailsSno { get; set; }

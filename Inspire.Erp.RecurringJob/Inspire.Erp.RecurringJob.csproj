@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Hangfire" Version="1.8.18" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.8.18" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Inspire.Erp.Application\Inspire.Erp.Application.csproj" />
+    <ProjectReference Include="..\Inspire.Erp.Infrastructure\Inspire.Erp.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

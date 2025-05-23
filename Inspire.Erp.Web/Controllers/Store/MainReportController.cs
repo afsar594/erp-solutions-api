@@ -1,25 +1,28 @@
-﻿//using Inspire.Erp.Application.Account.Interfaces;
+﻿using AutoMapper;
+using Inspire.Erp.Application.Account;
+using Inspire.Erp.Application.Account.Implementations;
+using Inspire.Erp.Application.Account.Interfaces;
+using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Inspire.Erp.Web.Common;
+using Inspire.Erp.Web.ViewModels;
+using Inspire.Erp.Domain.Models.ViewModels;
+using Inspire.Erp.Web.ViewModels.Procurement;
+using Inspire.Erp.Web.ViewModels.Store;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper;
-using Inspire.Erp.Application.Account.Interfaces;
-using Inspire.Erp.Application.Common;
-using Inspire.Erp.Domain.Entities;
-using Inspire.Erp.Web.ViewModels;
-using Inspire.Erp.Web.ViewModels.Procurement;
+using Inspire.Erp.Infrastructure.Database;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Inspire.Erp.Domain.Enums;
-using Inspire.Erp.Web.Common;
+using Microsoft.EntityFrameworkCore;
+using SendGrid.Helpers.Mail;
 
 
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Inspire.Erp.Web.ViewModels.Store;
-using Inspire.Erp.Application.Account;
-using Inspire.Erp.Domain.Modals.Common;
-using Inspire.Erp.Infrastructure.Database.Repositoy;
+
 
 namespace Inspire.Erp.Web.Controllers.Store
 {
@@ -30,28 +33,26 @@ namespace Inspire.Erp.Web.Controllers.Store
     public class MainReportController : ControllerBase
     {
         private IMainReportService _mainReportService;
-
         private readonly IMapper _mapper;
+        public readonly InspireErpDBContext _Context;
         private IRepository<CostCenterMaster> costcenterrepository;
         private IRepository<JobMaster> jobrepository; private IRepository<LocationMaster> locationrepository; private IRepository<CurrencyMaster> currencyrepository;
         private IChartofAccountsService chartofAccountsService; private IRepository<ViewAccountsTransactionsVoucherType> _viewAccountsTransactionsVoucherTypeRepository;
         public MainReportController(IMainReportService mainReportService, IMapper mapper, IRepository<CostCenterMaster> _countryrepository
             , IRepository<JobMaster> _jobrepository, IRepository<LocationMaster> _locationrepository, IChartofAccountsService _chartofAccountsService,
-            IRepository<ViewAccountsTransactionsVoucherType> viewAccountsTransactionsVoucherTypeRepository)
+            IRepository<ViewAccountsTransactionsVoucherType> viewAccountsTransactionsVoucherTypeRepository, InspireErpDBContext Context)
         {
             _mainReportService = mainReportService;
             _mapper = mapper; _viewAccountsTransactionsVoucherTypeRepository = viewAccountsTransactionsVoucherTypeRepository;
             costcenterrepository = _countryrepository;
             jobrepository = _jobrepository; locationrepository = _locationrepository;
             chartofAccountsService = _chartofAccountsService;
+            _Context = Context;
+
         }
 
-
-
         [HttpGet]
-        //[Route("MainReport_GetReportAccountsTransactions/{AccNo}/{Location}/{Job}/{CostCenter}/{FromDate}/{ToDate}/{HideOpeningBal}/{Narration}/{Description}/{TypeList}")]
         [Route("MainReport_GetReportAccountsTransactions/{AccNo}/{Location}/{Job}/{CostCenter}")]
-        //public ApiResponse<List<ReportAccountsTransactions>> MainReport_GetReportAccountsTransactions(string AccNo, int Location, int Job, int CostCenter, DateTime FromDate, DateTime ToDate, Boolean HideOpeningBal, string Narration, string Description,string TypeList)
         public ApiResponse<List<ReportAccountsTransactions>> MainReport_GetReportAccountsTransactions(string AccNo, int Location, int Job, int CostCenter)
         {
 
@@ -61,13 +62,11 @@ namespace Inspire.Erp.Web.Controllers.Store
             {
                 Valid = true,
                 Result = _mapper.Map<List<ReportAccountsTransactions>>(_mainReportService.MainReport_GetReportAccountsTransactions(
-                     //AccNo, Location,  Job,  CostCenter,  FromDate,ToDate,  HideOpeningBal,  Narration,  Description, TypeList
                      AccNo, Location, Job, CostCenter
                 )),
                 Message = ""
             };
             return apiResponse;
-
         }
 
         [HttpPost]
@@ -75,22 +74,33 @@ namespace Inspire.Erp.Web.Controllers.Store
         public ApiResponse<List<ReportAccountsTransactions>> MainReport_GetReportAccountsTransactions_PARAM_CLASS([FromBody] AccountStatementParametersViewModels voucherCompositeView)
         {
             var param1 = _mapper.Map<AccountStatementParameters>(voucherCompositeView);
-            //var param2 = _mapper.Map<List<ViewAccountsTransactionsVoucherType>>(voucherCompositeView.ViewAccountsTransactionsVoucherType);
 
             ApiResponse<List<ReportAccountsTransactions>> apiResponse = new ApiResponse<List<ReportAccountsTransactions>>
             {
 
                 Valid = true,
-
                 Result = _mapper.Map<List<ReportAccountsTransactions>>(_mainReportService.MainReport_GetReportAccountsTransactions_PARAM_CLASS(
                      param1
-                //, param2 
                 )),
                 Message = ""
             };
             return apiResponse;
         }
-
+        [HttpPost]
+        [Route("CustomerStattemnetbySummery")]
+        public ApiResponse<List<ReportAccountsTransactions>> CustomerStattemnetbySummery([FromBody] AccountStatementParametersViewModels voucherCompositeView)
+        {
+            var param1 = _mapper.Map<AccountStatementParameters>(voucherCompositeView);
+            ApiResponse<List<ReportAccountsTransactions>> apiResponse = new ApiResponse<List<ReportAccountsTransactions>>
+            {
+                Valid = true,
+                Result = _mapper.Map<List<ReportAccountsTransactions>>(_mainReportService.CustomerStattemnetbySummery(
+                     param1
+                )),
+                Message = ""
+            };
+            return apiResponse;
+        }
 
         [HttpGet]
         [Route("MainReport_GetReportStockRegister")]
@@ -131,9 +141,7 @@ namespace Inspire.Erp.Web.Controllers.Store
 
             ApiResponse<List<ReportStockBaseUnit>> apiResponse = new ApiResponse<List<ReportStockBaseUnit>>
             {
-
                 Valid = true,
-
                 Result = _mapper.Map<List<ReportStockBaseUnit>>(_mainReportService.MainReport_GetReportStockLedger_Location_PARAM_CLASS(
                      param1, param2
                 )),
@@ -151,19 +159,14 @@ namespace Inspire.Erp.Web.Controllers.Store
 
             ApiResponse<List<ReportSalesVoucher>> apiResponse = new ApiResponse<List<ReportSalesVoucher>>
             {
-
                 Valid = true,
-
                 Result = _mapper.Map<List<ReportSalesVoucher>>(_mainReportService.MainReport_GetReportSalesVoucher_PARAM_CLASS(
                      param1, param2
                 )),
                 Message = ""
             };
             return apiResponse;
-
         }
-
-
 
         [HttpPost]
         [Route("MainReport_GetReportPurchaseVoucher_PARAM_CLASS")]
@@ -174,9 +177,7 @@ namespace Inspire.Erp.Web.Controllers.Store
 
             ApiResponse<List<ReportPurchaseVoucher>> apiResponse = new ApiResponse<List<ReportPurchaseVoucher>>
             {
-
                 Valid = true,
-
                 Result = _mapper.Map<List<ReportPurchaseVoucher>>(_mainReportService.MainReport_GetReportPurchaseVoucher_PARAM_CLASS(
                      param1, param2
                 )),
@@ -194,7 +195,6 @@ namespace Inspire.Erp.Web.Controllers.Store
 
             ApiResponse<List<ReportPurchaseOrder>> apiResponse = new ApiResponse<List<ReportPurchaseOrder>>
             {
-
                 Valid = true,
 
                 Result = _mapper.Map<List<ReportPurchaseOrder>>(_mainReportService.MainReport_GetReportPurchaseOrder_PARAM_CLASS(
@@ -206,37 +206,90 @@ namespace Inspire.Erp.Web.Controllers.Store
 
         }
 
-
-
         [HttpPost]
         [Route("MainReport_GetReportPurchaseRequisition_PARAM_CLASS")]
         public ApiResponse<List<ReportPurchaseRequisition>> MainReport_GetReportPurchaseRequisition_PARAM_CLASS([FromBody] PurchaserequisitionReportParametersViewModel voucherCompositeView)
         {
             var param1 = _mapper.Map<PurchaserequisitionReportParameters>(voucherCompositeView);
             var param2 = _mapper.Map<List<ViewStockTransferType>>(voucherCompositeView.viewStockTransferType);
-
             ApiResponse<List<ReportPurchaseRequisition>> apiResponse = new ApiResponse<List<ReportPurchaseRequisition>>
             {
-
                 Valid = true,
-
                 Result = _mapper.Map<List<ReportPurchaseRequisition>>(_mainReportService.MainReport_GetReportPurchaseRequisition_PARAM_CLASS(
                      param1, param2
                 )),
                 Message = ""
             };
             return apiResponse;
-
         }
 
+        [HttpPost]
+        [Route("MainReport_GetReportProjectStatus_PARAM_CLASS")]
+        public ApiResponse<List<ReportProjectStatus>> MainReport_GetReportProjectStatus_PARAM_CLASS([FromBody] ProjectStatusReportParameters projectStatusCompositeView)
+        {
+              if (projectStatusCompositeView.JobId != null && projectStatusCompositeView.JobId != -1)
+                {
+                    _Context.Database.ExecuteSqlRaw("EXEC Spr_UpdateProjectStatus {0}", projectStatusCompositeView.JobId);
+                }
+           
+            var param1 = _mapper.Map<ProjectStatusReportParameters>(projectStatusCompositeView);
+           
+
+            ApiResponse<List<ReportProjectStatus>> apiResponse = new ApiResponse<List<ReportProjectStatus>>
+            {
+                Valid = true,
+                Result = _mapper.Map<List<ReportProjectStatus>>(_mainReportService.MainReport_GetReportProjectStatus_PARAM_CLASS(
+                     param1
+                )),
+                Message = ""
+            };
+            return apiResponse;
+        }
+
+
+
+        [HttpPost]
+        [Route("MainReport_GetReportPurchaseRequisition")]
+        public async Task<IActionResult> MainReport_GetReportPurchaseRequisition([FromBody] PurchaserequisitionReportParametersViewModel voucherCompositeView)
+        {
+            try
+            {
+                var param1 = _mapper.Map<PurchaserequisitionReportParameters>(voucherCompositeView);
+                var param2 = _mapper.Map<List<ViewStockTransferType>>(voucherCompositeView.viewStockTransferType);
+                return Ok(await _mainReportService.MainReport_GetReportPurchaseRequisition(param1, param2));
+            }
+            catch (Exception ex)
+            {
+                // Log the full exception details here
+                return StatusCode(500, $"An error occurred while retrieving GetReportPurchaseRequisition: {ex.Message}");
+            }
+        }
+
+
+     
+        [HttpPost]
+        [Route("GetReportPurchaseRequisition")]
+        public async Task<IActionResult> GetReportPurchaseRequisition([FromBody] ReportPRVM voucherCompositeView)
+        {
+            try
+            {
+                return Ok(await _mainReportService.GetReportPurchaseRequisition(voucherCompositeView));
+            }
+            catch (Exception ex)
+            {
+                // Log the full exception details here
+                return StatusCode(500, $"An error occurred while retrieving GetReportPurchaseRequisition: {ex.Message}");
+            }
+        }
+
+
+    
 
         [HttpGet]
         [Route("MainReport_GetAllItemMaster")]
         public List<ItemMaster> MainReport_GetAllItemMaster()
         {
             return _mapper.Map<List<ItemMaster>>(_mainReportService.MainReport_GetAllItemMaster());
-
-
         }
 
         [HttpGet]
@@ -244,18 +297,14 @@ namespace Inspire.Erp.Web.Controllers.Store
         public List<ItemMaster> MainReport_GetAllItemMaster_Group()
         {
             return _mapper.Map<List<ItemMaster>>(_mainReportService.MainReport_GetAllItemMaster_Group());
-
         }
-
 
         [HttpGet]
         [Route("MainReport_GetAccountsTransactions_VoucherType")]
         public List<ViewAccountsTransactionsVoucherType> MainReport_GetAccountsTransactions_VoucherType()
         {
             return _mapper.Map<List<ViewAccountsTransactionsVoucherType>>(_mainReportService.MainReport_GetAccountsTransactions_VoucherType());
-
         }
-
 
         [HttpGet]
         [Route("AccountsTransactionsLoadDropdown")]
@@ -267,17 +316,17 @@ namespace Inspire.Erp.Web.Controllers.Store
             {
                 c.CostCenterMasterCostCenterId,
                 c.CostCenterMasterCostCenterName,
-            }).ToList();
+            }).OrderBy(x => x.CostCenterMasterCostCenterName).ToList();
             var jobMasters = jobrepository.GetAsQueryable().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
             {
                 c.JobMasterJobId,
                 c.JobMasterJobName,
-            }).ToList();
+            }).OrderBy(x => x.JobMasterJobName).ToList();
             var locationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
             {
                 c.LocationMasterLocationId,
                 c.LocationMasterLocationName,
-            }).ToList();
+            }).OrderBy(x => x.LocationMasterLocationName).ToList();
 
             var masterAccountsTables = chartofAccountsService.GetAllAccounts().Where(a => a.MaAccType == "A" && a.MaDelStatus != true).Select(c => new
             {
@@ -285,7 +334,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 c.MaAccName,
                 c.MaRelativeNo,
                 c.MaSno
-            }).ToList();
+            }).OrderBy(x => x.MaAccName).ToList();
 
             var vouchers = _viewAccountsTransactionsVoucherTypeRepository.GetAsQueryable().ToList();
             objectresponse.ResultSet = new
@@ -298,6 +347,9 @@ namespace Inspire.Erp.Web.Controllers.Store
             };
             return objectresponse;
         }
+
+
+
     }
 }
 

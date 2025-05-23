@@ -42,7 +42,7 @@ namespace Inspire.Erp.Web.Controllers
                 CurrencyMasterCurrencyShortName = k.CurrencyMasterCurrencyShortName,
                 CurrencyMasterCurrencyDenomination = k.CurrencyMasterCurrencyDenomination,
                 CurrencyMasterCurrencyDelStatus=k.CurrencyMasterCurrencyDelStatus
-            }).ToList();
+            }).OrderBy(x => x.CurrencyMasterCurrencyShortName).AsEnumerable().ToList();
         }
 
 
@@ -64,7 +64,7 @@ namespace Inspire.Erp.Web.Controllers
                 CurrencyMasterCurrencyShortName = k.CurrencyMasterCurrencyShortName,
                 CurrencyMasterCurrencyDenomination = k.CurrencyMasterCurrencyDenomination,
                 CurrencyMasterCurrencyDelStatus = k.CurrencyMasterCurrencyDelStatus
-            }).ToList();
+            }).OrderBy(x => x.CurrencyMasterCurrencyShortName).AsEnumerable().ToList();
         }
 
 
@@ -86,7 +86,7 @@ namespace Inspire.Erp.Web.Controllers
                 CurrencyMasterCurrencyShortName = k.CurrencyMasterCurrencyShortName,
                 CurrencyMasterCurrencyDenomination = k.CurrencyMasterCurrencyDenomination,
                 CurrencyMasterCurrencyDelStatus = k.CurrencyMasterCurrencyDelStatus
-            }).ToList();
+            }).OrderBy(x => x.CurrencyMasterCurrencyShortName).AsEnumerable().ToList();
         }
 
         [HttpPost]
@@ -107,7 +107,7 @@ namespace Inspire.Erp.Web.Controllers
                 CurrencyMasterCurrencyShortName = k.CurrencyMasterCurrencyShortName,
                 CurrencyMasterCurrencyDenomination = k.CurrencyMasterCurrencyDenomination,
                 CurrencyMasterCurrencyDelStatus = k.CurrencyMasterCurrencyDelStatus
-            }).ToList();
+            }).OrderBy(x => x.CurrencyMasterCurrencyShortName).AsEnumerable().ToList();
         }
 
         [HttpPost]
@@ -128,7 +128,7 @@ namespace Inspire.Erp.Web.Controllers
                 CurrencyMasterCurrencyShortName = k.CurrencyMasterCurrencyShortName,
                 CurrencyMasterCurrencyDenomination = k.CurrencyMasterCurrencyDenomination,
                 CurrencyMasterCurrencyDelStatus = k.CurrencyMasterCurrencyDelStatus
-            }).ToList();
+            }).OrderBy(x => x.CurrencyMasterCurrencyShortName).AsEnumerable().ToList();
         }
     }
 }

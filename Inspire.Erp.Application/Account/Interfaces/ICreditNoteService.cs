@@ -12,7 +12,7 @@ namespace Inspire.Erp.Application.Account.Interfaces
         public CreditNote UpdateCreditNote(CreditNote creditNote, List<AccountsTransactions> accountsTransactions, List<CreditNoteDetails> creditNoteDetails);
         public int DeleteCreditNote(CreditNote creditNote, List<AccountsTransactions> accountsTransactions, List<CreditNoteDetails> creditNoteDetails);
         public IEnumerable<AccountsTransactions> GetAllTransaction();
-        public CreditNote GetSavedCreditNoteDetails(string pvno);
+        public CreditNote GetSavedCreditNoteDetails(int pvno);
         public IEnumerable<CreditNote> GetCreditNote();
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
         public VouchersNumbers GetVouchersNumbers(string pvno);

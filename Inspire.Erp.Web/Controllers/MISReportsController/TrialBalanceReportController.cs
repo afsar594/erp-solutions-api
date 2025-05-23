@@ -5,6 +5,7 @@ using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Modals.MIS.TrialBalance;
 using Inspire.Erp.Web.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers
-{
+{   
     [Route("api/TrialBalanceReport")]
     [Produces("application/json")]
     [ApiController]

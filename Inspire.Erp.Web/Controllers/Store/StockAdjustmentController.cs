@@ -3,24 +3,42 @@ using Inspire.Erp.Application.Store.Interfaces;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Inspire.Erp.Web.Common;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using NPOI.HPSF;
+using SendGrid.Helpers.Mail;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers.Store
-{
+{    
     [Route("api/[controller]")]
     [ApiController]
     public class StockAdjustmentController : ControllerBase
     {
         private IStockAdjustmentService _sa;
         private readonly IMapper _mapper;
-        public StockAdjustmentController(IStockAdjustmentService sa, IMapper mapper)
+        private IRepository<JobMaster> _jobrepository;
+        private IRepository<LocationMaster> _locationrepository;
+        private IRepository<ItemMaster> _itemrepository;
+        private IRepository<UnitMaster> _unitrepository;
+        private IRepository<UnitDetails> _unitDetailRepository;
+        private IRepository<StockRegister> _stockRegisterRepository;
+
+        public StockAdjustmentController(IStockAdjustmentService sa, IMapper mapper, IRepository<UnitMaster> unitrepository,
+            IRepository<JobMaster> jobrepository, IRepository<LocationMaster> locationrepository, IRepository<ItemMaster> itemrepository, IRepository<UnitDetails> unitDetailRepository, IRepository<StockRegister> stockRegisterRepository)
         {
             _sa = sa;
-            _mapper = mapper;
+            _mapper = mapper; _itemrepository = itemrepository; _unitrepository = unitrepository;
+            _jobrepository = jobrepository; _locationrepository = locationrepository;
+            _unitDetailRepository = unitDetailRepository;
+            _stockRegisterRepository = stockRegisterRepository;
         }
 
         [HttpGet]
@@ -32,7 +50,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 Valid = true,
                 Result = _mapper.Map<List<StockAdjustmentVoucher>>(_sa.GetStockAdjustment()),
                 Message = ""
-            }; 
+            };
             return apiResponse;
         }
 
@@ -43,7 +61,8 @@ namespace Inspire.Erp.Web.Controllers.Store
             ApiResponse<StockAdjustmentVoucher> apiResponse = new ApiResponse<StockAdjustmentVoucher>();
             var param1 = _mapper.Map<StockAdjustmentVoucher>(voucherCompositeView);
             var param2 = _mapper.Map<List<StockAdjustmentVoucherDetails>>(voucherCompositeView.stockAdjustmentVoucherDetails);
-            var xs = await _sa.InsertStockAdjustmentVoucher(param1,param2);
+            var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
+            var xs = await _sa.InsertStockAdjustmentVoucher(param1, param2, param3);
             apiResponse = new ApiResponse<StockAdjustmentVoucher>
             {
                 Valid = true,
@@ -71,7 +90,7 @@ namespace Inspire.Erp.Web.Controllers.Store
 
         [HttpGet]
         [Route("GetSavedStockAdjustmentDetails/{id}")]
-        public ApiResponse<StockAdjustmentVoucher> GetSavedStockAdjustmentDetails(string id)
+        public ApiResponse<StockAdjustmentVoucher> GetSavedStockAdjustmentDetails(int id)
         {
             StockAdjustmentVoucher stockAdjustmentVoucher = _sa.GetSavedStockAdjustmentferDetails(id);
             if (stockAdjustmentVoucher != null)
@@ -91,7 +110,7 @@ namespace Inspire.Erp.Web.Controllers.Store
         [Route("DeleteStockAdjustmentVoucher")]
         public ApiResponse<int> DeleteStockAdjustmentVoucher([FromBody] StockAdjustmentVoucher voucherCompositeView)
         {
-            
+
             var param1 = _mapper.Map<StockAdjustmentVoucher>(voucherCompositeView);
             var param2 = _mapper.Map<List<StockAdjustmentVoucherDetails>>(voucherCompositeView.stockAdjustmentVoucherDetails);
             var xs = _sa.DeleteStockAdjustmentVoucher(param1, param2);
@@ -104,10 +123,75 @@ namespace Inspire.Erp.Web.Controllers.Store
             return apiResponse;
         }
 
+
         [HttpPost("StockAdjustmentReport")]
         public async Task<IActionResult> StockAdjustmentReport(StockAdjustmentReportFilter model)
         {
             return Ok(await _sa.StockAdjustmentReport(model));
         }
+
+        [HttpGet]
+        [Route("StockAdjustmentDropdown")]
+        public ResponseInfo StockAdjustmentDropdown()
+        {
+            var objresponse = new ResponseInfo();
+            
+            var jobMasters = _jobrepository.GetAsQueryable().AsNoTracking().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
+            {
+                c.JobMasterJobId,
+                c.JobMasterJobNumber,
+                JobMasterJobName = c.JobMasterJobName.Trim(),
+            }).OrderBy(x => x.JobMasterJobName).ToList();
+            var LocationMaster = _locationrepository.GetAsQueryable().AsNoTracking().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
+            {
+                c.LocationMasterLocationId,
+                c.LocationMasterLocationStatus,
+                LocationMasterLocationName = c.LocationMasterLocationName.Trim(),
+            }).OrderBy(x => x.LocationMasterLocationName).ToList();
+
+           var itemMaster = (from item in _itemrepository.GetAsQueryable().AsNoTracking()
+                              join unit in _unitDetailRepository.GetAsQueryable().AsNoTracking()
+                              on item.ItemMasterItemId equals unit.UnitDetailsItemId
+                              where item.ItemMasterAccountNo != 0
+                              && item.ItemMasterDelStatus != true
+                              && item.ItemMasterItemType != ItemMasterStatus.Group
+                              select new
+                              {
+                                  item.ItemMasterItemId,
+                                  item.ItemMasterItemName,
+                                  item.ItemMasterVenderId,
+                                  item.ItemMasterItemSize,
+                                  itemMasterBarcode = unit.UnitDetailsBarcode,
+                                  ItemMasterCurrentStock =_stockRegisterRepository.GetAsQueryable().Where(x => x.StockRegisterMaterialID ==item.ItemMasterItemId).Sum(y => (y.StockRegisterSIN ?? 0) - (y.StockRegisterSout ?? 0)),
+
+                              }).Distinct().OrderBy(x => x.ItemMasterItemName).ToList();
+
+            var unitMasters = _unitrepository.GetAsQueryable().AsNoTracking().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
+            {
+                x.UnitMasterUnitId,
+                UnitMasterUnitFullName = x.UnitMasterUnitFullName.Trim(),
+                UnitMasterUnitShortName = x.UnitMasterUnitShortName.Trim()
+            }).OrderBy(x => x.UnitMasterUnitShortName).ToList();
+            objresponse.ResultSet = new
+            {
+                jobMasters = jobMasters,
+                LocationMaster = LocationMaster,
+                itemMaster = itemMaster,
+                unitMasters = unitMasters,
+               
+            };
+            return objresponse;
+        }
+
+        [HttpGet]
+        [Route("GetStockByLocation/{id}")]
+        public ResponseInfo GetStockByLocation(int id)
+        {
+                    var objresponse = new ResponseInfo();
+            objresponse = _sa.GetStockByLocation(id);
+
+            return objresponse;
+        }
+
     }
 }

@@ -4,6 +4,7 @@ using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Domain.Models;
 using Inspire.Erp.Web.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -11,8 +12,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers
-{
-    // [Produces("application/json")]
+{    
     [ApiController]
     [Route("api/ProformaInvoice")]
     public class ProformaInvoiceController : ControllerBase
@@ -67,7 +67,7 @@ namespace Inspire.Erp.Web.Controllers
                 return StatusCode(500, ex.Message.ToString());
             }
         }
-        [HttpPut]
+        [HttpPost]
         [Route("UpdateProformaInvoice")]
         public IActionResult UpdateProformaInvoices([FromBody] ProformaInvoice proformaInvoiceViewModel)
         {

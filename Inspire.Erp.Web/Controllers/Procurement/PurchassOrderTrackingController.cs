@@ -7,6 +7,7 @@ using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Models;
 using Inspire.Erp.Domain.Models.Procurement.PurchaseOrderTracking;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NPOI.OpenXmlFormats.Spreadsheet;
@@ -16,7 +17,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers.Procurement
-{
+{    
     [Route("api/PurchassOrderTracking")]
     [Produces("application/json")]
     [ApiController]
@@ -134,7 +135,7 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                 LogInId = ut.UserId,
                 username = ut.UserName
 
-            }).Distinct().ToList();
+            }).Distinct().OrderBy(x => x.username).ToList();
             objectresponse.ResultSet = new
             {
                 response = response
@@ -152,31 +153,32 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                      {
                          k.ItemMasterItemId,
                          k.ItemMasterItemName
-                     }).ToList();
+                     }).OrderBy(x => x.ItemMasterItemName).AsEnumerable().ToList();
 
             var SuppliersMaster = supplierrepository.GetAsQueryable().Where(a => a.SuppliersMasterSupplierDelStatus != true).Select(c => new
             {
                 c.SuppliersMasterSupplierId,
                 c.SuppliersMasterSupplierName,
                 c.SuppliersMasterSupplierVatNo
-            }).ToList();
+            }).OrderBy(x => x.SuppliersMasterSupplierName).ToList();
 
             var jobMasters = jobrepository.GetAsQueryable().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
             {
                 c.JobMasterJobId,
                 c.JobMasterJobName,
-            }).ToList();
+            }).OrderBy(x => x.JobMasterJobName).ToList();
             var LocationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
             {
                 c.LocationMasterLocationId,
                 c.LocationMasterLocationName,
-            }).ToList();
+                c.LocationMasterLocationStatus,
+            }).OrderBy(x => x.LocationMasterLocationName).ToList();
 
             var purchaseOrder = _purchaseOrderRepository.GetAsQueryable().Where(k => k.PurchaseOrderDelStatus != true).Select(c => new
             {
                 c.PurchaseOrderId,
                 c.PurchaseOrderNo
-            }).ToList();
+            }).OrderBy(x => x.PurchaseOrderNo).ToList();
             objectresponse.ResultSet = new
             {
                 itemMaster = itemMaster,

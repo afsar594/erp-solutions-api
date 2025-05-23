@@ -72,6 +72,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                     Value = x.CustomerMasterCustomerReffAcNo,
                     Name = x.CustomerMasterCustomerName
                 }));
+
+                response.AddRange(response.OrderBy(x => x.Name)); // Order by Name
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
             }
             catch (Exception ex)
@@ -524,7 +526,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     AllocationVoucherVoucherNo = x.AllocationVoucherVoucherNo,
                     AllocationVoucherVoucherAccNo = x.AllocationVoucherVoucherAccNo,
                     AllocationVoucherVoucherDate = x.AllocationVoucherVoucherDate
-                }).ToList());
+                }).OrderBy(x => x.AllocationVoucherVoucherNo).AsEnumerable().ToList());
                 var gridResponse = new GridWrapperResponse<List<GetVoucherAllocationListResponse>>();
                 gridResponse.Data = response;
                 gridResponse.Total = 0;
@@ -569,7 +571,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                             AllocationVoucherDetailsId = x.AllocationVoucherDetailsId,
                             AllocationVoucherDetailsVtype = x.AllocationVoucherDetailsVtype,
                             AllocationVoucherDetailsSno = Convert.ToInt32(model.AllocationVoucherId),
-                        }).ToList();
+                        }).OrderBy(x => x.AllocationVoucherDetailsAccNo).AsEnumerable().ToList();
 
                     var accTrans = await GetAccountTransactions(new GenericGridViewModel()
                     {
@@ -660,28 +662,20 @@ namespace Inspire.Erp.Application.Account.Implementations
                     {
                         UpdateVoucherAllocationId(item.AllocationVoucherDetailsRefVtype, id, 0);
 
-                        //getTransId = item.AllocationVoucherDetailsTransSno;
                         var accTrans = _accountTransaction.GetAsQueryable().Where(x => x.AccountsTransactionsTransSno == item.AllocationVoucherDetailsTransSno).FirstOrDefault();
 
                         if (accTrans != null)
                         {
                             if (accTrans.AccountsTransactionsCredit > 0)
                             {
-                                accTrans.AccountsTransactionsAllocBalance += accTrans.AccountsTransactionsAllocCredit;
-      
+                                accTrans.AccountsTransactionsAllocBalance += (decimal)item.AllocationVoucherDetailsAllocCredit;
+                                accTrans.AccountsTransactionsAllocCredit -= (decimal)item.AllocationVoucherDetailsAllocCredit;
                             }
                             else
                             {
-                                accTrans.AccountsTransactionsAllocBalance += accTrans.AccountsTransactionsAllocDebit;
+                                accTrans.AccountsTransactionsAllocBalance += (decimal)item.AllocationVoucherDetailsAllocDebit;
+                                accTrans.AccountsTransactionsAllocDebit -= (decimal)item.AllocationVoucherDetailsAllocDebit;
                             }
-
-                            accTrans.AccountsTransactionsAllocCredit = 0;
-                            accTrans.AccountsTransactionsAllocDebit = 0;
-                            accTrans.AccountsTransactionsFcAllocCredit = 0;
-                            accTrans.AccountsTransactionsFcAllocDebit = 0;
-
-
-
                             _accountTransaction.Update(accTrans);
                         }
 

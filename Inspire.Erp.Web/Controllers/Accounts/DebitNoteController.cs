@@ -7,10 +7,12 @@ using Inspire.Erp.Application.StoreWareHouse.Interface;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Web.Common;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Inspire.Erp.Web.Controllers
 {
+  
     [Route("api/DebitNote")]
     [Produces("application/json")]
     [ApiController]
@@ -105,7 +107,7 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("GetSavedDebitNoteDetails/{id}")]
-        public ApiResponse<DebitNote> GetSavedDebitNoteDetails(string id)
+        public ApiResponse<DebitNote> GetSavedDebitNoteDetails(int id)
         {
             DebitNote debitNote = _debitNoteService.GetSavedDebitNoteDetails(id);
 

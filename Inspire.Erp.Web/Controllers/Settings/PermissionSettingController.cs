@@ -1,5 +1,6 @@
 ﻿using Inspire.Erp.Application.Settings.Interfaces;
 using Inspire.Erp.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Spire.Pdf.Exporting.XPS.Schema;
@@ -7,7 +8,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers.Settings
-{
+{   
     [Route("api/PermissionSetting")]
     [ApiController]
     [Produces("application/json")]

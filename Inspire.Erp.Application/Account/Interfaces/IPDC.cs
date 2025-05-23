@@ -12,11 +12,13 @@ namespace Inspire.Erp.Application.Account.Interface
     {
         public Task<IEnumerable<PDCPostedList>> PDCPostedReturnList(string chequeSatus);
         public Task<IEnumerable<PDCPostedList>> PDCReturnLists();
+        public Task<IEnumerable<PDCPostedList>> PDCissuedLists();
         public Task<IEnumerable<PDCGetList>> PDCGetList();
         public Task<IEnumerable<PDCGetList>> getFilteredPDCList(PDCFilters obj);
         public Task<IEnumerable<PDCGetList>> PostPDC(List<PDCGetList> list);
 
         public Task<List<BankNamesModel>> GetBankNames();
         Task<IEnumerable<PDCGetList>> PDCGetReturnList(PDCFilters obj);
+        bool ReleasePostPdc(List<PDCGetList> list);
     }
 }

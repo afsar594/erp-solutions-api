@@ -20,7 +20,6 @@ namespace Inspire.Erp.Application.Sales.Interfaces
 
         Task<List<POS_SummaryDateWiseReport>> GetSalesTransactionCard(int wpId, int stationId, DateTime fromDate, DateTime toDate);
 
-
         Task<POS_MaintodaySales> GetTodaySalesByDate(int wpId, int stationId, DateTime fromDate, DateTime toDate);
 
         Task<List<TodaySalesByCounterWise>> GetTodaySalesByCounterWise(DateTime fromDate, DateTime toDate);

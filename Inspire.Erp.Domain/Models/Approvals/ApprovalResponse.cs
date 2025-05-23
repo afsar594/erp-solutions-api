@@ -1,4 +1,5 @@
 ﻿using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -38,4 +39,52 @@ namespace Inspire.Erp.Domain.Models.Approvals
         public Boolean isActive { get; set; }
        
     }
+
+
+
+    public class ApproverLevelSettingsDto
+    {
+        public ApproverLevelSettingsDto()
+        {
+            ApproverLevels = new List<Approvers>();
+        }
+        public EnumOrderForms FormType { get; set; }
+        public int JobId { get; set; }
+        public List<Approvers> ApproverLevels { get; set; }
+        
+    }
+
+    public class Approvers
+    {
+        public Approvers()
+        {
+            ApproverIds = new List<long>();
+        }
+        public EnumApproverLevels ApproverLevel { get; set; }
+        public List<long> ApproverIds { get; set; }
+        //public long ApproverId { get; set; }
+        public bool OptEmail { get; set; } = false;
+        public int NotificationDays { get; set; }
+        public decimal MinAmount { get; set; }
+        public decimal MaxAmount { get; set; }
+        public List<UserMetaDataDto> MetaData { get; set; } = new List<UserMetaDataDto>();
+    }
+    public class UserMetaDataDto
+    {
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public List<CCEmailDto> CCEmails { get; set; }
+        public List<CCBccMailDto> BccEmails { get; set; }
+    }
+    public class CCBccMailDto
+    {
+        public string Name { get; set; }
+        public string Email { get; set; }
+    }
+    public class CCEmailDto
+    {
+        public string Name { get; set; }
+        public string Email { get; set; }
+    }
+
 }

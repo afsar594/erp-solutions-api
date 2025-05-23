@@ -13,6 +13,7 @@ using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Inspire.Erp.Web.Common;
 using Inspire.Erp.Web.MODULE;
 using Inspire.Erp.Web.ViewModels.Procurement;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Inspire.Erp.Web.Controllers
@@ -114,7 +115,7 @@ namespace Inspire.Erp.Web.Controllers
                 PurchaseVoucherTotalItemDisAmount = a.PurchaseVoucherTotalItemDisAmount,
                 PurchaseVoucherTotalDiscountAmt = a.PurchaseVoucherTotalDiscountAmt
 
-            }).ToList();
+            }).OrderBy(x => x.PurchaseVoucherPartyName).ToList();
             ApiResponse<List<PurchaseVoucherListView>> apiResponse = new ApiResponse<List<PurchaseVoucherListView>>
             {
                 Valid = true,
@@ -161,7 +162,7 @@ namespace Inspire.Erp.Web.Controllers
         }
 
         [HttpGet("GetSavedPurchaseVoucherDetails/{id}")]
-        public ApiResponse<PurchaseVoucher> GetSavedPurchaseVoucherDetails(string id)
+        public ApiResponse<PurchaseVoucher> GetSavedPurchaseVoucherDetails(long id)
         {
             var purchaseVoucher = _service.GetSavedPurchaseVoucherDetailsV2(id);
 

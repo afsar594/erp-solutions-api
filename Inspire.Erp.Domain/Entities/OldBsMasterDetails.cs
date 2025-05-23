@@ -5,7 +5,7 @@ namespace Inspire.Erp.Domain.Entities
 {
     public partial class OldBsMasterDetails
     {
-        public int? OldBsMasterDetailsId { get; set; }
+        public int OldBsMasterDetailsId { get; set; }
         public int? OldBsMasterDetailsSno { get; set; }
         public string OldBsMasterDetailsAccNo { get; set; }
         public double? OldBsMasterDetailsCrate { get; set; }

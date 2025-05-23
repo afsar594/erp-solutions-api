@@ -17,9 +17,11 @@ namespace Inspire.Erp.Application.Account.Implementations
    public class AgeingReport: IAgeingReport
     {
         private readonly IRepository<AccountTransacionsAgeingReport> _accountTransactions;
-        public AgeingReport(IRepository<AccountTransacionsAgeingReport> accountTransactions)
+        private readonly IRepository<MasterAccountsTable> _MasterAccountsTable;
+        public AgeingReport(IRepository<AccountTransacionsAgeingReport> accountTransactions, IRepository<MasterAccountsTable> masterAccountsTable)
         {
             _accountTransactions = accountTransactions;
+            _MasterAccountsTable = masterAccountsTable;
         }
         public async Task<Response<AgeingReportResponse>> GetAgeingReport(GenericGridViewModel model)
         {
@@ -70,45 +72,79 @@ namespace Inspire.Erp.Application.Account.Implementations
                     decimal aboveThreeSixty = 0;
                     foreach (var accounts in items)
                     {
-
                         CrBal += Convert.ToDecimal(accounts.AccountsTransactionsAllocBalance);
                         CrLimit += 0;
                         accName = accounts.AccountsTransactionsAccName;
                         accNo = accounts.AccountsTransactionsAccNo;
                         Remarks = accounts.AccountsTransactionsDescription;
 
+                        if (accounts == null || accounts.AccountsTransactionsAccNo == null)
+                        {
+                            // Handle the null case as appropriate
+                            return null; // Or throw an exception or whatever logic you need
+                        }
+                        var account = await _MasterAccountsTable.GetAsQueryable()
+                            .Where(c => c.MaAccNo == accounts.AccountsTransactionsAccNo)
+                            .FirstOrDefaultAsync();
+                        if(account.MaAccName=="Supplier")
+                        {
+
+                            UnAllocated -= accounts.AccountsTransactionsAllocBalance.Value;
+                        }
+
+                        else if(accounts.AccountsTransactionsCredit>0 && accounts.AccountsTransactionsAllocBalance>0 )
+                        {
+                            UnAllocated += accounts.AccountsTransactionsAllocBalance.Value;
+                        }
+
+                        if (account.MaAccName == "Supplier")
+                        {
+
+                            outBalance += accounts.AccountsTransactionsCredit.Value - accounts.AccountsTransactionsDebit.Value;
+                        }
+                        else
+                        {
+                            outBalance += accounts.AccountsTransactionsDebit.Value - accounts.AccountsTransactionsCredit.Value;
+
+                        }
+
+
                         //decimal totalDebit = accounts.AccountsTransactionsDebit;
                         //decimal totalCredit = accounts.AccountsTransactionsCredit;
                         //runningBalance = (totalDebit - totalCredit) + (runningBalance);
-                        var days = Math.Round(((DateTime.Now - Convert.ToDateTime(accounts.AccountsTransactionsTransDate)).TotalDays));
-                        CrDys += Convert.ToDecimal(days);
-                        if (days >= 0 && days < 31)
+                        if (accounts.AccountsTransactionsDebit > 0)
                         {
-                            ZeroToThirty += Convert.ToDecimal(accounts.AccountsTransactionsAllocBalance);
-                        }
-                        else if (days >= 31 && days < 60)
-                        {
-                            ThirtyOneToSixty += Convert.ToDecimal(accounts.AccountsTransactionsAllocBalance);
-                        }
-                        else if (days >= 61 && days < 90)
-                        {
-                            SixtyOneToNinety += Convert.ToDecimal(accounts.AccountsTransactionsAllocBalance);
-                        }
-                        else if (days >= 91 && days < 180)
-                        {
-                            NinetyOneToOneEighty += Convert.ToDecimal(accounts.AccountsTransactionsAllocBalance);
-                        }
-                        else if (days >= 181 && days < 270)
-                        {
-                            OneEightOneToTwoSeventy += Convert.ToDecimal(accounts.AccountsTransactionsAllocBalance);
-                        }
-                        else if (days >= 271 && days < 360)
-                        {
-                            TwoSeventyOneToThreeSixty += Convert.ToDecimal(accounts.AccountsTransactionsAllocBalance);
-                        }
-                        else if (days > 360)
-                        {
-                            aboveThreeSixty += Convert.ToDecimal(accounts.AccountsTransactionsAllocBalance);
+                            var days = Math.Round(((DateTime.Now - Convert.ToDateTime(accounts.AccountsTransactionsTransDate)).TotalDays));
+                            CrDys += Convert.ToDecimal(days);
+
+                            if (days >= 0 && days < 31)
+                            {
+                                ZeroToThirty += Convert.ToDecimal(accounts.AccountsTransactionsAllocBalance);
+                            }
+                            else if (days >= 31 && days < 60)
+                            {
+                                ThirtyOneToSixty += Convert.ToDecimal(accounts.AccountsTransactionsAllocBalance);
+                            }
+                            else if (days >= 61 && days < 90)
+                            {
+                                SixtyOneToNinety += Convert.ToDecimal(accounts.AccountsTransactionsAllocBalance);
+                            }
+                            else if (days >= 91 && days < 180)
+                            {
+                                NinetyOneToOneEighty += Convert.ToDecimal(accounts.AccountsTransactionsAllocBalance);
+                            }
+                            else if (days >= 181 && days < 270)
+                            {
+                                OneEightOneToTwoSeventy += Convert.ToDecimal(accounts.AccountsTransactionsAllocBalance);
+                            }
+                            else if (days >= 271 && days < 360)
+                            {
+                                TwoSeventyOneToThreeSixty += Convert.ToDecimal(accounts.AccountsTransactionsAllocBalance);
+                            }
+                            else if (days > 360)
+                            {
+                                aboveThreeSixty += Convert.ToDecimal(accounts.AccountsTransactionsAllocBalance);
+                            }
                         }
                     }
                     gridmodel.Details.Add(new AgeingReportDetailsResponse()

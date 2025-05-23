@@ -8,7 +8,7 @@ namespace Inspire.Erp.Web.ViewModels
 {
     public  class BrandMasterViewModel: BaseEntity
     {
-        public long? VendorMasterVendorId { get; set; }
+        public long VendorMasterVendorId { get; set; }
         public string? VendorMasterVendorName { get; set; }
         public bool? VendorMasterVendorStatus { get; set; }
         public string? VendorMasterVendorAddress { get; set; }

@@ -1,0 +1,11 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "Inspire.Erp.Web\\Inspire.Erp.Web.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

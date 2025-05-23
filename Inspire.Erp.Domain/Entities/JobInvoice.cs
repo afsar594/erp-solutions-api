@@ -28,6 +28,8 @@ namespace Inspire.Erp.Domain.Entities
         public DateTime? JobInvoiceLpoDate { get; set; }
         public string JobInvoiceSalesAccount { get; set; }
         public bool? JobInvoiceDelStatus { get; set; }
+        public string Invoicetype { get; set; }
+
         [NotMapped]
         public List<JobInvoiceDetails> JobInvoiceDetails { get; set; }
     }

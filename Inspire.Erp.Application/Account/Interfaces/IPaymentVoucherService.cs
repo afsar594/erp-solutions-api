@@ -15,7 +15,7 @@ namespace Inspire.Erp.Application.Account.Interfaces
         public PaymentVoucher UpdatePaymentVoucher(PaymentVoucher paymentVoucher, List<AccountsTransactions> accountsTransactions, List<PaymentVoucherDetails> paymentVoucherDetails, List<AllocationDetails> paymentAllocation);
         public int DeletePaymentVoucher(PaymentVoucher paymentVoucher, List<AccountsTransactions> accountsTransactions, List<PaymentVoucherDetails> paymentVoucherDetails);
         public IEnumerable<AccountsTransactions> GetAllTransaction();
-        public PaymentVoucher GetSavedPaymentDetails(string pvno);
+        public PaymentVoucher GetSavedPaymentDetails(int pvno);
         public IEnumerable<PaymentVoucher> GetPaymentVouchers();
         public VouchersNumbers GenerateVoucherNo();
         public IQueryable GetUserTracking(string voucherNo);

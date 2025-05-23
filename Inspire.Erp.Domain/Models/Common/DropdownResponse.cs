@@ -19,5 +19,6 @@ namespace Inspire.Erp.Domain.Modals.Common
         public string Message { get; set; }
         public string ErrorMessage { get; set; }
         public object data { get; set; }
+        public int TotalCount { get; set; }
     }
 }

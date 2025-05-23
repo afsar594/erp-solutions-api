@@ -18,9 +18,10 @@ using Inspire.Erp.Web.Common;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Inspire.Erp.Application.Procurement.Implimentation;
 using Inspire.Erp.Domain.Modals.Common;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers
-{
+{   
     [Route("api/StockRequisition")]
     [Produces("application/json")]
     [ApiController]
@@ -82,23 +83,6 @@ namespace Inspire.Erp.Web.Controllers
 
             var StockRequisition = _StockRequisitionService.UpdateStockRequisition(param1, accountsTransactions, param2
                 );
-
-            //StockRequisitionViewModel StockRequisitionViewModel = new StockRequisitionViewModel
-            //{
-            //    StockRequisitionId = StockRequisition.StockRequisition.StockRequisitionId,
-            //    StockRequisitionNo = StockRequisition.StockRequisition.StockRequisitionNo,
-            //    StockRequisitionDate = StockRequisition.StockRequisition.StockRequisitionDate,
-            //    StockRequisitionType = StockRequisition.StockRequisition.StockRequisitionType,
-            //    StockRequisitionJobId = StockRequisition.StockRequisition.StockRequisitionJobId,
-            //    StockRequisitionStatus = StockRequisition.StockRequisition.StockRequisitionStatus,
-            //    StockRequisitionDelStatus = StockRequisition.StockRequisition.StockRequisitionDelStatus,
-            //    StockRequisitionDetailsReqDate = StockRequisition.StockRequisition.StockRequisitionDetailsReqDate,
-            //    StockRequisitionDetailsReqStatus = StockRequisition.StockRequisition.StockRequisitionDetailsReqStatus,
-            //    StockRequisitionApprovedBy = StockRequisition.StockRequisition.StockRequisitionApprovedBy,
-            //    StockRequisitionApprovedDate = StockRequisition.StockRequisition.StockRequisitionApprovedDate,
-            //    StockRequisitionRemarks = StockRequisition.StockRequisition.StockRequisitionRemarks,
-            //    StockRequisitionRequestedBy = StockRequisition.StockRequisition.StockRequisitionRequestedBy,
-            //};
             StockRequisitionViewModel StockRequisitionViewModel = new StockRequisitionViewModel();
             StockRequisitionViewModel = _mapper.Map<StockRequisitionViewModel>(StockRequisition.StockRequisition);
 
@@ -172,22 +156,6 @@ namespace Inspire.Erp.Web.Controllers
 
             if (StockRequisition != null)
             {
-                //StockRequisitionViewModel StockRequisitionViewModel = new StockRequisitionViewModel
-                //{
-                //    StockRequisitionId = StockRequisition.StockRequisition.StockRequisitionId,
-                //    StockRequisitionNo = StockRequisition.StockRequisition.StockRequisitionNo,
-                //    StockRequisitionDate = StockRequisition.StockRequisition.StockRequisitionDate,
-                //    StockRequisitionType = StockRequisition.StockRequisition.StockRequisitionType,
-                //    StockRequisitionJobId = StockRequisition.StockRequisition.StockRequisitionJobId,
-                //    StockRequisitionStatus = StockRequisition.StockRequisition.StockRequisitionStatus,
-                //    StockRequisitionDelStatus = StockRequisition.StockRequisition.StockRequisitionDelStatus,
-                //    StockRequisitionDetailsReqDate = StockRequisition.StockRequisition.StockRequisitionDetailsReqDate,
-                //    StockRequisitionDetailsReqStatus = StockRequisition.StockRequisition.StockRequisitionDetailsReqStatus,
-                //    StockRequisitionApprovedBy = StockRequisition.StockRequisition.StockRequisitionApprovedBy,
-                //    StockRequisitionApprovedDate = StockRequisition.StockRequisition.StockRequisitionApprovedDate,
-                //    StockRequisitionRemarks = StockRequisition.StockRequisition.StockRequisitionRemarks,
-                //    StockRequisitionRequestedBy = StockRequisition.StockRequisition.StockRequisitionRequestedBy,
-                //};
 
                 StockRequisitionViewModel StockRequisitionViewModel = new StockRequisitionViewModel();
                 StockRequisitionViewModel = _mapper.Map<StockRequisitionViewModel>(StockRequisition.StockRequisition);

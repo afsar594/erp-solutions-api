@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -79,13 +80,20 @@ namespace Inspire.Erp.Domain.Entities
         public DateTime? PurchaseOrderDelivToDate { get; set; }
         public string PurchaseOrderDelivStatus { get; set; }
         public string PurchaseOrderDelivPlace { get; set; }
-       // [NotMapped]
-       // public List<PurchaseOrderDetails>? purchaseOrderDetails { get; set; }
+        public string PurchaseOrderOrdertype { get; set; }
+
+        // [NotMapped]
+        // public List<PurchaseOrderDetails>? purchaseOrderDetails { get; set; }
         [NotMapped]
         public string purchaseOrderJobName { get; set; }
 
         ////public virtual ICollection<PurchaseOrderDetails> PurchaseOrderDetailsPurchaseOrder { get; set; }
         ////public virtual ICollection<PurchaseOrderDetails> PurchaseOrderDetailsPurchaseOrderDetailsNoNavigation { get; set; }
         public virtual ICollection<PurchaseOrderDetails> PurchaseOrderDetails { get; set; }
+        //[JsonIgnore]
+        public virtual ICollection<OrderApprovalHierarchy> OrderApprovalHierarchies { get; set; }
+
+        [NotMapped]
+        public bool IsPrintEnabled { get; set; }
     }
 }

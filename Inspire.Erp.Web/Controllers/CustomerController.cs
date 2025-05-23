@@ -84,7 +84,7 @@ namespace Inspire.Erp.Web.Controllers
                 CustomerMasterCustomerGroupAccNo = k.CustomerMasterCustomerGroupAccNo,
                 CustomerMasterCustomerCtTypeId = k.CustomerMasterCustomerCtTypeId,
                 CustomerMasterCustomerDelStatus = k.CustomerMasterCustomerDelStatus
-            }).ToList();
+            }).OrderBy(x => x.CustomerMasterCustomerName).AsEnumerable().ToList();
         }
 
         [HttpPost]
@@ -137,7 +137,7 @@ namespace Inspire.Erp.Web.Controllers
                 CustomerMasterCustomerGroupAccNo = k.CustomerMasterCustomerGroupAccNo,
                 CustomerMasterCustomerCtTypeId = k.CustomerMasterCustomerCtTypeId,
                 CustomerMasterCustomerDelStatus = k.CustomerMasterCustomerDelStatus
-            }).ToList();
+            }).OrderBy(x => x.CustomerMasterCustomerName).AsEnumerable().ToList();
         }
         //[HttpGet("{id}")]
         [HttpGet("GetAllCustomerById/{id}")]
@@ -414,23 +414,23 @@ namespace Inspire.Erp.Web.Controllers
                 c.CurrencyMasterCurrencyId,
                 c.CurrencyMasterCurrencyName,
                 c.CurrencyMasterCurrencyRate
-            }).ToList();
+            }).OrderBy(x => x.CurrencyMasterCurrencyName).AsEnumerable().ToList();
             var countryMasters = countryrepository.GetAsQueryable().Where(a => a.CountryMasterCountryDelStatus != true).Select(c => new
             {
                 c.CountryMasterCountryId,
                 c.CountryMasterCountryName
-            }).ToList();
+            }).OrderBy(x => x.CountryMasterCountryName).AsEnumerable().ToList();
             var cityMasters = cityrepository.GetAsQueryable().Where(a => a.CityMasterCityDelStatus != true).Select(c => new
             {
                 c.CityMasterCityId,
                 c.CityMasterCityName,
                 c.CityMasterCityCountryId
-            }).ToList();
+            }).OrderBy(x => x.CityMasterCityName).AsEnumerable().ToList();
             var locationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
             {
                 c.LocationMasterLocationId,
                 c.LocationMasterLocationName,
-            }).ToList();
+            }).OrderBy(x => x.LocationMasterLocationName).AsEnumerable().ToList();
 
             var masterAccountsTables = chartofAccountsService.GetAllAccounts().Where(a => a.MaDelStatus != true).Select(c => new
             {
@@ -438,17 +438,17 @@ namespace Inspire.Erp.Web.Controllers
                 c.MaAccName,
                 c.MaRelativeNo,
                 c.MaSno
-            }).ToList();
+            }).OrderBy(x => x.MaAccName).AsEnumerable().ToList();
             var priceLevelMasters = priceLevelrepository.GetAsQueryable().Where(a => a.PriveLevelMasterPriceLevelDelStatus != true).Select(c => new
             {
                 c.PriceLevelMasterPriceLevelId,
                 c.PriceLevelMasterPriceLevelName
-            }).ToList();
+            }).OrderBy(x => x.PriceLevelMasterPriceLevelName).AsEnumerable().ToList();
             var customerType = CustomerTyperepository.GetAsQueryable().Where(a => a.CustomerTypeDelStatus != true).Select(c => new
             {
                 c.CustomerTypeId,
                 c.CustomerTypeName
-            }).ToList();
+            }).OrderBy(x => x.CustomerTypeName).AsEnumerable().ToList();
             objresponse.ResultSet = new
             {
                 currencyMasters = currencyMasters,

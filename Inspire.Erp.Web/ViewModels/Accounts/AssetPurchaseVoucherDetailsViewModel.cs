@@ -18,7 +18,7 @@ namespace Inspire.Erp.Web.ViewModels.Accounts
         public string Remarks { get; set; }
         public string AstPurRefNo { get; set; }
         public decimal? LifrInYrs { get; set; }
-        public DateTime AstPurDate { get; set; }
+        public DateTime? AstPurDate { get; set; }
         public string DepMode { get; set; }
         public decimal? DepAmt { get; set; }
         public decimal? DepPerc { get; set; }
@@ -42,6 +42,8 @@ namespace Inspire.Erp.Web.ViewModels.Accounts
         public decimal? OPBookValue { get; set; }
 
         public bool? AssetPurchaseVoucherDetailsDelStatus { get; set; }
+
+        public string AssetPurchaseVoucherDetailsAccNo { get; set; }
 
     }
 }

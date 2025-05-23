@@ -32,12 +32,14 @@ namespace Inspire.Erp.Web.Controllers.Procurement
         private IRepository<ProgressiveInvoice> _progressiveInvoice; private IRepository<CurrencyMaster> currencyrepository;
         private IRepository<ViewAccountsTransactionsVoucherType> _viewAccountsTransactionsVoucherTypeRepository;
         private readonly IProgressiveInvoiceService _ProgressiveInvoice;
+        private IRepository<JobMaster> jobrepository;
         private readonly IMapper _mapper;
-        public ProgressInvoiceController(IProgressiveInvoiceService Progressiveservice, IMapper mapper, IRepository<ProgressiveInvoice> progressiveInvoice)
+        public ProgressInvoiceController(IProgressiveInvoiceService Progressiveservice, IRepository<JobMaster> _jobrepository,IMapper mapper, IRepository<ProgressiveInvoice> progressiveInvoice)
         {
-                 _mapper = mapper;
-               _ProgressiveInvoice = Progressiveservice;
-        }  
+            _mapper = mapper;
+            _ProgressiveInvoice = Progressiveservice;
+            jobrepository = _jobrepository;
+        }
         [HttpPost]
         [Route("InsertProgressInvoice")]
         public ApiResponse<ProgressiveInvoice> InsertProgressInvoice([FromBody] ProgressiveInvoice progressiveInvoice)
@@ -45,7 +47,9 @@ namespace Inspire.Erp.Web.Controllers.Procurement
 
             var param1 = _mapper.Map<ProgressiveInvoice>(progressiveInvoice);
             var param2 = _mapper.Map<List<AccountsTransactions>>(progressiveInvoice.AccountsTransactions);
-            var response = _ProgressiveInvoice.InsertProgressInvoice(param1,param2);
+            var param3 = _mapper.Map<List<ProgressiveInvoiceDetails>>(progressiveInvoice.progressiveInvoiceDetails);
+
+            var response = _ProgressiveInvoice.InsertProgressInvoice(param1, param2, param3);
             var res = new ApiResponse<ProgressiveInvoice>
             {
                 Valid = true,
@@ -60,7 +64,9 @@ namespace Inspire.Erp.Web.Controllers.Procurement
         {
             var param1 = _mapper.Map<ProgressiveInvoice>(progressiveInvoice);
             var param2 = _mapper.Map<List<AccountsTransactions>>(progressiveInvoice.AccountsTransactions);
-            var response = _ProgressiveInvoice.UpdateProgressInvoice(param1, param2);
+            var param3 = _mapper.Map<List<ProgressiveInvoiceDetails>>(progressiveInvoice.progressiveInvoiceDetails);
+
+            var response = _ProgressiveInvoice.UpdateProgressInvoice(param1, param2, param3);
             var res = new ApiResponse<ProgressiveInvoice>
             {
                 Valid = true,
@@ -77,8 +83,10 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             var param1 = _mapper.Map<ProgressiveInvoice>(dataObj);
             var param2 = _mapper.Map<List<AccountsTransactions>>(dataObj.AccountsTransactions);
             param2 = new List<AccountsTransactions>();
-            var xs = _ProgressiveInvoice.DeleteProgressInvoice(param1, param2);
-            
+            var param3 = _mapper.Map<List<ProgressiveInvoiceDetails>>(dataObj.progressiveInvoiceDetails);
+
+            var xs = _ProgressiveInvoice.DeleteProgressInvoice(param1, param2, param3);
+
             ApiResponse<int> apiResponse = new ApiResponse<int>
             {
                 Valid = true,
@@ -113,6 +121,34 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                 Message = ""
             };
             return apiResponse;
+        }
+
+        [HttpGet]
+        [Route("JobBYCUSTID")]
+        public ResponseInfo JobBYCUSTID(int id)
+        {
+            var objresponse = new ResponseInfo();
+
+            var jobMasters = jobrepository.GetAsQueryable().AsNoTracking().Where(a => a.JobMasterJobDelStatus != true && a.JobMasterJobCustomerId == id).Select(c => new
+            {
+                c.JobMasterJobId,
+                JobMasterJobName = c.JobMasterJobName.Trim(),
+                c.JobMasterJobNumber,
+                c.JobMasterJobValue,
+                c.JobMasterJobVariationAmount,
+                c.JobMasterJobRetention,
+                c.JobMasterJobAdvanceAmount,
+                
+            }).OrderBy(x => x.JobMasterJobName).ToList();
+            objresponse.ResultSet = jobMasters;
+            return objresponse;
+        }
+
+
+        [HttpGet("GetById")]
+        public async Task<IActionResult> GetById(int Id)
+        {
+            return Ok(await _ProgressiveInvoice.GetById(Id));
         }
     }
 }

@@ -42,61 +42,36 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<Domain.Entities.ProgramSettings> _programsettingsRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
         private readonly ILogger<PaymentVoucherService> _logger;
-
+        private IRepository<AccountSettings> _accountsSettingssvcs;
         private IRepository<ItemMaster> _itemMasterRepository;
         private IRepository<UnitMaster> _unitMasterRepository;
         private IRepository<SuppliersMaster> _suppliersMasterRepository;
         private IRepository<LocationMaster> _locationMasterRepository;
-
-
-
         private IRepository<CustomerMaster> _customerMasterRepository;
         private IRepository<SalesManMaster> _salesManMasterRepository;
         private IRepository<DepartmentMaster> _departmentMasterRepository;
         private IRepository<UnitDetails> _UnitDetailsRepository;
-
-
         private IRepository<SalesReturn> _salesReturn;
         private IRepository<SalesReturnDetails> _salesReturnDtls;
         private IRepository<OptionsMaster> _optionMaster;
         private InspireErpDBContext _context;
-
-
-        /// <summary>
-        /// Master accounts
-        /// </summary>
         private IRepository<MasterAccountsTable> accMaster;
-
-        //private IRepository<POS_Sales_Voucher> _posSalesVoucherRepository;
-        //private IRepository<POS_Sales_Voucher_Details> _posSalesVoucherDetailsRepository;
-
-
-
         private IRepository<SalesHold> _salesHoldRepository;
         private IRepository<SalesHoldDetails> _salesHoldDetailsRepository;
-
         private IRepository<POS_WorkPeriod> _POSWorkPeriodRepository;
         private IRepository<UserTracking> _UserTracking;
-
-
         private IStockService _openingStockService;
-
-
-        //private IRepository<ReportSalesVoucher> _reportSalesVoucherRepository;
         public SalesVoucherService(
             IRepository<UserTracking> UserTracking,
-            //IRepository<ReportSalesVoucher> reportSalesVoucherRepository,
             IRepository<CustomerMaster> customerMasterRepository,
             IRepository<SalesManMaster> salesManMasterRepository,
             IRepository<DepartmentMaster> departmentMasterRepository,
             IRepository<ItemMaster> itemMasterRepository, IRepository<UnitMaster> unitMasterRepository,
             IRepository<SuppliersMaster> suppliersMasterRepository, IRepository<LocationMaster> locationMasterRepository,
-
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<Domain.Entities.ProgramSettings> programsettingsRepository,
-             IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
-
-            IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository, IRepository<CurrencyMaster> currencyMasterRepository, IRepository<UnitDetails> unitDetailsRepository, IRepository<MasterAccountsTable> accMaster, IRepository<SalesReturn> salesReturn, IRepository<SalesReturnDetails> salesReturnDtls, IRepository<OptionsMaster> optionMaster
-            //IRepository<POS_Sales_Voucher> posSalesVoucherRepository, IRepository<POS_Sales_Voucher_Details> posSalesVoucherDetailsRepository
+             IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger, IRepository<AccountSettings> accountsSettingssvcsRepository,
+            IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository, IRepository<CurrencyMaster> currencyMasterRepository,
+            IRepository<UnitDetails> unitDetailsRepository, IRepository<MasterAccountsTable> accMaster, IRepository<SalesReturn> salesReturn, IRepository<SalesReturnDetails> salesReturnDtls, IRepository<OptionsMaster> optionMaster
             , IRepository<SalesHold> salesHoldRepository, IRepository<SalesHoldDetails> salesHoldDetailsRepository, IRepository<POS_WorkPeriod> POSWorkPeriodRepository, InspireErpDBContext context
             , IStockService openingStockService)
         {
@@ -115,50 +90,29 @@ namespace Inspire.Erp.Application.Sales.Implementations
             _departmentMasterRepository = departmentMasterRepository;
             _currencyMasterRepository = currencyMasterRepository;
             _UnitDetailsRepository = unitDetailsRepository;
-            this.accMaster = accMaster;
+            this.accMaster = accMaster; _accountsSettingssvcs = accountsSettingssvcsRepository;
             _salesReturn = salesReturn;
             _salesReturnDtls = salesReturnDtls;
             _optionMaster = optionMaster;
-            //_posSalesVoucherDetailsRepository = posSalesVoucherDetailsRepository;
-            //_posSalesVoucherRepository = posSalesVoucherRepository;
-
             _salesHoldRepository = salesHoldRepository;
             _salesHoldDetailsRepository = salesHoldDetailsRepository;
             _POSWorkPeriodRepository = POSWorkPeriodRepository;
             _UserTracking = UserTracking;
             _context = context;
             _openingStockService = openingStockService;
-            //_reportSalesVoucherRepository = reportSalesVoucherRepository;
         }
-
-        //public IEnumerable<ReportSalesVoucher> SalesVoucher_GetReportSalesVoucher()
-        //{
-        //    return _reportSalesVoucherRepository.GetAll();
-        //}
-
-
-
         public IEnumerable<LocationMaster> SalesVoucher_GetAllLocationMaster()
         {
             return _locationMasterRepository.GetAll();
         }
-
-
-
         public IEnumerable<SuppliersMaster> SalesVoucher_GetAllSuppliersMaster()
         {
             return _suppliersMasterRepository.GetAll();
         }
-
-
         public IEnumerable<DepartmentMaster> SalesVoucher_GetAllDepartmentMaster()
         {
             return _departmentMasterRepository.GetAll();
         }
-
-
-
-
         public IEnumerable<CustomerMaster> SalesVoucher_GetAllCustomerMaster()
         {
             return _customerMasterRepository.GetAll();
@@ -175,20 +129,18 @@ namespace Inspire.Erp.Application.Sales.Implementations
         {
             return _itemMasterRepository.GetAll();
         }
-
         public async Task<SalesVoucherModel> UpdateSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions,
             List<SalesVoucherDetails> salesVoucherDetails
            , List<StockRegister> stockRegister
             )
         {
-
             try
             {
                 _salesVoucherRepository.BeginTransaction();
 
                 //=================================
                 clsCommonFunctions.Delete_OldEntryOf_StockRegister(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _stockRegisterRepository);
-                clsCommonFunctions.Delete_OldEntry_AccountsTransactions(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _accountTransactionRepository);
+                 clsCommonFunctions.UpdateAccountsTransactions(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _accountTransactionRepository);
                 //=================================
                 salesVoucher.SalesVoucherDetails = salesVoucherDetails.Select((k) =>
                 {
@@ -198,47 +150,34 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
 
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.SalesVoucherDetailsItemName).AsEnumerable().ToList();
+
+                _salesVoucherDetailsRepository.UpdateList(salesVoucherDetails);
 
                 _salesVoucherRepository.Update(salesVoucher);
 
-                accountsTransactions = accountsTransactions.Select((k) =>
-                {
-                    if (k.AccountsTransactionsTransSno == 0)
-                    {
-                        k.AccountsTransactionsTransDate = salesVoucher.SalesVoucherDate;
-                        k.AccountsTransactionsVoucherNo = salesVoucher.SalesVoucherNo;
-                        k.AccountsTransactionsVoucherType = VoucherType.SalesVoucher_TYPE;
-                        k.AccountsTransactionsStatus = AccountStatus.Approved;
-                    }
-
-                    return k;
-                }).Where(x => x.AccountsTransactionsTransSno == 0).ToList();
-                _accountTransactionRepository.UpdateList(accountsTransactions);
-
-
-                //stockRegister = stockRegister.Select((k) =>
-                //{
-                //    if (k.StockRegisterStoreID == 0)
-                //    {
-                //        k.StockRegisterVoucherDate = salesVoucher.SalesVoucherDate;
-                //        k.StockRegisterRefVoucherNo = salesVoucher.SalesVoucherNo;
-                //        k.StockRegisterTransType = VoucherType.SalesVoucher_TYPE;
-                //        k.StockRegisterStatus = AccountStatus.Approved;
-                //    }
-
-                //    return k;
-                //}).ToList();
-                //_stockRegisterRepository.UpdateList(stockRegister);
-
+                
                 var currencyRate = clsCommonFunctions.getConverionCurrencyRate(salesVoucher.SalesVoucherCurrencyId, _currencyMasterRepository);
                 var rate = (decimal)currencyRate;
 
                 var stockReg = new List<StockRegister>();
                 foreach (var item in salesVoucher.SalesVoucherDetails)
                 {
+                    var avgrate = item.SalesVoucherDetailsCostPrice ?? 1;
 
                     var converontype = this.getConverionTypebyUnitId(item.SalesVoucherDetailsMatId, item.SalesVoucherDetailsUnitId);
+
+
+                    var expense = 0;
+                    if (salesVoucher.SalesVoucherExpense > 0)
+                    {
+                        //expense calculation
+                        var exp = item.SalesVoucherDetailsGrossAmount / salesVoucher.SalesVoucherTotalGrossAmount;
+
+                        var expen = exp * salesVoucher.SalesVoucherExpense;
+                        expense = (int)((expen + item.SalesVoucherDetailsGrossAmount) / item.SalesVoucherDetailsQuantity);
+
+                    }
 
                     stockReg.Add(new StockRegister()
                     {
@@ -249,17 +188,18 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         StockRegisterQuantity = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
                         StockRegisterSIN = 0,
                         StockRegisterSout = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
-                        StockRegisterRate = item.SalesVoucherDetailsRate,
-                        StockRegisterAmount = item.SalesVoucherDetailsQuantity * item.SalesVoucherDetailsRate ?? 0,
-                        StockRegisterFCAmount = item.SalesVoucherDetailsQuantity * item.SalesVoucherDetailsRate * rate,
+                        StockRegisterRate = avgrate,
+                        StockRegisterAmount = item.SalesVoucherDetailsQuantity * (decimal)(converontype) * avgrate ?? 0,
+                        StockRegisterFCAmount = item.SalesVoucherDetailsQuantity * (decimal)(converontype) * avgrate * rate,
                         StockRegisterAssignedDate = DateTime.Now.Date,
-                        StockRegisterStatus = "A",
+                        StockRegisterStatus = AccountStatus.Approved,
                         StockRegisterTransType = VoucherType.SalesVoucher_TYPE,
                         StockRegisterUnitID = item.SalesVoucherDetailsUnitId,
                         StockRegisterLocationID = salesVoucher.SalesVoucherLocationID,
                         StockRegisterJobID = salesVoucher.SalesVoucherJobId,
                         StockRegisterDepID = salesVoucher.SalesVoucherDptID,
-                        StockRegisterDelStatus = false
+                        StockRegisterDelStatus = false,
+                        StockRegisterLandingCost = expense
                     });
                 }
                 _stockRegisterRepository.UpdateList(stockReg);
@@ -275,8 +215,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 _UserTracking.Insert(trackingData);
 
                 _salesVoucherRepository.TransactionCommit();
-
-
             }
             catch (Exception ex)
             {
@@ -284,10 +222,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 throw ex;
             }
 
-            return this.GetSavedSalesVoucherDetails(salesVoucher.SalesVoucherNo);
+            return this.GetSavedSalesVoucherDetails((decimal)salesVoucher.SalesVoucherId);
         }
-
-
         public int DeleteSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions,
             List<SalesVoucherDetails> salesVoucherDetails
             , List<StockRegister> stockRegister
@@ -310,41 +246,20 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 {
                     k.SalesVoucherDetailsDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.SalesVoucherDetailsItemName).AsEnumerable().ToList();
 
                 //_salesVoucherDetailsRepository.UpdateList(salesVoucherDetails);
-
-                accountsTransactions = accountsTransactions.Select((k) =>
-                {
-                    k.AccountstransactionsDelStatus = true;
-                    return k;
-                }).ToList();
-                _accountTransactionRepository.UpdateList(accountsTransactions);
-
-
-
 
                 stockRegister = stockRegister.Select((k) =>
                 {
                     k.StockRegisterDelStatus = true;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.StockRegisterRefVoucherNo).AsEnumerable().ToList();
                 _stockRegisterRepository.UpdateList(stockRegister);
-
-
-
-
                 salesVoucher.SalesVoucherDetails = salesVoucherDetails;
-
                 _salesVoucherRepository.Update(salesVoucher);
-
                 var vchrnumer = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == salesVoucher.SalesVoucherNo).FirstOrDefault();
-
                 _voucherNumbersRepository.Update(vchrnumer);
-
-
-
-
 
                 UserTracking trackingData = new UserTracking();
                 trackingData.UserTrackingUserUserId = 1;
@@ -355,7 +270,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 trackingData.UserTrackingUserVpType = VoucherType.SalesVoucher_TYPE;
                 _UserTracking.Insert(trackingData);
 
-
                 _salesVoucherRepository.TransactionCommit();
                 i = 1;
             }
@@ -365,9 +279,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 i = 0;
                 throw ex;
             }
-
             return i;
-
         }
         private decimal getConverionTypebyUnitId(int? itemid, int? unitDetailsid)
         {
@@ -383,15 +295,14 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
         public async Task<SalesVoucherModel> InsertSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions,
             List<SalesVoucherDetails> salesVoucherDetails
-            , List<StockRegister> stockRegister
-            )
+            , List<StockRegister> stockRegister)
         {
             try
             {
                 _salesVoucherRepository.BeginTransaction();
-                string salesVoucherNumber = this.GenerateVoucherNo(salesVoucher.SalesVoucherDate).VouchersNumbersVNo;
-                salesVoucher.SalesVoucherNo = salesVoucherNumber;
 
+                string salesVoucherNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.SalesVoucher_TYPE, Prefix.SalesVoucher_Prefix,_programsettingsRepository,_voucherNumbersRepository);
+                salesVoucher.SalesVoucherNo = salesVoucherNumber;
 
                 decimal? maxcount = 0;
                 maxcount =
@@ -406,7 +317,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     x.SalesVoucherDetailsNo = salesVoucherNumber;
                     salesVoucher.SalesVoucherDetails.Add(x);
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.SalesVoucherDetailsItemName).AsEnumerable().ToList();
 
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
@@ -415,23 +326,27 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     k.AccountsTransactionsVoucherType = VoucherType.SalesVoucher_TYPE;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
 
                 var currencyRate = clsCommonFunctions.getConverionCurrencyRate(salesVoucher.SalesVoucherCurrencyId, _currencyMasterRepository);
                 var rate = (decimal)currencyRate;
 
-
                 var stockReg = new List<StockRegister>();
                 foreach (var item in salesVoucher.SalesVoucherDetails)
                 {
-
+                    var avgrate = item.SalesVoucherDetailsCostPrice ?? 1;
                     var converontype = this.getConverionTypebyUnitId(item.SalesVoucherDetailsMatId, item.SalesVoucherDetailsUnitId);
-                    // get Price by Item Id.
-                     //var Price = Convert.ToDecimal(GetAveragePurchasePrice(Convert.ToInt32(item.SalesVoucherDetailsMatId), null));
 
-                    //var response = await _openingStockService.GetAveragePurchasePrice(Convert.ToInt32(item.SalesVoucherDetailsMatId), null);
+                    var expense = 0;
+                    if (salesVoucher.SalesVoucherExpense > 0)
+                    {
+                        //expense calculation
+                        var exp = item.SalesVoucherDetailsGrossAmount / salesVoucher.SalesVoucherTotalGrossAmount;
 
+                        var expen = exp * salesVoucher.SalesVoucherExpense;
+                        expense = (int)((expen + item.SalesVoucherDetailsGrossAmount) / item.SalesVoucherDetailsQuantity);
+                    }
                     stockReg.Add(new StockRegister()
                     {
                         StockRegisterPurchaseID = salesVoucher.SalesVoucherNo,
@@ -440,10 +355,10 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         StockRegisterMaterialID = item.SalesVoucherDetailsMatId,
                         StockRegisterQuantity = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
                         StockRegisterSIN = 0,
-                        StockRegisterSout = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
-                        StockRegisterRate = item.SalesVoucherDetailsRate,
-                        StockRegisterAmount = item.SalesVoucherDetailsQuantity * item.SalesVoucherDetailsRate ?? 0,
-                        StockRegisterFCAmount = item.SalesVoucherDetailsQuantity * item.SalesVoucherDetailsRate * rate,
+                        StockRegisterSout = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 1,
+                        StockRegisterRate = avgrate,
+                        StockRegisterAmount = item.SalesVoucherDetailsQuantity * (decimal)(converontype) * avgrate ?? 1,
+                        StockRegisterFCAmount = item.SalesVoucherDetailsQuantity * (decimal)(converontype) * avgrate * rate ?? 1,
                         StockRegisterAssignedDate = DateTime.Now.Date,
                         StockRegisterStatus = "A",
                         StockRegisterTransType = VoucherType.SalesVoucher_TYPE,
@@ -451,12 +366,11 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         StockRegisterLocationID = salesVoucher.SalesVoucherLocationID,
                         StockRegisterJobID = salesVoucher.SalesVoucherJobId,
                         StockRegisterDepID = salesVoucher.SalesVoucherDptID,
-                        StockRegisterDelStatus = false
+                        StockRegisterDelStatus = false,
+                        StockRegisterLandingCost = expense
                     });
                 }
                 _stockRegisterRepository.InsertList(stockReg);
-
-
 
                 _salesVoucherRepository.Insert(salesVoucher);
 
@@ -471,14 +385,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 _salesVoucherRepository.TransactionCommit();
 
-
-
-
-
-
-
-
-                return this.GetSavedSalesVoucherDetails(salesVoucher.SalesVoucherNo);
+                return this.GetSavedSalesVoucherDetails((decimal)salesVoucher.SalesVoucherId);
 
             }
             catch (Exception ex)
@@ -486,8 +393,50 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 _salesVoucherRepository.TransactionRollback();
                 throw ex;
             }
-
         }
+
+        public async Task<Response<(List<decimal> PurchasePrices, List<decimal> SalesPrices)>> GetLast3PurchaseAndSalesPricesAsync(int itemId, int? locationId)
+        {
+            try
+            {
+                // Get last 3 purchase prices
+                var PurchaseVoucherIds = await _context.PurchaseVoucher
+                    .Where(x => x.PurchaseVoucherStatus == "P")
+                    .Select(o => o.PurchaseVoucherPurID)
+                    .ToListAsync();
+
+                var last3PurchasePrices = await (from pvd in _context.PurchaseVoucherDetails
+                                                 join pv in _context.PurchaseVoucher on (long)pvd.PurchaseVoucherDetailsPrId equals pv.PurchaseVoucherPurID
+                                                 where pvd.PurchaseVoucherDetailsMaterialId == itemId
+                                                 && PurchaseVoucherIds.Contains((long)pvd.PurchaseVoucherDetailsPrId)
+                                                 orderby pv.PurchaseVoucherPurchaseDate descending
+                                                 select (decimal)(pvd.PurchaseVoucherDetailsRate ?? 0))
+                                                 .Take(3)
+                                                 .ToListAsync();
+
+                // Get last 3 sales prices
+                var SalesVoucherIds = await _context.SalesVoucher
+                    .Where(x => x.SalesVoucherStatus == "S")
+                    .Select(o => o.SalesVoucherId)
+                    .ToListAsync();
+
+                var last3SalesPrices = await (from svd in _context.SalesVoucherDetails
+                                              join sv in _context.SalesVoucher on (long)svd.SalesVoucherDetailsId equals sv.SalesVoucherId
+                                              where svd.SalesVoucherDetailsMatId == itemId
+                                              && SalesVoucherIds.Contains((long)svd.SalesVoucherDetailsId)
+                                              orderby sv.SalesVoucherDate descending
+                                              select (decimal)(svd.SalesVoucherDetailsRate ?? 0))
+                                              .Take(3)
+                                              .ToListAsync();
+
+                return Response<(List<decimal> PurchasePrices, List<decimal> SalesPrices)>.Success((last3PurchasePrices, last3SalesPrices), "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<(List<decimal> PurchasePrices, List<decimal> SalesPrices)>.Fail((new List<decimal>(), new List<decimal>()), ex.Message);
+            }
+        }
+
         public async Task<Response<decimal>> GetAveragePurchasePrice(int itemId, int? locationId)
         {
             try
@@ -586,7 +535,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 return Response<decimal>.Fail(0, ex.Message);
             }
         }
-
         private void createAccountTransactionEntries(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions)
         {
             decimal currencyRate = getCurrencyRate(salesVoucher.SalesVoucherCurrencyId);
@@ -631,10 +579,9 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 k.AccountsTransactionsLpoNo = string.Empty; // change it to desired option if needed
                 k.AccountsTransactionsDeptId = -1; // change it to desired option if needed
                 return k;
-            }).ToList();
+            }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
             _accountTransactionRepository.InsertList(accountsTransactions);
         }
-
         private string getAccountNoByPartyName(string partyName)
         {
             try
@@ -649,7 +596,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 return string.Empty;
             }
         }
-
         private decimal getCurrencyRate(int? salesVoucherCurrencyId)
         {
             try
@@ -661,28 +607,13 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 return 1;
             }
         }
-
-
         public IEnumerable<AccountsTransactions> GetAllTransaction()
         {
             return _accountTransactionRepository.GetAll();
         }
         public IEnumerable<SalesVoucher> GetSalesVoucher()
         {
-            //IEnumerable<SalesVoucher> salesVoucher_ALL = _salesVoucherRepository.GetAll().Where(k => k.SalesVoucherDelStatus == false || k.SalesVoucherDelStatus == null).ToList();
-            //IEnumerable<CurrencyMaster> _currencyMaster = _currencyMasterRepository.GetAll().ToList();
-
-            //foreach (var salesVoucher in salesVoucher_ALL)
-            //{
-            //    salesVoucher.CurrencyMasterCurrencyName = _currencyMaster
-            //                                                 .Where(c => c.CurrencyMasterCurrencyId == salesVoucher.SalesVoucherCurrencyId)
-            //                                                 .FirstOrDefault() != null ? _currencyMaster
-            //                                                 .Where(c => c.CurrencyMasterCurrencyId == salesVoucher.SalesVoucherCurrencyId)
-            //                                                 .FirstOrDefault().CurrencyMasterCurrencyName : null;
-            //}
-
-
-            var salV = (from s in _salesVoucherRepository.GetAsQueryable()
+         var salV = (from s in _salesVoucherRepository.GetAsQueryable()
                         join c in _customerMasterRepository.GetAsQueryable() on s.SalesVoucherPartyId equals c.CustomerMasterCustomerNo
                         join cr in _currencyMasterRepository.GetAsQueryable() on s.SalesVoucherCurrencyId equals cr.CurrencyMasterCurrencyId
                         where s.SalesVoucherDelStatus == null || s.SalesVoucherDelStatus == false
@@ -743,57 +674,49 @@ namespace Inspire.Erp.Application.Sales.Implementations
                             SalesVoucherShippinAddress = s.SalesVoucherShippinAddress,
                             SalesVoucherDelStatus = s.SalesVoucherDelStatus,
                             SalesVoucherShortNo = s.SalesVoucherShortNo,
-                        }).ToList();
-
-
-
-
+                        }).OrderBy(x => x.SalesVoucherNo).AsEnumerable().ToList();
 
             return salV;
         }
-        public SalesVoucherModel GetSavedSalesVoucherDetails(string pvno)
+        public SalesVoucherModel GetSavedSalesVoucherDetails(decimal pvno)
         {
             SalesVoucherModel salesVoucherModel = new SalesVoucherModel();
             //salesVoucherModel.salesVoucher = _salesVoucherRepository.GetAsQueryable().Where(k => k.SalesVoucherNo == pvno && k.SalesVoucherDelStatus == false).SingleOrDefault();
-            salesVoucherModel.salesVoucher = _salesVoucherRepository.GetAsQueryable().Where(k => k.SalesVoucherNo == pvno).SingleOrDefault();
-            salesVoucherModel.salesVoucherDetails = _salesVoucherDetailsRepository.GetAsQueryable().Where(x => x.SalesVoucherDetailsNo == pvno && (x.SalesVoucherDetailsDelStatus == false || x.SalesVoucherDetailsDelStatus == null)).ToList();
+            salesVoucherModel.salesVoucher = _salesVoucherRepository.GetAsQueryable().Where(k => k.SalesVoucherId == pvno).SingleOrDefault();
 
-            salesVoucherModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(x => x.AccountsTransactionsVoucherNo == pvno && x.AccountstransactionsDelStatus != true).ToList();
-
-            if (salesVoucherModel.salesVoucherDetails.Count > 0)
+            if (salesVoucherModel.salesVoucher != null)
             {
-                foreach (var item in salesVoucherModel.salesVoucherDetails)
+                salesVoucherModel.salesVoucherDetails = _salesVoucherDetailsRepository.GetAsQueryable().Where(x => x.SalesVoucherDetailsNo == salesVoucherModel.salesVoucher.SalesVoucherNo && (x.SalesVoucherDetailsDelStatus == false || x.SalesVoucherDetailsDelStatus == null)).OrderBy(x => x.SalesVoucherDetailsItemName).AsEnumerable().ToList();
+
+                salesVoucherModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(x => x.AccountsTransactionsVoucherNo == salesVoucherModel.salesVoucher.SalesVoucherNo && x.AccountstransactionsDelStatus != true).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+
+                if (salesVoucherModel.salesVoucherDetails.Count > 0)
                 {
-                    decimal sumReturnedQty = 0;
-                    var stockQuery = _stockRegisterRepository.GetAsQueryable()
-                    .Where(a => a.StockRegisterMaterialID == item.SalesVoucherDetailsMatId &&
-                                a.StockRegisterTransType == "SalesReturn" &&
-                                a.StockRegisterRefVoucherNo == item.SalesVoucherDetailsNo);
-
-                    sumReturnedQty = stockQuery.Any()
-                                       ? stockQuery.Sum(s => (decimal?)s.StockRegisterSout) ?? 0
-                                       : 0;
-
-                    if (sumReturnedQty != null)
+                    foreach (var item in salesVoucherModel.salesVoucherDetails)
                     {
-                        item.SalesReturnQtyTill = sumReturnedQty;
-                    }
+                        decimal sumReturnedQty = 0;
+                        var stockQuery = _stockRegisterRepository.GetAsQueryable()
+                        .Where(a => a.StockRegisterMaterialID == item.SalesVoucherDetailsMatId &&
+                                    a.StockRegisterTransType == "SalesReturn" &&
+                                    a.StockRegisterRefVoucherNo == item.SalesVoucherDetailsNo);
 
+                        sumReturnedQty = stockQuery.Any()
+                                           ? stockQuery.Sum(s => (decimal?)s.StockRegisterSout) ?? 0
+                                           : 0;
+
+                        if (sumReturnedQty != null)
+                        {
+                            item.SalesReturnQtyTill = sumReturnedQty;
+                        }
+                    }
                 }
             }
-
-
             return salesVoucherModel;
         }
-
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
         {
             try
             {
-
-
-
-
 
 
                 var prefix = this._programsettingsRepository.GetAsQueryable().Where(k => k.ProgramSettingsKeyValue == Prefix.SalesVoucher_Prefix).FirstOrDefault().ProgramSettingsTextValue;
@@ -801,10 +724,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                                         .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == VoucherType.SalesVoucher_TYPE)
                                                         .DefaultIfEmpty()
                                                         .Max(o => o == null ? 0 : o.VouchersNumbersVNoNu)) + 1;
-
-
-                //var prefix = "CN";
-                //int vnoMaxVal = 1;
 
 
                 VouchersNumbers vouchersNumbers = new VouchersNumbers
@@ -826,12 +745,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
             }
 
         }
-
-
-
-        //using Microsoft.Extensions.Logging;
-        //private readonly ILogger<PaymentVoucherService> _logger;
-        //IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
         public VouchersNumbers GetVouchersNumbers(string pvno)
         {
             try
@@ -853,7 +766,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             {
                 SalesVoucher voucherModel = new SalesVoucher();
                 voucherModel = _salesVoucherRepository.GetAsQueryable().Where(a => a.SalesVoucherNo == SalesVoucherNo).FirstOrDefault();
-                voucherModel.SalesVoucherDetails = _salesVoucherDetailsRepository.GetAsQueryable().Where(o => o.SalesVoucherDetailsNo == SalesVoucherNo && o.SalesVoucherDetailsDelStatus != true).ToList();
+                voucherModel.SalesVoucherDetails = _salesVoucherDetailsRepository.GetAsQueryable().Where(o => o.SalesVoucherDetailsNo == SalesVoucherNo && o.SalesVoucherDetailsDelStatus != true).OrderBy(x => x.SalesVoucherDetailsItemName).AsEnumerable().ToList();
 
 
                 if (voucherModel.SalesVoucherDetails.Count > 0)
@@ -890,8 +803,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 throw ex;
             }
         }
-
-
         public async Task<Response<GridWrapperResponse<List<GetSalesVoucherResponse>>>> GetSalesVoucher(GenericGridViewModel model)
         {
             try
@@ -902,7 +813,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 {
                     SalesVoucherId = (decimal)x.SalesVoucherId,
                     SalesVoucherNo = x.SalesVoucherNo
-                }).ToList());
+                }).OrderBy(x => x.SalesVoucherNo).AsEnumerable().ToList());
                 var gridResponse = new GridWrapperResponse<List<GetSalesVoucherResponse>>();
                 gridResponse.Data = response;
                 gridResponse.Total = 0;
@@ -916,108 +827,219 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
         public IQueryable GetSalesReportSummaryWise()
         {
+            //var location = _locationMasterRepository.GetAsQueryable()
+            //                                                     .ToDictionary(x => x.LocationMasterLocationName, x => x.LocationMasterLocationName);
+
             try
             {
-                var SalesVoucherList = _salesVoucherRepository.GetAll();
-                var SalesManMasterList = _salesManMasterRepository.GetAll();// context.SalesManMaster.ToList();
 
-                var SalesReturnDetails = _salesReturnDtls.GetAll().Select(o => new
-                {
-                    SalRetAmt = o.SalesReturnDetailsNetAmt,
-                    SalesReturnDetailsNo = o.SalesReturnDetailsNo,
-                }).ToList().GroupBy(g => new
-                {
-                    SalesReturnDetailsNo = g.SalesReturnDetailsNo
-                }).Select(o => new
-                {
-                    SalesReturnDetailsNo = o.Key.SalesReturnDetailsNo,
-                    SalRetAmt = o.Sum(s => s.SalRetAmt)
-                }).ToList();
+                //    var SalesVoucherList = _salesVoucherRepository.GetAll();
+                //    var SalesManMasterList = _salesManMasterRepository.GetAll();// context.SalesManMaster.ToList();
 
-                var SalesReturnMaster = _salesReturn.GetAll().Select(o => new
-                {
-                    SalRetVatAmt = o.SalesReturnVat_RountAmt,
-                    SalesReturnNo = o.SalesReturnNo,
-                    SalRetAmt = o.SalesReturnNetAmount,
-                    SalRetRountAmt = o.SalesReturnVat_RoundSign == "-" ? o.SalesReturnVat_RountAmt * -1 : o.SalesReturnVat_RountAmt,
-                }).ToList().GroupBy(g => new
-                {
-                    SalesReturnNo = g.SalesReturnNo,
-                }).Select(o => new
-                {
-                    SalesReturnNo = o.Key.SalesReturnNo,
-                    SalRetVatAmt = o.Sum(s => s.SalRetVatAmt),
-                    SalRetAmt = o.FirstOrDefault().SalRetAmt,
-                    SalRetRountAmt = o.FirstOrDefault().SalRetRountAmt,
-                }).ToList();
-                var Include_Sales_Return_Details_In_Reports = _optionMaster.GetAsQueryable().FirstOrDefault(o => o.OptionsMasterDescription == "Include_Sales_Return_Details_In_Reports" && o.OptionsMasterType == "Yes");
-                if (Include_Sales_Return_Details_In_Reports != null)
-                {
-                    var data1 = (from hdr in SalesVoucherList
-                                 join dtl in SalesReturnDetails on hdr.SalesVoucherNo equals dtl.SalesReturnDetailsNo into ldtl
-                                 from retDtl in ldtl.DefaultIfEmpty()
-                                 join mstr in SalesReturnMaster on hdr.SalesVoucherNo equals mstr.SalesReturnNo into lmstr
-                                 from retMstr in lmstr.DefaultIfEmpty()
-                                 where hdr.SalesVoucherNo != null
-                                 select new
-                                 {
-                                     voucherNo = hdr.SalesVoucherNo,
-                                     voucherDate = hdr.SalesVoucherDate,
-                                     voucherType = hdr.SalesVoucherType,
-                                     CustomerName = _customerMasterRepository.GetAsQueryable().FirstOrDefault(x => x.CustomerMasterCustomerNo == hdr.SalesVoucherPartyId).CustomerMasterCustomerName,//  hdr.SalesVoucherPartyName,// hdr.SalesVoucherContPerson == null ? hdr.SalesVoucherPartyName : hdr.SalesVoucherContPerson,
-                                     SalesmanName = SalesManMasterList.FirstOrDefault(o => o.SalesManMasterSalesManId == hdr.SalesVoucherSalesManID) != null ? SalesManMasterList.FirstOrDefault(o => o.SalesManMasterSalesManId == hdr.SalesVoucherSalesManID).SalesManMasterSalesManName : "",
-                                     GrossAmount = hdr.SalesVoucherTotalGrossAmount,
-                                     Discount = hdr.SalesVoucherNetDisAmount ?? 0 + hdr.SalesVoucherTotalDisAmount ?? 0,
-                                     SalRetAmt = retMstr != null ? retMstr.SalRetAmt : 0,
-                                     VATAmount = hdr.SalesVoucherVat_AMT - (retMstr != null ? (decimal)retMstr.SalRetVatAmt : 0),
-                                     NetAmount = hdr.SalesVoucherNetAmount - (retMstr != null ? (decimal)retMstr.SalRetAmt : 0),
-                                 }).ToList();
+                //    var SalesReturnDetails = _salesReturnDtls.GetAll().Select(o => new
+                //    {
+                //        SalRetAmt = o.SalesReturnDetailsNetAmt,
+                //        SalesReturnDetailsNo = o.SalesReturnDetailsNo,
+                //    }).OrderBy(x => x.SalesReturnDetailsNo).ToList().GroupBy(g => new
+                //    {
+                //        SalesReturnDetailsNo = g.SalesReturnDetailsNo
+                //    }).Select(o => new
+                //    {
+                //        SalesReturnDetailsNo = o.Key.SalesReturnDetailsNo,
+                //        SalRetAmt = o.Sum(s => s.SalRetAmt)
+                //    }).OrderBy(x => x.SalesReturnDetailsNo).AsEnumerable().ToList();
 
-                    var data2 = (from hdr in SalesVoucherList
-                                 join mstr in SalesReturnMaster on hdr.SalesVoucherNo equals mstr.SalesReturnNo into lmstr
-                                 from retMstr in lmstr.DefaultIfEmpty()
-                                 where hdr.SalesVoucherNo != null
-                                 select new
-                                 {
-                                     voucherNo = hdr.SalesVoucherNo,
-                                     voucherDate = hdr.SalesVoucherDate,
-                                     voucherType = hdr.SalesVoucherType,
-                                     CustomerName = _customerMasterRepository.GetAsQueryable().FirstOrDefault(x => x.CustomerMasterCustomerNo == hdr.SalesVoucherPartyId).CustomerMasterCustomerName,//  hdr.SalesVoucherPartyName,// hdr.SalesVoucherContPerson == null ? hdr.SalesVoucherPartyName : hdr.SalesVoucherContPerson,
-
-                                     SalesmanName = SalesManMasterList.FirstOrDefault(o => o.SalesManMasterSalesManId == hdr.SalesVoucherSalesManID) != null ? SalesManMasterList.FirstOrDefault(o => o.SalesManMasterSalesManId == hdr.SalesVoucherSalesManID).SalesManMasterSalesManName : "",
-                                     GrossAmount = hdr.SalesVoucherTotalGrossAmount,
-                                     Discount = hdr.SalesVoucherNetDisAmount ?? 0 + hdr.SalesVoucherTotalDisAmount ?? 0,
-                                     SalRetAmt = retMstr != null ? retMstr.SalRetAmt : 0,
-                                     VATAmount = hdr.SalesVoucherVat_AMT - (retMstr != null ? (decimal)retMstr.SalRetVatAmt : 0),
-                                     NetAmount = hdr.SalesVoucherNetAmount - (retMstr != null ? (decimal)retMstr.SalRetAmt : 0),
-                                 }).ToList();
+                //    var SalesReturnMaster = _salesReturn.GetAll().Select(o => new
+                //    {
+                //        SalRetVatAmt = o.SalesReturnVat_RountAmt,
+                //        SalesReturnNo = o.SalesReturnNo,
+                //        SalRetAmt = o.SalesReturnNetAmount,
+                //        SalRetRountAmt = o.SalesReturnVat_RoundSign == "-" ? o.SalesReturnVat_RountAmt * -1 : o.SalesReturnVat_RountAmt,
+                //    }).OrderBy(x => x.SalesReturnNo).ToList().GroupBy(g => new
+                //    {
+                //        SalesReturnNo = g.SalesReturnNo,
+                //    }).Select(o => new
+                //    {
+                //        SalesReturnNo = o.Key.SalesReturnNo,
+                //        SalRetVatAmt = o.Sum(s => s.SalRetVatAmt),
+                //        SalRetAmt = o.FirstOrDefault().SalRetAmt,
+                //        SalRetRountAmt = o.FirstOrDefault().SalRetRountAmt,
+                //    }).OrderBy(x => x.SalesReturnNo).AsEnumerable().ToList();
+                //    var Include_Sales_Return_Details_In_Reports = _optionMaster.GetAsQueryable().FirstOrDefault(o => o.OptionsMasterDescription == "Include_Sales_Return_Details_In_Reports" && o.OptionsMasterType == "Yes");
+                //    if (Include_Sales_Return_Details_In_Reports != null)
+                //    {
+                //        var data1 = (from hdr in SalesVoucherList
+                //                     join dtl in SalesReturnDetails on hdr.SalesVoucherNo equals dtl.SalesReturnDetailsNo into ldtl
+                //                     from retDtl in ldtl.DefaultIfEmpty()
+                //                     join mstr in SalesReturnMaster on hdr.SalesVoucherNo equals mstr.SalesReturnNo into lmstr
 
 
-                    var finalData = data1.Union(data2).AsQueryable();
-                    return finalData;
-                }
-                else
-                {
-                    var data = (from hdr in SalesVoucherList
-                                join saleman in SalesManMasterList on hdr.SalesVoucherSalesManID equals saleman.SalesManMasterSalesManId into lsmm
-                                from smm in lsmm.DefaultIfEmpty()
-                                where hdr.SalesVoucherNo != null
-                                select new
-                                {
-                                    SalesmanName = SalesManMasterList.FirstOrDefault(o => o.SalesManMasterSalesManId == hdr.SalesVoucherSalesManID) != null ? SalesManMasterList.FirstOrDefault(o => o.SalesManMasterSalesManId == hdr.SalesVoucherSalesManID).SalesManMasterSalesManName : "",
-                                    voucherNo = hdr.SalesVoucherNo,
-                                    voucherDate = hdr.SalesVoucherDate,
-                                    voucherType = hdr.SalesVoucherType,
-                                    CustomerName = _customerMasterRepository.GetAsQueryable().FirstOrDefault(x => x.CustomerMasterCustomerNo == hdr.SalesVoucherPartyId).CustomerMasterCustomerName,//  hdr.SalesVoucherPartyName,// hdr.SalesVoucherContPerson == null ? hdr.SalesVoucherPartyName : hdr.SalesVoucherContPerson,
-                                    GrossAmount = hdr.SalesVoucherTotalGrossAmount,
-                                    Discount = hdr.SalesVoucherNetDisAmount ?? 0 + hdr.SalesVoucherTotalDisAmount ?? 0,
-                                    SalRetAmt = 0,
-                                    VATAmount = hdr.SalesVoucherVat_AMT,
-                                    NetAmount = hdr.SalesVoucherNetAmount,
-                                }).AsQueryable();
-                    return data;
-                }
+                //                     //join c in _customerMasterRepository.GetAsQueryable() on hdr.SalesVoucherPartyId equals c.CustomerMasterCustomerNo
+                //                     //join cr in _currencyMasterRepository.GetAsQueryable() on s.SalesVoucherCurrencyId equals cr.CurrencyMasterCurrencyId
+                //                     //where s.SalesVoucherDelStatus == null || s.SalesVoucherDelStatus == false
+                //                     //select new SalesVoucher()
+                //                     //{
+                //                     //    SalesVoucherId = s.SalesVoucherId,
+                //                     //    SalesVoucherNo = s.SalesVoucherNo,
+                //                     //    SalesVoucherDate = s.SalesVoucherDate,
+                //                     //    SalesVoucherType = s.SalesVoucherType,
+                //                     //    SalesVoucherPartyId = c.CustomerMasterCustomerNo,
+                //                     //    SalesVoucherPartyName = c.CustomerMasterCustomerName,
+
+
+
+                //                         from retMstr in lmstr.DefaultIfEmpty()
+                //                     where hdr.SalesVoucherNo != null
+                //                     select new
+                //                     {
+                //                         voucherNo = hdr.SalesVoucherNo,
+                //                         voucherDate = hdr.SalesVoucherDate,
+                //                         voucherType = hdr.SalesVoucherType,
+                //                         CustomerName = _customerMasterRepository.GetAsQueryable().FirstOrDefault(x => x.CustomerMasterCustomerNo == hdr.SalesVoucherPartyId).CustomerMasterCustomerName,//  hdr.SalesVoucherPartyName,// hdr.SalesVoucherContPerson == null ? hdr.SalesVoucherPartyName : hdr.SalesVoucherContPerson,
+                //                         SalesmanName = SalesManMasterList.FirstOrDefault(o => o.SalesManMasterSalesManId == hdr.SalesVoucherSalesManID) != null ? SalesManMasterList.FirstOrDefault(o => o.SalesManMasterSalesManId == hdr.SalesVoucherSalesManID).SalesManMasterSalesManName : "",
+                //                         GrossAmount = hdr.SalesVoucherTotalGrossAmount,
+                //                         Discount = hdr.SalesVoucherNetDisAmount ?? 0 + hdr.SalesVoucherTotalDisAmount ?? 0,
+                //                         SalRetAmt = retMstr != null ? retMstr.SalRetAmt : 0,
+                //                         VATAmount = hdr.SalesVoucherVat_AMT - (retMstr != null ? (decimal)retMstr.SalRetVatAmt : 0),
+                //                         NetAmount = hdr.SalesVoucherNetAmount - (retMstr != null ? (decimal)retMstr.SalRetAmt : 0),
+                //                         // SalesVoucherPartyName = c.CustomerMasterCustomerName,
+                //                         //CustomerName = c.CustomerMasterCustomerName,
+                //                         LocationMasterName = location.ContainsKey(Convert.ToInt32(hdr.SalesVoucherLocationID).ToString())
+                //                   ? location[Convert.ToInt32(hdr.SalesVoucherLocationID).ToString()]
+                //                   : "",
+                //                     }).OrderBy(x => x.voucherNo).AsEnumerable().ToList();
+
+                //        var data2 = (from hdr in SalesVoucherList
+                //                     join mstr in SalesReturnMaster on hdr.SalesVoucherNo equals mstr.SalesReturnNo into lmstr
+                //                     from retMstr in lmstr.DefaultIfEmpty()
+                //                     where hdr.SalesVoucherNo != null
+                //                     select new
+                //                     {
+                //                         voucherNo = hdr.SalesVoucherNo,
+                //                         voucherDate = hdr.SalesVoucherDate,
+                //                         voucherType = hdr.SalesVoucherType,
+                //                         CustomerName = _customerMasterRepository.GetAsQueryable().FirstOrDefault(x => x.CustomerMasterCustomerNo == hdr.SalesVoucherPartyId).CustomerMasterCustomerName,//  hdr.SalesVoucherPartyName,// hdr.SalesVoucherContPerson == null ? hdr.SalesVoucherPartyName : hdr.SalesVoucherContPerson,
+
+                //                         SalesmanName = SalesManMasterList.FirstOrDefault(o => o.SalesManMasterSalesManId == hdr.SalesVoucherSalesManID) != null ? SalesManMasterList.FirstOrDefault(o => o.SalesManMasterSalesManId == hdr.SalesVoucherSalesManID).SalesManMasterSalesManName : "",
+                //                         GrossAmount = hdr.SalesVoucherTotalGrossAmount,
+                //                         Discount = hdr.SalesVoucherNetDisAmount ?? 0 + hdr.SalesVoucherTotalDisAmount ?? 0,
+                //                         SalRetAmt = retMstr != null ? retMstr.SalRetAmt : 0,
+                //                         VATAmount = hdr.SalesVoucherVat_AMT - (retMstr != null ? (decimal)retMstr.SalRetVatAmt : 0),
+                //                         NetAmount = hdr.SalesVoucherNetAmount - (retMstr != null ? (decimal)retMstr.SalRetAmt : 0),
+                //                         LocationMasterName = location.ContainsKey(Convert.ToInt32(hdr.SalesVoucherLocationID).ToString())
+                //                   ? location[Convert.ToInt32(hdr.SalesVoucherLocationID).ToString()]
+                //                   : "",
+                //                     }).OrderBy(x => x.voucherNo).AsEnumerable().ToList();
+
+
+                //        var finalData = data1.Union(data2).AsQueryable();
+                //        return finalData;
+                //    }
+                //    else
+                //    {
+                //        //var data = (from hdr in SalesVoucherList
+                //        //            join saleman in SalesManMasterList on hdr.SalesVoucherSalesManID equals saleman.SalesManMasterSalesManId into lsmm
+                //        //            from smm in lsmm.DefaultIfEmpty()
+                //        //            where hdr.SalesVoucherNo != null
+                //        //            select new
+                //        //            {
+                //        //                SalesmanName = SalesManMasterList.FirstOrDefault(o => o.SalesManMasterSalesManId == hdr.SalesVoucherSalesManID) != null ? SalesManMasterList.FirstOrDefault(o => o.SalesManMasterSalesManId == hdr.SalesVoucherSalesManID).SalesManMasterSalesManName : "",
+                //        //                voucherNo = hdr.SalesVoucherNo,
+                //        //                voucherDate = hdr.SalesVoucherDate,
+                //        //                voucherType = hdr.SalesVoucherType,
+                //        //                CustomerName = _customerMasterRepository.GetAsQueryable().FirstOrDefault(x => x.CustomerMasterCustomerNo == hdr.SalesVoucherPartyId).CustomerMasterCustomerName,//  hdr.SalesVoucherPartyName,// hdr.SalesVoucherContPerson == null ? hdr.SalesVoucherPartyName : hdr.SalesVoucherContPerson,
+                //        //                GrossAmount = hdr.SalesVoucherTotalGrossAmount,
+                //        //                Discount = hdr.SalesVoucherNetDisAmount ?? 0 + hdr.SalesVoucherTotalDisAmount ?? 0,
+                //        //                SalRetAmt = 0,
+                //        //                VATAmount = hdr.SalesVoucherVat_AMT,
+                //        //                NetAmount = hdr.SalesVoucherNetAmount,
+                //        //            }).AsQueryable();
+
+                //        // Load SalesManMasterList data into a dictionary for quick lookup
+                //        var salesmanDict = SalesManMasterList.ToDictionary(o => o.SalesManMasterSalesManId, o => o.SalesManMasterSalesManName);
+
+                //        // Load CustomerMaster data into a dictionary for quick lookup
+                //        var customerDict = _customerMasterRepository.GetAsQueryable()
+                //                                                      .ToDictionary(x => x.CustomerMasterCustomerNo, x => x.CustomerMasterCustomerName);
+
+                //        var data = (from hdr in SalesVoucherList
+                //                    where hdr.SalesVoucherNo != null
+                //                    select new
+                //                    {
+                //                        SalesmanName = salesmanDict.ContainsKey(hdr.SalesVoucherSalesManID)
+                //                                       ? salesmanDict[hdr.SalesVoucherSalesManID]
+                //                                       : "", // If SalesManMasterSalesManId is not found, return an empty string
+                //                        voucherNo = hdr.SalesVoucherNo,
+                //                        voucherDate = Convert.ToDateTime(hdr.SalesVoucherDate).ToString("dd/MM/yyyy"),
+                //                        voucherType = hdr.SalesVoucherType,
+                //                                                                                                                                                                                  // .ToDictionary(x => x.CustomerMasterCustomerNo, x => x.CustomerMasterCustomerName).FirstOrDefault(),
+
+                //                        CustomerName = customerDict.ContainsKey(Convert.ToInt32(hdr.SalesVoucherPartyId))
+                //                   ? customerDict[Convert.ToInt32(hdr.SalesVoucherPartyId)]
+                //                   : "", // If customer is not found, return an empty string
+
+
+                //                         //LocationMasterId = location?. ?? 0,
+                //                        LocationMasterName = location.ContainsKey(Convert.ToInt32(hdr.SalesVoucherLocationID).ToString())
+                //                   ? location[Convert.ToInt32(hdr.SalesVoucherLocationID).ToString()]
+                //                   : "",
+                //                        GrossAmount = hdr.SalesVoucherTotalGrossAmount,
+                //                        Discount = (hdr.SalesVoucherNetDisAmount ?? 0) + (hdr.SalesVoucherTotalDisAmount ?? 0),
+                //                        SalRetAmt = 0,
+                //                        VATAmount = hdr.SalesVoucherVat_AMT,
+                //                        NetAmount = hdr.SalesVoucherNetAmount,
+                //                    }).AsQueryable();
+
+                //        return data;
+
+                var customerDict = _customerMasterRepository.GetAsQueryable()
+                                                                     .ToDictionary(x => x.CustomerMasterCustomerNo, x => x.CustomerMasterCustomerName);
+
+                var data = (from svd in _salesVoucherDetailsRepository.GetAll()
+                            join sv in _salesVoucherRepository.GetAll() on svd.SalesVoucherDetailsNo equals sv.SalesVoucherNo into lsv
+                            from salesVou in lsv.DefaultIfEmpty()
+                            join itemMas in _itemMasterRepository.GetAll() on (long)svd.SalesVoucherDetailsMatId equals itemMas.ItemMasterItemId into litemm
+                            from itemmaster in litemm.DefaultIfEmpty()
+                            join um in _unitMasterRepository.GetAll() on svd.SalesVoucherDetailsUnitId equals um.UnitMasterUnitId into lum
+                            from unitMaster in lum.DefaultIfEmpty()
+
+                            join um1 in _locationMasterRepository.GetAll() on salesVou.SalesVoucherLocationID equals um1.LocationMasterLocationId into lum1
+                            from locationMater in lum1.DefaultIfEmpty()
+
+                            join unitDet in _UnitDetailsRepository.GetAll()
+                            on new { UnitId = (int)svd.SalesVoucherDetailsUnitId, ItemId = (int)svd.SalesVoucherDetailsMatId }
+                            equals new { UnitId = unitDet.UnitDetailsUnitId, ItemId = (int)unitDet.UnitDetailsItemId } into lud
+                            from unitDetail in lud.DefaultIfEmpty()
+                            where svd.SalesVoucherDetailsNo != null
+                            select new
+                            {
+                                InvoiceStatus = salesVou.SalesVoucherStatus,
+                                InvoiceType = salesVou.SalesVoucherType,
+                                NetAmount = svd.SalesVoucherDetailsNetAmt,
+                                Discount = svd.SalesVoucherDetailsDiscAmount,
+                                GrossAmt = svd.SalesVoucherDetailsGrossAmount,
+                                UnitPrice = svd.SalesVoucherDetailsCostPrice,
+                                UnitDes = unitMaster?.UnitMasterUnitShortName,  // Safe navigation to avoid null reference
+                                MatDes = itemmaster?.ItemMasterItemName ?? "Unknown",  // Default value if null
+                                PartNo = itemmaster?.ItemMasterPartNo ?? "N/A",  // Default value if null
+                                ItemId = itemmaster?.ItemMasterItemId ?? 0,                                             // VoucherDate = Convert.ToDateTime(salesVou.SalesVoucherDate).ToString("dd/MM/yyyy"),
+                                VoucherDate = salesVou.SalesVoucherDate,
+                                VoucherNo = salesVou.SalesVoucherNo,
+                                QuantitySold = svd.SalesVoucherDetailsQuantity ?? 0,
+                                baseUnit = svd.SalesVoucherDetailsQuantity * (decimal)(unitDetail?.UnitDetailsConversionType ?? 1),  // Handle null conversionType
+                                CustomerName = customerDict.ContainsKey(Convert.ToInt32(salesVou.SalesVoucherPartyId))
+                               ? customerDict[Convert.ToInt32(salesVou.SalesVoucherPartyId)]
+                               : "", // If customer is not found, return an empty string
+                                LocationMasterId = locationMater?.LocationMasterLocationId ?? 0,
+                                LocationMasterName = locationMater?.LocationMasterLocationName ?? "N/A"
+
+
+                            }).AsQueryable();
+
+                return data;
             }
+
+
             catch (System.Exception ex)
             {
                 throw ex;
@@ -1028,6 +1050,39 @@ namespace Inspire.Erp.Application.Sales.Implementations
         {
             try
             {
+                //var data = (from svd in _salesVoucherDetailsRepository.GetAll()
+                //            join sv in _salesVoucherRepository.GetAll() on svd.SalesVoucherDetailsNo equals sv.SalesVoucherNo into lsv
+                //            from salesVou in lsv.DefaultIfEmpty()
+                //            join itemMas in _itemMasterRepository.GetAll() on (long)svd.SalesVoucherDetailsMatId equals itemMas.ItemMasterItemId into litemm
+                //            from itemmaster in litemm.DefaultIfEmpty()
+                //            join um in _unitMasterRepository.GetAll() on svd.SalesVoucherDetailsUnitId equals um.UnitMasterUnitId into lum
+                //            from unitMaster in lum.DefaultIfEmpty()
+                //            join unitDet in _UnitDetailsRepository.GetAll() 
+                //            on new { UnitId = (int)svd.SalesVoucherDetailsUnitId, ItemId = (int)svd.SalesVoucherDetailsMatId }
+                //            equals new { UnitId = unitDet.UnitDetailsUnitId, ItemId = (int)unitDet.UnitDetailsItemId } into lud
+                //            from unitDetail in lud.DefaultIfEmpty()
+                //            where svd.SalesVoucherDetailsNo != null
+                //            select new
+                //            {
+                //                NetAmount = svd.SalesVoucherDetailsNetAmt,
+                //                Discount = svd.SalesVoucherDetailsDiscAmount,
+                //                GrossAmt = svd.SalesVoucherDetailsGrossAmount,
+                //                UnitPrice = svd.SalesVoucherDetailsCostPrice,
+                //                UnitDes = unitMaster.UnitMasterUnitShortName,
+                //                //MatDes = itemmaster.ItemMasterItemName,
+                //                //PartNo = itemmaster.ItemMasterPartNo,
+                //                VoucherDate = Convert.ToDateTime(salesVou.SalesVoucherDate).ToString("MM-dd-yyyy"),
+
+                //                VoucherNo = salesVou.SalesVoucherNo,
+                //                QuantitySold = svd.SalesVoucherDetailsQuantity ?? 0,
+                //                //unitPrice = itemmaster.ItemMasterUnitPrice ?? 0,
+                //                baseUnit = svd.SalesVoucherDetailsQuantity * (decimal)(unitDetail == null ? 1 : unitDetail.UnitDetailsConversionType ?? 1)   //SD.Sold_Qty * ISNULL(UD.ConversionType, 1)
+                //                // ItemGroup = 
+                //            }).AsQueryable();
+
+                var customerDict = _customerMasterRepository.GetAsQueryable()
+                                                                  .ToDictionary(x => x.CustomerMasterCustomerNo, x => x.CustomerMasterCustomerName);
+
                 var data = (from svd in _salesVoucherDetailsRepository.GetAll()
                             join sv in _salesVoucherRepository.GetAll() on svd.SalesVoucherDetailsNo equals sv.SalesVoucherNo into lsv
                             from salesVou in lsv.DefaultIfEmpty()
@@ -1035,26 +1090,40 @@ namespace Inspire.Erp.Application.Sales.Implementations
                             from itemmaster in litemm.DefaultIfEmpty()
                             join um in _unitMasterRepository.GetAll() on svd.SalesVoucherDetailsUnitId equals um.UnitMasterUnitId into lum
                             from unitMaster in lum.DefaultIfEmpty()
-                            join unitDet in _UnitDetailsRepository.GetAll() on new { UnitId = (int)svd.SalesVoucherDetailsUnitId, ItemId = (int)svd.SalesVoucherDetailsMatId }
+
+                            join um1 in _locationMasterRepository.GetAll() on salesVou.SalesVoucherLocationID equals um1.LocationMasterLocationId into lum1
+                            from locationMater in lum1.DefaultIfEmpty()
+
+                            join unitDet in _UnitDetailsRepository.GetAll()
+                            on new { UnitId = (int)svd.SalesVoucherDetailsUnitId, ItemId = (int)svd.SalesVoucherDetailsMatId }
                             equals new { UnitId = unitDet.UnitDetailsUnitId, ItemId = (int)unitDet.UnitDetailsItemId } into lud
                             from unitDetail in lud.DefaultIfEmpty()
                             where svd.SalesVoucherDetailsNo != null
                             select new
                             {
+                                InvoiceType = salesVou.SalesVoucherType,
+                                InvoiceStatus = salesVou.SalesVoucherStatus,
                                 NetAmount = svd.SalesVoucherDetailsNetAmt,
                                 Discount = svd.SalesVoucherDetailsDiscAmount,
                                 GrossAmt = svd.SalesVoucherDetailsGrossAmount,
-                                //UnitPrice = svd.SalesVoucherDetailsCostPrice,
-                                UnitDes = unitMaster.UnitMasterUnitShortName,
-                                MatDes = itemmaster.ItemMasterItemName,
-                                //PartNo = itemmaster.ItemMasterPartNo,
+                                UnitPrice = svd.SalesVoucherDetailsCostPrice,
+                                UnitDes = unitMaster?.UnitMasterUnitShortName,  // Safe navigation to avoid null reference
+                                MatDes = itemmaster?.ItemMasterItemName ?? "Unknown",  // Default value if null
+                                PartNo = itemmaster?.ItemMasterPartNo ?? "N/A",  // Default value if null
+                                ItemId=itemmaster?.ItemMasterItemId ?? 0,                                             // VoucherDate = Convert.ToDateTime(salesVou.SalesVoucherDate).ToString("dd/MM/yyyy"),
                                 VoucherDate = salesVou.SalesVoucherDate,
                                 VoucherNo = salesVou.SalesVoucherNo,
                                 QuantitySold = svd.SalesVoucherDetailsQuantity ?? 0,
-                                //unitPrice = itemmaster.ItemMasterUnitPrice ?? 0,
-                                baseUnit = svd.SalesVoucherDetailsQuantity * (decimal)(unitDetail == null ? 1 : unitDetail.UnitDetailsConversionType ?? 1)   //SD.Sold_Qty * ISNULL(UD.ConversionType, 1)
-                                // ItemGroup = 
+                                baseUnit = svd.SalesVoucherDetailsQuantity * (decimal)(unitDetail?.UnitDetailsConversionType ?? 1),  // Handle null conversionType
+                                CustomerName = customerDict.ContainsKey(Convert.ToInt32(salesVou.SalesVoucherPartyId))
+                               ? customerDict[Convert.ToInt32(salesVou.SalesVoucherPartyId)]
+                               : "", // If customer is not found, return an empty string
+                                LocationMasterId= locationMater?.LocationMasterLocationId ?? 0,
+                                LocationMasterName= locationMater?.LocationMasterLocationName ?? "N/A"
+
+
                             }).AsQueryable();
+
                 return data;
             }
             catch (System.Exception ex)
@@ -1062,79 +1131,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 throw ex;
             }
         }
-
-        //public POS_Sales_Voucher InsertPosSalesVoucher(POS_Sales_Voucher salesVoucher, List<POS_Sales_Voucher_Details> posSalesVoucherDetails)
-        //{
-        //    try
-        //    {
-        //        _posSalesVoucherRepository.BeginTransaction();
-        //        string salesVoucherNumber = this.GeneratePosVoucherNo(salesVoucher.VoucherDate).VouchersNumbersVNo;
-        //        salesVoucher.VoucherNo = salesVoucherNumber;
-
-
-        //        int maxcount = 0;
-        //        maxcount = Convert.ToInt32(
-        //            _posSalesVoucherRepository.GetAsQueryable()
-        //            .DefaultIfEmpty().Max(o => o == null ? 0 : o.V_Id) + 1);
-
-        //        posSalesVoucherDetails = posSalesVoucherDetails.Select((x) =>
-        //        {
-        //            x.SNO = maxcount;
-        //            x.VoucherNo = salesVoucherNumber;
-        //            return x;
-        //        }).ToList();
-
-        //        var stockReg = new List<StockRegister>();
-        //        foreach (var item in salesVoucher.posSalesVoucherDetails)
-        //        {
-        //            stockReg.Add(new StockRegister()
-        //            {
-        //                StockRegisterPurchaseID = salesVoucher.VoucherNo,
-        //                StockRegisterRefVoucherNo = salesVoucher.VoucherNo,
-        //                StockRegisterVoucherDate = DateTime.Now.Date,
-        //                StockRegisterMaterialID = Convert.ToInt32(item.ItemId),
-        //                StockRegisterQuantity = item.Sold_Qty,
-        //                StockRegisterSIN = 0,
-        //                StockRegisterSout = item.Sold_Qty,
-        //                StockRegisterRate = item.UnitPrice,
-        //                StockRegisterAmount = item.GrossAmt ?? 0,
-        //                StockRegisterFCAmount = item.GrossAmt,
-        //                StockRegisterAssignedDate = DateTime.Now.Date,
-        //                StockRegisterStatus = "A",
-        //                StockRegisterTransType = salesVoucher.Voucher_Type,
-        //                StockRegisterUnitID = Convert.ToInt32(item.UnitId),
-        //                StockRegisterLocationID = salesVoucher.Location,
-        //                StockRegisterDepID = Convert.ToInt32(salesVoucher.DeptID),
-        //                StockRegisterDelStatus = false
-        //            });
-        //        }
-        //        _stockRegisterRepository.InsertList(stockReg);
-
-
-        //        _posSalesVoucherRepository.Insert(salesVoucher);
-        //        _posSalesVoucherDetailsRepository.InsertList(posSalesVoucherDetails);
-        //        _posSalesVoucherRepository.TransactionCommit();
-        //        return this.GetSavedPosSalesVoucherDetails(salesVoucher.VoucherNo);
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _posSalesVoucherRepository.TransactionRollback();
-        //        throw ex;
-        //    }
-
-        //}
-
-        //public POS_Sales_Voucher GetSavedPosSalesVoucherDetails(string pvno)
-        //{
-        //    POS_Sales_Voucher salesVoucher = new POS_Sales_Voucher();
-
-        //    salesVoucher = _posSalesVoucherRepository.GetAsQueryable().Where(k => k.VoucherNo == pvno).SingleOrDefault();
-        //    salesVoucher.posSalesVoucherDetails = _posSalesVoucherDetailsRepository.GetAsQueryable().Where(x => x.VoucherNo == pvno).ToList();
-
-
-        //    return salesVoucher;
-        //}
         public VouchersNumbers GeneratePosVoucherNo(DateTime? VoucherGenDate)
         {
             try
@@ -1167,76 +1163,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
             }
 
         }
-
-        //public POS_Sales_Voucher UpdatePosSalesVoucher(POS_Sales_Voucher salesVoucher, List<POS_Sales_Voucher_Details> PosSalesVoucherDetails)
-        //{
-        //    try
-        //    {
-        //        _posSalesVoucherRepository.BeginTransaction();
-        //        _posSalesVoucherRepository.Update(salesVoucher);
-        //        _posSalesVoucherDetailsRepository.UpdateList(PosSalesVoucherDetails);
-        //        _posSalesVoucherRepository.TransactionCommit();
-
-        //        return this.GetSavedPosSalesVoucherDetails(salesVoucher.VoucherNo);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _posSalesVoucherRepository.TransactionRollback();
-        //        throw ex;
-        //    }
-        //}
-
-        //public IEnumerable<POS_Sales_Voucher> GetPosSalesVoucher()
-        //{
-        //    var salV = (from s in _posSalesVoucherRepository.GetAsQueryable()
-        //                join c in _customerMasterRepository.GetAsQueryable() on s.Customer_ID equals c.CustomerMasterCustomerNo
-        //                select new POS_Sales_Voucher()
-        //                {
-        //                    V_Id = s.V_Id,
-        //                    VoucherNo = s.VoucherNo,
-        //                    VoucherDate = s.VoucherDate,
-        //                    Voucher_Type = s.Voucher_Type,
-        //                    Customer_ID = c.CustomerMasterCustomerNo,
-        //                    CustomerName = c.CustomerMasterCustomerName,
-        //                    refno = s.refno,
-        //                    DeptID = s.DeptID,
-        //                    Location = s.Location,
-        //                    UserId = s.UserId,
-        //                    CompanyId = s.CompanyId,
-        //                    DiscountPer = s.DiscountPer,
-        //                    Vat_Per = s.Vat_Per,
-        //                    Vat_RoundSign = s.Vat_RoundSign,
-        //                    Vat_RountAmt = s.Vat_RountAmt,
-        //                    NetDiscount = s.NetDiscount,
-        //                    NetAmount = s.NetAmount,
-        //                    Remarks = s.Remarks,
-        //                    ShortNo = s.ShortNo,
-        //                    CashCustName = s.CashCustName,
-        //                    Counter_ID_N = s.Counter_ID_N,
-        //                    Discount = s.Discount,
-        //                    GrossAmount = s.GrossAmount,
-        //                    HOLD_B = s.HOLD_B,
-        //                    WorkPeriodID = s.WorkPeriodID,
-        //                    InvoiceType = s.InvoiceType,
-        //                    PaymentMode = s.PaymentMode,
-        //                    Vat_TaxableAmt = s.Vat_TaxableAmt,
-        //                    Refrence = s.Refrence,
-        //                    Salesman = s.Salesman,
-        //                    Retail_B = s.Retail_B,
-        //                    VatAmount = s.VatAmount,
-        //                    SV_SM_VoucherNo = s.SV_SM_VoucherNo,
-        //                    Shift_ID_N = s.Shift_ID_N,
-        //                    StationID = s.StationID,
-        //                    SV_NoVat_B = s.SV_NoVat_B,
-        //                    SV_SM_Bal = s.SV_SM_Bal,
-        //                    Vat_AMT = s.Vat_AMT,
-        //                    Vatable_TotAmt = s.Vatable_TotAmt
-        //                }).ToList();
-
-
-
-        //    return salV;
-        //}
 
         #region Pos Sales Hold
         public VouchersNumbers GeneratePosSaleHoldVoucherNo(DateTime? VoucherGenDate)
@@ -1293,7 +1219,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     x.SNO = maxcount;
                     x.VoucherNo = salesVoucherNumber;
                     return x;
-                }).ToList();
+                }).OrderBy(x => x.VoucherNo).AsEnumerable().ToList();
 
                 salesHold.SalesHoldDetails.Clear();
 
@@ -1333,7 +1259,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 SalesHold = this.GetPosSalesHold(id);
                 if (SalesHold != null)
                 {
-                    _salesHoldDetailsRepository.DeleteList(SalesHold.SalesHoldDetails.ToList());
+                    _salesHoldDetailsRepository.DeleteList(SalesHold.SalesHoldDetails.OrderBy(x => x.VoucherNo).ToList());
 
 
 
@@ -1341,7 +1267,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     _salesHoldRepository.TransactionCommit();
                 }
 
-                return _salesHoldRepository.GetAll().Where(a => a.V_ID > 0).ToList();
+                return _salesHoldRepository.GetAll().Where(a => a.V_ID > 0).OrderBy(x => x.VoucherNo).AsEnumerable().ToList();
             }
             catch (Exception ex)
             {
@@ -1360,7 +1286,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 SalesHold = _salesHoldRepository.GetAsQueryable().Where(k => k.V_ID == id).FirstOrDefault();
                 if (SalesHold != null)
                 {
-                    SalesHold.SalesHoldDetails = _salesHoldDetailsRepository.GetAsQueryable().Where(x => x.SNO == id).ToList();
+                    SalesHold.SalesHoldDetails = _salesHoldDetailsRepository.GetAsQueryable().Where(x => x.SNO == id).OrderBy(x => x.VoucherNo).AsEnumerable().ToList();
                 }
                 return SalesHold;
             }
@@ -1388,8 +1314,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
         }
 
         #endregion
-
-
         public POS_WorkPeriod StartPosWP(POS_WorkPeriod wp)
         {
             try

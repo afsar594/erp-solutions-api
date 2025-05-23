@@ -17,7 +17,7 @@ namespace Inspire.Erp.Domain.Entities
         public string IssueVoucherCreditAccNo { get; set; }
         public string IssueVoucherDebitAccNo { get; set; }
         public decimal? IssueVoucherDepartmentId { get; set; }
-        public decimal? IssueVoucherCostCenterId { get; set; }
+        public long? IssueVoucherCostCenterId { get; set; }
         public int? IssueVoucherLocationId { get; set; }
         public int? IssueVoucherCurrencyId { get; set; }
         public int? IssueVoucherJobId { get; set; }
@@ -56,6 +56,8 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? IssueVoucherNetDisAmount { get; set; }
         public decimal? IssueVoucherNetAmount { get; set; }
         public bool? IssueVoucherDelStatus { get; set; }
+
+        public int? IssueVoucherPurchaseVoucherID { get; set; }
 
         [JsonIgnore]
         public virtual ICollection<IssueVoucherDetails> IssueVoucherDetails { get; set; }

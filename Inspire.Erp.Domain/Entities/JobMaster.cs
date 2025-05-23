@@ -85,6 +85,13 @@ namespace Inspire.Erp.Domain.Entities
         public int? JobMasterJobComplientId { get; set; }
         public int? JobMasterJobCustQtnId { get; set; }
         public bool? JobMasterJobDelStatus { get; set; }
+        public int? JobMasterDepartmentId { get; set; }
+        public string JobMasterSiteLocation { get; set; }
+        public string JobMasterMEPContractor { get; set; }
+        public string JobMasterPlantType { get; set; }
+        public string JobMasterCapacity { get; set; }
+        public string JobMasterScheme { get; set; }
+        public string JobMasterPaymentTerms { get; set; }
 
         [NotMapped]
         public List<JobMasterBudgetDetails> JobMasterBudgetDetails { get; set; }
@@ -104,8 +111,31 @@ namespace Inspire.Erp.Domain.Entities
         public List<JobEquipment> JobEquipment { get; set; }
         [NotMapped]
         public List<JobExcutionDetails> JobExcutionDetails { get; set; }
-    }
 
+        [NotMapped]
+        public List<JobTimesheetDesc> JobTimesheetDesc { get; set; }
+        [NotMapped]
+        public List<JobTimeSheetEquip> JobTimeSheetEquip { get; set; }
+        [NotMapped]
+        public List<JobTimesheetMaster> JobTimesheetMaster { get; set; }
+        [NotMapped]
+        public List<JobTimeSheetStaff> JobTimeSheetStaff { get; set; }
+        [NotMapped]
+        public List<JobfilesStatus> JobfilesStatus { get; set; }
+        [NotMapped]
+        public List<JobMasterControl> JobMasterControl { get; set; }
+    }
+    public class JobfilesStatus
+    {
+        public int Id { get; set; }
+        public int JobMasterJobId { get; set; }
+        public string job_filename { get; set; }
+        public bool? job_fileStatus { get; set; }
+        public bool job_IsDeleted { get; set; }
+        [JsonIgnore]
+        public virtual JobMaster JobMasterJobJob { get; set; }
+
+    }
     public class JobStaff
     {
         public int Id { get; set; }
@@ -135,5 +165,69 @@ namespace Inspire.Erp.Domain.Entities
         public string JobMasterExecDescription { get; set; }
         [JsonIgnore]
         public virtual JobMaster JobMasterJobJob { get; set; }
+    }
+    public class JobTimesheetDesc
+    {
+        public int Id { get; set; }
+        public int TimeSheetId { get; set; }
+        public int JobId { get; set; }
+        public DateTime TimeIn { get; set; }
+        public DateTime TimeOut { get; set; }
+        public string Description { get; set; }
+        public string Remarks { get; set; }
+        [JsonIgnore]
+        public virtual JobMaster JobMasterJobJob { get; set; }
+
+    }
+    public class JobTimeSheetEquip
+    {
+        public int Id { get; set; }
+        public int? TimeSheetId { get; set; } // Nullable
+        public int JobId { get; set; }
+        public int? EquipmentId { get; set; } // Nullable
+        public string EquipmentDesc { get; set; }
+        [JsonIgnore]
+        public virtual JobMaster JobMasterJobJob { get; set; }
+    }
+    public class JobTimesheetMaster
+    {
+        public int Id { get; set; }
+        public string TimesheetId { get; set; } // Nullable
+        public int JobId { get; set; }
+        public string TimesheetDate { get; set; } // Not nullable
+        public string Remarks { get; set; } // Nullable
+        public string ClientRemarks { get; set; } // Nullable
+        public string VesselName { get; set; } // Nullable
+        [JsonIgnore]
+        public virtual JobMaster JobMasterJobJob { get; set; }
+    }
+    public class JobTimeSheetStaff
+    {
+        public int Id { get; set; }
+        public int StaffId { get; set; }
+        public int JobId { get; set; }
+        public string Remarks { get; set; } // Nullable
+        public int TimesheetId { get; set; }
+        [JsonIgnore]
+        public virtual JobMaster JobMasterJobJob { get; set; }
+    }
+    public class JobMasterControl
+    {
+
+        public int JobMasterControlDtlId { get; set; }
+        public int JobMasterControlJobID { get; set; }
+        public string JobMasterNo { get; set; }
+        public int? JobMasterControlCostCenerID { get; set; }
+        public decimal? JobMasterControlLevel1 { get; set; }
+        public decimal? JobMasterControlLevel2 { get; set; }
+        public decimal? JobMasterControlLevel3 { get; set; }
+        public bool? JobMasterBudgetDetailsEmail { get; set; }
+        public decimal? JobMasterControlAmount { get; set; }
+        public decimal? JobMasterControlVariance { get; set; }
+        public decimal? JobMasterControlActual { get; set; }
+        public string RefVoucherNo { get; set; }
+        //[JsonIgnore]
+        //public virtual JobMaster JobMasterJobJob { get; set; }
+
     }
 }

@@ -16,17 +16,19 @@ namespace Inspire.Erp.Application.Master
     public class CustomerMasterService : ICustomerMasterService
     {
         private IRepository<CustomerMaster> customerrepository;
+        private IRepository<AccountsTransactions> _accountTransactionRepository;
         private readonly IRepository<MasterAccountsTable> _masterAccountTable;
         private readonly IUtilityService _utilityService;
         private string DeptorsRelativeNo = "";
 
         public CustomerMasterService(IRepository<CustomerMaster> _customerrepository, IConfiguration config,
-            IRepository<MasterAccountsTable> masterAccountTable, IUtilityService utilityService)
+            IRepository<MasterAccountsTable> masterAccountTable, IUtilityService utilityService, IRepository<AccountsTransactions> accountTransactionRepository)
         {
             customerrepository = _customerrepository;
             _masterAccountTable = masterAccountTable;
             _utilityService = utilityService;
             DeptorsRelativeNo = config["ApplicationSettings:DebtorRelativeNo"];
+            _accountTransactionRepository = accountTransactionRepository;
         }
         public async Task<CustomerMaster> InsertCustomer(CustomerMaster customerMaster)
         {
@@ -42,7 +44,8 @@ namespace Inspire.Erp.Application.Master
                 var masterAccount = _masterAccountTable.GetAsQueryable().AsNoTracking().Where(x => x.MaAccNo == DeptorsRelativeNo).FirstOrDefault();
                 var cusAccNo = string.Empty;
                 MasterAccountsTable masterAccountsTable = null;
-                if (customerMaster.IsCreateAccount)
+                
+                if (customerMaster.IsCreateAccount.HasValue &&  (bool)customerMaster.IsCreateAccount)
                 {
                     var count = _masterAccountTable.GetAsQueryable().AsNoTracking().Where(x => x.MaRelativeNo == DeptorsRelativeNo).ToList().Count() + 1;
                     //cusAccNo = count.ToString().Length == 1 ? "00" + count : count.ToString().Length == 2 ? "0" + count : count.ToString();
@@ -103,6 +106,16 @@ namespace Inspire.Erp.Application.Master
                     Entity = "Customer Master",
                 };
                 await _utilityService.AddUserTrackingLog(log);
+
+                //check if the new account has already existed records in acounts transactions table
+                var checktransactions = _accountTransactionRepository.GetAsQueryable().Where(a => a.AccountsTransactionsAccNo == cusAccNo).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
+                if (checktransactions.Count > 0)
+                {
+                    foreach (var item in checktransactions)
+                    {
+                        _accountTransactionRepository.Delete(item);
+                    }
+                }
                 #endregion
                 //customerrepository.SaveChangesAsync();
                 _masterAccountTable.SaveChangesAsync();
@@ -191,8 +204,11 @@ namespace Inspire.Erp.Application.Master
                 customerMaster.CustomerMasterCustomerDeleteStatus = true;
                 customerrepository.Update(customerMaster);
                 var account = _masterAccountTable.GetAsQueryable().Where(a => a.MaRelativeNo == customerMaster.CustomerMasterCustomerReffAcNo).FirstOrDefault();
-
-                _masterAccountTable.Delete(account);
+                if (account !=null)
+                {
+                    account.MaDelStatus = true;
+                }
+                _masterAccountTable.Update(account);
                 _masterAccountTable.TransactionCommit();
                 valid = true;
 
@@ -226,6 +242,7 @@ namespace Inspire.Erp.Application.Master
             {
                 //customerrepository.Dispose();
             }
+            customerMasters = customerMasters.OrderBy(o => o.CustomerMasterCustomerName).ToList();
             return customerMasters;
         }
         public CustomerMaster GetAllCustomerById(int id)

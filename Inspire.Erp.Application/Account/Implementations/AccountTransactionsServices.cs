@@ -29,30 +29,28 @@ namespace Inspire.Erp.Application.Account.Implementations
             try
             {
                 await Task.Delay(500);
-                var result = (from AD in this.allocationVDlts.GetAll()
-                              join AT in _accountTransactionRepository.GetAll() on AD.AllocationVoucherDetailsTransSno equals (int)AT.AccountsTransactionsTransSno
-                              where AD.AllocationVoucherDetailsAccNo == accNo && AD.AllocationVoucherDetailsVno.ToUpper() == refNo.ToUpper() && AD.AllocationVoucherDetailsRefVtype.ToUpper() == vType.ToUpper()
-                              select new Domain.Models.AllocationDetails()
-                              {
-                                  TransNo = AT.AccountsTransactionsTransSno,
-                                  Status = "P",
-                                  TransDate = AT.AccountsTransactionsTransDate,
-                                  VoucherNo = AD.AllocationVoucherDetailsVno,
-                                  Type = AD.AllocationVoucherDetailsRefVtype,
-                                  Credit = (decimal)AT.AccountsTransactionsCredit > 0 ? AT.AccountsTransactionsCredit : 0,
-                                  Debit = (decimal)AT.AccountsTransactionsDebit > 0 ? AT.AccountsTransactionsDebit : 0,
-                                  Balance = AT.AccountsTransactionsAllocBalance,
-                                  AllocAmount = AT.AccountsTransactionsAllocCredit > 0 ? AT.AccountsTransactionsAllocCredit : AT.AccountsTransactionsAllocDebit,
-                                  NetAllocation = getNatAllocationAmount(AT.AccountsTransactionsTransSno),
-                                  RefLocation = AD.AllocationVoucherDetailsRefLocationId.ToString()
-                              }).ToList();
-
+                //var result = (from AD in this.allocationVDlts.GetAll()
+                //              join AT in _accountTransactionRepository.GetAll() on AD.AllocationVoucherDetailsTransSno equals (int)AT.AccountsTransactionsTransSno
+                //              where AD.AllocationVoucherDetailsAccNo == accNo && AD.AllocationVoucherDetailsVno.ToUpper() == refNo.ToUpper() && AD.AllocationVoucherDetailsRefVtype.ToUpper() == vType.ToUpper()
+                //              select new Domain.Models.AllocationDetails()
+                //              {
+                //                  TransNo = AT.AccountsTransactionsTransSno,
+                //                  Status = "P",
+                //                  TransDate = AT.AccountsTransactionsTransDate,
+                //                  VoucherNo = AD.AllocationVoucherDetailsVno,
+                //                  Type = AD.AllocationVoucherDetailsRefVtype,
+                //                  Credit = (decimal)AT.AccountsTransactionsCredit > 0 ? AT.AccountsTransactionsCredit : 0,
+                //                  Debit = (decimal)AT.AccountsTransactionsDebit > 0 ? AT.AccountsTransactionsDebit : 0,
+                //                  Balance = AT.AccountsTransactionsAllocBalance,
+                //                  AllocAmount = AT.AccountsTransactionsAllocCredit > 0 ? AT.AccountsTransactionsAllocCredit : AT.AccountsTransactionsAllocDebit,
+                //                  NetAllocation = getNatAllocationAmount(AT.AccountsTransactionsTransSno),
+                //                  RefLocation = AD.AllocationVoucherDetailsRefLocationId.ToString()
+                //              }).ToList();
 
                 var transValues = _accountTransactionRepository.GetAsQueryable()
                                       .Where(a => a.AccountsTransactionsAccNo.ToUpper() == accNo.ToUpper()
                                         && a.AccountsTransactionsAllocBalance > 0
-                                        && ((vType == VoucherType.Receipt && a.AccountsTransactionsDebit != 0 && a.AccountsTransactionsVoucherType == VoucherType.SalesVoucher_TYPE)
-                                      || (vType == VoucherType.Payment && a.AccountsTransactionsCredit != 0 && a.AccountsTransactionsVoucherType == VoucherType.PurchaseVoucher_TYPE)))
+                                        && a.AccountsTransactionsDebit != 0)
                                         .Select(g => new Domain.Models.AllocationDetails()
                                         {
                                             TransNo = g.AccountsTransactionsTransSno,
@@ -65,13 +63,37 @@ namespace Inspire.Erp.Application.Account.Implementations
                                             Balance = g.AccountsTransactionsAllocBalance,
                                             AllocAmount = g.AccountsTransactionsAllocCredit > 0 ? g.AccountsTransactionsAllocCredit : g.AccountsTransactionsAllocDebit,
                                             RefLocation = g.AccountsTransactionsLocation.ToString()
-                                        }).ToList();
+                                        }).OrderBy(x => x.VoucherNo).AsEnumerable().ToList();
 
 
 
-                result.AddRange(transValues);
 
-                return ApiResponse<List<AllocationDetails>>.Success(result, "Data Found");
+                //var transValues = _accountTransactionRepository.GetAsQueryable()
+                //                      .Where(a => a.AccountsTransactionsAccNo.ToUpper() == accNo.ToUpper()
+                //                        && a.AccountsTransactionsAllocBalance > 0
+                //                        && ((vType == VoucherType.Receipt && a.AccountsTransactionsDebit != 0 && a.AccountsTransactionsVoucherType == VoucherType.SalesVoucher_TYPE)
+                //                      || (vType == VoucherType.Payment && a.AccountsTransactionsCredit != 0 && a.AccountsTransactionsVoucherType == VoucherType.PurchaseVoucher_TYPE))
+                //                      || vType == VoucherType.Receipt && a.AccountsTransactionsVoucherType == VoucherType.Receipt && a.AccountsTransactionsAllocCredit > 0 && a.AccountsTransactionsVoucherNo == refNo
+                //                      || vType == VoucherType.Payment && a.AccountsTransactionsVoucherType == VoucherType.Payment && a.AccountsTransactionsAllocDebit > 0 && a.AccountsTransactionsVoucherNo == refNo)
+                //                        .Select(g => new Domain.Models.AllocationDetails()
+                //                        {
+                //                            TransNo = g.AccountsTransactionsTransSno,
+                //                            Status = "P",
+                //                            TransDate = g.AccountsTransactionsTransDate,
+                //                            VoucherNo = g.AccountsTransactionsVoucherNo,
+                //                            Type = g.AccountsTransactionsVoucherType,
+                //                            Credit = (decimal)g.AccountsTransactionsCredit > 0 ? g.AccountsTransactionsCredit : 0,
+                //                            Debit = (decimal)g.AccountsTransactionsDebit > 0 ? g.AccountsTransactionsDebit : 0,
+                //                            Balance = g.AccountsTransactionsAllocBalance,
+                //                            AllocAmount = g.AccountsTransactionsAllocCredit > 0 ? g.AccountsTransactionsAllocCredit : g.AccountsTransactionsAllocDebit,
+                //                            RefLocation = g.AccountsTransactionsLocation.ToString()
+                //                        }).OrderBy(x => x.VoucherNo).AsEnumerable().ToList();
+
+
+
+                //result.AddRange(transValues);
+
+                return ApiResponse<List<AllocationDetails>>.Success(transValues, "Data Found");
             }
             catch (Exception ex)
             {
@@ -80,6 +102,43 @@ namespace Inspire.Erp.Application.Account.Implementations
             }
         }
 
+        public async Task<ApiResponse<List<AllocationDetails>>> GetPaymentVoucherAllocations(string accNo, string refNo, string vType)
+        {
+            try
+            {
+                await Task.Delay(500);
+               
+
+                var transValues = _accountTransactionRepository.GetAsQueryable()
+                                      .Where(a => a.AccountsTransactionsAccNo.ToUpper() == accNo.ToUpper()
+                                        && a.AccountsTransactionsAllocBalance > 0
+                                        && a.AccountsTransactionsCredit != 0)
+                                        .Select(g => new Domain.Models.AllocationDetails()
+                                        {
+                                            TransNo = g.AccountsTransactionsTransSno,
+                                            Status = "P",
+                                            TransDate = g.AccountsTransactionsTransDate,
+                                            VoucherNo = g.AccountsTransactionsVoucherNo,
+                                            Type = g.AccountsTransactionsVoucherType,
+                                            Credit = (decimal)g.AccountsTransactionsCredit > 0 ? g.AccountsTransactionsCredit : 0,
+                                            Debit = (decimal)g.AccountsTransactionsDebit > 0 ? g.AccountsTransactionsDebit : 0,
+                                            Balance = g.AccountsTransactionsAllocBalance,
+                                            AllocAmount = g.AccountsTransactionsAllocCredit > 0 ? g.AccountsTransactionsAllocCredit : g.AccountsTransactionsAllocDebit,
+                                            RefLocation = g.AccountsTransactionsLocation.ToString()
+                                        }).OrderBy(x => x.VoucherNo).AsEnumerable().ToList();
+
+
+
+
+              
+                return ApiResponse<List<AllocationDetails>>.Success(transValues, "Data Found");
+            }
+            catch (Exception ex)
+            {
+
+                return ApiResponse<List<AllocationDetails>>.Fail(ex.Message);
+            }
+        }
 
 
 
@@ -141,6 +200,5 @@ namespace Inspire.Erp.Application.Account.Implementations
             };
             return objresponse;
         }
-
     }
 }

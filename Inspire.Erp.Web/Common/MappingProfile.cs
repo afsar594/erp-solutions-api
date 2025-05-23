@@ -19,6 +19,7 @@ using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Modals.AccountStatement;
 using Inspire.Erp.Domain.Entities.POS;
 using Inspire.Erp.Domain.Modals;
+using Inspire.Erp.Domain.Entities.documents;
 
 namespace Inspire.Erp.Web.Common
 {
@@ -82,6 +83,11 @@ namespace Inspire.Erp.Web.Common
             CreateMap<JobMaster, JobMasterViewModel>();
             CreateMap<JobMasterViewModel, JobMaster>();
 
+
+
+            CreateMap<JobMasterControl, JobMasterControlViewModels>();
+            CreateMap<JobMasterControlViewModels, JobMasterControl>();
+
             CreateMap<JobMasterBudgetDetails, JobMasterBudgetDetailsViewModels>();
             CreateMap<JobMasterBudgetDetailsViewModels, JobMasterBudgetDetails>();
 
@@ -96,6 +102,19 @@ namespace Inspire.Erp.Web.Common
 
             CreateMap<JobEquipment, JobEquipmentViewModels>();
             CreateMap<JobEquipmentViewModels, JobEquipment>();
+
+            // JobTimesheetDesc mappings
+            CreateMap<JobTimesheetDesc, JobTimesheetDescViewModels>();
+            CreateMap<JobTimesheetDescViewModels, JobTimesheetDesc>();
+            // JobTimeSheetEquip mappings
+            CreateMap<JobTimeSheetEquip, JobTimeSheetEquipViewModels>();
+            CreateMap<JobTimeSheetEquipViewModels, JobTimeSheetEquip>();
+            // JobTimesheetMaster mappings
+            CreateMap<JobTimesheetMaster, JobTimesheetMasterViewModels>();
+            CreateMap<JobTimesheetMasterViewModels, JobTimesheetMaster>();
+            // JobTimeSheetStaff mappings
+            CreateMap<JobTimeSheetStaff, JobTimeSheetStaffViewModels>();
+            CreateMap<JobTimeSheetStaffViewModels, JobTimeSheetStaff>();
 
             CreateMap<JobExcutionDetails, JobExcutionDetailsViewModels>();
             CreateMap<JobExcutionDetailsViewModels, JobExcutionDetails>();
@@ -154,7 +173,18 @@ namespace Inspire.Erp.Web.Common
             CreateMap<TaxMaster, TaxMasterViewModel>();
             CreateMap<TaxMasterViewModel, TaxMaster>();
 
+            CreateMap<JobInvoice, JobInvoiceViewModel>();
+            CreateMap<JobInvoiceViewModel, JobInvoice>();
 
+            CreateMap<JobInvoiceDetails, JobInvoiceDetailsViewModel>();
+            CreateMap<JobInvoiceDetailsViewModel, JobInvoiceDetails>();
+
+
+            CreateMap<StockReservation, StockReservationViewModel>();
+            CreateMap<StockReservationViewModel, StockReservation>();
+
+            CreateMap<StockReservationDetails, StockReservationViewModel>();
+            CreateMap<StockReservationViewModel, StockReservationDetails>();
 
 
             //**********************************Masters ending **********
@@ -398,6 +428,13 @@ namespace Inspire.Erp.Web.Common
             CreateMap<ReportPurchaseRequisition, ReportPurchaseRequisitionViewModel>();
             CreateMap<ReportPurchaseRequisitionViewModel, ReportPurchaseRequisition>();
 
+            CreateMap<ReportProjectStatus, ProjectStatusReportParametersViewModel>();
+            CreateMap<ProjectStatusReportParametersViewModel, ReportProjectStatus>();
+
+            CreateMap<ProjectStatusReportParameters, ProjectStatusReportParametersViewModel>();
+            CreateMap<ProjectStatusReportParametersViewModel, ProjectStatusReportParameters>();
+
+
             CreateMap<PurchaserequisitionReportParameters, PurchaserequisitionReportParametersViewModel>();
             CreateMap<PurchaserequisitionReportParametersViewModel, PurchaserequisitionReportParameters>();
 
@@ -474,6 +511,20 @@ namespace Inspire.Erp.Web.Common
 
             CreateMap<BillOfQTyDetailsModel, BillOfQTyDetails>();
             CreateMap<BillOfQTyDetails, BillOfQTyDetailsModel>();
+
+            CreateMap<EstimationCostCenterModel, EstimationCostCenter>();
+            CreateMap<EstimationCostCenter, EstimationCostCenterModel>();
+
+
+            CreateMap<RFQViewModel, RfqEntry>();
+            CreateMap<RfqEntry, RFQViewModel>();
+
+            CreateMap<RFQDetailViewModel, RfqEntryDetails>();
+            CreateMap<RfqEntryDetails, RFQDetailViewModel>();
+
+            CreateMap<SRTransferViewModel, stocktransferRegister>();
+            CreateMap<stocktransferRegister, SRTransferViewModel>();         
+
 
         }
     }

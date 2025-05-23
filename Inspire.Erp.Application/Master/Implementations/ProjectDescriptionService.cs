@@ -105,6 +105,7 @@ namespace Inspire.Erp.Application.Master
             {
                 //cityrepository.Dispose();
             }
+            projectDescriptionMaster = projectDescriptionMaster.OrderBy(sm => sm.ProjectDescriptionMasterProjectDescriptionName).ToList();
             return projectDescriptionMaster;
         }
 

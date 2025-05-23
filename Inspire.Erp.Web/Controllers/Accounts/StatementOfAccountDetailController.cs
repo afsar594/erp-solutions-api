@@ -4,6 +4,7 @@ using Inspire.Erp.Application.Store.Interface;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Web.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;

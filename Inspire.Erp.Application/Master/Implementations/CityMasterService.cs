@@ -98,6 +98,7 @@ namespace Inspire.Erp.Application.Master
             {
                 //cityrepository.Dispose();
             }
+            cityMasters = cityMasters.OrderBy(sm => sm.CityMasterCityName).ToList();
             return cityMasters;
         }
 

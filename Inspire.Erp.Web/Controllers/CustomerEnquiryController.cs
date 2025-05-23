@@ -244,7 +244,7 @@ namespace Inspire.Erp.Web.Controllers
                      {
                          k.ItemMasterItemId,
                          k.ItemMasterItemName
-                     }).ToList();
+                     }).OrderBy(x => x.ItemMasterItemName).AsEnumerable().ToList();
 
             var customerMasters = _customerMasterRepository.GetAsQueryable().Where(k => k.CustomerMasterCustomerDelStatus != true).Select(a => new
             {
@@ -254,45 +254,46 @@ namespace Inspire.Erp.Web.Controllers
                 a.CustomerMasterCustomerContactPerson,
                 a.CustomerMasterCustomerAddress,
                 a.CustomerMasterCustomerReffAcNo
-            }).ToList();
+            }).OrderBy(x => x.CustomerMasterCustomerName).ToList();
 
             var unitMasters = unitrepository.GetAsQueryable().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
             {
                 x.UnitMasterUnitId,
                 x.UnitMasterUnitFullName,
                 UnitMasterUnitShortName = x.UnitMasterUnitShortName.Trim()
-            }).ToList();
+            }).OrderBy(x => x.UnitMasterUnitShortName).ToList();
             var currencyMasters = currencyrepository.GetAsQueryable().Where(a => a.CurrencyMasterCurrencyDelStatus != true).Select(c => new
             {
                 c.CurrencyMasterCurrencyId,
                 c.CurrencyMasterCurrencyName,
                 c.CurrencyMasterCurrencyRate
-            }).ToList();
+            }).OrderBy(x => x.CurrencyMasterCurrencyName).ToList();
             var LocationMaster = locationrepository.GetAsQueryable().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
             {
                 c.LocationMasterLocationId,
                 c.LocationMasterLocationName,
-            }).ToList();
+                c.LocationMasterLocationStatus,
+            }).OrderBy(x => x.LocationMasterLocationName).ToList();
             var SaleManList = salesmanrepository.GetAsQueryable().Where(a => a.SalesManMasterSalesManDelStatus != true).Select(c => new
             {
                 c.SalesManMasterSalesManId,
                 c.SalesManMasterSalesManName,
-            }).ToList();
+            }).OrderBy(x => x.SalesManMasterSalesManName).ToList();
             var enquiryAbout = enquiryAboutrepository.GetAsQueryable().Where(a => a.EnquiryAboutEnquiryAbountDelStatus != true).Select(c => new
             {
                 c.EnquiryAboutEnquiryAboutId,
                 c.EnquiryAboutEnquiryAbout,
-            }).ToList();
+            }).OrderBy(x => x.EnquiryAboutEnquiryAbout).ToList();
             var enquiryStatus = enquiryStatusrepository.GetAsQueryable().Where(a => a.EnquiryStatusEnquiryStatusDelStatus != true).Select(c => new
             {
                 c.EnquiryStatusEnquiryStatusId,
                 c.EnquiryStatusEnquiryStatus,
-            }).ToList();
+            }).OrderBy(x => x.EnquiryStatusEnquiryStatus).ToList();
             var businesstypeMasters = businesstyperepository.GetAsQueryable().Where(a => a.BusinessTypeMasterBusinessTypeDelStatus != true).Select(c => new
             {
                 c.BusinessTypeMasterBusinessTypeId,
                 c.BusinessTypeMasterBusinessTypeName
-            }).ToList();
+            }).OrderBy(x => x.BusinessTypeMasterBusinessTypeName).ToList();
             objectresponse.ResultSet = new
             {
                 itemMaster = itemMaster,

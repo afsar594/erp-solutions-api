@@ -3,6 +3,7 @@ using Inspire.Erp.Application.Store.Interface;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Web.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -12,6 +13,7 @@ using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers.Accounts
 {
+   
     [Route("api/[controller]")]
     [ApiController]
     public class BalanceSheetController : ControllerBase
@@ -66,60 +68,3 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         }
     }
 }
-
-//using AutoMapper;
-//using Inspire.Erp.Application.StoreWareHouse.Interface;
-//using Inspire.Erp.Domain.Entities;
-//using Inspire.Erp.Domain.Modals;
-//using Inspire.Erp.Web.ViewModels;
-//using Microsoft.AspNetCore.Http;
-//using Microsoft.AspNetCore.Mvc;
-//using Microsoft.CodeAnalysis.Differencing;
-//using System;
-//using System.Collections.Generic;
-//using System.Diagnostics;
-//using System.Linq;
-//using System.Threading.Tasks;
-
-
-//namespace Inspire.Erp.Web.Controllers
-//{
-//    [Route("api/[controller]")]
-//    [ApiController]
-//    public class BalanceSheetController : ControllerBase
-//    {
-//        private IBalanceSheet bs;
-//        private readonly IMapper _mapper;
-//        public BalanceSheetController(IBalanceSheet _bs)
-//        {
-//            bs = _bs;
-//        }
-
-//        [HttpGet("BalanceSheetResponse")]
-//        public List<BalanceSheetViewModel> BalanceSheetResponse(BalanceSheetRequest obj)
-//        {
-//            try
-//            {
-//                return List<bs.BalanceSheetResponse(obj).ToList()>;
-//                //    .Select(k => new BalanceSheetResponse 
-//                //{
-
-//                //    MA_RelativeNo = k.MA_RelativeNo,
-//                //    MA_MainHead = k.MA_MainHead,
-//                //    MA_SubHead = k.MA_SubHead,
-//                //    MA_AccNo = k.MA_AccNo,
-//                //    MA_AccName = k.MA_AccName,
-//                //    Debit = k.Debit,
-//                //    Credit = k.Credit
-
-
-//                //}).ToList();
-
-//            }
-//            catch (Exception ex)
-//            {
-//                throw ex;
-//            }
-//        }
-//    }
-//}

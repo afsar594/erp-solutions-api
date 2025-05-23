@@ -1,71 +1,37 @@
-﻿using System;
+﻿using Inspire.Erp.Domain.Entities;
+using System;
 using System.Collections.Generic;
 
 namespace Inspire.Erp.Web.ViewModels.sales
 {
-    public partial class SalesVoucherViewModel
+    public partial class JobInvoiceViewModel
     {
-        //public SalesVoucherViewModel()
-        //{
-        //    SalesVoucherDetails = new HashSet<SalesVoucherDetailsViewModel>();
-        //}
-        //
-        public decimal? SalesVoucherId { get; set; }
-        public string SalesVoucherNo { get; set; }
-        public DateTime? SalesVoucherDate { get; set; }
-        public string SalesVoucherType { get; set; }
-        public decimal? SalesVoucherPartyId { get; set; }
-        public string SalesVoucherPartyName { get; set; }
-        public string SalesVoucherPartyAddress { get; set; }
-        public string SalesVoucherPartyVatNo { get; set; }
-        public string SalesVoucherRefNo { get; set; }
-        public string SalesVoucherContPerson { get; set; }
-        public string SalesVoucherDlvNo { get; set; }
-        public DateTime? SalesVoucherDlvDate { get; set; }
-        public string SalesVoucherSono { get; set; }
-        public DateTime? SalesVoucherSodate { get; set; }
-        public string SalesVoucherQtnNo { get; set; }
-        public DateTime? SalesVoucherQtnDate { get; set; }
-        public int? SalesVoucherSalesManId { get; set; }
-        public int? SalesVoucherDptId { get; set; }
-        public string SalesVoucherEnqNo { get; set; }
-        public DateTime? SalesVoucherEnqDate { get; set; }
-        public string SalesVoucherDescription { get; set; }
-        public bool? SalesVoucherExcludeVat { get; set; }
-        public int? SalesVoucherLocationId { get; set; }
-        public long? SalesVoucherUserId { get; set; }
-        public int? SalesVoucherCurrencyId { get; set; }
-        public int? SalesVoucherCompanyId { get; set; }
-        public int? SalesVoucherJobId { get; set; }
-        public decimal? SalesVoucherFsno { get; set; }
-        public decimal? SalesVoucherFcRate { get; set; }
-        public string SalesVoucherStatus { get; set; }
-        public decimal? SalesVoucherTotalGrossAmount { get; set; }
-        public decimal? SalesVoucherTotalItemDisAmount { get; set; }
-        public decimal? SalesVoucherTotalActualAmount { get; set; }
-        public decimal? SalesVoucherTotalDisPer { get; set; }
-        public decimal? SalesVoucherTotalDisAmount { get; set; }
-        public decimal? SalesVoucherVatAmt { get; set; }
-        public decimal? SalesVoucherVatPer { get; set; }
-        public string SalesVoucherVatRoundSign { get; set; }
-        public decimal? SalesVoucherVatRountAmt { get; set; }
-        public decimal? SalesVoucherNetDisAmount { get; set; }
-        public decimal? SalesVoucherNetAmount { get; set; }
-        public string SalesVoucherHeader { get; set; }
-        public string SalesVoucherDelivery { get; set; }
-        public string SalesVoucherNotes { get; set; }
-        public string SalesVoucherFooter { get; set; }
-        public string SalesVoucherPaymentTerms { get; set; }
-        public string SalesVoucherSubject { get; set; }
-        public string SalesVoucherContent { get; set; }
-        public string SalesVoucherRemarks1 { get; set; }
-        public string SalesVoucherRemarks2 { get; set; }
-        public string SalesVoucherTermsAndCondition { get; set; }
-        public string SalesVoucherShippinAddress { get; set; }
+        public int? JobInvoiceId { get; set; }
+        public string? JobInvoiceVoucherNo { get; set; }
+        public DateTime? JobInvoiceVoucherDate { get; set; }
+        public int? JobInvoiceJobId { get; set; }
+        public string? JobInvoiceCustomerName { get; set; }
+        public int? JobInvoiceCustomerId { get; set; }
+        public int? JobInvoiceLocationId { get; set; }
+        public int? JobInvoiceSalesManId { get; set; }
+        public double? JobInvoiceDiscount { get; set; }
+        public double? JobInvoiceVat { get; set; }
+        public double? JobInvoiceVatAmt { get; set; }
+        public double? JobInvoiceGrossAmount { get; set; }
+        public double? JobInvoiceNetAmount { get; set; }
+        public string? JobInvoiceRemarks { get; set; }
+        public int? JobInvoiceUserId { get; set; }
+        public int? JobInvoiceCurrencyId { get; set; }
+        public int? JobInvoiceFsno { get; set; }
+        public double? JobInvoiceFcRate { get; set; }
+        public string? JobInvoiceLpoNo { get; set; }
+        public DateTime? JobInvoiceLpoDate { get; set; }
+        public string JobInvoiceSalesAccount { get; set; }
+        public bool? JobInvoiceDelStatus { get; set; }
+        public string Invoicetype { get; set; }
 
-        public bool? SalesVoucherDelStatus { get; set; }
         public List<AccountTransactionViewModel> AccountsTransactions { get; set; }
-        public List<SalesVoucherDetailsViewModel> SalesVoucherDetails { get; set; }
+        public List<JobInvoiceDetailsViewModel> JobInvoiceDetails { get; set; }
 
         //public List<StockRegisterViewModel> StockRegister { get; set; }
 

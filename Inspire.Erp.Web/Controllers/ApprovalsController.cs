@@ -79,12 +79,12 @@ namespace Inspire.Erp.Web.Controllers
             {
                 x.UserId,
                 x.UserName
-            }).ToList();
+            }).OrderBy(o=>o.UserName).AsEnumerable().ToList();
             var forms = _approvalforms.GetAsQueryable().AsNoTracking().Where(x => x.is_active == true).Select(a => new
             {
                 a.id,
                 a.Voucher_Type
-            }).ToList();
+            }).OrderBy(o => o.Voucher_Type).AsEnumerable().ToList();
 
             objresponse.ResultSet = new
             {
@@ -93,5 +93,20 @@ namespace Inspire.Erp.Web.Controllers
             };
             return objresponse;
         }
+
+
+        #region not to remove/replace this code 
+
+        [HttpPost("SaveApproverLevelSettings")]
+        public async Task<IActionResult> SaveApproverLevelSettings([FromBody] ApproverLevelSettingsDto approverLevelSettingsDto)
+        {
+            return Ok(await this._approvalService.SaveAsync(approverLevelSettingsDto));
+        } 
+        [HttpGet("GetApproverLevelSettings/{fromType}/{jobId}")]
+        public async Task<IActionResult> GetApproverLevelSettings(EnumOrderForms fromType, int jobId)
+        {
+            return Ok(await this._approvalService.GetAsync(fromType,jobId));
+        }
+        #endregion
     }
 }

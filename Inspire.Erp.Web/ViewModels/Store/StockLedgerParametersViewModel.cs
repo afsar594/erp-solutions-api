@@ -18,7 +18,7 @@ namespace Inspire.Erp.Web.ViewModels.Store
         public bool? rptPrintWithAgainstAcc { get; set; }
         public bool? rptPrintWithRelatedAccTrans { get; set; }
         public bool? rptHideZero { get; set; }
-
+        public bool? rptIncludeZero { get; set; }
 
         public int? rptItemGroup { get; set; }
 

@@ -5,6 +5,8 @@ using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.AccountStatement;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Modals.File;
+using Inspire.Erp.Domain.Models;
+using Inspire.Erp.Domain.Models.ViewModels;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -24,31 +26,35 @@ namespace Inspire.Erp.Application.Account.Implementations
         private readonly IRepository<AccountsTransactions> _accountTransaction;
         private readonly IRepository<JobMaster> _jobMaster;
         private readonly IRepository<StationMaster> _locationMaster;
+        private readonly IRepository<TempStatement> _tempStrMaster;
         private readonly IFileService _fileService;
         public AccountStatementService(IRepository<MasterAccountsTable> masterAccountsTable, IRepository<JobMaster> jobMaster,
-            IRepository<AccountsTransactions> accountTransaction,IFileService fileService, IRepository<StationMaster> locationMaster)
+            IRepository<AccountsTransactions> accountTransaction, IFileService fileService, IRepository<StationMaster> locationMaster,
+            IRepository<TempStatement> tempStrMaster)
         {
             _masterAccountsTable = masterAccountsTable;
             _accountTransaction = accountTransaction;
             _jobMaster = jobMaster;
             _locationMaster = locationMaster;
             _fileService = fileService;
+            _tempStrMaster = tempStrMaster;
         }
         public async Task<Response<List<DropdownResponse>>> GetAccountMasterDropdown()
         {
             try
             {
                 var response = new List<DropdownResponse>();
-                //response.Add(new DropdownResponse()
-                //{
-                //    Value = "",
-                //    Name = "All"
-                //});
-                 response.AddRange( await _masterAccountsTable.ListSelectAsync(x => x.MaAccType=="A", x => new DropdownResponse
+
+                // Fetch the data from ListSelectAsync
+                response.AddRange(await _masterAccountsTable.ListSelectAsync(x => x.MaAccType == "A", x => new DropdownResponse
                 {
                     Value = x.MaAccNo,
                     Name = x.MaAccName
                 }));
+
+                // Sort the response list by 'Name', ensure null safety and order properly
+                response = response.OrderBy(x => x.Name ?? string.Empty).ToList(); // This ensures that null names are treated as empty strings for sorting
+
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
             }
             catch (Exception ex)
@@ -68,9 +74,10 @@ namespace Inspire.Erp.Application.Account.Implementations
                 //});
                 response.AddRange(await _jobMaster.ListSelectAsync(x => 1 == 1, x => new DropdownResponse
                 {
-                    Id =x.JobMasterJobId != null? Convert.ToInt32(x.JobMasterJobId):0,
+                    Id = x.JobMasterJobId != 0 ? Convert.ToInt32(x.JobMasterJobId) : 0,
                     Name = x.JobMasterJobName
                 }));
+                response = response.OrderBy(r => r.Name).ToList();
                 return Response<List<DropdownResponse>>.Success(response, "Data found");
             }
             catch (Exception ex)
@@ -85,7 +92,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 GetAccountStatementResponse gridModel = new GetAccountStatementResponse();
                 var location = await _locationMaster.GetAsQueryable().FirstOrDefaultAsync();
                 gridModel.Details = new List<GetAccountTransactionResponse>();
-                var resultData =  _accountTransaction.GetBySP(@$" exec GetAccountTransactions {model.Skip},{model.Take},{model.Search},{model.Field},{model.Dir},{model.Filter},{model.Total}");
+                var resultData = _accountTransaction.GetBySP(@$" exec GetAccountTransactions {model.Skip},{model.Take},{model.Search},{model.Field},{model.Dir},{model.Filter},{model.Total}");
                 var result = resultData.Select(x => new GetAccountTransactionResponse
                 {
                     AccountsTransactionsAccNo = x.AccountsTransactionsAccNo,
@@ -102,7 +109,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     AccountsTransactionsAllocDebit = x.AccountsTransactionsAllocDebit,
                     AccountsTransactionsAllocCredit = x.AccountsTransactionsAllocCredit
                     // Rest of the properties...
-                }).ToList();
+                }).OrderBy(x => x.AccountsTransactionsAccName).AsEnumerable().ToList();
 
                 string accName = string.Empty;
                 string accno = string.Empty;
@@ -114,7 +121,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     totalCredit += x.AccountsTransactionsCredit;
                     total += Convert.ToDecimal(x.AccountsTransactionsAllocBalance);
                     var accounts = _masterAccountsTable.GetAsQueryable().FirstOrDefault(c => c.MaAccNo == x.AccountsTransactionsAccNo);
-                    accName = accounts != null?accounts.MaAccName:"";
+                    accName = accounts != null ? accounts.MaAccName : "";
                     gridModel.Details.Add(new GetAccountTransactionResponse()
                     {
                         AccountsTransactionsAccNo = x.AccountsTransactionsAccNo,
@@ -136,7 +143,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 gridModel.AccNo = accno;
                 gridModel.Total = total.ToString();
                 gridModel.CreditBalance = totalCredit.ToString();
-                gridModel.StationMasterStationName = location != null?location.StationMasterStationName:"";
+                gridModel.StationMasterStationName = location != null ? location.StationMasterStationName : "";
                 gridModel.StationMasterEmail = location != null ? location.StationMasterEmail : "";
                 gridModel.StationMasterFax = location != null ? location.StationMasterFax : "";
                 gridModel.StationMasterTele1 = location != null ? location.StationMasterTele1 : "";
@@ -251,6 +258,222 @@ namespace Inspire.Erp.Application.Account.Implementations
                             </body>
                         </html>");
             return sb.ToString();
+        }
+
+
+
+        public async Task<AccountStatementSummayResponse> AccountStatementSummaryReport(AccStReport model)
+        {
+            try
+            {
+
+                AccountStatementSummayResponse res = new AccountStatementSummayResponse();
+
+                var openingBal = await _accountTransaction.GetAsQueryable()
+                                                      .Where(x => (model.DateFrom == null || x.AccountsTransactionsTransDate < model.DateFrom)
+
+                                         && x.AccountsTransactionsAccNo.ToLower() == model.AccNo.ToLower()
+                                        )
+                                                     .GroupBy(r => r.AccountsTransactionsAccNo).Select(o =>
+
+                                        new AccountStatementSummayResponse
+                                        {
+                                            AccNo = o.Key,
+                                            Debit = Convert.ToDouble(o.Sum(pc => pc.AccountsTransactionsDebit)),
+                                            Credit = Convert.ToDouble(o.Sum(pc => pc.AccountsTransactionsCredit)),
+
+                                        }).FirstOrDefaultAsync();
+
+                res.OpeningBalance = new AccountStatementOpenBalResponse();
+                if (openingBal != null)
+                {
+
+                    res.AccNo = openingBal.AccNo;
+                    res.OpeningBalance.Credit = openingBal.Credit;
+                    res.OpeningBalance.Debit = openingBal.Debit;
+                }
+                var AccountTrans = await _accountTransaction.GetAsQueryable()
+                                                   .Where(x => (model.DateFrom == null || x.AccountsTransactionsTransDate >= model.DateFrom)
+                                     && (model.DateTo == null || x.AccountsTransactionsTransDate <= model.DateTo)
+                                      //&&  model.accountNos.Contains(x.AccountsTransactionsAccNo)
+                                      && x.AccountsTransactionsAccNo.ToLower() == model.AccNo.ToLower()
+                                     )
+                                                  .GroupBy(r => r.AccountsTransactionsAccNo).Select(o =>
+
+                                     new AccountStatementSummayResponse
+                                     {
+                                         AccNo = o.Key,
+                                         Debit = Convert.ToDouble(o.Sum(pc => pc.AccountsTransactionsDebit)),
+                                         Credit = Convert.ToDouble(o.Sum(pc => pc.AccountsTransactionsCredit)),
+
+                                     }).FirstOrDefaultAsync();
+
+                if (AccountTrans != null)
+                {
+
+                    res.Debit = AccountTrans.Debit;
+                    res.Credit = AccountTrans.Credit;
+                }
+
+
+                return res;
+
+
+
+
+
+            }
+            catch (System.Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        public async Task<AccountStatementDetailResponse> AccountStatementDetailReport(AccStReport model)
+        {
+            try
+            {
+
+                AccountStatementDetailResponse res = new AccountStatementDetailResponse();
+
+                var openingBal = await _accountTransaction.GetAsQueryable()
+                                                      .Where(x => (model.DateFrom == null || x.AccountsTransactionsTransDate < model.DateFrom)
+
+                                         && x.AccountsTransactionsAccNo.ToLower() == model.AccNo.ToLower()
+                                        )
+                                                     .GroupBy(r => r.AccountsTransactionsAccNo).Select(o =>
+
+                                        new AccountStatementSummayResponse
+                                        {
+                                            AccNo = o.Key,
+                                            Debit = Convert.ToDouble(o.Sum(pc => pc.AccountsTransactionsDebit)),
+                                            Credit = Convert.ToDouble(o.Sum(pc => pc.AccountsTransactionsCredit)),
+
+                                        }).FirstOrDefaultAsync();
+
+                res.OpeningBalance = new AccountStatementOpenBalResponse();
+                if (openingBal != null)
+                {
+
+
+                    res.OpeningBalance.Credit = openingBal.Credit;
+                    res.OpeningBalance.Debit = openingBal.Debit;
+                }
+
+
+                var AccountTrans = await _accountTransaction.GetAsQueryable()
+                                                   .Where(x => (model.DateFrom == null || x.AccountsTransactionsTransDate >= model.DateFrom)
+                                     && (model.DateTo == null || x.AccountsTransactionsTransDate <= model.DateTo)
+                                      //&&  model.accountNos.Contains(x.AccountsTransactionsAccNo)
+                                      && x.AccountsTransactionsAccNo.ToLower() == model.AccNo.ToLower()
+                                       && ((model.JobId == null || model.JobId == 0) || x.AccountsTransactionsJobNo == model.JobId)
+                                        && (model.Description == null || x.AccountsTransactionsParticulars.Contains(model.Description))
+                                          && (model.VoucherType == null || x.AccountsTransactionsVoucherType.Contains(model.VoucherType))
+                                     )
+                                                 .Select(o =>
+
+                                     new AccountStatementDetails
+                                     {
+                                         AccNo = o.AccountsTransactionsAccNo,
+                                         TransDate = o.AccountsTransactionsTransDate,
+                                         Particulars = o.AccountsTransactionsParticulars,
+                                         VoucherType = o.AccountsTransactionsVoucherType,
+                                         VoucherNo = o.AccountsTransactionsVoucherNo,
+                                         Description = o.AccountsTransactionsDescription,
+                                         RefNo = o.RefNo,
+                                         Debit = (double)o.AccountsTransactionsDebit,
+                                         Credit = (double)o.AccountsTransactionsCredit,
+
+                                     }).ToListAsync();
+
+                if (AccountTrans != null)
+                {
+
+                    res.ASDetails = AccountTrans;
+
+                }
+                return res;
+
+            }
+            catch (System.Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        //public async Task<AccountStatementSummayResponse> AccountStatementSummaryReport(AccStReport model)
+        //{
+        //    try
+        //    {
+
+        //        var AccountTrans = await _accountTransaction.GetAsQueryable()
+        //                                                  .Where(x => (model.DateFrom == null || x.AccountsTransactionsTransDate >= model.DateFrom)
+        //                                    && (model.DateTo == null || x.AccountsTransactionsTransDate <= model.DateTo)
+        //                                     //&&  model.accountNos.Contains(x.AccountsTransactionsAccNo)
+        //                                     && x.AccountsTransactionsAccNo.ToLower() == model.AccNo.ToLower()
+        //                                    )
+        //                                                 .GroupBy(r => r.AccountsTransactionsAccNo).Select(o =>
+
+        //                                    new AccountStatementSummayResponse
+        //                                    {
+        //                                        AccNo = o.Key,
+        //                                        Debit = Convert.ToDouble(o.Sum(pc => pc.AccountsTransactionsDebit)),
+        //                                        Credit = Convert.ToDouble(o.Sum(pc => pc.AccountsTransactionsCredit)),
+
+        //                                    }).FirstOrDefaultAsync();
+        //        return AccountTrans;
+
+
+
+
+
+        //    }
+        //    catch (System.Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
+
+
+        public async Task SaveTempStatement(TempStatementModel model)
+        {
+            try
+            {
+                var existingRecord = await _tempStrMaster.FirstOrDefaultAsync(
+                    x => x.TempStatementVno == model.VoucherNo && x.TempStatementAccNo == model.AccNo,
+                    x => x);
+
+                // If a record exists, delete it
+                if (existingRecord != null)
+                {
+                    _tempStrMaster.Delete(existingRecord);
+                }
+
+                var result = new TempStatement()
+                {
+
+                    TempStatementSno = model.Sno,
+                    TempStatementVno = model.VoucherNo,
+                    TempStatementVdate = model.VoucherDate,
+                    TempStatementVtype = model.VoucherType,
+                    TempStatementDesc = model.Description,
+                    TempStatementDebit = model.Debit,
+                    TempStatementCredit = model.Credit,
+                    TempStatementBalance = model.Balance,
+                    TempStatementAccNo = model.AccNo,
+                };
+
+
+                _tempStrMaster.Insert(result);
+
+
+
+            }
+            catch (Exception ex)
+            {
+
+            }
         }
     }
 }

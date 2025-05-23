@@ -13,9 +13,11 @@ using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Web.Common;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Inspire.Erp.Application.Account.Implementations;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers.Accounts
 {
+   
     [Route("api/JournalVoucher")]
     [Produces("application/json")]
     [ApiController]
@@ -111,7 +113,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
 
         [HttpGet]
         [Route("GetSavedJournalVoucherDetails/{id}")]
-        public ApiResponse<JournalVoucher> GetSavedJournalVoucherDetails(string id)
+        public ApiResponse<JournalVoucher> GetSavedJournalVoucherDetails(int id)
         {
             JournalVoucher journalVoucher = _journalVoucherService.GetSavedJournalVoucherDetails(id);
 

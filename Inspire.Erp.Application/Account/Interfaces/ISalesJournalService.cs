@@ -15,7 +15,7 @@ namespace Inspire.Erp.Application.Account.Interfaces
         public SalesJournalModel UpdateSalesJournal(SalesJournal salesJournal, List<AccountsTransactions> accountsTransactions, List<SalesJournalDetails> salesJournalDetails);
         public int DeleteSalesJournal(SalesJournal salesJournal, List<AccountsTransactions> accountsTransactions, List<SalesJournalDetails> salesJournalDetails);
         public IEnumerable<AccountsTransactions> GetAllTransaction();
-        public SalesJournalModel GetSavedSalesJournalDetails(string pvno);
+        public SalesJournalModel GetSavedSalesJournalDetails(int pvno);
         public IEnumerable<SalesJournal> GetSalesJournal();
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
 

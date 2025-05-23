@@ -87,7 +87,8 @@ namespace Inspire.Erp.Application.Master
             IEnumerable<CurrencyMaster> currencyMasters;
             try
             {
-                currencyMasters  =  currencyrepository.GetAll();
+                currencyMasters = currencyrepository.GetAll().Where(a => a.CurrencyMasterCurrencyStatus != true).ToList();
+
 
             }
             catch (Exception ex)
@@ -99,6 +100,7 @@ namespace Inspire.Erp.Application.Master
             {
                 //currencyrepository.Dispose();
             }
+            currencyMasters = currencyMasters.OrderBy(sm => sm.CurrencyMasterCurrencyName).AsEnumerable().OrderBy(x => x.CurrencyMasterCurrencyShortName).ToList();
             return currencyMasters;
         }
 

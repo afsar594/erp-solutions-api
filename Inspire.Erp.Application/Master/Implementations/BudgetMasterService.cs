@@ -108,6 +108,7 @@ namespace Inspire.Erp.Application.Master
             {
                 //cityrepository.Dispose();
             }
+            budgetMasters = budgetMasters.OrderBy(sm => sm.BudgetMasterBudgetName).ToList();
             return budgetMasters;
         }
 

@@ -12,19 +12,25 @@ namespace Inspire.Erp.Infrastructure.Database.Repositoy
     public interface IRepository<T> where T : class
     {
         IEnumerable<T> GetAll();
+       Task<IEnumerable<T>> GetAllAsync();
         IQueryable<T> GetAsQueryable();
         //T Get(long id);
         void Insert(T entity);
+        Task InsertAsync(T entity);
 
 
         IQueryable<T> GetWithInclude(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes);
+        public IQueryable<T> GetWithFilterInclude(Expression<Func<T, bool>> predicate, Func<IQueryable<T>, IQueryable<T>> includeBuilder);
         void InsertList(List<T> entity);
+        Task InsertListAsync(List<T> entity);
         void Update(T entity);
 
         public void UpdateAsync(T entity);
         void UpdateList(List<T> entity);
+        Task UpdateListAsync(List<T> entity);
         void Delete(T entity);
         void DeleteList(List<T> entity);
+        Task DeleteListAsync(List<T> entity);
         public void SaveChangesAsync();
         void BeginTransaction();
         void TransactionCommit();
