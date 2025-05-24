@@ -12,6 +12,8 @@ using Inspire.Erp.Domain.Entities;
 using System.Collections.Generic;
 using Inspire.Erp.Domain.Models;
 using AutoMapper;
+
+using System.Buffers;
 using NPOI.SS.Formula.Functions;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Web.ViewModels;
