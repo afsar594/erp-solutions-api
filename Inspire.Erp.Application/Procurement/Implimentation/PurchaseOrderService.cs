@@ -1175,7 +1175,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
 
 
-        
+
         public async Task<Response<List<VoucherApprivalDto>>> ApprovePOPR(POPRApprovalDto approvalDto)
         {
             try
@@ -1184,10 +1184,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 _orderApprovalHierarchy.BeginTransaction();
 
                 var user = _cacheMemoryService.GetUserObject(InspireConstants.UserCacheKey) as UserFile;
-
-                var approvers = _approverLevelSettings.GetAsQueryable().AsNoTracking()
-                    .Where(x => x.FormType == approvalDto.OrderType && x.JobId == approvalDto.JobId)
-                    .ToList();
 
                 var currentApproval = _orderApprovalHierarchy.GetAsQueryable()
                     .FirstOrDefault(a =>
@@ -1200,9 +1196,37 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 var currentApproverLevel = currentApproval.ApproverLevel;
 
+                // Prevent skipping levels: check if lower level approvals are still pending
+                var orderedLevels = _orderApprovalHierarchy.GetAsQueryable()
+                    .Where(x => x.OrderId == approvalDto.OrderId && x.OrderType == approvalDto.OrderType)
+                    .Select(x => x.ApproverLevel)
+                    .Distinct()
+                    .OrderBy(x => x)
+                    .ToList();
+
+                var lowerLevels = orderedLevels
+                    .TakeWhile(l => l != currentApproverLevel)
+                    .ToList();
+
+                var pendingInLowerLevels = _orderApprovalHierarchy.GetAsQueryable()
+                    .Where(x =>
+                        x.OrderId == approvalDto.OrderId &&
+                        x.OrderType == approvalDto.OrderType &&
+                        lowerLevels.Contains(x.ApproverLevel) &&
+                        x.Status == EnumApprovalStatus.Pending)
+                    .Any();
+
+                if (pendingInLowerLevels)
+                {
+                    return Response<List<VoucherApprivalDto>>.Fail(
+                        new List<VoucherApprivalDto>(),
+                        $"Cannot approve. Pending approvals exist in lower levels before level {currentApproverLevel}."
+                    );
+                }
+
                 // Approve current user
                 currentApproval.Status = approvalDto.ApprovalStatus;
-                currentApproval.Remarks = approvalDto.Remarks;
+                currentApproval.Remarks = string.IsNullOrEmpty(approvalDto.Remarks) ? "" : approvalDto.Remarks;
                 currentApproval.ApprovedBy = (int)user.UserId;
                 currentApproval.ApprovedDate = DateTime.Now;
 
@@ -1215,23 +1239,17 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         x.OrderType == approvalDto.OrderType &&
                         x.ApproverLevel == currentApproverLevel &&
                         x.Status == EnumApprovalStatus.Pending)
-                    .OrderBy(x => x.ApproverId) // Optional: control order
+                    .OrderBy(x => x.ApproverId)
                     .ToList();
 
                 if (pendingUsersAtCurrentLevel.Any())
                 {
                     var nextUser = pendingUsersAtCurrentLevel.First();
-                    await SendApprovalEmailToUser(approvalDto.OrderId, approvalDto.OrderType, currentApproverLevel, settingValue,(int) nextUser.ApproverId);
+                    await SendApprovalEmailToUser(approvalDto.OrderId, approvalDto.OrderType, currentApproverLevel, settingValue, (int)nextUser.ApproverId);
                 }
                 else
                 {
                     // Move to next level
-                    var orderedLevels = approvers
-                        .GroupBy(x => x.ApproverLevel)
-                        .OrderBy(g => g.Key)
-                        .Select(g => g.Key)
-                        .ToList();
-
                     var nextLevel = orderedLevels
                         .SkipWhile(l => l != currentApproverLevel)
                         .Skip(1)
@@ -1250,7 +1268,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                         if (nextLevelUser != null)
                         {
-                            await SendApprovalEmailToUser(approvalDto.OrderId, approvalDto.OrderType, nextLevel, settingValue,(int) nextLevelUser.ApproverId);
+                            await SendApprovalEmailToUser(approvalDto.OrderId, approvalDto.OrderType, nextLevel, settingValue, (int)nextLevelUser.ApproverId);
                         }
                     }
                 }
