@@ -59,7 +59,8 @@ namespace Inspire.Erp.Application.Email.Implementations
             string jobName,
             bool IsNewEntery,
             string requestedBy,
-            string settingValue)
+            string settingValue,
+             int approverId = -1)
         {
             try
             {
@@ -92,14 +93,14 @@ namespace Inspire.Erp.Application.Email.Implementations
                     _logger.LogInformation("Approval hierarchy inserted for Order ID: {OrderId}", orderId);
                 }
 
+                var user = _cacheMemoryService.GetUserObject(InspireConstants.UserCacheKey) as UserFile;
 
-                var toMails = approvers.Where(x => x.ApproverLevel == level && x.OptEmail)
+                var toMails = approvers.Where(x => x.ApproverLevel == level && x.OptEmail &&(x.ApproverId == approverId || approverId ==-1))
                                  .SelectMany(x => x.MetaData)
                                  .Distinct()
                                  .ToList();
                 if (toMails.Any())
                 {
-                    var user = _cacheMemoryService.GetUserObject(InspireConstants.UserCacheKey) as UserFile;
 
                     var deptName = GetDepartment(user.DepartmentId);
                     var approvalUrl = $"{_mailSettings.MainUrl}procurement/po-approval?menu=184&vNo={orderId}&type={orderType}".Trim();
