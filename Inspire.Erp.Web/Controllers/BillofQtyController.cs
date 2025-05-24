@@ -251,6 +251,7 @@ namespace Inspire.Erp.Web.Controllers
                             SupplierId = i?.ItemMasterSupplierId ?? -1,
                             CustomerEnqId = c.CustomerEnqId,
                             ItemCode = d.ItemCode,
+                            ItemName = i.ItemMasterItemName,
                             Qty = d.Qty,
                             UnitCode = d.UnitCode,
                             Rate = d.Rate,

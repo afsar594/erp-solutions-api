@@ -121,7 +121,11 @@ namespace Inspire.Erp.Web.Controllers
         public async Task<IActionResult> DownloadAllFilesAsOnePdf(int id, string type)
         {
             var result = await docsAttachmentService.DownloadAllFilesAsOnePdf(id, type);
-            return File(result.FileBytes,result.ContentType , "downloadedFile.pdf");
+
+            if (result.FileBytes == null)
+                return null;
+            
+            return File(result.FileBytes, result.ContentType, "downloadedFile.pdf");
         }
 
     }

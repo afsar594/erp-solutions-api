@@ -1175,71 +1175,105 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
 
 
+
         public async Task<Response<List<VoucherApprivalDto>>> ApprovePOPR(POPRApprovalDto approvalDto)
         {
             try
             {
                 var settingValue = await _generalSettings.GetValueByKey(InspireConstants.DefaultApprovalType);
-
                 _orderApprovalHierarchy.BeginTransaction();
+
                 var user = _cacheMemoryService.GetUserObject(InspireConstants.UserCacheKey) as UserFile;
-                var approvers = _approverLevelSettings.GetAsQueryable().AsNoTracking()
-                 .Where(x => x.FormType == approvalDto.OrderType && x.JobId == approvalDto.JobId)
-                  .ToList();
 
+                var currentApproval = _orderApprovalHierarchy.GetAsQueryable()
+                    .FirstOrDefault(a =>
+                        a.ApproverId == user.UserId &&
+                        a.OrderId == approvalDto.OrderId &&
+                        a.Status == EnumApprovalStatus.Pending);
 
-                EnumApproverLevels currentApproverLevel = _orderApprovalHierarchy.GetAsQueryable().AsNoTracking().Where(a => a.ApproverId == user.UserId && a.OrderId == approvalDto.OrderId && a.Status == EnumApprovalStatus.Pending).FirstOrDefault()?.ApproverLevel ?? EnumApproverLevels.None;
+                if (currentApproval == null)
+                    return Response<List<VoucherApprivalDto>>.Fail(new List<VoucherApprivalDto>(), "Approval record not found for current user");
 
-                var poprToApprove = _orderApprovalHierarchy.GetAsQueryable()
-                    .Where(x => x.OrderId == approvalDto.OrderId
-                        && x.OrderType == approvalDto.OrderType
-                        && x.ApproverLevel == currentApproverLevel
-                        && x.Status == EnumApprovalStatus.Pending)
+                var currentApproverLevel = currentApproval.ApproverLevel;
+
+                // Prevent skipping levels: check if lower level approvals are still pending
+                var orderedLevels = _orderApprovalHierarchy.GetAsQueryable()
+                    .Where(x => x.OrderId == approvalDto.OrderId && x.OrderType == approvalDto.OrderType)
+                    .Select(x => x.ApproverLevel)
+                    .Distinct()
+                    .OrderBy(x => x)
                     .ToList();
 
-                if (!poprToApprove.Any())
-                    return Response<List<VoucherApprivalDto>>.Fail(new List<VoucherApprivalDto>(), "data not found");
+                var lowerLevels = orderedLevels
+                    .TakeWhile(l => l != currentApproverLevel)
+                    .ToList();
 
-                poprToApprove.ForEach(x =>
-                    {
-                        x.Status = approvalDto.ApprovalStatus;
-                        x.Remarks = approvalDto.Remarks;
-                        x.ApprovedBy = (int)user.UserId;
-                        x.ApprovedDate = DateTime.Now;
-                    });
+                var pendingInLowerLevels = _orderApprovalHierarchy.GetAsQueryable()
+                    .Where(x =>
+                        x.OrderId == approvalDto.OrderId &&
+                        x.OrderType == approvalDto.OrderType &&
+                        lowerLevels.Contains(x.ApproverLevel) &&
+                        x.Status == EnumApprovalStatus.Pending)
+                    .Any();
 
-                _orderApprovalHierarchy.UpdateList(poprToApprove);
-                _orderApprovalHierarchy.TransactionCommit();
-
-                var approverLevels = approvers.GroupBy(x => x.ApproverLevel).Select(g => g.Key).ToList();
-                var nextLevelToSendEmail = approverLevels
-                                            .SkipWhile(a => a != currentApproverLevel)
-                                            .Skip(1)
-                                            .DefaultIfEmpty(EnumApproverLevels.None)
-                                            .First();
-
-
-
-                // EnumApproverLevels nextLevelToSendEamil = GetNextApproverLevel(approvers, (EnumApproverLevels)currentApproverLevel);
-                if (nextLevelToSendEmail != EnumApproverLevels.None)
+                if (pendingInLowerLevels)
                 {
-                    switch (approvalDto.OrderType)
+                    return Response<List<VoucherApprivalDto>>.Fail(
+                        new List<VoucherApprivalDto>(),
+                        $"Cannot approve. Pending approvals exist in lower levels before level {currentApproverLevel}."
+                    );
+                }
+
+                // Approve current user
+                currentApproval.Status = approvalDto.ApprovalStatus;
+                currentApproval.Remarks = string.IsNullOrEmpty(approvalDto.Remarks) ? "" : approvalDto.Remarks;
+                currentApproval.ApprovedBy = (int)user.UserId;
+                currentApproval.ApprovedDate = DateTime.Now;
+
+                _orderApprovalHierarchy.Update(currentApproval);
+
+                // Check for next pending user at same level
+                var pendingUsersAtCurrentLevel = _orderApprovalHierarchy.GetAsQueryable()
+                    .Where(x =>
+                        x.OrderId == approvalDto.OrderId &&
+                        x.OrderType == approvalDto.OrderType &&
+                        x.ApproverLevel == currentApproverLevel &&
+                        x.Status == EnumApprovalStatus.Pending)
+                    .OrderBy(x => x.ApproverId)
+                    .ToList();
+
+                if (pendingUsersAtCurrentLevel.Any())
+                {
+                    var nextUser = pendingUsersAtCurrentLevel.First();
+                    await SendApprovalEmailToUser(approvalDto.OrderId, approvalDto.OrderType, currentApproverLevel, settingValue, (int)nextUser.ApproverId);
+                }
+                else
+                {
+                    // Move to next level
+                    var nextLevel = orderedLevels
+                        .SkipWhile(l => l != currentApproverLevel)
+                        .Skip(1)
+                        .FirstOrDefault();
+
+                    if (nextLevel != EnumApproverLevels.None)
                     {
-                        case EnumOrderForms.PurchaseOrder:
-                            await SendEmailPurchaseOrder(approvalDto.OrderId, nextLevelToSendEmail, settingValue);
-                            break;
+                        var nextLevelUser = _orderApprovalHierarchy.GetAsQueryable()
+                            .Where(x =>
+                                x.OrderId == approvalDto.OrderId &&
+                                x.OrderType == approvalDto.OrderType &&
+                                x.ApproverLevel == nextLevel &&
+                                x.Status == EnumApprovalStatus.Pending)
+                            .OrderBy(x => x.ApproverId)
+                            .FirstOrDefault();
 
-                        case EnumOrderForms.PurchaseRequisition:
-                            await SendEmailPurchaseRequisition(approvalDto.OrderId, nextLevelToSendEmail, settingValue);
-                            break;
-
-                        default:
-                            // Optional: log or throw if unexpected type
-                            throw new NotSupportedException($"Unsupported order type: {approvalDto.OrderType}");
+                        if (nextLevelUser != null)
+                        {
+                            await SendApprovalEmailToUser(approvalDto.OrderId, approvalDto.OrderType, nextLevel, settingValue, (int)nextLevelUser.ApproverId);
+                        }
                     }
                 }
 
-
+                _orderApprovalHierarchy.TransactionCommit();
                 return await GetDefaultPOPR(approvalDto.OrderId, approvalDto.OrderType);
             }
             catch (Exception)
@@ -1248,8 +1282,25 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 throw;
             }
         }
+        private async Task SendApprovalEmailToUser(int orderId, EnumOrderForms orderType, EnumApproverLevels level, string settingValue, int approverId)
+        {
+            switch (orderType)
+            {
+                case EnumOrderForms.PurchaseOrder:
+                    await SendEmailPurchaseOrder(orderId, level, settingValue, approverId);
+                    break;
 
-        private async Task<Response<List<VoucherApprivalDto>>> SendEmailPurchaseOrder(int orderId, EnumApproverLevels nextLevelToSendEamil, string settingValue)
+                case EnumOrderForms.PurchaseRequisition:
+                    await SendEmailPurchaseRequisition(orderId, level, settingValue, approverId);
+                    break;
+
+                default:
+                    throw new NotSupportedException($"Unsupported order type: {orderType}");
+            }
+        }
+
+
+        private async Task<Response<List<VoucherApprivalDto>>> SendEmailPurchaseOrder(int orderId, EnumApproverLevels nextLevelToSendEamil, string settingValue, int approverId)
         {
             List<object> rptData = new List<object>();
             var po = await GetSavedPurchaseOrderDetails(orderId);
@@ -1268,11 +1319,12 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                           jobDetail == null ? "" : jobDetail.JobMasterJobNumber,
                                                                           jobDetail == null ? "" : jobDetail.JobMasterJobName,
                                                                           false, "",
-                                                                          settingValue);
+                                                                          settingValue,
+                                                                          approverId);
             return await GetDefaultPOPR(orderId, EnumOrderForms.PurchaseRequisition);
         }
 
-        private async Task<Response<List<VoucherApprivalDto>>> SendEmailPurchaseRequisition(int orderId, EnumApproverLevels nextLevelToSendEamil, string settingValue)
+        private async Task<Response<List<VoucherApprivalDto>>> SendEmailPurchaseRequisition(int orderId, EnumApproverLevels nextLevelToSendEamil, string settingValue,int approverId)
         {
             List<object> rptData = new List<object>();
             var pr = await _purchaseRequisitionService.GetSavedPurchaseRequisitionDetails(orderId);
@@ -1290,7 +1342,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                           (int)jobId,
                                                                           jobDetail == null ? "" : jobDetail.JobMasterJobNumber,
                                                                           jobDetail == null ? "" : jobDetail.JobMasterJobName,
-                                                                          false, "", settingValue);
+                                                                          false, "", settingValue,approverId);
 
             return await GetDefaultPOPR(orderId, EnumOrderForms.PurchaseRequisition);
         }
