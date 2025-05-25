@@ -39,20 +39,6 @@ Inspire.Erp.Web/obj/project.nuget.cache
 Inspire.Erp.Web/obj/project.assets.json
 Inspire.Erp.Web/obj/Inspire.Erp.Web.csproj.nuget.g.props
 Inspire.Erp.Web/obj/Inspire.Erp.Web.csproj.nuget.dgspec.json
-Inspire.Erp.WebReport/bin
-Inspire.Erp.WebReport/obj
-Inspire.Erp.WebReport/bin/SAPBusinessObjects.WPF.ViewerShared.dll
-Inspire.Erp.WebReport/bin/SAPBusinessObjects.WPF.Viewer.dll
-Inspire.Erp.WebReport/bin/CrystalDecisions.Windows.Forms.dll
-Inspire.Erp.WebReport/bin/CrystalDecisions.Shared.dll
-Inspire.Erp.WebReport/bin/CrystalDecisions.ReportAppServer.DataSetConversion.dll
-Inspire.Erp.WebReport/bin/CrystalDecisions.CrystalReports.Engine.dll
-Inspire.Erp.WebReport/obj/Debug/Inspire.Erp.WebReport.csproj.AssemblyReference.cache
-Inspire.Erp.WebReport/obj/Debug/DesignTimeResolveAssemblyReferencesInput.cache
-/Inspire.Erp.WebReport/bin - Copy
-/Inspire.Erp.WebReport/report
-/Inspire.Erp.WebReport/FileExports
-/Inspire.Erp.WebReport/Reports
 /Inspire.Erp.Web/Logs
 /Inspire.Erp.Web/Upload/Pdfs
 /Inspire.Erp.Web/appsettings.json
@@ -61,4 +47,11 @@ Inspire.Erp.WebReport/obj/Debug/DesignTimeResolveAssemblyReferencesInput.cache
 /Inspire.Erp.RecurringJob/bin
 /Inspire.Erp.RecurringJob/obj
 /Inspire.Erp.Web/Properties/PublishProfiles
-/Inspire.Erp.Web/Upload/Pdfs/114rp.pdf
+/Inspire.Erp.Web/Upload/files/
+/Inspire.Erp.Web/Upload/Pdfs/
+**/bin/
+**/obj/
+
+
+
+
