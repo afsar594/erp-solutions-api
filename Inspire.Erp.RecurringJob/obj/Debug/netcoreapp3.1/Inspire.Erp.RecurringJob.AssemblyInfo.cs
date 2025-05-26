@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Inspire.Erp.RecurringJob")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8a13d05a66fac1f3914a8341a8225887700e427f")]
 [assembly: System.Reflection.AssemblyProductAttribute("Inspire.Erp.RecurringJob")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Inspire.Erp.RecurringJob")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
