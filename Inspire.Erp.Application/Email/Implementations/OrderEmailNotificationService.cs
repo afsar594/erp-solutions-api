@@ -95,10 +95,30 @@ namespace Inspire.Erp.Application.Email.Implementations
 
                 var user = _cacheMemoryService.GetUserObject(InspireConstants.UserCacheKey) as UserFile;
 
-                var toMails = approvers.Where(x => x.ApproverLevel == level && x.OptEmail &&(x.ApproverId == approverId || approverId ==-1))
-                                 .SelectMany(x => x.MetaData)
-                                 .Distinct()
-                                 .ToList();
+                //var toMails = approvers.Where(x => x.ApproverLevel == level && x.OptEmail &&(x.ApproverId == approverId || approverId ==-1))
+                //                 .SelectMany(x => x.MetaData)
+                //                 .Distinct()
+                //                 .ToList();
+
+                List<UserEmail> toMails;
+
+                if (approverId == -1)
+                {
+                    var topApprover = approvers
+                        .Where(x => x.ApproverLevel == EnumApproverLevels.Level1 && x.OptEmail)
+                        .FirstOrDefault();
+
+                    toMails = topApprover.MetaData;
+                }
+                else
+                {
+                    toMails = approvers
+                        .Where(x => x.ApproverLevel == level && x.OptEmail && x.ApproverId == approverId)
+                        .SelectMany(x => x.MetaData)
+                        .Distinct()
+                        .ToList();
+                }
+
                 if (toMails.Any())
                 {
 

@@ -13,7 +13,4 @@
     <SourceRoot Include="C:\Users\AAUEC\.nuget\packages\" />
     <SourceRoot Include="C:\Program Files (x86)\Microsoft Visual Studio\Shared\NuGetPackages\" />
   </ItemGroup>
-  <PropertyGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
-    <PkgHangfire_SqlServer Condition=" '$(PkgHangfire_SqlServer)' == '' ">C:\Users\AAUEC\.nuget\packages\hangfire.sqlserver\1.8.18</PkgHangfire_SqlServer>
-  </PropertyGroup>
 </Project>

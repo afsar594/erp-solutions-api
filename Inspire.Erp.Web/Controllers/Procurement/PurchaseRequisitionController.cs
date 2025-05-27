@@ -389,7 +389,7 @@ namespace Inspire.Erp.Web.Controllers
                     deliveryatsite = purchaseRequisition.purchaseRequisition.deliveryatsite,
                     confirmationemaildetails = purchaseRequisition.purchaseRequisition.confirmationemaildetails,
                     paymentTerms = purchaseRequisition.purchaseRequisition.paymentTerms,
-                    IsPrintEnabled = purchaseRequisition.purchaseRequisition.IsPrintEnabled
+                    IsPrintEnabled = !purchaseRequisition.purchaseRequisition.IsPrintEnabled
                 };
                 purchaseRequisitionViewModel.PurchaseRequisitionDetails = _mapper.Map<List<PurchaseRequisitionDetailsViewModel>>(purchaseRequisition.purchaseRequisitionDetails);
                 purchaseRequisitionViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(purchaseRequisition.accountsTransactions);
