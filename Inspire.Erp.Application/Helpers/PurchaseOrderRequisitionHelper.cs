@@ -44,6 +44,7 @@ namespace Inspire.Erp.Application.Helpers
                                   MinAmount = a.MinAmount,
                                   MaxAmount = a.MaxAmount,
                                   MetaData = JsonConvert.DeserializeObject<List<UserEmail>>(a.MetaData),
+                                  Sno = a.SNo
                               }).ToList();
                 
 

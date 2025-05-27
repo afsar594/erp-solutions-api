@@ -296,7 +296,8 @@ namespace Inspire.Erp.Web.Controllers.Procurement
                     PurchaseOrderDelivStatus = purchaseOrder.purchaseOrder.PurchaseOrderDelivStatus,
                     PurchaseOrderDelivPlace = purchaseOrder.purchaseOrder.PurchaseOrderDelivPlace,
                     PurchaseOrderOrdertype = purchaseOrder.purchaseOrder.PurchaseOrderOrdertype,
-                    IsPrintEnabled = !purchaseOrder.purchaseOrder.IsPrintEnabled
+                    IsPrintEnabled = !purchaseOrder.purchaseOrder.IsPrintEnabled,
+                    IsEditEnabled = !purchaseOrder.purchaseOrder.IsEditEnabled
                 };
                 purchaseOrderViewModel.PurchaseOrderDetails = _mapper.Map<List<PurchaseOrderDetailsViewModel>>(purchaseOrder.purchaseOrderDetails);
                 purchaseOrderViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(purchaseOrder.accountsTransactions);

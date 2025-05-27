@@ -31,6 +31,9 @@ using Inspire.Erp.Domain.Constants;
 using Inspire.Erp.Application.Common.Email;
 using Microsoft.Extensions.Caching.Memory;
 using Inspire.Erp.Application.Settings.Interfaces;
+using Inspire.Erp.Infrastructure;
+using Microsoft.Extensions.Configuration;
+using Inspire.Erp.Application.NewFolder.Interfaces;
 
 namespace Inspire.Erp.Application.Procurement.Implementation
 {
@@ -68,8 +71,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private readonly IRepository<ApproverLevelSettings> _approverLevelSettings;
         private readonly IRepository<OrderApprovalHierarchy> _orderApprovalHierarchy;
         private readonly CacheMemoryService _cacheMemoryService;
+        private ApplicationSettings applicationSettings;
+        DownloadAndSaveVoucherReport downloadAndSaveVoucherReport;
         public PurchaseRequisitionService(IRepository<ItemMaster> itemMasterRepository, IRepository<UnitMaster> unitMasterRepository,
-            IRepository<SuppliersMaster> suppliersMasterRepository,
+            IRepository<SuppliersMaster> suppliersMasterRepository, IConfiguration config, IDocsAttachmentService docsAttachmentService,
              IMemoryCache cache, IRepository<LocationMaster> _locationrepository, IRepository<LocationMaster> locationMasterRepository,
             IRepository<PermissionApproval> permissionApprovalRepo, IRepository<Approval> approvalRepo, IRepository<ApprovalDetail> approvalDetailRepo,
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
@@ -78,6 +83,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         IRepository<PurchaseRequisition> purchaseRequisitionRepository, InspireErpDBContext context, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository, IRepository<JobMasterBudgetDetails> budgetDetailsrepository, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository,
         IOrderEmailNotificationService orderEmailNotificationService, IRepository<ApproverLevelSettings> approverLevelSettings, IRepository<OrderApprovalHierarchy> orderApprovalHierarchy, IRepository<JobMasterJobDetails> jobMasterJobDetailsRepo, IGeneralSettings generalSettings)
         {
+            applicationSettings = config.GetSection("ApplicationSettings").Get<ApplicationSettings>();
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository; _context = context;
             this._purchaseRequisitionRepository = purchaseRequisitionRepository; _permissionApprovalDetailRepo = permissionApprovalDetailRepo;
@@ -92,6 +98,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _jobMasterJobDetailsRepo = jobMasterJobDetailsRepo;
             _cacheMemoryService = new CacheMemoryService(cache);
             _generalSettings = generalSettings;
+            downloadAndSaveVoucherReport = new DownloadAndSaveVoucherReport(docsAttachmentService);
         }
         public async Task<Response<PurchaseRequisitionModel>> UpdatePurchaseRequisition(PurchaseRequisition purchaseRequisition, List<AccountsTransactions> accountsTransactions, List<PurchaseRequisitionDetails> purchaseRequisitionDetails)
         {
@@ -528,6 +535,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 #endregion
 
                 var res = await this.GetSavedPurchaseRequisitionDetails((int)purchaseRequisition.PurchaseRequisitionId);
+                await downloadAndSaveVoucherReport.DownloadedFileAsync(applicationSettings.DownloadFileBaseUrl, "PurchaseRequisition", purchaseRequisition.PurchaseRequisitionId.ToString(), (int)purchaseRequisition.PurchaseRequisitionId);
                 return Response<PurchaseRequisitionModel>.Success(res.Result, "Purchase Requisition Save Successfully.");
 
             }
@@ -671,6 +679,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             }
             var settingValue = await _generalSettings.GetApproverStatusAsync(pvno.ToString(), nameof(EnumOrderForms.PurchaseRequisition));
             purchaseRequisitionModel.purchaseRequisition.IsPrintEnabled = settingValue.GeneralSettingValue == InspireConstants.ApprovalAsNoApproval ? true :  await _orderApprovalHierarchy.GetAsQueryable().AsNoTracking().Where(x => x.OrderId == pvno).AllAsync(x => x.Status == EnumApprovalStatus.Approved);
+            purchaseRequisitionModel.purchaseRequisition.IsEditEnabled = settingValue.GeneralSettingValue == InspireConstants.ApprovalAsNoApproval ? true :  await _orderApprovalHierarchy.GetAsQueryable().AsNoTracking().Where(x => x.OrderId == pvno).AllAsync(x => x.Status == EnumApprovalStatus.Pending);
             
             return Response<PurchaseRequisitionModel>.Success(purchaseRequisitionModel, "Data found");
 

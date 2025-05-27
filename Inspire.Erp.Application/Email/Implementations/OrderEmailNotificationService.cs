@@ -84,6 +84,7 @@ namespace Inspire.Erp.Application.Email.Implementations
                       OrderType = orderType,
                       Remarks = "",
                       ApproverLevel = x.ApproverLevel,
+                      Sno = x.Sno
                   })
                   .ToList();
 
@@ -92,6 +93,8 @@ namespace Inspire.Erp.Application.Email.Implementations
                     _orderApprovalHierarchy.InsertList(orderApprovers);
                     _logger.LogInformation("Approval hierarchy inserted for Order ID: {OrderId}", orderId);
                 }
+                if (orderType == EnumOrderForms.GeneralPurchaseOrder)
+                    return;
 
                 var user = _cacheMemoryService.GetUserObject(InspireConstants.UserCacheKey) as UserFile;
 
@@ -107,7 +110,8 @@ namespace Inspire.Erp.Application.Email.Implementations
                     var topApprover = approvers
                         .Where(x => x.ApproverLevel == EnumApproverLevels.Level1 && x.OptEmail)
                         .FirstOrDefault();
-
+                    if (topApprover == null)
+                        return;
                     toMails = topApprover.MetaData;
                 }
                 else

@@ -136,9 +136,10 @@ namespace Inspire.Erp.Application.NewFolder.Implementations
                 var jobDocs = await docrepository
                                      .GetAsQueryable()
                                      .AsNoTracking()
-                                      .Where(x => x.DocumentVocucherId == id 
+                                     .Where(x => x.DocumentVocucherId == id 
                                                   && x.DocumentType.ToLower() == type.ToLower()
                                                   && (x.DocumentDelStatus == null || x.DocumentDelStatus == false))
+                                     .OrderBy(x => x.DocumentId)
                                      .Select(x => x.DocumentName)
                                      .ToListAsync();
                 if (!jobDocs.Any())

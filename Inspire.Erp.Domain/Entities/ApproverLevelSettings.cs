@@ -21,6 +21,8 @@ namespace Inspire.Erp.Domain.Entities
         public decimal MaxAmount { get; set; }
         public int? JobId { get; set; }
         public string MetaData { get; set; }
+        public int SNo { get; set; }
+
         [ForeignKey("ApproverId")]
         public virtual UserFile Approver { get; set; }
     }

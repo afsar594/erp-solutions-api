@@ -45,5 +45,7 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? Vatamt { get; set; }
 
         public virtual ICollection<GeneralPurchaseOrderDetails> GeneralPurchaseOrderDetails { get; set; }
+        public virtual ICollection<OrderApprovalHierarchy> OrderApprovalHierarchies { get; set; }
+
     }
 }

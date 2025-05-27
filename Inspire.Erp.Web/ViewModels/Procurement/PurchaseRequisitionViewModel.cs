@@ -75,6 +75,7 @@ namespace Inspire.Erp.Web.ViewModels.Procurement
         [NotMapped]
         public bool PurchaseRequisitionApproveEnable { get; set; }
         public bool IsPrintEnabled { get; set; }
+        public bool IsEditEnabled { get; set; }
         //public PurchaseRequisition()
         //{
         //    PurchaseRequisitionDetails = new HashSet<PurchaseRequisitionDetails>();

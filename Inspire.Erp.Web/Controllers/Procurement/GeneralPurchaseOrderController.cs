@@ -16,9 +16,10 @@ using Inspire.Erp.Web.Common;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Inspire.Erp.Application.Procurement.Implementation;
 using Microsoft.AspNetCore.Authorization;
+using Inspire.Erp.Domain.Models;
 
 namespace Inspire.Erp.Web.Controllers.Procurement
-{   
+{
     [Route("api/GeneralPurchaseOrder")]
     [Produces("application/json")]
     [ApiController]
@@ -39,24 +40,33 @@ namespace Inspire.Erp.Web.Controllers.Procurement
         }
         [HttpPost]
         [Route("InsertGeneralPurchaseOrder")]
-        public ApiResponse<GeneralPurchaseOrderViewModel> InsertGeneralPurchaseOrder([FromBody] GeneralPurchaseOrderViewModel voucherCompositeView)
+        public async Task<Common.ApiResponse<GeneralPurchaseOrderViewModel>> InsertGeneralPurchaseOrder([FromBody] GeneralPurchaseOrderViewModel voucherCompositeView)
         {
 
-            ApiResponse<GeneralPurchaseOrderViewModel> apiResponse = new ApiResponse<GeneralPurchaseOrderViewModel>();
+            Common.ApiResponse<GeneralPurchaseOrderViewModel> apiResponse = new Common.ApiResponse<GeneralPurchaseOrderViewModel>();
             if (_GeneralpurchaseOrderService.GetVouchersNumbers(voucherCompositeView.GeneralPurchaseOrderPono) == null)
             {
                 var param1 = _mapper.Map<GeneralPurchaseOrder>(voucherCompositeView);
                 var param2 = _mapper.Map<List<GeneralPurchaseOrderDetails>>(voucherCompositeView.GeneralPurchaseOrderDetails);
                 var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-                var xs = _GeneralpurchaseOrderService.InsertGeneralPurchaseOrder(param1, param3, param2
+                var xs = await _GeneralpurchaseOrderService.InsertGeneralPurchaseOrder(param1, param3, param2
 
                     );
+                if (!xs.Valid)
+                {
+                    return new Common.ApiResponse<GeneralPurchaseOrderViewModel>
+                    {
+                        Valid = true,
+                        Result = voucherCompositeView,
+                        Message = PurchaseOrderMessage.SaveVoucher
+                    };
+                }
 
                 GeneralPurchaseOrderViewModel GeneralpurchaseOrderViewModel = new GeneralPurchaseOrderViewModel();
-                GeneralpurchaseOrderViewModel = _mapper.Map<GeneralPurchaseOrderViewModel>(xs.GeneralpurchaseOrder);
+                GeneralpurchaseOrderViewModel = _mapper.Map<GeneralPurchaseOrderViewModel>(xs.Result.GeneralpurchaseOrder);
 
-                GeneralpurchaseOrderViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
-                apiResponse = new ApiResponse<GeneralPurchaseOrderViewModel>
+                GeneralpurchaseOrderViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.Result.accountsTransactions);
+                apiResponse = new Common.ApiResponse<GeneralPurchaseOrderViewModel>
                 {
                     Valid = true,
                     Result = GeneralpurchaseOrderViewModel,
@@ -67,54 +77,32 @@ namespace Inspire.Erp.Web.Controllers.Procurement
         }
         [HttpPost]
         [Route("UpdateGeneralPurchaseOrder")]
-        public ApiResponse<GeneralPurchaseOrderViewModel> UpdateGeneralPurchaseOrder([FromBody] GeneralPurchaseOrderViewModel voucherCompositeView)
+        public async Task<Common.ApiResponse<GeneralPurchaseOrderViewModel>> UpdateGeneralPurchaseOrder([FromBody] GeneralPurchaseOrderViewModel voucherCompositeView)
         {
             var param1 = _mapper.Map<GeneralPurchaseOrder>(voucherCompositeView);
             var param2 = _mapper.Map<List<GeneralPurchaseOrderDetails>>(voucherCompositeView.GeneralPurchaseOrderDetails);
             var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-            var xs = _GeneralpurchaseOrderService.UpdateGeneralPurchaseOrder(param1, param3, param2
+            var xs = await _GeneralpurchaseOrderService.UpdateGeneralPurchaseOrder(param1, param3, param2
 
                 );
-            //GeneralPurchaseOrderViewModel GeneralpurchaseOrderViewModel = new GeneralPurchaseOrderViewModel
-            //{
-            //    GeneralPurchaseOrderId = xs.GeneralpurchaseOrder.GeneralPurchaseOrderId,
-            //    GeneralPurchaseOrderPono = xs.GeneralpurchaseOrder.GeneralPurchaseOrderPono,
-            //    GeneralPurchaseOrderSupplierId = xs.GeneralpurchaseOrder.GeneralPurchaseOrderSupplierId,
-            //    GeneralPurchaseOrderPoDate = xs.GeneralpurchaseOrder.GeneralPurchaseOrderPoDate,
-            //    GeneralPurchaseOrderDescription = xs.GeneralpurchaseOrder.GeneralPurchaseOrderDescription,
-            //    GeneralPurchaseOrderLpoNo = xs.GeneralpurchaseOrder.GeneralPurchaseOrderLpoNo,
-            //    GeneralPurchaseOrderLpoDate = xs.GeneralpurchaseOrder.GeneralPurchaseOrderLpoDate,
-            //    GeneralPurchaseOrderTotalAmount = xs.GeneralpurchaseOrder.GeneralPurchaseOrderTotalAmount,
-            //    GeneralPurchaseOrderStatus = xs.GeneralpurchaseOrder.GeneralPurchaseOrderStatus,
-            //    GeneralPurchaseOrderDiscountPercentage = xs.GeneralpurchaseOrder.GeneralPurchaseOrderDiscountPercentage,
-            //    GeneralPurchaseOrderDiscount = xs.GeneralpurchaseOrder.GeneralPurchaseOrderDiscount,
-            //    GeneralPurchaseOrderLocationId = xs.GeneralpurchaseOrder.GeneralPurchaseOrderLocationId,
-            //    GeneralPurchaseOrderCurrencyId = xs.GeneralpurchaseOrder.GeneralPurchaseOrderCurrencyId,
-            //    GeneralPurchaseOrderNetAmount = xs.GeneralpurchaseOrder.GeneralPurchaseOrderNetAmount,
-            //    GeneralPurchaseOrderFsno = xs.GeneralpurchaseOrder.GeneralPurchaseOrderFsno,
-            //    GeneralPurchaseOrderUserId = xs.GeneralpurchaseOrder.GeneralPurchaseOrderUserId,
-            //    GeneralPurchaseOrderTermAndCondition = xs.GeneralpurchaseOrder.GeneralPurchaseOrderTermAndCondition,
-            //    GeneralPurchaseOrderJobId = xs.GeneralpurchaseOrder.GeneralPurchaseOrderJobId,
-            //    GeneralPurchaseOrderApproveDate = xs.GeneralpurchaseOrder.GeneralPurchaseOrderApproveDate,
-            //    GeneralPurchaseOrderApproveStatus = xs.GeneralpurchaseOrder.GeneralPurchaseOrderApproveStatus,
-            //    GeneralPurchaseOrderApprovedBy = xs.GeneralpurchaseOrder.GeneralPurchaseOrderApprovedBy,
-            //    GeneralPurchaseOrderHeader = xs.GeneralpurchaseOrder.GeneralPurchaseOrderHeader,
-            //    GeneralPurchaseOrderFooter = xs.GeneralpurchaseOrder.GeneralPurchaseOrderFooter,
-            //    GeneralPurchaseOrderTerms = xs.GeneralpurchaseOrder.GeneralPurchaseOrderTerms,
-            //    GeneralPurchaseOrderPaymentTerms = xs.GeneralpurchaseOrder.GeneralPurchaseOrderPaymentTerms,
-            //    GeneralPurchaseOrderDelivery = xs.GeneralpurchaseOrder.GeneralPurchaseOrderDelivery,
-            //    GeneralPurchaseOrderIndentNo = xs.GeneralpurchaseOrder.GeneralPurchaseOrderIndentNo,
-            //    GeneralPurchaseOrderDelStatus = xs.GeneralpurchaseOrder.GeneralPurchaseOrderDelStatus,              
-            //};
+            if (!xs.Valid)
+            {
+                return new Common.ApiResponse<GeneralPurchaseOrderViewModel>
+                {
+                    Valid = true,
+                    Result = voucherCompositeView,
+                    Message = PurchaseOrderMessage.SaveVoucher
+                };
+            }
 
 
             GeneralPurchaseOrderViewModel GeneralpurchaseOrderViewModel = new GeneralPurchaseOrderViewModel();
-            GeneralpurchaseOrderViewModel = _mapper.Map<GeneralPurchaseOrderViewModel>(xs.GeneralpurchaseOrder);
+            GeneralpurchaseOrderViewModel = _mapper.Map<GeneralPurchaseOrderViewModel>(xs.Result.GeneralpurchaseOrder);
 
-            GeneralpurchaseOrderViewModel.GeneralPurchaseOrderDetails = _mapper.Map<List<GeneralPurchaseOrderDetailsViewModel>>(xs.GeneralpurchaseOrderDetails);
-            GeneralpurchaseOrderViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
+            GeneralpurchaseOrderViewModel.GeneralPurchaseOrderDetails = _mapper.Map<List<GeneralPurchaseOrderDetailsViewModel>>(xs.Result.GeneralpurchaseOrderDetails);
+            GeneralpurchaseOrderViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.Result.accountsTransactions);
 
-            ApiResponse<GeneralPurchaseOrderViewModel> apiResponse = new ApiResponse<GeneralPurchaseOrderViewModel>
+            Common.ApiResponse<GeneralPurchaseOrderViewModel> apiResponse = new Common.ApiResponse<GeneralPurchaseOrderViewModel>
             {
                 Valid = true,
                 Result = GeneralpurchaseOrderViewModel,
@@ -122,16 +110,17 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             };
             return apiResponse;
         }
+
         [HttpPost]
         [Route("DeleteGeneralPurchaseOrder")]
-        public ApiResponse<int> DeleteGeneralPurchaseOrder([FromBody] GeneralPurchaseOrderViewModel voucherCompositeView)
+        public Common.ApiResponse<int> DeleteGeneralPurchaseOrder([FromBody] GeneralPurchaseOrderViewModel voucherCompositeView)
         {
             var param1 = _mapper.Map<GeneralPurchaseOrder>(voucherCompositeView);
             var param2 = _mapper.Map<List<GeneralPurchaseOrderDetails>>(voucherCompositeView.GeneralPurchaseOrderDetails);
             var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
             var xs = _GeneralpurchaseOrderService.DeleteGeneralPurchaseOrder(param1, param3, param2
                 );
-            ApiResponse<int> apiResponse = new ApiResponse<int>
+            Common.ApiResponse<int> apiResponse = new Common.ApiResponse<int>
             {
                 Valid = true,
                 Result = 0,
@@ -141,9 +130,9 @@ namespace Inspire.Erp.Web.Controllers.Procurement
         }
         [HttpGet]
         [Route("GetAllAccountTransaction")]
-        public ApiResponse<List<AccountsTransactions>> GetAllAccountTransaction()
+        public Common.ApiResponse<List<AccountsTransactions>> GetAllAccountTransaction()
         {
-            ApiResponse<List<AccountsTransactions>> apiResponse = new ApiResponse<List<AccountsTransactions>>
+            Common.ApiResponse<List<AccountsTransactions>> apiResponse = new Common.ApiResponse<List<AccountsTransactions>>
             {
                 Valid = true,
                 Result = _mapper.Map<List<AccountsTransactions>>(_GeneralpurchaseOrderService.GetAllTransaction()),
@@ -153,59 +142,28 @@ namespace Inspire.Erp.Web.Controllers.Procurement
         }
         [HttpGet]
         [Route("GetGeneralPurchaseOrder")]
-        public ApiResponse<List<GeneralPurchaseOrder>> GetAllGeneralPurchaseOrder()
+        public Common.ApiResponse<List<GeneralPurchaseOrder>> GetAllGeneralPurchaseOrder()
         {
-            ApiResponse<List<GeneralPurchaseOrder>> apiResponse = new ApiResponse<List<GeneralPurchaseOrder>>
+            Common.ApiResponse<List<GeneralPurchaseOrder>> apiResponse = new Common.ApiResponse<List<GeneralPurchaseOrder>>
             {
                 Valid = true,
-                Result = _GeneralpurchaseOrderService.GetGeneralPurchaseOrder().OrderBy(x=>x.GeneralPurchaseOrderJobId).ToList(),
+                Result = _GeneralpurchaseOrderService.GetGeneralPurchaseOrder().OrderBy(x => x.GeneralPurchaseOrderJobId).ToList(),
                 Message = ""
             };
             return apiResponse;
         }
         [HttpGet]
         [Route("GetSavedGeneralPurchaseOrderDetails/{id}")]
-        public ApiResponse<GeneralPurchaseOrderViewModel> GetSavedGeneralPurchaseOrderDetails(string id)
+        public async Task<Common.ApiResponse<GeneralPurchaseOrderViewModel>> GetSavedGeneralPurchaseOrderDetails(string id)
         {
-            GeneralPurchaseOrderModel xs = _GeneralpurchaseOrderService.GetSavedGeneralPurchaseOrderDetails(id);
+            var xs = await _GeneralpurchaseOrderService.GetSavedGeneralPurchaseOrderDetails(id);
             if (xs != null)
             {
-                //GeneralPurchaseOrderViewModel GeneralpurchaseOrderViewModel = new GeneralPurchaseOrderViewModel
-                //{
-                //    GeneralPurchaseOrderId = xs.GeneralpurchaseOrder.GeneralPurchaseOrderId,
-                //    GeneralPurchaseOrderPono = xs.GeneralpurchaseOrder.GeneralPurchaseOrderPono,
-                //    GeneralPurchaseOrderSupplierId = xs.GeneralpurchaseOrder.GeneralPurchaseOrderSupplierId,
-                //    GeneralPurchaseOrderPoDate = xs.GeneralpurchaseOrder.GeneralPurchaseOrderPoDate,
-                //    GeneralPurchaseOrderDescription = xs.GeneralpurchaseOrder.GeneralPurchaseOrderDescription,
-                //    GeneralPurchaseOrderLpoNo = xs.GeneralpurchaseOrder.GeneralPurchaseOrderLpoNo,
-                //    GeneralPurchaseOrderLpoDate = xs.GeneralpurchaseOrder.GeneralPurchaseOrderLpoDate,
-                //    GeneralPurchaseOrderTotalAmount = xs.GeneralpurchaseOrder.GeneralPurchaseOrderTotalAmount,
-                //    GeneralPurchaseOrderStatus = xs.GeneralpurchaseOrder.GeneralPurchaseOrderStatus,
-                //    GeneralPurchaseOrderDiscountPercentage = xs.GeneralpurchaseOrder.GeneralPurchaseOrderDiscountPercentage,
-                //    GeneralPurchaseOrderDiscount = xs.GeneralpurchaseOrder.GeneralPurchaseOrderDiscount,
-                //    GeneralPurchaseOrderLocationId = xs.GeneralpurchaseOrder.GeneralPurchaseOrderLocationId,
-                //    GeneralPurchaseOrderCurrencyId = xs.GeneralpurchaseOrder.GeneralPurchaseOrderCurrencyId,
-                //    GeneralPurchaseOrderNetAmount = xs.GeneralpurchaseOrder.GeneralPurchaseOrderNetAmount,
-                //    GeneralPurchaseOrderFsno = xs.GeneralpurchaseOrder.GeneralPurchaseOrderFsno,
-                //    GeneralPurchaseOrderUserId = xs.GeneralpurchaseOrder.GeneralPurchaseOrderUserId,
-                //    GeneralPurchaseOrderTermAndCondition = xs.GeneralpurchaseOrder.GeneralPurchaseOrderTermAndCondition,
-                //    GeneralPurchaseOrderJobId = xs.GeneralpurchaseOrder.GeneralPurchaseOrderJobId,
-                //    GeneralPurchaseOrderApproveDate = xs.GeneralpurchaseOrder.GeneralPurchaseOrderApproveDate,
-                //    GeneralPurchaseOrderApproveStatus = xs.GeneralpurchaseOrder.GeneralPurchaseOrderApproveStatus,
-                //    GeneralPurchaseOrderApprovedBy = xs.GeneralpurchaseOrder.GeneralPurchaseOrderApprovedBy,
-                //    GeneralPurchaseOrderHeader = xs.GeneralpurchaseOrder.GeneralPurchaseOrderHeader,
-                //    GeneralPurchaseOrderFooter = xs.GeneralpurchaseOrder.GeneralPurchaseOrderFooter,
-                //    GeneralPurchaseOrderTerms = xs.GeneralpurchaseOrder.GeneralPurchaseOrderTerms,
-                //    GeneralPurchaseOrderPaymentTerms = xs.GeneralpurchaseOrder.GeneralPurchaseOrderPaymentTerms,
-                //    GeneralPurchaseOrderDelivery = xs.GeneralpurchaseOrder.GeneralPurchaseOrderDelivery,
-                //    GeneralPurchaseOrderIndentNo = xs.GeneralpurchaseOrder.GeneralPurchaseOrderIndentNo,
-                //    GeneralPurchaseOrderDelStatus = xs.GeneralpurchaseOrder.GeneralPurchaseOrderDelStatus,
-                //};
                 GeneralPurchaseOrderViewModel GeneralpurchaseOrderViewModel = new GeneralPurchaseOrderViewModel();
-                GeneralpurchaseOrderViewModel = _mapper.Map<GeneralPurchaseOrderViewModel>(xs.GeneralpurchaseOrder);
-                GeneralpurchaseOrderViewModel.GeneralPurchaseOrderDetails = _mapper.Map<List<GeneralPurchaseOrderDetailsViewModel>>(xs.GeneralpurchaseOrderDetails);
-                GeneralpurchaseOrderViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
-                ApiResponse<GeneralPurchaseOrderViewModel> apiResponse = new ApiResponse<GeneralPurchaseOrderViewModel>
+                GeneralpurchaseOrderViewModel = _mapper.Map<GeneralPurchaseOrderViewModel>(xs.Result.GeneralpurchaseOrder);
+                GeneralpurchaseOrderViewModel.GeneralPurchaseOrderDetails = _mapper.Map<List<GeneralPurchaseOrderDetailsViewModel>>(xs.Result.GeneralpurchaseOrderDetails);
+                GeneralpurchaseOrderViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.Result.accountsTransactions);
+                Common.ApiResponse<GeneralPurchaseOrderViewModel> apiResponse = new Common.ApiResponse<GeneralPurchaseOrderViewModel>
                 {
                     Valid = true,
                     Result = GeneralpurchaseOrderViewModel,
@@ -217,9 +175,9 @@ namespace Inspire.Erp.Web.Controllers.Procurement
         }
         [HttpGet]
         [Route("CheckVnoExist/{id}")]
-        public ApiResponse<bool> CheckVnoExist(string id)
+        public Common.ApiResponse<bool> CheckVnoExist(string id)
         {
-            ApiResponse<bool> apiResponse = new ApiResponse<bool>
+            Common.ApiResponse<bool> apiResponse = new Common.ApiResponse<bool>
             {
                 Valid = true,
                 Result = true,
