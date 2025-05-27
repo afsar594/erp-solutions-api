@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using Inspire.Erp.Domain.Modals;
+using System.Threading.Tasks;
 
 namespace Inspire.Erp.Application.Procurement.Interfaces
 {
@@ -15,11 +17,11 @@ namespace Inspire.Erp.Application.Procurement.Interfaces
         public IEnumerable<UnitMaster> GeneralPurchaseOrder_GetAllUnitMaster();
         public IEnumerable<SuppliersMaster> GeneralPurchaseOrder_GetAllSuppliersMaster();
         public IEnumerable<LocationMaster> GeneralPurchaseOrder_GetAllLocationMaster();
-        public GeneralPurchaseOrderModel InsertGeneralPurchaseOrder(GeneralPurchaseOrder generalpurchaseOrder, List<AccountsTransactions> accountsTransactions, List<GeneralPurchaseOrderDetails> GeneralpurchaseOrderDetails);
-        public GeneralPurchaseOrderModel UpdateGeneralPurchaseOrder(GeneralPurchaseOrder generalpurchaseOrder, List<AccountsTransactions> accountsTransactions, List<GeneralPurchaseOrderDetails> GeneralpurchaseOrderDetails);
+        public Task<Response<GeneralPurchaseOrderModel>> InsertGeneralPurchaseOrder(GeneralPurchaseOrder generalpurchaseOrder, List<AccountsTransactions> accountsTransactions, List<GeneralPurchaseOrderDetails> GeneralpurchaseOrderDetails);
+        public Task<Response<GeneralPurchaseOrderModel>> UpdateGeneralPurchaseOrder(GeneralPurchaseOrder generalpurchaseOrder, List<AccountsTransactions> accountsTransactions, List<GeneralPurchaseOrderDetails> GeneralpurchaseOrderDetails);
         public int DeleteGeneralPurchaseOrder(GeneralPurchaseOrder generalpurchaseOrder, List<AccountsTransactions> accountsTransactions, List<GeneralPurchaseOrderDetails> GeneralpurchaseOrderDetails);
         public IEnumerable<AccountsTransactions> GetAllTransaction();
-        public GeneralPurchaseOrderModel GetSavedGeneralPurchaseOrderDetails(string pvno);
+        public Task<Response<GeneralPurchaseOrderModel>> GetSavedGeneralPurchaseOrderDetails(string pvno);
         public IEnumerable<GeneralPurchaseOrder> GetGeneralPurchaseOrder();
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
         public VouchersNumbers GetVouchersNumbers(string pvno);

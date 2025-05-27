@@ -28,8 +28,7 @@ namespace Inspire.Erp.Domain.Entities
 
         public int? ApprovedBy { get; set; }
         public DateTime? ApprovedDate { get; set; }
-
-
+        public int Sno { get; set; }
 
         [ForeignKey("OrderId")]
 		public virtual PurchaseOrder PurchaseOrders { get; set; }
@@ -37,6 +36,8 @@ namespace Inspire.Erp.Domain.Entities
 		public virtual PurchaseRequisition PurchaseRequisitions { get; set; }
 		//[ForeignKey("OrderId")]
 		//public virtual CustomerQuotation CustomerQuotatios { get; set; }
+		[ForeignKey("OrderId")]
+		public virtual GeneralPurchaseOrder GeneralPurchaseOrder { get; set; }
 
 	}
 }

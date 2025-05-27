@@ -95,5 +95,7 @@ namespace Inspire.Erp.Domain.Entities
 
         [NotMapped]
         public bool IsPrintEnabled { get; set; }
+        [NotMapped]
+        public bool IsEditEnabled { get; set; }
     }
 }

@@ -154,9 +154,11 @@ namespace Inspire.Erp.Application.Approvals.Implementation
 
                 var settingsToAdd = new List<ApproverLevelSettings>();
                 var incomingSerialized = new List<string>();
+                
 
                 foreach (var incoming in incomingApprovers)
                 {
+                    int sno = 1;
                     incoming.ApproverIds.ForEach(userId =>
                     {
                         var user = users.FirstOrDefault(u => u.Id == userId);
@@ -191,7 +193,8 @@ namespace Inspire.Erp.Application.Approvals.Implementation
                                 NotificationDays = incoming.NotificationDays,
                                 OptEmail = incoming.OptEmail,
                                 JobId = approverLevelSettingsDto.JobId,
-                                MetaData = serializedMeta
+                                MetaData = serializedMeta,
+                                SNo = sno++
                             });
                         }
                     });

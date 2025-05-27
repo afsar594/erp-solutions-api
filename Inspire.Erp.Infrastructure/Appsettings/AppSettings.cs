@@ -29,6 +29,7 @@ namespace Inspire.Erp.Infrastructure
         public string Issuer { get; set; }
 
         public string Audience { get; set; }
+        public string DownloadFileBaseUrl { get; set; }
     }
 
     public class LogLevel

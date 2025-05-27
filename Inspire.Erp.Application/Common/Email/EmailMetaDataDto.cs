@@ -20,6 +20,7 @@ namespace Inspire.Erp.Application.Common.Email
         public decimal MaxAmount { get; set; } = 0;
         public int? JobId { get; set; }
         public string? Department { get; set; }
+        public int Sno { get; set; }
         public List<UserEmail> MetaData { get; set; }
     }
     public class UserEmail

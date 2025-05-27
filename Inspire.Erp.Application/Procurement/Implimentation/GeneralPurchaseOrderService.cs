@@ -1,23 +1,26 @@
-﻿using Inspire.Erp.Application.Procurement.Interfaces;
+﻿using Inspire.Erp.Application.Account.Implementations;
 using Inspire.Erp.Application.Common;
+using Inspire.Erp.Application.Email.Interfaces;
+using Inspire.Erp.Application.Procurement.Interfaces;
+using Inspire.Erp.Application.Settings.Interfaces;
+using Inspire.Erp.Domain.Constants;
 using Inspire.Erp.Domain.Entities;
-using Inspire.Erp.Application.Account.Implementations;
 using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using Microsoft.Extensions.Logging;
-using Inspire.Erp.Domain.Entities.POS;
+using System.Threading.Tasks;
 
 namespace Inspire.Erp.Application.Procurement.Implementation
 {
     public class GeneralPurchaseOrderService : IGeneralPurchaseOrderService
     {
+        private readonly IGeneralSettings _generalSettings;
         private IRepository<StockRegister> _stockRegisterRepository;
         private IRepository<AccountsTransactions> _accountTransactionRepository;
         private IRepository<GeneralPurchaseOrder> _GeneralpurchaseOrderRepository;
@@ -37,6 +40,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private IRepository<SuppliersMaster> _suppliersMasterRepository;
         private IRepository<LocationMaster> _locationMasterRepository;
         private IRepository<UserFile> _userFileRepository;
+        private readonly CacheMemoryService _cacheMemoryService;
+        private readonly IOrderEmailNotificationService _orderEmailNotificationService;
 
         public GeneralPurchaseOrderService(
             IRepository<UserFile> userFileRepository, IRepository<PermissionApproval> permissionApprovalRepo,
@@ -47,8 +52,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
-
-            IRepository<GeneralPurchaseOrder> GeneralpurchaseOrderRepository, IRepository<GeneralPurchaseOrderDetails> GeneralpurchaseOrderDetailsRepository, IRepository<PurchaseReturn> purchaseReturnRepository, IRepository<PurchaseReturnDetails> purchaseReturnDetailsRepository, IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PurOrderRegister> purOrderRegisterRepository)
+             IOrderEmailNotificationService orderEmailNotificationService, IGeneralSettings generalSettings,
+            IRepository<GeneralPurchaseOrder> GeneralpurchaseOrderRepository, IMemoryCache cache, IRepository<GeneralPurchaseOrderDetails> GeneralpurchaseOrderDetailsRepository, IRepository<PurchaseReturn> purchaseReturnRepository, IRepository<PurchaseReturnDetails> purchaseReturnDetailsRepository, IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PurOrderRegister> purOrderRegisterRepository)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository;
@@ -68,15 +73,18 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _purOrderRegisterRepository = purOrderRegisterRepository;
             _permissionApprovalRepo = permissionApprovalRepo;
             _approvalRepo = approvalRepo;
+            _cacheMemoryService = new CacheMemoryService(cache);
             _approvalDetailRepo = approvalDetailRepo;
+            _orderEmailNotificationService = orderEmailNotificationService;
             //_reportPurchaseOrderRepository = reportPurchaseOrderRepository;
+            _generalSettings = generalSettings;
         }
 
         public IEnumerable<UserFile> GetAllUserFile()
         {
             return _userFileRepository.GetAll();
         }
-        public GeneralPurchaseOrderModel UpdateGeneralPurchaseOrder(GeneralPurchaseOrder GeneralpurchaseOrder, List<AccountsTransactions> accountsTransactions,
+        public Task<Response<GeneralPurchaseOrderModel>> UpdateGeneralPurchaseOrder(GeneralPurchaseOrder GeneralpurchaseOrder, List<AccountsTransactions> accountsTransactions,
             List<GeneralPurchaseOrderDetails> GeneralpurchaseOrderDetails
             )
         {
@@ -180,12 +188,17 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
             return i;
         }
-        public GeneralPurchaseOrderModel InsertGeneralPurchaseOrder(GeneralPurchaseOrder GeneralpurchaseOrder, List<AccountsTransactions> accountsTransactions,
+        public async Task<Response<GeneralPurchaseOrderModel>> InsertGeneralPurchaseOrder(GeneralPurchaseOrder GeneralpurchaseOrder, List<AccountsTransactions> accountsTransactions,
             List<GeneralPurchaseOrderDetails> GeneralpurchaseOrderDetails
             )
         {
             try
             {
+                var settingValue = await _generalSettings.GetApproverStatusAsync(GeneralpurchaseOrder.GeneralPurchaseOrderJobId.ToString(), nameof(EnumOrderForms.GeneralPurchaseOrder));
+
+                if (!string.IsNullOrEmpty(settingValue.ApproverStatus))
+                    return Response<GeneralPurchaseOrderModel>.Fail(null, settingValue.ApproverStatus);
+
                 _GeneralpurchaseOrderRepository.BeginTransaction();
                 string purchaseOrderNumber = this.GenerateVoucherNo(GeneralpurchaseOrder.GeneralPurchaseOrderPoDate.Date).VouchersNumbersVNo;
                 GeneralpurchaseOrder.GeneralPurchaseOrderPono = purchaseOrderNumber;
@@ -232,25 +245,49 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 _GeneralpurchaseOrderRepository.Insert(GeneralpurchaseOrder);
 
-                var permsionApproval = _permissionApprovalRepo.GetAsQueryable().Where(x => x.VoucherType == "General Purchase Order").OrderBy(x => x.LevelOrder).AsEnumerable().ToList();
-                var approvals = new Approval()
-                {
-                    CreatedBy = 0,
-                    LocationId = null,
-                    Status = false,
-                    VoucherType = "General Purchase Order"
-                };
-                _approvalRepo.Insert(approvals);
-                _approvalDetailRepo.InsertList(permsionApproval.Select(x => new ApprovalDetail()
-                {
-                    ApprovalId = approvals.Id,
-                    Status = false,
-                    UserId = x.UserId,
-                    LevelOrder = x.LevelOrder,
-                    ApprovedAt = DateTime.Now,
-                }).OrderBy(x => x.LevelOrder).AsEnumerable().ToList());
+                //var permsionApproval = _permissionApprovalRepo.GetAsQueryable().Where(x => x.VoucherType == "General Purchase Order").OrderBy(x => x.LevelOrder).AsEnumerable().ToList();
+                //var approvals = new Approval()
+                //{
+                //    CreatedBy = 0,
+                //    LocationId = null,
+                //    Status = false,
+                //    VoucherType = "General Purchase Order"
+                //};
+                //_approvalRepo.Insert(approvals);
+                //_approvalDetailRepo.InsertList(permsionApproval.Select(x => new ApprovalDetail()
+                //{
+                //    ApprovalId = approvals.Id,
+                //    Status = false,
+                //    UserId = x.UserId,
+                //    LevelOrder = x.LevelOrder,
+                //    ApprovedAt = DateTime.Now,
+                //}).OrderBy(x => x.LevelOrder).AsEnumerable().ToList());
                 _GeneralpurchaseOrderRepository.TransactionCommit();
-                return this.GetSavedGeneralPurchaseOrderDetails(GeneralpurchaseOrder.GeneralPurchaseOrderPono);
+
+
+                #region EmailNotification
+                var user = _cacheMemoryService.GetUserObject(InspireConstants.UserCacheKey) as UserFile;
+                //var jobId = purchaseRequisition?.PurchaseRequisitionJobId ?? -1;
+                //var jobDetail = jobrepository.GetAsQueryable().Where(x => x.JobMasterJobId == jobId).FirstOrDefault();
+                await _orderEmailNotificationService.SendOrderEmailNotificationAsync(
+                                                                                EnumOrderForms.GeneralPurchaseOrder,
+                                                                                EnumApproverLevels.Level1,
+                                                                                "General Purchase",
+                                                                                GeneralpurchaseOrder.GeneralPurchaseOrderPono,
+                                                                                GeneralpurchaseOrder.GeneralPurchaseOrderPoDate,
+                                                                                string.Empty,//supplier name
+                                                                                (decimal)GeneralpurchaseOrder.GeneralPurchaseOrderNetAmount,
+                                                                                (int)GeneralpurchaseOrder.GeneralPurchaseOrderId,
+                                                                                (int)GeneralpurchaseOrder.GeneralPurchaseOrderJobId,//job id need to be added if required
+                                                                                string.Empty,//job no need to be added if required
+                                                                                string.Empty,//job name need to be added if required,
+                                                                                true,
+                                                                                user.UserName,
+                                                                                settingValue.GeneralSettingValue
+                                                                                );
+                #endregion
+
+                return await this.GetSavedGeneralPurchaseOrderDetails(GeneralpurchaseOrder.GeneralPurchaseOrderPono);
 
             }
             catch (Exception ex)
@@ -269,7 +306,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IEnumerable<GeneralPurchaseOrder> GeneralpurchaseOrder_ALL = _GeneralpurchaseOrderRepository.GetAll().Where(k => k.GeneralPurchaseOrderDelStatus == false || k.GeneralPurchaseOrderDelStatus == null);
             return GeneralpurchaseOrder_ALL;
         }
-        public GeneralPurchaseOrderModel GetSavedGeneralPurchaseOrderDetails(string pvno)
+        public async Task<Response<GeneralPurchaseOrderModel>> GetSavedGeneralPurchaseOrderDetails(string pvno)
         {
             GeneralPurchaseOrderModel generalpurchaseOrderModel = new GeneralPurchaseOrderModel();
 
@@ -295,7 +332,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 GeneralpurchaseOrderDetail.GeneralPurchaseOrderTillNowQTY = GetTillNowQTY(pvno);
             }
 
-            return generalpurchaseOrderModel;
+            return Response<GeneralPurchaseOrderModel>.Success(generalpurchaseOrderModel,"Data found");
 
         }
         private decimal? GetTillNowQTY(string pvno)
