@@ -20,6 +20,7 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? JobMasterJobDetailsJdAmt { get; set; }
         public bool? JobMasterJobDetailsDelStatus { get; set; }
         public bool? EmailSent { get; set; }
+        public bool? EmailClose { get; set; }
         [JsonIgnore]
         public virtual JobMaster JobMasterJobDetailsJob { get; set; }
     }

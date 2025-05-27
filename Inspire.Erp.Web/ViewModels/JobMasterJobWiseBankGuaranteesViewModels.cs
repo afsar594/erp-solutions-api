@@ -18,6 +18,6 @@ namespace Inspire.Erp.Web.ViewModels
         public DateTime? Job_Master_JobWiseBankGuarantees_Valid_To_Date { get; set; }
 
         public string Job_Master_JobWiseBankGuarantees_Remarks { get; set; }
-
+        public bool? EmailClose { get; set; }
     }
 }
