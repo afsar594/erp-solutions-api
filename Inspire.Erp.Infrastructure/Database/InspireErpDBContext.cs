@@ -8717,6 +8717,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.JobMasterControlVariance).HasColumnName("Job_Master_Control_Variance");
                 entity.Property(e => e.JobMasterControlActual).HasColumnName("Job_Master_Control_Actual");
                 entity.Property(e => e.RefVoucherNo).HasColumnName("Job_Master_Control_RefNo");
+                entity.Property(e => e.EmailClose).HasColumnName("Email_Close");
             });
 
             modelBuilder.Entity<JobMasterBudgetDetails>(entity =>
@@ -8811,7 +8812,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
 
                 entity.Property(e => e.EmailSent).HasColumnName("Email_Sent");
-
+                entity.Property(e => e.EmailClose).HasColumnName("Email_Close");
                 entity.HasOne(d => d.JobMasterJobDetailsJob)
                     .WithMany(p => p.JobMasterJobDetails)
                     .HasForeignKey(d => d.JobMasterJobDetailsJobId)
@@ -8859,6 +8860,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.Job_Master_JobWiseBankGuarantees_Remarks).HasColumnName("Job_Master_JobWiseBankGuarantees_Remarks");
                 entity.Property(e => e.EmailSent).HasColumnName("Email_Sent");
+                entity.Property(e => e.EmailClose).HasColumnName("Email_Close");
             });
 
             modelBuilder.Entity<JobStaff>(entity =>

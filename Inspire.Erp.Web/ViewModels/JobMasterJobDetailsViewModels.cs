@@ -22,7 +22,7 @@ namespace Inspire.Erp.Web.ViewModels
         public decimal? JobMasterJobDetailsJdAmt { get; set; }
         public bool? JobMasterJobDetailsDelStatus { get; set; }
 
-
+        public bool? EmailClose { get; set; }
 
 
     }
