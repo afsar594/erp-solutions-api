@@ -34,6 +34,7 @@ using Inspire.Erp.Application.Settings.Interfaces;
 using Inspire.Erp.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Inspire.Erp.Application.NewFolder.Interfaces;
+using Newtonsoft.Json;
 
 namespace Inspire.Erp.Application.Procurement.Implementation
 {
@@ -67,6 +68,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private IRepository<UnitMaster> _unitMasterRepository;
         private IRepository<SuppliersMaster> _suppliersMasterRepository;
         private IRepository<LocationMaster> _locationMasterRepository;
+        private IRepository<JobMasterControl> _jobMasterControls;
         private readonly IRepository<PurchaseOrderDetails> _purchaseOrderDetailsRepository;
         private readonly IRepository<ApproverLevelSettings> _approverLevelSettings;
         private readonly IRepository<OrderApprovalHierarchy> _orderApprovalHierarchy;
@@ -81,7 +83,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger, IRepository<JobMaster> _jobrepository, IRepository<BillOfQTyDetails> BillOfQTyDetailsRepository,
              IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo,
         IRepository<PurchaseRequisition> purchaseRequisitionRepository, InspireErpDBContext context, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository, IRepository<JobMasterBudgetDetails> budgetDetailsrepository, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository,
-        IOrderEmailNotificationService orderEmailNotificationService, IRepository<ApproverLevelSettings> approverLevelSettings, IRepository<OrderApprovalHierarchy> orderApprovalHierarchy, IRepository<JobMasterJobDetails> jobMasterJobDetailsRepo, IGeneralSettings generalSettings)
+        IOrderEmailNotificationService orderEmailNotificationService, IRepository<ApproverLevelSettings> approverLevelSettings, IRepository<OrderApprovalHierarchy> orderApprovalHierarchy, IRepository<JobMasterJobDetails> jobMasterJobDetailsRepo, IGeneralSettings generalSettings, IRepository<JobMasterControl> jobMasterControls)
         {
             applicationSettings = config.GetSection("ApplicationSettings").Get<ApplicationSettings>();
             this._accountTransactionRepository = accountTransactionRepository;
@@ -99,6 +101,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _cacheMemoryService = new CacheMemoryService(cache);
             _generalSettings = generalSettings;
             downloadAndSaveVoucherReport = new DownloadAndSaveVoucherReport(docsAttachmentService);
+            _jobMasterControls = jobMasterControls;
         }
         public async Task<Response<PurchaseRequisitionModel>> UpdatePurchaseRequisition(PurchaseRequisition purchaseRequisition, List<AccountsTransactions> accountsTransactions, List<PurchaseRequisitionDetails> purchaseRequisitionDetails)
         {
@@ -563,10 +566,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 if (prValue <= jobValue)
                     return;
 
-                string subject = $"BoQ exceeds Job Value against {jobDetail.JobMasterJobNumber}-{jobDetail.JobMasterJobName}";
+                string subject = $"PR Amount Exceeds Budget Amount against {jobDetail.JobMasterJobNumber}-{jobDetail.JobMasterJobName}";
                 string messageBody = GenerateEmailBody(jobDetail, prValue, prNo);
 
-                var recipients = GetEmailRecipients();
+                var recipients = await GetEmailRecipients(jobId);
 
                 await _orderEmailNotificationService.SendTextEmailAsync(recipients, subject, messageBody, new List<string>());
             }
@@ -585,10 +588,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
         private decimal GetJobTotalValue(int jobId)
         {
-            return _jobMasterJobDetailsRepo.GetAsQueryable()
+            return _jobMasterControls.GetAsQueryable()
                                            .AsNoTracking()
-                                           .Where(x => x.JobMasterJobDetailsJobId == jobId)
-                                           .Sum(x => x.JobMasterJobDetailsJdAmt ?? 0);
+                                           .Where(x => x.JobMasterControlJobID == jobId)
+                                           .Sum(x => x.JobMasterControlAmount ?? 0);
         }
 
         private decimal GetTotalPrValue(int jobId)
@@ -610,36 +613,59 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                    .Replace("{{prNO}}", prNo);
         }
 
-        private List<UserEmail> GetEmailRecipients()
+        public async Task<List<UserEmail>> GetEmailRecipients(int jobId)
         {
-            return new List<UserEmail>
+            try
             {
-                new UserEmail
+                var result = await _approverLevelSettings.GetAsQueryable().AsNoTracking()
+                              .Where(x => (int)x.JobId == jobId && 
+                                          x.OptEmail && 
+                                          x.ApproverLevel == EnumApproverLevels.Level1 &&
+                                          x.FormType == EnumOrderForms.PurchaseRequisition)
+                              .Select(a => new EmailMetaDataDto()
+                              {
+                                  JobId = a.JobId,
+                                  NotificationDays = a.NotificationDays,
+                                  MinAmount = a.MinAmount,
+                                  MaxAmount = a.MaxAmount,
+                                  MetaData = JsonConvert.DeserializeObject<List<UserEmail>>(a.MetaData),
+                              }).ToListAsync();
+
+               
+
+                var toEmails = result.SelectMany(e => e.MetaData).Distinct().ToList();
+                toEmails.AddRange(new List<UserEmail>
                 {
-                    Email = "Shawn@waterbirdwtc.com",
-                    Name = "Shawn",
-                    BccEmails = new List<CCAndBccMailDto>(),
-                    CCEmails = new List<CCAndBccMailDto>()
-                },
-                new UserEmail
-                {
-                    Email = "jijit@waterbirdwtc.com",
-                    Name = "Jijit",
-                    BccEmails = new List<CCAndBccMailDto>(),
-                    CCEmails = new List<CCAndBccMailDto>()
-                },
-                new UserEmail
-                {
-                    Email = "jeevan@waterbirdwtc.com",
-                    Name = "Jeevan",
-                    BccEmails = new List<CCAndBccMailDto>(),
-                    CCEmails = new List<CCAndBccMailDto>()
-                }
-            };
+                    new UserEmail
+                    {
+                        Email = "Shawn@waterbirdwtc.com",
+                        Name = "Shawn",
+                        BccEmails = new List<CCAndBccMailDto>(),
+                        CCEmails = new List<CCAndBccMailDto>()
+                    },
+                    new UserEmail
+                    {
+                        Email = "jijit@waterbirdwtc.com",
+                        Name = "Jijit",
+                        BccEmails = new List<CCAndBccMailDto>(),
+                        CCEmails = new List<CCAndBccMailDto>()
+                    },
+                    new UserEmail
+                    {
+                        Email = "ambrish@waterbirdwtc.com",
+                        Name = "Ambrish",
+                        BccEmails = new List<CCAndBccMailDto>(),
+                        CCEmails = new List<CCAndBccMailDto>()
+                    }
+                });
+                return toEmails;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
-
-
-
+       
         public IEnumerable<AccountsTransactions> GetAllTransaction()
         {
             return _accountTransactionRepository.GetAll();
@@ -878,6 +904,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 {
                     var approvedOrderIds = await _orderApprovalHierarchy.GetAsQueryable().AsNoTracking()
                                                             .Where(x => x.OrderType == EnumOrderForms.PurchaseRequisition)
+                                                            .Select(x=> new {OrderId = x.OrderId , Status = x.Status})
                                                             .ToListAsync();
 
                     var orderIdsApprovedByAll = approvedOrderIds

@@ -292,9 +292,9 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 _BillofQtyMasterRepository.TransactionCommit();
 
-                #region EmailNotification
-                SendEmailOnValueExceedsAsync((int)BillofQty.CustomerEnqId, BillofQty.BillofqtyNo);
-                #endregion
+                //#region EmailNotification
+                //SendEmailOnValueExceedsAsync((int)BillofQty.CustomerEnqId, BillofQty.BillofqtyNo);
+                //#endregion
 
                 return this.GetSavedBillofQty(BillofQty.Id);
             }

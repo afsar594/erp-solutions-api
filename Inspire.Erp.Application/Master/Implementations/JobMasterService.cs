@@ -412,7 +412,7 @@ namespace Inspire.Erp.Application.Master
 
 
                 jobMasterData.JobMasterControl = _jobMasterControl.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterControlJobID == jobMasterData.JobMasterJobId).ToList();
-
+                
                 /*
                  
                  select a.cost_center as CostcenterId,SUM(isnull(amount,0)) as Amount from
@@ -613,7 +613,7 @@ namespace Inspire.Erp.Application.Master
             }
         }
 
-      
+
         public async Task<Response<string>> GetUserLevelForJob(int userId, int joId)
         {
             try
@@ -642,7 +642,7 @@ namespace Inspire.Erp.Application.Master
             }
         }
 
-      
+
 
         private async Task<List<EstimationCostCenterSummary>> GetEstimationCostCenterSummaries(int jobId)
         {

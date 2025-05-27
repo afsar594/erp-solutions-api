@@ -585,6 +585,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 purchaseOrderModel.purchaseOrder.IsEditEnabled = settingValue.GeneralSettingValue == InspireConstants.ApprovalAsNoApproval ? true : await _orderApprovalHierarchy.GetAsQueryable().AsNoTracking().Where(x => x.OrderId == id).AllAsync(x => x.Status == EnumApprovalStatus.Pending);
 
                 return Response<PurchaseOrderModel>.Success(purchaseOrderModel, "Data found");
+
+
+
             }
             catch (Exception)
             {

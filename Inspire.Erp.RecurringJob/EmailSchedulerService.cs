@@ -56,12 +56,31 @@ namespace Inspire.Erp.RecurringJob
                 var projectName = groupedGuarantees.FirstOrDefault()?.ProjectName ?? "";
 
 
+                var toEmails = new List<UserEmail>
+                                {
+                                    new UserEmail
+                                    {
+                                        Email = "Shawn@waterbirdwtc.com",
+                                        Name = "Shawn",
+                                        BccEmails = new List<CCAndBccMailDto>(),
+                                        CCEmails = new List<CCAndBccMailDto>()
+                                    },
+                                    new UserEmail
+                                    {
+                                        Email = "jijit@waterbirdwtc.com",
+                                        Name = "Jijit",
+                                        BccEmails = new List<CCAndBccMailDto>(),
+                                        CCEmails = new List<CCAndBccMailDto>()
+                                    },
+                                    new UserEmail
+                                    {
+                                        Email = "tanya@waterbirdwtc.com",
+                                        Name = "Tanya",
+                                        BccEmails = new List<CCAndBccMailDto>(),
+                                        CCEmails = new List<CCAndBccMailDto>()
+                                    }
+                                };
 
-                var emailMetaDataDtos = await GetToEMails(jobIds);
-                if (!emailMetaDataDtos.Any())
-                    return;
-
-                var toEmails = emailMetaDataDtos.SelectMany(e => e.MetaData).Distinct().ToList();
 
                 var subject = $"Expiry of Bank Guarantee for Job No. {jobNo}";
                 var messageBody = ComposeBankGuaranteesEmailBody(groupedGuarantees, projectName, jobNo);
@@ -78,6 +97,8 @@ namespace Inspire.Erp.RecurringJob
                 _logger.LogInformation("CheckAndSendEmailForJobBankGuarantees: Started", ex);
             }
         }
+
+
 
         private async Task UpdateEmailSentFlag(List<int> jobIds, bool isJobScope)
         {
@@ -330,12 +351,23 @@ namespace Inspire.Erp.RecurringJob
                 var projectName = jobScopes.FirstOrDefault()?.ProjectName ?? "";
 
 
-
-                var emailMetaDataDtos = await GetToEMails(jobIds);
-                if (!emailMetaDataDtos.Any())
-                    return;
-
-                var toEmails = emailMetaDataDtos.SelectMany(e => e.MetaData).Distinct().ToList();
+                var toEmails = new List<UserEmail>
+                                {
+                                    new UserEmail
+                                    {
+                                        Email = "Shawn@waterbirdwtc.com",
+                                        Name = "Shawn",
+                                        BccEmails = new List<CCAndBccMailDto>(),
+                                        CCEmails = new List<CCAndBccMailDto>()
+                                    },
+                                    new UserEmail
+                                    {
+                                        Email = "jijit@waterbirdwtc.com",
+                                        Name = "Jijit",
+                                        BccEmails = new List<CCAndBccMailDto>(),
+                                        CCEmails = new List<CCAndBccMailDto>()
+                                    }
+                                };
 
                 var subject = $"Soft Reminder – Job Scope for {projectName} (Job: {jobNo})";
 
@@ -400,27 +432,6 @@ namespace Inspire.Erp.RecurringJob
             return groupedData;
         }
 
-        public async Task<List<EmailMetaDataDto>> GetToEMails(List<int> jobId)
-        {
-            try
-            {
-                var result = await _approverLevelSettings.GetAsQueryable().AsNoTracking()
-                              .Where(x => jobId.Contains((int)x.JobId) && x.OptEmail && x.FormType == EnumOrderForms.PurchaseOrder)
-                              .Select(a => new EmailMetaDataDto()
-                              {
-                                  JobId = a.JobId,
-                                  NotificationDays = a.NotificationDays,
-                                  MinAmount = a.MinAmount,
-                                  MaxAmount = a.MaxAmount,
-                                  MetaData = JsonConvert.DeserializeObject<List<UserEmail>>(a.MetaData),
-                              }).ToListAsync();
-                return result;
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
+       
     }
 }
