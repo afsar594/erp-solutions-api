@@ -34,6 +34,8 @@ using SixLabors.ImageSharp;
 using Microsoft.Extensions.Configuration;
 using Inspire.Erp.Application.NewFolder.Implementations;
 using Inspire.Erp.Application.NewFolder.Interfaces;
+using Inspire.Erp.Application.User;
+using System.Data;
 
 namespace Inspire.Erp.Application.Procurement.Implementation
 {
@@ -72,10 +74,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private readonly IRepository<CustomerQuotation> _customerQuotation;
         private readonly IRepository<JobMaster> _jobMaster;
         private readonly IRepository<GeneralPurchaseOrder> _generalPurchaseOrder;
-        private readonly CacheMemoryService _cacheMemoryService;
         private IPurchaseRequisitionService _purchaseRequisitionService;
         private ApplicationSettings applicationSettings;
         DownloadAndSaveVoucherReport downloadAndSaveVoucherReport;
+        private readonly ICurrentUserService _currentUserService;
         public PurchaseOrderService(
             IConfiguration config,
             IRepository<UserFile> userFileRepository, IRepository<PermissionApproval> permissionApprovalRepo,
@@ -88,8 +90,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<PurchaseReturn> purchaseReturnRepository, IRepository<PurchaseReturnDetails> purchaseReturnDetailsRepository,
             IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PurOrderRegister> purOrderRegisterRepository,
             IRepository<UnitDetails> unitDetailsRepository,
-            IRepository<PurchaseVoucherDetails> purchaseVoucherDetailsRepo, IMemoryCache cache,
-            IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository, IRepository<Permissionapproval> permissionapproval, IRepository<ApproverLevelSettings> approverLevelSettings, IOrderEmailNotificationService orderEmailNotificationService, IRepository<PurchaseRequisition> purchaseRequisitionRepository, IRepository<OrderApprovalHierarchy> orderApprovalHierarchy, IPurchaseRequisitionService purchaseRequisitionService, IRepository<CustomerQuotation> customerQuotation, IRepository<JobMaster> jobMaster, IGeneralSettings generalSettings, IRepository<GeneralPurchaseOrder> generalPurchaseOrder)
+            IRepository<PurchaseVoucherDetails> purchaseVoucherDetailsRepo,
+            IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository, IRepository<Permissionapproval> permissionapproval, IRepository<ApproverLevelSettings> approverLevelSettings, IOrderEmailNotificationService orderEmailNotificationService, IRepository<PurchaseRequisition> purchaseRequisitionRepository, IRepository<OrderApprovalHierarchy> orderApprovalHierarchy, IPurchaseRequisitionService purchaseRequisitionService, IRepository<CustomerQuotation> customerQuotation, IRepository<JobMaster> jobMaster, IGeneralSettings generalSettings, IRepository<GeneralPurchaseOrder> generalPurchaseOrder, ICurrentUserService currentUserService)
         {
             applicationSettings = config.GetSection("ApplicationSettings").Get<ApplicationSettings>();
             this._accountTransactionRepository = accountTransactionRepository;
@@ -118,7 +120,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _orderEmailNotificationService = orderEmailNotificationService;
             _purchaseRequisitionRepository = purchaseRequisitionRepository;
             _approverLevelSettings = approverLevelSettings;
-            _cacheMemoryService = new CacheMemoryService(cache);
             _orderApprovalHierarchy = orderApprovalHierarchy;
             _purchaseRequisitionService = purchaseRequisitionService;
             _customerQuotation = customerQuotation;
@@ -126,6 +127,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _generalSettings = generalSettings;
             _generalPurchaseOrder = generalPurchaseOrder;
             downloadAndSaveVoucherReport = new DownloadAndSaveVoucherReport(docsAttachmentService);
+            _currentUserService = currentUserService;
         }
         public IEnumerable<UserFile> GetAllUserFile()
         {
@@ -271,7 +273,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 }
                 _purchaseOrderRepository.TransactionCommit();
-                await downloadAndSaveVoucherReport.DownloadedFileAsync(applicationSettings.DownloadFileBaseUrl, "PurchaseOrder", purchaseOrder.PurchaseOrderNo, (int)purchaseOrder.PurchaseOrderId, purchaseOrder.PurchaseOrderNo,true);
+                await downloadAndSaveVoucherReport.DownloadedFileAsync(applicationSettings.DownloadFileBaseUrl, "PurchaseOrder", purchaseOrder.PurchaseOrderNo, (int)purchaseOrder.PurchaseOrderId, purchaseOrder.PurchaseOrderNo, true);
             }
             catch (Exception ex)
             {
@@ -494,7 +496,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
 
                 #region EmailNotification
-                var user = _cacheMemoryService.GetUserObject(InspireConstants.UserCacheKey) as UserFile;
                 var jobId = purchaseOrder?.PurchaseOrderJobId ?? -1;
                 var jobDetail = _jobMaster.GetAsQueryable().Where(x => x.JobMasterJobId == jobId).FirstOrDefault();
                 await _orderEmailNotificationService.SendOrderEmailNotificationAsync(
@@ -510,7 +511,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                                jobDetail == null ? "" : jobDetail.JobMasterJobNumber,
                                                                                jobDetail == null ? "" : jobDetail.JobMasterJobName,
                                                                                true,
-                                                                               user.UserName ?? "",
+                                                                               _currentUserService.Username ?? "",
                                                                                settingValue.GeneralSettingValue
                                                                               );
                 #endregion
@@ -518,7 +519,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 _purchaseOrderRepository.TransactionCommit();
 
                 var res = await this.GetSavedPurchaseOrderDetails((int)purchaseOrder.PurchaseOrderId);
-                await downloadAndSaveVoucherReport.DownloadedFileAsync(applicationSettings.DownloadFileBaseUrl, "PurchaseOrder", purchaseOrder.PurchaseOrderNo, (int)purchaseOrder.PurchaseOrderId,purchaseOrder.PurchaseOrderNo);
+                await downloadAndSaveVoucherReport.DownloadedFileAsync(applicationSettings.DownloadFileBaseUrl, "PurchaseOrder", purchaseOrder.PurchaseOrderNo, (int)purchaseOrder.PurchaseOrderId, purchaseOrder.PurchaseOrderNo);
                 return Response<PurchaseOrderModel>.Success(res.Result, "Purchase Order Save Successfully.");
             }
             catch (Exception ex)
@@ -871,13 +872,16 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
         }
 
-        public List<VoucherApprivalDto> GetPurchaseOrderForApproval(ApprovalFilterModel model, UserFile user)
+      
+        public List<VoucherApprivalDto> GetPurchaseOrderForApproval(ApprovalFilterModel model)
         {
             var fromDate = model.fromDate?.Date ?? DateTime.MinValue;
             var toDate = model.toDate?.Date ?? DateTime.MaxValue;
             var jobIdFilter = model.JobId < 0;
             bool isUserRequired = model.IsUserRequired;
-            bool isAdmin = user.WorkGroupId == 19;
+            long UserId = Convert.ToInt64(_currentUserService.UserId);
+            var groupId = _currentUserService.GroupId;
+            bool isAdmin = Convert.ToInt32(groupId) == 19;
 
             var purchaseOrders = _purchaseOrderRepository.GetAsQueryable()
                 .Where(po =>
@@ -887,33 +891,31 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 .AsNoTracking()
                 .ToList();
 
-
             foreach (var po in purchaseOrders)
             {
                 po.OrderApprovalHierarchies = po.OrderApprovalHierarchies
                     .Where(h => h.OrderType == EnumOrderForms.PurchaseOrder)
                     .ToList();
-
-
             }
 
+            var locationDict = _locationMasterRepository.GetAsQueryable()
+                .Where(x => purchaseOrders.Select(po => po.PurchaseOrderLocationId).Contains(x.LocationMasterLocationId))
+                .ToDictionary(l => l.LocationMasterLocationId, l => l.LocationMasterLocationName ?? "");
 
-            var locationDict = _locationMasterRepository.GetAsQueryable().Where(x => purchaseOrders.Select(x => x.PurchaseOrderLocationId).ToList().Contains(x.LocationMasterLocationId))
-                .ToDictionary(l => l.LocationMasterLocationId, l => l.LocationMasterLocationName);
-
-            var jobDict = _jobMaster.GetAsQueryable().Where(j => (jobIdFilter || j.JobMasterJobId == model.JobId))
-                .ToDictionary(j => j.JobMasterJobId, j => j.JobMasterJobName);
+            var jobDict = _jobMaster.GetAsQueryable()
+                .Where(j => jobIdFilter || j.JobMasterJobId == model.JobId)
+                .ToDictionary(j => j.JobMasterJobId, j => j.JobMasterJobName ?? "");
 
             var approvalData = purchaseOrders.Select(po =>
             {
                 var orderedApprovers = po.OrderApprovalHierarchies
-                                        .Where(oh => oh.OrderId == po.PurchaseOrderId)
-                                        .OrderBy(x => x.ApproverLevel)
-                                        .ThenBy(x => x.Sno)
-                                        .ToList();
+                    .Where(oh => oh.OrderId == po.PurchaseOrderId)
+                    .OrderBy(x => x.ApproverLevel)
+                    .ThenBy(x => x.Sno)
+                    .ToList();
 
                 var currentUserApprovers = orderedApprovers
-                    .Where(oh => oh.ApproverId == user.UserId)
+                    .Where(oh => oh.ApproverId == UserId)
                     .ToList();
 
                 bool hasPendingPriorApprover = currentUserApprovers.Any(ua =>
@@ -925,11 +927,11 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         oh.Status == EnumApprovalStatus.Pending));
 
                 if (hasPendingPriorApprover)
-                    return new VoucherApprivalDto();
+                    return null;
 
                 var approvers = po.OrderApprovalHierarchies
                     .Where(oh =>
-                        (!isUserRequired || isAdmin || oh.ApproverId == user.UserId) &&
+                        (!isUserRequired || isAdmin || oh.ApproverId == UserId) &&
                         oh.OrderId == po.PurchaseOrderId)
                     .OrderBy(x => x.ApproverLevel)
                     .ThenBy(x => x.Sno)
@@ -940,27 +942,28 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         Status = oh.Status,
                         Remarks = oh.Remarks
                     })
-                    .OrderBy(a => a.ApproverLevel)
                     .ToList();
 
+                if (!approvers.Any())
+                    return null;
 
-                return new VoucherApprivalDto()
+                return new VoucherApprivalDto
                 {
                     VoucherId = (int)po.PurchaseOrderId,
                     VoucherType = EnumOrderForms.PurchaseOrder,
                     VoucherNo = po.PurchaseOrderNo,
                     VoucherDate = po.PurchaseOrderDate,
                     LocationId = po.PurchaseOrderLocationId,
-                    LocationName = locationDict.TryGetValue(po.PurchaseOrderLocationId, out var locName) ? locName ?? "" : "",
+                    LocationName = locationDict.TryGetValue(po.PurchaseOrderLocationId, out var locName) ? locName : "",
                     JobId = po.PurchaseOrderJobId,
-                    JobName = jobDict.TryGetValue((int)po.PurchaseOrderJobId, out var jobName) ? jobName ?? "" : "",
+                    JobName = jobDict.TryGetValue((int)po.PurchaseOrderJobId, out var jobName) ? jobName : "",
                     Amount = po.PurchaseOrderNetAmount ?? 0,
                     Status = po.PurchaseOrderApproveStatus,
                     Remarks = string.Join("\n", po.PurchaseOrderRemarks1, po.PurchaseOrderRemarks2, po.PurchaseOrderRemarks3).Trim(),
                     VoucherApprovers = approvers
                 };
 
-            }).ToList();
+            }).Where(x => x != null).ToList();
 
             if (model.Status != EnumApprovalStatus.None)
             {
@@ -969,7 +972,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     .ToList();
             }
 
-            return approvalData.Where(x => x.VoucherType != EnumOrderForms.None).ToList();
+            return approvalData
+                .Where(x => x.VoucherType != EnumOrderForms.None)
+                .ToList();
         }
 
         public async Task<Response<List<VoucherApprivalDto>>> GetPOPRForApproval(ApprovalFilterModel model)
@@ -979,10 +984,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 if (!model.Type.Any())
                     return Response<List<VoucherApprivalDto>>.Fail(new List<VoucherApprivalDto>(), "No Form Type were found");
 
-                var user = _cacheMemoryService.GetUserObject(InspireConstants.UserCacheKey) as UserFile;
                 var modelTypes = model.Type.Contains(EnumOrderForms.None) ? GetModelTypes() : model.Type;
-
-
 
                 var validTypes = new[] {
                     EnumOrderForms.PurchaseOrder,
@@ -993,9 +995,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     .Where(type => validTypes.Contains(type))
                     .SelectMany(type => type switch
                     {
-                        EnumOrderForms.PurchaseOrder => GetPurchaseOrderForApproval(model, user),
-                        EnumOrderForms.PurchaseRequisition => GetPurchaseRequisitionForApproval(model, user),
-                        EnumOrderForms.GeneralPurchaseOrder => GetGeneralPurchaseOrderForApproval(model, user),
+                        EnumOrderForms.PurchaseOrder => GetPurchaseOrderForApproval(model),
+                        EnumOrderForms.PurchaseRequisition => GetPurchaseRequisitionForApproval(model),
+                        EnumOrderForms.GeneralPurchaseOrder => GetGeneralPurchaseOrderForApproval(model),
                         _ => throw new ArgumentOutOfRangeException(nameof(type), $"No form configured for order type: {type}")
                     })
                     .ToList();
@@ -1011,47 +1013,51 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             }
         }
 
-        private List<VoucherApprivalDto> GetGeneralPurchaseOrderForApproval(ApprovalFilterModel model, UserFile user)
-        {
-            var fromDate = model.fromDate?.Date;
-            var toDate = model.toDate?.Date;
-            bool filterByDate = model.IsDate && fromDate.HasValue && toDate.HasValue;
-            bool filterByJob = model.JobId >= 0;
-            bool isUserRequired = model.IsUserRequired;
-            bool isAdmin = user.WorkGroupId == 19;
 
-            var prQuery = _generalPurchaseOrder.GetAsQueryable()
+
+        private List<VoucherApprivalDto> GetGeneralPurchaseOrderForApproval(ApprovalFilterModel model)
+        {
+            var fromDate = model.fromDate?.Date ?? DateTime.MinValue;
+            var toDate = model.toDate?.Date ?? DateTime.MaxValue;
+            bool isJobFiltered = model.JobId >= 0;
+            bool isUserRequired = model.IsUserRequired;
+            long UserId = Convert.ToInt64(_currentUserService.UserId);
+            var groupId = _currentUserService.GroupId;
+            bool isAdmin = Convert.ToInt32(groupId) == 19;
+            
+            var generalPurchaseOrders = _generalPurchaseOrder.GetAsQueryable()
                 .Where(gpo =>
-                    (!filterByDate || (gpo.GeneralPurchaseOrderPoDate.Date >= fromDate && gpo.GeneralPurchaseOrderPoDate.Date <= toDate)) &&
-                    (!filterByJob || gpo.GeneralPurchaseOrderJobId == model.JobId))
-                .Include(pr => pr.OrderApprovalHierarchies)
+                    (!model.IsDate || (gpo.GeneralPurchaseOrderPoDate.Date >= fromDate && gpo.GeneralPurchaseOrderPoDate.Date <= toDate)) &&
+                    (!isJobFiltered || gpo.GeneralPurchaseOrderJobId == model.JobId))
+                .Include(gpo => gpo.OrderApprovalHierarchies)
                 .AsNoTracking()
                 .ToList();
 
-            prQuery.ForEach(pr =>
+            foreach (var gpo in generalPurchaseOrders)
             {
-                pr.OrderApprovalHierarchies = pr.OrderApprovalHierarchies
+                gpo.OrderApprovalHierarchies = gpo.OrderApprovalHierarchies
                     .Where(h => h.OrderType == EnumOrderForms.GeneralPurchaseOrder)
                     .ToList();
-            });
+            }
 
-            var locations = _locationMasterRepository.GetAsQueryable().ToList();
-            var jobs = _jobMaster.GetAsQueryable().ToList();
+            var locationDict = _locationMasterRepository.GetAsQueryable()
+                .Where(loc => generalPurchaseOrders.Select(gpo => gpo.GeneralPurchaseOrderLocationId).Contains(loc.LocationMasterLocationId))
+                .ToDictionary(loc => loc.LocationMasterLocationId, loc => loc.LocationMasterLocationName);
 
-            var gpoData = prQuery.Select(gpo =>
+            var jobDict = _jobMaster.GetAsQueryable()
+                .Where(job => !isJobFiltered || job.JobMasterJobId == model.JobId)
+                .ToDictionary(job => job.JobMasterJobId, job => job.JobMasterJobName);
+
+            var approvalData = generalPurchaseOrders.Select(gpo =>
             {
-                var location = locations.FirstOrDefault(l => l.LocationMasterLocationId == gpo.GeneralPurchaseOrderLocationId);
-                var job = jobs.FirstOrDefault(j => j.JobMasterJobId == gpo.GeneralPurchaseOrderJobId);
-
-
                 var orderedApprovers = gpo.OrderApprovalHierarchies
                     .Where(oh => oh.OrderId == gpo.GeneralPurchaseOrderId)
-                    .OrderBy(x => x.ApproverLevel)
-                    .ThenBy(x => x.Sno)
+                    .OrderBy(oh => oh.ApproverLevel)
+                    .ThenBy(oh => oh.Sno)
                     .ToList();
 
                 var currentUserApprovers = orderedApprovers
-                    .Where(oh => oh.ApproverId == user.UserId)
+                    .Where(oh => oh.ApproverId == UserId)
                     .ToList();
 
                 bool hasPendingPriorApprover = currentUserApprovers.Any(ua =>
@@ -1067,7 +1073,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 var approvers = gpo.OrderApprovalHierarchies
                     .Where(oh =>
-                        (!isUserRequired || isAdmin || oh.ApproverId == user.UserId) &&
+                        (!isUserRequired || isAdmin || oh.ApproverId == UserId) &&
                         oh.OrderId == gpo.GeneralPurchaseOrderId)
                     .OrderBy(x => x.ApproverLevel)
                     .ThenBy(x => x.Sno)
@@ -1078,7 +1084,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         Status = oh.Status,
                         Remarks = oh.Remarks
                     })
-                    .OrderBy(a => a.ApproverLevel)
                     .ToList();
 
                 return new VoucherApprivalDto
@@ -1088,9 +1093,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     VoucherNo = gpo.GeneralPurchaseOrderPono,
                     VoucherDate = gpo.GeneralPurchaseOrderPoDate,
                     LocationId = gpo.GeneralPurchaseOrderLocationId,
-                    LocationName = location?.LocationMasterLocationName ?? string.Empty,
+                    LocationName = locationDict.TryGetValue(gpo.GeneralPurchaseOrderLocationId, out var locName) ? locName ?? "" : "",
                     JobId = gpo.GeneralPurchaseOrderJobId ?? -1,
-                    JobName = job?.JobMasterJobName ?? string.Empty,
+                    JobName = gpo.GeneralPurchaseOrderJobId.HasValue && jobDict.TryGetValue(gpo.GeneralPurchaseOrderJobId.Value, out var jobName) ? jobName ?? "" : "",
                     Amount = gpo.GeneralPurchaseOrderNetAmount == null ? (decimal)gpo.GeneralPurchaseOrderNetAmount : 0m,
                     Status = gpo.GeneralPurchaseOrderStatus,
                     Remarks = string.Empty,
@@ -1100,14 +1105,12 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
             if (model.Status != EnumApprovalStatus.None)
             {
-                gpoData = gpoData
-                    .Where(dto => dto.VoucherApprovers.Any(v =>
-                        v.Status == model.Status))
+                approvalData = approvalData
+                    .Where(dto => dto.VoucherApprovers.Any(v => v.Status == model.Status))
                     .ToList();
             }
 
-            return gpoData.Where(x => x.VoucherType != EnumOrderForms.None).ToList();
-
+            return approvalData.Where(x => x.VoucherType != EnumOrderForms.None).ToList();
         }
 
         private List<EnumOrderForms> GetModelTypes()
@@ -1119,17 +1122,17 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             };
         }
 
-
-
-
-        public List<VoucherApprivalDto> GetPurchaseRequisitionForApproval(ApprovalFilterModel model, UserFile user)
+        public List<VoucherApprivalDto> GetPurchaseRequisitionForApproval(ApprovalFilterModel model)
         {
             var fromDate = model.fromDate?.Date;
             var toDate = model.toDate?.Date;
             bool filterByDate = model.IsDate && fromDate.HasValue && toDate.HasValue;
             bool filterByJob = model.JobId >= 0;
             bool isUserRequired = model.IsUserRequired;
-            bool isAdmin = user.WorkGroupId == 19;
+            long UserId = Convert.ToInt64(_currentUserService.UserId);
+            var Username = _currentUserService.Username;
+            var groupId = _currentUserService.GroupId;
+            bool isAdmin = Convert.ToInt32(groupId) == 19;
 
             var prQuery = _purchaseRequisitionRepository.GetAsQueryable()
                 .Where(pr =>
@@ -1161,7 +1164,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     .ToList();
 
                 var currentUserApprovers = orderedApprovers
-                    .Where(oh => oh.ApproverId == user.UserId)
+                    .Where(oh => oh.ApproverId == UserId)
                     .ToList();
 
                 bool hasPendingPriorApprover = currentUserApprovers.Any(ua =>
@@ -1173,22 +1176,25 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         oh.Status == EnumApprovalStatus.Pending));
 
                 if (hasPendingPriorApprover)
-                    return new VoucherApprivalDto();
+                    return null;
 
                 var approvers = pr.OrderApprovalHierarchies
-                            .Where(oh =>
-                                (!isUserRequired || isAdmin || oh.ApproverId == user.UserId) &&
-                                oh.OrderId == pr.PurchaseRequisitionId)
-                            .OrderBy(x => x.ApproverLevel)
-                            .ThenBy(x => x.Sno)
-                            .Select(oh => new VoucherApprover
-                            {
-                                ApproverId = (int)oh.ApproverId,
-                                ApproverLevel = oh.ApproverLevel,
-                                Status = oh.Status,
-                                Remarks = oh.Remarks
-                            })
-                            .ToList();
+                    .Where(oh =>
+                        (!isUserRequired || isAdmin || oh.ApproverId == UserId) &&
+                        oh.OrderId == pr.PurchaseRequisitionId)
+                    .OrderBy(x => x.ApproverLevel)
+                    .ThenBy(x => x.Sno)
+                    .Select(oh => new VoucherApprover
+                    {
+                        ApproverId = (int)oh.ApproverId,
+                        ApproverLevel = oh.ApproverLevel,
+                        Status = oh.Status,
+                        Remarks = oh.Remarks
+                    })
+                    .ToList();
+
+                if (!approvers.Any())
+                    return null;
 
                 return new VoucherApprivalDto
                 {
@@ -1205,7 +1211,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     Remarks = pr.PurchaseRequisitionRemarks,
                     VoucherApprovers = approvers
                 };
-            }).ToList();
+            })
+            .Where(x => x != null)
+            .ToList();
 
             if (model.Status != EnumApprovalStatus.None)
             {
@@ -1214,7 +1222,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     .ToList();
             }
 
-            return prData.Where(x => x.VoucherType != EnumOrderForms.None).ToList();
+            return prData
+                .Where(x => x.VoucherType != EnumOrderForms.None)
+                .ToList();
         }
 
         public List<VoucherApprivalDto> GetCustomerQuotationForApproval(ApprovalFilterModel model, List<ApproverLevelSettings> approvers, UserFile user)
@@ -1300,12 +1310,15 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             {
                 var settingValue = await _generalSettings.GetValueByKey(InspireConstants.DefaultApprovalType);
                 _orderApprovalHierarchy.BeginTransaction();
+                long UserId = Convert.ToInt64(_currentUserService.UserId);
+                var Username = _currentUserService.Username;
+                var groupId = _currentUserService.GroupId;
+                bool isAdmin = Convert.ToInt32(groupId) == 19;
 
-                var user = _cacheMemoryService.GetUserObject(InspireConstants.UserCacheKey) as UserFile;
 
                 var currentApproval = _orderApprovalHierarchy.GetAsQueryable()
                     .FirstOrDefault(a =>
-                        a.ApproverId == user.UserId &&
+                        a.ApproverId == UserId &&
                         a.OrderId == approvalDto.OrderId &&
                         a.Status == EnumApprovalStatus.Pending);
 
@@ -1345,7 +1358,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 // Approve current user
                 currentApproval.Status = approvalDto.ApprovalStatus;
                 currentApproval.Remarks = string.IsNullOrEmpty(approvalDto.Remarks) ? "" : approvalDto.Remarks;
-                currentApproval.ApprovedBy = (int)user.UserId;
+                currentApproval.ApprovedBy = (int)UserId;
                 currentApproval.ApprovedDate = DateTime.Now;
 
                 _orderApprovalHierarchy.Update(currentApproval);
@@ -1487,11 +1500,13 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         {
             try
             {
-                var user = _cacheMemoryService.GetUserObject(InspireConstants.UserCacheKey) as UserFile;
+                long UserId = Convert.ToInt64(_currentUserService.UserId);
+
+
                 IQueryable<LocationMaster> locQuery = _locationMasterRepository.GetAsQueryable();
                 IQueryable<JobMaster> jobQuery = _jobMaster.GetAsQueryable();
                 var approvers = _approverLevelSettings.GetAsQueryable()
-                    .Where(x => x.FormType == orderType && x.ApproverId == user.UserId)
+                    .Where(x => x.FormType == orderType && x.ApproverId == UserId)
                     .Select(s => new
                     {
                         s.FormType,
@@ -1527,7 +1542,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                       Status = po.PurchaseOrderApproveStatus,
                                       Remarks = $"{po.PurchaseOrderRemarks1}\n{po.PurchaseOrderRemarks2}\n{po.PurchaseOrderRemarks3}",
                                       VoucherApprovers = po.OrderApprovalHierarchies
-                                          .Where(ah => ah.ApproverId == user.UserId)
+                                          .Where(ah => ah.ApproverId == UserId)
                                           .Select(ah =>
                                           {
                                               var matchedApprover = approvers.FirstOrDefault(a => a.ApproverId == ah.ApproverId);
@@ -1571,7 +1586,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                       Status = pr.PurchaseRequisitionStatus,
                                       Remarks = pr.PurchaseRequisitionRemarks,
                                       VoucherApprovers = pr.OrderApprovalHierarchies
-                                          .Where(ah => ah.ApproverId == user.UserId)
+                                          .Where(ah => ah.ApproverId == UserId)
                                           .Select(ah =>
                                           {
                                               var matchedApprover = approvers.FirstOrDefault(a => a.ApproverId == ah.ApproverId);

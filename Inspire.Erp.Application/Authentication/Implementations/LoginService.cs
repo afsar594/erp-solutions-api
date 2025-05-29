@@ -23,12 +23,10 @@ namespace Inspire.Erp.Application.Authentication.Implementations
     {
         private IRepository<UserFile> userFileRepository;
         private IConfiguration Configuration;
-        private readonly CacheMemoryService _cacheMemoryService;
-        public LoginService(IRepository<UserFile> _userFileRepository, IConfiguration _Configuration, IMemoryCache cache)
+        public LoginService(IRepository<UserFile> _userFileRepository, IConfiguration _Configuration)
         {
             userFileRepository = _userFileRepository;
             Configuration = _Configuration;
-            _cacheMemoryService = new CacheMemoryService(cache);
         }
         public UserFile SignIn(UserFile userData)
         {
@@ -105,7 +103,6 @@ namespace Inspire.Erp.Application.Authentication.Implementations
                     };
                 }
             }
-            _cacheMemoryService.SaveUserObject(user, InspireConstants.UserCacheKey);
             return user;
         }
         public UserFile RefreshToken(UserFile userData)
@@ -180,15 +177,22 @@ namespace Inspire.Erp.Application.Authentication.Implementations
             var secret = this.Configuration["ApplicationSettings:Secret"];
             var expiration = Convert.ToInt16(this.Configuration["ApplicationSettings:ExpirationInMinutes"]);
             var key = Encoding.UTF8.GetBytes(secret);
+
+            // Add all necessary claims
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim("GroupId", user.WorkGroupId.ToString())
+            };
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim(ClaimTypes.Name, user.UserName.ToString())
-                }),
+                Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddMinutes(expiration),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
+
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }

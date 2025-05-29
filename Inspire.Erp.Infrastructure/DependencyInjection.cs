@@ -20,6 +20,7 @@ namespace Inspire.Erp.Infrastructure
             //services.Configure<ApplicationSettings>(settingsSection);
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddDbContext<InspireErpDBContext>(options => options.UseSqlServer(settings.ConnectionString));
+           
             return services;
         }
         public static IServiceCollection AddTokenAuthentication(this IServiceCollection services, IConfiguration config)

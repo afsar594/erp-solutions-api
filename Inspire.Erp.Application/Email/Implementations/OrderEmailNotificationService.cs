@@ -2,6 +2,7 @@
 using Inspire.Erp.Application.Common.Email;
 using Inspire.Erp.Application.Email.Interfaces;
 using Inspire.Erp.Application.Helpers;
+using Inspire.Erp.Application.User;
 using Inspire.Erp.Domain.Constants;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
@@ -25,24 +26,23 @@ namespace Inspire.Erp.Application.Email.Implementations
         private readonly PurchaseOrderRequisitionHelper _purchaseOrderRequisitionHelper;
         private readonly IEmailNotificationServices _emailNotificationServices;
         private readonly IRepository<OrderApprovalHierarchy> _orderApprovalHierarchy;
-        private readonly CacheMemoryService _cacheMemoryService;
         private readonly IRepository<DepartmentMaster> _departmentMaster;
         private readonly EmailSettingViewModel _mailSettings;
         private readonly ILogger<OrderEmailNotificationService> _logger;
-
+        private readonly ICurrentUserService _currentUserService;
         public OrderEmailNotificationService(IEmailNotificationServices emailNotificationServices,
             IRepository<OrderApprovalHierarchy> orderApprovalHierarchy,
             IOptions<EmailSettingViewModel> mailSettings,
-            ILogger<OrderEmailNotificationService> logger, IMemoryCache cache,
-            IRepository<UserFile> userFile, IRepository<ApproverLevelSettings> approverLevelSettings, IRepository<DepartmentMaster> departmentMaster)
+            ILogger<OrderEmailNotificationService> logger,
+            IRepository<UserFile> userFile, IRepository<ApproverLevelSettings> approverLevelSettings, IRepository<DepartmentMaster> departmentMaster, ICurrentUserService currentUserService)
         {
-            _cacheMemoryService = new CacheMemoryService(cache);
             _purchaseOrderRequisitionHelper = new PurchaseOrderRequisitionHelper(userFile, approverLevelSettings); ;
             _emailNotificationServices = emailNotificationServices;
             _orderApprovalHierarchy = orderApprovalHierarchy;
             _mailSettings = mailSettings.Value;
             _logger = logger;
             _departmentMaster = departmentMaster;
+            _currentUserService = currentUserService;
         }
 
         public async Task SendOrderEmailNotificationAsync(
@@ -95,9 +95,12 @@ namespace Inspire.Erp.Application.Email.Implementations
                 }
                 if (orderType == EnumOrderForms.GeneralPurchaseOrder)
                     return;
-
-                var user = _cacheMemoryService.GetUserObject(InspireConstants.UserCacheKey) as UserFile;
-
+                
+                long UserId = Convert.ToInt64(_currentUserService.UserId);
+                var Username = _currentUserService.Username;
+                var DepartmentId = Convert.ToInt32(_currentUserService.DepartmentId);
+                
+               
                 //var toMails = approvers.Where(x => x.ApproverLevel == level && x.OptEmail &&(x.ApproverId == approverId || approverId ==-1))
                 //                 .SelectMany(x => x.MetaData)
                 //                 .Distinct()
@@ -126,7 +129,7 @@ namespace Inspire.Erp.Application.Email.Implementations
                 if (toMails.Any())
                 {
 
-                    var deptName = GetDepartment(user.DepartmentId);
+                    var deptName = GetDepartment(DepartmentId);
                     var approvalUrl = $"{_mailSettings.MainUrl}procurement/po-approval?menu=184&vNo={orderId}&type={orderType}".Trim();
                     var loginUrl = $"{_mailSettings.MainUrl}login?returnUrl={Uri.EscapeDataString(approvalUrl)}";
                     var rptData = toMails
@@ -139,7 +142,7 @@ namespace Inspire.Erp.Application.Email.Implementations
                             JobName = $"{jobName}/{jobNo}",
                             Supplier = supplier,
                             TotalAmount = totalAmount,
-                            RequestedBy = user.UserName,
+                            RequestedBy = Username,
                             Department = deptName,
                             ApprovalLink = loginUrl,
                             SupportEmail = _mailSettings.SupportEmail

@@ -3,6 +3,7 @@ using Inspire.Erp.Application.Common;
 using Inspire.Erp.Application.Email.Interfaces;
 using Inspire.Erp.Application.Procurement.Interfaces;
 using Inspire.Erp.Application.Settings.Interfaces;
+using Inspire.Erp.Application.User;
 using Inspire.Erp.Domain.Constants;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
@@ -40,8 +41,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private IRepository<SuppliersMaster> _suppliersMasterRepository;
         private IRepository<LocationMaster> _locationMasterRepository;
         private IRepository<UserFile> _userFileRepository;
-        private readonly CacheMemoryService _cacheMemoryService;
         private readonly IOrderEmailNotificationService _orderEmailNotificationService;
+        private readonly ICurrentUserService _currentUserService;
 
         public GeneralPurchaseOrderService(
             IRepository<UserFile> userFileRepository, IRepository<PermissionApproval> permissionApprovalRepo,
@@ -53,7 +54,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
              IOrderEmailNotificationService orderEmailNotificationService, IGeneralSettings generalSettings,
-            IRepository<GeneralPurchaseOrder> GeneralpurchaseOrderRepository, IMemoryCache cache, IRepository<GeneralPurchaseOrderDetails> GeneralpurchaseOrderDetailsRepository, IRepository<PurchaseReturn> purchaseReturnRepository, IRepository<PurchaseReturnDetails> purchaseReturnDetailsRepository, IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PurOrderRegister> purOrderRegisterRepository)
+            IRepository<GeneralPurchaseOrder> GeneralpurchaseOrderRepository, IRepository<GeneralPurchaseOrderDetails> GeneralpurchaseOrderDetailsRepository, IRepository<PurchaseReturn> purchaseReturnRepository, IRepository<PurchaseReturnDetails> purchaseReturnDetailsRepository, IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PurOrderRegister> purOrderRegisterRepository, ICurrentUserService currentUserService)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository;
@@ -73,11 +74,11 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _purOrderRegisterRepository = purOrderRegisterRepository;
             _permissionApprovalRepo = permissionApprovalRepo;
             _approvalRepo = approvalRepo;
-            _cacheMemoryService = new CacheMemoryService(cache);
             _approvalDetailRepo = approvalDetailRepo;
             _orderEmailNotificationService = orderEmailNotificationService;
             //_reportPurchaseOrderRepository = reportPurchaseOrderRepository;
             _generalSettings = generalSettings;
+            _currentUserService = currentUserService;
         }
 
         public IEnumerable<UserFile> GetAllUserFile()
@@ -263,10 +264,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 //    ApprovedAt = DateTime.Now,
                 //}).OrderBy(x => x.LevelOrder).AsEnumerable().ToList());
                 _GeneralpurchaseOrderRepository.TransactionCommit();
-
-
+                
                 #region EmailNotification
-                var user = _cacheMemoryService.GetUserObject(InspireConstants.UserCacheKey) as UserFile;
+                var Username = _currentUserService.Username;
+
                 //var jobId = purchaseRequisition?.PurchaseRequisitionJobId ?? -1;
                 //var jobDetail = jobrepository.GetAsQueryable().Where(x => x.JobMasterJobId == jobId).FirstOrDefault();
                 await _orderEmailNotificationService.SendOrderEmailNotificationAsync(
@@ -282,7 +283,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                                 string.Empty,//job no need to be added if required
                                                                                 string.Empty,//job name need to be added if required,
                                                                                 true,
-                                                                                user.UserName,
+                                                                               Username,
                                                                                 settingValue.GeneralSettingValue
                                                                                 );
                 #endregion
