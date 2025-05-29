@@ -271,6 +271,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 }
                 _purchaseOrderRepository.TransactionCommit();
+                await downloadAndSaveVoucherReport.DownloadedFileAsync(applicationSettings.DownloadFileBaseUrl, "PurchaseOrder", purchaseOrder.PurchaseOrderNo, (int)purchaseOrder.PurchaseOrderId, purchaseOrder.PurchaseOrderNo,true);
             }
             catch (Exception ex)
             {
@@ -517,7 +518,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 _purchaseOrderRepository.TransactionCommit();
 
                 var res = await this.GetSavedPurchaseOrderDetails((int)purchaseOrder.PurchaseOrderId);
-                await downloadAndSaveVoucherReport.DownloadedFileAsync(applicationSettings.DownloadFileBaseUrl, "PurchaseOrder", purchaseOrder.PurchaseOrderNo, (int)purchaseOrder.PurchaseOrderId);
+                await downloadAndSaveVoucherReport.DownloadedFileAsync(applicationSettings.DownloadFileBaseUrl, "PurchaseOrder", purchaseOrder.PurchaseOrderNo, (int)purchaseOrder.PurchaseOrderId,purchaseOrder.PurchaseOrderNo);
                 return Response<PurchaseOrderModel>.Success(res.Result, "Purchase Order Save Successfully.");
             }
             catch (Exception ex)
@@ -581,8 +582,19 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 //    }
                 //}
                 var settingValue = await _generalSettings.GetApproverStatusAsync(id.ToString(), nameof(EnumOrderForms.PurchaseRequisition));
-                purchaseOrderModel.purchaseOrder.IsPrintEnabled = settingValue.GeneralSettingValue == InspireConstants.ApprovalAsNoApproval ? true : await _orderApprovalHierarchy.GetAsQueryable().AsNoTracking().Where(x => x.OrderId == id).AllAsync(x => x.Status == EnumApprovalStatus.Approved);
-                purchaseOrderModel.purchaseOrder.IsEditEnabled = settingValue.GeneralSettingValue == InspireConstants.ApprovalAsNoApproval ? true : await _orderApprovalHierarchy.GetAsQueryable().AsNoTracking().Where(x => x.OrderId == id).AllAsync(x => x.Status == EnumApprovalStatus.Pending);
+                bool isNoApproval = settingValue.GeneralSettingValue == InspireConstants.ApprovalAsNoApproval;
+
+                var approvalStatuses = await _orderApprovalHierarchy.GetAsQueryable()
+                    .AsNoTracking()
+                    .Where(x => x.OrderId == id)
+                    .Select(x => x.Status)
+                    .ToListAsync();
+
+                purchaseOrderModel.purchaseOrder.IsPrintEnabled =
+                    isNoApproval || approvalStatuses.All(x => x == EnumApprovalStatus.Approved);
+
+                purchaseOrderModel.purchaseOrder.IsEditEnabled =
+                    isNoApproval || approvalStatuses.All(x => x == EnumApprovalStatus.Pending);
 
                 return Response<PurchaseOrderModel>.Success(purchaseOrderModel, "Data found");
 
@@ -1337,6 +1349,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 currentApproval.ApprovedDate = DateTime.Now;
 
                 _orderApprovalHierarchy.Update(currentApproval);
+                _orderApprovalHierarchy.TransactionCommit();
+
+                if (approvalDto.ApprovalStatus == EnumApprovalStatus.Rejected)
+                    return await GetDefaultPOPR(approvalDto.OrderId, approvalDto.OrderType);
 
                 // Check for next pending user at same level
                 var pendingUsersAtCurrentLevel = _orderApprovalHierarchy.GetAsQueryable()
@@ -1379,7 +1395,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     }
                 }
 
-                _orderApprovalHierarchy.TransactionCommit();
                 return await GetDefaultPOPR(approvalDto.OrderId, approvalDto.OrderType);
             }
             catch (Exception)

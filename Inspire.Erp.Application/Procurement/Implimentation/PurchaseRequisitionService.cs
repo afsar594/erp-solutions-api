@@ -209,6 +209,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 Thread.Sleep(2000);
                 _purchaseRequisitionRepository.TransactionCommit();
 
+                await downloadAndSaveVoucherReport.DownloadedFileAsync(applicationSettings.DownloadFileBaseUrl, "PurchaseRequisition", purchaseRequisition.PurchaseRequisitionId.ToString(), (int)purchaseRequisition.PurchaseRequisitionId,purchaseRequisition.PurchaseRequisitionNo,true);
+
             }
             catch (Exception ex)
             {
@@ -538,7 +540,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 #endregion
 
                 var res = await this.GetSavedPurchaseRequisitionDetails((int)purchaseRequisition.PurchaseRequisitionId);
-                await downloadAndSaveVoucherReport.DownloadedFileAsync(applicationSettings.DownloadFileBaseUrl, "PurchaseRequisition", purchaseRequisition.PurchaseRequisitionId.ToString(), (int)purchaseRequisition.PurchaseRequisitionId);
+                await downloadAndSaveVoucherReport.DownloadedFileAsync(applicationSettings.DownloadFileBaseUrl, "PurchaseRequisition", purchaseRequisition.PurchaseRequisitionId.ToString(), (int)purchaseRequisition.PurchaseRequisitionId, purchaseRequisition.PurchaseRequisitionNo);
                 return Response<PurchaseRequisitionModel>.Success(res.Result, "Purchase Requisition Save Successfully.");
 
             }
@@ -562,8 +564,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 decimal jobValue = GetJobTotalValue(jobId);
                 decimal prValue = GetTotalPrValue(jobId);
-
-                if (prValue <= jobValue)
+                if ((jobValue <= 0) || (prValue <= jobValue))
                     return;
 
                 string subject = $"PR Amount Exceeds Budget Amount against {jobDetail.JobMasterJobNumber}-{jobDetail.JobMasterJobName}";
@@ -704,9 +705,21 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 }
             }
             var settingValue = await _generalSettings.GetApproverStatusAsync(pvno.ToString(), nameof(EnumOrderForms.PurchaseRequisition));
-            purchaseRequisitionModel.purchaseRequisition.IsPrintEnabled = settingValue.GeneralSettingValue == InspireConstants.ApprovalAsNoApproval ? true :  await _orderApprovalHierarchy.GetAsQueryable().AsNoTracking().Where(x => x.OrderId == pvno).AllAsync(x => x.Status == EnumApprovalStatus.Approved);
-            purchaseRequisitionModel.purchaseRequisition.IsEditEnabled = settingValue.GeneralSettingValue == InspireConstants.ApprovalAsNoApproval ? true :  await _orderApprovalHierarchy.GetAsQueryable().AsNoTracking().Where(x => x.OrderId == pvno).AllAsync(x => x.Status == EnumApprovalStatus.Pending);
             
+            bool isNoApproval = settingValue.GeneralSettingValue == InspireConstants.ApprovalAsNoApproval;
+
+            var approvalStatuses = await _orderApprovalHierarchy.GetAsQueryable()
+                .AsNoTracking()
+                .Where(x => x.OrderId == pvno)
+                .Select(x => x.Status)
+                .ToListAsync();
+
+            purchaseRequisitionModel.purchaseRequisition.IsPrintEnabled =
+                isNoApproval || approvalStatuses.All(x => x == EnumApprovalStatus.Approved);
+
+            purchaseRequisitionModel.purchaseRequisition.IsEditEnabled =
+                isNoApproval || approvalStatuses.All(x => x == EnumApprovalStatus.Pending);
+
             return Response<PurchaseRequisitionModel>.Success(purchaseRequisitionModel, "Data found");
 
         }

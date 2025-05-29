@@ -21,7 +21,7 @@ namespace Inspire.Erp.Application.Helpers
             this.docsAttachmentService = docsAttachmentService;
         }
 
-        public  async Task<bool> DownloadedFileAsync(string reportUrl, string fileType, string fileNo,int fileId)
+        public  async Task<bool> DownloadedFileAsync(string reportUrl, string fileType, string fileNo,int fileId,string vNO, bool isUpdate = false)
         {
             var sql = fileType == "PurchaseOrder" ?
                 $"select * from VR_PurchaseOrder where VR_PurchaseOrder.purchaseorderno ='{fileNo}'"
@@ -55,10 +55,17 @@ namespace Inspire.Erp.Application.Helpers
                         if (!Directory.Exists(pdfDir))
                             Directory.CreateDirectory(pdfDir);
 
-                        var filePath = Path.Combine(pdfDir, $"{fileType}_{fileNo}.pdf");
+                        var filePath = Path.Combine(pdfDir, $"{fileType}_{vNO}.pdf");
+                        
+                        if(File.Exists(filePath))
+                            File.Delete(filePath); // Delete existing file if it exists
+
                         await File.WriteAllBytesAsync(filePath, pdfBytes);
                         Console.WriteLine($"Report saved to: {filePath}");
                        
+                        if (isUpdate)
+                            return true;
+
                         string fileName = Path.GetFileName(filePath);
                         DocsAttachment Documents = new DocsAttachment();
                         Documents.DocumentName = "/Upload/Pdfs/" + fileName;
