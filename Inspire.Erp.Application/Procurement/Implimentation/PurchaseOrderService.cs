@@ -37,6 +37,7 @@ using Inspire.Erp.Application.NewFolder.Interfaces;
 using Inspire.Erp.Application.User;
 using System.Data;
 using Inspire.Erp.Application.General;
+using System.Xml.Linq;
 
 namespace Inspire.Erp.Application.Procurement.Implementation
 {
@@ -875,7 +876,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
         }
 
-      
+
         public List<VoucherApprivalDto> GetPurchaseOrderForApproval(ApprovalFilterModel model)
         {
             var fromDate = model.fromDate?.Date ?? DateTime.MinValue;
@@ -933,7 +934,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 var approvers = po.OrderApprovalHierarchies
                     .Where(oh =>
-                        (!isUserRequired || isAdmin || oh.ApproverId == UserId) &&
+                        (!isUserRequired || isAdmin || oh.ApproverId == UserId || oh.Status == EnumApprovalStatus.Pending) &&
                         oh.OrderId == po.PurchaseOrderId)
                     .OrderBy(x => x.ApproverLevel)
                     .ThenBy(x => x.Sno)
@@ -967,12 +968,15 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
             }).Where(x => x != null).ToList();
 
-            if (model.Status != EnumApprovalStatus.None)
-            {
-                approvalData = approvalData
-                    .Where(x => x.VoucherApprovers.Any(v => v.Status == model.Status))
-                    .ToList();
-            }
+         
+            approvalData = approvalData
+                           .Where(dto =>
+                               model.Status != EnumApprovalStatus.None
+                                   ? dto.VoucherApprovers.Any(v => v.Status == model.Status)
+                                   : dto.VoucherApprovers.Any(v =>
+                                       (!isUserRequired || v.ApproverId == UserId) &&
+                                       v.Status == EnumApprovalStatus.Pending))
+                           .ToList();
 
             return approvalData
                 .Where(x => x.VoucherType != EnumOrderForms.None)
@@ -1016,15 +1020,13 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         }
 
 
-
         private List<VoucherApprivalDto> GetGeneralPurchaseOrderForApproval(ApprovalFilterModel model)
         {
             var fromDate = model.fromDate?.Date ?? DateTime.MinValue;
             var toDate = model.toDate?.Date ?? DateTime.MaxValue;
             bool isJobFiltered = model.JobId >= 0;
             bool isUserRequired = model.IsUserRequired;
-            long UserId = Convert.ToInt64(_currentUserService.UserId);
-            var groupId = _currentUserService.GroupId;
+            long userId = Convert.ToInt64(_currentUserService.UserId);
             bool isAdmin = _generalSelectQueries.GetBooleanValue(_currentUserService.GroupId).Result;
 
             var generalPurchaseOrders = _generalPurchaseOrder.GetAsQueryable()
@@ -1059,7 +1061,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     .ToList();
 
                 var currentUserApprovers = orderedApprovers
-                    .Where(oh => oh.ApproverId == UserId)
+                    .Where(oh => oh.ApproverId == userId)
                     .ToList();
 
                 bool hasPendingPriorApprover = currentUserApprovers.Any(ua =>
@@ -1071,11 +1073,11 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         oh.Status == EnumApprovalStatus.Pending));
 
                 if (hasPendingPriorApprover)
-                    return new VoucherApprivalDto();
+                    return null;
 
                 var approvers = gpo.OrderApprovalHierarchies
                     .Where(oh =>
-                        (!isUserRequired || isAdmin || oh.ApproverId == UserId) &&
+                        (!isUserRequired || isAdmin || oh.ApproverId == userId || oh.Status == EnumApprovalStatus.Pending) &&
                         oh.OrderId == gpo.GeneralPurchaseOrderId)
                     .OrderBy(x => x.ApproverLevel)
                     .ThenBy(x => x.Sno)
@@ -1087,6 +1089,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         Remarks = oh.Remarks
                     })
                     .ToList();
+
+                if (!approvers.Any())
+                    return null;
 
                 return new VoucherApprivalDto
                 {
@@ -1103,17 +1108,26 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     Remarks = string.Empty,
                     VoucherApprovers = approvers
                 };
-            }).ToList();
+            })
+            .Where(dto => dto != null)
+            .ToList();
 
-            if (model.Status != EnumApprovalStatus.None)
-            {
-                approvalData = approvalData
-                    .Where(dto => dto.VoucherApprovers.Any(v => v.Status == model.Status))
-                    .ToList();
-            }
+            // Final filtering by status if provided
+          
+            approvalData = approvalData
+                      .Where(dto =>
+                          model.Status != EnumApprovalStatus.None
+                              ? dto.VoucherApprovers.Any(v => v.Status == model.Status)
+                              : dto.VoucherApprovers.Any(v =>
+                                  (!isUserRequired || v.ApproverId == userId) &&
+                                  v.Status == EnumApprovalStatus.Pending))
+                      .ToList();
 
-            return approvalData.Where(x => x.VoucherType != EnumOrderForms.None).ToList();
+            return approvalData
+                .Where(x => x.VoucherType != EnumOrderForms.None)
+                .ToList();
         }
+
 
         private List<EnumOrderForms> GetModelTypes()
         {
@@ -1180,10 +1194,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 if (hasPendingPriorApprover)
                     return null;
 
+                // Only select pending approvers
                 var approvers = pr.OrderApprovalHierarchies
                     .Where(oh =>
-                        (!isUserRequired || isAdmin || oh.ApproverId == UserId) &&
-                        oh.OrderId == pr.PurchaseRequisitionId)
+                        (!isUserRequired || isAdmin || oh.ApproverId == UserId || oh.Status == EnumApprovalStatus.Pending) && oh.OrderId == pr.PurchaseRequisitionId)
                     .OrderBy(x => x.ApproverLevel)
                     .ThenBy(x => x.Sno)
                     .Select(oh => new VoucherApprover
@@ -1217,17 +1231,24 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             .Where(x => x != null)
             .ToList();
 
-            if (model.Status != EnumApprovalStatus.None)
-            {
-                prData = prData
-                    .Where(dto => dto.VoucherApprovers.Any(v => v.Status == model.Status))
-                    .ToList();
-            }
+            // Force filtering only pending approvals
+
+            // Final filtering by status if provided
+            prData = prData
+                     .Where(dto =>
+                         model.Status != EnumApprovalStatus.None
+                             ? dto.VoucherApprovers.Any(v => v.Status == model.Status)
+                             : dto.VoucherApprovers.Any(v =>
+                                 (!isUserRequired || v.ApproverId == UserId) &&
+                                 v.Status == EnumApprovalStatus.Pending))
+                     .ToList();
+
 
             return prData
                 .Where(x => x.VoucherType != EnumOrderForms.None)
                 .ToList();
         }
+
 
         public List<VoucherApprivalDto> GetCustomerQuotationForApproval(ApprovalFilterModel model, List<ApproverLevelSettings> approvers, UserFile user)
         {
