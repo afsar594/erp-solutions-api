@@ -36,6 +36,7 @@ using Inspire.Erp.Application.NewFolder.Implementations;
 using Inspire.Erp.Application.NewFolder.Interfaces;
 using Inspire.Erp.Application.User;
 using System.Data;
+using Inspire.Erp.Application.General;
 
 namespace Inspire.Erp.Application.Procurement.Implementation
 {
@@ -78,6 +79,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private ApplicationSettings applicationSettings;
         DownloadAndSaveVoucherReport downloadAndSaveVoucherReport;
         private readonly ICurrentUserService _currentUserService;
+        IGeneralSelectQueries _generalSelectQueries;
         public PurchaseOrderService(
             IConfiguration config,
             IRepository<UserFile> userFileRepository, IRepository<PermissionApproval> permissionApprovalRepo,
@@ -91,7 +93,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PurOrderRegister> purOrderRegisterRepository,
             IRepository<UnitDetails> unitDetailsRepository,
             IRepository<PurchaseVoucherDetails> purchaseVoucherDetailsRepo,
-            IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository, IRepository<Permissionapproval> permissionapproval, IRepository<ApproverLevelSettings> approverLevelSettings, IOrderEmailNotificationService orderEmailNotificationService, IRepository<PurchaseRequisition> purchaseRequisitionRepository, IRepository<OrderApprovalHierarchy> orderApprovalHierarchy, IPurchaseRequisitionService purchaseRequisitionService, IRepository<CustomerQuotation> customerQuotation, IRepository<JobMaster> jobMaster, IGeneralSettings generalSettings, IRepository<GeneralPurchaseOrder> generalPurchaseOrder, ICurrentUserService currentUserService)
+            IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository, IRepository<Permissionapproval> permissionapproval, IRepository<ApproverLevelSettings> approverLevelSettings, IOrderEmailNotificationService orderEmailNotificationService, IRepository<PurchaseRequisition> purchaseRequisitionRepository, IRepository<OrderApprovalHierarchy> orderApprovalHierarchy, IPurchaseRequisitionService purchaseRequisitionService, IRepository<CustomerQuotation> customerQuotation, IRepository<JobMaster> jobMaster, IGeneralSettings generalSettings, IRepository<GeneralPurchaseOrder> generalPurchaseOrder, ICurrentUserService currentUserService, IGeneralSelectQueries generalSelectQueries)
         {
             applicationSettings = config.GetSection("ApplicationSettings").Get<ApplicationSettings>();
             this._accountTransactionRepository = accountTransactionRepository;
@@ -128,6 +130,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _generalPurchaseOrder = generalPurchaseOrder;
             downloadAndSaveVoucherReport = new DownloadAndSaveVoucherReport(docsAttachmentService);
             _currentUserService = currentUserService;
+            _generalSelectQueries = generalSelectQueries;
         }
         public IEnumerable<UserFile> GetAllUserFile()
         {
@@ -880,8 +883,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             var jobIdFilter = model.JobId < 0;
             bool isUserRequired = model.IsUserRequired;
             long UserId = Convert.ToInt64(_currentUserService.UserId);
-            var groupId = _currentUserService.GroupId;
-            bool isAdmin = Convert.ToInt32(groupId) == 19;
+            bool isAdmin = _generalSelectQueries.GetBooleanValue(_currentUserService.GroupId).Result;
 
             var purchaseOrders = _purchaseOrderRepository.GetAsQueryable()
                 .Where(po =>
@@ -1023,8 +1025,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             bool isUserRequired = model.IsUserRequired;
             long UserId = Convert.ToInt64(_currentUserService.UserId);
             var groupId = _currentUserService.GroupId;
-            bool isAdmin = Convert.ToInt32(groupId) == 19;
-            
+            bool isAdmin = _generalSelectQueries.GetBooleanValue(_currentUserService.GroupId).Result;
+
             var generalPurchaseOrders = _generalPurchaseOrder.GetAsQueryable()
                 .Where(gpo =>
                     (!model.IsDate || (gpo.GeneralPurchaseOrderPoDate.Date >= fromDate && gpo.GeneralPurchaseOrderPoDate.Date <= toDate)) &&
@@ -1132,7 +1134,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             long UserId = Convert.ToInt64(_currentUserService.UserId);
             var Username = _currentUserService.Username;
             var groupId = _currentUserService.GroupId;
-            bool isAdmin = Convert.ToInt32(groupId) == 19;
+            bool isAdmin = _generalSelectQueries.GetBooleanValue(_currentUserService.GroupId).Result;
 
             var prQuery = _purchaseRequisitionRepository.GetAsQueryable()
                 .Where(pr =>

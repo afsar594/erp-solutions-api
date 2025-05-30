@@ -17,7 +17,7 @@ namespace Inspire.Erp.Infrastructure
         {
             var settings = configuration.GetSection("ApplicationSettings").Get<ApplicationSettings>();
             //user can able to get appsetting informations using dependency injection-- IOptions<ApplicationSettings>
-            //services.Configure<ApplicationSettings>(settingsSection);
+            services.Configure<ApplicationSettings>(configuration.GetSection("ApplicationSettings"));
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddDbContext<InspireErpDBContext>(options => options.UseSqlServer(settings.ConnectionString));
            
