@@ -9,6 +9,7 @@ using Inspire.Erp.Domain.Entities.documents;
 using Inspire.Erp.Application.Master;
 using Microsoft.EntityFrameworkCore.Storage;
 using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Application.Common;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -53,6 +54,15 @@ namespace Inspire.Erp.Web.Controllers
             }
             return Ok(true);
         }
+
+        [HttpPost("import-selected-pr-documents-to-po")]
+        public async Task<IActionResult> ImportSelectedPRDocumentsToPO([FromBody] ImportSelectedFileDto request)
+        {
+            return Ok( await docsAttachmentService.CopyAttachmentsFromPRToPO(request.PrId, request.PoId, request.PrFileIds));
+        }
+
+
+
         [HttpGet]
         [Route("GetDocumentstById")]
         public IActionResult GetDocumentstById(int DocumentId, int DocumentTypeId, String Type)

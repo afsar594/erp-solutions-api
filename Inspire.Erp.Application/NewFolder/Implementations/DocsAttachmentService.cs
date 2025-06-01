@@ -6,6 +6,7 @@ using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using SendGrid.Helpers.Mail;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -160,7 +161,36 @@ namespace Inspire.Erp.Application.NewFolder.Implementations
                 throw;
             }
         }
+        public async Task<object> CopyAttachmentsFromPRToPO(int prId, int poId, List<int> prFileIds)
+        {
+            try
+            {
+                var prAttachments = await docrepository
+                                     .GetAsQueryable()
+                                     .AsNoTracking()
+                                     .Where(a => a.DocumentVocucherId == prId
+                                                && a.DocumentType == "PR"
+                                                && prFileIds.Contains(a.DocumentId))
+                                     .ToListAsync();
 
-       
+                var poAttachments = prAttachments.Select(a => new DocsAttachment
+                {
+                    DocumentVocucherId = poId,
+                    DocumentName = a.DocumentName,
+                    DocumentType = "PO",
+                    DocumentDelStatus = false
+                }).ToList();
+                await docrepository.InsertListAsync(poAttachments);
+
+                return new { success = true, message = "Selected files transfered to Purhcase Order." };
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+
+
     }
 }
