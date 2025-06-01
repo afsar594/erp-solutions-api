@@ -5,6 +5,7 @@ using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.AccountStatement;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Modals.File;
+using Inspire.Erp.Domain.Modals.Sales;
 using Inspire.Erp.Domain.Models;
 using Inspire.Erp.Domain.Models.ViewModels;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
@@ -15,8 +16,10 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Inspire.Erp.Application.Account.Implementations
 {
@@ -110,6 +113,92 @@ namespace Inspire.Erp.Application.Account.Implementations
                     AccountsTransactionsAllocCredit = x.AccountsTransactionsAllocCredit
                     // Rest of the properties...
                 }).OrderBy(x => x.AccountsTransactionsAccName).AsEnumerable().ToList();
+
+                string accName = string.Empty;
+                string accno = string.Empty;
+                decimal totalCredit = 0;
+                decimal total = 0;
+                foreach (var x in result)
+                {
+                    accno = x.AccountsTransactionsAccNo;
+                    totalCredit += x.AccountsTransactionsCredit;
+                    total += Convert.ToDecimal(x.AccountsTransactionsAllocBalance);
+                    var accounts = _masterAccountsTable.GetAsQueryable().FirstOrDefault(c => c.MaAccNo == x.AccountsTransactionsAccNo);
+                    accName = accounts != null ? accounts.MaAccName : "";
+                    gridModel.Details.Add(new GetAccountTransactionResponse()
+                    {
+                        AccountsTransactionsAccNo = x.AccountsTransactionsAccNo,
+                        AccountsTransactionsDebit = Convert.ToDecimal(x.AccountsTransactionsDebit),
+                        AccountsTransactionsCredit = Convert.ToDecimal(x.AccountsTransactionsCredit),
+                        AccountsTransactionsAllocBalance = x.AccountsTransactionsAllocBalance,
+                        AccountsTransactionsVoucherNo = x.AccountsTransactionsVoucherNo,
+                        AccountsTransactionsVoucherType = x.AccountsTransactionsVoucherType,
+                        AccountsTransactionsDescription = x.AccountsTransactionsDescription,
+                        AccountsTransactionsTransDate = Convert.ToDateTime(x.AccountsTransactionsTransDate),
+                        AccountsTransactionsTransDateString = Convert.ToDateTime(x.AccountsTransactionsTransDate).ToString("MM-dd-yyyy"),
+                        RefNo = x.RefNo,
+                        AccountsTransactionsTransSno = Convert.ToInt32(x.AccountsTransactionsTransSno),
+                        AccountsTransactionsAllocDebit = x.AccountsTransactionsAllocDebit,
+                        AccountsTransactionsAllocCredit = x.AccountsTransactionsAllocCredit
+                    });
+                }
+                gridModel.AccName = accName;
+                gridModel.AccNo = accno;
+                gridModel.Total = total.ToString();
+                gridModel.CreditBalance = totalCredit.ToString();
+                gridModel.StationMasterStationName = location != null ? location.StationMasterStationName : "";
+                gridModel.StationMasterEmail = location != null ? location.StationMasterEmail : "";
+                gridModel.StationMasterFax = location != null ? location.StationMasterFax : "";
+                gridModel.StationMasterTele1 = location != null ? location.StationMasterTele1 : "";
+                gridModel.StationMasterAddress = location != null ? location.StationMasterAddress : "";
+                gridModel.StationMasterCity = location != null ? location.StationMasterCity : "";
+                gridModel.StationMasterCode = location != null ? location.StationMasterCode : 0;
+                gridModel.StationMasterCountry = location != null ? location.StationMasterCountry : "";
+                gridModel.StationMasterLogoPath = location != null ? location.StationMasterLogoPath : "";
+                gridModel.StationMasterPostOffice = location != null ? location.StationMasterPostOffice : "";
+                gridModel.StationMasterSignPath = location != null ? location.StationMasterSignPath : "";
+                gridModel.StationMasterVatNo = location != null ? location.StationMasterVatNo : "";
+                gridModel.StationMasterWebSite = location != null ? location.StationMasterWebSite : "";
+                return Response<GetAccountStatementResponse>.Success(gridModel, "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<GetAccountStatementResponse>.Fail(new GetAccountStatementResponse(), ex.Message);
+            }
+        }
+
+
+        public async Task<Response<GetAccountStatementResponse>> GetAccountTransactionsLinq(GenericGridViewModel model)
+        {
+            try
+            {
+
+
+
+                GetAccountStatementResponse gridModel = new GetAccountStatementResponse();
+                var location = await _locationMaster.GetAsQueryable().FirstOrDefaultAsync();
+                gridModel.Details = new List<GetAccountTransactionResponse>();
+                string query = @$" 1==1 {model.Filter}";
+
+                var result = await _accountTransaction.GetAsQueryable().Where(query).Select(x => new GetAccountTransactionResponse
+                {
+                    AccountsTransactionsAccNo = x.AccountsTransactionsAccNo,
+                    //  AccountsTransactionsAccName = _masterAccountsTable.GetAsQueryable().FirstOrDefault(c => c.MasterAccountsTableAccNo == x.AccountsTransactionsAccNo) != null ? _masterAccountsTable.GetAsQueryable().FirstOrDefault(c => c.MasterAccountsTableAccNo == x.AccountsTransactionsAccNo).MasterAccountsTableAccName : "",
+                    AccountsTransactionsDebit = Convert.ToDecimal(x.AccountsTransactionsDebit),
+                    AccountsTransactionsCredit = Convert.ToDecimal(x.AccountsTransactionsCredit),
+                    AccountsTransactionsAllocBalance = x.AccountsTransactionsAllocBalance,
+                    AccountsTransactionsVoucherNo = x.AccountsTransactionsVoucherNo,
+                    AccountsTransactionsVoucherType = x.AccountsTransactionsVoucherType,
+                    AccountsTransactionsDescription = x.AccountsTransactionsDescription,
+                    AccountsTransactionsTransDate = Convert.ToDateTime(x.AccountsTransactionsTransDate),
+                    AccountsTransactionsTransDateString = Convert.ToDateTime(x.AccountsTransactionsTransDate).ToString("MM-dd-yyyy"),
+                    AccountsTransactionsParticulars = x.AccountsTransactionsParticulars,
+                    RefNo = x.RefNo,
+                    AccountsTransactionsTransSno = Convert.ToInt32(x.AccountsTransactionsTransSno),
+                    AccountsTransactionsAllocDebit = x.AccountsTransactionsAllocDebit,
+                    AccountsTransactionsAllocCredit = x.AccountsTransactionsAllocCredit
+                }).ToListAsync();
+
 
                 string accName = string.Empty;
                 string accno = string.Empty;
