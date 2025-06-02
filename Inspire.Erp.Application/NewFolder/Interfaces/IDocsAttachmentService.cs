@@ -23,6 +23,6 @@ namespace Inspire.Erp.Application.NewFolder.Interfaces
         public Task<Response<List<JobDocumentsDto>>> GetJobDocuments(int id, string type);
         public Task<FileResultDto> DownloadAllFilesAsOnePdf(int id, string type);
         public Task<object> CopyAttachmentsFromPRToPO(int prId, int poId, List<int> prFileIds);
-
+        public Task<Response<List<JobDocumentsDto>>> GetExcludedDocumentsAsync(int sourceVoucherId, string sourceType, int excludeVoucherId, string excludeType);
     }
 }

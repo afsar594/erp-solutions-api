@@ -1,15 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Inspire.Erp.Application.Common;
+using Inspire.Erp.Application.NewFolder.Interfaces;
+using Inspire.Erp.Domain.Entities.documents;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using System;
-using Inspire.Erp.Application.NewFolder.Interfaces;
-using Inspire.Erp.Domain.Entities.documents;
-using Inspire.Erp.Application.Master;
-using Microsoft.EntityFrameworkCore.Storage;
-using Inspire.Erp.Domain.Entities;
-using Inspire.Erp.Application.Common;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -119,13 +115,13 @@ namespace Inspire.Erp.Web.Controllers
             return File(fileData.FileBytes, fileData.ContentType, fileData.FileName);
         }
 
-
-        [HttpGet]
-        [Route("GetDocuments")]
-        public async Task<IActionResult> GetDocuments(int id, string type)
+        [HttpGet("GetDocuments")]
+        public async Task<IActionResult> GetDocumentsAsync([FromQuery] int id,[FromQuery] string type)
         {
-            return Ok(await docsAttachmentService.GetJobDocuments(id, type));
+            var documents = await docsAttachmentService.GetJobDocuments(id, type);
+            return Ok(documents);
         }
+
 
         [HttpGet("DownloadAllFilesAsOnePdf/{id}/{type}")]
         public async Task<IActionResult> DownloadAllFilesAsOnePdf(int id, string type)
@@ -136,6 +132,12 @@ namespace Inspire.Erp.Web.Controllers
                 return null;
             
             return File(result.FileBytes, result.ContentType, "downloadedFile.pdf");
+        }
+
+        [HttpGet("GetExcludedDocumentForTransfer")]
+        public async Task<IActionResult> GetExcludedDocumentForTransferAsync([FromQuery] int sourceVoucherId, [FromQuery] string sourceType, [FromQuery] int excludeVoucherId, [FromQuery] string excludeType)
+        {
+            return Ok(await docsAttachmentService.GetExcludedDocumentsAsync(sourceVoucherId, sourceType, excludeVoucherId, excludeType));
         }
 
     }

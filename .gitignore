@@ -51,6 +51,7 @@ Inspire.Erp.Web/obj/Inspire.Erp.Web.csproj.nuget.dgspec.json
 /Inspire.Erp.Web/Properties/PublishProfiles
 /Inspire.Erp.Web/Upload/files/
 /Inspire.Erp.Web/Upload/Pdfs/
+/Inspire.Erp.RecurringJob/obj/
 
 
 

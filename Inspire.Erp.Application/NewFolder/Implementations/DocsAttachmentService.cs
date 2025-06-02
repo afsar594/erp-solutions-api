@@ -104,30 +104,24 @@ namespace Inspire.Erp.Application.NewFolder.Implementations
         }
         public async Task<Response<List<JobDocumentsDto>>> GetJobDocuments(int id, string type)
         {
-            try
-            {
-                var docs = await docrepository
-                    .GetAsQueryable()
-                    .AsNoTracking()
-                   .Where(x => x.DocumentVocucherId == id
-                             && x.DocumentType.ToLower() == type.ToLower()
-                             && (x.DocumentDelStatus == null || x.DocumentDelStatus == false))
-                    .Select(x => new JobDocumentsDto
-                    {
-                        FileId = x.DocumentId,
-                        FileName = System.IO.Path.GetFileName(x.DocumentName),
-                        FilePath = System.IO.Path.GetFileName(x.DocumentName)
-                    }).ToListAsync();
+            var query = docrepository
+                .GetAsQueryable()
+                .AsNoTracking()
+                .Where(x => x.DocumentVocucherId == id &&
+                            x.DocumentType.ToLower() == type.ToLower() &&
+                            (x.DocumentDelStatus == null || x.DocumentDelStatus == false));
 
-                if (!docs.Any())
-                    return Response<List<JobDocumentsDto>>.Fail(null, "No documents found.");
-
-                return Response<List<JobDocumentsDto>>.Success(docs, "Documents found.");
-            }
-            catch (Exception)
+            var docs = await query.Select(x => new JobDocumentsDto
             {
-                throw;
-            }
+                FileId = x.DocumentId,
+                FileName = Path.GetFileName(x.DocumentName),
+                FilePath = Path.GetFileName(x.DocumentName)
+            }).ToListAsync();
+
+            if (docs == null || docs.Count == 0)
+                return Response<List<JobDocumentsDto>>.Fail(null, "No documents found.");
+
+            return Response<List<JobDocumentsDto>>.Success(docs, "Documents found.");
         }
 
         public async Task<FileResultDto> DownloadAllFilesAsOnePdf(int id, string type)
@@ -137,7 +131,7 @@ namespace Inspire.Erp.Application.NewFolder.Implementations
                 var jobDocs = await docrepository
                                      .GetAsQueryable()
                                      .AsNoTracking()
-                                     .Where(x => x.DocumentVocucherId == id 
+                                     .Where(x => x.DocumentVocucherId == id
                                                   && x.DocumentType.ToLower() == type.ToLower()
                                                   && (x.DocumentDelStatus == null || x.DocumentDelStatus == false))
                                      .OrderBy(x => x.DocumentId)
@@ -188,6 +182,32 @@ namespace Inspire.Erp.Application.NewFolder.Implementations
             {
                 throw;
             }
+        }
+        public async Task<Response<List<JobDocumentsDto>>> GetExcludedDocumentsAsync(int sourceVoucherId, string sourceType, int excludeVoucherId, string excludeType)
+        {
+            var excludedNames = await docrepository
+                                      .GetAsQueryable()
+                                      .AsNoTracking()
+                                      .Where(x => x.DocumentVocucherId == excludeVoucherId && x.DocumentType == excludeType && (x.DocumentDelStatus == null || x.DocumentDelStatus == false))
+                                      .Select(x => x.DocumentName)
+                                      .ToListAsync();
+
+            var result = await docrepository
+                                    .GetAsQueryable()
+                                    .AsNoTracking()
+                                    .Where(x => x.DocumentVocucherId == sourceVoucherId &&
+                                                x.DocumentType == sourceType &&
+                                                !excludedNames.Contains(x.DocumentName) && (x.DocumentDelStatus == null || x.DocumentDelStatus == false))
+                                    .Select(x => new JobDocumentsDto
+                                    {
+                                        FileId = x.DocumentId,
+                                        FileName = Path.GetFileName(x.DocumentName),
+                                        FilePath = Path.GetFileName(x.DocumentName)
+                                    }).ToListAsync();
+            if (result == null || result.Count == 0)
+                return Response<List<JobDocumentsDto>>.Fail(null, "No documents found.");
+
+            return Response<List<JobDocumentsDto>>.Success(result, "Documents found.");
         }
 
 

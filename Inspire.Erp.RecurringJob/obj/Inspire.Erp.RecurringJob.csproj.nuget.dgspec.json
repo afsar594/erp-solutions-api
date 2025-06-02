@@ -1,23 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Administrator\\source\\repos\\ERP.APISV2.0.0\\Inspire.Erp.RecurringJob\\Inspire.Erp.RecurringJob.csproj": {}
+    "C:\\Users\\irfan\\Desktop\\InspireSystems\\ERP\\ERP.APISV2.0.0\\Inspire.Erp.RecurringJob\\Inspire.Erp.RecurringJob.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Administrator\\source\\repos\\ERP.APISV2.0.0\\Inspire.Erp.Application\\Inspire.Erp.Application.csproj": {
+    "C:\\Users\\irfan\\Desktop\\InspireSystems\\ERP\\ERP.APISV2.0.0\\Inspire.Erp.Application\\Inspire.Erp.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Administrator\\source\\repos\\ERP.APISV2.0.0\\Inspire.Erp.Application\\Inspire.Erp.Application.csproj",
+        "projectUniqueName": "C:\\Users\\irfan\\Desktop\\InspireSystems\\ERP\\ERP.APISV2.0.0\\Inspire.Erp.Application\\Inspire.Erp.Application.csproj",
         "projectName": "Inspire.Erp.Application",
-        "projectPath": "C:\\Users\\Administrator\\source\\repos\\ERP.APISV2.0.0\\Inspire.Erp.Application\\Inspire.Erp.Application.csproj",
-        "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Administrator\\source\\repos\\ERP.APISV2.0.0\\Inspire.Erp.Application\\obj\\",
+        "projectPath": "C:\\Users\\irfan\\Desktop\\InspireSystems\\ERP\\ERP.APISV2.0.0\\Inspire.Erp.Application\\Inspire.Erp.Application.csproj",
+        "packagesPath": "C:\\Users\\irfan\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\irfan\\Desktop\\InspireSystems\\ERP\\ERP.APISV2.0.0\\Inspire.Erp.Application\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
+          "C:\\Program Files\\DevExpress 23.2\\Components\\Offline Packages",
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Administrator\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\irfan\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\DevExpress 23.2.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,17 +28,19 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\DevExpress 23.2\\Components\\System\\Components\\Packages": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\Administrator\\source\\repos\\ERP.APISV2.0.0\\Inspire.Erp.Domain\\Inspire.Erp.Domain.csproj": {
-                "projectPath": "C:\\Users\\Administrator\\source\\repos\\ERP.APISV2.0.0\\Inspire.Erp.Domain\\Inspire.Erp.Domain.csproj"
+              "C:\\Users\\irfan\\Desktop\\InspireSystems\\ERP\\ERP.APISV2.0.0\\Inspire.Erp.Domain\\Inspire.Erp.Domain.csproj": {
+                "projectPath": "C:\\Users\\irfan\\Desktop\\InspireSystems\\ERP\\ERP.APISV2.0.0\\Inspire.Erp.Domain\\Inspire.Erp.Domain.csproj"
               },
-              "C:\\Users\\Administrator\\source\\repos\\ERP.APISV2.0.0\\Inspire.Erp.Infrastructure\\Inspire.Erp.Infrastructure.csproj": {
-                "projectPath": "C:\\Users\\Administrator\\source\\repos\\ERP.APISV2.0.0\\Inspire.Erp.Infrastructure\\Inspire.Erp.Infrastructure.csproj"
+              "C:\\Users\\irfan\\Desktop\\InspireSystems\\ERP\\ERP.APISV2.0.0\\Inspire.Erp.Infrastructure\\Inspire.Erp.Infrastructure.csproj": {
+                "projectPath": "C:\\Users\\irfan\\Desktop\\InspireSystems\\ERP\\ERP.APISV2.0.0\\Inspire.Erp.Infrastructure\\Inspire.Erp.Infrastructure.csproj"
               }
             }
           }
@@ -51,7 +55,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
         "net8.0": {
@@ -110,24 +114,26 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.300/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.204/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\Administrator\\source\\repos\\ERP.APISV2.0.0\\Inspire.Erp.Domain\\Inspire.Erp.Domain.csproj": {
+    "C:\\Users\\irfan\\Desktop\\InspireSystems\\ERP\\ERP.APISV2.0.0\\Inspire.Erp.Domain\\Inspire.Erp.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Administrator\\source\\repos\\ERP.APISV2.0.0\\Inspire.Erp.Domain\\Inspire.Erp.Domain.csproj",
+        "projectUniqueName": "C:\\Users\\irfan\\Desktop\\InspireSystems\\ERP\\ERP.APISV2.0.0\\Inspire.Erp.Domain\\Inspire.Erp.Domain.csproj",
         "projectName": "Inspire.Erp.Domain",
-        "projectPath": "C:\\Users\\Administrator\\source\\repos\\ERP.APISV2.0.0\\Inspire.Erp.Domain\\Inspire.Erp.Domain.csproj",
-        "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Administrator\\source\\repos\\ERP.APISV2.0.0\\Inspire.Erp.Domain\\obj\\",
+        "projectPath": "C:\\Users\\irfan\\Desktop\\InspireSystems\\ERP\\ERP.APISV2.0.0\\Inspire.Erp.Domain\\Inspire.Erp.Domain.csproj",
+        "packagesPath": "C:\\Users\\irfan\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\irfan\\Desktop\\InspireSystems\\ERP\\ERP.APISV2.0.0\\Inspire.Erp.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
+          "C:\\Program Files\\DevExpress 23.2\\Components\\Offline Packages",
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Administrator\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\irfan\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\DevExpress 23.2.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -136,6 +142,8 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\DevExpress 23.2\\Components\\System\\Components\\Packages": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -154,7 +162,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
         "net8.0": {
@@ -195,24 +203,26 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.300/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.204/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\Administrator\\source\\repos\\ERP.APISV2.0.0\\Inspire.Erp.Infrastructure\\Inspire.Erp.Infrastructure.csproj": {
+    "C:\\Users\\irfan\\Desktop\\InspireSystems\\ERP\\ERP.APISV2.0.0\\Inspire.Erp.Infrastructure\\Inspire.Erp.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Administrator\\source\\repos\\ERP.APISV2.0.0\\Inspire.Erp.Infrastructure\\Inspire.Erp.Infrastructure.csproj",
+        "projectUniqueName": "C:\\Users\\irfan\\Desktop\\InspireSystems\\ERP\\ERP.APISV2.0.0\\Inspire.Erp.Infrastructure\\Inspire.Erp.Infrastructure.csproj",
         "projectName": "Inspire.Erp.Infrastructure",
-        "projectPath": "C:\\Users\\Administrator\\source\\repos\\ERP.APISV2.0.0\\Inspire.Erp.Infrastructure\\Inspire.Erp.Infrastructure.csproj",
-        "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Administrator\\source\\repos\\ERP.APISV2.0.0\\Inspire.Erp.Infrastructure\\obj\\",
+        "projectPath": "C:\\Users\\irfan\\Desktop\\InspireSystems\\ERP\\ERP.APISV2.0.0\\Inspire.Erp.Infrastructure\\Inspire.Erp.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\irfan\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\irfan\\Desktop\\InspireSystems\\ERP\\ERP.APISV2.0.0\\Inspire.Erp.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
+          "C:\\Program Files\\DevExpress 23.2\\Components\\Offline Packages",
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Administrator\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\irfan\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\DevExpress 23.2.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -221,14 +231,16 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\DevExpress 23.2\\Components\\System\\Components\\Packages": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\Administrator\\source\\repos\\ERP.APISV2.0.0\\Inspire.Erp.Domain\\Inspire.Erp.Domain.csproj": {
-                "projectPath": "C:\\Users\\Administrator\\source\\repos\\ERP.APISV2.0.0\\Inspire.Erp.Domain\\Inspire.Erp.Domain.csproj"
+              "C:\\Users\\irfan\\Desktop\\InspireSystems\\ERP\\ERP.APISV2.0.0\\Inspire.Erp.Domain\\Inspire.Erp.Domain.csproj": {
+                "projectPath": "C:\\Users\\irfan\\Desktop\\InspireSystems\\ERP\\ERP.APISV2.0.0\\Inspire.Erp.Domain\\Inspire.Erp.Domain.csproj"
               }
             }
           }
@@ -243,7 +255,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
         "net8.0": {
@@ -290,24 +302,26 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.300/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.204/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\Administrator\\source\\repos\\ERP.APISV2.0.0\\Inspire.Erp.RecurringJob\\Inspire.Erp.RecurringJob.csproj": {
+    "C:\\Users\\irfan\\Desktop\\InspireSystems\\ERP\\ERP.APISV2.0.0\\Inspire.Erp.RecurringJob\\Inspire.Erp.RecurringJob.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Administrator\\source\\repos\\ERP.APISV2.0.0\\Inspire.Erp.RecurringJob\\Inspire.Erp.RecurringJob.csproj",
+        "projectUniqueName": "C:\\Users\\irfan\\Desktop\\InspireSystems\\ERP\\ERP.APISV2.0.0\\Inspire.Erp.RecurringJob\\Inspire.Erp.RecurringJob.csproj",
         "projectName": "Inspire.Erp.RecurringJob",
-        "projectPath": "C:\\Users\\Administrator\\source\\repos\\ERP.APISV2.0.0\\Inspire.Erp.RecurringJob\\Inspire.Erp.RecurringJob.csproj",
-        "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Administrator\\source\\repos\\ERP.APISV2.0.0\\Inspire.Erp.RecurringJob\\obj\\",
+        "projectPath": "C:\\Users\\irfan\\Desktop\\InspireSystems\\ERP\\ERP.APISV2.0.0\\Inspire.Erp.RecurringJob\\Inspire.Erp.RecurringJob.csproj",
+        "packagesPath": "C:\\Users\\irfan\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\irfan\\Desktop\\InspireSystems\\ERP\\ERP.APISV2.0.0\\Inspire.Erp.RecurringJob\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
+          "C:\\Program Files\\DevExpress 23.2\\Components\\Offline Packages",
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Administrator\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\irfan\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\DevExpress 23.2.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -316,17 +330,19 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\DevExpress 23.2\\Components\\System\\Components\\Packages": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\Administrator\\source\\repos\\ERP.APISV2.0.0\\Inspire.Erp.Application\\Inspire.Erp.Application.csproj": {
-                "projectPath": "C:\\Users\\Administrator\\source\\repos\\ERP.APISV2.0.0\\Inspire.Erp.Application\\Inspire.Erp.Application.csproj"
+              "C:\\Users\\irfan\\Desktop\\InspireSystems\\ERP\\ERP.APISV2.0.0\\Inspire.Erp.Application\\Inspire.Erp.Application.csproj": {
+                "projectPath": "C:\\Users\\irfan\\Desktop\\InspireSystems\\ERP\\ERP.APISV2.0.0\\Inspire.Erp.Application\\Inspire.Erp.Application.csproj"
               },
-              "C:\\Users\\Administrator\\source\\repos\\ERP.APISV2.0.0\\Inspire.Erp.Infrastructure\\Inspire.Erp.Infrastructure.csproj": {
-                "projectPath": "C:\\Users\\Administrator\\source\\repos\\ERP.APISV2.0.0\\Inspire.Erp.Infrastructure\\Inspire.Erp.Infrastructure.csproj"
+              "C:\\Users\\irfan\\Desktop\\InspireSystems\\ERP\\ERP.APISV2.0.0\\Inspire.Erp.Infrastructure\\Inspire.Erp.Infrastructure.csproj": {
+                "projectPath": "C:\\Users\\irfan\\Desktop\\InspireSystems\\ERP\\ERP.APISV2.0.0\\Inspire.Erp.Infrastructure\\Inspire.Erp.Infrastructure.csproj"
               }
             }
           }
@@ -341,7 +357,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
         "net8.0": {
@@ -372,7 +388,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.300/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.204/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
