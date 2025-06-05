@@ -581,7 +581,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 var approvalStatuses = await _orderApprovalHierarchy.GetAsQueryable()
                     .AsNoTracking()
-                    .Where(x => x.OrderId == id)
+                    .Where(x => x.OrderId == id && x.OrderType == EnumOrderForms.PurchaseOrder)
                     .Select(x => x.Status)
                     .ToListAsync();
 

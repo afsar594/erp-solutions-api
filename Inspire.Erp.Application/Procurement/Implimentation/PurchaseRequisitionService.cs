@@ -36,6 +36,7 @@ using Microsoft.Extensions.Configuration;
 using Inspire.Erp.Application.NewFolder.Interfaces;
 using Newtonsoft.Json;
 using Inspire.Erp.Application.User;
+using Spire.Pdf.Exporting.XPS.Schema;
 
 namespace Inspire.Erp.Application.Procurement.Implementation
 {
@@ -710,7 +711,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
             var approvalStatuses = await _orderApprovalHierarchy.GetAsQueryable()
                 .AsNoTracking()
-                .Where(x => x.OrderId == pvno)
+                .Where(x => x.OrderId == pvno && x.OrderType == EnumOrderForms.PurchaseRequisition)
                 .Select(x => x.Status)
                 .ToListAsync();
 
@@ -871,14 +872,15 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             }
         }
 
+      
         public async Task<Response<List<PurChaseReqFields>>> GetPurchaseReqJobId(PurChaseRequisitionFilterReport model)
         {
             try
             {
                 var settingValue = await _generalSettings.GetValueByKey(InspireConstants.DefaultApprovalType);
 
-                var query = _purchaseRequisitionRepository.GetAsQueryable().AsNoTracking().Where(s => s.PurchaseRequisitionDelStatus != true);
-
+                var query = _purchaseRequisitionRepository.GetAsQueryable().AsNoTracking()
+                    .Where(s => s.PurchaseRequisitionDelStatus != true);
 
                 if (model.JobId > 0)
                     query = query.Where(a => a.PurchaseRequisitionJobId == model.JobId);
@@ -902,9 +904,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         RecQty = g.Sum(x => x.PurchaseOrderDetailsQuantity)
                     }).ToList();
 
-
                 List<PurChaseReqFields> finalData;
                 bool hasApproval = false;
+
                 if (settingValue != InspireConstants.ApprovalAsNoApproval)
                 {
                     hasApproval = _approverLevelSettings.GetAsQueryable()
@@ -912,124 +914,147 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                      .Any(a => a.FormType == EnumOrderForms.PurchaseRequisition);
                 }
 
-
                 if (hasApproval)
                 {
                     var approvedOrderIds = await _orderApprovalHierarchy.GetAsQueryable().AsNoTracking()
-                                                            .Where(x => x.OrderType == EnumOrderForms.PurchaseRequisition)
-                                                            .Select(x => new { OrderId = x.OrderId, Status = x.Status })
-                                                            .ToListAsync();
+                                                .Where(x => x.OrderType == EnumOrderForms.PurchaseRequisition)
+                                                .Select(x => new { OrderId = x.OrderId, Status = x.Status })
+                                                .ToListAsync();
 
                     var orderIdsApprovedByAll = approvedOrderIds
-                                            .GroupBy(x => x.OrderId)
-                                            .Where(g => g.All(a => a.Status == EnumApprovalStatus.Approved))
-                                            .Select(g => g.Key)
-                                            .ToList();
+                        .GroupBy(x => x.OrderId)
+                        .Where(g => g.All(a => a.Status == EnumApprovalStatus.Approved))
+                        .Select(g => g.Key)
+                        .ToList();
 
-                    var data = await (from sm in query
-                                      join sd in _purchaseRequisitionDetailsRepository.GetAsQueryable().AsNoTracking() on sm.PurchaseRequisitionId equals sd.PurchaseRequisitionId
-                                      join im in _itemMasterRepository.GetAsQueryable().AsNoTracking() on sd.PurchaseRequisitionDetailsMatId equals im.ItemMasterItemId
-                                      where orderIdsApprovedByAll.Contains((decimal)sm.PurchaseRequisitionId)
-                                      group new { sm, sd, im } by new
-                                      {
-                                          sd.PurchaseRequisitionDetailsId,
-                                          sd.PurchaseRequisitionDetailsMatId,
-                                          im.ItemMasterItemName,
-                                          sm.PurchaseRequisitionId,
-                                          sm.PurchaseRequisitionNo,
-                                          sm.PurchaseRequisitionDate,
-                                          sd.PurchaseRequisitionDetailsRate,
-                                          sd.PurchaseRequisitionDetailsQuantity,
-                                          sd.PurchaseRequisitionDetailsUnitId,
-                                          sm.PurchaseRequisitionJobId,
-                                          sd.PurchaseRequisitionDetailsSupplierId,
-                                          sm.PurchaseRequisitionCurrencyId,
-                                      } into g
-                                      select new PurChaseReqFields
-                                      {
-                                          matId = (int)g.Key.PurchaseRequisitionDetailsMatId,
-                                          Item_Name = g.Key.ItemMasterItemName,
-                                          SRID = (int)g.Key.PurchaseRequisitionId,
-                                          SRDID = (int)g.Key.PurchaseRequisitionDetailsId,
-                                          SRNo = g.Key.PurchaseRequisitionNo,
-                                          Date = g.Key.PurchaseRequisitionDate,
-                                          Rate = g.Key.PurchaseRequisitionDetailsRate,
-                                          SRQ = (int)g.Key.PurchaseRequisitionDetailsQuantity,
-                                          unitid = g.Key.PurchaseRequisitionDetailsUnitId,
-                                          jobid = g.Key.PurchaseRequisitionJobId,
-                                          PRSupplierId = g.Key.PurchaseRequisitionDetailsSupplierId,
-                                          PRCurrId = g.Key.PurchaseRequisitionCurrencyId,
-                                          Unit = _unitMasterRepository.GetAsQueryable()
-                                                   .Where(x => x.UnitMasterUnitId == g.Key.PurchaseRequisitionDetailsUnitId)
-                                                   .Select(x => x.UnitMasterUnitFullName.Trim())
-                                                   .FirstOrDefault()
-                                      })
+                    var rawData = await (
+                        from sm in query
+                        join sd in _purchaseRequisitionDetailsRepository.GetAsQueryable().AsNoTracking()
+                            on sm.PurchaseRequisitionId equals sd.PurchaseRequisitionId
+                        join im in _itemMasterRepository.GetAsQueryable().AsNoTracking()
+                            on sd.PurchaseRequisitionDetailsMatId equals im.ItemMasterItemId
+                        where orderIdsApprovedByAll.Contains((decimal)sm.PurchaseRequisitionId)
+                        select new
+                        {
+                            sd.PurchaseRequisitionDetailsId,
+                            sd.PurchaseRequisitionDetailsMatId,
+                            im.ItemMasterItemName,
+                            sm.PurchaseRequisitionId,
+                            sm.PurchaseRequisitionNo,
+                            sm.PurchaseRequisitionDate,
+                            sd.PurchaseRequisitionDetailsRate,
+                            sd.PurchaseRequisitionDetailsQuantity,
+                            sd.PurchaseRequisitionDetailsUnitId,
+                            sm.PurchaseRequisitionJobId,
+                            sd.PurchaseRequisitionDetailsSupplierId,
+                            sm.PurchaseRequisitionCurrencyId,
+                            sm.deliveryatsite,
+                            sm.confirmationemaildetails,
+                            sm.paymentTerms,
+                            sm.deliveryterms,
+                            sm.PurchaseRequisitionDescription
+                        }).ToListAsync();
+
+                    finalData = rawData
+                        .GroupBy(g => new
+                        {
+                            g.PurchaseRequisitionDetailsId,
+                            g.PurchaseRequisitionDetailsMatId,
+                            g.ItemMasterItemName,
+                            g.PurchaseRequisitionId,
+                            g.PurchaseRequisitionNo,
+                            g.PurchaseRequisitionDate,
+                            g.PurchaseRequisitionDetailsRate,
+                            g.PurchaseRequisitionDetailsQuantity,
+                            g.PurchaseRequisitionDetailsUnitId,
+                            g.PurchaseRequisitionJobId,
+                            g.PurchaseRequisitionDetailsSupplierId,
+                            g.PurchaseRequisitionCurrencyId
+                        })
+                        .Select(g =>
+                        {
+                            var first = g.First();
+
+                            return new PurChaseReqFields
+                            {
+                                matId = (int)g.Key.PurchaseRequisitionDetailsMatId,
+                                Item_Name = g.Key.ItemMasterItemName,
+                                SRID = (int)g.Key.PurchaseRequisitionId,
+                                SRDID = (int)g.Key.PurchaseRequisitionDetailsId,
+                                SRNo = g.Key.PurchaseRequisitionNo,
+                                Date = g.Key.PurchaseRequisitionDate,
+                                Rate = g.Key.PurchaseRequisitionDetailsRate,
+                                SRQ = (int)g.Key.PurchaseRequisitionDetailsQuantity,
+                                unitid = g.Key.PurchaseRequisitionDetailsUnitId,
+                                jobid = g.Key.PurchaseRequisitionJobId,
+                                PRSupplierId = g.Key.PurchaseRequisitionDetailsSupplierId,
+                                PRCurrId = g.Key.PurchaseRequisitionCurrencyId,
+                                Unit = _unitMasterRepository.GetAsQueryable()
+                                    .Where(x => x.UnitMasterUnitId == g.Key.PurchaseRequisitionDetailsUnitId)
+                                    .Select(x => x.UnitMasterUnitFullName.Trim())
+                                    .FirstOrDefault(),
+                                DeliverySite = first.deliveryatsite ?? "",
+                                ConfirmationEmailDetails = first.confirmationemaildetails ?? "",
+                                PaymentTerms = first.paymentTerms ?? "",
+                                DeliveryTerms = first.deliveryterms ?? "",
+                                Notes = first.PurchaseRequisitionDescription ?? ""
+                            };
+                        })
                         .OrderBy(x => x.Date)
                         .ThenBy(x => x.SRNo)
-                        .ToListAsync();
+                        .ToList();
 
-                    finalData = data.Select(x =>
+                    finalData = finalData.Select(x =>
                     {
-                        var receivedQty = purOrderQuantities.FirstOrDefault(pr => pr.PurchaseRequisitionId == x.SRID && pr.PurchaseOrderDetailsMatId == x.matId)?.RecQty ?? 0;
+                        var receivedQty = purOrderQuantities
+                            .FirstOrDefault(pr => pr.PurchaseRequisitionId == x.SRID && pr.PurchaseOrderDetailsMatId == x.matId)?.RecQty ?? 0;
 
-                        return new PurChaseReqFields
-                        {
-                            matId = x.matId,
-                            Item_Name = x.Item_Name,
-                            SRID = x.SRID,
-                            SRDID = x.SRDID,
-                            SRNo = x.SRNo,
-                            Date = x.Date,
-                            Rate = x.Rate,
-                            SRQ = x.SRQ,
-                            unitid = x.unitid,
-                            jobid = x.jobid,
-                            Unit = x.Unit,
-                            BalQty = x.SRQ - receivedQty,
-                            DelQty = receivedQty,
-                            PRSupplierId = x.PRSupplierId,
-                            PRCurrId = x.PRCurrId,
-
-                        };
-                    }).OrderBy(x => x.Date).ThenBy(x => x.SRNo).ToList();
+                        x.BalQty = x.SRQ - receivedQty;
+                        x.DelQty = receivedQty;
+                        return x;
+                    }).ToList();
                 }
                 else
                 {
-                    finalData = await (from sm in query
-                                       join sd in _purchaseRequisitionDetailsRepository.GetAsQueryable().AsNoTracking()
-                                           on sm.PurchaseRequisitionId equals sd.PurchaseRequisitionId
-                                       join im in _itemMasterRepository.GetAsQueryable().AsNoTracking()
-                                           on sd.PurchaseRequisitionDetailsMatId equals im.ItemMasterItemId into imGroup
-                                       from im in imGroup.DefaultIfEmpty()
-                                       join um in _unitMasterRepository.GetAsQueryable().AsNoTracking()
-                                           on sd.PurchaseRequisitionDetailsUnitId equals um.UnitMasterUnitId into umGroup
-                                       from um in umGroup.DefaultIfEmpty()
-                                       join iv in _context.IssueVoucherDetails.AsNoTracking()
-                                           on sd.PurchaseRequisitionDetailsId equals iv.IssueVoucherDetailsReqDId into ivGroup
-                                       from srq in ivGroup.DefaultIfEmpty()
-                                       select new PurChaseReqFields
-                                       {
-                                           PurchaseRequisitionPartyName = sm.PurchaseRequisitionPartyName ?? "",
-                                           purchaseRequisitionType = sm.PurchaseRequisitionType ?? "",
-                                           Item_Name = im.ItemMasterItemName ?? "",
-                                           Unit = um.UnitMasterUnitShortName ?? "",
-                                           DelQty = srq.IssueVoucherDetailsQuantity ?? 0,
-                                           SRID = sm.PurchaseRequisitionId,
-                                           SRDID = sd.PurchaseRequisitionDetailsId,
-                                           SRNo = sm.PurchaseRequisitionNo ?? "",
-                                           Date = sm.PurchaseRequisitionDate,
-                                           Rate = sd.PurchaseRequisitionDetailsRate ?? 0,
-                                           SRQ = sd.PurchaseRequisitionDetailsQuantity ?? 0,
-                                           BalQty = (sd.PurchaseRequisitionDetailsQuantity ?? 0) - (srq.IssueVoucherDetailsQuantity ?? 0),
-                                           matId = sd.PurchaseRequisitionDetailsMatId,
-                                           unitid = sd.PurchaseRequisitionDetailsUnitId,
-                                           jobid = sm.PurchaseRequisitionJobId,
-                                           Stock = srq.IssueVoucherDetailsCurrentStockQty ?? 0,
-                                           PRSupplierId = sd.PurchaseRequisitionDetailsSupplierId,
-                                           PRCurrId = sm.PurchaseRequisitionCurrencyId,
-
-
-                                       })
+                    finalData = await (
+                        from sm in query
+                        join sd in _purchaseRequisitionDetailsRepository.GetAsQueryable().AsNoTracking()
+                            on sm.PurchaseRequisitionId equals sd.PurchaseRequisitionId
+                        join im in _itemMasterRepository.GetAsQueryable().AsNoTracking()
+                            on sd.PurchaseRequisitionDetailsMatId equals im.ItemMasterItemId into imGroup
+                        from im in imGroup.DefaultIfEmpty()
+                        join um in _unitMasterRepository.GetAsQueryable().AsNoTracking()
+                            on sd.PurchaseRequisitionDetailsUnitId equals um.UnitMasterUnitId into umGroup
+                        from um in umGroup.DefaultIfEmpty()
+                        join iv in _context.IssueVoucherDetails.AsNoTracking()
+                            on sd.PurchaseRequisitionDetailsId equals iv.IssueVoucherDetailsReqDId into ivGroup
+                        from srq in ivGroup.DefaultIfEmpty()
+                        select new PurChaseReqFields
+                        {
+                            PurchaseRequisitionPartyName = sm.PurchaseRequisitionPartyName ?? "",
+                            purchaseRequisitionType = sm.PurchaseRequisitionType ?? "",
+                            Item_Name = im.ItemMasterItemName ?? "",
+                            Unit = um.UnitMasterUnitShortName ?? "",
+                            DelQty = srq.IssueVoucherDetailsQuantity ?? 0,
+                            SRID = sm.PurchaseRequisitionId,
+                            SRDID = sd.PurchaseRequisitionDetailsId,
+                            SRNo = sm.PurchaseRequisitionNo ?? "",
+                            Date = sm.PurchaseRequisitionDate,
+                            Rate = sd.PurchaseRequisitionDetailsRate ?? 0,
+                            SRQ = sd.PurchaseRequisitionDetailsQuantity ?? 0,
+                            BalQty = (sd.PurchaseRequisitionDetailsQuantity ?? 0) - (srq.IssueVoucherDetailsQuantity ?? 0),
+                            matId = sd.PurchaseRequisitionDetailsMatId,
+                            unitid = sd.PurchaseRequisitionDetailsUnitId,
+                            jobid = sm.PurchaseRequisitionJobId,
+                            Stock = srq.IssueVoucherDetailsCurrentStockQty ?? 0,
+                            PRSupplierId = sd.PurchaseRequisitionDetailsSupplierId,
+                            PRCurrId = sm.PurchaseRequisitionCurrencyId,
+                            DeliverySite = sm.deliveryatsite ?? "",
+                            ConfirmationEmailDetails = sm.confirmationemaildetails ?? "",
+                            PaymentTerms = sm.paymentTerms ?? "",
+                            DeliveryTerms = sm.deliveryterms ?? "",
+                            Notes = sm.PurchaseRequisitionDescription ?? ""
+                        })
                         .OrderBy(x => x.SRDID)
                         .ToListAsync();
                 }
@@ -1049,179 +1074,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             }
         }
 
-
-
-
-        public async Task<Response<List<PurChaseReqFields>>> GetPurchaseReqJobId11223(PurChaseRequisitionFilterReport model)
-        {
-            List<PurChaseReqFields> finalData = new List<PurChaseReqFields>();
-            try
-            {
-                string filteredValue = string.Empty;
-                var query = _purchaseRequisitionRepository.GetAsQueryable().AsNoTracking().Where(s => s.PurchaseRequisitionDelStatus != true);
-                if (model.JobId > 0)
-                {
-                    query = query.Where(a => a.PurchaseRequisitionJobId == model.JobId);
-                }
-                if (model.locationId > 0)
-                {
-                    query = query.Where(a => a.PurchaseRequisitionLocationId == model.locationId);
-                }
-                if (model.IsDateChecked)
-                {
-                    query = query.Where(a => a.PurchaseRequisitionDate.Date >= model.fromDate.Value && a.PurchaseRequisitionDate.Date <= model.toDate.Value);
-                }
-
-                var check = _context.tbl_approvalforms.AsNoTracking().Where(a => a.Voucher_Type.Trim() == "Purchase Requisition" && a.is_active == true).ToList();
-
-                var purReqId = query.Select(x => x.PurchaseRequisitionId).ToList();
-                var purOrderQuantities = _purchaseOrderDetailsRepository.GetAsQueryable().Where(x => purReqId.Contains(x.PurchaseRequisitionId))
-                    .AsNoTracking()
-                    .GroupBy(p => new { p.PurchaseRequisitionId, p.PurchaseOrderDetailsMatId })
-                    .Select(g => new
-                    {
-                        PurReqId = (decimal)g.Key.PurchaseRequisitionId,
-                        ItemCode = (decimal)g.Key.PurchaseOrderDetailsMatId,
-                        RecQty = g.Sum(x => x.PurchaseOrderDetailsQuantity)
-                    }).ToList();
-
-                if (check.Count > 0)
-                {
-                    var data = await (from sm in query
-                                      join per in _permissionApprovalDetailRepo.GetAsQueryable() on sm.PurchaseRequisitionId equals per.VoucherId
-                                      join sd in _purchaseRequisitionDetailsRepository.GetAsQueryable().AsNoTracking()
-                                          on (decimal?)sm.PurchaseRequisitionId equals sd.PurchaseRequisitionId
-                                      join im in _itemMasterRepository.GetAsQueryable().AsNoTracking()
-                                          on (long?)sd.PurchaseRequisitionDetailsMatId equals im.ItemMasterItemId
-                                      join um in _unitMasterRepository.GetAsQueryable().AsNoTracking()
-                                          on sd.PurchaseRequisitionDetailsUnitId equals um.UnitMasterUnitId
-                                      join iv in _context.IssueVoucherDetails.AsNoTracking()
-                                          on sd.PurchaseRequisitionDetailsId equals iv.IssueVoucherDetailsReqDId into ivGroup
-                                      from srq in ivGroup.DefaultIfEmpty()
-                                      where (_permissionApprovalDetailRepo.GetAsQueryable().Where(p => p.VoucherNo == sm.PurchaseRequisitionNo && (p.IsDeleted == null || (bool)!p.IsDeleted))
-                                      .Any(p => p.Status == "Approved" && p.Status != "Rejected"))
-                                      group new { sm, sd, im, um, srq } by new
-                                      {
-                                          sd.PurchaseRequisitionDetailsId,
-                                          sd.PurchaseRequisitionDetailsMatId,
-                                          im.ItemMasterItemName,
-                                          sm.PurchaseRequisitionId,
-                                          sm.PurchaseRequisitionNo,
-                                          sm.PurchaseRequisitionDate,
-                                          sd.PurchaseRequisitionDetailsRate,
-                                          sd.PurchaseRequisitionDetailsQuantity,
-                                          sd.PurchaseRequisitionDetailsUnitId,
-                                          sm.PurchaseRequisitionJobId
-                                      } into g
-                                      select new PurChaseReqFields
-                                      {
-                                          matId = (int)g.Key.PurchaseRequisitionDetailsMatId,
-                                          Item_Name = g.Key.ItemMasterItemName,
-                                          SRID = (int)g.Key.PurchaseRequisitionId,
-                                          SRDID = (int)g.Key.PurchaseRequisitionDetailsId,
-                                          SRNo = g.Key.PurchaseRequisitionNo,
-                                          Date = g.Key.PurchaseRequisitionDate,
-                                          Rate = g.Key.PurchaseRequisitionDetailsRate,
-                                          SRQ = (int)g.Key.PurchaseRequisitionDetailsQuantity,
-                                          unitid = g.Key.PurchaseRequisitionDetailsUnitId,
-                                          jobid = g.Key.PurchaseRequisitionJobId,
-
-                                          Unit = _unitMasterRepository.GetAsQueryable()
-                                                        .Where(x => x.UnitMasterUnitId == g.Key.PurchaseRequisitionDetailsUnitId)
-                                                        .Select(x => x.UnitMasterUnitFullName.Trim())
-                                                        .FirstOrDefault(),
-                                          //if both the quantities were need then uncomment the code
-                                          //BalQty =  _context.IssueVoucherDetails.AsNoTracking() .Where(iv => iv.IssueVoucherDetailsReqDId == g.Key.PurchaseRequisitionDetailsId) .Sum(iv => (int?)iv.IssueVoucherDetailsQuantity) ?? 0,
-                                          //DelQty =  _context.IssueVoucherDetails.AsNoTracking().Where(iv => iv.IssueVoucherDetailsReqDId == g.Key.PurchaseRequisitionDetailsId).Sum(iv => (int?)iv.IssueVoucherDetailsQuantity) ?? 0,
-                                      })
-                   .OrderBy(x => x.Date)
-                   .ThenBy(x => x.SRNo)
-                   .ToListAsync();
-
-                    finalData = data.Select(x =>
-                    {
-                        var receivedQty = purOrderQuantities.FirstOrDefault(pr => pr.PurReqId == x.SRID && pr.ItemCode == x.matId)?.RecQty ?? 0;
-
-                        return new PurChaseReqFields
-                        {
-                            matId = x.matId,
-                            Item_Name = x.Item_Name,
-                            SRID = x.SRID,
-                            SRDID = x.SRDID,
-                            SRNo = x.SRNo,
-                            Date = x.Date,
-                            Rate = x.Rate,
-                            SRQ = x.SRQ,
-                            unitid = x.unitid,
-                            jobid = x.jobid,
-                            Unit = _unitMasterRepository.GetAsQueryable()
-                                       .Where(u => u.UnitMasterUnitId == x.unitid)
-                                       .Select(u => u.UnitMasterUnitFullName.Trim())
-                                       .FirstOrDefault(),
-                            BalQty = x.SRQ - receivedQty,
-                            DelQty = receivedQty
-                        };
-                    }).OrderBy(x => x.Date)
-                      .ThenBy(x => x.SRNo)
-                      .ToList();
-
-                }
-                else
-                {
-                    finalData = await (from sm in query
-                                       join sd in _purchaseRequisitionDetailsRepository.GetAsQueryable().AsNoTracking()
-                                           on (decimal?)sm.PurchaseRequisitionId equals sd.PurchaseRequisitionId
-                                       join im in _itemMasterRepository.GetAsQueryable().AsNoTracking()
-                                           on (long?)sd.PurchaseRequisitionDetailsMatId equals im.ItemMasterItemId into imGroup
-                                       from im in imGroup.DefaultIfEmpty()
-                                       join um in _unitMasterRepository.GetAsQueryable().AsNoTracking()
-                                           on sd.PurchaseRequisitionDetailsUnitId equals um.UnitMasterUnitId into umGroup
-                                       from um in umGroup.DefaultIfEmpty()
-                                       join jm in jobrepository.GetAsQueryable().AsNoTracking()
-                                           on sm.PurchaseRequisitionJobId equals jm.JobMasterJobId into jmGroup
-                                       from jm in jmGroup.DefaultIfEmpty()
-                                       join lm in locationrepository.GetAsQueryable().AsNoTracking()
-                                           on sm.PurchaseRequisitionLocationId equals lm.LocationMasterLocationId into lmGroup
-                                       from lm in lmGroup.DefaultIfEmpty()
-                                       join iv in _context.IssueVoucherDetails.AsNoTracking()
-                                           on sd.PurchaseRequisitionDetailsId equals iv.IssueVoucherDetailsReqDId into ivGroup
-                                       from srq in ivGroup.DefaultIfEmpty()
-                                       select new PurChaseReqFields
-                                       {
-                                           PurchaseRequisitionPartyName = sm.PurchaseRequisitionPartyName ?? "",
-                                           purchaseRequisitionType = sm.PurchaseRequisitionType ?? "",
-                                           Item_Name = im != null ? im.ItemMasterItemName : "",
-                                           Unit = um != null ? um.UnitMasterUnitShortName : "",
-                                           DelQty = srq.IssueVoucherDetailsQuantity ?? 0m,
-                                           SRID = sm.PurchaseRequisitionId,
-                                           SRDID = sd.PurchaseRequisitionDetailsId,
-                                           SRNo = sm.PurchaseRequisitionNo ?? "",
-                                           Date = sm.PurchaseRequisitionDate,
-                                           Rate = sd.PurchaseRequisitionDetailsRate ?? 0,
-                                           SRQ = sd.PurchaseRequisitionDetailsQuantity ?? 0,
-                                           BalQty = (sd.PurchaseRequisitionDetailsQuantity - (srq.IssueVoucherDetailsQuantity ?? 0m)) ?? 0,
-                                           matId = sd.PurchaseRequisitionDetailsMatId,
-                                           unitid = sd.PurchaseRequisitionDetailsUnitId,
-                                           jobid = sm.PurchaseRequisitionJobId,
-                                           Stock = srq.IssueVoucherDetailsCurrentStockQty ?? 0m
-                                       })
-                         .OrderBy(x => x.SRDID)
-                         .ToListAsync();
-
-                }
-                finalData = finalData.Where(a => a.BalQty > 0).ToList();
-                return new Response<List<PurChaseReqFields>>()
-                {
-                    Valid = true,
-                    Message = "Data Found",
-                    Result = finalData
-                };
-            }
-            catch (Exception ex)
-            {
-                return Response<List<PurChaseReqFields>>.Fail(new List<PurChaseReqFields>(), ex.Message);
-            }
-        }
 
         public ResponseInfo GetBalanceAmount(int JobId)
         {

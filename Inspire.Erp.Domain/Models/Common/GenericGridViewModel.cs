@@ -206,7 +206,11 @@ public class StockAdjustmentReportFilter
 
         public decimal? Stock { get; set; }
 
-
+        public string? DeliverySite { get; set; }
+        public string? ConfirmationEmailDetails { get; set; }  
+        public string? PaymentTerms { get; set; }  
+        public string? DeliveryTerms { get; set; } 
+        public string? Notes { get; set; } 
     }
     public class UserTrackFilter
     {
