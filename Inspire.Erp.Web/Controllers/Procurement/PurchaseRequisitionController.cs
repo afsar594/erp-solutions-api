@@ -46,29 +46,8 @@ namespace Inspire.Erp.Web.Controllers
                 var param1 = _mapper.Map<PurchaseRequisition>(voucherCompositeView);
                 var param2 = _mapper.Map<List<PurchaseRequisitionDetails>>(voucherCompositeView.PurchaseRequisitionDetails);
                 var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
-                //var param4 = _mapper.Map<List<StockRegister>>(voucherCompositeView.StockRegister);
-
-                //var boqId = param2.Select(x => x.boqdId).Distinct().FirstOrDefault();
-                //var reqItems = param2.Select(x => new PurchaseReqItesm()
-                //{
-                //    ItemCode = (int)x.PurchaseRequisitionDetailsMatId,
-                //    ItemQty = (int)x.PurchaseRequisitionDetailsQuantity
-                //}).ToList();
-
-                //if (_purchaseRequisitionService.IsPurchaseRequisitionQtyExcededFromBOQ(boqId, reqItems))
-                //{
-                //    return new ApiResponse<PurchaseRequisitionViewModel>
-                //    {
-                //        Valid = false,
-                //        Error = false,
-                //        Result = voucherCompositeView,
-                //        Exception = null,
-                //        Message = "Sorry You can't sve Purchase requisition as item quantity exceded from total BoQ quantity"
-                //    };
-                //}
-                var xs = await _purchaseRequisitionService.InsertPurchaseRequisition(param1, param3, param2
-                    //, param4
-                    );
+                
+                var xs = await _purchaseRequisitionService.InsertPurchaseRequisition(param1, param3, param2 );
 
                 if (!xs.Valid)
                 {
@@ -132,7 +111,8 @@ namespace Inspire.Erp.Web.Controllers
                     deliveryatsite = xs.Result.purchaseRequisition.deliveryatsite,
                     confirmationemaildetails = xs.Result.purchaseRequisition.confirmationemaildetails,
                     paymentTerms = xs.Result.purchaseRequisition.paymentTerms,
-
+                    IsPrintEnabled = !xs.Result.purchaseRequisition.IsPrintEnabled,
+                    IsEditEnabled = !xs.Result.purchaseRequisition.IsEditEnabled
                 };
 
                 purchaseRequisitionViewModel.PurchaseRequisitionDetails = _mapper.Map<List<PurchaseRequisitionDetailsViewModel>>(xs.Result.purchaseRequisitionDetails);

@@ -113,7 +113,8 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             }
             PurchaseOrderViewModel purchaseOrderViewModel = new PurchaseOrderViewModel();
             purchaseOrderViewModel = _mapper.Map<PurchaseOrderViewModel>(xs.Result.purchaseOrder);
-
+            purchaseOrderViewModel.IsEditEnabled = !purchaseOrderViewModel.IsEditEnabled;
+            purchaseOrderViewModel.IsPrintEnabled = !purchaseOrderViewModel.IsPrintEnabled;
             purchaseOrderViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.Result.accountsTransactions);
             apiResponse = new ApiResponse<PurchaseOrderViewModel>
             {
