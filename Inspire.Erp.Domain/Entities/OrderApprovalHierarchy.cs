@@ -30,6 +30,8 @@ namespace Inspire.Erp.Domain.Entities
         public DateTime? ApprovedDate { get; set; }
         public int Sno { get; set; }
 
+        public string FilePath { get; set; }
+
         [ForeignKey("OrderId")]
 		public virtual PurchaseOrder PurchaseOrders { get; set; }
 		[ForeignKey("OrderId")]

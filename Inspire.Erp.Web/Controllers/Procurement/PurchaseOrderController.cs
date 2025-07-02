@@ -565,6 +565,12 @@ namespace Inspire.Erp.Web.Controllers.Procurement
             return Ok(await _purchaseOrderService.ApprovePOPR(approvalDto));
         }
 
+        [HttpPost("IsAlreadyApprovedOrRejected")]
+        public async Task<IActionResult> IsPOPRAlreadyApprovedOrRejected([FromBody] POPRApprovalDto approvalDto)
+        {
+            return Ok(await _purchaseOrderService.IsPOPRAlreadyApprovedOrRejected(approvalDto));
+        }
+
 
         [HttpGet("GetDefaultPOPR")]
         public async Task<IActionResult> GetDefaultPOPR(int orderId, EnumOrderForms orderType)

@@ -1,5 +1,6 @@
 ﻿using Inspire.Erp.Application.Common.Email;
 using Inspire.Erp.Application.Email.Interfaces;
+using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Models.Common;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Logging;
@@ -25,7 +26,7 @@ namespace Inspire.Erp.Application.Email.Implementations
             _logger = logger;
         }
 
-        public async Task<bool> SendEmailAsync(List<UserEmail> toEmails, string templateId, List<object> dynamicTemplateData, List<string> filePaths)
+        public async Task<bool> SendEmailAsync(List<UserEmail> toEmails, string templateId, List<object> dynamicTemplateData, List<string> filePaths, FileResultDto fileResult = null)
         {
             try
             {
@@ -35,8 +36,8 @@ namespace Inspire.Erp.Application.Email.Implementations
                 var msg = MailHelper.CreateMultipleTemplateEmailsToMultipleRecipients(from, toMails, templateId, dynamicTemplateData);
 
                 //var msg = MailHelper.CreateSingleTemplateEmailToMultipleRecipients(from, toEmails, templateId, dynamicTemplateData);
-                if (filePaths != null && filePaths.Count > 0)
-                    msg = GetAttachments(msg, filePaths);
+                if ((filePaths != null && filePaths.Count > 0) || fileResult is not null)
+                    msg = GetAttachments(msg, filePaths, fileResult);
 
                 if (toEmails.All(x => x.CCEmails.Any()))
                     msg.AddCcs(toEmails.SelectMany(x => x.CCEmails.Select(s => new EmailAddress(s.Email, s.Name))).ToList());
@@ -70,6 +71,38 @@ namespace Inspire.Erp.Application.Email.Implementations
 
             return msg;
         }
+        private SendGridMessage GetAttachments(SendGridMessage msg, List<string> filePaths = null, FileResultDto fileResult = null)
+        {
+            if (filePaths != null)
+            {
+                foreach (var filePath in filePaths)
+                {
+                    if (File.Exists(filePath))
+                    {
+                        msg.AddAttachment(new Attachment
+                        {
+                            Content = Convert.ToBase64String(File.ReadAllBytes(filePath)),
+                            Filename = Path.GetFileName(filePath),
+                            Type = GetMimeType(filePath),
+                            Disposition = "attachment"
+                        });
+                    }
+                }
+            }
+
+            if (fileResult != null && fileResult.FileBytes != null)
+            {
+                msg.AddAttachment(new Attachment
+                {
+                    Content = Convert.ToBase64String(fileResult.FileBytes),
+                    Filename = fileResult.FileName,
+                    Type = "application/octet-stream",
+                    Disposition = "attachment"
+                });
+            }
+
+            return msg;
+        }
 
         public static string GetMimeType(string filePath)
         {
@@ -82,9 +115,9 @@ namespace Inspire.Erp.Application.Email.Implementations
             return mimeType;
         }
 
-        public async Task<bool> SendTemplatedEmailAsync(List<UserEmail> toEmails, string templateId, List<object> dynamicTemplateData, List<string> filePaths)
+        public async Task<bool> SendTemplatedEmailAsync(List<UserEmail> toEmails, string templateId, List<object> dynamicTemplateData, List<string> filePaths, FileResultDto fileResult = null)
         {
-            return await SendEmailAsync(toEmails, templateId, dynamicTemplateData, filePaths);
+            return await SendEmailAsync(toEmails, templateId, dynamicTemplateData, filePaths, fileResult);
         }
         public async Task<bool> SendTextEmailAsync(List<UserEmail> toEmails, string subject, string message, List<string> filePaths)
         {

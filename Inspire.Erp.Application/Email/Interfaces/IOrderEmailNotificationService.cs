@@ -1,4 +1,5 @@
 ﻿using Inspire.Erp.Application.Common.Email;
+using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
 using SendGrid.Helpers.Mail;
 using System;
@@ -10,7 +11,7 @@ namespace Inspire.Erp.Application.Email.Interfaces
 {
     public interface IOrderEmailNotificationService
     {
-        Task SendOrderEmailNotificationAsync(EnumOrderForms orderType, EnumApproverLevels level, string subTitle, string poNumber, DateTime date, string supplier, decimal totalAmount, int orderId,int jobId, string jobNo, string jobName, bool IsNewEntry, string requestedBy, string settingValue, int approverId=-1);
+        Task SendOrderEmailNotificationAsync(EnumOrderForms orderType, EnumApproverLevels level, string subTitle, string poNumber, DateTime date, string supplier, decimal totalAmount, int orderId,int jobId, string jobNo, string jobName, bool IsNewEntry, string requestedBy, string settingValue,List<string> attachments,  int approverId=-1, FileResultDto fileResult = null);
         Task SendQuotationEmailNotificationAsync(EnumOrderForms orderType, EnumApproverLevels level, QuotationEmailModel emailModel, bool IsNewEntry = true);
         Task<bool> SendTextEmailAsync(List<UserEmail> toEmails, string subject, string message, List<string> filePaths);
     }

@@ -1,19 +1,17 @@
-﻿using Inspire.Erp.Application.Common;
-using Inspire.Erp.Application.Common.Email;
+﻿using Inspire.Erp.Application.Common.Email;
 using Inspire.Erp.Application.Email.Interfaces;
 using Inspire.Erp.Application.Helpers;
+using Inspire.Erp.Application.NewFolder.Interfaces;
 using Inspire.Erp.Application.User;
 using Inspire.Erp.Domain.Constants;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
-using Inspire.Erp.Domain.Models.Approvals;
 using Inspire.Erp.Domain.Models.Common;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using SendGrid.Helpers.Mail;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,39 +26,33 @@ namespace Inspire.Erp.Application.Email.Implementations
         private readonly IRepository<OrderApprovalHierarchy> _orderApprovalHierarchy;
         private readonly IRepository<DepartmentMaster> _departmentMaster;
         private readonly EmailSettingViewModel _mailSettings;
+        private readonly IRepository<UserFile> _userFile;
         private readonly ILogger<OrderEmailNotificationService> _logger;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IDocsAttachmentService _docsAttachmentService;
         public OrderEmailNotificationService(IEmailNotificationServices emailNotificationServices,
             IRepository<OrderApprovalHierarchy> orderApprovalHierarchy,
             IOptions<EmailSettingViewModel> mailSettings,
             ILogger<OrderEmailNotificationService> logger,
-            IRepository<UserFile> userFile, IRepository<ApproverLevelSettings> approverLevelSettings, IRepository<DepartmentMaster> departmentMaster, ICurrentUserService currentUserService)
+            IRepository<UserFile> userFile, IRepository<ApproverLevelSettings> approverLevelSettings, IRepository<DepartmentMaster> departmentMaster, ICurrentUserService currentUserService, IDocsAttachmentService docsAttachmentService)
         {
-            _purchaseOrderRequisitionHelper = new PurchaseOrderRequisitionHelper(userFile, approverLevelSettings); ;
+            _userFile = userFile;
+            _purchaseOrderRequisitionHelper = new PurchaseOrderRequisitionHelper(userFile, approverLevelSettings);
             _emailNotificationServices = emailNotificationServices;
             _orderApprovalHierarchy = orderApprovalHierarchy;
             _mailSettings = mailSettings.Value;
             _logger = logger;
             _departmentMaster = departmentMaster;
             _currentUserService = currentUserService;
+            _docsAttachmentService = docsAttachmentService;
         }
 
         public async Task SendOrderEmailNotificationAsync(
-            EnumOrderForms orderType,
-            EnumApproverLevels level,
-            string subTitle,
-            string poNumber,
-            DateTime date,
-            string supplier,
-            decimal totalAmount,
-            int orderId,
-            int jobId,
-            string jobNo,
-            string jobName,
-            bool IsNewEntery,
-            string requestedBy,
-            string settingValue,
-             int approverId = -1)
+            EnumOrderForms orderType, EnumApproverLevels level, string subTitle,
+            string poNumber, DateTime date, string supplier, decimal totalAmount,
+            int orderId, int jobId, string jobNo, string jobName, bool IsNewEntery,
+            string requestedBy, string settingValue, List<string> attachments,
+            int approverId = -1, FileResultDto fileResult = null)
         {
             try
             {
@@ -72,39 +64,36 @@ namespace Inspire.Erp.Application.Email.Implementations
                 var approvers = await _purchaseOrderRequisitionHelper.GetOrderApproverNameAndEmail(orderType, level, jobId);
                 if (approvers == null || !approvers.Any())
                 {
-                    _logger.LogWarning("No approvers found for Order ID: {OrderId}, Level: {Level}, Job Name:", orderId, level, jobName);
+                    _logger.LogWarning("No approvers found for Order ID: {OrderId}, Level: {Level}, Job Name: {JobName}", orderId, level, jobName);
                     return;
                 }
+
                 var orderApprovers = approvers
-                  .Select(x => new OrderApprovalHierarchy
-                  {
-                      ApproverId = x.ApproverId,
-                      OrderId = orderId,
-                      Status = EnumApprovalStatus.Pending,
-                      OrderType = orderType,
-                      Remarks = "",
-                      ApproverLevel = x.ApproverLevel,
-                      Sno = x.Sno
-                  })
-                  .ToList();
+                    .Select(x => new OrderApprovalHierarchy
+                    {
+                        ApproverId = x.ApproverId,
+                        OrderId = orderId,
+                        Status = EnumApprovalStatus.Pending,
+                        OrderType = orderType,
+                        Remarks = "",
+                        ApproverLevel = x.ApproverLevel,
+                        Sno = x.Sno,
+                        FilePath = string.Join(',', attachments)
+                    })
+                    .ToList();
 
                 if (orderApprovers.Any() && IsNewEntery)
                 {
                     _orderApprovalHierarchy.InsertList(orderApprovers);
                     _logger.LogInformation("Approval hierarchy inserted for Order ID: {OrderId}", orderId);
                 }
+
                 if (orderType == EnumOrderForms.GeneralPurchaseOrder)
                     return;
-                
-                long UserId = Convert.ToInt64(_currentUserService.UserId);
+
+                long UserId = approverId > -1 ? approverId : Convert.ToInt64(_currentUserService.UserId);
                 var Username = _currentUserService.Username;
-                var DepartmentId = Convert.ToInt32(_currentUserService.DepartmentId);
-                
-               
-                //var toMails = approvers.Where(x => x.ApproverLevel == level && x.OptEmail &&(x.ApproverId == approverId || approverId ==-1))
-                //                 .SelectMany(x => x.MetaData)
-                //                 .Distinct()
-                //                 .ToList();
+                var DepartmentId = approverId > -1 ? approverId : Convert.ToInt32(_currentUserService.DepartmentId);
 
                 List<UserEmail> toMails;
 
@@ -113,8 +102,10 @@ namespace Inspire.Erp.Application.Email.Implementations
                     var topApprover = approvers
                         .Where(x => x.ApproverLevel == EnumApproverLevels.Level1 && x.OptEmail)
                         .FirstOrDefault();
+
                     if (topApprover == null)
                         return;
+
                     toMails = topApprover.MetaData;
                 }
                 else
@@ -128,36 +119,42 @@ namespace Inspire.Erp.Application.Email.Implementations
 
                 if (toMails.Any())
                 {
+                    var allApproverLevels = approvers.Select(x => x.ApproverLevel).Distinct().ToList();
+                    var isLastLevel = level == allApproverLevels.Max();
+                    var actionButtons = new List<object>();
+                    var deptName = GetDepartment(UserId);
+                    var mergedFileResult = new FileResultDto();
 
-                    var deptName = GetDepartment(DepartmentId);
-                    var approvalUrl = $"{_mailSettings.MainUrl}procurement/po-approval?menu=184&vNo={orderId}&type={orderType}".Trim();
-                    var loginUrl = $"{_mailSettings.MainUrl}login?returnUrl={Uri.EscapeDataString(approvalUrl)}";
-                    var rptData = toMails
-                        .Select(x => new
-                        {
-                            SubTitle = subTitle,
-                            ApproverName = x.Name,
-                            PONumber = poNumber,
-                            Date = date.ToString("MMM dd yyyy"),
-                            JobName = $"{jobName}/{jobNo}",
-                            Supplier = supplier,
-                            TotalAmount = totalAmount,
-                            RequestedBy = Username,
-                            Department = deptName,
-                            ApprovalLink = loginUrl,
-                            SupportEmail = _mailSettings.SupportEmail
-                        })
-                        .Cast<object>()
-                        .ToList();
-
-                    var filePaths = new List<string>();
+                    if (isLastLevel)
+                    {
+                        actionButtons.Add(new { ApproveUrl = $"{_mailSettings.MainUrl}purchase-order/approve-email-template?approverLevel={level}&orderId={orderId}&orderType={orderType}&jobId={jobId}&approvalStatus=2&userId={UserId}" });
+                        actionButtons.Add(new { RejectUrl = $"{_mailSettings.MainUrl}purchase-order/approve-email-template?approverLevel={level}&orderId={orderId}&orderType={orderType}&jobId={jobId}&approvalStatus=3&userId={UserId}" });
+                        mergedFileResult = await _docsAttachmentService.DownloadAllFilesAsOnePdf(orderId, GetOrderTypeKey(orderType)); // Renamed variable to avoid conflict
+                    }
+                    else
+                    {
+                        var approvalUrl = $"{_mailSettings.MainUrl}procurement/po-approval?menu=184&vNo={orderId}&type={orderType}".Trim();
+                        actionButtons.Add(new { ApproveUrl = $"{_mailSettings.MainUrl}login?returnUrl={Uri.EscapeDataString(approvalUrl)}" });
+                    }
+                    var rptData = toMails.Select(x => new
+                    {
+                        SubTitle = subTitle,
+                        ApproverName = x.Name,
+                        PONumber = poNumber,
+                        Date = date.ToString("MMM dd yyyy"),
+                        JobName = $"{jobName}/{jobNo}",
+                        Supplier = supplier,
+                        TotalAmount = totalAmount,
+                        RequestedBy = Username,
+                        Department = deptName,
+                        ActionButtons = actionButtons,
+                        SupportEmail = _mailSettings.SupportEmail
+                    }).Cast<object>().ToList();
 
                     string templateId = GetTemplateId(orderType);
-                    await _emailNotificationServices.SendTemplatedEmailAsync(toMails, templateId, rptData, filePaths);
-                    _logger.LogInformation("Email sent to approvers: {Emails}", string.Join(", ", toMails));
+                    await _emailNotificationServices.SendTemplatedEmailAsync(toMails, templateId, rptData, attachments, mergedFileResult);
+                    _logger.LogInformation("Email sent to approvers: {Emails}", string.Join(", ", toMails.Select(x => x.Email)));
                 }
-
-
 
                 _logger.LogInformation("Email notification process completed for Order ID: {OrderId}", orderId);
             }
@@ -168,16 +165,29 @@ namespace Inspire.Erp.Application.Email.Implementations
             }
         }
 
-        private string GetDepartment(int? dptId)
+        private string GetOrderTypeKey(EnumOrderForms orderType)
+        {
+            return orderType switch
+            {
+                EnumOrderForms.PurchaseOrder => "PO",
+                EnumOrderForms.PurchaseRequisition => "PR",
+                EnumOrderForms.CustomerQuotation => "CQ",
+                EnumOrderForms.GeneralPurchaseOrder => "GPO",
+                _ => throw new ArgumentOutOfRangeException(nameof(orderType), $"No key configured for order type: {orderType}")
+            };
+        }
+
+        private string GetDepartment(long dptId)
         {
             try
             {
-                var deptName = _departmentMaster.GetAsQueryable()
-                                .AsNoTracking()
-                                .FirstOrDefault(d => d.DepartmentMasterDepartmentId == dptId)
-                                .DepartmentMasterDepartmentName;
 
-                return deptName ?? string.Empty;
+                var dptName = (from d in _departmentMaster.GetAsQueryable()
+                               join u in _userFile.GetAsQueryable() on d.DepartmentMasterDepartmentId equals u.DepartmentId
+                               where u.UserId == dptId || d.DepartmentMasterDepartmentId == dptId
+                               select d.DepartmentMasterDepartmentName).FirstOrDefault();
+
+                return dptName ?? string.Empty;
             }
             catch (Exception)
             {

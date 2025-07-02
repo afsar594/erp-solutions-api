@@ -37,6 +37,7 @@ namespace Inspire.Erp.Application.Procurement.Interfaces
 
         public Task<Response<List<VoucherApprivalDto>>> GetPOPRForApproval(ApprovalFilterModel model);
         public Task<Response<List<VoucherApprivalDto>>> ApprovePOPR(POPRApprovalDto approvalDto);
+        public Task<Response<string>> IsPOPRAlreadyApprovedOrRejected(POPRApprovalDto approvalDto);
         public Task<Response<List<VoucherApprivalDto>>> GetDefaultPOPR(int orderId, EnumOrderForms orderType);
 
 

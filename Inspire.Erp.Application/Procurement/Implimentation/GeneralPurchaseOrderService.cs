@@ -284,7 +284,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                                 string.Empty,//job name need to be added if required,
                                                                                 true,
                                                                                Username,
-                                                                                settingValue.GeneralSettingValue
+                                                                                settingValue.GeneralSettingValue,
+                                                                                new List<string>()
                                                                                 );
                 #endregion
 
