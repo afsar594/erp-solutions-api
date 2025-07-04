@@ -1009,7 +1009,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         var receivedQty = purOrderQuantities
                             .FirstOrDefault(pr => pr.PurchaseRequisitionId == x.SRID && pr.PurchaseOrderDetailsMatId == x.matId)?.RecQty ?? 0;
 
-                        x.BalQty = x.SRQ - receivedQty;
+                        x.BalQty = x.SRQ - receivedQty;                                                                                                                                                                                                                                                                                                                                                                                                                                          
                         x.DelQty = receivedQty;
                         return x;
                     }).ToList();
