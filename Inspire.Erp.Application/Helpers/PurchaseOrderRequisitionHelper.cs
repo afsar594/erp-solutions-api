@@ -56,5 +56,37 @@ namespace Inspire.Erp.Application.Helpers
                 throw;
             }
         }
+    
+    public async Task<List<EmailMetaDataDto>> GetOrderApproverNameAndEmail(EnumOrderForms orderType, int jobId)
+        {
+            try
+            {
+                var result = _approverLevelSettings.GetAsQueryable().AsNoTracking()
+                              .Where(x=>x.FormType == orderType && x.JobId == jobId)
+                              .Select(a => new EmailMetaDataDto()
+                              {
+                                  FormType = a.FormType,
+                                  ApproverId = a.ApproverId,
+                                  ApproverLevel = a.ApproverLevel,
+                                  OptEmail = a.OptEmail,
+                                  JobId = a.JobId,
+                                  NotificationDays = a.NotificationDays,
+                                  MinAmount = a.MinAmount,
+                                  MaxAmount = a.MaxAmount,
+                                  MetaData = JsonConvert.DeserializeObject<List<UserEmail>>(a.MetaData),
+                                  Sno = a.SNo
+                              }).ToList();
+                
+
+                return result;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+    
+    
     }
 }

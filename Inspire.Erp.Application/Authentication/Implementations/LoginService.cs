@@ -183,7 +183,8 @@ namespace Inspire.Erp.Application.Authentication.Implementations
             {
                 new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                 new Claim(ClaimTypes.Name, user.UserName),
-                new Claim("GroupId", user.WorkGroupId.ToString())
+                new Claim("GroupId", user.WorkGroupId.ToString()),
+                new Claim("DepartmentId", user.DepartmentId.ToString())
             };
 
             var tokenDescriptor = new SecurityTokenDescriptor

@@ -21,7 +21,7 @@ namespace Inspire.Erp.Application.Helpers
             this.docsAttachmentService = docsAttachmentService;
         }
 
-        public  async Task<bool> DownloadedFileAsync(string reportUrl, string fileType, string fileNo,int fileId,string vNO, bool isUpdate = false)
+        public  async Task<string> DownloadedFileAsync(string reportUrl, string fileType, string fileNo,int fileId,string vNO, bool isUpdate = false)
         {
             var sql = fileType == "PurchaseOrder" ?
                 $"select * from VR_PurchaseOrder where VR_PurchaseOrder.purchaseorderno ='{fileNo}'"
@@ -64,7 +64,7 @@ namespace Inspire.Erp.Application.Helpers
                         Console.WriteLine($"Report saved to: {filePath}");
                        
                         if (isUpdate)
-                            return true;
+                            return filePath;
 
                         string fileName = Path.GetFileName(filePath);
                         DocsAttachment Documents = new DocsAttachment();
@@ -74,19 +74,19 @@ namespace Inspire.Erp.Application.Helpers
                         Documents.DocumentType = fileType == "PurchaseOrder" ? "PO" : "PR";
                         docsAttachmentService.SaveDocument(Documents);
 
-                        return true;
+                        return filePath;
                     }
                     else
                     {
                         Console.WriteLine($"Error: {response.StatusCode} - {await response.Content.ReadAsStringAsync()}");
-                        return false;
+                        return string.Empty;
                     }
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Exception: {ex.Message}");
-                return false;
+                return string.Empty;
             }
         }
     }

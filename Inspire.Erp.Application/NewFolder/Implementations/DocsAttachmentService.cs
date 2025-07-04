@@ -144,7 +144,7 @@ namespace Inspire.Erp.Application.NewFolder.Implementations
 
                 return new FileResultDto
                 {
-                    FileName = "downloadedFile",
+                    FileName = $"{GetFileName(type)}.pdf",// "downloadedFile",
                     FileBytes = mergedPdf,
                     ContentType = "application/pdf"
                 };
@@ -155,6 +155,18 @@ namespace Inspire.Erp.Application.NewFolder.Implementations
                 throw;
             }
         }
+
+        private string GetFileName(string type)
+        {
+            return type switch
+            {
+                "PO" => "PurhchaseOrderFiles",
+                "PR" => "PurhchaseRequisitionFiles",
+                "JobMaster" => "JobMasterFiles",
+                _ => "UnknownTypeFiles"
+            };
+        }
+
         public async Task<object> CopyAttachmentsFromPRToPO(int prId, int poId, List<int> prFileIds)
         {
             try

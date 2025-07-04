@@ -517,6 +517,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     }
                 }
                 _purchaseRequisitionRepository.TransactionCommit();
+                var filePath = await downloadAndSaveVoucherReport.DownloadedFileAsync(applicationSettings.DownloadFileBaseUrl, "PurchaseRequisition", purchaseRequisition.PurchaseRequisitionId.ToString(), (int)purchaseRequisition.PurchaseRequisitionId, purchaseRequisition.PurchaseRequisitionNo);
+
                 #region EmailNotification
                 var Username = _currentUserService.Username;
                 var jobId = purchaseRequisition?.PurchaseRequisitionJobId ?? -1;
@@ -535,13 +537,13 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                                 jobDetail == null ? "" : jobDetail.JobMasterJobName,
                                                                                 true,
                                                                                Username,
-                                                                                settingValue.GeneralSettingValue
+                                                                                settingValue.GeneralSettingValue,
+                                                                                new List<string> { filePath }
                                                                                 );
                 await SendEmailOnValueExceedsAsync((int)purchaseRequisition.PurchaseRequisitionJobId, purchaseRequisition.PurchaseRequisitionNo);
                 #endregion
 
                 var res = await this.GetSavedPurchaseRequisitionDetails((int)purchaseRequisition.PurchaseRequisitionId);
-                await downloadAndSaveVoucherReport.DownloadedFileAsync(applicationSettings.DownloadFileBaseUrl, "PurchaseRequisition", purchaseRequisition.PurchaseRequisitionId.ToString(), (int)purchaseRequisition.PurchaseRequisitionId, purchaseRequisition.PurchaseRequisitionNo);
                 return Response<PurchaseRequisitionModel>.Success(res.Result, "Purchase Requisition Save Successfully.");
 
             }
