@@ -93,7 +93,6 @@ namespace Inspire.Erp.Application.Email.Implementations
 
                 long UserId = approverId > -1 ? approverId : Convert.ToInt64(_currentUserService.UserId);
                 var Username = _currentUserService.Username;
-                var DepartmentId = approverId > -1 ? approverId : Convert.ToInt32(_currentUserService.DepartmentId);
 
                 List<UserEmail> toMails;
 
