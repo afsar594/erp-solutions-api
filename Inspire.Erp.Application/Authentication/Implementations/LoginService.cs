@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using PdfSharpCore.Pdf.Content.Objects;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -170,6 +171,28 @@ namespace Inspire.Erp.Application.Authentication.Implementations
             return principal;
         }
 
+        public string GenerateAutoLoginToken(long userId)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var secret = this.Configuration["ApplicationSettings:Secret"];
+            var expiration = Convert.ToInt16(this.Configuration["ApplicationSettings:ExpirationInMinutes"]);
+            var key = Encoding.UTF8.GetBytes(secret);
+
+            // Add all necessary claims
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+            };
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddMinutes(expiration),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
+        }
 
         private string generateJwtToken(UserFile user)
         {

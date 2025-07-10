@@ -73,7 +73,7 @@ namespace Inspire.Erp.Application.Email.Implementations
         }
         private SendGridMessage GetAttachments(SendGridMessage msg, List<string> filePaths = null, FileResultDto fileResult = null)
         {
-            if (filePaths != null)
+            if (filePaths != null && fileResult == null)
             {
                 foreach (var filePath in filePaths)
                 {

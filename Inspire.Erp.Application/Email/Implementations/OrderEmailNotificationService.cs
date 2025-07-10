@@ -1,4 +1,5 @@
-﻿using Inspire.Erp.Application.Common.Email;
+﻿using Inspire.Erp.Application.Authentication.Inerfaces;
+using Inspire.Erp.Application.Common.Email;
 using Inspire.Erp.Application.Email.Interfaces;
 using Inspire.Erp.Application.Helpers;
 using Inspire.Erp.Application.NewFolder.Interfaces;
@@ -30,11 +31,12 @@ namespace Inspire.Erp.Application.Email.Implementations
         private readonly ILogger<OrderEmailNotificationService> _logger;
         private readonly ICurrentUserService _currentUserService;
         private readonly IDocsAttachmentService _docsAttachmentService;
+        private readonly IloginService _loginService;
         public OrderEmailNotificationService(IEmailNotificationServices emailNotificationServices,
             IRepository<OrderApprovalHierarchy> orderApprovalHierarchy,
             IOptions<EmailSettingViewModel> mailSettings,
             ILogger<OrderEmailNotificationService> logger,
-            IRepository<UserFile> userFile, IRepository<ApproverLevelSettings> approverLevelSettings, IRepository<DepartmentMaster> departmentMaster, ICurrentUserService currentUserService, IDocsAttachmentService docsAttachmentService)
+            IRepository<UserFile> userFile, IRepository<ApproverLevelSettings> approverLevelSettings, IRepository<DepartmentMaster> departmentMaster, ICurrentUserService currentUserService, IDocsAttachmentService docsAttachmentService, IloginService loginService)
         {
             _userFile = userFile;
             _purchaseOrderRequisitionHelper = new PurchaseOrderRequisitionHelper(userFile, approverLevelSettings);
@@ -45,6 +47,7 @@ namespace Inspire.Erp.Application.Email.Implementations
             _departmentMaster = departmentMaster;
             _currentUserService = currentUserService;
             _docsAttachmentService = docsAttachmentService;
+            _loginService = loginService;
         }
 
         public async Task SendOrderEmailNotificationAsync(
@@ -126,8 +129,11 @@ namespace Inspire.Erp.Application.Email.Implementations
 
                     if (isLastLevel)
                     {
-                        actionButtons.Add(new { ApproveUrl = $"{_mailSettings.MainUrl}purchase-order/approve-email-template?approverLevel={level}&orderId={orderId}&orderType={orderType}&jobId={jobId}&approvalStatus=2&userId={UserId}" });
-                        actionButtons.Add(new { RejectUrl = $"{_mailSettings.MainUrl}purchase-order/approve-email-template?approverLevel={level}&orderId={orderId}&orderType={orderType}&jobId={jobId}&approvalStatus=3&userId={UserId}" });
+                        string token = _loginService.GenerateAutoLoginToken(UserId);
+                        string approvalRedirectUrl = $"{_mailSettings.MainUrl}purchase-order/approve-email-template?approverLevel={level}&orderId={orderId}&orderType={orderType}&jobId={jobId}&approvalStatus=2&userId={UserId}";
+                        string rejectRedirectUrl = $"{_mailSettings.MainUrl}purchase-order/approve-email-template?approverLevel={level}&orderId={orderId}&orderType={orderType}&jobId={jobId}&approvalStatus=3&userId={UserId}";
+                        actionButtons.Add(new { ApproveUrl = $"{_mailSettings.AutoLoginUrl}api/auto-login?token={token}&redirect={Uri.EscapeDataString(approvalRedirectUrl)}" });
+                        actionButtons.Add(new { RejectUrl = $"{_mailSettings.AutoLoginUrl}api/auto-login?token={token}&redirect={Uri.EscapeDataString(rejectRedirectUrl)}" });
                         mergedFileResult = await _docsAttachmentService.DownloadAllFilesAsOnePdf(orderId, GetOrderTypeKey(orderType)); // Renamed variable to avoid conflict
                     }
                     else

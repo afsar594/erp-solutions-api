@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using Inspire.Erp.Application.Authentication.Inerfaces;
 using Inspire.Erp.Application.Helpers;
 using Inspire.Erp.Application.Master;
@@ -12,10 +8,21 @@ using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Inspire.Erp.Web.Common;
 using Inspire.Erp.Web.ViewModels;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers
 {    
@@ -29,13 +36,15 @@ namespace Inspire.Erp.Web.Controllers
         private IRepository<UserFile> userFileRepository;
         private IRepository<LocationMaster> locationrepository;
         private IRepository<FinancialPeriods> financialrepository;
+        private IConfiguration _configuration;
 
         public LoginController(IloginService _loginsvc, IMapper mapper,
-            IRepository<LocationMaster> _locationrepository, IRepository<UserFile> _userFileRepository, IRepository<FinancialPeriods> _financialrepository)
+            IRepository<LocationMaster> _locationrepository, IRepository<UserFile> _userFileRepository, IRepository<FinancialPeriods> _financialrepository, IConfiguration configuration)
         {
             loginsvc = _loginsvc;
             _mapper = mapper; userFileRepository = _userFileRepository;
             locationrepository = _locationrepository; financialrepository = _financialrepository;
+            _configuration = configuration;
         }
         [HttpPost]
         [Route("login")]
@@ -105,6 +114,32 @@ namespace Inspire.Erp.Web.Controllers
 
             return Ok(ApiResponse<UserFile>.Success(response));
         }
+
+        [AllowAnonymous]
+        [HttpGet("auto-login")]
+        public async Task<IActionResult> AutoLogin(string token, string redirect)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(this._configuration["ApplicationSettings:Secret"]);
+            try
+            {
+                var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
+                }, out SecurityToken validatedToken);
+
+                return Redirect(redirect);
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized(new { message = "Token is invalid or expired." });
+            }
+        }
+
 
         [AllowAnonymous]
         [HttpPost("refresh-token")]

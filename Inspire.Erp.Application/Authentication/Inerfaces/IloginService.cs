@@ -14,7 +14,7 @@ namespace Inspire.Erp.Application.Authentication.Inerfaces
         UserFile RefreshToken(UserFile userData);
         UserFile RevokeToken(UserFile userData);
         ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
-
+        string GenerateAutoLoginToken(long userId);
 
 
         #region POS
