@@ -523,7 +523,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 }
                 else
                 {
-                    var approvers = await _purchaseOrderRequisitionHelper.GetOrderApproverNameAndEmail(EnumOrderForms.PurchaseRequisition, (int)jobId);
+                    var defaultApprovers = !applicationSettings.DefaultApprovers.Any()? null :applicationSettings.DefaultApprovers;
+                    var approvers = await _purchaseOrderRequisitionHelper.GetOrderApproverNameAndEmail(EnumOrderForms.PurchaseRequisition, (int)jobId, defaultApprovers);
                     var prIds = purchaseOrder.PurchaseOrderDetails.Select(x => x.PurchaseRequisitionId).ToList();
                     var lastApprovredPR = await _orderApprovalHierarchy.GetAsQueryable().AsNoTracking().Where(x => prIds.Contains((int)x.OrderId) && x.OrderType == EnumOrderForms.PurchaseRequisition).ToListAsync();
                     var orderApprovers = approvers

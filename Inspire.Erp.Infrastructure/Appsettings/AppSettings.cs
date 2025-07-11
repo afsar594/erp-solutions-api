@@ -30,6 +30,7 @@ namespace Inspire.Erp.Infrastructure
 
         public string Audience { get; set; }
         public string DownloadFileBaseUrl { get; set; }
+        public List<long> DefaultApprovers { get; set; }
     }
 
     public class LogLevel

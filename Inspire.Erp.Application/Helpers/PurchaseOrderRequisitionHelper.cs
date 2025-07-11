@@ -1,18 +1,13 @@
-﻿using Inspire.Erp.Domain.Entities;
-using Inspire.Erp.Infrastructure.Database;
-using SendGrid.Helpers.Mail;
+﻿using Inspire.Erp.Application.Common.Email;
+using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using System.Linq;
-using Inspire.Erp.Infrastructure.Database.Repositoy;
-using Inspire.Erp.Domain.Models.Approvals;
-using Inspire.Erp.Domain.Enums;
-using Inspire.Erp.Application.Common;
-using Inspire.Erp.Application.Common.Email;
-using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 namespace Inspire.Erp.Application.Helpers
 {
@@ -20,7 +15,7 @@ namespace Inspire.Erp.Application.Helpers
     {
         private readonly IRepository<ApproverLevelSettings> _approverLevelSettings;
         private readonly IRepository<UserFile> _userFile;
-       
+
 
         public PurchaseOrderRequisitionHelper(IRepository<UserFile> userFile, IRepository<ApproverLevelSettings> approverLevelSettings)
         {
@@ -32,7 +27,7 @@ namespace Inspire.Erp.Application.Helpers
             try
             {
                 var result = _approverLevelSettings.GetAsQueryable().AsNoTracking()
-                              .Where(x=>x.FormType == orderType && x.JobId == jobId)
+                              .Where(x => x.FormType == orderType && x.JobId == jobId)
                               .Select(a => new EmailMetaDataDto()
                               {
                                   FormType = a.FormType,
@@ -46,7 +41,7 @@ namespace Inspire.Erp.Application.Helpers
                                   MetaData = JsonConvert.DeserializeObject<List<UserEmail>>(a.MetaData),
                                   Sno = a.SNo
                               }).ToList();
-                
+
 
                 return result;
             }
@@ -56,37 +51,34 @@ namespace Inspire.Erp.Application.Helpers
                 throw;
             }
         }
-    
-    public async Task<List<EmailMetaDataDto>> GetOrderApproverNameAndEmail(EnumOrderForms orderType, int jobId)
+
+        public async Task<List<EmailMetaDataDto>> GetOrderApproverNameAndEmail(EnumOrderForms orderType, int jobId, List<long> defaultApprover = null)
         {
-            try
-            {
-                var result = _approverLevelSettings.GetAsQueryable().AsNoTracking()
-                              .Where(x=>x.FormType == orderType && x.JobId == jobId)
-                              .Select(a => new EmailMetaDataDto()
-                              {
-                                  FormType = a.FormType,
-                                  ApproverId = a.ApproverId,
-                                  ApproverLevel = a.ApproverLevel,
-                                  OptEmail = a.OptEmail,
-                                  JobId = a.JobId,
-                                  NotificationDays = a.NotificationDays,
-                                  MinAmount = a.MinAmount,
-                                  MaxAmount = a.MaxAmount,
-                                  MetaData = JsonConvert.DeserializeObject<List<UserEmail>>(a.MetaData),
-                                  Sno = a.SNo
-                              }).ToList();
-                
+            var query = _approverLevelSettings.GetAsQueryable().AsNoTracking()
+                .Where(x =>
+                    x.FormType == orderType &&
+                    x.JobId == jobId &&
+                    (defaultApprover == null || !defaultApprover.Any() || defaultApprover.Contains(x.ApproverId)))
+                .Select(a => new EmailMetaDataDto
+                {
+                    FormType = a.FormType,
+                    ApproverId = a.ApproverId,
+                    ApproverLevel = a.ApproverLevel,
+                    OptEmail = a.OptEmail,
+                    JobId = a.JobId,
+                    NotificationDays = a.NotificationDays,
+                    MinAmount = a.MinAmount,
+                    MaxAmount = a.MaxAmount,
+                    MetaData = string.IsNullOrEmpty(a.MetaData)
+                        ? new List<UserEmail>()
+                        : JsonConvert.DeserializeObject<List<UserEmail>>(a.MetaData),
+                    Sno = a.SNo
+                });
 
-                return result;
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
+            return await query.ToListAsync();
         }
-    
-    
+
+
+
     }
 }
