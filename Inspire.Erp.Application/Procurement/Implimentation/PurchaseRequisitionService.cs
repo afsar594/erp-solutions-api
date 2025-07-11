@@ -890,8 +890,16 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 if (model.locationId > 0)
                     query = query.Where(a => a.PurchaseRequisitionLocationId == model.locationId);
 
+                //if (model.IsDateChecked && model.fromDate.HasValue && model.toDate.HasValue)
+                //    query = query.Where(a => a.PurchaseRequisitionDate.Date >= model.fromDate.Value && a.PurchaseRequisitionDate.Date <= model.toDate.Value);
                 if (model.IsDateChecked && model.fromDate.HasValue && model.toDate.HasValue)
-                    query = query.Where(a => a.PurchaseRequisitionDate.Date >= model.fromDate.Value && a.PurchaseRequisitionDate.Date <= model.toDate.Value);
+                {
+                    DateTime fromDate = model.fromDate.Value.Date;
+                    DateTime toDate = model.toDate.Value.Date;
+
+                    query = query.Where(a => a.PurchaseRequisitionDate.Date >= fromDate &&
+                                             a.PurchaseRequisitionDate.Date <= toDate);
+                }
 
                 var purReqIdList = query.Select(x => x.PurchaseRequisitionId).ToList();
 
