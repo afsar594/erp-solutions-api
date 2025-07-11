@@ -21,6 +21,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using SixLabors.ImageSharp;
 using System;
 using System.Collections.Generic;
@@ -535,22 +536,25 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     var defaultApprovers = !applicationSettings.DefaultApprovers.Any() ? null : applicationSettings.DefaultApprovers;
                     var approvers = await _purchaseOrderRequisitionHelper.GetOrderApproverNameAndEmail(EnumOrderForms.PurchaseRequisition, (int)jobId, defaultApprovers);
                     var prIds = purchaseOrder.PurchaseOrderDetails.Select(x => x.PurchaseRequisitionId).ToList();
-                    var lastApprovredPR = await _orderApprovalHierarchy.GetAsQueryable().AsNoTracking().Where(x => prIds.Contains((int)x.OrderId) && x.OrderType == EnumOrderForms.PurchaseRequisition).ToListAsync();
+                    var lastApprovredPR = await _orderApprovalHierarchy.GetAsQueryable().AsNoTracking().Where(x => prIds.Contains((int)x.OrderId) && defaultApprovers.Contains(x.ApproverId) && x.OrderType == EnumOrderForms.PurchaseRequisition).ToListAsync();
                     var orderApprovers = approvers
-                        .Select(x => new OrderApprovalHierarchy
+                        .Select(x =>
                         {
-                            ApproverId = x.ApproverId,
-                            OrderId = (int)purchaseOrder.PurchaseOrderId,
-                            Status = EnumApprovalStatus.Approved,
-                            OrderType = EnumOrderForms.PurchaseOrder,
-                            Remarks = "",
-                            ApproverLevel = x.ApproverLevel,
-                            Sno = x.Sno,
-                            ApprovedBy = lastApprovredPR.FirstOrDefault(lap => lap.ApproverId == x.ApproverId).ApprovedBy,
-                            ApprovedDate = lastApprovredPR.FirstOrDefault(lap => lap.ApproverId == x.ApproverId).ApprovedDate,
-                            FilePath = string.Join(',', filePath)
-                        })
-                        .ToList();
+                            var firstApprovredPR = lastApprovredPR.FirstOrDefault(lap => lap.ApproverId == x.ApproverId && lap.Status == EnumApprovalStatus.Approved);
+                            return new OrderApprovalHierarchy
+                            {
+                                ApproverId = x.ApproverId,
+                                OrderId = (int)purchaseOrder.PurchaseOrderId,
+                                Status = EnumApprovalStatus.Approved,
+                                OrderType = EnumOrderForms.PurchaseOrder,
+                                Remarks = "",
+                                ApproverLevel = GetApproverLevel(x.Sno),
+                                Sno = x.Sno,
+                                ApprovedBy = firstApprovredPR is not null ?  firstApprovredPR.ApprovedBy : (int)_currentUserService.UserId,
+                                ApprovedDate = firstApprovredPR is not null ?  firstApprovredPR.ApprovedDate : DateTime.Now,
+                                FilePath = string.Join(',', filePath)
+                            };
+                        }).ToList();
 
                     if (orderApprovers.Any())
                     {
@@ -569,6 +573,16 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             }
         }
 
+        public EnumApproverLevels GetApproverLevel(int sNo)
+        {
+            return sNo switch
+            {
+                1 => EnumApproverLevels.Level1,
+                2 => EnumApproverLevels.Level2,
+                3 => EnumApproverLevels.Level3,
+                _ => EnumApproverLevels.None,
+            };
+        }
 
 
         public IEnumerable<AccountsTransactions> GetAllTransaction()
