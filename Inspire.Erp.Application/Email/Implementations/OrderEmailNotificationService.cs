@@ -55,7 +55,7 @@ namespace Inspire.Erp.Application.Email.Implementations
             string poNumber, DateTime date, string supplier, decimal totalAmount,
             int orderId, int jobId, string jobNo, string jobName, bool IsNewEntery,
             string requestedBy, string settingValue, List<string> attachments,
-            int approverId = -1, FileResultDto fileResult = null)
+            int approverId = -1, FileResultDto fileResult = null, long originatorId = default)
         {
             try
             {
@@ -95,7 +95,7 @@ namespace Inspire.Erp.Application.Email.Implementations
                     return;
 
                 long UserId = approverId > -1 ? approverId : Convert.ToInt64(_currentUserService.UserId);
-                var Username = _currentUserService.Username;
+                var Username = await getOriginatorName(originatorId);
 
                 List<UserEmail> toMails;
 
@@ -168,6 +168,14 @@ namespace Inspire.Erp.Application.Email.Implementations
                 _logger.LogError(ex, "Failed to send email notification for Order ID: {OrderId}, Level: {Level}", orderId, level);
                 throw;
             }
+        }
+
+        private async Task<string> getOriginatorName(long originatorId)
+        {
+          return await _userFile.GetAsQueryable()
+                .Where(x => x.UserId == originatorId)
+                .Select(x => x.UserName)
+                .FirstOrDefaultAsync();
         }
 
         private string GetOrderTypeKey(EnumOrderForms orderType)

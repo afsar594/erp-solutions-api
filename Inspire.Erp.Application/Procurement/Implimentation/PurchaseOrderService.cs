@@ -386,6 +386,13 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     return k;
                 }).OrderBy(x => x.AccountsTransactionsVoucherType).AsEnumerable().ToList();
+
+
+
+
+                purchaseOrder.PurchaseOrderUserId = _currentUserService.UserId;
+
+
                 _accountTransactionRepository.InsertList(accountsTransactions);
                 _purchaseOrderRepository.Insert(purchaseOrder);
 
@@ -517,13 +524,15 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                                    true,
                                                                                    _currentUserService.Username ?? "",
                                                                                    settingValue.GeneralSettingValue,
-                                                                                   new List<string>() { filePath }
+                                                                                   new List<string>() { filePath }, -1,
+                                                                                   null,
+                                                                                   (long)purchaseOrder.PurchaseOrderUserId
                                                                                   );
                     #endregion
                 }
                 else
                 {
-                    var defaultApprovers = !applicationSettings.DefaultApprovers.Any()? null :applicationSettings.DefaultApprovers;
+                    var defaultApprovers = !applicationSettings.DefaultApprovers.Any() ? null : applicationSettings.DefaultApprovers;
                     var approvers = await _purchaseOrderRequisitionHelper.GetOrderApproverNameAndEmail(EnumOrderForms.PurchaseRequisition, (int)jobId, defaultApprovers);
                     var prIds = purchaseOrder.PurchaseOrderDetails.Select(x => x.PurchaseRequisitionId).ToList();
                     var lastApprovredPR = await _orderApprovalHierarchy.GetAsQueryable().AsNoTracking().Where(x => prIds.Contains((int)x.OrderId) && x.OrderType == EnumOrderForms.PurchaseRequisition).ToListAsync();
@@ -537,8 +546,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                             Remarks = "",
                             ApproverLevel = x.ApproverLevel,
                             Sno = x.Sno,
-                            ApprovedBy = lastApprovredPR.FirstOrDefault(lap=>lap.ApproverId == x.ApproverId).ApprovedBy,
-                            ApprovedDate = lastApprovredPR.FirstOrDefault(lap=>lap.ApproverId == x.ApproverId).ApprovedDate,
+                            ApprovedBy = lastApprovredPR.FirstOrDefault(lap => lap.ApproverId == x.ApproverId).ApprovedBy,
+                            ApprovedDate = lastApprovredPR.FirstOrDefault(lap => lap.ApproverId == x.ApproverId).ApprovedDate,
                             FilePath = string.Join(',', filePath)
                         })
                         .ToList();
@@ -1523,7 +1532,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                           false, "",
                                                                           settingValue,
                                                                          !string.IsNullOrEmpty(filePath) ? new List<string>() { filePath } : new List<string>(),
-                                                                          approverId);
+                                                                          approverId,
+                                                                          null,
+                                                                          (long)po.Result.purchaseOrder.PurchaseOrderUserId);
             return await GetDefaultPOPR(orderId, EnumOrderForms.PurchaseRequisition);
         }
 
@@ -1545,7 +1556,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                           (int)jobId,
                                                                           jobDetail == null ? "" : jobDetail.JobMasterJobNumber,
                                                                           jobDetail == null ? "" : jobDetail.JobMasterJobName,
-                                                                          false, "", settingValue, !string.IsNullOrEmpty(filePath) ? new List<string>() { filePath } : new List<string>(), approverId);
+                                                                          false, "", settingValue, !string.IsNullOrEmpty(filePath) ? new List<string>() { filePath } : new List<string>(),
+                                                                          approverId,
+                                                                          null,
+                                                                         (long)pr.Result.purchaseRequisition.PurchaseRequisitionUserId);
 
             return await GetDefaultPOPR(orderId, EnumOrderForms.PurchaseRequisition);
         }

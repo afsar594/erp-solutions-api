@@ -8,7 +8,7 @@ namespace Inspire.Erp.Application.User
 {
     public interface ICurrentUserService
     {
-        string UserId { get; }
+        long UserId { get; }
         string Username { get; }
         string Role { get; }
         string GroupId { get;}

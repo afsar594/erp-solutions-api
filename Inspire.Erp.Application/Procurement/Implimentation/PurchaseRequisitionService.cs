@@ -1,42 +1,33 @@
-﻿using Inspire.Erp.Application.Procurement.Interfaces;
+﻿using Inspire.Erp.Application.Account.Implementations;
 using Inspire.Erp.Application.Common;
-using Inspire.Erp.Application.Account.Implementations;
+using Inspire.Erp.Application.Common.Email;
+using Inspire.Erp.Application.Email.Interfaces;
+using Inspire.Erp.Application.Helpers;
+using Inspire.Erp.Application.MODULE;
+using Inspire.Erp.Application.NewFolder.Interfaces;
+using Inspire.Erp.Application.Procurement.Interfaces;
+using Inspire.Erp.Application.Settings.Interfaces;
+using Inspire.Erp.Application.User;
+using Inspire.Erp.Domain.Constants;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Domain.Modals;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Infrastructure;
+using Inspire.Erp.Infrastructure.Database;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using Microsoft.Extensions.Logging;
-using Inspire.Erp.Domain.Modals.Common;
-using Inspire.Erp.Domain.Modals;
-using Inspire.Erp.Domain.Models.Procurement.PurchaseOrderTracking;
-using System.Threading.Tasks;
-using Inspire.Erp.Infrastructure.Database;
-using SendGrid.Helpers.Mail;
 using System.Linq.Dynamic.Core;
-using Inspire.Erp.Domain.Entities.POS;
-using Inspire.Erp.Application.MODULE;
 using System.Threading;
-using Inspire.Erp.Application.Email.Interfaces;
-using Inspire.Erp.Domain.Models.Common;
-using Microsoft.Extensions.Options;
-using Inspire.Erp.Application.Helpers;
-using Inspire.Erp.Domain.Models.Approvals;
-using Inspire.Erp.Domain.Constants;
-using Inspire.Erp.Application.Common.Email;
-using Microsoft.Extensions.Caching.Memory;
-using Inspire.Erp.Application.Settings.Interfaces;
-using Inspire.Erp.Infrastructure;
-using Microsoft.Extensions.Configuration;
-using Inspire.Erp.Application.NewFolder.Interfaces;
-using Newtonsoft.Json;
-using Inspire.Erp.Application.User;
-using Spire.Pdf.Exporting.XPS.Schema;
+using System.Threading.Tasks;
 
 namespace Inspire.Erp.Application.Procurement.Implementation
 {
@@ -453,7 +444,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 });
 
 
-
+                purchaseRequisition.PurchaseRequisitionUserId = _currentUserService.UserId;
                 _purchaseRequisitionRepository.Insert(purchaseRequisition);
 
                 //List<PermissionApprovalDetail> permissionApprovalDetails = new List<PermissionApprovalDetail>();
@@ -538,7 +529,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                                 true,
                                                                                Username,
                                                                                 settingValue.GeneralSettingValue,
-                                                                                new List<string> { filePath }
+                                                                                new List<string> { filePath },
+                                                                                -1,
+                                                                                null,
+                                                                                (long)purchaseRequisition.PurchaseRequisitionUserId
                                                                                 );
                 await SendEmailOnValueExceedsAsync((int)purchaseRequisition.PurchaseRequisitionJobId, purchaseRequisition.PurchaseRequisitionNo);
                 #endregion
