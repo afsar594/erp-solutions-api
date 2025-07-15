@@ -345,12 +345,13 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
 
                 }
 
-                if (grn.PurchaseVoucherJobID > 0)
+                if (grn.PurchaseVoucherJobID > 0 && data is not null)
                 {
                     var jobNo = _jobMastertRepository.GetAsQueryable().Where(s => s.JobMasterJobId == grn.PurchaseVoucherJobID).FirstOrDefault()?.JobMasterJobNo;
 
                     var costCenterId = Convert.ToInt32(this._generalSettings.GetAsQueryable()
                             .AsNoTracking()
+                            .DefaultIfEmpty()
                             .FirstOrDefault(x => x.GeneralSettingsKeyValue.ToUpper() == "COSTCENTER_AGAINST_BOQ".ToUpper())
                             .GeneralSettingsTextValue.Split("::")[1]);
 
@@ -364,6 +365,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                         x.JobMasterBudgetDetailsDelStatus = false;
                         x.RefVoucherNo = data.IssueVoucherNo;
                     });
+                    _jobbudgetRepository.UpdateList(jobMasterBudgetDetailsToUpdate);
                     //var jobControl =_jobMasterControlRepo.GetAsQueryable().Where(x => x.RefVoucherNo == data.IssueVoucherNo).ToList();
                     // jobControl.ForEach(x =>
                     //{
@@ -376,7 +378,6 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                     //    x.RefVoucherNo = data.IssueVoucherNo;
                     //});
                     //_jobMasterControlRepo.UpdateList(jobControl);
-                    _jobbudgetRepository.UpdateList(jobMasterBudgetDetailsToUpdate);
                 }
                 _purchaseVoucherRepository.TransactionCommit();
 
@@ -411,7 +412,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                 string contraVoucherNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.PurchaseVoucher_TYPE, Prefix.PurchaseVoucher_Prefix, _programsettingsRepository, _voucherNumbersRepository);
                 grn.PurchaseVoucherVoucherNo = contraVoucherNumber;
 
-              
+
                 foreach (var k in grn.AccountsTransactions)
                 {
                     k.AccountsTransactionsVoucherNo = grn.PurchaseVoucherVoucherNo;
