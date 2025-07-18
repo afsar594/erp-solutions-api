@@ -106,6 +106,7 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<DepartmentMaster> DepartmentMaster { get; set; }
         public virtual DbSet<DocumentImages> DocumentImages { get; set; }
         public virtual DbSet<DriverMaster> DriverMaster { get; set; }
+        public virtual DbSet<DefaultApprover> DefaultApprovers { get; set; }
         public virtual DbSet<EnquiryAbout> EnquiryAbout { get; set; }
         public virtual DbSet<EnquiryDetails> EnquiryDetails { get; set; }
         public virtual DbSet<EnquiryMaster> EnquiryMaster { get; set; }
@@ -19267,6 +19268,10 @@ namespace Inspire.Erp.Infrastructure.Database
                       .HasConstraintName("FK_Finish_Product_Detail_Finish_Product_Master");
             });
 
+            modelBuilder.Entity<DefaultApprover>(e =>
+            {
+                e.ToTable("DefaultApprover");
+            });
             modelBuilder.Entity<HrDesignation>(entity =>
             {
                 entity.HasKey(e => e.DesignationId);

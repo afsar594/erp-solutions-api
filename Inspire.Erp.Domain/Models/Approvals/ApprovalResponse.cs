@@ -73,8 +73,8 @@ namespace Inspire.Erp.Domain.Models.Approvals
     {
         public string Name { get; set; }
         public string Email { get; set; }
-        public List<CCEmailDto> CCEmails { get; set; }
-        public List<CCBccMailDto> BccEmails { get; set; }
+        public List<CCEmailDto> CCEmails { get; set; } = new List<CCEmailDto>();
+        public List<CCBccMailDto> BccEmails { get; set; } = new List<CCBccMailDto>();
     }
     public class CCBccMailDto
     {

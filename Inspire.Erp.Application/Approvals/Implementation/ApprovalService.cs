@@ -133,8 +133,7 @@ namespace Inspire.Erp.Application.Approvals.Implementation
         }
 
         #region Not to remove/replace this code related to apporver level settings 
-
-        public async Task<Response<ApproverLevelSettingsDto>> SaveAsync(ApproverLevelSettingsDto approverLevelSettingsDto)
+        public async Task<Response<ApproverLevelSettingsDto>> SaveAsync2(ApproverLevelSettingsDto approverLevelSettingsDto)
         {
             try
             {
@@ -153,8 +152,9 @@ namespace Inspire.Erp.Application.Approvals.Implementation
                     .ToList();
 
                 var settingsToAdd = new List<ApproverLevelSettings>();
+                var settingsToUpdate = new List<ApproverLevelSettings>();
                 var incomingSerialized = new List<string>();
-                
+
 
                 foreach (var incoming in incomingApprovers)
                 {
@@ -236,6 +236,74 @@ namespace Inspire.Erp.Application.Approvals.Implementation
             catch (Exception ex)
             {
                 // Log the exception if necessary
+                throw;
+            }
+        }
+        public async Task<Response<ApproverLevelSettingsDto>> SaveAsync(ApproverLevelSettingsDto dto)
+        {
+            try
+            {
+                var existingSettings = await _approverLevelSettings.GetAsQueryable().AsNoTracking()
+                    .Where(x => x.FormType == dto.FormType && x.JobId == dto.JobId)
+                    .ToListAsync();
+
+                var approverUserIds = dto.ApproverLevels.SelectMany(x => x.ApproverIds).Distinct().ToList();
+
+                var users = _userFileRepository.GetAsQueryable().AsNoTracking()
+                    .Where(x => approverUserIds.Contains(x.UserId))
+                    .Select(s => new { s.UserId, s.UserName, s.emailId })
+                    .ToList();
+
+                var settingsToInsert = new List<ApproverLevelSettings>();
+
+                foreach (var level in dto.ApproverLevels)
+                {
+                    int sno = 1;
+                    foreach (var userId in level.ApproverIds)
+                    {
+                        var user = users.FirstOrDefault(u => u.UserId == userId);
+                        if (user == null) continue;
+
+                        // Clone metadata and assign user info
+                        var metaDataClone = level.MetaData.Select(m => new UserMetaDataDto
+                        {
+                            Name = user.UserName,
+                            Email = user.emailId,
+                            CCEmails = m.CCEmails ?? new List<CCEmailDto>(),
+                            BccEmails = m.BccEmails ?? new List<CCBccMailDto>()
+                        }).ToList();
+
+                        string serializedMeta = JsonConvert.SerializeObject(metaDataClone);
+
+                        settingsToInsert.Add(new ApproverLevelSettings
+                        {
+                            ApproverId = userId,
+                            ApproverLevel = level.ApproverLevel,
+                            FormType = dto.FormType,
+                            MinAmount = level.MinAmount,
+                            MaxAmount = level.MaxAmount,
+                            NotificationDays = level.NotificationDays,
+                            OptEmail = level.OptEmail,
+                            JobId = dto.JobId,
+                            MetaData = serializedMeta,
+                            SNo = sno++
+                        });
+                    }
+                }
+
+                // Delete all existing records for this FormType + JobId
+                if (existingSettings.Any())
+                    await _approverLevelSettings.DeleteListAsync(existingSettings);
+
+                // Insert new records
+                if (settingsToInsert.Any())
+                    await _approverLevelSettings.InsertListAsync(settingsToInsert);
+
+                return await GetAsync(dto.FormType, dto.JobId);
+            }
+            catch (Exception ex)
+            {
+                // Optional: log error here
                 throw;
             }
         }

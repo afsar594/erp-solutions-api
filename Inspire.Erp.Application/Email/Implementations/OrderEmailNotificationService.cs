@@ -114,6 +114,7 @@ namespace Inspire.Erp.Application.Email.Implementations
                 {
                     toMails = approvers
                         .Where(x => x.ApproverLevel == level && x.OptEmail && x.ApproverId == approverId)
+                        .OrderBy(x => x.Sno)
                         .SelectMany(x => x.MetaData)
                         .Distinct()
                         .ToList();
@@ -172,10 +173,10 @@ namespace Inspire.Erp.Application.Email.Implementations
 
         private async Task<string> getOriginatorName(long originatorId)
         {
-          return await _userFile.GetAsQueryable()
-                .Where(x => x.UserId == originatorId)
-                .Select(x => x.UserName)
-                .FirstOrDefaultAsync();
+            return await _userFile.GetAsQueryable()
+                  .Where(x => x.UserId == originatorId)
+                  .Select(x => x.UserName)
+                  .FirstOrDefaultAsync();
         }
 
         private string GetOrderTypeKey(EnumOrderForms orderType)

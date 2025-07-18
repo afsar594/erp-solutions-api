@@ -58,6 +58,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private IRepository<UserFile> _userFileRepository;
         private IRepository<UnitDetails> _UnitDetailsRepository;
         private IRepository<PermissionApprovalDetail> _permissionApprovalDetailRepo;
+        private IRepository<DefaultApprover> _defaultApproversRepo;
         private readonly IOrderEmailNotificationService _orderEmailNotificationService;
         // private readonly InspireErpDBContext _dbContext;
         private readonly IRepository<PurchaseRequisitionDetails> _purchaseRequisitionDetailsRepository;
@@ -86,7 +87,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PurOrderRegister> purOrderRegisterRepository,
             IRepository<UnitDetails> unitDetailsRepository,
             IRepository<PurchaseVoucherDetails> purchaseVoucherDetailsRepo,
-            IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository, IRepository<Permissionapproval> permissionapproval, IRepository<ApproverLevelSettings> approverLevelSettings, IOrderEmailNotificationService orderEmailNotificationService, IRepository<PurchaseRequisition> purchaseRequisitionRepository, IRepository<OrderApprovalHierarchy> orderApprovalHierarchy, IPurchaseRequisitionService purchaseRequisitionService, IRepository<CustomerQuotation> customerQuotation, IRepository<JobMaster> jobMaster, IGeneralSettings generalSettings, IRepository<GeneralPurchaseOrder> generalPurchaseOrder, ICurrentUserService currentUserService, IGeneralSelectQueries generalSelectQueries)
+            IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository, IRepository<Permissionapproval> permissionapproval, IRepository<ApproverLevelSettings> approverLevelSettings, IOrderEmailNotificationService orderEmailNotificationService, IRepository<PurchaseRequisition> purchaseRequisitionRepository, IRepository<OrderApprovalHierarchy> orderApprovalHierarchy, IPurchaseRequisitionService purchaseRequisitionService, IRepository<CustomerQuotation> customerQuotation, IRepository<JobMaster> jobMaster, IGeneralSettings generalSettings, IRepository<GeneralPurchaseOrder> generalPurchaseOrder, ICurrentUserService currentUserService, IGeneralSelectQueries generalSelectQueries, IRepository<DefaultApprover> defaultApproversRepo)
         {
             applicationSettings = config.GetSection("ApplicationSettings").Get<ApplicationSettings>();
             this._accountTransactionRepository = accountTransactionRepository;
@@ -125,6 +126,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _currentUserService = currentUserService;
             _generalSelectQueries = generalSelectQueries;
             _purchaseOrderRequisitionHelper = new PurchaseOrderRequisitionHelper(userFileRepository, approverLevelSettings); ;
+            _defaultApproversRepo = defaultApproversRepo;
         }
         public IEnumerable<UserFile> GetAllUserFile()
         {
@@ -533,25 +535,29 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 }
                 else
                 {
-                    var defaultApprovers = !applicationSettings.DefaultApprovers.Any() ? null : applicationSettings.DefaultApprovers;
-                    var approvers = await _purchaseOrderRequisitionHelper.GetOrderApproverNameAndEmail(EnumOrderForms.PurchaseRequisition, (int)jobId, defaultApprovers);
-                    var prIds = purchaseOrder.PurchaseOrderDetails.Select(x => x.PurchaseRequisitionId).ToList();
-                    var lastApprovredPR = await _orderApprovalHierarchy.GetAsQueryable().AsNoTracking().Where(x => prIds.Contains((int)x.OrderId) && defaultApprovers.Contains(x.ApproverId) && x.OrderType == EnumOrderForms.PurchaseRequisition).ToListAsync();
+
+                    var approvers = await _defaultApproversRepo.GetAsQueryable().AsNoTracking()
+                                                    .Where(x => x.VoucherType == null || x.VoucherType.Trim().ToLower() == "purchaseorder")
+                                                    .Select(x=> new
+                                                    {
+                                                        x.UserId,
+                                                        x.Sno
+                                                    }).ToListAsync();
+                    
                     var orderApprovers = approvers
                         .Select(x =>
                         {
-                            var firstApprovredPR = lastApprovredPR.FirstOrDefault(lap => lap.ApproverId == x.ApproverId && lap.Status == EnumApprovalStatus.Approved);
                             return new OrderApprovalHierarchy
                             {
-                                ApproverId = x.ApproverId,
+                                ApproverId = x.UserId,
                                 OrderId = (int)purchaseOrder.PurchaseOrderId,
                                 Status = EnumApprovalStatus.Approved,
                                 OrderType = EnumOrderForms.PurchaseOrder,
                                 Remarks = "",
                                 ApproverLevel = GetApproverLevel(x.Sno),
                                 Sno = x.Sno,
-                                ApprovedBy = firstApprovredPR is not null ?  firstApprovredPR.ApprovedBy : (int)_currentUserService.UserId,
-                                ApprovedDate = firstApprovredPR is not null ?  firstApprovredPR.ApprovedDate : DateTime.Now,
+                                ApprovedBy = x.UserId,
+                                ApprovedDate = DateTime.Now,
                                 FilePath = string.Join(',', filePath)
                             };
                         }).ToList();

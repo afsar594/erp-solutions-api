@@ -12,6 +12,7 @@ namespace Inspire.Erp.Domain.Enums
         BillOfQuantity,
         SalesOrder,
         CustomerQuotation,
-        GeneralPurchaseOrder
+        GeneralPurchaseOrder,
+        Default
     }
 }
