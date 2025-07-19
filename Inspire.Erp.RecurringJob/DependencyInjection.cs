@@ -11,7 +11,11 @@ public static class DependencyInjection
         var settings = config.GetSection("ApplicationSettings").Get<ApplicationSettings>();
 
         services.AddHangfire(configuration =>
-            configuration.UseSqlServerStorage(settings.ConnectionString));
+            configuration.UseSqlServerStorage(settings.ConnectionString, new Hangfire.SqlServer.SqlServerStorageOptions
+            {
+                PrepareSchemaIfNecessary = false, // ✅ Prevent automatic table creation
+                SchemaName = "HangFire"           // ✅ Must match your existing DB schema
+            }));
 
         services.AddHangfireServer();
 

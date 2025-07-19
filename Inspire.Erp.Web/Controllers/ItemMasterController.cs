@@ -572,6 +572,7 @@ namespace Inspire.Erp.Web.Controllers
                     c.UnitDetailsRate,
                     c.UnitDetailsUnitPrice,
                     c.UnitDetailsUnitCost,
+                    c.UnitDetailsProfitPer,
                 })
                 .FirstOrDefault();
             if (customerId > 0)
