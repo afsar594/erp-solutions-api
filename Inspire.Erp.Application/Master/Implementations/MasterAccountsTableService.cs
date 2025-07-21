@@ -143,7 +143,7 @@ namespace Inspire.Erp.Application.Master
 
                 MasterAccountsTable.MaAccType = AccountStatus.Approved;
 
-                MasterAccountsTable.MaAccNo = MasterAccountsTable.MaRelativeNo + String.Format("{0:000}", AccNo);
+                MasterAccountsTable.MaAccNo = MasterAccountsTable.MaRelativeNo + String.Format("{0:00}", AccNo);
 
                 int maLen = MasterAccountsTable.MaAccNo.Length;
 
@@ -538,10 +538,18 @@ namespace Inspire.Erp.Application.Master
                                              .Where(x => Convert.ToInt32(x.MaSno) > 0)
                                              .DefaultIfEmpty()
                                              .Max(o => o == null ? 0 : o.MaSno)) + 1;
+
                 var AccNo = masteraccountstablerepository.GetAsQueryable()
-                                             .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == masterAccountsTable.MaRelativeNo)
-                                             .DefaultIfEmpty()
-                                             .Max(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length - 3, 3))) + 1;
+                                    .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == masterAccountsTable.MaRelativeNo)
+                                    .AsEnumerable() 
+                                    .Where(x => x.MaAccNo.StartsWith(x.MaRelativeNo))
+                                    .Select(x =>
+                                    {
+                                        var suffix = x.MaAccNo.Substring(x.MaRelativeNo.Length);
+                                        return long.TryParse(suffix, out long number) ? number : 0;
+                                    })
+                                    .DefaultIfEmpty()
+                                    .Max() + 1;
 
                 masterAccountsTable.MaAccType = AccountStatus.Approved;
 
@@ -550,11 +558,11 @@ namespace Inspire.Erp.Application.Master
                 masterAccountsTable.MaMainHead = mainHead ?? "";
                 masterAccountsTable.MaSubHead = subHead ?? "";
 
-                masterAccountsTable.MaAccNo = masterAccountsTable.MaRelativeNo + String.Format("{0:000}", AccNo);
+                masterAccountsTable.MaAccNo = masterAccountsTable.MaRelativeNo + String.Format("{0:00}", AccNo);
                 var exist = masteraccountstablerepository.GetAsQueryable().Where(a => a.MaAccNo == masterAccountsTable.MaAccNo).ToList();
                 if (exist.Count > 0)
                 {
-                    masterAccountsTable.MaAccNo = masterAccountsTable.MaRelativeNo + String.Format("{0:000}", AccNo + 1);
+                    masterAccountsTable.MaAccNo = masterAccountsTable.MaRelativeNo + String.Format("{0:00}", AccNo + 1);
                 }
                 if (masterAccountsTable.MaAccType == ItemMasterStatus.Group)
                 {
