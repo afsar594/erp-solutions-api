@@ -49,6 +49,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     return k;
                 }).OrderBy(x => x.CreditNoteDetailsVno).AsEnumerable().ToList();
                 _creditNoteRepository.Update(creditNote);
+                _creditNoteDetailsRepository.UpdateList(creditNote.CreditNoteDetails);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     if (k.AccountsTransactionsTransSno == 0)

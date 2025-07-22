@@ -51,6 +51,7 @@ namespace Inspire.Erp.Application.StoreWareHouse.Implementation
                     return k;
                 }).OrderBy(x => x.DebitNoteDetailsVno).AsEnumerable().ToList();
                 _debitNoteRepository.Update(debitNote);
+                _debitNoteDetailsRepository.UpdateList(debitNote.DebitNoteDetails);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     if (k.AccountsTransactionsTransSno == 0)
