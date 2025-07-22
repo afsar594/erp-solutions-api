@@ -50,15 +50,16 @@ namespace Inspire.Erp.Web
             services.AddApplication();
             services.AddInfrastructure(Configuration);
             services.AddTokenAuthentication(Configuration);
-            services.AddHangfire(configuration =>
-{
-    configuration.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection"), new Hangfire.SqlServer.SqlServerStorageOptions
-    {
-        PrepareSchemaIfNecessary = false, // Prevents migration attempts
-        SchemaName = "HangFire"           // Use the exact schema name in your DB
-    });
-});
-services.AddHangfireServer();
+
+            //services.AddHangfire(configuration =>
+            //        {
+            //            configuration.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection"), new Hangfire.SqlServer.SqlServerStorageOptions
+            //            {
+            //                PrepareSchemaIfNecessary = false, // Prevents migration attempts
+            //                SchemaName = "HangFire"           // Use the exact schema name in your DB
+            //            });
+            //        });
+            //services.AddHangfireServer();
             services.AddRecurringJob(Configuration);
 
 
@@ -162,6 +163,7 @@ services.AddHangfireServer();
                 RequestPath = "/pdfs"
             });
 
+            //this is only for Water bird project
             app.UseHangfireDashboard("/EmailScheduler");
             using (var scope = app.ApplicationServices.CreateScope())
             {

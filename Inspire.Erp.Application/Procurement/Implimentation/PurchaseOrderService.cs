@@ -1493,7 +1493,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                 x.OrderType == approvalDto.OrderType &&
                                 x.ApproverLevel == nextLevel &&
                                 x.Status == EnumApprovalStatus.Pending)
-                            .OrderBy(x => x.ApproverId)
+                            .OrderBy(x => x.Sno)
                             .FirstOrDefault();
 
                         if (nextLevelUser != null)
