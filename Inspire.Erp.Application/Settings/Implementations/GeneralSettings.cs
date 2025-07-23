@@ -46,6 +46,7 @@ namespace Inspire.Erp.Application.Settings.Implementations
                                                     CASE 
                                                         WHEN GS.General_Settings_Text_Value = 'JOB_WISE::1' THEN 'Approver Or Job not found for orderType'
                                                         WHEN GS.General_Settings_Text_Value = 'VOUCHER_WISE::2' THEN 'No approver found for the voucher'
+                                                        WHEN GS.General_Settings_Text_Value = 'NO_APPROVAL::3' THEN ''
                                                         ELSE 'No approver configuration found'
                                                     END
 

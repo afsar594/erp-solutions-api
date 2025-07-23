@@ -51,15 +51,15 @@ namespace Inspire.Erp.Web
             services.AddInfrastructure(Configuration);
             services.AddTokenAuthentication(Configuration);
 
-            //services.AddHangfire(configuration =>
+            // services.AddHangfire(configuration =>
             //        {
             //            configuration.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection"), new Hangfire.SqlServer.SqlServerStorageOptions
             //            {
-            //                PrepareSchemaIfNecessary = false, // Prevents migration attempts
+            //                PrepareSchemaIfNecessary = true, // Prevents migration attempts
             //                SchemaName = "HangFire"           // Use the exact schema name in your DB
             //            });
             //        });
-            //services.AddHangfireServer();
+            services.AddHangfireServer();
             services.AddRecurringJob(Configuration);
 
 
