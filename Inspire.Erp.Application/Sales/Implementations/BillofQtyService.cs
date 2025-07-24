@@ -29,6 +29,7 @@ using Inspire.Erp.Infrastructure;
 using Inspire.Erp.Domain.Constants;
 using Inspire.Erp.Application.Email.Interfaces;
 using Inspire.Erp.Application.Common.Email;
+using System.Threading;
 
 namespace Inspire.Erp.Application.Sales.Implementations
 {
@@ -52,13 +53,14 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<JobMasterJobDetails> _jobMasterJobDetailsRepo;
         private readonly IRepository<BillofQtyTracking> _billofQtyTracking;
         private readonly IOrderEmailNotificationService _orderEmailNotificationService;
+        private readonly IRepository<CostCenterMaster> _costCenterMastr;
         public BillofQtyService(ILogger<CustomerQuotationService> logger, IRepository<PermissionApproval> permissionApprovalRepo,
             IRepository<Approval> approvalRepo, IRepository<ApprovalDetail> approvalDetailRepo,
             IRepository<BillofQtyMaster> BillofQtyMasterRepository, IRepository<VouchersNumbers> voucherNumbersRepository, IRepository<Domain.Entities.ProgramSettings> programsettingsRepository,
             IRepository<BillOfQTyDetails> BillOfQTyDetailsRepository,
             IRepository<UserTracking> userTrackingRepository,
             IRepository<JobMasterBudgetDetails> _jobbudgetRepository,
-            InspireErpDBContext Context, IRepository<EstimationCostCenter> estimationCostCenterRepository, IRepository<JobMaster> jobMasterRepository, IRepository<BillofQtyTracking> billofQtyTracking, IOrderEmailNotificationService orderEmailNotificationService, IRepository<JobMasterJobDetails> jobMasterJobDetailsRepo)
+            InspireErpDBContext Context, IRepository<EstimationCostCenter> estimationCostCenterRepository, IRepository<JobMaster> jobMasterRepository, IRepository<BillofQtyTracking> billofQtyTracking, IOrderEmailNotificationService orderEmailNotificationService, IRepository<JobMasterJobDetails> jobMasterJobDetailsRepo, IRepository<CostCenterMaster> costCenterMastr, IRepository<ItemMaster> itemMasterRepository)
         {
 
             _BillofQtyMasterRepository = BillofQtyMasterRepository;
@@ -79,9 +81,11 @@ namespace Inspire.Erp.Application.Sales.Implementations
             _billofQtyTracking = billofQtyTracking;
             _orderEmailNotificationService = orderEmailNotificationService;
             _jobMasterJobDetailsRepo = jobMasterJobDetailsRepo;
+            _costCenterMastr = costCenterMastr;
+            _itemMasterRepository = itemMasterRepository;
         }
 
-        public BillofQtyMaster UpdateBillofQty(BillofQtyMaster BillofQty, List<BillOfQTyDetails> BillOfQTyDetails, List<EstimationCostCenter> EstimationCostCenter)
+        public async Task<Response<BillofQtyMasterModel>> UpdateBillofQty(BillofQtyMaster BillofQty, List<BillOfQTyDetails> BillOfQTyDetails, List<EstimationCostCenter> EstimationCostCenter)
         {
 
             try
@@ -139,7 +143,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 throw ex;
             }
 
-            return this.GetSavedBillofQty(BillofQty.Id);
+            return await this.GetSavedBillofQty((long)BillofQty.Id);
         }
 
         private void InsertUpdateJobBudgetDetails(BillofQtyMaster BillofQty, List<EstimationCostCenter> EstimationCostCenter)
@@ -233,7 +237,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             return i;
 
         }
-        public BillofQtyMaster InsertBillofQty(BillofQtyMaster BillofQty, List<BillOfQTyDetails> BillOfQTyDetails, List<EstimationCostCenter> EstimationCostCenter)
+        public Task<Response<BillofQtyMasterModel>> InsertBillofQty(BillofQtyMaster BillofQty, List<BillOfQTyDetails> BillOfQTyDetails, List<EstimationCostCenter> EstimationCostCenter)
         {
             try
             {
@@ -296,7 +300,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 //SendEmailOnValueExceedsAsync((int)BillofQty.CustomerEnqId, BillofQty.BillofqtyNo);
                 //#endregion
 
-                return this.GetSavedBillofQty(BillofQty.Id);
+                return this.GetSavedBillofQty((long)BillofQty.Id);
             }
             catch (Exception ex)
             {
@@ -342,7 +346,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             return _jobMasterJobDetailsRepo.GetAsQueryable()
                                            .AsNoTracking()
                                            .Where(x => x.JobMasterJobDetailsJobId == jobId)
-                                           .Sum(x => x.JobMasterJobDetailsJdAmt ?? 0) ;
+                                           .Sum(x => x.JobMasterJobDetailsJdAmt ?? 0);
         }
         private decimal GetBoqTotalValue(int jobId)
         {
@@ -395,25 +399,78 @@ namespace Inspire.Erp.Application.Sales.Implementations
             IEnumerable<BillofQtyMaster> customerQuotation = _BillofQtyMasterRepository.GetAll();
             return customerQuotation;
         }
-        public BillofQtyMaster GetSavedBillofQty(decimal id)
+
+        public async Task<Response<BillofQtyMasterModel>> GetSavedBillofQty(long Id)
         {
+            var result = await _BillofQtyMasterRepository.GetAsQueryable()
+                                      .Where(x => x.Id == Id)
+                                      .Select(x => new BillofQtyMasterModel
+                                      {
+                                          Id = x.Id,
+                                          BillofqtyNo = x.BillofqtyNo,
+                                          Date = x.Date,
+                                          CustomerEnqId = x.CustomerEnqId,
+                                          Remarks = x.Remarks ?? string.Empty,
+                                          Status = x.Status,
+                                          BOQAmount = x.BOQAmount,
+                                          CostantsAmount = x.CostantsAmount,
+                                          TotalAmount = x.TotalAmount,
+                                          ProfitAmount = x.ProfitAmount,
+                                          ProftPercentage = x.ProftPercentage,
+                                          QuoteAmount = x.QuoteAmount
+                                      }).FirstOrDefaultAsync();
 
-            BillofQtyMaster voucherdata = new BillofQtyMaster();
-            voucherdata = _BillofQtyMasterRepository.GetAsQueryable().Where(k => k.Id == id).FirstOrDefault();
-            if (voucherdata != null)
-            {
-                voucherdata.BillOfQTyDetails = _BillOfQTyDetailsRepository.GetAsQueryable().Where(qd => qd.BillQtyId == id).ToList();
-                voucherdata.EstimationCostCenter = _EstimationCostCenterRepository.GetAsQueryable().Where(qd => qd.BillQtyId == id).ToList();
-
-                return voucherdata;
-
-            }
-            else
-            {
+            if (result == null)
                 return null;
-            }
 
+            result.BillOfQTyDetails = await (from d in _BillOfQTyDetailsRepository.GetAsQueryable()
+                                          where d.BillQtyId == result.Id
+                                          join t in _itemMasterRepository.GetAsQueryable()
+                                              on d.ItemCode equals t.ItemMasterItemId into itemJoin
+                                          from t in itemJoin.DefaultIfEmpty()
+                                          select new BillOfQTyDetailsModel
+                                          {
+                                              Id = d.Id,
+                                              BillQtyId = d.BillQtyId,
+                                              ItemCode = d.ItemCode,
+                                              ItemName = t != null ? t.ItemMasterItemName : string.Empty,
+                                              UnitCode = d.UnitCode,
+                                              Qty = d.Qty,
+                                              Rate = d.Rate,
+                                              Amount = d.Amount,
+                                              Remarks = d.Remarks ?? string.Empty,
+                                              IsEdit = d.IsEdit,
+                                              Freight_Charges = d.Freight_Charges,
+                                              Packing_Charges = d.Packing_Charges,
+                                              Clearance_Charges = d.Clearance_Charges,
+                                              Duty = d.Duty,
+                                              Mofa = d.Mofa,
+                                              Others = d.Others,
+                                              Currency_TypeId = d.Currency_TypeId,
+                                              FinalAmount = d.FinalAmount,
+                                              CurrencyRate = d.CurrencyRate
+                                          }).ToListAsync();
+
+            result.EstimationCostCenter = await (from c in _EstimationCostCenterRepository.GetAsQueryable()
+                                              where c.BillQtyId == result.Id
+                                              join cc in _costCenterMastr.GetAsQueryable()
+                                                  on c.costcenter equals cc.CostCenterMasterCostCenterId into ccJoin
+                                              from cc in ccJoin.DefaultIfEmpty()
+                                              select new EstimationCostCenterModel
+                                              {
+                                                  Id = c.Id,
+                                                  Remarks = c.Remarks ?? string.Empty,
+                                                  Amount = c.Amount ?? 0,
+                                                  BillQtyId = c.BillQtyId,
+                                                  costcenter = c.costcenter,
+                                                  CostCenterName = cc != null ? cc.CostCenterMasterCostCenterName : string.Empty
+                                              }).ToListAsync();
+
+            if (result is null)
+                return Response<BillofQtyMasterModel>.Fail(null, $"No bill of quantity were found against {Id}");
+            return Response<BillofQtyMasterModel>.Success(result, $"Bill of quantity were found against {Id}");
         }
+
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate)
         {
             try

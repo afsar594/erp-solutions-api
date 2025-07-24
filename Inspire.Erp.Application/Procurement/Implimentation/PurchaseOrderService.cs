@@ -1398,12 +1398,23 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         {
             try
             {
+                long UserId = approvalDto.UserId ?? Convert.ToInt64(_currentUserService.UserId);
+                var existingApprovalStatus = await _orderApprovalHierarchy.FirstOrDefaultAsync(a =>
+                                            a.ApproverId == UserId &&
+                                            a.OrderId == approvalDto.OrderId &&
+                                            a.OrderType == approvalDto.OrderType,
+                                            s => s.Status, null);
+
+                if (existingApprovalStatus == EnumApprovalStatus.Rejected)
+                    return Response<List<VoucherApprivalDto>>.Fail(new List<VoucherApprivalDto>(), "Approval record already been Rejected for current user");
+                if (existingApprovalStatus == EnumApprovalStatus.Approved)
+                    return Response<List<VoucherApprivalDto>>.Fail(new List<VoucherApprivalDto>(), "Approval record already been Approved for current user");
+
                 var settingValue = await _generalSettings.GetValueByKey(InspireConstants.DefaultApprovalType);
                 _orderApprovalHierarchy.BeginTransaction();
-                long UserId = approvalDto.UserId ?? Convert.ToInt64(_currentUserService.UserId);
                 var Username = _currentUserService.Username;
                 var groupId = _currentUserService.GroupId;
-                bool isAdmin = _generalSelectQueries.GetBooleanValue(groupId).Result;
+                bool isAdmin = await _generalSelectQueries.GetBooleanValue(groupId);
 
 
                 var currentApproval = _orderApprovalHierarchy.GetAsQueryable()

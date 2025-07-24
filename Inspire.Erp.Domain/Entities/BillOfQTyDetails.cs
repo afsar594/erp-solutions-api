@@ -37,8 +37,7 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? Amount { get; set; }
         public int BillQtyId { get; set; }
         public int costcenter { get; set; }
-
-
+        public string CostCenterName { get; set; }
     }
 
     public class BillOfQTyDetailsModel
@@ -46,7 +45,9 @@ namespace Inspire.Erp.Domain.Entities
         public decimal Id { get; set; }
         public decimal? BillQtyId { get; set; }
         public decimal? ItemCode { get; set; }
+        public string ItemName { get; set; }
         public decimal? UnitCode { get; set; }
+        public string UnitName { get; set; }
         public decimal? Qty { get; set; }
 
         public decimal? Rate { get; set; }

@@ -53,81 +53,21 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpPost]
         [Route("InsertBillofQty")]
-        public ApiResponse<BillofQtyMasterModel> InsertBillofQty([FromBody] BillofQtyMasterModel customerQuotationCompositeView)
-        {
-            ApiResponse<BillofQtyMasterModel> apiResponse = new ApiResponse<BillofQtyMasterModel>();
-
-            try
-            {
-                var param1 = _mapper.Map<BillofQtyMaster>(customerQuotationCompositeView);
-                var param2 = _mapper.Map<List<BillOfQTyDetails>>(customerQuotationCompositeView.BillOfQTyDetails);
-                var param3 = _mapper.Map<List<EstimationCostCenter>>(customerQuotationCompositeView.EstimationCostCenter);
-
-                var xs = _billofQtyService.InsertBillofQty(param1, param2, param3);
-
-                BillofQtyMasterModel CustomerQuotationViewModel = new BillofQtyMasterModel();
-
-                if (xs != null)
-                {
-                    CustomerQuotationViewModel = _mapper.Map<BillofQtyMasterModel>(xs);
-                    CustomerQuotationViewModel.BillOfQTyDetails = _mapper.Map<List<BillOfQTyDetailsModel>>(xs.BillOfQTyDetails);
-                    CustomerQuotationViewModel.EstimationCostCenter = _mapper.Map<List<EstimationCostCenterModel>>(xs.EstimationCostCenter);
-
-
-                    apiResponse = new ApiResponse<BillofQtyMasterModel>
-                    {
-                        Valid = true,
-                        Result = CustomerQuotationViewModel,
-                        Message = BillofQtyMessage.SaveBillofQty
-                    };
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            catch (Exception ex)
-            {
-                apiResponse = new ApiResponse<BillofQtyMasterModel>
-                {
-                    Valid = false,
-                    Error = true,
-                    Exception = ex.Message,
-                    Message = BillofQtyMessage.BillofQtyError
-                };
-            }
-            return apiResponse;
-
-        }
-        [HttpPost]
-        [Route("UpdateBillofQty")]
-        public ApiResponse<BillofQtyMasterModel> UpdateBillofQty([FromBody] BillofQtyMasterModel customerQuotationCompositeView)
+        public async Task<IActionResult> InsertBillofQty([FromBody] BillofQtyMasterModel customerQuotationCompositeView)
         {
             var param1 = _mapper.Map<BillofQtyMaster>(customerQuotationCompositeView);
             var param2 = _mapper.Map<List<BillOfQTyDetails>>(customerQuotationCompositeView.BillOfQTyDetails);
             var param3 = _mapper.Map<List<EstimationCostCenter>>(customerQuotationCompositeView.EstimationCostCenter);
-
-            var xs = _billofQtyService.UpdateBillofQty(param1, param2, param3);
-            if (xs != null)
-            {
-                BillofQtyMasterModel CustomerQuotationViewModel = new BillofQtyMasterModel();
-                CustomerQuotationViewModel = _mapper.Map<BillofQtyMasterModel>(xs);
-                CustomerQuotationViewModel.BillOfQTyDetails = _mapper.Map<List<BillOfQTyDetailsModel>>(xs.BillOfQTyDetails);
-                CustomerQuotationViewModel.EstimationCostCenter = _mapper.Map<List<EstimationCostCenterModel>>(xs.EstimationCostCenter);
-
-
-                ApiResponse<BillofQtyMasterModel> apiResponse = new ApiResponse<BillofQtyMasterModel>
-                {
-                    Valid = true,
-                    Result = CustomerQuotationViewModel,
-                    Message = BillofQtyMessage.UpdateBillofQty
-                };
-                return apiResponse;
-            }
-            else
-            {
-                return null;
-            }
+            return Ok(await _billofQtyService.InsertBillofQty(param1, param2, param3));
+        }
+        [HttpPost]
+        [Route("UpdateBillofQty")]
+        public async Task<IActionResult> UpdateBillofQty([FromBody] BillofQtyMasterModel customerQuotationCompositeView)
+        {
+            var param1 = _mapper.Map<BillofQtyMaster>(customerQuotationCompositeView);
+            var param2 = _mapper.Map<List<BillOfQTyDetails>>(customerQuotationCompositeView.BillOfQTyDetails);
+            var param3 = _mapper.Map<List<EstimationCostCenter>>(customerQuotationCompositeView.EstimationCostCenter);
+            return Ok(await _billofQtyService.UpdateBillofQty(param1, param2, param3));
         }
         [HttpGet]
         [Route("DeleteBillofQty/{id}")]
@@ -156,16 +96,9 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpGet]
         [Route("GetSavedBillofQty/{id}")]
-        public ApiResponse<BillofQtyMasterModel> GetSavedBillofQty(decimal id)
+        public async Task<IActionResult> GetSavedBillofQty(long id)
         {
-
-            ApiResponse<BillofQtyMasterModel> apiResponse = new ApiResponse<BillofQtyMasterModel>
-            {
-                Valid = true,
-                Result = _mapper.Map<BillofQtyMasterModel>(_billofQtyService.GetSavedBillofQty(id)),
-                Message = ""
-            };
-            return apiResponse;
+            return Ok(await _billofQtyService.GetSavedBillofQty(id));
         }
 
 
