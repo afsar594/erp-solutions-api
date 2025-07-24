@@ -9733,35 +9733,42 @@
     ]
   },
   "packageFolders": {
-    "/Users/humzamughal/.nuget/packages/": {}
+    "C:\\Users\\AAUEC\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/humzamughal/Documents/GitHub/ERP.APISV2.0.0/Inspire.Erp.RecurringJob/Inspire.Erp.RecurringJob.csproj",
+      "projectUniqueName": "D:\\inspire solution\\ERP 2024\\ERP.APISV2.0.0\\Inspire.Erp.RecurringJob\\Inspire.Erp.RecurringJob.csproj",
       "projectName": "Inspire.Erp.RecurringJob",
-      "projectPath": "/Users/humzamughal/Documents/GitHub/ERP.APISV2.0.0/Inspire.Erp.RecurringJob/Inspire.Erp.RecurringJob.csproj",
-      "packagesPath": "/Users/humzamughal/.nuget/packages/",
-      "outputPath": "/Users/humzamughal/Documents/GitHub/ERP.APISV2.0.0/Inspire.Erp.RecurringJob/obj/",
+      "projectPath": "D:\\inspire solution\\ERP 2024\\ERP.APISV2.0.0\\Inspire.Erp.RecurringJob\\Inspire.Erp.RecurringJob.csproj",
+      "packagesPath": "C:\\Users\\AAUEC\\.nuget\\packages\\",
+      "outputPath": "D:\\inspire solution\\ERP 2024\\ERP.APISV2.0.0\\Inspire.Erp.RecurringJob\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "/Users/humzamughal/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\AAUEC\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "/Users/humzamughal/Documents/GitHub/ERP.APISV2.0.0/Inspire.Erp.Application/Inspire.Erp.Application.csproj": {
-              "projectPath": "/Users/humzamughal/Documents/GitHub/ERP.APISV2.0.0/Inspire.Erp.Application/Inspire.Erp.Application.csproj"
+            "D:\\inspire solution\\ERP 2024\\ERP.APISV2.0.0\\Inspire.Erp.Application\\Inspire.Erp.Application.csproj": {
+              "projectPath": "D:\\inspire solution\\ERP 2024\\ERP.APISV2.0.0\\Inspire.Erp.Application\\Inspire.Erp.Application.csproj"
             },
-            "/Users/humzamughal/Documents/GitHub/ERP.APISV2.0.0/Inspire.Erp.Infrastructure/Inspire.Erp.Infrastructure.csproj": {
-              "projectPath": "/Users/humzamughal/Documents/GitHub/ERP.APISV2.0.0/Inspire.Erp.Infrastructure/Inspire.Erp.Infrastructure.csproj"
+            "D:\\inspire solution\\ERP 2024\\ERP.APISV2.0.0\\Inspire.Erp.Infrastructure\\Inspire.Erp.Infrastructure.csproj": {
+              "projectPath": "D:\\inspire solution\\ERP 2024\\ERP.APISV2.0.0\\Inspire.Erp.Infrastructure\\Inspire.Erp.Infrastructure.csproj"
             }
           }
         }
@@ -9776,7 +9783,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.300"
+      "SdkAnalysisLevel": "9.0.100"
     },
     "frameworks": {
       "net8.0": {
@@ -9807,8 +9814,16 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.303/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.101/PortableRuntimeIdentifierGraph.json"
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "NU1900",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json."
+    }
+  ]
 }
