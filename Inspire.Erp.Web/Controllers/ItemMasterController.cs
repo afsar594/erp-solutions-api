@@ -616,6 +616,86 @@ namespace Inspire.Erp.Web.Controllers
             return response;
         }
 
+        [HttpGet]
+        [Route("GetItemMasterByIdAndLocation/{id}/{locationID}/{customerId?}")]
+        public ResponseInfo GetItemMasterByIdAndLocation(int id, int locationID,int customerId = -1)
+        {
+            var response = new ResponseInfo();
+            decimal? lastSalePrice = null;
+            decimal? CurrentItemStock = null;
+            var item = itemrepository.GetAsQueryable()
+                .Where(x => x.ItemMasterItemId == id && x.ItemMasterDelStatus != true)
+                .Select(a => new
+                {
+                    a.ItemMasterItemId,
+                    a.ItemMasterItemName,
+                    a.ItemMasterPartNo,
+                    a.ItemMasterUnitPrice,
+                    a.ItemMasterLastPurchasePrice
+                })
+                .FirstOrDefault();
+
+            if (item == null)
+            {
+                response.ResultSet = null;
+                return response;
+            }
+
+            var unitDetail = _unitDetailsRepo.GetAsQueryable()
+                .Where(x => x.UnitDetailsItemId == id && x.UnitDetailsDelStatus != true)
+                .OrderBy(x => x.UnitDetailsItem)
+                .Select(c => new
+                {
+                    c.UnitDetailsId,
+                    c.UnitDetailsUnitId,
+                    c.UnitDetailsConversionType,
+                    c.UnitDetailsRate,
+                    c.UnitDetailsUnitPrice,
+                    c.UnitDetailsUnitCost,
+                    c.UnitDetailsProfitPer,
+                })
+                .FirstOrDefault();
+            if (customerId > 0)
+            {
+                lastSalePrice = (from sv in _repoSalesVoucher.GetAsQueryable().AsNoTracking()
+                                 join svd in _repoSalesVoucherDetails.GetAsQueryable().AsNoTracking()
+                                 on sv.SalesVoucherId equals svd.SalesVoucherId
+                                 where sv.SalesVoucherPartyId == customerId && svd.SalesVoucherDetailsMatId == id
+                                 orderby sv.SalesVoucherDate descending
+                                 select svd.SalesVoucherDetailsRate)
+                                              .FirstOrDefault();
+            }
+
+            var stockData = _repoStockRegister.GetAsQueryable()
+                                              .AsNoTracking()
+                                              .Where(x => x.StockRegisterMaterialID == id && x.StockRegisterLocationID == locationID && !(bool)x.StockRegisterDelStatus)
+                                              .GroupBy(x => x.StockRegisterMaterialID)
+                                              .Select(g => new
+                                              {
+                                                  StockIn = g.Sum(s => s.StockRegisterSIN ?? 0m),
+                                                  StockOut = g.Sum(s => s.StockRegisterSout ?? 0m)
+                                              })
+                                              .FirstOrDefault();
+
+            CurrentItemStock = stockData != null ? stockData.StockIn - stockData.StockOut : 0m;
+
+
+
+            var result = new
+            {
+                item.ItemMasterItemId,
+                item.ItemMasterItemName,
+                item.ItemMasterPartNo,
+                ItemMasterUnitPrice = lastSalePrice ?? item.ItemMasterUnitPrice,
+                CurrentItemStock = CurrentItemStock ?? 0m,
+                item.ItemMasterLastPurchasePrice,
+                UnitDetails = unitDetail
+            };
+
+            response.ResultSet = new { itemMaster = result };
+            return response;
+        }
+
         [HttpPost("GetFilteredItems")]
         public async Task<IActionResult> GetFilteredItems([FromBody] PagedSearchRequest request)
         {
