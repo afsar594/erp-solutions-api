@@ -13,8 +13,8 @@ public static class DependencyInjection
         services.AddHangfire(configuration =>
             configuration.UseSqlServerStorage(settings.ConnectionString, new Hangfire.SqlServer.SqlServerStorageOptions
             {
-                PrepareSchemaIfNecessary = false, // ✅ Prevent automatic table creation
-                SchemaName = "HangFire"           // ✅ Must match your existing DB schema
+                //PrepareSchemaIfNecessary = false, // ✅ Prevent automatic table creation
+                //SchemaName = "HangFire"           // ✅ Must match your existing DB schema
             }));
 
         services.AddHangfireServer();

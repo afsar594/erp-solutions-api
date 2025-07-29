@@ -538,12 +538,12 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                     var approvers = await _defaultApproversRepo.GetAsQueryable().AsNoTracking()
                                                     .Where(x => x.VoucherType == null || x.VoucherType.Trim().ToLower() == "purchaseorder")
-                                                    .Select(x=> new
+                                                    .Select(x => new
                                                     {
                                                         x.UserId,
                                                         x.Sno
                                                     }).ToListAsync();
-                    
+
                     var orderApprovers = approvers
                         .Select(x =>
                         {
@@ -1398,12 +1398,41 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         {
             try
             {
-                var settingValue = await _generalSettings.GetValueByKey(InspireConstants.DefaultApprovalType);
+                if (await _orderApprovalHierarchy.GetAsQueryable().AnyAsync(a => a.OrderId == approvalDto.OrderId && a.OrderType == approvalDto.OrderType && a.Status == EnumApprovalStatus.Rejected))
+                    return Response<List<VoucherApprivalDto>>.Fail(new List<VoucherApprivalDto>(), "Approval record already been Rejected.");
+
                 _orderApprovalHierarchy.BeginTransaction();
+                if (approvalDto.ApprovalStatus == EnumApprovalStatus.Rejected)
+                {
+                    var currentApprovals = await _orderApprovalHierarchy.GetAsQueryable()
+                                                           .Where(a =>
+                                                               a.OrderId == approvalDto.OrderId &&
+                                                               a.OrderType == approvalDto.OrderType &&
+                                                               a.Status == EnumApprovalStatus.Pending).ToListAsync();
+                    currentApprovals.ForEach(x =>
+                    {
+                        x.Status = EnumApprovalStatus.Rejected;
+                        x.Remarks = $"{approvalDto.Remarks} : Rejected By {_currentUserService.Username}" ;
+                    });
+                    await _orderApprovalHierarchy.UpdateListAsync(currentApprovals);
+                    _orderApprovalHierarchy.TransactionCommit();
+                    return await GetDefaultPOPR(approvalDto.OrderId, approvalDto.OrderType);
+                }
+
                 long UserId = approvalDto.UserId ?? Convert.ToInt64(_currentUserService.UserId);
+                var existingApprovalStatus = await _orderApprovalHierarchy.FirstOrDefaultAsync(a =>
+                                            a.ApproverId == UserId &&
+                                            a.OrderId == approvalDto.OrderId &&
+                                            a.OrderType == approvalDto.OrderType,
+                                            s => s.Status, null);
+
+                if (existingApprovalStatus == EnumApprovalStatus.Approved)
+                    return Response<List<VoucherApprivalDto>>.Fail(new List<VoucherApprivalDto>(), "Approval record already been Approved for current user");
+
+                var settingValue = await _generalSettings.GetValueByKey(InspireConstants.DefaultApprovalType);
                 var Username = _currentUserService.Username;
                 var groupId = _currentUserService.GroupId;
-                bool isAdmin = _generalSelectQueries.GetBooleanValue(groupId).Result;
+                bool isAdmin = await _generalSelectQueries.GetBooleanValue(groupId);
 
 
                 var currentApproval = _orderApprovalHierarchy.GetAsQueryable()
@@ -1458,8 +1487,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 _orderApprovalHierarchy.Update(currentApproval);
                 _orderApprovalHierarchy.TransactionCommit();
 
-                if (approvalDto.ApprovalStatus == EnumApprovalStatus.Rejected)
-                    return await GetDefaultPOPR(approvalDto.OrderId, approvalDto.OrderType);
+
 
                 // Check for next pending user at same level
                 var pendingUsersAtCurrentLevel = _orderApprovalHierarchy.GetAsQueryable()
@@ -1493,7 +1521,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                 x.OrderType == approvalDto.OrderType &&
                                 x.ApproverLevel == nextLevel &&
                                 x.Status == EnumApprovalStatus.Pending)
-                            .OrderBy(x => x.ApproverId)
+                            .OrderBy(x => x.Sno)
                             .FirstOrDefault();
 
                         if (nextLevelUser != null)
