@@ -1,6 +1,0 @@
-C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.RecurringJob\obj\Debug\netcoreapp3.1\Inspire.Erp.RecurringJob.csproj.AssemblyReference.cache
-C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.RecurringJob\obj\Debug\netcoreapp3.1\Inspire.Erp.RecurringJob.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.RecurringJob\obj\Debug\netcoreapp3.1\Inspire.Erp.RecurringJob.AssemblyInfoInputs.cache
-C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.RecurringJob\obj\Debug\netcoreapp3.1\Inspire.Erp.RecurringJob.AssemblyInfo.cs
-C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.RecurringJob\obj\Debug\netcoreapp3.1\Inspire.Erp.RecurringJob.csproj.CoreCompileInputs.cache
-C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.RecurringJob\obj\Debug\netcoreapp3.1\Inspire.Erp.RecurringJob.sourcelink.json

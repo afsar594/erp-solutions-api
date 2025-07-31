@@ -1,8 +1,0 @@
-is_global = true
-build_property.RootNamespace = Inspire.Erp.RecurringJob
-build_property.ProjectDir = C:\Users\irfan\Desktop\InspireSystems\ERP\ERP.APISV2.0.0\Inspire.Erp.RecurringJob\
-build_property.EnableComHosting = 
-build_property.EnableGeneratedComInterfaceComImportInterop = 
-build_property.CsWinRTUseWindowsUIXamlProjections = false
-build_property.EffectiveAnalysisLevelStyle = 
-build_property.EnableCodeStyleSeverity = 
