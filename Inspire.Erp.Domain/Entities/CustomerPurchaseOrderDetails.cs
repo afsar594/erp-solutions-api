@@ -10,6 +10,9 @@ namespace Inspire.Erp.Domain.Entities
         public int CustomerPurchaseOrderId { get; set; }
         public string CustomerPurchaseOrderDetailsVoucherNo { get; set; }
         public int? CustomerPurchaseOrderDetailsSlno { get; set; }
+        
+        [NotMapped]
+        public long? CustomerPurchaseOrderDetailsQuotationID { get; set; }
         public long? CustomerPurchaseOrderDetailsItemId { get; set; }
         public string CustomerPurchaseOrderDetailsPartNo { get; set; }
         public string CustomerPurchaseOrderDetailsDescription { get; set; }

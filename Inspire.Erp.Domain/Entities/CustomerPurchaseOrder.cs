@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -13,6 +14,9 @@ namespace Inspire.Erp.Domain.Entities
         public string CustomerPurchaseOrderVoucherNo { get; set; }
         public DateTime? CustomerPurchaseOrderDate { get; set; }
         public long? CustomerPurchaseOrderLocationId { get; set; }
+
+        [NotMapped]
+        public long? CustomerPurchaseOrderDetailsQuotationID { get; set; }
 
         public int? CustomerPurchaseOrderDepartmentId { get; set; }
         public int? CustomerPurchaseOrderCustomerId { get; set; }
