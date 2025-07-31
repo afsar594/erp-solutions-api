@@ -9733,9 +9733,7 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\irfan\\.nuget\\packages\\": {},
-    "C:\\Program Files\\DevExpress 23.2\\Components\\Offline Packages": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\irfan\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
@@ -9746,10 +9744,6 @@
       "packagesPath": "C:\\Users\\irfan\\.nuget\\packages\\",
       "outputPath": "C:\\Users\\irfan\\Desktop\\InspireSystems\\ERP\\ERP.APISV2.0.0\\Inspire.Erp.RecurringJob\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files\\DevExpress 23.2\\Components\\Offline Packages",
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
         "C:\\Users\\irfan\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\DevExpress 23.2.config",
@@ -9760,8 +9754,6 @@
         "net8.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\DevExpress 23.2\\Components\\System\\Components\\Packages": {},
         "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
@@ -9822,13 +9814,5 @@
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.302/PortableRuntimeIdentifierGraph.json"
       }
     }
-  },
-  "logs": [
-    {
-      "code": "NU1900",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json."
-    }
-  ]
+  }
 }
