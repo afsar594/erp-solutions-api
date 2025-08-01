@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inspire.Erp.Web.ViewModels.sales
 {
@@ -13,6 +14,9 @@ namespace Inspire.Erp.Web.ViewModels.sales
         public int? CustomerPurchaseOrderCustomerId { get; set; }
         public string CustomerPurchaseOrderCustomerName { get; set; }
         public long? CustomerPurchaseOrderSalesManId { get; set; }
+
+        [NotMapped]
+        public long? CustomerPurchaseOrderDetailsQuotationID { get; set; }
         public string CustomerPurchaseOrderLpoNo { get; set; }
         public DateTime? CustomerPurchaseOrderLpoDate { get; set; }
         public long? CustomerPurchaseOrderCurrencyId { get; set; }

@@ -47,6 +47,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<TrackingRegister> _trackingRegisterRepository;
         private IRepository<PurOrderRegister> _purOrderRegisterRepository;
         private IRepository<CustomerOrderRegister> _custOrderRegRepository;
+        private IRepository<CustomerQuotationDetails> _customerQuotationDetailsRepository;
 
         public CustomerPurchaseOrderService(
             //IRepository<ReportSalesVoucher> reportSalesVoucherRepository,
@@ -59,6 +60,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
              IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
             IRepository<CustomerPurchaseOrder> customerPurchaseOrderRepository, IRepository<CustomerPurchaseOrderDetails> customerPurchaseOrderDetailsRepository,
             IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PurOrderRegister> purOrderRegisterRepository,
+             IRepository<CustomerQuotationDetails> customerQuotationDetailsRepository,
             IRepository<CustomerOrderRegister> custOrderRegRepository, IRepository<SalesVoucher> salesVoucherRepo, IRepository<SalesVoucherDetails> salesVoucherDetailRepo,
             InspireErpDBContext Context)
         {
@@ -66,6 +68,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             this._stockRegisterRepository = stockRegisterRepository;
             this._customerPurchaseOrderRepository = customerPurchaseOrderRepository;
             this._customerPurchaseOrderDetailsRepository = customerPurchaseOrderDetailsRepository;
+            this._customerQuotationDetailsRepository = customerQuotationDetailsRepository;
             _programsettingsRepository = programsettingsRepository;
             _voucherNumbersRepository = voucherNumbers;
             _Context = Context;
@@ -303,6 +306,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 var listTrackRegs = new List<TrackingRegister>();
                 var listTrackPurchOrderReg = new List<PurOrderRegister>();
                 var listCustOrderRegisterReg = new List<CustomerOrderRegister>();
+                var allQuotations = _customerQuotationDetailsRepository.GetAll();
                 foreach (var purOrderDet in customerPurchaseOrder.CustomerPurchaseOrderDetails)
                 {
                     var tr = new TrackingRegister
@@ -353,7 +357,29 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         CustomerOrderRegisterStatus = "A"
                     };
                     listCustOrderRegisterReg.Add(custOrdReg);
-                }
+                    if (purOrderDet.CustomerPurchaseOrderDetailsQuotationID != null)
+                    {
+                        foreach (var q in allQuotations)
+                        {
+                            if (q.CustomerQuotationDetailsQuotationId == purOrderDet.CustomerPurchaseOrderDetailsQuotationID)
+                            {
+                                var leftQty = q.CustomerQuotationDetailsQty - purOrderDet.CustomerPurchaseOrderDetailsQty;
+                                if (leftQty > 0)
+                                {
+                                    q.CustomerQuotationDetailsQty = leftQty;
+                                    q.CustomerQuotationDetailsNetAmount = q.CustomerQuotationDetailsUnitPrice * leftQty;
+                                    q.CustomerQuotationDetailsGrossAmount = q.CustomerQuotationDetailsUnitPrice * leftQty;
+                                    _customerQuotationDetailsRepository.Update(q);
+                                }
+                                else
+                                {
+                                    _customerQuotationDetailsRepository.Delete(q);
+                                }
+                                break;
+                            }
+                        }
+                    }
+                    }
                 _trackingRegisterRepository.InsertList(listTrackRegs);
                 _purOrderRegisterRepository.InsertList(listTrackPurchOrderReg);
                 _custOrderRegRepository.InsertList(listCustOrderRegisterReg);

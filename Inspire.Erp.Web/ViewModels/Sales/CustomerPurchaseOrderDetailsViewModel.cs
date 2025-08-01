@@ -10,6 +10,7 @@ namespace Inspire.Erp.Web.ViewModels.sales
         public string CustomerPurchaseOrderDetailsVoucherNo { get; set; }
         public int? CustomerPurchaseOrderDetailsSlno { get; set; }
         public long? CustomerPurchaseOrderDetailsItemId { get; set; }
+        public long? CustomerPurchaseOrderDetailsQuotationID { get; set; }
 
         public string CustomerPurchaseOrderDetailsPartNo { get; set; }
         public string CustomerPurchaseOrderDetailsDescription { get; set; }

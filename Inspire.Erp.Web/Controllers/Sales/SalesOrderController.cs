@@ -102,6 +102,7 @@ namespace Inspire.Erp.Web.Controllers
                 CustomerPurchaseOrderPoEnquiryIdN = xs.customerPurchaseOrder.CustomerPurchaseOrderPoEnquiryIdN,
                 CustomerPurchaseOrderPoQuotationIdN = xs.customerPurchaseOrder.CustomerPurchaseOrderPoQuotationIdN,
                 CustomerPurchaseOrderDelStatus = xs.customerPurchaseOrder.CustomerPurchaseOrderDelStatus,
+                CustomerPurchaseOrderDetailsQuotationID = xs.customerPurchaseOrder.CustomerPurchaseOrderDetailsQuotationID,
 
             };
 
