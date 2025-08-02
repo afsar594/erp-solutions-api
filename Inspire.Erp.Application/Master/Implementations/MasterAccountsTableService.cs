@@ -533,7 +533,7 @@ namespace Inspire.Erp.Application.Master
         public MasterAccountsTable AddNewAccount(MasterAccountsTable masterAccountsTable)
         {
             try
-            {
+                {
                 masterAccountsTable.MaSno = Convert.ToInt32(masteraccountstablerepository.GetAsQueryable()
                                              .Where(x => Convert.ToInt32(x.MaSno) > 0)
                                              .DefaultIfEmpty()
@@ -558,11 +558,11 @@ namespace Inspire.Erp.Application.Master
                 masterAccountsTable.MaMainHead = mainHead ?? "";
                 masterAccountsTable.MaSubHead = subHead ?? "";
 
-                masterAccountsTable.MaAccNo = masterAccountsTable.MaRelativeNo + String.Format("{0:00}", AccNo);
+                masterAccountsTable.MaAccNo = masterAccountsTable.MaRelativeNo + String.Format("{0:000}", AccNo);
                 var exist = masteraccountstablerepository.GetAsQueryable().Where(a => a.MaAccNo == masterAccountsTable.MaAccNo).ToList();
                 if (exist.Count > 0)
                 {
-                    masterAccountsTable.MaAccNo = masterAccountsTable.MaRelativeNo + String.Format("{0:00}", AccNo + 1);
+                    masterAccountsTable.MaAccNo = masterAccountsTable.MaRelativeNo + String.Format("{0:000}", AccNo + 1);
                 }
                 if (masterAccountsTable.MaAccType == ItemMasterStatus.Group)
                 {
