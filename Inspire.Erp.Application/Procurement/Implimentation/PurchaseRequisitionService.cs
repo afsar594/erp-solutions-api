@@ -534,7 +534,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                                 null,
                                                                                 (long)purchaseRequisition.PurchaseRequisitionUserId
                                                                                 );
-                //await SendEmailOnValueExceedsAsync((int)purchaseRequisition.PurchaseRequisitionJobId, purchaseRequisition.PurchaseRequisitionNo);
+                await SendEmailOnValueExceedsAsync((int)purchaseRequisition.PurchaseRequisitionJobId, purchaseRequisition.PurchaseRequisitionNo);
                 #endregion
 
                 var res = await this.GetSavedPurchaseRequisitionDetails((int)purchaseRequisition.PurchaseRequisitionId);
