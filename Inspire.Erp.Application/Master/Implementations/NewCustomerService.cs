@@ -60,7 +60,7 @@ namespace Inspire.Erp.Application.Account.Implementations
 
                     var debtorAcc = this._masterAccountTable.GetAsQueryable()
                                     .FirstOrDefault(x => x.MaAccNo == customerMaster.CustomerMasterCustomerGroupAccNo);
-                   
+
 
                     var custMasterAccNo = this._masterAccountTable.GetAsQueryable()
                         .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == debtorAcc.MaAccNo)
@@ -216,9 +216,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                                       .DefaultIfEmpty()
                                       .Max(o => o == null ? 0 : o.MaSno)) + 1;
 
-                    var debtorAcc = this._masterAccountTable.GetAsQueryable()
-                                                                                         .FirstOrDefault(x => x.MaAccNo == customerMaster.CustomerMasterCustomerGroupAccNo);
-                                                                                         //.FirstOrDefault(x => x.MaAccName.ToUpper() == "Debtors".ToUpper());
+                    var debtorAcc = this._masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == customerMaster.CustomerMasterCustomerGroupAccNo);
+                    //.FirstOrDefault(x => x.MaAccName.ToUpper() == "Debtors".ToUpper());
 
                     var custMasterAccNo = this._masterAccountTable.GetAsQueryable()
                         .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == debtorAcc.MaAccNo)

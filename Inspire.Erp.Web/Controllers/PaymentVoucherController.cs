@@ -30,15 +30,17 @@ namespace Inspire.Erp.Web.Controllers
         private IRepository<JobMaster> jobrepository; private IRepository<GeneralSettings> _generalSettingsRepo;
         private IRepository<CurrencyMaster> currencyrepository;
         private IChartofAccountsService chartofAccountsService;
+        private IRepository<AccountSettings> accountSettingRepo;
         public PaymentVoucherController(IPaymentVoucherService paymentVoucherService, IMapper mapper, IRepository<CostCenterMaster> _countryrepository
             , IRepository<JobMaster> _jobrepository, IRepository<CurrencyMaster> _currencyrepository, IChartofAccountsService _chartofAccountsService
-            , IRepository<GeneralSettings> generalSettingsRepo)
+            , IRepository<GeneralSettings> generalSettingsRepo, IRepository<AccountSettings> _accountSettingRepo)
         {
             _paymentVoucherService = paymentVoucherService;
             _mapper = mapper;
             costcenterrepository = _countryrepository;
             jobrepository = _jobrepository; _generalSettingsRepo = generalSettingsRepo;
             currencyrepository = _currencyrepository; chartofAccountsService = _chartofAccountsService;
+            accountSettingRepo = _accountSettingRepo;
         }
         [HttpPost]
         [Route("InsertPaymentVoucher")]
@@ -224,6 +226,16 @@ namespace Inspire.Erp.Web.Controllers
                 c.CurrencyMasterCurrencyName,
                 c.CurrencyMasterCurrencyRate
             }).OrderBy(x => x.CurrencyMasterCurrencyName).ToList();
+            var cashaccount = accountSettingRepo.GetAsQueryable().Where(a => a.AccountSettingsAccountKeyValue == "CASH_MASTER_AC_NO").FirstOrDefault();
+
+            var cashAccountList = chartofAccountsService.GetAllAccounts().Where(a => a.MaDelStatus != true && a.MaAccType == "A" && a.MaRelativeNo == cashaccount.AccountSettingsAccountNumberValue.ToString()).Select(c => new
+            {
+                c.MaAccNo,
+                c.MaAccName,
+                c.MaRelativeNo,
+                c.MaSno
+            }).OrderBy(x => x.MaAccName).ToList();
+
             var masterAccountsTables = chartofAccountsService.GetAllAccounts().Where(a => a.MaDelStatus != true && a.MaAccType == "A").Select(c => new
             {
                 c.MaAccNo,
@@ -238,6 +250,7 @@ namespace Inspire.Erp.Web.Controllers
                 masterAccountsTables = masterAccountsTables,
                 jobMasters = jobMasters,
                 currencyMasters = currencyMasters,
+                cashAccountList = cashAccountList
 
             };
             return objectresponse;
