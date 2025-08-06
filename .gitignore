@@ -33,6 +33,7 @@ artifacts/
 
 # ASP.NET publish profiles
 **/Properties/PublishProfiles/
+**/Properties/PublishProfiles/*.pubxml.user  # <-- added to ignore FolderProfile.pubxml.user
 
 # Logs and uploads
 /Inspire.Erp.Web/Logs/
@@ -49,6 +50,9 @@ artifacts/
 # Ignore RecurringJob build output
 /Inspire.Erp.RecurringJob/bin/
 /Inspire.Erp.RecurringJob/obj/
+/Inspire.Erp.RecurringJob/obj/**/*.csproj.nuget.dgspec.json  # <-- added
+/Inspire.Erp.RecurringJob/obj/**/*.csproj.nuget.g.props     # <-- added
+/Inspire.Erp.RecurringJob/obj/project.assets.json           # <-- added
 
 # EditorConfig files generated during build
 *.GeneratedMSBuildEditorConfig.editorconfig
@@ -58,3 +62,18 @@ artifacts/
 *.assets.cache
 *.project.nuget.cache
 *.project.assets.json
+
+# Build results
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Auto-generated files
+project.lock.json
+project.fragment.lock.json
+artifacts/
