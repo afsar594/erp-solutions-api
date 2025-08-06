@@ -11,7 +11,7 @@ namespace Inspire.Erp.Domain.Entities
         public string AccountSettingsAccountDescription { get; set; }
         public string AccountSettingsAccountValueType { get; set; }
         public string AccountSettingsAccountType { get; set; }
-        public double? AccountSettingsAccountNumberValue { get; set; }
+        public string? AccountSettingsAccountNumberValue { get; set; }
         public string AccountSettingsAccountTextValue { get; set; }
         public string AccountSettingsAccountTableName { get; set; }
         public int? AccountSettingsAccountFormId { get; set; }

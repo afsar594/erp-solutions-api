@@ -57,7 +57,7 @@ namespace Inspire.Erp.Application.Master
                 
                 var accSettings = await _accountSettingsRepo.GetAsQueryable().AsNoTracking().FirstOrDefaultAsync(x => x.AccountSettingsAccountKeyValue.Trim().Equals("CREDITORS_AC_NO"));
 
-                var masterAccount = _masterAccountTable.GetAsQueryable().Where(x => x.MaAccNo == accSettings.AccountSettingsAccountNumberValue.ToString()).FirstOrDefault();
+                var masterAccount = _masterAccountTable.GetAsQueryable().Where(x => x.MaAccNo == accSettings.AccountSettingsAccountNumberValue).FirstOrDefault();
                 var suppAccNo = string.Empty;
                 MasterAccountsTable masterAccountsTable = null;
                 var count = _masterAccountTable.GetAsQueryable().AsNoTracking().Where(x => x.MaRelativeNo == SupplierRelativeNo).ToList().Count() + 1;
