@@ -1431,8 +1431,11 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 var settingValue = await _generalSettings.GetValueByKey(InspireConstants.DefaultApprovalType);
                 var Username = _currentUserService.Username;
-                var groupId = _currentUserService.GroupId;
-                bool isAdmin = await _generalSelectQueries.GetBooleanValue(groupId);
+                
+                //var groupId = _currentUserService.GroupId;
+                //bool isAdmin = false;
+                //if (groupId != null)
+                //    isAdmin = await _generalSelectQueries.GetBooleanValue(groupId);
 
 
                 var currentApproval = _orderApprovalHierarchy.GetAsQueryable()
