@@ -58,9 +58,9 @@ namespace Inspire.Erp.Web
             //                PrepareSchemaIfNecessary = true, // Prevents migration attempts
             //                SchemaName = "HangFire"           // Use the exact schema name in your DB
             //            });
-            //        });
-            services.AddHangfireServer();
-            services.AddRecurringJob(Configuration);
+            ////        });
+            //services.AddHangfireServer();
+            //services.AddRecurringJob(Configuration);
 
 
 
@@ -164,18 +164,18 @@ namespace Inspire.Erp.Web
             });
 
             //this is only for Water bird project
-            app.UseHangfireDashboard("/EmailScheduler");
-            using (var scope = app.ApplicationServices.CreateScope())
-            {
-                var emailScheduler = scope.ServiceProvider.GetRequiredService<IEmailSchedulerService>();
+            //app.UseHangfireDashboard("/EmailScheduler");
+            //using (var scope = app.ApplicationServices.CreateScope())
+            //{
+            //    var emailScheduler = scope.ServiceProvider.GetRequiredService<IEmailSchedulerService>();
 
-                // Schedule both email jobs to run daily
-                Hangfire.RecurringJob.AddOrUpdate("jobscops-email-job", () =>
-                     emailScheduler.CheckAndSendEmailForJobScops(), Cron.Daily);
+            //    // Schedule both email jobs to run daily
+            //    Hangfire.RecurringJob.AddOrUpdate("jobscops-email-job", () =>
+            //         emailScheduler.CheckAndSendEmailForJobScops(), Cron.Daily);
 
-                Hangfire.RecurringJob.AddOrUpdate("bankguarantees-email-job", () =>
-                    emailScheduler.CheckAndSendEmailForJobBankGuarantees(), Cron.Daily);
-            }
+            //    Hangfire.RecurringJob.AddOrUpdate("bankguarantees-email-job", () =>
+            //        emailScheduler.CheckAndSendEmailForJobBankGuarantees(), Cron.Daily);
+            //}
 
             loggerFactory.AddFile($@"{Directory.GetCurrentDirectory()}\Logs\log.txt");
 
