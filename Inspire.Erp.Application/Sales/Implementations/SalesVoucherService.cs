@@ -29,6 +29,9 @@ using System.IO.Pipelines;
 using Inspire.Erp.Application.Master;
 using Inspire.Erp.Application.Store.Implementation;
 using Inspire.Erp.Application.Store.Interfaces;
+using Inspire.Erp.Infrastructure;
+using Inspire.Erp.Application.Helpers;
+using System.IO;
 
 namespace Inspire.Erp.Application.Sales.Implementations
 {
@@ -403,8 +406,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
         }
         public async Task<VanSales> InsertVanSalesAsync(VanSales model)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
+            
 
             var vanSales = new VanSales
             {
@@ -440,27 +442,44 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
             if (model.Details?.Count > 0)
             {
-                foreach (var detail in model.Details)
+                var detailToAdd = model.Details.Select(x =>
                 {
-                    var vanSalesDetail = new VanSalesDetails
+                    return new VanSalesDetails
                     {
                         SalesId = vanSales.SalesId,
-                        SI_No = detail.SI_No,
-                        Item_Name = detail.Item_Name,
-                        Qty = detail.Qty,
-                        Amount = detail.Amount,
-                        CreatedDate = detail.CreatedDate
+                        SI_No = x.SI_No,
+                        Item_Name = x.Item_Name,
+                        Qty = x.Qty,
+                        Amount = x.Amount,
+                        CreatedDate = x.CreatedDate
                     };
+                }).ToList();
 
-                    _vanSalesDetailsRepository.Insert(vanSalesDetail);
-                }
+                _vanSalesDetailsRepository.InsertList(detailToAdd);
 
                 await _context.SaveChangesAsync();
             }
+            // Generate PDF if PrintInvoice is true
+            if (vanSales.PrintInvoice == true)
+            {
+                var pdfBytes = PdfGenerator.GeneratePdf(
+                    $"Invoice #{vanSales.SalesId}",
+                    $"Product: {vanSales.Product}\nTotal: {vanSales.Total:C}"
+                );
 
+                var directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "invoices");
+                if (!Directory.Exists(directoryPath))
+                {
+                    Directory.CreateDirectory(directoryPath);
+                }
+
+                var filePath = Path.Combine(directoryPath, $"Invoice_{vanSales.SalesId}.pdf");
+                await File.WriteAllBytesAsync(filePath, pdfBytes);
+            }
             return vanSales;
         }
 
+        
         public async Task<Response<(List<decimal> PurchasePrices, List<decimal> SalesPrices)>> GetLast3PurchaseAndSalesPricesAsync(int itemId, int? locationId)
         {
             try
