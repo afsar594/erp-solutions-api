@@ -302,6 +302,10 @@ namespace Inspire.Erp.Infrastructure.Database
 
         //============================================
         public virtual DbSet<SalesVoucher> SalesVoucher { get; set; }
+
+        public DbSet<VanSales> VanSales { get; set; }
+        public DbSet<VanSalesDetails> VanSaleDetails { get; set; }
+
         public virtual DbSet<SalesVoucherBatchDetials> SalesVoucherBatchDetials { get; set; }
         public virtual DbSet<SalesVoucherDetails> SalesVoucherDetails { get; set; }
         public virtual DbSet<ServiceMaster> ServiceMaster { get; set; }
@@ -19288,6 +19292,169 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasMaxLength(10)
                     .IsUnicode(false)
                     .IsFixedLength();
+            });
+            // Master Table - van_sales
+            modelBuilder.Entity<VanSales>(entity =>
+            {
+                entity.ToTable("van_sales");
+
+                entity.HasKey(e => e.SalesId);
+
+                entity.Property(e => e.SalesId)
+                      .HasColumnName("SalesId");
+
+                entity.Property(e => e.Mode)
+                      .HasColumnName("Mode")
+                      .HasMaxLength(20)
+                      .IsRequired()
+                      .HasDefaultValue("retail");
+
+                entity.Property(e => e.Product)
+                      .HasColumnName("Product")
+                      .HasMaxLength(100)
+                      .IsRequired();
+
+                entity.Property(e => e.Barcode)
+                      .HasColumnName("Barcode")
+                      .HasMaxLength(50);
+
+                entity.Property(e => e.MRP)
+                      .HasColumnName("MRP")
+                      .HasColumnType("decimal(18,2)");
+
+                entity.Property(e => e.CutOffRate)
+                      .HasColumnName("CutOffRate")
+                      .HasColumnType("decimal(18,2)");
+
+                entity.Property(e => e.DiscountPercent)
+                      .HasColumnName("DiscountPercent")
+                      .HasColumnType("decimal(5,2)");
+
+                entity.Property(e => e.UnitExclV)
+                      .HasColumnName("UnitExclV")
+                      .HasColumnType("decimal(18,2)");
+
+                entity.Property(e => e.FOC)
+                      .HasColumnName("FOC")
+                      .HasColumnType("decimal(18,2)");
+
+                entity.Property(e => e.DiscountAmount)
+                      .HasColumnName("DiscountAmount")
+                      .HasColumnType("decimal(18,2)");
+
+                entity.Property(e => e.UnitInclV)
+                      .HasColumnName("UnitInclV")
+                      .HasColumnType("decimal(18,2)");
+
+                entity.Property(e => e.Quantity)
+                      .HasColumnName("Quantity")
+                      .HasColumnType("decimal(18,2)");
+
+                entity.Property(e => e.VatPercent)
+                      .HasColumnName("VatPercent")
+                      .HasColumnType("decimal(5,2)");
+
+                entity.Property(e => e.Total)
+                      .HasColumnName("Total")
+                      .HasColumnType("decimal(18,2)");
+
+                entity.Property(e => e.SummaryDiscountPercent)
+                      .HasColumnName("SummaryDiscountPercent")
+                      .HasColumnType("decimal(5,2)")
+                      .HasDefaultValue(0.0m);
+
+                entity.Property(e => e.VatExcl)
+                      .HasColumnName("VatExcl")
+                      .HasColumnType("decimal(18,2)")
+                      .HasDefaultValue(0.0m);
+
+                entity.Property(e => e.TenderedAmount)
+                      .HasColumnName("TenderedAmount")
+                      .HasColumnType("decimal(18,2)")
+                      .HasDefaultValue(0.0m);
+
+                entity.Property(e => e.SummaryDiscountAmount)
+                      .HasColumnName("SummaryDiscountAmount")
+                      .HasColumnType("decimal(18,2)")
+                      .HasDefaultValue(0.0m);
+
+                entity.Property(e => e.Vat)
+                      .HasColumnName("Vat")
+                      .HasColumnType("decimal(18,2)")
+                      .HasDefaultValue(0.0m);
+
+                entity.Property(e => e.CardReceived)
+                      .HasColumnName("CardReceived")
+                      .HasColumnType("decimal(18,2)")
+                      .HasDefaultValue(0.0m);
+
+                entity.Property(e => e.Balance)
+                      .HasColumnName("Balance")
+                      .HasColumnType("decimal(18,2)")
+                      .HasDefaultValue(0.0m);
+
+                entity.Property(e => e.SummaryTotal)
+                      .HasColumnName("SummaryTotal")
+                      .HasColumnType("decimal(18,2)")
+                      .HasDefaultValue(0.0m);
+
+                entity.Property(e => e.AddedToCredit)
+                      .HasColumnName("AddedToCredit")
+                      .HasColumnType("decimal(18,2)")
+                      .HasDefaultValue(0.0m);
+
+                entity.Property(e => e.Remark)
+                      .HasColumnName("Remark");
+
+                entity.Property(e => e.PrintInvoice)
+                      .HasColumnName("PrintInvoice")
+                      .HasDefaultValue(false);
+
+                entity.Property(e => e.CreatedDate)
+                      .HasColumnName("CreatedDate")
+                      .HasColumnType("datetime")
+                      .HasDefaultValueSql("GETDATE()");
+
+                // Relationship: One sale -> Many details
+                entity.HasMany(e => e.Details)
+                      .WithOne(d => d.Sale)
+                      .HasForeignKey(d => d.SalesId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Detail Table - van_sales_details
+            modelBuilder.Entity<VanSalesDetails>(entity =>
+            {
+                entity.ToTable("van_sales_details");
+
+                entity.HasKey(e => e.DetailId);
+
+                entity.Property(e => e.DetailId)
+                      .HasColumnName("DetailId");
+
+                entity.Property(e => e.SalesId)
+                      .HasColumnName("SalesId");
+
+                entity.Property(e => e.SI_No)
+                      .HasColumnName("SI_No");
+
+                entity.Property(e => e.Item_Name)
+                      .HasColumnName("Item_Name")
+                      .HasMaxLength(200)
+                      .IsRequired();
+
+                entity.Property(e => e.Qty)
+                      .HasColumnName("Qty")
+                      .HasColumnType("decimal(18,2)");
+
+                entity.Property(e => e.Amount)
+                      .HasColumnName("Amount")
+                      .HasColumnType("decimal(18,2)");
+
+                entity.Property(e => e.CreatedDate)
+                      .HasColumnName("CreatedDate")
+                      .HasColumnType("datetime")
+                      .HasDefaultValueSql("GETDATE()");
             });
 
 

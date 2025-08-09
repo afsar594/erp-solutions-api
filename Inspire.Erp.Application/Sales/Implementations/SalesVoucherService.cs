@@ -38,6 +38,9 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<CurrencyMaster> _currencyMasterRepository;
         private IRepository<AccountsTransactions> _accountTransactionRepository;
         private IRepository<SalesVoucher> _salesVoucherRepository;
+        private IRepository<VanSales> _vanSalesRepository;
+        private IRepository<VanSalesDetails> _vanSalesDetailsRepository;
+
         private IRepository<SalesVoucherDetails> _salesVoucherDetailsRepository;
         private IRepository<Domain.Entities.ProgramSettings> _programsettingsRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
@@ -70,7 +73,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             IRepository<SuppliersMaster> suppliersMasterRepository, IRepository<LocationMaster> locationMasterRepository,
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<Domain.Entities.ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger, IRepository<AccountSettings> accountsSettingssvcsRepository,
-            IRepository<SalesVoucher> salesVoucherRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository, IRepository<CurrencyMaster> currencyMasterRepository,
+            IRepository<SalesVoucher> salesVoucherRepository, IRepository<VanSales> VanSalesRepository, IRepository<VanSalesDetails> VanSalesDetailsRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository, IRepository<CurrencyMaster> currencyMasterRepository,
             IRepository<UnitDetails> unitDetailsRepository, IRepository<MasterAccountsTable> accMaster, IRepository<SalesReturn> salesReturn, IRepository<SalesReturnDetails> salesReturnDtls, IRepository<OptionsMaster> optionMaster
             , IRepository<SalesHold> salesHoldRepository, IRepository<SalesHoldDetails> salesHoldDetailsRepository, IRepository<POS_WorkPeriod> POSWorkPeriodRepository, InspireErpDBContext context
             , IStockService openingStockService)
@@ -78,6 +81,10 @@ namespace Inspire.Erp.Application.Sales.Implementations
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository;
             this._salesVoucherRepository = salesVoucherRepository;
+            this._vanSalesRepository = VanSalesRepository;
+            this._vanSalesDetailsRepository = VanSalesDetailsRepository;
+
+
             this._salesVoucherDetailsRepository = salesVoucherDetailsRepository;
             _programsettingsRepository = programsettingsRepository;
             _voucherNumbersRepository = voucherNumbers;
@@ -292,7 +299,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 return 1;
             }
         }
-
+        
         public async Task<SalesVoucherModel> InsertSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions,
             List<SalesVoucherDetails> salesVoucherDetails
             , List<StockRegister> stockRegister)
@@ -393,6 +400,65 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 _salesVoucherRepository.TransactionRollback();
                 throw ex;
             }
+        }
+        public async Task<VanSales> InsertVanSalesAsync(VanSales model)
+        {
+            if (model == null)
+                throw new ArgumentNullException(nameof(model));
+
+            var vanSales = new VanSales
+            {
+                Mode = model.Mode,
+                Product = model.Product,
+                Barcode = model.Barcode,
+                MRP = model.MRP,
+                CutOffRate = model.CutOffRate,
+                DiscountPercent = model.DiscountPercent,
+                UnitExclV = model.UnitExclV,
+                FOC = model.FOC,
+                DiscountAmount = model.DiscountAmount,
+                UnitInclV = model.UnitInclV,
+                Quantity = model.Quantity,
+                VatPercent = model.VatPercent,
+                Total = model.Total,
+                SummaryDiscountPercent = model.SummaryDiscountPercent,
+                VatExcl = model.VatExcl,
+                TenderedAmount = model.TenderedAmount,
+                SummaryDiscountAmount = model.SummaryDiscountAmount,
+                Vat = model.Vat,
+                CardReceived = model.CardReceived,
+                Balance = model.Balance,
+                SummaryTotal = model.SummaryTotal,
+                AddedToCredit = model.AddedToCredit,
+                Remark = model.Remark,
+                PrintInvoice = model.PrintInvoice,
+                CreatedDate = model.CreatedDate
+            };
+
+            _vanSalesRepository.Insert(vanSales);
+            await _context.SaveChangesAsync(); 
+
+            if (model.Details?.Count > 0)
+            {
+                foreach (var detail in model.Details)
+                {
+                    var vanSalesDetail = new VanSalesDetails
+                    {
+                        SalesId = vanSales.SalesId,
+                        SI_No = detail.SI_No,
+                        Item_Name = detail.Item_Name,
+                        Qty = detail.Qty,
+                        Amount = detail.Amount,
+                        CreatedDate = detail.CreatedDate
+                    };
+
+                    _vanSalesDetailsRepository.Insert(vanSalesDetail);
+                }
+
+                await _context.SaveChangesAsync();
+            }
+
+            return vanSales;
         }
 
         public async Task<Response<(List<decimal> PurchasePrices, List<decimal> SalesPrices)>> GetLast3PurchaseAndSalesPricesAsync(int itemId, int? locationId)
