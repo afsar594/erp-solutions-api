@@ -22,10 +22,10 @@ namespace Inspire.Erp.Domain.Entities
 
         [Column("Barcode")]
         [MaxLength(50)]
-        public string Barcode { get; set; }
+        public string? Barcode { get; set; }
 
         [Column("MRP")]
-        public decimal MRP { get; set; }
+        public decimal? MRP { get; set; }
 
         [Column("CutOffRate")]
         public decimal? CutOffRate { get; set; }

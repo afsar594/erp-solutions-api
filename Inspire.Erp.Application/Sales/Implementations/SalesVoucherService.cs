@@ -460,22 +460,22 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 await _context.SaveChangesAsync();
             }
             // Generate PDF if PrintInvoice is true
-            if (vanSales.PrintInvoice == true)
-            {
-                var pdfBytes = PdfGenerator.GeneratePdf(
-                    $"Invoice #{vanSales.SalesId}",
-                    $"Product: {vanSales.Product}\nTotal: {vanSales.Total:C}"
-                );
+            //if (vanSales.PrintInvoice == true)
+            //{
+            //    var pdfBytes = PdfGenerator.GeneratePdf(
+            //        $"Invoice #{vanSales.SalesId}",
+            //        $"Product: {vanSales.Product}\nTotal: {vanSales.Total:C}"
+            //    );
 
-                var directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "invoices");
-                if (!Directory.Exists(directoryPath))
-                {
-                    Directory.CreateDirectory(directoryPath);
-                }
+            //    var directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "invoices");
+            //    if (!Directory.Exists(directoryPath))
+            //    {
+            //        Directory.CreateDirectory(directoryPath);
+            //    }
 
-                var filePath = Path.Combine(directoryPath, $"Invoice_{vanSales.SalesId}.pdf");
-                await File.WriteAllBytesAsync(filePath, pdfBytes);
-            }
+            //    var filePath = Path.Combine(directoryPath, $"Invoice_{vanSales.SalesId}.pdf");
+            //    await File.WriteAllBytesAsync(filePath, pdfBytes);
+            //}
             return vanSales;
         }
 
