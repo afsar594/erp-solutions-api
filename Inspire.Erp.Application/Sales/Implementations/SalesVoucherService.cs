@@ -450,6 +450,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         SI_No = x.SI_No,
                         Item_Name = x.Item_Name,
                         Qty = x.Qty,
+                        Rate=x.Rate,
                         Amount = x.Amount,
                         CreatedDate = x.CreatedDate
                     };

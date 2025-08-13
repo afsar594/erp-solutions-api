@@ -23,7 +23,10 @@ namespace Inspire.Erp.Domain.Entities
         public string Item_Name { get; set; }
 
         [Column("Qty")]
-        public decimal Qty { get; set; }
+        public decimal Qty { get; set; } 
+
+        [Column("Rate")]
+        public decimal Rate { get; set; }
 
         [Column("Amount")]
         public decimal Amount { get; set; }

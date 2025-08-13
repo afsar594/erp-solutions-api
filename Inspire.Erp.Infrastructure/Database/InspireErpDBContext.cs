@@ -19447,6 +19447,12 @@ namespace Inspire.Erp.Infrastructure.Database
                       .HasColumnName("Qty")
                       .HasColumnType("decimal(18,2)");
 
+
+                entity.Property(e => e.Rate)
+                      .HasColumnName("Rate")
+                      .HasColumnType("decimal(18,2)");
+
+
                 entity.Property(e => e.Amount)
                       .HasColumnName("Amount")
                       .HasColumnType("decimal(18,2)");
