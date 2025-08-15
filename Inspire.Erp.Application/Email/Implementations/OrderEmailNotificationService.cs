@@ -1,5 +1,7 @@
 ﻿using Inspire.Erp.Application.Authentication.Inerfaces;
+using Inspire.Erp.Application.Common.Dtos;
 using Inspire.Erp.Application.Common.Email;
+using Inspire.Erp.Application.CusNotification;
 using Inspire.Erp.Application.Email.Interfaces;
 using Inspire.Erp.Application.Helpers;
 using Inspire.Erp.Application.NewFolder.Interfaces;
@@ -9,6 +11,7 @@ using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Domain.Models.Common;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Inspire.Erp.NotificationBus;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -32,11 +35,13 @@ namespace Inspire.Erp.Application.Email.Implementations
         private readonly ICurrentUserService _currentUserService;
         private readonly IDocsAttachmentService _docsAttachmentService;
         private readonly IloginService _loginService;
+        private readonly INotificationHub _notificationHub;
+        private readonly INotificaionService _notificaionService;
         public OrderEmailNotificationService(IEmailNotificationServices emailNotificationServices,
             IRepository<OrderApprovalHierarchy> orderApprovalHierarchy,
             IOptions<EmailSettingViewModel> mailSettings,
             ILogger<OrderEmailNotificationService> logger,
-            IRepository<UserFile> userFile, IRepository<ApproverLevelSettings> approverLevelSettings, IRepository<DepartmentMaster> departmentMaster, ICurrentUserService currentUserService, IDocsAttachmentService docsAttachmentService, IloginService loginService)
+            IRepository<UserFile> userFile, IRepository<ApproverLevelSettings> approverLevelSettings, IRepository<DepartmentMaster> departmentMaster, ICurrentUserService currentUserService, IDocsAttachmentService docsAttachmentService, IloginService loginService, INotificationHub notificationHub, INotificaionService notificaionService)
         {
             _userFile = userFile;
             _purchaseOrderRequisitionHelper = new PurchaseOrderRequisitionHelper(userFile, approverLevelSettings);
@@ -48,6 +53,8 @@ namespace Inspire.Erp.Application.Email.Implementations
             _currentUserService = currentUserService;
             _docsAttachmentService = docsAttachmentService;
             _loginService = loginService;
+            _notificationHub = notificationHub;
+            _notificaionService = notificaionService;
         }
 
         public async Task SendOrderEmailNotificationAsync(
@@ -84,11 +91,12 @@ namespace Inspire.Erp.Application.Email.Implementations
                         FilePath = string.Join(',', attachments)
                     })
                     .ToList();
-
+                _orderApprovalHierarchy.BeginTransaction();
                 if (orderApprovers.Any() && IsNewEntery)
                 {
                     _orderApprovalHierarchy.InsertList(orderApprovers);
                     _logger.LogInformation("Approval hierarchy inserted for Order ID: {OrderId}", orderId);
+                    _orderApprovalHierarchy.TransactionCommit();
                 }
 
                 if (orderType == EnumOrderForms.GeneralPurchaseOrder)
@@ -98,7 +106,6 @@ namespace Inspire.Erp.Application.Email.Implementations
                 var Username = await getOriginatorName(originatorId);
 
                 List<UserEmail> toMails;
-
                 if (approverId == -1)
                 {
                     var topApprover = approvers
@@ -106,7 +113,11 @@ namespace Inspire.Erp.Application.Email.Implementations
                         .FirstOrDefault();
 
                     if (topApprover == null)
+                    {
+                        await notifyConcernUser(level, UserId, orderType, poNumber, Username, orderId);
+                        _logger.LogInformation("Email notification process completed for Order ID: {OrderId}", orderId);
                         return;
+                    }
 
                     toMails = topApprover.MetaData;
                 }
@@ -127,17 +138,16 @@ namespace Inspire.Erp.Application.Email.Implementations
                     var actionButtons = new List<object>();
                     var deptName = GetDepartment(UserId);
                     var mergedFileResult = new FileResultDto();
-
                     if (isLastLevel)
                     {
                         string token = _loginService.GenerateAutoLoginToken(UserId);
-                        
+
                         string approvalRedirectUrl = $"{_mailSettings.MainUrl}purchase-order/approve-email-template?approverLevel={level}&orderId={orderId}&orderType={orderType}&jobId={jobId}&approvalStatus=2&userId={UserId}";
                         string rejectRedirectUrl = $"{_mailSettings.MainUrl}purchase-order/approve-email-template?approverLevel={level}&orderId={orderId}&orderType={orderType}&jobId={jobId}&approvalStatus=3&userId={UserId}";
-                        
+
                         actionButtons.Add(new { ApproveUrl = $"{_mailSettings.AutoLoginUrl}api/auto-login?token={token}&redirect={Uri.EscapeDataString(approvalRedirectUrl)}" });
                         actionButtons.Add(new { RejectUrl = $"{_mailSettings.AutoLoginUrl}api/auto-login?token={token}&redirect={Uri.EscapeDataString(rejectRedirectUrl)}" });
-                        
+
                         mergedFileResult = await _docsAttachmentService.DownloadAllFilesAsOnePdf(orderId, GetOrderTypeKey(orderType)); // Renamed variable to avoid conflict
                     }
                     else
@@ -162,16 +172,49 @@ namespace Inspire.Erp.Application.Email.Implementations
 
                     string templateId = GetTemplateId(orderType);
                     await _emailNotificationServices.SendTemplatedEmailAsync(toMails, templateId, rptData, attachments, mergedFileResult);
+
                     _logger.LogInformation("Email sent to approvers: {Emails}", string.Join(", ", toMails.Select(x => x.Email)));
                 }
 
+                await notifyConcernUser(level, UserId, orderType, poNumber, Username, orderId);
                 _logger.LogInformation("Email notification process completed for Order ID: {OrderId}", orderId);
             }
             catch (Exception ex)
             {
+                _orderApprovalHierarchy.TransactionRollback();
                 _logger.LogError(ex, "Failed to send email notification for Order ID: {OrderId}, Level: {Level}", orderId, level);
                 throw;
             }
+        }
+
+        private async Task notifyConcernUser(EnumApproverLevels level, long userId, EnumOrderForms orderType, string poNumber, string username, int orderId)
+        {
+            try
+            {
+
+
+                var notificationToAdd = new NotificationDto()
+                {
+                    Message = $"{orderType.ToString()} against '{poNumber}' has been created by {username} and your approval is pending.",
+                    IsRead = level == EnumApproverLevels.Level3 || userId == _currentUserService.UserId  ? true : false,
+                    NotificationId = 0,
+                    RouteUrl = $"{_mailSettings.MainUrl}procurement/po-approval?menu=184&vNo={orderId}&type={orderType}".Trim(),
+                    UserId = userId
+                };
+                await _notificaionService.CreateNotificationAsync(notificationToAdd);
+                _logger.LogInformation("notification added {notificationToAdd}", notificationToAdd);
+
+                if (level == EnumApproverLevels.Level3 || userId == _currentUserService.UserId)
+                    return;
+                await _notificationHub.SendApprovalNotification(userId.ToString(), notificationToAdd);
+                _logger.LogInformation("Notification Sent {notificationToAdd}", notificationToAdd);
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+
         }
 
         private async Task<string> getOriginatorName(long originatorId)

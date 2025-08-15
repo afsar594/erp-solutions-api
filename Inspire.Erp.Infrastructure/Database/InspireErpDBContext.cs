@@ -462,7 +462,7 @@ namespace Inspire.Erp.Infrastructure.Database
         public DbSet<InvoiceAmountResult> InvoiceAmounts { get; set; } // Register it
 
 
-
+        public DbSet<Notification> Notifications { get; set; }
 
         public virtual DbSet<DocsAttachment> DocsAttachment { get; set; }
 
@@ -486,6 +486,16 @@ namespace Inspire.Erp.Infrastructure.Database
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Notification>(entity =>
+            {
+                entity.HasOne(n => n.User)
+                      .WithMany(u => u.Notifications)
+                      .HasForeignKey(n => n.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(n => new { n.UserId, n.CreatedAt });
+            });
+
             modelBuilder.Entity<OrderApprovalHierarchy>(entity =>
             {
                 entity.ToTable("OrderApprovalHierarchy");

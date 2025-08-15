@@ -1,25 +1,55 @@
-﻿using Microsoft.AspNetCore.SignalR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
+using System.Collections.Concurrent;
+using System.Security.Claims;
+using System.Text.Json;
 
 namespace Inspire.Erp.NotificationBus
 {
+    [Authorize]
     public class NotificationHub : Hub, INotificationHub
     {
+        // Store mapping between UserId and ConnectionId
+        private static ConcurrentDictionary<string, string> _userConnections = new ConcurrentDictionary<string, string>();
+        //private readonly ICurrentUserService _currentUserService;
+
         private readonly IHubContext<NotificationHub> _hub;
         public NotificationHub(IHubContext<NotificationHub> hub)
         {
             _hub = hub;
         }
 
-        public async Task BroadcastToUser(string data, string userId)
-            => await _hub.Clients.All.SendAsync("ReceiveMessage", userId, data);
+        public override Task OnConnectedAsync()
+        {
+            var userId = Context.UserIdentifier ?? Context.User?.Identity?.Name;
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                _userConnections[userId] = Context.ConnectionId;
+                Console.WriteLine($"User {userId} connected with ConnectionId {Context.ConnectionId}");
+            }
+
+            return base.OnConnectedAsync();
+        }
+
+        public override Task OnDisconnectedAsync(Exception exception)
+        {
+            var userId = Context.UserIdentifier ?? Context.User?.Identity?.Name;
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                _userConnections.TryRemove(userId, out _);
+                Console.WriteLine($"User {userId} disconnected");
+            }
+
+            return base.OnDisconnectedAsync(exception);
+        }
 
         public string GetConnectionId() => Context.ConnectionId;
-        public string GetUserId() => Context.User.Identity.Name;
+        public string GetUserId() => Context.User?.Identity?.Name;
+
+        public async Task BroadcastToUser(string data, string userId)
+            => await _hub.Clients.All.SendAsync("ReceiveMessage", userId, data);
 
         public async Task SendMessage(string user, string message)
         {
@@ -31,17 +61,23 @@ namespace Inspire.Erp.NotificationBus
             await _hub.Clients.Client(user).SendAsync("ReceiveClient", user, client);
         }
 
-        /// <summary>
-        /// Sends a PO/PR approval pending notification to the concerned user
-        /// </summary>
-        /// <param name="userConnectionId">The SignalR connection ID of the user</param>
-        /// <param name="poOrPrNumber">The PO or PR number created</param>
-        /// <param name="creatorName">The name of the person who created it</param>
-        public async Task SendApprovalNotification(string userConnectionId, string poPrType, string poOrPrNumber, string creatorName)
+        public async Task SendApprovalNotification(string userConnectionId, object obj)
         {
-            string message = $"{poPrType} against '{poOrPrNumber}' has been created by {creatorName} and your approval is pending. Please approve it as soon as possible.";
-            await _hub.Clients.Client(userConnectionId).SendAsync("ReceiveNotification", message);
+            try
+            {
+                string json = JsonSerializer.Serialize(obj);
+                await _hub.Clients.Client(GetConnectionIdByUserId(userConnectionId)).SendAsync("ReceiveNotification", json);
+            }
+            catch (Exception)
+            {
+            }
+
         }
 
+        public static string GetConnectionIdByUserId(string userId)
+        {
+            _userConnections.TryGetValue(userId, out var connectionId);
+            return connectionId;
+        }
     }
 }

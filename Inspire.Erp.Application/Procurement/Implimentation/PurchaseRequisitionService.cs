@@ -69,7 +69,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private ApplicationSettings applicationSettings;
         DownloadAndSaveVoucherReport downloadAndSaveVoucherReport;
         private readonly ICurrentUserService _currentUserService;
-        private readonly INotificationHub _notificationHub;
         public PurchaseRequisitionService(IRepository<ItemMaster> itemMasterRepository, IRepository<UnitMaster> unitMasterRepository,
             IRepository<SuppliersMaster> suppliersMasterRepository, IConfiguration config, IDocsAttachmentService docsAttachmentService,
             IRepository<LocationMaster> _locationrepository, IRepository<LocationMaster> locationMasterRepository,
@@ -78,7 +77,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger, IRepository<JobMaster> _jobrepository, IRepository<BillOfQTyDetails> BillOfQTyDetailsRepository,
              IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo,
         IRepository<PurchaseRequisition> purchaseRequisitionRepository, InspireErpDBContext context, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository, IRepository<JobMasterBudgetDetails> budgetDetailsrepository, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository,
-        IOrderEmailNotificationService orderEmailNotificationService, IRepository<ApproverLevelSettings> approverLevelSettings, IRepository<OrderApprovalHierarchy> orderApprovalHierarchy, IRepository<JobMasterJobDetails> jobMasterJobDetailsRepo, IGeneralSettings generalSettings, IRepository<JobMasterControl> jobMasterControls, ICurrentUserService currentUserService, INotificationHub notificationHub)
+        IOrderEmailNotificationService orderEmailNotificationService, IRepository<ApproverLevelSettings> approverLevelSettings, IRepository<OrderApprovalHierarchy> orderApprovalHierarchy, IRepository<JobMasterJobDetails> jobMasterJobDetailsRepo, IGeneralSettings generalSettings, IRepository<JobMasterControl> jobMasterControls, ICurrentUserService currentUserService)
         {
             applicationSettings = config.GetSection("ApplicationSettings").Get<ApplicationSettings>();
             this._accountTransactionRepository = accountTransactionRepository;
@@ -97,7 +96,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             downloadAndSaveVoucherReport = new DownloadAndSaveVoucherReport(docsAttachmentService);
             _jobMasterControls = jobMasterControls;
             _currentUserService = currentUserService;
-            _notificationHub = notificationHub;
         }
         public async Task<Response<PurchaseRequisitionModel>> UpdatePurchaseRequisition(PurchaseRequisition purchaseRequisition, List<AccountsTransactions> accountsTransactions, List<PurchaseRequisitionDetails> purchaseRequisitionDetails)
         {
@@ -205,6 +203,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 Thread.Sleep(2000);
                 _purchaseRequisitionRepository.TransactionCommit();
 
+              
                 await downloadAndSaveVoucherReport.DownloadedFileAsync(applicationSettings.DownloadFileBaseUrl, "PurchaseRequisition", purchaseRequisition.PurchaseRequisitionId.ToString(), (int)purchaseRequisition.PurchaseRequisitionId, purchaseRequisition.PurchaseRequisitionNo, true);
 
             }
@@ -539,8 +538,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                                 );
                 //await SendEmailOnValueExceedsAsync((int)purchaseRequisition.PurchaseRequisitionJobId, purchaseRequisition.PurchaseRequisitionNo);
                 #endregion
-                string creatorName = Username;
-                await _notificationHub.SendApprovalNotification(1.ToString(),"Pruchase Requisition", purchaseRequisition.PurchaseRequisitionNo, creatorName);
+
+               
                 var res = await this.GetSavedPurchaseRequisitionDetails((int)purchaseRequisition.PurchaseRequisitionId);
                 return Response<PurchaseRequisitionModel>.Success(res.Result, "Purchase Requisition Save Successfully.");
 
@@ -675,6 +674,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         public IEnumerable<PurchaseRequisition> GetPurchaseRequisition()
         {
             IEnumerable<PurchaseRequisition> purchaseRequisition_ALL = _purchaseRequisitionRepository.GetAll().Where(k => k.PurchaseRequisitionDelStatus == false || k.PurchaseRequisitionDelStatus == null);
+
             return purchaseRequisition_ALL;
         }
         public async Task<Response<PurchaseRequisitionModel>> GetSavedPurchaseRequisitionDetails(int pvno)
