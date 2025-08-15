@@ -26,6 +26,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Inspire.Erp.Domain\Inspire.Erp.Domain.csproj" />
 	  <ProjectReference Include="..\Inspire.Erp.Infrastructure\Inspire.Erp.Infrastructure.csproj" />
+	  <ProjectReference Include="..\Inspire.Erp.NotificationBus\Inspire.Erp.NotificationBus.csproj" />
  </ItemGroup>
 
 </Project>

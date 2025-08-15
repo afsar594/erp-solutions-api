@@ -1,33 +1,21 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
 using AutoMapper;
-using DinkToPdf.Contracts;
 using DinkToPdf;
+using DinkToPdf.Contracts;
 using Inspire.Erp.Application;
+using Inspire.Erp.Domain.Models.Common;
 using Inspire.Erp.Infrastructure;
 using Inspire.Erp.Infrastructure.CustomExceptionHandler;
+using Inspire.Erp.NotificationBus;
 using Inspire.Erp.Web.Common;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json;
-using OfficeOpenXml.FormulaParsing.Logging;
 using System.IO;
-using Inspire.Erp.Domain.Models.Common;
-using Inspire.Erp.Application.Account.Implementation;
-using Inspire.Erp.Application.NewFolder.Interfaces;
-using Inspire.Erp.Application.NewFolder.Implementations;
-using Inspire.Erp.RecurringJob;
-using Hangfire;
-using Microsoft.Extensions.FileProviders;
 
 namespace Inspire.Erp.Web
 {
@@ -59,7 +47,7 @@ namespace Inspire.Erp.Web
             //                SchemaName = "HangFire"           // Use the exact schema name in your DB
             //            });
             //        });
-            services.AddHangfireServer();
+            //services.AddHangfireServer();
             services.AddRecurringJob(Configuration);
 
 
@@ -155,7 +143,7 @@ namespace Inspire.Erp.Web
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHub<NotificationHub>("/signal");
+                endpoints.MapHub<NotificationHub>("/notifications");
             });
             app.UseStaticFiles(new StaticFileOptions
             {
@@ -164,18 +152,18 @@ namespace Inspire.Erp.Web
             });
 
             //this is only for Water bird project
-            app.UseHangfireDashboard("/EmailScheduler");
-            using (var scope = app.ApplicationServices.CreateScope())
-            {
-                var emailScheduler = scope.ServiceProvider.GetRequiredService<IEmailSchedulerService>();
+            //app.UseHangfireDashboard("/EmailScheduler");
+            //using (var scope = app.ApplicationServices.CreateScope())
+            //{
+            //    var emailScheduler = scope.ServiceProvider.GetRequiredService<IEmailSchedulerService>();
 
-                // Schedule both email jobs to run daily
-                Hangfire.RecurringJob.AddOrUpdate("jobscops-email-job", () =>
-                     emailScheduler.CheckAndSendEmailForJobScops(), Cron.Daily);
+            //    // Schedule both email jobs to run daily
+            //    Hangfire.RecurringJob.AddOrUpdate("jobscops-email-job", () =>
+            //         emailScheduler.CheckAndSendEmailForJobScops(), Cron.Daily);
 
-                Hangfire.RecurringJob.AddOrUpdate("bankguarantees-email-job", () =>
-                    emailScheduler.CheckAndSendEmailForJobBankGuarantees(), Cron.Daily);
-            }
+            //    Hangfire.RecurringJob.AddOrUpdate("bankguarantees-email-job", () =>
+            //        emailScheduler.CheckAndSendEmailForJobBankGuarantees(), Cron.Daily);
+            //}
 
             loggerFactory.AddFile($@"{Directory.GetCurrentDirectory()}\Logs\log.txt");
 
