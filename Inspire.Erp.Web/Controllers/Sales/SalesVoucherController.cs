@@ -710,7 +710,7 @@ namespace Inspire.Erp.Web.Controllers
         public async Task<IActionResult> InsertVanSales([FromBody] VanSales model)
         {
             if (model == null || model.Details == null || model.Details.Count == 0)
-                return BadRequest("Master and at least one detail record are required.");
+                return BadRequest("Master and at least one detail record are required");
 
             var result = await _salesVoucherService.InsertVanSalesAsync(model);
             return Ok(result);
