@@ -7,6 +7,7 @@ using Inspire.Erp.Domain.Models;
 using Inspire.Erp.Infrastructure;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -30,43 +31,64 @@ namespace Inspire.Erp.Application.CusNotification
             _repository = repository;
             _currentUserService = currentUserService;
         }
-
-        public async Task CreateNotificationAsync(NotificationDto dto, CancellationToken cancellationToken = default)
+        public async Task<ApiResponse<bool>> CreateNotificationAsync(NotificationDto dto)
         {
             try
             {
-                Notification notiToAddUpdate;
+                if (dto == null)
+                    return ApiResponse<bool>.Fail("Invalid notification data.");
+
                 if (dto.NotificationId == 0)
                 {
-                    notiToAddUpdate = new Notification()
+                    // Insert new notification
+                    var notiToAdd = new Notification
                     {
                         IsRead = dto.IsRead,
                         Message = dto.Message,
                         RouteUrl = dto.RouteUrl,
                         UserId = dto.UserId
                     };
-                    await _repository.InsertAsync(notiToAddUpdate);
+
+                    await _repository.InsertAsync(notiToAdd);
                 }
                 else
                 {
-                    notiToAddUpdate = new Notification()
+                    // Update existing notification
+                    var notiToUpdate = await _repository
+                        .GetAsQueryable()
+                        .FirstOrDefaultAsync(x => x.NotificationId == dto.NotificationId);
+
+                    if (notiToUpdate == null)
                     {
-                        NotificationId = dto.NotificationId,
-                        IsRead = dto.IsRead,
-                        Message = dto.Message,
-                        RouteUrl = dto.RouteUrl,
-                        UserId = dto.UserId
-                    };
-                    await _repository.UpdateAsync(notiToAddUpdate);
+                        // Fallback: create new if not found
+                        var notiToAdd = new Notification
+                        {
+                            IsRead = dto.IsRead,
+                            Message = dto.Message,
+                            RouteUrl = dto.RouteUrl,
+                            UserId = dto.UserId
+                        };
+
+                        await _repository.InsertAsync(notiToAdd);
+                    }
+                    else
+                    {
+                        notiToUpdate.IsRead = true;
+                        await _repository.UpdateAsync(notiToUpdate);
+                    }
                 }
+
+                return ApiResponse<bool>.Success(true);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                // Log the error
+                return ApiResponse<bool>.Fail($"Error creating/updating notification: {ex.Message}");
             }
         }
 
-        public async Task<ApiResponse<List<NotificationDto>>> GetNotificationsAsync(CancellationToken cancellationToken = default)
+
+        public async Task<ApiResponse<List<NotificationDto>>> GetNotificationsAsync()
         {
             try
             {

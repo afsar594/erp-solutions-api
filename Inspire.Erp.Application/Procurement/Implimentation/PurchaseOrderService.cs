@@ -948,7 +948,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
             var poQuery = _purchaseOrderRepository.GetAsQueryable()
                 .Where(po =>
-                    (!filterByDate || (po.PurchaseOrderDate.Date >= fromDate && po.PurchaseOrderDate.Date <= toDate)) &&
+                    (!filterByDate || (po.PurchaseOrderDate.Date >= fromDate && po.PurchaseOrderDate.Date <= toDate)) && (po.PurchaseOrderDelStatus == null || po.PurchaseOrderDelStatus == false) &&
                     (!filterByJob || po.PurchaseOrderJobId == model.JobId))
                 .Include(po => po.OrderApprovalHierarchies)
                 .AsNoTracking()
@@ -1026,7 +1026,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     Amount = po.PurchaseOrderNetAmount ?? 0,
                     Status = po.PurchaseOrderApproveStatus,
                     Remarks = string.Join("\n", po.PurchaseOrderRemarks1, po.PurchaseOrderRemarks2, po.PurchaseOrderRemarks3).Trim(),
-                    VoucherApprovers = approvers
+                    VoucherApprovers = approvers,
+                    Supplier = po.PurchaseOrderPartyName ?? string.Empty
                 };
             })
             .Where(x => x != null)
@@ -1219,7 +1220,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
             var prQuery = _purchaseRequisitionRepository.GetAsQueryable()
                 .Where(pr =>
-                    (!filterByDate || (pr.PurchaseRequisitionDate.Date >= fromDate && pr.PurchaseRequisitionDate.Date <= toDate)) &&
+                    (!filterByDate || (pr.PurchaseRequisitionDate.Date >= fromDate && pr.PurchaseRequisitionDate.Date <= toDate)) && (pr.PurchaseRequisitionDelStatus == null || pr.PurchaseRequisitionDelStatus == false) &&
                     (!filterByJob || pr.PurchaseRequisitionJobId == model.JobId))
                 .Include(pr => pr.OrderApprovalHierarchies)
                 .AsNoTracking()
@@ -1297,7 +1298,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     Amount = (decimal)pr.PurchaseRequisitionNetAmount,
                     Status = pr.PurchaseRequisitionStatus,
                     Remarks = pr.PurchaseRequisitionRemarks,
-                    VoucherApprovers = approvers
+                    VoucherApprovers = approvers,
+                    Supplier = pr.PurchaseRequisitionPartyName ?? string.Empty
                 };
             })
             .Where(x => x != null)

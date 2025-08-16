@@ -25,5 +25,16 @@ namespace Inspire.Erp.Web.Controllers.Notifications
         {
             return Ok(await _notificationService.GetNotificationsAsync());
         }
+
+        [HttpPost("{Id}")]
+        public async Task<IActionResult> SaveNotification([FromBody] NotificationDto notification, int Id)
+        {
+            if (Id != notification.NotificationId)
+                return BadRequest("Id mismatched");
+
+            return Ok(await _notificationService.CreateNotificationAsync(notification));
+        }
+
+
     }
 }

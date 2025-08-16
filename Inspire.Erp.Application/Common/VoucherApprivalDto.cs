@@ -22,6 +22,7 @@ namespace Inspire.Erp.Application.Common
         public decimal Amount { get; set; }
         public string Status { get; set; }
         public string Remarks { get; set; }
+        public string Supplier { get; set; }
 
         public List<VoucherApprover> VoucherApprovers { get; set; }
     }

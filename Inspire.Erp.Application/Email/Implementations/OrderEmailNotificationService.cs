@@ -91,12 +91,12 @@ namespace Inspire.Erp.Application.Email.Implementations
                         FilePath = string.Join(',', attachments)
                     })
                     .ToList();
-                _orderApprovalHierarchy.BeginTransaction();
+                //_orderApprovalHierarchy.BeginTransaction();
                 if (orderApprovers.Any() && IsNewEntery)
                 {
                     _orderApprovalHierarchy.InsertList(orderApprovers);
                     _logger.LogInformation("Approval hierarchy inserted for Order ID: {OrderId}", orderId);
-                    _orderApprovalHierarchy.TransactionCommit();
+                    //_orderApprovalHierarchy.TransactionCommit();
                 }
 
                 if (orderType == EnumOrderForms.GeneralPurchaseOrder)
@@ -113,11 +113,7 @@ namespace Inspire.Erp.Application.Email.Implementations
                         .FirstOrDefault();
 
                     if (topApprover == null)
-                    {
-                        await notifyConcernUser(level, UserId, orderType, poNumber, Username, orderId);
-                        _logger.LogInformation("Email notification process completed for Order ID: {OrderId}", orderId);
                         return;
-                    }
 
                     toMails = topApprover.MetaData;
                 }
@@ -181,7 +177,7 @@ namespace Inspire.Erp.Application.Email.Implementations
             }
             catch (Exception ex)
             {
-                _orderApprovalHierarchy.TransactionRollback();
+                //_orderApprovalHierarchy.TransactionRollback();
                 _logger.LogError(ex, "Failed to send email notification for Order ID: {OrderId}, Level: {Level}", orderId, level);
                 throw;
             }
@@ -196,16 +192,16 @@ namespace Inspire.Erp.Application.Email.Implementations
                 var notificationToAdd = new NotificationDto()
                 {
                     Message = $"{orderType.ToString()} against '{poNumber}' has been created by {username} and your approval is pending.",
-                    IsRead = level == EnumApproverLevels.Level3 || userId == _currentUserService.UserId  ? true : false,
+                    IsRead = level == EnumApproverLevels.Level3 || userId == _currentUserService.UserId ? true : false,
                     NotificationId = 0,
-                    RouteUrl = $"{_mailSettings.MainUrl}procurement/po-approval?menu=184&vNo={orderId}&type={orderType}".Trim(),
+                    RouteUrl = $"procurement/po-approval?menu=184&vNo={orderId}&type={orderType}".Trim(),
                     UserId = userId
                 };
                 await _notificaionService.CreateNotificationAsync(notificationToAdd);
                 _logger.LogInformation("notification added {notificationToAdd}", notificationToAdd);
 
-                if (level == EnumApproverLevels.Level3 || userId == _currentUserService.UserId)
-                    return;
+                //if (level == EnumApproverLevels.Level3 || userId == _currentUserService.UserId)
+                //    return;
                 await _notificationHub.SendApprovalNotification(userId.ToString(), notificationToAdd);
                 _logger.LogInformation("Notification Sent {notificationToAdd}", notificationToAdd);
             }

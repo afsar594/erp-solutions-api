@@ -11,7 +11,7 @@ namespace Inspire.Erp.Application.CusNotification
 {
     public interface INotificaionService
     {
-        public Task<ApiResponse<List<NotificationDto>>> GetNotificationsAsync(CancellationToken cancellationToken = default);
-        public Task CreateNotificationAsync(NotificationDto dto, CancellationToken cancellationToken = default);
+        public Task<ApiResponse<List<NotificationDto>>> GetNotificationsAsync();
+        public Task<ApiResponse<bool>> CreateNotificationAsync(NotificationDto dto);
     }
 }
