@@ -291,18 +291,36 @@ namespace Inspire.Erp.Application.Sales.Implementations
             }
             return i;
         }
+        //private decimal getConverionTypebyUnitId(int? itemid, int? unitDetailsid)
+        //{
+        //    try
+        //    {
+        //        return (decimal)_UnitDetailsRepository.GetAsQueryable().FirstOrDefault(x => x.UnitDetailsItemId == itemid && x.UnitDetailsUnitId == unitDetailsid).UnitDetailsConversionType;
+        //    }
+        //    catch
+        //    {
+        //        return 1;
+        //    }
+        //}
         private decimal getConverionTypebyUnitId(int? itemid, int? unitDetailsid)
         {
             try
             {
-                return (decimal)_UnitDetailsRepository.GetAsQueryable().FirstOrDefault(x => x.UnitDetailsItemId == itemid && x.UnitDetailsUnitId == unitDetailsid).UnitDetailsConversionType;
+                if (itemid.HasValue && itemid.Value != 0 &&unitDetailsid.HasValue && unitDetailsid.Value != 0)
+                {
+                    return (decimal)_UnitDetailsRepository.GetAsQueryable().FirstOrDefault(x => x.UnitDetailsItemId == itemid && x.UnitDetailsUnitId == unitDetailsid).UnitDetailsConversionType;
+                }
+                else
+                {
+                    return 1;
+                }
             }
             catch
             {
                 return 1;
             }
         }
-        
+
         public async Task<SalesVoucherModel> InsertSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions,
             List<SalesVoucherDetails> salesVoucherDetails
             , List<StockRegister> stockRegister)
@@ -362,7 +380,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         StockRegisterPurchaseID = salesVoucher.SalesVoucherNo,
                         StockRegisterRefVoucherNo = salesVoucher.SalesVoucherNo,
                         StockRegisterVoucherDate = DateTime.Now.Date,
-                        StockRegisterMaterialID = item.SalesVoucherDetailsMatId,
+                        StockRegisterMaterialID = item.SalesVoucherDetailsMatId ?? 0,
                         StockRegisterQuantity = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
                         StockRegisterSIN = 0,
                         StockRegisterSout = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 1,
@@ -372,10 +390,10 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         StockRegisterAssignedDate = DateTime.Now.Date,
                         StockRegisterStatus = "A",
                         StockRegisterTransType = VoucherType.SalesVoucher_TYPE,
-                        StockRegisterUnitID = item.SalesVoucherDetailsUnitId,
-                        StockRegisterLocationID = salesVoucher.SalesVoucherLocationID,
-                        StockRegisterJobID = salesVoucher.SalesVoucherJobId,
-                        StockRegisterDepID = salesVoucher.SalesVoucherDptID,
+                        StockRegisterUnitID = item.SalesVoucherDetailsUnitId ?? 0,
+                        StockRegisterLocationID = salesVoucher.SalesVoucherLocationID ?? 0,
+                        StockRegisterJobID = salesVoucher.SalesVoucherJobId ?? 0,
+                        StockRegisterDepID = salesVoucher.SalesVoucherDptID ?? 0,
                         StockRegisterDelStatus = false,
                         StockRegisterLandingCost = expense
                     });
@@ -406,8 +424,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
         }
         public async Task<VanSales> InsertVanSalesAsync(VanSales model)
         {
-            
-
             var vanSales = new VanSales
             {
                 Mode = model.Mode,
@@ -438,49 +454,96 @@ namespace Inspire.Erp.Application.Sales.Implementations
             };
 
             _vanSalesRepository.Insert(vanSales);
-            await _context.SaveChangesAsync(); 
+            await _context.SaveChangesAsync();
 
             if (model.Details?.Count > 0)
             {
-                var detailToAdd = model.Details.Select(x =>
+                var detailToAdd = model.Details.Select(x => new VanSalesDetails
                 {
-                    return new VanSalesDetails
-                    {
-                        SalesId = vanSales.SalesId,
-                        SI_No = x.SI_No,
-                        Item_Name = x.Item_Name,
-                        Qty = x.Qty,
-                        Rate=x.Rate,
-                        Amount = x.Amount,
-                        CreatedDate = x.CreatedDate
-                    };
+                    SalesId = vanSales.SalesId,
+                    SI_No = x.SI_No,
+                    Item_Name = x.Item_Name,
+                    Qty = x.Qty,
+                    Rate = x.Rate,
+                    Amount = x.Amount,
+                    CreatedDate = x.CreatedDate
                 }).ToList();
 
                 _vanSalesDetailsRepository.InsertList(detailToAdd);
-
                 await _context.SaveChangesAsync();
             }
-            // Generate PDF if PrintInvoice is true
-            //if (vanSales.PrintInvoice == true)
-            //{
-            //    var pdfBytes = PdfGenerator.GeneratePdf(
-            //        $"Invoice #{vanSales.SalesId}",
-            //        $"Product: {vanSales.Product}\nTotal: {vanSales.Total:C}"
-            //    );
 
-            //    var directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "invoices");
-            //    if (!Directory.Exists(directoryPath))
-            //    {
-            //        Directory.CreateDirectory(directoryPath);
-            //    }
+            try
+            {
+                var salesVoucher = new SalesVoucher
+                {
+                    VanSalesId = vanSales.SalesId,
+                    SalesVoucherCurrencyId = 1,
+                    SalesVoucherLocationID = 1,
+                    SalesVoucherTotalGrossAmount = vanSales.Total ?? 0,
+                    SalesVoucherExpense = 0,
+                    SalesVoucherJobId = 0,
+                    SalesVoucherDptID = 0,
+                    SalesVoucherDetails = new List<SalesVoucherDetails>()
+                };
 
-            //    var filePath = Path.Combine(directoryPath, $"Invoice_{vanSales.SalesId}.pdf");
-            //    await File.WriteAllBytesAsync(filePath, pdfBytes);
-            //}
+                var salesVoucherDetails = model.Details?.Select(d => new SalesVoucherDetails
+                {
+                    SalesVoucherDetailsItemName = d.Item_Name,
+                    SalesVoucherDetailsQuantity = d.Qty,
+                    SalesVoucherDetailsRate = d.Rate,
+                    SalesVoucherDetailsGrossAmount = d.Amount,
+                    SalesVoucherDetailsCostPrice = d.Rate,
+                    SalesVoucherDetailsMatId = 0,
+                    SalesVoucherDetailsUnitId = 0 
+                }).ToList() ?? new List<SalesVoucherDetails>();
+                foreach (var detail in salesVoucherDetails)
+                {
+                    salesVoucher.SalesVoucherDetails.Add(detail);
+                }
+                var accountsTransactions = new List<AccountsTransactions>
+        {
+            new AccountsTransactions
+            {
+                               AccountsTransactionsAccNo = "01001014",
+                    AccountsTransactionsAllocBalance = 0,
+                    AccountsTransactionsCredit = 0,
+                    AccountsTransactionsCurrencyId = 5,
+                    AccountsTransactionsDescription = string.Empty,
+                    AccountsTransactionsFcAllocBalance = 0,
+                    AccountsTransactionsFcCredit = 0,
+                    AccountsTransactionsParticulars = string.Empty,
+                    AccountsTransactionsStatus = AccountStatus.Approved,
+                    AccountsTransactionsTransDate = DateTime.Now, 
+                    AccountsTransactionsTransSno = 0,
+                    AccountsTransactionsTstamp = DateTime.Now,
+                    AccountsTransactionsUserId = 1,
+                    AccountsTransactionsVoucherNo = salesVoucher.SalesVoucherNo,
+                    AccountsTransactionsVoucherType = VoucherType.SalesVoucher_TYPE,
+            }
+        };
+
+                var stockRegister = salesVoucherDetails.Select(d => new StockRegister
+                {
+                    StockRegisterMaterialID = d.SalesVoucherDetailsMatId,
+                    StockRegisterQuantity = d.SalesVoucherDetailsQuantity ?? 0,
+                    StockRegisterRate = d.SalesVoucherDetailsRate ?? 0,
+                    StockRegisterAmount = (d.SalesVoucherDetailsQuantity ?? 0) * (d.SalesVoucherDetailsRate ?? 0),
+                    StockRegisterVoucherDate = DateTime.Now
+                }).ToList();
+
+                await InsertSalesVoucher(salesVoucher, accountsTransactions, salesVoucherDetails, stockRegister);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Van Sales saved but failed to save Sales Voucher: " + ex.Message, ex);
+            }
+
             return vanSales;
         }
 
-        
+
+
         public async Task<Response<(List<decimal> PurchasePrices, List<decimal> SalesPrices)>> GetLast3PurchaseAndSalesPricesAsync(int itemId, int? locationId)
         {
             try
