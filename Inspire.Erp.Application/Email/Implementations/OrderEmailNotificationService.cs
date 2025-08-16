@@ -191,8 +191,8 @@ namespace Inspire.Erp.Application.Email.Implementations
 
                 var notificationToAdd = new NotificationDto()
                 {
-                    Message = $"{orderType.ToString()} against '{poNumber}' has been created by {username} and your approval is pending.",
-                    IsRead = level == EnumApproverLevels.Level3 || userId == _currentUserService.UserId ? true : false,
+                    Message = $"{orderType} '{poNumber}' pending approval.",
+                    IsRead = false,
                     NotificationId = 0,
                     RouteUrl = $"procurement/po-approval?menu=184&vNo={orderId}&type={orderType}".Trim(),
                     UserId = userId
