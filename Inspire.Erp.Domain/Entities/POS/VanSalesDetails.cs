@@ -31,6 +31,9 @@ namespace Inspire.Erp.Domain.Entities
         [Column("Amount")]
         public decimal Amount { get; set; }
 
+        [Column("Item_Id")]
+        public int? Item_Id { get; set; }
+
         [Column("CreatedDate")]
         public DateTime CreatedDate { get; set; }
 

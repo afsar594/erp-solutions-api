@@ -19408,6 +19408,12 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.Remark)
                       .HasColumnName("Remark");
 
+                entity.Property(e => e.CustomerId)
+                     .HasColumnName("CustomerId");
+
+                entity.Property(e => e.CustomerName)
+                      .HasColumnName("CustomerName");
+
                 entity.Property(e => e.PrintInvoice)
                       .HasColumnName("PrintInvoice")
                       .HasDefaultValue(false);
@@ -19458,6 +19464,9 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.Amount)
                       .HasColumnName("Amount")
                       .HasColumnType("decimal(18,2)");
+
+                entity.Property(e => e.Item_Id)
+                      .HasColumnName("Item_Id");
 
                 entity.Property(e => e.CreatedDate)
                       .HasColumnName("CreatedDate")

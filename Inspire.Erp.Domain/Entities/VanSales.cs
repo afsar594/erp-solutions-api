@@ -89,11 +89,11 @@ namespace Inspire.Erp.Domain.Entities
 
         [Column("CreatedDate")]
         public DateTime CreatedDate { get; set; }
-
-        // Navigation Property: One sale can have many details
+        [Column("CustomerId")]
+        public int? CustomerId { get; set; }
+        [Column("CustomerName")]
+        public string? CustomerName { get; set; }
         public ICollection<VanSalesDetails> Details { get; set; } = new List<VanSalesDetails>();
 
-        //[NotMapped]
-        //public List<VanSalesDetails> Details { get; set; }
     }
 }

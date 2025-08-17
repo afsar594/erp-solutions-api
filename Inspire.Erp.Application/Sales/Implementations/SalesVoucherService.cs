@@ -450,7 +450,9 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 AddedToCredit = model.AddedToCredit,
                 Remark = model.Remark,
                 PrintInvoice = model.PrintInvoice,
-                CreatedDate = model.CreatedDate
+                CreatedDate = model.CreatedDate,
+                CustomerName=model.CustomerName,
+                CustomerId = model.CustomerId,
             };
 
             _vanSalesRepository.Insert(vanSales);
@@ -463,6 +465,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     SalesId = vanSales.SalesId,
                     SI_No = x.SI_No,
                     Item_Name = x.Item_Name,
+                    Item_Id = x.Item_Id,
                     Qty = x.Qty,
                     Rate = x.Rate,
                     Amount = x.Amount,
@@ -484,6 +487,9 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     SalesVoucherExpense = 0,
                     SalesVoucherJobId = 0,
                     SalesVoucherDptID = 0,
+                    SalesVoucherPartyId=vanSales.CustomerId ?? 0,
+                    SalesVoucherPartyName=vanSales.CustomerName ?? string.Empty,
+                    SalesVoucherType=vanSales.Mode ?? string.Empty,
                     SalesVoucherDetails = new List<SalesVoucherDetails>()
                 };
 
@@ -494,7 +500,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     SalesVoucherDetailsRate = d.Rate,
                     SalesVoucherDetailsGrossAmount = d.Amount,
                     SalesVoucherDetailsCostPrice = d.Rate,
-                    SalesVoucherDetailsMatId = 0,
+                    SalesVoucherDetailsMatId = d.Item_Id,
                     SalesVoucherDetailsUnitId = 0 
                 }).ToList() ?? new List<SalesVoucherDetails>();
                 foreach (var detail in salesVoucherDetails)
