@@ -46,7 +46,7 @@ artifacts/
 # Report and temporary files
 /Inspire.Erp.WebReport/reports/
 /Inspire.Erp.WebReport/Inspire.Erp.WebReport.csproj.user
-
+Inspire.Erp.RecurringJob/
 # Ignore RecurringJob build output
 /Inspire.Erp.RecurringJob/bin/
 /Inspire.Erp.RecurringJob/obj/
