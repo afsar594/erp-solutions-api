@@ -34,6 +34,17 @@ namespace Inspire.Erp.Domain.Entities
         [Column("Item_Id")]
         public int? Item_Id { get; set; }
 
+        [Column("Unit_Id")]
+        public int? Unit_Id { get; set; }
+
+        [Column("DiscountAmount")]
+        public decimal? DiscountAmount { get; set; }
+
+
+        [Column("GrossAmt")]
+        public decimal? GrossAmt { get; set; }
+
+
         [Column("CreatedDate")]
         public DateTime CreatedDate { get; set; }
 

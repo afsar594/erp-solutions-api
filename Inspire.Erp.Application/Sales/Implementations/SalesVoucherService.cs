@@ -466,9 +466,12 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     SI_No = x.SI_No,
                     Item_Name = x.Item_Name,
                     Item_Id = x.Item_Id,
+                    Unit_Id=x.Unit_Id,
                     Qty = x.Qty,
                     Rate = x.Rate,
                     Amount = x.Amount,
+                    DiscountAmount=x.DiscountAmount,
+                    GrossAmt=x.GrossAmt,
                     CreatedDate = x.CreatedDate
                 }).ToList();
 
@@ -483,13 +486,20 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     VanSalesId = vanSales.SalesId,
                     SalesVoucherCurrencyId = 1,
                     SalesVoucherLocationID = 1,
-                    SalesVoucherTotalGrossAmount = vanSales.Total ?? 0,
+                   // SalesVoucherTotalGrossAmount = vanSales.Total ?? 0,
                     SalesVoucherExpense = 0,
                     SalesVoucherJobId = 0,
                     SalesVoucherDptID = 0,
                     SalesVoucherPartyId=vanSales.CustomerId ?? 0,
                     SalesVoucherPartyName=vanSales.CustomerName ?? string.Empty,
                     SalesVoucherType=vanSales.Mode ?? string.Empty,
+                    SalesVoucherDate= DateTime.Now,
+                    SalesVoucherTotalGrossAmount=vanSales.TenderedAmount,
+                    SalesVoucherTotalDisPer=vanSales.SummaryDiscountPercent,
+                    SalesVoucherTotalDisAmount =vanSales.SummaryDiscountAmount,
+                    SalesVoucherNetAmount=vanSales.SummaryTotal,
+                    SalesVoucherVat_Per=vanSales.Vat,
+
                     SalesVoucherDetails = new List<SalesVoucherDetails>()
                 };
 
@@ -498,10 +508,12 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     SalesVoucherDetailsItemName = d.Item_Name,
                     SalesVoucherDetailsQuantity = d.Qty,
                     SalesVoucherDetailsRate = d.Rate,
-                    SalesVoucherDetailsGrossAmount = d.Amount,
+                    SalesVoucherDetailsGrossAmount = d.GrossAmt,
                     SalesVoucherDetailsCostPrice = d.Rate,
                     SalesVoucherDetailsMatId = d.Item_Id,
-                    SalesVoucherDetailsUnitId = 0 
+                    SalesVoucherDetailsUnitId = d.Unit_Id,
+                    SalesVoucherDetailsNetAmt =d.Amount,
+                    SalesVoucherDetailsDiscAmount=d.DiscountAmount
                 }).ToList() ?? new List<SalesVoucherDetails>();
                 foreach (var detail in salesVoucherDetails)
                 {

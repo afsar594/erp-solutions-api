@@ -19468,6 +19468,22 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.Item_Id)
                       .HasColumnName("Item_Id");
 
+                entity.Property(e => e.Unit_Id)
+                   .HasColumnName("Unit_Id");
+
+                entity.Property(e => e.DiscountAmount)
+                    .HasColumnName("DiscountAmount")
+                   .HasColumnType("decimal(18,2)");
+
+
+
+
+                entity.Property(e => e.GrossAmt)
+                       .HasColumnName("GrossAmt")
+                       .HasColumnType("decimal(18,2)");
+
+
+          
                 entity.Property(e => e.CreatedDate)
                       .HasColumnName("CreatedDate")
                       .HasColumnType("datetime")
