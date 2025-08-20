@@ -19421,6 +19421,15 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.CustomerId)
                      .HasColumnName("CustomerId");
 
+                entity.Property(e => e.LocationId)
+                   .HasColumnName("LocationId");
+
+
+                entity.Property(e => e.CurrencyId)
+                   .HasColumnName("CurrencyId");
+
+                
+
                 entity.Property(e => e.CustomerName)
                       .HasColumnName("CustomerName");
 

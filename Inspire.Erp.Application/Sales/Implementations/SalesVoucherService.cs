@@ -453,6 +453,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 CreatedDate = model.CreatedDate,
                 CustomerName=model.CustomerName,
                 CustomerId = model.CustomerId,
+                CurrencyId=model.CurrencyId,
+                LocationId = model.LocationId,  
             };
 
             _vanSalesRepository.Insert(vanSales);
@@ -484,8 +486,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 var salesVoucher = new SalesVoucher
                 {
                     VanSalesId = vanSales.SalesId,
-                    SalesVoucherCurrencyId = 1,
-                    SalesVoucherLocationID = 1,
+                    SalesVoucherCurrencyId = vanSales.CurrencyId ?? 0,
+                    SalesVoucherLocationID = vanSales.LocationId ?? 0,
                    // SalesVoucherTotalGrossAmount = vanSales.Total ?? 0,
                     SalesVoucherExpense = 0,
                     SalesVoucherJobId = 0,

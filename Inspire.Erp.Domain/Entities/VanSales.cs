@@ -93,6 +93,15 @@ namespace Inspire.Erp.Domain.Entities
         public int? CustomerId { get; set; }
         [Column("CustomerName")]
         public string? CustomerName { get; set; }
+
+        [Column("LocationId")]
+
+        public int? LocationId { get; set; }
+
+        [Column("CurrencyId")]
+
+        public int? CurrencyId { get; set; }
+
         public ICollection<VanSalesDetails> Details { get; set; } = new List<VanSalesDetails>();
 
     }
