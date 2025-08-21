@@ -236,5 +236,4 @@ public class StockAdjustmentReportFilter
         public DateTime? todate { get; set; }
 
     }
-
 }

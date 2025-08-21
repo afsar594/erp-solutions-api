@@ -567,6 +567,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         _orderApprovalHierarchy.InsertList(orderApprovers);
                     }
                 }
+
+                //await ApprovePurchaseOrderForLowerApprovers()
                 _purchaseOrderRepository.TransactionCommit();
 
                 var res = await this.GetSavedPurchaseOrderDetails((int)purchaseOrder.PurchaseOrderId);
@@ -576,6 +578,138 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             {
                 _purchaseOrderRepository.TransactionRollback();
                 throw ex;
+            }
+        }
+        public async Task<Response<bool>> ApprovePurchaseOrderForLowerApprovers(POPRApprovalDto approvalDto)
+        {
+            try
+            {
+                // Reject check
+                if (await _orderApprovalHierarchy.GetAsQueryable()
+                    .AnyAsync(a => a.OrderId == approvalDto.OrderId &&
+                                   a.OrderType == approvalDto.OrderType &&
+                                   a.Status == EnumApprovalStatus.Rejected))
+                {
+                    return Response<bool>.Fail(false,"Approval record has already been Rejected.");
+                }
+
+              //  _orderApprovalHierarchy.BeginTransaction();
+
+                // === CASE: Rejection ===
+                if (approvalDto.ApprovalStatus == EnumApprovalStatus.Rejected)
+                {
+                    var currentApprovals = await _orderApprovalHierarchy.GetAsQueryable()
+                        .Where(a => a.OrderId == approvalDto.OrderId &&
+                                    a.OrderType == approvalDto.OrderType &&
+                                    a.Status == EnumApprovalStatus.Pending)
+                        .ToListAsync();
+
+                    currentApprovals.ForEach(x =>
+                    {
+                        x.Status = EnumApprovalStatus.Rejected;
+                        x.Remarks = $"{approvalDto.Remarks} : Rejected By {_currentUserService.Username}";
+                    });
+
+                    await _orderApprovalHierarchy.UpdateListAsync(currentApprovals);
+
+
+                    return  Response<bool>.Success (true, "Approval record has been Rejected.");
+                }
+
+                // === CASE: Approval ===
+                long userId = approvalDto.UserId ?? Convert.ToInt64(_currentUserService.UserId);
+
+                var existingApprovalStatus = await _orderApprovalHierarchy.FirstOrDefaultAsync(
+                    a => a.ApproverId == userId &&
+                         a.OrderId == approvalDto.OrderId &&
+                         a.OrderType == approvalDto.OrderType,
+                    s => s.Status, null);
+
+                if (existingApprovalStatus == EnumApprovalStatus.Approved)
+                    return Response<bool>.Fail(false, "Approval record has already been Approved for current user.");
+
+                var currentApproval = _orderApprovalHierarchy.GetAsQueryable()
+                    .FirstOrDefault(a =>
+                        a.ApproverId == userId &&
+                        a.OrderId == approvalDto.OrderId &&
+                        a.OrderType == approvalDto.OrderType &&
+                        a.Status == EnumApprovalStatus.Pending);
+
+                if (currentApproval == null)
+                    return Response<bool>.Fail(false,"Approval record not found for current user.");
+
+                var currentLevel = currentApproval.ApproverLevel;
+
+                // === NEW LOGIC: Check all lower levels must be Approved ===
+                var lowerLevels = _orderApprovalHierarchy.GetAsQueryable()
+                    .Where(x => x.OrderId == approvalDto.OrderId &&
+                                x.OrderType == approvalDto.OrderType &&
+                                x.ApproverLevel < currentLevel)
+                    .ToList();
+
+                if (lowerLevels.Any() && lowerLevels.Any(l => l.Status != EnumApprovalStatus.Approved))
+                {
+                    lowerLevels.ForEach(x => {
+                        x.Status = EnumApprovalStatus.Approved;
+                        x.Remarks = $"{approvalDto.Remarks} : Approved By {_currentUserService.Username}";
+                    });
+                    await _orderApprovalHierarchy.UpdateListAsync(lowerLevels);
+                }
+
+                // Approve current
+                currentApproval.Status = approvalDto.ApprovalStatus;
+                currentApproval.Remarks = string.IsNullOrEmpty(approvalDto.Remarks) ? "" : approvalDto.Remarks;
+                currentApproval.ApprovedBy = (int)userId;
+                currentApproval.ApprovedDate = DateTime.Now;
+
+                await _orderApprovalHierarchy.UpdateAsync(currentApproval);
+
+                // === Notify Next Approver(s) ===
+                var settingValue = await _generalSettings.GetValueByKey(InspireConstants.DefaultApprovalType);
+
+                // Check same-level pending approvers
+                var pendingUsersAtCurrentLevel = _orderApprovalHierarchy.GetAsQueryable()
+                    .Where(x =>
+                        x.OrderId == approvalDto.OrderId &&
+                        x.OrderType == approvalDto.OrderType &&
+                        x.ApproverLevel == currentLevel &&
+                        x.Status == EnumApprovalStatus.Pending)
+                    .OrderBy(x => x.ApproverId)
+                    .ToList();
+
+                if (pendingUsersAtCurrentLevel.Any())
+                {
+                    var nextUser = pendingUsersAtCurrentLevel.First();
+                    await SendApprovalEmailToUser(
+                        approvalDto.OrderId, approvalDto.OrderType, currentLevel,
+                        settingValue, (int)nextUser.ApproverId, nextUser.FilePath);
+                }
+                else
+                {
+                    // Move to next level
+                    var nextLevelUser = _orderApprovalHierarchy.GetAsQueryable()
+                        .Where(x =>
+                            x.OrderId == approvalDto.OrderId &&
+                            x.OrderType == approvalDto.OrderType &&
+                            x.ApproverLevel > currentLevel &&
+                            x.Status == EnumApprovalStatus.Pending)
+                        .OrderBy(x => x.ApproverLevel)
+                        .ThenBy(x => x.Sno)
+                        .FirstOrDefault();
+
+                    if (nextLevelUser != null)
+                    {
+                        await SendApprovalEmailToUser(
+                            approvalDto.OrderId, approvalDto.OrderType, nextLevelUser.ApproverLevel,
+                            settingValue, (int)nextLevelUser.ApproverId, nextLevelUser.FilePath);
+                    }
+                }
+
+                return Response<bool>.Success(true, "Approval record completed");
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
@@ -1544,6 +1678,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 throw;
             }
         }
+        
+        
         private async Task SendApprovalEmailToUser(int orderId, EnumOrderForms orderType, EnumApproverLevels level, string settingValue, int approverId, string filePath)
         {
             switch (orderType)

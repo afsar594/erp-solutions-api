@@ -9,6 +9,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Inspire.Erp.Domain.Entities.POS;
+using Inspire.Erp.Domain.Models;
+using Inspire.Erp.Domain.DTO;
 
 namespace Inspire.Erp.Application.Sales.Interfaces
 {
@@ -81,6 +83,8 @@ namespace Inspire.Erp.Application.Sales.Interfaces
         public POS_WorkPeriod StartPosWP(POS_WorkPeriod startWP);
         public POS_WorkPeriod EndPosWP(POS_WorkPeriod endWP);
 
+
+        Task<ApiResponse<List<SalesVoucherDto>>> GetSalesVoucherForGrnBrowse(GenericGridViewModel model);
 
     }
 }
