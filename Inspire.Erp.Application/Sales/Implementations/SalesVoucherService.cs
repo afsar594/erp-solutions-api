@@ -1,4 +1,5 @@
-﻿using Inspire.Erp.Application.Account.Implementations;
+﻿using Dapper;
+using Inspire.Erp.Application.Account.Implementations;
 using Inspire.Erp.Application.Common;
 using Inspire.Erp.Application.Helpers;
 using Inspire.Erp.Application.Master;
@@ -462,8 +463,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 CreatedDate = model.CreatedDate,
                 CustomerName = model.CustomerName,
                 CustomerId = model.CustomerId,
-                CurrencyId=model.CurrencyId,
-                LocationId = model.LocationId,  
+                CurrencyId = model.CurrencyId,
+                LocationId = model.LocationId,
             };
 
             _vanSalesRepository.Insert(vanSales);
@@ -497,7 +498,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     VanSalesId = vanSales.SalesId,
                     SalesVoucherCurrencyId = vanSales.CurrencyId ?? 0,
                     SalesVoucherLocationID = vanSales.LocationId ?? 0,
-                   // SalesVoucherTotalGrossAmount = vanSales.Total ?? 0,
+                    // SalesVoucherTotalGrossAmount = vanSales.Total ?? 0,
                     SalesVoucherExpense = 0,
                     SalesVoucherJobId = 0,
                     SalesVoucherDptID = 0,
@@ -1577,19 +1578,20 @@ namespace Inspire.Erp.Application.Sales.Implementations
             }
         }
 
-        public async Task<ApiResponse<List<SalesVoucherDto>>> GetSalesVoucherForGrnBrowse(GenericGridViewModel model)
+        public async Task<ApiResponse<List<SalesVoucherDto>>> GetSalesVoucherForGrnBrowse(GeneralFilter model)
         {
             try
             {
-                //                --and cm.Customer_Master_Customer_No = 1
+                //--and cm.Customer_Master_Customer_No = 1
                 //-- and lm.Location_Master_Location_ID = 10
 
 
-                var dateFilter = string.Empty;
-                if (model.isDate && model.FromDate.HasValue && model.ToDate.HasValue)
-                {
-                    dateFilter = $" and cast(sv.SalesVoucherDate as Date) between '{model.FromDate.Value:yyyy-MM-dd}' and '{model.ToDate.Value:yyyy-MM-dd}'";
-                }
+                var filterString = string.Empty;
+                if (model.IsDate && model.FromDate.HasValue && model.ToDate.HasValue)
+                    filterString = $" and cast(sv.SalesVoucherDate as Date) between '{model.FromDate.Value:yyyy-MM-dd}' and '{model.ToDate.Value:yyyy-MM-dd}'";
+                if (!string.IsNullOrEmpty(model.Filter))
+                    filterString += model.Filter;
+
                 var sql = $@" select sv.SalesVoucherId Id, sv.SalesVoucherNo VoucherNo, cast(sv.SalesVoucherDate as Date) VoucherDate,cm.Customer_Master_Customer_Name CustomerName
                                          ,im.Item_Master_Item_ID ItemId ,im.Item_Master_Item_Name ItemName, sd.SalesVoucherDetailsQuantity Quantity,um.Unit_Master_Unit_ID UnitId,um.Unit_Master_Unit_Short_Name Unit, lm.Location_Master_Location_Name locationName
                                          from SalesVoucher sv
@@ -1599,9 +1601,12 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                          join Location_Master lm on sv.SalesVoucherLocationID = lm.Location_Master_Location_ID
                                          join Unit_Master um on sd.SalesVoucherDetailsUnitId = um.Unit_Master_Unit_ID
                                          where 1=1 and sd.SalesVoucherDetailsDelStatus = 0 
-                                    {dateFilter}";
+                                    {filterString}";
 
-                return ApiResponse<List<SalesVoucherDto>>.Success(new List<SalesVoucherDto>());
+                var result = (await _dbConnection.QueryAsync<SalesVoucherDto>(sql)).ToList();
+                if (!result.Any())
+                    return ApiResponse<List<SalesVoucherDto>>.Fail("No Data found!");
+                return ApiResponse<List<SalesVoucherDto>>.Success(result, "Data found!");
             }
             catch (Exception)
             {

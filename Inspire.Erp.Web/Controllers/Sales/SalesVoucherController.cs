@@ -717,5 +717,12 @@ namespace Inspire.Erp.Web.Controllers
         }
 
 
+        [HttpPost("getsalesvoucherforgrnbrowse")]
+        public async Task<IActionResult> InsertVanSales([FromBody] GeneralFilter model)
+        {
+            return Ok(await _salesVoucherService.GetSalesVoucherForGrnBrowse(model));
+        }
+
+
     }
 }

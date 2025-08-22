@@ -84,7 +84,7 @@ namespace Inspire.Erp.Application.Sales.Interfaces
         public POS_WorkPeriod EndPosWP(POS_WorkPeriod endWP);
 
 
-        Task<ApiResponse<List<SalesVoucherDto>>> GetSalesVoucherForGrnBrowse(GenericGridViewModel model);
+        Task<ApiResponse<List<SalesVoucherDto>>> GetSalesVoucherForGrnBrowse(GeneralFilter model);
 
     }
 }
