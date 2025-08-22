@@ -1158,7 +1158,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     JobId = po.PurchaseOrderJobId,
                     JobName = job?.JobMasterJobName ?? string.Empty,
                     Amount = po.PurchaseOrderNetAmount ?? 0,
-                    Status = po.PurchaseOrderApproveStatus,
+                    Status =   GetVoucherStatus(approvers),//   po.PurchaseOrderApproveStatus,
                     Remarks = string.Join("\n", po.PurchaseOrderRemarks1, po.PurchaseOrderRemarks2, po.PurchaseOrderRemarks3).Trim(),
                     VoucherApprovers = approvers,
                     Supplier = po.PurchaseOrderPartyName ?? string.Empty
@@ -1179,6 +1179,20 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             return poData
                 .Where(x => x.VoucherType != EnumOrderForms.None)
                 .ToList();
+        }
+
+        private string GetVoucherStatus(List<VoucherApprover> approvers)
+        {
+            if (approvers.Any(x => x.Status == EnumApprovalStatus.Rejected))
+                return "Rejected";
+
+            if (approvers.Any(x => x.Status == EnumApprovalStatus.Pending))
+                return "Open";
+
+            if (approvers.All(x => x.Status == EnumApprovalStatus.Approved))
+                return "Closed";
+
+            return "Unknown";
         }
 
 
@@ -1308,7 +1322,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     JobId = gpo.GeneralPurchaseOrderJobId ?? -1,
                     JobName = job?.JobMasterJobName ?? string.Empty,
                     Amount = (decimal)(gpo.GeneralPurchaseOrderNetAmount ?? 0),
-                    Status = gpo.GeneralPurchaseOrderStatus,
+                    Status = GetVoucherStatus(approvers),// gpo.GeneralPurchaseOrderStatus,
                     Remarks = string.Empty,
                     VoucherApprovers = approvers
                 };
@@ -1430,7 +1444,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     JobId = pr.PurchaseRequisitionJobId,
                     JobName = job?.JobMasterJobName ?? string.Empty,
                     Amount = (decimal)pr.PurchaseRequisitionNetAmount,
-                    Status = pr.PurchaseRequisitionStatus,
+                    Status = GetVoucherStatus(approvers),// pr.PurchaseRequisitionStatus,
                     Remarks = pr.PurchaseRequisitionRemarks,
                     VoucherApprovers = approvers,
                     Supplier = pr.PurchaseRequisitionPartyName ?? string.Empty
