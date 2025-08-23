@@ -1,11 +1,7 @@
 ﻿using Inspire.Erp.Application.Common.Dtos;
 using Inspire.Erp.Application.CusNotification;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace Inspire.Erp.Web.Controllers.Notifications
 {
