@@ -1170,10 +1170,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             poData = poData
                 .Where(dto =>
                     model.Status != EnumApprovalStatus.None
-                        ? dto.VoucherApprovers.All(v => v.Status == model.Status)
+                        ? dto.VoucherApprovers.Any(v => v.Status == model.Status)
                         : (!isUserRequired || isAdmin)
                             ? true
-                            : dto.VoucherApprovers.All(v => v.ApproverId == userId && v.Status == EnumApprovalStatus.Pending))
+                            : dto.VoucherApprovers.Any(v => v.ApproverId == userId && v.Status == EnumApprovalStatus.Pending))
                 .ToList();
 
             return poData
@@ -1333,10 +1333,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             gpoData = gpoData
                 .Where(dto =>
                     model.Status != EnumApprovalStatus.None
-                        ? dto.VoucherApprovers.All(v => v.Status == model.Status)
+                        ? dto.VoucherApprovers.Any(v => v.Status == model.Status)
                         : (!isUserRequired || isAdmin)
                             ? true
-                            : dto.VoucherApprovers.All(v => v.ApproverId == userId && v.Status == EnumApprovalStatus.Pending))
+                            : dto.VoucherApprovers.Any(v => v.ApproverId == userId && v.Status == EnumApprovalStatus.Pending))
                 .ToList();
 
             return gpoData
@@ -1456,10 +1456,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             prData = prData
                 .Where(dto =>
                     model.Status != EnumApprovalStatus.None
-                        ? dto.VoucherApprovers.All(v => v.Status == model.Status)
+                        ? dto.VoucherApprovers.Any(v => v.Status == model.Status)
                         : (!isUserRequired || isAdmin)
                             ? true
-                            : dto.VoucherApprovers.All(v => v.ApproverId == userId && v.Status == EnumApprovalStatus.Pending))
+                            : dto.VoucherApprovers.Any(v => v.ApproverId == userId && v.Status == EnumApprovalStatus.Pending))
                 .ToList();
 
             return prData
