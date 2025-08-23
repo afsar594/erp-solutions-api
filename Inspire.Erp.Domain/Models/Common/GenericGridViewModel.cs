@@ -9,13 +9,13 @@ namespace Inspire.Erp.Domain.Modals.Common
     {
         public int Skip { get; set; } = 0;
         public int Take { get; set; } = 10000000;
-        public string Field { get; set; }
-        public string Dir { get; set; }
-        public string Search { get; set; }
-        public string Filter { get; set; }
+        public string? Field { get; set; }
+        public string? Dir { get; set; }
+        public string? Search { get; set; }
+        public string? Filter { get; set; }
         public int Total { get; set; } = 0;
-        public string Extension { get; set; }
-        public string FormatType { get; set; }
+        public string? Extension { get; set; }
+        public string? FormatType { get; set; }
         public bool isDate { get; set; }
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
@@ -63,7 +63,7 @@ namespace Inspire.Erp.Domain.Modals.Common
         public long? Customercode { get; set; }
         public DateTime? fromDate { get; set; }
         public DateTime? toDate { get; set; }
-        public bool ischeck  { get; set; }
+        public bool ischeck { get; set; }
 
     }
     public class DeliveryNoteDetailsModule
@@ -87,9 +87,9 @@ namespace Inspire.Erp.Domain.Modals.Common
         public string? CustomerName { get; set; }
         public long? CustomerId { get; set; }
 
-}
+    }
 
-public class StockAdjustmentReportFilter
+    public class StockAdjustmentReportFilter
     {
         public int? JobId { get; set; }
         public DateTime? FromDate { get; set; }
@@ -158,7 +158,7 @@ public class StockAdjustmentReportFilter
         public string fromDate { get; set; }
         public string toDate { get; set; }
 
-        public bool IsSummaryChecked { get; set; }    
+        public bool IsSummaryChecked { get; set; }
     }
 
     public class ItemBarCodeSearchFilter
@@ -207,10 +207,10 @@ public class StockAdjustmentReportFilter
         public decimal? Stock { get; set; }
 
         public string? DeliverySite { get; set; }
-        public string? ConfirmationEmailDetails { get; set; }  
-        public string? PaymentTerms { get; set; }  
-        public string? DeliveryTerms { get; set; } 
-        public string? Notes { get; set; } 
+        public string? ConfirmationEmailDetails { get; set; }
+        public string? PaymentTerms { get; set; }
+        public string? DeliveryTerms { get; set; }
+        public string? Notes { get; set; }
     }
     public class UserTrackFilter
     {
@@ -236,5 +236,15 @@ public class StockAdjustmentReportFilter
         public DateTime? todate { get; set; }
 
     }
+
+    public class GeneralFilter
+    {
+        public string? Filter { get; set; }
+        public bool IsDate { get; set; }
+        public DateTime? FromDate { get; set; }
+        public DateTime? ToDate { get; set; }
+    }
+
+
 
 }

@@ -25,7 +25,7 @@ namespace Inspire.Erp.Infrastructure.Database.Repositoy
         Task InsertListAsync(List<T> entity);
         void Update(T entity);
 
-        public void UpdateAsync(T entity);
+        Task UpdateAsync(T entity);
         void UpdateList(List<T> entity);
         Task UpdateListAsync(List<T> entity);
         void Delete(T entity);

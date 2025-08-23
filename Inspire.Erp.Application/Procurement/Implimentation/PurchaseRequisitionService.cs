@@ -16,6 +16,7 @@ using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Infrastructure;
 using Inspire.Erp.Infrastructure.Database;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Inspire.Erp.NotificationBus;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Caching.Memory;
@@ -202,6 +203,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 Thread.Sleep(2000);
                 _purchaseRequisitionRepository.TransactionCommit();
 
+              
                 await downloadAndSaveVoucherReport.DownloadedFileAsync(applicationSettings.DownloadFileBaseUrl, "PurchaseRequisition", purchaseRequisition.PurchaseRequisitionId.ToString(), (int)purchaseRequisition.PurchaseRequisitionId, purchaseRequisition.PurchaseRequisitionNo, true);
 
             }
@@ -537,6 +539,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 //await SendEmailOnValueExceedsAsync((int)purchaseRequisition.PurchaseRequisitionJobId, purchaseRequisition.PurchaseRequisitionNo);
                 #endregion
 
+               
                 var res = await this.GetSavedPurchaseRequisitionDetails((int)purchaseRequisition.PurchaseRequisitionId);
                 return Response<PurchaseRequisitionModel>.Success(res.Result, "Purchase Requisition Save Successfully.");
 
@@ -671,6 +674,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         public IEnumerable<PurchaseRequisition> GetPurchaseRequisition()
         {
             IEnumerable<PurchaseRequisition> purchaseRequisition_ALL = _purchaseRequisitionRepository.GetAll().Where(k => k.PurchaseRequisitionDelStatus == false || k.PurchaseRequisitionDelStatus == null);
+
             return purchaseRequisition_ALL;
         }
         public async Task<Response<PurchaseRequisitionModel>> GetSavedPurchaseRequisitionDetails(int pvno)

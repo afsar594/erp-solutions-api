@@ -151,8 +151,7 @@ namespace Inspire.Erp.Application.NewFolder.Implementations
             }
             catch (Exception)
             {
-
-                throw;
+                return new FileResultDto();
             }
         }
 

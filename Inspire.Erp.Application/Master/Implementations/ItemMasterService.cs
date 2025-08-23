@@ -614,10 +614,35 @@ namespace Inspire.Erp.Application.Master
             throw new NotImplementedException();
         }
 
-        public IEnumerable<ItemMaster> GetAllItemMaster()
+        public IEnumerable<allItemMasterDto> GetAllItemMaster()
         {
-            throw new NotImplementedException();
+            var items = itemrepository.GetAll();          
+            var unitDetails = _unitDetailsRepo.GetAll(); 
+            var unitMasters = _unitMasterRepo.GetAll();  
+
+            var result = (from a in items
+                          join b in unitDetails
+                              on a.ItemMasterItemId equals b.UnitDetailsItemId
+                          join c in unitMasters
+                              on b.UnitDetailsUnitId equals c.UnitMasterUnitId
+                          where a.ItemMasterItemType == "A"
+                                && (a.ItemMasterDelStatus == null || a.ItemMasterDelStatus == false)
+
+                          select new allItemMasterDto
+                          {
+                              ItemId = a.ItemMasterItemId,
+                              ItemName = a.ItemMasterItemName,
+                              UnitId = b.UnitDetailsUnitId,
+                              UnitShortName = c.UnitMasterUnitShortName,
+                              Rate = (decimal)(b.UnitDetailsRate ?? 0),
+                              ConversionType = (decimal)(b.UnitDetailsConversionType ?? 0),
+                              Barcode = b.UnitDetailsBarcode,
+                              DisplayName = a.ItemMasterItemName + "-" + c.UnitMasterUnitShortName
+                          }).ToList();
+
+            return result;
         }
+
 
         #region POS
 

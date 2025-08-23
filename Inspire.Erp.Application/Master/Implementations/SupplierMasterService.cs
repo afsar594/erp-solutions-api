@@ -25,13 +25,14 @@ namespace Inspire.Erp.Application.Master
         private readonly IRepository<MasterAccountsTable> _masterAccountTable;
         private readonly IRepository<CityMaster> _cityMasterrepository;
         private readonly IRepository<CountryMaster> _counrtyMasterrepository;
+        private readonly IRepository<AccountSettings> _accountSettingsRepo;
         private readonly IUtilityService _utilityService;
         private string SupplierRelativeNo = "";
         public SupplierMasterService(IRepository<SuppliersMaster> _supplierrepository, IRepository<PurchaseVoucher> _pVoucherrepo,
             IUtilityService utilityService, IConfiguration config,
                                      IRepository<MasterAccountsTable> masterAccountTable, IRepository<PurchaseVoucherDetails> _pVoucherDetailsrepo,
                                      IRepository<CityMaster> cityMasterrepository,
-                                     IRepository<CountryMaster> counrtyMasterrepository)
+                                     IRepository<CountryMaster> counrtyMasterrepository, IRepository<AccountSettings> accountSettingsRepo)
         {
             supplierrepository = _supplierrepository;
             pVoucherDetailsrepo = _pVoucherDetailsrepo;
@@ -41,7 +42,9 @@ namespace Inspire.Erp.Application.Master
             SupplierRelativeNo = config["ApplicationSettings:SupplierRelativeNo"];
             _cityMasterrepository = cityMasterrepository;
             _counrtyMasterrepository = counrtyMasterrepository;
+            _accountSettingsRepo = accountSettingsRepo;
         }
+
         public async Task<SuppliersMaster> InsertSupplier(SuppliersMaster SuppliersMaster)
         {
             bool valid = false;
@@ -51,8 +54,10 @@ namespace Inspire.Erp.Application.Master
                 valid = true;
                 int mxc = 0;
                 var maxId = _masterAccountTable.GetAsQueryable().Max(x => x.MaSno);
+                
+                var accSettings = await _accountSettingsRepo.GetAsQueryable().AsNoTracking().FirstOrDefaultAsync(x => x.AccountSettingsAccountKeyValue.Trim().Equals("CREDITORS_AC_NO"));
 
-                var masterAccount = _masterAccountTable.GetAsQueryable().Where(x => x.MaAccNo == SupplierRelativeNo).FirstOrDefault();
+                var masterAccount = _masterAccountTable.GetAsQueryable().Where(x => x.MaAccNo == accSettings.AccountSettingsAccountNumberValue).FirstOrDefault();
                 var suppAccNo = string.Empty;
                 MasterAccountsTable masterAccountsTable = null;
                 var count = _masterAccountTable.GetAsQueryable().AsNoTracking().Where(x => x.MaRelativeNo == SupplierRelativeNo).ToList().Count() + 1;
@@ -159,6 +164,7 @@ namespace Inspire.Erp.Application.Master
             }
             return this.GetAllSupplierById(SuppliersMaster.SuppliersMasterSupplierId);
         }
+
         public SuppliersMaster DeleteSupplier(SuppliersMaster SuppliersMaster)
         {
             bool valid = false;

@@ -1,33 +1,22 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using AutoMapper;
-using DinkToPdf.Contracts;
+﻿using AutoMapper;
 using DinkToPdf;
+using DinkToPdf.Contracts;
 using Inspire.Erp.Application;
+using Inspire.Erp.Domain.Models.Common;
 using Inspire.Erp.Infrastructure;
 using Inspire.Erp.Infrastructure.CustomExceptionHandler;
+using Inspire.Erp.NotificationBus;
 using Inspire.Erp.Web.Common;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json;
-using OfficeOpenXml.FormulaParsing.Logging;
+using System;
 using System.IO;
-using Inspire.Erp.Domain.Models.Common;
-using Inspire.Erp.Application.Account.Implementation;
-using Inspire.Erp.Application.NewFolder.Interfaces;
-using Inspire.Erp.Application.NewFolder.Implementations;
-using Inspire.Erp.RecurringJob;
-using Hangfire;
-using Microsoft.Extensions.FileProviders;
 
 namespace Inspire.Erp.Web
 {
@@ -40,7 +29,6 @@ namespace Inspire.Erp.Web
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMemoryCache();
@@ -49,38 +37,44 @@ namespace Inspire.Erp.Web
             services.AddControllers();
             services.AddApplication();
             services.AddInfrastructure(Configuration);
+
+            // ✅ Use your existing JWT setup from DependencyInjection.cs
             services.AddTokenAuthentication(Configuration);
 
-            // services.AddHangfire(configuration =>
-            //        {
-            //            configuration.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection"), new Hangfire.SqlServer.SqlServerStorageOptions
-            //            {
-            //                PrepareSchemaIfNecessary = true, // Prevents migration attempts
-            //                SchemaName = "HangFire"           // Use the exact schema name in your DB
-            //            });
-            //        });
-            services.AddHangfireServer();
-            services.AddRecurringJob(Configuration);
+            // ✅ CORS for Angular + SignalR
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAngularClient",
+                    builder =>
+                    {
+                        builder
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .SetIsOriginAllowed(_ => true)
+                        .AllowCredentials();
+                    });
+            });
 
-
-
-            // Auto Mapper Configurations
+            // AutoMapper config
             var mappingConfig = new MapperConfiguration(mc =>
             {
                 mc.AddProfile(new MappingProfile());
             });
-
             IMapper mapper = mappingConfig.CreateMapper();
             services.AddSingleton(mapper);
+
+            // Email settings
             services.Configure<EmailSettingViewModel>(Configuration.GetSection("MailSettings"));
+
+            // Swagger config
             services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+                options.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Title = "InspireErpApi",
                     Version = "v1",
-                    Description = "Services offered by inspire solutions",
-                }); 
+                    Description = "Services offered by Inspire Solutions",
+                });
 
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
@@ -90,95 +84,92 @@ namespace Inspire.Erp.Web
                     Type = SecuritySchemeType.ApiKey
                 });
 
-                options.AddSecurityRequirement(new OpenApiSecurityRequirement {
-               {
-                 new OpenApiSecurityScheme
-                 {
-                   Reference = new OpenApiReference
-                   {
-                     Type = ReferenceType.SecurityScheme,
-                     Id = "Bearer"
-                   }
-                  },
-                  new string[] { }
-                }
-              });
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
+                });
             });
 
-            services.AddCors(options =>
-            {
-                options.AddPolicy("AllowAllHeaders",
-                      builder =>
-                      {
-                          builder.WithOrigins("*")
-                                 .AllowAnyOrigin()
-                                .AllowAnyHeader()
-                                .AllowAnyMethod();
-                      });
-            });
-           
+            // PDF Converter
             services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
+
+            // Notification hub service
             services.AddScoped<INotificationHub, NotificationHub>();
 
+            // Global filters
             services.AddControllers(options =>
             {
-                // Register the filter globally
                 options.Filters.Add<SpecialCharacterValidationFilter>();
             });
 
+            // Recurring jobs
+            services.AddRecurringJob(Configuration);
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
-            app.UseMiddleware<CustomExceptionHandlerMiddleware>();
-            // This middleware serves generated Swagger document as a JSON endpoint
-            app.UseSwagger();
 
-            // This middleware serves the Swagger documentation UI
+            app.UseMiddleware<CustomExceptionHandlerMiddleware>();
+
+            // Swagger
+            app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Inspire Solution Erp API V1");
-                //c.RoutePrefix = string.Empty;
             });
 
             app.UseRouting();
-            app.UseCors("AllowAllHeaders");
-            // global cors policy            
-            app.UseCors(options => options.AllowAnyOrigin());
+
+            // ✅ Apply CORS before authentication
+            app.UseCors("AllowAngularClient");
+
             app.UseAuthentication();
             app.UseAuthorization();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHub<NotificationHub>("/signal");
+                endpoints.MapHub<NotificationHub>("/notifications");
             });
+
+            // Static files
             app.UseStaticFiles(new StaticFileOptions
             {
                 FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "Upload/Pdfs")),
                 RequestPath = "/pdfs"
             });
 
-            //this is only for Water bird project
-            app.UseHangfireDashboard("/EmailScheduler");
-            using (var scope = app.ApplicationServices.CreateScope())
-            {
-                var emailScheduler = scope.ServiceProvider.GetRequiredService<IEmailSchedulerService>();
-
-                // Schedule both email jobs to run daily
-                Hangfire.RecurringJob.AddOrUpdate("jobscops-email-job", () =>
-                     emailScheduler.CheckAndSendEmailForJobScops(), Cron.Daily);
-
-                Hangfire.RecurringJob.AddOrUpdate("bankguarantees-email-job", () =>
-                    emailScheduler.CheckAndSendEmailForJobBankGuarantees(), Cron.Daily);
-            }
-
+            // Logging
             loggerFactory.AddFile($@"{Directory.GetCurrentDirectory()}\Logs\log.txt");
 
+
+            //this is only for Water bird project
+            //app.UseHangfireDashboard("/EmailScheduler");
+            //using (var scope = app.ApplicationServices.CreateScope())
+            //{
+            //    var emailScheduler = scope.ServiceProvider.GetRequiredService<IEmailSchedulerService>();
+
+            //    // Schedule both email jobs to run daily
+            //    Hangfire.RecurringJob.AddOrUpdate("jobscops-email-job", () =>
+            //         emailScheduler.CheckAndSendEmailForJobScops(), Cron.Daily);
+
+            //    Hangfire.RecurringJob.AddOrUpdate("bankguarantees-email-job", () =>
+            //        emailScheduler.CheckAndSendEmailForJobBankGuarantees(), Cron.Daily);
+            //}
         }
     }
 }

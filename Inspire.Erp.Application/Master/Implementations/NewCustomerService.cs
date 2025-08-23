@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Inspire.Erp.Application.Account.Implementations
 {
@@ -53,41 +54,60 @@ namespace Inspire.Erp.Application.Account.Implementations
             {
                 if (customerMaster.IsCreateAccount.HasValue && (bool)customerMaster.IsCreateAccount)
                 {
-                    var MaSno = Convert.ToInt32(this._masterAccountTable.GetAsQueryable()
-                                      .Where(x => Convert.ToInt32(x.MaSno) > 0)
-                                      .DefaultIfEmpty()
-                                      .Max(o => o == null ? 0 : o.MaSno)) + 1;
+                    var exisitingCustomer = _masterAccountTable.GetAsQueryable()
+                                                    .FirstOrDefault(x =>
+                                                        !string.IsNullOrEmpty(customerMaster.CustomerMasterCustomerReffAcNo) &&
+                                                        x.MaAccNo == customerMaster.CustomerMasterCustomerReffAcNo &&
+                                                        (x.MaDelStatus == null || x.MaDelStatus == false)
+                                                    );
 
-                    var debtorAcc = this._masterAccountTable.GetAsQueryable()
-                                    .FirstOrDefault(x => x.MaAccNo == customerMaster.CustomerMasterCustomerGroupAccNo);
-                   
 
-                    var custMasterAccNo = this._masterAccountTable.GetAsQueryable()
-                        .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == debtorAcc.MaAccNo)
-                        .DefaultIfEmpty()
-                        .Max(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length - 3, o.MaAccNo.Length))) + 1;
-
-                    var custMasterAcc = new MasterAccountsTable
+                    if (exisitingCustomer is null)
                     {
-                        MaSno = MaSno,
-                        MaRelativeNo = customerMaster.CustomerMasterCustomerGroupAccNo,
-                        MaAccNo = customerMaster.CustomerMasterCustomerGroupAccNo + String.Format("{0:000}", custMasterAccNo),
-                        MaAccName = customerMaster.CustomerMasterCustomerName,
-                        MaAccType = AccountMasterStatus.Account,
-                        MaMainHead = debtorAcc.MaMainHead,
-                        MaSubHead = debtorAcc.MaSubHead,
-                        MaFsno = 1,
-                        MaStatus = AccountStatus.AccStatus,
-                        MaUserId = 0,
-                        MaDateCreated = DateTime.Now,
-                        MaOpenBalance = 0,//need to add this 
-                        MaTotalDebit = 0,//need to add this
-                        MaTotalCredit = 0, //need to add this 
-                        MaAssetDate = DateTime.Now
-                    };
+                        var MaSno = Convert.ToInt32(this._masterAccountTable.GetAsQueryable()
+                                          .Where(x => Convert.ToInt32(x.MaSno) > 0)
+                                          .DefaultIfEmpty()
+                                          .Max(o => o == null ? 0 : o.MaSno)) + 1;
 
-                    this._masterAccountTable.Insert(custMasterAcc);
-                    customerMaster.CustomerMasterCustomerReffAcNo = custMasterAcc.MaAccNo;
+                        var debtorAcc = this._masterAccountTable.GetAsQueryable()
+                                        .FirstOrDefault(x => x.MaAccNo == customerMaster.CustomerMasterCustomerGroupAccNo);
+
+
+                        var custMasterAccNo = this._masterAccountTable.GetAsQueryable()
+                            .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == debtorAcc.MaAccNo)
+                            .DefaultIfEmpty()
+                            .Max(o => o == null ? 0 : Convert.ToInt64(o.MaAccNo.Substring(o.MaAccNo.Length - 3, o.MaAccNo.Length))) + 1;
+
+
+
+                        var custMasterAcc = new MasterAccountsTable
+                        {
+                            MaSno = MaSno,
+                            MaRelativeNo = customerMaster.CustomerMasterCustomerGroupAccNo,
+                            MaAccNo = customerMaster.CustomerMasterCustomerGroupAccNo + String.Format("{0:000}", custMasterAccNo),
+                            MaAccName = customerMaster.CustomerMasterCustomerName,
+                            MaAccType = AccountMasterStatus.Account,
+                            MaMainHead = debtorAcc.MaMainHead,
+                            MaSubHead = debtorAcc.MaSubHead,
+                            MaFsno = 1,
+                            MaStatus = AccountStatus.AccStatus,
+                            MaUserId = 0,
+                            MaDateCreated = DateTime.Now,
+                            MaOpenBalance = 0,//need to add this 
+                            MaTotalDebit = 0,//need to add this
+                            MaTotalCredit = 0, //need to add this 
+                            MaAssetDate = DateTime.Now
+                        };
+
+                        this._masterAccountTable.Insert(custMasterAcc);
+                        customerMaster.CustomerMasterCustomerReffAcNo = custMasterAcc.MaAccNo;
+                    }
+                    else
+                    {
+                        exisitingCustomer.MaAccName = customerMaster.CustomerMasterCustomerName;
+                        _masterAccountTable.Update(exisitingCustomer);
+                    }
+
                 }
                 _customerMasterRepository.BeginTransaction();
 
@@ -195,7 +215,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                     }).OrderBy(x => x.CustomerContactsName).AsEnumerable().ToList();
                     _customerContactsRepository.InsertList(customerContacts);
 
-                };
+                }
+                ;
 
                 if (customerDepartments != null)
                 {
@@ -216,9 +237,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                                       .DefaultIfEmpty()
                                       .Max(o => o == null ? 0 : o.MaSno)) + 1;
 
-                    var debtorAcc = this._masterAccountTable.GetAsQueryable()
-                                                                                         .FirstOrDefault(x => x.MaAccNo == customerMaster.CustomerMasterCustomerGroupAccNo);
-                                                                                         //.FirstOrDefault(x => x.MaAccName.ToUpper() == "Debtors".ToUpper());
+                    var debtorAcc = this._masterAccountTable.GetAsQueryable().FirstOrDefault(x => x.MaAccNo == customerMaster.CustomerMasterCustomerGroupAccNo);
+                    //.FirstOrDefault(x => x.MaAccName.ToUpper() == "Debtors".ToUpper());
 
                     var custMasterAccNo = this._masterAccountTable.GetAsQueryable()
                         .Where(x => Convert.ToInt64(x.MaAccNo) > 0 && x.MaRelativeNo == debtorAcc.MaAccNo)
@@ -283,6 +303,8 @@ namespace Inspire.Erp.Application.Account.Implementations
             return customerView;
 
         }
+
+
     }
 }
 

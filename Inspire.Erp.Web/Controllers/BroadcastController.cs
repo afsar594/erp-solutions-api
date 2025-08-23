@@ -11,6 +11,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Inspire.Erp.Domain.Entities;
 using Microsoft.Data.SqlClient;
+using Inspire.Erp.NotificationBus;
 
 namespace Inspire.Erp.Web.Controllers
 {

@@ -135,14 +135,14 @@ namespace Inspire.Erp.Infrastructure.Database.Repositoy
             context.SaveChanges();
         }
 
-        public void UpdateAsync(T entity)
+        public async Task UpdateAsync(T entity)
         {
             if (entity == null)
             {
                 throw new ArgumentNullException("entity");
             }
             entities.Update(entity);
-            context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
 
         public void UpdateList(List<T> entity)
