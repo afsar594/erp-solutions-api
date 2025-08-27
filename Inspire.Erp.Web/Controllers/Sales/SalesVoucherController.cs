@@ -124,6 +124,11 @@ namespace Inspire.Erp.Web.Controllers
             if (_salesVoucherService.GetVouchersNumbers(voucherCompositeView.SalesVoucherNo) == null)
             {
                 var param1 = _mapper.Map<SalesVoucher>(voucherCompositeView);
+                param1.SalesVoucherVat_AMT = voucherCompositeView.SalesVoucherVatAmt;
+                param1.SalesVoucherVat_Per = voucherCompositeView.SalesVoucherVatPer;
+                param1.SalesVoucherVat_RoundSign = voucherCompositeView.SalesVoucherVatRoundSign;
+                param1.SalesVoucherVat_RountAmt = voucherCompositeView.SalesVoucherVatRountAmt;
+
                 var param2 = _mapper.Map<List<SalesVoucherDetails>>(voucherCompositeView.SalesVoucherDetails);
                 var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
                 List<StockRegister> param4 = new List<StockRegister>();
@@ -714,6 +719,13 @@ namespace Inspire.Erp.Web.Controllers
 
             var result = await _salesVoucherService.InsertVanSalesAsync(model);
             return Ok(result);
+        }
+
+
+        [HttpPost("getsalesvoucherforgrnbrowse")]
+        public async Task<IActionResult> InsertVanSales([FromBody] GeneralFilter model)
+        {
+            return Ok(await _salesVoucherService.GetSalesVoucherForGrnBrowse(model));
         }
 
 
