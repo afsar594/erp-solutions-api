@@ -85,6 +85,8 @@ namespace Inspire.Erp.Application.Sales.Interfaces
 
 
         Task<ApiResponse<List<SalesVoucherDto>>> GetSalesVoucherForGrnBrowse(GeneralFilter model);
-
+        IQueryable GetCustomerDetailWiseSalesReport(int? customerId, DateTime? fromDate, DateTime? toDate);
+        IQueryable GetCustomerMaterialWiseSalesReport(int? customerId, DateTime? fromDate, DateTime? toDate);
+        IQueryable GetCustomerSummaryWiseSalesReport(int? customerId, DateTime? fromDate, DateTime? toDate);
     }
 }

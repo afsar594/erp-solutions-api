@@ -728,6 +728,47 @@ namespace Inspire.Erp.Web.Controllers
             return Ok(await _salesVoucherService.GetSalesVoucherForGrnBrowse(model));
         }
 
+        [HttpGet]
+        [Route("GetCustomerDetailWiseSalesReport")]
+        public IActionResult GetCustomerDetailWiseSalesReport(int? customerId, DateTime? fromDate, DateTime? toDate)
+        {
+            try
+            {
+                return Ok(_salesVoucherService.GetCustomerDetailWiseSalesReport(customerId, fromDate, toDate));
+            }
+            catch (System.Exception ex)
+            {
+                throw;
+            }
+        }
+
+        [HttpGet]
+        [Route("GetCustomerMaterialWiseSalesReport")]
+        public IActionResult GetCustomerMaterialWiseSalesReport(int? customerId, DateTime? fromDate, DateTime? toDate)
+        {
+            try
+            {
+                return Ok(_salesVoucherService.GetCustomerMaterialWiseSalesReport(customerId, fromDate, toDate));
+            }
+            catch (System.Exception ex)
+            {
+                throw;
+            }
+        }
+
+        [HttpGet]
+        [Route("GetCustomerSummaryWiseSalesReport")]
+        public IActionResult GetCustomerSummaryWiseSalesReport(int? customerId, DateTime? fromDate, DateTime? toDate)
+        {
+            try
+            {
+                return Ok(_salesVoucherService.GetCustomerSummaryWiseSalesReport(customerId, fromDate, toDate));
+            }
+            catch (System.Exception ex)
+            {
+                throw;
+            }
+        }
 
     }
 }

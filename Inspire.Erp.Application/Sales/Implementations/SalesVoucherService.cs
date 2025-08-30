@@ -1631,6 +1631,164 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 throw;
             }
         }
+
+        public IQueryable GetCustomerDetailWiseSalesReport(int? customerId, DateTime? fromDate, DateTime? toDate)
+        {
+            try
+            {
+                var query = from sv in _salesVoucherRepository.GetAll()
+                            join c in _customerMasterRepository.GetAll()
+                            on sv.SalesVoucherPartyId equals c.CustomerMasterCustomerNo
+                            where (sv.SalesVoucherDelStatus == false || sv.SalesVoucherDelStatus == null)
+                            select new { sv, c };
+
+                // ✅ Apply Customer Filter (if provided)
+                if (customerId.HasValue)
+                {
+                    query = query.Where(x => x.c.CustomerMasterCustomerNo == customerId.Value);
+                }
+
+                if (fromDate.HasValue)
+                {
+                    query = query.Where(x => x.sv.SalesVoucherDate >= fromDate.Value.Date);
+                }
+                if (toDate.HasValue)
+                {
+                    var endDate = toDate.Value.Date.AddDays(1);
+                    query = query.Where(x => x.sv.SalesVoucherDate < endDate);
+                }
+
+                var customerWiseReport = query
+                    .Select(g => new
+                    {
+                        voucherNo = g.sv.SalesVoucherNo,
+                        voucherDate = g.sv.SalesVoucherDate,
+                        voucherType = g.sv.SalesVoucherType,
+                        customerName = g.c.CustomerMasterCustomerName,
+                        grossAmount = g.sv.SalesVoucherTotalGrossAmount,
+                        discount = g.sv.SalesVoucherTotalDisAmount,
+                        //vatAmount = (sv.SalesVoucherNetAmount - sv.SalesVoucherTotalDisAmount) - sv.SalesVoucherTotalGrossAmount,
+                        vatAmount = g.sv.SalesVoucherVat_AMT,
+                        netAmount = g.sv.SalesVoucherNetAmount,
+                        retAmount = g.sv.SalesVoucherVat_RountAmt,
+                        net = g.sv.SalesVoucherNetAmount
+                    })
+                    .AsQueryable();
+
+                return customerWiseReport;
+            }
+            catch (System.Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public IQueryable GetCustomerMaterialWiseSalesReport(int? customerId, DateTime? fromDate, DateTime? toDate)
+        {
+            try
+            {
+                var query = from sv in _salesVoucherRepository.GetAll()
+                            join c in _customerMasterRepository.GetAll()
+                            on sv.SalesVoucherPartyId equals c.CustomerMasterCustomerNo
+                            join sd in _salesVoucherDetailsRepository.GetAll()
+                            on sv.SalesVoucherNo equals sd.SalesVoucherDetailsNo
+                            where (sv.SalesVoucherDelStatus == false || sv.SalesVoucherDelStatus == null)
+                            select new { sv, c, sd };
+
+                // ✅ Apply Customer Filter (if provided)
+                if (customerId.HasValue)
+                {
+                    query = query.Where(x => x.c.CustomerMasterCustomerNo == customerId.Value);
+                }
+
+                if (fromDate.HasValue)
+                {
+                    query = query.Where(x => x.sv.SalesVoucherDate >= fromDate.Value.Date);
+                }
+                if (toDate.HasValue)
+                {
+                    var endDate = toDate.Value.Date.AddDays(1);
+                    query = query.Where(x => x.sv.SalesVoucherDate < endDate);
+                }
+
+                var customerWiseReport = query
+                    .Select(g => new
+                    {
+                        voucherNo = g.sv.SalesVoucherNo,
+                        voucherDate = g.sv.SalesVoucherDate,
+                        itemName = g.c.CustomerMasterCustomerName,
+                        soldQty = g.sd.SalesVoucherDetailsActualAmount,
+                        voucherType = g.sv.SalesVoucherType,
+                        customerName = g.c.CustomerMasterCustomerName,
+                        grossAmount = g.sv.SalesVoucherTotalGrossAmount,
+                        discount = g.sv.SalesVoucherTotalDisAmount,
+                        netAmount = g.sv.SalesVoucherNetAmount,
+
+                    })
+                    .AsQueryable();
+
+                return customerWiseReport;
+            }
+            catch (System.Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public IQueryable GetCustomerSummaryWiseSalesReport(int? customerId, DateTime? fromDate, DateTime? toDate)
+        {
+            try
+            {
+                var customerDict = _customerMasterRepository.GetAsQueryable()
+                    .ToDictionary(x => x.CustomerMasterCustomerNo, x => x.CustomerMasterCustomerName);
+
+                var data = (from svd in _salesVoucherDetailsRepository.GetAll()
+                            join sv in _salesVoucherRepository.GetAll() on svd.SalesVoucherDetailsNo equals sv.SalesVoucherNo into lsv
+                            
+                            from salesVou in lsv.DefaultIfEmpty()
+                            join itemMas in _itemMasterRepository.GetAll() on (long)svd.SalesVoucherDetailsMatId equals itemMas.ItemMasterItemId into litemm
+                            
+                            from itemmaster in litemm.DefaultIfEmpty()
+                            join um in _unitMasterRepository.GetAll() on svd.SalesVoucherDetailsUnitId equals um.UnitMasterUnitId into lum
+                            
+                            from unitMaster in lum.DefaultIfEmpty()
+                            where svd.SalesVoucherDetailsNo != null
+                                  // ✅ Customer filter
+                                  && (!customerId.HasValue || salesVou.SalesVoucherPartyId == customerId)
+
+                                  // ✅ FromDate filter
+                                  && (!fromDate.HasValue || salesVou.SalesVoucherDate >= fromDate.Value)
+
+                                  // ✅ ToDate filter
+                                  && (!toDate.HasValue || salesVou.SalesVoucherDate <= toDate.Value)
+
+                            select new
+                            {
+                                netAmount = svd.SalesVoucherDetailsNetAmt,
+                                discount = svd.SalesVoucherDetailsDiscAmount,
+                                grossAmt = svd.SalesVoucherDetailsGrossAmount,
+                                unitPrice = svd.SalesVoucherDetailsCostPrice,
+                                unitDes = unitMaster?.UnitMasterUnitShortName,
+                                itemName = itemmaster?.ItemMasterItemName ?? "Unknown",
+                                partNo = itemmaster?.ItemMasterPartNo ?? "N/A",
+                                itemId = itemmaster?.ItemMasterItemId ?? 0,
+                                voucherDate = salesVou.SalesVoucherDate,
+                                voucherNo = salesVou.SalesVoucherNo,
+                                soldQty = svd.SalesVoucherDetailsQuantity ?? 0,
+                                customerName = customerDict.ContainsKey(Convert.ToInt32(salesVou.SalesVoucherPartyId))
+                                               ? customerDict[Convert.ToInt32(salesVou.SalesVoucherPartyId)]
+                                               : ""
+                            }).AsQueryable();
+
+                return data;
+            }
+            catch (System.Exception ex)
+            {
+                throw;
+            }
+        }
+
+
     }
 }
 
