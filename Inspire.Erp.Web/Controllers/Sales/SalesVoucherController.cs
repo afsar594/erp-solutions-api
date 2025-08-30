@@ -472,32 +472,22 @@ namespace Inspire.Erp.Web.Controllers
             return apiResponse;
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("GetSalesReportDetailWise")]
-        public IActionResult GetSalesReportDetailWise()
+        public IActionResult GetSalesReportDetailWise([FromBody] salesReportFilter filter)
         {
-            try
-            {
-                return Ok(_salesVoucherService.GetSalesReportDetailWise());
-            }
-            catch (System.Exception ex)
-            {
-                throw ex;
-            }
+          
+                return Ok(_salesVoucherService.GetSalesReportDetailWise(filter));
+           
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("GetSalesReportSummaryWise")]
-        public IActionResult GetSalesReportSummaryWise()
+        public IActionResult GetSalesReportSummaryWise([FromBody] salesReportFilter filter )
         {
-            try
-            {
-                return Ok(_salesVoucherService.GetSalesReportSummaryWise());
-            }
-            catch (System.Exception ex)
-            {
-                throw ex;
-            }
+            return Ok(_salesVoucherService.GetSalesReportSummaryWise(filter));
+
+          
         }
 
 

@@ -245,6 +245,16 @@ namespace Inspire.Erp.Domain.Modals.Common
         public DateTime? ToDate { get; set; }
     }
 
+    public class salesReportFilter
+    {
+        public int? CustomerId { get; set; }
+        public int? ItemId { get; set; }
+        public int? LocationId { get; set; }
+        public bool IsDate { get; set; }
+        public DateTime? Fromdate { get; set; }
+        public DateTime? Todate { get; set; }
+        public string? VType { get; set; }
+    }
 
 
 }
