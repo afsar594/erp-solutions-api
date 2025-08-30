@@ -978,6 +978,12 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                             .All(o => o.Status == EnumApprovalStatus.Approved)
                         : true
                     where isApproved
+                    let deliveredQuantity = pvdQuery
+                     .Where(pvd => pvd.PurchaseVoucherDetailsPodId == pod.PurchaseOrderDetailsId &&
+                    pvd.PurchaseVoucherDetailsMaterialId == pod.PurchaseOrderDetailsMatId)
+                    .Sum(pvd => (int?)pvd.PurchaseVoucherDetailsQuantity) ?? 0
+                    let balanceQuantity = (int)pod.PurchaseOrderDetailsQuantity - deliveredQuantity
+                    where balanceQuantity > 0
                     select new PODetailsViewModel
                     {
                         ItemId = (int)pod.PurchaseOrderDetailsMatId,
@@ -994,15 +1000,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                             .Where(u => u.UnitMasterUnitId == pod.PurchaseOrderDetailsUnitId)
                             .Select(u => u.UnitMasterUnitFullName.Trim())
                             .FirstOrDefault(),
-                        DeliveredQuantity = pvdQuery
-                            .Where(pvd => pvd.PurchaseVoucherDetailsPodId == pod.PurchaseOrderDetailsId &&
-                                          pvd.PurchaseVoucherDetailsMaterialId == pod.PurchaseOrderDetailsMatId)
-                            .Sum(pvd => (int?)pvd.PurchaseVoucherDetailsQuantity) ?? 0,
-                        BalanceQuantity = (int)pod.PurchaseOrderDetailsQuantity -
-                                          (pvdQuery
-                                            .Where(pvd => pvd.PurchaseVoucherDetailsPodId == pod.PurchaseOrderDetailsId &&
-                                                          pvd.PurchaseVoucherDetailsMaterialId == pod.PurchaseOrderDetailsMatId)
-                                            .Sum(pvd => (int?)pvd.PurchaseVoucherDetailsQuantity) ?? 0)
+                        DeliveredQuantity = deliveredQuantity,
+                        BalanceQuantity = balanceQuantity
                     })
                     .OrderBy(po => po.PODate)
                     .ThenBy(po => po.PONo)

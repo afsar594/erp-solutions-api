@@ -486,7 +486,6 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                      join po in _Context.CustomerPurchaseOrder
                                      on pod.CustomerPurchaseOrderId equals po.CustomerPurchaseOrderId
                                      where po.CustomerPurchaseOrderDelStatus != true
-                                     where po.CustomerPurchaseOrderCustomerId != null
                                      && (model.CustomerId == null || model.CustomerId == 0 || po.CustomerPurchaseOrderCustomerId == model.CustomerId)
                                      && (model.LocacationId == null || model.LocacationId == 0 || po.CustomerPurchaseOrderLocationId == model.LocacationId)
                                      select new
@@ -549,7 +548,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                        CPODId = groupedData.Key.CustomerPurchaseOrderDetailsId,
                                        CPODate = groupedData.Key.CustomerPurchaseOrderDate,
                                        VoucherNo = groupedData.Key.CustomerPurchaseOrderLpoNo ?? "",
-                                       CustomerName = groupedData.Key.CustomerMasterCustomerName,
+                                       CustomerName = groupedData.Key.CustomerMasterCustomerName ?? "",
                                        Quantity = groupedData.Sum(x => x.cpod.CustomerPurchaseOrderDetailsQty),
                                        DeliveredQuantity = groupedData.Sum(x => x.srqdr?.CustomerDeliveryNoteDetailsQty ?? 0), 
                                        type="Summery",
@@ -584,7 +583,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                        CPODId = cpod.CustomerPurchaseOrderDetailsId,
                                        CPODate = cpod.CustomerPurchaseOrderDate,
                                        VoucherNo = cpod.CustomerPurchaseOrderLpoNo ?? "",
-                                       CustomerName = cmg.CustomerMasterCustomerName,
+                                       CustomerName = cmg?.CustomerMasterCustomerName ?? "",
                                        PartNo = img.ItemMasterPartNo ?? "",
                                        MatDes = cpod.CustomerPurchaseOrderDetailsDescription ?? img.ItemMasterItemName,
                                        UnitName = umg.UnitMasterUnitShortName.Trim(),
@@ -641,7 +640,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                          CPOId = cpo.CustomerPurchaseOrderId,
                                          CPODate = cpo.CustomerPurchaseOrderDate,
                                          LPONo = cpo.CustomerPurchaseOrderLpoNo == null ? "" : cpo.CustomerPurchaseOrderLpoNo,
-                                         CustomerName = cpo.CustomerPurchaseOrderCustomerName,
+                                         CustomerName = cpo.CustomerPurchaseOrderCustomerName ?? "",
                                          PartNo = im.ItemMasterPartNo == null ? "" : im.ItemMasterPartNo,
                                          MatDes = cpod.CustomerPurchaseOrderDetailsDescription == null ? im.ItemMasterItemName : cpod.CustomerPurchaseOrderDetailsDescription,
                                          UnitDes = um.UnitMasterUnitDescription,
