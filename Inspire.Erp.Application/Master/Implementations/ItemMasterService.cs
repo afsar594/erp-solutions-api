@@ -229,11 +229,19 @@ namespace Inspire.Erp.Application.Master
 
         }
 
-        public ItemMaster UpdateNewItem(ItemMaster itemMaster)
+        public  ItemMaster UpdateNewItem(ItemMaster itemMaster)
         {
             bool valid = false;
             try
             {
+                var existingItem =  itemrepository.GetAsQueryable()
+                .FirstOrDefaultAsync(x => x.ItemMasterItemName == itemMaster.ItemMasterItemName && x.ItemMasterItemType == itemMaster.ItemMasterItemType);
+
+                if (existingItem != null)
+                {
+                    // Return null if item already exists
+                    return null;
+                }
 
                 itemMaster.ItemImages = itemMaster.ItemImages.AsEnumerable().Select(k =>
                 {

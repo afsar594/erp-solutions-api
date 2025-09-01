@@ -348,28 +348,56 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpPost]
         [Route("UpdateItem")]
-        public ApiResponse<List<ItemMasterViewModel>> UpdateBrand([FromBody] ItemMasterViewModel itemMaster)
+        public ApiResponse<List<ItemMasterViewModel>> UpdateItem([FromBody] ItemMasterViewModel itemMaster)
         {
-            if (itemMaster.ItemMasterImageBase64 != null)
+            try
             {
-                itemMaster.ItemImages = new List<ItemImagesViewModel> {
-                                                        new ItemImagesViewModel {
-                                                             ItemImagesItemImage = Convert.FromBase64String(itemMaster.ItemMasterImageBase64.Split(',')[1])
-                                                        } };
-            }
-
-            var model = _mapper.Map<ItemMaster>(itemMaster);
-
-            var data = itemMasterService.UpdateItem(model);
-            List<ItemMasterViewModel> result = itemMaster.ItemMasterItemType == null ? null : _mapper.Map<List<ItemMasterViewModel>>(data);
-            ApiResponse<List<ItemMasterViewModel>> apiResponse = new ApiResponse<List<ItemMasterViewModel>>
-            {
-                Valid = true,
-                Result = result,
-                Message = ""
+                if (itemMaster.ItemMasterImageBase64 != null)
+                {
+                    itemMaster.ItemImages = new List<ItemImagesViewModel> {
+                new ItemImagesViewModel {
+                    ItemImagesItemImage = Convert.FromBase64String(itemMaster.ItemMasterImageBase64.Split(',')[1])
+                }
             };
-            return apiResponse;
+                }
+
+                var model = _mapper.Map<ItemMaster>(itemMaster);
+
+                var data = itemMasterService.UpdateItem(model);
+
+                if (data == null)
+                {
+                    return new ApiResponse<List<ItemMasterViewModel>>
+                    {
+                        Valid = false,
+                        Result = null,
+                        Message = $"Item with name '{itemMaster.ItemMasterItemName}' already exists."
+                    };
+                }
+
+                List<ItemMasterViewModel> result = itemMaster.ItemMasterItemType == null
+                    ? null
+                    : _mapper.Map<List<ItemMasterViewModel>>(data);
+
+                return new ApiResponse<List<ItemMasterViewModel>>
+                {
+                    Valid = true,
+                    Result = result,
+                    Message = "Item updated successfully"
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<List<ItemMasterViewModel>>
+                {
+                    Valid = false,
+                    Result = null,
+                    Message = "Unexpected error occurred",
+                    //Error = ex.Message
+                };
+            }
         }
+
         [HttpPost]
         [Route("DeleteItem")]
         public ApiResponse<List<ItemMasterViewModel>> DeleteItem([FromBody] ItemMasterViewModel itemMaster)
