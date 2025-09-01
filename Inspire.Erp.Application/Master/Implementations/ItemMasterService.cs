@@ -192,6 +192,15 @@ namespace Inspire.Erp.Application.Master
             bool valid = false;
             try
             {
+                var existingItem = await itemrepository.GetAsQueryable()
+             .FirstOrDefaultAsync(x => x.ItemMasterItemName == itemMaster.ItemMasterItemName && x.ItemMasterItemType == itemMaster.ItemMasterItemType);
+
+                if (existingItem != null)
+                {
+                    // Return null if item already exists
+                    return null;
+                }
+
                 valid = true;
                 itemMaster.ItemMasterItemId = Convert.ToInt32(await itemrepository.GetAsQueryable()
                                               .Where(x => x.ItemMasterItemId > 0)
