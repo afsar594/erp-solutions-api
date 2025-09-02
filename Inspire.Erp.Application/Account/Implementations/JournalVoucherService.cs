@@ -75,7 +75,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _journalVoucherRepository.TransactionRollback();
                 throw ex;
             }
-            return this.GetSavedJournalVoucherDetails(journalVoucher.JournalVoucherSno);
+            return this.GetSavedJournalVoucherDetails(journalVoucher.JournalVoucherId);
         }
 
         public int DeleteJournalVoucher(JournalVoucher journalVoucher, List<AccountsTransactions> accountsTransactions, List<JournalVoucherDetails> journalVoucherDetails)
