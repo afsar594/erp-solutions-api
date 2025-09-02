@@ -33,6 +33,7 @@ namespace Inspire.Erp.Web.Controllers
             {
                 WorkGroupMasterWorkGroupId = k.WorkGroupMasterWorkGroupId,
                 WorkGroupMasterWorkGroupName = k.WorkGroupMasterWorkGroupName,
+                WorkGroupMasterWorkGroupdashboardType = k.WorkGroupMasterWorkGroupdashboardType,
                 WorkGroupMasterWorkGroupDelStatus=k.WorkGroupMasterWorkGroupDelStatus
             }).OrderBy(x=>x.WorkGroupMasterWorkGroupName).OrderBy(x=>x.WorkGroupMasterWorkGroupName).ToList();
         }
@@ -45,6 +46,7 @@ namespace Inspire.Erp.Web.Controllers
             {
                 WorkGroupMasterWorkGroupId = k.WorkGroupMasterWorkGroupId,
                 WorkGroupMasterWorkGroupName = k.WorkGroupMasterWorkGroupName,
+                WorkGroupMasterWorkGroupdashboardType = k.WorkGroupMasterWorkGroupdashboardType,
                 WorkGroupMasterWorkGroupDelStatus = k.WorkGroupMasterWorkGroupDelStatus
             }).OrderBy(x => x.WorkGroupMasterWorkGroupName).ToList();
         }
@@ -58,6 +60,7 @@ namespace Inspire.Erp.Web.Controllers
             {
                 WorkGroupMasterWorkGroupId = k.WorkGroupMasterWorkGroupId,
                 WorkGroupMasterWorkGroupName = k.WorkGroupMasterWorkGroupName,
+                WorkGroupMasterWorkGroupdashboardType = k.WorkGroupMasterWorkGroupdashboardType,
                 WorkGroupMasterWorkGroupDelStatus = k.WorkGroupMasterWorkGroupDelStatus
             }).OrderBy(x => x.WorkGroupMasterWorkGroupName).ToList();
         }
@@ -71,6 +74,7 @@ namespace Inspire.Erp.Web.Controllers
             {
                 WorkGroupMasterWorkGroupId = k.WorkGroupMasterWorkGroupId,
                 WorkGroupMasterWorkGroupName = k.WorkGroupMasterWorkGroupName,
+                WorkGroupMasterWorkGroupdashboardType = k.WorkGroupMasterWorkGroupdashboardType,
                 WorkGroupMasterWorkGroupDelStatus = k.WorkGroupMasterWorkGroupDelStatus
             }).OrderBy(x => x.WorkGroupMasterWorkGroupName).ToList();
 
@@ -85,6 +89,7 @@ namespace Inspire.Erp.Web.Controllers
             {
                 WorkGroupMasterWorkGroupId = k.WorkGroupMasterWorkGroupId,
                 WorkGroupMasterWorkGroupName = k.WorkGroupMasterWorkGroupName,
+                WorkGroupMasterWorkGroupdashboardType = k.WorkGroupMasterWorkGroupdashboardType,
                 WorkGroupMasterWorkGroupDelStatus = k.WorkGroupMasterWorkGroupDelStatus
             }).OrderBy(x => x.WorkGroupMasterWorkGroupName).ToList();
         }
