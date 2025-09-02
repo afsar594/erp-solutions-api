@@ -153,7 +153,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 //trackingData.UserTrackingUserVpType = "JOVOUCHER";
                 //_UserTracking.Insert(trackingData);
                 _journalVoucherRepository.TransactionCommit();
-                return this.GetSavedJournalVoucherDetails(journalVoucher.JournalVoucherSno);
+                return this.GetSavedJournalVoucherDetails(journalVoucher.JournalVoucherId);
 
             }
             catch (Exception ex)
