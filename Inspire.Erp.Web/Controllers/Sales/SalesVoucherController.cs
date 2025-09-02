@@ -1,27 +1,27 @@
-﻿using Inspire.Erp.Application.Account.Interfaces;
+﻿using AutoMapper;
+using Inspire.Erp.Application.Account;
+using Inspire.Erp.Application.Account.Interfaces;
+using Inspire.Erp.Application.Common;
+using Inspire.Erp.Application.Sales.Interfaces;
+using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Domain.Modals;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Inspire.Erp.Web.Common;
+using Inspire.Erp.Web.ViewModels;
+using Inspire.Erp.Web.ViewModels.sales;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
-using AutoMapper;
-using Inspire.Erp.Application.Sales.Interfaces;
-using Inspire.Erp.Application.Common;
-using Inspire.Erp.Domain.Entities;
-using Inspire.Erp.Web.ViewModels;
-using Inspire.Erp.Web.ViewModels.sales;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Inspire.Erp.Domain.Enums;
-using Inspire.Erp.Web.Common;
-
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Inspire.Erp.Infrastructure.Database.Repositoy;
-using Inspire.Erp.Application.Account;
-using Inspire.Erp.Domain.Modals.Common;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization;
-using Inspire.Erp.Domain.Modals;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -442,10 +442,11 @@ namespace Inspire.Erp.Web.Controllers
             return null;
         }
         [HttpGet]
-        [Route("GetSavedSalesVoucherDetailsBySaleVoucher/{svNo}")]
-        public ApiResponse<SalesVoucherViewModel> GetSavedSalesVoucherDetailsBySaleVoucher(string svNo)
+        [Route("GetSavedSalesVoucherDetailsBySaleVoucher/{encodedVoucherNo}")]
+        public ApiResponse<SalesVoucherViewModel> GetSavedSalesVoucherDetailsBySaleVoucher(string encodedVoucherNo)
         {
-            SalesVoucherModel xs = _salesVoucherService.GetSavedSalesVoucherDetailsBySaleVoucher(svNo);
+            string decodedSvNo = WebUtility.UrlDecode(encodedVoucherNo);
+            SalesVoucherModel xs = _salesVoucherService.GetSavedSalesVoucherDetailsBySaleVoucher(decodedSvNo);
 
             if (xs.salesVoucher != null)
             {

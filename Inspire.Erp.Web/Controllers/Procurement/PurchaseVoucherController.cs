@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using Inspire.Erp.Application.Common;
 using Inspire.Erp.Application.Master.Interfaces;
 using Inspire.Erp.Application.Procurement.Interfaces;
@@ -15,6 +11,11 @@ using Inspire.Erp.Web.MODULE;
 using Inspire.Erp.Web.ViewModels.Procurement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -174,10 +175,11 @@ namespace Inspire.Erp.Web.Controllers
             };
             return apiResponse;
         }
-        [HttpGet("GetSavedPurchaseVoucherDetailsByPurchaseVoucher/{pvNo}")]
-        public ApiResponse<PurchaseVoucher> GetSavedPurchaseVoucherDetailsByPurchaseVoucher(string pvNo)
+        [HttpGet("GetSavedPurchaseVoucherDetailsByPurchaseVoucher/{encodedVoucherNo}")]
+        public ApiResponse<PurchaseVoucher> GetSavedPurchaseVoucherDetailsByPurchaseVoucher(string encodedVoucherNo)
         {
-            var purchaseVoucher = _service.GetSavedPurchaseVoucherDetailsByPurchaseVoucher(pvNo);
+            string decodedPvNo = WebUtility.UrlDecode(encodedVoucherNo);
+            var purchaseVoucher = _service.GetSavedPurchaseVoucherDetailsByPurchaseVoucher(decodedPvNo);
 
             ApiResponse<PurchaseVoucher> apiResponse = new ApiResponse<PurchaseVoucher>
             {
