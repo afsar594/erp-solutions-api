@@ -174,5 +174,18 @@ namespace Inspire.Erp.Web.Controllers
             };
             return apiResponse;
         }
+        [HttpGet("GetSavedPurchaseVoucherDetailsByPurchaseVoucher/{pvNo}")]
+        public ApiResponse<PurchaseVoucher> GetSavedPurchaseVoucherDetailsByPurchaseVoucher(string pvNo)
+        {
+            var purchaseVoucher = _service.GetSavedPurchaseVoucherDetailsByPurchaseVoucher(pvNo);
+
+            ApiResponse<PurchaseVoucher> apiResponse = new ApiResponse<PurchaseVoucher>
+            {
+                Valid = true,
+                Result = purchaseVoucher,
+                Message = ""
+            };
+            return apiResponse;
+        }
     }
 }
