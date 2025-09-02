@@ -87,7 +87,6 @@ namespace Inspire.Erp.Domain.Entities
 
         public string PurchaseOrderOrdertype { get; set; }
 
-        
 
     }
 }
