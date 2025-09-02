@@ -316,6 +316,41 @@ namespace Inspire.Erp.Application.Master.Implementations
             }
             return voucherModel;
         }
+        public PurchaseVoucher GetSavedPurchaseVoucherDetailsByPurchaseVoucher(string pvno)
+        {
+            PurchaseVoucher voucherModel = new PurchaseVoucher();
+            voucherModel = _PurchaseVoucher.GetAsQueryable().Where(k => k.PurchaseVoucherVoucherNo == pvno).SingleOrDefault();
+            if (voucherModel != null)
+            {
+
+
+                voucherModel.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(c => c.AccountsTransactionsVoucherNo == voucherModel.PurchaseVoucherVoucherNo && c.AccountsTransactionsVoucherType == VoucherType.PurchaseVoucher_TYPE && (c.AccountstransactionsDelStatus == false || c.AccountstransactionsDelStatus == null)).ToList();
+                voucherModel.PurchaseVoucherDetails = _PurchaseVoucherDetails.GetAsQueryable().Where(x => x.PurchaseVoucherDetailsVoucherNo == voucherModel.PurchaseVoucherVoucherNo && (x.PurchaseVoucherDetailsDelStatus == false || x.PurchaseVoucherDetailsDelStatus == null)).ToList();
+
+                if (voucherModel.PurchaseVoucherDetails.Count > 0)
+                {
+                    foreach (var item in voucherModel.PurchaseVoucherDetails)
+                    {
+                        decimal sumReturnedQty = 0;
+                        var stockQuery = _stockRegisterRepository.GetAsQueryable()
+                        .Where(a => a.StockRegisterMaterialID == item.PurchaseVoucherDetailsMaterialId &&
+                                    a.StockRegisterTransType == "PurchaseReturn" &&
+                                    a.StockRegisterRefVoucherNo == item.PurchaseVoucherDetailsVoucherNo);
+
+                        sumReturnedQty = stockQuery.Any()
+                                           ? stockQuery.Sum(s => (decimal?)s.StockRegisterSout) ?? 0
+                                           : 0;
+
+                        if (sumReturnedQty != null)
+                        {
+                            item.PurchaseReturnQtyTill = sumReturnedQty;
+                        }
+
+                    }
+                }
+            }
+            return voucherModel;
+        }
 
         public VouchersNumbers GetVouchersNumbers(string pvno)
         {
