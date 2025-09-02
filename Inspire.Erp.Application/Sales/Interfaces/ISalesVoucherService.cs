@@ -50,6 +50,7 @@ namespace Inspire.Erp.Application.Sales.Interfaces
             );
         public IEnumerable<AccountsTransactions> GetAllTransaction();
         public SalesVoucherModel GetSavedSalesVoucherDetails(decimal pvno);
+        public SalesVoucherModel GetSavedSalesVoucherDetailsBySaleVoucher(string svNo);
         public IEnumerable<SalesVoucher> GetSalesVoucher();
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
         public VouchersNumbers GetVouchersNumbers(string pvno);

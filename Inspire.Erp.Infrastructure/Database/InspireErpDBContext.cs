@@ -18056,6 +18056,8 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnName("WorkGroup_Master_WorkGroup_Name")
                     .HasMaxLength(40)
                     .IsUnicode(false);
+                entity.Property(e => e.WorkGroupMasterWorkGroupdashboardType)
+                  .HasColumnName("WorkGroup_Master_WorkGroup_DashboardType").IsUnicode(false);
             });
 
             modelBuilder.Entity<WorkGroupPermissions>(entity =>

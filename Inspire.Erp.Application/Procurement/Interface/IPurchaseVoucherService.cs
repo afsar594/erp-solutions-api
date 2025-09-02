@@ -43,6 +43,7 @@ namespace Inspire.Erp.Application.Master.Interfaces
                                                                      List<PurchaseVoucherDetails> purchaseVoucherDetails);
 
         public PurchaseVoucher GetSavedPurchaseVoucherDetailsV2(long id);
+        public PurchaseVoucher GetSavedPurchaseVoucherDetailsByPurchaseVoucher(string pvNo);
 
     }
 }
