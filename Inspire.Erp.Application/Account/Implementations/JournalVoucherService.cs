@@ -49,6 +49,8 @@ namespace Inspire.Erp.Application.Account.Implementations
             try
             {
                 _journalVoucherRepository.BeginTransaction();
+                var itemsToAdd = journalVoucherDetails.Where(x => x.JournalVoucherDetailsId == 0).ToList();
+                var itemsToUpdate = journalVoucherDetails.Where(x => x.JournalVoucherDetailsId == 0).ToList();
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     if (k.AccountsTransactionsTransSno == 0)
@@ -59,7 +61,11 @@ namespace Inspire.Erp.Application.Account.Implementations
                     return k;
                 }).OrderBy(x => x.AccountsTransactionsVoucherType).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
-                _journalVoucherDetailsRepository.UpdateList(journalVoucherDetails);
+
+                if (itemsToAdd.Any())
+                    _journalVoucherDetailsRepository.InsertList(itemsToAdd);
+                if (itemsToUpdate.Any())
+                    _journalVoucherDetailsRepository.UpdateList(itemsToUpdate);
                 _journalVoucherRepository.Update(journalVoucher);
 
                 _journalVoucherRepository.TransactionCommit();
@@ -69,7 +75,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _journalVoucherRepository.TransactionRollback();
                 throw ex;
             }
-            return this.GetSavedJournalVoucherDetails(journalVoucher.JournalVoucherSno);
+            return this.GetSavedJournalVoucherDetails(journalVoucher.JournalVoucherId);
         }
 
         public int DeleteJournalVoucher(JournalVoucher journalVoucher, List<AccountsTransactions> accountsTransactions, List<JournalVoucherDetails> journalVoucherDetails)
@@ -119,7 +125,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             {
                 _journalVoucherRepository.BeginTransaction();
                 //string jvno = this.GenerateVoucherNo(journalVoucher.JournalVoucherDate).VouchersNumbersVNo;
-                journalVoucher.JournalVoucherVrefNo = clsCommonFunctions.GenrateVoucherNo(VoucherType.JournalVoucher_TYPE, Prefix.JournalVoucher_Prefix, _programsettingsRepository, _voucherNumbersRepository); 
+                journalVoucher.JournalVoucherVrefNo = clsCommonFunctions.GenrateVoucherNo(VoucherType.JournalVoucher_TYPE, Prefix.JournalVoucher_Prefix, _programsettingsRepository, _voucherNumbersRepository);
                 int maxcount = 0;
                 maxcount = Convert.ToInt32(
                     _journalVoucherRepository.GetAsQueryable()
@@ -153,7 +159,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 //trackingData.UserTrackingUserVpType = "JOVOUCHER";
                 //_UserTracking.Insert(trackingData);
                 _journalVoucherRepository.TransactionCommit();
-                return this.GetSavedJournalVoucherDetails(journalVoucher.JournalVoucherSno);
+                return this.GetSavedJournalVoucherDetails(journalVoucher.JournalVoucherId);
 
             }
             catch (Exception ex)
@@ -179,7 +185,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             {
                 journalVoucherModel.JournalVoucherDetails = _journalVoucherDetailsRepository.GetAsQueryable().Where(x => x.JournalVoucherDetailVrefNo == journalVoucherModel.JournalVoucherVrefNo && x.JournalVoucherDetailsDelStatus == false).ToList();
                 journalVoucherModel.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(x => x.AccountsTransactionsVoucherNo == journalVoucherModel.JournalVoucherVrefNo && x.AccountstransactionsDelStatus == false).ToList();
-                
+
             }
             return journalVoucherModel;
         }
