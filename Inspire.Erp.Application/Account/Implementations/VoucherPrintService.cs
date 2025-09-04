@@ -149,9 +149,14 @@ namespace Inspire.Erp.Application.Account.Implementations
                 gridModel.Details = new List<GetAccountTransactionResponse>();
                 string query = @$" 1==1 {model.Filter}";
                 var location = await _locationMaster.GetAsQueryable().FirstOrDefaultAsync();
+                var totalCount = await _accountTransaction.GetAsQueryable().Where(query).CountAsync();
                 //var a = await _accountTransaction.GetAsQueryable().Where(x =>( x.AccountsTransactionsTransDate >= Convert.ToDateTime("")) &&  )
                 //    .ToListAsync();
-                var result = await _accountTransaction.GetAsQueryable().Where(query).Select(x => new GetAccountTransactionResponse
+                var result = await _accountTransaction.GetAsQueryable().Where(query)
+                     .OrderBy(x => x.AccountsTransactionsTransDate) // Add proper ordering
+                     .Skip(model.Skip)
+                     .Take(model.Take)
+                    .Select(x => new GetAccountTransactionResponse
                 {
                     AccountsTransactionsAccNo = x.AccountsTransactionsAccNo,
                     AccountsTransactionsAccName = _masterAccountsTable.GetAsQueryable().FirstOrDefault(c => c.MaAccNo == x.AccountsTransactionsAccNo) != null ?_masterAccountsTable.GetAsQueryable().FirstOrDefault(c => c.MaAccNo == x.AccountsTransactionsAccNo).MaAccName:"",
@@ -201,6 +206,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 gridModel.StationMasterSignPath = location != null ? location.StationMasterSignPath : "";
                 gridModel.StationMasterVatNo = location != null ? location.StationMasterVatNo : "";
                 gridModel.StationMasterWebSite = location != null ? location.StationMasterWebSite : "";
+                gridModel.Total = totalCount.ToString();
                 return Response<GetVoucherPrintingResponse>.Success(gridModel, "Data found");
             }
             catch (Exception ex)
