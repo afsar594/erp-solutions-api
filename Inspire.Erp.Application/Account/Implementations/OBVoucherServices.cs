@@ -255,20 +255,21 @@ namespace Inspire.Erp.Application.Account.Implementations
                 .AsNoTracking()
                 .Where(i => accKeys.Contains(i.AccountSettingsAccountKeyValue.Trim()))
                 .AsEnumerable()
-                .Select(x => x.AccountSettingsAccountTextValue.Split("::")[1])
+                .Select(x => x.AccountSettingsAccountTextValue.Split("::")[1].Trim())
                 .ToList();
 
             var objresponse = new ResponseInfo();
 
             // Now query master table with accnos
-            var details = await _masterAccountsTable.GetAsQueryable()
-                .Where(a => depacc.Contains(a.MaRelativeNo))
+            var details = await _masterAccountsTable.GetAsQueryable().AsNoTracking()
+                .Where(a => depacc.Contains(a.MaRelativeNo.Trim()))
                 .Select(c => new
                 {
                     c.MaAccNo,
                     c.MaAccName
                 })
                 .ToListAsync();
+
 
             objresponse.ResultSet = new
             {
