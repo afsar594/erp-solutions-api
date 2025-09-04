@@ -1,4 +1,5 @@
-﻿using Inspire.Erp.Domain.Modals;
+﻿using Inspire.Erp.Domain.DTO.ItemMaster;
+using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.AccountStatement;
 using Inspire.Erp.Domain.Modals.Common;
 using System;
@@ -12,6 +13,7 @@ namespace Inspire.Erp.Application.Account.Interfaces
     {
         Task<Response<List<DropdownResponse>>> GetVoucherTypeDropdown();
         Task<Response<List<DropdownResponse>>> GetVoucherNoDropdown();
+        Task<Response<DropdownPagedResponse>> GetVoucherNoAutoComplete(PagedSearchRequest request);
         Task<Response<GetVoucherPrintingResponse>> GetAccountTransactions(GenericGridViewModel model);
         Task<Response<ReturnPrintResponse>> DownloadMultiAccountPrint(GenericGridViewModel model);
     }

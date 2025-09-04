@@ -1,5 +1,6 @@
 ﻿using Inspire.Erp.Application.Account.Implementations;
 using Inspire.Erp.Application.Account.Interfaces;
+using Inspire.Erp.Domain.DTO.ItemMaster;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Modals.AccountStatement;
 using Inspire.Erp.Domain.Modals.Common;
@@ -168,6 +169,11 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         public async Task<IActionResult> GetVoucherNoDropdown()
         {
             return Ok(await _iVoucherPrintService.GetVoucherNoDropdown());
+        }
+        [HttpPost("GetVoucherNoAutoComplete")]
+        public async Task<IActionResult> GetVoucherNoAutoComplete(PagedSearchRequest request)
+        {
+            return Ok(await _iVoucherPrintService.GetVoucherNoAutoComplete(request));
         }
         [HttpPost("GetAccountTransactionsVoucherPrint")]
         public async Task<IActionResult> GetAccountTransactionsVoucherPrint(GenericGridViewModel model)
