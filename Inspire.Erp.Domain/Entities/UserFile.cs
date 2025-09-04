@@ -44,6 +44,8 @@ namespace Inspire.Erp.Domain.Entities
         public string UserImageBase64 { get; set; }
         [NotMapped]
         public string SignImageBase64 { get; set; }
+        [NotMapped]
+        public string UserDashboard { get; set; }
 
 
         public virtual ICollection<Notification> Notifications { get; set; }

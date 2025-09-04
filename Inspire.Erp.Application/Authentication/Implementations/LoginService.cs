@@ -24,10 +24,12 @@ namespace Inspire.Erp.Application.Authentication.Implementations
     {
         private IRepository<UserFile> userFileRepository;
         private IConfiguration Configuration;
-        public LoginService(IRepository<UserFile> _userFileRepository, IConfiguration _Configuration)
+        private readonly IRepository<WorkGroupMaster> wgMasterRepo;
+        public LoginService(IRepository<UserFile> _userFileRepository, IConfiguration _Configuration, IRepository<WorkGroupMaster> _wgMasterRepo)
         {
             userFileRepository = _userFileRepository;
             Configuration = _Configuration;
+            wgMasterRepo = _wgMasterRepo;
         }
         public UserFile SignIn(UserFile userData)
         {
@@ -74,6 +76,8 @@ namespace Inspire.Erp.Application.Authentication.Implementations
                             user.RefreshToken = refreshToken.Token;
                             user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
                             userFileRepository.Update(user);
+                            user.UserDashboard = wgMasterRepo.GetAsQueryable().Where(i => i.WorkGroupMasterWorkGroupId == user.WorkGroupId).FirstOrDefault().WorkGroupMasterWorkGroupdashboardType;
+
                         }
                     }
                     else
