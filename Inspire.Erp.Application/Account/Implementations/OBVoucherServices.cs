@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,12 +24,13 @@ namespace Inspire.Erp.Application.Account.Implementations
         private IRepository<OpeningVoucherDetails> _obVoucherDetailsRepository;
         private IRepository<ProgramSettings> _programsettingsRepository;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
+        private readonly IRepository<AccountSettings> _accRepo;
         private readonly ILogger<OBVoucherService> _logger;
         private readonly IRepository<MasterAccountsTable> _masterAccountsTable;
 
         public OBVoucherService(IRepository<AccountsTransactions> accountTransactionRepository, IRepository<ProgramSettings> programsettingsRepository,
             IRepository<VouchersNumbers> voucherNumbers, ILogger<OBVoucherService> logger,
-            IRepository<OpeningVoucherMaster> obVoucherRepository, IRepository<OpeningVoucherDetails> obVoucherDetailsRepository, IRepository<MasterAccountsTable> masterAccountsTable)
+            IRepository<OpeningVoucherMaster> obVoucherRepository, IRepository<OpeningVoucherDetails> obVoucherDetailsRepository, IRepository<MasterAccountsTable> masterAccountsTable, IRepository<AccountSettings> accRepo)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._obVoucherRepository = obVoucherRepository;
@@ -37,6 +39,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             _voucherNumbersRepository = voucherNumbers;
             _logger = logger;
             _masterAccountsTable = masterAccountsTable;
+            _accRepo = accRepo;
         }
 
         public OBVoucherModel UpdateOBVoucher(OpeningVoucherMaster openingBalanceVoucher, List<AccountsTransactions> accountsTransactions,
@@ -82,14 +85,16 @@ namespace Inspire.Erp.Application.Account.Implementations
 
                 openingVoucher.OpeningVoucherMasterDelStatus = true;
 
-                openingVoucherDetails = openingVoucherDetails.Select((k) => {
+                openingVoucherDetails = openingVoucherDetails.Select((k) =>
+                {
                     k.OpeningVoucherDetailsDelStatus = true;
                     return k;
                 }).OrderBy(x => x.OpeningVoucherDetailsVoucherNo).AsEnumerable().ToList();
 
                 _obVoucherDetailsRepository.UpdateList(openingVoucherDetails);
 
-                accountsTransactions = accountsTransactions.Select((k) => {
+                accountsTransactions = accountsTransactions.Select((k) =>
+                {
                     k.AccountstransactionsDelStatus = true;
                     return k;
                 }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
@@ -129,7 +134,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                 openingVoucher.OpeningVoucherMasterId = mxc;
 
                 ////string vNo = "";
-                openingVoucherDetails = openingVoucherDetails.Select((x) => {
+                openingVoucherDetails = openingVoucherDetails.Select((x) =>
+                {
                     x.OpeningVoucherDetailsId = 0;
                     x.OpeningVoucherDetailsOpId = openingVoucher.OpeningVoucherNo;
                     x.OpeningVoucherDetailsVoucherNo = x.OpeningVoucherDetailsVoucherNo;
@@ -137,19 +143,20 @@ namespace Inspire.Erp.Application.Account.Implementations
                 }).OrderBy(x => x.OpeningVoucherDetailsVoucherNo).AsEnumerable().ToList();
                 _obVoucherDetailsRepository.InsertList(openingVoucherDetails);
 
-                accountsTransactions = accountsTransactions.Select((k) => {
+                accountsTransactions = accountsTransactions.Select((k) =>
+                {
                     k.AccountsTransactionsLpoNo = Convert.ToString(mxc);
                     k.AccountsTransactionsVoucherType = VoucherType.OBVoucher;
-                    k.AccountsTransactionsVoucherNo = openingVoucher.OpeningVoucherNo; 
+                    k.AccountsTransactionsVoucherNo = openingVoucher.OpeningVoucherNo;
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     k.AccountsTransactionsAllocBalance = k.AccountsTransactionsDebit;
                     return k;
                 }).OrderBy(x => x.AccountsTransactionsVoucherType).AsEnumerable().ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
                 _obVoucherRepository.Insert(openingVoucher);
-               
+
                 _obVoucherRepository.TransactionCommit();
-               
+
                 return this.GetSavedOBVoucherDetails(Convert.ToString(openingVoucher.OpeningVoucherNo));
 
             }
@@ -158,7 +165,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 _obVoucherRepository.TransactionRollback();
                 throw ex;
             }
-        
+
         }
         public IEnumerable<AccountsTransactions> GetAllTransaction()
         {
@@ -186,18 +193,6 @@ namespace Inspire.Erp.Application.Account.Implementations
                 return voucherdata;
 
 
-                //OBVoucherModel OBVoucherModel = new OBVoucherModel();
-                //OBVoucherModel = _obVoucherRepository.GetAsQueryable().Where(k => k.OpeningVoucherNo == pvno).SingleOrDefault();
-                //OBVoucherModel.openingBalanceVoucher = _obVoucherRepository.GetAsQueryable().Where(x => x.OpeningVoucherNo == pvno && (x.OpeningVoucherMasterDelStatus == false || x.OpeningVoucherMasterDelStatus == null)).ToList();
-                //return OBVoucherModel;
-
-
-
-
-
-
-
-
             }
             return null;
 
@@ -207,7 +202,7 @@ namespace Inspire.Erp.Application.Account.Implementations
         {
             try
             {
-            
+
                 var prefix = this._programsettingsRepository.GetAsQueryable().Where(k => k.ProgramSettingsKeyValue == Prefix.OBVoucher_Prefix).FirstOrDefault().ProgramSettingsTextValue;
                 int vnoMaxVal = Convert.ToInt32(_voucherNumbersRepository.GetAsQueryable()
                                                         .Where(x => x.VouchersNumbersVNoNu > 0 && x.VouchersNumbersVType == VoucherType.OBVoucher)
@@ -250,16 +245,36 @@ namespace Inspire.Erp.Application.Account.Implementations
 
         public async Task<ResponseInfo> LoadAccounts()
         {
-            var objresponse = new ResponseInfo();
-            var details = await _masterAccountsTable.GetAsQueryable().Where(a => a.MaAccType == "A" || a.MaAccNo == "01001005").Select(c => new
+            var accKeys = new List<string>
             {
-              c.MaAccNo,
-              c.MaAccName
-            }).ToListAsync();
+                "CREDITORS_AC_NO", "DEBTORS_AC_NO"
+            };
+
+            // Get account numbers from repo
+            var depacc = _accRepo.GetAsQueryable()
+                .AsNoTracking()
+                .Where(i => accKeys.Contains(i.AccountSettingsAccountKeyValue.Trim()))
+                .AsEnumerable()
+                .Select(x => x.AccountSettingsAccountTextValue.Split("::")[1])
+                .ToList();
+
+            var objresponse = new ResponseInfo();
+
+            // Now query master table with accnos
+            var details = await _masterAccountsTable.GetAsQueryable()
+                .Where(a => depacc.Contains(a.MaRelativeNo))
+                .Select(c => new
+                {
+                    c.MaAccNo,
+                    c.MaAccName
+                })
+                .ToListAsync();
+
             objresponse.ResultSet = new
             {
-                details = details,
+                details
             };
+
             return objresponse;
         }
     }
