@@ -1,5 +1,6 @@
 ﻿using Inspire.Erp.Application.Account.Interfaces;
 using Inspire.Erp.Application.NewFolder.Interfaces;
+using Inspire.Erp.Domain.DTO.ItemMaster;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.AccountStatement;
@@ -81,6 +82,65 @@ namespace Inspire.Erp.Application.Account.Implementations
                 return Response<List<DropdownResponse>>.Fail(new List<DropdownResponse>(), ex.Message);
             }
         }
+
+        public async Task<Response<DropdownPagedResponse>> GetVoucherNoAutoComplete(PagedSearchRequest request)
+        {
+            try
+            {
+                var query = _voucherNumber.GetAsQueryable();
+
+                // Apply search filter if search term is provided
+                if (!string.IsNullOrEmpty(request.SearchTerm))
+                {
+                    query = query.Where(x =>
+                        x.VouchersNumbersVNo.Contains(request.SearchTerm) ||
+                        x.VouchersNumbersVType.Contains(request.SearchTerm));
+                }
+
+                // Get total count for pagination
+                var totalCount = await query.CountAsync();
+
+                // Apply pagination
+                var items = await query
+                    .OrderBy(x => x.VouchersNumbersVType)
+                    .ThenBy(x => x.VouchersNumbersVNo)
+                    .Skip((request.PageNumber - 1) * request.PageSize)
+                    .Take(request.PageSize)
+                    .Select(x => new DropdownResponse
+                    {
+                        Value = x.VouchersNumbersVNo,
+                        Name = x.VouchersNumbersVType + @$" ({x.VouchersNumbersVNo})"
+                    })
+                    .ToListAsync();
+
+                // Add "All" option only for first page without search
+                if (request.PageNumber == 1 && string.IsNullOrEmpty(request.SearchTerm))
+                {
+                    items.Insert(0, new DropdownResponse()
+                    {
+                        Value = "",
+                        Name = "All"
+                    });
+                }
+
+                var response = new DropdownPagedResponse
+                {
+                    Items = items,
+                    TotalCount = totalCount,
+                    PageNumber = request.PageNumber,
+                    PageSize = request.PageSize,
+                    HasNextPage = (request.PageNumber * request.PageSize) < totalCount
+                };
+
+                return Response<DropdownPagedResponse>.Success(response, "Data found");
+            }
+            catch (Exception ex)
+            {
+                return Response<DropdownPagedResponse>.Fail(null, ex.Message);
+            }
+        }
+
+      
         public async Task<Response<GetVoucherPrintingResponse>> GetAccountTransactions(GenericGridViewModel model)
         {
             try
