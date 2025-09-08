@@ -140,59 +140,91 @@ namespace Inspire.Erp.Application.Account.Implementations
             }
         }
 
-      
+
         public async Task<Response<GetVoucherPrintingResponse>> GetAccountTransactions(GenericGridViewModel model)
         {
             try
             {
                 GetVoucherPrintingResponse gridModel = new GetVoucherPrintingResponse();
                 gridModel.Details = new List<GetAccountTransactionResponse>();
-                string query = @$" 1==1 {model.Filter}";
+                string query = @$"1==1 {model.Filter}";
                 var location = await _locationMaster.GetAsQueryable().FirstOrDefaultAsync();
-                var totalCount = await _accountTransaction.GetAsQueryable().Where(query).CountAsync();
-                //var a = await _accountTransaction.GetAsQueryable().Where(x =>( x.AccountsTransactionsTransDate >= Convert.ToDateTime("")) &&  )
-                //    .ToListAsync();
-                var result = await _accountTransaction.GetAsQueryable().Where(query)
-                     .OrderBy(x => x.AccountsTransactionsTransDate) // Add proper ordering
-                     .Skip(model.Skip)
-                     .Take(model.Take)
-                    .Select(x => new GetAccountTransactionResponse
+                var baseQuery = _accountTransaction.GetAsQueryable();
+                var filtered = baseQuery.Where(query);
+                var totalCount = await filtered.CountAsync();
+                var joined = filtered
+                    .GroupJoin(_masterAccountsTable.GetAsQueryable(),
+                        t => t.AccountsTransactionsAccNo,
+                        m => m.MaAccNo,
+                        (t, ms) => new { t, ms })
+                    .SelectMany(z => z.ms.DefaultIfEmpty(), (z, m) => new { t = z.t, m });
+                var ordered =joined;
+
+                if (!string.IsNullOrEmpty(model.Field))
                 {
-                    AccountsTransactionsAccNo = x.AccountsTransactionsAccNo,
-                    AccountsTransactionsAccName = _masterAccountsTable.GetAsQueryable().FirstOrDefault(c => c.MaAccNo == x.AccountsTransactionsAccNo) != null ?_masterAccountsTable.GetAsQueryable().FirstOrDefault(c => c.MaAccNo == x.AccountsTransactionsAccNo).MaAccName:"",
-                    AccountsTransactionsDebit = Convert.ToDecimal(x.AccountsTransactionsDebit),
-                    AccountsTransactionsCredit = Convert.ToDecimal(x.AccountsTransactionsCredit),
-                    AccountsTransactionsAllocBalance = x.AccountsTransactionsAllocBalance,
-                    AccountsTransactionsVoucherNo = x.AccountsTransactionsVoucherNo,
-                    AccountsTransactionsVoucherType = x.AccountsTransactionsVoucherType,
-                    AccountsTransactionsDescription = x.AccountsTransactionsDescription,
-                    AccountsTransactionsTransDate = Convert.ToDateTime(x.AccountsTransactionsTransDate),
-                    AccountsTransactionsTransDateString = Convert.ToDateTime(x.AccountsTransactionsTransDate).ToString("MM-dd-yyyy"),
-                    AccountsTransactionsParticulars = x.AccountsTransactionsParticulars,
-                    RefNo = x.RefNo,
-                    AccountsTransactionsTransSno = Convert.ToInt32(x.AccountsTransactionsTransSno),
-                    AccountsTransactionsAllocDebit = x.AccountsTransactionsAllocDebit,
-                    AccountsTransactionsAllocCredit = x.AccountsTransactionsAllocCredit
-                }).ToListAsync();
-                foreach (var x in result)
-                {
-                    gridModel.Details.Add(new GetAccountTransactionResponse()
+                    string sortField = model.Field.ToLower() switch
                     {
-                        AccountsTransactionsAccNo = x.AccountsTransactionsAccNo,
-                        AccountsTransactionsDebit = Convert.ToDecimal(x.AccountsTransactionsDebit),
-                        AccountsTransactionsCredit = Convert.ToDecimal(x.AccountsTransactionsCredit),
-                        AccountsTransactionsAllocBalance = x.AccountsTransactionsAllocBalance,
-                        AccountsTransactionsVoucherNo = x.AccountsTransactionsVoucherNo,
-                        AccountsTransactionsVoucherType = x.AccountsTransactionsVoucherType,
-                        AccountsTransactionsDescription = x.AccountsTransactionsDescription,
-                        AccountsTransactionsTransDate = Convert.ToDateTime(x.AccountsTransactionsTransDate),
-                        AccountsTransactionsTransDateString = Convert.ToDateTime(x.AccountsTransactionsTransDate).ToString("MM-dd-yyyy"),
-                        RefNo = x.RefNo,
-                        AccountsTransactionsTransSno = Convert.ToInt32(x.AccountsTransactionsTransSno),
-                        AccountsTransactionsAllocDebit = x.AccountsTransactionsAllocDebit,
-                        AccountsTransactionsAllocCredit = x.AccountsTransactionsAllocCredit
-                    });
+                        "accountstransactionsaccname" => "m.MaAccName",
+                        "accountstransactionsaccno" => "t.AccountsTransactionsAccNo",
+                        "accountstransactionsdebit" => "t.AccountsTransactionsDebit",
+                        "accountstransactionscredit" => "t.AccountsTransactionsCredit",
+                        "accountstransactionsallocbalance" => "t.AccountsTransactionsAllocBalance",
+                        "accountstransactionsvoucherno" => "t.AccountsTransactionsVoucherNo",
+                        "accountstransactionsvouchertype" => "t.AccountsTransactionsVoucherType",
+                        "accountstransactionsdescription" => "t.AccountsTransactionsDescription",
+                        "accountstransactionstransdate" => "t.AccountsTransactionsTransDate",
+                        "accountstransactionsparticulars" => "t.AccountsTransactionsParticulars",
+                        "refno" => "t.RefNo",
+                        "accountstransactionstranssno" => "t.AccountsTransactionsTransSno",
+                        "accountstransactionsallocdebit" => "t.AccountsTransactionsAllocDebit",
+                        "accountstransactionsalloccredit" => "t.AccountsTransactionsAllocCredit",
+                        _ => "t.AccountsTransactionsTransDate"
+                    };
+                    string sortDirection = model.Dir?.ToLower() == "desc" ? "descending" : "ascending";
+                    ordered = joined.OrderBy($"{sortField} {sortDirection}");
                 }
+                else
+                {
+                    ordered = joined.OrderBy("t.AccountsTransactionsTransDate ascending");
+                }
+
+                var paged = ordered.Skip(model.Skip).Take(model.Take);
+
+                var rawResult = await paged.Select(x => new
+                {
+                    x.t.AccountsTransactionsAccNo,
+                    MaAccName = x.m != null ? x.m.MaAccName : "",
+                    x.t.AccountsTransactionsDebit,
+                    x.t.AccountsTransactionsCredit,
+                    x.t.AccountsTransactionsAllocBalance,
+                    x.t.AccountsTransactionsVoucherNo,
+                    x.t.AccountsTransactionsVoucherType,
+                    x.t.AccountsTransactionsDescription,
+                    x.t.AccountsTransactionsTransDate,
+                    x.t.AccountsTransactionsParticulars,
+                    x.t.RefNo,
+                    x.t.AccountsTransactionsTransSno,
+                    x.t.AccountsTransactionsAllocDebit,
+                    x.t.AccountsTransactionsAllocCredit
+                }).ToListAsync();
+                gridModel.Details = rawResult.Select(r => new GetAccountTransactionResponse
+                {
+                    AccountsTransactionsAccNo = r.AccountsTransactionsAccNo,
+                    AccountsTransactionsAccName = r.MaAccName,
+                    AccountsTransactionsDebit = Convert.ToDecimal(r.AccountsTransactionsDebit),
+                    AccountsTransactionsCredit = Convert.ToDecimal(r.AccountsTransactionsCredit),
+                    AccountsTransactionsAllocBalance = r.AccountsTransactionsAllocBalance,
+                    AccountsTransactionsVoucherNo = r.AccountsTransactionsVoucherNo,
+                    AccountsTransactionsVoucherType = r.AccountsTransactionsVoucherType,
+                    AccountsTransactionsDescription = r.AccountsTransactionsDescription,
+                    AccountsTransactionsTransDate = Convert.ToDateTime(r.AccountsTransactionsTransDate),
+                    AccountsTransactionsTransDateString = Convert.ToDateTime(r.AccountsTransactionsTransDate).ToString("MM-dd-yyyy"),
+                    AccountsTransactionsParticulars = r.AccountsTransactionsParticulars,
+                    RefNo = r.RefNo,
+                    AccountsTransactionsTransSno = Convert.ToInt32(r.AccountsTransactionsTransSno),
+                    AccountsTransactionsAllocDebit = r.AccountsTransactionsAllocDebit,
+                    AccountsTransactionsAllocCredit = r.AccountsTransactionsAllocCredit
+                }).ToList();
                 gridModel.StationMasterStationName = location != null ? location.StationMasterStationName : "";
                 gridModel.StationMasterEmail = location != null ? location.StationMasterEmail : "";
                 gridModel.StationMasterFax = location != null ? location.StationMasterFax : "";

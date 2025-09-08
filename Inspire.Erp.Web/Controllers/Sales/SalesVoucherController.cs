@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Inspire.Erp.Application.Account;
+using Inspire.Erp.Application.Account.Implementations;
 using Inspire.Erp.Application.Account.Interfaces;
 using Inspire.Erp.Application.Common;
 using Inspire.Erp.Application.Sales.Interfaces;
@@ -362,6 +363,12 @@ namespace Inspire.Erp.Web.Controllers
                 Message = ""
             };
             return apiResponse;
+        }
+        [HttpPost]
+        [Route("GetSalesVoucherList")]
+        public async Task<IActionResult> GetSalesVoucherList(GenericGridViewModel model)
+        {
+            return Ok(await _salesVoucherService.GetSalesVoucherList(model));
         }
 
         [HttpGet]

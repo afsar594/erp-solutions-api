@@ -52,6 +52,7 @@ namespace Inspire.Erp.Application.Sales.Interfaces
         public SalesVoucherModel GetSavedSalesVoucherDetails(decimal pvno);
         public SalesVoucherModel GetSavedSalesVoucherDetailsBySaleVoucher(string svNo);
         public IEnumerable<SalesVoucher> GetSalesVoucher();
+        public Task<Response<GridWrapperResponse<List<SalesVoucher>>>> GetSalesVoucherList(GenericGridViewModel model);
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
         public VouchersNumbers GetVouchersNumbers(string pvno);
         public SalesVoucher GetSalesVoucherDetailsByMasterNo(string SalesVoucherNo);

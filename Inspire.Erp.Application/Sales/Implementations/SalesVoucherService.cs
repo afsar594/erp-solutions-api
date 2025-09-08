@@ -33,6 +33,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Pipelines;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -848,6 +849,146 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         }).OrderBy(x => x.SalesVoucherNo).AsEnumerable().ToList();
 
             return salV;
+        }
+
+
+        public async Task<Response<GridWrapperResponse<List<SalesVoucher>>>> GetSalesVoucherList(GenericGridViewModel model)
+        {
+            try
+            {
+                var baseQuery = (from s in _salesVoucherRepository.GetAsQueryable()
+                                 join c in _customerMasterRepository.GetAsQueryable() on s.SalesVoucherPartyId equals c.CustomerMasterCustomerNo
+                                 join cr in _currencyMasterRepository.GetAsQueryable() on s.SalesVoucherCurrencyId equals cr.CurrencyMasterCurrencyId
+                                 where s.SalesVoucherDelStatus == null || s.SalesVoucherDelStatus == false
+                                 select new SalesVoucher()
+                                 {
+                                     SalesVoucherId = s.SalesVoucherId,
+                                     SalesVoucherNo = s.SalesVoucherNo,
+                                     SalesVoucherDate = s.SalesVoucherDate,
+                                     SalesVoucherType = s.SalesVoucherType,
+                                     SalesVoucherPartyId = c.CustomerMasterCustomerNo,
+                                     SalesVoucherPartyName = c.CustomerMasterCustomerName,
+                                     SalesVoucherPartyAddress = c.CustomerMasterCustomerLocation,
+                                     SalesVoucherPartyVatNo = c.CustomerMasterCustomerVatNo,
+                                     SalesVoucherRefNo = s.SalesVoucherRefNo,
+                                     SalesVoucherContPerson = s.SalesVoucherContPerson,
+                                     SalesVoucherDlvNo = s.SalesVoucherDlvNo,
+                                     SalesVoucherDlvDate = s.SalesVoucherDlvDate,
+                                     SalesVoucherSONo = s.SalesVoucherSONo,
+                                     SalesVoucherSODate = s.SalesVoucherSODate,
+                                     SalesVoucherQtnNo = s.SalesVoucherQtnNo,
+                                     SalesVoucherQtnDate = s.SalesVoucherQtnDate,
+                                     SalesVoucherSalesManID = s.SalesVoucherSalesManID,
+                                     SalesVoucherDptID = s.SalesVoucherDptID,
+                                     SalesVoucherEnqNo = s.SalesVoucherEnqNo,
+                                     SalesVoucherEnqDate = s.SalesVoucherEnqDate,
+                                     SalesVoucherDescription = s.SalesVoucherDescription,
+                                     SalesVoucherExcludeVAT = s.SalesVoucherExcludeVAT,
+                                     SalesVoucherLocationID = s.SalesVoucherLocationID,
+                                     SalesVoucherUserID = s.SalesVoucherUserID,
+                                     SalesVoucherCurrencyId = cr.CurrencyMasterCurrencyId,
+                                     CurrencyMasterCurrencyName = cr.CurrencyMasterCurrencyName,
+                                     SalesVoucherCompanyId = s.SalesVoucherCompanyId,
+                                     SalesVoucherJobId = s.SalesVoucherJobId,
+                                     SalesVoucherFSNO = s.SalesVoucherFSNO,
+                                     SalesVoucherFc_Rate = s.SalesVoucherFc_Rate,
+                                     SalesVoucherStatus = s.SalesVoucherStatus,
+                                     SalesVoucherTotalGrossAmount = s.SalesVoucherTotalGrossAmount,
+                                     SalesVoucherTotalItemDisAmount = s.SalesVoucherTotalItemDisAmount,
+                                     SalesVoucherTotalActualAmount = s.SalesVoucherTotalActualAmount,
+                                     SalesVoucherTotalDisPer = s.SalesVoucherTotalDisPer,
+                                     SalesVoucherTotalDisAmount = s.SalesVoucherTotalDisAmount,
+                                     SalesVoucherVat_AMT = s.SalesVoucherVat_AMT,
+                                     SalesVoucherVat_Per = s.SalesVoucherVat_Per,
+                                     SalesVoucherVat_RoundSign = s.SalesVoucherVat_RoundSign,
+                                     SalesVoucherVat_RountAmt = s.SalesVoucherVat_RountAmt,
+                                     SalesVoucherNetDisAmount = s.SalesVoucherNetDisAmount,
+                                     SalesVoucherNetAmount = s.SalesVoucherNetAmount,
+                                     SalesVoucherHeader = s.SalesVoucherHeader,
+                                     SalesVoucherDelivery = s.SalesVoucherDelivery,
+                                     SalesVoucherNotes = s.SalesVoucherNotes,
+                                     SalesVoucherFooter = s.SalesVoucherFooter,
+                                     SalesVoucherPaymentTerms = s.SalesVoucherPaymentTerms,
+                                     SalesVoucherSubject = s.SalesVoucherSubject,
+                                     SalesVoucherContent = s.SalesVoucherContent,
+                                     SalesVoucherRemarks1 = s.SalesVoucherRemarks1,
+                                     SalesVoucherRemarks2 = s.SalesVoucherRemarks2,
+                                     SalesVoucherTermsAndCondition = s.SalesVoucherTermsAndCondition,
+                                     SalesVoucherShippinAddress = s.SalesVoucherShippinAddress,
+                                     SalesVoucherDelStatus = s.SalesVoucherDelStatus,
+                                     SalesVoucherShortNo = s.SalesVoucherShortNo,
+                                 });
+
+                // Filtering
+                if (!string.IsNullOrEmpty(model.Filter))
+                    baseQuery = baseQuery.Where(model.Filter);
+
+                // Search
+                if (!string.IsNullOrEmpty(model.Search))
+                {
+                    baseQuery = baseQuery.Where(x =>
+                        x.SalesVoucherNo.Contains(model.Search) ||
+                        x.SalesVoucherPartyName.Contains(model.Search) ||
+                        x.SalesVoucherRefNo.Contains(model.Search) ||
+                        x.SalesVoucherType.Contains(model.Search));
+                }
+
+                // Date range
+                if (model.FromDate.HasValue)
+                    baseQuery = baseQuery.Where(x => x.SalesVoucherDate >= model.FromDate.Value);
+
+                if (model.ToDate.HasValue)
+                    baseQuery = baseQuery.Where(x => x.SalesVoucherDate <= model.ToDate.Value);
+
+                // Count AFTER filters
+                var totalCount = await baseQuery.CountAsync();
+
+                // Sorting
+                IOrderedQueryable<SalesVoucher> orderedQuery;
+                if (!string.IsNullOrEmpty(model.Field))
+                {
+                    // Map column name from UI to entity property
+                    string sortField = model.Field.ToLower() switch
+                    {
+                        "salesvoucherid" => "SalesVoucherId",
+                        "salesvoucherno" => "SalesVoucherNo",
+                        "salesvouchertype" => "SalesVoucherType",
+                        "salesvoucherpartyid" => "SalesVoucherPartyId",
+                        "salesvoucherpartyname" => "SalesVoucherPartyName",
+                        "salesvoucherdate" => "SalesVoucherDate",
+                        _ => "SalesVoucherNo"
+                    };
+
+                    string sortDir = model.Dir?.ToLower() == "desc" ? "descending" : "ascending";
+                    orderedQuery = baseQuery.OrderBy($"{sortField} {sortDir}");
+                }
+                else
+                {
+                    orderedQuery = baseQuery.OrderBy(x => x.SalesVoucherNo);
+                }
+
+
+                // Pagination
+                var result = await orderedQuery
+                    .Skip(model.Skip)
+                    .Take(model.Take)
+                    .ToListAsync();
+                var gridResponse = new GridWrapperResponse<List<SalesVoucher>>();
+                gridResponse.Data = result;
+                gridResponse.Total = totalCount;
+
+                return Response<GridWrapperResponse<List<SalesVoucher>>>.Success(gridResponse, "Data retrieved successfully");
+
+                //return Response<List<SalesVoucher>>.Success(result, $"Data retrieved successfully. Total records: {totalCount}");
+            }
+            catch (Exception ex)
+            {
+                var result = new List<SalesVoucher>();
+                var gridResponse = new GridWrapperResponse<List<SalesVoucher>>();
+                gridResponse.Data = result;
+                gridResponse.Total = 0;
+                return Response<GridWrapperResponse<List<SalesVoucher>>>.Fail(gridResponse, ex.Message);
+            }
         }
         public SalesVoucherModel GetSavedSalesVoucherDetails(decimal pvno)
         {
