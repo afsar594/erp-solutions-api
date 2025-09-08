@@ -1,8 +1,12 @@
 ﻿using Inspire.Erp.Application.Common;
 using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Modals;
+using Inspire.Erp.Domain.Modals.Common;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Inspire.Erp.Application.Account.Interfaces
 {
@@ -45,6 +49,7 @@ namespace Inspire.Erp.Application.Account.Interfaces
         
         public SalesReturnModel GetSavedSalesReturnDetails(int pvno);
         public List<SalesReturn> GetSalesReturn();
+        public Task<Response<GridWrapperResponse<List<SalesReturn>>>> GetSalesReturnList(GenericGridViewModel model);
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
 
         public VouchersNumbers GetVouchersNumbers(string pvno);

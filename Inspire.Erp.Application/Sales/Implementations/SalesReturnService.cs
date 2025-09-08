@@ -1,19 +1,24 @@
 ﻿using Inspire.Erp.Application.Account.Interfaces;
-using Inspire.Erp.Application.Sales.Interfaces;
 using Inspire.Erp.Application.Common;
+using Inspire.Erp.Application.MODULE;
+using Inspire.Erp.Application.Sales.Interfaces;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Domain.Modals;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Infrastructure.Database;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using Microsoft.Extensions.Logging;
-using Inspire.Erp.Application.MODULE;
-using Inspire.Erp.Infrastructure.Database;
+using System.Threading.Tasks;
+using System.Linq.Dynamic.Core;
+
 namespace Inspire.Erp.Application.Account.Implementations
 {
     public class SalesReturnService : ISalesReturnService
@@ -415,6 +420,89 @@ namespace Inspire.Erp.Application.Account.Implementations
             List<SalesReturn> salesReturn_ALL = _salesReturnRepository.GetAll().Where(k => k.SalesReturnDelStatus == false || k.SalesReturnDelStatus == null).OrderBy(x => x.SalesReturnNo).AsEnumerable().ToList();
             return salesReturn_ALL;
         }
+        public async Task<Response<GridWrapperResponse<List<SalesReturn>>>> GetSalesReturnList(GenericGridViewModel model)
+        {
+            try
+            {
+                var baseQuery = _salesReturnRepository.GetAsQueryable();
+
+                // 🔹 Apply Filter if provided
+                if (!string.IsNullOrEmpty(model.Filter))
+                {
+                    baseQuery = baseQuery.Where(model.Filter);
+                }
+
+                // 🔹 Apply Search
+                if (!string.IsNullOrEmpty(model.Search))
+                {
+                    string search = model.Search.ToLower();
+                    baseQuery = baseQuery.Where(x =>
+                        x.SalesReturnNo.ToLower().Contains(search) ||
+                        x.SalesReturnSVNo.ToLower().Contains(search) ||
+                        x.SalesReturnType.ToLower().Contains(search) ||
+                        x.SalesReturnTotalGrossAmount.ToString().Contains(search) ||
+                        x.SalesReturnTotalItemDisAmount.ToString().Contains(search) ||
+                        x.SalesReturnTotalActualAmount.ToString().Contains(search)
+                    );
+                }
+
+                // 🔹 Apply Date Range
+                if (model.FromDate.HasValue)
+                    baseQuery = baseQuery.Where(x => x.SalesReturnDate >= model.FromDate.Value);
+
+                if (model.ToDate.HasValue)
+                    baseQuery = baseQuery.Where(x => x.SalesReturnDate <= model.ToDate.Value);
+
+                // 🔹 Total count after filters
+                var totalCount = await baseQuery.CountAsync();
+
+                // 🔹 Sorting
+                if (!string.IsNullOrEmpty(model.Field))
+                {
+                    string sortDir = model.Dir?.ToLower() == "desc" ? "descending" : "ascending";
+                    if (model.Field == "salesReturnCurrencyName")
+                    {
+                        baseQuery = sortDir == "descending"
+                            ? baseQuery.OrderByDescending(sr => sr.SalesReturnCurrency.CurrencyMasterCurrencyName)
+                            : baseQuery.OrderBy(sr => sr.SalesReturnCurrency.CurrencyMasterCurrencyName);
+                    }
+                    else
+                    {
+                        baseQuery = baseQuery.OrderBy($"{model.Field} {sortDir}");
+                    }
+                }
+                else
+                {
+                    baseQuery = baseQuery.OrderBy(x => x.SalesReturnNo); // default sort
+                }
+
+                // 🔹 Pagination
+                var result = await baseQuery
+                    .Include(sr => sr.SalesReturnCurrency)
+                    .Skip(model.Skip)
+                    .Take(model.Take)
+                    .ToListAsync();
+
+                // 🔹 Wrap response
+                var gridResponse = new GridWrapperResponse<List<SalesReturn>>
+                {
+                    Data = result,
+                    Total = totalCount
+                };
+
+                return Response<GridWrapperResponse<List<SalesReturn>>>.Success(gridResponse, "Data retrieved successfully");
+            }
+            catch (Exception ex)
+            {
+                var gridResponse = new GridWrapperResponse<List<SalesReturn>>
+                {
+                    Data = new List<SalesReturn>(),
+                    Total = 0
+                };
+                return Response<GridWrapperResponse<List<SalesReturn>>>.Fail(gridResponse, ex.Message);
+            }
+        }
+
         public SalesReturnModel GetSavedSalesReturnDetails(int pvno)
         {
             SalesReturnModel salesReturnModel = new SalesReturnModel();

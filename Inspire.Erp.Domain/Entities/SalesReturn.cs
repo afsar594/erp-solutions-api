@@ -35,6 +35,12 @@ namespace Inspire.Erp.Domain.Entities
         public int? SalesReturnLocationID { get; set; }
         public long? SalesReturnUserID { get; set; }
         public int? SalesReturnCurrencyId { get; set; }
+
+        [ForeignKey(nameof(SalesReturnCurrencyId))]
+        public virtual CurrencyMaster SalesReturnCurrency { get; set; }
+
+        [NotMapped]
+        public string? SalesReturnCurrencyName => SalesReturnCurrency?.CurrencyMasterCurrencyName;
         public int? SalesReturnCompanyId { get; set; }
         public int? SalesReturnJobId { get; set; }
         public decimal? SalesReturnFSNO { get; set; }

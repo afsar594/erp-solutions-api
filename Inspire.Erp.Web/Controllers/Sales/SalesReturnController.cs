@@ -1,22 +1,24 @@
-﻿using Inspire.Erp.Application.Account.Interfaces;
+﻿using AutoMapper;
+using Inspire.Erp.Application.Account.Interfaces;
+using Inspire.Erp.Application.Common;
+using Inspire.Erp.Application.Sales.Implementations;
+using Inspire.Erp.Application.Sales.Interfaces;
+using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Domain.Modals;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Web.Common;
+using Inspire.Erp.Web.MODULE;
+using Inspire.Erp.Web.ViewModels;
+using Inspire.Erp.Web.ViewModels.sales;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper;
-using Inspire.Erp.Application.Sales.Interfaces;
-using Inspire.Erp.Application.Common;
-using Inspire.Erp.Domain.Entities;
-using Inspire.Erp.Web.ViewModels.sales;
-using Inspire.Erp.Web.ViewModels;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Inspire.Erp.Domain.Enums;
-using Inspire.Erp.Web.Common;
-using Inspire.Erp.Web.MODULE;
-
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Authorization;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -149,6 +151,12 @@ namespace Inspire.Erp.Web.Controllers
                 Message = ""
             };
             return apiResponse;
+        }
+        [HttpPost]
+        [Route("GetSalesReturnList")]
+        public async Task<IActionResult> GetSalesReturnList(GenericGridViewModel model)
+        {
+            return Ok(await _salesReturnService.GetSalesReturnList(model));
         }
 
         [HttpGet]
