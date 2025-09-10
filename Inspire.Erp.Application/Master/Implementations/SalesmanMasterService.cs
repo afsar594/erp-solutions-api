@@ -19,12 +19,12 @@ namespace Inspire.Erp.Application.Master
             bool valid = false;
             try
             {
-                int? mxc = 0;
-                mxc =
-                    salesmanrepository.GetAsQueryable()
-                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.SalesManMasterSalesManId) + 1;
+                //int? mxc = 0;
+                //mxc =
+                //    salesmanrepository.GetAsQueryable()
+                //    .DefaultIfEmpty().Max(o => o == null ? 0 : o.SalesManMasterSalesManId) + 1;
 
-                SalesManMaster.SalesManMasterSalesManId = mxc;
+                //SalesManMaster.SalesManMasterSalesManId = mxc;
                 salesmanrepository.Insert(SalesManMaster);
                 GetAllSalesmanById((int)SalesManMaster.SalesManMasterSalesManId);
             }
@@ -100,7 +100,7 @@ namespace Inspire.Erp.Application.Master
             {
                 //salesmanrepository.Dispose();
             }
-            SalesManMaster = SalesManMaster.OrderBy(sm => sm.SalesManMasterSalesManName).ToList();
+            SalesManMaster = SalesManMaster.OrderByDescending(sm => sm.SalesManMasterSalesManId).ToList();
             return SalesManMaster;
         }
         public IEnumerable<SalesManMaster> GetAllSalesmanById(int id)
