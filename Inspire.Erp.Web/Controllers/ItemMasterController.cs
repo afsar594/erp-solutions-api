@@ -275,13 +275,9 @@ namespace Inspire.Erp.Web.Controllers
                 }
 
                 var model = _mapper.Map<ItemMaster>(itemMaster);
-
-                var data = (itemMaster.ItemMasterItemId == null || itemMaster.ItemMasterItemId == 0)
-                    ? await itemMasterService.NewItem(model)
-                    : itemMasterService.UpdateNewItem(model);
-
-                // If service returned null → means duplicate or failed
-                if (data == null)
+                var isExistingItem = await itemMasterService.CheckForExistingItem(model);
+                // If service returned ture → means duplicate item
+                if (isExistingItem)
                 {
                     return new ApiResponse<ItemMasterViewModel>
                     {
@@ -290,17 +286,25 @@ namespace Inspire.Erp.Web.Controllers
                         Message = $"Item with name '{itemMaster.ItemMasterItemName}' already exists."
                     };
                 }
-
-                ItemMasterViewModel result = _mapper.Map<ItemMasterViewModel>(data);
-
-                return new ApiResponse<ItemMasterViewModel>
+                else
                 {
-                    Valid = true,
-                    Result = result,
-                    Message = (itemMaster.ItemMasterItemId == null || itemMaster.ItemMasterItemId == 0)
-                        ? ItemMasterMessage.SaveItem
-                        : ItemMasterMessage.UpdateItem
-                };
+                    var data = (itemMaster.ItemMasterItemId == null || itemMaster.ItemMasterItemId == 0)
+                      ? await itemMasterService.NewItem(model)
+                      : itemMasterService.UpdateNewItem(model);
+                    ItemMasterViewModel result = _mapper.Map<ItemMasterViewModel>(data);
+
+                    return new ApiResponse<ItemMasterViewModel>
+                    {
+                        Valid = true,
+                        Result = result,
+                        Message = (itemMaster.ItemMasterItemId == null || itemMaster.ItemMasterItemId == 0)
+                            ? ItemMasterMessage.SaveItem
+                            : ItemMasterMessage.UpdateItem
+                    };
+
+                }
+
+               
             }
             catch (Exception ex)
             {

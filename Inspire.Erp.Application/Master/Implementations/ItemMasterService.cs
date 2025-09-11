@@ -192,15 +192,6 @@ namespace Inspire.Erp.Application.Master
             bool valid = false;
             try
             {
-                var existingItem = await itemrepository.GetAsQueryable()
-             .FirstOrDefaultAsync(x => x.ItemMasterItemName == itemMaster.ItemMasterItemName && x.ItemMasterItemType == itemMaster.ItemMasterItemType);
-
-                if (existingItem != null)
-                {
-                    // Return null if item already exists
-                    return null;
-                }
-
                 valid = true;
                 itemMaster.ItemMasterItemId = Convert.ToInt32(await itemrepository.GetAsQueryable()
                                               .Where(x => x.ItemMasterItemId > 0)
@@ -228,21 +219,51 @@ namespace Inspire.Erp.Application.Master
             }
 
         }
-
-        public  ItemMaster UpdateNewItem(ItemMaster itemMaster)
+        public async Task<Boolean> CheckForExistingItem(ItemMaster itemMaster)
         {
             bool valid = false;
             try
             {
-                var existingItem =  itemrepository.GetAsQueryable()
-                .FirstOrDefaultAsync(x => x.ItemMasterItemName == itemMaster.ItemMasterItemName && x.ItemMasterItemType == itemMaster.ItemMasterItemType);
+                ItemMaster existingItem;
+                if (itemMaster.ItemMasterItemId == null)
+                {
+                    existingItem = await itemrepository.GetAsQueryable()
+                                   .FirstOrDefaultAsync(x =>  x.ItemMasterItemName == itemMaster.ItemMasterItemName && x.ItemMasterItemType == itemMaster.ItemMasterItemType);
 
+                }
+                else
+                {
+                    existingItem = await itemrepository.GetAsQueryable()
+               .FirstOrDefaultAsync(x => x.ItemMasterItemId != itemMaster.ItemMasterItemId && x.ItemMasterItemName == itemMaster.ItemMasterItemName && x.ItemMasterItemType == itemMaster.ItemMasterItemType);
+
+                }
                 if (existingItem != null)
                 {
-                    // Return null if item already exists
-                    return null;
+                    return true;
                 }
+                valid = true;
+                return false;
 
+            }
+            catch (Exception ex)
+            {
+                valid = false;
+                throw ex;
+                // Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException: 'Database operation expected to affect 1 row(s) but actually affected 0 row(s). Data may have been modified or deleted since entities were loaded. See http://go.microsoft.com/fwlink/?LinkId=527962 for information on understanding and handling optimistic concurrency exceptions.'
+                return false;
+            }
+            finally
+            {
+                //cityrepository.Dispose();
+            }
+
+        }
+
+        public ItemMaster UpdateNewItem(ItemMaster itemMaster)
+        {
+            bool valid = false;
+            try
+            {
                 itemMaster.ItemImages = itemMaster.ItemImages.AsEnumerable().Select(k =>
                 {
                     k.ItemImagesItemImageId = null;
