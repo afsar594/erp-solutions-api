@@ -126,6 +126,12 @@ namespace Inspire.Erp.Web.Controllers
             return apiResponse;
         }
 
+        [HttpPost]
+        [Route("GetPurchaseVoucherList")]
+        public async Task<IActionResult> GetPurchaseVoucherList(GenericGridViewModel model)
+        {
+            return Ok(await _service.GetPurchaseVoucherList(model));
+        }
         [HttpPost("InsertPurchaseVoucher")]
         public ApiResponse<PurchaseVoucher> InsertPurchaseVoucher([FromBody] PurchaseVoucher purchaseVoucher)
         {

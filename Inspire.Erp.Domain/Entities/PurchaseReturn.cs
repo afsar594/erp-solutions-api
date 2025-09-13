@@ -56,10 +56,11 @@ namespace Inspire.Erp.Domain.Entities
         public string PurchaseReturnIssueId { get; set; }
         public bool? PurchaseReturnJobDirectPur { get; set; }
         public bool? PurchaseReturnDelStatus { get; set; }
+        [ForeignKey("PurchaseReturnCurrencyId")]
+        public virtual CurrencyMaster CurrencyMaster { get; set; }
 
         [NotMapped]
-
-        public string CurrencyMasterCurrencyName { get; set; }
+        public string CurrencyMasterCurrencyName => CurrencyMaster?.CurrencyMasterCurrencyName;
         public virtual ICollection<PurchaseReturnDetails> PurchaseReturnDetails { get; set; }
     }
 }
