@@ -77,3 +77,5 @@ obj/
 project.lock.json
 project.fragment.lock.json
 artifacts/
+/Inspire.Erp.WebReport
+/Inspire.Erp.Web.sln
