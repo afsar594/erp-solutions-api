@@ -79,3 +79,4 @@ project.fragment.lock.json
 artifacts/
 /Inspire.Erp.WebReport
 /Inspire.Erp.Web.sln
+/Inspire.Erp.Web/Properties/PublishProfiles/FolderProfile.pubxml.user
