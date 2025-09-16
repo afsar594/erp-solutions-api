@@ -1,21 +1,23 @@
-﻿using Inspire.Erp.Application.Master.Interfaces;
-using Inspire.Erp.Domain.Entities;
-using Inspire.Erp.Infrastructure.Database.Repositoy;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Inspire.Erp.Infrastructure.Database;
-using Inspire.Erp.Application.Common;
-using Inspire.Erp.Domain.Enums;
+﻿using Inspire.Erp.Application.Common;
+using Inspire.Erp.Application.Master.Interfaces;
 using Inspire.Erp.Application.MODULE;
-using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
-using System.Threading.Tasks;
+using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Modals.Procurement;
+using Inspire.Erp.Infrastructure.Database;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.AspNetCore.Server.IIS.Core;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Linq.Dynamic.Core;
 //using Microsoft.Data.SqlClient;
 
 namespace Inspire.Erp.Application.Master.Implementations
@@ -61,6 +63,78 @@ namespace Inspire.Erp.Application.Master.Implementations
 
             IEnumerable<PurchaseVoucher> purchaseVouchers = _PurchaseVoucher.GetAll().Where(k => k.PurchaseVoucherDelStatus == false || k.PurchaseVoucherDelStatus == null);
             return purchaseVouchers;
+        }
+        public async Task<Response<GridWrapperResponse<List<PurchaseVoucher>>>> GetPurchaseVoucherList(GenericGridViewModel model)
+        {
+
+            try
+            {
+                var baseQuery = (from s in _PurchaseVoucher.GetAsQueryable()
+                                     //join c in _PurchaseVoucher.GetAsQueryable() on s.PurchaseVoucherPartyID equals c.PurchaseVoucherSupplyInvoiceNo
+                                     //join cr in _currencyMasterRepository.GetAsQueryable() on s.SalesVoucherCurrencyId equals cr.CurrencyMasterCurrencyId
+                                 where s.PurchaseVoucherDelStatus == null || s.PurchaseVoucherDelStatus == false
+                                 select s);
+
+                // Date range
+                if (model.FromDate.HasValue)
+                    baseQuery = baseQuery.Where(x => x.PurchaseVoucherPurchaseDate >= model.FromDate.Value);
+
+                if (model.ToDate.HasValue)
+                    baseQuery = baseQuery.Where(x => x.PurchaseVoucherPurchaseDate <= model.ToDate.Value);
+
+                // Filtering
+                if (!string.IsNullOrEmpty(model.Filter))
+                    baseQuery = baseQuery.Where(model.Filter);
+
+                // Search
+                if (!string.IsNullOrEmpty(model.Search))
+                {
+                    baseQuery = baseQuery.Where(x =>
+                        x.PurchaseVoucherVoucherNo.Contains(model.Search) ||
+                        x.PurchaseVoucherPartyName.Contains(model.Search) ||
+                        x.PurchaseVoucherPurchaseRef.Contains(model.Search) ||
+                        x.PurchaseVoucherPurchaseType.Contains(model.Search));
+                }
+
+
+                // Count AFTER filters
+                var totalCount = await baseQuery.CountAsync();
+
+                // Sorting
+                IOrderedQueryable<PurchaseVoucher> orderedQuery;
+                if (!string.IsNullOrEmpty(model.Field))
+                {
+                    string sortDir = model.Dir?.ToLower() == "desc" ? "descending" : "ascending";
+                    orderedQuery = baseQuery.OrderBy($"{model.Field} {sortDir}");
+                }
+                else
+                {
+                    orderedQuery = baseQuery.OrderByDescending(x => x.PurchaseVoucherPurchaseDate);
+                }
+
+
+                // Pagination
+                var result = await orderedQuery
+                    .Skip(model.Skip)
+                    .Take(model.Take)
+                    .ToListAsync();
+                var gridResponse = new GridWrapperResponse<List<PurchaseVoucher>>();
+                gridResponse.Data = result;
+                gridResponse.Total = totalCount;
+
+                return Response<GridWrapperResponse<List<PurchaseVoucher>>>.Success(gridResponse, "Data retrieved successfully");
+
+                //return Response<List<SalesVoucher>>.Success(result, $"Data retrieved successfully. Total records: {totalCount}");
+            }
+            catch (Exception ex)
+            {
+                var result = new List<PurchaseVoucher>();
+                var gridResponse = new GridWrapperResponse<List<PurchaseVoucher>>();
+                gridResponse.Data = result;
+                gridResponse.Total = 0;
+                return Response<GridWrapperResponse<List<PurchaseVoucher>>>.Fail(gridResponse, ex.Message);
+            }
+
         }
 
         public IEnumerable<PurchaseVoucherDetails> GetPurchaseVoucherDetails()

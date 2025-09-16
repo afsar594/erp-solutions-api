@@ -13,6 +13,7 @@ namespace Inspire.Erp.Application.Master.Interfaces
     public interface IPurchaseVoucherService
     {
         public IEnumerable<PurchaseVoucher> GetPurchaseVoucher();
+        public Task<Response<GridWrapperResponse<List<PurchaseVoucher>>>> GetPurchaseVoucherList(GenericGridViewModel model);
         public PurchaseVoucherModel InsertPurchaseVoucher(PurchaseVoucher purchaseVoucher,
                                                                   List<AccountsTransactions> accountsTransactions,
                                                                   List<PurchaseVoucherDetails> salesVoucherDetails, 

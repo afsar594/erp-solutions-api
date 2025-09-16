@@ -19,6 +19,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Linq.Dynamic.Core;
 
 namespace Inspire.Erp.Application.Procurement.Implementation
 {
@@ -198,6 +199,78 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 return Response<GridWrapperResponse<List<PurchaseReturnVoucherResponse>>>.Fail(new GridWrapperResponse<List<PurchaseReturnVoucherResponse>>(), ex.Message);
             }
         }
+
+
+        public async Task<Response<GridWrapperResponse<List<PurchaseReturn>>>> GetPurchaseReturnListModel(GenericGridViewModel model)
+        {
+            try
+            {
+                IQueryable<PurchaseReturn> baseQuery = _purchaseReturnRepo.GetAsQueryable().Include(pr => pr.CurrencyMaster);
+
+                if (model.FromDate.HasValue)
+                    baseQuery = baseQuery.Where(x => x.PurchaseReturnDate >= model.FromDate.Value);
+
+                if (model.ToDate.HasValue)
+                    baseQuery = baseQuery.Where(x => x.PurchaseReturnDate <= model.ToDate.Value);
+
+                // Filtering
+                if (!string.IsNullOrEmpty(model.Filter))
+                    baseQuery = baseQuery.Where(model.Filter);
+
+                // Search
+                if (!string.IsNullOrEmpty(model.Search))
+                {
+                    baseQuery = baseQuery.Where(x =>
+                        x.PurchaseReturnNo.Contains(model.Search) ||
+                        x.PurchaseReturnType.Contains(model.Search) ||
+                        x.PurchaseReturnPartyName.Contains(model.Search) ||
+                        x.PurchaseReturnDescription.Contains(model.Search) ||
+                        x.CurrencyMaster.CurrencyMasterCurrencyName.Contains(model.Search));
+                }
+
+
+                // Count AFTER filters
+                var totalCount = await baseQuery.CountAsync();
+
+                // Sorting
+                IOrderedQueryable<PurchaseReturn> orderedQuery;
+                if (!string.IsNullOrEmpty(model.Field))
+                {   
+
+                    if(model.Field == "currencyMasterCurrencyName")
+                    {
+                        model.Field = "CurrencyMaster.CurrencyMasterCurrencyName";
+                    }
+                    string sortDir = model.Dir?.ToLower() == "desc" ? "descending" : "ascending";
+                    orderedQuery = baseQuery.OrderBy($"{model.Field} {sortDir}");
+                }
+                else
+                {
+                    orderedQuery = baseQuery.OrderByDescending(x => x.PurchaseReturnDate);
+                }
+
+
+                // Pagination
+                var result = await orderedQuery
+                    .Skip(model.Skip)
+                    .Take(model.Take)
+                    .ToListAsync();
+                var gridResponse = new GridWrapperResponse<List<PurchaseReturn>>();
+                gridResponse.Data = result;
+                gridResponse.Total = totalCount;
+
+                return Response<GridWrapperResponse<List<PurchaseReturn>>>.Success(gridResponse, "Data retrieved successfully");
+            }
+            catch (Exception ex)
+            {
+                var result = new List<PurchaseReturn>();
+                var gridResponse = new GridWrapperResponse<List<PurchaseReturn>>();
+                gridResponse.Data = result;
+                gridResponse.Total = 0;
+                return Response<GridWrapperResponse<List<PurchaseReturn>>>.Fail(gridResponse, ex.Message);
+            }
+        }
+
         public async Task<Response<PurchaseReturnVoucherResponse>> GetSpecificPurchaseReturn(string id = null)
         {
             try
