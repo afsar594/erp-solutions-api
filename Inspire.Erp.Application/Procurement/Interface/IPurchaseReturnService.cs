@@ -18,6 +18,7 @@ namespace Inspire.Erp.Application.Procurement.Interface
         Task<Response<GridWrapperResponse<List<GetPurchaseVoucherResponse>>>> GetPurchaseVoucherList(GenericGridViewModel model);
         Task<Response<PurchaseReturnVoucherResponse>> GetSpecificPurchaseReturn(string id = null);
         Task<Response<GridWrapperResponse<List<PurchaseReturnVoucherResponse>>>> GetPurchaseReturnList(GenericGridViewModel model);
+        Task<Response<GridWrapperResponse<List<PurchaseReturn>>>> GetPurchaseReturnListModel(GenericGridViewModel model);
         Task<Response<List<DropdownResponse>>> GetLocationMasterDropdown();
         Task<Response<List<DropdownResponse>>> GetJObMasterDropdown();
         Task<Response<List<DropdownResponse>>> GetSupplierMasterDropdown();

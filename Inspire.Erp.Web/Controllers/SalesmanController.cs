@@ -38,7 +38,7 @@ namespace Inspire.Erp.Web.Controllers
                 SalesManMasterSalesManContactNo = k.SalesManMasterSalesManContactNo,
                 SalesManMasterSalesManLocationId = k.SalesManMasterSalesManLocationId,
                 SalesManMasterSalesManDelStatus=k.SalesManMasterSalesManDelStatus
-            }).OrderBy(o=>o.SalesManMasterSalesManName).ToList();
+            }).ToList();
         }
 
         [HttpGet]

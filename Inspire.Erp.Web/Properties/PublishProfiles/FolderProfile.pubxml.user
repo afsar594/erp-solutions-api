@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+https://go.microsoft.com/fwlink/?LinkID=208121. 
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <History>True|2025-09-12T05:14:25.6301220Z||;True|2025-09-02T16:43:46.7714428+05:00||;True|2025-09-02T15:56:35.2836722+05:00||;True|2025-08-29T18:48:38.5135884+05:00||;True|2025-08-28T10:20:14.3329683+05:00||;</History>
+    <LastFailureDetails />
+    <_PublishTargetUrl>D:\inspire solution\ERP 2024\ERP.APISV2.0.0\Inspire.Erp.Web\bin\Release\net8.0\publish\</_PublishTargetUrl>
+  </PropertyGroup>
+</Project>
