@@ -1675,8 +1675,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     {
                         voucherNo = g.sv.SalesVoucherNo,
                         voucherDate = g.sv.SalesVoucherDate,
-                        itemName = g.c.CustomerMasterCustomerName,
-                        soldQty = g.sd.SalesVoucherDetailsActualAmount,
+                        itemName = g.sd.SalesVoucherDetailsItemName,
+                        soldQty = g.sd.SalesVoucherDetailsQuantity,
                         voucherType = g.sv.SalesVoucherType,
                         customerName = g.c.CustomerMasterCustomerName,
                         grossAmount = g.sv.SalesVoucherTotalGrossAmount,
