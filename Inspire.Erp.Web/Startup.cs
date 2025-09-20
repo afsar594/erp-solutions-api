@@ -113,7 +113,7 @@ namespace Inspire.Erp.Web
             });
 
             // Recurring jobs
-            services.AddRecurringJob(Configuration);
+            //services.AddRecurringJob(Configuration);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
