@@ -183,7 +183,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             journalVoucherModel = _journalVoucherRepository.GetAsQueryable().Where(k => k.JournalVoucherId == pvno).FirstOrDefault();
             if (journalVoucherModel != null)
             {
-                journalVoucherModel.JournalVoucherDetails = _journalVoucherDetailsRepository.GetAsQueryable().Where(x => x.JournalVoucherDetailVrefNo == journalVoucherModel.JournalVoucherVrefNo && x.JournalVoucherDetailsDelStatus == false).ToList();
+                journalVoucherModel.JournalVoucherDetails = _journalVoucherDetailsRepository.GetAsQueryable().Where(x => x.JournalVoucherID == journalVoucherModel.JournalVoucherId && (x.JournalVoucherDetailsDelStatus  == null || x.JournalVoucherDetailsDelStatus == false)).ToList();
                 journalVoucherModel.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(x => x.AccountsTransactionsVoucherNo == journalVoucherModel.JournalVoucherVrefNo && x.AccountstransactionsDelStatus == false).ToList();
 
             }
