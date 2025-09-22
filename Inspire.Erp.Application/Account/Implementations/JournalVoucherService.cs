@@ -50,7 +50,9 @@ namespace Inspire.Erp.Application.Account.Implementations
             {
                 _journalVoucherRepository.BeginTransaction();
                 var itemsToAdd = journalVoucherDetails.Where(x => x.JournalVoucherDetailsId == 0).ToList();
-                var itemsToUpdate = journalVoucherDetails.Where(x => x.JournalVoucherDetailsId == 0).ToList();
+                //var itemsToUpdate = journalVoucherDetails.Where(x => x.JournalVoucherDetailsId != 0).ToList();
+                var itemsTodelete = _journalVoucherDetailsRepository.GetAsQueryable().Where(x => x.JournalVoucherDetailVrefNo == journalVoucher.JournalVoucherVrefNo).ToList();
+                _journalVoucherDetailsRepository.DeleteList(itemsTodelete);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     if (k.AccountsTransactionsTransSno == 0)
@@ -62,10 +64,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                 }).OrderBy(x => x.AccountsTransactionsVoucherType).AsEnumerable().ToList();
                 _accountTransactionRepository.UpdateList(accountsTransactions);
 
-                if (itemsToAdd.Any())
-                    _journalVoucherDetailsRepository.InsertList(itemsToAdd);
-                if (itemsToUpdate.Any())
-                    _journalVoucherDetailsRepository.UpdateList(itemsToUpdate);
+                _journalVoucherDetailsRepository.InsertList(itemsToAdd);
+               
                 _journalVoucherRepository.Update(journalVoucher);
 
                 _journalVoucherRepository.TransactionCommit();
@@ -183,7 +183,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             journalVoucherModel = _journalVoucherRepository.GetAsQueryable().Where(k => k.JournalVoucherId == pvno).FirstOrDefault();
             if (journalVoucherModel != null)
             {
-                journalVoucherModel.JournalVoucherDetails = _journalVoucherDetailsRepository.GetAsQueryable().Where(x => x.JournalVoucherDetailVrefNo == journalVoucherModel.JournalVoucherVrefNo && x.JournalVoucherDetailsDelStatus == false).ToList();
+                journalVoucherModel.JournalVoucherDetails = _journalVoucherDetailsRepository.GetAsQueryable().Where(x => x.JournalVoucherID == journalVoucherModel.JournalVoucherId && (x.JournalVoucherDetailsDelStatus  == null || x.JournalVoucherDetailsDelStatus == false)).ToList();
                 journalVoucherModel.AccountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(x => x.AccountsTransactionsVoucherNo == journalVoucherModel.JournalVoucherVrefNo && x.AccountstransactionsDelStatus == false).ToList();
 
             }
