@@ -113,7 +113,7 @@ namespace Inspire.Erp.Application.Account.Implementations
 
                         }
 
-                        accountsTransactions[0].AccountsTransactionsAccNo = "03001001003";
+                        //accountsTransactions[0].AccountsTransactionsAccNo = "03001001003";
                     }
 
                     else
@@ -427,7 +427,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                             PDC_Details_PartyAccNo = item.BankPaymentVoucherDetailsAcNo,
                             PDC_Details_DelStatus = false,
                         });
-                        accountsTransactions[0].AccountsTransactionsAccNo = "03001001003";
+                        //accountsTransactions[0].AccountsTransactionsAccNo = "03001001003";
 
                     }
                 }
