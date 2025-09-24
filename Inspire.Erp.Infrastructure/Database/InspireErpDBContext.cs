@@ -2810,7 +2810,6 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.PurchaseOrderDelivFromDate).HasColumnType("datetime");
 
                 entity.Property(e => e.PurchaseOrderDelivPlace)
-                    .HasMaxLength(50)
                     .IsUnicode(false);
 
                 entity.Property(e => e.PurchaseOrderDelivStatus)
@@ -11690,11 +11689,9 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.PurchaseOrderDelivFromDate).HasColumnType("datetime");
 
                 entity.Property(e => e.PurchaseOrderDelivPlace)
-                    .HasMaxLength(50)
                     .IsUnicode(false);
 
                 entity.Property(e => e.PurchaseOrderDelivStatus)
-                    .HasMaxLength(50)
                     .IsUnicode(false);
 
                 entity.Property(e => e.PurchaseOrderDelivToDate).HasColumnType("datetime");
