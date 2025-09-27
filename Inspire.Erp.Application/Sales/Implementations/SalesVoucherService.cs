@@ -166,8 +166,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
               
                 var deteletDetails = _salesVoucherDetailsRepository.GetAsQueryable().Where(i => i.SalesVoucherDetailsNo == salesVoucher.SalesVoucherNo).ToList();
                 _salesVoucherDetailsRepository.DeleteList(deteletDetails);
-                var itemdetails = salesVoucherDetails.Where(x => x.SalesVoucherDetailsId == 0).ToList();
-                _salesVoucherDetailsRepository.InsertList(itemdetails);
+                //var itemdetails = salesVoucherDetails.Where(x => x.SalesVoucherDetailsId == 0).ToList();
+                //_salesVoucherDetailsRepository.InsertList(itemdetails);
 
                 _salesVoucherRepository.Update(salesVoucher);
 
