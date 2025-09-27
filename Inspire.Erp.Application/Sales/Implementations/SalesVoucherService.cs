@@ -163,17 +163,11 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 clsCommonFunctions.Delete_OldEntryOf_StockRegister(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _stockRegisterRepository);
                 clsCommonFunctions.UpdateAccountsTransactions(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _accountTransactionRepository);
                 //=================================
-                salesVoucher.SalesVoucherDetails = salesVoucherDetails.Select((k) =>
-                {
-
-                    k.SalesVoucherId = salesVoucher.SalesVoucherId;
-                    k.SalesVoucherDetailsNo = salesVoucher.SalesVoucherNo;
-
-
-                    return k;
-                }).OrderBy(x => x.SalesVoucherDetailsItemName).AsEnumerable().ToList();
-
-                _salesVoucherDetailsRepository.UpdateList(salesVoucherDetails);
+              
+                var deteletDetails = _salesVoucherDetailsRepository.GetAsQueryable().Where(i => i.SalesVoucherDetailsNo == salesVoucher.SalesVoucherNo).ToList();
+                _salesVoucherDetailsRepository.DeleteList(deteletDetails);
+                var itemdetails = salesVoucherDetails.Where(x => x.SalesVoucherDetailsId == 0).ToList();
+                _salesVoucherDetailsRepository.InsertList(itemdetails);
 
                 _salesVoucherRepository.Update(salesVoucher);
 
