@@ -8098,8 +8098,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.ToTable("Item_Supplier_Details");
 
                 entity.Property(e => e.ItemSupplierDetailsItemSupplierDetailsId)
-                    .HasColumnName("Item_Supplier_Details_ItemSupplierDetails_ID")
-                    .ValueGeneratedNever();
+                    .HasColumnName("Item_Supplier_Details_ItemSupplierDetails_ID");
 
                 entity.Property(e => e.ItemSupplierDetailsBatchId).HasColumnName("Item_Supplier_Details_Batch_ID");
 

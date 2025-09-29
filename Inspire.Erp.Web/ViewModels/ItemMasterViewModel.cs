@@ -75,6 +75,8 @@ namespace Inspire.Erp.Web.ViewModels
         public List<ItemPriceLevelDetailsViewModel> ItemPriceLevelDetails { get; set; }
         public List<UnitDetailsViewModel> UnitDetails { get; set; }
         public List<ItemImagesViewModel> ItemImages { get; set; }
+
+        public List<ItemSupplierDetails> ItemSupplierDetails { get; set; } = new List<ItemSupplierDetails>();
     }
 
     public class ItemMasterDTModel
@@ -98,4 +100,5 @@ namespace Inspire.Erp.Web.ViewModels
         public double? UnitDetailsUnitPrice { get; set; }
 
     }
+
 }

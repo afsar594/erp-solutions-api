@@ -1,47 +1,48 @@
-﻿using Inspire.Erp.Domain.Entities;
-using Inspire.Erp.Domain.Enums;
-using Inspire.Erp.Domain.Modals.Common;
-using Inspire.Erp.Domain.Modals;
-using Inspire.Erp.Infrastructure.Database.Repositoy;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SendGrid.Helpers.Mail;
-using System.Runtime.CompilerServices;
-using Inspire.Erp.Domain.Modals.AccountStatement;
-using System.Security.Cryptography;
+﻿using Dapper;
+using EllipticCurve.Utils;
+using Inspire.Erp.Application.Common;
+using Inspire.Erp.Application.Master.Interfaces;
+using Inspire.Erp.Domain.DTO;
+using Inspire.Erp.Domain.DTO.ItemMaster;
+using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Entities.POS;
-using Microsoft.AspNetCore.Mvc;
-using System.Transactions;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Domain.Modals;
+using Inspire.Erp.Domain.Modals.AccountStatement;
+using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Models;
+using Inspire.Erp.Infrastructure;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Razor.TagHelpers;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System.Threading;
-using EllipticCurve.Utils;
-using Microsoft.VisualBasic;
-using System.Globalization;
-using Spire.Pdf.Exporting.XPS.Schema;
-using Microsoft.VisualBasic.FileIO;
-using System.Diagnostics.Eventing.Reader;
-using System.Collections;
-using System.Xml.Linq;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Razor.TagHelpers;
-using Inspire.Erp.Domain.DTO;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Configuration;
-using Inspire.Erp.Application.Common;
+using Microsoft.VisualBasic;
+using Microsoft.VisualBasic.FileIO;
+using SendGrid.Helpers.Mail;
+using Spire.Pdf.Exporting.XPS.Schema;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
+using System.Globalization;
+using System.Linq;
 using System.Net;
-using Inspire.Erp.Domain.DTO.ItemMaster;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Transactions;
+using System.Xml.Linq;
+using static Inspire.Erp.Domain.Entities.StoreWareHouse;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-
-using Inspire.Erp.Infrastructure;
-using Microsoft.Data.SqlClient;
-using Dapper;
 
 namespace Inspire.Erp.Application.Master
 {
@@ -77,6 +78,7 @@ namespace Inspire.Erp.Application.Master
         private IRepository<POS_CashCardAmounts> posCashCardAmountRepo;
         private readonly IRepository<UserFile> _userFile;
         private readonly IRepository<SalesManMaster> _saleMan;
+        private readonly IRepository<ItemSupplierDetails> _itemSupplierDetails;
 
         private readonly IRepository<POS_SalesReturn> _saleReturnRepo;
         private readonly IRepository<POS_SalesReturnDetails> _saleReturnDetailsRepo;
@@ -119,7 +121,7 @@ namespace Inspire.Erp.Application.Master
               , IRepository<MasterAccountsTable> masterAccRepo
             , IUtilityService utilityService
             , IConfiguration config
-            )
+, IRepository<ItemSupplierDetails> itemSupplierDetails)
         {
             itemrepository = _itemrepository;
             vendorrepository = _vendorrepository;
@@ -159,6 +161,7 @@ namespace Inspire.Erp.Application.Master
 
             var settings = config.GetSection("ApplicationSettings").Get<ApplicationSettings>();
             _dbConnection = new SqlConnection(settings.ConnectionString);
+            _itemSupplierDetails = itemSupplierDetails;
         }
         public async Task<IEnumerable<ItemMaster>> InsertItem(ItemMaster itemMaster)
         {
@@ -192,6 +195,10 @@ namespace Inspire.Erp.Application.Master
             bool valid = false;
             try
             {
+                // If service returned ture → means duplicate item
+                if (await CheckForExistingItem(itemMaster))
+                    return new ItemMaster();
+
                 valid = true;
                 itemMaster.ItemMasterItemId = Convert.ToInt32(await itemrepository.GetAsQueryable()
                                               .Where(x => x.ItemMasterItemId > 0)
@@ -204,6 +211,7 @@ namespace Inspire.Erp.Application.Master
                     k.ItemImagesItemImageId = null;
                     return k;
                 }).OrderBy(x => x.ItemImagesItemImageId).AsEnumerable().ToList();
+
                 itemrepository.Insert(itemMaster);
                 return itemMaster;
             }
@@ -228,7 +236,7 @@ namespace Inspire.Erp.Application.Master
                 if (itemMaster.ItemMasterItemId == null)
                 {
                     existingItem = await itemrepository.GetAsQueryable()
-                                   .FirstOrDefaultAsync(x =>  x.ItemMasterItemName == itemMaster.ItemMasterItemName && x.ItemMasterItemType == itemMaster.ItemMasterItemType);
+                                   .FirstOrDefaultAsync(x => x.ItemMasterItemName == itemMaster.ItemMasterItemName && x.ItemMasterItemType == itemMaster.ItemMasterItemType);
 
                 }
                 else
@@ -259,28 +267,31 @@ namespace Inspire.Erp.Application.Master
 
         }
 
-        public ItemMaster UpdateNewItem(ItemMaster itemMaster)
+        public ItemMaster UpdateNewItem(ItemMaster itemMasterDto)
         {
             bool valid = false;
             try
             {
-                itemMaster.ItemImages = itemMaster.ItemImages.AsEnumerable().Select(k =>
+                itemMasterDto.ItemImages = itemMasterDto.ItemImages.AsEnumerable().Select(k =>
                 {
                     k.ItemImagesItemImageId = null;
                     return k;
                 }).OrderBy(x => x.ItemImagesItemImageId).AsEnumerable().ToList();
 
-                itemrepository.Update(itemMaster);
+                var suppliersToDel = _itemSupplierDetails.GetAsQueryable().Where(x => x.ItemSupplierDetailsItemId == itemMasterDto.ItemMasterItemId).ToList();
+                if (suppliersToDel.Any())
+                    _itemSupplierDetails.DeleteList(suppliersToDel);
+
+                itemrepository.Update(itemMasterDto);
                 valid = true;
-                return itemMaster;
+                return itemMasterDto;
 
             }
             catch (Exception ex)
             {
                 valid = false;
-                throw ex;
                 // Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException: 'Database operation expected to affect 1 row(s) but actually affected 0 row(s). Data may have been modified or deleted since entities were loaded. See http://go.microsoft.com/fwlink/?LinkId=527962 for information on understanding and handling optimistic concurrency exceptions.'
-                return itemMaster;
+                return itemMasterDto;
             }
             finally
             {
@@ -654,9 +665,9 @@ namespace Inspire.Erp.Application.Master
 
         public IEnumerable<allItemMasterDto> GetAllItemMaster()
         {
-            var items = itemrepository.GetAll();          
-            var unitDetails = _unitDetailsRepo.GetAll(); 
-            var unitMasters = _unitMasterRepo.GetAll();  
+            var items = itemrepository.GetAll();
+            var unitDetails = _unitDetailsRepo.GetAll();
+            var unitMasters = _unitMasterRepo.GetAll();
 
             var result = (from a in items
                           join b in unitDetails
@@ -5819,6 +5830,7 @@ namespace Inspire.Erp.Application.Master
                                     @SearchTerm IS NULL OR @SearchTerm = '' 
                                     OR i.Item_Master_Item_Name LIKE '%' + @SearchTerm + '%'
                                     OR u.Unit_Details_Barcode LIKE '%' + @SearchTerm + '%'
+                                    OR u.Unit_Details_Barcode LIKE '%' + @SearchTerm + '%'
                                 );
 
                             SELECT DISTINCT 
@@ -5829,8 +5841,8 @@ namespace Inspire.Erp.Application.Master
                                 ISNULL(u.Unit_Details_Barcode, '') AS ItemMasterBarcode
                             FROM 
                                 Item_Master i
-                            INNER JOIN 
-                                Unit_Details u ON i.Item_Master_Item_ID = u.Unit_Details_Item_ID	
+                            INNER JOIN  Unit_Details u ON i.Item_Master_Item_ID = u.Unit_Details_Item_ID	
+                            LEFT JOIN Item_Supplier_Details spd on i.Item_Master_Item_ID = spd.Item_Supplier_Details_Item_ID
                             WHERE 
                                 i.Item_Master_Account_No != 0
                                 AND ISNULL(i.Item_Master_DelStatus, 0) != 1 
@@ -5840,6 +5852,7 @@ namespace Inspire.Erp.Application.Master
                                     OR i.Item_Master_Item_Name LIKE '%' + @SearchTerm + '%'
                                     OR u.Unit_Details_Barcode LIKE '%' + @SearchTerm + '%'
                                 )
+                            AND isnull(spd.Item_Supplier_Details_Supplier_ID,0) = @Supplier
                             ORDER BY {sortColumn} {sortDirection}
                             OFFSET (@Offset) ROWS FETCH NEXT @PageSize ROWS ONLY;
                             ";
@@ -5848,6 +5861,7 @@ namespace Inspire.Erp.Application.Master
                 {
                     SearchTerm = request.SearchTerm,
                     PageSize = request.PageSize,
+                    Supplier = request.Supplier ?? 0,
                     Offset = (request.PageNumber - 1) * request.PageSize
                 };
 

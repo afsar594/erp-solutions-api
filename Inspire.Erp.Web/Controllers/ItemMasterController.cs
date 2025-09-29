@@ -275,36 +275,44 @@ namespace Inspire.Erp.Web.Controllers
                 }
 
                 var model = _mapper.Map<ItemMaster>(itemMaster);
-                var isExistingItem = await itemMasterService.CheckForExistingItem(model);
-                // If service returned ture → means duplicate item
-                if (isExistingItem)
+                //var isExistingItem = await itemMasterService.CheckForExistingItem(model);
+                var data = new ItemMaster();
+                var result = new ItemMasterViewModel();
+                if ((itemMaster.ItemMasterItemId == null || itemMaster.ItemMasterItemId == 0))
                 {
-                    return new ApiResponse<ItemMasterViewModel>
+                    data = await itemMasterService.NewItem(model);
+                    if (data.ItemMasterItemId == 0)
                     {
-                        Valid = false,
-                        Result = null,
-                        Message = $"Item with name '{itemMaster.ItemMasterItemName}' already exists."
-                    };
+                        return new ApiResponse<ItemMasterViewModel>
+                        {
+                            Valid = false,
+                            Result = null,
+                            Message = $"Item with name '{itemMaster.ItemMasterItemName}' already exists."
+                        };
+                    }
+                    else
+                    {
+                        result = _mapper.Map<ItemMasterViewModel>(data);
+                        return new ApiResponse<ItemMasterViewModel>
+                        {
+                            Valid = true,
+                            Result = result,
+                            Message = ItemMasterMessage.SaveItem
+                        };
+                    }
                 }
                 else
                 {
-                    var data = (itemMaster.ItemMasterItemId == null || itemMaster.ItemMasterItemId == 0)
-                      ? await itemMasterService.NewItem(model)
-                      : itemMasterService.UpdateNewItem(model);
-                    ItemMasterViewModel result = _mapper.Map<ItemMasterViewModel>(data);
-
+                    data = itemMasterService.UpdateNewItem(model);
+                    result = _mapper.Map<ItemMasterViewModel>(data);
                     return new ApiResponse<ItemMasterViewModel>
                     {
                         Valid = true,
                         Result = result,
-                        Message = (itemMaster.ItemMasterItemId == null || itemMaster.ItemMasterItemId == 0)
-                            ? ItemMasterMessage.SaveItem
-                            : ItemMasterMessage.UpdateItem
+                        Message = ItemMasterMessage.UpdateItem
                     };
-
                 }
 
-               
             }
             catch (Exception ex)
             {
@@ -641,7 +649,7 @@ namespace Inspire.Erp.Web.Controllers
                     c.UnitDetailsUnitPrice,
                     c.UnitDetailsUnitCost,
                     c.UnitDetailsProfitPer,
-                    
+
                 })
                 .FirstOrDefault();
             if (customerId > 0)
@@ -687,7 +695,7 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("GetItemMasterByIdAndLocation/{id}/{locationID}/{customerId?}")]
-        public ResponseInfo GetItemMasterByIdAndLocation(int id, int locationID,int customerId = -1)
+        public ResponseInfo GetItemMasterByIdAndLocation(int id, int locationID, int customerId = -1)
         {
             var response = new ResponseInfo();
             decimal? lastSalePrice = null;

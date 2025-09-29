@@ -203,7 +203,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 Thread.Sleep(2000);
                 _purchaseRequisitionRepository.TransactionCommit();
 
-              
+
                 await downloadAndSaveVoucherReport.DownloadedFileAsync(applicationSettings.DownloadFileBaseUrl, "PurchaseRequisition", purchaseRequisition.PurchaseRequisitionId.ToString(), (int)purchaseRequisition.PurchaseRequisitionId, purchaseRequisition.PurchaseRequisitionNo, true);
 
             }
@@ -539,7 +539,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 //await SendEmailOnValueExceedsAsync((int)purchaseRequisition.PurchaseRequisitionJobId, purchaseRequisition.PurchaseRequisitionNo);
                 #endregion
 
-               
+
                 var res = await this.GetSavedPurchaseRequisitionDetails((int)purchaseRequisition.PurchaseRequisitionId);
                 return Response<PurchaseRequisitionModel>.Success(res.Result, "Purchase Requisition Save Successfully.");
 
@@ -872,7 +872,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             }
         }
 
-      
+
         public async Task<Response<List<PurChaseReqFields>>> GetPurchaseReqJobId(PurChaseRequisitionFilterReport model)
         {
             try
@@ -1017,7 +1017,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         var receivedQty = purOrderQuantities
                             .FirstOrDefault(pr => pr.PurchaseRequisitionId == x.SRID && pr.PurchaseOrderDetailsMatId == x.matId)?.RecQty ?? 0;
 
-                        x.BalQty = x.SRQ - receivedQty;                                                                                                                                                                                                                                                                                                                                                                                                                                          
+                        x.BalQty = x.SRQ - receivedQty;
                         x.DelQty = receivedQty;
                         return x;
                     }).ToList();
