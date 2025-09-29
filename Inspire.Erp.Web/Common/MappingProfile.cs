@@ -80,6 +80,12 @@ namespace Inspire.Erp.Web.Common
             CreateMap<ItemMaster, ItemMasterViewModel>();
             CreateMap<ItemMasterViewModel, ItemMaster>();
 
+            CreateMap<ItemSupplierDetails, ItemSupplierDetailsViewModel>();
+            CreateMap<ItemSupplierDetailsViewModel, ItemSupplierDetails>();
+
+
+
+
             CreateMap<JobMaster, JobMasterViewModel>();
             CreateMap<JobMasterViewModel, JobMaster>();
 

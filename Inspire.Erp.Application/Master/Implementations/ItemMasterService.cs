@@ -498,7 +498,9 @@ namespace Inspire.Erp.Application.Master
                 itemMaster = itemrepository.GetAsQueryable().Where(k => k.ItemMasterItemId == id && (k.ItemMasterDelStatus == false || k.ItemMasterDelStatus == null))
                                                             .Include(k => k.ItemImages)
                                                             .Include(k => k.ItemPriceLevelDetails)
-                                                            .Include(k => k.UnitDetails).Select(k => k).SingleOrDefault();
+                                                            .Include(k => k.UnitDetails)
+                                                            .Include(x=>x.ItemSupplierDetails)
+                                                            .Select(k => k).SingleOrDefault();
             }
             catch (Exception ex)
             {

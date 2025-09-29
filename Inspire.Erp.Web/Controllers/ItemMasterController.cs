@@ -258,7 +258,7 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpPost]
         [Route("NewItem")]
-        public async Task<ApiResponse<ItemMasterViewModel>> NewItem([FromBody] ItemMasterViewModel itemMaster)
+        public async Task<IActionResult> NewItem([FromBody] ItemMasterViewModel itemMaster)
         {
             try
             {
@@ -283,47 +283,47 @@ namespace Inspire.Erp.Web.Controllers
                     data = await itemMasterService.NewItem(model);
                     if (data.ItemMasterItemId == 0)
                     {
-                        return new ApiResponse<ItemMasterViewModel>
+                        return Ok( new ApiResponse<ItemMasterViewModel>
                         {
                             Valid = false,
                             Result = null,
                             Message = $"Item with name '{itemMaster.ItemMasterItemName}' already exists."
-                        };
+                        });
                     }
                     else
                     {
                         result = _mapper.Map<ItemMasterViewModel>(data);
-                        return new ApiResponse<ItemMasterViewModel>
+                        return Ok(new ApiResponse<ItemMasterViewModel>
                         {
                             Valid = true,
                             Result = result,
                             Message = ItemMasterMessage.SaveItem
-                        };
+                        });
                     }
                 }
                 else
                 {
                     data = itemMasterService.UpdateNewItem(model);
                     result = _mapper.Map<ItemMasterViewModel>(data);
-                    return new ApiResponse<ItemMasterViewModel>
+                    return Ok(new ApiResponse<ItemMasterViewModel>
                     {
                         Valid = true,
                         Result = result,
                         Message = ItemMasterMessage.UpdateItem
-                    };
+                    });
                 }
 
             }
             catch (Exception ex)
             {
                 // Handle any unexpected error gracefully
-                return new ApiResponse<ItemMasterViewModel>
+                return Ok(new ApiResponse<ItemMasterViewModel>
                 {
                     Valid = false,
                     Result = null,
                     Message = "Unexpected error occurred",
                     //Error = ex.Message
-                };
+                });
             }
         }
         [HttpPost]
