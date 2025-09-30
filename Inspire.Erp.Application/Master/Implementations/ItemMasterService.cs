@@ -283,9 +283,9 @@ namespace Inspire.Erp.Application.Master
                     return k;
                 }).OrderBy(x => x.ItemImagesItemImageId).AsEnumerable().ToList();
 
-                var suppliersToDel = _itemSupplierDetails.GetAsQueryable().Where(x => x.ItemSupplierDetailsItemId == itemMasterDto.ItemMasterItemId).ToList();
-                if (suppliersToDel.Any())
-                    _itemSupplierDetails.DeleteList(suppliersToDel);
+                //var suppliersToDel = _itemSupplierDetails.GetAsQueryable().Where(x => x.ItemSupplierDetailsItemId == itemMasterDto.ItemMasterItemId).ToList();
+                //if (suppliersToDel.Any())
+                //    _itemSupplierDetails.DeleteList(suppliersToDel);
 
                 itemrepository.Update(itemMasterDto);
                 valid = true;
