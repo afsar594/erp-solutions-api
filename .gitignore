@@ -79,3 +79,6 @@ project.fragment.lock.json
 artifacts/
 /Inspire.Erp.WebReport
 
+/Inspire.Erp.RecurringJob/obj/Inspire.Erp.RecurringJob.csproj.nuget.dgspec.json
+/Inspire.Erp.RecurringJob/obj/Inspire.Erp.RecurringJob.csproj.nuget.g.props
+/Inspire.Erp.RecurringJob/obj/project.assets.json

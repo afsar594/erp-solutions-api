@@ -97,7 +97,7 @@ namespace Inspire.Erp.Web.Controllers
             {
                 UserName = user.Username,
                 Password = user.Password
-            }, ipAddress());
+            }, ipAddress(), (int)user.Location.LocationMasterLocationId);
 
             if (response.IsValid != false)
             {

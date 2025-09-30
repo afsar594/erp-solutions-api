@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Inspire.Erp.Application.Master;
 using Inspire.Erp.Application.Master.Interfaces;
+using Inspire.Erp.Application.User;
 using Inspire.Erp.Domain.DTO.ItemMaster;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
@@ -27,7 +28,7 @@ namespace Inspire.Erp.Web.Controllers
         private readonly IMapper _mapper;
         private IItemMasterService itemMasterService;
         private ILocationMasterService locationMasterService;
-
+        private readonly ICurrentUserService _currentUserService;
         private readonly IRepository<SalesVoucher> _repoSalesVoucher;
         private readonly IRepository<SalesVoucherDetails> _repoSalesVoucherDetails;
         private readonly IRepository<StockRegister> _repoStockRegister;
@@ -38,7 +39,7 @@ namespace Inspire.Erp.Web.Controllers
         public ItemMasterController(IRepository<ItemMaster> _itemrepository, IRepository<VendorMaster> _Brandrepository, IRepository<ItemStockType> _itemStockRepository,
             IRepository<SuppliersMaster> _supplierrepository, IRepository<TaxMaster> _Taxrepository, IRepository<PriceLevelMaster> _priceLevelrepository,
             IRepository<UnitMaster> _unitrepository, IRepository<UnitDetails> unitDetailsRepo,
-            IItemMasterService _itemMasterService, ILocationMasterService _locationMasterService, IMapper mapper, IRepository<SalesVoucher> repoSalesVoucher, IRepository<SalesVoucherDetails> repoSalesVoucherDetails, IRepository<StockRegister> repoStockRegister)
+            IItemMasterService _itemMasterService, ILocationMasterService _locationMasterService, IMapper mapper, IRepository<SalesVoucher> repoSalesVoucher, IRepository<SalesVoucherDetails> repoSalesVoucherDetails, IRepository<StockRegister> repoStockRegister, ICurrentUserService currentUserService)
         {
             itemMasterService = _itemMasterService;
             locationMasterService = _locationMasterService;
@@ -48,6 +49,7 @@ namespace Inspire.Erp.Web.Controllers
             _repoSalesVoucher = repoSalesVoucher;
             _repoSalesVoucherDetails = repoSalesVoucherDetails;
             _repoStockRegister = repoStockRegister;
+            _currentUserService = currentUserService;
         }
         [HttpGet]
         [Route("GetAllItem")]
@@ -618,7 +620,7 @@ namespace Inspire.Erp.Web.Controllers
         {
             var response = new ResponseInfo();
             decimal? lastSalePrice = null;
-            decimal? CurrentItemStock = null;
+            decimal CurrentItemStock = 0m;
             var item = itemrepository.GetAsQueryable()
                 .Where(x => x.ItemMasterItemId == id && x.ItemMasterDelStatus != true)
                 .Select(a => new
@@ -665,7 +667,7 @@ namespace Inspire.Erp.Web.Controllers
 
             var stockData = _repoStockRegister.GetAsQueryable()
                                               .AsNoTracking()
-                                              .Where(x => x.StockRegisterMaterialID == id && !(bool)x.StockRegisterDelStatus)
+                                              .Where(x => x.StockRegisterMaterialID == id && !(bool)x.StockRegisterDelStatus && x.StockRegisterLocationID == _currentUserService.LocationId)
                                               .GroupBy(x => x.StockRegisterMaterialID)
                                               .Select(g => new
                                               {
@@ -684,7 +686,7 @@ namespace Inspire.Erp.Web.Controllers
                 item.ItemMasterItemName,
                 item.ItemMasterPartNo,
                 ItemMasterUnitPrice = lastSalePrice ?? item.ItemMasterUnitPrice,
-                CurrentItemStock = CurrentItemStock ?? 0m,
+                CurrentItemStock = Math.Round(CurrentItemStock,2),
                 item.ItemMasterLastPurchasePrice,
                 UnitDetails = unitDetail
             };

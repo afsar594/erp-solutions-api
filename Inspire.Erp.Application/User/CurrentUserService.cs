@@ -9,8 +9,10 @@ namespace Inspire.Erp.Application.User
         public long UserId { get; }
         public string Username { get; }
         public string Role { get; }
-        public string GroupId { get;}
-        public string DepartmentId { get;}
+        public string GroupId { get; }
+        public string DepartmentId { get; }
+
+        public long LocationId { get; }
 
         public CurrentUserService(IHttpContextAccessor accessor)
         {
@@ -22,6 +24,7 @@ namespace Inspire.Erp.Application.User
                 Role = user.FindFirst(ClaimTypes.Role)?.Value;
                 GroupId = user.FindFirst("GroupId")?.Value;
                 DepartmentId = user.FindFirst("DepartmentId")?.Value;
+                LocationId = long.Parse(user.FindFirst("LocationId").Value);
             }
         }
     }

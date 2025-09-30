@@ -10,7 +10,7 @@ namespace Inspire.Erp.Application.Authentication.Inerfaces
     public interface IloginService
     {
         UserFile SignIn(UserFile user);
-        UserFile Authenticate(UserFile userData, string ipAddress);
+        UserFile Authenticate(UserFile userData, string ipAddress, int locationId);
         UserFile RefreshToken(UserFile userData);
         UserFile RevokeToken(UserFile userData);
         ClaimsPrincipal GetPrincipalFromExpiredToken(string token);

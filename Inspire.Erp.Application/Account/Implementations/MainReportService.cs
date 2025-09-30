@@ -214,9 +214,7 @@ namespace Inspire.Erp.Application.Account.Implementations
 
             if ((bool)stockLedgerParameters.rptHideZero)
                 return data.Where(x => x.Stock > 0).ToList();
-            if ((bool)stockLedgerParameters.rptIncludeZero)
-                return data.Where(x => x.Stock == 0).ToList();
-
+          
             return data;
         }
         public IEnumerable<ReportAccountsTransactions> MainReport_GetReportAccountsTransactions(string AccNo, int Location, int Job, int CostCenter)

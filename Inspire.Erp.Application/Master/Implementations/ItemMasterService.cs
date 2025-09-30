@@ -2,6 +2,7 @@
 using EllipticCurve.Utils;
 using Inspire.Erp.Application.Common;
 using Inspire.Erp.Application.Master.Interfaces;
+using Inspire.Erp.Application.User;
 using Inspire.Erp.Domain.DTO;
 using Inspire.Erp.Domain.DTO.ItemMaster;
 using Inspire.Erp.Domain.Entities;
@@ -87,6 +88,9 @@ namespace Inspire.Erp.Application.Master
         private readonly System.Data.IDbConnection _dbConnection;
         private string ItemRelativeNo = "";
         private readonly IUtilityService _utilityService;
+
+        private readonly ICurrentUserService _currentUserService;
+
         public ItemMasterService(IRepository<ItemMaster> _itemrepository, IRepository<ItemStockType> _itemStockRepository, IRepository<UnitDetails> unitDetailsRepo
             , IRepository<VendorMaster> _vendorrepository
             , IRepository<PurchaseVoucherDetails> _purchVouchDetailsRepo
@@ -121,7 +125,7 @@ namespace Inspire.Erp.Application.Master
               , IRepository<MasterAccountsTable> masterAccRepo
             , IUtilityService utilityService
             , IConfiguration config
-, IRepository<ItemSupplierDetails> itemSupplierDetails)
+, IRepository<ItemSupplierDetails> itemSupplierDetails, ICurrentUserService currentUserService)
         {
             itemrepository = _itemrepository;
             vendorrepository = _vendorrepository;
@@ -162,6 +166,7 @@ namespace Inspire.Erp.Application.Master
             var settings = config.GetSection("ApplicationSettings").Get<ApplicationSettings>();
             _dbConnection = new SqlConnection(settings.ConnectionString);
             _itemSupplierDetails = itemSupplierDetails;
+            _currentUserService = currentUserService;
         }
         public async Task<IEnumerable<ItemMaster>> InsertItem(ItemMaster itemMaster)
         {
