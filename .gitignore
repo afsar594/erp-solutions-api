@@ -48,7 +48,7 @@ artifacts/
 /Inspire.Erp.WebReport/Inspire.Erp.WebReport.csproj.user
 Inspire.Erp.RecurringJob/
 # Ignore RecurringJob build output
-/Inspire.Erp.RecurringJob/bin/
+/Inspire.Erp.RecurringJob
 /Inspire.Erp.RecurringJob/obj/
 /Inspire.Erp.RecurringJob/obj/**/*.csproj.nuget.dgspec.json  # <-- added
 /Inspire.Erp.RecurringJob/obj/**/*.csproj.nuget.g.props     # <-- added
