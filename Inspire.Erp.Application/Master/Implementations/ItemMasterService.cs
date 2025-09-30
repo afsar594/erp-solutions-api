@@ -499,7 +499,7 @@ namespace Inspire.Erp.Application.Master
                                                             .Include(k => k.ItemImages)
                                                             .Include(k => k.ItemPriceLevelDetails)
                                                             .Include(k => k.UnitDetails)
-                                                            .Include(x=>x.ItemSupplierDetails)
+                                                            .Include(x=>x.ItemSupplierDetails).ThenInclude(x=>x.ItemSupplierDetailsSupplier)
                                                             .Select(k => k).SingleOrDefault();
             }
             catch (Exception ex)

@@ -8100,17 +8100,21 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.ItemSupplierDetailsItemSupplierDetailsId)
                     .HasColumnName("Item_Supplier_Details_ItemSupplierDetails_ID");
 
-                entity.Property(e => e.ItemSupplierDetailsBatchId).HasColumnName("Item_Supplier_Details_Batch_ID");
+                entity.Property(e => e.ItemSupplierDetailsBatchId)
+                    .HasColumnName("Item_Supplier_Details_Batch_ID");
 
-                entity.Property(e => e.ItemSupplierDetailsDelStatus).HasColumnName("Item_Supplier_Details_DelStatus");
+                entity.Property(e => e.ItemSupplierDetailsDelStatus)
+                    .HasColumnName("Item_Supplier_Details_DelStatus");
 
-                entity.Property(e => e.ItemSupplierDetailsItemId).HasColumnName("Item_Supplier_Details_Item_ID");
+                entity.Property(e => e.ItemSupplierDetailsItemId)
+                    .HasColumnName("Item_Supplier_Details_Item_ID");
 
                 entity.Property(e => e.ItemSupplierDetailsRate)
                     .HasColumnName("Item_Supplier_Details_Rate")
                     .HasColumnType("numeric(18, 4)");
 
-                entity.Property(e => e.ItemSupplierDetailsSupplierId).HasColumnName("Item_Supplier_Details_Supplier_ID");
+                entity.Property(e => e.ItemSupplierDetailsSupplierId)
+                    .HasColumnName("Item_Supplier_Details_Supplier_ID");
             });
 
             modelBuilder.Entity<JobBudgetDetails>(entity =>

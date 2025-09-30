@@ -80,9 +80,16 @@ namespace Inspire.Erp.Web.Common
             CreateMap<ItemMaster, ItemMasterViewModel>();
             CreateMap<ItemMasterViewModel, ItemMaster>();
 
-            CreateMap<ItemSupplierDetails, ItemSupplierDetailsViewModel>();
-            CreateMap<ItemSupplierDetailsViewModel, ItemSupplierDetails>();
+            //CreateMap<ItemSupplierDetails, ItemSupplierDetailsViewModel>();
+            //CreateMap<ItemSupplierDetailsViewModel, ItemSupplierDetails>();
 
+            CreateMap<ItemSupplierDetails, ItemSupplierDetailsViewModel>()
+                 .ForMember(dest => dest.SupplierName,
+                         opt => opt.MapFrom(src => src.ItemSupplierDetailsSupplier != null
+                                         ? src.ItemSupplierDetailsSupplier.SuppliersMasterSupplierName
+                                         : string.Empty));
+
+            CreateMap<ItemSupplierDetailsViewModel, ItemSupplierDetails>();
 
 
 

@@ -5,6 +5,11 @@ namespace Inspire.Erp.Domain.Entities
 {
     public partial class SuppliersMaster
     {
+        public SuppliersMaster()
+        {
+            ItemSupplierDetails = new HashSet<ItemSupplierDetails>();
+        }
+
         public int SuppliersMasterSupplierId { get; set; }
         public string SuppliersMasterSupplierName { get; set; }
         public string SuppliersMasterSupplierContactPerson { get; set; }
@@ -35,5 +40,7 @@ namespace Inspire.Erp.Domain.Entities
         public double? SuppliersMasterSupplierCreditLimit { get; set; }
         public string SuppliersMasterSupplierVatNo { get; set; }
         public bool? SuppliersMasterSupplierDelStatus { get; set; }
+
+        public ICollection<ItemSupplierDetails> ItemSupplierDetails;
     }
 }

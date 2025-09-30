@@ -11,11 +11,12 @@ namespace Inspire.Erp.Domain.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long ItemSupplierDetailsItemSupplierDetailsId { get; set; }
         public long? ItemSupplierDetailsItemId { get; set; }
-        public long? ItemSupplierDetailsSupplierId { get; set; }
+        public int? ItemSupplierDetailsSupplierId { get; set; }
         public decimal? ItemSupplierDetailsRate { get; set; }
         public int? ItemSupplierDetailsBatchId { get; set; }
         public bool? ItemSupplierDetailsDelStatus { get; set; }
 
-        public virtual ItemMaster ItemSupplierDetailsItem { get; set; }
+        public virtual ItemMaster? ItemSupplierDetailsItem { get; set; }
+        public virtual SuppliersMaster? ItemSupplierDetailsSupplier { get; set; }    
     }
 }

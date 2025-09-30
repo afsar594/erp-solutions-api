@@ -107,7 +107,7 @@ namespace Inspire.Erp.Web.ViewModels
     {
         public long ItemSupplierDetailsItemSupplierDetailsId { get; set; }
         public long? ItemSupplierDetailsItemId { get; set; }
-        public long? ItemSupplierDetailsSupplierId { get; set; }
+        public int? ItemSupplierDetailsSupplierId { get; set; }
         public string? SupplierName { get; set; }
         public decimal? ItemSupplierDetailsRate { get; set; }
         public int? ItemSupplierDetailsBatchId { get; set; }
