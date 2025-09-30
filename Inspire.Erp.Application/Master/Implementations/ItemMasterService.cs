@@ -218,7 +218,7 @@ namespace Inspire.Erp.Application.Master
                 }).OrderBy(x => x.ItemImagesItemImageId).AsEnumerable().ToList();
 
                 itemrepository.Insert(itemMaster);
-                return itemMaster;
+                return GetAllItemMasterById((int)itemMaster.ItemMasterItemId);
             }
             catch (Exception ex)
             {
@@ -289,7 +289,7 @@ namespace Inspire.Erp.Application.Master
 
                 itemrepository.Update(itemMasterDto);
                 valid = true;
-                return itemMasterDto;
+               return  GetAllItemMasterById((int)itemMasterDto.ItemMasterItemId);
 
             }
             catch (Exception ex)
