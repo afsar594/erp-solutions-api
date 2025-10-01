@@ -283,13 +283,24 @@ namespace Inspire.Erp.Application.Master
                     return k;
                 }).OrderBy(x => x.ItemImagesItemImageId).AsEnumerable().ToList();
 
-                //var suppliersToDel = _itemSupplierDetails.GetAsQueryable().Where(x => x.ItemSupplierDetailsItemId == itemMasterDto.ItemMasterItemId).ToList();
-                //if (suppliersToDel.Any())
-                //    _itemSupplierDetails.DeleteList(suppliersToDel);
+                var existingSuppliers = _itemSupplierDetails
+                                                 .GetAsQueryable().AsNoTracking()
+                                                 .Where(x => x.ItemSupplierDetailsItemId == itemMasterDto.ItemMasterItemId && ( x.ItemSupplierDetailsDelStatus == false || x.ItemSupplierDetailsDelStatus == null))
+                                                 .ToList();
+
+                if (existingSuppliers.Any())
+                {
+                    var supplierToDel = existingSuppliers
+                                                                    .Where(x => !itemMasterDto.ItemSupplierDetails.Any(e => e.ItemSupplierDetailsSupplierId == x.ItemSupplierDetailsSupplierId))
+                                                                    .ToList();
+                    if (supplierToDel.Any())
+                        supplierToDel.ForEach(x => x.ItemSupplierDetailsDelStatus = true);
+                }
+
 
                 itemrepository.Update(itemMasterDto);
                 valid = true;
-               return  GetAllItemMasterById((int)itemMasterDto.ItemMasterItemId);
+                return GetAllItemMasterById((int)itemMasterDto.ItemMasterItemId);
 
             }
             catch (Exception ex)
@@ -504,8 +515,16 @@ namespace Inspire.Erp.Application.Master
                                                             .Include(k => k.ItemImages)
                                                             .Include(k => k.ItemPriceLevelDetails)
                                                             .Include(k => k.UnitDetails)
-                                                            .Include(x=>x.ItemSupplierDetails).ThenInclude(x=>x.ItemSupplierDetailsSupplier)
+                                                            .Include(x => x.ItemSupplierDetails).ThenInclude(x => x.ItemSupplierDetailsSupplier)
                                                             .Select(k => k).SingleOrDefault();
+
+                if (itemMaster != null)
+                {
+                    itemMaster.ItemSupplierDetails = itemMaster.ItemSupplierDetails
+                         .Where(s => s.ItemSupplierDetailsDelStatus == false || s.ItemSupplierDetailsDelStatus == null)
+                        .ToList();
+                }
+
             }
             catch (Exception ex)
             {
