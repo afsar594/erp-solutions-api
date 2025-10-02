@@ -7264,7 +7264,6 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.OpeningStockVoucherDetailsId)
                     .HasColumnName("OpeningStockVoucherDetailsID")
-                    .HasColumnType("numeric(18, 0)")
                  .ValueGeneratedOnAdd();
 
                 entity.Property(e => e.OpeningStockVoucherId).HasColumnType("numeric(18, 4)");
