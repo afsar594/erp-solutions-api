@@ -295,6 +295,7 @@ namespace Inspire.Erp.Application.Master
                                                                     .ToList();
                     if (supplierToDel.Any())
                         supplierToDel.ForEach(x => x.ItemSupplierDetailsDelStatus = true);
+                    _itemSupplierDetails.UpdateList(supplierToDel);
                 }
 
 
