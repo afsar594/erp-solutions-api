@@ -428,7 +428,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 clsCommonFunctions.Delete_OldEntry_AccountsTransactions(openingstockVoucher.OpeningStockVoucherNo,VoucherType.OpeningStockVoucher_TYPE,_accountTransactionRepository);
                 //=================================
 
-                var exisitingRecords = _openingstockVoucherDetailsRepository.GetAsQueryable().AsNoTracking().Where(x => x.OpeningStockVoucherId == openingstockVoucher.OpeningStockVoucherId).ToList();
+                var exisitingRecords = _openingstockVoucherDetailsRepository.GetAsQueryable().AsNoTracking().Where(x => x.OpeningStockVoucherId == openingstockVoucher.OpeningStockVoucherId && (x.OpeningStockVoucherDetailsDelStatus == null ||x.OpeningStockVoucherDetailsDelStatus == true)).ToList();
                 if (exisitingRecords.Any())
                 {
                     var detailsToDel = exisitingRecords.Where(x => !openingstockVoucherDetails.Any(e => x.OpeningStockVoucherDetailsMatId == e.OpeningStockVoucherDetailsMatId)).ToList();
@@ -436,9 +436,17 @@ namespace Inspire.Erp.Application.Store.Implementation
                         detailsToDel.ForEach(x => x.OpeningStockVoucherDetailsDelStatus = true);
                     _openingstockVoucherDetailsRepository.UpdateList(detailsToDel);
                 }
+                var detailToInsert = openingstockVoucherDetails.Where(i => i.OpeningStockVoucherDetailsId == 0).ToList();
 
-
-                // Update master voucher
+                if (detailToInsert.Any() )
+                {
+                    foreach (var item in detailToInsert)
+                    {
+                        item.OpeningStockVoucherDetailsId = null;
+                    }
+                    _openingstockVoucherDetailsRepository.InsertList(detailToInsert);
+                }
+                
                 _openingstockVoucherRepository.Update(openingstockVoucher);
 
                 // ================= Accounts Transactions =================
