@@ -303,9 +303,13 @@ namespace Inspire.Erp.Application.Store.Implementation
         {
             try
             {
+                var itemtodelete = _stockAdjustmentVoucherDetailsRepo.GetAsQueryable().Where(i => i.StockAdjustmentVoucherDetailsSaNo == stockAdjustmentVoucher.StockAdjustmentVoucherSaNo).ToList();
+                _stockAdjustmentVoucherDetailsRepo.DeleteList(itemtodelete);
+                _stockAdjustmentVoucherDetailsRepo.InsertList(stockAdjustmentVoucherDetails);
+
                 _stockAdjustmentVoucherRepo.BeginTransaction();
                 _stockAdjustmentVoucherRepo.Update(stockAdjustmentVoucher);
-                _stockAdjustmentVoucherDetailsRepo.UpdateList(stockAdjustmentVoucherDetails);
+                //_stockAdjustmentVoucherDetailsRepo.UpdateList(stockAdjustmentVoucherDetails);
 
                 _stockAdjustmentVoucherRepo.TransactionCommit();
 
@@ -401,19 +405,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
        public ResponseInfo GetStockByLocation(int id)
         {
-            //var res = new ResponseInfo();
-            //var data = _stockRegisterRepo.GetAsQueryable().AsNoTracking().Where(i=> i.StockRegisterLocationID == id && i.StockRegisterDelStatus != true &&i.StockRegisterUnitID != null&& i.StockRegisterUnitID != null).Select(s=> new
-            //{
-            //    s.StockRegisterMaterialID,
-            //    s.StockRegisterUnitID,
-            //    s.StockRegisterJobID,
-            //    s.StockRegisterRate,
-            //    s.StockRegisterQuantity,
-
-            //}).ToList();
-            //res.ResultSet = data;
-            //res.IsSuccess = true;
-            //return res;
+         
             var res = new ResponseInfo();
             var data = _stockRegisterRepo.GetAsQueryable()
                 .AsNoTracking()

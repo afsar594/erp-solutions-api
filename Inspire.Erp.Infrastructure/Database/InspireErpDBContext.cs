@@ -15297,6 +15297,10 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnName("Stock_Adjustment_Voucher_SA_Date")
                     .HasColumnType("datetime");
 
+                entity.Property(e => e.StockAdjustmentVoucherSAAsOnDate)
+                .HasColumnName("Stock_Adjustment_Voucher_SA_AsOnDate")
+                .HasColumnType("datetime");
+
                 entity.Property(e => e.StockAdjustmentVoucherSaId).HasColumnName("Stock_Adjustment_Voucher_SA_ID");
 
                 entity.Property(e => e.StockAdjustmentVoucherSaNo)

@@ -393,7 +393,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                         StockRegisterTransType = VoucherType.OpeningStockVoucher_TYPE,
                         StockRegisterUnitID = item.OpeningStockVoucherDetailsUnitId,
                         StockRegisterLocationID = openstockVoucher.OpeningStockVoucherLocationId,
-                        StockRegisterJobID = (int)item.OpeningStockVoucherDetailsJob_Id,
+                        StockRegisterJobID = item.OpeningStockVoucherDetailsJob_Id == null ?  null: (int)item.OpeningStockVoucherDetailsJob_Id,
                         StockRegisterExpDate = null,
                         StockRegisterDepID = 1,
                         StockRegisterDelStatus = false
