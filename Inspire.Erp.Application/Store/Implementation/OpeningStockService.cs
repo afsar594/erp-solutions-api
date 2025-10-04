@@ -440,43 +440,87 @@ namespace Inspire.Erp.Application.Store.Implementation
                 
                 _openingstockVoucherRepository.Update(openingstockVoucher);
 
-                // ================= Accounts Transactions =================
-                accountsTransactions = accountsTransactions
-                    .Select(k =>
-                    {
-                        if (k.AccountsTransactionsTransSno == 0)
-                        {
-                            k.AccountsTransactionsTransDate = openingstockVoucher.OpeningStockVoucherDate;
-                            k.AccountsTransactionsVoucherNo = openingstockVoucher.OpeningStockVoucherNo;
-                            k.AccountsTransactionsVoucherType = VoucherType.OpeningStockVoucher_TYPE;
-                            k.AccountsTransactionsStatus = AccountStatus.Approved;
-                        }
-                        return k;
-                    })
-                    .OrderBy(x => x.AccountsTransactionsVoucherNo)
-                    .ToList();
+                //// ================= Accounts Transactions =================
+                //accountsTransactions = accountsTransactions
+                //    .Select(k =>
+                //    {
+                //        if (k.AccountsTransactionsTransSno == 0)
+                //        {
+                //            k.AccountsTransactionsTransDate = openingstockVoucher.OpeningStockVoucherDate;
+                //            k.AccountsTransactionsVoucherNo = openingstockVoucher.OpeningStockVoucherNo;
+                //            k.AccountsTransactionsVoucherType = VoucherType.OpeningStockVoucher_TYPE;
+                //            k.AccountsTransactionsStatus = AccountStatus.Approved;
+                //        }
+                //        return k;
+                //    })
+                //    .OrderBy(x => x.AccountsTransactionsVoucherNo)
+                //    .ToList();
 
-                _accountTransactionRepository.UpdateList(accountsTransactions);
+                //_accountTransactionRepository.UpdateList(accountsTransactions);
 
-                // ================= Stock Register =================
-                stockRegister = stockRegister
-                    .Select(k =>
-                    {
-                        if (k.StockRegisterStoreID == 0)
-                        {
-                            k.StockRegisterVoucherDate = openingstockVoucher.OpeningStockVoucherDate;
-                            k.StockRegisterRefVoucherNo = openingstockVoucher.OpeningStockVoucherNo;
-                            k.StockRegisterTransType = VoucherType.OpeningStockVoucher_TYPE;
-                            k.StockRegisterStatus = AccountStatus.Approved;
-                        }
-                        return k;
-                    })
-                    .OrderBy(x => x.StockRegisterRefVoucherNo)
-                    .ToList();
+                //// ================= Stock Register =================
+                //stockRegister = stockRegister
+                //    .Select(k =>
+                //    {
+                //        if (k.StockRegisterStoreID == 0)
+                //        {
+                //            k.StockRegisterVoucherDate = openingstockVoucher.OpeningStockVoucherDate;
+                //            k.StockRegisterRefVoucherNo = openingstockVoucher.OpeningStockVoucherNo;
+                //            k.StockRegisterTransType = VoucherType.OpeningStockVoucher_TYPE;
+                //            k.StockRegisterStatus = AccountStatus.Approved;
+                //        }
+                //        return k;
+                //    })
+                //    .OrderBy(x => x.StockRegisterRefVoucherNo)
+                //    .ToList();
 
-                _stockRegisterRepository.UpdateList(stockRegister);
+                //_stockRegisterRepository.UpdateList(stockRegister);
 
                 // Commit transaction
+
+                accountsTransactions = accountsTransactions.Select((k) =>
+                {
+                    //k.AccountsTransactionsTransDate = issueVoucher.OpeningStockVoucherDate;
+                    k.AccountsTransactionsVoucherNo = openingstockVoucher.OpeningStockVoucherNo;
+                    k.AccountsTransactionsVoucherType = VoucherType.OpeningStockVoucher_TYPE;
+                    k.AccountsTransactionsStatus = AccountStatus.Approved;
+                    return k;
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
+                _accountTransactionRepository.InsertList(accountsTransactions);
+
+
+                var stockReg = new List<StockRegister>();
+                foreach (var item in openingstockVoucher.OpeningStockVoucherDetails)
+                {
+                    //var converontype = this.getConverionTypebyUnitId(item.OpeningStockVoucherDetailsMatId, item.OpeningStockVoucherDetailsUnitId);
+
+                    var CostPriceBaseUnit = item.OpeningStockVoucherDetailsAmount; /// converontype;
+                    stockReg.Add(new StockRegister()
+                    {
+                        StockRegisterPurchaseID = openingstockVoucher.OpeningStockVoucherNo,
+                        StockRegisterRefVoucherNo = openingstockVoucher.OpeningStockVoucherNo,
+                        StockRegisterVoucherDate = openingstockVoucher.OpeningStockVoucherDate,
+                        StockRegisterMaterialID = item.OpeningStockVoucherDetailsMatId,
+                        StockRegisterQuantity = item.OpeningStockVoucherDetailsManualQty ?? 0,
+                        StockRegisterSIN = item.OpeningStockVoucherDetailsManualQty ?? 0,
+                        StockRegisterSout = 0,
+                        StockRegisterRate = 0,
+                        StockRegisterAmount = CostPriceBaseUnit ?? 0,
+                        StockRegisterFCAmount = 0,
+                        StockRegisterAssignedDate = openingstockVoucher.OpeningStockVoucherDate,
+                        StockRegisterStatus = AccountStatus.Approved,
+                        StockRegisterTransType = VoucherType.OpeningStockVoucher_TYPE,
+                        StockRegisterUnitID = item.OpeningStockVoucherDetailsUnitId,
+                        StockRegisterLocationID = openingstockVoucher.OpeningStockVoucherLocationId,
+                        StockRegisterJobID = item.OpeningStockVoucherDetailsJob_Id == null ? null : (int)item.OpeningStockVoucherDetailsJob_Id,
+                        StockRegisterExpDate = null,
+                        StockRegisterDepID = 1,
+                        StockRegisterDelStatus = false
+                    });
+                }
+                _stockRegisterRepository.InsertList(stockReg);
+
+
                 _openingstockVoucherRepository.TransactionCommit();
             }
             catch (Exception ex)
