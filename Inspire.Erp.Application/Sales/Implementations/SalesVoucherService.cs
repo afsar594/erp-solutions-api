@@ -161,7 +161,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 //=================================
                 clsCommonFunctions.Delete_OldEntryOf_StockRegister(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _stockRegisterRepository);
-                clsCommonFunctions.UpdateAccountsTransactions(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _accountTransactionRepository);
+                clsCommonFunctions.Delete_OldEntry_AccountsTransactions(salesVoucher.SalesVoucherNo, VoucherType.SalesVoucher_TYPE, _accountTransactionRepository);
                 //=================================
               
                 var deteletDetails = _salesVoucherDetailsRepository.GetAsQueryable().Where(i => i.SalesVoucherDetailsNo == salesVoucher.SalesVoucherNo).ToList();
@@ -218,7 +218,15 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     });
                 }
                 _stockRegisterRepository.UpdateList(stockReg);
-
+                accountsTransactions = accountsTransactions.Select((k) =>
+                {
+                    k.AccountsTransactionsVoucherNo = salesVoucher.SalesVoucherNo;
+                    k.AccountsTransactionsAccNo = k.AccountsTransactionsAccNo ?? string.Empty;
+                    k.AccountsTransactionsVoucherType = VoucherType.SalesVoucher_TYPE;
+                    k.AccountsTransactionsStatus = AccountStatus.Approved;
+                    return k;
+                }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
+                _accountTransactionRepository.InsertList(accountsTransactions);
 
                 UserTracking trackingData = new UserTracking();
                 trackingData.UserTrackingUserUserId = 1;
