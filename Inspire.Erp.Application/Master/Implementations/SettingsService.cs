@@ -92,5 +92,25 @@ namespace Inspire.Erp.Application.Master.Implementations
             }
             return true;
         }
+
+
+
+
+        public List<ProgramSettings> GetGeneralSettingsByMultiKeys(string keys)
+        {
+            if (string.IsNullOrWhiteSpace(keys))
+                return new List<ProgramSettings>();
+
+            var keyList = keys.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                              .Select(k => k.Trim())
+                              .ToList();
+
+            // Filter directly at DB level using IQueryable
+            var result = _programSettingsRepo.GetAll()
+                            .Where(g => keyList.Contains(g.ProgramSettingsKeyValue.Trim()))
+                            .ToList();
+
+            return result;
+        }
     }
 }

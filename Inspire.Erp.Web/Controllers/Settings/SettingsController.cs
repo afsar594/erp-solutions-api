@@ -67,6 +67,7 @@ namespace Inspire.Erp.Web.Controllers.Settings
 
         }
 
+
         [HttpGet]
         [Route("GetGeneralSettingbyKey/{key}")]
         public ApiResponse<List<GeneralSettingsViewModel>> GetGeneralSettingbyKey(string key)
@@ -147,6 +148,24 @@ namespace Inspire.Erp.Web.Controllers.Settings
                 OptionSettings = OptionSettings,
             };
             return objectresponse;
+        }
+
+        [HttpGet("bykeys")]
+        public IActionResult GetByKeys([FromQuery] string keys)
+        {
+            if (string.IsNullOrWhiteSpace(keys))
+                return BadRequest("Keys parameter is required.");
+
+            try
+            {
+                var result = _settingSvc.GetGeneralSettingsByMultiKeys(keys);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                // Log the error (optional)
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
     }
 }
