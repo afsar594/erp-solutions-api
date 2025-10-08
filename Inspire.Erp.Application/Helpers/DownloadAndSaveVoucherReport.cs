@@ -23,12 +23,9 @@ namespace Inspire.Erp.Application.Helpers
 
         public  async Task<string> DownloadedFileAsync(string reportUrl, string fileType, string fileNo,int fileId,string vNO, bool isUpdate = false)
         {
-            await Task.Delay(500); // give DB a tick to flush
-
-
             var sql = fileType == "PurchaseOrder"
-                                          ? $"select top 1 * from VR_PurchaseOrder where purchaseorderid = {fileId}"
-                                          : $"select top 1 * from vw_PurchaseRequisition where purchaserequisitionid = {fileId}";
+                                          ? $"select  * from VR_PurchaseOrder where purchaseorderid = {fileId}"
+                                          : $"select  * from vw_PurchaseRequisition where purchaserequisitionid = {fileId}";
 
             Console.WriteLine($"Executing report SQL: {sql}");
 

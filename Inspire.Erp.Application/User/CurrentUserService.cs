@@ -19,14 +19,15 @@ namespace Inspire.Erp.Application.User
             var user = accessor.HttpContext?.User;
             if (user != null)
             {
-                UserId = Convert.ToInt64(user.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-                Username = user.Identity?.Name;
-                Role = user.FindFirst(ClaimTypes.Role)?.Value;
-                GroupId = user.FindFirst("GroupId")?.Value;
-                DepartmentId = user.FindFirst("DepartmentId")?.Value;
-                LocationId = long.Parse(user.FindFirst("LocationId").Value);
+                UserId = user.HasClaim(c => c.Type == ClaimTypes.NameIdentifier) ? Convert.ToInt64(user.FindFirst(ClaimTypes.NameIdentifier)!.Value) : -1;
+                Username = user.Identity?.Name ?? string.Empty;
+                Role = user.HasClaim(c => c.Type == ClaimTypes.Role) ? user.FindFirst(ClaimTypes.Role)!.Value : string.Empty;
+                GroupId = user.HasClaim(c => c.Type == "GroupId") ? user.FindFirst("GroupId")!.Value : string.Empty;
+                DepartmentId = user.HasClaim(c => c.Type == "DepartmentId") ? user.FindFirst("DepartmentId")!.Value : string.Empty;
+                LocationId = user.HasClaim(c => c.Type == "LocationId") ? long.Parse(user.FindFirst("LocationId")!.Value) : -1;
             }
         }
+
     }
 
 }
