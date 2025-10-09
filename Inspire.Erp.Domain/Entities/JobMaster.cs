@@ -122,8 +122,8 @@ namespace Inspire.Erp.Domain.Entities
         public List<JobTimeSheetStaff> JobTimeSheetStaff { get; set; }
         [NotMapped]
         public List<JobfilesStatus> JobfilesStatus { get; set; }
-        [NotMapped]
-        public List<JobMasterControl> JobMasterControl { get; set; }
+        //[NotMapped]
+        public ICollection<JobMasterControl> JobMasterControl { get; set; }
     }
     public class JobfilesStatus
     {
@@ -229,6 +229,8 @@ namespace Inspire.Erp.Domain.Entities
         public bool? EmailClose { get; set; }
         //[JsonIgnore]
         //public virtual JobMaster JobMasterJobJob { get; set; }
+
+        public virtual JobMaster JobMasters { get; set; }
 
     }
 }

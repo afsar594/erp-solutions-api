@@ -229,7 +229,7 @@ namespace Inspire.Erp.Application.Master
                     return x;
                 });
 
-                jobMaster.JobMasterControl.ForEach(x =>
+                jobMaster.JobMasterControl.ToList().ForEach(x =>
                 {
                     x.JobMasterControlDtlId = 0;
                     x.JobMasterNo = vNumber;
@@ -238,7 +238,7 @@ namespace Inspire.Erp.Application.Master
 
                 // end
                 jobrepository.Insert(jobMaster);
-                _jobMasterControl.InsertList(jobMaster.JobMasterControl);
+                //_jobMasterControl.InsertList(jobMaster.JobMasterControls);
                 jobrepository.TransactionCommit();
 
                 return await this.GetSavedJobMasterDetails(jobMaster.JobMasterJobNo);
@@ -259,14 +259,15 @@ namespace Inspire.Erp.Application.Master
                 jobrepository.BeginTransaction();
                 jobId = jobMaster.JobMasterJobId;
                 var existingJobDetails = this.jobdetailsRepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterJobDetailsJobId == jobId).ToList();
-                var existingJobControls = this._jobMasterControl.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterControlJobID == jobId).ToList();
+                //var existingJobControls = this._jobMasterControl.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterControlJobID == jobId).ToList();
                 var detailsToDelete = existingJobDetails.Where(x => jobMaster.JobMasterJobDetails.All(d => x.JobMasterJobDetailsJobDetId != d.JobMasterJobDetailsJobDetId)).ToList();
-                var jobControlsToDelete = existingJobControls.Where(x => jobMaster.JobMasterControl.All(d => x.JobMasterControlJobID == d.JobMasterControlJobID)).ToList();
+                //var jobControlsToDelete = existingJobControls.Where(x => jobMaster.JobMasterControl.All(d => x.JobMasterControlJobID == d.JobMasterControlJobID)).ToList();
 
                 string vNumber = jobMaster.JobMasterJobNo;
 
                 jobMaster.JobMasterBudgetDetails.Select((x) =>
                 {
+                    x.JobMasterBudgetDetailsActual = 0;
                     x.JobMasterBudgetDetailsJobId = jobId;
                     x.JobMasterNo = vNumber;
                     return x;
@@ -337,18 +338,19 @@ namespace Inspire.Erp.Application.Master
                 if (detailsToDelete.Any())
                     this.jobdetailsRepository.DeleteList(detailsToDelete);
 
-                if (jobControlsToDelete.Any())
-                    this._jobMasterControl.DeleteList(jobControlsToDelete);
+                //if (jobControlsToDelete.Any())
+                //    this._jobMasterControl.DeleteList(jobControlsToDelete);
 
-                jobMaster.JobMasterControl.ForEach(x =>
-                {
-                    x.JobMasterControlDtlId = 0;
-                    x.JobMasterControlJobID = jobId;
-                    x.JobMasterNo = vNumber;
-                });
 
+                //jobMaster.JobMasterControl.Select((x) =>
+                //{
+                //    // x.JobMasterControlDtlId = 0;
+                //    x.JobMasterControlJobID = jobId;
+                //    x.JobMasterNo = vNumber;
+                //    return x;
+                //}).OrderBy(x => x.JobMasterControlJobID).AsEnumerable().ToList();
                 jobrepository.Update(jobMaster);
-                this._jobMasterControl.InsertList(jobMaster.JobMasterControl);
+                //this._jobMasterControl.InsertList(jobMaster.JobMasterControl);
 
                 jobrepository.TransactionCommit();
 
@@ -412,7 +414,7 @@ namespace Inspire.Erp.Application.Master
 
 
                 jobMasterData.JobMasterControl = _jobMasterControl.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterControlJobID == jobMasterData.JobMasterJobId).ToList();
-                
+
                 /*
                  
                  select a.cost_center as CostcenterId,SUM(isnull(amount,0)) as Amount from
@@ -423,7 +425,7 @@ namespace Inspire.Erp.Application.Master
                  */
                 var summaries = await GetEstimationCostCenterSummaries(jobMasterData.JobMasterJobId);
 
-                jobMasterData.JobMasterControl.ForEach(x =>
+                jobMasterData.JobMasterControl.ToList().ForEach(x =>
                 {
                     x.JobMasterControlAmount = summaries.FirstOrDefault(c => c.CostcenterId == x.JobMasterControlCostCenerID)?.Amount ?? 0;
                     //x.JobMasterControlActual = groupedData.FirstOrDefault(gd => gd.JobMasterBudgetDetailsBudId == x.JobMasterControlCostCenerID)?.JobMasterBudgetDetailsActual ?? 0;

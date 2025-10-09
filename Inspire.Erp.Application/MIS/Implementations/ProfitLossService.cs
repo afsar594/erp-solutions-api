@@ -421,7 +421,122 @@ namespace Inspire.Erp.Application.MIS.Implementations
                 return Response<ProfitLossWrapper>.Fail(new ProfitLossWrapper(), ex.Message);
             }
         }
+
+
+
         public async Task<Response<ProfitAndLossWrapper>> GetAccountTransactionsProfitAndLoss(GenericGridViewModel model)
+        {
+            try
+            {
+                ProfitAndLossWrapper gridModel = new ProfitAndLossWrapper();
+                var location = await _stationMaster.GetAsQueryable().FirstOrDefaultAsync();
+
+                var incomeQuery = from ma in _masterAccount.GetAsQueryable()
+                                  where ma.MaMainHead.ToUpper() == "INCOME"
+                                  join at in _accountTrans.GetAsQueryable()
+                                      .Where(x => (model.FromDate == null || x.AccountsTransactionsTransDate >= model.FromDate)
+                                               && (model.ToDate == null || x.AccountsTransactionsTransDate <= model.ToDate))
+                                  on ma.MaAccNo equals at.AccountsTransactionsAccNo into g
+                                  from grd in g.DefaultIfEmpty()
+                                  group grd by new
+                                  {
+                                      ma.MaAccNo,
+                                      ma.MaAccName,
+                                      ma.MaMainHead,
+                                      ma.MaSubHead
+                                  } into gp
+                                  where gp.Sum(x => x.AccountsTransactionsCredit) > 0 || gp.Sum(x => x.AccountsTransactionsDebit) > 0
+                                  select new GetProfitAndLossResponse
+                                  {
+                                      Head = gp.Key.MaSubHead,
+                                      SubHead = gp.Key.MaSubHead,
+                                      AccName = gp.Key.MaAccName,
+                                      Debit = gp.Sum(pc => pc.AccountsTransactionsDebit),
+                                      Credit = gp.Sum(pc => pc.AccountsTransactionsCredit)
+                                  };
+
+                gridModel.IncomeDetails = await incomeQuery.OrderBy(t => t.AccName).ToListAsync();
+
+                decimal totalIncomeDebit = gridModel.IncomeDetails.Sum(x => x.Debit);
+                decimal totalIncomeCredit = gridModel.IncomeDetails.Sum(x => x.Credit);
+                decimal totalIncome = totalIncomeCredit - totalIncomeDebit;
+
+
+                var expenseQuery = from ma in _masterAccount.GetAsQueryable()
+                                   where ma.MaMainHead.ToUpper() == "EXPENSES"
+                                   join at in _accountTrans.GetAsQueryable()
+                                       .Where(x => (model.FromDate == null || x.AccountsTransactionsTransDate >= model.FromDate)
+                                                && (model.ToDate == null || x.AccountsTransactionsTransDate <= model.ToDate))
+                                   on ma.MaAccNo equals at.AccountsTransactionsAccNo into g
+                                   from grd in g.DefaultIfEmpty()
+                                   group grd by new
+                                   {
+                                       ma.MaAccNo,
+                                       ma.MaAccName,
+                                       ma.MaMainHead,
+                                       ma.MaSubHead
+                                   } into gp
+                                   where gp.Sum(x => x.AccountsTransactionsCredit) > 0 || gp.Sum(x => x.AccountsTransactionsDebit) > 0
+                                   select new GetProfitAndLossResponse
+                                   {
+                                       Head = gp.Key.MaSubHead,
+                                       SubHead = gp.Key.MaSubHead,
+                                       AccName = gp.Key.MaAccName,
+                                       Debit = gp.Sum(pc => pc.AccountsTransactionsDebit),
+                                       Credit = gp.Sum(pc => pc.AccountsTransactionsCredit)
+                                   };
+
+                gridModel.ExpenseDetails = await expenseQuery.OrderBy(t => t.AccName).ToListAsync();
+
+                decimal totalExpenseDebit = gridModel.ExpenseDetails.Sum(x => x.Debit);
+                decimal totalExpenseCredit = gridModel.ExpenseDetails.Sum(x => x.Credit);
+                decimal totalExpense = totalExpenseDebit - totalExpenseCredit;
+
+                decimal netProfitLoss = totalIncome - totalExpense;
+
+                gridModel.TotalIncome = totalIncome.ToString("N2");
+                gridModel.TotalExpense = totalExpense.ToString("N2");
+
+                if (netProfitLoss >= 0)
+                {
+                    gridModel.NetProfit = netProfitLoss.ToString("N2");
+                    gridModel.NetLoss = "0.00";
+                }
+                else
+                {
+                    gridModel.NetLoss = Math.Abs(netProfitLoss).ToString("N2");
+                    gridModel.NetProfit = "0.00";
+                }
+
+                if (location != null)
+                {
+                    gridModel.StationMasterStationName = location.StationMasterStationName;
+                    gridModel.StationMasterEmail = location.StationMasterEmail;
+                    gridModel.StationMasterFax = location.StationMasterFax;
+                    gridModel.StationMasterTele1 = location.StationMasterTele1;
+                    gridModel.StationMasterAddress = location.StationMasterAddress;
+                    gridModel.StationMasterCity = location.StationMasterCity;
+                    gridModel.StationMasterCode = location.StationMasterCode;
+                    gridModel.StationMasterCountry = location.StationMasterCountry;
+                    gridModel.StationMasterLogoPath = location.StationMasterLogoPath;
+                    gridModel.StationMasterPostOffice = location.StationMasterPostOffice;
+                    gridModel.StationMasterSignPath = location.StationMasterSignPath;
+                    gridModel.StationMasterVatNo = location.StationMasterVatNo;
+                    gridModel.StationMasterWebSite = location.StationMasterWebSite;
+                }
+
+                return Response<ProfitAndLossWrapper>.Success(gridModel, "Profit and Loss data retrieved successfully");
+            }
+            catch (Exception ex)
+            {
+                return Response<ProfitAndLossWrapper>.Fail(new ProfitAndLossWrapper(), ex.Message);
+            }
+        }
+
+
+
+
+        public async Task<Response<ProfitAndLossWrapper>> GetAccountTransactionsProfitAndLoss_II(GenericGridViewModel model)
         {
             try
             {
