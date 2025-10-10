@@ -109,5 +109,32 @@ namespace Inspire.Erp.Domain.Modals.MIS
         public string StationMasterSignPath { get; set; }
         public string StationMasterVatNo { get; set; }
     }
+    public class ProfitAndLossDto
+    {
+        public string GroupKey { get; set; }             // yyyy-MM or yyyy-MM-dd depending on Mode
+        public string HeadType { get; set; }             // INCOME, COGS, EXPENSES, OTHER INCOME, etc.
+        public string SubHead { get; set; }              // Expense category, income type
+        public string AccountName { get; set; }          // Account title
+        public decimal TotalAmount { get; set; }         // Amount
+        public string MonthName { get; set; }            // Only for Mode='MONTH'
+        public string MonthKey { get; set; }             // 01–12
+        public string FinalResult { get; set; }          // PROFIT / LOSS (from SP)
+    }
+    public class ProfitAndLossSummaryDto
+    {
+        public decimal TotalIncome { get; set; }
+        public decimal TotalCOGS { get; set; }
+        public decimal GrossProfit { get; set; }
+        public decimal TotalExpenses { get; set; }
+        public decimal TotalOtherIncome { get; set; }
+        public decimal TotalOtherExpense { get; set; }
+        public decimal NetProfit { get; set; }
+        public string FinalResult { get; set; }        // PROFIT or LOSS
+    }
+    public class SpProfitAndLossResponse
+    {
+        public List<ProfitAndLossDto> Details { get; set; }
+        public ProfitAndLossSummaryDto Summary { get; set; }
+    }
 
 }
