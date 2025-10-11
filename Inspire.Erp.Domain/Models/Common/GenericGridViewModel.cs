@@ -255,18 +255,18 @@ namespace Inspire.Erp.Domain.Modals.Common
         public DateTime? Todate { get; set; }
         public string? VType { get; set; }
     }
-    public class ProfitAndLossParams
+
+    public class MisReportParams
     {
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
         public int? LocationId { get; set; }
         public int? CostCenterId { get; set; }
-        public string Mode { get; set; } = "DATE";      // DATE / MONTH / YEAR
+        public string Mode { get; set; } = "DATE";
         public bool IsMonthly { get; set; } = false;
         public bool IsFullYear { get; set; } = false;
         public bool IncludeZero { get; set; } = false;
         public bool IsGroupWise { get; set; } = false;
+        public bool IsSummaryView { get; set; } = false;
     }
-
-
 }

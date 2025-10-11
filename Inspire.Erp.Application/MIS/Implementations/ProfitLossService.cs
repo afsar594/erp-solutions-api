@@ -533,19 +533,7 @@ namespace Inspire.Erp.Application.MIS.Implementations
                     gridModel.StationMasterWebSite = location.StationMasterWebSite;
                 }
                 return Response<ProfitAndLossWrapper>.Success(gridModel, "Profit and Loss data retrieved successfully");
-                var result = await GetProfitAndLossAsync(new ProfitAndLossParams
-                {
-                    FromDate = new DateTime(2025, 1, 1),
-                    ToDate = new DateTime(2025, 12, 31),
-                    Mode = "DATE",
-                    IsMonthly = true,
-                    IncludeZero = true
-                });
-
-                Console.WriteLine($"Final Result: {result.Summary.FinalResult} — Net Profit: {result.Summary.NetProfit:N2}");
-
-
-                return Response<ProfitAndLossWrapper>.Success(new ProfitAndLossWrapper(), "Profit and Loss data retrieved successfully");
+               
             }
             catch (Exception ex)
             {
@@ -553,35 +541,6 @@ namespace Inspire.Erp.Application.MIS.Implementations
             }
         }
 
-
-        private async Task<SpProfitAndLossResponse> GetProfitAndLossAsync(ProfitAndLossParams request)
-        {
-
-            var parameters = new DynamicParameters();
-            parameters.Add("@FromDate", request.FromDate);
-            parameters.Add("@ToDate", request.ToDate);
-            parameters.Add("@LocationId", request.LocationId);
-            parameters.Add("@CostCenterId", request.CostCenterId);
-            parameters.Add("@Mode", request.Mode);
-            parameters.Add("@IsMonthly", request.IsMonthly);
-            parameters.Add("@IsFullYear", request.IsFullYear);
-            parameters.Add("@IncludeZero", request.IncludeZero);
-            parameters.Add("@IsGroupWise", request.IsGroupWise);
-
-            var multi = await _dbConnection.QueryMultipleAsync("usp_GetProfitAndLoss_Advanced", parameters, commandType: CommandType.StoredProcedure);
-                // 1️⃣ First result set — Detailed P&L or Monthly breakdown
-                var details = multi.Read<ProfitAndLossDto>().ToList();
-
-            // 2️⃣ Second result set — Final profit/loss summary
-            var summary = multi.ReadSingleOrDefault<ProfitAndLossSummaryDto>();
-
-            return new SpProfitAndLossResponse
-            {
-                Details = details,
-                Summary = summary
-            };
-
-        }
 
 
         private GetProfitLossResponse GetProfitLossIncome(List<GetAccountTransactionProfitLossResponse> incomes, ref decimal totalIncome)
