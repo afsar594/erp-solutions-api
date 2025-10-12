@@ -40,7 +40,7 @@ public class MisReportServices : IMisReportServices
 
             return ApiResponse<MisBalanceSheetResponse>.Success(new MisBalanceSheetResponse
             {
-                Details = details,
+                Details = details.OrderBy(x => x.HeadType).ToList(),
                 Summary = summary
             }, "Data found");
         }
@@ -72,7 +72,7 @@ public class MisReportServices : IMisReportServices
 
             return ApiResponse<SpProfitAndLossResponse>.Success(new SpProfitAndLossResponse
             {
-                Details = details,
+                Details = details.OrderBy(x=>x.HeadType).ToList(),
                 Summary = summary
             }, "Data found");
         }
@@ -102,7 +102,7 @@ public class MisReportServices : IMisReportServices
 
             return ApiResponse<MisTrialBalanceResponse>.Success(new MisTrialBalanceResponse
             {
-                Details = details,
+                Details = details.OrderBy(x => x.MainHead).ToList(),
                 Summary = summary
             }, "Data found");
         }
