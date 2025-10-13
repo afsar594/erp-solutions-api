@@ -1,14 +1,19 @@
-﻿using Inspire.Erp.Application.MIS.Interfaces;
+﻿using Dapper;
+using Inspire.Erp.Application.MIS.Interfaces;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Modals.MIS;
+using Inspire.Erp.Infrastructure;
 using Inspire.Erp.Infrastructure.Database;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Spire.Pdf.Exporting.XPS.Schema;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Security.Cryptography.X509Certificates;
@@ -25,10 +30,12 @@ namespace Inspire.Erp.Application.MIS.Implementations
         private readonly IRepository<StationMaster> _stationMaster;
         private readonly IRepository<GetAccountTransactionProfitLossResponse> _profitLoss;
         public readonly InspireErpDBContext _Context;
+
+        private readonly IDbConnection _dbConnection;
         public ProfitLossService(IRepository<FinancialPeriods> financialPeriods, IRepository<GetAccountTransactionProfitLossResponse> profitLoss,
             IRepository<AccountsTransactions> accountTrans, IRepository<StationMaster> stationMaster,
             IRepository<MasterAccountsTable> masterAccount,
-            InspireErpDBContext Context)
+            InspireErpDBContext Context, IOptions<ApplicationSettings> applicationSettings)
         {
             _financialPeriods = financialPeriods;
             _masterAccount = masterAccount;
@@ -36,6 +43,7 @@ namespace Inspire.Erp.Application.MIS.Implementations
             _profitLoss = profitLoss;
             _stationMaster = stationMaster;
             _Context = Context;
+            _dbConnection = new SqlConnection(applicationSettings.Value.ConnectionString);
         }
         public async Task<Response<GetFinancialYearResponse>> GetFinancialYearResponse()
         {
@@ -326,7 +334,7 @@ namespace Inspire.Erp.Application.MIS.Implementations
                     Credit = gridModel.Incomes.Sum(x => Convert.ToDecimal(x.Credit)).ToString(),
                     Debit = gridModel.Incomes.Sum(x => Convert.ToDecimal(x.Debit)).ToString(),
                 });
-               
+
                 gridModel.Expenses = new List<ProfitLossPrintSimpleResponse>();
                 foreach (var item in expenses.Result)
                 {
@@ -421,6 +429,9 @@ namespace Inspire.Erp.Application.MIS.Implementations
                 return Response<ProfitLossWrapper>.Fail(new ProfitLossWrapper(), ex.Message);
             }
         }
+
+
+
         public async Task<Response<ProfitAndLossWrapper>> GetAccountTransactionsProfitAndLoss(GenericGridViewModel model)
         {
             try
@@ -428,107 +439,110 @@ namespace Inspire.Erp.Application.MIS.Implementations
                 ProfitAndLossWrapper gridModel = new ProfitAndLossWrapper();
                 var location = await _stationMaster.GetAsQueryable().FirstOrDefaultAsync();
 
-                //var trans = _accountTrans.GetAsQueryable().Where(x => (model.FromDate == null || x.AccountsTransactionsTransDate >= model.FromDate)
-                //                               && (model.ToDate == null || x.AccountsTransactionsTransDate <= model.ToDate));
-                //&& x.AccountsTransactionsAccNo== "IN33");
-
-                //gridModel.TotalSalesDebit = trans.Sum(survey => survey.AccountsTransactionsDebit);
-                //gridModel.TotalSalesCredit = trans.Sum(survey => survey.AccountsTransactionsCredit);
-                //gridModel.SalesAccount = "Sales Income";
-
-                //var transSalesR = _accountTrans.GetAsQueryable().Where(x => (model.FromDate == null || x.AccountsTransactionsTransDate >= model.FromDate)
-                //                               && (model.ToDate == null || x.AccountsTransactionsTransDate <= model.ToDate));
-              //&& x.AccountsTransactionsAccNo == "IN3492");
-
-                //gridModel.TotalSalesReturnDebit = transSalesR.Sum(survey => survey.AccountsTransactionsDebit);
-                //gridModel.TotalSalesReturnCredit = transSalesR.Sum(survey => survey.AccountsTransactionsCredit);
-
-                gridModel.IncomeDetails = await (from ma in _masterAccount.GetAsQueryable().Where(y => y.MaMainHead.ToUpper() == "INCOME")
-                                                  join at in _accountTrans.GetAsQueryable()
-                                                                 .Where(x => (model.FromDate == null || x.AccountsTransactionsTransDate >= model.FromDate)
+                var incomeQuery = from ma in _masterAccount.GetAsQueryable()
+                                  where ma.MaMainHead.ToUpper() == "INCOME"
+                                  join at in _accountTrans.GetAsQueryable()
+                                      .Where(x => (model.FromDate == null || x.AccountsTransactionsTransDate >= model.FromDate)
                                                && (model.ToDate == null || x.AccountsTransactionsTransDate <= model.ToDate))
-                                                  on ma.MaAccNo equals at.AccountsTransactionsAccNo into g
-                                                  from grd in g.DefaultIfEmpty()
-                                                  group grd by new
-                                                  {
-                                                      grd.AccountsTransactionsAccNo,
-                                                      ma.MaAccName,
-                                                      ma.MaMainHead,
-                                                      ma.MaSubHead
-                                                  } into gp
+                                  on ma.MaAccNo equals at.AccountsTransactionsAccNo into g
+                                  from grd in g.DefaultIfEmpty()
+                                  group grd by new
+                                  {
+                                      ma.MaAccNo,
+                                      ma.MaAccName,
+                                      ma.MaMainHead,
+                                      ma.MaSubHead
+                                  } into gp
+                                  where gp.Sum(x => x.AccountsTransactionsCredit) > 0 || gp.Sum(x => x.AccountsTransactionsDebit) > 0
+                                  select new GetProfitAndLossResponse
+                                  {
+                                      Head = gp.Key.MaSubHead,
+                                      SubHead = gp.Key.MaSubHead,
+                                      AccName = gp.Key.MaAccName,
+                                      Debit = gp.Sum(pc => pc.AccountsTransactionsDebit),
+                                      Credit = gp.Sum(pc => pc.AccountsTransactionsCredit)
+                                  };
 
-                                                  where gp.Sum(x => x.AccountsTransactionsCredit) > 0 || gp.Sum(x => x.AccountsTransactionsDebit) > 0
-                                                  select new GetProfitAndLossResponse
-                                                  {
-                                                      Head = gp.Key.MaSubHead,
-                                                      SubHead = gp.Key.MaSubHead,
-                                                      AccName = gp.Key.MaAccName,
-                                                      Debit = gp.Sum(pc => pc.AccountsTransactionsDebit),
-                                                      Credit = gp.Sum(pc => pc.AccountsTransactionsCredit)
-                                                  })
+                gridModel.IncomeDetails = await incomeQuery.OrderBy(t => t.AccName).ToListAsync();
 
-                         .OrderBy(t => t.AccName).ToListAsync();
-
-
-                gridModel.ExpenseDetails = await (from ma in _masterAccount.GetAsQueryable().Where(y => y.MaMainHead.ToUpper() == "EXPENSES")
-                                                  join at in _accountTrans.GetAsQueryable()
-                                                                .Where(x => (model.FromDate == null || x.AccountsTransactionsTransDate >= model.FromDate)
-                                               && (model.ToDate == null || x.AccountsTransactionsTransDate <= model.ToDate))
-                                                  on ma.MaAccNo equals at.AccountsTransactionsAccNo into g
-                                                  from grd in g.DefaultIfEmpty()
-                                                  group grd by new
-                                                  {
-                                                      grd.AccountsTransactionsAccNo,
-                                                      ma.MaAccName,
-                                                      ma.MaMainHead,
-                                                      ma.MaSubHead
-                                                  } into gp
-
-                                                  where gp.Sum(x => x.AccountsTransactionsCredit) > 0 || gp.Sum(x => x.AccountsTransactionsDebit) > 0
-                                                  select new GetProfitAndLossResponse
-                                           {
-                                               Head = gp.Key.MaSubHead,
-                                               SubHead = gp.Key.MaSubHead,
-                                               AccName = gp.Key.MaAccName,
-                                               Debit = gp.Sum(pc => pc.AccountsTransactionsDebit),
-                                               Credit = gp.Sum(pc => pc.AccountsTransactionsCredit)
-                                           })
-                  
-                         .OrderBy(t => t.AccName).ToListAsync();
-
-                //              var list = _accountTrans.GetAsQueryable().GroupBy(t => t.Id)
-                //.Select(t => new { ID = t.Key, Value = t.Sum(u => u.Value) }).ToList();
+                decimal totalIncomeDebit = gridModel.IncomeDetails.Sum(x => x.Debit);
+                decimal totalIncomeCredit = gridModel.IncomeDetails.Sum(x => x.Credit);
+                decimal totalIncome = totalIncomeCredit - totalIncomeDebit;
 
 
-                //decimal totalExpense = 0;
-                //decimal netTotal = 0;
-                //decimal totalIncome = 0;
-                //var profitLossList = new List<GetProfitAndLossResponse>();
+                var expenseQuery = from ma in _masterAccount.GetAsQueryable()
+                                   where ma.MaMainHead.ToUpper() == "EXPENSES"
+                                   join at in _accountTrans.GetAsQueryable()
+                                       .Where(x => (model.FromDate == null || x.AccountsTransactionsTransDate >= model.FromDate)
+                                                && (model.ToDate == null || x.AccountsTransactionsTransDate <= model.ToDate))
+                                   on ma.MaAccNo equals at.AccountsTransactionsAccNo into g
+                                   from grd in g.DefaultIfEmpty()
+                                   group grd by new
+                                   {
+                                       ma.MaAccNo,
+                                       ma.MaAccName,
+                                       ma.MaMainHead,
+                                       ma.MaSubHead
+                                   } into gp
+                                   where gp.Sum(x => x.AccountsTransactionsCredit) > 0 || gp.Sum(x => x.AccountsTransactionsDebit) > 0
+                                   select new GetProfitAndLossResponse
+                                   {
+                                       Head = gp.Key.MaSubHead,
+                                       SubHead = gp.Key.MaSubHead,
+                                       AccName = gp.Key.MaAccName,
+                                       Debit = gp.Sum(pc => pc.AccountsTransactionsDebit),
+                                       Credit = gp.Sum(pc => pc.AccountsTransactionsCredit)
+                                   };
 
-        
-                //gridModel.StationMasterStationName = location != null ? location.StationMasterStationName : "";
-                //gridModel.StationMasterEmail = location != null ? location.StationMasterEmail : "";
-                //gridModel.StationMasterFax = location != null ? location.StationMasterFax : "";
-                //gridModel.StationMasterTele1 = location != null ? location.StationMasterTele1 : "";
-                //gridModel.StationMasterAddress = location != null ? location.StationMasterAddress : "";
-                //gridModel.StationMasterCity = location != null ? location.StationMasterCity : "";
-                //gridModel.StationMasterCode = location != null ? location.StationMasterCode : 0;
-                //gridModel.StationMasterCountry = location != null ? location.StationMasterCountry : "";
-                //gridModel.StationMasterLogoPath = location != null ? location.StationMasterLogoPath : "";
-                //gridModel.StationMasterPostOffice = location != null ? location.StationMasterPostOffice : "";
-                //gridModel.StationMasterSignPath = location != null ? location.StationMasterSignPath : "";
-                //gridModel.StationMasterVatNo = location != null ? location.StationMasterVatNo : "";
-                //gridModel.StationMasterWebSite = location != null ? location.StationMasterWebSite : "";
-                //gridModel.TotalIncome = totalIncome.ToString();
-                //gridModel.TotalExpense = totalExpense.ToString();
-                //gridModel.NetLoss = totalIncome - totalExpense < 0 ? (totalIncome - totalExpense).ToString() : 0.ToString();
-                return Response<ProfitAndLossWrapper>.Success(gridModel, "Data found");
+                gridModel.ExpenseDetails = await expenseQuery.OrderBy(t => t.AccName).ToListAsync();
+
+                decimal totalExpenseDebit = gridModel.ExpenseDetails.Sum(x => x.Debit);
+                decimal totalExpenseCredit = gridModel.ExpenseDetails.Sum(x => x.Credit);
+                decimal totalExpense = totalExpenseDebit - totalExpenseCredit;
+
+                decimal netProfitLoss = totalIncome - totalExpense;
+
+                gridModel.TotalIncome = totalIncome.ToString("N2");
+                gridModel.TotalExpense = totalExpense.ToString("N2");
+
+                if (netProfitLoss >= 0)
+                {
+                    gridModel.NetProfit = netProfitLoss.ToString("N2");
+                    gridModel.NetLoss = "0.00";
+                }
+                else
+                {
+                    gridModel.NetLoss = Math.Abs(netProfitLoss).ToString("N2");
+                    gridModel.NetProfit = "0.00";
+                }
+
+                if (location != null)
+                {
+                    gridModel.StationMasterStationName = location.StationMasterStationName;
+                    gridModel.StationMasterEmail = location.StationMasterEmail;
+                    gridModel.StationMasterFax = location.StationMasterFax;
+                    gridModel.StationMasterTele1 = location.StationMasterTele1;
+                    gridModel.StationMasterAddress = location.StationMasterAddress;
+                    gridModel.StationMasterCity = location.StationMasterCity;
+                    gridModel.StationMasterCode = location.StationMasterCode;
+                    gridModel.StationMasterCountry = location.StationMasterCountry;
+                    gridModel.StationMasterLogoPath = location.StationMasterLogoPath;
+                    gridModel.StationMasterPostOffice = location.StationMasterPostOffice;
+                    gridModel.StationMasterSignPath = location.StationMasterSignPath;
+                    gridModel.StationMasterVatNo = location.StationMasterVatNo;
+                    gridModel.StationMasterWebSite = location.StationMasterWebSite;
+                }
+                return Response<ProfitAndLossWrapper>.Success(gridModel, "Profit and Loss data retrieved successfully");
+               
             }
             catch (Exception ex)
             {
                 return Response<ProfitAndLossWrapper>.Fail(new ProfitAndLossWrapper(), ex.Message);
             }
         }
+
+
+
         private GetProfitLossResponse GetProfitLossIncome(List<GetAccountTransactionProfitLossResponse> incomes, ref decimal totalIncome)
         {
             try
@@ -665,7 +679,7 @@ namespace Inspire.Erp.Application.MIS.Implementations
                     AccountsTransactionsAllocCredit = x.AccountsTransactionsAllocCredit,
                     AccountsTransactionsAccName = x.AccountsTransactionsAccName,
                     MARelativeNo = x.MARelativeNo,
-                    AccountsTransactionsParticulars=x.AccountsTransactionsParticulars
+                    AccountsTransactionsParticulars = x.AccountsTransactionsParticulars
                 });
                 return Response<List<GetAccountTransactionProfitLossResponse>>.Success(result, "Added");
             }
@@ -707,7 +721,7 @@ namespace Inspire.Erp.Application.MIS.Implementations
                         AccName = "Total",
                         Credit = (gridModel.Incomes.Sum(x => Convert.ToDecimal(x.Credit))).ToString(),
                         Debit = (gridModel.Incomes.Sum(x => Convert.ToDecimal(x.Debit))).ToString(),
-                        RunningBalance = (gridModel.Incomes.Sum(x=>Convert.ToDecimal(x.RunningBalance))).ToString()
+                        RunningBalance = (gridModel.Incomes.Sum(x => Convert.ToDecimal(x.RunningBalance))).ToString()
                     });
                 }
 

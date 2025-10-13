@@ -8716,7 +8716,7 @@ namespace Inspire.Erp.Infrastructure.Database
             });
 
 
-            modelBuilder.Entity<JobMasterControl>(entity =>
+            modelBuilder.Entity<JobMasterControl>((Action<Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<JobMasterControl>>)(entity =>
             {
                 entity.HasKey(e => e.JobMasterControlDtlId);
 
@@ -8734,7 +8734,12 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.JobMasterControlActual).HasColumnName("Job_Master_Control_Actual");
                 entity.Property(e => e.RefVoucherNo).HasColumnName("Job_Master_Control_RefNo");
                 entity.Property(e => e.EmailClose).HasColumnName("Email_Close");
-            });
+
+                entity.HasOne(d => d.JobMasters)
+                                     .WithMany((System.Linq.Expressions.Expression<Func<JobMaster, IEnumerable<JobMasterControl>>>)(p => (IEnumerable<JobMasterControl>)p.JobMasterControl))
+                                     .HasForeignKey(d => d.JobMasterControlJobID)
+                                     .HasConstraintName("FK_Job_Master_Control_Job_Master");
+            }));
 
             modelBuilder.Entity<JobMasterBudgetDetails>(entity =>
             {

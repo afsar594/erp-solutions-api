@@ -1094,6 +1094,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             }
 
         }
+
         public VouchersNumbers GetVouchersNumbers(string pvno)
         {
             try
