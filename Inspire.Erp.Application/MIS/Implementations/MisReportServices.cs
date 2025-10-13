@@ -186,6 +186,8 @@ public class TrialBalanceDto
     public string MainHead { get; set; }
     public string SubHead { get; set; }
     public string AccountName { get; set; }
+    public string RelativeName { get; set; }
+    public string RelativeNo { get; set; }
     public decimal Opening { get; set; }
     public decimal Debit { get; set; }
     public decimal Credit { get; set; }
