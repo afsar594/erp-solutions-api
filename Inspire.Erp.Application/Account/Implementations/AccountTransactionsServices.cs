@@ -129,25 +129,35 @@ namespace Inspire.Erp.Application.Account.Implementations
                 //                            AllocAmount = g.AccountsTransactionsAllocCredit > 0 ? g.AccountsTransactionsAllocCredit : g.AccountsTransactionsAllocDebit,
                 //                            RefLocation = g.AccountsTransactionsLocation.ToString()
                 //                        }).OrderBy(x => x.VoucherNo).AsEnumerable().ToList();
+                var sql = @$";WITH AllocatedAmount AS (
+                                                SELECT 
+                                                    Allocation_Voucher_Details_VNO,
+                                                    SUM(ISNULL(Allocation_Voucher_Details_Alloc_Debit,0)) AS AllocAmount
+                                                FROM Allocation_Voucher_Details
+                                                GROUP BY Allocation_Voucher_Details_VNO
+                                            )
+                                            SELECT
+                                                a.AccountsTransactions_TransSno             AS TransNo,
+                                                'P'                                                                 AS Status,
+                                                a.AccountsTransactions_TransDate            AS TransDate,
+                                                a.AccountsTransactions_VoucherNo          AS VoucherNo,
+                                                a.AccountsTransactions_VoucherType       AS Type,
+                                                a.AccountsTransactions_Credit                  AS Credit,
+                                                a.AccountsTransactions_Debit                   AS Debit,
+                                                a.AccountsTransactions_Alloc_Balance    AS Balance,
+                                                ISNULL(am.AllocAmount,0)                    AS AllocAmount,
+                                                a.AccountsTransactions_Location             AS RefLocation
+                                            FROM AccountsTransactions a
+                                            LEFT JOIN AllocatedAmount am
+                                              ON am.Allocation_Voucher_Details_VNO = a.AccountsTransactions_VoucherNo
+                                            WHERE a.AccountsTransactions_AccNo = '{accNo}'
+                                              AND (
+                                                    a.AccountsTransactions_VoucherType = 'PurchaseVoucher' 
+                                                 OR (a.AccountsTransactions_VoucherType = 'PAYMENT'
+                                                     AND a.AccountsTransactions_VoucherNo = '{refNo}')
+                                              )
+                                            ORDER BY a.AccountsTransactions_TransDate;";
 
-                var sql = $@"
-                                    ;with AllocatedAmount as (
-                                    select Allocation_Voucher_details_vno,Allocation_Voucher_Details_Alloc_Debit
-                                    from Allocation_Voucher_details 
-                                    where  isnull(Allocation_Voucher_Details_Alloc_Debit,0) > 0
-                                    )
-                                    select 
-                                    a.AccountsTransactions_TransSno TransNo,'P' Status,a.AccountsTransactions_TransDate TransDate,
-                                    a.AccountsTransactions_VoucherNo VoucherNo,
-                                    a.AccountsTransactions_VoucherType Type,
-                                    a.AccountsTransactions_Credit Credit,
-                                    a.AccountsTransactions_Debit	Debit,
-                                    a.AccountsTransactions_Alloc_Balance Balance,
-                                    ISNULL(am.Allocation_Voucher_Details_Alloc_Debit,0) AllocAmount,
-                                    a.AccountsTransactions_Location RefLocation
-                                    from accountstransactions a 
-                                    left join AllocatedAmount am on a.AccountsTransactions_VoucherNo = am.Allocation_Voucher_Details_VNO
-                                    where accountstransactions_accno  = '{accNo}' --and accountstransactions_VoucherType = 'PAYMENT'";
                 var transValues = (await _dbConnection.QueryAsync<AllocationDetails>(sql)).ToList();
 
 
