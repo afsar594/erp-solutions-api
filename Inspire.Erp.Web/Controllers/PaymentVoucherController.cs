@@ -205,7 +205,7 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("LoadDropdown")]
-        public ResponseInfo LoadDropdown()
+        public ResponseInfo LoadDropdown([FromQuery] char dcType)
         {
             var objectresponse = new ResponseInfo();
 
@@ -227,7 +227,10 @@ namespace Inspire.Erp.Web.Controllers
                 c.CurrencyMasterCurrencyRate
             }).OrderBy(x => x.CurrencyMasterCurrencyName).ToList();
             var cashaccount = accountSettingRepo.GetAsQueryable().Where(a => a.AccountSettingsAccountKeyValue.Trim() == "CASH_MASTER_AC_NO").FirstOrDefault();
-            var CREDITORS_AC_NO = accountSettingRepo.GetAsQueryable().Where(a =>  a.AccountSettingsAccountKeyValue.Trim() == "CREDITORS_AC_NO").FirstOrDefault().AccountSettingsAccountNumberValue;
+
+            var CREDITORS_AC_NO = dcType == 'D' 
+                                                                ? accountSettingRepo.GetAsQueryable().Where(a => a.AccountSettingsAccountKeyValue.Trim() == "DEBTORS_AC_NO").FirstOrDefault().AccountSettingsAccountTextValue.Split("::")[1].Trim()
+                                                                : accountSettingRepo.GetAsQueryable().Where(a => a.AccountSettingsAccountKeyValue.Trim() == "CREDITORS_AC_NO").FirstOrDefault().AccountSettingsAccountTextValue.Split("::")[1].Trim();
 
             var cashAccountList = chartofAccountsService.GetAllAccounts().Where(a => a.MaDelStatus != true && a.MaAccType == "A" && a.MaRelativeNo == cashaccount.AccountSettingsAccountNumberValue.ToString()).Select(c => new
             {
