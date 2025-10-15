@@ -152,8 +152,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                                               ON am.Allocation_Voucher_Details_VNO = a.AccountsTransactions_VoucherNo
                                             WHERE a.AccountsTransactions_AccNo = '{accNo}'
                                               AND (
-                                                    a.AccountsTransactions_VoucherType = 'PurchaseVoucher' 
-                                                 OR (a.AccountsTransactions_VoucherType = 'PAYMENT'
+                                                    upper(a.AccountsTransactions_VoucherType) = upper('{GetVoucherByType(vType)}') 
+                                                 OR (upper(a.AccountsTransactions_VoucherType) = upper('{vType}')
                                                      AND a.AccountsTransactions_VoucherNo = '{refNo}')
                                               )
                                             ORDER BY a.AccountsTransactions_TransDate;";
@@ -171,7 +171,18 @@ namespace Inspire.Erp.Application.Account.Implementations
             }
         }
 
-
+        private string GetVoucherByType(string vType)
+        {
+            switch (vType) 
+            {
+                case "PAYMENT":
+                    return "PurchaseVoucher";
+                case "RECEIPT":
+                    return "SalesVoucher";
+                default:
+                    return "";
+            }
+        }
 
         private decimal? getNatAllocationAmount(long transNo)
         {
