@@ -360,6 +360,9 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         {
             return Ok(await _ageingReport.GetAgeingReport(model));
         }
+
+
+
         [HttpPost("AgeingReportPrint")]
         public async Task<IActionResult> AgeingReportPrint(GenericGridViewModel model)
         {
