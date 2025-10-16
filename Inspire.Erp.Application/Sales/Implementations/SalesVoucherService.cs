@@ -424,9 +424,22 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     });
                 }
                 _stockRegisterRepository.InsertList(stockReg);
+                //if (salesChargesList != null && salesChargesList.Any())
+                //{
+                //    await _salesChargesRepository.UpdateListAsync(salesChargesList);
+                //    decimal totalServiceCharges = salesChargesList.Sum(x => x.TaxIncAmount);
+                //    salesVoucher.ServiceCharges = totalServiceCharges;
+                //}
                 if (salesChargesList != null && salesChargesList.Any())
                 {
-                    await _salesChargesRepository.UpdateListAsync(salesChargesList);
+                    for (int i = 0; i < salesChargesList.Count && i < accountsTransactions.Count; i++)
+                    {
+                        salesChargesList[i].Voucherno = accountsTransactions[i].AccountsTransactionsAccNo;
+                    }
+
+                    await _salesChargesRepository.InsertListAsync(salesChargesList);
+
+                    // Update service charges total
                     decimal totalServiceCharges = salesChargesList.Sum(x => x.TaxIncAmount);
                     salesVoucher.ServiceCharges = totalServiceCharges;
                 }
