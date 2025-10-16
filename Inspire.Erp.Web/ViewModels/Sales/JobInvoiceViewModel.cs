@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Inspire.Erp.Domain.Entities;
+using System;
 using System.Collections.Generic;
 
 namespace Inspire.Erp.Web.ViewModels.sales
@@ -66,6 +67,7 @@ namespace Inspire.Erp.Web.ViewModels.sales
         public bool? SalesVoucherDelStatus { get; set; }
         public List<AccountTransactionViewModel> AccountsTransactions { get; set; }
         public List<SalesVoucherDetailsViewModel> SalesVoucherDetails { get; set; }
+        public List<SalesCharges> SalesChargesList { get; set; }
 
         //public List<StockRegisterViewModel> StockRegister { get; set; }
 
