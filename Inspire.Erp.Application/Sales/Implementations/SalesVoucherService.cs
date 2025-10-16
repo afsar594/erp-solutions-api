@@ -582,8 +582,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     StockRegisterAmount = (d.SalesVoucherDetailsQuantity ?? 0) * (d.SalesVoucherDetailsRate ?? 0),
                     StockRegisterVoucherDate = DateTime.Now
                 }).ToList();
-
-                await InsertSalesVoucher(salesVoucher, accountsTransactions, salesVoucherDetails, stockRegister);
+                var saleschargesList = new List<SalesCharges>();    
+                await InsertSalesVoucher(salesVoucher, accountsTransactions, salesVoucherDetails, stockRegister, saleschargesList);
             }
             catch (Exception ex)
             {

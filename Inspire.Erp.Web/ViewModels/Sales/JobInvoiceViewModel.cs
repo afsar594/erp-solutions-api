@@ -67,7 +67,7 @@ namespace Inspire.Erp.Web.ViewModels.sales
         public bool? SalesVoucherDelStatus { get; set; }
         public List<AccountTransactionViewModel> AccountsTransactions { get; set; }
         public List<SalesVoucherDetailsViewModel> SalesVoucherDetails { get; set; }
-        public List<SalesCharges> SalesChargesList { get; set; }
+        public List<SalesCharges> SalesChargesList { get; set; } = new List<SalesCharges>();
 
         //public List<StockRegisterViewModel> StockRegister { get; set; }
 
