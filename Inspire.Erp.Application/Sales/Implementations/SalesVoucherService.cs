@@ -174,9 +174,20 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 _salesVoucherDetailsRepository.DeleteList(deteletDetails);
                 //var itemdetails = salesVoucherDetails.Where(x => x.SalesVoucherDetailsId == 0).ToList();
                 //_salesVoucherDetailsRepository.InsertList(itemdetails);
+
                 if (salesChargesList != null && salesChargesList.Any())
                 {
-                    await _salesChargesRepository.UpdateListAsync(salesChargesList);
+                    var existingCharges = _salesChargesRepository.GetAsQueryable()
+                        .Where(i => i.Voucherno == salesVoucher.SalesVoucherNo).ToList();
+                    _salesChargesRepository.DeleteList(existingCharges);
+
+                    for (int i = 0; i < salesChargesList.Count; i++)
+                    {
+                        salesChargesList[i].Voucherno = salesVoucher.SalesVoucherNo;
+                    }
+
+                    await _salesChargesRepository.InsertListAsync(salesChargesList);
+
                     decimal totalServiceCharges = salesChargesList.Sum(x => x.TaxIncAmount);
                     salesVoucher.ServiceCharges = totalServiceCharges;
                 }
@@ -424,22 +435,16 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     });
                 }
                 _stockRegisterRepository.InsertList(stockReg);
-                //if (salesChargesList != null && salesChargesList.Any())
-                //{
-                //    await _salesChargesRepository.UpdateListAsync(salesChargesList);
-                //    decimal totalServiceCharges = salesChargesList.Sum(x => x.TaxIncAmount);
-                //    salesVoucher.ServiceCharges = totalServiceCharges;
-                //}
+
                 if (salesChargesList != null && salesChargesList.Any())
                 {
-                    for (int i = 0; i < salesChargesList.Count && i < accountsTransactions.Count; i++)
+                    for (int i = 0; i < salesChargesList.Count; i++)
                     {
-                        salesChargesList[i].Voucherno = accountsTransactions[i].AccountsTransactionsAccNo;
+                        salesChargesList[i].Voucherno = salesVoucher.SalesVoucherNo;
                     }
 
                     await _salesChargesRepository.InsertListAsync(salesChargesList);
 
-                    // Update service charges total
                     decimal totalServiceCharges = salesChargesList.Sum(x => x.TaxIncAmount);
                     salesVoucher.ServiceCharges = totalServiceCharges;
                 }
