@@ -447,6 +447,7 @@ namespace Inspire.Erp.Web.Controllers
                 };
                 salesVoucherViewModel.SalesVoucherDetails = _mapper.Map<List<SalesVoucherDetailsViewModel>>(xs.salesVoucherDetails);
                 salesVoucherViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
+                salesVoucherViewModel.SalesChargesList = _mapper.Map<List<SalesCharges>>(xs.salesChargesList);
                 ApiResponse<SalesVoucherViewModel> apiResponse = new ApiResponse<SalesVoucherViewModel>
                 {
                     Valid = true,

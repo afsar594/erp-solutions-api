@@ -1039,6 +1039,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 salesVoucherModel.salesVoucherDetails = _salesVoucherDetailsRepository.GetAsQueryable().Where(x => x.SalesVoucherDetailsNo == salesVoucherModel.salesVoucher.SalesVoucherNo && (x.SalesVoucherDetailsDelStatus == false || x.SalesVoucherDetailsDelStatus == null)).OrderBy(x => x.SalesVoucherDetailsItemName).AsEnumerable().ToList();
 
                 salesVoucherModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(x => x.AccountsTransactionsVoucherNo == salesVoucherModel.salesVoucher.SalesVoucherNo && x.AccountstransactionsDelStatus != true).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                salesVoucherModel.salesChargesList = _salesChargesRepository.GetAsQueryable().Where(x => x.Voucherno == salesVoucherModel.salesVoucher.SalesVoucherNo).OrderBy(x => x.ChargesId).ToList();
 
                 if (salesVoucherModel.salesVoucherDetails.Count > 0)
                 {
