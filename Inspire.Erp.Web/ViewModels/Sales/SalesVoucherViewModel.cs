@@ -32,6 +32,7 @@ namespace Inspire.Erp.Web.ViewModels.sales
 
         public List<AccountTransactionViewModel> AccountsTransactions { get; set; }
         public List<JobInvoiceDetailsViewModel> JobInvoiceDetails { get; set; }
+        public List<SalesCharges> SalesChargesList { get; set; }
 
         //public List<StockRegisterViewModel> StockRegister { get; set; }
 

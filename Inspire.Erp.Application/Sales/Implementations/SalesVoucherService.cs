@@ -73,6 +73,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<POS_WorkPeriod> _POSWorkPeriodRepository;
         private IRepository<UserTracking> _UserTracking;
         private IStockService _openingStockService;
+        private IRepository<SalesCharges> _salesChargesRepository;
+        private IRepository<OtherChargesMaster> _otherChargesMasterRepository;
 
 
         private readonly IDbConnection _dbConnection;
@@ -89,7 +91,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
             IRepository<SalesVoucher> salesVoucherRepository, IRepository<VanSales> VanSalesRepository, IRepository<VanSalesDetails> VanSalesDetailsRepository, IRepository<SalesVoucherDetails> salesVoucherDetailsRepository, IRepository<CurrencyMaster> currencyMasterRepository,
             IRepository<UnitDetails> unitDetailsRepository, IRepository<MasterAccountsTable> accMaster, IRepository<SalesReturn> salesReturn, IRepository<SalesReturnDetails> salesReturnDtls, IRepository<OptionsMaster> optionMaster
             , IRepository<SalesHold> salesHoldRepository, IRepository<SalesHoldDetails> salesHoldDetailsRepository, IRepository<POS_WorkPeriod> POSWorkPeriodRepository, InspireErpDBContext context
-            , IStockService openingStockService, IOptions<ApplicationSettings> applicationSettings)
+            , IStockService openingStockService, IOptions<ApplicationSettings> applicationSettings,
+            IRepository<SalesCharges> salesChargesRepository,IRepository<OtherChargesMaster> otherChargesMasterRepository)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository;
@@ -121,6 +124,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
             _context = context;
             _openingStockService = openingStockService;
             _dbConnection = new SqlConnection(applicationSettings.Value.ConnectionString);
+            _salesChargesRepository = salesChargesRepository;
+            _otherChargesMasterRepository = otherChargesMasterRepository;
         }
         public IEnumerable<LocationMaster> SalesVoucher_GetAllLocationMaster()
         {
@@ -153,6 +158,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
         public async Task<SalesVoucherModel> UpdateSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions,
             List<SalesVoucherDetails> salesVoucherDetails
            , List<StockRegister> stockRegister
+           , List<SalesCharges> salesChargesList
             )
         {
             try
@@ -169,6 +175,22 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 //var itemdetails = salesVoucherDetails.Where(x => x.SalesVoucherDetailsId == 0).ToList();
                 //_salesVoucherDetailsRepository.InsertList(itemdetails);
 
+                if (salesChargesList != null && salesChargesList.Any())
+                {
+                    var existingCharges = _salesChargesRepository.GetAsQueryable()
+                        .Where(i => i.Voucherno == salesVoucher.SalesVoucherNo).ToList();
+                    _salesChargesRepository.DeleteList(existingCharges);
+
+                    for (int i = 0; i < salesChargesList.Count; i++)
+                    {
+                        salesChargesList[i].Voucherno = salesVoucher.SalesVoucherNo;
+                    }
+
+                    await _salesChargesRepository.InsertListAsync(salesChargesList);
+
+                    decimal totalServiceCharges = salesChargesList.Sum(x => x.TaxIncAmount);
+                    salesVoucher.ServiceCharges = totalServiceCharges;
+                }
                 _salesVoucherRepository.Update(salesVoucher);
 
 
@@ -336,7 +358,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
         public async Task<SalesVoucherModel> InsertSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions,
             List<SalesVoucherDetails> salesVoucherDetails
-            , List<StockRegister> stockRegister)
+            , List<StockRegister> stockRegister
+            , List<SalesCharges> salesChargesList)
         {
             try
             {
@@ -412,6 +435,19 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     });
                 }
                 _stockRegisterRepository.InsertList(stockReg);
+
+                if (salesChargesList != null && salesChargesList.Any())
+                {
+                    for (int i = 0; i < salesChargesList.Count; i++)
+                    {
+                        salesChargesList[i].Voucherno = salesVoucher.SalesVoucherNo;
+                    }
+
+                    await _salesChargesRepository.InsertListAsync(salesChargesList);
+
+                    decimal totalServiceCharges = salesChargesList.Sum(x => x.TaxIncAmount);
+                    salesVoucher.ServiceCharges = totalServiceCharges;
+                }
 
                 _salesVoucherRepository.Insert(salesVoucher);
 
@@ -564,8 +600,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     StockRegisterAmount = (d.SalesVoucherDetailsQuantity ?? 0) * (d.SalesVoucherDetailsRate ?? 0),
                     StockRegisterVoucherDate = DateTime.Now
                 }).ToList();
-
-                await InsertSalesVoucher(salesVoucher, accountsTransactions, salesVoucherDetails, stockRegister);
+                var saleschargesList = new List<SalesCharges>();    
+                await InsertSalesVoucher(salesVoucher, accountsTransactions, salesVoucherDetails, stockRegister, saleschargesList);
             }
             catch (Exception ex)
             {
@@ -1003,6 +1039,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 salesVoucherModel.salesVoucherDetails = _salesVoucherDetailsRepository.GetAsQueryable().Where(x => x.SalesVoucherDetailsNo == salesVoucherModel.salesVoucher.SalesVoucherNo && (x.SalesVoucherDetailsDelStatus == false || x.SalesVoucherDetailsDelStatus == null)).OrderBy(x => x.SalesVoucherDetailsItemName).AsEnumerable().ToList();
 
                 salesVoucherModel.accountsTransactions = _accountTransactionRepository.GetAsQueryable().Where(x => x.AccountsTransactionsVoucherNo == salesVoucherModel.salesVoucher.SalesVoucherNo && x.AccountstransactionsDelStatus != true).OrderBy(x => x.AccountsTransactionsVoucherNo).ToList();
+                salesVoucherModel.salesChargesList = _salesChargesRepository.GetAsQueryable().Where(x => x.Voucherno == salesVoucherModel.salesVoucher.SalesVoucherNo).OrderBy(x => x.ChargesId).ToList();
 
                 if (salesVoucherModel.salesVoucherDetails.Count > 0)
                 {

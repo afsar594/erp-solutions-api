@@ -479,6 +479,10 @@ namespace Inspire.Erp.Infrastructure.Database
         public DbSet<JobMasterControl> JobMasterControl { get; set; }
 
         public virtual DbSet<HrDesignation> HrDesignation { get; set; }
+
+        public DbSet<SalesCharges> Sales_Charges { get; set; }
+        public DbSet<OtherChargesMaster> Other_Charges_Master { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)

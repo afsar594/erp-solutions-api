@@ -536,8 +536,13 @@ namespace Inspire.Erp.Web.Common
             CreateMap<RfqEntryDetails, RFQDetailViewModel>();
 
             CreateMap<SRTransferViewModel, stocktransferRegister>();
-            CreateMap<stocktransferRegister, SRTransferViewModel>();         
+            CreateMap<stocktransferRegister, SRTransferViewModel>();
 
+            CreateMap<OtherChargesMaster, OtherChargesMasterViewModel>();
+            CreateMap<OtherChargesMasterViewModel, OtherChargesMaster>();
+
+            CreateMap<SalesVoucherModel, SalesCharges>();
+            CreateMap<SalesCharges, SalesVoucherModel>();
 
         }
     }

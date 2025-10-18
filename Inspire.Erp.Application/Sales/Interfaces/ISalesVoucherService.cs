@@ -38,12 +38,14 @@ namespace Inspire.Erp.Application.Sales.Interfaces
 
         public Task<SalesVoucherModel>  InsertSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions, List<SalesVoucherDetails> salesVoucherDetails
             , List<StockRegister> stockRegister
+            , List<SalesCharges> salesChargesList
             );
         Task<VanSales> InsertVanSalesAsync(VanSales model);
 
 
         public Task<SalesVoucherModel> UpdateSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions, List<SalesVoucherDetails> salesVoucherDetails
             , List<StockRegister> stockRegister
+            , List<SalesCharges> salesChargesList
             );
         public int DeleteSalesVoucher(SalesVoucher salesVoucher, List<AccountsTransactions> accountsTransactions, List<SalesVoucherDetails> salesVoucherDetails
             , List<StockRegister> stockRegister
