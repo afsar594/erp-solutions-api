@@ -864,6 +864,7 @@ namespace Inspire.Erp.Web.Controllers
 
             var joinedData = (from s in salesChargesQuery
                               join o in otherChargesQuery on s.ServiceID equals o.ServiceID
+                              where o.ServiceType == "Sales"
                               select new
                               {
                                   s.ChargesId,

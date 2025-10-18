@@ -11,6 +11,7 @@ using Inspire.Erp.Web.MODULE;
 using Inspire.Erp.Web.ViewModels.Procurement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,11 +29,15 @@ namespace Inspire.Erp.Web.Controllers
 
         private readonly IMapper _mapper;
         private IRepository<UnitDetails> _UnitDetailsRepository;
-        public PurchaseVoucherController(IPurchaseVoucherService service, IMapper mapper, IRepository<UnitDetails> unitDetailsRepository)
+        private IRepository<PurchaseCharges> _purhcaseChargesRepository;
+        private IRepository<OtherChargesMaster> _otherChargesMasterRepository;
+        public PurchaseVoucherController(IPurchaseVoucherService service, IMapper mapper, IRepository<UnitDetails> unitDetailsRepository,IRepository<PurchaseCharges> purhcaseChargesRepository, IRepository<OtherChargesMaster> otherChargesMasterRepository)
         {
             _service = service;
             _mapper = mapper;
             _UnitDetailsRepository = unitDetailsRepository;
+            _purhcaseChargesRepository = purhcaseChargesRepository;
+            _otherChargesMasterRepository = otherChargesMasterRepository;
         }     
 
         [HttpGet("GetPurchaseReturnReport")]
@@ -138,8 +143,9 @@ namespace Inspire.Erp.Web.Controllers
             var param1 = _mapper.Map<PurchaseVoucher>(purchaseVoucher);
             var param2 = _mapper.Map<List<PurchaseVoucherDetails>>(purchaseVoucher.PurchaseVoucherDetails);
             var param3 = _mapper.Map<List<AccountsTransactions>>(purchaseVoucher.AccountsTransactions);
+            var param4 = _mapper.Map<List<PurchaseCharges>>(purchaseVoucher.PurchaseChargesList);
 
-            var response = _service.InsertPurchaseVoucher(param1, param3, param2);
+            var response = _service.InsertPurchaseVoucher(param1, param3, param2,param4);
             var res = new ApiResponse<PurchaseVoucher>
             {
                 Valid = true,
@@ -156,8 +162,9 @@ namespace Inspire.Erp.Web.Controllers
             var param1 = _mapper.Map<PurchaseVoucher>(purchaseVoucher);
             var param2 = _mapper.Map<List<PurchaseVoucherDetails>>(purchaseVoucher.PurchaseVoucherDetails);
             var param3 = _mapper.Map<List<AccountsTransactions>>(purchaseVoucher.AccountsTransactions);
+            var param4 = _mapper.Map<List<PurchaseCharges>>(purchaseVoucher.PurchaseChargesList);
 
-            var response = _service.UpdatePurchaseVoucher(param1, param3, param2);
+            var response = _service.UpdatePurchaseVoucher(param1, param3, param2, param4);
             var res = new ApiResponse<PurchaseVoucher>
             {
                 Valid = true,
@@ -194,6 +201,39 @@ namespace Inspire.Erp.Web.Controllers
                 Message = ""
             };
             return apiResponse;
+        }
+        [HttpGet]
+        [Route("LoadPurchaseCharges")]
+        public ResponseInfo LoadPurchaseCharges()
+        {
+            var objectResponse = new ResponseInfo();
+            var purchaseChargesQuery = _purhcaseChargesRepository.GetAsQueryable().AsNoTracking();
+            var otherChargesQuery = _otherChargesMasterRepository.GetAsQueryable().AsNoTracking();
+
+            var joinedData = (from s in purchaseChargesQuery
+                              join o in otherChargesQuery on s.ServiceID equals o.ServiceID
+                              where o.ServiceType == "Purchase"
+                              select new
+                              {
+                                  s.ChargesId,
+                                  s.Voucherno,
+                                  s.ServiceID,
+                                  o.ServiceName,
+                                  o.AccountNo,
+                                  o.VatPer,
+                                  o.ServiceType,
+                                  s.Amount,
+                                  s.TaxIncAmount,
+                                  s.Remarks
+                              }).ToList();
+
+            objectResponse.ResultSet = new
+            {
+                PurchaseChargesList = joinedData
+            };
+            objectResponse.IsSuccess = true;
+
+            return objectResponse;
         }
     }
 }
