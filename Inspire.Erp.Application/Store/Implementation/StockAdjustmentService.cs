@@ -30,10 +30,10 @@ namespace Inspire.Erp.Application.Store.Implementation
         private IRepository<AccountsTransactions> _accountTransactionRepository;
         private IChartofAccountsService chartofAccountsService;
         private IRepository<AccountSettings> _accountSettingsrepository;
-        
+
 
         public StockAdjustmentService(IRepository<StockAdjustmentVoucher> stockAdjustmentVoucherRepo,
-            IRepository<VouchersNumbers> voucherNumberRepo, IRepository<StockAdjustmentVoucherDetails> stockAdjustmentVoucherDetailsRepo, 
+            IRepository<VouchersNumbers> voucherNumberRepo, IRepository<StockAdjustmentVoucherDetails> stockAdjustmentVoucherDetailsRepo,
             IRepository<ProgramSettings> programsettingsRepository,
             IRepository<JobMaster> jobMaster,
             IRepository<ItemMaster> itemMasterRepository,
@@ -87,7 +87,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                 stockAdjustmentVoucher.StockAdjustmentVoucherSaId = maxcount;
 
-                
+
                 stockAdjustmentVoucherDetails = stockAdjustmentVoucherDetails.Select((x) =>
                 {
                     x.StockAdjustmentVoucherDetailsSaNo = stockVoucherNumber;
@@ -122,36 +122,43 @@ namespace Inspire.Erp.Application.Store.Implementation
                         StockRegisterRefVoucherNo = stockAdjustmentVoucher.StockAdjustmentVoucherSaNo,
                         StockRegisterVoucherDate = stockAdjustmentVoucher.StockAdjustmentVoucherSaDate,
                         StockRegisterMaterialID = item.StockAdjustmentVoucherDetailsMaterialId,
-                        StockRegisterQuantity = Math.Abs(Convert.ToDecimal(item.StockAdjustmentVoucherDetailsAdjQty??0) * (decimal)(converontype)),
+                        StockRegisterQuantity = Math.Abs(Convert.ToDecimal(item.StockAdjustmentVoucherDetailsAdjQty ?? 0) * (decimal)(converontype)),
                         StockRegisterSIN = Math.Abs(SSIN),
                         StockRegisterSout = Math.Abs(Sout),
 
                         StockRegisterRate = Convert.ToDecimal(avgrate),
-                        StockRegisterAmount = Math.Abs(Convert.ToDecimal(item.StockAdjustmentVoucherDetailsAdjQty??0) * (decimal)(avgrate)),
-                        StockRegisterFCAmount = Math.Abs(Convert.ToDecimal(item.StockAdjustmentVoucherDetailsAdjQty??0) * (decimal)(avgrate)),
+                        StockRegisterAmount = Math.Abs(Convert.ToDecimal(item.StockAdjustmentVoucherDetailsAdjQty ?? 0) * (decimal)(avgrate)),
+                        StockRegisterFCAmount = Math.Abs(Convert.ToDecimal(item.StockAdjustmentVoucherDetailsAdjQty ?? 0) * (decimal)(avgrate)),
                         StockRegisterAssignedDate = DateTime.Now.Date,
                         StockRegisterStatus = "A",
                         StockRegisterTransType = VoucherType.StockAdjustmentVoucher_TYPE,
                         StockRegisterUnitID = item.StockAdjustmentVoucherDetailsUnitId,
                         StockRegisterLocationID = stockAdjustmentVoucher.StockAdjustmentVoucherLocationId,
                         StockRegisterDelStatus = false,
-                        StockRegisterStoreID=0
+                        StockRegisterStoreID = 0
                     };
                 }).ToList();
                 _stockRegisterRepo.InsertList(stockReg);
 
                 //Accounts setting                
-                var masterAccountsTables = GetAllAccountSettings().Select
-                    (c => new
-                    {
-                       c.AccountSettingsAccountNumberValue
-                    }).AsEnumerable().ToList();
+                var masterAccountsTables = GetAllAccountSettings()
+     .Select(c => new
+     {
+         AccountSettingsAccountNumberValue = c.AccountSettingsAccountTextValue.Contains("::")
+             ? c.AccountSettingsAccountTextValue.Split("::")[1].Trim()
+             : c.AccountSettingsAccountTextValue
+     })
+     .ToList();
 
-                //Accounts Stock                
-                var accountStock = GetAllAccountStock().Select(c => new
-                {
-                    c.AccountSettingsAccountNumberValue
-                }).OrderBy(x => x.AccountSettingsAccountNumberValue).AsEnumerable().ToList();
+                var accountStock = GetAllAccountStock()
+     .Select(c => new
+     {
+         AccountSettingsAccountNumberValue = c.AccountSettingsAccountTextValue.Contains("::")
+             ? c.AccountSettingsAccountTextValue.Split("::")[1].Trim()
+             : c.AccountSettingsAccountTextValue
+     })
+     .OrderBy(x => x.AccountSettingsAccountNumberValue)
+     .ToList();
 
 
                 AccountsTransactions creditData = new AccountsTransactions();
@@ -176,7 +183,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 else
                 {
                     creditData.AccountsTransactionsAccNo = masterAccountsTables[0].AccountSettingsAccountNumberValue.ToString();
-                    creditData.AccountsTransactionsFcCredit = (decimal)(stockAdjustmentVoucher.StockAdjusmentVoucherTotAmount ?? 0); 
+                    creditData.AccountsTransactionsFcCredit = (decimal)(stockAdjustmentVoucher.StockAdjusmentVoucherTotAmount ?? 0);
                     creditData.AccountsTransactionsCredit = (decimal)(stockAdjustmentVoucher.StockAdjusmentVoucherTotAmount ?? 0);
                     creditData.AccountsTransactionsDebit = 0;
                     creditData.AccountsTransactionsFcDebit = 0;
@@ -218,7 +225,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                     creditDataStcok.AccountsTransactionsDebit = (decimal)(stockAdjustmentVoucher.StockAdjusmentVoucherTotAmount ?? 0);
                     creditDataStcok.AccountsTransactionsFcDebit = (stockAdjustmentVoucher.StockAdjusmentVoucherTotAmount ?? 0);
                     creditDataStcok.AccountsTransactionsTransDate = (DateTime)stockAdjustmentVoucher.StockAdjustmentVoucherSaDate.Value.Date;
-                    creditDataStcok.AccountsTransactionsParticulars = stockAdjustmentVoucher.StockAdjustmentVoucherSaRemarks?? null;
+                    creditDataStcok.AccountsTransactionsParticulars = stockAdjustmentVoucher.StockAdjustmentVoucherSaRemarks ?? null;
                     creditDataStcok.AccountsTransactionsVoucherType = VoucherType.StockAdjustmentVoucher_TYPE;
                     creditDataStcok.AccountsTransactionsTstamp = DateTime.Now;
                     creditDataStcok.AccountsTransactionsVoucherNo = stockVoucherNumber;
@@ -246,7 +253,7 @@ namespace Inspire.Erp.Application.Store.Implementation
             try
             {
                 var convT = _UnitDetailsRepository.GetAsQueryable().FirstOrDefault(x => x.UnitDetailsItemId == itemid && x.UnitDetailsUnitId == unitDetailsid);
-                if( convT == null )
+                if (convT == null)
                 {
                     return 0;
                 }
@@ -335,8 +342,8 @@ namespace Inspire.Erp.Application.Store.Implementation
                     k.StockAdjustmentVoucherDetailsDelStatus = true;
                     return k;
                 }).OrderBy(x => x.StockAdjustmentVoucherDetailsSaNo).AsEnumerable().ToList();
-            
-          
+
+
                 _stockAdjustmentVoucherRepo.Update(stockAdjustmentVoucher);
                 _stockAdjustmentVoucherDetailsRepo.UpdateList(stockAdjustmentVoucherDetails);
 
@@ -360,38 +367,38 @@ namespace Inspire.Erp.Application.Store.Implementation
 
 
                 var assets = await (from sav in _stockAdjustmentVoucherRepo.GetAsQueryable()
-                            
+
                              .Where(x => (model.FromDate == null || x.StockAdjustmentVoucherSaDate >= model.FromDate)
                                                && (model.ToDate == null || x.StockAdjustmentVoucherSaDate <= model.ToDate)
                                               )
-                              join savd in _stockAdjustmentVoucherDetailsRepo.GetAsQueryable()
-                              on sav.StockAdjustmentVoucherSaId equals savd.StockAdjustmentVoucherDetailsSaId into g
-                              from savdg in g.DefaultIfEmpty()
-                              join jb in _jobMaster.GetAsQueryable()
-                              on savdg.StockAdjustmentVoucherDetailsJobId equals jb.JobMasterJobId into sbg
-                              from sbgj in sbg.DefaultIfEmpty()
-                              join im in _itemMaster.GetAsQueryable()
-                              on (long)savdg.StockAdjustmentVoucherDetailsMaterialId equals im.ItemMasterItemId into img
-                              from imsvg in img.DefaultIfEmpty()
-                                  //group savdg by new
-                                  //{
-                                  //    savdg.StockAdjustmentVoucherDetailsJobId,
+                                    join savd in _stockAdjustmentVoucherDetailsRepo.GetAsQueryable()
+                                    on sav.StockAdjustmentVoucherSaId equals savd.StockAdjustmentVoucherDetailsSaId into g
+                                    from savdg in g.DefaultIfEmpty()
+                                    join jb in _jobMaster.GetAsQueryable()
+                                    on savdg.StockAdjustmentVoucherDetailsJobId equals jb.JobMasterJobId into sbg
+                                    from sbgj in sbg.DefaultIfEmpty()
+                                    join im in _itemMaster.GetAsQueryable()
+                                    on (long)savdg.StockAdjustmentVoucherDetailsMaterialId equals im.ItemMasterItemId into img
+                                    from imsvg in img.DefaultIfEmpty()
+                                        //group savdg by new
+                                        //{
+                                        //    savdg.StockAdjustmentVoucherDetailsJobId,
 
-                                  //} into gp
-                                    where (model.JobId == null || sbgj.JobMasterJobId==model.JobId)
-                            //  where gp.Sum(x => x.AccountsTransactionsCredit) > 0 || gp.Sum(x => x.AccountsTransactionsDebit) > 0
-                              select new StockAdjustmentReportResponse
-                              {
-                                  SADate =sav.StockAdjustmentVoucherSaDate,
-                                  SANumber = sav.StockAdjustmentVoucherSaNo,
-                                  JobName= sbgj.JobMasterJobName,
-                                  ItemName=imsvg.ItemMasterItemName,
-                                  ManualQuantity =(double)savdg.StockAdjustmentVoucherDetailsManualQty,
-                                  CostPrice = (double)savdg.StockAdjustmentVoucherDetailsCosePrice,
-                                  AdjustedQuantity = (double) savdg.StockAdjustmentVoucherDetailsAdjQty,
-                                  AdjustedValue= (double)(savdg.StockAdjustmentVoucherDetailsCosePrice * savdg.StockAdjustmentVoucherDetailsAdjQty??0),
-                                  ExistingQuantity= (double)(savdg.StockAdjustmentVoucherDetailsManualQty-savdg.StockAdjustmentVoucherDetailsAdjQty??0)
-                              })
+                                        //} into gp
+                                    where (model.JobId == null || sbgj.JobMasterJobId == model.JobId)
+                                    //  where gp.Sum(x => x.AccountsTransactionsCredit) > 0 || gp.Sum(x => x.AccountsTransactionsDebit) > 0
+                                    select new StockAdjustmentReportResponse
+                                    {
+                                        SADate = sav.StockAdjustmentVoucherSaDate,
+                                        SANumber = sav.StockAdjustmentVoucherSaNo,
+                                        JobName = sbgj.JobMasterJobName,
+                                        ItemName = imsvg.ItemMasterItemName,
+                                        ManualQuantity = (double)savdg.StockAdjustmentVoucherDetailsManualQty,
+                                        CostPrice = (double)savdg.StockAdjustmentVoucherDetailsCosePrice,
+                                        AdjustedQuantity = (double)savdg.StockAdjustmentVoucherDetailsAdjQty,
+                                        AdjustedValue = (double)(savdg.StockAdjustmentVoucherDetailsCosePrice * savdg.StockAdjustmentVoucherDetailsAdjQty ?? 0),
+                                        ExistingQuantity = (double)(savdg.StockAdjustmentVoucherDetailsManualQty - savdg.StockAdjustmentVoucherDetailsAdjQty ?? 0)
+                                    })
 
                      .OrderBy(t => t.JobName).ToListAsync();
 
@@ -404,9 +411,9 @@ namespace Inspire.Erp.Application.Store.Implementation
         }
 
 
-       public ResponseInfo GetStockByLocation(int id)
+        public ResponseInfo GetStockByLocation(int id)
         {
-         
+
             var res = new ResponseInfo();
             var data = _stockRegisterRepo.GetAsQueryable()
                 .AsNoTracking()
