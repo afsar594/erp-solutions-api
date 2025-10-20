@@ -224,6 +224,7 @@ namespace Inspire.Erp.Web.Controllers
                                   o.ServiceType,
                                   s.Amount,
                                   s.TaxIncAmount,
+                                  s.FromSupplier,
                                   s.Remarks
                               }).ToList();
 

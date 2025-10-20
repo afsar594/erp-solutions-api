@@ -10,6 +10,7 @@ namespace Inspire.Erp.Domain.Entities
         public int ServiceID { get; set; }
         public decimal Amount { get; set; }
         public decimal TaxIncAmount { get; set; }
+        public bool FromSupplier { get; set; } = false;
         public string Remarks { get; set; }
     }
 }
