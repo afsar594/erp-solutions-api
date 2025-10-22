@@ -344,6 +344,9 @@ namespace Inspire.Erp.Application.Store.Implementation
                 _stockAdjustmentVoucherRepo.Update(stockAdjustmentVoucher);
                 _stockAdjustmentVoucherDetailsRepo.UpdateList(stockAdjustmentVoucherDetails);
 
+                clsCommonFunctions.Delete_OldEntry_StockRegister(stockAdjustmentVoucher.StockAdjustmentVoucherSaNo, VoucherType.StockAdjustmentVoucher_TYPE, _stockRegisterRepo);
+                clsCommonFunctions.Delete_OldEntry_AccountsTransactions(stockAdjustmentVoucher.StockAdjustmentVoucherSaNo, VoucherType.StockAdjustmentVoucher_TYPE, _accountTransactionRepository);
+
                 _stockAdjustmentVoucherRepo.TransactionCommit();
 
                 i = 1;
