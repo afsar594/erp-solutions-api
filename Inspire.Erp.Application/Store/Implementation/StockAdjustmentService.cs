@@ -398,7 +398,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                         ExistingQuantity = (double)(savdg.StockAdjustmentVoucherDetailsManualQty - savdg.StockAdjustmentVoucherDetailsAdjQty ?? 0)
                                     })
 
-                     .OrderBy(t => t.JobName).ToListAsync();
+                     .OrderBy(t => t.SANumber).ToListAsync();
 
                 return Response<List<StockAdjustmentReportResponse>>.Success(assets, "Data found");
             }
