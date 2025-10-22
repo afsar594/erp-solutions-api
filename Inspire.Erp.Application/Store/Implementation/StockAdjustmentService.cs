@@ -367,6 +367,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                              .Where(x => (model.FromDate == null || x.StockAdjustmentVoucherSaDate >= model.FromDate)
                                                && (model.ToDate == null || x.StockAdjustmentVoucherSaDate <= model.ToDate)
+                                               && (model.LocationId == null || x.StockAdjustmentVoucherLocationId == model.LocationId) 
                                               )
                                     join savd in _stockAdjustmentVoucherDetailsRepo.GetAsQueryable()
                                     on sav.StockAdjustmentVoucherSaId equals savd.StockAdjustmentVoucherDetailsSaId into g
