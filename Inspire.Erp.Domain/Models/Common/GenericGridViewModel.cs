@@ -95,6 +95,7 @@ namespace Inspire.Erp.Domain.Modals.Common
         public int? JobId { get; set; }
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
+        public  int? LocationId { get; set; }
     }
 
     public class CustomerEnquirySearchFilter

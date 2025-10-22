@@ -370,6 +370,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                              .Where(x => (model.FromDate == null || x.StockAdjustmentVoucherSaDate >= model.FromDate)
                                                && (model.ToDate == null || x.StockAdjustmentVoucherSaDate <= model.ToDate)
+                                               && (model.LocationId == null || x.StockAdjustmentVoucherLocationId == model.LocationId) 
                                               )
                                     join savd in _stockAdjustmentVoucherDetailsRepo.GetAsQueryable()
                                     on sav.StockAdjustmentVoucherSaId equals savd.StockAdjustmentVoucherDetailsSaId into g
@@ -400,7 +401,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                         ExistingQuantity = (double)(savdg.StockAdjustmentVoucherDetailsManualQty - savdg.StockAdjustmentVoucherDetailsAdjQty ?? 0)
                                     })
 
-                     .OrderBy(t => t.JobName).ToListAsync();
+                     .OrderBy(t => t.SANumber).ToListAsync();
 
                 return Response<List<StockAdjustmentReportResponse>>.Success(assets, "Data found");
             }
