@@ -150,7 +150,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                             FROM AccountsTransactions a
                                             LEFT JOIN AllocatedAmount am
                                               ON am.Allocation_Voucher_Details_VNO = a.AccountsTransactions_VoucherNo
-                                            WHERE a.AccountsTransactions_AccNo = '{accNo}'
+                                            WHERE  a.AccountsTransactions_AccNo = '{accNo}'
                                               AND (
                                                     upper(a.AccountsTransactions_VoucherType) = upper('{GetVoucherByType(vType)}') 
                                                  OR (upper(a.AccountsTransactions_VoucherType) = upper('{vType}')
