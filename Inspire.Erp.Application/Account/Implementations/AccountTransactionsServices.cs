@@ -146,11 +146,12 @@ namespace Inspire.Erp.Application.Account.Implementations
                                                 a.AccountsTransactions_Debit                   AS Debit,
                                                 a.AccountsTransactions_Alloc_Balance    AS Balance,
                                                 ISNULL(am.AllocAmount,0)                    AS AllocAmount,
+                                                case when ISNULL(a.AccountsTransactions_Alloc_Balance,0) > 0 then 0 else 1 end as IsDisabled,
                                                 a.AccountsTransactions_Location             AS RefLocation
                                             FROM AccountsTransactions a
                                             LEFT JOIN AllocatedAmount am
                                               ON am.Allocation_Voucher_Details_VNO = a.AccountsTransactions_VoucherNo
-                                            WHERE a.AccountsTransactions_AccNo = '{accNo}'
+                                            WHERE  a.AccountsTransactions_AccNo = '{accNo}'
                                               AND (
                                                     upper(a.AccountsTransactions_VoucherType) = upper('{GetVoucherByType(vType)}') 
                                                  OR (upper(a.AccountsTransactions_VoucherType) = upper('{vType}')

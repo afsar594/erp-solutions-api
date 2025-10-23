@@ -8,7 +8,7 @@ namespace Inspire.Erp.Domain.Models
     {
         public long TransNo { get; set; }
         public DateTime? TransDate { get; set; }
-       public string VoucherNo { get; set; }
+        public string VoucherNo { get; set; }
         public string Type { get; set; }
         public decimal? Debit { get; set; }
         public decimal? Credit { get; set; }
@@ -17,5 +17,6 @@ namespace Inspire.Erp.Domain.Models
         public decimal? NetAllocation { get; set; }
         public string Status { get; set; }
         public string RefLocation { get; set; }
+        public bool IsDisabled { get; set; }
     }
 }

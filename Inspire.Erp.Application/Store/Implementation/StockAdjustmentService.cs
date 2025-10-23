@@ -82,9 +82,6 @@ namespace Inspire.Erp.Application.Store.Implementation
                     .DefaultIfEmpty().MaxAsync(o => o == null ? 0 : o.StockAdjustmentVoucherSaId) + 1);
 
 
-
-
-
                 stockAdjustmentVoucher.StockAdjustmentVoucherSaId = maxcount;
 
 
@@ -105,15 +102,15 @@ namespace Inspire.Erp.Application.Store.Implementation
                 var stockReg = stockAdjustmentVoucherDetails.Select(item =>
                 {
                     var avgrate = item.StockAdjustmentVoucherDetailsCosePrice ?? 1;
-                    var converontype = this.getConverionTypebyUnitId(item.StockAdjustmentVoucherDetailsMaterialId, item.StockAdjustmentVoucherDetailsUnitId);
+                    //var converontype = this.getConverionTypebyUnitId(item.StockAdjustmentVoucherDetailsMaterialId, item.StockAdjustmentVoucherDetailsUnitId);
 
                     // Calculate SSIN and Sout using ternary operators
                     var SSIN = item.StockAdjustmentVoucherDetailsAdjQty > 0
-                        ? (decimal)item.StockAdjustmentVoucherDetailsAdjQty * (decimal)(converontype)
+                        ? (decimal)item.StockAdjustmentVoucherDetailsAdjQty 
                         : 0;
 
                     var Sout = item.StockAdjustmentVoucherDetailsAdjQty <= 0
-                        ? (decimal)item.StockAdjustmentVoucherDetailsAdjQty * (decimal)(converontype)
+                        ? (decimal)item.StockAdjustmentVoucherDetailsAdjQty 
                         : 0;
 
                     return new StockRegister
@@ -122,7 +119,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                         StockRegisterRefVoucherNo = stockAdjustmentVoucher.StockAdjustmentVoucherSaNo,
                         StockRegisterVoucherDate = stockAdjustmentVoucher.StockAdjustmentVoucherSaDate,
                         StockRegisterMaterialID = item.StockAdjustmentVoucherDetailsMaterialId,
-                        StockRegisterQuantity = Math.Abs(Convert.ToDecimal(item.StockAdjustmentVoucherDetailsAdjQty ?? 0) * (decimal)(converontype)),
+                        StockRegisterQuantity = Math.Abs(Convert.ToDecimal(item.StockAdjustmentVoucherDetailsAdjQty ?? 0) ),
                         StockRegisterSIN = Math.Abs(SSIN),
                         StockRegisterSout = Math.Abs(Sout),
 
@@ -347,6 +344,9 @@ namespace Inspire.Erp.Application.Store.Implementation
                 _stockAdjustmentVoucherRepo.Update(stockAdjustmentVoucher);
                 _stockAdjustmentVoucherDetailsRepo.UpdateList(stockAdjustmentVoucherDetails);
 
+                clsCommonFunctions.Delete_OldEntry_StockRegister(stockAdjustmentVoucher.StockAdjustmentVoucherSaNo, VoucherType.StockAdjustmentVoucher_TYPE, _stockRegisterRepo);
+                clsCommonFunctions.Delete_OldEntry_AccountsTransactions(stockAdjustmentVoucher.StockAdjustmentVoucherSaNo, VoucherType.StockAdjustmentVoucher_TYPE, _accountTransactionRepository);
+
                 _stockAdjustmentVoucherRepo.TransactionCommit();
 
                 i = 1;
@@ -370,6 +370,7 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                              .Where(x => (model.FromDate == null || x.StockAdjustmentVoucherSaDate >= model.FromDate)
                                                && (model.ToDate == null || x.StockAdjustmentVoucherSaDate <= model.ToDate)
+                                               && (model.LocationId == null || x.StockAdjustmentVoucherLocationId == model.LocationId) 
                                               )
                                     join savd in _stockAdjustmentVoucherDetailsRepo.GetAsQueryable()
                                     on sav.StockAdjustmentVoucherSaId equals savd.StockAdjustmentVoucherDetailsSaId into g
@@ -400,7 +401,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                                         ExistingQuantity = (double)(savdg.StockAdjustmentVoucherDetailsManualQty - savdg.StockAdjustmentVoucherDetailsAdjQty ?? 0)
                                     })
 
-                     .OrderBy(t => t.JobName).ToListAsync();
+                     .OrderBy(t => t.SANumber).ToListAsync();
 
                 return Response<List<StockAdjustmentReportResponse>>.Success(assets, "Data found");
             }
@@ -411,7 +412,7 @@ namespace Inspire.Erp.Application.Store.Implementation
         }
 
 
-        public ResponseInfo GetStockByLocation(int id)
+        public ResponseInfo GetStockByLocation(int id,DateTime date)
         {
 
             var res = new ResponseInfo();
@@ -419,14 +420,15 @@ namespace Inspire.Erp.Application.Store.Implementation
                 .AsNoTracking()
                 .Where(i => i.StockRegisterLocationID == id
                             && i.StockRegisterDelStatus != true
-                            && i.StockRegisterUnitID != null)
-                .AsEnumerable() // Switch to LINQ-to-Objects for client-side processing
-                .GroupBy(s => s.StockRegisterMaterialID) // Group by StockRegisterMaterialID
-                .Select(g => new
+                            && i.StockRegisterUnitID != null && i.StockRegisterVoucherDate.Value.Date <= date.Date)
+                .AsEnumerable()                 .GroupBy(s => s.StockRegisterMaterialID)                .Select(g =>new
                 {
                     StockRegisterMaterialID = g.Key, // Group key
-                    StockRegisterQuantity = g.Sum(x => x.StockRegisterQuantity), // Aggregate quantity
-                    StockRegisterRate = g.Average(x => x.StockRegisterRate), // Calculate average rate
+                    //StockRegisterQuantity = g.Sum(x => x.StockRegisterQuantity), // Aggregate quantity
+                  StockRegisterQuantity = g.Sum(x => x.StockRegisterSIN) - g.Sum(x=> x.StockRegisterSout), // Aggregate quantity
+
+                    StockRegisterRate = g.Where(x => x.StockRegisterSIN > 0)
+                                 .Average(x => x.StockRegisterRate),
                     StockRegisterUnitID = g.Select(x => x.StockRegisterUnitID).Distinct().ToList(), // List of distinct unit IDs
                     StockRegisterJobID = g.Select(x => x.StockRegisterJobID).Distinct().ToList() // List of distinct job IDs
                 })
