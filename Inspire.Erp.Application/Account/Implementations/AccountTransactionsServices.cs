@@ -146,6 +146,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                                 a.AccountsTransactions_Debit                   AS Debit,
                                                 a.AccountsTransactions_Alloc_Balance    AS Balance,
                                                 ISNULL(am.AllocAmount,0)                    AS AllocAmount,
+                                                case when ISNULL(am.AllocAmount,0) = 0 then 0 else 1 end as IsDisabled,
                                                 a.AccountsTransactions_Location             AS RefLocation
                                             FROM AccountsTransactions a
                                             LEFT JOIN AllocatedAmount am
