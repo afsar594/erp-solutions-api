@@ -183,6 +183,58 @@ namespace Inspire.Erp.Web.Controllers.Store
             };
             return objresponse;
         }
+        [HttpGet]
+        [Route("StockAdjustmentDropdownByLocation")]
+        public ResponseInfo StockAdjustmentDropdownByLocation(int location)
+        {
+            var objresponse = new ResponseInfo();
+
+            var jobMasters = _jobrepository.GetAsQueryable().AsNoTracking().Where(a => a.JobMasterJobDelStatus != true).Select(c => new
+            {
+                c.JobMasterJobId,
+                c.JobMasterJobNumber,
+                JobMasterJobName = c.JobMasterJobName.Trim(),
+            }).OrderBy(x => x.JobMasterJobName).ToList();
+            var LocationMaster = _locationrepository.GetAsQueryable().AsNoTracking().Where(a => a.LocationMasterLocationDelStatus != true).Select(c => new
+            {
+                c.LocationMasterLocationId,
+                c.LocationMasterLocationStatus,
+                LocationMasterLocationName = c.LocationMasterLocationName.Trim(),
+            }).OrderBy(x => x.LocationMasterLocationName).ToList();
+
+            var itemMaster = (from item in _itemrepository.GetAsQueryable().AsNoTracking()
+                              join unit in _unitDetailRepository.GetAsQueryable().AsNoTracking()
+                              on item.ItemMasterItemId equals unit.UnitDetailsItemId
+                              where item.ItemMasterAccountNo != 0
+                              && item.ItemMasterDelStatus != true
+                              && item.ItemMasterItemType != ItemMasterStatus.Group
+                              select new
+                              {
+                                  item.ItemMasterItemId,
+                                  item.ItemMasterItemName,
+                                  item.ItemMasterVenderId,
+                                  item.ItemMasterItemSize,
+                                  itemMasterBarcode = unit.UnitDetailsBarcode,
+                                  ItemMasterCurrentStock = _stockRegisterRepository.GetAsQueryable().Where(x => x.StockRegisterMaterialID == item.ItemMasterItemId && x.StockRegisterLocationID == location).Sum(y => (y.StockRegisterSIN ?? 0) - (y.StockRegisterSout ?? 0)),
+
+                              }).Distinct().OrderBy(x => x.ItemMasterItemName).ToList();
+
+            var unitMasters = _unitrepository.GetAsQueryable().AsNoTracking().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
+            {
+                x.UnitMasterUnitId,
+                UnitMasterUnitFullName = x.UnitMasterUnitFullName.Trim(),
+                UnitMasterUnitShortName = x.UnitMasterUnitShortName.Trim()
+            }).OrderBy(x => x.UnitMasterUnitShortName).ToList();
+            objresponse.ResultSet = new
+            {
+                jobMasters = jobMasters,
+                LocationMaster = LocationMaster,
+                itemMaster = itemMaster,
+                unitMasters = unitMasters,
+
+            };
+            return objresponse;
+        }
 
         [HttpGet]
         [Route("GetStockByLocation")]
