@@ -364,7 +364,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 purchaseOrder.PurchaseOrderNo = purchaseOrderNumber;
 
                 int maxcount = 0;
-                maxcount = Convert.ToInt32(_purchaseOrderRepository.GetAsQueryable().DefaultIfEmpty().Max(o => o == null ? 0 : o.PurchaseOrderId) + 1);
+                maxcount = Convert.ToInt32(_purchaseOrderRepository.GetAsQueryable().AsNoTracking().DefaultIfEmpty().Max(o => o == null ? 0 : o.PurchaseOrderId) + 1);
 
                 purchaseOrder.PurchaseOrderId = maxcount;
 
@@ -504,13 +504,15 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 //}
 
 
-                var filePath = await downloadAndSaveVoucherReport.DownloadedFileAsync(applicationSettings.DownloadFileBaseUrl, "PurchaseOrder", purchaseOrder.PurchaseOrderNo, (int)purchaseOrder.PurchaseOrderId, purchaseOrder.PurchaseOrderNo);
+
+                //var filePath = await downloadAndSaveVoucherReport.DownloadedFileAsync(applicationSettings.DownloadFileBaseUrl, "PurchaseOrder", purchaseOrder.PurchaseOrderNo, (int)purchaseOrder.PurchaseOrderId, purchaseOrder.PurchaseOrderNo);
 
                 var jobId = purchaseOrder?.PurchaseOrderJobId ?? -1;
 
                 if (!isFromPurchaseRequisition)
                 {
                     #region EmailNotification
+                    string filePath = await downloadReport(purchaseOrder);
                     var jobDetail = _jobMaster.GetAsQueryable().Where(x => x.JobMasterJobId == jobId).FirstOrDefault();
                     await _orderEmailNotificationService.SendOrderEmailNotificationAsync(
                                                                                   EnumOrderForms.PurchaseOrder,
@@ -558,19 +560,19 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                 Sno = x.Sno,
                                 ApprovedBy = x.UserId,
                                 ApprovedDate = DateTime.Now,
-                                FilePath = string.Join(',', filePath)
+                                FilePath = string.Join(',', string.Empty)
                             };
                         }).ToList();
 
                     if (orderApprovers.Any())
                     {
                         _orderApprovalHierarchy.InsertList(orderApprovers);
+                        _purchaseOrderRepository.TransactionCommit();
+                        string filePath = await downloadReport(purchaseOrder);
                     }
                 }
-
                 //await ApprovePurchaseOrderForLowerApprovers()
                 _purchaseOrderRepository.TransactionCommit();
-
                 var res = await this.GetSavedPurchaseOrderDetails((int)purchaseOrder.PurchaseOrderId);
                 return Response<PurchaseOrderModel>.Success(res.Result, "Purchase Order Save Successfully.");
             }
@@ -580,6 +582,201 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 throw ex;
             }
         }
+
+
+        public async Task<Response<PurchaseOrderModel>> InsertPurchaseOrder_II(
+         PurchaseOrder purchaseOrder,
+         List<AccountsTransactions> accountsTransactions,
+         List<PurchaseOrderDetails> purchaseOrderDetails)
+        {
+            try
+            {
+                var isFromPurchaseRequisition = purchaseOrder.PurchaseOrderDetails
+                    .All(x => x.PurchaseRequisitionId != null && x.PurchaseRequisitionId > 0);
+
+                var settingValue = await _generalSettings.GetApproverStatusAsync(
+                    purchaseOrder.PurchaseOrderJobId.ToString(),
+                    isFromPurchaseRequisition
+                        ? nameof(EnumOrderForms.PurchaseRequisition)
+                        : nameof(EnumOrderForms.PurchaseOrder));
+
+                if (!string.IsNullOrEmpty(settingValue.ApproverStatus))
+                    return Response<PurchaseOrderModel>.Fail(null, settingValue.ApproverStatus);
+
+                string purchaseOrderNumber;
+                int newId;
+
+                // --- Transactional Scope ---
+                _purchaseOrderRepository.BeginTransaction();
+                try
+                {
+                    // --- Generate Voucher No ---
+                    purchaseOrderNumber = clsCommonFunctions.GenrateVoucherNo(
+                        VoucherType.PurchaseOrder_TYPE,
+                        Prefix.PurchaseOrder_Prefix,
+                        _programsettingsRepository,
+                        _voucherNumbersRepository);
+
+                    purchaseOrder.PurchaseOrderNo = purchaseOrderNumber;
+                    newId = Convert.ToInt32(
+                        _purchaseOrderRepository.GetAsQueryable().AsNoTracking().DefaultIfEmpty()
+                        .Max(o => o == null ? 0 : o.PurchaseOrderId) + 1);
+
+                    purchaseOrder.PurchaseOrderId = newId;
+
+                    // --- Prepare details ---
+                    purchaseOrder.PurchaseOrderDetails = purchaseOrderDetails
+                        .Select(x =>
+                        {
+                            x.PurchaseOrderId = purchaseOrder.PurchaseOrderId;
+                            x.PurchaseOrderDetailsNo = purchaseOrderNumber;
+                            return x;
+                        }).OrderBy(x => x.PurchaseOrderDetailsSno).ToList();
+
+                    // --- Accounts Transactions ---
+                    accountsTransactions = accountsTransactions
+                        .Select(k =>
+                        {
+                            k.AccountsTransactionsVoucherNo = purchaseOrder.PurchaseOrderNo;
+                            k.AccountsTransactionsVoucherType = VoucherType.PurchaseOrder_TYPE;
+                            k.AccountsTransactionsStatus = AccountStatus.Approved;
+                            return k;
+                        }).OrderBy(x => x.AccountsTransactionsVoucherType).ToList();
+
+                    purchaseOrder.PurchaseOrderUserId = _currentUserService.UserId;
+
+                    // --- Insert data ---
+                    _accountTransactionRepository.InsertList(accountsTransactions);
+                    _purchaseOrderRepository.Insert(purchaseOrder);
+
+                    // --- Tracking + Register ---
+                    var listTrackRegs = purchaseOrder.PurchaseOrderDetails.Select(x => new TrackingRegister
+                    {
+                        TrackingRegisterDetailsId = (int)x.PurchaseOrderDetailsId,
+                        TrackingRegisterVoucherNo = x.PurchaseOrderDetailsNo,
+                        TrackingRegisterMaterialId = (int)x.PurchaseOrderDetailsMatId,
+                        TrackingRegisterVoucherType = purchaseOrder.PurchaseOrderType,
+                        TrackingRegisterQty = (int)x.PurchaseOrderDetailsQuantity,
+                        TrackingRegisterQtyin = (int)x.PurchaseOrderDetailsQuantity,
+                        TrackingRegisterQtyout = 0,
+                        TrackingRegisterRate = x.PurchaseOrderDetailsRate,
+                        TrackingRegisterTrackDate = purchaseOrder.PurchaseOrderDate,
+                        TrackingRegisterFsno = null
+                    }).ToList();
+
+                    var listTrackPurchOrderReg = purchaseOrder.PurchaseOrderDetails.Select(x => new PurOrderRegister
+                    {
+                        PurOrderRegisterOrderNo = x.PurchaseOrderDetailsId.ToString(),
+                        PurOrderRegisterRefVoucherNo = x.PurchaseOrderDetailsNo,
+                        PurOrderRegisterMaterialId = (int)x.PurchaseOrderDetailsMatId,
+                        PurOrderRegisterTransType = purchaseOrder.PurchaseOrderType,
+                        PurOrderRegisterQtyOrder = x.PurchaseOrderDetailsQuantity,
+                        PurOrderRegisterQtyIssued = 0,
+                        PurOrderRegisterRate = x.PurchaseOrderDetailsRate,
+                        PurOrderRegisterAssignedDate = DateTime.Now,
+                        PurOrderRegisterFsno = null,
+                        PurOrderRegisterSupplierId = (int)purchaseOrder.PurchaseOrderPartyId,
+                        PurOrderRegisterStatus = "A"
+                    }).ToList();
+
+                    _trackingRegisterRepository.InsertList(listTrackRegs);
+                    _purOrderRegisterRepository.InsertList(listTrackPurchOrderReg);
+
+                    // --- Commit ---
+                    _purchaseOrderRepository.TransactionCommit();
+                }
+                catch
+                {
+                    _purchaseOrderRepository.TransactionRollback();
+                    throw;
+                }
+
+                // === At this point the transaction/DbContext is released ===
+
+                // --- Generate PDF (outside transaction) ---
+
+
+
+
+
+                // --- Notifications ---
+                var jobId = purchaseOrder?.PurchaseOrderJobId ?? -1;
+                if (!isFromPurchaseRequisition)
+                {
+                    string filePath = await downloadReport(purchaseOrder);
+                    var jobDetail = _jobMaster.GetAsQueryable().AsNoTracking()
+                        .FirstOrDefault(x => x.JobMasterJobId == jobId);
+
+                    await _orderEmailNotificationService.SendOrderEmailNotificationAsync(
+                        EnumOrderForms.PurchaseOrder,
+                        EnumApproverLevels.Level1,
+                        "Order",
+                        purchaseOrder.PurchaseOrderNo,
+                        purchaseOrder.PurchaseOrderDate,
+                        purchaseOrder.PurchaseOrderPartyName,
+                        (decimal)purchaseOrder.PurchaseOrderNetAmount,
+                        (int)purchaseOrder.PurchaseOrderId,
+                        (int)jobId,
+                        jobDetail?.JobMasterJobNumber ?? "",
+                        jobDetail?.JobMasterJobName ?? "",
+                        true,
+                        _currentUserService.Username ?? "",
+                        settingValue.GeneralSettingValue,
+                        string.IsNullOrEmpty(filePath) ? new List<string>() : new List<string> { filePath },
+                        -1,
+                        null,
+                        (long)purchaseOrder.PurchaseOrderUserId
+                    );
+                }
+                else
+                {
+                    var approvers = await _defaultApproversRepo.GetAsQueryable().AsNoTracking()
+                        .Where(x => x.VoucherType == null || x.VoucherType.Trim().ToLower() == "purchaseorder")
+                        .Select(x => new { x.UserId, x.Sno }).ToListAsync();
+
+                    var orderApprovers = approvers.Select(x => new OrderApprovalHierarchy
+                    {
+                        ApproverId = x.UserId,
+                        OrderId = (int)purchaseOrder.PurchaseOrderId,
+                        Status = EnumApprovalStatus.Approved,
+                        OrderType = EnumOrderForms.PurchaseOrder,
+                        Remarks = "",
+                        ApproverLevel = GetApproverLevel(x.Sno),
+                        Sno = x.Sno,
+                        ApprovedBy = x.UserId,
+                        ApprovedDate = DateTime.Now,
+                        FilePath = string.Empty
+                    }).ToList();
+
+                    if (orderApprovers.Any())
+                    {
+                        _orderApprovalHierarchy.InsertList(orderApprovers);
+                        string filePath = await downloadReport(purchaseOrder);
+
+                    }
+
+                }
+
+                // --- Return response ---
+                var res = await GetSavedPurchaseOrderDetails((int)purchaseOrder.PurchaseOrderId);
+                return Response<PurchaseOrderModel>.Success(res.Result, "Purchase Order Saved Successfully.");
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private async Task<string> downloadReport(PurchaseOrder purchaseOrder)
+        {
+            return await downloadAndSaveVoucherReport.DownloadedFileAsync(
+                applicationSettings.DownloadFileBaseUrl,
+                "PurchaseOrder",
+                purchaseOrder.PurchaseOrderId.ToString(),
+                (int)purchaseOrder.PurchaseOrderId,
+                purchaseOrder.PurchaseOrderNo);
+        }
+
         public async Task<Response<bool>> ApprovePurchaseOrderForLowerApprovers(POPRApprovalDto approvalDto)
         {
             try
@@ -590,10 +787,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                    a.OrderType == approvalDto.OrderType &&
                                    a.Status == EnumApprovalStatus.Rejected))
                 {
-                    return Response<bool>.Fail(false,"Approval record has already been Rejected.");
+                    return Response<bool>.Fail(false, "Approval record has already been Rejected.");
                 }
 
-              //  _orderApprovalHierarchy.BeginTransaction();
+                //  _orderApprovalHierarchy.BeginTransaction();
 
                 // === CASE: Rejection ===
                 if (approvalDto.ApprovalStatus == EnumApprovalStatus.Rejected)
@@ -613,7 +810,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     await _orderApprovalHierarchy.UpdateListAsync(currentApprovals);
 
 
-                    return  Response<bool>.Success (true, "Approval record has been Rejected.");
+                    return Response<bool>.Success(true, "Approval record has been Rejected.");
                 }
 
                 // === CASE: Approval ===
@@ -636,7 +833,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         a.Status == EnumApprovalStatus.Pending);
 
                 if (currentApproval == null)
-                    return Response<bool>.Fail(false,"Approval record not found for current user.");
+                    return Response<bool>.Fail(false, "Approval record not found for current user.");
 
                 var currentLevel = currentApproval.ApproverLevel;
 
@@ -649,7 +846,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 if (lowerLevels.Any() && lowerLevels.Any(l => l.Status != EnumApprovalStatus.Approved))
                 {
-                    lowerLevels.ForEach(x => {
+                    lowerLevels.ForEach(x =>
+                    {
                         x.Status = EnumApprovalStatus.Approved;
                         x.Remarks = $"{approvalDto.Remarks} : Approved By {_currentUserService.Username}";
                     });
@@ -1157,7 +1355,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     JobId = po.PurchaseOrderJobId,
                     JobName = job?.JobMasterJobName ?? string.Empty,
                     Amount = po.PurchaseOrderNetAmount ?? 0,
-                    Status =   GetVoucherStatus(approvers),//   po.PurchaseOrderApproveStatus,
+                    Status = GetVoucherStatus(approvers),//   po.PurchaseOrderApproveStatus,
                     Remarks = string.Join("\n", po.PurchaseOrderRemarks1, po.PurchaseOrderRemarks2, po.PurchaseOrderRemarks3).Trim(),
                     VoucherApprovers = approvers,
                     Supplier = po.PurchaseOrderPartyName ?? string.Empty
@@ -1561,7 +1759,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     currentApprovals.ForEach(x =>
                     {
                         x.Status = EnumApprovalStatus.Rejected;
-                        x.Remarks = $"{approvalDto.Remarks} : Rejected By {_currentUserService.Username}" ;
+                        x.Remarks = $"{approvalDto.Remarks} : Rejected By {_currentUserService.Username}";
                     });
                     await _orderApprovalHierarchy.UpdateListAsync(currentApprovals);
                     _orderApprovalHierarchy.TransactionCommit();
@@ -1580,7 +1778,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 var settingValue = await _generalSettings.GetValueByKey(InspireConstants.DefaultApprovalType);
                 var Username = _currentUserService.Username;
-                
+
                 //var groupId = _currentUserService.GroupId;
                 //bool isAdmin = false;
                 //if (groupId != null)
@@ -1691,8 +1889,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 throw;
             }
         }
-        
-        
+
+
         private async Task SendApprovalEmailToUser(int orderId, EnumOrderForms orderType, EnumApproverLevels level, string settingValue, int approverId, string filePath)
         {
             switch (orderType)

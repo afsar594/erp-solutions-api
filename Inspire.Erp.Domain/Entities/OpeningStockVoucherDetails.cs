@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inspire.Erp.Domain.Entities
 {
     public partial class OpeningStockVoucherDetails
     {
 
-        public decimal? OpeningStockVoucherDetailsId { get; set; }
+        public long OpeningStockVoucherDetailsId { get; set; }
         public int? OpeningStockVoucherId { get; set; }
         public string OpeningStockVoucherDetailsNo { get; set; }
         public int? OpeningStockVoucherDetailsMatId { get; set; }

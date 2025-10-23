@@ -42,14 +42,16 @@ namespace Inspire.Erp.Web.Controllers
         private IChartofAccountsService chartofAccountsService; private IRepository<SalesManMaster> salesmanrepository;
         private IRepository<DepartmentMaster> departmentrepository; IRepository<UnitDetails> unitDetailRepository;
 
-
+        private IRepository<SalesCharges> _salesChargesRepository;
+        private IRepository<OtherChargesMaster> _otherChargesMasterRepository;
         private IRepository<UnitDetails> _UnitDetailsRepository;
         public SalesVoucherController(ISalesVoucherService salesVoucherService, IMapper mapper, IRepository<UnitDetails> unitDetailsRepository,
              IRepository<ItemMaster> _itemrepository, IRepository<UnitDetails> _unitDetailRepository,
             IRepository<SuppliersMaster> _supplierrepository, IRepository<VendorMaster> _Brandrepository, IRepository<AccountSettings> accountsSettingsRepo,
             IRepository<UnitMaster> _unitrepository, IRepository<LocationMaster> _locationrepository, IRepository<SalesManMaster> _salesmanrepository
             , IRepository<CostCenterMaster> _countryrepository, IRepository<DepartmentMaster> _departmentrepository, IRepository<CustomerMaster> customerMasterRepository
-            , IRepository<JobMaster> _jobrepository, IRepository<CurrencyMaster> _currencyrepository, IChartofAccountsService _chartofAccountsService)
+            , IRepository<JobMaster> _jobrepository, IRepository<CurrencyMaster> _currencyrepository, IChartofAccountsService _chartofAccountsService, IRepository<SalesCharges> salesChargesRepository
+            , IRepository<OtherChargesMaster> otherChargesMasterRepository)
         {
             _salesVoucherService = salesVoucherService;
             _mapper = mapper;
@@ -59,6 +61,8 @@ namespace Inspire.Erp.Web.Controllers
             costcenterrepository = _countryrepository; departmentrepository = _departmentrepository; unitDetailRepository = _unitDetailRepository;
             jobrepository = _jobrepository; locationrepository = _locationrepository; _accountsSettingsRepo = accountsSettingsRepo;
             currencyrepository = _currencyrepository; chartofAccountsService = _chartofAccountsService;
+            _salesChargesRepository = salesChargesRepository;
+            _otherChargesMasterRepository = otherChargesMasterRepository;
         }
 
         [HttpGet]
@@ -133,7 +137,8 @@ namespace Inspire.Erp.Web.Controllers
                 var param2 = _mapper.Map<List<SalesVoucherDetails>>(voucherCompositeView.SalesVoucherDetails);
                 var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
                 List<StockRegister> param4 = new List<StockRegister>();
-                var xs = await _salesVoucherService.InsertSalesVoucher(param1, param3, param2, param4);
+                var param5 = voucherCompositeView.SalesChargesList;
+                var xs = await _salesVoucherService.InsertSalesVoucher(param1, param3, param2, param4,param5);
                 //costprice=itemAvgPrice * quantity * Conversion rate
                 SalesVoucherViewModel salesVoucherViewModel = new SalesVoucherViewModel
                 {
@@ -194,6 +199,8 @@ namespace Inspire.Erp.Web.Controllers
 
                 salesVoucherViewModel.SalesVoucherDetails = _mapper.Map<List<SalesVoucherDetailsViewModel>>(xs.salesVoucherDetails);
                 salesVoucherViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
+                salesVoucherViewModel.SalesChargesList = _mapper.Map<List<SalesCharges>>(xs.salesChargesList);
+
                 apiResponse = new ApiResponse<SalesVoucherViewModel>
                 {
                     Valid = true,
@@ -227,6 +234,7 @@ namespace Inspire.Erp.Web.Controllers
             //==============
             //param3 = new List<AccountsTransactions>();
             List<StockRegister> param4 = new List<StockRegister>();
+            var param5 = voucherCompositeView.SalesChargesList;
 
             //var allUnits = new List<UnitDetails>();
             //var unitDetails = new UnitDetails();
@@ -237,7 +245,7 @@ namespace Inspire.Erp.Web.Controllers
             //}
             //clsAccountAndStock.SalesVoucher_Accounts_STOCK_Transactions("", "", param1, param2, ref param4, ref param3, allUnits);
             var xs = await _salesVoucherService.UpdateSalesVoucher(param1, param3, param2
-           , param4
+           , param4,param5
            );
             //========================
             SalesVoucherViewModel salesVoucherViewModel = new SalesVoucherViewModel
@@ -299,6 +307,7 @@ namespace Inspire.Erp.Web.Controllers
 
             salesVoucherViewModel.SalesVoucherDetails = _mapper.Map<List<SalesVoucherDetailsViewModel>>(xs.salesVoucherDetails);
             salesVoucherViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
+            salesVoucherViewModel.SalesChargesList = _mapper.Map<List<SalesCharges>>(xs.salesChargesList);
 
             ApiResponse<SalesVoucherViewModel> apiResponse = new ApiResponse<SalesVoucherViewModel>
             {
@@ -438,6 +447,7 @@ namespace Inspire.Erp.Web.Controllers
                 };
                 salesVoucherViewModel.SalesVoucherDetails = _mapper.Map<List<SalesVoucherDetailsViewModel>>(xs.salesVoucherDetails);
                 salesVoucherViewModel.AccountsTransactions = _mapper.Map<List<AccountTransactionViewModel>>(xs.accountsTransactions);
+                salesVoucherViewModel.SalesChargesList = _mapper.Map<List<SalesCharges>>(xs.salesChargesList);
                 ApiResponse<SalesVoucherViewModel> apiResponse = new ApiResponse<SalesVoucherViewModel>
                 {
                     Valid = true,
@@ -844,6 +854,39 @@ namespace Inspire.Erp.Web.Controllers
                 throw;
             }
         }
+        [HttpGet]
+        [Route("LoadSalesCharges")]
+        public ResponseInfo LoadSalesCharges()
+        {
+            var objectResponse = new ResponseInfo();
+            var salesChargesQuery = _salesChargesRepository.GetAsQueryable().AsNoTracking();
+            var otherChargesQuery = _otherChargesMasterRepository.GetAsQueryable().AsNoTracking();
+
+            var joinedData = (from s in salesChargesQuery
+                              join o in otherChargesQuery on s.ServiceID equals o.ServiceID
+                              select new
+                              {
+                                  s.ChargesId,
+                                  s.Voucherno,
+                                  s.ServiceID,
+                                  o.ServiceName,
+                                  o.AccountNo,
+                                  o.VatPer,
+                                  o.ServiceType,
+                                  s.Amount,
+                                  s.TaxIncAmount,
+                                  s.Remarks
+                              }).ToList();
+
+            objectResponse.ResultSet = new
+            {
+                SalesChargesList = joinedData
+            };
+            objectResponse.IsSuccess = true;
+
+            return objectResponse;
+        }
+
 
     }
 }

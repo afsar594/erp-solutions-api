@@ -37,6 +37,7 @@ namespace Inspire.Erp.Domain.Modals.AccountStatement
         public string NinetyOneToOneEighty { get; set; }
         public string OneEightOneToTwoSeventy { get; set; }
         public string TwoSeventyOneToThreeSixty { get; set; }
+        public string TwoSevenOneToThreeSixty { get; set; }
         public string OverThreeSixty { get; set; }
         public string CrBal { get; set; }
         public string UnAllocated { get; set; }
@@ -93,4 +94,9 @@ namespace Inspire.Erp.Domain.Modals.AccountStatement
         //public decimal? AccountsTransactionsVatableAmount { get; set; }
         //public bool? AccountstransactionsDelStatus { get; set; }
     }
+
+
+    
+
+
 }

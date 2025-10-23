@@ -36,7 +36,7 @@ namespace Inspire.Erp.Application.Authentication.Implementations
             var user = userFileRepository.GetAsQueryable().Where(x => x.UserName == userData.UserName && x.Password == userData.Password).SingleOrDefault();
             return user;
         }
-        public UserFile Authenticate(UserFile userData, string ipAddress)
+        public UserFile Authenticate(UserFile userData, string ipAddress, int locationId)
         {
             var user = userFileRepository.GetWithInclude(c => c.UserName == userData.UserName, c => c.ApproverLevelSettings).FirstOrDefault();
 
@@ -68,7 +68,7 @@ namespace Inspire.Erp.Application.Authentication.Implementations
                         else
                         {
                             // authentication successful so generate jwt and refresh tokens
-                            var jwtToken = generateJwtToken(user);
+                            var jwtToken = generateJwtToken(user, locationId);
                             var refreshToken = generateRefreshToken(user);
                             user.Loginfailure = 0;
                             user.Token = jwtToken;
@@ -198,7 +198,7 @@ namespace Inspire.Erp.Application.Authentication.Implementations
             return tokenHandler.WriteToken(token);
         }
 
-        private string generateJwtToken(UserFile user)
+        private string generateJwtToken(UserFile user, int? locationId = -1)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var secret = this.Configuration["ApplicationSettings:Secret"];
@@ -211,7 +211,8 @@ namespace Inspire.Erp.Application.Authentication.Implementations
                 new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                 new Claim(ClaimTypes.Name, user.UserName),
                 new Claim("GroupId", user.WorkGroupId.ToString()),
-                new Claim("DepartmentId", user.DepartmentId.ToString())
+                new Claim("DepartmentId", user.DepartmentId.ToString()),
+                new Claim("LocationId", locationId.ToString())
             };
 
             var tokenDescriptor = new SecurityTokenDescriptor

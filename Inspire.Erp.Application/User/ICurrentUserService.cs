@@ -12,7 +12,8 @@ namespace Inspire.Erp.Application.User
         string Username { get; }
         string Role { get; }
         string GroupId { get;}
-        string DepartmentId { get;}
+        string DepartmentId { get; }
+        long LocationId { get; }
     }
 
 }

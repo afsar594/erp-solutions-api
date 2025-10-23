@@ -23,9 +23,11 @@ namespace Inspire.Erp.Application.Helpers
 
         public  async Task<string> DownloadedFileAsync(string reportUrl, string fileType, string fileNo,int fileId,string vNO, bool isUpdate = false)
         {
-            var sql = fileType == "PurchaseOrder" ?
-                $"select * from VR_PurchaseOrder where VR_PurchaseOrder.purchaseorderno ='{fileNo}'"
-                :$"select * from vw_PurchaseRequisition where purchaserequisitionid = {fileNo}";
+            var sql = fileType == "PurchaseOrder"
+                                          ? $"select  * from VR_PurchaseOrder where purchaseorderid = {fileId}"
+                                          : $"select  * from vw_PurchaseRequisition where purchaserequisitionid = {fileId}";
+
+            Console.WriteLine($"Executing report SQL: {sql}");
 
 
             var reportFilter = new

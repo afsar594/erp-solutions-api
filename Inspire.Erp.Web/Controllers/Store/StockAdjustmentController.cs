@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Inspire.Erp.Web.Controllers.Store
 {    
@@ -184,11 +185,11 @@ namespace Inspire.Erp.Web.Controllers.Store
         }
 
         [HttpGet]
-        [Route("GetStockByLocation/{id}")]
-        public ResponseInfo GetStockByLocation(int id)
+        [Route("GetStockByLocation")]
+        public ResponseInfo GetStockByLocation([FromQuery] int id, [FromQuery] DateTime asOnDate)
         {
                     var objresponse = new ResponseInfo();
-            objresponse = _sa.GetStockByLocation(id);
+            objresponse = _sa.GetStockByLocation(id, asOnDate);
 
             return objresponse;
         }

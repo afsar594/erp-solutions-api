@@ -11,5 +11,6 @@ namespace Inspire.Erp.Domain.DTO.ItemMaster
         public string SearchTerm { get; set; }
         public string SortColumn { get; set; } = "Id";
         public string SortDirection { get; set; } = "asc";
+        public int? Supplier { get; set; }
     }
 }

@@ -479,6 +479,10 @@ namespace Inspire.Erp.Infrastructure.Database
         public DbSet<JobMasterControl> JobMasterControl { get; set; }
 
         public virtual DbSet<HrDesignation> HrDesignation { get; set; }
+
+        public DbSet<SalesCharges> Sales_Charges { get; set; }
+        public DbSet<OtherChargesMaster> Other_Charges_Master { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -2810,7 +2814,6 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.PurchaseOrderDelivFromDate).HasColumnType("datetime");
 
                 entity.Property(e => e.PurchaseOrderDelivPlace)
-                    .HasMaxLength(50)
                     .IsUnicode(false);
 
                 entity.Property(e => e.PurchaseOrderDelivStatus)
@@ -7265,7 +7268,6 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.OpeningStockVoucherDetailsId)
                     .HasColumnName("OpeningStockVoucherDetailsID")
-                    .HasColumnType("numeric(18, 0)")
                  .ValueGeneratedOnAdd();
 
                 entity.Property(e => e.OpeningStockVoucherId).HasColumnType("numeric(18, 4)");
@@ -8099,20 +8101,23 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.ToTable("Item_Supplier_Details");
 
                 entity.Property(e => e.ItemSupplierDetailsItemSupplierDetailsId)
-                    .HasColumnName("Item_Supplier_Details_ItemSupplierDetails_ID")
-                    .ValueGeneratedNever();
+                    .HasColumnName("Item_Supplier_Details_ItemSupplierDetails_ID");
 
-                entity.Property(e => e.ItemSupplierDetailsBatchId).HasColumnName("Item_Supplier_Details_Batch_ID");
+                entity.Property(e => e.ItemSupplierDetailsBatchId)
+                    .HasColumnName("Item_Supplier_Details_Batch_ID");
 
-                entity.Property(e => e.ItemSupplierDetailsDelStatus).HasColumnName("Item_Supplier_Details_DelStatus");
+                entity.Property(e => e.ItemSupplierDetailsDelStatus)
+                    .HasColumnName("Item_Supplier_Details_DelStatus");
 
-                entity.Property(e => e.ItemSupplierDetailsItemId).HasColumnName("Item_Supplier_Details_Item_ID");
+                entity.Property(e => e.ItemSupplierDetailsItemId)
+                    .HasColumnName("Item_Supplier_Details_Item_ID");
 
                 entity.Property(e => e.ItemSupplierDetailsRate)
                     .HasColumnName("Item_Supplier_Details_Rate")
                     .HasColumnType("numeric(18, 4)");
 
-                entity.Property(e => e.ItemSupplierDetailsSupplierId).HasColumnName("Item_Supplier_Details_Supplier_ID");
+                entity.Property(e => e.ItemSupplierDetailsSupplierId)
+                    .HasColumnName("Item_Supplier_Details_Supplier_ID");
             });
 
             modelBuilder.Entity<JobBudgetDetails>(entity =>
@@ -8715,7 +8720,7 @@ namespace Inspire.Erp.Infrastructure.Database
             });
 
 
-            modelBuilder.Entity<JobMasterControl>(entity =>
+            modelBuilder.Entity<JobMasterControl>((Action<Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<JobMasterControl>>)(entity =>
             {
                 entity.HasKey(e => e.JobMasterControlDtlId);
 
@@ -8733,7 +8738,12 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.JobMasterControlActual).HasColumnName("Job_Master_Control_Actual");
                 entity.Property(e => e.RefVoucherNo).HasColumnName("Job_Master_Control_RefNo");
                 entity.Property(e => e.EmailClose).HasColumnName("Email_Close");
-            });
+
+                entity.HasOne(d => d.JobMasters)
+                                     .WithMany((System.Linq.Expressions.Expression<Func<JobMaster, IEnumerable<JobMasterControl>>>)(p => (IEnumerable<JobMasterControl>)p.JobMasterControl))
+                                     .HasForeignKey(d => d.JobMasterControlJobID)
+                                     .HasConstraintName("FK_Job_Master_Control_Job_Master");
+            }));
 
             modelBuilder.Entity<JobMasterBudgetDetails>(entity =>
             {
@@ -11690,11 +11700,9 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.PurchaseOrderDelivFromDate).HasColumnType("datetime");
 
                 entity.Property(e => e.PurchaseOrderDelivPlace)
-                    .HasMaxLength(50)
                     .IsUnicode(false);
 
                 entity.Property(e => e.PurchaseOrderDelivStatus)
-                    .HasMaxLength(50)
                     .IsUnicode(false);
 
                 entity.Property(e => e.PurchaseOrderDelivToDate).HasColumnType("datetime");
@@ -15297,6 +15305,10 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.StockAdjustmentVoucherSaDate)
                     .HasColumnName("Stock_Adjustment_Voucher_SA_Date")
                     .HasColumnType("datetime");
+
+                entity.Property(e => e.StockAdjustmentVoucherSAAsOnDate)
+                .HasColumnName("Stock_Adjustment_Voucher_SA_AsOnDate")
+                .HasColumnType("datetime");
 
                 entity.Property(e => e.StockAdjustmentVoucherSaId).HasColumnName("Stock_Adjustment_Voucher_SA_ID");
 

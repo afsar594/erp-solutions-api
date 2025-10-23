@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Inspire.Erp.Application.Master;
 using Inspire.Erp.Application.Master.Interfaces;
+using Inspire.Erp.Application.User;
 using Inspire.Erp.Domain.DTO.ItemMaster;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
@@ -27,7 +28,7 @@ namespace Inspire.Erp.Web.Controllers
         private readonly IMapper _mapper;
         private IItemMasterService itemMasterService;
         private ILocationMasterService locationMasterService;
-
+        private readonly ICurrentUserService _currentUserService;
         private readonly IRepository<SalesVoucher> _repoSalesVoucher;
         private readonly IRepository<SalesVoucherDetails> _repoSalesVoucherDetails;
         private readonly IRepository<StockRegister> _repoStockRegister;
@@ -38,7 +39,7 @@ namespace Inspire.Erp.Web.Controllers
         public ItemMasterController(IRepository<ItemMaster> _itemrepository, IRepository<VendorMaster> _Brandrepository, IRepository<ItemStockType> _itemStockRepository,
             IRepository<SuppliersMaster> _supplierrepository, IRepository<TaxMaster> _Taxrepository, IRepository<PriceLevelMaster> _priceLevelrepository,
             IRepository<UnitMaster> _unitrepository, IRepository<UnitDetails> unitDetailsRepo,
-            IItemMasterService _itemMasterService, ILocationMasterService _locationMasterService, IMapper mapper, IRepository<SalesVoucher> repoSalesVoucher, IRepository<SalesVoucherDetails> repoSalesVoucherDetails, IRepository<StockRegister> repoStockRegister)
+            IItemMasterService _itemMasterService, ILocationMasterService _locationMasterService, IMapper mapper, IRepository<SalesVoucher> repoSalesVoucher, IRepository<SalesVoucherDetails> repoSalesVoucherDetails, IRepository<StockRegister> repoStockRegister, ICurrentUserService currentUserService)
         {
             itemMasterService = _itemMasterService;
             locationMasterService = _locationMasterService;
@@ -48,6 +49,7 @@ namespace Inspire.Erp.Web.Controllers
             _repoSalesVoucher = repoSalesVoucher;
             _repoSalesVoucherDetails = repoSalesVoucherDetails;
             _repoStockRegister = repoStockRegister;
+            _currentUserService = currentUserService;
         }
         [HttpGet]
         [Route("GetAllItem")]
@@ -258,7 +260,7 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpPost]
         [Route("NewItem")]
-        public async Task<ApiResponse<ItemMasterViewModel>> NewItem([FromBody] ItemMasterViewModel itemMaster)
+        public async Task<IActionResult> NewItem([FromBody] ItemMasterViewModel itemMaster)
         {
             try
             {
@@ -275,47 +277,55 @@ namespace Inspire.Erp.Web.Controllers
                 }
 
                 var model = _mapper.Map<ItemMaster>(itemMaster);
-                var isExistingItem = await itemMasterService.CheckForExistingItem(model);
-                // If service returned ture → means duplicate item
-                if (isExistingItem)
+                //var isExistingItem = await itemMasterService.CheckForExistingItem(model);
+                var data = new ItemMaster();
+                var result = new ItemMasterViewModel();
+                if ((itemMaster.ItemMasterItemId == null || itemMaster.ItemMasterItemId == 0))
                 {
-                    return new ApiResponse<ItemMasterViewModel>
+                    data = await itemMasterService.NewItem(model);
+                    if (data.ItemMasterItemId == 0)
                     {
-                        Valid = false,
-                        Result = null,
-                        Message = $"Item with name '{itemMaster.ItemMasterItemName}' already exists."
-                    };
+                        return Ok( new ApiResponse<ItemMasterViewModel>
+                        {
+                            Valid = false,
+                            Result = null,
+                            Message = $"Item with name '{itemMaster.ItemMasterItemName}' already exists."
+                        });
+                    }
+                    else
+                    {
+                        result = _mapper.Map<ItemMasterViewModel>(data);
+                        return Ok(new ApiResponse<ItemMasterViewModel>
+                        {
+                            Valid = true,
+                            Result = result,
+                            Message = ItemMasterMessage.SaveItem
+                        });
+                    }
                 }
                 else
                 {
-                    var data = (itemMaster.ItemMasterItemId == null || itemMaster.ItemMasterItemId == 0)
-                      ? await itemMasterService.NewItem(model)
-                      : itemMasterService.UpdateNewItem(model);
-                    ItemMasterViewModel result = _mapper.Map<ItemMasterViewModel>(data);
-
-                    return new ApiResponse<ItemMasterViewModel>
+                    data = itemMasterService.UpdateNewItem(model);
+                    result = _mapper.Map<ItemMasterViewModel>(data);
+                    return Ok(new ApiResponse<ItemMasterViewModel>
                     {
                         Valid = true,
                         Result = result,
-                        Message = (itemMaster.ItemMasterItemId == null || itemMaster.ItemMasterItemId == 0)
-                            ? ItemMasterMessage.SaveItem
-                            : ItemMasterMessage.UpdateItem
-                    };
-
+                        Message = ItemMasterMessage.UpdateItem
+                    });
                 }
 
-               
             }
             catch (Exception ex)
             {
                 // Handle any unexpected error gracefully
-                return new ApiResponse<ItemMasterViewModel>
+                return Ok(new ApiResponse<ItemMasterViewModel>
                 {
                     Valid = false,
                     Result = null,
                     Message = "Unexpected error occurred",
                     //Error = ex.Message
-                };
+                });
             }
         }
         [HttpPost]
@@ -610,7 +620,7 @@ namespace Inspire.Erp.Web.Controllers
         {
             var response = new ResponseInfo();
             decimal? lastSalePrice = null;
-            decimal? CurrentItemStock = null;
+            decimal CurrentItemStock = 0m;
             var item = itemrepository.GetAsQueryable()
                 .Where(x => x.ItemMasterItemId == id && x.ItemMasterDelStatus != true)
                 .Select(a => new
@@ -641,7 +651,7 @@ namespace Inspire.Erp.Web.Controllers
                     c.UnitDetailsUnitPrice,
                     c.UnitDetailsUnitCost,
                     c.UnitDetailsProfitPer,
-                    
+
                 })
                 .FirstOrDefault();
             if (customerId > 0)
@@ -657,7 +667,7 @@ namespace Inspire.Erp.Web.Controllers
 
             var stockData = _repoStockRegister.GetAsQueryable()
                                               .AsNoTracking()
-                                              .Where(x => x.StockRegisterMaterialID == id && !(bool)x.StockRegisterDelStatus)
+                                              .Where(x => x.StockRegisterMaterialID == id && !(bool)x.StockRegisterDelStatus && x.StockRegisterLocationID == _currentUserService.LocationId)
                                               .GroupBy(x => x.StockRegisterMaterialID)
                                               .Select(g => new
                                               {
@@ -676,7 +686,7 @@ namespace Inspire.Erp.Web.Controllers
                 item.ItemMasterItemName,
                 item.ItemMasterPartNo,
                 ItemMasterUnitPrice = lastSalePrice ?? item.ItemMasterUnitPrice,
-                CurrentItemStock = CurrentItemStock ?? 0m,
+                CurrentItemStock = Math.Round(CurrentItemStock,2),
                 item.ItemMasterLastPurchasePrice,
                 UnitDetails = unitDetail
             };
@@ -687,7 +697,7 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpGet]
         [Route("GetItemMasterByIdAndLocation/{id}/{locationID}/{customerId?}")]
-        public ResponseInfo GetItemMasterByIdAndLocation(int id, int locationID,int customerId = -1)
+        public ResponseInfo GetItemMasterByIdAndLocation(int id, int locationID, int customerId = -1)
         {
             var response = new ResponseInfo();
             decimal? lastSalePrice = null;

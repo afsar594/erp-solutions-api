@@ -137,20 +137,26 @@ namespace Inspire.Erp.Application.Email.Implementations
                     if (isLastLevel)
                     {
                         string token = _loginService.GenerateAutoLoginToken(UserId);
-
                         string approvalRedirectUrl = $"{_mailSettings.MainUrl}purchase-order/approve-email-template?approverLevel={level}&orderId={orderId}&orderType={orderType}&jobId={jobId}&approvalStatus=2&userId={UserId}";
                         string rejectRedirectUrl = $"{_mailSettings.MainUrl}purchase-order/approve-email-template?approverLevel={level}&orderId={orderId}&orderType={orderType}&jobId={jobId}&approvalStatus=3&userId={UserId}";
+                        actionButtons.Add(new
+                        {
+                            ApproveUrl = $"{_mailSettings.AutoLoginUrl}api/auto-login?token={token}&redirect={Uri.EscapeDataString(approvalRedirectUrl)}",
+                            RejectUrl = $"{_mailSettings.AutoLoginUrl}api/auto-login?token={token}&redirect={Uri.EscapeDataString(rejectRedirectUrl)}"
+                        });
 
-                        actionButtons.Add(new { ApproveUrl = $"{_mailSettings.AutoLoginUrl}api/auto-login?token={token}&redirect={Uri.EscapeDataString(approvalRedirectUrl)}" });
-                        actionButtons.Add(new { RejectUrl = $"{_mailSettings.AutoLoginUrl}api/auto-login?token={token}&redirect={Uri.EscapeDataString(rejectRedirectUrl)}" });
-
-                        mergedFileResult = await _docsAttachmentService.DownloadAllFilesAsOnePdf(orderId, GetOrderTypeKey(orderType)); // Renamed variable to avoid conflict
+                        mergedFileResult = await _docsAttachmentService.DownloadAllFilesAsOnePdf(orderId, GetOrderTypeKey(orderType));
                     }
                     else
                     {
-                        var approvalUrl = $"{_mailSettings.MainUrl}procurement/po-approval?menu=184&vNo={orderId}&type={orderType}".Trim();
-                        actionButtons.Add(new { ApproveUrl = $"{_mailSettings.MainUrl}login?returnUrl={Uri.EscapeDataString(approvalUrl)}" });
+                        string approvalUrl = $"{_mailSettings.MainUrl}procurement/po-approval?menu=184&vNo={orderId}&type={orderType}".Trim();
+
+                        actionButtons.Add(new
+                        {
+                            ApproveUrl = $"{_mailSettings.MainUrl}login?returnUrl={Uri.EscapeDataString(approvalUrl)}"
+                        });
                     }
+
                     var rptData = toMails.Select(x => new
                     {
                         SubTitle = subTitle,

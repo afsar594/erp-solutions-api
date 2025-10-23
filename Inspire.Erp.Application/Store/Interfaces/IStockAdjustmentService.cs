@@ -16,7 +16,7 @@ namespace Inspire.Erp.Application.Store.Interfaces
         public Task<StockAdjustmentVoucher> InsertStockAdjustmentVoucher(StockAdjustmentVoucher stockAdjustmentVoucher, List<StockAdjustmentVoucherDetails> stockAdjustmentVoucherDetails, List<AccountsTransactions> AccountsTransactions);
         public Task<StockAdjustmentVoucher> UpdateStockAdjustmentVoucher(StockAdjustmentVoucher stockAdjustmentVoucher, List<StockAdjustmentVoucherDetails> stockAdjustmentVoucherDetails);
         public StockAdjustmentVoucher GetSavedStockAdjustmentferDetails(int id);
-        public ResponseInfo GetStockByLocation(int id);
+        public ResponseInfo GetStockByLocation(int id,DateTime asOnDate);
         public int DeleteStockAdjustmentVoucher(StockAdjustmentVoucher stockAdjustmentVoucher, List<StockAdjustmentVoucherDetails> stockAdjustmentVoucherDetails);
 
         Task<Response<List<StockAdjustmentReportResponse>>> StockAdjustmentReport(StockAdjustmentReportFilter model);

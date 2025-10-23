@@ -3,6 +3,8 @@ using Inspire.Erp.Web.Common;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -75,6 +77,8 @@ namespace Inspire.Erp.Web.ViewModels
         public List<ItemPriceLevelDetailsViewModel> ItemPriceLevelDetails { get; set; }
         public List<UnitDetailsViewModel> UnitDetails { get; set; }
         public List<ItemImagesViewModel> ItemImages { get; set; }
+
+        public List<ItemSupplierDetailsViewModel> ItemSupplierDetails { get; set; } = new List<ItemSupplierDetailsViewModel>();
     }
 
     public class ItemMasterDTModel
@@ -98,4 +102,17 @@ namespace Inspire.Erp.Web.ViewModels
         public double? UnitDetailsUnitPrice { get; set; }
 
     }
+
+    public class ItemSupplierDetailsViewModel
+    {
+        public long ItemSupplierDetailsItemSupplierDetailsId { get; set; }
+        public long? ItemSupplierDetailsItemId { get; set; }
+        public int? ItemSupplierDetailsSupplierId { get; set; }
+        public string? SupplierName { get; set; }
+        public decimal? ItemSupplierDetailsRate { get; set; }
+        public int? ItemSupplierDetailsBatchId { get; set; }
+        public bool? ItemSupplierDetailsDelStatus { get; set; }
+
+    }
+
 }
