@@ -544,6 +544,10 @@ namespace Inspire.Erp.Web.Common
             CreateMap<SalesVoucherModel, SalesCharges>();
             CreateMap<SalesCharges, SalesVoucherModel>();
 
+
+            CreateMap<PurchaseVoucherModel, PurchaseCharges>();
+            CreateMap<PurchaseCharges, PurchaseVoucherModel>();
+
         }
     }
 }

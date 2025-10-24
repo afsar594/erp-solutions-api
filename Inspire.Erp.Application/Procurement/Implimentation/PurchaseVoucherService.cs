@@ -36,12 +36,13 @@ namespace Inspire.Erp.Application.Master.Implementations
         private IRepository<ItemMaster> _ItemMaster;
         private IRepository<UnitMaster> _UnitMaster;
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
+        private IRepository<PurchaseCharges> _purchaseChargesRepository;
         private InspireErpDBContext _context;
         private readonly IConfiguration _configuration;
         public PurchaseVoucherService(IRepository<PurchaseVoucher> PurchaseVoucher, IRepository<PurchaseVoucherDetails> PurchaseVoucherDetails,
         IRepository<JobMaster> JobMaster, IRepository<Suppliers> Suppliers, IRepository<LocationMaster> LocationMaster,
         IRepository<ItemMaster> ItemMaster, IRepository<UnitMaster> UnitMaster, InspireErpDBContext context, IRepository<VouchersNumbers> voucherNumbersRepository,
-        IRepository<ProgramSettings> programsettingsRepository, IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<CurrencyMaster> currencyMasterRepository, IConfiguration configuration)
+        IRepository<ProgramSettings> programsettingsRepository, IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<CurrencyMaster> currencyMasterRepository, IRepository<PurchaseCharges> purchaseChargesRepository, IConfiguration configuration)
         {
             _PurchaseVoucher = PurchaseVoucher;
             _PurchaseVoucherDetails = PurchaseVoucherDetails;
@@ -56,6 +57,7 @@ namespace Inspire.Erp.Application.Master.Implementations
             _accountTransactionRepository = accountTransactionRepository;
             _stockRegisterRepository = stockRegisterRepository;
             _currencyMasterRepository = currencyMasterRepository;
+            _purchaseChargesRepository = purchaseChargesRepository;
             _configuration = configuration;
         }
         public IEnumerable<PurchaseVoucher> GetPurchaseVoucher()
@@ -486,6 +488,7 @@ namespace Inspire.Erp.Application.Master.Implementations
                 //=================================
                 clsCommonFunctions.Delete_OldEntryOf_StockRegister(purchaseVoucher.PurchaseVoucherVoucherNo, VoucherType.PurchaseVoucher_TYPE, _stockRegisterRepository);
                 clsCommonFunctions.Delete_OldEntry_AccountsTransactions(purchaseVoucher.PurchaseVoucherVoucherNo, purchaseVoucher.PurchaseVoucherPurchaseType, _accountTransactionRepository);
+             
                 _PurchaseVoucher.Update(purchaseVoucher);
 
                 accountsTransactions = accountsTransactions.Select((k) =>
@@ -666,7 +669,7 @@ namespace Inspire.Erp.Application.Master.Implementations
             }
         }
 
-        public PurchaseVoucher InsertPurchaseVoucher(PurchaseVoucher purchaseVoucher, List<AccountsTransactions> accountsTransactions, List<PurchaseVoucherDetails> purchaseVoucherDetails)
+        public PurchaseVoucher InsertPurchaseVoucher(PurchaseVoucher purchaseVoucher, List<AccountsTransactions> accountsTransactions, List<PurchaseVoucherDetails> purchaseVoucherDetails, List<PurchaseCharges> purchaseChargesList)
         {
             try
             {
@@ -681,6 +684,16 @@ namespace Inspire.Erp.Application.Master.Implementations
                 maxcount = Convert.ToInt32(
                     _PurchaseVoucher.GetAsQueryable()
                     .DefaultIfEmpty().Max(o => o == null ? 0 : o.PurchaseVoucherPurID) + 1);
+                if (purchaseChargesList != null && purchaseChargesList.Any())
+                {
+                    purchaseChargesList.ForEach(x => x.Voucherno = purchaseVoucher.PurchaseVoucherVoucherNo);
+
+                    _purchaseChargesRepository.InsertListAsync(purchaseChargesList);
+
+                    decimal totalServiceCharges = purchaseChargesList.Sum(x => x.TaxIncAmount);
+                    purchaseVoucher.ServiceCharges = totalServiceCharges;
+                }
+
                 _PurchaseVoucher.Insert(purchaseVoucher);
                 purchaseVoucherDetails = purchaseVoucherDetails.Select((x) =>
                 {
@@ -739,7 +752,7 @@ namespace Inspire.Erp.Application.Master.Implementations
             }
         }
 
-        public PurchaseVoucher UpdatePurchaseVoucher(PurchaseVoucher purchaseVoucher, List<AccountsTransactions> accountsTransactions, List<PurchaseVoucherDetails> purchaseVoucherDetails)
+        public PurchaseVoucher UpdatePurchaseVoucher(PurchaseVoucher purchaseVoucher, List<AccountsTransactions> accountsTransactions, List<PurchaseVoucherDetails> purchaseVoucherDetails, List<PurchaseCharges> purchaseChargesList)
         {
             try
             {
@@ -768,8 +781,20 @@ namespace Inspire.Erp.Application.Master.Implementations
                     xx.PurchaseVoucherDetailsVoucherNo = purchaseVoucher.PurchaseVoucherVoucherNo;
                 };
                 _PurchaseVoucherDetails.InsertList(purchaseVoucherDetails);
+                if (purchaseChargesList != null && purchaseChargesList.Any())
+                {
+                    var existingCharges = _purchaseChargesRepository.GetAsQueryable()
+                        .Where(i => i.Voucherno == purchaseVoucher.PurchaseVoucherVoucherNo).ToList();
+                    _purchaseChargesRepository.DeleteList(existingCharges);
 
-               _PurchaseVoucher.Update(purchaseVoucher);
+                    purchaseChargesList.ForEach(x => x.Voucherno = purchaseVoucher.PurchaseVoucherVoucherNo);
+
+                     _purchaseChargesRepository.InsertListAsync(purchaseChargesList);
+
+                    decimal totalServiceCharges = purchaseChargesList.Sum(x => x.TaxIncAmount);
+                    purchaseVoucher.ServiceCharges = totalServiceCharges;
+                }
+                _PurchaseVoucher.Update(purchaseVoucher);
 
                 List<StockRegister> stockRegisters = new List<StockRegister>();
 

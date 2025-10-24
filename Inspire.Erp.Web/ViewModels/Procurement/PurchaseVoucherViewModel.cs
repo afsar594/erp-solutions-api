@@ -1,4 +1,5 @@
 ﻿//using Inspire.Erp.Web.ViewModels.Procurement;
+using Inspire.Erp.Domain.Entities;
 using System;
 using System.Collections.Generic;
 
@@ -71,6 +72,7 @@ namespace Inspire.Erp.Web.ViewModels.Procurement
 
         public List<AccountTransactionViewModel> AccountsTransactions { get; set; }
         public List<PurchaseVoucherDetailsViewModel> PurchaseVoucherDetails { get; set; }
+      
     }
 
     public partial class PurchaseVoucherListView

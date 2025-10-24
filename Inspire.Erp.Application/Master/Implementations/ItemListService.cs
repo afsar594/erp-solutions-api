@@ -1,11 +1,15 @@
 ﻿using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Domain.Modals;
+using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Infrastructure.Database;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Numerics;
@@ -14,8 +18,6 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
-using Microsoft.AspNetCore.Mvc.ApplicationModels;
-using System.IO;
 
 namespace Inspire.Erp.Application.Master
 {
@@ -150,6 +152,109 @@ namespace Inspire.Erp.Application.Master
 
             }
         }
+        public async Task<Response<GridWrapperResponse<List<ItemListViewModel>>>> GetAllItemListSearchPaginated(GenericGridViewModel model)
+        {
+            try
+            {
+                var query = (from IM in _dbcontext.ItemMaster
+                             join IG in _dbcontext.ItemMaster on IM.ItemMasterAccountNo equals IG.ItemMasterItemId into IGJoin
+                             from IG in IGJoin.DefaultIfEmpty()
+
+                             join vendor in _dbcontext.VendorMaster on IM.ItemMasterVenderId equals vendor.VendorMasterVendorId into vendorJoin
+                             from vendor in vendorJoin.DefaultIfEmpty()
+
+                             join UD in _dbcontext.UnitDetails on IM.ItemMasterItemId equals UD.UnitDetailsItemId into UDJoin
+                             from UD in UDJoin.DefaultIfEmpty()
+
+                             join UM in _dbcontext.UnitMaster on UD.UnitDetailsUnitId equals UM.UnitMasterUnitId into UMJoin
+                             from UM in UMJoin.DefaultIfEmpty()
+
+                             join S in _dbcontext.Suppliers on IM.ItemMasterSuplierCode equals S.SuppliersGroupNo into SJoin
+                             from S in SJoin.DefaultIfEmpty()
+
+                             where IM.ItemMasterItemType == "A"
+                                   && IM.ItemMasterDelStatus != true
+                                   && (IG.ItemMasterDelStatus != true || IG.ItemMasterDelStatus == null)
+                             select new ItemListViewModel
+                             {
+                                 UnitDetailsID = UD.UnitDetailsId,
+                                 BarcodePrint = "",
+                                 ItemId = (long?)IM.ItemMasterItemId ?? 0,
+                                 PartNo = IM.ItemMasterPartNo ?? "",
+                                 Item_Name = IM.ItemMasterItemName ?? "",
+                                 Stock = IM.ItemMasterCurrentStock ?? 0,
+                                 Barcode = IM.ItemMasterBarcode ?? "",
+                                 GroupName = IG.ItemMasterItemName ?? "ItemMaster",
+                                 VendorName = vendor.VendorMasterVendorName ?? "",
+                                 Price = IM.ItemMasterUnitPrice ?? 0,
+                                 Style = 0,
+                                 UD_UNIT = UM.UnitMasterUnitShortName ?? "",
+                                 UD_Barcode = UD.UnitDetailsBarcode ?? "",
+                                 Unit_Details_ConversionType = UD.UnitDetailsConversionType ?? 0,
+                                 Unit_Details_Rate = UD.UnitDetailsRate ?? 0,
+                                 Packing = UD.UnitDetailsPacking ?? "",
+                                 UD_Discrption = UD.UnitDetailsDescrption ?? "",
+                                 UD_UnitCost = UD.UnitDetailsUnitCost ?? 0,
+                                 UD_UnitPrice = UD.UnitDetailsUnitPrice ?? 0,
+                                 SupplierName = Convert.ToString(S.SuppliersInsName) ?? null,
+                                 ItemMasterAccountNo = IM.ItemMasterAccountNo ?? 0,
+                                 ItemSize = Convert.ToString(IM.ItemMasterItemSize) ?? "",
+                                 isUpdated = false
+                             });
+
+                if (!string.IsNullOrEmpty(model.Search))
+                {
+                    query = query.Where(s =>
+                        s.Item_Name.Contains(model.Search) ||
+                        s.PartNo.Contains(model.Search) ||
+                        s.UD_Barcode.Contains(model.Search) ||
+                        s.VendorName.Contains(model.Search) ||
+                        s.GroupName.Contains(model.Search) ||
+                        s.SupplierName.Contains(model.Search));
+                }
+
+                if (!string.IsNullOrEmpty(model.Filter))
+                {
+                    query = query.Where(model.Filter);
+                }
+
+                var totalCount = await query.CountAsync();
+
+                IOrderedQueryable<ItemListViewModel> orderedQuery;
+                if (!string.IsNullOrEmpty(model.Field))
+                {
+                    string sortDir = model.Dir?.ToLower() == "desc" ? "descending" : "ascending";
+                    orderedQuery = query.OrderBy($"{model.Field} {sortDir}");
+                }
+                else
+                {
+                    orderedQuery = query.OrderBy(x => x.Item_Name);
+                }
+
+                var result = await orderedQuery
+                    .Skip(model.Skip)
+                    .Take(model.Take)
+                    .ToListAsync();
+
+                var gridResponse = new GridWrapperResponse<List<ItemListViewModel>>
+                {
+                    Data = result,
+                    Total = totalCount
+                };
+
+                return Response<GridWrapperResponse<List<ItemListViewModel>>>.Success(gridResponse, "Data retrieved successfully");
+            }
+            catch (Exception ex)
+            {
+                var gridResponse = new GridWrapperResponse<List<ItemListViewModel>>
+                {
+                    Data = new List<ItemListViewModel>(),
+                    Total = 0
+                };
+                return Response<GridWrapperResponse<List<ItemListViewModel>>>.Fail(gridResponse, ex.Message);
+            }
+        }
+
         public IEnumerable<ItemListViewModel> UpdateRateItemList(List<RateItemListrModel> dates)
         {
             try
