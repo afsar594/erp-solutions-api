@@ -2,6 +2,7 @@
 using Inspire.Erp.Application.Master;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Web.Common;
 using Inspire.Erp.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -10,6 +11,7 @@ using NPOI.POIFS.Crypt.Dsig;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers
 {
@@ -42,6 +44,13 @@ namespace Inspire.Erp.Web.Controllers
             };
             return apiResponse;
         }
+        [HttpPost]
+        [Route("GetAllItemListSearchPaginated")]
+        public async Task<IActionResult> GetAllItemListSearchPaginated(GenericGridViewModel data)
+        {
+            return Ok(await IItemListService.GetAllItemListSearchPaginated(data));   
+        }
+
         [HttpPost]
         [Route("UpdateRateItemList")]
        public ApiResponse<List<Application.Master.ItemListViewModel>> UpdateRateItemList(List<RateItemListrModel> dates)
