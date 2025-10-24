@@ -268,6 +268,12 @@ namespace Inspire.Erp.Web.Controllers.Accounts
 
         }
 
+        [HttpPost("release-allocations")]
+        public async Task<IActionResult> ReleaseAllocations([FromBody] AllocationVoucher model)
+        {
+                return Ok(await _voucherAllocation.ReleaseVoucherAllocation(model));
+        }
+
         [HttpPost("GetVoucherAllocationsList")]
         public async Task<IActionResult> GetVoucherAllocationsList(GenericGridViewModel model)
         {
