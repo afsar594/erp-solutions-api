@@ -134,6 +134,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                                     Allocation_Voucher_Details_VNO,
                                                     SUM(ISNULL(Allocation_Voucher_Details_Alloc_Debit,0)) AS AllocAmount
                                                 FROM Allocation_Voucher_Details
+                                                where Allocation_Voucher_Details_DelStatus = 0
                                                 GROUP BY Allocation_Voucher_Details_VNO
                                             )
                                             SELECT
