@@ -38,10 +38,12 @@ namespace Inspire.Erp.Application.Master.Interfaces
         Task<Response<GridWrapperResponse<List<GetPurchaseVoucherResponse>>>> GetPurchaseVoucherReport(GenericGridViewModel model);
         public PurchaseVoucher InsertPurchaseVoucher(PurchaseVoucher purchaseVoucher,
                                                                      List<AccountsTransactions> accountsTransactions,
-                                                                     List<PurchaseVoucherDetails> purchaseVoucherDetails);
+                                                                     List<PurchaseVoucherDetails> purchaseVoucherDetails,
+                                                                     List<PurchaseCharges> purchaseChargesList);
         public PurchaseVoucher UpdatePurchaseVoucher(PurchaseVoucher purchaseVoucher,
                                                                      List<AccountsTransactions> accountsTransactions,
-                                                                     List<PurchaseVoucherDetails> purchaseVoucherDetails);
+                                                                     List<PurchaseVoucherDetails> purchaseVoucherDetails, 
+                                                                     List<PurchaseCharges> purchaseChargesList);
 
         public PurchaseVoucher GetSavedPurchaseVoucherDetailsV2(long id);
         public PurchaseVoucher GetSavedPurchaseVoucherDetailsByPurchaseVoucher(string pvNo);

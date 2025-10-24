@@ -74,6 +74,7 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? PurchaseVoucherTotalItemDisAmount { get; set; }
         public decimal? PurchaseVoucherTotalDiscountAmt { get; set; }
         public bool? PurchaseVoucherDelStatus { get; set; }
+        public decimal? ServiceCharges { get; set; }
 
         [NotMapped]
         public virtual Suppliers PurchaseVoucherSp { get; set; }
@@ -92,22 +93,24 @@ namespace Inspire.Erp.Domain.Entities
 
         [NotMapped]
         public List<UserTrackingDisplay> UserTrackingData { get; set; }
+        [NotMapped]
+        public List<PurchaseCharges> PurchaseChargesList { get; set; } = new List<PurchaseCharges>();
 
 
 
 
-       
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+
+
+
+
+
+
+
+
+
+
+
+
         //[NotMapped]
         //public string CurrencyMasterCurrencyName { get; set; }
         //[NotMapped]
