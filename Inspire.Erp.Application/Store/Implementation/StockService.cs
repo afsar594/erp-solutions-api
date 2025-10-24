@@ -50,6 +50,7 @@ namespace Inspire.Erp.Application.Store.Implementation
         private IRepository<UnitMaster> _unitMasterRepository;
         IRepository<UnitDetails> unitDetailRepository;
         private IRepository<PurchaseVoucher> _purchaseVoucherRepository;
+        private IRepository<SalesVoucher> _salesVoucherRepository;
         private IRepository<PurchaseVoucherDetails> _purchaseVoucherDRepository;
         //private IRepository<UnitDetails> _unitDetailsRepository;
         private readonly ILogger<StockService> _logger;
@@ -61,6 +62,7 @@ namespace Inspire.Erp.Application.Store.Implementation
             IRepository<UnitDetails> _unitDetailRepository,
              IRepository<StockRegister> stockRegisterRepository,
              IRepository<PurchaseVoucher> purchaseVoucherRepository,
+             IRepository<SalesVoucher> salesVoucherRepository,
              IRepository<PurchaseVoucherDetails> purchaseVoucherDRepository,
             ILogger<StockService> logger)
         {
@@ -72,6 +74,7 @@ namespace Inspire.Erp.Application.Store.Implementation
             unitDetailRepository = _unitDetailRepository;
             _stockRegisterRepository = stockRegisterRepository;
             _purchaseVoucherDRepository = purchaseVoucherDRepository;
+            _salesVoucherRepository = salesVoucherRepository;
             _purchaseVoucherRepository = purchaseVoucherRepository;
         }
 
@@ -826,6 +829,8 @@ namespace Inspire.Erp.Application.Store.Implementation
                                from n in gum.DefaultIfEmpty()
                                join lm in _context.LocationMaster on y.StockRegisterLocationID equals lm.LocationMasterLocationId into glm
                                from lms in glm.DefaultIfEmpty()
+                               join pv in _purchaseVoucherRepository.GetAsQueryable() on y.StockRegisterRefVoucherNo equals pv.PurchaseVoucherVoucherNo into gpv
+                               from pv in gpv.DefaultIfEmpty()
                                where im.ItemMasterItemType == "A" && (model.ItemId == null || im.ItemMasterItemId == model.ItemId)
                                      && (model.LocationId == null || y.StockRegisterLocationID == model.LocationId)
                                select new StockMovementInOut
@@ -833,6 +838,8 @@ namespace Inspire.Erp.Application.Store.Implementation
                                    Ref_Vocher_No = y.StockRegisterRefVoucherNo,
                                    Voucher_Date = Convert.ToDateTime(y.StockRegisterVoucherDate).ToString("dd/MM/yyyy"),
                                    TransType = y.StockRegisterTransType,
+                                   SupplierName = pv != null ? pv.PurchaseVoucherPartyName : "",
+                                   CustomerName = "",
                                    Unit = n.UnitMasterUnitShortName ?? "",
                                    Location = lms.LocationMasterLocationName ?? "",
                                    Rate = y != null && y.StockRegisterSIN > 0 && y.StockRegisterVoucherDate.Value.Date >= model.fromDate.Date && y.StockRegisterVoucherDate.Value.Date <= model.toDate.Date ? y.StockRegisterRate : 0,
@@ -857,6 +864,8 @@ namespace Inspire.Erp.Application.Store.Implementation
                                 from n in gum.DefaultIfEmpty()
                                 join lm in _context.LocationMaster on y.StockRegisterLocationID equals lm.LocationMasterLocationId into glm
                                 from lms in glm.DefaultIfEmpty()
+                                join sv in _salesVoucherRepository.GetAsQueryable() on y.StockRegisterRefVoucherNo equals sv.SalesVoucherNo into gsv
+                                from sv in gsv.DefaultIfEmpty()
                                 where im.ItemMasterItemType == "A" && (model.ItemId == null || im.ItemMasterItemId == model.ItemId)
                                       && (model.LocationId == null || y.StockRegisterLocationID == model.LocationId)
                                 select new StockMovementInOut
@@ -864,6 +873,8 @@ namespace Inspire.Erp.Application.Store.Implementation
                                     Ref_Vocher_No = y.StockRegisterRefVoucherNo,
                                     Voucher_Date = Convert.ToDateTime(y.StockRegisterVoucherDate).ToString("dd/MM/yyyy"),
                                     TransType = y.StockRegisterTransType,
+                                    SupplierName = "",
+                                    CustomerName =  sv !=null ? sv.SalesVoucherPartyName : "",
                                     Unit = n.UnitMasterUnitShortName ?? "",
                                     Location = lms.LocationMasterLocationName ?? "",
                                     Rate = y != null && y.StockRegisterSout > 0 && y.StockRegisterVoucherDate.Value.Date >= model.fromDate.Date && y.StockRegisterVoucherDate.Value.Date <= model.toDate.Date ? y.StockRegisterRate : 0,
