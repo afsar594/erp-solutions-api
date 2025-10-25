@@ -215,9 +215,16 @@ namespace Inspire.Erp.Web.Controllers.Store
                                   item.ItemMasterVenderId,
                                   item.ItemMasterItemSize,
                                   itemMasterBarcode = unit.UnitDetailsBarcode,
-                                  ItemMasterCurrentStock = _stockRegisterRepository.GetAsQueryable().Where(x => x.StockRegisterMaterialID == item.ItemMasterItemId && x.StockRegisterLocationID == location).Sum(y => (y.StockRegisterSIN ?? 0) - (y.StockRegisterSout ?? 0)),
+                                  ItemMasterCurrentStock = _stockRegisterRepository.GetAsQueryable().Where(x => x.StockRegisterMaterialID == item.ItemMasterItemId && x.StockRegisterLocationID == location ).Sum(y => (y.StockRegisterSIN ?? 0) - (y.StockRegisterSout ?? 0)),
 
                               }).Distinct().OrderBy(x => x.ItemMasterItemName).ToList();
+
+            var itemMasterGroup = _itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo == 0 && (k.ItemMasterDelStatus != true)
+                && k.ItemMasterItemType == ItemMasterStatus.Group).Select(k => new
+                {
+                    k.ItemMasterItemId,
+                    k.ItemMasterItemName,
+                }).OrderBy(x => x.ItemMasterItemName).ToList();
 
             var unitMasters = _unitrepository.GetAsQueryable().AsNoTracking().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
             {
@@ -231,6 +238,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 LocationMaster = LocationMaster,
                 itemMaster = itemMaster,
                 unitMasters = unitMasters,
+                itemGroup = itemMasterGroup,
 
             };
             return objresponse;
