@@ -215,7 +215,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                                   item.ItemMasterVenderId,
                                   item.ItemMasterItemSize,
                                   itemMasterBarcode = unit.UnitDetailsBarcode,
-                                  ItemMasterCurrentStock = _stockRegisterRepository.GetAsQueryable().Where(x => x.StockRegisterMaterialID == item.ItemMasterItemId && x.StockRegisterLocationID == location).Sum(y => (y.StockRegisterSIN ?? 0) - (y.StockRegisterSout ?? 0)),
+                                  ItemMasterCurrentStock = _stockRegisterRepository.GetAsQueryable().Where(x => x.StockRegisterMaterialID == item.ItemMasterItemId && x.StockRegisterLocationID == location ).Sum(y => (y.StockRegisterSIN ?? 0) - (y.StockRegisterSout ?? 0)),
 
                               }).Distinct().OrderBy(x => x.ItemMasterItemName).ToList();
 

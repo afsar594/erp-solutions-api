@@ -345,10 +345,10 @@ namespace Inspire.Erp.Application.Store.Implementation
 
                 decimal SSIN = 0;
                 decimal Sout = 0;
-                int maxcount = 0;
-                maxcount = Convert.ToInt32(
-                    await _stockAdjustmentVoucherRepo.GetAsQueryable()
-                    .DefaultIfEmpty().MaxAsync(o => o == null ? 0 : o.StockAdjustmentVoucherSaId) + 1);
+                //int maxcount = 0;
+                //maxcount = Convert.ToInt32(
+                //    await _stockAdjustmentVoucherRepo.GetAsQueryable()
+                //    .DefaultIfEmpty().MaxAsync(o => o == null ? 0 : o.StockAdjustmentVoucherSaId) + 1);
 
 
                 //stockAdjustmentVoucher.StockAdjustmentVoucherSaId = maxcount;
@@ -356,7 +356,7 @@ namespace Inspire.Erp.Application.Store.Implementation
                 foreach (var item in stockAdjustmentVoucherDetails)
                 {
                     item.StockAdjustmentVoucherDetailsSaNo = stockAdjustmentVoucher.StockAdjustmentVoucherSaNo;
-                    item.StockAdjustmentVoucherDetailsSaId = maxcount;
+                    item.StockAdjustmentVoucherDetailsSaId = stockAdjustmentVoucher.StockAdjustmentVoucherSaId;
                     item.StockAdjustmentVoucherDetailsLocationId = stockAdjustmentVoucher.StockAdjustmentVoucherLocationId;
 
                      _stockAdjustmentVoucherDetailsRepo.Insert(item);
