@@ -219,6 +219,13 @@ namespace Inspire.Erp.Web.Controllers.Store
 
                               }).Distinct().OrderBy(x => x.ItemMasterItemName).ToList();
 
+            var itemMasterGroup = _itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo == 0 && (k.ItemMasterDelStatus != true)
+                && k.ItemMasterItemType == ItemMasterStatus.Group).Select(k => new
+                {
+                    k.ItemMasterItemId,
+                    k.ItemMasterItemName,
+                }).OrderBy(x => x.ItemMasterItemName).ToList();
+
             var unitMasters = _unitrepository.GetAsQueryable().AsNoTracking().Where(a => a.UnitMasterUnitDelStatus != true).Select(x => new
             {
                 x.UnitMasterUnitId,
@@ -231,6 +238,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 LocationMaster = LocationMaster,
                 itemMaster = itemMaster,
                 unitMasters = unitMasters,
+                itemGroup = itemMasterGroup,
 
             };
             return objresponse;
