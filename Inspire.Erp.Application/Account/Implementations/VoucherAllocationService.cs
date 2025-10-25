@@ -657,7 +657,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     if (allocation != null)
                         _voucherAllocation.Delete(allocation);
 
-                    
+
                     foreach (var item in allocationDetailsList)
                     {
                         UpdateVoucherAllocationId(item.AllocationVoucherDetailsRefVtype, id, 0);
@@ -725,7 +725,7 @@ namespace Inspire.Erp.Application.Account.Implementations
 
 
 
-        private void UpdateVoucherAllocationId(string voucherType,string voucherNo ,int AllocationId)
+        private void UpdateVoucherAllocationId(string voucherType, string voucherNo, int AllocationId)
         {
             switch (voucherType.ToUpper())
             {
@@ -779,6 +779,105 @@ namespace Inspire.Erp.Application.Account.Implementations
 
             }
         }
+
+
+
+        public async Task<Response<bool>> ReleaseVoucherAllocation(AllocationVoucher model)
+        {
+            using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    // 1️⃣ Safety check
+                    if (model == null || model.VoucherAllocationDetails == null || !model.VoucherAllocationDetails.Any())
+                        return Response<bool>.Fail(false, "Invalid allocation data.");
+
+                    // 2️⃣ Fetch allocation record (if exists)
+                    var existingAlloc = _voucherAllocation
+                        .GetAsQueryable()
+                        .FirstOrDefault(x => x.AllocationVoucherId == model.AllocationVoucherId);
+
+                    if (existingAlloc == null)
+                        return Response<bool>.Fail(false, "No existing allocation found.");
+
+                    // 3️⃣ Reverse allocation effect from AccountsTransactions
+                    foreach (var item in model.VoucherAllocationDetails)
+                    {
+                        var acc = _accountTransaction.GetAsQueryable()
+                            .FirstOrDefault(x => x.AccountsTransactionsTransSno == item.AccountsTransactionsTransSno);
+
+                        if (acc == null) continue;
+
+                        var currency = _currencyMaster.GetAsQueryable()
+                            .FirstOrDefault(c => c.CurrencyMasterCurrencyId == acc.AccountsTransactionsCurrencyId);
+
+                        decimal cRate = currency == null || currency.CurrencyMasterCurrencyRate == null ? 1m : (decimal) currency.CurrencyMasterCurrencyRate;
+                        decimal netAlloc = (decimal)item.AllocationVoucherDetailsNetAllocation;
+
+                        if (acc.AccountsTransactionsDebit > 0)
+                        {
+                            // Debit-type voucher (e.g. SalesVoucher)
+                            decimal debit = acc.AccountsTransactionsDebit;
+                            decimal alloDebit = acc.AccountsTransactionsAllocDebit ?? 0;
+                            decimal fc_alloDebit = acc.AccountsTransactionsFcAllocDebit ?? 0;
+                            decimal fcdebit = acc.AccountsTransactionsFcDebit ?? 0;
+
+                            // Reverse: Add back to balance, subtract from allocation
+                            acc.AccountsTransactionsAllocDebit = alloDebit - netAlloc;
+                            acc.AccountsTransactionsAllocBalance = debit - (alloDebit - netAlloc);
+
+                            acc.AccountsTransactionsFcAllocDebit = fc_alloDebit - (netAlloc * cRate);
+                            acc.AccountsTransactionsFcAllocBalance = fcdebit - (fc_alloDebit - (netAlloc * cRate));
+                        }
+                        else if (acc.AccountsTransactionsCredit > 0)
+                        {
+                            // Credit-type voucher (e.g. Receipt or Payment)
+                            decimal credit = acc.AccountsTransactionsCredit;
+                            decimal alloCredit = acc.AccountsTransactionsAllocCredit ?? 0;
+                            decimal fc_alloCredit = acc.AccountsTransactionsFcAllocCredit ?? 0;
+                            decimal fcCredit = acc.AccountsTransactionsFcCredit ?? 0;
+
+                            acc.AccountsTransactionsAllocCredit = alloCredit - netAlloc;
+                            acc.AccountsTransactionsAllocBalance = credit - (alloCredit - netAlloc);
+
+                            acc.AccountsTransactionsFcAllocCredit = fc_alloCredit - (netAlloc * cRate);
+                            acc.AccountsTransactionsFcAllocBalance = fcCredit - (fc_alloCredit - (netAlloc * cRate));
+                        }
+
+                        _accountTransaction.Update(acc);
+                    }
+
+                    // 4️⃣ Optionally mark allocation voucher as Released
+                    existingAlloc.AllocationVoucherAvStatus = "R"; // “Released”
+                    existingAlloc.AllocationVoucherStatus = "A";
+                    _voucherAllocation.Update(existingAlloc);
+
+                    // 5️⃣ (Optional) Delete or flag the AllocationVoucherDetails
+                    var details = _voucherAllocationDetails.GetAsQueryable()
+                        .Where(x => x.AllocationVoucherDetailsSno == model.AllocationVoucherId)
+                        .ToList();
+
+                    foreach (var d in details)
+                        d.AllocationVoucherDetailsDelStatus = true;
+
+                    _voucherAllocationDetails.UpdateList(details);
+
+                    // 6️⃣ Commit
+                    _voucherAllocationDetails.SaveChangesAsync();
+                    _voucherAllocation.SaveChangesAsync();
+
+                    trans.Complete();
+
+                    return Response<bool>.Success(true, "Voucher allocation released successfully.");
+                }
+                catch (Exception ex)
+                {
+                    trans.Dispose();
+                    return Response<bool>.Fail(false, ex.Message);
+                }
+            }
+        }
+
     }
 
 }

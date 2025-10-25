@@ -22,6 +22,7 @@ namespace Inspire.Erp.Domain.Modals.Common
 
         public List<string>? VoucherType { get; set; }
         public List<string>? Accounts { get; set; }
+        public bool ShowUnallocated { get; set; }
     }
 
     public class ReportFilter
@@ -94,6 +95,7 @@ namespace Inspire.Erp.Domain.Modals.Common
         public int? JobId { get; set; }
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
+        public  int? LocationId { get; set; }
     }
 
     public class CustomerEnquirySearchFilter
@@ -269,4 +271,19 @@ namespace Inspire.Erp.Domain.Modals.Common
         public bool IsGroupWise { get; set; } = false;
         public bool IsSummaryView { get; set; } = false;
     }
+
+
+    public class AgeingFilterModel
+    {
+        public DateTime? FromDate { get; set; }
+        public DateTime? ToDate { get; set; }
+        public string AccountType { get; set; }   // "Customer" or "Supplier"
+        public bool IncludeZero { get; set; }
+        public string Search { get; set; }
+        public int Skip { get; set; }
+        public int Take { get; set; }
+        public string SortField { get; set; }
+        public string SortDir { get; set; }
+    }
+
 }

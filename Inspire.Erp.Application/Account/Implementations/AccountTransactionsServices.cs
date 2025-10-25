@@ -134,6 +134,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                                     Allocation_Voucher_Details_VNO,
                                                     SUM(ISNULL(Allocation_Voucher_Details_Alloc_Debit,0)) AS AllocAmount
                                                 FROM Allocation_Voucher_Details
+                                                where Allocation_Voucher_Details_DelStatus = 0
                                                 GROUP BY Allocation_Voucher_Details_VNO
                                             )
                                             SELECT
@@ -142,15 +143,27 @@ namespace Inspire.Erp.Application.Account.Implementations
                                                 a.AccountsTransactions_TransDate            AS TransDate,
                                                 a.AccountsTransactions_VoucherNo          AS VoucherNo,
                                                 a.AccountsTransactions_VoucherType       AS Type,
-                                                a.AccountsTransactions_Credit                  AS Credit,
-                                                a.AccountsTransactions_Debit                   AS Debit,
+
+                                              CASE 
+                                                    WHEN a.AccountsTransactions_Debit = 0 AND  a.AccountsTransactions_Alloc_Balance > 0 THEN 
+                                                         a.AccountsTransactions_Alloc_Balance 
+                                                    ELSE a.AccountsTransactions_Credit
+                                              END AS Credit,
+
+                                              CASE 
+                                                    WHEN a.AccountsTransactions_Credit = 0  AND a.AccountsTransactions_Alloc_Balance > 0 
+                                                    THEN  a.AccountsTransactions_Alloc_Balance
+                                                    ELSE a.AccountsTransactions_Debit
+                                              END AS Debit,
+
                                                 a.AccountsTransactions_Alloc_Balance    AS Balance,
                                                 ISNULL(am.AllocAmount,0)                    AS AllocAmount,
+                                                case when ISNULL(a.AccountsTransactions_Alloc_Balance,0) > 0 then 0 else 1 end as IsDisabled,
                                                 a.AccountsTransactions_Location             AS RefLocation
                                             FROM AccountsTransactions a
                                             LEFT JOIN AllocatedAmount am
                                               ON am.Allocation_Voucher_Details_VNO = a.AccountsTransactions_VoucherNo
-                                            WHERE a.AccountsTransactions_AccNo = '{accNo}'
+                                            WHERE  a.AccountsTransactions_AccNo = '{accNo}'
                                               AND (
                                                     upper(a.AccountsTransactions_VoucherType) = upper('{GetVoucherByType(vType)}') 
                                                  OR (upper(a.AccountsTransactions_VoucherType) = upper('{vType}')

@@ -42,6 +42,7 @@ namespace Inspire.Erp.Domain.Modals
         public decimal? Rate { get; set; }
         public decimal? Qty { get; set; }
         public decimal? QtyAmount { get; set; }
-
+        public string? SupplierName { get; set; } // Added for StockIn
+        public string? CustomerName { get; set; }
     }
 }

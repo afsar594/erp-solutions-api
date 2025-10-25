@@ -66,6 +66,7 @@ namespace Inspire.Erp.Domain.Entities
         public long? SalesVoucherShortNo { get; set; }
         public int? VanSalesId { get; set; }
         public decimal? SalesVoucherExpense { get; set; }
+        public decimal? ServiceCharges { get; set; }
         [NotMapped]
         public string? CurrencyMasterCurrencyName { get; set; }
         [NotMapped]
