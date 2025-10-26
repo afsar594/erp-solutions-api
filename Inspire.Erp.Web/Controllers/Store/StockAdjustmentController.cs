@@ -214,6 +214,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                                   item.ItemMasterItemName,
                                   item.ItemMasterVenderId,
                                   item.ItemMasterItemSize,
+                                  item.ItemMasterAccountNo,
                                   itemMasterBarcode = unit.UnitDetailsBarcode,
                                   ItemMasterCurrentStock = _stockRegisterRepository.GetAsQueryable().Where(x => x.StockRegisterMaterialID == item.ItemMasterItemId && x.StockRegisterLocationID == location ).Sum(y => (y.StockRegisterSIN ?? 0) - (y.StockRegisterSout ?? 0)),
 
