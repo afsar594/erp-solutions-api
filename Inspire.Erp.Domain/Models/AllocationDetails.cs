@@ -7,6 +7,7 @@ namespace Inspire.Erp.Domain.Models
     public class AllocationDetails
     {
         public long TransNo { get; set; }
+        public int? AllocationId { get; set; }
         public DateTime? TransDate { get; set; }
         public string VoucherNo { get; set; }
         public string Type { get; set; }

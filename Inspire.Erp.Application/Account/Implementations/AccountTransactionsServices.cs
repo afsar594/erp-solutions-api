@@ -131,13 +131,15 @@ namespace Inspire.Erp.Application.Account.Implementations
                 //                        }).OrderBy(x => x.VoucherNo).AsEnumerable().ToList();
                 var sql = @$";WITH AllocatedAmount AS (
                                                 SELECT 
-                                                    Allocation_Voucher_Details_VNO,
-                                                    SUM(ISNULL(Allocation_Voucher_Details_Alloc_Debit,0)) AS AllocAmount
+                                                MAX(Allocation_Voucher_Details_SNO) AS AllocationId,
+                                                Allocation_Voucher_Details_VNO,
+                                                SUM(ISNULL(Allocation_Voucher_Details_Alloc_Debit,0)) AS AllocAmount
                                                 FROM Allocation_Voucher_Details
-                                                where Allocation_Voucher_Details_DelStatus = 0
+                                                WHERE Allocation_Voucher_Details_DelStatus = 0
                                                 GROUP BY Allocation_Voucher_Details_VNO
                                             )
                                             SELECT
+                                                am.AllocationId,
                                                 a.AccountsTransactions_TransSno             AS TransNo,
                                                 'P'                                                                 AS Status,
                                                 a.AccountsTransactions_TransDate            AS TransDate,
@@ -158,7 +160,7 @@ namespace Inspire.Erp.Application.Account.Implementations
 
                                                 a.AccountsTransactions_Alloc_Balance    AS Balance,
                                                 ISNULL(am.AllocAmount,0)                    AS AllocAmount,
-                                                case when ISNULL(a.AccountsTransactions_Alloc_Balance,0) > 0 then 0 else 1 end as IsDisabled,
+                                                case when ISNULL(a.AccountsTransactions_Alloc_Balance,0) > 0.01 then 0 else 1 end as IsDisabled,
                                                 a.AccountsTransactions_Location             AS RefLocation
                                             FROM AccountsTransactions a
                                             LEFT JOIN AllocatedAmount am

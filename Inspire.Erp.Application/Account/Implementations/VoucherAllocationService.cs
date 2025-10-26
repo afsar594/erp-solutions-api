@@ -1,15 +1,20 @@
-﻿using Inspire.Erp.Application.Account.Interfaces;
+﻿using Dapper;
+using Inspire.Erp.Application.Account.Interfaces;
 using Inspire.Erp.Application.Common;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.AccountStatement;
 using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Infrastructure;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Dynamic.Core;
@@ -35,14 +40,15 @@ namespace Inspire.Erp.Application.Account.Implementations
         private IRepository<ReceiptVoucherMaster> _receiptVoucherMasterRepository;
         private IRepository<PaymentVoucher> _paymentVoucherRepository;
         private IRepository<BankPaymentVoucher> _bankPaymentVoucherRepository;
-
+        private readonly IDbConnection _dbConnection;
 
 
         public VoucherAllocationService(IRepository<CustomerMaster> customerMaster, IRepository<AccountsTransactions> accountTransaction,
             IRepository<SuppliersMaster> supplierMaster, IRepository<AllocationVoucherDetails> voucherAllocationDetails,
             IRepository<MasterAccountsTable> masterAccountTable, IRepository<AllocationVoucher> voucherAllocation, IUtilityService utilityService, IRepository<CurrencyMaster> currencyMaster,
             IRepository<BankReceiptVoucher> bankReceiptVoucherRepository, IRepository<ReceiptVoucherMaster> receiptVoucherMasterRepository,
-            IRepository<PaymentVoucher> paymentVoucherRepository, IRepository<BankPaymentVoucher> bankPaymentVoucherRepository)
+            IRepository<PaymentVoucher> paymentVoucherRepository, IRepository<BankPaymentVoucher> bankPaymentVoucherRepository,
+            IOptions<ApplicationSettings> applicationSettings)
         {
             _customerMaster = customerMaster;
             _supplierMaster = supplierMaster;
@@ -56,6 +62,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             _bankReceiptVoucherRepository = bankReceiptVoucherRepository;
             _paymentVoucherRepository = paymentVoucherRepository;
             _receiptVoucherMasterRepository = receiptVoucherMasterRepository;
+            _dbConnection = new SqlConnection(applicationSettings.Value.ConnectionString);
         }
         public async Task<Response<List<DropdownResponse>>> GetCustomerMasterDropdown()
         {
@@ -782,100 +789,28 @@ namespace Inspire.Erp.Application.Account.Implementations
 
 
 
-        public async Task<Response<bool>> ReleaseVoucherAllocation(AllocationVoucher model)
+        public async Task<Response<string>> ReleaseVoucherAllocation(AllocationVoucher model)
         {
-            using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            try
             {
-                try
-                {
-                    // 1️⃣ Safety check
-                    if (model == null || model.VoucherAllocationDetails == null || !model.VoucherAllocationDetails.Any())
-                        return Response<bool>.Fail(false, "Invalid allocation data.");
 
-                    // 2️⃣ Fetch allocation record (if exists)
-                    var existingAlloc = _voucherAllocation
-                        .GetAsQueryable()
-                        .FirstOrDefault(x => x.AllocationVoucherId == model.AllocationVoucherId);
+                var transSnos = string.Join(",", model.VoucherAllocationDetails
+                                 .Select(x => x.AccountsTransactionsTransSno));
 
-                    if (existingAlloc == null)
-                        return Response<bool>.Fail(false, "No existing allocation found.");
+                var parameters = new DynamicParameters();
+                parameters.Add("@TransSnos", transSnos);
+                parameters.Add("@ResultMessage", dbType: DbType.String, size: 500, direction: ParameterDirection.Output);
 
-                    // 3️⃣ Reverse allocation effect from AccountsTransactions
-                    foreach (var item in model.VoucherAllocationDetails)
-                    {
-                        var acc = _accountTransaction.GetAsQueryable()
-                            .FirstOrDefault(x => x.AccountsTransactionsTransSno == item.AccountsTransactionsTransSno);
+                await _dbConnection.ExecuteAsync("usp_ReleaseVoucherAllocations", parameters, commandType: CommandType.StoredProcedure);
 
-                        if (acc == null) continue;
-
-                        var currency = _currencyMaster.GetAsQueryable()
-                            .FirstOrDefault(c => c.CurrencyMasterCurrencyId == acc.AccountsTransactionsCurrencyId);
-
-                        decimal cRate = currency == null || currency.CurrencyMasterCurrencyRate == null ? 1m : (decimal) currency.CurrencyMasterCurrencyRate;
-                        decimal netAlloc = (decimal)item.AllocationVoucherDetailsNetAllocation;
-
-                        if (acc.AccountsTransactionsDebit > 0)
-                        {
-                            // Debit-type voucher (e.g. SalesVoucher)
-                            decimal debit = acc.AccountsTransactionsDebit;
-                            decimal alloDebit = acc.AccountsTransactionsAllocDebit ?? 0;
-                            decimal fc_alloDebit = acc.AccountsTransactionsFcAllocDebit ?? 0;
-                            decimal fcdebit = acc.AccountsTransactionsFcDebit ?? 0;
-
-                            // Reverse: Add back to balance, subtract from allocation
-                            acc.AccountsTransactionsAllocDebit = alloDebit - netAlloc;
-                            acc.AccountsTransactionsAllocBalance = debit - (alloDebit - netAlloc);
-
-                            acc.AccountsTransactionsFcAllocDebit = fc_alloDebit - (netAlloc * cRate);
-                            acc.AccountsTransactionsFcAllocBalance = fcdebit - (fc_alloDebit - (netAlloc * cRate));
-                        }
-                        else if (acc.AccountsTransactionsCredit > 0)
-                        {
-                            // Credit-type voucher (e.g. Receipt or Payment)
-                            decimal credit = acc.AccountsTransactionsCredit;
-                            decimal alloCredit = acc.AccountsTransactionsAllocCredit ?? 0;
-                            decimal fc_alloCredit = acc.AccountsTransactionsFcAllocCredit ?? 0;
-                            decimal fcCredit = acc.AccountsTransactionsFcCredit ?? 0;
-
-                            acc.AccountsTransactionsAllocCredit = alloCredit - netAlloc;
-                            acc.AccountsTransactionsAllocBalance = credit - (alloCredit - netAlloc);
-
-                            acc.AccountsTransactionsFcAllocCredit = fc_alloCredit - (netAlloc * cRate);
-                            acc.AccountsTransactionsFcAllocBalance = fcCredit - (fc_alloCredit - (netAlloc * cRate));
-                        }
-
-                        _accountTransaction.Update(acc);
-                    }
-
-                    // 4️⃣ Optionally mark allocation voucher as Released
-                    existingAlloc.AllocationVoucherAvStatus = "R"; // “Released”
-                    existingAlloc.AllocationVoucherStatus = "A";
-                    _voucherAllocation.Update(existingAlloc);
-
-                    // 5️⃣ (Optional) Delete or flag the AllocationVoucherDetails
-                    var details = _voucherAllocationDetails.GetAsQueryable()
-                        .Where(x => x.AllocationVoucherDetailsSno == model.AllocationVoucherId)
-                        .ToList();
-
-                    foreach (var d in details)
-                        d.AllocationVoucherDetailsDelStatus = true;
-
-                    _voucherAllocationDetails.UpdateList(details);
-
-                    // 6️⃣ Commit
-                    _voucherAllocationDetails.SaveChangesAsync();
-                    _voucherAllocation.SaveChangesAsync();
-
-                    trans.Complete();
-
-                    return Response<bool>.Success(true, "Voucher allocation released successfully.");
-                }
-                catch (Exception ex)
-                {
-                    trans.Dispose();
-                    return Response<bool>.Fail(false, ex.Message);
-                }
+                var resultMessage = parameters.Get<string>("@ResultMessage");
+                return Response<string>.Success(resultMessage ?? "Voucher allocation released successfully.","");
             }
+            catch (Exception)
+            {
+                throw;
+            }
+            
         }
 
     }
