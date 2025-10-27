@@ -28,6 +28,20 @@ namespace Inspire.Erp.Application.Master.Implementations
             otherChargesMaster = otherChargesMaster.OrderBy(sm => sm.ServiceName).ToList();
             return otherChargesMaster;
         }
+        public IEnumerable<OtherChargesMaster> GetAllOtherChargesMasterByType(string type)
+        {
+            IEnumerable<OtherChargesMaster> otherChargesMaster;
+            try
+            {
+                otherChargesMaster = _repository.GetAsQueryable().Where(x=>x.ServiceType == type);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            otherChargesMaster = otherChargesMaster.OrderBy(sm => sm.ServiceName).ToList();
+            return otherChargesMaster;
+        }
 
         public IEnumerable<OtherChargesMaster> GetAllOtherChargesMasterById(int id)
         {
