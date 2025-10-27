@@ -35,6 +35,19 @@ namespace Inspire.Erp.Web.Controllers
             }).OrderBy(o => o.ServiceName).ToList();
         }
         [HttpGet]
+        [Route("GetAllOtherChargesMasterByType")]
+        public List<OtherChargesMasterViewModel> GetAllOtherChargesMasterByType(string type)
+        {
+            return _service.GetAllOtherChargesMasterByType(type).Select(k => new OtherChargesMasterViewModel
+            {
+                ServiceID = k.ServiceID,
+                ServiceName = k.ServiceName,
+                AccountNo = k.AccountNo,
+                VatPer = k.VatPer,
+                ServiceType = k.ServiceType
+            }).OrderBy(o => o.ServiceName).ToList();
+        }
+        [HttpGet]
         [Route("GetAllOtherChargesMasterById/{id}")]
         public List<OtherChargesMasterViewModel> GetAllOtherChargesMasterById(int id)
         {
