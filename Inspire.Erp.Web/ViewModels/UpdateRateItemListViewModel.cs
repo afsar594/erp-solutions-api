@@ -6,7 +6,7 @@ namespace Inspire.Erp.Web.ViewModels
 {
     public class UpdateRateItemListViewModel
     {
-        public List<RateItemListrModel> Dates { get; set; }
-        public GenericGridViewModel Data { get; set; }
+        public List<RateItemListrModel> itemlistData { get; set; }
+        public GenericGridViewModel paginationData { get; set; }
     }
 }

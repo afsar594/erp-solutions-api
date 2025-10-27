@@ -55,7 +55,7 @@ namespace Inspire.Erp.Web.Controllers
         [Route("UpdateRateItemList")]
        public async Task<IActionResult> UpdateRateItemList(UpdateRateItemListViewModel data)
         {
-            return Ok( IItemListService.UpdateRateItemList(data.Dates,data.Data));
+            return Ok( IItemListService.UpdateRateItemList(data.itemlistData, data.paginationData));
         }
     }
     
