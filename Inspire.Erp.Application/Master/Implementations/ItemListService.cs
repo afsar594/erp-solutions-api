@@ -255,13 +255,13 @@ namespace Inspire.Erp.Application.Master
             }
         }
 
-        public IEnumerable<ItemListViewModel> UpdateRateItemList(List<RateItemListrModel> dates)
+        public Task<Response<GridWrapperResponse<List<ItemListViewModel>>>> UpdateRateItemList(List<RateItemListrModel> itemlistData, GenericGridViewModel paginationData) 
         {
             try
             {
                 _unitDetailsRepo.BeginTransaction();
 
-                foreach (var detail in dates)
+                foreach (var detail in itemlistData)
                 {
                     if (detail.isUpdated == true)
                     {
@@ -291,7 +291,7 @@ namespace Inspire.Erp.Application.Master
                     }
                 }
                 _unitDetailsRepo.TransactionCommit();
-                return this.GetAllItemListSearch(null);
+                return this.GetAllItemListSearchPaginated(paginationData);
 
             }
             catch (Exception ex)
