@@ -53,7 +53,7 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpPost]
         [Route("UpdateRateItemList")]
-       public async Task<IActionResult> UpdateRateItemList(List<RateItemListrModel> dates, GenericGridViewModel data)
+       public async Task<IActionResult> UpdateRateItemList(List<RateItemListrModel> dates, [FromQuery] GenericGridViewModel data)
         {
             return Ok( IItemListService.UpdateRateItemList(dates,data));
         }
