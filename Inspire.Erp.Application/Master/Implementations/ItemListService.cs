@@ -218,7 +218,7 @@ namespace Inspire.Erp.Application.Master
                     query = query.Where(model.Filter);
                 }
 
-                var totalCount = await query.CountAsync();
+                var totalCount = query.Count();
 
                 IOrderedQueryable<ItemListViewModel> orderedQuery;
                 if (!string.IsNullOrEmpty(model.Field))
@@ -231,10 +231,10 @@ namespace Inspire.Erp.Application.Master
                     orderedQuery = query.OrderBy(x => x.Item_Name);
                 }
 
-                var result = await orderedQuery
+                var result = orderedQuery
                     .Skip(model.Skip)
                     .Take(model.Take)
-                    .ToListAsync();
+                    .ToList();
 
                 var gridResponse = new GridWrapperResponse<List<ItemListViewModel>>
                 {
