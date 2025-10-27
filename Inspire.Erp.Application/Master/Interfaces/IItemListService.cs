@@ -12,7 +12,7 @@ namespace Inspire.Erp.Application.Master
     {
         
         public IEnumerable<ItemListViewModel> GetAllItemListSearch(ItemFilterModel filteModle);
-        public IEnumerable<ItemListViewModel> UpdateRateItemList(List<RateItemListrModel> dates);
+        public Task<Response<GridWrapperResponse<List<ItemListViewModel>>>> UpdateRateItemList(List<RateItemListrModel> dates, GenericGridViewModel data);
         Task<Response<GridWrapperResponse<List<ItemListViewModel>>>> GetAllItemListSearchPaginated(GenericGridViewModel model);
 
     }

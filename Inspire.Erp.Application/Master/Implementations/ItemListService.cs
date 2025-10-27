@@ -255,7 +255,7 @@ namespace Inspire.Erp.Application.Master
             }
         }
 
-        public IEnumerable<ItemListViewModel> UpdateRateItemList(List<RateItemListrModel> dates)
+        public Task<Response<GridWrapperResponse<List<ItemListViewModel>>>> UpdateRateItemList(List<RateItemListrModel> dates, GenericGridViewModel data) 
         {
             try
             {
@@ -291,7 +291,7 @@ namespace Inspire.Erp.Application.Master
                     }
                 }
                 _unitDetailsRepo.TransactionCommit();
-                return this.GetAllItemListSearch(null);
+                return this.GetAllItemListSearchPaginated(data);
 
             }
             catch (Exception ex)
