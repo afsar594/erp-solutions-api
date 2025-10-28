@@ -171,12 +171,12 @@ namespace Inspire.Erp.Application.Account.Implementations
                 case "PAYMENT":
                 case "BANK PAYMENT":
                 case "CASH PAYMENT":
-                    return "PURCHASE VOUCHER";
+                    return "PurchaseVoucher";
 
                 case "RECEIPT":
                 case "BANK RECEIPT":
                 case "CASH RECEIPT":
-                    return "SALES VOUCHER";
+                    return "SalesVoucher";
 
                 default:
                     return vType; 
