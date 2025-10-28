@@ -1285,9 +1285,11 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                             where (svd.SalesVoucherDetailsNo != null && (filter.CustomerId == null || salesVou.SalesVoucherPartyId == filter.CustomerId) &&
                             (filter.LocationId == null || salesVou.SalesVoucherLocationID == filter.LocationId) &&
-                            (filter.VType == null || salesVou.SalesVoucherType == filter.VType) && (filter.ItemId == null || svd.SalesVoucherDetailsMatId == filter.ItemId) && (!filter.IsDate
-     || (salesVou.SalesVoucherDate >= filter.Fromdate
-         && salesVou.SalesVoucherDate <= filter.Todate)))
+                            (filter.VType == null || salesVou.SalesVoucherType == filter.VType) && 
+                            (filter.ItemId == null || svd.SalesVoucherDetailsMatId == filter.ItemId) &&
+                            (filter.itemGroupId == null || itemmaster.ItemMasterAccountNo == filter.itemGroupId) &&
+                            (!filter.IsDate || (salesVou.SalesVoucherDate >= filter.Fromdate
+                                && salesVou.SalesVoucherDate <= filter.Todate)))
 
                             select new
                             {
@@ -1303,6 +1305,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                 MatDes = itemmaster == null ? "" : itemmaster.ItemMasterItemName,
                                 PartNo = itemmaster == null ? "N/A" : itemmaster.ItemMasterPartNo,
                                 ItemId = itemmaster == null ? 0 : itemmaster.ItemMasterItemId,
+                                accountNo = itemmaster == null ? 0 : itemmaster.ItemMasterAccountNo,
 
                                 VoucherDate = salesVou.SalesVoucherDate,
                                 VoucherNo = salesVou.SalesVoucherNo,

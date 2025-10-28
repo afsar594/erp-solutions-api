@@ -250,6 +250,7 @@ namespace Inspire.Erp.Domain.Modals.Common
     public class salesReportFilter
     {
         public int? CustomerId { get; set; }
+        public int? itemGroupId { get; set; }
         public int? ItemId { get; set; }
         public int? LocationId { get; set; }
         public bool IsDate { get; set; }
