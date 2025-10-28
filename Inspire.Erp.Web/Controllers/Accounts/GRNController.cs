@@ -281,6 +281,26 @@ namespace Inspire.Erp.Web.Controllers
             objectresponse.IsSuccess = true;
             return objectresponse;
         }
+        [HttpGet]
+        [Route("LoadDropdownItemGroupMaster")]
+        public ResponseInfo LoadDropdownItemGroupMaster()
+        {
+            var objectresponse = new ResponseInfo();
+            var itemGroup = itemrepository.GetAsQueryable().Where(k => k.ItemMasterAccountNo == 0 && (k.ItemMasterDelStatus != true)
+                                  && k.ItemMasterItemType == ItemMasterStatus.Group).Select(k => new
+                                   {
+                                     k.ItemMasterItemId,
+                                     k.ItemMasterItemName,
+                                   }).OrderBy(x => x.ItemMasterItemName).ToList();
+
+            objectresponse.ResultSet = new
+            {
+                itemGroup = itemGroup
+            };
+
+            objectresponse.IsSuccess = true;
+            return objectresponse;
+        }
 
         [HttpGet]
         [Route("LoadDropdownItemMaster")]
