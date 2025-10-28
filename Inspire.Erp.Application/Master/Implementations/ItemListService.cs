@@ -274,6 +274,7 @@ namespace Inspire.Erp.Application.Master
                             detailData.UnitDetailsBarcode = Convert.ToString(detail.UD_Barcode);
                             detailData.UnitDetailsPacking = Convert.ToString(detail.Packing);
                             detailData.UnitDetailsDescrption = Convert.ToString(detail.UD_Discrption);
+                            detailData.UnitDetailsRate = Convert.ToDouble(detail.unit_Details_Rate);
                             _unitDetailsRepo.Update(detailData);
                         }
 
@@ -281,12 +282,13 @@ namespace Inspire.Erp.Application.Master
 
                         if (ItemDetails != null)
                         {
+                            ItemDetails.ItemMasterItemName = Convert.ToString(detail.item_Name);
                             if (ItemDetails.ItemMasterItemSize != null)
                             {
                                 ItemDetails.ItemMasterItemSize = Convert.ToString(detail.ItemSize);
                                 ItemDetails.ItemMasterStatus = true;
-                                itemrepository.Update(ItemDetails);
                             }
+                            itemrepository.Update(ItemDetails);
                         }
                     }
                 }
