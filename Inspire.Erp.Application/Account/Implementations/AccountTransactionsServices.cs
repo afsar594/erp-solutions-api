@@ -69,7 +69,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                                             RefLocation = g.AccountsTransactionsLocation.ToString()
                                         }).OrderBy(x => x.VoucherNo).AsEnumerable().ToList();
 
-        
+
 
                 //var transValues = _accountTransactionRepository.GetAsQueryable()
                 //                      .Where(a => a.AccountsTransactionsAccNo.ToUpper() == accNo.ToUpper()
@@ -105,30 +105,11 @@ namespace Inspire.Erp.Application.Account.Implementations
             }
         }
 
-        public async Task<ApiResponse<List<AllocationDetails>>> GetPaymentVoucherAllocations(string accNo, string refNo, string vType)
+        public async Task<ApiResponse<List<AllocationDetails>>> GetPaymentVoucherAllocations(
+          string accNo, string refNo, string vType)
         {
             try
             {
-                //await Task.Delay(500);
-               
-
-                //var transValues = _accountTransactionRepository.GetAsQueryable()
-                //                      .Where(a => a.AccountsTransactionsAccNo.ToUpper() == accNo.ToUpper()
-                //                        && a.AccountsTransactionsAllocBalance > 0
-                //                        && a.AccountsTransactionsCredit != 0)
-                //                        .Select(g => new Domain.Models.AllocationDetails()
-                //                        {
-                //                            TransNo = g.AccountsTransactionsTransSno,
-                //                            Status = "P",
-                //                            TransDate = g.AccountsTransactionsTransDate,
-                //                            VoucherNo = g.AccountsTransactionsVoucherNo,
-                //                            Type = g.AccountsTransactionsVoucherType,
-                //                            Credit = (decimal)g.AccountsTransactionsCredit > 0 ? g.AccountsTransactionsCredit : 0,
-                //                            Debit = (decimal)g.AccountsTransactionsDebit > 0 ? g.AccountsTransactionsDebit : 0,
-                //                            Balance = g.AccountsTransactionsAllocBalance,
-                //                            AllocAmount = g.AccountsTransactionsAllocCredit > 0 ? g.AccountsTransactionsAllocCredit : g.AccountsTransactionsAllocDebit,
-                //                            RefLocation = g.AccountsTransactionsLocation.ToString()
-                //                        }).OrderBy(x => x.VoucherNo).AsEnumerable().ToList();
                 var sql = @$";WITH AllocatedAmount AS (
                                                 SELECT 
                                                 MAX(Allocation_Voucher_Details_SNO) AS AllocationId,
@@ -175,27 +156,30 @@ namespace Inspire.Erp.Application.Account.Implementations
 
                 var transValues = (await _dbConnection.QueryAsync<AllocationDetails>(sql)).ToList();
 
-
-
                 return ApiResponse<List<AllocationDetails>>.Success(transValues, "Data Found");
             }
             catch (Exception ex)
             {
-
                 return ApiResponse<List<AllocationDetails>>.Fail(ex.Message);
             }
         }
 
         private string GetVoucherByType(string vType)
         {
-            switch (vType) 
+            switch (vType.ToUpper())
             {
                 case "PAYMENT":
-                    return "PurchaseVoucher";
+                case "BANK PAYMENT":
+                case "CASH PAYMENT":
+                    return "PURCHASE VOUCHER";
+
                 case "RECEIPT":
-                    return "SalesVoucher";
+                case "BANK RECEIPT":
+                case "CASH RECEIPT":
+                    return "SALES VOUCHER";
+
                 default:
-                    return "";
+                    return vType; 
             }
         }
 
@@ -241,8 +225,8 @@ namespace Inspire.Erp.Application.Account.Implementations
 
         public async Task<ResponseInfo> getAllocationforPrint(int? Id)
         {
-            var objresponse = new ResponseInfo();            
-            var details = await this.allocationVDlts.GetAsQueryable().Where(a => a.AllocationVoucherDetailsSno== Id).Select(c => new
+            var objresponse = new ResponseInfo();
+            var details = await this.allocationVDlts.GetAsQueryable().Where(a => a.AllocationVoucherDetailsSno == Id).Select(c => new
             {
                 c.AllocationVoucherDetailsVno,
                 c.AllocationVoucherDetailsRefVtype,
