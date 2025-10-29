@@ -226,13 +226,13 @@ namespace Inspire.Erp.Web.Controllers
                 c.CurrencyMasterCurrencyName,
                 c.CurrencyMasterCurrencyRate
             }).OrderBy(x => x.CurrencyMasterCurrencyName).ToList();
-            var cashaccount = accountSettingRepo.GetAsQueryable().Where(a => a.AccountSettingsAccountKeyValue.Trim() == "CASH_MASTER_AC_NO").FirstOrDefault();
+            var cashaccount = accountSettingRepo.GetAsQueryable().Where(a => a.AccountSettingsAccountKeyValue.Trim() == "CASH_MASTER_AC_NO").FirstOrDefault().AccountSettingsAccountTextValue.Split("::")[1].Trim();
 
             //var CREDITORS_AC_NO = dcType == 'D' 
             //                                                    ? accountSettingRepo.GetAsQueryable().Where(a => a.AccountSettingsAccountKeyValue.Trim() == "DEBTORS_AC_NO").FirstOrDefault().AccountSettingsAccountTextValue.Split("::")[1].Trim()
             //                                                    : accountSettingRepo.GetAsQueryable().Where(a => a.AccountSettingsAccountKeyValue.Trim() == "CREDITORS_AC_NO").FirstOrDefault().AccountSettingsAccountTextValue.Split("::")[1].Trim();
 
-            var cashAccountList = chartofAccountsService.GetAllAccounts().Where(a => a.MaDelStatus != true && a.MaAccType == "A" ).Select(c => new
+            var cashAccountList = chartofAccountsService.GetAllAccounts().Where(a => a.MaDelStatus != true && a.MaAccType == "A"  && a.MaRelativeNo == cashaccount ).Select(c => new
             {
                 c.MaAccNo,
                 c.MaAccName,
