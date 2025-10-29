@@ -62,6 +62,8 @@ namespace Inspire.Erp.Application.Account.Implementations
 
             try
             {
+                clsCommonFunctions.Delete_OldEntry_AccountsTransactions(bankReceiptVoucher.BankReceiptVoucherVoucherNo, VoucherType.BankReceipt, _accountTransactionRepository);
+
                 _bankReceiptVoucherRepository.BeginTransaction();
                 _bankReceiptVoucherRepository.Update(bankReceiptVoucher);
                 accountsTransactions = accountsTransactions.Select((k) =>
@@ -79,7 +81,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     k.AccountsTransactionsFcAllocBalance = k.AccountsTransactionsDebit == 0 ? k.AccountsTransactionsCredit : k.AccountsTransactionsDebit;
                     return k;
                 }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
-                _accountTransactionRepository.UpdateList(accountsTransactions);
+                _accountTransactionRepository.InsertList(accountsTransactions);
                 List<PdcDetails> _pdcDetails = new List<PdcDetails>();
                 foreach (var item in bankReceiptVoucherDetails)
                 {
