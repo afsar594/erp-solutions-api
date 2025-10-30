@@ -70,7 +70,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 {
                     if (k.AccountsTransactionsTransSno == 0)
                     {
-                        k.AccountsTransactionsVoucherType = VoucherType.BankPayment;
+                        k.AccountsTransactionsVoucherType = VoucherType.BankReceipt;
                         k.AccountsTransactionsStatus = AccountStatus.Approved;
                     }
                     k.AccountsTransactionsAllocCredit = k.AccountsTransactionsCredit;
