@@ -51,6 +51,7 @@ namespace Inspire.Erp.Web.Controllers
 
                 DepartmentMasterDepartmentId = k.DepartmentMasterDepartmentId,
                 DepartmentMasterDepartmentName = k.DepartmentMasterDepartmentName,
+                DepartmentMasterDepartmentCode = k.DepartmentMasterDepartmentCode,
                 DepartmentMasterDepartmentStatus = k.DepartmentMasterDepartmentStatus,
                 DepartmentMasterDepartmentDelStatus = k.DepartmentMasterDepartmentDelStatus
             }).OrderBy(x => x.DepartmentMasterDepartmentName).AsEnumerable().ToList();
@@ -65,6 +66,7 @@ namespace Inspire.Erp.Web.Controllers
             {
                 DepartmentMasterDepartmentId = k.DepartmentMasterDepartmentId,
                 DepartmentMasterDepartmentName = k.DepartmentMasterDepartmentName,
+                DepartmentMasterDepartmentCode = k.DepartmentMasterDepartmentCode,
                 DepartmentMasterDepartmentStatus = k.DepartmentMasterDepartmentStatus,
                 DepartmentMasterDepartmentDelStatus = k.DepartmentMasterDepartmentDelStatus
             }).OrderBy(x => x.DepartmentMasterDepartmentName).ToList();
@@ -79,6 +81,7 @@ namespace Inspire.Erp.Web.Controllers
             {
                 DepartmentMasterDepartmentId = k.DepartmentMasterDepartmentId,
                 DepartmentMasterDepartmentName = k.DepartmentMasterDepartmentName,
+                DepartmentMasterDepartmentCode = k.DepartmentMasterDepartmentCode,
                 DepartmentMasterDepartmentStatus = k.DepartmentMasterDepartmentStatus,
                 DepartmentMasterDepartmentDelStatus = k.DepartmentMasterDepartmentDelStatus
             }).OrderBy(x => x.DepartmentMasterDepartmentName).ToList();
@@ -93,6 +96,7 @@ namespace Inspire.Erp.Web.Controllers
             {
                 DepartmentMasterDepartmentId = k.DepartmentMasterDepartmentId,
                 DepartmentMasterDepartmentName = k.DepartmentMasterDepartmentName,
+                DepartmentMasterDepartmentCode = k.DepartmentMasterDepartmentCode,
                 DepartmentMasterDepartmentStatus = k.DepartmentMasterDepartmentStatus,
                 DepartmentMasterDepartmentDelStatus = k.DepartmentMasterDepartmentDelStatus
             }).OrderBy(x => x.DepartmentMasterDepartmentName).ToList();
