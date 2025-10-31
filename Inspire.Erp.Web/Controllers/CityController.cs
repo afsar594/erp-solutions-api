@@ -18,17 +18,19 @@ namespace Inspire.Erp.Web.Controllers
     {
         private readonly IMapper _mapper;
         private ICityMasterService cityMasterService;
-        public CityController(ICityMasterService _countryMasterService, IMapper mapper)
+        private ICountryMasterService _countryService;
+        public CityController(ICityMasterService _countryMasterService, IMapper mapper, ICountryMasterService countryService)
         {
 
             cityMasterService = _countryMasterService;
             _mapper = mapper;
+            _countryService = countryService;
         }
         [HttpGet]
         [Route("GetAllCity")]
         public List<CityMasterViewModel> GetAllCity()
         {
-
+            var countries = _countryService.GetAllCountry().ToList();
             return cityMasterService.GetAllCity().Select(k => new CityMasterViewModel
             {
 
@@ -37,7 +39,8 @@ namespace Inspire.Erp.Web.Controllers
                 CityMasterCityName = k.CityMasterCityName,
                 CityMasterCityDeleted = k.CityMasterCityDeleted,
                 CityMasterCityStatus = k.CityMasterCityStatus,
-                CityMasterCityDelStatus= k.CityMasterCityDelStatus
+                CityMasterCityDelStatus= k.CityMasterCityDelStatus,
+                CountryName = countries.FirstOrDefault(c => c.CountryMasterCountryId == k.CityMasterCityCountryId)?.CountryMasterCountryName
             }).OrderBy(x => x.CityMasterCityName).AsEnumerable().ToList();
         }
 
@@ -46,6 +49,7 @@ namespace Inspire.Erp.Web.Controllers
         [Route("GetAllCityById/{id}")]
         public List<CityMasterViewModel> GetAllCityById(int id)
         {
+            var countries = _countryService.GetAllCountry().ToList();
             return cityMasterService.GetAllCityById(id).Select(k => new CityMasterViewModel
             {
 
@@ -54,7 +58,8 @@ namespace Inspire.Erp.Web.Controllers
                 CityMasterCityName = k.CityMasterCityName,
                 CityMasterCityDeleted = k.CityMasterCityDeleted,
                 CityMasterCityStatus = k.CityMasterCityStatus,
-                CityMasterCityDelStatus = k.CityMasterCityDelStatus
+                CityMasterCityDelStatus = k.CityMasterCityDelStatus,
+                CountryName = countries.FirstOrDefault(c => c.CountryMasterCountryId == k.CityMasterCityCountryId)?.CountryMasterCountryName
 
             }).OrderBy(x => x.CityMasterCityName).AsEnumerable().ToList();
         }
@@ -65,6 +70,7 @@ namespace Inspire.Erp.Web.Controllers
         {
             
             var result = _mapper.Map<CityMaster>(cityMaster);
+            var countries = _countryService.GetAllCountry().ToList();
             return cityMasterService.InsertCity(result).Select(k => new CityMasterViewModel
             {
                 CityMasterCityId = k.CityMasterCityId,
@@ -72,7 +78,8 @@ namespace Inspire.Erp.Web.Controllers
                 CityMasterCityName = k.CityMasterCityName,
                 CityMasterCityDeleted = k.CityMasterCityDeleted,
                 CityMasterCityStatus = k.CityMasterCityStatus,
-                CityMasterCityDelStatus = k.CityMasterCityDelStatus
+                CityMasterCityDelStatus = k.CityMasterCityDelStatus,
+                CountryName = countries.FirstOrDefault(c => c.CountryMasterCountryId == k.CityMasterCityCountryId)?.CountryMasterCountryName
 
 
             }).OrderBy(x => x.CityMasterCityName).AsEnumerable().ToList();
@@ -83,6 +90,7 @@ namespace Inspire.Erp.Web.Controllers
         public List<CityMasterViewModel> UpdateCity([FromBody] CityMasterViewModel cityMaster)
         {
             var result = _mapper.Map<CityMaster>(cityMaster);
+            var countries = _countryService.GetAllCountry().ToList();
             return cityMasterService.UpdateCity(result).Select(k => new CityMasterViewModel
             {
                 CityMasterCityId = k.CityMasterCityId,
@@ -90,7 +98,8 @@ namespace Inspire.Erp.Web.Controllers
                 CityMasterCityName = k.CityMasterCityName,
                 CityMasterCityDeleted = k.CityMasterCityDeleted,
                 CityMasterCityStatus = k.CityMasterCityStatus,
-                CityMasterCityDelStatus = k.CityMasterCityDelStatus
+                CityMasterCityDelStatus = k.CityMasterCityDelStatus,
+                CountryName = countries.FirstOrDefault(c => c.CountryMasterCountryId == k.CityMasterCityCountryId)?.CountryMasterCountryName
 
             }).OrderBy(x => x.CityMasterCityName).AsEnumerable().ToList();
         }
@@ -100,6 +109,7 @@ namespace Inspire.Erp.Web.Controllers
         public List<CityMasterViewModel> DeleteCity([FromBody] CityMasterViewModel cityMaster)
         {
             var result = _mapper.Map<CityMaster>(cityMaster);
+            var countries = _countryService.GetAllCountry().ToList();
             return cityMasterService.DeleteCity(result).Select(k => new CityMasterViewModel
             {
                 CityMasterCityId = k.CityMasterCityId,
@@ -107,7 +117,8 @@ namespace Inspire.Erp.Web.Controllers
                 CityMasterCityName = k.CityMasterCityName,
                 CityMasterCityDeleted = k.CityMasterCityDeleted,
                 CityMasterCityStatus = k.CityMasterCityStatus,
-                CityMasterCityDelStatus = k.CityMasterCityDelStatus
+                CityMasterCityDelStatus = k.CityMasterCityDelStatus,
+                CountryName = countries.FirstOrDefault(c => c.CountryMasterCountryId == k.CityMasterCityCountryId)?.CountryMasterCountryName
             }).OrderBy(x => x.CityMasterCityName).AsEnumerable().ToList();
         }
     }

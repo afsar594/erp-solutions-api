@@ -10,6 +10,7 @@ namespace Inspire.Erp.Web.ViewModels
     {
         public int? CityMasterCityId { get; set; }
         public int? CityMasterCityCountryId { get; set; }
+        public string? CountryName { get; set; }
         public string CityMasterCityName { get; set; }
         public bool? CityMasterCityDeleted { get; set; }
         public bool? CityMasterCityStatus { get; set; }
