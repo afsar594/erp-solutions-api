@@ -61,6 +61,8 @@ namespace Inspire.Erp.Infrastructure.Database
         public virtual DbSet<BankMaster> BankMaster { get; set; }
         public virtual DbSet<BankPaymentVoucher> BankPaymentVoucher { get; set; }
         public virtual DbSet<BankPaymentVoucherDetails> BankPaymentVoucherDetails { get; set; }
+        public virtual DbSet<PaymentRequest> PaymentRequest { get; set; }
+        public virtual DbSet<PaymentRequestDetails> PaymentRequestDetails { get; set; }
         public virtual DbSet<BankReceiptVoucher> BankReceiptVoucher { get; set; }
         public virtual DbSet<BankReceiptVoucherDetails> BankReceiptVoucherDetails { get; set; }
         public virtual DbSet<BatchBarCodes> BatchBarCodes { get; set; }
@@ -3494,6 +3496,110 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasPrincipalKey(p => p.VouchersNumbersVNo)
                     .HasForeignKey(d => d.BankPaymentVoucherDetailsVoucherNo)
                     .HasConstraintName("FK_Bank_Payment_Voucher_Bank_Payment_Voucher_Details");
+            });
+
+
+            modelBuilder.Entity<PaymentRequest>(entity =>
+            {
+                entity.HasKey(e => e.PaymentRequestSno);
+
+                entity.ToTable("Payment_Request");
+
+                entity.Property(e => e.PaymentRequestSno)
+                    .HasColumnName("Payment_Request_SNo");
+
+                entity.Property(e => e.PaymentRequestVoucherNo)
+                    .HasColumnName("Payment_Request_Voucher_No")
+                    .HasMaxLength(30)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.PaymentRequestDate)
+                    .HasColumnName("Payment_Request_Date")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.PaymentRequestVoucherRef)
+                    .HasColumnName("Payment_Request_Voucher_Ref")
+                    .HasMaxLength(30)
+                    .IsUnicode(false);
+
+
+
+                entity.Property(e => e.PaymentRequestDbAmount)
+                    .HasColumnName("Payment_Request_DB_Amount");
+
+
+                entity.Property(e => e.PaymentRequestFcDbAmount)
+                    .HasColumnName("Payment_Request_FC_DB_Amount");
+
+                entity.Property(e => e.PaymentRequestNarration)
+                    .HasColumnName("Payment_Request_Narration")
+                    .HasMaxLength(200)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.PaymentRequestFsno)
+                    .HasColumnName("Payment_Request_FSNO");
+
+                entity.Property(e => e.PaymentRequestUserId)
+                    .HasColumnName("Payment_Request_User_ID");
+
+                entity.Property(e => e.PaymentRequestCurrencyId)
+                    .HasColumnName("Payment_Request_Currency_ID");
+
+                entity.Property(e => e.PaymentRequestLocationId)
+                    .HasColumnName("Payment_Request_Location_ID");
+
+
+                entity.Property(e => e.PaymentRequestDelStatus)
+                    .HasColumnName("Payment_Request_DelStatus")
+                    .HasDefaultValueSql("((0))");
+
+                // Uncomment this if you have relationship navigation like VouchersNumbers
+                // entity.HasOne(d => d.PaymentRequestVoucherNoNavigation)
+                //     .WithOne(p => p.PaymentRequest)
+                //     .HasPrincipalKey<VouchersNumbers>(p => p.VouchersNumbersVNo)
+                //     .HasForeignKey<PaymentRequest>(d => d.PaymentRequestVoucherNo)
+                //     .OnDelete(DeleteBehavior.ClientSetNull)
+                //     .HasConstraintName("FK_Payment_Request_Vouchers_Numbers");
+            });
+
+            modelBuilder.Entity<PaymentRequestDetails>(entity =>
+            {
+                entity.HasKey(e => e.PaymentRequestDetailsSno);
+
+                entity.ToTable("Payment_Request_Details");
+
+                entity.Property(e => e.PaymentRequestDetailsSno)
+                    .HasColumnName("Payment_Request_Details_SNo");
+
+                entity.Property(e => e.PaymentRequestDetailsVoucherNo)
+                    .HasColumnName("Payment_Request_Details_Voucher_No")
+                    .HasMaxLength(30)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.PaymentRequestDetailsAcNo)
+                    .HasColumnName("Payment_Request_Details_Account_No")
+                    .HasMaxLength(30)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.PaymentRequestDetailsAmount)
+                    .HasColumnName("Payment_Request_Details_Amount");
+
+                entity.Property(e => e.PaymentRequestDetailsNarration)
+                    .HasColumnName("Payment_Request_Details_Narration")
+                    .HasMaxLength(200)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.PaymentVocherDetailsDelStatus)
+                    .HasColumnName("Payment_Request_Details_DelStatus")
+                    .HasDefaultValueSql("((0))");
+
+                // Foreign key (if applicable)
+                // entity.HasOne(d => d.PaymentRequest)
+                //     .WithMany(p => p.PaymentRequestDetails)
+                //     .HasForeignKey(d => d.PaymentRequestDetailsVoucherNo)
+                //     .HasPrincipalKey(p => p.PaymentRequestVoucherNo)
+                //     .OnDelete(DeleteBehavior.ClientSetNull)
+                //     .HasConstraintName("FK_Payment_Request_Details_Payment_Request");
             });
 
             modelBuilder.Entity<BankReceiptVoucher>(entity =>

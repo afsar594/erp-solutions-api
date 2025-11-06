@@ -511,6 +511,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 if (!isFromPurchaseRequisition)
                 {
+                    _purchaseOrderRepository.TransactionCommit();
+
                     #region EmailNotification
                     string filePath = await downloadReport(purchaseOrder);
                     var jobDetail = _jobMaster.GetAsQueryable().Where(x => x.JobMasterJobId == jobId).FirstOrDefault();
@@ -572,7 +574,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     }
                 }
                 //await ApprovePurchaseOrderForLowerApprovers()
-                _purchaseOrderRepository.TransactionCommit();
+                //_purchaseOrderRepository.TransactionCommit();
                 var res = await this.GetSavedPurchaseOrderDetails((int)purchaseOrder.PurchaseOrderId);
                 return Response<PurchaseOrderModel>.Success(res.Result, "Purchase Order Save Successfully.");
             }

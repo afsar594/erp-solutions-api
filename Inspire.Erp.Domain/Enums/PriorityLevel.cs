@@ -95,6 +95,7 @@ namespace Inspire.Erp.Domain.Enums
 
     public static class Prefix
     {
+        public static String PRequest_Prefix { get { return "   "; } }
         public static String PV_Prefix { get { return "PV_PREFIX"; } }
         public static String RV_Prefix { get { return "RV_PREFIX"; } }
         public static String BPV_Prefix { get { return "BPV_PREFIX"; } }
