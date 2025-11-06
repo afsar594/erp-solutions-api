@@ -225,6 +225,10 @@ namespace Inspire.Erp.Web.Controllers
         public async Task<ApiResponse<SalesVoucherViewModel>> UpdateSalesVoucher([FromBody] SalesVoucherViewModel voucherCompositeView)
         {
             var param1 = _mapper.Map<SalesVoucher>(voucherCompositeView);
+            param1.SalesVoucherVat_AMT = voucherCompositeView.SalesVoucherVatAmt;
+            param1.SalesVoucherVat_Per = voucherCompositeView.SalesVoucherVatPer;
+            param1.SalesVoucherVat_RoundSign = voucherCompositeView.SalesVoucherVatRoundSign;
+            param1.SalesVoucherVat_RountAmt = voucherCompositeView.SalesVoucherVatRountAmt;
             var param2 = _mapper.Map<List<SalesVoucherDetails>>(voucherCompositeView.SalesVoucherDetails);
             var param3 = _mapper.Map<List<AccountsTransactions>>(voucherCompositeView.AccountsTransactions);
             //var param4 = _mapper.Map<List<StockRegister>>(voucherCompositeView.StockRegister);
