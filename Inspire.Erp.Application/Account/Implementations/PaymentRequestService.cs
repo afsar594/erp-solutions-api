@@ -112,6 +112,8 @@ namespace Inspire.Erp.Application.Account.Services
             try
             {
                 _paymentReqRepository.Update(paymentRequest);
+                _paymentReqDetailsRepository.UpdateList(paymentRequestDetails);
+
                 return this.GetSavedPaymentRequestDetails(paymentRequest.PaymentRequestSno); ;
             }
             catch (Exception ex)
@@ -132,7 +134,7 @@ namespace Inspire.Erp.Application.Account.Services
                 paymentRequest.PaymentRequestDelStatus = true;
                 paymentRequestDetails = paymentRequestDetails.Select((k) =>
                 {
-                    k.PaymentVocherDetailsDelStatus = true;
+                    k.PaymentRequestDetailsDelStatus = true;
                     return k;
                 }).OrderBy(x => x.PaymentRequestDetailsVoucherNo).AsEnumerable().ToList();
                 _paymentReqRepository.Update(paymentRequest);
@@ -156,12 +158,13 @@ namespace Inspire.Erp.Application.Account.Services
             voucherdata = _paymentReqRepository.GetAsQueryable().Where(k => k.PaymentRequestSno == prNo).FirstOrDefault();
             if (voucherdata != null)
             {
-                voucherdata.PaymentRequestDetails = _paymentReqDetailsRepository.GetAll().Where(x => x.PaymentRequestDetailsVoucherNo == voucherdata.PaymentRequestVoucherNo && x.PaymentVocherDetailsDelStatus == false).ToList();
+                voucherdata.PaymentRequestDetails = _paymentReqDetailsRepository.GetAll().Where(x => x.PaymentRequestDetailsVoucherNo == voucherdata.PaymentRequestVoucherNo && (x.PaymentRequestDetailsDelStatus == false || x.PaymentRequestDetailsDelStatus ==null)).ToList();
                 return voucherdata;
             }
             return null;
 
         }
+
 
         public IEnumerable<PaymentRequest> GetPaymentRequests()
         {

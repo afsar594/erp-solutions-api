@@ -1,4 +1,5 @@
-﻿using Inspire.Erp.Domain.Modals;
+﻿using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.Administration;
 using Inspire.Erp.Domain.Modals.Common;
 using System;
@@ -14,5 +15,6 @@ namespace Inspire.Erp.Application.Settings.Interface
         Task<Response<GridWrapperResponse<List<GetReportTypeMasterResponse>>>> GetReportTypes(GenericGridViewModel model);
         Task<Response<AddEditReportTypeResponse>> GetSpecificVoucherType(int id = 0);
         Task<Response<bool>> DeleteReportType(List<int> ids);
+        Task<IEnumerable<ReportType>> GetReportByTypeAsync(string type);
     }
 }

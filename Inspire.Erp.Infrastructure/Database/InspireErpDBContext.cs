@@ -3505,11 +3505,20 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.ToTable("Payment_Request");
 
-                entity.Property(e => e.PaymentRequestSno)
-                    .HasColumnName("Payment_Request_SNo");
+                entity.HasIndex(e => e.PaymentRequestVoucherNo)
+                    .HasName("UNIQUE_Payment_Request")
+                    .IsUnique();
+
+                entity.Property(e => e.PaymentRequestSno).HasColumnName("Payment_Request_Sno");
 
                 entity.Property(e => e.PaymentRequestVoucherNo)
+                    .IsRequired()
                     .HasColumnName("Payment_Request_Voucher_No")
+                    .HasMaxLength(30)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.PaymentRequestVoucherRef)
+                    .HasColumnName("Payment_Request_Voucher_Ref")
                     .HasMaxLength(30)
                     .IsUnicode(false);
 
@@ -3517,23 +3526,15 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnName("Payment_Request_Date")
                     .HasColumnType("datetime");
 
-                entity.Property(e => e.PaymentRequestVoucherRef)
-                    .HasColumnName("Payment_Request_Voucher_Ref")
-                    .HasMaxLength(30)
-                    .IsUnicode(false);
-
-
-
                 entity.Property(e => e.PaymentRequestDbAmount)
                     .HasColumnName("Payment_Request_DB_Amount");
-
 
                 entity.Property(e => e.PaymentRequestFcDbAmount)
                     .HasColumnName("Payment_Request_FC_DB_Amount");
 
                 entity.Property(e => e.PaymentRequestNarration)
                     .HasColumnName("Payment_Request_Narration")
-                    .HasMaxLength(200)
+                    .HasMaxLength(100)
                     .IsUnicode(false);
 
                 entity.Property(e => e.PaymentRequestFsno)
@@ -3548,19 +3549,18 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.PaymentRequestLocationId)
                     .HasColumnName("Payment_Request_Location_ID");
 
-
                 entity.Property(e => e.PaymentRequestDelStatus)
-                    .HasColumnName("Payment_Request_DelStatus")
-                    .HasDefaultValueSql("((0))");
+                    .HasColumnName("Payment_Request_DelStatus");
 
-                // Uncomment this if you have relationship navigation like VouchersNumbers
-                // entity.HasOne(d => d.PaymentRequestVoucherNoNavigation)
-                //     .WithOne(p => p.PaymentRequest)
-                //     .HasPrincipalKey<VouchersNumbers>(p => p.VouchersNumbersVNo)
-                //     .HasForeignKey<PaymentRequest>(d => d.PaymentRequestVoucherNo)
-                //     .OnDelete(DeleteBehavior.ClientSetNull)
-                //     .HasConstraintName("FK_Payment_Request_Vouchers_Numbers");
+                entity.HasOne(d => d.PaymentRequestVoucherNoNavigation)
+                    .WithOne(p => p.PaymentRequest)
+                    .HasPrincipalKey<VouchersNumbers>(p => p.VouchersNumbersVNo)
+                    .HasForeignKey<PaymentRequest>(d => d.PaymentRequestVoucherNo)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Payment_Request_Vouchers_Numbers");
             });
+
+
 
             modelBuilder.Entity<PaymentRequestDetails>(entity =>
             {
@@ -3572,6 +3572,7 @@ namespace Inspire.Erp.Infrastructure.Database
                     .HasColumnName("Payment_Request_Details_ID");
 
                 entity.Property(e => e.PaymentRequestDetailsVoucherNo)
+                    .IsRequired()
                     .HasColumnName("Payment_Request_Details_Voucher_No")
                     .HasMaxLength(50)
                     .IsUnicode(false);
@@ -3589,6 +3590,9 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.PaymentRequestDetailsDbFcAmount)
                     .HasColumnName("Payment_Request_Details_DB_FC_Amount");
+
+                entity.Property(e => e.PaymentRequestDetailsDepartmentId)
+                    .HasColumnName("Payment_Request_Details_Department_ID");
 
                 entity.Property(e => e.PaymentRequestDetailsDepartmentId)
                     .HasColumnName("Payment_Request_Details_Department_ID");
@@ -14440,34 +14444,26 @@ namespace Inspire.Erp.Infrastructure.Database
             {
                 entity.HasNoKey();
 
-                entity.ToTable("Report_Type");
+                entity.ToTable("ReportType");
 
-                entity.Property(e => e.ReportTypeDelStatus).HasColumnName("Report_Type_DelStatus");
+                //entity.Property(e => e.ReportTypeDelStatus).HasColumnName("Report_Type_DelStatus");
 
                 entity.Property(e => e.ReportTypeDescription)
-                    .HasColumnName("Report_Type_Description")
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
+                    .HasColumnName("Description");
 
                 entity.Property(e => e.ReportTypeFileName)
-                    .HasColumnName("Report_Type_FileName")
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
+                    .HasColumnName("FileName");
 
-                entity.Property(e => e.ReportTypeId)
-                    .HasColumnName("Report_Type_ID")
-                    .ValueGeneratedOnAdd();
+                entity.Property(e => e.ReportTypeId).HasColumnName("Id");
 
-                entity.Property(e => e.ReportTypeIsDefault).HasColumnName("Report_Type_Is_Default");
+                entity.Property(e => e.ReportTypeIsDefault).HasColumnName("IsDefault");
 
-                entity.Property(e => e.ReportTypeIsImage).HasColumnName("Report_Type_Is_Image");
+                //  entity.Property(e => e.ReportTypeIsImage).HasColumnName("Report_Type_Is_Image");
 
-                entity.Property(e => e.ReportTypeIsVisible).HasColumnName("Report_Type_IsVisible");
+                entity.Property(e => e.ReportTypeIsVisible).HasColumnName("IsVisible");
 
                 entity.Property(e => e.ReportTypeVoucherName)
-                    .HasColumnName("Report_Type_Voucher_Name")
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
+                    .HasColumnName("VoucherType");
             });
 
             modelBuilder.Entity<RfqEntry>(entity =>

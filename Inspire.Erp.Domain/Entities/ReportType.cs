@@ -10,8 +10,8 @@ namespace Inspire.Erp.Domain.Entities
         public string ReportTypeFileName { get; set; }
         public bool? ReportTypeIsDefault { get; set; }
         public string ReportTypeDescription { get; set; }
-        public bool? ReportTypeIsImage { get; set; }
+      //  public bool? ReportTypeIsImage { get; set; }
         public bool? ReportTypeIsVisible { get; set; }
-        public bool? ReportTypeDelStatus { get; set; }
+       // public bool? ReportTypeDelStatus { get; set; }
     }
 }
