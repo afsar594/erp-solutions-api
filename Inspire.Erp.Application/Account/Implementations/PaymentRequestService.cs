@@ -1,10 +1,12 @@
 ﻿using Inspire.Erp.Application.Account.Interfaces;
+using Inspire.Erp.Application.Helpers.ExtensionMethods;
 using Inspire.Erp.Application.MODULE;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Domain.Models;
 using Inspire.Erp.Infrastructure.Database;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,18 +19,24 @@ namespace Inspire.Erp.Application.Account.Services
         private readonly IRepository<PaymentRequestDetails> _paymentReqDetailsRepository;
         private readonly InspireErpDBContext context;
         private IRepository<Domain.Entities.ProgramSettings> _programsettingsRepository;
+        private readonly IRepository<OrderApprovalHierarchy> _orderApprovalHierarchy;
+        private IRepository<DefaultApprover> _defaultApproversRepo;
 
         private IRepository<VouchersNumbers> _voucherNumbersRepository;
         public PaymentRequestService(
             IRepository<PaymentRequest> paymentRequestRepo,
             IRepository<Domain.Entities.ProgramSettings> programsettingsRepository,
             IRepository<PaymentRequestDetails> paymentRequestDetailsRepo,
-            IRepository<VouchersNumbers> voucherNumbersRepository)
+            IRepository<VouchersNumbers> voucherNumbersRepository,
+            IRepository<OrderApprovalHierarchy> orderApprovalHierarchy,
+            IRepository<DefaultApprover> defaultApproversRepo)
         {
             _paymentReqRepository = paymentRequestRepo;
             _paymentReqDetailsRepository = paymentRequestDetailsRepo;
             _programsettingsRepository = programsettingsRepository;
             _voucherNumbersRepository = voucherNumbersRepository;
+            _orderApprovalHierarchy = orderApprovalHierarchy;
+            _defaultApproversRepo = defaultApproversRepo;
         }
 
         public PaymentRequest InsertPaymentRequest(
@@ -37,25 +45,65 @@ namespace Inspire.Erp.Application.Account.Services
         {
             try
             {
+                _paymentReqRepository.BeginTransaction();
                 string paymentVoucherNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.Payment, Prefix.PRequest_Prefix, _programsettingsRepository, _voucherNumbersRepository); ;
                 paymentRequest.PaymentRequestVoucherNo = paymentVoucherNumber;
                 int maxcount = 0;
                 maxcount = Convert.ToInt32(
                     _paymentReqRepository.GetAsQueryable()
                     .DefaultIfEmpty().Max(o => o == null ? 0 : o.PaymentRequestSno) + 1);
+
                 _paymentReqRepository.Insert(paymentRequest);
 
-                
+                paymentRequestDetails.ForEach(x => x.PaymentRequestDetailsVoucherNo = paymentVoucherNumber);
+                _paymentReqDetailsRepository.InsertList(paymentRequestDetails);
+
+                createApprversAgainstPaymentRequest(paymentRequest.PaymentRequestSno);
+
                 _paymentReqRepository.TransactionCommit();
+
+
+
                 return this.GetSavedPaymentRequestDetails(paymentRequest.PaymentRequestSno);
             }
             catch (Exception ex)
             {
+                _paymentReqRepository.TransactionRollback();
                 throw new Exception("Error inserting Payment Request", ex);
             }
 
 
         }
+
+        private void createApprversAgainstPaymentRequest(int payRequestId)
+        {
+            var approvers = _defaultApproversRepo.GetAsQueryable().AsNoTracking()
+                                                .Where(x => x.VoucherType == null || x.VoucherType.Trim().ToLower() == "paymentrequest")
+                                                .Select(x => new
+                                                {
+                                                    x.UserId,
+                                                    x.Sno
+                                                }).ToList();
+
+            var orderApprovers = approvers
+                                                .Select(x => new OrderApprovalHierarchy
+                                                {
+                                                    ApproverId = x.UserId,
+                                                    OrderId = payRequestId,
+                                                    Status = EnumApprovalStatus.Pending,
+                                                    OrderType = EnumOrderForms.PaymentRequest,
+                                                    Remarks = string.Empty,
+                                                    ApproverLevel = x.Sno.GetApproverLevel(),
+                                                    Sno = x.Sno,
+                                                    ApprovedBy = null,
+                                                    ApprovedDate = null,
+                                                    FilePath = string.Empty
+                                                }).ToList();
+
+            if (orderApprovers.Any())
+                _orderApprovalHierarchy.InsertList(orderApprovers);
+        }
+
 
         public PaymentRequest UpdatePaymentRequest(
             PaymentRequest paymentRequest,
@@ -66,7 +114,8 @@ namespace Inspire.Erp.Application.Account.Services
                 _paymentReqRepository.Update(paymentRequest);
                 return this.GetSavedPaymentRequestDetails(paymentRequest.PaymentRequestSno); ;
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 throw ex;
             }
 

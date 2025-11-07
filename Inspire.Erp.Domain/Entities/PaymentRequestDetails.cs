@@ -9,19 +9,17 @@ namespace Inspire.Erp.Domain.Entities
 {
     public class PaymentRequestDetails
     {
-        public int PaymentRequestDetailsId { get; set; }
-        public string PaymentRequestDetailsVoucherNo { get; set; }
+        public int PaymentRequestDetailsId { get; set; }   
+        public string PaymentRequestDetailsVoucherNo { get; set; } 
         public int? PaymentRequestDetailsSno { get; set; }
-        public int? PaymentRequestDetailsAmount { get; set; }
         public string PaymentRequestDetailsAcNo { get; set; }
-        public double? PaymentRequestDetailsDbAmount { get; set; }
+        public double? PaymentRequestDetailsDbAmount { get; set; } 
         public double? PaymentRequestDetailsDbFcAmount { get; set; }
         public int? PaymentRequestDetailsDepartmentId { get; set; }
-        public string PaymentRequestDetailsNarration { get; set; }
-        public int? PaymentRequestDetailsFsno { get; set; }
-        public int? PaymentRequestDetailsLocationId { get; set; }
+        public string PaymentRequestDetailsNarration { get; set; } 
+        public int? PaymentRequestDetailsFsno { get; set; } 
+        public int? PaymentRequestDetailsLocationId { get; set; } 
         public bool? PaymentVocherDetailsDelStatus { get; set; }
-
-       
     }
+
 }

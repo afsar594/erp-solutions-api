@@ -23,6 +23,7 @@ namespace Inspire.Erp.Domain.Entities
         public int? PaymentRequestLocationId { get; set; }
         public bool? PaymentRequestDelStatus { get; set; }
         [JsonIgnore]
+        [NotMapped]
         public virtual VouchersNumbers PaymentRequestVoucherNoNavigation { get; set; }
 
         [NotMapped]
