@@ -32,11 +32,11 @@ namespace Inspire.Erp.Application.Settings.Implementations
                 {
                     var reportType = new ReportType()
                     {
-                        ReportTypeIsImage=model.ReportTypeIsImage,
+                       // ReportTypeIsImage=model.ReportTypeIsImage,
                         ReportTypeDescription=model.ReportTypeDescription,
                         ReportTypeFileName=model.ReportTypeFileName,
                         ReportTypeIsDefault=model.ReportTypeIsDefault,
-                        ReportTypeDelStatus=false,
+                       // ReportTypeDelStatus=false,
                         ReportTypeIsVisible=model.ReportTypeIsVisible,
                         ReportTypeVoucherName=model.ReportTypeVoucherName
                     };
@@ -46,7 +46,7 @@ namespace Inspire.Erp.Application.Settings.Implementations
                 else
                 {
                     var reportType= await _reportType.GetAsQueryable().Where(x => x.ReportTypeId == model.ReportTypeId).FirstOrDefaultAsync();
-                    reportType.ReportTypeIsImage = model.ReportTypeIsImage;
+                   // reportType.ReportTypeIsImage = model.ReportTypeIsImage;
                     reportType.ReportTypeDescription = model.ReportTypeDescription;
                     reportType.ReportTypeFileName = model.ReportTypeFileName;
                     reportType.ReportTypeIsDefault = model.ReportTypeIsDefault;
@@ -83,7 +83,7 @@ namespace Inspire.Erp.Application.Settings.Implementations
                 var result = await _reportType.GetAsQueryable().Where(query).Select(x => new GetReportTypeMasterResponse
                 {
                     ReportTypeId=x.ReportTypeId,
-                    ReportTypeIsImage = x.ReportTypeIsImage,
+                   // ReportTypeIsImage = x.ReportTypeIsImage,
                     ReportTypeDescription = x.ReportTypeDescription,
                     ReportTypeFileName = x.ReportTypeFileName,
                     ReportTypeIsDefault = x.ReportTypeIsDefault,
@@ -109,7 +109,7 @@ namespace Inspire.Erp.Application.Settings.Implementations
             {
                 var reportType = new AddEditReportTypeResponse();
                     var reportTypeData = await _reportType.GetAsQueryable().Where(x => x.ReportTypeId == id).FirstOrDefaultAsync();
-                    reportType.ReportTypeIsImage = reportTypeData.ReportTypeIsImage;
+                  //  reportType.ReportTypeIsImage = reportTypeData.ReportTypeIsImage;
                 reportType.ReportTypeId = reportTypeData.ReportTypeId;
                 reportType.ReportTypeDescription = reportTypeData.ReportTypeDescription;
                     reportType.ReportTypeFileName = reportTypeData.ReportTypeFileName;
@@ -131,7 +131,7 @@ namespace Inspire.Erp.Application.Settings.Implementations
                 var reportTypeData = await _reportType.GetAsQueryable().Where(x => ids.Contains(x.ReportTypeId)).ToListAsync();
                 reportTypeData.ForEach((x) =>
                 {
-                    x.ReportTypeDelStatus = true;
+                  //  x.ReportTypeDelStatus = true;
                 });
                 #region ADD ACTIVITY LOGS
                 AddActivityLogViewModel log = new AddActivityLogViewModel()
@@ -150,6 +150,19 @@ namespace Inspire.Erp.Application.Settings.Implementations
             {
 
                 return Response<bool>.Fail(false, ex.Message);
+            }
+        }
+        public async Task<IEnumerable<ReportType>> GetReportByTypeAsync(string type)
+        {
+            try
+            {
+                var reportTypess = await _reportType.GetAsQueryable().Where(x => x.ReportTypeVoucherName == type && x.ReportTypeIsVisible == true).ToListAsync();
+
+                return reportTypess;
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
     }
