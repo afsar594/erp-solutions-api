@@ -12,7 +12,7 @@ namespace Inspire.Erp.Domain.Entities
         public int PaymentRequestDetailsId { get; set; }
         public string PaymentRequestDetailsVoucherNo { get; set; }
         public int? PaymentRequestDetailsSno { get; set; }
-        public int? PaymentRequestDetailsAmount { get; set; }
+       // public int? PaymentRequestDetailsAmount { get; set; }
         public string PaymentRequestDetailsAcNo { get; set; }
         public double? PaymentRequestDetailsDbAmount { get; set; }
         public double? PaymentRequestDetailsDbFcAmount { get; set; }
@@ -20,8 +20,9 @@ namespace Inspire.Erp.Domain.Entities
         public string PaymentRequestDetailsNarration { get; set; }
         public int? PaymentRequestDetailsFsno { get; set; }
         public int? PaymentRequestDetailsLocationId { get; set; }
-        public bool? PaymentVocherDetailsDelStatus { get; set; }
+        public bool? PaymentRequestDetailsDelStatus { get; set; }
+        [JsonIgnore]
+        public virtual VouchersNumbers PaymentRequestDetailsVoucherNoNavigation { get; set; }
 
-       
     }
 }

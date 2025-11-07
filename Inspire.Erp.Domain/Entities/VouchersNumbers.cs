@@ -38,6 +38,7 @@ namespace Inspire.Erp.Domain.Entities
         [JsonIgnore]
         public virtual CustomerPurchaseOrder CustomerPurchaseOrder { get; set; }
         public virtual PaymentVoucher PaymentVoucher { get; set; }
+        public virtual PaymentRequest PaymentRequest { get; set; }
         public virtual ICollection<AccountsTransactions> AccountsTransactions { get; set; }
         public virtual ICollection<BankPaymentVoucherDetails> BankPaymentVoucherDetails { get; set; }
         public virtual ICollection<BankReceiptVoucherDetails> BankReceiptVoucherDetails { get; set; }
@@ -50,6 +51,8 @@ namespace Inspire.Erp.Domain.Entities
         public virtual ICollection<OpeningVoucherDetails> OpeningVoucherDetails { get; set; }
         [JsonIgnore]
         public virtual ICollection<PaymentVoucherDetails> PaymentVoucherDetails { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<PaymentRequestDetails> PaymentRequestDetails { get; set; }
         [JsonIgnore]
         public virtual ICollection<ReceiptVoucherDetails> ReceiptVoucherDetails { get; set; }
         //public virtual ICollection<StockRegister> StockRegisters { get; set; }
