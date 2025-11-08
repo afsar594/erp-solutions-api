@@ -49,6 +49,7 @@ namespace Inspire.Erp.Application.Account.Implementations
             try
             {
                 _journalVoucherRepository.BeginTransaction();
+                clsCommonFunctions.Delete_OldEntry_AccountsTransactions(journalVoucher.JournalVoucherVrefNo, VoucherType.JournalVoucher_TYPE, _accountTransactionRepository);
                 var itemsToAdd = journalVoucherDetails.Where(x => x.JournalVoucherDetailsId == 0).ToList();
                 //var itemsToUpdate = journalVoucherDetails.Where(x => x.JournalVoucherDetailsId != 0).ToList();
                 var itemsTodelete = _journalVoucherDetailsRepository.GetAsQueryable().Where(x => x.JournalVoucherDetailVrefNo == journalVoucher.JournalVoucherVrefNo).ToList();

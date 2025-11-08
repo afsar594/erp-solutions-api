@@ -288,7 +288,7 @@ namespace Inspire.Erp.Application.MODULE
                 return 1;
             }
         }
-        public static string GenrateVoucherNo(string voucherType, string voucherprefix, IRepository<ProgramSettings> _progrramSettingRepo, IRepository<VouchersNumbers> _voucherNosRepo, string? JobNum = null)
+        public static string GenrateVoucherNo_II(string voucherType, string voucherprefix, IRepository<ProgramSettings> _progrramSettingRepo, IRepository<VouchersNumbers> _voucherNosRepo, string? JobNum = null)
         {
             try
             {
@@ -304,7 +304,8 @@ namespace Inspire.Erp.Application.MODULE
                 decimal vNoMax = 0;
                 var prefix = _progrramSettingRepo.GetAsQueryable().AsNoTracking().Where(p => p.ProgramSettingsKeyValue.Equals(voucherprefix))
                     .Select(v => v.ProgramSettingsTextValue).FirstOrDefault();
-                var jobNumber =  !string.IsNullOrEmpty(JobNum) ? $"{prefixSeprator}{JobNum}" : string.Empty;
+
+                var jobNumber = !string.IsNullOrEmpty(JobNum) ? $"{prefixSeprator}{JobNum}" : string.Empty;
                 var date = DateTime.Now;
                 string vnoPrefix = string.Empty;
                 if (program.Equals("1")) // Monthly  
@@ -349,7 +350,7 @@ namespace Inspire.Erp.Application.MODULE
                 {
                     vNoMax = _voucherNosRepo.GetAsQueryable().AsNoTracking().Where(v => v.VouchersNumbersVNoNu > 0 && v.VouchersNumbersVType.Equals(voucherType)).AsEnumerable().
                         Select(a => a.VouchersNumbersVNoNu).DefaultIfEmpty(0).Max() + 1;
-                    if (jonNumEnable == true )
+                    if (jonNumEnable == true)
                     {
                         vnoPrefix = prefix + jobNumber + prefixSeprator + Convert.ToInt32(vNoMax).ToString("D3");
                     }
@@ -377,5 +378,73 @@ namespace Inspire.Erp.Application.MODULE
 
             }
         }
+
+
+        public static string GenrateVoucherNo(string voucherType,string voucherPrefixKey,IRepository<ProgramSettings> programSettingRepo,IRepository<VouchersNumbers> voucherNosRepo,string? jobNum = null)
+        {
+            try
+            {
+                // --- Load settings once ---
+                var settings = programSettingRepo.GetAsQueryable().AsNoTracking().ToList();
+
+                string closingType = settings.FirstOrDefault(p => p.ProgramSettingsKeyValue == "PREFIX_CLOSING_TYPE")?.ProgramSettingsTextValue ?? "0";
+                bool jobWisePrefix = settings.FirstOrDefault(p => p.ProgramSettingsKeyValue == "JOB_WISE_PREFIX")?.ProgramSettingsBoolValue ?? false;
+                string separator = settings.FirstOrDefault(p => p.ProgramSettingsKeyValue == "PREFIX_SEPERATOR")?.ProgramSettingsTextValue ?? "-";
+                string prefix = settings.FirstOrDefault(p => p.ProgramSettingsKeyValue == voucherPrefixKey)?.ProgramSettingsTextValue ?? string.Empty;
+
+                // --- Prepare dynamic parts ---
+                DateTime now = DateTime.Now;
+                string jobSegment = !string.IsNullOrEmpty(jobNum) ? $"{separator}{jobNum}" : string.Empty;
+
+                // --- Filter vouchers based on closing type ---
+                var vouchers = voucherNosRepo.GetAsQueryable().AsNoTracking()
+                    .Where(v => v.VouchersNumbersVNoNu > 0 && v.VouchersNumbersVType == voucherType);
+
+                if (closingType == "1") // Monthly
+                    vouchers = vouchers.Where(v => v.VouchersNumbersVoucherDate.HasValue &&
+                                                   v.VouchersNumbersVoucherDate.Value.Year == now.Year &&
+                                                   v.VouchersNumbersVoucherDate.Value.Month == now.Month);
+                else if (closingType == "2") // Yearly
+                    vouchers = vouchers.Where(v => v.VouchersNumbersVoucherDate.HasValue &&
+                                                   v.VouchersNumbersVoucherDate.Value.Year == now.Year);
+
+                // --- Generate new number ---
+                decimal nextNo = vouchers.AsEnumerable()
+                                         .Select(v => v.VouchersNumbersVNoNu)
+                                         .DefaultIfEmpty(0)
+                                         .Max() + 1;
+
+                // --- Build voucher number string ---
+                var core = $"{Convert.ToInt32(nextNo):D3}";
+                string vno = closingType switch
+                {
+                    "1" or "2" => jobWisePrefix
+                        ? $"{prefix}{jobSegment}{separator}{now:yyMM}{separator}{core}"
+                        : $"{prefix}{separator}{now:yyMM}{separator}{core}",
+                    _ => jobWisePrefix
+                        ? $"{prefix}{jobSegment}{separator}{core}"
+                        : $"{prefix}{separator}{core}"
+                };
+
+                // --- Save new voucher record ---
+                var voucherEntry = new VouchersNumbers
+                {
+                    VouchersNumbersVNo = vno,
+                    VouchersNumbersVNoNu = nextNo,
+                    VouchersNumbersVType = voucherType,
+                    VouchersNumbersFsno = 1,
+                    VouchersNumbersStatus = AccountStatus.Pending,
+                    VouchersNumbersVoucherDate = now
+                };
+                voucherNosRepo.Insert(voucherEntry);
+
+                return vno;
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+        }
+
     }
 }

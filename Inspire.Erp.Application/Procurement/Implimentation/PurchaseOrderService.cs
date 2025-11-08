@@ -74,6 +74,11 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private readonly ICurrentUserService _currentUserService;
         IGeneralSelectQueries _generalSelectQueries;
         private readonly PurchaseOrderRequisitionHelper _purchaseOrderRequisitionHelper;
+
+        private readonly IRepository<PaymentRequest> _paymentReqRepository;
+        //private readonly IRepository<PaymentRequestDetails> _paymentReqDetailsRepository;
+
+
         public PurchaseOrderService(
             IConfiguration config,
             IRepository<UserFile> userFileRepository, IRepository<PermissionApproval> permissionApprovalRepo,
@@ -87,7 +92,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PurOrderRegister> purOrderRegisterRepository,
             IRepository<UnitDetails> unitDetailsRepository,
             IRepository<PurchaseVoucherDetails> purchaseVoucherDetailsRepo,
-            IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository, IRepository<Permissionapproval> permissionapproval, IRepository<ApproverLevelSettings> approverLevelSettings, IOrderEmailNotificationService orderEmailNotificationService, IRepository<PurchaseRequisition> purchaseRequisitionRepository, IRepository<OrderApprovalHierarchy> orderApprovalHierarchy, IPurchaseRequisitionService purchaseRequisitionService, IRepository<CustomerQuotation> customerQuotation, IRepository<JobMaster> jobMaster, IGeneralSettings generalSettings, IRepository<GeneralPurchaseOrder> generalPurchaseOrder, ICurrentUserService currentUserService, IGeneralSelectQueries generalSelectQueries, IRepository<DefaultApprover> defaultApproversRepo)
+            IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository, IRepository<Permissionapproval> permissionapproval, IRepository<ApproverLevelSettings> approverLevelSettings, IOrderEmailNotificationService orderEmailNotificationService, IRepository<PurchaseRequisition> purchaseRequisitionRepository, IRepository<OrderApprovalHierarchy> orderApprovalHierarchy, IPurchaseRequisitionService purchaseRequisitionService, IRepository<CustomerQuotation> customerQuotation, IRepository<JobMaster> jobMaster, IGeneralSettings generalSettings, IRepository<GeneralPurchaseOrder> generalPurchaseOrder, ICurrentUserService currentUserService, IGeneralSelectQueries generalSelectQueries, IRepository<DefaultApprover> defaultApproversRepo, IRepository<PaymentRequest> paymentReqRepository)
         {
             applicationSettings = config.GetSection("ApplicationSettings").Get<ApplicationSettings>();
             this._accountTransactionRepository = accountTransactionRepository;
@@ -127,6 +132,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _generalSelectQueries = generalSelectQueries;
             _purchaseOrderRequisitionHelper = new PurchaseOrderRequisitionHelper(userFileRepository, approverLevelSettings); ;
             _defaultApproversRepo = defaultApproversRepo;
+            _paymentReqRepository = paymentReqRepository;
         }
         public IEnumerable<UserFile> GetAllUserFile()
         {
@@ -511,6 +517,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 if (!isFromPurchaseRequisition)
                 {
+                    _purchaseOrderRepository.TransactionCommit();
+
                     #region EmailNotification
                     string filePath = await downloadReport(purchaseOrder);
                     var jobDetail = _jobMaster.GetAsQueryable().Where(x => x.JobMasterJobId == jobId).FirstOrDefault();
@@ -572,7 +580,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     }
                 }
                 //await ApprovePurchaseOrderForLowerApprovers()
-                _purchaseOrderRepository.TransactionCommit();
+                //_purchaseOrderRepository.TransactionCommit();
                 var res = await this.GetSavedPurchaseOrderDetails((int)purchaseOrder.PurchaseOrderId);
                 return Response<PurchaseOrderModel>.Success(res.Result, "Purchase Order Save Successfully.");
             }
@@ -1406,6 +1414,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     EnumOrderForms.PurchaseOrder,
                     EnumOrderForms.PurchaseRequisition,
                     EnumOrderForms.GeneralPurchaseOrder,
+                    EnumOrderForms.PaymentRequest,
                 };
                 var CombinedData = modelTypes
                     .Where(type => validTypes.Contains(type))
@@ -1414,6 +1423,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         EnumOrderForms.PurchaseOrder => GetPurchaseOrderForApproval(model),
                         EnumOrderForms.PurchaseRequisition => GetPurchaseRequisitionForApproval(model),
                         EnumOrderForms.GeneralPurchaseOrder => GetGeneralPurchaseOrderForApproval(model),
+                        EnumOrderForms.PaymentRequest => GetPaymentRequestForApproval(model),
                         _ => throw new ArgumentOutOfRangeException(nameof(type), $"No form configured for order type: {type}")
                     })
                     .ToList();
@@ -1427,6 +1437,135 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 throw;
             }
+        }
+
+        private List<VoucherApprivalDto> GetPaymentRequestForApproval(ApprovalFilterModel model)
+        {
+            var fromDate = model.fromDate?.Date;
+            var toDate = model.toDate?.Date;
+            bool filterByDate = model.IsDate && fromDate.HasValue && toDate.HasValue;
+            bool isUserRequired = model.IsUserRequired;
+
+            long userId = Convert.ToInt64(_currentUserService.UserId);
+            var groupId = _currentUserService.GroupId;
+            bool isAdmin = _generalSelectQueries.GetBooleanValue(groupId).Result;
+
+
+            var paymentRequests = _paymentReqRepository.GetAsQueryable()
+                .Where(x => !filterByDate ||
+                            (x.PaymentRequestDate.HasValue &&
+                             x.PaymentRequestDate.Value.Date >= fromDate &&
+                             x.PaymentRequestDate.Value.Date <= toDate))
+                .AsNoTracking()
+                .ToList();
+
+            if (!paymentRequests.Any())
+                return new List<VoucherApprivalDto>();
+
+            var payRequestIds = paymentRequests.Select(x => (int)x.PaymentRequestSno).ToList();
+
+
+            var approvalHierarchies = _orderApprovalHierarchy.GetAsQueryable()
+                .Where(x => payRequestIds.Contains((int)x.OrderId))
+                .AsNoTracking()
+                .ToList();
+
+            if (!approvalHierarchies.Any())
+                return new List<VoucherApprivalDto>();
+
+
+            var result = new List<VoucherApprivalDto>();
+
+            foreach (var req in paymentRequests)
+            {
+                var orderedApprovers = approvalHierarchies
+                    .Where(h => h.OrderId == req.PaymentRequestSno)
+                    .OrderBy(h => h.ApproverLevel)
+                    .ThenBy(h => h.Sno)
+                    .ToList();
+
+                if (!orderedApprovers.Any())
+                    continue;
+
+
+                var currentUserApprovers = orderedApprovers
+                    .Where(h => h.ApproverId == userId)
+                    .ToList();
+
+                if (isUserRequired && !isAdmin)
+                {
+
+                    bool hasPendingPriorApprover = currentUserApprovers.Any(u =>
+                        orderedApprovers.Any(o =>
+                            (
+                                string.Compare(o.ApproverLevel.ToString(), u.ApproverLevel.ToString()) < 0 ||
+                                (o.ApproverLevel == u.ApproverLevel && o.Sno < u.Sno)
+                            )
+                            && o.Status == EnumApprovalStatus.Pending));
+
+                    if (hasPendingPriorApprover)
+                        continue;
+                }
+
+
+
+                var visibleApprovers = orderedApprovers
+                    .Where(h =>
+                        !isUserRequired || // Report mode (show all)
+                        (isAdmin && h.Status == EnumApprovalStatus.Pending) ||
+                        (!isAdmin && h.ApproverId == userId))
+                    .OrderBy(h => h.ApproverLevel)
+                    .ThenBy(h => h.Sno)
+                    .Select(h => new VoucherApprover
+                    {
+                        ApproverId = (int)h.ApproverId,
+                        ApproverLevel = h.ApproverLevel,
+                        Status = h.Status,
+                        Remarks = h.Remarks
+                    })
+                    .ToList();
+
+                if (!visibleApprovers.Any())
+                    continue;
+
+
+                var location = _locationMasterRepository.GetAsQueryable()
+                    .AsNoTracking()
+                    .FirstOrDefault(x => x.LocationMasterLocationId == req.PaymentRequestLocationId);
+
+
+                var dto = new VoucherApprivalDto
+                {
+                    VoucherId = (int)req.PaymentRequestSno,
+                    VoucherType = EnumOrderForms.PaymentRequest,
+                    VoucherNo = req.PaymentRequestVoucherNo,
+                    VoucherDate = req.PaymentRequestDate ?? DateTime.MinValue,
+                    LocationId = req.PaymentRequestLocationId,
+                    LocationName = location?.LocationMasterLocationName ?? string.Empty,
+                    JobId = -1,
+                    JobName = string.Empty,
+                    Amount = (decimal)(req.PaymentRequestDbAmount ?? 0),
+                    Status = GetVoucherStatus(visibleApprovers),
+                    Remarks = string.Empty,
+                    VoucherApprovers = visibleApprovers
+                };
+
+                result.Add(dto);
+            }
+
+
+            var filteredResult = result
+                .Where(dto =>
+                    model.Status != EnumApprovalStatus.None
+                        ? dto.VoucherApprovers.Any(v => v.Status == model.Status)
+                        : (!isUserRequired || isAdmin)
+                            ? true
+                            : dto.VoucherApprovers.Any(v => v.ApproverId == userId &&
+                                                            v.Status == EnumApprovalStatus.Pending))
+                .Where(x => x.VoucherType != EnumOrderForms.None)
+                .ToList();
+
+            return filteredResult;
         }
 
 
@@ -1837,6 +1976,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 _orderApprovalHierarchy.Update(currentApproval);
                 _orderApprovalHierarchy.TransactionCommit();
 
+                if (approvalDto.OrderType == EnumOrderForms.PaymentRequest)
+                    return await GetDefaultPOPR(approvalDto.OrderId, approvalDto.OrderType);
 
 
                 // Check for next pending user at same level
