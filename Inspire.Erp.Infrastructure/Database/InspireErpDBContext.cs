@@ -3608,7 +3608,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.PaymentRequestDetailsLocationId)
                     .HasColumnName("Payment_Request_Details_Location_ID");
 
-                entity.Property(e => e.PaymentVocherDetailsDelStatus)
+                entity.Property(e => e.PaymentRequestDetailsDelStatus)
                     .HasColumnName("Payment_Request_Details_DelStatus")
                     .HasDefaultValueSql("((0))");
             });

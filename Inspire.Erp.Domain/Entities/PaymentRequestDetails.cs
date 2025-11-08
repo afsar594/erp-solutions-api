@@ -19,7 +19,7 @@ namespace Inspire.Erp.Domain.Entities
         public string PaymentRequestDetailsNarration { get; set; } 
         public int? PaymentRequestDetailsFsno { get; set; } 
         public int? PaymentRequestDetailsLocationId { get; set; } 
-        public bool? PaymentVocherDetailsDelStatus { get; set; }
+        public bool? PaymentRequestDetailsDelStatus { get; set; }
     }
 
 }
