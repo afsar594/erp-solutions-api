@@ -53,6 +53,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                 //var itemsToUpdate = journalVoucherDetails.Where(x => x.JournalVoucherDetailsId != 0).ToList();
                 var itemsTodelete = _journalVoucherDetailsRepository.GetAsQueryable().Where(x => x.JournalVoucherDetailVrefNo == journalVoucher.JournalVoucherVrefNo).ToList();
                 _journalVoucherDetailsRepository.DeleteList(itemsTodelete);
+                clsCommonFunctions.Delete_OldEntry_AccountsTransactions(journalVoucher.JournalVoucherVrefNo, VoucherType.JournalVoucher_TYPE, _accountTransactionRepository);
                 accountsTransactions = accountsTransactions.Select((k) =>
                 {
                     if (k.AccountsTransactionsTransSno == 0)
