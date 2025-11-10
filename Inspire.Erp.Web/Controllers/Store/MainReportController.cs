@@ -383,29 +383,29 @@ namespace Inspire.Erp.Web.Controllers.Store
 
             try
             {
-                int? id = type.ToLower() switch
+                int? id = type switch
                 {
-                    "paymentvoucher" => await _paymentVoucher.GetAsQueryable()
+                    "PurchaseVoucher" => await _paymentVoucher.GetAsQueryable()
                         .Where(x => x.PaymentVoucherVoucherNo == voucherNo)
                         .Select(x => (int?)x.PaymentVoucherSno)
                         .FirstOrDefaultAsync(),
 
-                    "bankpaymentvoucher" => await _bankPaymentVoucher.GetAsQueryable()
+                    "BANK PAYMENT" => await _bankPaymentVoucher.GetAsQueryable()
                         .Where(x => x.BankPaymentVoucherVoucherNo == voucherNo)
                         .Select(x => (int?)x.BankPaymentVoucherSno)
                         .FirstOrDefaultAsync(),
 
-                    "receiptvoucher" => await _receiptVoucher.GetAsQueryable()
+                    "RECEIPT" => await _receiptVoucher.GetAsQueryable()
                         .Where(x => x.ReceiptVoucherMasterVoucherNo == voucherNo)
                         .Select(x => (int?)x.ReceiptVoucherMasterSno)
                         .FirstOrDefaultAsync(),
 
-                    "bankreceiptvoucher" => await _bankReceiptVoucher.GetAsQueryable()
+                    "BANK RECEIPT" => await _bankReceiptVoucher.GetAsQueryable()
                         .Where(x => x.BankReceiptVoucherVoucherNo == voucherNo)
                         .Select(x => (int?)x.BankReceiptVoucherSno)
                         .FirstOrDefaultAsync(),
 
-                    "salesvoucher" => await _salesVoucher.GetAsQueryable()
+                    "SalesVoucher" => await _salesVoucher.GetAsQueryable()
                         .Where(x => x.SalesVoucherNo == voucherNo)
                         .Select(x => (int?)x.SalesVoucherId)
                         .FirstOrDefaultAsync(),
@@ -415,32 +415,27 @@ namespace Inspire.Erp.Web.Controllers.Store
                         .Select(x => (int?)x.SalesReturnId)
                         .FirstOrDefaultAsync(),
 
-                    "purchasevoucher" => await _purchaseVoucher.GetAsQueryable()
-                        .Where(x => x.PurchaseVoucherVoucherNo == voucherNo)
-                        .Select(x => (int?)x.PurchaseVoucherPurID)
-                        .FirstOrDefaultAsync(),
-
                     "purchasereturn" => await _purchaseReturnVoucher.GetAsQueryable()
                         .Where(x => x.PurchaseReturnNo == voucherNo)
                         .Select(x => (int?)x.PurchaseReturnId)
                         .FirstOrDefaultAsync(),
 
-                    "journalvoucher" => await _journalVoucher.GetAsQueryable()
+                    "JournalVoucher" => await _journalVoucher.GetAsQueryable()
                         .Where(x => x.JournalVoucherVrefNo == voucherNo)
                         .Select(x => (int?)x.JournalVoucherId)
                         .FirstOrDefaultAsync(),
 
-                    "contravoucher" => await _contraVoucher.GetAsQueryable()
+                    "ContraVoucher" => await _contraVoucher.GetAsQueryable()
                         .Where(x => x.ContraVoucherRefNo == voucherNo)
                         .Select(x => (int?)x.ContraVoucherId)
                         .FirstOrDefaultAsync(),
 
-                    "creditnote" => await _creditNote.GetAsQueryable()
+                    "CreditNote" => await _creditNote.GetAsQueryable()
                         .Where(x => x.CreditNoteVno == voucherNo)
                         .Select(x => (int?)x.CreditNoteId)
                         .FirstOrDefaultAsync(),
 
-                    "debitnote" => await _debitNote.GetAsQueryable()
+                    "DebitNote" => await _debitNote.GetAsQueryable()
                         .Where(x => x.DebitNoteVno == voucherNo)
                         .Select(x => (int?)x.DebitNoteId)
                         .FirstOrDefaultAsync(),
