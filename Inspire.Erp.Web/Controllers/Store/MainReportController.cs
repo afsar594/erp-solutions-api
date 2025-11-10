@@ -376,7 +376,7 @@ namespace Inspire.Erp.Web.Controllers.Store
 
         [HttpPost]
         [Route("GetAccountIdByVoucherNo")]
-        public async Task<IActionResult> GetAccountIdByVoucherNo([FromBody] string type, string voucherNo)
+        public async Task<IActionResult> GetAccountIdByVoucherNo(string type, string voucherNo)
         {
             if (string.IsNullOrWhiteSpace(type) || string.IsNullOrWhiteSpace(voucherNo))
                 return BadRequest("Invalid request data.");
@@ -451,7 +451,7 @@ namespace Inspire.Erp.Web.Controllers.Store
                 if (id == null)
                     return NotFound($"No record found for type '{type}' and voucher no '{voucherNo}'.");
 
-                return Ok();
+                return Ok(new { Id = id });
             }
             catch (Exception ex)
             {
