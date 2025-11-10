@@ -4,22 +4,23 @@ using Inspire.Erp.Application.Account.Implementations;
 using Inspire.Erp.Application.Account.Interfaces;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Domain.Models.ViewModels;
+using Inspire.Erp.Infrastructure.Database;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Inspire.Erp.Web.Common;
 using Inspire.Erp.Web.ViewModels;
-using Inspire.Erp.Domain.Models.ViewModels;
 using Inspire.Erp.Web.ViewModels.Procurement;
 using Inspire.Erp.Web.ViewModels.Store;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using SendGrid.Helpers.Mail;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Inspire.Erp.Infrastructure.Database;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using SendGrid.Helpers.Mail;
 
 
 
@@ -36,11 +37,25 @@ namespace Inspire.Erp.Web.Controllers.Store
         private readonly IMapper _mapper;
         public readonly InspireErpDBContext _Context;
         private IRepository<CostCenterMaster> costcenterrepository;
+
+        private IRepository<PaymentVoucher> _paymentVoucher;
+        private IRepository<BankPaymentVoucher> _bankPaymentVoucher;
+        private IRepository<ReceiptVoucherMaster> _receiptVoucher;
+        private IRepository<BankReceiptVoucher> _bankReceiptVoucher;
+        private IRepository<SalesVoucher> _salesVoucher;
+        private IRepository<SalesReturn> _salesReturnVoucher;
+        private IRepository<PurchaseVoucher> _purchaseVoucher;
+        private IRepository<PurchaseReturn> _purchaseReturnVoucher;
+        private IRepository<JournalVoucher> _journalVoucher;
+        private IRepository<ContraVoucher> _contraVoucher;
+        private IRepository<CreditNote> _creditNote;
+        private IRepository<DebitNote> _debitNote;
+
         private IRepository<JobMaster> jobrepository; private IRepository<LocationMaster> locationrepository; private IRepository<CurrencyMaster> currencyrepository;
         private IChartofAccountsService chartofAccountsService; private IRepository<ViewAccountsTransactionsVoucherType> _viewAccountsTransactionsVoucherTypeRepository;
         public MainReportController(IMainReportService mainReportService, IMapper mapper, IRepository<CostCenterMaster> _countryrepository
             , IRepository<JobMaster> _jobrepository, IRepository<LocationMaster> _locationrepository, IChartofAccountsService _chartofAccountsService,
-            IRepository<ViewAccountsTransactionsVoucherType> viewAccountsTransactionsVoucherTypeRepository, InspireErpDBContext Context)
+            IRepository<ViewAccountsTransactionsVoucherType> viewAccountsTransactionsVoucherTypeRepository, InspireErpDBContext Context, IRepository<PaymentVoucher> paymentVoucher, IRepository<BankPaymentVoucher> bankPaymentVoucher, IRepository<ReceiptVoucherMaster> receiptVoucher, IRepository<BankReceiptVoucher> bankReceiptVoucher, IRepository<SalesVoucher> salesVoucher, IRepository<SalesReturn> salesReturnVoucher, IRepository<PurchaseVoucher> purchaseVoucher, IRepository<PurchaseReturn> purchaseReturnVoucher, IRepository<JournalVoucher> journalVoucher, IRepository<ContraVoucher> contraVoucher, IRepository<CreditNote> creditNote, IRepository<DebitNote> debitNote)
         {
             _mainReportService = mainReportService;
             _mapper = mapper; _viewAccountsTransactionsVoucherTypeRepository = viewAccountsTransactionsVoucherTypeRepository;
@@ -48,7 +63,18 @@ namespace Inspire.Erp.Web.Controllers.Store
             jobrepository = _jobrepository; locationrepository = _locationrepository;
             chartofAccountsService = _chartofAccountsService;
             _Context = Context;
-
+            _paymentVoucher = paymentVoucher;
+            _bankPaymentVoucher = bankPaymentVoucher;
+            _receiptVoucher = receiptVoucher;
+            _bankReceiptVoucher = bankReceiptVoucher;
+            _salesVoucher = salesVoucher;
+            _salesReturnVoucher = salesReturnVoucher;
+            _purchaseVoucher = purchaseVoucher;
+            _purchaseReturnVoucher = purchaseReturnVoucher;
+            _journalVoucher = journalVoucher;
+            _contraVoucher = contraVoucher;
+            _creditNote = creditNote;
+            _debitNote = debitNote;
         }
 
         [HttpGet]
@@ -347,6 +373,93 @@ namespace Inspire.Erp.Web.Controllers.Store
             };
             return objectresponse;
         }
+
+        [HttpPost]
+        [Route("GetAccountIdByVoucherNo")]
+        public async Task<IActionResult> GetAccountIdByVoucherNo([FromBody] string type, string voucherNo)
+        {
+            if (string.IsNullOrWhiteSpace(type) || string.IsNullOrWhiteSpace(voucherNo))
+                return BadRequest("Invalid request data.");
+
+            try
+            {
+                int? id = type.ToLower() switch
+                {
+                    "paymentvoucher" => await _paymentVoucher.GetAsQueryable()
+                        .Where(x => x.PaymentVoucherVoucherNo == voucherNo)
+                        .Select(x => (int?)x.PaymentVoucherSno)
+                        .FirstOrDefaultAsync(),
+
+                    "bankpaymentvoucher" => await _bankPaymentVoucher.GetAsQueryable()
+                        .Where(x => x.BankPaymentVoucherVoucherNo == voucherNo)
+                        .Select(x => (int?)x.BankPaymentVoucherSno)
+                        .FirstOrDefaultAsync(),
+
+                    "receiptvoucher" => await _receiptVoucher.GetAsQueryable()
+                        .Where(x => x.ReceiptVoucherMasterVoucherNo == voucherNo)
+                        .Select(x => (int?)x.ReceiptVoucherMasterSno)
+                        .FirstOrDefaultAsync(),
+
+                    "bankreceiptvoucher" => await _bankReceiptVoucher.GetAsQueryable()
+                        .Where(x => x.BankReceiptVoucherVoucherNo == voucherNo)
+                        .Select(x => (int?)x.BankReceiptVoucherSno)
+                        .FirstOrDefaultAsync(),
+
+                    "salesvoucher" => await _salesVoucher.GetAsQueryable()
+                        .Where(x => x.SalesVoucherNo == voucherNo)
+                        .Select(x => (int?)x.SalesVoucherId)
+                        .FirstOrDefaultAsync(),
+
+                    "salesreturn" => await _salesReturnVoucher.GetAsQueryable()
+                        .Where(x => x.SalesReturnNo == voucherNo)
+                        .Select(x => (int?)x.SalesReturnId)
+                        .FirstOrDefaultAsync(),
+
+                    "purchasevoucher" => await _purchaseVoucher.GetAsQueryable()
+                        .Where(x => x.PurchaseVoucherVoucherNo == voucherNo)
+                        .Select(x => (int?)x.PurchaseVoucherPurID)
+                        .FirstOrDefaultAsync(),
+
+                    "purchasereturn" => await _purchaseReturnVoucher.GetAsQueryable()
+                        .Where(x => x.PurchaseReturnNo == voucherNo)
+                        .Select(x => (int?)x.PurchaseReturnId)
+                        .FirstOrDefaultAsync(),
+
+                    "journalvoucher" => await _journalVoucher.GetAsQueryable()
+                        .Where(x => x.JournalVoucherVrefNo == voucherNo)
+                        .Select(x => (int?)x.JournalVoucherId)
+                        .FirstOrDefaultAsync(),
+
+                    "contravoucher" => await _contraVoucher.GetAsQueryable()
+                        .Where(x => x.ContraVoucherRefNo == voucherNo)
+                        .Select(x => (int?)x.ContraVoucherId)
+                        .FirstOrDefaultAsync(),
+
+                    "creditnote" => await _creditNote.GetAsQueryable()
+                        .Where(x => x.CreditNoteVno == voucherNo)
+                        .Select(x => (int?)x.CreditNoteId)
+                        .FirstOrDefaultAsync(),
+
+                    "debitnote" => await _debitNote.GetAsQueryable()
+                        .Where(x => x.DebitNoteVno == voucherNo)
+                        .Select(x => (int?)x.DebitNoteId)
+                        .FirstOrDefaultAsync(),
+
+                    _ => null
+                };
+
+                if (id == null)
+                    return NotFound($"No record found for type '{type}' and voucher no '{voucherNo}'.");
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+
 
 
 
