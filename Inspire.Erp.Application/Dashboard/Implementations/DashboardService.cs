@@ -91,7 +91,7 @@ namespace Inspire.Erp.Application.Dashboard.Implementations
                 return Response<List<GetCustomerSupplierResponse>>.Fail(new List<GetCustomerSupplierResponse>(), ex.Message);
             }
         }
-        public async Task<Response<List<GetSalesResponse>>> GetDasboardPurchaseGroupAccount(DashboardFilterModel model)
+        public async Task<Response<List<GetSalesResponse>>> GetDasboardSalesPurchaseLineChart(DashboardFilterModel model)
         {
             try
             {
