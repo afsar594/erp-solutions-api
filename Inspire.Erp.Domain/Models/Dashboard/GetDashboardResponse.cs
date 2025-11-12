@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Inspire.Erp.Domain.Modals.Dashboard
 {
-   public class GetDashboardResponse
+    public class GetDashboardResponse
     {
         public decimal? Income { get; set; }
         public decimal? Expenses { get; set; }
@@ -56,4 +57,42 @@ namespace Inspire.Erp.Domain.Modals.Dashboard
         public int IssueRecieved { get; set; }
         public string Type { get; set; }
     }
+
+
+
+
+    public class SalesPurchaseDashboardDto
+    {
+        public string Labels { get; set; }
+        public string SalesData { get; set; }
+        public string PurchaseData { get; set; }
+        public ChartData ToChartData()
+        {
+            var labels = Labels?.Split(',') ?? Array.Empty<string>();
+            var sales = SalesData?.Split(',').Select(s => decimal.TryParse(s, out var v) ? v : 0).ToList() ?? new List<decimal>();
+            var purchase = PurchaseData?.Split(',').Select(s => decimal.TryParse(s, out var v) ? v : 0).ToList() ?? new List<decimal>();
+
+            return new ChartData
+            {
+                Labels = labels.ToList(),
+                Datasets = new List<ChartDataset>
+                {
+                    new ChartDataset { Label = "Sales", Data = sales },
+                    new ChartDataset { Label = "Purchase", Data = purchase }
+                }
+            };
+        }
+    }
+    public class ChartData
+    {
+        public List<string> Labels { get; set; } = new();
+        public List<ChartDataset> Datasets { get; set; } = new();
+    }
+    public class ChartDataset
+    {
+        public string Label { get; set; }
+        public List<decimal> Data { get; set; } = new();
+    }
+
+
 }

@@ -1,18 +1,24 @@
-﻿using Inspire.Erp.Application.Dashboard.Interfaces;
+﻿using Dapper;
+using Inspire.Erp.Application.Dashboard.Interfaces;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.Dashboard;
+using Inspire.Erp.Infrastructure;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Inspire.Erp.Application.Dashboard.Implementations
 {
-    public class DashboardService:IDashboardService
+    public class DashboardService : IDashboardService
     {
         private readonly IRepository<GetSalesResponse> _salesResponse;
         private readonly IRepository<GetSummaryResponse> _summaryService;
@@ -22,7 +28,8 @@ namespace Inspire.Erp.Application.Dashboard.Implementations
         private readonly IRepository<PdcDetails> _PdcDetailService;
         private readonly IRepository<GetIncomeExpenseResponse> _incomeExpService;
         private readonly IRepository<GetCustomerSupplierResponse> _customerSupplierService;
-        public DashboardService(IRepository<GetDashboardResponse> dashboardService, IRepository<GetSummaryResponse> summaryService,
+        private readonly IDbConnection _dbConnection;
+        public DashboardService(IOptions<ApplicationSettings> applicationSettings, IRepository<GetDashboardResponse> dashboardService, IRepository<GetSummaryResponse> summaryService,
             IRepository<GetSalesResponse> salesResponse, IRepository<GetCustomerSupplierResponse> customerSupplierService,
             IRepository<PdcDetails> PdcDetailService, IRepository<MasterAccountsTable> MasterAccountTable,
              IRepository<GetPDCResponse> PDCService, IRepository<GetIncomeExpenseResponse> incomeExpService)
@@ -33,8 +40,9 @@ namespace Inspire.Erp.Application.Dashboard.Implementations
             _customerSupplierService = customerSupplierService;
             _PDCService = PDCService;
             _incomeExpService = incomeExpService;
-            _PdcDetailService= PdcDetailService;
+            _PdcDetailService = PdcDetailService;
             _MasterAccountTable = MasterAccountTable;
+            _dbConnection = new SqlConnection(applicationSettings.Value.ConnectionString);
         }
 
         public async Task<Response<List<GetSummaryResponse>>> GetSummaryChart(DashboardFilterModel model)
@@ -51,9 +59,10 @@ namespace Inspire.Erp.Application.Dashboard.Implementations
                 {
                     endDate = Convert.ToDateTime(model.EndDate);
                 }
-                var result = await _summaryService.GetBySPWithParameters<GetSummaryResponse>(@$" exec Sp_GetDashboardData {model.Type},{startDate},{endDate}",x=>new GetSummaryResponse { 
-                Description=x.Description,
-                Value=x.Value,
+                var result = await _summaryService.GetBySPWithParameters<GetSummaryResponse>(@$" exec Sp_GetDashboardData {model.Type},{startDate},{endDate}", x => new GetSummaryResponse
+                {
+                    Description = x.Description,
+                    Value = x.Value,
                 });
                 return Response<List<GetSummaryResponse>>.Success(result, "Data found");
             }
@@ -77,12 +86,12 @@ namespace Inspire.Erp.Application.Dashboard.Implementations
                 {
                     endDate = Convert.ToDateTime(model.EndDate);
                 }
-                    resultModel = await _customerSupplierService.GetBySPWithParameters<GetCustomerSupplierResponse>(@$" exec Sp_GetDashboardData {model.Type},{startDate},{endDate}", x => new GetCustomerSupplierResponse
-                    {
-                        Amount = x.Amount,
-                        MA_AccName = x.MA_AccName,
-                        MA_AccNo = x.MA_AccNo
-                    });
+                resultModel = await _customerSupplierService.GetBySPWithParameters<GetCustomerSupplierResponse>(@$" exec Sp_GetDashboardData {model.Type},{startDate},{endDate}", x => new GetCustomerSupplierResponse
+                {
+                    Amount = x.Amount,
+                    MA_AccName = x.MA_AccName,
+                    MA_AccNo = x.MA_AccNo
+                });
 
                 return Response<List<GetCustomerSupplierResponse>>.Success(resultModel, "Data found");
             }
@@ -135,15 +144,15 @@ namespace Inspire.Erp.Application.Dashboard.Implementations
                 {
                     AccName = x.AccName,
                     CAmount = x.CAmount,
-                    BAccNo=x.BAccNo,
-                    CBName=x.CBName,
-                    CNO=x.CNO,
-                    PartyName=x.PartyName,
-                    PDate=x.PDate,
-                    PID=x.PID,
-                    TDate=x.TDate,
-                    VNO=x.VNO,
-                    VType=x.VType
+                    BAccNo = x.BAccNo,
+                    CBName = x.CBName,
+                    CNO = x.CNO,
+                    PartyName = x.PartyName,
+                    PDate = x.PDate,
+                    PID = x.PID,
+                    TDate = x.TDate,
+                    VNO = x.VNO,
+                    VType = x.VType
                 });
                 return Response<List<GetPDCResponse>>.Success(result, "Data found");
             }
@@ -170,8 +179,8 @@ namespace Inspire.Erp.Application.Dashboard.Implementations
                 {
                     Profit = x.Profit,
                     Income = x.Income,
-                    Expenses=x.Expenses,
-                    TransDate=x.TransDate
+                    Expenses = x.Expenses,
+                    TransDate = x.TransDate
                 });
                 return Response<List<GetIncomeExpenseResponse>>.Success(result, "Data found");
             }
@@ -210,7 +219,7 @@ namespace Inspire.Erp.Application.Dashboard.Implementations
                     VType = x.VType
                 });
                 response.Total = _PdcDetailService.GetAsQueryable().Count(x => x.PDC_Details_DelStatus != true);
-                response.IssueRecieved =  result.Count;
+                response.IssueRecieved = result.Count;
 
                 return Response<PDCCountResponse>.Success(response, "Data found");
             }
@@ -234,13 +243,13 @@ namespace Inspire.Erp.Application.Dashboard.Implementations
                 {
                     endDate = Convert.ToDateTime(model.EndDate);
                 }
-                if (model.Type!="Bank_Balance")
+                if (model.Type != "Bank_Balance")
                 {
-                    var mainCash =await  _MasterAccountTable.GetAsQueryable().Where(x => x.MaAccName.Contains("Main Cash")).FirstOrDefaultAsync();
-                    var result= await _MasterAccountTable.GetAsQueryable().Where(x=>x.MaRelativeNo==mainCash.MaAccNo).ToListAsync();
+                    var mainCash = await _MasterAccountTable.GetAsQueryable().Where(x => x.MaAccName.Contains("Main Cash")).FirstOrDefaultAsync();
+                    var result = await _MasterAccountTable.GetAsQueryable().Where(x => x.MaRelativeNo == mainCash.MaAccNo).ToListAsync();
                     result.ForEach((x) =>
                     {
-                        response.Total=x.MaOpenBalance.HasValue? Convert.ToInt32(x.MaOpenBalance.Value):0;
+                        response.Total = x.MaOpenBalance.HasValue ? Convert.ToInt32(x.MaOpenBalance.Value) : 0;
                     });
 
                 }
@@ -260,6 +269,31 @@ namespace Inspire.Erp.Application.Dashboard.Implementations
             catch (Exception ex)
             {
                 return Response<PDCCountResponse>.Fail(new PDCCountResponse(), ex.Message);
+            }
+        }
+
+        public async Task<Response<SalesPurchaseDashboardDto>> GetSalesPurchaseDashboard(DashboardSalesPurchaseModel model)
+        {
+            try
+            {
+                var result = await _dbConnection.QueryFirstOrDefaultAsync<SalesPurchaseDashboardDto>(
+                                    "Sp_GetSalesPurchaseDashboard",
+                                    new { 
+                                        Choice = model.Choice,
+                                        PeriodType = model.PeriodType,
+                                        StartDate = model.StartDate,
+                                        EndDate = model.EndDate
+                                    },
+                                    commandType: CommandType.StoredProcedure);
+                if (result == null)
+                    return Response<SalesPurchaseDashboardDto>.Fail(null, "No data found");
+
+                var chartData = result?.ToChartData();
+                return Response<SalesPurchaseDashboardDto>.Success(result, "Data found");
+            }
+            catch (Exception ex)
+            {
+                throw;
             }
         }
     }

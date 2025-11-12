@@ -62,9 +62,9 @@ namespace Inspire.Erp.Web.Controllers
             return Ok(await _dashboardService.GetDasboardIncomeExpense(model));
         }
         [HttpPost("GetDasboardSalesPurchaseLineChart")]
-        public async Task<IActionResult> GetDasboardSalesPurchaseLineChart(DashboardFilterModel model)
+        public async Task<IActionResult> GetDasboardSalesPurchaseLineChart([FromBody] DashboardSalesPurchaseModel model)
         {
-            return Ok(await _dashboardService.GetDasboardSalesPurchaseLineChart(model));
+            return Ok(await _dashboardService.GetSalesPurchaseDashboard(model));
         }
         [HttpPost("GetDasboardIssueCount")]
         public async Task<IActionResult> GetDasboardIssueCount(DashboardFilterModel model)
