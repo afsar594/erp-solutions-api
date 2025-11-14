@@ -252,6 +252,7 @@ namespace Inspire.Erp.Domain.Modals.Common
         public int? CustomerId { get; set; }
         public int? itemGroupId { get; set; }
         public int? ItemId { get; set; }
+        public int? SalemanId { get; set; }
         public int? LocationId { get; set; }
         public bool IsDate { get; set; }
         public DateTime? Fromdate { get; set; }

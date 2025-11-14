@@ -1218,6 +1218,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             try
             {
 
+                var salemandata = _salesManMasterRepository.GetAsQueryable().ToList();
 
 
                 var salesVocherReport = (from sv in _salesVoucherRepository.GetAsQueryable()
@@ -1227,7 +1228,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                            (sv.SalesVoucherDelStatus == false || sv.SalesVoucherDelStatus == null)
                            && (filter.CustomerId == null || sv.SalesVoucherPartyId == filter.CustomerId)
                            && (filter.LocationId == null || sv.SalesVoucherLocationID == filter.LocationId)
-                           && (!filter.IsDate
+                          && (filter.SalemanId == null || filter.SalemanId == sv.SalesVoucherSalesManID) && (!filter.IsDate
                                || (sv.SalesVoucherDate >= filter.Fromdate
                                    && sv.SalesVoucherDate <= filter.Todate))
                                          //where ((sv.SalesVoucherDelStatus == false || sv.SalesVoucherDelStatus == null) && sv.SalesVoucherPartyId == filter.CustomerId && sv.SalesVoucherLocationID == filter.LocationId )
@@ -1239,6 +1240,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                              customerName = c.CustomerMasterCustomerName,
                                              grossAmount = sv.SalesVoucherTotalGrossAmount,
                                              discount = sv.SalesVoucherTotalDisAmount,
+                                             saleman = salemandata.Find(a => a.SalesManMasterSalesManId == sv.SalesVoucherSalesManID).SalesManMasterSalesManName.FirstOrDefault(),
                                              //vatAmount = (sv.SalesVoucherNetAmount - sv.SalesVoucherTotalDisAmount) - sv.SalesVoucherTotalGrossAmount,
                                              vatAmount = sv.SalesVoucherVat_AMT,
                                              netAmount = sv.SalesVoucherNetAmount
@@ -1260,7 +1262,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             {
                 var customerDict = _customerMasterRepository.GetAsQueryable()
                                         .ToDictionary(x => x.CustomerMasterCustomerNo, x => x.CustomerMasterCustomerName);
-
+                var salemandata = _salesManMasterRepository.GetAsQueryable().ToList();
                 var data = (from svd in _salesVoucherDetailsRepository.GetAsQueryable()
                             join sv in _salesVoucherRepository.GetAsQueryable()
                                 on svd.SalesVoucherDetailsNo equals sv.SalesVoucherNo into lsv
@@ -1283,10 +1285,11 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                 equals new { UnitId = unitDet.UnitDetailsUnitId, ItemId = (int)unitDet.UnitDetailsItemId } into lud
                             from unitDetail in lud.DefaultIfEmpty()
 
+
                             where (svd.SalesVoucherDetailsNo != null && (filter.CustomerId == null || salesVou.SalesVoucherPartyId == filter.CustomerId) &&
                             (filter.LocationId == null || salesVou.SalesVoucherLocationID == filter.LocationId) &&
-                            (filter.VType == null || salesVou.SalesVoucherType == filter.VType) && 
-                            (filter.ItemId == null || svd.SalesVoucherDetailsMatId == filter.ItemId) &&
+                            (filter.VType == null || salesVou.SalesVoucherType == filter.VType) && (filter.SalemanId == null || filter.SalemanId == salesVou.SalesVoucherSalesManID)
+&&                            (filter.ItemId == null || svd.SalesVoucherDetailsMatId == filter.ItemId) &&
                             (filter.itemGroupId == null || itemmaster.ItemMasterAccountNo == filter.itemGroupId) &&
                             (!filter.IsDate || (salesVou.SalesVoucherDate >= filter.Fromdate
                                 && salesVou.SalesVoucherDate <= filter.Todate)))
@@ -1299,7 +1302,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                 Discount = svd.SalesVoucherDetailsDiscAmount,
                                 GrossAmt = svd.SalesVoucherDetailsGrossAmount,
                                 UnitPrice = svd.SalesVoucherDetailsCostPrice,
-
+                                saleman = salemandata.Find(a=> a.SalesManMasterSalesManId == salesVou.SalesVoucherSalesManID).SalesManMasterSalesManName.FirstOrDefault(),
                                 // FIXED: replace ?. with conditional operator
                                 UnitDes = unitMaster == null ? "" : unitMaster.UnitMasterUnitShortName,
                                 MatDes = itemmaster == null ? "" : itemmaster.ItemMasterItemName,
