@@ -1214,47 +1214,51 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
         public object GetSalesReportSummaryWise(salesReportFilter filter)
         {
-
             try
             {
+                var salesVocherReport =
+                    (from sv in _salesVoucherRepository.GetAsQueryable()
+                     join c in _customerMasterRepository.GetAsQueryable()
+                        on sv.SalesVoucherPartyId equals c.CustomerMasterCustomerNo
 
-                var salemandata = _salesManMasterRepository.GetAsQueryable().ToList();
+                     join sm in _salesManMasterRepository.GetAsQueryable()
+                        on sv.SalesVoucherSalesManID equals sm.SalesManMasterSalesManId into lsm
+                     from saleman in lsm.DefaultIfEmpty()
 
+                     where
+                        (sv.SalesVoucherDelStatus == false || sv.SalesVoucherDelStatus == null)
+                        && (filter.CustomerId == null || sv.SalesVoucherPartyId == filter.CustomerId)
+                        && (filter.LocationId == null || sv.SalesVoucherLocationID == filter.LocationId)
+                        && (filter.SalemanId == null || filter.SalemanId == sv.SalesVoucherSalesManID)
+                        && (!filter.IsDate ||
+                            (sv.SalesVoucherDate >= filter.Fromdate &&
+                             sv.SalesVoucherDate <= filter.Todate))
 
-                var salesVocherReport = (from sv in _salesVoucherRepository.GetAsQueryable()
-                                         join c in _customerMasterRepository.GetAsQueryable()
-                                         on sv.SalesVoucherPartyId equals c.CustomerMasterCustomerNo
-                                         where
-                           (sv.SalesVoucherDelStatus == false || sv.SalesVoucherDelStatus == null)
-                           && (filter.CustomerId == null || sv.SalesVoucherPartyId == filter.CustomerId)
-                           && (filter.LocationId == null || sv.SalesVoucherLocationID == filter.LocationId)
-                          && (filter.SalemanId == null || filter.SalemanId == sv.SalesVoucherSalesManID) && (!filter.IsDate
-                               || (sv.SalesVoucherDate >= filter.Fromdate
-                                   && sv.SalesVoucherDate <= filter.Todate))
-                                         //where ((sv.SalesVoucherDelStatus == false || sv.SalesVoucherDelStatus == null) && sv.SalesVoucherPartyId == filter.CustomerId && sv.SalesVoucherLocationID == filter.LocationId )
-                                         select new
-                                         {
-                                             voucherNo = sv.SalesVoucherNo,
-                                             voucherDate = sv.SalesVoucherDate,
-                                             voucherType = sv.SalesVoucherType,
-                                             customerName = c.CustomerMasterCustomerName,
-                                             grossAmount = sv.SalesVoucherTotalGrossAmount,
-                                             discount = sv.SalesVoucherTotalDisAmount,
-                                             saleman = salemandata.Find(a => a.SalesManMasterSalesManId == sv.SalesVoucherSalesManID).SalesManMasterSalesManName.FirstOrDefault(),
-                                             //vatAmount = (sv.SalesVoucherNetAmount - sv.SalesVoucherTotalDisAmount) - sv.SalesVoucherTotalGrossAmount,
-                                             vatAmount = sv.SalesVoucherVat_AMT,
-                                             netAmount = sv.SalesVoucherNetAmount
-                                         }).ToList();
+                     select new
+                     {
+                         voucherNo = sv.SalesVoucherNo,
+                         voucherDate = sv.SalesVoucherDate,
+                         voucherType = sv.SalesVoucherType,
+                         customerName = c.CustomerMasterCustomerName,
+                         grossAmount = sv.SalesVoucherTotalGrossAmount,
+                         discount = sv.SalesVoucherTotalDisAmount,
+
+                         saleman = saleman == null
+                             ? null
+                             : saleman.SalesManMasterSalesManName,
+
+                         vatAmount = sv.SalesVoucherVat_AMT,
+                         netAmount = sv.SalesVoucherNetAmount
+                     }).ToList();
 
                 return salesVocherReport;
             }
-
-
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
-                throw ex;
+                throw;
             }
         }
+
 
         public object GetSalesReportDetailWise(salesReportFilter filter)
         {
@@ -1262,8 +1266,10 @@ namespace Inspire.Erp.Application.Sales.Implementations
             {
                 var customerDict = _customerMasterRepository.GetAsQueryable()
                                         .ToDictionary(x => x.CustomerMasterCustomerNo, x => x.CustomerMasterCustomerName);
-                var salemandata = _salesManMasterRepository.GetAsQueryable().ToList();
+
+
                 var data = (from svd in _salesVoucherDetailsRepository.GetAsQueryable()
+
                             join sv in _salesVoucherRepository.GetAsQueryable()
                                 on svd.SalesVoucherDetailsNo equals sv.SalesVoucherNo into lsv
                             from salesVou in lsv.DefaultIfEmpty()
@@ -1276,24 +1282,28 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                 on svd.SalesVoucherDetailsUnitId equals um.UnitMasterUnitId into lum
                             from unitMaster in lum.DefaultIfEmpty()
 
-                            join um1 in _locationMasterRepository.GetAsQueryable()
-                                on salesVou.SalesVoucherLocationID equals um1.LocationMasterLocationId into lum1
-                            from locationMater in lum1.DefaultIfEmpty()
+                            join loc in _locationMasterRepository.GetAsQueryable()
+                                on salesVou.SalesVoucherLocationID equals loc.LocationMasterLocationId into lloc
+                            from locationMater in lloc.DefaultIfEmpty()
 
                             join unitDet in _UnitDetailsRepository.GetAsQueryable()
                                 on new { UnitId = (int)svd.SalesVoucherDetailsUnitId, ItemId = (int)svd.SalesVoucherDetailsMatId }
                                 equals new { UnitId = unitDet.UnitDetailsUnitId, ItemId = (int)unitDet.UnitDetailsItemId } into lud
                             from unitDetail in lud.DefaultIfEmpty()
 
+                            join sm in _salesManMasterRepository.GetAsQueryable()
+                                on salesVou.SalesVoucherSalesManID equals sm.SalesManMasterSalesManId into lsm
+                            from saleman in lsm.DefaultIfEmpty()
 
-                            where (svd.SalesVoucherDetailsNo != null && (filter.CustomerId == null || salesVou.SalesVoucherPartyId == filter.CustomerId) &&
-                            (filter.LocationId == null || salesVou.SalesVoucherLocationID == filter.LocationId) &&
-                            (filter.VType == null || salesVou.SalesVoucherType == filter.VType) && (filter.SalemanId == null || filter.SalemanId == salesVou.SalesVoucherSalesManID)
-&&                            (filter.ItemId == null || svd.SalesVoucherDetailsMatId == filter.ItemId) &&
-                            (filter.itemGroupId == null || itemmaster.ItemMasterAccountNo == filter.itemGroupId) &&
-                            (!filter.IsDate || (salesVou.SalesVoucherDate >= filter.Fromdate
-                                && salesVou.SalesVoucherDate <= filter.Todate)))
-
+                            where (svd.SalesVoucherDetailsNo != null &&
+                                  (filter.CustomerId == null || salesVou.SalesVoucherPartyId == filter.CustomerId) &&
+                                  (filter.LocationId == null || salesVou.SalesVoucherLocationID == filter.LocationId) &&
+                                  (filter.VType == null || salesVou.SalesVoucherType == filter.VType) &&
+                                  (filter.SalemanId == null || filter.SalemanId == salesVou.SalesVoucherSalesManID) &&
+                                  (filter.ItemId == null || svd.SalesVoucherDetailsMatId == filter.ItemId) &&
+                                  (filter.itemGroupId == null || itemmaster.ItemMasterAccountNo == filter.itemGroupId) &&
+                                  (!filter.IsDate || (salesVou.SalesVoucherDate >= filter.Fromdate
+                                                   && salesVou.SalesVoucherDate <= filter.Todate)))
                             select new
                             {
                                 InvoiceType = salesVou.SalesVoucherType,
@@ -1302,8 +1312,9 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                 Discount = svd.SalesVoucherDetailsDiscAmount,
                                 GrossAmt = svd.SalesVoucherDetailsGrossAmount,
                                 UnitPrice = svd.SalesVoucherDetailsCostPrice,
-                                saleman = salemandata.Find(a=> a.SalesManMasterSalesManId == salesVou.SalesVoucherSalesManID).SalesManMasterSalesManName.FirstOrDefault(),
-                                // FIXED: replace ?. with conditional operator
+
+                                saleman = saleman == null ? null : saleman.SalesManMasterSalesManName,
+
                                 UnitDes = unitMaster == null ? "" : unitMaster.UnitMasterUnitShortName,
                                 MatDes = itemmaster == null ? "" : itemmaster.ItemMasterItemName,
                                 PartNo = itemmaster == null ? "N/A" : itemmaster.ItemMasterPartNo,
@@ -1313,8 +1324,9 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                 VoucherDate = salesVou.SalesVoucherDate,
                                 VoucherNo = salesVou.SalesVoucherNo,
                                 QuantitySold = svd.SalesVoucherDetailsQuantity ?? 0,
+
                                 baseUnit = svd.SalesVoucherDetailsQuantity
-                                           * (decimal)(unitDetail == null ? 1 : unitDetail.UnitDetailsConversionType),
+                                          * (decimal)(unitDetail == null ? 1 : unitDetail.UnitDetailsConversionType),
 
                                 CustomerName = customerDict.ContainsKey(Convert.ToInt32(salesVou.SalesVoucherPartyId))
                                              ? customerDict[Convert.ToInt32(salesVou.SalesVoucherPartyId)]
@@ -1326,11 +1338,12 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 return data;
             }
-            catch (System.Exception ex)
+            catch (Exception)
             {
                 throw;
             }
         }
+
 
         public VouchersNumbers GeneratePosVoucherNo(DateTime? VoucherGenDate)
         {
