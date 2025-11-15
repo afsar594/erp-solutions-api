@@ -1311,7 +1311,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                 NetAmount = svd.SalesVoucherDetailsNetAmt,
                                 Discount = svd.SalesVoucherDetailsDiscAmount,
                                 GrossAmt = svd.SalesVoucherDetailsGrossAmount,
-                                UnitPrice = svd.SalesVoucherDetailsCostPrice,
+                                UnitPrice = svd.SalesVoucherDetailsRate,
 
                                 saleman = saleman == null ? null : saleman.SalesManMasterSalesManName,
 
