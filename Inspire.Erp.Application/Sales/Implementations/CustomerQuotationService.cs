@@ -76,7 +76,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
 
                 _customerQuotationRepository.Update(customerQuotation);
-
+                var deletedetail =_customerQuotationDetailsRepository.GetAsQueryable().Where(x => x.CustomerQuotationDetailsVoucherNo == customerQuotation.CustomerQuotationVoucherNo).ToList();
+                _customerQuotationDetailsRepository.DeleteList(deletedetail);
                 long maxcount1 = 0;
                 maxcount1 = _customerQuotationDetailsRepository.GetAsQueryable()
                     .DefaultIfEmpty()
@@ -94,15 +95,9 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         _customerQuotationDetailsRepository.Insert(x);
                         maxcount1++;
                     }
-                    else
-                    {
-                        _customerQuotationDetailsRepository.Update(x);
-                    }
                 }
 
-
-                //_customerQuotationDetailsRepository.UpdateList(customerQuotationDetails);
-                //customerQuotation.CustomerQuotationDetails = customerQuotationDetails;                
+             
 
                 UserTracking trackingData = new UserTracking();
                 trackingData.UserTrackingUserUserId = 1;
