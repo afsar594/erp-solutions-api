@@ -390,7 +390,7 @@ namespace Inspire.Erp.Application.MODULE
                 string closingType = settings.FirstOrDefault(p => p.ProgramSettingsKeyValue == "PREFIX_CLOSING_TYPE")?.ProgramSettingsTextValue ?? "0";
                 bool jobWisePrefix = settings.FirstOrDefault(p => p.ProgramSettingsKeyValue == "JOB_WISE_PREFIX")?.ProgramSettingsBoolValue ?? false;
                 string separator = settings.FirstOrDefault(p => p.ProgramSettingsKeyValue == "PREFIX_SEPERATOR")?.ProgramSettingsTextValue ?? "-";
-                string prefix = settings.FirstOrDefault(p => p.ProgramSettingsKeyValue.Trim() == voucherPrefixKey)?.ProgramSettingsTextValue ?? string.Empty;
+                string prefix = settings.FirstOrDefault(p => p.ProgramSettingsKeyValue.Trim().ToLower() == voucherPrefixKey.Trim().ToLower())?.ProgramSettingsTextValue ?? string.Empty;
 
                 // --- Prepare dynamic parts ---
                 DateTime now = DateTime.Now;
