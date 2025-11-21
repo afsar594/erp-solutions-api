@@ -89,6 +89,7 @@ namespace Inspire.Erp.Application.Master
         private string ItemRelativeNo = "";
         private readonly IUtilityService _utilityService;
 
+        private readonly ICurrentUserService _currentUserService;
         private readonly IRepository<ItemImages> _itemImageRepo;
 
         public ItemMasterService(IRepository<ItemMaster> _itemrepository, IRepository<ItemStockType> _itemStockRepository, IRepository<UnitDetails> unitDetailsRepo
@@ -211,13 +212,11 @@ namespace Inspire.Erp.Application.Master
                                               .DefaultIfEmpty()
                                               .MaxAsync(o => o == null ? 0 : o.ItemMasterItemId)) + 1;
                 itemMaster.ItemMasterMaterialCode = itemMaster.ItemMasterItemId.ToString();
-
                 var images = await _itemImageRepo.GetAsQueryable()
-                                    .Where(x => x.ItemImagesItemId == itemMaster.ItemMasterItemId)
-                                    .ToListAsync();
-                if(images.Any())
+                                 .Where(x => x.ItemImagesItemId == itemMaster.ItemMasterItemId)
+                                 .ToListAsync();
+                if (images.Any())
                     await _itemImageRepo.DeleteListAsync(images);
-
                 itemMaster.ItemImages = itemMaster.ItemImages.AsEnumerable().Select(k =>
                 {
                     k.ItemImagesItemImageId = null;
