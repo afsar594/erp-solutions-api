@@ -283,6 +283,11 @@ namespace Inspire.Erp.Application.Master
             bool valid = false;
             try
             {
+                var images =  _itemImageRepo.GetAsQueryable()
+                                 .Where(x => x.ItemImagesItemId == itemMasterDto.ItemMasterItemId)
+                                 .ToList();
+                if (images.Any())
+                     _itemImageRepo.DeleteListAsync(images);
                 itemMasterDto.ItemImages = itemMasterDto.ItemImages.AsEnumerable().Select(k =>
                 {
                     k.ItemImagesItemImageId = null;
