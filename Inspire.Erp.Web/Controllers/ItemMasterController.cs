@@ -305,7 +305,7 @@ namespace Inspire.Erp.Web.Controllers
                 }
                 else
                 {
-                    data = itemMasterService.UpdateNewItem(model);
+                    data =await itemMasterService.UpdateNewItem(model);
                     result = _mapper.Map<ItemMasterViewModel>(data);
                     return Ok(new ApiResponse<ItemMasterViewModel>
                     {
@@ -330,7 +330,7 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpPost]
         [Route("DeleteNewItem")]
-        public ApiResponse<ItemMasterViewModel> DeleteNewItem([FromBody] ItemMasterViewModel itemMaster)
+        public async Task<ApiResponse<ItemMasterViewModel>> DeleteNewItem([FromBody] ItemMasterViewModel itemMaster)
         {
             ApiResponse<ItemMasterViewModel> apiResponse = null;
             if ((itemMaster.ItemMasterItemId != null && itemMaster.ItemMasterItemId != 0))
@@ -338,7 +338,7 @@ namespace Inspire.Erp.Web.Controllers
                 itemMaster.ItemMasterDelStatus = true;
                 var model = _mapper.Map<ItemMaster>(itemMaster);
 
-                var data = itemMasterService.UpdateNewItem(model);
+                var data = await itemMasterService.UpdateNewItem(model);
                 ItemMasterViewModel result = _mapper.Map<ItemMasterViewModel>(data);
                 apiResponse = new ApiResponse<ItemMasterViewModel>
                 {

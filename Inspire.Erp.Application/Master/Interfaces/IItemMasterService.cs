@@ -20,7 +20,8 @@ namespace Inspire.Erp.Application.Master
         public Task<IEnumerable<ItemMaster>> InsertItem(ItemMaster itemMaster);
         public Task<ItemMaster> NewItem(ItemMaster itemMaster);
         public Task<Boolean> CheckForExistingItem(ItemMaster itemMaster);
-        public ItemMaster UpdateNewItem(ItemMaster itemMaster);
+        //public ItemMaster UpdateNewItem(ItemMaster itemMaster);
+        Task<ItemMaster> UpdateNewItem(ItemMaster itemMasterDto);
         public IEnumerable<ItemMaster> UpdateItem(ItemMaster itemMaster);
         public IEnumerable<ItemMaster> DeleteItem(ItemMaster itemMaster);
         public List<ItemMaster> GetAllItem();

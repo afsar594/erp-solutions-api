@@ -278,26 +278,26 @@ namespace Inspire.Erp.Application.Master
 
         }
 
-        public ItemMaster UpdateNewItem(ItemMaster itemMasterDto)
+        public async Task<ItemMaster> UpdateNewItem(ItemMaster itemMasterDto)
         {
             bool valid = false;
             try
             {
-                var images =  _itemImageRepo.GetAsQueryable()
+                var images = await _itemImageRepo.GetAsQueryable()
                                  .Where(x => x.ItemImagesItemId == itemMasterDto.ItemMasterItemId)
-                                 .ToList();
+                                 .ToListAsync();
                 if (images.Any())
-                     _itemImageRepo.DeleteListAsync(images);
+                    await _itemImageRepo.DeleteListAsync(images);
                 itemMasterDto.ItemImages = itemMasterDto.ItemImages.AsEnumerable().Select(k =>
                 {
                     k.ItemImagesItemImageId = null;
                     return k;
                 }).OrderBy(x => x.ItemImagesItemImageId).AsEnumerable().ToList();
 
-                var existingSuppliers = _itemSupplierDetails
+                var existingSuppliers = await _itemSupplierDetails
                                                  .GetAsQueryable().AsNoTracking()
-                                                 .Where(x => x.ItemSupplierDetailsItemId == itemMasterDto.ItemMasterItemId && ( x.ItemSupplierDetailsDelStatus == false || x.ItemSupplierDetailsDelStatus == null))
-                                                 .ToList();
+                                                 .Where(x => x.ItemSupplierDetailsItemId == itemMasterDto.ItemMasterItemId && (x.ItemSupplierDetailsDelStatus == false || x.ItemSupplierDetailsDelStatus == null))
+                                                 .ToListAsync();
 
                 if (existingSuppliers.Any())
                 {
@@ -306,11 +306,11 @@ namespace Inspire.Erp.Application.Master
                                                                     .ToList();
                     if (supplierToDel.Any())
                         supplierToDel.ForEach(x => x.ItemSupplierDetailsDelStatus = true);
-                    _itemSupplierDetails.UpdateList(supplierToDel);
+                    await _itemSupplierDetails.UpdateListAsync(supplierToDel);
                 }
 
 
-                itemrepository.Update(itemMasterDto);
+                await itemrepository.UpdateAsync(itemMasterDto);
                 valid = true;
                 return GetAllItemMasterById((int)itemMasterDto.ItemMasterItemId);
 
