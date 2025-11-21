@@ -89,7 +89,7 @@ namespace Inspire.Erp.Application.Master
         private string ItemRelativeNo = "";
         private readonly IUtilityService _utilityService;
 
-        private readonly ICurrentUserService _currentUserService;
+        private readonly IRepository<ItemImages> _itemImageRepo;
 
         public ItemMasterService(IRepository<ItemMaster> _itemrepository, IRepository<ItemStockType> _itemStockRepository, IRepository<UnitDetails> unitDetailsRepo
             , IRepository<VendorMaster> _vendorrepository
@@ -125,7 +125,7 @@ namespace Inspire.Erp.Application.Master
               , IRepository<MasterAccountsTable> masterAccRepo
             , IUtilityService utilityService
             , IConfiguration config
-, IRepository<ItemSupplierDetails> itemSupplierDetails, ICurrentUserService currentUserService)
+, IRepository<ItemSupplierDetails> itemSupplierDetails, ICurrentUserService currentUserService, IRepository<ItemImages> itemImageRepo)
         {
             itemrepository = _itemrepository;
             vendorrepository = _vendorrepository;
@@ -167,6 +167,7 @@ namespace Inspire.Erp.Application.Master
             _dbConnection = new SqlConnection(settings.ConnectionString);
             _itemSupplierDetails = itemSupplierDetails;
             _currentUserService = currentUserService;
+            _itemImageRepo = itemImageRepo;
         }
         public async Task<IEnumerable<ItemMaster>> InsertItem(ItemMaster itemMaster)
         {
@@ -210,6 +211,12 @@ namespace Inspire.Erp.Application.Master
                                               .DefaultIfEmpty()
                                               .MaxAsync(o => o == null ? 0 : o.ItemMasterItemId)) + 1;
                 itemMaster.ItemMasterMaterialCode = itemMaster.ItemMasterItemId.ToString();
+
+                var images = await _itemImageRepo.GetAsQueryable()
+                                    .Where(x => x.ItemImagesItemId == itemMaster.ItemMasterItemId)
+                                    .ToListAsync();
+                if(images.Any())
+                    await _itemImageRepo.DeleteListAsync(images);
 
                 itemMaster.ItemImages = itemMaster.ItemImages.AsEnumerable().Select(k =>
                 {
