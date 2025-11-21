@@ -156,6 +156,22 @@ namespace Inspire.Erp.Application.Account.Implementations
 
                 var transValues = (await _dbConnection.QueryAsync<AllocationDetails>(sql)).ToList();
 
+                var groups = transValues
+                            .Where(x => x.AllocationId != null)
+                            .GroupBy(x => x.AllocationId)
+                            .Where(g => g.Count() > 1)
+                            .SelectMany(g => g)
+                            .ToList();
+
+                var nullAllocations = transValues
+                    .Where(x => x.AllocationId == null)
+                    .ToList();
+
+                var finalList = nullAllocations.Concat(groups).ToList();
+
+
+
+
                 return ApiResponse<List<AllocationDetails>>.Success(transValues, "Data Found");
             }
             catch (Exception ex)
