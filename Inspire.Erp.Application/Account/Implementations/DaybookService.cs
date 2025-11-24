@@ -38,6 +38,8 @@ namespace Inspire.Erp.Application.Account.Implementations
         {
             try
             {
+                var templist = await _tmpDayBook.GetAsQueryable().ToListAsync();
+                await _tmpDayBook.DeleteListAsync(templist);
                 var gridModel = new GetDaybookResponse();
                 var location = await _locationMaster.GetAsQueryable().FirstOrDefaultAsync();
                 var total = await _accountTransaction.GetAsQueryable().AsNoTracking().CountAsync(x => x.AccountstransactionsDelStatus != true);
@@ -123,35 +125,12 @@ namespace Inspire.Erp.Application.Account.Implementations
                             AccountsTransactionsCredit = records.AccountsTransactionsCredit,
                             AccountsTransactionsVoucherType = records.AccountsTransactionsVoucherType
                         });
-                    }
-                    //credit += records.AccountsTransactionsCredit;
-                    //debit += records.AccountsTransactionsDebit;
 
-                    //gridModel.Details.Add(new GetDaybookAccountTransaction()
-                    //{
-                    //    AccountsTransactionsParticulars = "Total",
-                    //    AccountsTransactionsDebit = debit,
-                    //    AccountsTransactionsCredit = credit,
-                    //});
-                    //totalCredit += credit;
-                    //totalDebit += debit;
+                    }
+                    
                 }
-                //gridModel.StationMasterStationName = location != null ? location.StationMasterStationName : "";
-                //gridModel.StationMasterEmail = location != null ? location.StationMasterEmail : "";
-                //gridModel.StationMasterFax = location != null ? location.StationMasterFax : "";
-                //gridModel.StationMasterTele1 = location != null ? location.StationMasterTele1 : "";
-                //gridModel.StationMasterAddress = location != null ? location.StationMasterAddress : "";
-                //gridModel.StationMasterCity = location != null ? location.StationMasterCity : "";
-                //gridModel.StationMasterCode = location != null ? location.StationMasterCode : 0;
-                //gridModel.StationMasterCountry = location != null ? location.StationMasterCountry : "";
-                //gridModel.StationMasterLogoPath = location != null ? location.StationMasterLogoPath : "";
-                //gridModel.StationMasterPostOffice = location != null ? location.StationMasterPostOffice : "";
-                //gridModel.StationMasterSignPath = location != null ? location.StationMasterSignPath : "";
-                //gridModel.StationMasterVatNo = location != null ? location.StationMasterVatNo : "";
-                //gridModel.StationMasterWebSite = location != null ? location.StationMasterWebSite : "";
-                //gridModel.TotalCredit = totalCredit.ToString();
-                //gridModel.TotalDebit = totalDebit.ToString();
-                var tmpList = result.Select(r => new TmpDayBook
+
+                var tmpList = gridModel.Details.Select(r => new TmpDayBook
                 {
                     AccountsTransactionsTransDateString = r.AccountsTransactionsTransDateString,
                     AccountsTransactionsVoucherNo = r.AccountsTransactionsVoucherNo,
@@ -162,8 +141,6 @@ namespace Inspire.Erp.Application.Account.Implementations
                     AccountsTransactionsCredit = r.AccountsTransactionsCredit,
                     AccountsTransactionsVoucherType = r.AccountsTransactionsVoucherType
                 }).ToList();
-
-                // Clear old temp data (optional but recommended)
                 await _tmpDayBook.InsertListAsync(tmpList);
                 var gridReponse = new GridWrapperResponse<GetDaybookResponse>()
                 {
