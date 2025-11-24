@@ -50,24 +50,26 @@ namespace Inspire.Erp.Application.Account.Implementations
                 if (model.isDate)
                 {
                     queryData = _accountTransaction.GetAsQueryable().AsNoTracking().Where(a => a.AccountsTransactionsAccNo != accountNumber && a.AccountsTransactionsTransDate >= model.FromDate && a.AccountsTransactionsTransDate <= model.ToDate).OrderBy(row => row.AccountsTransactionsTransDate ?? DateTime.MaxValue);
-                    var openingentry = _accountTransaction.GetAsQueryable().AsNoTracking().Where(a => a.AccountsTransactionsAccNo == accountNumber && a.AccountsTransactionsTransDate < model.FromDate).ToList();
+                    //var openingentry = _accountTransaction.GetAsQueryable().AsNoTracking().Where(a => a.AccountsTransactionsAccNo == accountNumber && a.AccountsTransactionsTransDate < model.FromDate).ToList();
 
-                    decimal totalDebits = openingentry.Sum(a => a.AccountsTransactionsDebit);
-                    decimal totalCredits = openingentry.Sum(a => a.AccountsTransactionsCredit);
+                    //var opDebit = _accountTransaction.GetAsQueryable().Where(a => a.AccountsTransactionsAccNo == accountNumber && a.AccountsTransactionsTransDate < model.FromDate).Sum(x => x.AccountsTransactionsDebit);
 
-                    decimal openingBalance = totalCredits - totalDebits;
+                    //var opCredit = _accountTransaction.GetAsQueryable().Where(a => a.AccountsTransactionsAccNo == accountNumber && a.AccountsTransactionsTransDate < model.FromDate).Sum(x => x.AccountsTransactionsCredit);
 
-                    data = new GetDaybookAccountTransaction
-                    {
-                        AccountsTransactionsTransDateString = "",
-                        AccountsTransactionsVoucherNo = "",
-                        RefNo = "",
-                        AccountsTransactionsDescription = "",
-                        AccountsTransactionsParticulars = "",
-                        AccountsTransactionsDebit = openingBalance < 0 ? openingBalance : 0,
-                        AccountsTransactionsCredit = openingBalance > 0 ? openingBalance : 0,
-                        AccountsTransactionsVoucherType = "Opening Balance"
-                    };
+
+                    //decimal openingBalance = opDebit - opCredit;
+
+                    //data = new GetDaybookAccountTransaction
+                    //{
+                    //    AccountsTransactionsTransDateString = "",
+                    //    AccountsTransactionsVoucherNo = "",
+                    //    RefNo = "",
+                    //    AccountsTransactionsDescription = "",
+                    //    AccountsTransactionsParticulars = "",
+                    //    AccountsTransactionsDebit = openingBalance > 0 ? openingBalance : 0,
+                    //    AccountsTransactionsCredit = openingBalance < 0 ? openingBalance : 0,
+                    //    AccountsTransactionsVoucherType = "Opening Balance"
+                    //};
 
                 }
                 else
@@ -96,16 +98,16 @@ namespace Inspire.Erp.Application.Account.Implementations
                 gridModel.Details = new List<GetDaybookAccountTransaction>();
                 decimal totalDebit = 0;
                 decimal totalCredit = 0;
+                //if (model.isDate)
+                //{
+                //    gridModel.Details.Insert(0, data);
+                //}
                 foreach (var item in groupResponse)
                 {
                     decimal credit = 0;
                     decimal debit = 0;
                     foreach (var records in item)
                     {
-                        if (model.isDate)
-                        {
-                            gridModel.Details.Insert(0, data);
-                        }
                         gridModel.Details.Add(new GetDaybookAccountTransaction()
                         {
                             AccountsTransactionsTransDateString = records.AccountsTransactionsTransDateString,
