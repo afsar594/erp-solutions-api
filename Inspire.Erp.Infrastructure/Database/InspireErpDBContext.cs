@@ -485,6 +485,7 @@ namespace Inspire.Erp.Infrastructure.Database
         public DbSet<SalesCharges> Sales_Charges { get; set; }
         public DbSet<PurchaseCharges> Purchase_Charges { get; set; }
         public DbSet<OtherChargesMaster> Other_Charges_Master { get; set; }
+        public DbSet<TmpDayBook> tmpDayBook { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -516,7 +517,12 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.ApproverLevel).HasConversion(v => v.ToString(), v => (EnumApproverLevels)Enum.Parse(typeof(EnumApproverLevels), v));
             });
 
-            modelBuilder.Entity<ApproverLevelSettings>(entity =>
+            modelBuilder.Entity<TmpDayBook>(e =>
+            {
+                e.HasNoKey();
+
+            });
+                modelBuilder.Entity<ApproverLevelSettings>(entity =>
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.MinAmount).HasColumnType("numeric(18, 2)");
