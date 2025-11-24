@@ -394,8 +394,10 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 var result = await (from s in _Context.CustomerQuotation.AsQueryable()
                                     join c in _Context.CustomerMaster.AsQueryable() on s.CustomerQuotationCustomerId equals c.CustomerMasterCustomerNo
                                     where s.CustomerQuotationDelStatus != true && (FilterModel.CustomerId == null || s.CustomerQuotationCustomerId == FilterModel.CustomerId)
+
                                     && (FilterModel.Status == null || s.CustomerQuotationIsClose == FilterModel.Status)
                                     && (s.CustomerQuotationQuotationDate.Value.Date >= FilterModel.fromDate.Value.Date && s.CustomerQuotationQuotationDate.Value.Date <= FilterModel.toDate.Value.Date)
+                                    &&(s.CustomerQuotationDelStatus != true)
                                     select new GetCustomerQuotationDetail
                                     {
                                         QuotationId = s.CustomerQuotationQid,
@@ -416,6 +418,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                     join c in _Context.CustomerMaster.AsQueryable() on s.CustomerQuotationCustomerId equals c.CustomerMasterCustomerNo
                                     where (FilterModel.CustomerId == null || s.CustomerQuotationCustomerId == FilterModel.CustomerId)
                                     && (FilterModel.Status == null || s.CustomerQuotationIsClose == FilterModel.Status)
+                                    && (s.CustomerQuotationDelStatus != true)
                                     select new GetCustomerQuotationDetail
                                     {
                                         QuotationId = s.CustomerQuotationQid,
