@@ -485,7 +485,7 @@ namespace Inspire.Erp.Infrastructure.Database
         public DbSet<SalesCharges> Sales_Charges { get; set; }
         public DbSet<PurchaseCharges> Purchase_Charges { get; set; }
         public DbSet<OtherChargesMaster> Other_Charges_Master { get; set; }
-        public DbSet<TmpDayBook> tmpDayBook { get; set; }
+        public DbSet<TmpDayBook> TmpDayBook { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -519,7 +519,8 @@ namespace Inspire.Erp.Infrastructure.Database
 
             modelBuilder.Entity<TmpDayBook>(e =>
             {
-                e.HasNoKey();
+                e.ToTable("tmpDayBook");
+                e.HasKey(x=>x.Id);
 
             });
                 modelBuilder.Entity<ApproverLevelSettings>(entity =>
