@@ -19,5 +19,7 @@ namespace Inspire.Erp.Domain.Entities
      public decimal AccountsTransactionsDebit { get; set; }
      public decimal AccountsTransactionsCredit { get; set; }
      public string AccountsTransactionsVoucherType { get; set; }
+     public string? JobName { get; set; }
+     public string? CostCenterName { get; set; }
     }
 }

@@ -24,15 +24,19 @@ namespace Inspire.Erp.Application.Account.Implementations
         private readonly IRepository<AccountsTransactions> _accountTransaction;
         private readonly IRepository<StationMaster> _locationMaster;
         private IRepository<AccountSettings> _accountsSettingsRepo;
+        private readonly IRepository<CostCenterMaster> _costCenterMaster;
+        private readonly IRepository<JobMaster> _jobMaster;
         private readonly IFileService _fileService;
         public DaybookService(IRepository<MasterAccountsTable> masterAccountsTable, IFileService fileService, IRepository<AccountSettings> accountsSettingsRepo,
-            IRepository<AccountsTransactions> accountTransaction, IRepository<StationMaster> locationMaster, IRepository<TmpDayBook> tmpDayBook)
+            IRepository<AccountsTransactions> accountTransaction, IRepository<StationMaster> locationMaster, IRepository<TmpDayBook> tmpDayBook, IRepository<CostCenterMaster> costCenterMaster, IRepository<JobMaster> jobMaster)
         {
             _masterAccountsTable = masterAccountsTable;
             _accountTransaction = accountTransaction;
             _fileService = fileService; _accountsSettingsRepo = accountsSettingsRepo;
             _locationMaster = locationMaster;
             _tmpDayBook = tmpDayBook;
+            _costCenterMaster = costCenterMaster;
+            _jobMaster = jobMaster;
         }
         public async Task<Response<GridWrapperResponse<GetDaybookResponse>>> GetDaybookAccountTransactions(GenericGridViewModel model)
         {
@@ -41,111 +45,93 @@ namespace Inspire.Erp.Application.Account.Implementations
                 var templist = await _tmpDayBook.GetAsQueryable().ToListAsync();
                 await _tmpDayBook.DeleteListAsync(templist);
                 var gridModel = new GetDaybookResponse();
-                var location = await _locationMaster.GetAsQueryable().FirstOrDefaultAsync();
-                var total = await _accountTransaction.GetAsQueryable().AsNoTracking().CountAsync(x => x.AccountstransactionsDelStatus != true);
 
-                var cashacc = _accountsSettingsRepo.GetAsQueryable().AsNoTracking().Where(a => a.AccountSettingsAccountDescription.Trim() == "Cash Account").Select(x => x.AccountSettingsAccountTextValue).FirstOrDefault();
-                string[] parts = cashacc.Split(new string[] { "::" }, StringSplitOptions.None);
+                var bankandcashAccount = new string[] { "BANK_MASTER_AC_NO", "CASH_MASTER_AC_NO" };
+                var accountSettings = _accountsSettingsRepo.GetAsQueryable().AsNoTracking().Where(x => bankandcashAccount.Contains(x.AccountSettingsAccountKeyValue)).Select(X =>
+                       X.AccountSettingsAccountTextValue.Split("::", StringSplitOptions.RemoveEmptyEntries)[1].Trim()
+                ).ToList();
 
-                string accountNumber = parts.Length > 1 ? parts[1].Trim() : string.Empty;
-                GetDaybookAccountTransaction data = null;
+                var masterAccounts = _masterAccountsTable.GetAsQueryable().AsNoTracking().Where(x => accountSettings.Contains(x.MaRelativeNo.Trim())).Select(x => x.MaAccNo.Trim()).ToList();
+                       var fullDataQuery =
+                            from act in _accountTransaction.GetAsQueryable().AsNoTracking()
+                            where masterAccounts.Contains(act.AccountsTransactionsAccNo.Trim())
+                             && act.AccountsTransactionsTransDate.Value.Date >= model.FromDate.Value.Date
+                             && act.AccountsTransactionsTransDate.Value.Date <= model.ToDate.Value.Date
 
-                IQueryable<AccountsTransactions> queryData;
-                if (model.isDate)
-                {
-                    queryData = _accountTransaction.GetAsQueryable().AsNoTracking().Where(a => a.AccountsTransactionsAccNo != accountNumber && a.AccountsTransactionsTransDate >= model.FromDate && a.AccountsTransactionsTransDate <= model.ToDate).OrderBy(row => row.AccountsTransactionsTransDate ?? DateTime.MaxValue);
-                    var openingentry = _accountTransaction.GetAsQueryable().AsNoTracking().Where(a => a.AccountsTransactionsAccNo == accountNumber && a.AccountsTransactionsTransDate < model.FromDate).ToList();
+                            join ccm in _costCenterMaster.GetAsQueryable().AsNoTracking()
+                                 on act.AccountsTransactionsCostCenterId equals ccm.CostCenterMasterCostCenterId into ccmJoin
+                            from ccm in ccmJoin.DefaultIfEmpty()
 
-                    var opDebit = _accountTransaction.GetAsQueryable().Where(a => a.AccountsTransactionsAccNo == accountNumber && a.AccountsTransactionsTransDate < model.FromDate).Sum(x => x.AccountsTransactionsDebit);
+                            join jm in _jobMaster.GetAsQueryable().AsNoTracking()
+                                 on act.AccountsTransactionsJobNo equals jm.JobMasterJobId into jmJoin
+                            from jm in jmJoin.DefaultIfEmpty()
 
-                    var opCredit = _accountTransaction.GetAsQueryable().Where(a => a.AccountsTransactionsAccNo == accountNumber && a.AccountsTransactionsTransDate < model.FromDate).Sum(x => x.AccountsTransactionsCredit);
+                            join ma in _masterAccountsTable.GetAsQueryable().AsNoTracking()
+                                 on act.AccountsTransactionsAccNo equals ma.MaAccNo into maJoin
+                            from ma in maJoin.DefaultIfEmpty()
 
+                            select new GetDaybookAccountTransaction
+                            {
+                                AccountsTransactionsAccNo = act.AccountsTransactionsAccNo,
+                                AccountsTransactionsDebit = act.AccountsTransactionsDebit,
+                                AccountsTransactionsCredit = act.AccountsTransactionsCredit,
+                                AccountsTransactionsAllocBalance = act.AccountsTransactionsAllocBalance,
+                                AccountsTransactionsVoucherNo = act.AccountsTransactionsVoucherNo,
+                                AccountsTransactionsVoucherType = act.AccountsTransactionsVoucherType,
+                                AccountsTransactionsDescription = act.AccountsTransactionsDescription,
+                                CostCenterName = ccm.CostCenterMasterCostCenterName,
+                                JobName = jm.JobMasterJobName,
+                                AccountsTransactionsTransDate = act.AccountsTransactionsTransDate.Value.Date,
 
-                    decimal openingBalance = opDebit - opCredit;
+                                AccountsTransactionsParticulars = act.AccountsTransactionsParticulars,
+                                AccountsTransactionsTransSno = act.AccountsTransactionsTransSno,
+                                RefNo = act.RefNo,
 
-                    data = new GetDaybookAccountTransaction
-                    {
-                        AccountsTransactionsTransDateString = model.FromDate.ToString(),
-                        AccountsTransactionsVoucherNo = "",
-                        RefNo = "",
-                        AccountsTransactionsDescription = "",
-                        AccountsTransactionsParticulars = "",
-                        AccountsTransactionsDebit = openingBalance > 0 ? openingBalance : 0,
-                        AccountsTransactionsCredit = openingBalance < 0 ? openingBalance : 0,
-                        AccountsTransactionsVoucherType = "Opening Balance"
-                    };
+                                AccountsTransactionsAllocDebit = act.AccountsTransactionsAllocDebit,
+                                AccountsTransactionsAllocCredit = act.AccountsTransactionsAllocCredit
+                            };
 
-                }
-                else
-                {
-                    queryData = _accountTransaction.GetAsQueryable().AsNoTracking().Where(a => a.AccountsTransactionsAccNo != accountNumber).OrderBy(row => row.AccountsTransactionsTransDate ?? DateTime.MaxValue);
-                }
-                var result = await queryData.Skip(model.Skip).Take(model.Take).Select(x => new GetDaybookAccountTransaction
-                {
-                    AccountsTransactionsAccNo = x.AccountsTransactionsAccNo,
-                    AccountsTransactionsAccName = _masterAccountsTable.GetAsQueryable().FirstOrDefault(c => c.MaAccNo == x.AccountsTransactionsAccNo).MaAccName,
-                    AccountsTransactionsDebit = x.AccountsTransactionsDebit,
-                    AccountsTransactionsCredit = x.AccountsTransactionsCredit,
-                    AccountsTransactionsAllocBalance = x.AccountsTransactionsAllocBalance,
-                    AccountsTransactionsVoucherNo = x.AccountsTransactionsVoucherNo,
-                    AccountsTransactionsVoucherType = x.AccountsTransactionsVoucherType,
-                    AccountsTransactionsDescription = x.AccountsTransactionsDescription,
-                    AccountsTransactionsTransDate = Convert.ToDateTime(x.AccountsTransactionsTransDate),
-                    AccountsTransactionsTransDateString = Convert.ToDateTime(x.AccountsTransactionsTransDate).ToString("MM-dd-yyyy"),
-                    AccountsTransactionsParticulars = x.AccountsTransactionsParticulars,
-                    RefNo = x.RefNo,
-                    AccountsTransactionsTransSno = Convert.ToInt32(x.AccountsTransactionsTransSno),
-                    AccountsTransactionsAllocDebit = x.AccountsTransactionsAllocDebit,
-                    AccountsTransactionsAllocCredit = x.AccountsTransactionsAllocCredit
-                }).ToListAsync();
-
-               
-                var groupResponse = result.GroupBy(x => x.AccountsTransactionsTransDate);
+                var fullResult = await fullDataQuery.ToListAsync();
+                var paginatedResult = fullResult.Skip(model.Skip).Take(model.Take).ToList();
+                
                 gridModel.Details = new List<GetDaybookAccountTransaction>();
-                decimal totalDebit = 0;
-                decimal totalCredit = 0;
-                if (model.isDate)
+
+                foreach (var item in paginatedResult)
                 {
-                    gridModel.Details.Insert(0, data);
-                }
-                foreach (var item in groupResponse)
-                {
-                    decimal credit = 0;
-                    decimal debit = 0;
-                    foreach (var records in item)
+                    gridModel.Details.Add(new GetDaybookAccountTransaction()
                     {
-                        gridModel.Details.Add(new GetDaybookAccountTransaction()
-                        {
-                            AccountsTransactionsTransDateString = records.AccountsTransactionsTransDateString,
-                            AccountsTransactionsVoucherNo = records.AccountsTransactionsVoucherNo,
-                            RefNo = records.RefNo,
-                            AccountsTransactionsDescription = records.AccountsTransactionsDescription,
-                            AccountsTransactionsParticulars = records.AccountsTransactionsParticulars,
-                            AccountsTransactionsDebit = records.AccountsTransactionsDebit,
-                            AccountsTransactionsCredit = records.AccountsTransactionsCredit,
-                            AccountsTransactionsVoucherType = records.AccountsTransactionsVoucherType
-                        });
-
-                    }
-                    
+                        AccountsTransactionsTransDateString = item.AccountsTransactionsTransDate.ToString(),
+                        AccountsTransactionsVoucherNo = item.AccountsTransactionsVoucherNo,
+                        RefNo = item.RefNo,
+                        AccountsTransactionsDescription = item.AccountsTransactionsDescription,
+                        AccountsTransactionsParticulars = item.AccountsTransactionsParticulars,
+                        AccountsTransactionsDebit = item.AccountsTransactionsDebit,
+                        AccountsTransactionsCredit = item.AccountsTransactionsCredit,
+                        AccountsTransactionsVoucherType = item.AccountsTransactionsVoucherType,
+                        JobName = item.JobName,
+                        CostCenterName = item.CostCenterName
+                    });
                 }
 
-                var tmpList = gridModel.Details.Select(r => new TmpDayBook
+                var tmpList = fullResult.Select(r => new TmpDayBook
                 {
-                    AccountsTransactionsTransDateString = r.AccountsTransactionsTransDateString,
+                    AccountsTransactionsTransDateString = r.AccountsTransactionsTransDate.ToString(),
                     AccountsTransactionsVoucherNo = r.AccountsTransactionsVoucherNo,
                     RefNo = r.RefNo,
                     AccountsTransactionsDescription = r.AccountsTransactionsDescription,
                     AccountsTransactionsParticulars = r.AccountsTransactionsParticulars,
                     AccountsTransactionsDebit = r.AccountsTransactionsDebit,
                     AccountsTransactionsCredit = r.AccountsTransactionsCredit,
-                    AccountsTransactionsVoucherType = r.AccountsTransactionsVoucherType
+                    AccountsTransactionsVoucherType = r.AccountsTransactionsVoucherType,
+                    JobName = r.JobName,
+                    CostCenterName = r.CostCenterName
                 }).ToList();
+
                 await _tmpDayBook.InsertListAsync(tmpList);
                 var gridReponse = new GridWrapperResponse<GetDaybookResponse>()
                 {
                     Data = gridModel,
-                    Total = total
+                    Total = fullResult.Count()
                 };
                 return Response<GridWrapperResponse<GetDaybookResponse>>.Success(gridReponse, "Data found");
             }

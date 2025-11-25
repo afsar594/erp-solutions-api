@@ -49,6 +49,8 @@ namespace Inspire.Erp.Domain.Modals.AccountStatement
         public string AccountsTransactionsVatno { get; set; }
         public decimal? AccountsTransactionsVatableAmount { get; set; }
         public bool? AccountstransactionsDelStatus { get; set; }
+        public string? CostCenterName { get; set; }
+        public string? JobName { get; set; }
     }
     public class GetDaybookResponse
     {
