@@ -415,19 +415,13 @@ namespace Inspire.Erp.Application.Master
 
                 jobMasterData.JobMasterControl = _jobMasterControl.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterControlJobID == jobMasterData.JobMasterJobId).ToList();
 
-                /*
-                 
-                 select a.cost_center as CostcenterId,SUM(isnull(amount,0)) as Amount from
-                     Estimation_CostCenter a
-                     join BillofQty_Master b on a.BillQtyId = b.id
-                     where b.CustomerEnqId = 88
-                     group by a.cost_center
-                 */
+              
                 var summaries = await GetEstimationCostCenterSummaries(jobMasterData.JobMasterJobId);
 
                 jobMasterData.JobMasterControl.ToList().ForEach(x =>
                 {
-                    x.JobMasterControlAmount = summaries.FirstOrDefault(c => c.CostcenterId == x.JobMasterControlCostCenerID)?.Amount ?? 0;
+                    x.PrAmount = x.VoucherType.ToUpper() == "PR".ToUpper() ? x.JobMasterControlAmount : 0;
+                    x.JobMasterControlAmount = x.VoucherType.ToUpper() != "PR".ToUpper() ? summaries.FirstOrDefault(c => c.CostcenterId == x.JobMasterControlCostCenerID)?.Amount ?? 0 :0;
                     //x.JobMasterControlActual = groupedData.FirstOrDefault(gd => gd.JobMasterBudgetDetailsBudId == x.JobMasterControlCostCenerID)?.JobMasterBudgetDetailsActual ?? 0;
                     x.JobMasterControlVariance = x.JobMasterControlAmount - x.JobMasterControlActual;
                 });
