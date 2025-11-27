@@ -83,13 +83,13 @@ namespace Inspire.Erp.Web.Controllers.Accounts
             return Ok(await _accountStatService.GetAccountTransactions(model));
         }
         [HttpGet("AccountTransactionsHistory")]
-        public void AccountTransactionsHistory(string accountNumber, string dateFrom, string dateTo)
+        public void AccountTransactionsHistory(string accountNumber, string dateFrom, string dateTo, int location, int costcenterId, int jobId)
         {
             try
             {
                 _Context.Database.ExecuteSqlRaw(
-                    "EXEC sp_InsertAccountTransactions {0}, {1}, {2}",
-                    accountNumber, dateFrom, dateTo
+                    "EXEC sp_InsertAccountTransactions {0}, {1}, {2},{3},{4},{5}",
+                    accountNumber, dateFrom, dateTo,location,costcenterId,jobId
                 );
             }
             catch (Exception ex)
