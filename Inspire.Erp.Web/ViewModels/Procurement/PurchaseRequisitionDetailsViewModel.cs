@@ -45,7 +45,7 @@ namespace Inspire.Erp.Web.ViewModels.Procurement
         public int? boqdId { get; set; }
         public int? PurchaseRequisitionDetailsSupplierId { get; set; }
         public int PurchaseRequisitionDetailsBalQty { get; set; }
-
+        public int PurchaseRequisitionDetailsCostCenter { get; set; }
         //public virtual PurchaseRequisition PurchaseRequisitionDetailsNoNavigation { get; set; }
     }
 }

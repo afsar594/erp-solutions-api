@@ -449,35 +449,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 purchaseRequisition.PurchaseRequisitionUserId = _currentUserService.UserId;
                 _purchaseRequisitionRepository.Insert(purchaseRequisition);
 
-                //List<PermissionApprovalDetail> permissionApprovalDetails = new List<PermissionApprovalDetail>();
-
-                //var rights = _context.tbl_approvalforms.Where(a => a.Voucher_Type.Contains("Purchase Requisition") && a.is_active == true).AsNoTracking().ToList();
-                //if (rights.Count > 0)
-                //{
-                //    foreach (var item in rights)
-                //    {
-                //        for (int level = 1; level <= item.NoOfLevel; level++)
-                //        {
-                //            PermissionApprovalDetail POList = new PermissionApprovalDetail();
-                //            POList.VoucherType = "Purchase Requisition";
-                //            POList.VoucherNo = purchaseRequisition.PurchaseRequisitionNo;
-                //            POList.VoucherId = (int)purchaseRequisition.PurchaseRequisitionId;
-                //            POList.VoucherDate = purchaseRequisition.PurchaseRequisitionDate;
-                //            POList.Amount = (double)purchaseRequisition.PurchaseRequisitionNetAmount;
-                //            POList.CreatedBy = (int?)(purchaseRequisition.PurchaseRequisitionUserId ?? 1);
-                //            POList.LevelId = level;
-                //            POList.Status = "Pending";
-                //            POList.JobId = (int)purchaseRequisition.PurchaseRequisitionJobId;
-                //            POList.Remarks = purchaseRequisition.PurchaseRequisitionDescription;
-                //            POList.LocationName = _context.LocationMaster
-                //                                .FirstOrDefault(l => l.LocationMasterLocationId == purchaseRequisition.PurchaseRequisitionLocationId)?.LocationMasterLocationName;
-                //            permissionApprovalDetails.Add(POList);
-                //        }
-                //    }
-                //    if (permissionApprovalDetails.Any())
-                //        _permissionApprovalDetailRepo.InsertList(permissionApprovalDetails);
-                //}
-                // Item Master SupplierId is updated.
+                
                 foreach (var item in purchaseRequisitionDetails)
                 {
                     if (item.PurchaseRequisitionDetailsSupplierId > 0)
