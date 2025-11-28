@@ -119,6 +119,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     AccountsTransactionsTransDateString = r.AccountsTransactionsTransDate.ToString(),
                     AccountsTransactionsVoucherNo = r.AccountsTransactionsVoucherNo,
                     RefNo = r.RefNo,
+                    AccountNo = r.AccountsTransactionsAccNo,
                     AccountsTransactionsDescription = r.AccountsTransactionsDescription,
                     AccountsTransactionsParticulars = r.AccountsTransactionsParticulars,
                     AccountsTransactionsDebit = r.AccountsTransactionsDebit,
