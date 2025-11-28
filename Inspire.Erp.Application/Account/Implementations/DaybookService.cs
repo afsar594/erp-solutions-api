@@ -46,7 +46,8 @@ namespace Inspire.Erp.Application.Account.Implementations
                 await _tmpDayBook.DeleteListAsync(templist);
                 var gridModel = new GetDaybookResponse();
 
-                var bankandcashAccount = new string[] { "BANK_MASTER_AC_NO", "CASH_MASTER_AC_NO" };
+                //var bankandcashAccount = new string[] { "BANK_MASTER_AC_NO", "CASH_MASTER_AC_NO" };
+                var bankandcashAccount = new string[] { "BANK_MASTER_AC_NO" };
                 var accountSettings = _accountsSettingsRepo.GetAsQueryable().AsNoTracking().Where(x => bankandcashAccount.Contains(x.AccountSettingsAccountKeyValue)).Select(X =>
                        X.AccountSettingsAccountTextValue.Split("::", StringSplitOptions.RemoveEmptyEntries)[1].Trim()
                 ).ToList();
