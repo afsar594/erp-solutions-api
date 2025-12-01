@@ -214,9 +214,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 _purchaseQuotationRepository.Update(purchaseQuotation);
 
-                var vchrnumer = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == purchaseQuotation.PurchaseQuotationNo).FirstOrDefault();
+                //var vchrnumer = _voucherNumbersRepository.GetAsQueryable().Where(k => k.VouchersNumbersVNo == purchaseQuotation.PurchaseQuotationNo).FirstOrDefault();
 
-                _voucherNumbersRepository.Update(vchrnumer);
+                //_voucherNumbersRepository.Update(vchrnumer);
 
                 _purchaseQuotationRepository.TransactionCommit();
                 i = 1;
