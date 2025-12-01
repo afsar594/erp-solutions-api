@@ -11,6 +11,7 @@ namespace Inspire.Erp.Domain.Entities
     {
      [Key]
      public int Id { get; set; }
+     public string AccountNo { get; set; }
      public string AccountsTransactionsVoucherNo { get; set; }
      public string AccountsTransactionsTransDateString { get; set; }
      public string RefNo{ get; set; }
