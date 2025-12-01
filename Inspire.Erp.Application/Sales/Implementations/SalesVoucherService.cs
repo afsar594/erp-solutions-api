@@ -1676,7 +1676,10 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                   && (!fromDate.HasValue || salesVou.SalesVoucherDate >= fromDate.Value)
 
                                   // ✅ ToDate filter
-                                  && (!toDate.HasValue || salesVou.SalesVoucherDate <= toDate.Value)
+                                  && (!toDate.HasValue || salesVou.SalesVoucherDate <= toDate.Value
+                                  && (salesVou.SalesVoucherDelStatus == false || salesVou.SalesVoucherDelStatus == null)
+                                  && (svd.SalesVoucherDetailsDelStatus == false || svd.SalesVoucherDetailsDelStatus == null)
+                                  )
 
                             select new
                             {
