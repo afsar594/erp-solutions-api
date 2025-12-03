@@ -58,6 +58,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                             where masterAccounts.Contains(act.AccountsTransactionsAccNo.Trim())
                              && act.AccountsTransactionsTransDate.Value.Date >= model.FromDate.Value.Date
                              && act.AccountsTransactionsTransDate.Value.Date <= model.ToDate.Value.Date
+                             && (act.AccountstransactionsDelStatus == false || act.AccountstransactionsDelStatus ==null)
 
                             join ccm in _costCenterMaster.GetAsQueryable().AsNoTracking()
                                  on act.AccountsTransactionsCostCenterId equals ccm.CostCenterMasterCostCenterId into ccmJoin
