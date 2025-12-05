@@ -1232,7 +1232,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         && (filter.SalemanId == null || filter.SalemanId == sv.SalesVoucherSalesManID)
                         && (!filter.IsDate ||
                             (sv.SalesVoucherDate >= filter.Fromdate &&
-                             sv.SalesVoucherDate <= filter.Todate))
+                             sv.SalesVoucherDate <= filter.Todate))&&(filter.VType ==null || filter.VType == sv.SalesVoucherType)
 
                      select new
                      {
