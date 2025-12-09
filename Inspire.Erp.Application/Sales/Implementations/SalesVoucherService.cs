@@ -1743,11 +1743,14 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         voucherDate = g.sv.SalesVoucherDate,
                         itemName = g.sd.SalesVoucherDetailsItemName,
                         soldQty = g.sd.SalesVoucherDetailsQuantity,
+                        price = g.sd.SalesVoucherDetailsRate,
                         voucherType = g.sv.SalesVoucherType,
                         customerName = g.c.CustomerMasterCustomerName,
-                        grossAmount = g.sv.SalesVoucherTotalGrossAmount,
-                        discount = g.sv.SalesVoucherTotalDisAmount,
-                        netAmount = g.sv.SalesVoucherNetAmount,
+                        grossAmount = g.sd.SalesVoucherDetailsGrossAmount,
+                        discount = g.sd.SalesVoucherDetailsDiscAmount,
+                        netAmount = g.sd.SalesVoucherDetailsNetAmt,
+                        vatamount = g.sd.SalesVoucherDetailsVatAmt,
+
 
                     })
                     .AsQueryable();
