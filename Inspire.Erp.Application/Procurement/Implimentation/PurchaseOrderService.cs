@@ -578,9 +578,13 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         _purchaseOrderRepository.TransactionCommit();
                         string filePath = await downloadReport(purchaseOrder);
                     }
+                    else
+                    {
+                        _purchaseOrderRepository.TransactionCommit();
+                    }
                 }
                 //await ApprovePurchaseOrderForLowerApprovers()
-                //_purchaseOrderRepository.TransactionCommit();
+
                 var res = await this.GetSavedPurchaseOrderDetails((int)purchaseOrder.PurchaseOrderId);
                 return Response<PurchaseOrderModel>.Success(res.Result, "Purchase Order Save Successfully.");
             }

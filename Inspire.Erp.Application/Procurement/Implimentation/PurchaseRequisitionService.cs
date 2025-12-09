@@ -1039,7 +1039,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         .ToListAsync();
                 }
 
-                finalData = finalData.Where(a => a.BalQty > 0).ToList();
+                finalData = finalData.Where(a => a.BalQty > 0).DistinctBy(x=>x.SRID).ToList();
 
                 return new Response<List<PurChaseReqFields>>
                 {
