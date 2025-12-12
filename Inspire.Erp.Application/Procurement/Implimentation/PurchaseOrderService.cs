@@ -1192,7 +1192,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                      .Where(pvd => pvd.PurchaseVoucherDetailsPodId == pod.PurchaseOrderDetailsId &&
                     pvd.PurchaseVoucherDetailsMaterialId == pod.PurchaseOrderDetailsMatId)
                     .Sum(pvd => (int?)pvd.PurchaseVoucherDetailsQuantity) ?? 0
-                    let balanceQuantity = (int)pod.PurchaseOrderDetailsQuantity - deliveredQuantity
+                    let balanceQuantity = pod.PurchaseOrderDetailsQuantity - deliveredQuantity
                     where balanceQuantity > 0
                     select new PODetailsViewModel
                     {
@@ -1204,7 +1204,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         PODate = po.PurchaseOrderDate,
                         SupplierName = sm.SuppliersMasterSupplierName,
                         Rate = pod.PurchaseOrderDetailsRate,
-                        Quantity = (int)pod.PurchaseOrderDetailsQuantity,
+                        Quantity = pod.PurchaseOrderDetailsQuantity,
                         UnitId = pod.PurchaseOrderDetailsUnitId,
                         UnitName = unitQuery
                             .Where(u => u.UnitMasterUnitId == pod.PurchaseOrderDetailsUnitId)

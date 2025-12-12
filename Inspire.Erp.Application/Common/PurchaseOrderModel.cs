@@ -41,8 +41,8 @@ namespace Inspire.Erp.Application.Common
         public DateTime PODate { get; set; }
         public string SupplierName { get; set; }
         public decimal? Rate { get; set; }
-        public int Quantity { get; set; }
-        public int BalanceQuantity { get; set; }
+        public decimal? Quantity { get; set; }
+        public decimal? BalanceQuantity { get; set; }
         public int? JobId { get; set; }
 
         public int DeliveredQuantity { get; set; }

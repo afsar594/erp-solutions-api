@@ -8,8 +8,8 @@ namespace Inspire.Erp.Domain.Modals.Dashboard
     {
         public string Type { get; set; }
         public string PeriodType { get; set; }
-        public string StartDate { get; set; }
-        public string EndDate { get; set; }
+        public string? StartDate { get; set; }
+        public string? EndDate { get; set; }
     }
 
     public class DashboardSalesPurchaseModel
