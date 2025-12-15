@@ -1150,23 +1150,14 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
         }
 
-        public async Task<Response<List<PurChaseReqFields>>> GetPurchaseReqSale(PurChaseRequisitionFilterReport model)
+        public async Task<Response<List<PurChaseReqFields>>> GetPurchaseReqSale(int prId)
         {
             try
             {
                 //var settingValue = await _generalSettings.GetValueByKey(InspireConstants.DefaultApprovalType);
 
-                var query = _purchaseRequisitionRepository.GetAsQueryable().AsNoTracking().Where(s => s.PurchaseRequisitionDelStatus != true);
+                var query = _purchaseRequisitionRepository.GetAsQueryable().AsNoTracking().Where(s => s.PurchaseRequisitionDelStatus != true && s.PurchaseRequisitionId == prId);
 
-
-                if (model.JobId > 0)
-                    query = query.Where(a => a.PurchaseRequisitionJobId == model.JobId);
-
-                if (model.locationId > 0)
-                    query = query.Where(a => a.PurchaseRequisitionLocationId == model.locationId);
-
-                if (model.IsDateChecked && model.fromDate.HasValue && model.toDate.HasValue)
-                    query = query.Where(a => a.PurchaseRequisitionDate.Date >= model.fromDate.Value && a.PurchaseRequisitionDate.Date <= model.toDate.Value);
 
                 var purReqIdList = query.Select(x => x.PurchaseRequisitionId).ToList();
 
@@ -1183,16 +1174,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
 
                 List<PurChaseReqFields> finalData;
-                //if (settingValue != InspireConstants.ApprovalAsNoApproval)
-                //{
-                //    hasApproval = _approverLevelSettings.GetAsQueryable()
-                //                     .AsNoTracking()
-                //                     .Any(a => a.FormType == EnumOrderForms.PurchaseRequisition);
-                //}
-
-
-
-
                 var data = await (from sm in query
                                   join sd in _purchaseRequisitionDetailsRepository.GetAsQueryable().AsNoTracking() on sm.PurchaseRequisitionId equals sd.PurchaseRequisitionId
                                   join im in _itemMasterRepository.GetAsQueryable().AsNoTracking() on sd.PurchaseRequisitionDetailsMatId equals im.ItemMasterItemId
@@ -1226,6 +1207,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                       jobid = g.Key.PurchaseRequisitionJobId,
                                       PRSupplierId = g.Key.PurchaseRequisitionDetailsSupplierId,
                                       PRCurrId = g.Key.PurchaseRequisitionCurrencyId,
+                                      PRNO= g.Key.PurchaseRequisitionNo
+                                     ,
+
                                       Unit = _unitMasterRepository.GetAsQueryable()
                                                .Where(x => x.UnitMasterUnitId == g.Key.PurchaseRequisitionDetailsUnitId)
                                                .Select(x => x.UnitMasterUnitFullName.Trim())
@@ -1256,6 +1240,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         DelQty = receivedQty,
                         PRSupplierId = x.PRSupplierId,
                         PRCurrId = x.PRCurrId,
+                       
+                        PRNO = x.PRNO
 
                     };
                 }).OrderBy(x => x.Date).ThenBy(x => x.SRNo).ToList();
@@ -1275,5 +1261,50 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 return Response<List<PurChaseReqFields>>.Fail(new List<PurChaseReqFields>(), ex.Message);
             }
         }
+        public ResponseInfo GetAllPReq()
+        {
+            var obj = new ResponseInfo();
+
+            try
+            {
+                var data =
+                    from pr in _purchaseRequisitionRepository
+                        .GetAsQueryable()
+                        .AsNoTracking()
+                    where pr.PurchaseRequisitionDelStatus != true 
+
+                    join prd in _purchaseRequisitionDetailsRepository
+                        .GetAsQueryable()
+                        .AsNoTracking()
+                        on pr.PurchaseRequisitionId equals prd.PurchaseRequisitionId
+                        into prDetails
+                    join svd in _salesVocuherDetailsRepository
+                        .GetAsQueryable()
+                        .AsNoTracking()
+                        on pr.PurchaseRequisitionId equals svd.PurchaseRequisitionId
+                        into salesDetails
+
+                    let PRQty = prDetails.Sum(x => (decimal?)x.PurchaseRequisitionDetailsQuantity) ?? 0
+                    let recQty = salesDetails.Sum(x => (decimal?)x.SalesVoucherDetailsQuantity) ?? 0
+
+                    where PRQty > recQty
+                    select new
+                    {
+                        pr.PurchaseRequisitionId,
+                        
+                        pr.PurchaseRequisitionNo
+                    };
+
+                obj.ResultSet = data.ToList();
+                obj.IsSuccess = true;
+            }
+            catch (Exception)
+            {
+                obj.IsSuccess = false;
+            }
+
+            return obj;
+        }
+
     }
 }

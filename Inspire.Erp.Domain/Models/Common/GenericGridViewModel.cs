@@ -190,7 +190,8 @@ namespace Inspire.Erp.Domain.Modals.Common
         public string purchaseRequisitionType { get; set; }
 
         public decimal? PRSupplierId { get; set; }
-
+       
+        public string PRNO { get; set; }
         public decimal? PRCurrId { get; set; }
         public string Item_Name { get; set; }
         public string Unit { get; set; }
