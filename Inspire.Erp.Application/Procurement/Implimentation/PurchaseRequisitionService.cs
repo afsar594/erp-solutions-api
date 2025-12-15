@@ -1183,16 +1183,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
 
                 List<PurChaseReqFields> finalData;
-                //if (settingValue != InspireConstants.ApprovalAsNoApproval)
-                //{
-                //    hasApproval = _approverLevelSettings.GetAsQueryable()
-                //                     .AsNoTracking()
-                //                     .Any(a => a.FormType == EnumOrderForms.PurchaseRequisition);
-                //}
-
-
-
-
                 var data = await (from sm in query
                                   join sd in _purchaseRequisitionDetailsRepository.GetAsQueryable().AsNoTracking() on sm.PurchaseRequisitionId equals sd.PurchaseRequisitionId
                                   join im in _itemMasterRepository.GetAsQueryable().AsNoTracking() on sd.PurchaseRequisitionDetailsMatId equals im.ItemMasterItemId
@@ -1275,5 +1265,50 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 return Response<List<PurChaseReqFields>>.Fail(new List<PurChaseReqFields>(), ex.Message);
             }
         }
+        public ResponseInfo GetAllPReq()
+        {
+            var obj = new ResponseInfo();
+
+            try
+            {
+                var data =
+                    from pr in _purchaseRequisitionRepository
+                        .GetAsQueryable()
+                        .AsNoTracking()
+                    where pr.PurchaseRequisitionDelStatus != true 
+
+                    join prd in _purchaseRequisitionDetailsRepository
+                        .GetAsQueryable()
+                        .AsNoTracking()
+                        on pr.PurchaseRequisitionId equals prd.PurchaseRequisitionId
+                        into prDetails
+                    join svd in _salesVocuherDetailsRepository
+                        .GetAsQueryable()
+                        .AsNoTracking()
+                        on pr.PurchaseRequisitionId equals svd.PurchaseRequisitionId
+                        into salesDetails
+
+                    let PRQty = prDetails.Sum(x => (decimal?)x.PurchaseRequisitionDetailsQuantity) ?? 0
+                    let recQty = salesDetails.Sum(x => (decimal?)x.SalesVoucherDetailsQuantity) ?? 0
+
+                    where PRQty > recQty
+                    select new
+                    {
+                        pr.PurchaseRequisitionId,
+                        
+                        pr.PurchaseRequisitionNo
+                    };
+
+                obj.ResultSet = data.ToList();
+                obj.IsSuccess = true;
+            }
+            catch (Exception)
+            {
+                obj.IsSuccess = false;
+            }
+
+            return obj;
+        }
+
     }
 }

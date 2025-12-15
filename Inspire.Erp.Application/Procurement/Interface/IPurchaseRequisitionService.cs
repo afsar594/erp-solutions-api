@@ -14,16 +14,7 @@ namespace Inspire.Erp.Application.Procurement.Interfaces
     {
 
         
-        ////     public IEnumerable<ReportPurchaseRequisition> PurchaseRequisition_GetReportPurchaseRequisition();
-        ////public IEnumerable<ItemMaster> PurchaseRequisition_GetAllItemMaster();
-        ////public IEnumerable<UnitMaster> PurchaseRequisition_GetAllUnitMaster();
-
-        ////public IEnumerable<SuppliersMaster> PurchaseRequisition_GetAllSuppliersMaster();
-        ////public IEnumerable<LocationMaster> PurchaseRequisition_GetAllLocationMaster();
-
-        //public PurchaseRequisition InsertPurchaseRequisition(PurchaseRequisition purchaseRequisition,
-        //  List<PurchaseRequisitionDetails> purchaseRequisitionDetails);
-
+      
         public Task<Response<PurchaseRequisitionModel>> InsertPurchaseRequisition(PurchaseRequisition purchaseRequisition, List<AccountsTransactions> accountsTransactions, List<PurchaseRequisitionDetails> purchaseRequisitionDetails
             //, List<StockRegister> stockRegister
             );
@@ -41,6 +32,7 @@ namespace Inspire.Erp.Application.Procurement.Interfaces
         public Task<Response<List<PurChaseRequisitionStatus>>> GetPurchaseRequisitionStatus(PurChaseRequisitionStatusFilterReport filter);
         public Task<Response<List<PurChaseReqFields>>> GetPurchaseReqJobId(PurChaseRequisitionFilterReport filter);
         public ResponseInfo GetBalanceAmount(int jobId);
+        public ResponseInfo GetAllPReq();
         Task<Response<List<PurChaseReqFields>>> GetPurchaseReqSale(PurChaseRequisitionFilterReport model);
         public Boolean IsPurchaseRequisitionQtyExcededFromBOQ(int BoqId,List<PurchaseReqItesm> reqItems);
     }

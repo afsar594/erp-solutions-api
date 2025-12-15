@@ -446,6 +446,16 @@ namespace Inspire.Erp.Web.Controllers
         {
             return Ok(await _purchaseRequisitionService.GetPurchaseReqSale(model));
         }
+        [HttpGet]
+        [Route("GetAllPReq")]
+        public ResponseInfo GetAllPReq()
+        {
+            var obj = new ResponseInfo();
+            obj = _purchaseRequisitionService.GetAllPReq();
+            return obj;
+        }
+
+
     }
 
 }
