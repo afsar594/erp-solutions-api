@@ -1150,23 +1150,14 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
         }
 
-        public async Task<Response<List<PurChaseReqFields>>> GetPurchaseReqSale(PurChaseRequisitionFilterReport model)
+        public async Task<Response<List<PurChaseReqFields>>> GetPurchaseReqSale(int prId)
         {
             try
             {
                 //var settingValue = await _generalSettings.GetValueByKey(InspireConstants.DefaultApprovalType);
 
-                var query = _purchaseRequisitionRepository.GetAsQueryable().AsNoTracking().Where(s => s.PurchaseRequisitionDelStatus != true);
+                var query = _purchaseRequisitionRepository.GetAsQueryable().AsNoTracking().Where(s => s.PurchaseRequisitionDelStatus != true && s.PurchaseRequisitionId == prId);
 
-
-                if (model.JobId > 0)
-                    query = query.Where(a => a.PurchaseRequisitionJobId == model.JobId);
-
-                if (model.locationId > 0)
-                    query = query.Where(a => a.PurchaseRequisitionLocationId == model.locationId);
-
-                if (model.IsDateChecked && model.fromDate.HasValue && model.toDate.HasValue)
-                    query = query.Where(a => a.PurchaseRequisitionDate.Date >= model.fromDate.Value && a.PurchaseRequisitionDate.Date <= model.toDate.Value);
 
                 var purReqIdList = query.Select(x => x.PurchaseRequisitionId).ToList();
 
@@ -1216,6 +1207,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                       jobid = g.Key.PurchaseRequisitionJobId,
                                       PRSupplierId = g.Key.PurchaseRequisitionDetailsSupplierId,
                                       PRCurrId = g.Key.PurchaseRequisitionCurrencyId,
+                                      PRNO= g.Key.PurchaseRequisitionNo
+                                     ,
+
                                       Unit = _unitMasterRepository.GetAsQueryable()
                                                .Where(x => x.UnitMasterUnitId == g.Key.PurchaseRequisitionDetailsUnitId)
                                                .Select(x => x.UnitMasterUnitFullName.Trim())
@@ -1246,6 +1240,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         DelQty = receivedQty,
                         PRSupplierId = x.PRSupplierId,
                         PRCurrId = x.PRCurrId,
+                       
+                        PRNO = x.PRNO
 
                     };
                 }).OrderBy(x => x.Date).ThenBy(x => x.SRNo).ToList();

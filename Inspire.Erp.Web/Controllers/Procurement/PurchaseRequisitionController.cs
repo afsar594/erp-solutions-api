@@ -442,9 +442,9 @@ namespace Inspire.Erp.Web.Controllers
 
         [HttpPost]
         [Route("GetPurchaseReqSales")]
-        public async Task<IActionResult> GetPurchaseReqSales(PurChaseRequisitionFilterReport model)
+        public async Task<IActionResult> GetPurchaseReqSales(int prId)
         {
-            return Ok(await _purchaseRequisitionService.GetPurchaseReqSale(model));
+            return Ok(await _purchaseRequisitionService.GetPurchaseReqSale(prId));
         }
         [HttpGet]
         [Route("GetAllPReq")]
