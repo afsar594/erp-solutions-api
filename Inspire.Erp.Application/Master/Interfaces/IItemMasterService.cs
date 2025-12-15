@@ -1,16 +1,13 @@
-﻿using Inspire.Erp.Domain.Entities;
-using Inspire.Erp.Domain.Modals.Common;
+﻿using Inspire.Erp.Application.Common;
+using Inspire.Erp.Domain.DTO.ItemMaster;
+using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Entities.POS;
 using Inspire.Erp.Domain.Modals;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Domain.Models;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
-using Inspire.Erp.Domain.Entities.POS;
-using System.Linq;
-using System.Transactions;
-using Inspire.Erp.Domain.Models;
-using Inspire.Erp.Domain.DTO.ItemMaster;
-using Inspire.Erp.Application.Common;
 
 namespace Inspire.Erp.Application.Master
 {
@@ -78,7 +75,7 @@ namespace Inspire.Erp.Application.Master
         public Task<PrintData> TransactionDateWise(DateTime fromDate, DateTime toDate, int wpId, int stationId);
 
         public Task<PrintData> ZReport(DateTime fromDate, DateTime toDate, int wpId, int stationId);
-
+        Task<ResponseInfo> GetFilteredItemsPurchase(PagedSearchRequest request);
 
     }
 }

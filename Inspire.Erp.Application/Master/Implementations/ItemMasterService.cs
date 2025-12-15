@@ -5880,7 +5880,7 @@ namespace Inspire.Erp.Application.Master
                             FROM 
                                 Item_Master i
                             INNER JOIN  Unit_Details u ON i.Item_Master_Item_ID = u.Unit_Details_Item_ID	
-                            LEFT JOIN Item_Supplier_Details spd on i.Item_Master_Item_ID = spd.Item_Supplier_Details_Item_ID
+                            --LEFT JOIN Item_Supplier_Details spd on i.Item_Master_Item_ID = spd.Item_Supplier_Details_Item_ID
                             WHERE 
                                 i.Item_Master_Account_No != 0
                                 AND ISNULL(i.Item_Master_DelStatus, 0) != 1 
@@ -5890,7 +5890,7 @@ namespace Inspire.Erp.Application.Master
                                     OR i.Item_Master_Item_Name LIKE '%' + @SearchTerm + '%'
                                     OR u.Unit_Details_Barcode LIKE '%' + @SearchTerm + '%'
                                 )
-                            AND isnull(spd.Item_Supplier_Details_Supplier_ID,0) = @Supplier
+                            --AND isnull(spd.Item_Supplier_Details_Supplier_ID,0) = @Supplier
                             ORDER BY {sortColumn} {sortDirection}
                             OFFSET (@Offset) ROWS FETCH NEXT @PageSize ROWS ONLY;
                             ";
@@ -6002,6 +6002,90 @@ namespace Inspire.Erp.Application.Master
             }
         }
 
+        public async Task<ResponseInfo> GetFilteredItemsPurchase(PagedSearchRequest request)
+        {
+            try
+            {
+                var objectresponse = new ResponseInfo();
+                var allowedSortColumns = new[]
+                   {
+                        "Item_Master_Item_Name",
+                        "Item_Master_Item_ID",
+                        "Unit_Details_Barcode"
+                    };
 
+
+                var sortColumn = allowedSortColumns.Contains(request.SortColumn) ? request.SortColumn : "Item_Master_Item_Name";
+                var sortDirection = request.SortDirection?.ToLower() == "desc" ? "DESC" : "ASC";
+
+
+                var sql = $@"
+                            SELECT COUNT(DISTINCT i.Item_Master_Item_ID)
+                            FROM Item_Master i
+                            INNER JOIN Unit_Details u ON i.Item_Master_Item_ID = u.Unit_Details_Item_ID
+                            WHERE 
+                                i.Item_Master_Account_No != 0
+                                AND ISNULL(i.Item_Master_DelStatus, 0) != 1 
+                                AND i.Item_Master_Item_Type != 'G'
+                                AND (
+                                    @SearchTerm IS NULL OR @SearchTerm = '' 
+                                    OR i.Item_Master_Item_Name LIKE '%' + @SearchTerm + '%'
+                                    OR u.Unit_Details_Barcode LIKE '%' + @SearchTerm + '%'
+                                    OR u.Unit_Details_Barcode LIKE '%' + @SearchTerm + '%'
+                                );
+
+                            SELECT DISTINCT 
+                                i.Item_Master_Item_ID AS ItemMasterItemId,
+                                i.Item_Master_Item_Name AS ItemMasterItemName,
+                                i.Item_Master_Vender_ID AS ItemMasterVenderId,
+                                i.Item_Master_Item_Size AS ItemMasterItemSize,
+                                ISNULL(u.Unit_Details_Barcode, '') AS ItemMasterBarcode
+                            FROM 
+                                Item_Master i
+                            INNER JOIN  Unit_Details u ON i.Item_Master_Item_ID = u.Unit_Details_Item_ID	
+                            LEFT JOIN Item_Supplier_Details spd on i.Item_Master_Item_ID = spd.Item_Supplier_Details_Item_ID
+                            WHERE 
+                                i.Item_Master_Account_No != 0
+                                AND ISNULL(i.Item_Master_DelStatus, 0) != 1 
+                                AND i.Item_Master_Item_Type != 'G'
+                                AND (
+                                    @SearchTerm IS NULL OR @SearchTerm = '' 
+                                    OR i.Item_Master_Item_Name LIKE '%' + @SearchTerm + '%'
+                                    OR u.Unit_Details_Barcode LIKE '%' + @SearchTerm + '%'
+                                )
+                            AND isnull(spd.Item_Supplier_Details_Supplier_ID,0) = @Supplier
+                            ORDER BY {sortColumn} {sortDirection}
+                            OFFSET (@Offset) ROWS FETCH NEXT @PageSize ROWS ONLY;
+                            ";
+
+                var parameters = new
+                {
+                    SearchTerm = request.SearchTerm,
+                    PageSize = request.PageSize,
+                    Supplier = request.Supplier ?? 0,
+                    Offset = (request.PageNumber - 1) * request.PageSize
+                };
+
+                using var multi = await _dbConnection.QueryMultipleAsync(sql, parameters);
+
+                var totalCount = await multi.ReadFirstAsync<int>();
+                var filteredItems = await multi.ReadAsync<ItemMasterDto>();
+
+                objectresponse.ResultSet = new
+                {
+                    itemMaster = filteredItems
+                };
+
+                objectresponse.IsSuccess = true;
+                objectresponse.TotalCount = totalCount;
+
+                return objectresponse;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
     }
 }

@@ -786,6 +786,10 @@ namespace Inspire.Erp.Web.Controllers
         {
             return Ok(await itemMasterService.GetLastItemThreePrices(itemIds));
         }
-
+        [HttpPost("GetFilteredItemsPurchase")]
+        public async Task<IActionResult> GetFilteredItemsPurchase([FromBody] PagedSearchRequest request)
+        {
+            return Ok(await itemMasterService.GetFilteredItemsPurchase(request));
+        }
     }
 }

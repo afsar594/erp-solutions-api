@@ -59,6 +59,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private IRepository<BillOfQTyDetails> _BillOfQTyDetailsRepository;
         private IRepository<TrackingRegister> _trackingRegisterRepository;
         private IRepository<ItemMaster> _itemMasterRepository;
+        private IRepository<SalesVoucherDetails> _salesVocuherDetailsRepository;
         private IRepository<UnitMaster> _unitMasterRepository;
         private IRepository<SuppliersMaster> _suppliersMasterRepository;
         private IRepository<LocationMaster> _locationMasterRepository;
@@ -69,7 +70,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private ApplicationSettings applicationSettings;
         DownloadAndSaveVoucherReport downloadAndSaveVoucherReport;
         private readonly ICurrentUserService _currentUserService;
-        public PurchaseRequisitionService(IRepository<ItemMaster> itemMasterRepository, IRepository<UnitMaster> unitMasterRepository,
+        public PurchaseRequisitionService(IRepository<ItemMaster> itemMasterRepository, IRepository<UnitMaster> unitMasterRepository, IRepository<SalesVoucherDetails> salesVocuherDetailsRepository,
             IRepository<SuppliersMaster> suppliersMasterRepository, IConfiguration config, IDocsAttachmentService docsAttachmentService,
             IRepository<LocationMaster> _locationrepository, IRepository<LocationMaster> locationMasterRepository,
             IRepository<PermissionApproval> permissionApprovalRepo, IRepository<Approval> approvalRepo, IRepository<ApprovalDetail> approvalDetailRepo,
@@ -92,6 +93,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _approverLevelSettings = approverLevelSettings;
             _orderApprovalHierarchy = orderApprovalHierarchy;
             _jobMasterJobDetailsRepo = jobMasterJobDetailsRepo;
+            _salesVocuherDetailsRepository = salesVocuherDetailsRepository;
             _generalSettings = generalSettings;
             downloadAndSaveVoucherReport = new DownloadAndSaveVoucherReport(docsAttachmentService);
             _jobMasterControls = jobMasterControls;
@@ -1148,6 +1150,130 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
         }
 
+        public async Task<Response<List<PurChaseReqFields>>> GetPurchaseReqSale(PurChaseRequisitionFilterReport model)
+        {
+            try
+            {
+                //var settingValue = await _generalSettings.GetValueByKey(InspireConstants.DefaultApprovalType);
 
+                var query = _purchaseRequisitionRepository.GetAsQueryable().AsNoTracking().Where(s => s.PurchaseRequisitionDelStatus != true);
+
+
+                if (model.JobId > 0)
+                    query = query.Where(a => a.PurchaseRequisitionJobId == model.JobId);
+
+                if (model.locationId > 0)
+                    query = query.Where(a => a.PurchaseRequisitionLocationId == model.locationId);
+
+                if (model.IsDateChecked && model.fromDate.HasValue && model.toDate.HasValue)
+                    query = query.Where(a => a.PurchaseRequisitionDate.Date >= model.fromDate.Value && a.PurchaseRequisitionDate.Date <= model.toDate.Value);
+
+                var purReqIdList = query.Select(x => x.PurchaseRequisitionId).ToList();
+
+                var salesQuantities = _salesVocuherDetailsRepository.GetAsQueryable()
+                    .Where(x => purReqIdList.Contains(x.PurchaseRequisitionId))
+                    .AsNoTracking()
+                    .GroupBy(p => new { p.PurchaseRequisitionId, p.SalesVoucherDetailsMatId })
+                    .Select(g => new
+                    {
+                        g.Key.PurchaseRequisitionId,
+                        g.Key.SalesVoucherDetailsMatId,
+                        RecQty = g.Sum(x => x.SalesVoucherDetailsQuantity)
+                    }).ToList();
+
+
+                List<PurChaseReqFields> finalData;
+                //if (settingValue != InspireConstants.ApprovalAsNoApproval)
+                //{
+                //    hasApproval = _approverLevelSettings.GetAsQueryable()
+                //                     .AsNoTracking()
+                //                     .Any(a => a.FormType == EnumOrderForms.PurchaseRequisition);
+                //}
+
+
+
+
+                var data = await (from sm in query
+                                  join sd in _purchaseRequisitionDetailsRepository.GetAsQueryable().AsNoTracking() on sm.PurchaseRequisitionId equals sd.PurchaseRequisitionId
+                                  join im in _itemMasterRepository.GetAsQueryable().AsNoTracking() on sd.PurchaseRequisitionDetailsMatId equals im.ItemMasterItemId
+                                  // where orderIdsApprovedByAll.Contains((decimal)sm.PurchaseRequisitionId)
+                                  group new { sm, sd, im } by new
+                                  {
+                                      sd.PurchaseRequisitionDetailsId,
+                                      sd.PurchaseRequisitionDetailsMatId,
+                                      im.ItemMasterItemName,
+                                      sm.PurchaseRequisitionId,
+                                      sm.PurchaseRequisitionNo,
+                                      sm.PurchaseRequisitionDate,
+                                      sd.PurchaseRequisitionDetailsRate,
+                                      sd.PurchaseRequisitionDetailsQuantity,
+                                      sd.PurchaseRequisitionDetailsUnitId,
+                                      sm.PurchaseRequisitionJobId,
+                                      sd.PurchaseRequisitionDetailsSupplierId,
+                                      sm.PurchaseRequisitionCurrencyId,
+                                  } into g
+                                  select new PurChaseReqFields
+                                  {
+                                      matId = (int)g.Key.PurchaseRequisitionDetailsMatId,
+                                      Item_Name = g.Key.ItemMasterItemName,
+                                      SRID = (int)g.Key.PurchaseRequisitionId,
+                                      SRDID = (int)g.Key.PurchaseRequisitionDetailsId,
+                                      SRNo = g.Key.PurchaseRequisitionNo,
+                                      Date = g.Key.PurchaseRequisitionDate,
+                                      Rate = g.Key.PurchaseRequisitionDetailsRate,
+                                      SRQ = (int)g.Key.PurchaseRequisitionDetailsQuantity,
+                                      unitid = g.Key.PurchaseRequisitionDetailsUnitId,
+                                      jobid = g.Key.PurchaseRequisitionJobId,
+                                      PRSupplierId = g.Key.PurchaseRequisitionDetailsSupplierId,
+                                      PRCurrId = g.Key.PurchaseRequisitionCurrencyId,
+                                      Unit = _unitMasterRepository.GetAsQueryable()
+                                               .Where(x => x.UnitMasterUnitId == g.Key.PurchaseRequisitionDetailsUnitId)
+                                               .Select(x => x.UnitMasterUnitFullName.Trim())
+                                               .FirstOrDefault()
+                                  })
+                    .OrderBy(x => x.Date)
+                    .ThenBy(x => x.SRNo)
+                    .ToListAsync();
+
+                finalData = data.Select(x =>
+                {
+                    var receivedQty = salesQuantities.FirstOrDefault(pr => pr.PurchaseRequisitionId == x.SRID && pr.SalesVoucherDetailsMatId == x.matId)?.RecQty ?? 0;
+
+                    return new PurChaseReqFields
+                    {
+                        matId = x.matId,
+                        Item_Name = x.Item_Name,
+                        SRID = x.SRID,
+                        SRDID = x.SRDID,
+                        SRNo = x.SRNo,
+                        Date = x.Date,
+                        Rate = x.Rate,
+                        SRQ = x.SRQ,
+                        unitid = x.unitid,
+                        jobid = x.jobid,
+                        Unit = x.Unit,
+                        BalQty = x.SRQ - receivedQty,
+                        DelQty = receivedQty,
+                        PRSupplierId = x.PRSupplierId,
+                        PRCurrId = x.PRCurrId,
+
+                    };
+                }).OrderBy(x => x.Date).ThenBy(x => x.SRNo).ToList();
+
+
+                finalData = finalData.Where(a => a.BalQty > 0).ToList();
+
+                return new Response<List<PurChaseReqFields>>
+                {
+                    Valid = true,
+                    Message = "Data Found",
+                    Result = finalData
+                };
+            }
+            catch (Exception ex)
+            {
+                return Response<List<PurChaseReqFields>>.Fail(new List<PurChaseReqFields>(), ex.Message);
+            }
+        }
     }
 }

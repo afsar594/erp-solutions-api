@@ -41,7 +41,7 @@ namespace Inspire.Erp.Application.Procurement.Interfaces
         public Task<Response<List<PurChaseRequisitionStatus>>> GetPurchaseRequisitionStatus(PurChaseRequisitionStatusFilterReport filter);
         public Task<Response<List<PurChaseReqFields>>> GetPurchaseReqJobId(PurChaseRequisitionFilterReport filter);
         public ResponseInfo GetBalanceAmount(int jobId);
-
+        Task<Response<List<PurChaseReqFields>>> GetPurchaseReqSale(PurChaseRequisitionFilterReport model);
         public Boolean IsPurchaseRequisitionQtyExcededFromBOQ(int BoqId,List<PurchaseReqItesm> reqItems);
     }
 }

@@ -399,9 +399,6 @@ namespace Inspire.Erp.Web.Controllers
                 Valid = true,
                 Result = true,
                 Message = PurchaseRequisitionMessage.VoucherNumberExist
-
-
-
             };
             var x = _purchaseRequisitionService.GetVouchersNumbers(id);
             if (x == null)
@@ -441,6 +438,13 @@ namespace Inspire.Erp.Web.Controllers
             var obj = new ResponseInfo();
             obj = _purchaseRequisitionService.GetBalanceAmount(jobId);
             return obj;
+        }
+
+        [HttpPost]
+        [Route("GetPurchaseReqSales")]
+        public async Task<IActionResult> GetPurchaseReqSales(PurChaseRequisitionFilterReport model)
+        {
+            return Ok(await _purchaseRequisitionService.GetPurchaseReqSale(model));
         }
     }
 
