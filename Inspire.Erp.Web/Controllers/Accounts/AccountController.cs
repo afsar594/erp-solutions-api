@@ -89,13 +89,13 @@ namespace Inspire.Erp.Web.Controllers.Accounts
             {
                 _Context.Database.ExecuteSqlRaw(
                     "EXEC sp_InsertAccountTransactions {0}, {1}, {2},{3},{4},{5}",
-                    accountNumber, dateFrom, dateTo,location,costcenterId,jobId
+                    accountNumber, dateFrom, dateTo, location, costcenterId, jobId
                 );
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"SQL Error: {ex.Message}");
-                throw;  
+                throw;
             }
         }
 
@@ -271,7 +271,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         [HttpPost("release-allocations")]
         public async Task<IActionResult> ReleaseAllocations([FromBody] AllocationVoucher model)
         {
-                return Ok(await _voucherAllocation.ReleaseVoucherAllocation(model));
+            return Ok(await _voucherAllocation.ReleaseVoucherAllocation(model));
         }
 
         [HttpPost("GetVoucherAllocationsList")]
@@ -508,8 +508,8 @@ namespace Inspire.Erp.Web.Controllers.Accounts
             {
                 c.SalesManMasterSalesManId,
                 c.SalesManMasterSalesManName,
-            }).OrderBy(o=>o.SalesManMasterSalesManName).AsEnumerable().ToList();
-            
+            }).OrderBy(o => o.SalesManMasterSalesManName).AsEnumerable().ToList();
+
             var customerMasters = _customerMasterRepository.GetAsQueryable().AsNoTracking().Where(k => k.CustomerMasterCustomerDelStatus != true).Select(a => new
             {
                 a.CustomerMasterCustomerNo,
@@ -520,7 +520,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
                 customerMasters = customerMasters,
                 saleManList = saleManList
             };
-           
+
             return objresponse;
         }
 
@@ -530,109 +530,60 @@ namespace Inspire.Erp.Web.Controllers.Accounts
         {
             var objresponse = new ResponseInfo();
 
-            var query = _salesVoucherRepository.GetAsQueryable().AsNoTracking()
-                            .Where(a => a.SalesVoucherDelStatus != true &&
-                                        (model.salemanId == 0 || a.SalesVoucherSalesManID == model.salemanId) &&
-                                        (model.customerId == 0 || a.SalesVoucherPartyId == model.customerId));
+            var rawData = (from sv in _salesVoucherRepository.GetAsQueryable().AsNoTracking()
+                           join svd in _salesVoucherDetailsRepository.GetAsQueryable().AsNoTracking()
+                               on sv.SalesVoucherId equals svd.SalesVoucherId
+                           join cust in _customerMasterRepository.GetAsQueryable().AsNoTracking()
+                               on sv.SalesVoucherPartyId equals cust.CustomerMasterCustomerNo
+                           where sv.SalesVoucherDelStatus != true
+                                 && (model.salemanId == 0 || sv.SalesVoucherSalesManID == model.salemanId)
+                                 && (model.customerId == 0 || sv.SalesVoucherPartyId == model.customerId)
+                                 && (!model.isDate || (sv.SalesVoucherDate.Value.Date >= model.fromdate.Value.Date
+                                                       && sv.SalesVoucherDate.Value.Date <= model.todate.Value.Date))
+                           select new
+                           {
+                               sv.SalesVoucherId,
+                               sv.SalesVoucherNo,
+                               sv.SalesVoucherDate,
+                               sv.SalesVoucherPartyId,
+                               CustomerName = cust.CustomerMasterCustomerName,
+                               SalesAmount = svd.SalesVoucherDetailsNetAmt,
+                               CostPrice = svd.SalesVoucherDetailsCostPrice
+                           }).AsNoTracking().ToList();
 
-            if (model.isDate)
-            {
-                query = query.Where(c => c.SalesVoucherDate.Value.Date >= model.fromdate.Value.Date && c.SalesVoucherDate.Value.Date <= model.todate.Value.Date);
-            }
-
-            //var result = query.OrderBy(x => x.CurrencyMasterCurrencyName).ToList();
-            var result = query.ToList();
-
-            var accountsSettings = _accountsSettingsRepo.GetAsQueryable().AsNoTracking().Where(a => a.AccountSettingsAccountDelStatus != true && (a.AccountSettingsAccountDescription.Contains("Cost Of Finished Goods A/C") || a.AccountSettingsAccountDescription.Contains("Sales Account"))).Select(c => new
-            {
-                c.AccountSettingsAccountId,
-                AccountSettingsAccountDescription = c.AccountSettingsAccountDescription.Trim(),
-                c.AccountSettingsAccountTextValue
-            }).OrderBy(x => x.AccountSettingsAccountTextValue).AsEnumerable().ToList();
-            List<string> ids = new List<string>();
-            string sale = "";
-            string cost = "";
-            if (accountsSettings.Count > 0)
-            {
-                var salesAccountTextValue = accountsSettings.Where(a => a.AccountSettingsAccountDescription.Trim() == "Sales Account").Select(a => a.AccountSettingsAccountTextValue)
-                 .FirstOrDefault();
-
-                var costAccountTextValue = accountsSettings.Where(a => a.AccountSettingsAccountDescription.Trim() == "Cost Of Finished Goods A/C").Select(a => a.AccountSettingsAccountTextValue)
-                 .FirstOrDefault();
-
-
-                if (!string.IsNullOrEmpty(salesAccountTextValue))
+            var result = rawData
+                .GroupBy(x => new
                 {
-                    var parts = salesAccountTextValue.Split(new[] { "::" }, StringSplitOptions.None);
-
-                    if (parts.Length > 1)
-                    {
-                        sale = parts[1].Trim();
-                        ids.Add(parts[1]);
-                    }
-                }
-                if (!string.IsNullOrEmpty(costAccountTextValue))
+                    x.SalesVoucherId,
+                    x.SalesVoucherNo,
+                    x.SalesVoucherDate,
+                    x.SalesVoucherPartyId,
+                    x.CustomerName
+                })
+                .Select(g =>
                 {
-                    var parts = costAccountTextValue.Split(new[] { "::" }, StringSplitOptions.None);
+                    var salesAmount = g.Sum(x => x.SalesAmount);
+                    var costPrice = g.Sum(x => x.CostPrice);
+                    var profit = salesAmount - costPrice;
+                    var profitPercent = salesAmount == 0 ? 0 : (profit * 100) / salesAmount;
 
-                    if (parts.Length > 1)
+                    return new
                     {
-                        cost = parts[1].Trim();
-                        ids.Add(parts[1]);
-                    }
-                }
-            }
-            var acc = _accountTransactionRepository.GetAsQueryable().AsNoTracking()
-                .Where(a => a.AccountstransactionsDelStatus != true
-                            && a.AccountsTransactionsVoucherType == "SalesVoucher")
-                .OrderBy(x => x.AccountsTransactionsAccNo).ToList();
+                        InvoiceId = g.Key.SalesVoucherId,
+                        InvoiceNo = g.Key.SalesVoucherNo,
+                        Date = g.Key.SalesVoucherDate,
+                        CustomerId = g.Key.SalesVoucherPartyId,
+                        CustomerName = g.Key.CustomerName,
+                        SalesAmount = salesAmount,
+                        CostPrice = costPrice,
+                        Profit = profit,
+                        ProfitPercent = Math.Round((double)profitPercent, 2)
+                    };
+                })
+                .OrderBy(x => x.InvoiceNo)
+                .ToList();
 
-            if (model.isDate)
-            {
-                acc = acc.Where(a => a.AccountsTransactionsTransDate.Value.Date >= model.fromdate.Value.Date && a.AccountsTransactionsTransDate.Value.Date <= model.todate.Value.Date).OrderBy(x => x.AccountsTransactionsAccNo).AsEnumerable().ToList();
-            }
-
-            var account = acc.Where(a => ids.Any(id =>
-                            string.Equals(a.AccountsTransactionsAccNo.Trim(), id.Trim(), StringComparison.OrdinalIgnoreCase)))
-                            .OrderBy(x => x.AccountsTransactionsAccNo).ToList();
-
-            var data = from q in result
-                       join s in _salesVoucherDetailsRepository.GetAsQueryable().AsNoTracking()
-                           on q.SalesVoucherId equals s.SalesVoucherId
-                       join m in account
-                           on q.SalesVoucherNo equals m.AccountsTransactionsVoucherNo
-
-                       join im in _itemrepository.GetAsQueryable().AsNoTracking()
-                            on s.SalesVoucherDetailsMatId equals (int)im.ItemMasterItemId
-
-                       group new { s, m } by new
-                       {
-                           q.SalesVoucherNo,
-                           q.SalesVoucherDate,
-                           s.SalesVoucherDetailsQuantity,
-                           im.ItemMasterItemName
-                       } into grouped
-                       let invoiceAmount = grouped.Sum(g => g.m.AccountsTransactionsCredit)
-                       let sum = grouped.Sum(g => (decimal?)g.m.AccountsTransactionsDebit)
-                       let cost1 = (sum == 0 ? 1m : sum)
-                       let profit = invoiceAmount - cost1
-                       let profitPercentage = profit == 0 ? 0 : (profit / cost1) * 100
-                       select new
-                       {
-                           InvoiceNo = grouped.Key.SalesVoucherNo,
-                           Date = grouped.Key.SalesVoucherDate,
-                           Quantity = grouped.Key.SalesVoucherDetailsQuantity,
-                           Item = grouped.Key.ItemMasterItemName,
-                           InvoiceAmount = invoiceAmount,
-                           Cost = cost1,
-                           Profit = profit,
-                           ProfitPercentage = Math.Round((decimal)profitPercentage, 2)
-                       };
-
-            objresponse.ResultSet = new
-            {
-                result = data.OrderBy(x => x.InvoiceNo).ToList()
-            };
+            objresponse.ResultSet = new { result };
             return objresponse;
         }
 
@@ -688,7 +639,7 @@ namespace Inspire.Erp.Web.Controllers.Accounts
             {
                 foreach (var tempStatement in tempStatements)
                 {
-                   await _accountStatService.SaveTempStatement(tempStatement);
+                    await _accountStatService.SaveTempStatement(tempStatement);
                 }
                 return Ok();
             }
@@ -697,6 +648,6 @@ namespace Inspire.Erp.Web.Controllers.Accounts
                 return StatusCode(500, $"An error occurred while retrieving AliAnsariReport: {ex.Message}");
             }
         }
-        
+
     }
 }
