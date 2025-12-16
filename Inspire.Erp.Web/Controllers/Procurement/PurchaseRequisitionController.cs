@@ -448,10 +448,10 @@ namespace Inspire.Erp.Web.Controllers
         }
         [HttpGet]
         [Route("GetAllPReq")]
-        public ResponseInfo GetAllPReq(DateTime fromDate, DateTime toDate)
+        public ResponseInfo GetAllPReq(DateTime fromDate, DateTime toDate, bool isDate)
         {
             var obj = new ResponseInfo();
-            obj = _purchaseRequisitionService.GetAllPReq(fromDate, toDate);
+            obj = _purchaseRequisitionService.GetAllPReq(fromDate, toDate,isDate);
             return obj;
         }
 

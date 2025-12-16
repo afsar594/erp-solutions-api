@@ -1296,7 +1296,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         pr.PurchaseRequisitionDate,
                         pr.PurchaseRequisitionNo
                     };
-                if(!isDate)
+                if (isDate)
                 {
                     data = data.Where(x => x.PurchaseRequisitionDate >= fromDate && x.PurchaseRequisitionDate <= toDate);
                 }
