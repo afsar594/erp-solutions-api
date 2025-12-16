@@ -1261,7 +1261,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 return Response<List<PurChaseReqFields>>.Fail(new List<PurChaseReqFields>(), ex.Message);
             }
         }
-        public ResponseInfo GetAllPReq()
+        public ResponseInfo GetAllPReq(DateTime fromDate, DateTime toDate)
         {
             var obj = new ResponseInfo();
 
@@ -1271,7 +1271,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     from pr in _purchaseRequisitionRepository
                         .GetAsQueryable()
                         .AsNoTracking()
-                    where pr.PurchaseRequisitionDelStatus != true 
+                        where pr.PurchaseRequisitionDelStatus != true
+                        && pr.PurchaseRequisitionDate >= fromDate
+                        && pr.PurchaseRequisitionDate <= toDate
 
                     join prd in _purchaseRequisitionDetailsRepository
                         .GetAsQueryable()
@@ -1304,7 +1306,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             {
                 obj.IsSuccess = false;
             }
-
             return obj;
         }
 
