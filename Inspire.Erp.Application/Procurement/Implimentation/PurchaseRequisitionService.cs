@@ -1291,7 +1291,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     select new
                     {
                         pr.PurchaseRequisitionId,
-                        
+                        loc = locationrepository.GetAsQueryable().Where(x=>x.LocationMasterLocationId == pr.PurchaseRequisitionLocationId).FirstOrDefault().LocationMasterLocationName,
+                       
+                        pr.PurchaseRequisitionDate,
                         pr.PurchaseRequisitionNo
                     };
 
