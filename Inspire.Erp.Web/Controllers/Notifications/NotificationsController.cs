@@ -1,5 +1,7 @@
 ﻿using Inspire.Erp.Application.Common.Dtos;
 using Inspire.Erp.Application.CusNotification;
+using Inspire.Erp.Application.Email.Interfaces;
+using Inspire.Erp.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -10,10 +12,12 @@ namespace Inspire.Erp.Web.Controllers.Notifications
     public class NotificationsController : ControllerBase
     {
         private readonly INotificaionService _notificationService;
+        private readonly IOrderEmailNotificationService _emailNotificationService;
 
-        public NotificationsController(INotificaionService notificationService)
+        public NotificationsController(INotificaionService notificationService, IOrderEmailNotificationService emailNotificationService)
         {
             _notificationService = notificationService;
+            _emailNotificationService = emailNotificationService;
         }
 
         [HttpGet]
@@ -29,6 +33,13 @@ namespace Inspire.Erp.Web.Controllers.Notifications
                 return BadRequest("Id mismatched");
 
             return Ok(await _notificationService.CreateNotificationAsync(notification));
+        }
+
+        [HttpPost]
+        [Route("resend-email")]
+        public async Task<IActionResult> ResendEmail([FromQuery] EnumOrderForms type, [FromQuery] EnumApproverLevels level, [FromQuery] long orderId)
+        {
+            return Ok(await _emailNotificationService.ResendEmailAsync(type, level, orderId));
         }
 
 
