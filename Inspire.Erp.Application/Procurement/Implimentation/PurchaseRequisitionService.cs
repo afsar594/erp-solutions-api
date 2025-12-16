@@ -1267,49 +1267,54 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
             try
             {
-                var data =
-                    from pr in _purchaseRequisitionRepository
-                        .GetAsQueryable()
-                        .AsNoTracking()
-                        where pr.PurchaseRequisitionDelStatus != true
+                var locations = locationrepository.GetAsQueryable()
+                    .AsNoTracking()
+                    .ToDictionary(x => x.LocationMasterLocationId, x => x.LocationMasterLocationName);
 
-                    join prd in _purchaseRequisitionDetailsRepository
-                        .GetAsQueryable()
-                        .AsNoTracking()
-                        on pr.PurchaseRequisitionId equals prd.PurchaseRequisitionId
-                        into prDetails
-                    join svd in _salesVocuherDetailsRepository
-                        .GetAsQueryable()
-                        .AsNoTracking()
-                        on pr.PurchaseRequisitionId equals svd.PurchaseRequisitionId
-                        into salesDetails
+                var preqs = _purchaseRequisitionRepository.GetAsQueryable()
+                    .AsNoTracking()
+                    .Where(pr => pr.PurchaseRequisitionDelStatus != true);
 
-                    let PRQty = prDetails.Sum(x => (decimal?)x.PurchaseRequisitionDetailsQuantity) ?? 0
-                    let recQty = salesDetails.Sum(x => (decimal?)x.SalesVoucherDetailsQuantity) ?? 0
-
-                    where PRQty > recQty
-                    select new
-                    {
-                        pr.PurchaseRequisitionId,
-                        loc = locationrepository.GetAsQueryable().Where(x=>x.LocationMasterLocationId == pr.PurchaseRequisitionLocationId).FirstOrDefault().LocationMasterLocationName,
-                       
-                        pr.PurchaseRequisitionDate,
-                        pr.PurchaseRequisitionNo
-                    };
                 if (isDate)
                 {
-                    data = data.Where(x => x.PurchaseRequisitionDate >= fromDate && x.PurchaseRequisitionDate <= toDate);
+                    preqs = preqs.Where(pr => pr.PurchaseRequisitionDate >= fromDate && pr.PurchaseRequisitionDate <= toDate);
                 }
+                var preqDetails = _purchaseRequisitionDetailsRepository.GetAsQueryable().AsNoTracking();
+                var salesDetails = _salesVocuherDetailsRepository.GetAsQueryable().AsNoTracking();
 
-                obj.ResultSet = data.ToList();
+                var result = preqs
+                    .ToList()
+                    .Select(pr =>
+                    {
+                        var prQty = preqDetails
+                            .Where(d => d.PurchaseRequisitionId == pr.PurchaseRequisitionId)
+                            .Sum(d => (decimal?)d.PurchaseRequisitionDetailsQuantity) ?? 0;
+
+                        var recQty = salesDetails
+                            .Where(d => d.PurchaseRequisitionId == pr.PurchaseRequisitionId)
+                            .Sum(d => (decimal?)d.SalesVoucherDetailsQuantity) ?? 0;
+
+                        return new
+                        {
+                            pr.PurchaseRequisitionId,
+                            loc = locations.TryGetValue(pr.PurchaseRequisitionLocationId, out var name) ? name : "",
+                            pr.PurchaseRequisitionDate,
+                            pr.PurchaseRequisitionNo,
+                            PRQty = prQty,
+                            RecQty = recQty
+                        };
+                    })
+                    .Where(x => x.PRQty > x.RecQty)
+                    .ToList();
+
+                obj.ResultSet = result;
                 obj.IsSuccess = true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 obj.IsSuccess = false;
             }
             return obj;
         }
-
     }
 }
