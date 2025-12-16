@@ -1197,7 +1197,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                   {
                                       matId = (int)g.Key.PurchaseRequisitionDetailsMatId,
                                       Item_Name = g.Key.ItemMasterItemName,
-                                      SRID = (int)g.Key.PurchaseRequisitionId,
+                                      SRID = (int)(int)g.Key.PurchaseRequisitionId,
                                       SRDID = (int)g.Key.PurchaseRequisitionDetailsId,
                                       SRNo = g.Key.PurchaseRequisitionNo,
                                       Date = g.Key.PurchaseRequisitionDate,
@@ -1212,7 +1212,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                                       Unit = _unitMasterRepository.GetAsQueryable()
                                                .Where(x => x.UnitMasterUnitId == g.Key.PurchaseRequisitionDetailsUnitId)
-                                               .Select(x => x.UnitMasterUnitFullName.Trim())
+                                               .Select(x => x.UnitMasterUnitShortName.Trim())
                                                .FirstOrDefault()
                                   })
                     .OrderBy(x => x.Date)
