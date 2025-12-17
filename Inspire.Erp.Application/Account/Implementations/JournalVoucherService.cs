@@ -64,7 +64,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     }
                     return k;
                 }).OrderBy(x => x.AccountsTransactionsVoucherType).AsEnumerable().ToList();
-                _accountTransactionRepository.UpdateList(accountsTransactions);
+                _accountTransactionRepository.InsertListAsync(accountsTransactions);
 
                 _journalVoucherDetailsRepository.InsertList(itemsToAdd);
                
