@@ -430,7 +430,7 @@ namespace Inspire.Erp.Application.Master
 
                 jobMasterData.JobMasterJobDetails = jobdetailsRepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterNo == jbno && x.JobMasterJobDetailsDelStatus == false).ToList();
                 jobMasterData.JobMasterJobWiseBankGuarantees = jobBankGuaruRepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterNo == jbno && x.JobMasterJobWiseBankGuaranteesDelStatus == false).ToList();
-                jobMasterData.AccountsTransactions = accountsTransactionsRepository.GetAsQueryable().AsNoTracking().Where(x => x.AccountsTransactionsJobNo == jobMasterData.JobMasterJobId).ToList();
+                jobMasterData.AccountsTransactions = accountsTransactionsRepository.GetAsQueryable().AsNoTracking().Where(x => x.AccountsTransactionsJobNo == jobMasterData.JobMasterJobId && x.AccountstransactionsDelStatus==false).ToList();
                 jobMasterData.JobStaff = jobstaffrepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterJobId == jobMasterData.JobMasterJobId).ToList();
                 jobMasterData.JobEquipment = jobEquipmentrepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterJobId == jobMasterData.JobMasterJobId).ToList();
                 jobMasterData.JobExcutionDetails = jobexecrepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterJobId == jobMasterData.JobMasterJobId).ToList();
