@@ -301,15 +301,25 @@ namespace Inspire.Erp.Application.Master
 
                 if (existingSuppliers.Any())
                 {
-                    var supplierToDel = existingSuppliers
-                                                                    .Where(x => !itemMasterDto.ItemSupplierDetails.Any(e => e.ItemSupplierDetailsSupplierId == x.ItemSupplierDetailsSupplierId))
+                    var supplierToDel = existingSuppliers.Where(x => !itemMasterDto.ItemSupplierDetails.Any(e => e.ItemSupplierDetailsSupplierId == x.ItemSupplierDetailsSupplierId))
                                                                     .ToList();
                     if (supplierToDel.Any())
                         supplierToDel.ForEach(x => x.ItemSupplierDetailsDelStatus = true);
                     await _itemSupplierDetails.UpdateListAsync(supplierToDel);
                 }
+                var existingUnits = await _unitDetailsRepo
+                                                .GetAsQueryable().AsNoTracking()
+                                                .Where(x => x.UnitDetailsItemId == itemMasterDto.ItemMasterItemId && (x.UnitDetailsDelStatus == false || x.UnitDetailsDelStatus == null))
+                                                .ToListAsync();
 
-
+                if (existingUnits.Any())
+                {
+                    var unitsToDel = existingUnits.Where(x => !itemMasterDto.UnitDetails.Any(e => e.UnitDetailsId == x.UnitDetailsId))
+                                                                    .ToList();
+                    if (unitsToDel.Any())
+                        unitsToDel.ForEach(x => x.UnitDetailsDelStatus = true);
+                    await _unitDetailsRepo.UpdateListAsync(unitsToDel);
+                }
                 await itemrepository.UpdateAsync(itemMasterDto);
                 valid = true;
                 return GetAllItemMasterById((int)itemMasterDto.ItemMasterItemId);
