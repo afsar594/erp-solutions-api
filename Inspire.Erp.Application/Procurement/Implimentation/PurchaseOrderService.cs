@@ -22,13 +22,16 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using PdfSharpCore.Pdf.Annotations;
 using SixLabors.ImageSharp;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Net.WebSockets;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace Inspire.Erp.Application.Procurement.Implementation
 {
@@ -277,6 +280,22 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     }
 
                 }
+                if (_currentUserService.IsAdmin)
+                {
+                    var orderApprovalHierarchies =  _orderApprovalHierarchy.GetAsQueryable()
+                                                        .Where(x => x.OrderId == purchaseOrder.PurchaseOrderId).ToList();
+                    orderApprovalHierarchies.ForEach(x =>
+                    {
+                        x.Status = EnumApprovalStatus.Pending;
+                        x.Remarks = string.Empty;
+                        x.ApprovedBy = null;
+                        x.ApprovedDate = null;
+                    });
+                    _orderApprovalHierarchy.UpdateList(orderApprovalHierarchies);
+                }
+
+
+
                 _purchaseOrderRepository.TransactionCommit();
                 await downloadAndSaveVoucherReport.DownloadedFileAsync(applicationSettings.DownloadFileBaseUrl, "PurchaseOrder", purchaseOrder.PurchaseOrderNo, (int)purchaseOrder.PurchaseOrderId, purchaseOrder.PurchaseOrderNo, true);
             }
@@ -998,7 +1017,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 purchaseOrderModel.purchaseOrder.IsPrintEnabled =
                     isNoApproval || approvalStatuses.All(x => x == EnumApprovalStatus.Approved);
 
-                purchaseOrderModel.purchaseOrder.IsEditEnabled =
+                purchaseOrderModel.purchaseOrder.IsEditEnabled = _currentUserService.IsAdmin ? true :
                     isNoApproval || approvalStatuses.All(x => x == EnumApprovalStatus.Pending);
 
                 return Response<PurchaseOrderModel>.Success(purchaseOrderModel, "Data found");
@@ -2182,6 +2201,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                           }).OrderBy(x => x.ApproverId).ToList()
                                   }).ToList();
 
+                    var voucherid = poData.First().VoucherId;
+                    var voucherno = poData.First().VoucherNo;
+                    await downloadAndSaveVoucherReport.DownloadedFileAsync(applicationSettings.DownloadFileBaseUrl, "PurchaseOrder", voucherno, voucherid, voucherno, true);
+
                     return Response<List<VoucherApprivalDto>>.Success(poData, "Data found");
                 }
                 else if (orderType == EnumOrderForms.PurchaseRequisition)
@@ -2226,6 +2249,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                           }).ToList()
                                   }).ToList();
 
+                    var voucherid = prData.First().VoucherId;
+                    var voucherno = prData.First().VoucherNo;
+                    await downloadAndSaveVoucherReport.DownloadedFileAsync(applicationSettings.DownloadFileBaseUrl, "PurchaseRequisition", voucherno, voucherid, voucherno, true);
+                    
                     return Response<List<VoucherApprivalDto>>.Success(prData, "Data found");
                 }
 

@@ -48,6 +48,10 @@ namespace Inspire.Erp.Domain.Entities
         public string UserDashboard { get; set; }
 
 
+        [JsonIgnore]
+        [ForeignKey("WorkGroupId")]
+        public virtual WorkGroupMaster? WorkGroup { get; set; }
+
         public virtual ICollection<Notification> Notifications { get; set; }
     }
 

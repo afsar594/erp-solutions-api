@@ -14,6 +14,7 @@ namespace Inspire.Erp.Application.User
         string GroupId { get;}
         string DepartmentId { get; }
         long LocationId { get; }
+        bool IsAdmin { get; }
     }
 
 }

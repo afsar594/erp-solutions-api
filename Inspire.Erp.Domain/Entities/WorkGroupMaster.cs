@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Inspire.Erp.Domain.Entities
 {
@@ -19,5 +20,7 @@ namespace Inspire.Erp.Domain.Entities
             WorkGroupPermissions = new HashSet<WorkGroupPermissions>();
 
         }
+        [JsonIgnore]
+        public virtual ICollection<UserFile> UserFiles { get; set; } = new List<UserFile>();
     }
 }

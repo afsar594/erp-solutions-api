@@ -18,6 +18,7 @@ namespace Inspire.Erp.Domain.Models
         public decimal? NetAllocation { get; set; }
         public string Status { get; set; }
         public string RefLocation { get; set; }
+        public string AllocationStatus { get; set; }
         public bool IsDisabled { get; set; }
     }
 }

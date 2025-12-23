@@ -17808,6 +17808,12 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.emailId).HasColumnName("emailId");
                 entity.Property(e => e.SignImg).HasColumnName("signimg");
 
+                entity.HasOne(e => e.WorkGroup)
+                      .WithMany(w => w.UserFiles)
+                      .HasForeignKey(e => e.WorkGroupId)
+                      .HasConstraintName("FK_UserFile_WorkGroup")
+                      .OnDelete(DeleteBehavior.Restrict);
+
             });
 
             modelBuilder.Entity<UserPermission>(entity =>

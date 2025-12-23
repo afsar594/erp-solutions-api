@@ -14,6 +14,8 @@ namespace Inspire.Erp.Application.User
 
         public long LocationId { get; }
 
+        public bool IsAdmin => Role == "Admin";
+
         public CurrentUserService(IHttpContextAccessor accessor)
         {
             var user = accessor.HttpContext?.User;

@@ -38,7 +38,10 @@ namespace Inspire.Erp.Application.Authentication.Implementations
         }
         public UserFile Authenticate(UserFile userData, string ipAddress, int locationId)
         {
-            var user = userFileRepository.GetWithInclude(c => c.UserName == userData.UserName, c => c.ApproverLevelSettings).FirstOrDefault();
+            var user = userFileRepository.GetWithInclude(c => c.UserName == userData.UserName,
+                c => c.ApproverLevelSettings,
+                 w => w.WorkGroup
+                ).FirstOrDefault();
 
             if (user == null)
             {
@@ -76,7 +79,7 @@ namespace Inspire.Erp.Application.Authentication.Implementations
                             user.RefreshToken = refreshToken.Token;
                             user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
                             userFileRepository.Update(user);
-                            user.UserDashboard = wgMasterRepo.GetAsQueryable().Where(i => i.WorkGroupMasterWorkGroupId == user.WorkGroupId).FirstOrDefault().WorkGroupMasterWorkGroupdashboardType;
+                            user.UserDashboard = user.WorkGroup.WorkGroupMasterWorkGroupdashboardType;
 
                         }
                     }
@@ -207,13 +210,14 @@ namespace Inspire.Erp.Application.Authentication.Implementations
 
             // Add all necessary claims
             var claims = new[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                new Claim(ClaimTypes.Name, user.UserName),
-                new Claim("GroupId", user.WorkGroupId.ToString()),
-                new Claim("DepartmentId", user.DepartmentId.ToString()),
-                new Claim("LocationId", locationId.ToString())
-            };
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                    new Claim(ClaimTypes.Name, user.UserName),
+                    new Claim(ClaimTypes.Role, user.WorkGroup?.WorkGroupMasterWorkGroupName ?? "User"),
+                    new Claim("GroupId", user.WorkGroupId?.ToString() ?? "0"),
+                    new Claim("DepartmentId", user.DepartmentId?.ToString() ?? "0"),
+                    new Claim("LocationId", locationId?.ToString() ?? "0")
+                };
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {

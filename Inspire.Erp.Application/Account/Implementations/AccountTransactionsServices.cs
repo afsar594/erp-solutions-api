@@ -110,68 +110,116 @@ namespace Inspire.Erp.Application.Account.Implementations
         {
             try
             {
-                var sql = @$";WITH AllocatedAmount AS (
-                                                SELECT 
-                                                MAX(Allocation_Voucher_Details_SNO) AS AllocationId,
-                                                Allocation_Voucher_Details_VNO,
-                                                SUM(ISNULL(Allocation_Voucher_Details_Alloc_Debit,0)) AS AllocAmount
-                                                FROM Allocation_Voucher_Details
-                                                WHERE Allocation_Voucher_Details_DelStatus = 0
-                                                GROUP BY Allocation_Voucher_Details_VNO
+
+                var sql = @$"SELECT
+                                        avdAgg.AllocationId,
+                                        a.AccountsTransactions_TransSno      AS TransNo,
+                                        'P'                                  AS Status,
+                                        a.AccountsTransactions_TransDate     AS TransDate,
+                                        a.AccountsTransactions_VoucherNo     AS VoucherNo,
+                                        a.AccountsTransactions_VoucherType   AS Type,
+
+
+                                        CASE 
+                                            WHEN a.AccountsTransactions_Debit = 0 
+                                                 AND a.AccountsTransactions_Alloc_Balance > 0 
+                                            THEN a.AccountsTransactions_Alloc_Balance
+                                            ELSE a.AccountsTransactions_Credit
+                                        END AS Credit,
+
+
+                                        CASE 
+                                            WHEN a.AccountsTransactions_Credit = 0  
+                                                 AND a.AccountsTransactions_Alloc_Balance > 0 
+                                            THEN a.AccountsTransactions_Alloc_Balance
+                                            ELSE a.AccountsTransactions_Debit
+                                        END AS Debit,
+
+                                        a.AccountsTransactions_Alloc_Balance AS Balance,
+
+                                         CASE 
+                	             WHEN UPPER(a.AccountsTransactions_VoucherType)  IN ('SALESVOUCHER', 'BANK PAYMENT', 'PAYMENT')
+                		             THEN ISNULL(A.AccountsTransactions_Alloc_Debit,0)
+                	             ELSE ISNULL(A.AccountsTransactions_Alloc_Credit,0)
+                             END  AS AllocAmount,
+
+                                                    CASE 
+                                                        WHEN ISNULL(a.AccountsTransactions_Alloc_Balance,0) > 0.01 
+                                                        THEN 0 ELSE 1 
+                                                    END AS IsDisabled,
+                                                    CASE
+                	            WHEN ISNULL(a.AccountsTransactions_Alloc_Balance,0) = 0 AND ISNULL(a.AccountsTransactions_Alloc_Debit,0) + ISNULL(a.AccountsTransactions_Alloc_Credit,0) > 0 THEN 'FULL'
+                	            WHEN ISNULL(a.AccountsTransactions_Alloc_Debit,0) = 0 AND ISNULL(a.AccountsTransactions_Alloc_Credit,0) = 0 THEN 'PENDING'
+                	            ELSE 'PARTIAL'
+                            END AS AllocationStatus
+
+                                    FROM AccountsTransactions a
+
+                                    LEFT JOIN (
+                                        SELECT
+                                            avd.Allocation_Voucher_Details_TransSno AS TransSno,
+                                            MAX(avd.Allocation_Voucher_Details_SNO) AS AllocationId,
+                                            SUM(ISNULL(avd.Allocation_Voucher_Details_Alloc_Debit,0)) AS AllocAmount
+                                        FROM Allocation_Voucher_Details avd
+                                        WHERE avd.Allocation_Voucher_Details_DelStatus = 0
+                                          AND avd.Allocation_Voucher_Details_VNO = '{refNo}'
+                                        GROUP BY avd.Allocation_Voucher_Details_TransSno
+                                    ) avdAgg
+                                        ON avdAgg.TransSno = a.AccountsTransactions_TransSno
+
+                                    WHERE a.AccountsTransactions_AccNo = '{accNo}'
+
+
+                                    AND (
+                                            UPPER(a.AccountsTransactions_VoucherType) = UPPER('{GetVoucherByType(vType)}')
+                                            OR (
+                                                UPPER(a.AccountsTransactions_VoucherType) = '{vType}'
+                                                AND a.AccountsTransactions_VoucherNo = '{refNo}'
                                             )
-                                            SELECT
-                                                am.AllocationId,
-                                                a.AccountsTransactions_TransSno             AS TransNo,
-                                                'P'                                                                 AS Status,
-                                                a.AccountsTransactions_TransDate            AS TransDate,
-                                                a.AccountsTransactions_VoucherNo          AS VoucherNo,
-                                                a.AccountsTransactions_VoucherType       AS Type,
+                                        )
 
-                                              CASE 
-                                                    WHEN a.AccountsTransactions_Debit = 0 AND  a.AccountsTransactions_Alloc_Balance > 0 THEN 
-                                                         a.AccountsTransactions_Alloc_Balance 
-                                                    ELSE a.AccountsTransactions_Credit
-                                              END AS Credit,
 
-                                              CASE 
-                                                    WHEN a.AccountsTransactions_Credit = 0  AND a.AccountsTransactions_Alloc_Balance > 0 
-                                                    THEN  a.AccountsTransactions_Alloc_Balance
-                                                    ELSE a.AccountsTransactions_Debit
-                                              END AS Debit,
+                                    AND (
 
-                                                a.AccountsTransactions_Alloc_Balance    AS Balance,
-                                                ISNULL(am.AllocAmount,0)                    AS AllocAmount,
-                                                case when ISNULL(a.AccountsTransactions_Alloc_Balance,0) > 0.01 then 0 else 1 end as IsDisabled,
-                                                a.AccountsTransactions_Location             AS RefLocation
-                                            FROM AccountsTransactions a
-                                            LEFT JOIN AllocatedAmount am
-                                              ON am.Allocation_Voucher_Details_VNO = a.AccountsTransactions_VoucherNo
-                                            WHERE  a.AccountsTransactions_AccNo = '{accNo}'
-                                              AND (
-                                                    upper(a.AccountsTransactions_VoucherType) = upper('{GetVoucherByType(vType)}') 
-                                                 OR (upper(a.AccountsTransactions_VoucherType) = upper('{vType}')
-                                                     AND a.AccountsTransactions_VoucherNo = '{refNo}')
-                                              )
-                                            ORDER BY a.AccountsTransactions_TransDate;";
+                                            (
+                                                UPPER(a.AccountsTransactions_VoucherType) = UPPER('{vType}')
+                                                AND a.AccountsTransactions_VoucherNo = '{refNo}'
+                                            )
 
+                                            OR
+
+                                            (
+                                                UPPER(a.AccountsTransactions_VoucherType) = UPPER('{GetVoucherByType(vType)}')
+                                                AND
+                                                (
+
+                                                    EXISTS (
+                                                        SELECT 1
+                                                        FROM Allocation_Voucher_Details avdC
+                                                        WHERE avdC.Allocation_Voucher_Details_DelStatus = 0
+                                                          --AND avdC.Allocation_Voucher_Details_TransSno = a.AccountsTransactions_TransSno
+                                                          AND avdC.Allocation_Voucher_Details_VNO = '{refNo}'
+                                                    )
+
+                                                    OR
+
+                                                    NOT EXISTS (
+                                                        SELECT 1
+                                                        FROM Allocation_Voucher_Details avdX
+                                                        WHERE avdX.Allocation_Voucher_Details_DelStatus = 0
+                                                          AND avdX.Allocation_Voucher_Details_TransSno = a.AccountsTransactions_TransSno
+                                                          AND avdX.Allocation_Voucher_Details_VNO <> '{refNo}'
+                                                        GROUP BY avdX.Allocation_Voucher_Details_TransSno
+                                                        HAVING SUM(ISNULL(avdX.Allocation_Voucher_Details_Alloc_Debit,0))
+                                                               >= ISNULL(a.AccountsTransactions_Debit,0)
+                                                    )
+                                                )
+                                            )
+                                        )
+
+                                    ORDER BY a.AccountsTransactions_TransDate;
+                                    ";
                 var transValues = (await _dbConnection.QueryAsync<AllocationDetails>(sql)).ToList();
-
-                var groups = transValues
-                            .Where(x => x.AllocationId != null)
-                            .GroupBy(x => x.AllocationId)
-                            .Where(g => g.Count() > 1)
-                            .SelectMany(g => g)
-                            .ToList();
-
-                var nullAllocations = transValues
-                    .Where(x => x.AllocationId == null)
-                    .ToList();
-
-                var finalList = nullAllocations.Concat(groups).ToList();
-
-
-
-
                 return ApiResponse<List<AllocationDetails>>.Success(transValues, "Data Found");
             }
             catch (Exception ex)
@@ -195,7 +243,7 @@ namespace Inspire.Erp.Application.Account.Implementations
                     return "SalesVoucher";
 
                 default:
-                    return vType; 
+                    return vType;
             }
         }
 
