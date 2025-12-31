@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
 using System.Security.Claims;
 using System.Text.Json;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Inspire.Erp.NotificationBus
 {
@@ -61,18 +62,22 @@ namespace Inspire.Erp.NotificationBus
             await _hub.Clients.Client(user).SendAsync("ReceiveClient", user, client);
         }
 
-        public async Task SendApprovalNotification(string userConnectionId, object obj)
+        public async Task SendApprovalNotification(object obj, long? userConnectionId = null)
         {
             try
             {
                 string json = JsonSerializer.Serialize(obj);
-                await _hub.Clients.Client(GetConnectionIdByUserId(userConnectionId)).SendAsync("ReceiveNotification", json);
+                if (userConnectionId.HasValue)
+                    await _hub.Clients.Client(GetConnectionIdByUserId(userConnectionId.Value.ToString())).SendAsync("ReceiveNotification", json);
+                else
+                    await _hub.Clients.All.SendAsync("ReceiveNotification", JsonSerializer.Serialize(obj));
             }
             catch (Exception)
             {
             }
 
         }
+
 
         public static string GetConnectionIdByUserId(string userId)
         {

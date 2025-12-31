@@ -1,13 +1,16 @@
 ﻿using AutoMapper;
 using Dapper;
 using Inspire.Erp.Application.Common.Dtos;
+using Inspire.Erp.Application.Email.Implementations;
 using Inspire.Erp.Application.User;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Models;
 using Inspire.Erp.Infrastructure;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Inspire.Erp.NotificationBus;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -25,11 +28,16 @@ namespace Inspire.Erp.Application.CusNotification
         private readonly IRepository<Notification> _repository;
         private readonly ApplicationSettings _appSettings;
         private readonly ICurrentUserService _currentUserService;
-        public NotificaionService(IOptions<ApplicationSettings> applicationSettings, IRepository<Notification> repository, ICurrentUserService currentUserService)
+        private readonly ILogger<NotificaionService> _logger;
+        private readonly INotificationHub _notificationHub;
+        
+        public NotificaionService(IOptions<ApplicationSettings> applicationSettings, IRepository<Notification> repository, ICurrentUserService currentUserService, INotificationHub notificationHub, ILogger<NotificaionService> logger)
         {
             _appSettings = applicationSettings.Value;
             _repository = repository;
             _currentUserService = currentUserService;
+            _notificationHub = notificationHub;
+            _logger = logger;
         }
         public async Task<ApiResponse<bool>> CreateNotificationAsync(NotificationDto dto)
         {
@@ -46,7 +54,7 @@ namespace Inspire.Erp.Application.CusNotification
                         IsRead = dto.IsRead,
                         Message = dto.Message,
                         RouteUrl = dto.RouteUrl,
-                        UserId = dto.UserId
+                        UserId = dto.UserId ?? _currentUserService.UserId,
                     };
 
                     await _repository.InsertAsync(notiToAdd);
@@ -66,7 +74,7 @@ namespace Inspire.Erp.Application.CusNotification
                             IsRead = dto.IsRead,
                             Message = dto.Message,
                             RouteUrl = dto.RouteUrl,
-                            UserId = dto.UserId
+                            UserId = dto.UserId ?? _currentUserService.UserId,
                         };
 
                         await _repository.InsertAsync(notiToAdd);
@@ -77,7 +85,7 @@ namespace Inspire.Erp.Application.CusNotification
                         await _repository.UpdateAsync(notiToUpdate);
                     }
                 }
-
+                await notifyUser(dto);
                 return ApiResponse<bool>.Success(true);
             }
             catch (Exception ex)
@@ -110,6 +118,22 @@ namespace Inspire.Erp.Application.CusNotification
 
                 throw;
             }
+        }
+
+
+        private async Task notifyUser(NotificationDto notification)
+        {
+            try
+            {
+                await _notificationHub.SendApprovalNotification(notification, notification.UserId);
+                _logger.LogInformation("Notification Sent {notificationToAdd}", notification);
+
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
         }
     }
 }

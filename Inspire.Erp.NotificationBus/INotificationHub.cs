@@ -5,7 +5,6 @@
         Task BroadcastToUser(string data, string userId);
         Task SendMessage(string user, string message);
         Task Send(string user, ApiMethod client);
-        Task SendApprovalNotification(string userConnectionId,object obj);
+        Task SendApprovalNotification(object obj, long? userConnectionId = null);
     }
-
 }

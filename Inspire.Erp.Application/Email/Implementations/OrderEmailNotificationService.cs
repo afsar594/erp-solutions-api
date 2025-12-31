@@ -39,7 +39,7 @@ namespace Inspire.Erp.Application.Email.Implementations
         private readonly ICurrentUserService _currentUserService;
         private readonly IDocsAttachmentService _docsAttachmentService;
         private readonly IloginService _loginService;
-        private readonly INotificationHub _notificationHub;
+    
         private readonly INotificaionService _notificaionService;
 
         private IRepository<PurchaseRequisition> _purchaseRequisitionRepository;
@@ -51,7 +51,7 @@ namespace Inspire.Erp.Application.Email.Implementations
             IRepository<OrderApprovalHierarchy> orderApprovalHierarchy,
             IOptions<EmailSettingViewModel> mailSettings,
             ILogger<OrderEmailNotificationService> logger,
-            IRepository<UserFile> userFile, IRepository<ApproverLevelSettings> approverLevelSettings, IRepository<DepartmentMaster> departmentMaster, ICurrentUserService currentUserService, IDocsAttachmentService docsAttachmentService, IloginService loginService, INotificationHub notificationHub, INotificaionService notificaionService, IRepository<PurchaseRequisition> purchaseRequisitionRepository, IRepository<JobMaster> jobrepository, IGeneralSettings generalSettings, IRepository<PurchaseOrder> purchaseOrderRepository)
+            IRepository<UserFile> userFile, IRepository<ApproverLevelSettings> approverLevelSettings, IRepository<DepartmentMaster> departmentMaster, ICurrentUserService currentUserService, IDocsAttachmentService docsAttachmentService, IloginService loginService, INotificaionService notificaionService, IRepository<PurchaseRequisition> purchaseRequisitionRepository, IRepository<JobMaster> jobrepository, IGeneralSettings generalSettings, IRepository<PurchaseOrder> purchaseOrderRepository)
         {
             _userFile = userFile;
             _purchaseOrderRequisitionHelper = new PurchaseOrderRequisitionHelper(userFile, approverLevelSettings);
@@ -63,7 +63,6 @@ namespace Inspire.Erp.Application.Email.Implementations
             _currentUserService = currentUserService;
             _docsAttachmentService = docsAttachmentService;
             _loginService = loginService;
-            _notificationHub = notificationHub;
             _notificaionService = notificaionService;
             _purchaseRequisitionRepository = purchaseRequisitionRepository;
             _jobrepository = jobrepository;
@@ -246,8 +245,6 @@ namespace Inspire.Erp.Application.Email.Implementations
         {
             try
             {
-
-
                 var notificationToAdd = new NotificationDto()
                 {
                     Message = $"{orderType} '{poNumber}' pending approval.",
@@ -258,15 +255,9 @@ namespace Inspire.Erp.Application.Email.Implementations
                 };
                 await _notificaionService.CreateNotificationAsync(notificationToAdd);
                 _logger.LogInformation("notification added {notificationToAdd}", notificationToAdd);
-
-                //if (level == EnumApproverLevels.Level3 || userId == _currentUserService.UserId)
-                //    return;
-                await _notificationHub.SendApprovalNotification(userId.ToString(), notificationToAdd);
-                _logger.LogInformation("Notification Sent {notificationToAdd}", notificationToAdd);
             }
             catch (Exception ex)
             {
-
                 throw;
             }
 

@@ -12,6 +12,6 @@ namespace Inspire.Erp.Application.Common.Dtos
         public string Message { get; set; }
         public string RouteUrl { get; set; }
         public bool IsRead { get; set; }
-        public long UserId { get; set; }
+        public long? UserId { get; set; }
     }
 }

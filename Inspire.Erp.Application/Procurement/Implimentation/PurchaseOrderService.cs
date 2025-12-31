@@ -1,5 +1,7 @@
 ﻿using Inspire.Erp.Application.Account.Implementations;
 using Inspire.Erp.Application.Common;
+using Inspire.Erp.Application.Common.Dtos;
+using Inspire.Erp.Application.CusNotification;
 using Inspire.Erp.Application.Email.Interfaces;
 using Inspire.Erp.Application.General;
 using Inspire.Erp.Application.Helpers;
@@ -16,6 +18,7 @@ using Inspire.Erp.Domain.Models.Approvals;
 using Inspire.Erp.Infrastructure;
 using Inspire.Erp.Infrastructure.Database;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Inspire.Erp.NotificationBus;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Caching.Memory;
@@ -82,6 +85,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         //private readonly IRepository<PaymentRequestDetails> _paymentReqDetailsRepository;
 
 
+        private readonly INotificaionService _notificaionService;
+
         public PurchaseOrderService(
             IConfiguration config,
             IRepository<UserFile> userFileRepository, IRepository<PermissionApproval> permissionApprovalRepo,
@@ -95,7 +100,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PurOrderRegister> purOrderRegisterRepository,
             IRepository<UnitDetails> unitDetailsRepository,
             IRepository<PurchaseVoucherDetails> purchaseVoucherDetailsRepo,
-            IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository, IRepository<Permissionapproval> permissionapproval, IRepository<ApproverLevelSettings> approverLevelSettings, IOrderEmailNotificationService orderEmailNotificationService, IRepository<PurchaseRequisition> purchaseRequisitionRepository, IRepository<OrderApprovalHierarchy> orderApprovalHierarchy, IPurchaseRequisitionService purchaseRequisitionService, IRepository<CustomerQuotation> customerQuotation, IRepository<JobMaster> jobMaster, IGeneralSettings generalSettings, IRepository<GeneralPurchaseOrder> generalPurchaseOrder, ICurrentUserService currentUserService, IGeneralSelectQueries generalSelectQueries, IRepository<DefaultApprover> defaultApproversRepo, IRepository<PaymentRequest> paymentReqRepository)
+            IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository, IRepository<Permissionapproval> permissionapproval, IRepository<ApproverLevelSettings> approverLevelSettings, IOrderEmailNotificationService orderEmailNotificationService, IRepository<PurchaseRequisition> purchaseRequisitionRepository, IRepository<OrderApprovalHierarchy> orderApprovalHierarchy, IPurchaseRequisitionService purchaseRequisitionService, IRepository<CustomerQuotation> customerQuotation, IRepository<JobMaster> jobMaster, IGeneralSettings generalSettings, IRepository<GeneralPurchaseOrder> generalPurchaseOrder, ICurrentUserService currentUserService, IGeneralSelectQueries generalSelectQueries, IRepository<DefaultApprover> defaultApproversRepo, IRepository<PaymentRequest> paymentReqRepository, INotificaionService notificaionService)
         {
             applicationSettings = config.GetSection("ApplicationSettings").Get<ApplicationSettings>();
             this._accountTransactionRepository = accountTransactionRepository;
@@ -136,6 +141,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _purchaseOrderRequisitionHelper = new PurchaseOrderRequisitionHelper(userFileRepository, approverLevelSettings); ;
             _defaultApproversRepo = defaultApproversRepo;
             _paymentReqRepository = paymentReqRepository;
+            _notificaionService = notificaionService;
         }
         public IEnumerable<UserFile> GetAllUserFile()
         {
@@ -603,7 +609,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     }
                 }
                 //await ApprovePurchaseOrderForLowerApprovers()
-
+                await notifyUser( purchaseOrder.PurchaseOrderNo);
                 var res = await this.GetSavedPurchaseOrderDetails((int)purchaseOrder.PurchaseOrderId);
                 return Response<PurchaseOrderModel>.Success(res.Result, "Purchase Order Save Successfully.");
             }
@@ -614,6 +620,27 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             }
         }
 
+        private async Task notifyUser(string poNumber)
+        {
+            try
+            {
+                var notificationToAdd = new NotificationDto()
+                {
+                    Message = $"New Purchase Order with  PO No '{poNumber}' has been generated.",
+                    IsRead = false,
+                    NotificationId = 0,
+                    RouteUrl = $"".Trim(),
+                    UserId = null
+                };
+                await _notificaionService.CreateNotificationAsync(notificationToAdd);
+                _logger.LogInformation("notification added {notificationToAdd}", notificationToAdd);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+        }
 
         public async Task<Response<PurchaseOrderModel>> InsertPurchaseOrder_II(
          PurchaseOrder purchaseOrder,
