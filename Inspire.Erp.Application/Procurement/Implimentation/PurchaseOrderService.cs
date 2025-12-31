@@ -543,7 +543,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     var jobDetail = _jobMaster.GetAsQueryable().Where(x => x.JobMasterJobId == jobId).FirstOrDefault();
                     await _orderEmailNotificationService.SendOrderEmailNotificationAsync(
                                                                                   EnumOrderForms.PurchaseOrder,
-                                                                                  EnumApproverLevels.Level1,
+                                                                                  EnumApproverLevels.None,
                                                                                   "Order",
                                                                                   purchaseOrder.PurchaseOrderNo,
                                                                                   purchaseOrder.PurchaseOrderDate,

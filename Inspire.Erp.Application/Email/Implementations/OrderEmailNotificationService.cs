@@ -11,6 +11,7 @@ using Inspire.Erp.Domain.Constants;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Domain.Models;
+using Inspire.Erp.Domain.Models.Approvals;
 using Inspire.Erp.Domain.Models.Common;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
 using Inspire.Erp.NotificationBus;
@@ -69,143 +70,6 @@ namespace Inspire.Erp.Application.Email.Implementations
             _generalSettings = generalSettings;
             _purchaseOrderRepository = purchaseOrderRepository;
         }
-
-        public async Task SendOrderEmailNotificationAsync_II(
-            EnumOrderForms orderType, EnumApproverLevels level, string subTitle,
-            string poNumber, DateTime date, string supplier, decimal totalAmount,
-            int orderId, int jobId, string jobNo, string jobName, bool IsNewEntery,
-            string requestedBy, string settingValue, List<string> attachments,
-            int approverId = -1, FileResultDto fileResult = null, long originatorId = default)
-        {
-            try
-            {
-                if (settingValue == InspireConstants.ApprovalAsNoApproval)
-                    return;
-
-                _logger.LogInformation("Starting email notification for Order ID: {OrderId}, Level: {Level}", orderId, level);
-
-                var approvers = await _purchaseOrderRequisitionHelper.GetOrderApproverNameAndEmail(orderType, level, jobId);
-                if (approvers == null || !approvers.Any())
-                {
-                    _logger.LogWarning("No approvers found for Order ID: {OrderId}, Level: {Level}, Job Name: {JobName}", orderId, level, jobName);
-                    return;
-                }
-
-                var orderApprovers = approvers
-                    .Select(x => new OrderApprovalHierarchy
-                    {
-                        ApproverId = x.ApproverId,
-                        OrderId = orderId,
-                        Status = EnumApprovalStatus.Pending,
-                        OrderType = orderType,
-                        Remarks = "",
-                        ApproverLevel = x.ApproverLevel,
-                        Sno = x.Sno,
-                        FilePath = string.Join(',', attachments)
-                    })
-                    .ToList();
-
-
-
-                //_orderApprovalHierarchy.BeginTransaction();
-                if (orderApprovers.Any() && IsNewEntery)
-                {
-                    ApplyAutoApprovalByLevel(orderApprovers, level);
-                    _orderApprovalHierarchy.InsertList(orderApprovers);
-                    _logger.LogInformation("Approval hierarchy inserted for Order ID: {OrderId}", orderId);
-                    //_orderApprovalHierarchy.TransactionCommit();
-                }
-
-                if (orderType == EnumOrderForms.GeneralPurchaseOrder)
-                    return;
-
-                long UserId = approverId > -1 ? approverId : Convert.ToInt64(_currentUserService.UserId);
-                var Username = await getOriginatorName(originatorId);
-
-                List<UserEmail> toMails;
-                if (approverId == -1)
-                {
-                    var topApprover = approvers
-                        .Where(x => x.ApproverLevel == EnumApproverLevels.Level1 && x.OptEmail)
-                        .FirstOrDefault();
-
-                    if (topApprover == null)
-                        return;
-
-                    toMails = topApprover.MetaData;
-                }
-                else
-                {
-                    toMails = approvers
-                        .Where(x => x.ApproverLevel == level && x.OptEmail && x.ApproverId == approverId)
-                        .OrderBy(x => x.Sno)
-                        .SelectMany(x => x.MetaData)
-                        .Distinct()
-                        .ToList();
-                }
-
-                if (toMails.Any())
-                {
-                    var allApproverLevels = approvers.Select(x => x.ApproverLevel).Distinct().ToList();
-                    var isLastLevel = level == allApproverLevels.Max();
-                    var actionButtons = new List<object>();
-                    var deptName = GetDepartment(UserId);
-                    var mergedFileResult = new FileResultDto();
-                    if (isLastLevel)
-                    {
-                        string token = _loginService.GenerateAutoLoginToken(UserId);
-                        string approvalRedirectUrl = $"{_mailSettings.MainUrl}purchase-order/approve-email-template?approverLevel={level}&orderId={orderId}&orderType={orderType}&jobId={jobId}&approvalStatus=2&userId={UserId}";
-                        string rejectRedirectUrl = $"{_mailSettings.MainUrl}purchase-order/approve-email-template?approverLevel={level}&orderId={orderId}&orderType={orderType}&jobId={jobId}&approvalStatus=3&userId={UserId}";
-                        actionButtons.Add(new
-                        {
-                            ApproveUrl = $"{_mailSettings.AutoLoginUrl}api/auto-login?token={token}&redirect={Uri.EscapeDataString(approvalRedirectUrl)}",
-                            RejectUrl = $"{_mailSettings.AutoLoginUrl}api/auto-login?token={token}&redirect={Uri.EscapeDataString(rejectRedirectUrl)}"
-                        });
-
-                        mergedFileResult = await _docsAttachmentService.DownloadAllFilesAsOnePdf(orderId, GetOrderTypeKey(orderType));
-                    }
-                    else
-                    {
-                        string approvalUrl = $"{_mailSettings.MainUrl}procurement/po-approval?menu=184&vNo={orderId}&type={orderType}".Trim();
-
-                        actionButtons.Add(new
-                        {
-                            ApproveUrl = $"{_mailSettings.MainUrl}login?returnUrl={Uri.EscapeDataString(approvalUrl)}"
-                        });
-                    }
-
-                    var rptData = toMails.Select(x => new
-                    {
-                        SubTitle = subTitle,
-                        ApproverName = x.Name,
-                        PONumber = poNumber,
-                        Date = date.ToString("MMM dd yyyy"),
-                        JobName = $"{jobName}/{jobNo}",
-                        Supplier = supplier,
-                        TotalAmount = totalAmount,
-                        RequestedBy = Username,
-                        Department = deptName,
-                        ActionButtons = actionButtons,
-                        SupportEmail = _mailSettings.SupportEmail
-                    }).Cast<object>().ToList();
-
-                    string templateId = GetTemplateId(orderType);
-                    await _emailNotificationServices.SendTemplatedEmailAsync(toMails, templateId, rptData, attachments, mergedFileResult);
-
-                    _logger.LogInformation("Email sent to approvers: {Emails}", string.Join(", ", toMails.Select(x => x.Email)));
-                }
-
-                await notifyConcernUser(level, UserId, orderType, poNumber, Username, orderId);
-                _logger.LogInformation("Email notification process completed for Order ID: {OrderId}", orderId);
-            }
-            catch (Exception ex)
-            {
-                //_orderApprovalHierarchy.TransactionRollback();
-                _logger.LogError(ex, "Failed to send email notification for Order ID: {OrderId}, Level: {Level}", orderId, level);
-                throw;
-            }
-        }
-
 
 
 
@@ -304,14 +168,28 @@ namespace Inspire.Erp.Application.Email.Implementations
 
                 // 🔹 Action buttons (approval screen only)
                 var actionButtons = new List<object>();
-
-                string approvalUrl =
-                    $"{_mailSettings.MainUrl}procurement/po-approval?menu=184&vNo={orderId}&type={orderType}";
-
-                actionButtons.Add(new
+                if (level == EnumApproverLevels.Level3)
                 {
-                    ApproveUrl = $"{_mailSettings.MainUrl}login?returnUrl={Uri.EscapeDataString(approvalUrl)}"
-                });
+                    string token = _loginService.GenerateAutoLoginToken(userId);
+                    string approvalRedirectUrl = $"{_mailSettings.MainUrl}purchase-order/approve-email-template?approverLevel={level}&orderId={orderId}&orderType={orderType}&jobId={jobId}&approvalStatus=2&userId={userId}";
+                    string rejectRedirectUrl = $"{_mailSettings.MainUrl}purchase-order/approve-email-template?approverLevel={level}&orderId={orderId}&orderType={orderType}&jobId={jobId}&approvalStatus=3&userId={userId}";
+                    actionButtons.Add(new
+                    {
+                        ApproveUrl = $"{_mailSettings.AutoLoginUrl}api/auto-login?token={token}&redirect={Uri.EscapeDataString(approvalRedirectUrl)}",
+                        RejectUrl = $"{_mailSettings.AutoLoginUrl}api/auto-login?token={token}&redirect={Uri.EscapeDataString(rejectRedirectUrl)}"
+                    });
+
+                    fileResult = await _docsAttachmentService.DownloadAllFilesAsOnePdf(orderId, GetOrderTypeKey(orderType));
+                }
+                else
+                {
+                    string approvalUrl = $"{_mailSettings.MainUrl}procurement/po-approval?menu=184&vNo={orderId}&type={orderType}".Trim();
+
+                    actionButtons.Add(new
+                    {
+                        ApproveUrl = $"{_mailSettings.MainUrl}login?returnUrl={Uri.EscapeDataString(approvalUrl)}"
+                    });
+                }
 
                 var rptData = toMails.Select(x => new
                 {
@@ -566,15 +444,15 @@ namespace Inspire.Erp.Application.Email.Implementations
 
 
 
-        public async Task<ApiResponse<bool>> ResendEmailAsync(EnumOrderForms orderType, EnumApproverLevels level, long orderId, CancellationToken cancellationToken = default)
+        public async Task<ApiResponse<bool>> ResendEmailAsync(EnumOrderForms orderType, EnumApproverLevels level, long orderId, int approverId , CancellationToken cancellationToken = default)
         {
             try
             {
 
                 return orderType switch
                 {
-                    EnumOrderForms.PurchaseOrder => await ResendPurchaseOrderEmail(orderId, level),
-                    EnumOrderForms.PurchaseRequisition => await ResendPurchaseRequisition(orderId, level),
+                    EnumOrderForms.PurchaseOrder => await ResendPurchaseOrderEmail(orderId, level, approverId),
+                    EnumOrderForms.PurchaseRequisition => await ResendPurchaseRequisition(orderId, level, approverId),
                     _ => ApiResponse<bool>.Fail("No order type were found")
                 };
 
@@ -587,7 +465,7 @@ namespace Inspire.Erp.Application.Email.Implementations
         }
 
 
-        private async Task<ApiResponse<bool>> ResendPurchaseRequisition(long orderId, EnumApproverLevels level)
+        private async Task<ApiResponse<bool>> ResendPurchaseRequisition(long orderId, EnumApproverLevels level, int approverId)
         {
             try
             {
@@ -613,7 +491,7 @@ namespace Inspire.Erp.Application.Email.Implementations
                                                       Username,
                                                        settingValue.GeneralSettingValue,
                                                        new List<string> { string.Empty },
-                                                       -1,
+                                                       approverId,
                                                        null,
                                                        (long)purchaseRequisition.PurchaseRequisitionUserId
                                                        );
@@ -626,7 +504,7 @@ namespace Inspire.Erp.Application.Email.Implementations
             }
         }
 
-        private async Task<ApiResponse<bool>> ResendPurchaseOrderEmail(long orderId, EnumApproverLevels level)
+        private async Task<ApiResponse<bool>> ResendPurchaseOrderEmail(long orderId, EnumApproverLevels level, int approverId )
         {
             try
             {
@@ -650,7 +528,7 @@ namespace Inspire.Erp.Application.Email.Implementations
                                                       false,
                                                       _currentUserService.Username ?? "",
                                                       settingValue.GeneralSettingValue,
-                                                      new List<string>() { string.Empty }, -1,
+                                                      new List<string>() { string.Empty }, approverId,
                                                       null,
                                                       (long)purchaseOrder.PurchaseOrderUserId);
 

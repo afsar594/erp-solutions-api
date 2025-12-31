@@ -37,9 +37,9 @@ namespace Inspire.Erp.Web.Controllers.Notifications
 
         [HttpPost]
         [Route("resend-email")]
-        public async Task<IActionResult> ResendEmail([FromQuery] EnumOrderForms type, [FromQuery] EnumApproverLevels level, [FromQuery] long orderId)
+        public async Task<IActionResult> ResendEmail([FromQuery] EnumOrderForms type, [FromQuery] EnumApproverLevels level, [FromQuery] long orderId, [FromQuery] int approverId)
         {
-            return Ok(await _emailNotificationService.ResendEmailAsync(type, level, orderId));
+            return Ok(await _emailNotificationService.ResendEmailAsync(type, level, orderId, approverId));
         }
 
 

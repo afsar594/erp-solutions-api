@@ -17,7 +17,7 @@ namespace Inspire.Erp.Application.Email.Interfaces
         Task SendQuotationEmailNotificationAsync(EnumOrderForms orderType, EnumApproverLevels level, QuotationEmailModel emailModel, bool IsNewEntry = true);
         Task<bool> SendTextEmailAsync(List<UserEmail> toEmails, string subject, string message, List<string> filePaths);
 
-        Task<ApiResponse<bool>> ResendEmailAsync(EnumOrderForms orderType, EnumApproverLevels level, long orderId, CancellationToken cancellationToken = default);
+        Task<ApiResponse<bool>> ResendEmailAsync(EnumOrderForms orderType, EnumApproverLevels level, long orderId,int approverId, CancellationToken cancellationToken = default);
     }
 
 }

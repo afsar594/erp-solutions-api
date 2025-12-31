@@ -27,7 +27,12 @@ namespace Inspire.Erp.Application.Helpers
             try
             {
                 var result = _approverLevelSettings.GetAsQueryable().AsNoTracking()
-                              .Where(x => x.FormType == orderType && x.JobId == jobId)
+                             .Where(x =>
+                                        x.FormType == orderType
+                                        && x.JobId == jobId
+                                        && (approverLevel == EnumApproverLevels.None
+                                            || x.ApproverLevel == approverLevel)
+                                    )
                               .Select(a => new EmailMetaDataDto()
                               {
                                   FormType = a.FormType,
