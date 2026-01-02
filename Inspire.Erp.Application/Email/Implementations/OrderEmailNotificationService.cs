@@ -404,7 +404,7 @@ namespace Inspire.Erp.Application.Email.Implementations
 
         public void ApplyAutoApprovalByLevel(List<OrderApprovalHierarchy> orderApprovers, EnumApproverLevels currentUserLevel)
         {
-            if (orderApprovers == null || !orderApprovers.Any())
+            if (orderApprovers == null || currentUserLevel == EnumApproverLevels.None || !orderApprovers.Any())
                 return;
 
             var userId = _currentUserService.UserId;

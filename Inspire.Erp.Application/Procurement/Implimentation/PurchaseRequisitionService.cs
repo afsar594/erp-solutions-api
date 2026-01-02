@@ -483,7 +483,6 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         }
                     }
                 }
-                _purchaseRequisitionRepository.TransactionCommit();
                 var filePath = await downloadAndSaveVoucherReport.DownloadedFileAsync(applicationSettings.DownloadFileBaseUrl, "PurchaseRequisition", purchaseRequisition.PurchaseRequisitionId.ToString(), (int)purchaseRequisition.PurchaseRequisitionId, purchaseRequisition.PurchaseRequisitionNo);
 
                 #region EmailNotification
@@ -512,6 +511,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                                 );
                 //await SendEmailOnValueExceedsAsync((int)purchaseRequisition.PurchaseRequisitionJobId, purchaseRequisition.PurchaseRequisitionNo);
                 #endregion
+                _purchaseRequisitionRepository.TransactionCommit();
 
 
                 var res = await this.GetSavedPurchaseRequisitionDetails((int)purchaseRequisition.PurchaseRequisitionId);
