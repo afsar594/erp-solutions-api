@@ -451,7 +451,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 purchaseRequisition.PurchaseRequisitionUserId = _currentUserService.UserId;
                 _purchaseRequisitionRepository.Insert(purchaseRequisition);
 
-                
+
                 foreach (var item in purchaseRequisitionDetails)
                 {
                     if (item.PurchaseRequisitionDetailsSupplierId > 0)
@@ -483,6 +483,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         }
                     }
                 }
+
+                _purchaseRequisitionRepository.TransactionCommit();
                 var filePath = await downloadAndSaveVoucherReport.DownloadedFileAsync(applicationSettings.DownloadFileBaseUrl, "PurchaseRequisition", purchaseRequisition.PurchaseRequisitionId.ToString(), (int)purchaseRequisition.PurchaseRequisitionId, purchaseRequisition.PurchaseRequisitionNo);
 
                 #region EmailNotification
@@ -511,7 +513,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                                 );
                 //await SendEmailOnValueExceedsAsync((int)purchaseRequisition.PurchaseRequisitionJobId, purchaseRequisition.PurchaseRequisitionNo);
                 #endregion
-                _purchaseRequisitionRepository.TransactionCommit();
+
 
 
                 var res = await this.GetSavedPurchaseRequisitionDetails((int)purchaseRequisition.PurchaseRequisitionId);
@@ -1041,7 +1043,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         .ToListAsync();
                 }
 
-                finalData = finalData.Where(a => a.BalQty > 0).DistinctBy(x=>x.SRID).ToList();
+                finalData = finalData.Where(a => a.BalQty > 0).DistinctBy(x => x.SRID).ToList();
 
                 return new Response<List<PurChaseReqFields>>
                 {
@@ -1207,7 +1209,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                       jobid = g.Key.PurchaseRequisitionJobId,
                                       PRSupplierId = g.Key.PurchaseRequisitionDetailsSupplierId,
                                       PRCurrId = g.Key.PurchaseRequisitionCurrencyId,
-                                      PRNO= g.Key.PurchaseRequisitionNo
+                                      PRNO = g.Key.PurchaseRequisitionNo
                                      ,
 
                                       Unit = _unitMasterRepository.GetAsQueryable()
@@ -1240,7 +1242,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         DelQty = receivedQty,
                         PRSupplierId = x.PRSupplierId,
                         PRCurrId = x.PRCurrId,
-                       
+
                         PRNO = x.PRNO
 
                     };
