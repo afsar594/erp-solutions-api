@@ -15,6 +15,7 @@ namespace Inspire.Erp.Web.ViewModels.sales
         public string SalesVoucherNo { get; set; }
         public DateTime? SalesVoucherDate { get; set; }
         public string SalesVoucherType { get; set; }
+        public int? SalesVoucherCostCenterId { get; set; }
         public decimal? SalesVoucherPartyId { get; set; }
         public string SalesVoucherPartyName { get; set; }
         public string SalesVoucherPartyAddress { get; set; }

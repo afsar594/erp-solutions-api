@@ -6,10 +6,7 @@ namespace Inspire.Erp.Domain.Entities
 {
     public partial class SalesVoucher
     {
-        // public SalesVoucher()
-        // {
-        //     // SalesVoucherDetails = new HashSet<SalesVoucherDetails>();
-        // }
+       
         public decimal? SalesVoucherId { get; set; }
         public string? SalesVoucherNo { get; set; }
         public DateTime? SalesVoucherDate { get; set; }
@@ -60,6 +57,7 @@ namespace Inspire.Erp.Domain.Entities
         public string? SalesVoucherContent { get; set; }
         public string? SalesVoucherRemarks1 { get; set; }
         public string? SalesVoucherRemarks2 { get; set; }
+        public int? SalesVoucherCostCenterId { get; set; }
         public string? SalesVoucherTermsAndCondition { get; set; }
         public string? SalesVoucherShippinAddress { get; set; }
         public bool? SalesVoucherDelStatus { get; set; }

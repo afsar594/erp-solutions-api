@@ -14959,6 +14959,8 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.SalesVoucherRefNo).HasColumnName("SalesVoucherRefNo");
                 entity.Property(e => e.SalesVoucherContPerson).HasColumnName("SalesVoucherContPerson");
                 entity.Property(e => e.SalesVoucherDlvNo).HasColumnName("SalesVoucherDlvNo");
+                entity.Property(e => e.SalesVoucherCostCenterId).HasColumnName("SalesVoucherCostCenterId");
+
                 entity.Property(e => e.SalesVoucherDlvDate).HasColumnName("SalesVoucherDlvDate");
                 entity.Property(e => e.SalesVoucherSONo).HasColumnName("SalesVoucherSONo");
                 entity.Property(e => e.SalesVoucherSODate).HasColumnName("SalesVoucherSODate");
