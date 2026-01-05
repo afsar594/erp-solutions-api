@@ -39,7 +39,7 @@ namespace Inspire.Erp.Application.Email.Implementations
         private readonly ICurrentUserService _currentUserService;
         private readonly IDocsAttachmentService _docsAttachmentService;
         private readonly IloginService _loginService;
-    
+
         private readonly INotificaionService _notificaionService;
 
         private IRepository<PurchaseRequisition> _purchaseRequisitionRepository;
@@ -127,29 +127,33 @@ namespace Inspire.Erp.Application.Email.Implementations
                     return;
 
                 // 🔹 Find NEXT pending approval level
-                var nextPendingLevel = orderApprovers
-                    .Where(x => x.Status == EnumApprovalStatus.Pending)
-                    .OrderBy(x => x.Sno)
-                    .Select(x => new { level = x.ApproverLevel, Status = x.Status })
-                    .FirstOrDefault();
+                var nextPendingLevel = orderApprovers.Where(x => x.Status == EnumApprovalStatus.Pending && (approverId <= 0 || x.ApproverId == approverId)).OrderBy(x => x.Sno).FirstOrDefault();
 
                 // ❌ No email if all approved OR next level is Level3
-                if (nextPendingLevel == default || (nextPendingLevel.Status == EnumApprovalStatus.Approved && nextPendingLevel.level == EnumApproverLevels.Level3))
+                if (nextPendingLevel == default || (nextPendingLevel.Status == EnumApprovalStatus.Approved && nextPendingLevel.ApproverLevel == EnumApproverLevels.Level3))
                 {
                     _logger.LogInformation("No email sent. Either fully approved or next level is Level3. OrderId: {OrderId}", orderId);
                     return;
                 }
 
                 // 🔹 Get recipients ONLY for next pending level
-                var toMails = approvers
-                    .Where(x =>
-                        x.ApproverLevel == nextPendingLevel.level &&
-                        x.OptEmail)
-                    .OrderBy(x => x.Sno)
-                    .SelectMany(x => x.MetaData)
-                    .Distinct()
-                    .ToList();
+                //var toMails = approvers
+                //    .Where(x =>
+                //        x.ApproverLevel == nextPendingLevel.level &&
+                //        x.OptEmail)
+                //    .OrderBy(x => x.Sno)
+                //    .SelectMany(x => x.MetaData)
+                //    .Distinct()
+                //    .ToList();
 
+                var toMails = approvers
+                             .Where(x =>
+                                 x.ApproverLevel == nextPendingLevel.ApproverLevel &&
+                                 x.OptEmail &&
+                                 (approverId <= 0 || x.ApproverId == approverId))
+                             .SelectMany(x => x.MetaData)
+                             .Distinct()
+                             .ToList();
                 if (!toMails.Any())
                 {
                     _logger.LogWarning(
@@ -219,7 +223,7 @@ namespace Inspire.Erp.Application.Email.Implementations
                     nextPendingLevel, orderId);
 
                 await notifyConcernUser(
-                    nextPendingLevel.level,
+                    nextPendingLevel.ApproverLevel,
                     userId,
                     orderType,
                     poNumber,
@@ -435,7 +439,7 @@ namespace Inspire.Erp.Application.Email.Implementations
 
 
 
-        public async Task<ApiResponse<bool>> ResendEmailAsync(EnumOrderForms orderType, EnumApproverLevels level, long orderId, int approverId , CancellationToken cancellationToken = default)
+        public async Task<ApiResponse<bool>> ResendEmailAsync(EnumOrderForms orderType, EnumApproverLevels level, long orderId, int approverId, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -495,7 +499,7 @@ namespace Inspire.Erp.Application.Email.Implementations
             }
         }
 
-        private async Task<ApiResponse<bool>> ResendPurchaseOrderEmail(long orderId, EnumApproverLevels level, int approverId )
+        private async Task<ApiResponse<bool>> ResendPurchaseOrderEmail(long orderId, EnumApproverLevels level, int approverId)
         {
             try
             {
