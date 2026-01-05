@@ -420,7 +420,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         StockRegisterQuantity = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 0,
                         StockRegisterSIN = 0,
                         StockRegisterSout = item.SalesVoucherDetailsQuantity * (decimal)(converontype) ?? 1,
-                        StockRegisterRate = avgrate,
+                        StockRegisterRate = avgrate / (decimal)(converontype == 0 ? 1 : converontype),
                         StockRegisterAmount = item.SalesVoucherDetailsQuantity * (decimal)(converontype) * avgrate ?? 1,
                         StockRegisterFCAmount = item.SalesVoucherDetailsQuantity * (decimal)(converontype) * avgrate * rate ?? 1,
                         StockRegisterAssignedDate = DateTime.Now.Date,
