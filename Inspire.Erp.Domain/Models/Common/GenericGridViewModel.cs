@@ -214,6 +214,7 @@ namespace Inspire.Erp.Domain.Modals.Common
         public string? PaymentTerms { get; set; }
         public string? DeliveryTerms { get; set; }
         public string? Notes { get; set; }
+        public string? SupplierName { get; set; }
     }
     public class UserTrackFilter
     {

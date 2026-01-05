@@ -972,6 +972,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                 unitid = g.Key.PurchaseRequisitionDetailsUnitId,
                                 jobid = g.Key.PurchaseRequisitionJobId,
                                 PRSupplierId = g.Key.PurchaseRequisitionDetailsSupplierId,
+                                SupplierName = _suppliersMasterRepository.GetAsQueryable().Where(x => x.SuppliersMasterSupplierId == g.Key.PurchaseRequisitionDetailsSupplierId).Select(x => x.SuppliersMasterSupplierName).FirstOrDefault(),
                                 PRCurrId = g.Key.PurchaseRequisitionCurrencyId,
                                 Unit = _unitMasterRepository.GetAsQueryable()
                                     .Where(x => x.UnitMasterUnitId == g.Key.PurchaseRequisitionDetailsUnitId)
