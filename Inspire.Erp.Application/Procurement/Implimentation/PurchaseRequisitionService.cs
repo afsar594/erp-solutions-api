@@ -864,21 +864,20 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 if (model.locationId > 0)
                     query = query.Where(a => a.PurchaseRequisitionLocationId == model.locationId);
 
-                //if (model.IsDateChecked && model.fromDate.HasValue && model.toDate.HasValue)
-                //    query = query.Where(a => a.PurchaseRequisitionDate.Date >= model.fromDate.Value && a.PurchaseRequisitionDate.Date <= model.toDate.Value);
                 if (model.IsDateChecked && model.fromDate.HasValue && model.toDate.HasValue)
                 {
-                    DateTime fromDate = model.fromDate.Value.Date;
-                    DateTime toDate = model.toDate.Value.Date;
-
-                    query = query.Where(a => a.PurchaseRequisitionDate.Date >= fromDate &&
-                                             a.PurchaseRequisitionDate.Date <= toDate);
+                    var fromDate = model.fromDate.Value.Date;
+                    var toDate = model.toDate.Value.Date.AddDays(1);
+                    query = query.Where(a => a.PurchaseRequisitionDate >= fromDate &&
+                                             a.PurchaseRequisitionDate < toDate);
                 }
 
-                var purReqIdList = query.Select(x => x.PurchaseRequisitionId).ToList();
+                var unitCache = _unitMasterRepository.GetAsQueryable()
+                    .AsNoTracking()
+                    .ToDictionary(x => x.UnitMasterUnitId, x => x.UnitMasterUnitFullName.Trim());
 
                 var purOrderQuantities = _purchaseOrderDetailsRepository.GetAsQueryable()
-                    .Where(x => purReqIdList.Contains(x.PurchaseRequisitionId))
+                    .Where(x => query.Select(q => q.PurchaseRequisitionId).Contains(x.PurchaseRequisitionId))
                     .AsNoTracking()
                     .GroupBy(p => new { p.PurchaseRequisitionId, p.PurchaseOrderDetailsMatId })
                     .Select(g => new
@@ -886,7 +885,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         g.Key.PurchaseRequisitionId,
                         g.Key.PurchaseOrderDetailsMatId,
                         RecQty = g.Sum(x => x.PurchaseOrderDetailsQuantity)
-                    }).ToList();
+                    })
+                    .ToList();
 
                 List<PurChaseReqFields> finalData;
                 bool hasApproval = false;
@@ -894,16 +894,17 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 if (settingValue != InspireConstants.ApprovalAsNoApproval)
                 {
                     hasApproval = _approverLevelSettings.GetAsQueryable()
-                                     .AsNoTracking()
-                                     .Any(a => a.FormType == EnumOrderForms.PurchaseRequisition);
+                        .AsNoTracking()
+                        .Any(a => a.FormType == EnumOrderForms.PurchaseRequisition);
                 }
 
                 if (hasApproval)
                 {
-                    var approvedOrderIds = await _orderApprovalHierarchy.GetAsQueryable().AsNoTracking()
-                                                .Where(x => x.OrderType == EnumOrderForms.PurchaseRequisition)
-                                                .Select(x => new { OrderId = x.OrderId, Status = x.Status })
-                                                .ToListAsync();
+                    var approvedOrderIds = await _orderApprovalHierarchy.GetAsQueryable()
+                        .AsNoTracking()
+                        .Where(x => x.OrderType == EnumOrderForms.PurchaseRequisition)
+                        .Select(x => new { x.OrderId, x.Status })
+                        .ToListAsync();
 
                     var orderIdsApprovedByAll = approvedOrderIds
                         .GroupBy(x => x.OrderId)
@@ -917,6 +918,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                             on sm.PurchaseRequisitionId equals sd.PurchaseRequisitionId
                         join im in _itemMasterRepository.GetAsQueryable().AsNoTracking()
                             on sd.PurchaseRequisitionDetailsMatId equals im.ItemMasterItemId
+                        join sup in _suppliersMasterRepository.GetAsQueryable().AsNoTracking()
+                            on sd.PurchaseRequisitionDetailsSupplierId equals sup.SuppliersMasterSupplierId into supGroup
+                        from sup in supGroup.DefaultIfEmpty()
                         where orderIdsApprovedByAll.Contains((decimal)sm.PurchaseRequisitionId)
                         select new
                         {
@@ -931,6 +935,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                             sd.PurchaseRequisitionDetailsUnitId,
                             sm.PurchaseRequisitionJobId,
                             sd.PurchaseRequisitionDetailsSupplierId,
+                            SupplierName = sup.SuppliersMasterSupplierName,
                             sm.PurchaseRequisitionCurrencyId,
                             sm.deliveryatsite,
                             sm.confirmationemaildetails,
@@ -940,64 +945,43 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         }).ToListAsync();
 
                     finalData = rawData
-                        .GroupBy(g => new
+                        .Select(x =>
                         {
-                            g.PurchaseRequisitionDetailsId,
-                            g.PurchaseRequisitionDetailsMatId,
-                            g.ItemMasterItemName,
-                            g.PurchaseRequisitionId,
-                            g.PurchaseRequisitionNo,
-                            g.PurchaseRequisitionDate,
-                            g.PurchaseRequisitionDetailsRate,
-                            g.PurchaseRequisitionDetailsQuantity,
-                            g.PurchaseRequisitionDetailsUnitId,
-                            g.PurchaseRequisitionJobId,
-                            g.PurchaseRequisitionDetailsSupplierId,
-                            g.PurchaseRequisitionCurrencyId
-                        })
-                        .Select(g =>
-                        {
-                            var first = g.First();
+                            var unitName = unitCache.TryGetValue((int)x.PurchaseRequisitionDetailsUnitId, out var u) ? u : "";
+                            var receivedQty = purOrderQuantities
+                                .FirstOrDefault(p => p.PurchaseRequisitionId == x.PurchaseRequisitionId &&
+                                                     p.PurchaseOrderDetailsMatId == x.PurchaseRequisitionDetailsMatId)?.RecQty ?? 0;
 
                             return new PurChaseReqFields
                             {
-                                matId = (int)g.Key.PurchaseRequisitionDetailsMatId,
-                                Item_Name = g.Key.ItemMasterItemName,
-                                SRID = (int)g.Key.PurchaseRequisitionId,
-                                SRDID = (int)g.Key.PurchaseRequisitionDetailsId,
-                                SRNo = g.Key.PurchaseRequisitionNo,
-                                Date = g.Key.PurchaseRequisitionDate,
-                                Rate = g.Key.PurchaseRequisitionDetailsRate,
-                                SRQ = (int)g.Key.PurchaseRequisitionDetailsQuantity,
-                                unitid = g.Key.PurchaseRequisitionDetailsUnitId,
-                                jobid = g.Key.PurchaseRequisitionJobId,
-                                PRSupplierId = g.Key.PurchaseRequisitionDetailsSupplierId,
-                                SupplierName = _suppliersMasterRepository.GetAsQueryable().Where(x => x.SuppliersMasterSupplierId == g.Key.PurchaseRequisitionDetailsSupplierId).Select(x => x.SuppliersMasterSupplierName).FirstOrDefault(),
-                                PRCurrId = g.Key.PurchaseRequisitionCurrencyId,
-                                Unit = _unitMasterRepository.GetAsQueryable()
-                                    .Where(x => x.UnitMasterUnitId == g.Key.PurchaseRequisitionDetailsUnitId)
-                                    .Select(x => x.UnitMasterUnitFullName.Trim())
-                                    .FirstOrDefault(),
-                                DeliverySite = first.deliveryatsite ?? "",
-                                ConfirmationEmailDetails = first.confirmationemaildetails ?? "",
-                                PaymentTerms = first.paymentTerms ?? "",
-                                DeliveryTerms = first.deliveryterms ?? "",
-                                Notes = first.PurchaseRequisitionDescription ?? ""
+                                matId = (int)x.PurchaseRequisitionDetailsMatId,
+                                Item_Name = x.ItemMasterItemName,
+                                SRID = (int)x.PurchaseRequisitionId,
+                                SRDID = (int)x.PurchaseRequisitionDetailsId,
+                                SRNo = x.PurchaseRequisitionNo,
+                                Date = x.PurchaseRequisitionDate,
+                                Rate = x.PurchaseRequisitionDetailsRate,
+                                SRQ = x.PurchaseRequisitionDetailsQuantity,
+                                unitid = x.PurchaseRequisitionDetailsUnitId,
+                                jobid = x.PurchaseRequisitionJobId,
+                                PRSupplierId = x.PurchaseRequisitionDetailsSupplierId,
+                                SupplierName = x.SupplierName ?? "",
+                                PRCurrId = x.PurchaseRequisitionCurrencyId,
+                                Unit = unitName,
+                                DelQty = receivedQty,
+                                BalQty = x.PurchaseRequisitionDetailsQuantity - receivedQty,
+                                DeliverySite = x.deliveryatsite ?? "",
+                                ConfirmationEmailDetails = x.confirmationemaildetails ?? "",
+                                PaymentTerms = x.paymentTerms ?? "",
+                                DeliveryTerms = x.deliveryterms ?? "",
+                                Notes = x.PurchaseRequisitionDescription ?? ""
                             };
                         })
+                        .Where(x => x.BalQty > 0)
+                        .DistinctBy(x => x.SRID)
                         .OrderBy(x => x.Date)
                         .ThenBy(x => x.SRNo)
                         .ToList();
-
-                    finalData = finalData.Select(x =>
-                    {
-                        var receivedQty = purOrderQuantities
-                            .FirstOrDefault(pr => pr.PurchaseRequisitionId == x.SRID && pr.PurchaseOrderDetailsMatId == x.matId)?.RecQty ?? 0;
-
-                        x.BalQty = x.SRQ - receivedQty;
-                        x.DelQty = receivedQty;
-                        return x;
-                    }).ToList();
                 }
                 else
                 {
@@ -1011,6 +995,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         join um in _unitMasterRepository.GetAsQueryable().AsNoTracking()
                             on sd.PurchaseRequisitionDetailsUnitId equals um.UnitMasterUnitId into umGroup
                         from um in umGroup.DefaultIfEmpty()
+                        join sup in _suppliersMasterRepository.GetAsQueryable().AsNoTracking()
+                            on sd.PurchaseRequisitionDetailsSupplierId equals sup.SuppliersMasterSupplierId into supGroup
+                        from sup in supGroup.DefaultIfEmpty()
                         join iv in _context.IssueVoucherDetails.AsNoTracking()
                             on sd.PurchaseRequisitionDetailsId equals iv.IssueVoucherDetailsReqDId into ivGroup
                         from srq in ivGroup.DefaultIfEmpty()
@@ -1020,9 +1007,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                             purchaseRequisitionType = sm.PurchaseRequisitionType ?? "",
                             Item_Name = im.ItemMasterItemName ?? "",
                             Unit = um.UnitMasterUnitShortName ?? "",
+                            SupplierName = sup.SuppliersMasterSupplierName ?? "",
                             DelQty = srq.IssueVoucherDetailsQuantity ?? 0,
-                            SRID = Convert.ToInt32(sm.PurchaseRequisitionId),
-                            SRDID = Convert.ToInt32(sd.PurchaseRequisitionDetailsId),
+                            SRID = sm.PurchaseRequisitionId,
+                            SRDID = sd.PurchaseRequisitionDetailsId,
                             SRNo = sm.PurchaseRequisitionNo ?? "",
                             Date = sm.PurchaseRequisitionDate,
                             Rate = sd.PurchaseRequisitionDetailsRate ?? 0,
@@ -1040,11 +1028,11 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                             DeliveryTerms = sm.deliveryterms ?? "",
                             Notes = sm.PurchaseRequisitionDescription ?? ""
                         })
+                        .Where(x => x.BalQty > 0)
+                        .DistinctBy(x => x.SRID)
                         .OrderBy(x => x.SRDID)
                         .ToListAsync();
                 }
-
-                finalData = finalData.Where(a => a.BalQty > 0).DistinctBy(x => x.SRID).ToList();
 
                 return new Response<List<PurChaseReqFields>>
                 {
@@ -1058,6 +1046,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 return Response<List<PurChaseReqFields>>.Fail(new List<PurChaseReqFields>(), ex.Message);
             }
         }
+
 
 
         public ResponseInfo GetBalanceAmount(int JobId)
