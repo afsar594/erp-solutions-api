@@ -423,18 +423,21 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 _purchaseRequisitionRepository.BeginTransaction();
 
-                var jobNum = jobrepository.GetAsQueryable().AsNoTracking()
-                .Where(e => e.JobMasterJobId == purchaseRequisition.PurchaseRequisitionJobId)
-                .FirstOrDefault()?.JobMasterJobNumber ?? "GEN";
+                var jobNum = await jobrepository.GetAsQueryable()
+                    .AsNoTracking()
+                    .Where(e => e.JobMasterJobId == purchaseRequisition.PurchaseRequisitionJobId)
+                    .Select(x=>x.JobMasterJobNumber)
+                    .FirstOrDefaultAsync() ?? "GEN";
 
                 string purchaseRequisitionNumber = clsCommonFunctions.GenrateVoucherNo(VoucherType.PurchaseRequisition_TYPE, Prefix.PurchaseRequisition_Prefix,
                     _programsettingsRepository, _voucherNumbersRepository, jobNum);
                 purchaseRequisition.PurchaseRequisitionNo = purchaseRequisitionNumber;
 
-                int maxcount = 0;
-                maxcount = Convert.ToInt32(
-                     _purchaseRequisitionRepository.GetAsQueryable()
-                    .DefaultIfEmpty().Max(o => o == null ? 0 : o.PurchaseRequisitionId) + 1);
+                //int maxcount = 0;
+                int maxcount =Convert.ToInt32( await _purchaseRequisitionRepository.GetAsQueryable()
+                     .Select(x => x.PurchaseRequisitionId)
+                     .MaxAsync() ?? 0);
+                maxcount += 1;
 
                 purchaseRequisition.PurchaseRequisitionId = maxcount;
 
@@ -458,7 +461,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     {
                         if (item.PurchaseRequisitionDetailsMatId > 0)
                         {
-                            var entity = _itemMasterRepository.GetAsQueryable().FirstOrDefault(x => x.ItemMasterItemId == item.PurchaseRequisitionDetailsMatId);
+                            var entity = await _itemMasterRepository.GetAsQueryable().FirstOrDefaultAsync(x => x.ItemMasterItemId == item.PurchaseRequisitionDetailsMatId);
 
                             if (entity != null)
                             {
@@ -475,7 +478,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 {
                     if (item.boqdId > 0)
                     {
-                        var data = _BillOfQTyDetailsRepository.GetAsQueryable().AsNoTracking().Where(a => a.Id == item.boqdId).FirstOrDefault();
+                        var data =await _BillOfQTyDetailsRepository.GetAsQueryable().AsNoTracking().Where(a => a.Id == item.boqdId).FirstOrDefaultAsync();
                         if (data != null)
                         {
                             data.IsEdit = false;
@@ -490,7 +493,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 #region EmailNotification
                 var Username = _currentUserService.Username;
                 var jobId = purchaseRequisition?.PurchaseRequisitionJobId ?? -1;
-                var jobDetail = jobrepository.GetAsQueryable().Where(x => x.JobMasterJobId == jobId).FirstOrDefault();
+                var jobDetail = await jobrepository.GetAsQueryable().Where(x => x.JobMasterJobId == jobId).FirstOrDefaultAsync();
                 await _orderEmailNotificationService.SendOrderEmailNotificationAsync(
                                                                                 EnumOrderForms.PurchaseRequisition,
                                                                                 EnumApproverLevels.None,
