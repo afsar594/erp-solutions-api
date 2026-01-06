@@ -123,7 +123,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     }
                     return k;
                 }).OrderBy(x => x.PurchaseRequisitionDetailsItemName).AsEnumerable().ToList();
-
+                purchaseRequisition.PurchaseRequisitionUserId = _currentUserService.UserId;
                 _purchaseRequisitionRepository.Update(purchaseRequisition);
 
                 accountsTransactions = accountsTransactions.Select((k) =>
@@ -433,7 +433,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 int maxcount = 0;
                 maxcount = Convert.ToInt32(
-                    _purchaseRequisitionRepository.GetAsQueryable()
+                     _purchaseRequisitionRepository.GetAsQueryable()
                     .DefaultIfEmpty().Max(o => o == null ? 0 : o.PurchaseRequisitionId) + 1);
 
                 purchaseRequisition.PurchaseRequisitionId = maxcount;
@@ -449,7 +449,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
 
                 purchaseRequisition.PurchaseRequisitionUserId = _currentUserService.UserId;
-                _purchaseRequisitionRepository.Insert(purchaseRequisition);
+                await _purchaseRequisitionRepository.InsertAsync(purchaseRequisition);
 
 
                 foreach (var item in purchaseRequisitionDetails)
@@ -463,7 +463,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                             if (entity != null)
                             {
                                 entity.ItemMasterSupplierId = (int)item.PurchaseRequisitionDetailsSupplierId;
-                                _itemMasterRepository.Update(entity);
+                                await _itemMasterRepository.UpdateAsync(entity);
                             }
                         }
                     }
@@ -479,7 +479,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         if (data != null)
                         {
                             data.IsEdit = false;
-                            _BillOfQTyDetailsRepository.Update(data);
+                            await _BillOfQTyDetailsRepository.UpdateAsync(data);
                         }
                     }
                 }
