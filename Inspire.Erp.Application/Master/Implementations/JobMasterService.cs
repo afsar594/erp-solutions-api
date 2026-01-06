@@ -430,7 +430,7 @@ namespace Inspire.Erp.Application.Master
 
                 jobMasterData.JobMasterJobDetails = jobdetailsRepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterNo == jbno && x.JobMasterJobDetailsDelStatus == false).ToList();
                 jobMasterData.JobMasterJobWiseBankGuarantees = jobBankGuaruRepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterNo == jbno && x.JobMasterJobWiseBankGuaranteesDelStatus == false).ToList();
-                jobMasterData.AccountsTransactions = accountsTransactionsRepository.GetAsQueryable().AsNoTracking().Where(x => x.AccountsTransactionsJobNo == jobMasterData.JobMasterJobId && x.AccountstransactionsDelStatus==false).ToList();
+                jobMasterData.AccountsTransactions = accountsTransactionsRepository.GetAsQueryable().AsNoTracking().Where(x => x.AccountsTransactionsJobNo == jobMasterData.JobMasterJobId && x.AccountstransactionsDelStatus==false && (x.AccountsTransactionsVoucherType == "RECEIPT" || x.AccountsTransactionsVoucherType == "BANK RECEIPT")).ToList();
                 jobMasterData.JobStaff = jobstaffrepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterJobId == jobMasterData.JobMasterJobId).ToList();
                 jobMasterData.JobEquipment = jobEquipmentrepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterJobId == jobMasterData.JobMasterJobId).ToList();
                 jobMasterData.JobExcutionDetails = jobexecrepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterJobId == jobMasterData.JobMasterJobId).ToList();
@@ -455,6 +455,20 @@ namespace Inspire.Erp.Application.Master
                                             DrAmt = at.AccountsTransactionsDebit,
                                             CostName = cos.CostCenterMasterCostCenterName
                                         }).OrderBy(x => x.accName).AsNoTracking().AsEnumerable().ToList();
+                jobMasterData.PaymentTransactions =(from at in context.AccountsTransactions
+                                                        join mat in context.MasterAccountsTable
+                                                            on at.AccountsTransactionsAccNo equals mat.MaAccNo
+                                                        where
+                                                            mat.MaMainHead != "Expenses"
+                                                            && (at.AccountsTransactionsVoucherType == "PAYMENT"
+                                                                || at.AccountsTransactionsVoucherType == "BANK PAYMENT")
+                                                            && at.AccountsTransactionsJobNo == jobMasterData.JobMasterJobId
+                                                            && at.AccountstransactionsDelStatus != true
+                                                        select at   // 👈 sirf entity select
+                                                    )
+                                                    .AsNoTracking()
+                                                    .ToList();
+
                 jobMasterData.JobTimeSheetStaff = _jobTimeSheetStaff.GetAsQueryable().AsNoTracking().Where(a => a.JobId == jobMasterData.JobMasterJobId).ToList();
                 jobMasterData.JobTimesheetMaster = _jobTimesheetMaster.GetAsQueryable().AsNoTracking().Where(a => a.JobId == jobMasterData.JobMasterJobId).ToList();
                 jobMasterData.JobTimeSheetEquip = _jobTimeSheetEquip.GetAsQueryable().AsNoTracking().Where(a => a.JobId == jobMasterData.JobMasterJobId).OrderBy(x => x.JobMasterJobJob).ToList();

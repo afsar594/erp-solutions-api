@@ -104,6 +104,8 @@ namespace Inspire.Erp.Domain.Entities
         public List<AccountsTransactions> AccountsTransactions { get; set; }
         [NotMapped]
         public List<JobMasterExpenseDto> JobMasterExpenses { get; set; }
+        [NotMapped]
+        public List<AccountsTransactions> PaymentTransactions { get; set; }
 
         [NotMapped]
         public List<JobStaff> JobStaff { get; set; }
