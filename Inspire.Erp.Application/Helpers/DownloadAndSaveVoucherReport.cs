@@ -98,7 +98,7 @@ namespace Inspire.Erp.Application.Helpers
                 await File.WriteAllBytesAsync(filePath, pdfBytes);
                 _logger.LogInformation("PDF saved successfully at: {FilePath}", filePath);
 
-                if (!_docsAttachmentService.IsDocumentExists(fileId))
+                if (!await _docsAttachmentService.IsDocumentExists(fileId))
                 {
                     var document = new DocsAttachment
                     {
@@ -108,7 +108,7 @@ namespace Inspire.Erp.Application.Helpers
                         DocumentType = fileType == "PurchaseOrder" ? "PO" : "PR"
                     };
 
-                    _docsAttachmentService.SaveDocument(document);
+                   await _docsAttachmentService.SaveDocument(document);
 
                     _logger.LogInformation(
                         "Document metadata saved successfully. VoucherId: {VoucherId}, Type: {DocumentType}",

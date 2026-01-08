@@ -26,9 +26,9 @@ namespace Inspire.Erp.Application.NewFolder.Implementations
             docrepository = _docsrepository;
         }
 
-        public void SaveDocument(DocsAttachment Documnet)
+        public async Task  SaveDocument(DocsAttachment Documnet)
         {
-            docrepository.Insert(Documnet);
+            await docrepository.InsertAsync(Documnet);
         }
         public IEnumerable<DocsAttachment> GetDocumentstById(int DocumentId, int DocumenttypeId, string Type)
         {
@@ -221,9 +221,9 @@ namespace Inspire.Erp.Application.NewFolder.Implementations
             return Response<List<JobDocumentsDto>>.Success(result, "Documents found.");
         }
 
-        public bool IsDocumentExists(int docId)
+        public async Task<bool> IsDocumentExists(int docId)
         {
-            return docrepository.GetAsQueryable().Any(x => x.DocumentVocucherId == docId);
+            return await docrepository.GetAsQueryable().AnyAsync(x => x.DocumentVocucherId == docId);
         }
     }
 }
