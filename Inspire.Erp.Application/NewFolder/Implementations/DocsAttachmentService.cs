@@ -221,7 +221,9 @@ namespace Inspire.Erp.Application.NewFolder.Implementations
             return Response<List<JobDocumentsDto>>.Success(result, "Documents found.");
         }
 
-
-
+        public bool IsDocumentExists(int docId)
+        {
+            return docrepository.GetAsQueryable().Any(x => x.DocumentVocucherId == docId);
+        }
     }
 }

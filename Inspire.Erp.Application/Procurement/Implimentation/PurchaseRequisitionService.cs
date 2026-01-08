@@ -68,7 +68,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private readonly IRepository<ApproverLevelSettings> _approverLevelSettings;
         private readonly IRepository<OrderApprovalHierarchy> _orderApprovalHierarchy;
         private ApplicationSettings applicationSettings;
-        DownloadAndSaveVoucherReport downloadAndSaveVoucherReport;
+        DownloadAndSaveVoucherReport _downloadAndSaveVoucherReport;
         private readonly ICurrentUserService _currentUserService;
         public PurchaseRequisitionService(IRepository<ItemMaster> itemMasterRepository, IRepository<UnitMaster> unitMasterRepository, IRepository<SalesVoucherDetails> salesVocuherDetailsRepository,
             IRepository<SuppliersMaster> suppliersMasterRepository, IConfiguration config, IDocsAttachmentService docsAttachmentService,
@@ -78,7 +78,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger, IRepository<JobMaster> _jobrepository, IRepository<BillOfQTyDetails> BillOfQTyDetailsRepository,
              IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo,
         IRepository<PurchaseRequisition> purchaseRequisitionRepository, InspireErpDBContext context, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository, IRepository<JobMasterBudgetDetails> budgetDetailsrepository, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository,
-        IOrderEmailNotificationService orderEmailNotificationService, IRepository<ApproverLevelSettings> approverLevelSettings, IRepository<OrderApprovalHierarchy> orderApprovalHierarchy, IRepository<JobMasterJobDetails> jobMasterJobDetailsRepo, IGeneralSettings generalSettings, IRepository<JobMasterControl> jobMasterControls, ICurrentUserService currentUserService)
+        IOrderEmailNotificationService orderEmailNotificationService, IRepository<ApproverLevelSettings> approverLevelSettings, IRepository<OrderApprovalHierarchy> orderApprovalHierarchy, IRepository<JobMasterJobDetails> jobMasterJobDetailsRepo, IGeneralSettings generalSettings, IRepository<JobMasterControl> jobMasterControls, ICurrentUserService currentUserService, DownloadAndSaveVoucherReport downloadAndSaveVoucherReport)
         {
             applicationSettings = config.GetSection("ApplicationSettings").Get<ApplicationSettings>();
             this._accountTransactionRepository = accountTransactionRepository;
@@ -95,9 +95,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _jobMasterJobDetailsRepo = jobMasterJobDetailsRepo;
             _salesVocuherDetailsRepository = salesVocuherDetailsRepository;
             _generalSettings = generalSettings;
-            downloadAndSaveVoucherReport = new DownloadAndSaveVoucherReport(docsAttachmentService);
             _jobMasterControls = jobMasterControls;
             _currentUserService = currentUserService;
+            _downloadAndSaveVoucherReport = downloadAndSaveVoucherReport;
         }
         public async Task<Response<PurchaseRequisitionModel>> UpdatePurchaseRequisition(PurchaseRequisition purchaseRequisition, List<AccountsTransactions> accountsTransactions, List<PurchaseRequisitionDetails> purchaseRequisitionDetails)
         {
@@ -202,11 +202,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         }
                     }
                 }
-                Thread.Sleep(2000);
                 _purchaseRequisitionRepository.TransactionCommit();
 
 
-                await downloadAndSaveVoucherReport.DownloadedFileAsync(applicationSettings.DownloadFileBaseUrl, "PurchaseRequisition", purchaseRequisition.PurchaseRequisitionId.ToString(), (int)purchaseRequisition.PurchaseRequisitionId, purchaseRequisition.PurchaseRequisitionNo, true);
+                await _downloadAndSaveVoucherReport.DownloadedFileAsync(applicationSettings.DownloadFileBaseUrl, "PurchaseRequisition", purchaseRequisition.PurchaseRequisitionId.ToString(), (int)purchaseRequisition.PurchaseRequisitionId, purchaseRequisition.PurchaseRequisitionNo, true);
 
             }
             catch (Exception ex)
@@ -488,7 +487,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 }
 
                 _purchaseRequisitionRepository.TransactionCommit();
-                var filePath = await downloadAndSaveVoucherReport.DownloadedFileAsync(applicationSettings.DownloadFileBaseUrl, "PurchaseRequisition", purchaseRequisition.PurchaseRequisitionId.ToString(), (int)purchaseRequisition.PurchaseRequisitionId, purchaseRequisition.PurchaseRequisitionNo);
+                var filePath = await _downloadAndSaveVoucherReport.DownloadedFileAsync(applicationSettings.DownloadFileBaseUrl, "PurchaseRequisition", purchaseRequisition.PurchaseRequisitionId.ToString(), (int)purchaseRequisition.PurchaseRequisitionId, purchaseRequisition.PurchaseRequisitionNo);
 
                 #region EmailNotification
                 var Username = _currentUserService.Username;

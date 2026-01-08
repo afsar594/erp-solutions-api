@@ -100,7 +100,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PurOrderRegister> purOrderRegisterRepository,
             IRepository<UnitDetails> unitDetailsRepository,
             IRepository<PurchaseVoucherDetails> purchaseVoucherDetailsRepo,
-            IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository, IRepository<Permissionapproval> permissionapproval, IRepository<ApproverLevelSettings> approverLevelSettings, IOrderEmailNotificationService orderEmailNotificationService, IRepository<PurchaseRequisition> purchaseRequisitionRepository, IRepository<OrderApprovalHierarchy> orderApprovalHierarchy, IPurchaseRequisitionService purchaseRequisitionService, IRepository<CustomerQuotation> customerQuotation, IRepository<JobMaster> jobMaster, IGeneralSettings generalSettings, IRepository<GeneralPurchaseOrder> generalPurchaseOrder, ICurrentUserService currentUserService, IGeneralSelectQueries generalSelectQueries, IRepository<DefaultApprover> defaultApproversRepo, IRepository<PaymentRequest> paymentReqRepository, INotificaionService notificaionService)
+            IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository, IRepository<Permissionapproval> permissionapproval, IRepository<ApproverLevelSettings> approverLevelSettings, IOrderEmailNotificationService orderEmailNotificationService, IRepository<PurchaseRequisition> purchaseRequisitionRepository, IRepository<OrderApprovalHierarchy> orderApprovalHierarchy, IPurchaseRequisitionService purchaseRequisitionService, IRepository<CustomerQuotation> customerQuotation, IRepository<JobMaster> jobMaster, IGeneralSettings generalSettings, IRepository<GeneralPurchaseOrder> generalPurchaseOrder, ICurrentUserService currentUserService, IGeneralSelectQueries generalSelectQueries, IRepository<DefaultApprover> defaultApproversRepo, IRepository<PaymentRequest> paymentReqRepository, INotificaionService notificaionService, DownloadAndSaveVoucherReport downloadAndSaveVoucherReport)
         {
             applicationSettings = config.GetSection("ApplicationSettings").Get<ApplicationSettings>();
             this._accountTransactionRepository = accountTransactionRepository;
@@ -135,13 +135,13 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _jobMaster = jobMaster;
             _generalSettings = generalSettings;
             _generalPurchaseOrder = generalPurchaseOrder;
-            downloadAndSaveVoucherReport = new DownloadAndSaveVoucherReport(docsAttachmentService);
             _currentUserService = currentUserService;
             _generalSelectQueries = generalSelectQueries;
             _purchaseOrderRequisitionHelper = new PurchaseOrderRequisitionHelper(userFileRepository, approverLevelSettings); ;
             _defaultApproversRepo = defaultApproversRepo;
             _paymentReqRepository = paymentReqRepository;
             _notificaionService = notificaionService;
+            this.downloadAndSaveVoucherReport = downloadAndSaveVoucherReport;
         }
         public IEnumerable<UserFile> GetAllUserFile()
         {
