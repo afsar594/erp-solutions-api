@@ -26,9 +26,9 @@ namespace Inspire.Erp.Application.NewFolder.Implementations
             docrepository = _docsrepository;
         }
 
-        public async Task  SaveDocument(DocsAttachment Documnet)
+        public void  SaveDocument(DocsAttachment Documnet)
         {
-            await docrepository.InsertAsync(Documnet);
+             docrepository.Insert(Documnet);
         }
         public IEnumerable<DocsAttachment> GetDocumentstById(int DocumentId, int DocumenttypeId, string Type)
         {

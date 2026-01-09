@@ -16,7 +16,7 @@ namespace Inspire.Erp.Application.NewFolder.Interfaces
 
         //public Task<FileResultDto> GetPdfById(int id);
         public Task<FileResultDto> GetPdfById(int id);
-        public Task SaveDocument(DocsAttachment Documnet);
+        public void SaveDocument(DocsAttachment Documnet);
         public Task<bool> IsDocumentExists(int docId);
 
         public IEnumerable<DocsAttachment> GetAllDocumentById(int id,string type);
