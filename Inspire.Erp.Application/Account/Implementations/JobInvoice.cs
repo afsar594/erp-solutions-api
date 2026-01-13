@@ -122,6 +122,7 @@ namespace Inspire.Erp.Application.Account.implementations
                     k.AccountsTransactionsStatus = AccountStatus.Approved;
                     k.AccountsTransactionsTransDate = JobInvoice.JobInvoiceVoucherDate;
                     k.AccountsTransactionsLocation = JobInvoice.JobInvoiceLocationId ?? 0;
+                    k.AccountsTransactionsJobNo= JobInvoice.JobInvoiceJobId != null ? JobInvoice.JobInvoiceJobId : -1;
                     return k;
                 }).OrderBy(x => x.AccountsTransactionsVoucherNo).AsEnumerable().ToList();
                 _accountTransactionRepository.InsertList(accountsTransactions);
