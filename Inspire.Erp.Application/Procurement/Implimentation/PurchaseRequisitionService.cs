@@ -890,6 +890,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     })
                     .ToList();
 
+
                 List<PurChaseReqFields> finalData;
                 bool hasApproval = false;
 
@@ -980,7 +981,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                             };
                         })
                         .Where(x => x.BalQty > 0)
-                        .DistinctBy(x => x.SRID)
+                        .DistinctBy(x => x.SRDID)
                         .OrderBy(x => x.Date)
                         .ThenBy(x => x.SRNo)
                         .ToList();
@@ -1031,7 +1032,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                             Notes = sm.PurchaseRequisitionDescription ?? ""
                         })
                         .Where(x => x.BalQty > 0)
-                        .DistinctBy(x => x.SRID)
+                        .DistinctBy(x => x.SRDID)
                         .OrderBy(x => x.SRDID)
                         .ToListAsync();
                 }
