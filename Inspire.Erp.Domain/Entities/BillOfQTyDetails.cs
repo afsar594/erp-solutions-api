@@ -26,6 +26,7 @@ namespace Inspire.Erp.Domain.Entities
         public int? Currency_TypeId { get; set; }
         public decimal? FinalAmount { get; set; }
         public decimal? CurrencyRate { get; set; }
+        public int? EnquiryDetailId { get; set; }
 
 
 
