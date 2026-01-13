@@ -1,22 +1,27 @@
-﻿using Inspire.Erp.Application.Sales.Interfaces;
+﻿using Dapper;
 using Inspire.Erp.Application.Common;
+using Inspire.Erp.Application.Sales.Interfaces;
+using Inspire.Erp.Domain.DTO.Customer_Enquiry;
 using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
-using Inspire.Erp.Infrastructure.Database.Repositoy;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Models.Sales.DeliveryNoteReport;
+using Inspire.Erp.Infrastructure;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Linq.Dynamic.Core;
-using Inspire.Erp.Domain.DTO.Customer_Enquiry;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Inspire.Erp.Application.Sales.Implementations
 {
@@ -34,6 +39,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private IRepository<CurrencyMaster> _currenyMasterRepository;
         private IRepository<SalesManMaster> _salesManMasterRepository;
 
+        private readonly IDbConnection _dbConnection;
         private readonly ILogger<CustomerEnquiryService> _logger;
 
         public CustomerEnquiryService(ILogger<CustomerEnquiryService> logger,
@@ -44,7 +50,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
             IRepository<EnquiryAbout> enquiryAboutRepository,
             IRepository<EnquiryStatus> enquiryStatusRepository,
             IRepository<BusinessTypeMaster> businessTypeRepository,
-            IRepository<CurrencyMaster> currenyMasterRepository, IRepository<SalesManMaster> salesManMasterRepository
+            IRepository<CurrencyMaster> currenyMasterRepository, IRepository<SalesManMaster> salesManMasterRepository,
+            IOptions<ApplicationSettings> applicationSettings
             )
         {
 
@@ -60,6 +67,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             this._enquiryStatusRepository = enquiryStatusRepository;
             this._businessTypeRepository = businessTypeRepository;
             this._salesManMasterRepository = salesManMasterRepository;
+            _dbConnection = new SqlConnection(applicationSettings.Value.ConnectionString);
 
         }
 
@@ -258,9 +266,9 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                    && (filter.StatusId == null || a.EnquiryMasterEnquiryStatusId == filter.StatusId)
                                    && (filter.Enquiry_No == null || a.EnquiryMasterEnquiryId == filter.Enquiry_No)
 
-                                  // && (filter.fromDate == null || a.EnquiryMasterEnquiryDate.Value.Date >= filter.fromDate.Value.Date)
-                                   //&& (filter.toDate == null || a.EnquiryMasterEnquiryDate.Value.Date < filter.toDate.Value.Date)
-                                    &&  (filter.fromDate == null || a.EnquiryMasterEnquiryDate.Value.Date >= filter.fromDate.Value.Date)
+                                    // && (filter.fromDate == null || a.EnquiryMasterEnquiryDate.Value.Date >= filter.fromDate.Value.Date)
+                                    //&& (filter.toDate == null || a.EnquiryMasterEnquiryDate.Value.Date < filter.toDate.Value.Date)
+                                    && (filter.fromDate == null || a.EnquiryMasterEnquiryDate.Value.Date >= filter.fromDate.Value.Date)
                                     && (filter.toDate == null || a.EnquiryMasterEnquiryDate.Value.Date <= filter.toDate.Value.Date)
 
                                    )
@@ -277,7 +285,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                            from abt in abtGroup.DefaultIfEmpty()
                                            join es in _enquiryStatusRepository.GetAsQueryable() on ce.EnquiryMasterEnquiryStatusId equals es.EnquiryStatusEnquiryStatusId into esGroup
                                            from es in esGroup.DefaultIfEmpty()
-                                          
+
 
                                            select new CustomerEnquiryReportResponse()
                                            {
@@ -293,7 +301,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                                Enquiry_Status_Enquiry_Status = es.EnquiryStatusEnquiryStatus,
                                                Enquiry_Master_Status_ID = es.EnquiryStatusEnquiryStatusId,
                                                Enquiry_Master_SaleMan_ID = ce.EnquiryMasterSalesManId,
-                                              
+
                                            }).ToListAsync();
                 }
 
@@ -332,7 +340,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                                Enquiry_Status_Enquiry_Status = es.EnquiryStatusEnquiryStatus,
                                                Enquiry_Master_Status_ID = es.EnquiryStatusEnquiryStatusId,
                                                Enquiry_Master_SaleMan_ID = ce.EnquiryMasterSalesManId,
-                                               
+
                                            }).ToListAsync();
                 }
 
@@ -363,7 +371,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                         .Where(a => (filter.CustomerId == null || a.EnquiryMasterContactId == filter.CustomerId)
                                    //&& (filter.StatusId == 0 || a.EnquiryMasterEnquiryStatusId == filter.StatusId)
 
-                                   && (filter.fromDate == null || a.EnquiryMasterEnquiryDate.Value.Date>= filter.fromDate.Value.Date)
+                                   && (filter.fromDate == null || a.EnquiryMasterEnquiryDate.Value.Date >= filter.fromDate.Value.Date)
                                    && (filter.toDate == null || a.EnquiryMasterEnquiryDate.Value.Date <= filter.toDate.Value.Date))
 
                                            join lm in _locationMasterRepository.GetAsQueryable() on ce.EnquiryMasterLocationId equals (long)lm.LocationMasterLocationId into lmGroup
@@ -409,7 +417,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 {
                     reportDetails = await (from ce in _customerEnquiryRepository.GetAsQueryable()
                         .Where(a => (filter.CustomerId == null || a.EnquiryMasterContactId == filter.CustomerId))
-                                 //  && (filter.StatusId == 0 || filter.StatusId == null || a.EnquiryMasterEnquiryStatusId == filter.StatusId))
+                                               //  && (filter.StatusId == 0 || filter.StatusId == null || a.EnquiryMasterEnquiryStatusId == filter.StatusId))
                                            join lm in _locationMasterRepository.GetAsQueryable() on ce.EnquiryMasterLocationId equals (long)lm.LocationMasterLocationId into lmGroup
                                            from lm in lmGroup.DefaultIfEmpty()
                                            join cm in _customerMasterRepository.GetAsQueryable() on ce.EnquiryMasterContactId equals cm.CustomerMasterCustomerNo into cmGroup
@@ -482,5 +490,44 @@ namespace Inspire.Erp.Application.Sales.Implementations
             }
         }
 
+        public async Task<Response<List<EnquiryToBoqDto>>> GetEnquiryDetailsForBoqAsync(string? enquiryNo, DateTime? fromDate, DateTime? toDate)
+        {
+            try
+            {
+                var where = $" 1=1 and  ed.Enquiry_Details_Enquiry_Details_ID not in (select distinct ISNULL(EnquiryDetailId,-1) from  BillofQty_Details ) ";
+                if (!string.IsNullOrEmpty(enquiryNo))
+                    where += "  and upper(ed.Enquiry_Details_Enquiry_Details_Equiry_ID) = upper('CE1')  ";
+
+                if (fromDate.HasValue && toDate.HasValue)
+                    where += $" and cast(em.Enquiry_Master_Enquiry_Date as Date) between '{fromDate:yyyy-MM-dd}' and '{fromDate:yyyy-MM-dd}'  ";
+
+                var sql = $@"
+                                    select ed.Enquiry_Details_Enquiry_Details_ID EnquiryDetailId,em.Enquiry_Master_Enquiry_ID as EnquiryId, im.Item_Master_Item_ID as ItemId, 
+                                    im.item_master_item_name as ItemName,
+                                    ed.Enquiry_Details_Enquiry_Details_QTY as ItemQty, 
+                                    0 as ItemRate,
+                                    um.Unit_Master_Unit_ID as UnitId,
+                                    um.Unit_Master_Unit_Full_Name as UnitName
+                                    from Enquiry_Details ed
+                                    join Enquiry_Master em on ed.Enquiry_Details_Enquiry_Details_Equiry_ID = em.Enquiry_Master_Enquiry_ID
+                                    join Item_Master im on ed.Enquiry_Details_Enquiry_Details_Item_ID = im.Item_Master_Item_ID
+                                    join Unit_Details ud on im.Item_Master_Item_ID = ud.Unit_Details_Item_ID
+                                    join Unit_Master um on um.Unit_Master_Unit_ID = ud.Unit_Details_Unit_ID
+                                    where {where}";
+
+                var result = (await _dbConnection.QueryAsync<EnquiryToBoqDto>(sql)).ToList();
+
+                if (!result.Any())
+                    return Response<List<EnquiryToBoqDto>>.Fail(new List<EnquiryToBoqDto>(), "No Enquiry Details found for the given criteria.");
+
+                return Response<List<EnquiryToBoqDto>>.Success(result, "Enquiry Details found for the given criteria.");
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
     }
 }

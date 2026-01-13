@@ -28,6 +28,9 @@ namespace Inspire.Erp.Application.Sales.Interfaces
 
         public Task<IEnumerable<EnquiryNoDto>> GetAllEnquiryNo();
 
+        public Task<Response<List<EnquiryToBoqDto>>> GetEnquiryDetailsForBoqAsync(string? enquiryNo, DateTime? fromDate, DateTime? toDate);
+
+
 
     }
 

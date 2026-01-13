@@ -3,11 +3,12 @@ using Inspire.Erp.Domain.Modals.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 
 namespace Inspire.Erp.Web.Controllers.Sales
 {
-   
+
     [Route("api/CustomerEnqirySearch")]
     [Produces("application/json")]
     [ApiController]
@@ -36,6 +37,14 @@ namespace Inspire.Erp.Web.Controllers.Sales
         public async Task<IActionResult> getCustomerEnquirybyStatuss(CustomerEnquirySearchFilterStatus filter)
         {
             return Ok(await _customerEnquiryRepository.getCustomerEnquirybyStatuss(filter));
+        }
+
+        [HttpGet("EnquiryDetailsForBoq")]
+        public async Task<IActionResult> GetEnquiryDetailsForBoqAsync([FromQuery] string? enquiryNo, [FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate)
+        {
+            var result = await _customerEnquiryRepository.GetEnquiryDetailsForBoqAsync(enquiryNo, fromDate, toDate);
+            return Ok(result);
+
         }
     }
 }
