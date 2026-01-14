@@ -507,7 +507,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                     ed.Enquiry_Details_Enquiry_Details_QTY as ItemQty, 
                                     0 as ItemRate,
                                     um.Unit_Master_Unit_ID as UnitId,
-                                    um.Unit_Master_Unit_Full_Name as UnitName
+                                    um.Unit_Master_Unit_Short_Name as UnitName
                                     from Enquiry_Details ed
                                     join Enquiry_Master em on ed.Enquiry_Details_Enquiry_Details_Equiry_ID = em.Enquiry_Master_Enquiry_ID
                                     join Item_Master im on ed.Enquiry_Details_Enquiry_Details_Item_ID = im.Item_Master_Item_ID
