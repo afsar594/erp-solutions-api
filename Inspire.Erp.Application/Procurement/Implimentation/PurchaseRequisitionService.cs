@@ -70,6 +70,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private ApplicationSettings applicationSettings;
         DownloadAndSaveVoucherReport _downloadAndSaveVoucherReport;
         private readonly ICurrentUserService _currentUserService;
+
         public PurchaseRequisitionService(IRepository<ItemMaster> itemMasterRepository, IRepository<UnitMaster> unitMasterRepository, IRepository<SalesVoucherDetails> salesVocuherDetailsRepository,
             IRepository<SuppliersMaster> suppliersMasterRepository, IConfiguration config, IDocsAttachmentService docsAttachmentService,
             IRepository<LocationMaster> _locationrepository, IRepository<LocationMaster> locationMasterRepository,

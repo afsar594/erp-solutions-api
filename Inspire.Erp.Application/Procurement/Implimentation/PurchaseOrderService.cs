@@ -8,6 +8,7 @@ using Inspire.Erp.Application.Helpers;
 using Inspire.Erp.Application.MODULE;
 using Inspire.Erp.Application.NewFolder.Interfaces;
 using Inspire.Erp.Application.Procurement.Interfaces;
+using Inspire.Erp.Application.Sales.Interfaces;
 using Inspire.Erp.Application.Settings.Interfaces;
 using Inspire.Erp.Application.User;
 using Inspire.Erp.Domain.Constants;
@@ -86,6 +87,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
 
         private readonly INotificaionService _notificaionService;
+        private readonly IBillofQtyService _billofQtyService;
+        private readonly IRepository<CustomerMaster> _customerMaster;
+        private readonly IRepository<BillofQtyMaster> _billofQtyMasterRepository;
 
         public PurchaseOrderService(
             IConfiguration config,
@@ -100,7 +104,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PurOrderRegister> purOrderRegisterRepository,
             IRepository<UnitDetails> unitDetailsRepository,
             IRepository<PurchaseVoucherDetails> purchaseVoucherDetailsRepo,
-            IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository, IRepository<Permissionapproval> permissionapproval, IRepository<ApproverLevelSettings> approverLevelSettings, IOrderEmailNotificationService orderEmailNotificationService, IRepository<PurchaseRequisition> purchaseRequisitionRepository, IRepository<OrderApprovalHierarchy> orderApprovalHierarchy, IPurchaseRequisitionService purchaseRequisitionService, IRepository<CustomerQuotation> customerQuotation, IRepository<JobMaster> jobMaster, IGeneralSettings generalSettings, IRepository<GeneralPurchaseOrder> generalPurchaseOrder, ICurrentUserService currentUserService, IGeneralSelectQueries generalSelectQueries, IRepository<DefaultApprover> defaultApproversRepo, IRepository<PaymentRequest> paymentReqRepository, INotificaionService notificaionService, DownloadAndSaveVoucherReport downloadAndSaveVoucherReport)
+            IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository, IRepository<Permissionapproval> permissionapproval, IRepository<ApproverLevelSettings> approverLevelSettings, IOrderEmailNotificationService orderEmailNotificationService, IRepository<PurchaseRequisition> purchaseRequisitionRepository, IRepository<OrderApprovalHierarchy> orderApprovalHierarchy, IPurchaseRequisitionService purchaseRequisitionService, IRepository<CustomerQuotation> customerQuotation, IRepository<JobMaster> jobMaster, IGeneralSettings generalSettings, IRepository<GeneralPurchaseOrder> generalPurchaseOrder, ICurrentUserService currentUserService, IGeneralSelectQueries generalSelectQueries, IRepository<DefaultApprover> defaultApproversRepo, IRepository<PaymentRequest> paymentReqRepository, INotificaionService notificaionService, DownloadAndSaveVoucherReport downloadAndSaveVoucherReport, IBillofQtyService billofQtyService, IRepository<CustomerMaster> customerMaster, IRepository<BillofQtyMaster> billofQtyMasterRepository)
         {
             applicationSettings = config.GetSection("ApplicationSettings").Get<ApplicationSettings>();
             this._accountTransactionRepository = accountTransactionRepository;
@@ -142,6 +146,9 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _paymentReqRepository = paymentReqRepository;
             _notificaionService = notificaionService;
             this.downloadAndSaveVoucherReport = downloadAndSaveVoucherReport;
+            _billofQtyService = billofQtyService;
+            _customerMaster = customerMaster;
+            _billofQtyMasterRepository = billofQtyMasterRepository;
         }
         public IEnumerable<UserFile> GetAllUserFile()
         {
@@ -288,7 +295,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 }
                 if (_currentUserService.IsAdmin)
                 {
-                    var orderApprovalHierarchies =  _orderApprovalHierarchy.GetAsQueryable()
+                    var orderApprovalHierarchies = _orderApprovalHierarchy.GetAsQueryable()
                                                         .Where(x => x.OrderId == purchaseOrder.PurchaseOrderId).ToList();
                     orderApprovalHierarchies.ForEach(x =>
                     {
@@ -609,7 +616,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     }
                 }
                 //await ApprovePurchaseOrderForLowerApprovers()
-                await notifyUser( purchaseOrder.PurchaseOrderNo);
+                await notifyUser(purchaseOrder.PurchaseOrderNo);
                 var res = await this.GetSavedPurchaseOrderDetails((int)purchaseOrder.PurchaseOrderId);
                 return Response<PurchaseOrderModel>.Success(res.Result, "Purchase Order Save Successfully.");
             }
@@ -1463,6 +1470,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 var validTypes = new[] {
                     EnumOrderForms.PurchaseOrder,
                     EnumOrderForms.PurchaseRequisition,
+                    EnumOrderForms.BillOfQuantity,
                     EnumOrderForms.GeneralPurchaseOrder,
                     EnumOrderForms.PaymentRequest,
                 };
@@ -1472,6 +1480,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     {
                         EnumOrderForms.PurchaseOrder => GetPurchaseOrderForApproval(model),
                         EnumOrderForms.PurchaseRequisition => GetPurchaseRequisitionForApproval(model),
+                        EnumOrderForms.BillOfQuantity => GetBillOfQuantityForApproval(model),
                         EnumOrderForms.GeneralPurchaseOrder => GetGeneralPurchaseOrderForApproval(model),
                         EnumOrderForms.PaymentRequest => GetPaymentRequestForApproval(model),
                         _ => throw new ArgumentOutOfRangeException(nameof(type), $"No form configured for order type: {type}")
@@ -1487,6 +1496,129 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 throw;
             }
+        }
+
+        private List<VoucherApprivalDto> GetBillOfQuantityForApproval(ApprovalFilterModel model)
+        {
+            var fromDate = model.fromDate?.Date;
+            var toDate = model.toDate?.Date;
+            bool filterByDate = model.IsDate && fromDate.HasValue && toDate.HasValue;
+            bool isUserRequired = model.IsUserRequired;
+
+            long userId = Convert.ToInt64(_currentUserService.UserId);
+            var groupId = _currentUserService.GroupId;
+            bool isAdmin = _generalSelectQueries.GetBooleanValue(groupId).Result;
+
+
+            var boqs = _billofQtyMasterRepository.GetAsQueryable()
+                .Where(x => !filterByDate ||
+                            (x.Date.HasValue &&
+                             x.Date.Value.Date >= fromDate &&
+                             x.Date.Value.Date <= toDate))
+                .AsNoTracking()
+                .ToList();
+
+            if (!boqs.Any())
+                return new List<VoucherApprivalDto>();
+
+            var boqsIds = boqs.Select(x => x.Id).ToList();
+
+
+            var approvalHierarchies = _orderApprovalHierarchy.GetAsQueryable()
+                .Where(x => boqsIds.Contains((int)x.OrderId))
+                .AsNoTracking()
+                .ToList();
+
+            if (!approvalHierarchies.Any())
+                return new List<VoucherApprivalDto>();
+
+
+            var result = new List<VoucherApprivalDto>();
+
+            foreach (var req in boqs)
+            {
+                var orderedApprovers = approvalHierarchies
+                    .Where(h => h.OrderId == req.Id)
+                    .OrderBy(h => h.ApproverLevel)
+                    .ThenBy(h => h.Sno)
+                    .ToList();
+
+                if (!orderedApprovers.Any())
+                    continue;
+
+
+                var currentUserApprovers = orderedApprovers
+                    .Where(h => h.ApproverId == userId)
+                    .ToList();
+
+                if (isUserRequired && !isAdmin)
+                {
+
+                    bool hasPendingPriorApprover = currentUserApprovers.Any(u =>
+                        orderedApprovers.Any(o =>
+                            (
+                                string.Compare(o.ApproverLevel.ToString(), u.ApproverLevel.ToString()) < 0 ||
+                                (o.ApproverLevel == u.ApproverLevel && o.Sno < u.Sno)
+                            )
+                            && o.Status == EnumApprovalStatus.Pending));
+
+                    if (hasPendingPriorApprover)
+                        continue;
+                }
+
+
+
+                var visibleApprovers = orderedApprovers
+                    .Where(h =>
+                        !isUserRequired || // Report mode (show all)
+                        (isAdmin && h.Status == EnumApprovalStatus.Pending) ||
+                        (!isAdmin && h.ApproverId == userId))
+                    .OrderBy(h => h.ApproverLevel)
+                    .ThenBy(h => h.Sno)
+                    .Select(h => new VoucherApprover
+                    {
+                        ApproverId = (int)h.ApproverId,
+                        ApproverLevel = h.ApproverLevel,
+                        Status = h.Status,
+                        Remarks = h.Remarks
+                    })
+                    .ToList();
+
+                if (!visibleApprovers.Any())
+                    continue;
+                
+                var dto = new VoucherApprivalDto
+                {
+                    VoucherId = (int)req.Id,
+                    VoucherType = EnumOrderForms.BillOfQuantity,
+                    VoucherNo = req.BillofqtyNo,
+                    VoucherDate = req.Date ?? DateTime.MinValue,
+                    LocationId = -1,
+                    LocationName = string.Empty,
+                    JobId = -1,
+                    JobName = string.Empty,
+                    Amount = (decimal)(req.BOQAmount?? 0),
+                    Status = GetVoucherStatus(visibleApprovers),
+                    Remarks = string.Empty,
+                    VoucherApprovers = visibleApprovers
+                };
+
+                result.Add(dto);
+            }
+
+
+            var filteredResult = result
+                .Where(dto =>
+                    model.Status != EnumApprovalStatus.None
+                        ? dto.VoucherApprovers.Any(v => v.Status == model.Status)
+                        : (!isUserRequired || isAdmin)
+                            ? true
+                            : dto.VoucherApprovers.Any(v => v.ApproverId == userId &&
+                                                            v.Status == EnumApprovalStatus.Pending))
+                .Where(x => x.VoucherType != EnumOrderForms.None)
+                .ToList();
+
+            return filteredResult;
         }
 
         private List<VoucherApprivalDto> GetPaymentRequestForApproval(ApprovalFilterModel model)
@@ -2093,6 +2225,10 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 case EnumOrderForms.PurchaseRequisition:
                     await SendEmailPurchaseRequisition(orderId, level, settingValue, approverId, filePath);
                     break;
+                case EnumOrderForms.BillOfQuantity:
+                    await SendEmailBillOfQuantity(orderId, level, settingValue, approverId, filePath);
+                    break;
+
                 case EnumOrderForms.GeneralPurchaseOrder:
                     break;
 
@@ -2101,6 +2237,33 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             }
         }
 
+        private async Task<Response<List<VoucherApprivalDto>>> SendEmailBillOfQuantity(int orderId, EnumApproverLevels nextLevelToSendEamil, string settingValue, int approverId, string filePath)
+        {
+            List<object> rptData = new List<object>();
+            var bo = await _billofQtyService.GetSavedBillofQty(orderId);
+            var jobId = bo.Result.BOQJobID ?? -1;
+            var jobDetail = _jobMaster.GetAsQueryable().Where(x => x.JobMasterJobId == jobId).FirstOrDefault();
+            var customerName = await _customerMaster.FirstOrDefaultAsync(x => x.CustomerMasterCustomerNo == bo.Result.CustomerEnqId, s => s.CustomerMasterCustomerName);
+
+            await _orderEmailNotificationService.SendOrderEmailNotificationAsync(
+                                                                         EnumOrderForms.PurchaseRequisition,
+                                                                         nextLevelToSendEamil,
+                                                                         "Requisition",
+                                                                         bo.Result.BillofqtyNo,
+                                                                         (DateTime)bo.Result.Date,
+                                                                         customerName ?? "",
+                                                                         (decimal)bo.Result.BOQAmount,
+                                                                         (int)bo.Result.Id,
+                                                                          (int)jobId,
+                                                                          jobDetail == null ? "" : jobDetail.JobMasterJobNumber,
+                                                                          jobDetail == null ? "" : jobDetail.JobMasterJobName,
+                                                                          false, "", settingValue, !string.IsNullOrEmpty(filePath) ? new List<string>() { filePath } : new List<string>(),
+                                                                          approverId,
+                                                                          null,
+                                                                         (long)_currentUserService.UserId);
+
+            return await GetDefaultPOPR(orderId, EnumOrderForms.PurchaseRequisition);
+        }
 
         private async Task<Response<List<VoucherApprivalDto>>> SendEmailPurchaseOrder(int orderId, EnumApproverLevels nextLevelToSendEamil, string settingValue, int approverId, string filePath)
         {
@@ -2279,7 +2442,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     var voucherid = prData.First().VoucherId;
                     var voucherno = prData.First().VoucherNo;
                     await downloadAndSaveVoucherReport.DownloadedFileAsync(applicationSettings.DownloadFileBaseUrl, "PurchaseRequisition", voucherno, voucherid, voucherno, true);
-                    
+
                     return Response<List<VoucherApprivalDto>>.Success(prData, "Data found");
                 }
 

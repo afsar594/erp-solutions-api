@@ -22,6 +22,7 @@ namespace Inspire.Erp.Application.Sales.Interfaces
         public IEnumerable<BillofQtyMaster> GetBillofQty();
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
         public Response<List<BillofQtyTracking>> GetBillofQtyTracking(DateTime? fromDate, DateTime? toDate, string? jobNo);
+        public Task<Response<List<BoqToCustomerQuotationDto>>> GetBoqToCustomerQuotationAsync(string? boqNo, DateTime? fromDate, DateTime? toDate);
 
 
 

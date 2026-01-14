@@ -28,6 +28,7 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? ProftPercentage { get; set; }
         public decimal? ProfitAmount { get; set; }
         public decimal? QuoteAmount { get; set; }
+        public int? BOQJobID { get; set; }
         [NotMapped]
         public virtual ICollection<BillOfQTyDetails> BillOfQTyDetails { get; set; }
         [NotMapped]
@@ -49,6 +50,7 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? ProftPercentage { get; set; }
         public decimal? ProfitAmount { get; set; }
         public decimal? QuoteAmount { get; set; }
+        public int? BOQJobID { get; set; }
         public virtual List<BillOfQTyDetailsModel> BillOfQTyDetails { get; set; }
         public virtual List<EstimationCostCenterModel> EstimationCostCenter { get; set; }
 
@@ -70,6 +72,7 @@ namespace Inspire.Erp.Domain.Entities
         public decimal ReceivedQty { get; set; }
         public decimal BalanceQty { get; set; }
         public int? SupplierId { get; set; }
+        public int? EnquiryDetailId { get; set; }
     }
 
 }

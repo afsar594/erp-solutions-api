@@ -496,10 +496,10 @@ namespace Inspire.Erp.Application.Sales.Implementations
             {
                 var where = $" 1=1 and  ed.Enquiry_Details_Enquiry_Details_ID not in (select distinct ISNULL(EnquiryDetailId,-1) from  BillofQty_Details ) ";
                 if (!string.IsNullOrEmpty(enquiryNo))
-                    where += "  and upper(ed.Enquiry_Details_Enquiry_Details_Equiry_ID) = upper('CE1')  ";
+                    where += $"  and upper(ed.Enquiry_Details_Enquiry_Details_Equiry_ID) = upper('{enquiryNo}')  ";
 
                 if (fromDate.HasValue && toDate.HasValue)
-                    where += $" and cast(em.Enquiry_Master_Enquiry_Date as Date) between '{fromDate:yyyy-MM-dd}' and '{fromDate:yyyy-MM-dd}'  ";
+                    where += $" and cast(em.Enquiry_Master_Enquiry_Date as Date) between '{fromDate:yyyy-MM-dd}' and '{toDate:yyyy-MM-dd}'  ";
 
                 var sql = $@"
                                     select ed.Enquiry_Details_Enquiry_Details_ID EnquiryDetailId,em.Enquiry_Master_Enquiry_ID as EnquiryId, im.Item_Master_Item_ID as ItemId, 
