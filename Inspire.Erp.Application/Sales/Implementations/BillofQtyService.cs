@@ -599,7 +599,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                         im.Item_Master_Item_ID as ItemId,
                                         im.Item_Master_Item_Name as ItemName,
                                         um.Unit_Master_Unit_ID as UnitId,
-                                        um.Unit_Master_Unit_Full_Name as UnitName,
+                                        um.Unit_Master_Unit_Short_Name as UnitName,
                                         bd.Qty,
                                         bd.Rate,
                                         bd.CurrencyRate,
