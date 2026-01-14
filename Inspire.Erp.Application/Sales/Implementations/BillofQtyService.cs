@@ -595,7 +595,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 if (fromDate.HasValue && toDate.HasValue)
                     where += $" and cast(bm.date as Date) between '{fromDate:yyyy-MM-dd}' and '{toDate:yyyy-MM-dd}'  ";
 
-                var sql = $@"select bm.Id BillofQtyId, bm.BillofqtyNo BillofQtyNo,
+                var sql = $@"select  bd.Id as BoqDetailsId, bm.Id BillofQtyId, bm.BillofqtyNo BillofQtyNo,
                                         im.Item_Master_Item_ID as ItemId,
                                         im.Item_Master_Item_Name as ItemName,
                                         um.Unit_Master_Unit_ID as UnitId,

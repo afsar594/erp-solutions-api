@@ -24,6 +24,7 @@ namespace Inspire.Erp.Domain.Entities
 
     public class BoqToCustomerQuotationDto
     {
+        public int BoqDetailsId { get; set; }
         public int BillofQtyId { get; set; }
         public string BillofQtyNo { get; set; }
         public int ItemId { get; set; }
