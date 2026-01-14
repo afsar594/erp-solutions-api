@@ -323,5 +323,12 @@ namespace Inspire.Erp.Web.Controllers
             };
             return objresponse;
         }
+
+        [HttpGet("GetCustomerQuotationItemToPr")]
+        public async Task<IActionResult> GetCustomerQuotationItemToPrAsync([FromQuery] string? quotaionNo,  [FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate)
+        {
+            return Ok(await _customerQuotationService.GetCustomerQuotationItemToPrAsync(quotaionNo, fromDate, toDate));
+        }
+
     }
 }

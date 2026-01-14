@@ -1,31 +1,36 @@
-﻿using Inspire.Erp.Application.Sales.Interfaces;
+﻿using Dapper;
 using Inspire.Erp.Application.Common;
+using Inspire.Erp.Application.Common.Email;
+using Inspire.Erp.Application.Email.Interfaces;
+using Inspire.Erp.Application.MODULE;
+using Inspire.Erp.Application.Sales.Interfaces;
 using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Entities.POS;
 using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Domain.Modals;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Domain.Modals.Sales;
+using Inspire.Erp.Domain.Modals.Stock;
+using Inspire.Erp.Domain.Models;
+using Inspire.Erp.Domain.Models.Sales.DeliveryNoteReport;
+using Inspire.Erp.Infrastructure;
+using Inspire.Erp.Infrastructure.Database;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using SendGrid.Helpers.Mail;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using Inspire.Erp.Application.MODULE;
-using Inspire.Erp.Domain.Modals.Sales;
-using Inspire.Erp.Domain.Modals;
-using SendGrid.Helpers.Mail;
 using System.Threading.Tasks;
-using Inspire.Erp.Infrastructure.Database;
-using Inspire.Erp.Domain.Modals.Common;
-using Inspire.Erp.Domain.Models.Sales.DeliveryNoteReport;
-using System.Security.Cryptography;
-using Inspire.Erp.Domain.Modals.Stock;
-using Microsoft.AspNetCore.Mvc;
-using Inspire.Erp.Domain.Models;
-using Inspire.Erp.Domain.Entities.POS;
-using Inspire.Erp.Application.Email.Interfaces;
-using Inspire.Erp.Application.Common.Email;
 
 namespace Inspire.Erp.Application.Sales.Implementations
 {
@@ -43,11 +48,13 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private readonly IRepository<ApprovalDetail> _approvalDetailRepo;
         private IRepository<ItemMaster> _itemMasterRepository;
         private readonly IOrderEmailNotificationService _orderEmailNotificationService;
+        private readonly IDbConnection _dbConnection;
         public CustomerQuotationService(ILogger<CustomerQuotationService> logger, IRepository<PermissionApproval> permissionApprovalRepo,
             IRepository<Approval> approvalRepo, IRepository<ApprovalDetail> approvalDetailRepo,
             IRepository<CustomerQuotation> customerQuotationRepository, IRepository<VouchersNumbers> voucherNumbersRepository, IRepository<Domain.Entities.ProgramSettings> programsettingsRepository,
             IRepository<CustomerQuotationDetails> customerQuotationDetailsRepository,
             IRepository<UserTracking> userTrackingRepository,
+             IOptions<ApplicationSettings> applicationSettings,
             InspireErpDBContext Context, IOrderEmailNotificationService orderEmailNotificationService)
         {
 
@@ -61,7 +68,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             _approvalRepo = approvalRepo;
             _permissionApprovalRepo = permissionApprovalRepo;
 
-
+            _dbConnection = new SqlConnection(applicationSettings.Value.ConnectionString);
             _Context = Context;
             _orderEmailNotificationService = orderEmailNotificationService;
         }
@@ -76,7 +83,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
 
                 _customerQuotationRepository.Update(customerQuotation);
-                var deletedetail =_customerQuotationDetailsRepository.GetAsQueryable().Where(x => x.CustomerQuotationDetailsVoucherNo == customerQuotation.CustomerQuotationVoucherNo).ToList();
+                var deletedetail = _customerQuotationDetailsRepository.GetAsQueryable().Where(x => x.CustomerQuotationDetailsVoucherNo == customerQuotation.CustomerQuotationVoucherNo).ToList();
                 _customerQuotationDetailsRepository.DeleteList(deletedetail);
                 long maxcount1 = 0;
                 maxcount1 = _customerQuotationDetailsRepository.GetAsQueryable()
@@ -97,7 +104,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                     }
                 }
 
-             
+
 
                 UserTracking trackingData = new UserTracking();
                 trackingData.UserTrackingUserUserId = 1;
@@ -397,7 +404,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                                     && (FilterModel.Status == null || s.CustomerQuotationIsClose == FilterModel.Status)
                                     && (s.CustomerQuotationQuotationDate.Value.Date >= FilterModel.fromDate.Value.Date && s.CustomerQuotationQuotationDate.Value.Date <= FilterModel.toDate.Value.Date)
-                                    &&(s.CustomerQuotationDelStatus != true)
+                                    && (s.CustomerQuotationDelStatus != true)
                                     select new GetCustomerQuotationDetail
                                     {
                                         QuotationId = s.CustomerQuotationQid,
@@ -488,8 +495,48 @@ namespace Inspire.Erp.Application.Sales.Implementations
             return customerQuotation;
         }
 
+        public async Task<Response<List<CustomerQuotationItemToPrDto>>> GetCustomerQuotationItemToPrAsync(string quotationNo, DateTime? fromDate, DateTime? toDate)
+        {
+            try
+            {
+                var where = $" 1=1 and cd.Customer_Quotation_Details_ID not in (select distinct isnull(CustomerQuotationDetailsId, -1) from PurchaseRequisitionDetails)";
+                if (!string.IsNullOrEmpty(quotationNo))
+                    where += $"  and upper(cq.Customer_Quotation_VoucherNo) = upper('{quotationNo}')  ";
 
+                if (fromDate.HasValue && toDate.HasValue)
+                    where += $" and cast(cq.Customer_Quotation_Quotation_Date as Date) between '{fromDate:yyyy-MM-dd}' and '{toDate:yyyy-MM-dd}'  ";
 
+                var sql = $@"select 
+                                        cq.Customer_Quotation_QID QuotationId,
+                                        cq.Customer_Quotation_VoucherNo QuotationNo,
+                                        cd.Customer_Quotation_Details_ID QuotationDetailsId, 
+                                        im.Item_Master_Item_ID as ItemId,
+                                        im.Item_Master_Item_Name as ItemName,
+                                        um.Unit_Master_Unit_ID as UnitId,
+                                        um.Unit_Master_Unit_Short_Name as UnitName ,
+                                        cd.Customer_Quotation_Details_Qty ItemQty,
+                                        cd.Customer_Quotation_Details_Unit_Price Rate,
+                                        cd.Customer_Quotation_Details_Gross_Amount GrossAmount
+                                        from Customer_Quotation_Details cd
+                                        join Customer_Quotation cq on cq.Customer_Quotation_QID = cd.Customer_Quotation_Details_QuotationID
+                                        join Item_Master im on cd.Customer_Quotation_Details_Item_ID = im.Item_Master_Item_ID
+                                        join Unit_Details ud on im.Item_Master_Item_ID = ud.Unit_Details_Item_ID
+                                        join Unit_Master um on ud.Unit_Details_Unit_ID = um.Unit_Master_Unit_ID
+                                        where {where}";
+
+                var result = (await _dbConnection.QueryAsync<CustomerQuotationItemToPrDto>(sql)).ToList();
+
+                if (!result.Any())
+                    return Response<List<CustomerQuotationItemToPrDto>>.Fail(result, "No Customer quotation detials found");
+
+                return Response<List<CustomerQuotationItemToPrDto>>.Success(result, "Customer quotation detials found");
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
     }
 }
 

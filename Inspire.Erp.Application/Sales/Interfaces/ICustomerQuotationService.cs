@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Inspire.Erp.Domain.Modals.Common;
 using Inspire.Erp.Domain.Modals.Stock;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
 
 namespace Inspire.Erp.Application.Sales.Interfaces
 {
@@ -16,10 +17,10 @@ namespace Inspire.Erp.Application.Sales.Interfaces
         //public PaymentVoucher InsertPaymentVoucher(PaymentVoucher paymentVoucher,
         //  List<PaymentVoucherDetails> paymentVoucherDetails);
 
-        public CustomerQuotation InsertCustomerQuotation(CustomerQuotation customerQuotation, List<CustomerQuotationDetails> customerQuotationDetails );
+        public CustomerQuotation InsertCustomerQuotation(CustomerQuotation customerQuotation, List<CustomerQuotationDetails> customerQuotationDetails);
         public CustomerQuotation UpdateCustomerQuotation(CustomerQuotation customerQuotation, List<CustomerQuotationDetails> customerQuotationDetails);
         public int DeleteCustomerQuotation(CustomerQuotation customerQuotation);
-        public CustomerQuotation GetSavedCustQuotationDetails(int id); 
+        public CustomerQuotation GetSavedCustQuotationDetails(int id);
         public IEnumerable<CustomerQuotation> GetCustomerQuotation();
         public VouchersNumbers GenerateVoucherNo(DateTime? VoucherGenDate);
 
@@ -31,7 +32,7 @@ namespace Inspire.Erp.Application.Sales.Interfaces
         public CustomerQuotation IsRevisedCustomerQuotation(CustomerQuotation customerQuotation, List<CustomerQuotationDetails> customerQuotationDetails);
 
 
-
+        public Task<Response<List<CustomerQuotationItemToPrDto>>> GetCustomerQuotationItemToPrAsync(string? quotationNo, DateTime? fromDate, DateTime? toDate);
 
     }
 }

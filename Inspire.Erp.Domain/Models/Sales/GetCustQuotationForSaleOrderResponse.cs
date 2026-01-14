@@ -34,5 +34,18 @@ namespace Inspire.Erp.Domain.Modals.Sales
         public DateTime? QuotationDate { get; set; }
 
     }
+    public class CustomerQuotationItemToPrDto
+    {
+        public long QuotationId { get; set; }
+        public string QuotationNo { get; set; }
+        public long QuotationDetailsId { get; set; }
+        public long ItemId { get; set; }
+        public string ItemName { get; set; }
+        public long UnitId { get; set; }
+        public string UnitName { get; set; }
+        public decimal ItemQty { get; set; }
+        public decimal Rate { get; set; }
+        public decimal GrossAmount { get; set; }
+    }
 
 }
