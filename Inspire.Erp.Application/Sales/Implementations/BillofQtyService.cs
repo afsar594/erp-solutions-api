@@ -602,6 +602,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                         um.Unit_Master_Unit_Full_Name as UnitName,
                                         bd.Qty,
                                         bd.Rate,
+                                        bd.CurrencyRate,
                                         isnull(bd.Freight_Charges,0) as FreightCharges,
                                         isnull(bd.Packing_Charges,0) PackingCharges,
                                         isnull(bd.Clearance_Charges,0) ClearanceCharges,
