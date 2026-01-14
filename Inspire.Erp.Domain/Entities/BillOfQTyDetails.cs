@@ -28,8 +28,6 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? CurrencyRate { get; set; }
         public int? EnquiryDetailId { get; set; }
 
-
-
     }
     public class EstimationCostCenterModel
     {

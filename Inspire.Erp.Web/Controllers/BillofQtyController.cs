@@ -201,5 +201,11 @@ namespace Inspire.Erp.Web.Controllers
             };
             return objResponse;
         }
+
+        [HttpGet("BoqToCustomerQuotation")]
+        public async Task<IActionResult> GetBoqToCustomerQuotationAsync([FromQuery] string? boqNo, [FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate)
+        {
+            return Ok(await _billofQtyService.GetBoqToCustomerQuotationAsync(boqNo, fromDate, toDate));
+        }
     }
 }

@@ -1,35 +1,41 @@
-﻿using Inspire.Erp.Application.Sales.Interfaces;
+﻿using Dapper;
 using Inspire.Erp.Application.Common;
+using Inspire.Erp.Application.Common.Email;
+using Inspire.Erp.Application.Email.Interfaces;
+using Inspire.Erp.Application.MODULE;
+using Inspire.Erp.Application.Sales.Interfaces;
+using Inspire.Erp.Application.Settings.Interfaces;
+using Inspire.Erp.Application.User;
+using Inspire.Erp.Domain.Constants;
 using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Domain.Entities.POS;
 using Inspire.Erp.Domain.Enums;
+using Inspire.Erp.Domain.Modals;
+using Inspire.Erp.Domain.Modals.Common;
+using Inspire.Erp.Domain.Modals.Sales;
+using Inspire.Erp.Domain.Modals.Stock;
+using Inspire.Erp.Domain.Models;
+using Inspire.Erp.Domain.Models.Sales.DeliveryNoteReport;
+using Inspire.Erp.Infrastructure;
+using Inspire.Erp.Infrastructure.Database;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.AspNetCore.DataProtection.XmlEncryption;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using SendGrid.Helpers.Mail;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using Inspire.Erp.Application.MODULE;
-using Inspire.Erp.Domain.Modals.Sales;
-using Inspire.Erp.Domain.Modals;
-using SendGrid.Helpers.Mail;
-using System.Threading.Tasks;
-using Inspire.Erp.Infrastructure.Database;
-using Inspire.Erp.Domain.Modals.Common;
-using Inspire.Erp.Domain.Models.Sales.DeliveryNoteReport;
-using System.Security.Cryptography;
-using Inspire.Erp.Domain.Modals.Stock;
-using Microsoft.AspNetCore.Mvc;
-using Inspire.Erp.Domain.Models;
-using Inspire.Erp.Domain.Entities.POS;
-using Microsoft.AspNetCore.DataProtection.XmlEncryption;
-using Inspire.Erp.Infrastructure;
-using Inspire.Erp.Domain.Constants;
-using Inspire.Erp.Application.Email.Interfaces;
-using Inspire.Erp.Application.Common.Email;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Inspire.Erp.Application.Sales.Implementations
 {
@@ -54,13 +60,20 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private readonly IRepository<BillofQtyTracking> _billofQtyTracking;
         private readonly IOrderEmailNotificationService _orderEmailNotificationService;
         private readonly IRepository<CostCenterMaster> _costCenterMastr;
+        private readonly IRepository<CustomerMaster> _customerMaster;
+        private IRepository<JobMaster> jobrepository;
+        private readonly ICurrentUserService _currentUserService;
+        private readonly IGeneralSettings _generalSettings;
+        private readonly IDbConnection _dbConnection;
+
         public BillofQtyService(ILogger<CustomerQuotationService> logger, IRepository<PermissionApproval> permissionApprovalRepo,
             IRepository<Approval> approvalRepo, IRepository<ApprovalDetail> approvalDetailRepo,
             IRepository<BillofQtyMaster> BillofQtyMasterRepository, IRepository<VouchersNumbers> voucherNumbersRepository, IRepository<Domain.Entities.ProgramSettings> programsettingsRepository,
             IRepository<BillOfQTyDetails> BillOfQTyDetailsRepository,
             IRepository<UserTracking> userTrackingRepository,
             IRepository<JobMasterBudgetDetails> _jobbudgetRepository,
-            InspireErpDBContext Context, IRepository<EstimationCostCenter> estimationCostCenterRepository, IRepository<JobMaster> jobMasterRepository, IRepository<BillofQtyTracking> billofQtyTracking, IOrderEmailNotificationService orderEmailNotificationService, IRepository<JobMasterJobDetails> jobMasterJobDetailsRepo, IRepository<CostCenterMaster> costCenterMastr, IRepository<ItemMaster> itemMasterRepository)
+             IOptions<ApplicationSettings> applicationSettings,
+            InspireErpDBContext Context, IRepository<EstimationCostCenter> estimationCostCenterRepository, IRepository<JobMaster> jobMasterRepository, IRepository<BillofQtyTracking> billofQtyTracking, IOrderEmailNotificationService orderEmailNotificationService, IRepository<JobMasterJobDetails> jobMasterJobDetailsRepo, IRepository<CostCenterMaster> costCenterMastr, IRepository<ItemMaster> itemMasterRepository, IGeneralSettings generalSettings, IRepository<CustomerMaster> customerMaster, IRepository<JobMaster> jobrepository, ICurrentUserService currentUserService)
         {
 
             _BillofQtyMasterRepository = BillofQtyMasterRepository;
@@ -83,6 +96,11 @@ namespace Inspire.Erp.Application.Sales.Implementations
             _jobMasterJobDetailsRepo = jobMasterJobDetailsRepo;
             _costCenterMastr = costCenterMastr;
             _itemMasterRepository = itemMasterRepository;
+            _generalSettings = generalSettings;
+            _customerMaster = customerMaster;
+            this.jobrepository = jobrepository;
+            _currentUserService = currentUserService;
+            _dbConnection = new SqlConnection(applicationSettings.Value.ConnectionString);
         }
 
         public async Task<Response<BillofQtyMasterModel>> UpdateBillofQty(BillofQtyMaster BillofQty, List<BillOfQTyDetails> BillOfQTyDetails, List<EstimationCostCenter> EstimationCostCenter)
@@ -237,10 +255,18 @@ namespace Inspire.Erp.Application.Sales.Implementations
             return i;
 
         }
-        public Task<Response<BillofQtyMasterModel>> InsertBillofQty(BillofQtyMaster BillofQty, List<BillOfQTyDetails> BillOfQTyDetails, List<EstimationCostCenter> EstimationCostCenter)
+        public async Task<Response<BillofQtyMasterModel>> InsertBillofQty(BillofQtyMaster BillofQty, List<BillOfQTyDetails> BillOfQTyDetails, List<EstimationCostCenter> EstimationCostCenter)
         {
             try
             {
+
+
+                var settingValue = await _generalSettings.GetApproverStatusAsync((BillofQty.BOQJobID ?? -1).ToString(), nameof(EnumOrderForms.BillOfQuantity));
+
+                if (!string.IsNullOrEmpty(settingValue.ApproverStatus))
+                    return Response<BillofQtyMasterModel>.Fail(null, settingValue.ApproverStatus);
+
+
                 _BillofQtyMasterRepository.BeginTransaction();
                 var jobNum = JobMasterRepository.GetAsQueryable().AsNoTracking()
                 .Where(e => e.JobMasterJobId == BillofQty.CustomerEnqId)
@@ -296,11 +322,37 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 _BillofQtyMasterRepository.TransactionCommit();
 
-                //#region EmailNotification
+                #region EmailNotification
                 //SendEmailOnValueExceedsAsync((int)BillofQty.CustomerEnqId, BillofQty.BillofqtyNo);
-                //#endregion
 
-                return this.GetSavedBillofQty((long)BillofQty.Id);
+
+                var Username = _currentUserService.Username;
+                var jobId = BillofQty?.BOQJobID ?? -1;
+                var jobDetail = await jobrepository.GetAsQueryable().Where(x => x.JobMasterJobId == jobId).FirstOrDefaultAsync();
+                var customerName = await _customerMaster.FirstOrDefaultAsync(x => x.CustomerMasterCustomerNo == BillofQty.CustomerEnqId, s => s.CustomerMasterCustomerName);
+                await _orderEmailNotificationService.SendOrderEmailNotificationAsync(
+                                                                EnumOrderForms.BillOfQuantity,
+                                                                EnumApproverLevels.None,
+                                                                "BillOfQuantity",
+                                                                BillofQty.BillofqtyNo,
+                                                                (DateTime)BillofQty.Date,
+                                                                customerName,
+                                                                (decimal)BillofQty.BOQAmount,
+                                                                (int)BillofQty.Id,
+                                                                (int)jobId,
+                                                                jobDetail == null ? "" : jobDetail.JobMasterJobNumber,
+                                                                jobDetail == null ? "" : jobDetail.JobMasterJobName,
+                                                                true,
+                                                               Username,
+                                                                settingValue.GeneralSettingValue,
+                                                                new List<string> { "" },
+                                                                -1,
+                                                                null,
+                                                                (long)_currentUserService.UserId
+                                                                );
+                #endregion
+
+                return await this.GetSavedBillofQty((long)BillofQty.Id);
             }
             catch (Exception ex)
             {
@@ -417,54 +469,55 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                           TotalAmount = x.TotalAmount,
                                           ProfitAmount = x.ProfitAmount,
                                           ProftPercentage = x.ProftPercentage,
-                                          QuoteAmount = x.QuoteAmount
+                                          QuoteAmount = x.QuoteAmount,
+                                          BOQJobID = x.BOQJobID,
                                       }).FirstOrDefaultAsync();
 
             if (result == null)
                 return null;
 
             result.BillOfQTyDetails = await (from d in _BillOfQTyDetailsRepository.GetAsQueryable()
-                                          where d.BillQtyId == result.Id
-                                          join t in _itemMasterRepository.GetAsQueryable()
-                                              on d.ItemCode equals t.ItemMasterItemId into itemJoin
-                                          from t in itemJoin.DefaultIfEmpty()
-                                          select new BillOfQTyDetailsModel
-                                          {
-                                              Id = d.Id,
-                                              BillQtyId = d.BillQtyId,
-                                              ItemCode = d.ItemCode,
-                                              ItemName = t != null ? t.ItemMasterItemName : string.Empty,
-                                              UnitCode = d.UnitCode,
-                                              Qty = d.Qty,
-                                              Rate = d.Rate,
-                                              Amount = d.Amount,
-                                              Remarks = d.Remarks ?? string.Empty,
-                                              IsEdit = d.IsEdit,
-                                              Freight_Charges = d.Freight_Charges,
-                                              Packing_Charges = d.Packing_Charges,
-                                              Clearance_Charges = d.Clearance_Charges,
-                                              Duty = d.Duty,
-                                              Mofa = d.Mofa,
-                                              Others = d.Others,
-                                              Currency_TypeId = d.Currency_TypeId,
-                                              FinalAmount = d.FinalAmount,
-                                              CurrencyRate = d.CurrencyRate
-                                          }).ToListAsync();
+                                             where d.BillQtyId == result.Id
+                                             join t in _itemMasterRepository.GetAsQueryable()
+                                                 on d.ItemCode equals t.ItemMasterItemId into itemJoin
+                                             from t in itemJoin.DefaultIfEmpty()
+                                             select new BillOfQTyDetailsModel
+                                             {
+                                                 Id = d.Id,
+                                                 BillQtyId = d.BillQtyId,
+                                                 ItemCode = d.ItemCode,
+                                                 ItemName = t != null ? t.ItemMasterItemName : string.Empty,
+                                                 UnitCode = d.UnitCode,
+                                                 Qty = d.Qty,
+                                                 Rate = d.Rate,
+                                                 Amount = d.Amount,
+                                                 Remarks = d.Remarks ?? string.Empty,
+                                                 IsEdit = d.IsEdit,
+                                                 Freight_Charges = d.Freight_Charges,
+                                                 Packing_Charges = d.Packing_Charges,
+                                                 Clearance_Charges = d.Clearance_Charges,
+                                                 Duty = d.Duty,
+                                                 Mofa = d.Mofa,
+                                                 Others = d.Others,
+                                                 Currency_TypeId = d.Currency_TypeId,
+                                                 FinalAmount = d.FinalAmount,
+                                                 CurrencyRate = d.CurrencyRate
+                                             }).ToListAsync();
 
             result.EstimationCostCenter = await (from c in _EstimationCostCenterRepository.GetAsQueryable()
-                                              where c.BillQtyId == result.Id
-                                              join cc in _costCenterMastr.GetAsQueryable()
-                                                  on c.costcenter equals cc.CostCenterMasterCostCenterId into ccJoin
-                                              from cc in ccJoin.DefaultIfEmpty()
-                                              select new EstimationCostCenterModel
-                                              {
-                                                  Id = c.Id,
-                                                  Remarks = c.Remarks ?? string.Empty,
-                                                  Amount = c.Amount ?? 0,
-                                                  BillQtyId = c.BillQtyId,
-                                                  costcenter = c.costcenter,
-                                                  CostCenterName = cc != null ? cc.CostCenterMasterCostCenterName : string.Empty
-                                              }).ToListAsync();
+                                                 where c.BillQtyId == result.Id
+                                                 join cc in _costCenterMastr.GetAsQueryable()
+                                                     on c.costcenter equals cc.CostCenterMasterCostCenterId into ccJoin
+                                                 from cc in ccJoin.DefaultIfEmpty()
+                                                 select new EstimationCostCenterModel
+                                                 {
+                                                     Id = c.Id,
+                                                     Remarks = c.Remarks ?? string.Empty,
+                                                     Amount = c.Amount ?? 0,
+                                                     BillQtyId = c.BillQtyId,
+                                                     costcenter = c.costcenter,
+                                                     CostCenterName = cc != null ? cc.CostCenterMasterCostCenterName : string.Empty
+                                                 }).ToListAsync();
 
             if (result is null)
                 return Response<BillofQtyMasterModel>.Fail(null, $"No bill of quantity were found against {Id}");
@@ -527,6 +580,56 @@ namespace Inspire.Erp.Application.Sales.Implementations
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
+                throw;
+            }
+        }
+
+        public async Task<Response<List<BoqToCustomerQuotationDto>>> GetBoqToCustomerQuotationAsync(string boqNo, DateTime? fromDate, DateTime? toDate)
+        {
+            try
+            {
+                var where = $" 1=1 and bd.Id not in (select distinct isnull(BoqDetailsId, -1) from Customer_Quotation_Details)";
+                if (!string.IsNullOrEmpty(boqNo))
+                    where += $"  and upper(bm.BillofqtyNo) = upper('{boqNo}')  ";
+
+                if (fromDate.HasValue && toDate.HasValue)
+                    where += $" and cast(bm.date as Date) between '{fromDate:yyyy-MM-dd}' and '{toDate:yyyy-MM-dd}'  ";
+
+                var sql = $@"select bm.Id BillofQtyId, bm.BillofqtyNo BillofQtyNo,
+                                        im.Item_Master_Item_ID as ItemId,
+                                        im.Item_Master_Item_Name as ItemName,
+                                        um.Unit_Master_Unit_ID as UnitId,
+                                        um.Unit_Master_Unit_Full_Name as UnitName,
+                                        bd.Qty,
+                                        bd.Rate,
+                                        isnull(bd.Freight_Charges,0) as FreightCharges,
+                                        isnull(bd.Packing_Charges,0) PackingCharges,
+                                        isnull(bd.Clearance_Charges,0) ClearanceCharges,
+                                        isnull(bd.Duty,0) Duty,
+                                        isnull(bd.Mofa,0) Mofa,
+                                        isnull(bd.Others,0) Others,
+                                        bd.FinalAmount
+                                        from BillofQty_Details bd 
+                                        join BillofQty_Master bm on bd.billQtyId = bm.Id
+                                        join Item_Master im on bd.ItemCode = im.Item_Master_Item_ID
+                                        join Unit_Details ud on im.Item_Master_Item_ID = ud.Unit_Details_Item_ID
+                                        join Unit_Master um on ud.Unit_Details_Unit_ID = um.Unit_Master_Unit_ID
+                                        where {where} and bm.Id in (
+                                        select OrderId
+                                        from OrderApprovalHierarchy
+                                        group by OrderId
+                                        having count(*) = sum(case when Status = 'Approved' then 1 else 0 end)
+                                    )";
+
+                var result = (await _dbConnection.QueryAsync<BoqToCustomerQuotationDto>(sql)).ToList();
+                if (!result.Any())
+                    return Response<List<BoqToCustomerQuotationDto>>.Fail(result, "No BOQ Details found for the given criteria.");
+
+                return Response<List<BoqToCustomerQuotationDto>>.Success(result, "BOQ Details found for the given criteria.");
+            }
+            catch (Exception)
+            {
+
                 throw;
             }
         }
