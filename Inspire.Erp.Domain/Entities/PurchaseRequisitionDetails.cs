@@ -46,6 +46,7 @@ namespace Inspire.Erp.Domain.Entities
         public int PurchaseRequisitionDetailsCostCenter { get; set; }
 
         public int? PurchaseRequisitionDetailsBalQty { get; set; }
+        public int? CustomerQuotationDetailsId { get; set; }
         public virtual PurchaseRequisition PurchaseRequisitionDetailsNoNavigation { get; set; }
         
     }
