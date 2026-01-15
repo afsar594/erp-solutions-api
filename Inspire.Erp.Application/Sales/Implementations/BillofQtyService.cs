@@ -602,6 +602,8 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                         um.Unit_Master_Unit_Short_Name as UnitName,
                                         bd.Qty,
                                         bd.Rate,
+                                        bd.Currency_TypeId CurrencyId,
+										cm.Currency_Master_Currency_Name CurrencyName,
                                         bd.CurrencyRate,
                                         isnull(bd.Freight_Charges,0) as FreightCharges,
                                         isnull(bd.Packing_Charges,0) PackingCharges,
@@ -615,6 +617,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                         join Item_Master im on bd.ItemCode = im.Item_Master_Item_ID
                                         join Unit_Details ud on im.Item_Master_Item_ID = ud.Unit_Details_Item_ID
                                         join Unit_Master um on ud.Unit_Details_Unit_ID = um.Unit_Master_Unit_ID
+                                        join Currency_Master cm on bd.Currency_TypeId = cm.Currency_Master_Currency_ID
                                         where {where} and bm.Id in (
                                         select OrderId
                                         from OrderApprovalHierarchy

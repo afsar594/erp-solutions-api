@@ -33,6 +33,8 @@ namespace Inspire.Erp.Domain.Entities
         public string UnitName { get; set; }
         public int Qty { get; set; }
         public decimal Rate { get; set; }
+        public int CurrencyId { get; set; }
+        public string CurrencyName { get; set; }
         public decimal CurrencyRate { get; set; }
         public decimal FreightCharges { get; set; }
         public decimal PackingCharges { get; set; }
