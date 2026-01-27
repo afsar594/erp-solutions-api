@@ -65,6 +65,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
         private readonly ICurrentUserService _currentUserService;
         private readonly IGeneralSettings _generalSettings;
         private readonly IDbConnection _dbConnection;
+        private readonly IRepository<CurrencyMaster> _currencyMasterRepository;
 
         public BillofQtyService(ILogger<CustomerQuotationService> logger, IRepository<PermissionApproval> permissionApprovalRepo,
             IRepository<Approval> approvalRepo, IRepository<ApprovalDetail> approvalDetailRepo,
@@ -73,7 +74,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             IRepository<UserTracking> userTrackingRepository,
             IRepository<JobMasterBudgetDetails> _jobbudgetRepository,
              IOptions<ApplicationSettings> applicationSettings,
-            InspireErpDBContext Context, IRepository<EstimationCostCenter> estimationCostCenterRepository, IRepository<JobMaster> jobMasterRepository, IRepository<BillofQtyTracking> billofQtyTracking, IOrderEmailNotificationService orderEmailNotificationService, IRepository<JobMasterJobDetails> jobMasterJobDetailsRepo, IRepository<CostCenterMaster> costCenterMastr, IRepository<ItemMaster> itemMasterRepository, IGeneralSettings generalSettings, IRepository<CustomerMaster> customerMaster, IRepository<JobMaster> jobrepository, ICurrentUserService currentUserService)
+            InspireErpDBContext Context, IRepository<EstimationCostCenter> estimationCostCenterRepository, IRepository<JobMaster> jobMasterRepository, IRepository<BillofQtyTracking> billofQtyTracking, IOrderEmailNotificationService orderEmailNotificationService, IRepository<JobMasterJobDetails> jobMasterJobDetailsRepo, IRepository<CostCenterMaster> costCenterMastr, IRepository<ItemMaster> itemMasterRepository, IGeneralSettings generalSettings, IRepository<CustomerMaster> customerMaster, IRepository<JobMaster> jobrepository, ICurrentUserService currentUserService, IRepository<CurrencyMaster> currencyMasterRepository)
         {
 
             _BillofQtyMasterRepository = BillofQtyMasterRepository;
@@ -101,6 +102,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             this.jobrepository = jobrepository;
             _currentUserService = currentUserService;
             _dbConnection = new SqlConnection(applicationSettings.Value.ConnectionString);
+            _currencyMasterRepository = currencyMasterRepository;
         }
 
         public async Task<Response<BillofQtyMasterModel>> UpdateBillofQty(BillofQtyMaster BillofQty, List<BillOfQTyDetails> BillOfQTyDetails, List<EstimationCostCenter> EstimationCostCenter)
@@ -324,12 +326,14 @@ namespace Inspire.Erp.Application.Sales.Implementations
 
                 #region EmailNotification
                 //SendEmailOnValueExceedsAsync((int)BillofQty.CustomerEnqId, BillofQty.BillofqtyNo);
-
+                
 
                 var Username = _currentUserService.Username;
                 var jobId = BillofQty?.BOQJobID ?? -1;
                 var jobDetail = await jobrepository.GetAsQueryable().Where(x => x.JobMasterJobId == jobId).FirstOrDefaultAsync();
                 var customerName = await _customerMaster.FirstOrDefaultAsync(x => x.CustomerMasterCustomerNo == BillofQty.CustomerEnqId, s => s.CustomerMasterCustomerName);
+                var cSymbol = _currencyMasterRepository.GetAsQueryable().AsNoTracking().FirstOrDefault(x => x.CurrencyMasterCurrencyId == BillofQty.BillOfQTyDetails.First().Currency_TypeId).CurrencyMasterCurrencySymbol ?? "";
+
                 await _orderEmailNotificationService.SendOrderEmailNotificationAsync(
                                                                 EnumOrderForms.BillOfQuantity,
                                                                 EnumApproverLevels.None,
@@ -337,7 +341,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                                                                 BillofQty.BillofqtyNo,
                                                                 (DateTime)BillofQty.Date,
                                                                 customerName,
-                                                                (decimal)BillofQty.BOQAmount,
+                                                                $"{cSymbol} {BillofQty.BOQAmount:n2}",
                                                                 (int)BillofQty.Id,
                                                                 (int)jobId,
                                                                 jobDetail == null ? "" : jobDetail.JobMasterJobNumber,

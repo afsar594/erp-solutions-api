@@ -70,6 +70,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private ApplicationSettings applicationSettings;
         DownloadAndSaveVoucherReport _downloadAndSaveVoucherReport;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IRepository<CurrencyMaster> _currencyMasterRepository;
 
         public PurchaseRequisitionService(IRepository<ItemMaster> itemMasterRepository, IRepository<UnitMaster> unitMasterRepository, IRepository<SalesVoucherDetails> salesVocuherDetailsRepository,
             IRepository<SuppliersMaster> suppliersMasterRepository, IConfiguration config, IDocsAttachmentService docsAttachmentService,
@@ -79,7 +80,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger, IRepository<JobMaster> _jobrepository, IRepository<BillOfQTyDetails> BillOfQTyDetailsRepository,
              IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo,
         IRepository<PurchaseRequisition> purchaseRequisitionRepository, InspireErpDBContext context, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository, IRepository<JobMasterBudgetDetails> budgetDetailsrepository, IRepository<PurchaseOrderDetails> purchaseOrderDetailsRepository,
-        IOrderEmailNotificationService orderEmailNotificationService, IRepository<ApproverLevelSettings> approverLevelSettings, IRepository<OrderApprovalHierarchy> orderApprovalHierarchy, IRepository<JobMasterJobDetails> jobMasterJobDetailsRepo, IGeneralSettings generalSettings, IRepository<JobMasterControl> jobMasterControls, ICurrentUserService currentUserService, DownloadAndSaveVoucherReport downloadAndSaveVoucherReport)
+        IOrderEmailNotificationService orderEmailNotificationService, IRepository<ApproverLevelSettings> approverLevelSettings, IRepository<OrderApprovalHierarchy> orderApprovalHierarchy, IRepository<JobMasterJobDetails> jobMasterJobDetailsRepo, IGeneralSettings generalSettings, IRepository<JobMasterControl> jobMasterControls, ICurrentUserService currentUserService, DownloadAndSaveVoucherReport downloadAndSaveVoucherReport, IRepository<CurrencyMaster> currencyMasterRepository)
         {
             applicationSettings = config.GetSection("ApplicationSettings").Get<ApplicationSettings>();
             this._accountTransactionRepository = accountTransactionRepository;
@@ -99,6 +100,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _jobMasterControls = jobMasterControls;
             _currentUserService = currentUserService;
             _downloadAndSaveVoucherReport = downloadAndSaveVoucherReport;
+            _currencyMasterRepository = currencyMasterRepository;
         }
         public async Task<Response<PurchaseRequisitionModel>> UpdatePurchaseRequisition(PurchaseRequisition purchaseRequisition, List<AccountsTransactions> accountsTransactions, List<PurchaseRequisitionDetails> purchaseRequisitionDetails)
         {
@@ -491,6 +493,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 var filePath = await _downloadAndSaveVoucherReport.DownloadedFileAsync(applicationSettings.DownloadFileBaseUrl, "PurchaseRequisition", purchaseRequisition.PurchaseRequisitionId.ToString(), (int)purchaseRequisition.PurchaseRequisitionId, purchaseRequisition.PurchaseRequisitionNo);
 
                 #region EmailNotification
+                var cSymbol = _currencyMasterRepository.GetAsQueryable().AsNoTracking().FirstOrDefault(x => x.CurrencyMasterCurrencyId == purchaseRequisition.PurchaseRequisitionCurrencyId).CurrencyMasterCurrencySymbol ?? "";
                 var Username = _currentUserService.Username;
                 var jobId = purchaseRequisition?.PurchaseRequisitionJobId ?? -1;
                 var jobDetail = await jobrepository.GetAsQueryable().Where(x => x.JobMasterJobId == jobId).FirstOrDefaultAsync();
@@ -501,7 +504,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                                 purchaseRequisition.PurchaseRequisitionNo,
                                                                                 purchaseRequisition.PurchaseRequisitionDate,
                                                                                 purchaseRequisition.PurchaseRequisitionPartyName,
-                                                                                (decimal)purchaseRequisition.PurchaseRequisitionNetAmount,
+                                                                                 $"{cSymbol} {purchaseRequisition.PurchaseRequisitionNetAmount:n2}",
                                                                                 (int)purchaseRequisition.PurchaseRequisitionId,
                                                                                 (int)jobId,
                                                                                 jobDetail == null ? "" : jobDetail.JobMasterJobNumber,

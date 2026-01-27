@@ -46,12 +46,13 @@ namespace Inspire.Erp.Application.Email.Implementations
         private IRepository<PurchaseOrder> _purchaseOrderRepository;
         private IRepository<JobMaster> _jobrepository;
         private readonly IGeneralSettings _generalSettings;
+        private readonly IRepository<CurrencyMaster> _currencyMasterRepository;
 
         public OrderEmailNotificationService(IEmailNotificationServices emailNotificationServices,
             IRepository<OrderApprovalHierarchy> orderApprovalHierarchy,
             IOptions<EmailSettingViewModel> mailSettings,
             ILogger<OrderEmailNotificationService> logger,
-            IRepository<UserFile> userFile, IRepository<ApproverLevelSettings> approverLevelSettings, IRepository<DepartmentMaster> departmentMaster, ICurrentUserService currentUserService, IDocsAttachmentService docsAttachmentService, IloginService loginService, INotificaionService notificaionService, IRepository<PurchaseRequisition> purchaseRequisitionRepository, IRepository<JobMaster> jobrepository, IGeneralSettings generalSettings, IRepository<PurchaseOrder> purchaseOrderRepository)
+            IRepository<UserFile> userFile, IRepository<ApproverLevelSettings> approverLevelSettings, IRepository<DepartmentMaster> departmentMaster, ICurrentUserService currentUserService, IDocsAttachmentService docsAttachmentService, IloginService loginService, INotificaionService notificaionService, IRepository<PurchaseRequisition> purchaseRequisitionRepository, IRepository<JobMaster> jobrepository, IGeneralSettings generalSettings, IRepository<PurchaseOrder> purchaseOrderRepository, IRepository<CurrencyMaster> currencyMasterRepository)
         {
             _userFile = userFile;
             _purchaseOrderRequisitionHelper = new PurchaseOrderRequisitionHelper(userFile, approverLevelSettings);
@@ -68,12 +69,13 @@ namespace Inspire.Erp.Application.Email.Implementations
             _jobrepository = jobrepository;
             _generalSettings = generalSettings;
             _purchaseOrderRepository = purchaseOrderRepository;
+            _currencyMasterRepository = currencyMasterRepository;
         }
 
 
 
         public async Task SendOrderEmailNotificationAsync(EnumOrderForms orderType, EnumApproverLevels level, string subTitle, string poNumber,
-                DateTime date, string supplier, decimal totalAmount, int orderId, int jobId,
+                DateTime date, string supplier, string totalAmount, int orderId, int jobId,
                 string jobNo, string jobName, bool IsNewEntery, string requestedBy, string settingValue,
                 List<string> attachments, int approverId = -1, FileResultDto fileResult = null, long originatorId = default)
         {
@@ -470,14 +472,15 @@ namespace Inspire.Erp.Application.Email.Implementations
                 var jobId = purchaseRequisition?.PurchaseRequisitionJobId ?? -1;
                 var jobDetail = await _jobrepository.GetAsQueryable().AsNoTracking().FirstOrDefaultAsync(x => x.JobMasterJobId == jobId);
                 var settingValue = await _generalSettings.GetApproverStatusAsync(purchaseRequisition.PurchaseRequisitionJobId.ToString(), nameof(EnumOrderForms.PurchaseRequisition));
-
+                var cSymbol =  _currencyMasterRepository.GetAsQueryable().AsNoTracking()
+                                   .FirstOrDefault(c => c.CurrencyMasterCurrencyId == purchaseRequisition.PurchaseRequisitionCurrencyId).CurrencyMasterCurrencySymbol ?? "";
                 await SendOrderEmailNotificationAsync(EnumOrderForms.PurchaseRequisition,
                                                       level,
                                                       "Requisition",
                                                       purchaseRequisition.PurchaseRequisitionNo,
                                                       purchaseRequisition.PurchaseRequisitionDate,
                                                       purchaseRequisition.PurchaseRequisitionPartyName,
-                                                      (decimal)purchaseRequisition.PurchaseRequisitionNetAmount,
+                                                       $"{cSymbol} {(decimal)purchaseRequisition.PurchaseRequisitionNetAmount}",
                                                       (int)purchaseRequisition.PurchaseRequisitionId,
                                                       (int)jobId,
                                                       jobDetail == null ? "" : jobDetail.JobMasterJobNumber,
@@ -508,14 +511,15 @@ namespace Inspire.Erp.Application.Email.Implementations
                 var jobId = purchaseOrder?.PurchaseOrderJobId ?? -1;
                 var jobDetail = await _jobrepository.GetAsQueryable().AsNoTracking().FirstOrDefaultAsync(x => x.JobMasterJobId == jobId);
                 var settingValue = await _generalSettings.GetApproverStatusAsync(purchaseOrder.PurchaseOrderJobId.ToString(), nameof(EnumOrderForms.PurchaseOrder));
-
+                var cSymbol =  _currencyMasterRepository.GetAsQueryable().AsNoTracking()
+                                   .FirstOrDefault(c => c.CurrencyMasterCurrencyId == purchaseOrder.PurchaseOrderCurrencyId).CurrencyMasterCurrencySymbol ?? "";
                 await SendOrderEmailNotificationAsync(EnumOrderForms.PurchaseOrder,
                                                       level,
                                                       "Order",
                                                       purchaseOrder.PurchaseOrderNo,
                                                       purchaseOrder.PurchaseOrderDate,
                                                       purchaseOrder.PurchaseOrderPartyName,
-                                                      (decimal)purchaseOrder.PurchaseOrderNetAmount,
+                                                    $"{cSymbol} {(decimal)purchaseOrder.PurchaseOrderNetAmount}",
                                                       (int)purchaseOrder.PurchaseOrderId,
                                                       (int)jobId,
                                                       jobDetail == null ? "" : jobDetail.JobMasterJobNumber,

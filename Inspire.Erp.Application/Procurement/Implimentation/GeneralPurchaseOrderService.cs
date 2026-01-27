@@ -9,6 +9,7 @@ using Inspire.Erp.Domain.Entities;
 using Inspire.Erp.Domain.Enums;
 using Inspire.Erp.Domain.Modals;
 using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -43,7 +44,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private IRepository<UserFile> _userFileRepository;
         private readonly IOrderEmailNotificationService _orderEmailNotificationService;
         private readonly ICurrentUserService _currentUserService;
-
+        private readonly IRepository<CurrencyMaster> _currencyMasterRepository;
         public GeneralPurchaseOrderService(
             IRepository<UserFile> userFileRepository, IRepository<PermissionApproval> permissionApprovalRepo,
             IRepository<Approval> approvalRepo, IRepository<ApprovalDetail> approvalDetailRepo,
@@ -54,7 +55,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<AccountsTransactions> accountTransactionRepository, IRepository<StockRegister> stockRegisterRepository, IRepository<ProgramSettings> programsettingsRepository,
              IRepository<VouchersNumbers> voucherNumbers, ILogger<PaymentVoucherService> logger,
              IOrderEmailNotificationService orderEmailNotificationService, IGeneralSettings generalSettings,
-            IRepository<GeneralPurchaseOrder> GeneralpurchaseOrderRepository, IRepository<GeneralPurchaseOrderDetails> GeneralpurchaseOrderDetailsRepository, IRepository<PurchaseReturn> purchaseReturnRepository, IRepository<PurchaseReturnDetails> purchaseReturnDetailsRepository, IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PurOrderRegister> purOrderRegisterRepository, ICurrentUserService currentUserService)
+            IRepository<GeneralPurchaseOrder> GeneralpurchaseOrderRepository, IRepository<GeneralPurchaseOrderDetails> GeneralpurchaseOrderDetailsRepository, IRepository<PurchaseReturn> purchaseReturnRepository, IRepository<PurchaseReturnDetails> purchaseReturnDetailsRepository, IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PurOrderRegister> purOrderRegisterRepository, ICurrentUserService currentUserService, IRepository<CurrencyMaster> currencyMasterRepository)
         {
             this._accountTransactionRepository = accountTransactionRepository;
             this._stockRegisterRepository = stockRegisterRepository;
@@ -79,6 +80,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             //_reportPurchaseOrderRepository = reportPurchaseOrderRepository;
             _generalSettings = generalSettings;
             _currentUserService = currentUserService;
+            _currencyMasterRepository = currencyMasterRepository;
         }
 
         public IEnumerable<UserFile> GetAllUserFile()
@@ -267,6 +269,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 
                 #region EmailNotification
                 var Username = _currentUserService.Username;
+                var cSymbol = _currencyMasterRepository.GetAsQueryable().AsNoTracking().FirstOrDefault(x => x.CurrencyMasterCurrencyId == GeneralpurchaseOrder.GeneralPurchaseOrderCurrencyId).CurrencyMasterCurrencySymbol ?? "";
 
                 //var jobId = purchaseRequisition?.PurchaseRequisitionJobId ?? -1;
                 //var jobDetail = jobrepository.GetAsQueryable().Where(x => x.JobMasterJobId == jobId).FirstOrDefault();
@@ -277,7 +280,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                                 GeneralpurchaseOrder.GeneralPurchaseOrderPono,
                                                                                 GeneralpurchaseOrder.GeneralPurchaseOrderPoDate,
                                                                                 string.Empty,//supplier name
-                                                                                (decimal)GeneralpurchaseOrder.GeneralPurchaseOrderNetAmount,
+                                                                                $"{cSymbol} {GeneralpurchaseOrder.GeneralPurchaseOrderNetAmount:n2}",
                                                                                 (int)GeneralpurchaseOrder.GeneralPurchaseOrderId,
                                                                                 (int)GeneralpurchaseOrder.GeneralPurchaseOrderJobId,//job id need to be added if required
                                                                                 string.Empty,//job no need to be added if required

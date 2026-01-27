@@ -27,6 +27,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using PdfSharpCore.Pdf.Annotations;
+using PdfSharpCore.Pdf.Content;
 using SixLabors.ImageSharp;
 using System;
 using System.Collections.Generic;
@@ -90,6 +91,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
         private readonly IBillofQtyService _billofQtyService;
         private readonly IRepository<CustomerMaster> _customerMaster;
         private readonly IRepository<BillofQtyMaster> _billofQtyMasterRepository;
+        private readonly IRepository<CurrencyMaster> _currencyMasterRepository;
 
         public PurchaseOrderService(
             IConfiguration config,
@@ -104,7 +106,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             IRepository<TrackingRegister> trackingRegisterRepository, IRepository<PurOrderRegister> purOrderRegisterRepository,
             IRepository<UnitDetails> unitDetailsRepository,
             IRepository<PurchaseVoucherDetails> purchaseVoucherDetailsRepo,
-            IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository, IRepository<Permissionapproval> permissionapproval, IRepository<ApproverLevelSettings> approverLevelSettings, IOrderEmailNotificationService orderEmailNotificationService, IRepository<PurchaseRequisition> purchaseRequisitionRepository, IRepository<OrderApprovalHierarchy> orderApprovalHierarchy, IPurchaseRequisitionService purchaseRequisitionService, IRepository<CustomerQuotation> customerQuotation, IRepository<JobMaster> jobMaster, IGeneralSettings generalSettings, IRepository<GeneralPurchaseOrder> generalPurchaseOrder, ICurrentUserService currentUserService, IGeneralSelectQueries generalSelectQueries, IRepository<DefaultApprover> defaultApproversRepo, IRepository<PaymentRequest> paymentReqRepository, INotificaionService notificaionService, DownloadAndSaveVoucherReport downloadAndSaveVoucherReport, IBillofQtyService billofQtyService, IRepository<CustomerMaster> customerMaster, IRepository<BillofQtyMaster> billofQtyMasterRepository)
+            IRepository<PermissionApprovalDetail> permissionApprovalDetailRepo, IRepository<PurchaseRequisitionDetails> purchaseRequisitionDetailsRepository, IRepository<Permissionapproval> permissionapproval, IRepository<ApproverLevelSettings> approverLevelSettings, IOrderEmailNotificationService orderEmailNotificationService, IRepository<PurchaseRequisition> purchaseRequisitionRepository, IRepository<OrderApprovalHierarchy> orderApprovalHierarchy, IPurchaseRequisitionService purchaseRequisitionService, IRepository<CustomerQuotation> customerQuotation, IRepository<JobMaster> jobMaster, IGeneralSettings generalSettings, IRepository<GeneralPurchaseOrder> generalPurchaseOrder, ICurrentUserService currentUserService, IGeneralSelectQueries generalSelectQueries, IRepository<DefaultApprover> defaultApproversRepo, IRepository<PaymentRequest> paymentReqRepository, INotificaionService notificaionService, DownloadAndSaveVoucherReport downloadAndSaveVoucherReport, IBillofQtyService billofQtyService, IRepository<CustomerMaster> customerMaster, IRepository<BillofQtyMaster> billofQtyMasterRepository, IRepository<CurrencyMaster> currencyMasterRepository)
         {
             applicationSettings = config.GetSection("ApplicationSettings").Get<ApplicationSettings>();
             this._accountTransactionRepository = accountTransactionRepository;
@@ -149,6 +151,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             _billofQtyService = billofQtyService;
             _customerMaster = customerMaster;
             _billofQtyMasterRepository = billofQtyMasterRepository;
+            _currencyMasterRepository = currencyMasterRepository;
         }
         public IEnumerable<UserFile> GetAllUserFile()
         {
@@ -552,6 +555,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     _purchaseOrderRepository.TransactionCommit();
 
                     #region EmailNotification
+                    var cSymbol = _currencyMasterRepository.GetAsQueryable().AsNoTracking().FirstOrDefault(x => x.CurrencyMasterCurrencyId == purchaseOrder.PurchaseOrderCurrencyId).CurrencyMasterCurrencySymbol ?? "";
+
                     string filePath = await downloadReport(purchaseOrder);
                     var jobDetail = _jobMaster.GetAsQueryable().Where(x => x.JobMasterJobId == jobId).FirstOrDefault();
                     await _orderEmailNotificationService.SendOrderEmailNotificationAsync(
@@ -561,7 +566,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                                   purchaseOrder.PurchaseOrderNo,
                                                                                   purchaseOrder.PurchaseOrderDate,
                                                                                   purchaseOrder.PurchaseOrderPartyName,
-                                                                                  (decimal)purchaseOrder.PurchaseOrderNetAmount,
+                                                                                  $"{cSymbol} {purchaseOrder.PurchaseOrderNetAmount:n2}",
                                                                                   (int)purchaseOrder.PurchaseOrderId,
                                                                                   (int)jobId,
                                                                                    jobDetail == null ? "" : jobDetail.JobMasterJobNumber,
@@ -771,6 +776,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     string filePath = await downloadReport(purchaseOrder);
                     var jobDetail = _jobMaster.GetAsQueryable().AsNoTracking()
                         .FirstOrDefault(x => x.JobMasterJobId == jobId);
+                    var cSymbol = _currencyMasterRepository.GetAsQueryable().AsNoTracking().FirstOrDefault(x => x.CurrencyMasterCurrencyId == purchaseOrder.PurchaseOrderCurrencyId).CurrencyMasterCurrencySymbol ?? "";
 
                     await _orderEmailNotificationService.SendOrderEmailNotificationAsync(
                         EnumOrderForms.PurchaseOrder,
@@ -779,7 +785,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                         purchaseOrder.PurchaseOrderNo,
                         purchaseOrder.PurchaseOrderDate,
                         purchaseOrder.PurchaseOrderPartyName,
-                        (decimal)purchaseOrder.PurchaseOrderNetAmount,
+                        $"{cSymbol} {purchaseOrder.PurchaseOrderNetAmount:n2}",
                         (int)purchaseOrder.PurchaseOrderId,
                         (int)jobId,
                         jobDetail?.JobMasterJobNumber ?? "",
@@ -1586,7 +1592,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 if (!visibleApprovers.Any())
                     continue;
-                
+
                 var dto = new VoucherApprivalDto
                 {
                     VoucherId = (int)req.Id,
@@ -1597,7 +1603,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     LocationName = string.Empty,
                     JobId = -1,
                     JobName = string.Empty,
-                    Amount = (decimal)(req.BOQAmount?? 0),
+                    Amount = (decimal)(req.BOQAmount ?? 0),
                     Status = GetVoucherStatus(visibleApprovers),
                     Remarks = string.Empty,
                     VoucherApprovers = visibleApprovers
@@ -2244,6 +2250,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             var jobId = bo.Result.BOQJobID ?? -1;
             var jobDetail = _jobMaster.GetAsQueryable().Where(x => x.JobMasterJobId == jobId).FirstOrDefault();
             var customerName = await _customerMaster.FirstOrDefaultAsync(x => x.CustomerMasterCustomerNo == bo.Result.CustomerEnqId, s => s.CustomerMasterCustomerName);
+                var cSymbol = _currencyMasterRepository.GetAsQueryable().AsNoTracking().FirstOrDefault(x => x.CurrencyMasterCurrencyId == bo.Result.BillOfQTyDetails.First().Currency_TypeId).CurrencyMasterCurrencySymbol ?? "";
+
 
             await _orderEmailNotificationService.SendOrderEmailNotificationAsync(
                                                                          EnumOrderForms.PurchaseRequisition,
@@ -2252,7 +2260,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                          bo.Result.BillofqtyNo,
                                                                          (DateTime)bo.Result.Date,
                                                                          customerName ?? "",
-                                                                         (decimal)bo.Result.BOQAmount,
+                                                                          $"{cSymbol} {bo.Result.BOQAmount:n2}",
                                                                          (int)bo.Result.Id,
                                                                           (int)jobId,
                                                                           jobDetail == null ? "" : jobDetail.JobMasterJobNumber,
@@ -2271,6 +2279,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             var po = await GetSavedPurchaseOrderDetails(orderId);
             var jobId = po.Result.purchaseOrder?.PurchaseOrderJobId ?? -1;
             var jobDetail = _jobMaster.GetAsQueryable().Where(x => x.JobMasterJobId == jobId).FirstOrDefault();
+            var cSymbol = _currencyMasterRepository.GetAsQueryable().AsNoTracking().FirstOrDefault(x => x.CurrencyMasterCurrencyId == po.Result.purchaseOrder.PurchaseOrderCurrencyId).CurrencyMasterCurrencySymbol ?? "";
+
             await _orderEmailNotificationService.SendOrderEmailNotificationAsync(
                                                                              EnumOrderForms.PurchaseOrder,
                                                                              nextLevelToSendEamil,
@@ -2278,7 +2288,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                           po.Result.purchaseOrder.PurchaseOrderNo,
                                                                           po.Result.purchaseOrder.PurchaseOrderDate,
                                                                           po.Result.purchaseOrder.PurchaseOrderPartyName ?? "",
-                                                                          (decimal)po.Result.purchaseOrder.PurchaseOrderNetAmount,
+                                                                          $"{cSymbol} {po.Result.purchaseOrder.PurchaseOrderNetAmount:n2}",
                                                                           (int)po.Result.purchaseOrder.PurchaseOrderId,
                                                                           (int)jobId,
                                                                           jobDetail == null ? "" : jobDetail.JobMasterJobNumber,
@@ -2298,6 +2308,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
             var pr = await _purchaseRequisitionService.GetSavedPurchaseRequisitionDetails(orderId);
             var jobId = pr.Result.purchaseRequisition?.PurchaseRequisitionJobId ?? -1;
             var jobDetail = _jobMaster.GetAsQueryable().Where(x => x.JobMasterJobId == jobId).FirstOrDefault();
+            var cSymbol = _currencyMasterRepository.GetAsQueryable().AsNoTracking().FirstOrDefault(x => x.CurrencyMasterCurrencyId == pr.Result.purchaseRequisition.PurchaseRequisitionCurrencyId).CurrencyMasterCurrencySymbol ?? "";
+
             await _orderEmailNotificationService.SendOrderEmailNotificationAsync(
                                                                          EnumOrderForms.PurchaseRequisition,
                                                                          nextLevelToSendEamil,
@@ -2305,7 +2317,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                                                                          pr.Result.purchaseRequisition.PurchaseRequisitionNo,
                                                                          pr.Result.purchaseRequisition.PurchaseRequisitionDate,
                                                                          pr.Result.purchaseRequisition.PurchaseRequisitionPartyName ?? "",
-                                                                         (decimal)pr.Result.purchaseRequisition.PurchaseRequisitionNetAmount,
+                                                                         $"{cSymbol} {pr.Result.purchaseRequisition.PurchaseRequisitionNetAmount:n2}",
                                                                          (int)pr.Result.purchaseRequisition.PurchaseRequisitionId,
                                                                           (int)jobId,
                                                                           jobDetail == null ? "" : jobDetail.JobMasterJobNumber,
