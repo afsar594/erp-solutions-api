@@ -234,6 +234,7 @@ namespace Inspire.Erp.Application.Master
                     x.JobMasterControlDtlId = 0;
                     x.JobMasterNo = vNumber;
                     x.JobMasterControlJobID = jobId;
+                    x.VoucherType = x.VoucherType ?? "";
                 });
 
                 // end
