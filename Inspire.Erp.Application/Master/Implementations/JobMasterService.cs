@@ -414,19 +414,47 @@ namespace Inspire.Erp.Application.Master
                 .ToList();
 
 
-                jobMasterData.JobMasterControl = _jobMasterControl.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterControlJobID == jobMasterData.JobMasterJobId).ToList();
+                jobMasterData.JobMasterControl = _jobMasterControl.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterControlJobID == jobMasterData.JobMasterJobId && x.JobMasterControlCostCenerID > 0 && x.RefVoucherNo != "").ToList();
 
               
                 var summaries = await GetEstimationCostCenterSummaries(jobMasterData.JobMasterJobId);
 
-                jobMasterData.JobMasterControl.ToList().ForEach(x =>
+                jobMasterData.JobMasterControl= jobMasterData.JobMasterControl
+                .GroupBy(x => new
                 {
-                    x.PrAmount = x.VoucherType.ToUpper() == "PR".ToUpper() ? x.JobMasterControlAmount : 0;
-                    x.JobMasterControlAmount = x.VoucherType.ToUpper() != "PR".ToUpper() ? summaries.FirstOrDefault(c => c.CostcenterId == x.JobMasterControlCostCenerID)?.Amount ?? 0 :0;
-                    //x.JobMasterControlActual = groupedData.FirstOrDefault(gd => gd.JobMasterBudgetDetailsBudId == x.JobMasterControlCostCenerID)?.JobMasterBudgetDetailsActual ?? 0;
-                    x.JobMasterControlVariance = x.JobMasterControlAmount - x.JobMasterControlActual;
-                });
+                    x.JobMasterControlCostCenerID,
+                    x.VoucherType
+                }).Select(g =>
+                {
+                    var first = g.First();
 
+                    decimal prAmount = g.Key.VoucherType == "PR"
+                        ? g.Sum(x => x.JobMasterControlAmount ?? 0)
+                        : 0;
+
+                    decimal amount = g.Key.VoucherType != "PR"
+                        ? summaries.FirstOrDefault(s => s.CostcenterId == g.Key.JobMasterControlCostCenerID)?.Amount ?? 0
+                        : 0;
+
+                    return new JobMasterControl
+                    {
+                        JobMasterControlDtlId = first.JobMasterControlDtlId,
+                        JobMasterControlJobID = first.JobMasterControlJobID,
+                        JobMasterNo = first.JobMasterNo,
+                        JobMasterControlCostCenerID = g.Key.JobMasterControlCostCenerID,
+
+                        VoucherType = g.Key.VoucherType,
+
+                        PrAmount = prAmount,
+                        JobMasterControlAmount = amount,
+
+                        JobMasterControlActual = first.JobMasterControlActual,
+                        JobMasterControlVariance = amount - (first.JobMasterControlActual ?? 0),
+
+                        RefVoucherNo = first.RefVoucherNo,
+                        EmailClose = first.EmailClose
+                    };
+                }).ToList();
                 jobMasterData.JobMasterBudgetDetails = groupedData;
 
                 jobMasterData.JobMasterJobDetails = jobdetailsRepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterNo == jbno && x.JobMasterJobDetailsDelStatus == false).ToList();
