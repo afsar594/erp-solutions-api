@@ -3400,7 +3400,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.BankPaymentVoucherNarration)
                     .HasColumnName("Bank_Payment_Voucher_Narration")
-                    .HasMaxLength(100)
+                    .HasMaxLength(500)
                     .IsUnicode(false);
 
                 entity.Property(e => e.BankPaymentVoucherOptType)
@@ -3484,7 +3484,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.BankPaymentVoucherDetailsNarration)
                     .HasColumnName("Bank_Payment_Voucher_Details_Narration")
-                    .HasMaxLength(100)
+                    .HasMaxLength(500)
                     .IsUnicode(false);
 
                 entity.Property(e => e.BankPaymentVoucherDetailsPdc).HasColumnName("Bank_Payment_Voucher_Details_PDC");
@@ -3541,7 +3541,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.PaymentRequestNarration)
                     .HasColumnName("Payment_Request_Narration")
-                    .HasMaxLength(100)
+                    .HasMaxLength(500)
                     .IsUnicode(false);
 
                 entity.Property(e => e.PaymentRequestFsno)
@@ -3606,7 +3606,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.PaymentRequestDetailsNarration)
                     .HasColumnName("Payment_Request_Details_Narration")
-                    .HasMaxLength(100)
+                    .HasMaxLength(500)
                     .IsUnicode(false);
 
                 entity.Property(e => e.PaymentRequestDetailsFsno)
@@ -3689,7 +3689,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.BankReceiptVoucherDetailsNarration)
                     .HasColumnName("Bank_Receipt_Voucher_Details_Narration")
-                    .HasMaxLength(100)
+                    .HasMaxLength(500)
                     .IsUnicode(false);
 
                 entity.Property(e => e.BankReceiptVoucherDetailsPdc).HasColumnName("Bank_Receipt_Voucher_Details_PDC");
@@ -10666,7 +10666,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.PaymentVoucherNarration)
                     .HasColumnName("Payment_Voucher_Narration")
-                    .HasMaxLength(100)
+                    .HasMaxLength(500)
                     .IsUnicode(false);
 
                 entity.Property(e => e.PaymentVoucherUserId).HasColumnName("Payment_Voucher_User_ID");
@@ -10721,7 +10721,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.PaymentVoucherDetailsNarration)
                     .HasColumnName("Payment_Voucher_Details_Narration")
-                    .HasMaxLength(100)
+                    .HasMaxLength(500)
                     .IsUnicode(false);
 
                 entity.Property(e => e.PaymentVoucherDetailsSno).HasColumnName("Payment_Voucher_Details_Sno");
@@ -10783,7 +10783,7 @@ namespace Inspire.Erp.Infrastructure.Database
 
                 entity.Property(e => e.PdcVoucherNarration)
                     .HasColumnName("PDC_Voucher_Narration")
-                    .HasMaxLength(150)
+                    .HasMaxLength(500)
                     .IsUnicode(false);
 
                 entity.Property(e => e.PdcVoucherPdcAmount).HasColumnName("PDC_Voucher_PDC_Amount");
