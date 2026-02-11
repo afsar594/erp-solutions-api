@@ -413,53 +413,72 @@ namespace Inspire.Erp.Application.Master
                 })
                 .ToList();
 
+                var jobMasterControls = _jobMasterControl.GetAsQueryable()
+    .AsNoTracking()
+    .Where(x => x.JobMasterControlJobID == jobMasterData.JobMasterJobId
+             && x.JobMasterControlCostCenerID > 0)
+    .ToList();
 
-                jobMasterData.JobMasterControl = _jobMasterControl.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterControlJobID == jobMasterData.JobMasterJobId && x.JobMasterControlCostCenerID > 0 && x.RefVoucherNo != "").ToList();
-
-              
                 var summaries = await GetEstimationCostCenterSummaries(jobMasterData.JobMasterJobId);
 
-                jobMasterData.JobMasterControl= jobMasterData.JobMasterControl
-                .GroupBy(x => new
-                {
-                    x.JobMasterControlCostCenerID,
-                    x.VoucherType
-                }).Select(g =>
-                {
-                    var first = g.First();
+                // Convert summaries to dictionary for fast lookup
+                var summaryDict = summaries
+                    .GroupBy(s => s.CostcenterId)
+                    .ToDictionary(g => g.Key, g => g.Sum(x => x.Amount));
 
-                    decimal prAmount = g.Key.VoucherType == "PR"
-                        ? g.Sum(x => x.JobMasterControlAmount ?? 0)
-                        : 0;
-
-                    decimal amount = g.Key.VoucherType != "PR"
-                        ? summaries.FirstOrDefault(s => s.CostcenterId == g.Key.JobMasterControlCostCenerID)?.Amount ?? 0
-                        : 0;
-
-                    return new JobMasterControl
+                jobMasterData.JobMasterControl = jobMasterControls
+                    .GroupBy(x => new
                     {
-                        JobMasterControlDtlId = first.JobMasterControlDtlId,
-                        JobMasterControlJobID = first.JobMasterControlJobID,
-                        JobMasterNo = first.JobMasterNo,
-                        JobMasterControlCostCenerID = g.Key.JobMasterControlCostCenerID,
+                        x.JobMasterControlCostCenerID,
+                        VoucherType = x.VoucherType ?? string.Empty
+                    })
+                    .Select(g =>
+                    {
+                        var first = g.First();
 
-                        VoucherType = g.Key.VoucherType,
+                        decimal prAmount = 0m;
+                        decimal amount = 0m;
 
-                        PrAmount = prAmount,
-                        JobMasterControlAmount = amount,
+                        if (g.Key.VoucherType == "PR")
+                        {
+                            prAmount = g.Sum(x => x.JobMasterControlAmount ?? 0m);
+                        }
+                        else
+                        {
+                            summaryDict.TryGetValue((int)g.Key.JobMasterControlCostCenerID, out amount);
+                        }
 
-                        JobMasterControlActual = first.JobMasterControlActual,
-                        JobMasterControlVariance = amount - (first.JobMasterControlActual ?? 0),
+                        decimal actual = first.JobMasterControlActual ?? 0m;
+                        decimal variance = amount - actual;
 
-                        RefVoucherNo = first.RefVoucherNo,
-                        EmailClose = first.EmailClose
-                    };
-                }).ToList();
+                        return new JobMasterControl
+                        {
+                            JobMasterControlDtlId = first.JobMasterControlDtlId,
+                            JobMasterControlJobID = first.JobMasterControlJobID,
+                            JobMasterNo = first.JobMasterNo,
+                            JobMasterControlCostCenerID = g.Key.JobMasterControlCostCenerID,
+
+                            VoucherType = g.Key.VoucherType,
+
+                            PrAmount = prAmount,
+                            JobMasterControlAmount = amount,
+
+                            JobMasterControlActual = actual,
+                            JobMasterControlVariance = variance,
+
+                            RefVoucherNo = first.RefVoucherNo ?? string.Empty,
+                            EmailClose = first.EmailClose ?? false,
+                            JobMasterBudgetDetailsEmail = first.JobMasterBudgetDetailsEmail ?? false,
+                        };
+                    })
+                    .ToList();
+
+
                 jobMasterData.JobMasterBudgetDetails = groupedData;
 
                 jobMasterData.JobMasterJobDetails = jobdetailsRepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterNo == jbno && x.JobMasterJobDetailsDelStatus == false).ToList();
                 jobMasterData.JobMasterJobWiseBankGuarantees = jobBankGuaruRepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterNo == jbno && x.JobMasterJobWiseBankGuaranteesDelStatus == false).ToList();
-                jobMasterData.AccountsTransactions = accountsTransactionsRepository.GetAsQueryable().AsNoTracking().Where(x => x.AccountsTransactionsJobNo == jobMasterData.JobMasterJobId && x.AccountstransactionsDelStatus==false && (x.AccountsTransactionsVoucherType == "RECEIPT" || x.AccountsTransactionsVoucherType == "BANK RECEIPT")).ToList();
+                jobMasterData.AccountsTransactions = accountsTransactionsRepository.GetAsQueryable().AsNoTracking().Where(x => x.AccountsTransactionsJobNo == jobMasterData.JobMasterJobId && x.AccountstransactionsDelStatus == false && (x.AccountsTransactionsVoucherType == "RECEIPT" || x.AccountsTransactionsVoucherType == "BANK RECEIPT")).ToList();
                 jobMasterData.JobStaff = jobstaffrepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterJobId == jobMasterData.JobMasterJobId).ToList();
                 jobMasterData.JobEquipment = jobEquipmentrepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterJobId == jobMasterData.JobMasterJobId).ToList();
                 jobMasterData.JobExcutionDetails = jobexecrepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterJobId == jobMasterData.JobMasterJobId).ToList();
@@ -484,16 +503,16 @@ namespace Inspire.Erp.Application.Master
                                             DrAmt = at.AccountsTransactionsDebit,
                                             CostName = cos.CostCenterMasterCostCenterName
                                         }).OrderBy(x => x.accName).AsNoTracking().AsEnumerable().ToList();
-                jobMasterData.PaymentTransactions =(from at in context.AccountsTransactions
-                                                        join mat in context.MasterAccountsTable
-                                                            on at.AccountsTransactionsAccNo equals mat.MaAccNo
-                                                        where
-                                                            mat.MaMainHead != "Expenses"
-                                                            && (at.AccountsTransactionsVoucherType == "PAYMENT"
-                                                                || at.AccountsTransactionsVoucherType == "BANK PAYMENT")
-                                                            && at.AccountsTransactionsJobNo == jobMasterData.JobMasterJobId
-                                                            && at.AccountstransactionsDelStatus != true
-                                                        select at   // 👈 sirf entity select
+                jobMasterData.PaymentTransactions = (from at in context.AccountsTransactions
+                                                     join mat in context.MasterAccountsTable
+                                                         on at.AccountsTransactionsAccNo equals mat.MaAccNo
+                                                     where
+                                                         mat.MaMainHead != "Expenses"
+                                                         && (at.AccountsTransactionsVoucherType == "PAYMENT"
+                                                             || at.AccountsTransactionsVoucherType == "BANK PAYMENT")
+                                                         && at.AccountsTransactionsJobNo == jobMasterData.JobMasterJobId
+                                                         && at.AccountstransactionsDelStatus != true
+                                                     select at   // 👈 sirf entity select
                                                     )
                                                     .AsNoTracking()
                                                     .ToList();
