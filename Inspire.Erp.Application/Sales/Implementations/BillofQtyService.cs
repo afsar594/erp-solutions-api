@@ -263,7 +263,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
             {
 
 
-                var settingValue = await _generalSettings.GetApproverStatusAsync((BillofQty.BOQJobID ?? -1).ToString(), nameof(EnumOrderForms.BillOfQuantity));
+                var settingValue = await _generalSettings.GetApproverStatusAsync((BillofQty.CustomerEnqId ?? -1).ToString(), nameof(EnumOrderForms.BillOfQuantity));
 
                 if (!string.IsNullOrEmpty(settingValue.ApproverStatus))
                     return Response<BillofQtyMasterModel>.Fail(null, settingValue.ApproverStatus);
@@ -332,7 +332,7 @@ namespace Inspire.Erp.Application.Sales.Implementations
                 var jobId = BillofQty?.BOQJobID ?? -1;
                 var jobDetail = await jobrepository.GetAsQueryable().Where(x => x.JobMasterJobId == jobId).FirstOrDefaultAsync();
                 var customerName = await _customerMaster.FirstOrDefaultAsync(x => x.CustomerMasterCustomerNo == BillofQty.CustomerEnqId, s => s.CustomerMasterCustomerName);
-                var cSymbol = _currencyMasterRepository.GetAsQueryable().AsNoTracking().FirstOrDefault(x => x.CurrencyMasterCurrencyId == BillofQty.BillOfQTyDetails.First().Currency_TypeId).CurrencyMasterCurrencySymbol ?? "";
+                var cSymbol = _currencyMasterRepository.GetAsQueryable().AsNoTracking().FirstOrDefault(x => x.CurrencyMasterCurrencyId == BillOfQTyDetails.First().Currency_TypeId).CurrencyMasterCurrencySymbol ?? "";
 
                 await _orderEmailNotificationService.SendOrderEmailNotificationAsync(
                                                                 EnumOrderForms.BillOfQuantity,
