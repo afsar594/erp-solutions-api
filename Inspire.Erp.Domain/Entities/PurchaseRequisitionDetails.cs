@@ -14,8 +14,8 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? PurchaseRequisitionDetailsMatId { get; set; }
         public string PurchaseRequisitionDetailsItemName { get; set; }
         public int PurchaseRequisitionDetailsUnitId { get; set; }
-        public string PurchaseRequisitionDetailsUnitName { get; set; }
-        public string PurchaseRequisitionDetailsBatchCode { get; set; }
+        public string? PurchaseRequisitionDetailsUnitName { get; set; }
+        public string? PurchaseRequisitionDetailsBatchCode { get; set; }
         public DateTime? PurchaseRequisitionDetailsManfDate { get; set; }
         public DateTime? PurchaseRequisitionDetailsExpDate { get; set; }
         public decimal? PurchaseRequisitionDetailsQuantity { get; set; }
@@ -43,7 +43,7 @@ namespace Inspire.Erp.Domain.Entities
         //   public int? PurchaseRequisitionDetailsItemID { get; set; }
         public int? PurchaseRequisitionDetailsSupplierId { get; set; }
         public int? boqdId { get; set; }
-        public int PurchaseRequisitionDetailsCostCenter { get; set; }
+        public int? PurchaseRequisitionDetailsCostCenter { get; set; }
 
         public int? PurchaseRequisitionDetailsBalQty { get; set; }
         public int? CustomerQuotationDetailsId { get; set; }
