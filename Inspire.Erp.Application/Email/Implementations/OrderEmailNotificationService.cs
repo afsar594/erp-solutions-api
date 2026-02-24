@@ -94,42 +94,44 @@ namespace Inspire.Erp.Application.Email.Implementations
                     _logger.LogWarning("No approvers found. OrderId: {OrderId}, JobId: {JobId}", orderId, jobId);
                     return;
                 }
-
-                // 🔹 Build approval hierarchy list
-                var orderApprovers = approvers
-                    .Select(x => new OrderApprovalHierarchy
-                    {
-                        ApproverId = x.ApproverId,
-                        OrderId = orderId,
-                        Status = EnumApprovalStatus.Pending,
-                        OrderType = orderType,
-                        Remarks = "",
-                        ApproverLevel = x.ApproverLevel,
-                        Sno = x.Sno,
-                        FilePath = string.Join(',', attachments)
-                    })
-                    .ToList();
-
-                // 🔹 Insert hierarchy + auto approve based on current level
-                if (orderApprovers.Any() && IsNewEntery)
+                var orderApprovers = await _orderApprovalHierarchy.GetAsQueryable().AsNoTracking().Where(x => x.OrderId == orderId).ToListAsync();
+                if (orderApprovers == null || !orderApprovers.Any())
                 {
-                    var currentApproverLevel = approvers.Any(x => x.ApproverId == _currentUserService.UserId)
-                                                ? approvers.FirstOrDefault(x => x.ApproverId == _currentUserService.UserId).ApproverLevel
-                                                : EnumApproverLevels.None;
-                    ApplyAutoApprovalByLevel(orderApprovers, currentApproverLevel);
-                    _orderApprovalHierarchy.InsertList(orderApprovers);
+                    var orderApproversToAdd = approvers
+                        .Select(x => new OrderApprovalHierarchy
+                        {
+                            ApproverId = x.ApproverId,
+                            OrderId = orderId,
+                            Status = EnumApprovalStatus.Pending,
+                            OrderType = orderType,
+                            Remarks = "",
+                            ApproverLevel = x.ApproverLevel,
+                            Sno = x.Sno,
+                            FilePath = string.Join(',', attachments)
+                        })
+                        .ToList();
+                    if (orderApproversToAdd.Any() && IsNewEntery)
+                    {
+                        var currentApproverLevel = approvers.Any(x => x.ApproverId == _currentUserService.UserId)
+                                                    ? approvers.FirstOrDefault(x => x.ApproverId == _currentUserService.UserId).ApproverLevel
+                                                    : EnumApproverLevels.None;
+                        ApplyAutoApprovalByLevel(orderApproversToAdd, currentApproverLevel);
+                        _orderApprovalHierarchy.InsertList(orderApproversToAdd);
 
-                    _logger.LogInformation(
-                        "Approval hierarchy inserted for OrderId: {OrderId}",
-                        orderId);
+                        _logger.LogInformation(
+                            "Approval hierarchy inserted for OrderId: {OrderId}",
+                            orderId);
+                    }
+                    orderApprovers.AddRange(orderApproversToAdd);
                 }
+                // 🔹 Insert hierarchy + auto approve based on current level
 
                 // ❌ GPO does not require email
                 if (orderType == EnumOrderForms.GeneralPurchaseOrder)
                     return;
 
                 // 🔹 Find NEXT pending approval level
-                var nextPendingLevel = orderApprovers.Where(x => x.Status == EnumApprovalStatus.Pending && (approverId <= 0 || x.ApproverId == approverId)).OrderBy(x => x.Sno).FirstOrDefault();
+                var nextPendingLevel = orderApprovers.Where(x => x.Status == EnumApprovalStatus.Pending).OrderBy(x => x.ApproverLevel).ThenBy(x => x.Sno).FirstOrDefault();
 
                 // ❌ No email if all approved OR next level is Level3
                 if (nextPendingLevel == default || (nextPendingLevel.Status == EnumApprovalStatus.Approved && nextPendingLevel.ApproverLevel == EnumApproverLevels.Level3))
@@ -149,13 +151,16 @@ namespace Inspire.Erp.Application.Email.Implementations
                 //    .ToList();
 
                 var toMails = approvers
-                             .Where(x =>
-                                 x.ApproverLevel == nextPendingLevel.ApproverLevel &&
-                                 x.OptEmail &&
-                                 (approverId <= 0 || x.ApproverId == approverId))
-                             .SelectMany(x => x.MetaData)
-                             .Distinct()
-                             .ToList();
+                                            .Where(x =>
+                                                x.ApproverLevel == nextPendingLevel.ApproverLevel &&
+                                                x.OptEmail &&
+                                                x.ApproverId == nextPendingLevel.ApproverId)
+                                            .OrderBy(x => x.ApproverId)
+                                            .ThenBy(x => x.Sno)
+                                            .Take(1)
+                                            .SelectMany(x => x.MetaData)
+                                            .Distinct()
+                                            .ToList();
                 if (!toMails.Any())
                 {
                     _logger.LogWarning(
@@ -173,9 +178,11 @@ namespace Inspire.Erp.Application.Email.Implementations
 
                 // 🔹 Action buttons (approval screen only)
                 var actionButtons = new List<object>();
-                if (level == EnumApproverLevels.Level3)
+                if (level == EnumApproverLevels.Level3 || nextPendingLevel.ApproverLevel == EnumApproverLevels.Level3)
                 {
                     string token = _loginService.GenerateAutoLoginToken(userId);
+                    level = level == EnumApproverLevels.None ? EnumApproverLevels.Level3 : level;
+                    userId = nextPendingLevel.ApproverId;
                     string approvalRedirectUrl = $"{_mailSettings.MainUrl}purchase-order/approve-email-template?approverLevel={level}&orderId={orderId}&orderType={orderType}&jobId={jobId}&approvalStatus=2&userId={userId}";
                     string rejectRedirectUrl = $"{_mailSettings.MainUrl}purchase-order/approve-email-template?approverLevel={level}&orderId={orderId}&orderType={orderType}&jobId={jobId}&approvalStatus=3&userId={userId}";
                     actionButtons.Add(new
@@ -472,7 +479,7 @@ namespace Inspire.Erp.Application.Email.Implementations
                 var jobId = purchaseRequisition?.PurchaseRequisitionJobId ?? -1;
                 var jobDetail = await _jobrepository.GetAsQueryable().AsNoTracking().FirstOrDefaultAsync(x => x.JobMasterJobId == jobId);
                 var settingValue = await _generalSettings.GetApproverStatusAsync(purchaseRequisition.PurchaseRequisitionJobId.ToString(), nameof(EnumOrderForms.PurchaseRequisition));
-                var cSymbol =  _currencyMasterRepository.GetAsQueryable().AsNoTracking()
+                var cSymbol = _currencyMasterRepository.GetAsQueryable().AsNoTracking()
                                    .FirstOrDefault(c => c.CurrencyMasterCurrencyId == purchaseRequisition.PurchaseRequisitionCurrencyId).CurrencyMasterCurrencySymbol ?? "";
                 await SendOrderEmailNotificationAsync(EnumOrderForms.PurchaseRequisition,
                                                       level,
@@ -511,7 +518,7 @@ namespace Inspire.Erp.Application.Email.Implementations
                 var jobId = purchaseOrder?.PurchaseOrderJobId ?? -1;
                 var jobDetail = await _jobrepository.GetAsQueryable().AsNoTracking().FirstOrDefaultAsync(x => x.JobMasterJobId == jobId);
                 var settingValue = await _generalSettings.GetApproverStatusAsync(purchaseOrder.PurchaseOrderJobId.ToString(), nameof(EnumOrderForms.PurchaseOrder));
-                var cSymbol =  _currencyMasterRepository.GetAsQueryable().AsNoTracking()
+                var cSymbol = _currencyMasterRepository.GetAsQueryable().AsNoTracking()
                                    .FirstOrDefault(c => c.CurrencyMasterCurrencyId == purchaseOrder.PurchaseOrderCurrencyId).CurrencyMasterCurrencySymbol ?? "";
                 await SendOrderEmailNotificationAsync(EnumOrderForms.PurchaseOrder,
                                                       level,
