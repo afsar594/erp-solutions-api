@@ -442,6 +442,7 @@ namespace Inspire.Erp.Application.Master
                                                                                    JobMasterControlCostCenerID = g.Key,
                                                                                    PrAmount = prAmount,
                                                                                    BoqAmount = boqAmount,
+                                                                                   NotifAmount = g.Sum(x => x.NotifAmount ?? 0),
                                                                                    JobMasterControlActual = actual,
                                                                                    JobMasterControlVariance = prAmount - actual,
                                                                                    JobMasterControlJobID = jobMasterData.JobMasterJobId
@@ -453,7 +454,7 @@ namespace Inspire.Erp.Application.Master
                 var summaryDict = summaries
                     .GroupBy(s => s.CostcenterId)
                     .ToDictionary(g => g.Key, g => g.Sum(x => x.Amount));
-            
+
                 jobMasterData.JobMasterBudgetDetails = groupedData;
 
                 jobMasterData.JobMasterJobDetails = jobdetailsRepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterNo == jbno && x.JobMasterJobDetailsDelStatus == false).ToList();

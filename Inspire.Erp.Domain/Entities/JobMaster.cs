@@ -229,6 +229,7 @@ namespace Inspire.Erp.Domain.Entities
         public decimal? PrAmount { get; set; }
         [NotMapped]
         public decimal? BoqAmount { get; set; }
+        public decimal? NotifAmount { get; set; }
 
         public decimal? JobMasterControlVariance { get; set; }
         public decimal? JobMasterControlActual { get; set; }
