@@ -260,10 +260,9 @@ namespace Inspire.Erp.Application.Master
                 jobrepository.BeginTransaction();
                 jobId = jobMaster.JobMasterJobId;
                 var existingJobDetails = this.jobdetailsRepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterJobDetailsJobId == jobId).ToList();
-                //var existingJobControls = this._jobMasterControl.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterControlJobID == jobId).ToList();
+                var existingJobControls = this._jobMasterControl.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterControlJobID == jobId && x.JobMasterControlLevel2 > 0).ToList();
                 var detailsToDelete = existingJobDetails.Where(x => jobMaster.JobMasterJobDetails.All(d => x.JobMasterJobDetailsJobDetId != d.JobMasterJobDetailsJobDetId)).ToList();
-                //var jobControlsToDelete = existingJobControls.Where(x => jobMaster.JobMasterControl.All(d => x.JobMasterControlJobID == d.JobMasterControlJobID)).ToList();
-
+                _jobMasterControl.DeleteList(existingJobControls);
                 string vNumber = jobMaster.JobMasterJobNo;
 
                 jobMaster.JobMasterBudgetDetails.Select((x) =>
@@ -434,7 +433,7 @@ namespace Inspire.Erp.Application.Master
                                                                                    (x.VoucherType ?? "") == "BOQ"
                                                                                        ? (x.JobMasterControlAmount ?? 0m)
                                                                                        : 0m);
-
+                                                                             
                                                                                var actual = g.Sum(x => x.JobMasterControlActual ?? 0m);
 
                                                                                return new JobMasterControl
@@ -443,9 +442,11 @@ namespace Inspire.Erp.Application.Master
                                                                                    PrAmount = prAmount,
                                                                                    BoqAmount = boqAmount,
                                                                                    NotifAmount = g.Sum(x => x.NotifAmount ?? 0),
+                                                                                   JobMasterControlLevel2 = g.Sum(x => x.JobMasterControlLevel2),
                                                                                    JobMasterControlActual = actual,
                                                                                    JobMasterControlVariance = prAmount - actual,
-                                                                                   JobMasterControlJobID = jobMasterData.JobMasterJobId
+                                                                                   JobMasterControlJobID = jobMasterData.JobMasterJobId,
+
                                                                                };
                                                                            })
                                                                            .ToList();
