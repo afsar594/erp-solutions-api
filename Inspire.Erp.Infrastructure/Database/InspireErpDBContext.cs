@@ -8861,7 +8861,7 @@ namespace Inspire.Erp.Infrastructure.Database
                 entity.Property(e => e.JobMasterBudgetDetailsEmail).HasColumnName("Job_Master_BudgetDetails_Email");
                 entity.Property(e => e.JobMasterControlVariance).HasColumnName("Job_Master_Control_Variance");
                 entity.Property(e => e.JobMasterControlActual).HasColumnName("Job_Master_Control_Actual");
-                entity.Property(e => e.RefVoucherNo).HasColumnName("Job_Master_Control_RefNo");
+                entity.Property(e => e.RefVoucherNo).HasColumnName("RefVoucherNo");
                 entity.Property(e => e.EmailClose).HasColumnName("Email_Close");
 
                 entity.HasOne(d => d.JobMasters)

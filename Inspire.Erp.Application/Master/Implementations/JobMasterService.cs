@@ -44,6 +44,9 @@ namespace Inspire.Erp.Application.Master
         private IRepository<JobfilesStatus> _JobfilesStatus;
         private IRepository<CostCenterMaster> _costCenterMaster;
         private IRepository<JobMasterControl> _jobMasterControl;
+        private IRepository<CurrencyMaster> _currencyMaster;
+        private IRepository<BillofQtyMaster> _billofQtyMaster;
+        private IRepository<PurchaseRequisition> _purchaseRequisition;
         private IRepository<ApproverLevelSettings> _approverLevelSettings;
         private IRepository<EstimationCostCenter> _EstimationCostCenterRepository;
 
@@ -63,7 +66,7 @@ namespace Inspire.Erp.Application.Master
             IRepository<JobDocuments> jobDocumentsRepository,
             Microsoft.Extensions.Configuration.IConfiguration config,
              IRepository<EstimationCostCenter> estimationCostCenterRepository,
-            IRepository<JobfilesStatus> jobfilesStatus, IRepository<CostCenterMaster> costCenterMaster, IRepository<JobMasterControl> jobMasterControl, IRepository<ApproverLevelSettings> approverLevelSettings)
+            IRepository<JobfilesStatus> jobfilesStatus, IRepository<CostCenterMaster> costCenterMaster, IRepository<JobMasterControl> jobMasterControl, IRepository<ApproverLevelSettings> approverLevelSettings, IRepository<CurrencyMaster> currencyMaster, IRepository<BillofQtyMaster> billofQtyMaster, IRepository<PurchaseRequisition> purchaseRequisition)
         {
             jobrepository = _jobrepository;
             jobbudgetRepository = _jobbudgetRepository;
@@ -86,6 +89,9 @@ namespace Inspire.Erp.Application.Master
             _EstimationCostCenterRepository = estimationCostCenterRepository;
             var settings = config.GetSection("ApplicationSettings").Get<ApplicationSettings>();
             _dbConnection = new SqlConnection(settings.ConnectionString);
+            _currencyMaster = currencyMaster;
+            _billofQtyMaster = billofQtyMaster;
+            _purchaseRequisition = purchaseRequisition;
         }
         public IEnumerable<JobMaster> DeleteJob(JobMaster jobMaster)
         {
@@ -412,44 +418,72 @@ namespace Inspire.Erp.Application.Master
                 })
                 .ToList();
 
-                var jobMasterControls = _jobMasterControl.GetAsQueryable()
-                                                        .AsNoTracking()
-                                                        .Where(x => x.JobMasterControlJobID == jobMasterData.JobMasterJobId
-                                                                                && x.JobMasterControlCostCenerID > 0)
-                                                        .ToList();
 
                 var summaries = await GetEstimationCostCenterSummaries(jobMasterData.JobMasterJobId);
 
-                jobMasterData.JobMasterControl = jobMasterControls
-                                                                           .GroupBy(x => x.JobMasterControlCostCenerID)
-                                                                           .Select(g =>
-                                                                           {
-                                                                               var prAmount = g.Sum(x =>
-                                                                                   (x.VoucherType ?? "") == "PR"
-                                                                                       ? (x.JobMasterControlAmount ?? 0m)
-                                                                                       : 0m);
+                var purchaseRequisitions = _purchaseRequisition.GetAsQueryable()
+                               .AsNoTracking()
+                               .Where(x => x.PurchaseRequisitionJobId == jobMasterData.JobMasterJobId)
+                               .ToList();
 
-                                                                               var boqAmount = g.Sum(x =>
-                                                                                   (x.VoucherType ?? "") == "BOQ"
-                                                                                       ? (x.JobMasterControlAmount ?? 0m)
-                                                                                       : 0m);
-                                                                             
-                                                                               var actual = g.Sum(x => x.JobMasterControlActual ?? 0m);
+                var currencies = _currencyMaster.GetAsQueryable()
+                                            .AsNoTracking()
+                                            .Where(x => purchaseRequisitions.Select(s => s.PurchaseRequisitionCurrencyId)
+                                                           .Distinct()
+                                                           .Contains(x.CurrencyMasterCurrencyId))
+                                            .ToList();
 
-                                                                               return new JobMasterControl
-                                                                               {
-                                                                                   JobMasterControlCostCenerID = g.Key,
-                                                                                   PrAmount = prAmount,
-                                                                                   BoqAmount = boqAmount,
-                                                                                   NotifAmount = g.Sum(x => x.NotifAmount ?? 0),
-                                                                                   JobMasterControlLevel2 = g.Sum(x => x.JobMasterControlLevel2),
-                                                                                   JobMasterControlActual = actual,
-                                                                                   JobMasterControlVariance = prAmount - actual,
-                                                                                   JobMasterControlJobID = jobMasterData.JobMasterJobId,
+                var jobControls = _jobMasterControl.GetAsQueryable()
+                                        .AsNoTracking()
+                                        .Where(x => x.JobMasterControlJobID == jobMasterData.JobMasterJobId && x.JobMasterControlCostCenerID > 0)
+                                        .ToList();
 
-                                                                               };
-                                                                           })
-                                                                           .ToList();
+
+                jobMasterData.JobMasterControl = (from jc in jobControls
+                                                  join pr in purchaseRequisitions on (jc.RefVoucherNo ?? "").Trim() equals (pr.PurchaseRequisitionNo ?? "").Trim() into prJoin
+                                                  from pr in prJoin.DefaultIfEmpty()
+
+                                                  join cm in currencies on (pr?.PurchaseRequisitionCurrencyId ?? 1) equals (cm?.CurrencyMasterCurrencyId ?? 1) into cmJoin
+                                                  from cm in cmJoin.DefaultIfEmpty()
+
+                                                  select new
+                                                  {
+                                                      CostCenterId = jc.JobMasterControlCostCenerID,
+                                                      VoucherType = jc.VoucherType,
+                                                      Amount = jc.JobMasterControlAmount ?? 0m,
+                                                      Actual = jc.JobMasterControlActual ?? 0m,
+                                                      NotifAmount = jc.NotifAmount ?? 0,
+                                                      Level2 = jc.JobMasterControlLevel2,
+                                                      CurrencyRate = (cm == null || cm.CurrencyMasterCurrencyRate == null) ? 1m : (decimal)cm.CurrencyMasterCurrencyRate
+                                                  })
+                .GroupBy(x => x.CostCenterId)
+                .Select(g =>
+                {
+                    var prAmount = g.Sum(x =>
+                        (x.VoucherType ?? "") == "PR"
+                            ? x.Amount * (decimal)x.CurrencyRate
+                            : 0m);
+
+                    var boqAmount = g.Sum(x =>
+                        (x.VoucherType ?? "") == "BOQ"
+                            ? x.Amount
+                            : 0m);
+
+                    var actual = g.Sum(x => x.Actual);
+
+                    return new JobMasterControl
+                    {
+                        JobMasterControlCostCenerID = g.Key,
+                        PrAmount = prAmount,
+                        BoqAmount = boqAmount,
+                        NotifAmount = g.Sum(x => x.NotifAmount),
+                        JobMasterControlLevel2 = g.Sum(x => x.Level2 ?? 0),
+                        JobMasterControlActual = actual,
+                        JobMasterControlVariance = prAmount - actual,
+                        JobMasterControlJobID = jobMasterData.JobMasterJobId
+                    };
+                })
+                .ToList();
 
                 // Convert summaries to dictionary for fast lookup
                 var summaryDict = summaries
