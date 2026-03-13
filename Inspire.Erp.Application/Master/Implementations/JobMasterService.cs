@@ -265,8 +265,8 @@ namespace Inspire.Erp.Application.Master
                 int jobId = 0;
                 jobrepository.BeginTransaction();
                 jobId = jobMaster.JobMasterJobId;
-                var existingJobDetails = this.jobdetailsRepository.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterJobDetailsJobId == jobId).ToList();
-                var existingJobControls = this._jobMasterControl.GetAsQueryable().AsNoTracking().Where(x => x.JobMasterControlJobID == jobId && x.JobMasterControlLevel2 > 0).ToList();
+                var existingJobDetails = this.jobdetailsRepository.GetAsQueryable().Where(x => x.JobMasterJobDetailsJobId == jobId).ToList();
+                var existingJobControls = this._jobMasterControl.GetAsQueryable().Where(x => x.JobMasterControlJobID == jobId && x.VoucherType == null).ToList();
                 var detailsToDelete = existingJobDetails.Where(x => jobMaster.JobMasterJobDetails.All(d => x.JobMasterJobDetailsJobDetId != d.JobMasterJobDetailsJobDetId)).ToList();
                 _jobMasterControl.DeleteList(existingJobControls);
                 string vNumber = jobMaster.JobMasterJobNo;
@@ -454,6 +454,8 @@ namespace Inspire.Erp.Application.Master
                                                       Actual = jc.JobMasterControlActual ?? 0m,
                                                       NotifAmount = jc.NotifAmount ?? 0,
                                                       Level2 = jc.JobMasterControlLevel2,
+                                                      OptEmail = jc.JobMasterBudgetDetailsEmail,
+                                                      CloseEmail = jc.EmailClose,
                                                       CurrencyRate = (cm == null || cm.CurrencyMasterCurrencyRate == null) ? 1m : (decimal)cm.CurrencyMasterCurrencyRate
                                                   })
                 .GroupBy(x => x.CostCenterId)
@@ -480,8 +482,10 @@ namespace Inspire.Erp.Application.Master
                         JobMasterControlLevel2 = g.Sum(x => x.Level2 ?? 0),
                         JobMasterControlActual = actual,
                         JobMasterControlVariance = prAmount - actual,
-                        JobMasterControlJobID = jobMasterData.JobMasterJobId
-                    };
+                        JobMasterControlJobID = jobMasterData.JobMasterJobId,
+                        JobMasterBudgetDetailsEmail = g.Max(x => x.OptEmail),
+                        EmailClose = g.Max(x => x.CloseEmail),
+                    }; 
                 })
                 .ToList();
 
