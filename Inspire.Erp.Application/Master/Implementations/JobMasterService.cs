@@ -439,7 +439,7 @@ namespace Inspire.Erp.Application.Master
                                         .ToList();
 
 
-                jobMasterData.JobMasterControl = (from jc in jobControls
+                var result = (from jc in jobControls
                                                   join pr in purchaseRequisitions on (jc.RefVoucherNo ?? "").Trim() equals (pr.PurchaseRequisitionNo ?? "").Trim() into prJoin
                                                   from pr in prJoin.DefaultIfEmpty()
 
@@ -488,6 +488,30 @@ namespace Inspire.Erp.Application.Master
                     }; 
                 })
                 .ToList();
+
+                var totalRow = new JobMasterControl
+                {
+                    JobMasterControlCostCenerID = 6, // TOTAL BUDGET
+
+                    PrAmount = result.Sum(x => x.PrAmount),
+                    BoqAmount = result.Sum(x => x.BoqAmount),
+                    NotifAmount = result.Sum(x => x.NotifAmount),
+                    JobMasterControlLevel2 = result.Sum(x => x.JobMasterControlLevel2 ?? 0),
+                    JobMasterControlActual = result.Sum(x => x.JobMasterControlActual ?? 0),
+
+                    JobMasterControlVariance = result.Sum(x => x.JobMasterControlVariance ?? 0),
+
+                    JobMasterControlJobID = jobMasterData.JobMasterJobId,
+
+                    // optional
+                    JobMasterBudgetDetailsEmail = null,
+                    EmailClose = null
+                };
+
+                result.Add(totalRow);
+                result = result.OrderBy(x => x.JobMasterControlCostCenerID).ToList();
+
+                jobMasterData.JobMasterControl = result;
 
                 // Convert summaries to dictionary for fast lookup
                 var summaryDict = summaries
