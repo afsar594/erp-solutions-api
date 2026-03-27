@@ -37,6 +37,7 @@ using System.Linq.Dynamic.Core;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Inspire.Erp.Application.Procurement.Implementation
 {
@@ -1350,11 +1351,20 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
             var poQuery = _purchaseOrderRepository.GetAsQueryable()
                 .Where(po =>
-                    (!filterByDate || (po.PurchaseOrderDate.Date >= fromDate && po.PurchaseOrderDate.Date <= toDate)) && (po.PurchaseOrderDelStatus == null || po.PurchaseOrderDelStatus == false) &&
+                    (!filterByDate || (po.PurchaseOrderDate.Date >= fromDate && po.PurchaseOrderDate.Date <= toDate)) && (!(bool)po.PurchaseOrderDelStatus || po.PurchaseOrderDelStatus == null) &&
                     (!filterByJob || po.PurchaseOrderJobId == model.JobId))
                 .Include(po => po.OrderApprovalHierarchies)
                 .AsNoTracking()
                 .ToList();
+            var currencyIds = poQuery.Select(x => x.PurchaseOrderCurrencyId).Distinct().ToList();
+            var currencies = _currencyMasterRepository.GetAsQueryable().AsNoTracking().Where(x => currencyIds.Contains(x.CurrencyMasterCurrencyId)).Select(s =>
+            new
+            {
+                Id = s.CurrencyMasterCurrencyId,
+                Rate = s.CurrencyMasterCurrencyRate,
+                Name = s.CurrencyMasterCurrencyShortName,
+                Symbol = s.CurrencyMasterCurrencySymbol
+            }).ToList();
 
             poQuery.ForEach(po =>
             {
@@ -1415,6 +1425,8 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                 if (!approvers.Any())
                     return null;
 
+                var currency = currencies.FirstOrDefault(c => c.Id == po.PurchaseOrderCurrencyId);
+
                 return new VoucherApprivalDto
                 {
                     VoucherId = (int)po.PurchaseOrderId,
@@ -1429,7 +1441,11 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     Status = GetVoucherStatus(approvers),//   po.PurchaseOrderApproveStatus,
                     Remarks = string.Join("\n", po.PurchaseOrderRemarks1, po.PurchaseOrderRemarks2, po.PurchaseOrderRemarks3).Trim(),
                     VoucherApprovers = approvers,
-                    Supplier = po.PurchaseOrderPartyName ?? string.Empty
+                    Supplier = po.PurchaseOrderPartyName ?? string.Empty,
+                    CurrencyName = $"{currency?.Name ?? string.Empty} ({currency?.Symbol ?? string.Empty})",
+                    CurrencyRate = currency?.Rate ?? 1,
+                    FcAmount = currency != null && currency.Rate != 0 ? (decimal)(po.PurchaseOrderNetAmount * (decimal)currency.Rate) : (decimal)po.PurchaseOrderNetAmount
+
                 };
             })
             .Where(x => x != null)
@@ -1892,11 +1908,21 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
             var prQuery = _purchaseRequisitionRepository.GetAsQueryable()
                 .Where(pr =>
-                    (!filterByDate || (pr.PurchaseRequisitionDate.Date >= fromDate && pr.PurchaseRequisitionDate.Date <= toDate)) && (pr.PurchaseRequisitionDelStatus == null || pr.PurchaseRequisitionDelStatus == false) &&
+                    (!filterByDate || (pr.PurchaseRequisitionDate.Date >= fromDate && pr.PurchaseRequisitionDate.Date <= toDate)) && (pr.PurchaseRequisitionDelStatus == null || !(bool)pr.PurchaseRequisitionDelStatus) &&
                     (!filterByJob || pr.PurchaseRequisitionJobId == model.JobId))
                 .Include(pr => pr.OrderApprovalHierarchies)
                 .AsNoTracking()
                 .ToList();
+
+            var currencyIds = prQuery.Select(x => x.PurchaseRequisitionCurrencyId).Distinct().ToList();
+            var currencies = _currencyMasterRepository.GetAsQueryable().AsNoTracking().Where(x => currencyIds.Contains(x.CurrencyMasterCurrencyId)).Select(s =>
+            new
+            {
+                Id = s.CurrencyMasterCurrencyId,
+                Rate = s.CurrencyMasterCurrencyRate,
+                Name = s.CurrencyMasterCurrencyShortName,
+                Symbol = s.CurrencyMasterCurrencySymbol
+            }).ToList();
 
             prQuery.ForEach(pr =>
             {
@@ -1956,7 +1982,7 @@ namespace Inspire.Erp.Application.Procurement.Implementation
 
                 if (!approvers.Any())
                     return null;
-
+                var currency = currencies.FirstOrDefault(c => c.Id == pr.PurchaseRequisitionCurrencyId);
                 return new VoucherApprivalDto
                 {
                     VoucherId = (int)pr.PurchaseRequisitionId,
@@ -1971,7 +1997,11 @@ namespace Inspire.Erp.Application.Procurement.Implementation
                     Status = GetVoucherStatus(approvers),// pr.PurchaseRequisitionStatus,
                     Remarks = pr.PurchaseRequisitionRemarks,
                     VoucherApprovers = approvers,
-                    Supplier = pr.PurchaseRequisitionPartyName ?? string.Empty
+                    Supplier = pr.PurchaseRequisitionPartyName ?? string.Empty,
+                    CurrencyName = $"{currency?.Name ?? string.Empty} ({currency?.Symbol ?? string.Empty})",
+                    CurrencyRate = currency?.Rate ?? 1,
+                    FcAmount = currency != null && currency.Rate != 0 ? (decimal)(pr.PurchaseRequisitionNetAmount * (decimal)currency.Rate) : (decimal)pr.PurchaseRequisitionNetAmount
+
                 };
             })
             .Where(x => x != null)

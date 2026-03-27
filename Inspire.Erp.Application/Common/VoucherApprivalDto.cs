@@ -20,6 +20,9 @@ namespace Inspire.Erp.Application.Common
         public int? LocationId { get; set; }
         public string? JobName { get; set; }
         public decimal Amount { get; set; }
+        public decimal FcAmount { get; set; }
+        public string CurrencyName { get; set; }
+        public double? CurrencyRate { get; set; }
         public string Status { get; set; }
         public string Remarks { get; set; }
         public string Supplier { get; set; }
