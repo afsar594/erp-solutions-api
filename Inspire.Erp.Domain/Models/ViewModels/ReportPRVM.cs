@@ -1,0 +1,29 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace Inspire.Erp.Domain.Models.ViewModels
+{
+    public partial class ReportPRVM
+    {
+    
+        public int? LocationId { get; set; }
+        public DateTime? DateFrom { get; set; }
+        public DateTime? DateTo { get; set; }
+    }
+
+    public partial class AccStReport
+    {
+
+        public bool CheckDate { get; set; }
+        public int? JobId { get; set; }
+        public DateTime? DateFrom { get; set; }
+        public DateTime? DateTo { get; set; }
+        public string Description { get; set; }
+
+        public string AccNo { get; set; }
+
+        public string VoucherType { get; set; }
+    }
+}

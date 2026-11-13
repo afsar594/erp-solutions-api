@@ -1,0 +1,35 @@
+﻿using Inspire.Erp.Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Inspire.Erp.Application.Common
+{
+    public partial class SalesVoucherModel
+    {
+        public SalesVoucher salesVoucher { get; set; }
+        public List<AccountsTransactions> accountsTransactions { get; set; }
+
+        public List<SalesVoucherDetails> salesVoucherDetails { get; set; }
+        public List<StockRegister> stockRegister { get; set; }
+        public List<SalesCharges> salesChargesList { get; set; }
+    }
+    public partial class SalesChargesModel
+    {
+        public List<SalesCharges> SalesChargesList { get; set; }
+    }
+
+    public partial class JobInvoiceModel
+    {
+        public JobInvoice JobInvoice { get; set; }
+        public List<AccountsTransactions> accountsTransactions { get; set; }
+
+        public List<JobInvoiceDetails> JobInvoiceDetails { get; set; }        
+    }
+    public partial class StockReservationModel
+    {
+        public StockReservation StockReservation { get; set; }
+
+        public List<StockReservationDetails> StockReservationDetails { get; set; }
+    }
+}

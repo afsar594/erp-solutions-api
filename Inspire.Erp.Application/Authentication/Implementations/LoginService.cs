@@ -1,0 +1,436 @@
+﻿using Inspire.Erp.Application.Authentication.Inerfaces;
+using Inspire.Erp.Application.Common;
+using Inspire.Erp.Domain.Constants;
+using Inspire.Erp.Domain.Entities;
+using Inspire.Erp.Infrastructure;
+using Inspire.Erp.Infrastructure.Database.Repositoy;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using PdfSharpCore.Pdf.Content.Objects;
+using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
+using System.Text;
+using System.Text.RegularExpressions;
+
+namespace Inspire.Erp.Application.Authentication.Implementations
+{
+    public class LoginService : IloginService
+    {
+        private IRepository<UserFile> userFileRepository;
+        private IConfiguration Configuration;
+        private readonly IRepository<WorkGroupMaster> wgMasterRepo;
+        public LoginService(IRepository<UserFile> _userFileRepository, IConfiguration _Configuration, IRepository<WorkGroupMaster> _wgMasterRepo)
+        {
+            userFileRepository = _userFileRepository;
+            Configuration = _Configuration;
+            wgMasterRepo = _wgMasterRepo;
+        }
+        public UserFile SignIn(UserFile userData)
+        {
+            var user = userFileRepository.GetAsQueryable().Where(x => x.UserName == userData.UserName && x.Password == userData.Password).SingleOrDefault();
+            return user;
+        }
+        public UserFile Authenticate(UserFile userData, string ipAddress, int locationId)
+        {
+            var user = userFileRepository.GetWithInclude(c => c.UserName == userData.UserName,
+                c => c.ApproverLevelSettings,
+                 w => w.WorkGroup
+                ).FirstOrDefault();
+
+            if (user == null)
+            {
+                return new UserFile
+                {
+                    IsValid = false,
+                    Message = "User Does not exist"
+                };
+            }
+            else
+            {
+                if (user.Password == userData.Password)
+                {
+                    if (user.Freeze == false)
+                    {
+                        var lastupdate = (DateTime)user.PasswordUpdateDate;
+                        var today = DateTime.Now;
+                        var totaldays = (today - lastupdate).TotalDays;
+                        if (totaldays > 90)
+                        {
+                            return new UserFile
+                            {
+                                IsValid = false,
+                                Message = "Password Expired , Please contact the Site Owner"
+                            };
+                        }
+                        else
+                        {
+                            // authentication successful so generate jwt and refresh tokens
+                            var jwtToken = generateJwtToken(user, locationId);
+                            var refreshToken = generateRefreshToken(user);
+                            user.Loginfailure = 0;
+                            user.Token = jwtToken;
+                            //user.IsValid = true;
+                            user.RefreshToken = refreshToken.Token;
+                            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+                            userFileRepository.Update(user);
+                            user.UserDashboard = user.WorkGroup.WorkGroupMasterWorkGroupdashboardType;
+
+                        }
+                    }
+                    else
+                    {
+                        return new UserFile
+                        {
+                            IsValid = false,
+                            Message = "User Expired"
+                        };
+                    }
+                }
+                else
+                {
+                    if (user.Loginfailure == null)
+                    {
+                        user.Loginfailure = 0;
+                    }
+                    user.Loginfailure += 1;
+                    if (user.Loginfailure == 5)
+                    {
+                        user.Freeze = true;
+                    }
+                    userFileRepository.Update(user);
+                    return new UserFile
+                    {
+                        IsValid = false,
+                        Message = "Incorrect Password ,Login failure try " + user.Loginfailure + "/5"
+                    };
+                }
+            }
+            return user;
+        }
+        public UserFile RefreshToken(UserFile userData)
+        {
+
+            if (userData?.RefreshToken is null)
+            {
+                return new UserFile
+                {
+                    IsValid = false,
+                    Message = "Invalid client request"
+                };
+            }
+            var principal = GetPrincipalFromExpiredToken(userData.Token);
+            var username = principal.Identity.Name;
+            var user = userFileRepository.GetAsQueryable().Where(x => x.UserName == username).SingleOrDefault();
+            if (user is null || user.RefreshToken != userData.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.Now)
+            {
+                return new UserFile
+                {
+                    IsValid = false,
+                    Message = "Invalid client request"
+                };
+            }
+            var newAccessToken = generateJwtToken(userData);
+            var newRefreshToken = generateRefreshToken(userData);
+            user.RefreshToken = newRefreshToken.Token;
+            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+            userFileRepository.Update(user);
+            return user;
+        }
+
+
+        public UserFile RevokeToken(UserFile userData)
+        {
+
+            var user = userFileRepository.GetAsQueryable().Where(x => x.UserName == userData.UserName).SingleOrDefault();
+            if (user == null)
+                return new UserFile
+                {
+                    IsValid = false,
+                    Message = "Invalid client request"
+                };
+            user.RefreshToken = null;
+            userFileRepository.Update(user);
+            return user;
+        }
+
+        public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
+        {
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateAudience = false, //you might want to validate the audience and issuer depending on your use case
+                ValidateIssuer = false,
+                ValidateIssuerSigningKey = false,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(this.Configuration["ApplicationSettings:Secret"])),
+                ValidateLifetime = true, //here we are saying that we don't care about the token's expiration date
+            };
+            var tokenHandler = new JwtSecurityTokenHandler();
+            SecurityToken securityToken;
+            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out securityToken);
+            var jwtSecurityToken = securityToken as JwtSecurityToken;
+            if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+                throw new SecurityTokenException("Invalid token");
+            return principal;
+        }
+
+        public string GenerateAutoLoginToken(long userId)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var secret = this.Configuration["ApplicationSettings:Secret"];
+            var expiration = Convert.ToInt16(this.Configuration["ApplicationSettings:ExpirationInMinutes"]);
+            var key = Encoding.UTF8.GetBytes(secret);
+
+            // Add all necessary claims
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+            };
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddMinutes(expiration),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
+        }
+
+        private string generateJwtToken(UserFile user, int? locationId = -1)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var secret = this.Configuration["ApplicationSettings:Secret"];
+            var expiration = Convert.ToInt16(this.Configuration["ApplicationSettings:ExpirationInMinutes"]);
+            var key = Encoding.UTF8.GetBytes(secret);
+
+            // Add all necessary claims
+            var claims = new[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                    new Claim(ClaimTypes.Name, user.UserName),
+                    new Claim(ClaimTypes.Role, user.WorkGroup?.WorkGroupMasterWorkGroupName ?? "User"),
+                    new Claim("GroupId", user.WorkGroupId?.ToString() ?? "0"),
+                    new Claim("DepartmentId", user.DepartmentId?.ToString() ?? "0"),
+                    new Claim("LocationId", locationId?.ToString() ?? "0")
+                };
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddMinutes(expiration),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
+        }
+
+        private RefreshToken generateRefreshToken(UserFile user)
+        {
+            using (var rngCryptoServiceProvider = System.Security.Cryptography.RandomNumberGenerator.Create())
+            {
+                var randomBytes = new byte[64];
+                rngCryptoServiceProvider.GetBytes(randomBytes);
+                return new RefreshToken
+                {
+                    Token = Convert.ToBase64String(randomBytes),
+                    Expires = DateTime.UtcNow.AddDays(7),
+                    Created = DateTime.UtcNow
+                };
+            }
+        }
+
+        #region POS
+        public UserFile PosAuthenticate(UserFile userData)
+        {
+            var user = userFileRepository.GetAsQueryable().Where(x => x.UserName == userData.UserName && x.Password == userData.Password).SingleOrDefault();
+            if (user == null) return null;
+
+            // authentication successful so generate jwt and refresh tokens
+            var jwtToken = generateJwtToken(user);
+            var refreshToken = generateRefreshToken(user);
+
+            user.Token = jwtToken;
+            user.RefreshToken = refreshToken.Token;
+            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+            userFileRepository.Update(user);
+            return user;
+        }
+        #endregion
+        public UserFile UpdateUser(UserFile user)
+        {
+
+            try
+            {
+                userFileRepository.BeginTransaction();
+
+                //string errorMessage;
+                //bool isValid = ValidatePassword(user.Password, out errorMessage);
+                //if (isValid)
+                //{
+                var jwtToken = generateJwtToken(user);
+                var refreshToken = generateRefreshToken(user);
+                user.Token = jwtToken;
+                user.RefreshToken = refreshToken.Token;
+                user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+                user.PasswordUpdateDate = DateTime.Now;
+                user.Loginfailure = 0;
+                user.UserImage = user.UserImage;
+                user.SignImageBase64 = user.SignImageBase64;
+                user.emailId = user.emailId;
+
+                userFileRepository.Update(user);
+
+                userFileRepository.TransactionCommit();
+
+                return this.GetUserById(user.UserId);
+                //}
+                //else
+                //{
+                //    user.IsValid = false;
+                //    user.Message = errorMessage;
+                //    return user;
+                //}
+
+            }
+            catch (Exception ex)
+            {
+                userFileRepository.TransactionRollback();
+                throw ex;
+            }
+
+        }
+
+        public UserFile DeleteUser(UserFile user)
+        {
+
+            try
+            {
+                userFileRepository.BeginTransaction();
+                user.Deleted = true;
+
+                userFileRepository.Update(user);
+
+                userFileRepository.TransactionCommit();
+
+
+            }
+            catch (Exception ex)
+            {
+                userFileRepository.TransactionRollback();
+                throw ex;
+            }
+
+            return user;
+        }
+
+        public UserFile GetUserById(long id)
+        {
+            var user = userFileRepository.GetAsQueryable().Where(x => x.UserId == id).SingleOrDefault();
+            return user;
+        }
+        public IEnumerable<UserFile> GetAllUserFile()
+        {
+            IEnumerable<UserFile> UserFile;
+            try
+            {
+                UserFile = userFileRepository.GetAll().Where(a => a.Deleted != true).Select(k => k);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+            finally
+            {
+                //userFileRepository.Dispose();
+            }
+            return UserFile;
+        }
+        public UserFile InsertUser(UserFile user)
+        {
+
+            try
+            {
+                userFileRepository.BeginTransaction();
+                if (user.UserId == 0)
+                {
+                    long maxcount = 0;
+                    maxcount =
+                        userFileRepository.GetAsQueryable()
+                        .DefaultIfEmpty().Max(o => o == null ? 0 : (long)o.UserId) + 1;
+
+                    user.UserId = maxcount;
+                    user.LogInId = maxcount.ToString();
+                }
+                //string errorMessage;
+                bool isValid = true;
+                //bool isValid = ValidatePassword(user.Password, out errorMessage);  // sir ki fasmish ka uper validation remove ki han
+                //if (isValid)
+                //{
+                var jwtToken = generateJwtToken(user);
+                var refreshToken = generateRefreshToken(user);
+
+                user.Token = jwtToken;
+                user.RefreshToken = refreshToken.Token;
+                user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+                user.PasswordUpdateDate = DateTime.Now;
+                user.Loginfailure = 0;
+                user.UserImage = user.UserImage;
+                user.SignImageBase64 = user.SignImageBase64;
+                user.emailId = user.emailId ?? "";
+                userFileRepository.Insert(user);
+                userFileRepository.TransactionCommit();
+
+                return this.GetUserById(user.UserId);
+                //}
+                //else
+                //{
+                //    user.IsValid = false;
+                //    user.Message = errorMessage;
+                //    return user;
+                //}
+
+            }
+            catch (Exception ex)
+            {
+                userFileRepository.TransactionRollback();
+                throw ex;
+            }
+
+        }
+
+        private bool ValidatePassword(string password, out string errorMessage)
+        {
+            errorMessage = string.Empty;
+
+            if (string.IsNullOrWhiteSpace(password) || password.Length < 8)
+            {
+                errorMessage = "Password must be at least 8 characters long.";
+                return false;
+            }
+
+            var hasUpperCase = new Regex(@"[A-Z]").IsMatch(password);
+            var hasLowerCase = new Regex(@"[a-z]").IsMatch(password);
+            var hasNumber = new Regex(@"[0-9]").IsMatch(password);
+            var hasSpecialChar = new Regex(@"[!@#$%^&*(),.?""':;{}|<>]").IsMatch(password);
+
+            if (!(hasUpperCase && hasLowerCase && hasNumber && hasSpecialChar))
+            {
+                errorMessage = "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.";
+                return false;
+            }
+
+            return true;
+        }
+    }
+
+
+}
+

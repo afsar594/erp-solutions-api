@@ -1,0 +1,84 @@
+﻿################################################################################
+# .gitignore for Inspire.Erp Solution
+# Automatically created and optimized for Microsoft(R) Visual Studio projects.
+################################################################################
+
+# User-specific files
+.vs/
+*.user
+*.suo
+
+# Build results
+**/bin/
+**/obj/
+
+# NuGet
+*.nupkg
+*.snupkg
+*.nuspec
+project.lock.json
+project.fragment.lock.json
+artifacts/
+*.nuget.props
+*.nuget.dgspec.json
+*.nuget.targets
+
+# Visual Studio generated files
+*.pidb
+*.sdf
+*.cache
+*.dbmdl
+*.pdb
+*.opendb
+
+# ASP.NET publish profiles
+**/Properties/PublishProfiles/
+**/Properties/PublishProfiles/*.pubxml.user  # <-- added to ignore FolderProfile.pubxml.user
+
+# Logs and uploads
+/Inspire.Erp.Web/Logs/
+/Inspire.Erp.Web/Upload/Pdfs/
+/Inspire.Erp.Web/Upload/files/
+
+# Configuration files
+/Inspire.Erp.Web/appsettings.json
+
+# Report and temporary files
+/Inspire.Erp.WebReport/reports/
+/Inspire.Erp.WebReport/Inspire.Erp.WebReport.csproj.user
+Inspire.Erp.RecurringJob/
+# Ignore RecurringJob build output
+/Inspire.Erp.RecurringJob
+/Inspire.Erp.RecurringJob/obj/
+/Inspire.Erp.RecurringJob/obj/**/*.csproj.nuget.dgspec.json  # <-- added
+/Inspire.Erp.RecurringJob/obj/**/*.csproj.nuget.g.props     # <-- added
+/Inspire.Erp.RecurringJob/obj/project.assets.json           # <-- added
+
+# EditorConfig files generated during build
+*.GeneratedMSBuildEditorConfig.editorconfig
+
+# Cache and dependency tracking files
+*.AssemblyReference.cache
+*.assets.cache
+*.project.nuget.cache
+*.project.assets.json
+
+# Build results
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Auto-generated files
+project.lock.json
+project.fragment.lock.json
+artifacts/
+/Inspire.Erp.WebReport
+
+/Inspire.Erp.RecurringJob/obj/Inspire.Erp.RecurringJob.csproj.nuget.dgspec.json
+/Inspire.Erp.RecurringJob/obj/Inspire.Erp.RecurringJob.csproj.nuget.g.props
+/Inspire.Erp.RecurringJob/obj/project.assets.json

@@ -1,0 +1,32 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace Inspire.Erp.Domain.Entities
+{
+    public partial class ReportProjectStatus
+    {
+
+        public long? A { get; set; }
+        public int? CustomerMasterCustomerId { get; set; }
+        public int? JobMasterJobId { get; set; }
+        public string JobMasterJobNo { get; set; }
+        public string CustomerMasterCustomerName { get; set; }
+        public string JobMasterJobName { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public decimal? JobMasterJobValue { get; set; }
+        public decimal? JobMasterJobVariationAmount { get; set; }
+        public decimal? RevisedValue { get; set; }
+        public decimal? CumValue { get; set; }
+        public decimal? DirectCost { get; set; }
+        public decimal? GrossProfit { get; set; }
+        public decimal? RetAmount { get; set; }
+        public decimal? AdvInvoice { get; set; }
+        public decimal? AdvRecovery { get; set; }
+        public decimal? Receivable { get; set; }
+        public decimal? VatAmount { get; set; }
+        public decimal? Received { get; set; }
+        public decimal? Balance { get; set; }
+            
+    }
+}
