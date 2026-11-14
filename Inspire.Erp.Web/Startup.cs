@@ -147,11 +147,11 @@ namespace Inspire.Erp.Web
             });
 
             // Static files
-            app.UseStaticFiles(new StaticFileOptions
-            {
-                FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "Upload/Pdfs")),
-                RequestPath = "/pdfs"
-            });
+            //app.UseStaticFiles(new StaticFileOptions
+            //{
+            //    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "Upload/Pdfs")),
+            //    RequestPath = "/pdfs"
+            //});
 
             // Logging
             loggerFactory.AddFile($@"{Directory.GetCurrentDirectory()}\Logs\log.txt");
